@@ -17,7 +17,7 @@ export default class ProductPageHelper {
      * Gets product data from available sources (detail page or product card)
      * @param {string} productId
      * @param {HTMLElement|null} fallbackElement - Optional element to search for product card (e.g., form)
-     * @returns {{id: string|undefined, name: string|undefined, brand: string|undefined, currency: string|undefined, value: string|undefined}}
+     * @returns {{id: string|undefined, name: string|undefined, brand: string|undefined, variant: string|undefined, currency: string|undefined, value: string|undefined}}
      */
     static getProductData(productId, fallbackElement = null) {
         const detailData = ProductPageHelper.getProductDetailData();
@@ -33,6 +33,7 @@ export default class ProductPageHelper {
             id: cardData.id,
             name: cardData.name,
             brand: cardData.brand,
+            variant: cardData.variant,
             currency: detailData.currency,
             value: cardData.value,
         };
@@ -40,7 +41,7 @@ export default class ProductPageHelper {
 
     /**
      * Gets product data from product detail page
-     * @returns {{id: string|undefined, name: string|undefined, brand: string|undefined, currency: string|undefined, value: string|undefined}}
+     * @returns {{id: string|undefined, name: string|undefined, brand: string|undefined, variant: string|undefined, currency: string|undefined, value: string|undefined}}
      */
     static getProductDetailData() {
         if (Feature.isActive('JSON_LD_DATA')) {
@@ -50,6 +51,8 @@ export default class ProductPageHelper {
                 id: productData.sku,
                 name: productData.name,
                 brand: productData.brand,
+                // JSON-LD has no field for the selected options, so the variant is read from the DOM on both paths
+                variant: ProductPageHelper.getVariant(),
                 currency: productData.currency || window.currencyIsoCode,
                 value: productData.value,
             };
@@ -59,6 +62,7 @@ export default class ProductPageHelper {
             id: ProductPageHelper.getSku(),
             name: document.querySelector('.product-detail-name')?.textContent.trim(),
             brand: ProductPageHelper.getBrand(),
+            variant: ProductPageHelper.getVariant(),
             currency: ProductPageHelper.getCurrency(),
             value: ProductPageHelper.getValue(),
         };
@@ -83,7 +87,7 @@ export default class ProductPageHelper {
      * Gets product data from product card (listing page)
      * @param {string} productId
      * @param {HTMLElement|null} fallbackElement - Optional element to search for product card
-     * @returns {{id: string|undefined, name: string|undefined, brand: string|undefined, value: string|undefined}}
+     * @returns {{id: string|undefined, name: string|undefined, brand: string|undefined, variant: string|undefined, value: string|undefined}}
      */
     static getProductCardData(productId, fallbackElement = null) {
         const productCard = ProductPageHelper.getProductCard(productId, fallbackElement);
@@ -98,6 +102,7 @@ export default class ProductPageHelper {
                 id: info.sku ?? productId,
                 name: info.name,
                 brand: info.brand,
+                variant: info.variant,
                 value: info.price,
             };
         } catch {
@@ -127,6 +132,49 @@ export default class ProductPageHelper {
         }
 
         return document.querySelector('[itemprop="brand"] [itemprop="name"]')?.content;
+    }
+
+    /**
+     * Gets the selected variant options from the product detail page, e.g. `Red, L`
+     * @returns {string|undefined}
+     */
+    static getVariant() {
+        return document.querySelector('[data-product-variant]')?.getAttribute('data-product-variant') || undefined;
+    }
+
+    /**
+     * The unit price a graduated price table charges for a quantity. The `product:price:amount`
+     * meta tag carries the cheapest tier for search engines, so it is the wrong price for most
+     * quantities of a product with graduated prices.
+     *
+     * Every tier but the last applies up to and including its quantity, the last from its quantity.
+     *
+     * @param {HTMLElement|null} element an element inside the buy widget
+     * @param {number|string} quantity
+     * @returns {number|undefined} undefined without graduated prices
+     */
+    static getGraduatedPrice(element, quantity) {
+        const pricesElement = element?.closest?.('[data-product-prices]');
+        if (!pricesElement) {
+            return undefined;
+        }
+
+        let tiers;
+        try {
+            tiers = JSON.parse(pricesElement.getAttribute('data-product-prices'));
+        } catch {
+            return undefined;
+        }
+
+        if (!Array.isArray(tiers) || tiers.length === 0) {
+            return undefined;
+        }
+
+        const amount = Number(quantity) || 1;
+        const tier = tiers.find((candidate, index) => index < tiers.length - 1 && amount <= candidate.quantity)
+            ?? tiers[tiers.length - 1];
+
+        return tier.price;
     }
 
     /**

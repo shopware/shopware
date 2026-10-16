@@ -93,6 +93,76 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         }));
     });
 
+    describe('graduated prices and variants', () => {
+        function submitFromBuyWidget(quantity, cartMarkup = '') {
+            document.body.innerHTML = `
+                <meta property="product:price:amount" content="10">
+                <h1 class="product-detail-name">Shirt</h1>
+                <div class="product-detail-buy" data-product-variant="Red, L"
+                     data-product-prices='[{"quantity":10,"price":20},{"quantity":11,"price":15}]'>
+                    <div class="form-slot"></div>
+                </div>
+                ${cartMarkup}
+            `;
+
+            const addToCartInstance = createMockPluginInstance();
+            document.querySelector('.form-slot').appendChild(addToCartInstance.el);
+            addToCartInstances.push(addToCartInstance);
+
+            new AddToCartEvent().execute();
+
+            const formData = new FormData();
+            formData.append('lineItems[product-1][id]', 'product-1');
+            formData.append('lineItems[product-1][quantity]', String(quantity));
+            addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+            return window.gtag.mock.calls.find(call => call[1] === 'add_to_cart')[2];
+        }
+
+        test('reports the tier price of the added quantity and the variant', () => {
+            const parameters = submitFromBuyWidget(2);
+
+            expect(parameters.value).toBe(40);
+            expect(parameters.items[0]).toEqual(expect.objectContaining({
+                'price': 20,
+                'quantity': 2,
+                'item_variant': 'Red, L',
+            }));
+        });
+
+        test('reports the tier of the quantity the cart holds after the add', () => {
+            const parameters = submitFromBuyWidget(2, `
+                <div class="hidden-line-items-information">
+                    <span class="hidden-line-item" data-id="product-1" data-line-item-id="product-1" data-quantity="9"></span>
+                </div>
+            `);
+
+            expect(parameters.value).toBe(30);
+            expect(parameters.items[0].price).toBe(15);
+        });
+
+        // a theme can render the hidden line items without the line item id
+        test('matches the line by the product id without a line item id', () => {
+            const parameters = submitFromBuyWidget(2, `
+                <div class="hidden-line-items-information">
+                    <span class="hidden-line-item" data-id="product-1" data-quantity="9"></span>
+                </div>
+            `);
+
+            expect(parameters.items[0].price).toBe(15);
+        });
+
+        test('ignores a line of the same product under another line item id', () => {
+            const parameters = submitFromBuyWidget(2, `
+                <div class="hidden-line-items-information">
+                    <span class="hidden-line-item" data-id="product-1" data-line-item-id="other-line" data-quantity="9"></span>
+                </div>
+            `);
+
+            expect(parameters.items[0].price).toBe(20);
+        });
+    });
+
     describe('cart payload of a product element', () => {
         const breadcrumb = `
             <nav aria-label="breadcrumb">
@@ -400,7 +470,7 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         addToCartInstance.el.setAttribute('data-analytics-currency', 'USD');
         addToCartInstance.el.innerHTML = `
             <span data-analytics-line-item data-id="product-1" data-sku="SW-1" data-name="Shirt" data-price="19.99" data-quantity="2"
-                  data-brand="Brand" data-category-1="Clothing" data-category-2="Shirts"></span>
+                  data-brand="Brand" data-variant="Red, XL" data-category-1="Clothing" data-category-2="Shirts"></span>
             <span data-analytics-line-item data-id="product-2" data-sku="SW-2" data-name="Cap" data-price="5" data-quantity="3" data-brand=""></span>
         `;
         addToCartInstance.$emitter = new NativeEventEmitter(addToCartInstance.el);
@@ -419,7 +489,7 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
             'currency': 'USD',
             'value': 54.98,
             'items': [
-                { item_id: 'SW-1', item_name: 'Shirt', quantity: 2, price: 19.99, item_brand: 'Brand', item_category: 'Clothing', item_category2: 'Shirts' },
+                { item_id: 'SW-1', item_name: 'Shirt', quantity: 2, price: 19.99, item_brand: 'Brand', item_variant: 'Red, XL', item_category: 'Clothing', item_category2: 'Shirts' },
                 { item_id: 'SW-2', item_name: 'Cap', quantity: 3, price: 5 },
             ],
         });

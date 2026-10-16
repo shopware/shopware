@@ -334,6 +334,10 @@ This will allow async payment methods to leave the order transaction in "unconfi
 
 Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a query that matches promotion line items by `promotion_id` alone.
 
+### Set null on delete also applies to cascaded deletes
+
+When the DAL deletes an entity, `SetNullOnDelete` associations of the entities removed through `CascadeDelete` are now resolved as well, not only those of the deleted entity itself. For associations without a database constraint (`SetNullOnDelete(false)`) the reference is set to `null` and a write result is dispatched for the updated entity. For example, deleting a media that is used as a product cover now clears `product.coverId`. Entities that are deleted in the same operation are not updated, so deleting a product with a cover still reports the product, and its variants, as deleted.
+
 ### Large MCP tool results from extensions are offloaded like core results
 
 MCP tools from plugins and bundles that extend `McpToolResponse` now store results larger than 100 KB in the tool-result cache on the Admin API endpoint, like core tools already did. The response then contains `_meta.resourceUri` instead of the full data, and the model reads the data with `resources/read`. Before, these results were always returned inline. On the Store API endpoint, results stay inline until it has a tool-result resource to read them back.

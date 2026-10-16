@@ -89,14 +89,40 @@ class ScriptLifecycleHandler extends AbstractLifecycleHandler
 
         $appIds = $this->appRepository->searchIds($criteria, $context)->getIds();
 
-        foreach ($appIds as $appId) {
-            $this->updateScripts($appId, $context);
+        if ($appIds === []) {
+            return;
         }
+
+        // the scripts of every app are loaded together instead of one app per iteration
+        $criteria = new Criteria($appIds);
+        $criteria->addAssociation('scripts');
+
+        $upserts = [];
+        $deletes = [];
+
+        foreach ($this->appRepository->search($criteria, $context)->getEntities() as $app) {
+            $this->collectScriptChanges($app, $upserts, $deletes);
+        }
+
+        $this->writeScriptChanges($upserts, $deletes, $context);
     }
 
     private function updateScripts(string $appId, Context $context): void
     {
-        $app = $this->getAppWithExistingScripts($appId, $context);
+        $upserts = [];
+        $deletes = [];
+
+        $this->collectScriptChanges($this->getAppWithExistingScripts($appId, $context), $upserts, $deletes);
+
+        $this->writeScriptChanges($upserts, $deletes, $context);
+    }
+
+    /**
+     * @param list<array<string, mixed>> $upserts
+     * @param list<array{id: string}> $deletes
+     */
+    private function collectScriptChanges(AppEntity $app, array &$upserts, array &$deletes): void
+    {
         $existingScripts = $app->getScripts();
         \assert($existingScripts !== null);
 
@@ -118,7 +144,7 @@ class ScriptLifecycleHandler extends AbstractLifecycleHandler
                 }
                 $payload['id'] = $existing->getId();
             } else {
-                $payload['appId'] = $appId;
+                $payload['appId'] = $app->getId();
                 $payload['active'] = $app->isActive();
                 $payload['name'] = $scriptPath;
                 $payload['hook'] = explode('/', $scriptPath)[0];
@@ -127,21 +153,23 @@ class ScriptLifecycleHandler extends AbstractLifecycleHandler
             $upserts[] = $payload;
         }
 
+        foreach (array_values($existingScripts->getIds()) as $id) {
+            $deletes[] = ['id' => $id];
+        }
+    }
+
+    /**
+     * @param list<array<string, mixed>> $upserts
+     * @param list<array{id: string}> $deletes
+     */
+    private function writeScriptChanges(array $upserts, array $deletes, Context $context): void
+    {
         if ($upserts !== []) {
             $this->scriptRepository->upsert($upserts, $context);
         }
 
-        $this->deleteOldScripts($existingScripts, $context);
-    }
-
-    private function deleteOldScripts(ScriptCollection $toBeRemoved, Context $context): void
-    {
-        $ids = $toBeRemoved->getIds();
-
-        if ($ids !== []) {
-            $ids = array_map(static fn (string $id): array => ['id' => $id], array_values($ids));
-
-            $this->scriptRepository->delete($ids, $context);
+        if ($deletes !== []) {
+            $this->scriptRepository->delete($deletes, $context);
         }
     }
 

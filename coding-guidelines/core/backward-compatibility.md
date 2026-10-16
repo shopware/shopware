@@ -1,6 +1,7 @@
 # Backward compatibility
 
-This file is the single source of truth for backward compatibility (BC), deprecations and breaking changes in this repository. Where another page disagrees, this file wins.
+This file is the single source of truth for backward compatibility (BC), deprecations and breaking changes in this repository.
+Where another page disagrees, this file wins.
 
 A major ships only justified breaking changes.
 
@@ -9,8 +10,10 @@ A major ships only justified breaking changes.
 A change is a meaningful breaking change if "a merchant, agency, extension partner, app developer, theme developer, integration, or hosting setup needs to change something in order to upgrade successfully".
 
 - Judge the change by what a third party can observe, not only by whether a class or method signature changed.
-- Behaviour, configuration and operations changes count even when every existing call still works: a checkout warning that fires in new situations, a stored value that is written differently, a removed snippet key; a removed config key, a changed default, a new required setting or runtime requirement. Rewording a snippet or fixing a typo is not a break.
-- Changes to `@internal` and `@experimental` code, private code, protected members of `@final` classes, and tests are not breaks. Removing an experimental feature is the exception; see [Flags and experimental](#flags-and-experimental).
+- Behaviour, configuration and operations changes count even when every existing call still works: a checkout warning that fires in new situations, a stored value that is written differently, a removed snippet key; a removed config key, a changed default, a new required setting or runtime requirement.
+  Rewording a snippet or fixing a typo is not a break.
+- Changes to `@internal` and `@experimental` code, private code, protected members of `@final` classes, and tests are not breaks.
+  Removing an experimental feature is the exception; see [Flags and experimental](#flags-and-experimental).
 
 Classify every externally relevant change with one type, and name every affected audience: Extensions, Apps, Themes, Custom Code, Integrations, Agencies, Ops.
 
@@ -33,25 +36,36 @@ A break is acceptable only if:
 4. its ecosystem impact is understood,
 5. and it only takes effect in the next major version.
 
-Accidental breaks are defects. Fix them like any other bug, in the release line where they shipped.
+Accidental breaks are defects.
+Fix them like any other bug, in the release line where they shipped.
 
 Keep the break proportional to its benefit: weigh the work it saves the core team against the upgrade work it creates for consumers.
 
 - Ask first whether an adapter or an additive change delivers the same benefit at lower combined cost.
 - When usage is significant, keep a forwarding shim or a compatibility path: a forwarding template, a class alias, a delegating decorator, a fallback for the old input.
-- Unknown usage is not evidence of no impact. Missing usage data is a task with an owner. If the removal is still necessary, document the trade-off and the mitigation.
+- Unknown usage is not evidence of no impact.
+  Missing usage data is a task with an owner.
+  If the removal is still necessary, document the trade-off and the mitigation.
 - A major version is not automatically a container for breaking changes.
 
-Answer four questions in the PR for every break: What breaks? Who is affected? Can we avoid the break? What do we do with it: keep, make compatible, postpone, remove from the major, or discuss?
+Answer four questions in the PR for every break:
+
+- What breaks?
+- Who is affected?
+- Can we avoid the break?
+- What do we do with it: keep, make compatible, postpone, remove from the major, or discuss?
 
 ## Public API is every extension surface
 
-Public API is every surface that external code relies on, not only the HTTP APIs. Every public extension point is a long-term compatibility promise:
+Public API is every surface that external code relies on, not only the HTTP APIs.
+Every public extension point is a long-term compatibility promise:
 
-- PHP: classes, interfaces, traits, and public or protected methods, properties and constants that are not `@internal`. See [internal.md](internal.md) and [final-and-internal.md](final-and-internal.md).
+- PHP: classes, interfaces, traits, and public or protected methods, properties and constants that are not `@internal`.
+  See [internal.md](internal.md) and [final-and-internal.md](final-and-internal.md).
 - DI: public service ids, service aliases, arguments of supported services, and tags with a required contract.
 - Events: event classes, names and payloads; extension events with their `NAME` and public properties.
-- Store API and Admin API: routes, methods, request parameters, response fields, headers, status codes and error codes. DAL entity definitions are public because they map to the generic CRUD API.
+- Store API and Admin API: routes, methods, request parameters, response fields, headers, status codes and error codes.
+  DAL entity definitions are public because they map to the generic CRUD API.
 - Storefront Twig: template paths, blocks, functions, filters, globals and the variables available in each block scope.
 - Storefront assets: JS plugins with their names, options and emitted events; JS services and helpers; CSS selectors; SCSS variables and mixins; theme config variables; snippet keys.
 - Administration: components, props, events, slots, Twig blocks, module routes, `Shopware.*` globals, services, stores and Meteor SDK position identifiers.
@@ -59,33 +73,44 @@ Public API is every surface that external code relies on, not only the HTTP APIs
 - Configuration: `shopware.yaml` keys, system config keys, environment variables and their defaults; CLI command names, options and machine-readable output.
 - Major feature flag names, such as `v6.8.0.0`.
 
-Adding public API gets the same scrutiny as a break. Ask: "Do we really want to support this API for the foreseeable future?"
+Adding public API gets the same scrutiny as a break.
+Ask: "Do we really want to support this API for the foreseeable future?"
 
-- New extension points are the exception, not the default. Prefer an existing mechanism; see [extendability.md](extendability.md).
+- New extension points are the exception, not the default.
+  Prefer an existing mechanism; see [extendability.md](extendability.md).
 - Mark implementation classes `@internal` and supported concrete classes `@final` ([internal.md](internal.md#final-classes)).
 - New Store API routes use extension events, not abstract route classes ([ADR](../../adr/2026-09-24-replace-abstract-route-classes-with-extension-events.md)).
 
 ### New extension points stay open
 
-An extension point that only core can use is not an extension point. When extensions can add parts, such as a document type, a form, a page type or a header, the same mechanism must let them add the data and behaviour of those parts.
+An extension point that only core can use is not an extension point.
+When extensions can add parts, such as a document type, a form, a page type or a header, the same mechanism must let them add the data and behaviour of those parts.
 
 - Use a registry or tagged services instead of a closed enum or a fixed list of core cases in an interface that third parties implement.
 - Give plugins the mechanism core uses for its own data: typed request objects and DTOs with `Struct` extensions.
-- A provider-style extension point lets extensions remove or override core defaults, not only add to them. Ship the core defaults through a core provider.
+- A provider-style extension point lets extensions remove or override core defaults, not only add to them.
+  Ship the core defaults through a core provider.
 
 ## Deprecation and announcement
 
-A deprecation announces that a contract breaks in the next major; removal is the later step. Every deprecation states what is deprecated, the version in which it breaks (a three-part tag such as `@deprecated tag:v6.8.0`, not the four-part flag id), what to use instead, whether the migration is mechanical or behavioural, which surface is affected, and whether callers or extenders break.
+A deprecation announces that a contract breaks in the next major; removal is the later step.
+Every deprecation states what is deprecated, the version in which it breaks (a three-part tag such as `@deprecated tag:v6.8.0`, not the four-part flag id), what to use instead, whether the migration is mechanical or behavioural, which surface is affected, and whether callers or extenders break.
 
-- The replacement must exist and be usable from userland (plugin, app or theme code) when the deprecation is announced. If it only ships behind a major flag, mark the deprecation `silentUntil:`.
-- Executable deprecated code calls `Feature::triggerDeprecationOrThrow()`. It warns before the major and throws once the major flag is active.
-- Core never triggers its own deprecations. Move core callers to the replacement; where core must keep calling the old path, wrap the call in `Feature::silent()`.
-- Use `@deprecated` only when the symbol goes away or is replaced. A symbol that stays but changes gets a BC-change attribute, not a `@deprecated` annotation.
+- The replacement must exist and be usable from extension code (plugins and apps) when the deprecation is announced.
+  If it only ships behind a major flag, mark the deprecation `silentUntil:`.
+- Executable deprecated code calls `Feature::triggerDeprecationOrThrow()`.
+  It warns before the major and throws once the major flag is active.
+- Core never triggers its own deprecations.
+  Move core callers to the replacement; where core must keep calling the old path, wrap the call in `Feature::silent()`.
+- Use `@deprecated` only when the symbol goes away or is replaced.
+  A symbol that stays but changes gets a BC-change attribute, not a `@deprecated` annotation.
 - Keep legacy behaviour in focused tests that are deleted together with the deprecation.
 
-Mechanics live in [feature-flags.md](feature-flags.md): see "Announcing a deprecation before its replacement is stable", "Planning public API changes" and "Moving a class". PHP rules are in the [shopware-php-code skill](../../.agents/skills/shopware-php-code/SKILL.md) (Deprecations). Administration rules are in [feature-flags-and-deprecations.md](../administration/feature-flags-and-deprecations.md) and the [Admin deprecation guards ADR](../../adr/2026-08-10-administration-javascript-deprecation-guards.md).
+Mechanics live in [feature-flags.md](feature-flags.md): see "Announcing a deprecation before its replacement is stable", "Planning public API changes" and "Moving a class".
+PHP rules are in the [shopware-php-code skill](https://github.com/shopware/shopware/blob/trunk/.agents/skills/shopware-php-code/SKILL.md) (Deprecations).
+Administration rules are in [feature-flags-and-deprecations.md](https://github.com/shopware/shopware/blob/trunk/coding-guidelines/administration/feature-flags-and-deprecations.md) and the [Admin deprecation guards ADR](../../adr/2026-08-10-administration-javascript-deprecation-guards.md).
 
-Announce a planned change to a symbol that stays with an attribute from [`BCChange`](../../src/Core/Framework/Deprecation/BCChange/); a caller invokes the symbol, including `parent::` calls, an extender subclasses or overrides it.
+Announce a planned change to a symbol that stays with an attribute from [`BCChange`](https://github.com/shopware/shopware/tree/trunk/src/Core/Framework/Deprecation/BCChange); a caller invokes the symbol, including `parent::` calls, an extender subclasses or overrides it.
 
 | Attribute | Meaning | Breaks |
 | --- | --- | --- |
@@ -112,15 +137,24 @@ Announce a planned change to a symbol that stays with an attribute from [`BCChan
 
 ## Flags and experimental
 
-- A flag does not make a change backward compatible. The flag-off path must behave like the previous release. The flag-on path is the next major and still needs a deprecation, a migration path and upgrade documentation.
-- `@experimental` code is outside the BC promise, but consumers who adopted it still pay for a removal. Do not remove an experimental feature in a minor; deprecate it for the next major ([ADR](../../adr/2023-05-10-experimental-features.md)). Migrate its data; never discard it.
+- A flag does not make a change backward compatible.
+  The flag-off path must behave like the previous release.
+  The flag-on path is the next major and still needs a deprecation, a migration path and upgrade documentation.
+- `@experimental` code is outside the BC promise, but consumers who adopted it still pay for a removal.
+  Do not remove an experimental feature in a minor; deprecate it for the next major ([ADR](../../adr/2023-05-10-experimental-features.md)).
+  Migrate its data; never discard it.
 - Test both flag states while both paths are supported; see [feature-flags.md](feature-flags.md) ("Using flags in tests").
-- Major flag names are public API, because plugins use them as a version switch. Do not remove or rename a major flag. At the major, remove the flag checks and the legacy branches; the major flag stays registered in `feature.yaml` (default on, not toggleable) and does nothing. Every other flag is removed from `feature.yaml` once it is enabled.
-- State in the PR, per surface, whether the flag is read at build time or at runtime. Changing an environment value does not rebuild Administration or Storefront assets.
+- Major flag names are public API, because plugins use them as a version switch.
+  Do not remove or rename a major flag.
+  At the major, remove the flag checks and the legacy branches; the major flag stays registered in `feature.yaml` (default on, not toggleable) and does nothing.
+  Every other flag is removed from `feature.yaml` once it is enabled.
+- State in the PR, per surface, whether the flag is read at build time or at runtime.
+  Changing an environment value does not rebuild Administration or Storefront assets.
 
 ## Per-surface rules
 
-"Minor" means minor and patch releases. Everything under "Not in a minor" needs the deprecation workflow and lands in the next major.
+"Minor" means minor and patch releases.
+Everything under "Not in a minor" needs the deprecation workflow and lands in the next major.
 
 ### PHP
 
@@ -131,8 +165,15 @@ Announce a planned change to a symbol that stays with an attribute from [`BCChan
 - Allowed: add a parameter through `func_get_arg()` and announce it with `#[NewOptionalParameter]` or `#[NewRequiredParameter]`.
 - Allowed: move a class with `#[ClassMoved]` and a class alias.
 - Not in a minor: remove or rename a public or protected class, method, property or constant.
-- Not in a minor: change the value of a public constant. Add a new constant instead.
-- Not in a minor: change a type, visibility, `static` or `final`. Announce it with a BC-change attribute and apply it in the major. PHPDoc types count too: narrowing `array<string, Foo>` to `list<Foo>` breaks the PHPStan run of every plugin that relies on the old type.
+- Not in a minor: change the value of a public constant.
+  Add a new constant instead.
+- A private constant may change, but check where its value ends up.
+  If it is stored in the database, add a migration that updates the stored values as well.
+- Not in a minor: change a type, visibility, `static` or `final`.
+  Announce it with a BC-change attribute and apply it in the major.
+  PHPDoc types count too: narrowing `array<string, Foo>` to `list<Foo>` breaks the PHPStan run of every plugin that relies on the old type.
+- A return type change that is neither a narrowing nor a widening has no BC-change attribute.
+  Add a new method with the new return type and deprecate the old one.
 - Not in a minor: add a method to an interface, or an abstract method to an abstract class.
 - Not in a minor: remove an event, stop dispatching it, or remove a payload field.
 - Not in a minor: rename or remove a public service id or alias; keep a deprecated alias.
@@ -144,7 +185,8 @@ Listeners and decorators depend on when core calls them and on what they see, no
 - Not in a minor: dispatch an existing event at a different point, so that listeners see other data.
 - Not in a minor: read a value from the input before the extension event that may still change it.
 - Not in a minor: reset or overwrite what listeners added to a shared object, for example sortings added in a criteria event.
-- Not in a minor: narrow a type hint from the abstract decorator base to the concrete core class, or branch on the exact class (`$service::class === Foo::class`). Check an interface or a marker instead.
+- Not in a minor: narrow a type hint from the abstract decorator base to the concrete core class, or branch on the exact class (`$service::class === Foo::class`).
+  Check an interface or a marker instead.
 - When an existing event starts to fire in more situations, document it in the release notes.
 
 ### Database
@@ -154,15 +196,19 @@ Mechanics and the expand-and-contract pattern are in [database-migations.md](dat
 - Allowed: add tables, nullable columns, columns with defaults, and indexes in `update()`.
 - Allowed: add entity fields and associations.
 - Allowed: add a new column, copy the data, and keep the old column until the major.
-- Not in a minor: drop or rename a table or column. Destructive steps go into `updateDestructive()` of the next major.
-- Not in a minor: break blue-green deployment. The previous major release must still run on the new schema.
-- Not in a minor: remove or rename an entity field, or make an optional field required. This also changes the Admin API.
+- Not in a minor: drop or rename a table or column.
+  Destructive steps go into `updateDestructive()` of the next major.
+- Not in a minor: break blue-green deployment.
+  The previous major release must still run on the new schema.
+- Not in a minor: remove or rename an entity field, or make an optional field required.
+  This also changes the Admin API.
 - Never: change a released migration, or overwrite customized data ([rules 1 and 5](database-migations.md#important-rules)).
 
 ### Store and Admin API
 
 - Allowed: add routes, optional request parameters and response fields.
-- Store API route classes and Admin API controllers are not `@internal`; the [PHP rules](#php) apply to them in addition to the route contract. Only Storefront controllers are `@internal`, so there the route contract alone is public.
+- Store API route classes and Admin API controllers are not `@internal`; the [PHP rules](#php) apply to them in addition to the route contract.
+  Only Storefront controllers are `@internal`, so there the route contract alone is public.
 - Allowed: mark a new route `Experimental` in its OpenAPI schema while the feature is experimental.
 - Not in a minor: remove or rename a route, HTTP method, parameter, header or response field.
 - Not in a minor: add a required parameter, or narrow the accepted values.
@@ -175,8 +221,10 @@ Mechanics and the expand-and-contract pattern are in [database-migations.md](dat
 
 Clients and SDKs are generated from the OpenAPI schema, so an imprecise schema is a broken contract even when the PHP code is right.
 
-- Mark every response field that is always sent as `required`, even when its value can be empty. Mark a request field `required` only when the route rejects requests without it.
-- Use `enum` or `const` for fixed values. Avoid `additionalProperties` on shapes that clients read; extension data belongs in the `extensions` field.
+- Mark every response field that is always sent as `required`, even when its value can be empty.
+  Mark a request field `required` only when the route rejects requests without it.
+- Use `enum` or `const` for fixed values.
+  Avoid `additionalProperties` on shapes that clients read; extension data belongs in the `extensions` field.
 - Describe what each field means and when it is present, and update the description when the meaning changes.
 - Define every error response a route can return, with its status code.
 - State whether a parameter is read from the query, the body or a header, and let a schema pattern accept exactly the values the server accepts.
@@ -187,8 +235,11 @@ Clients and SDKs are generated from the OpenAPI schema, so an imprecise schema i
 - Allowed: add templates, blocks that do not change variable scope, variables, JS plugins, plugin options with defaults, and events.
 - Allowed: change a Twig variable's value while keeping its type; move a variable definition up to an outer block.
 - Allowed: change purely visual CSS properties.
+- Change generic Bootstrap selectors and the properties of generic Bootstrap classes only for small visual fixes.
+  A structural change to them changes the layout of every theme; treat it like a structural CSS property.
 - Allowed: change `@private` JS members freely; they are not a public contract.
-- Not in a minor: remove, rename or move a Twig block; any move breaks theme overrides. Deprecate the block with a `{# @deprecated tag:vX.Y.0 - ... #}` comment above it; for a rename, wrap the old block in the new one.
+- Not in a minor: remove, rename or move a Twig block; any move breaks theme overrides.
+  Deprecate the block with a `{# @deprecated tag:vX.Y.0 - ... #}` comment above it; for a rename, wrap the old block in the new one.
 - Not in a minor: wrap existing content in a new block that changes the scope of variables.
 - Not in a minor: remove or rename Twig variables, functions, filters or templates, or change a variable's type.
 - Not in a minor: remove HTML sections, or move them into another block.
@@ -202,12 +253,15 @@ Clients and SDKs are generated from the OpenAPI schema, so an imprecise schema i
 - Allowed: add optional trailing parameters, or new keys to a destructured object parameter.
 - Allowed: change `@private` and `_`-prefixed members freely ([ADR](../../adr/2026-08-10-administration-javascript-deprecation-guards.md)).
 - Not in a minor: rename or remove components, props, slots, Twig blocks, events, methods, module routes or route parameters.
-- Not in a minor: add a required prop. Add it as optional and warn when it is missing.
+- Not in a minor: add a required prop.
+  Add it as optional and warn when it is missing.
 - Not in a minor: change `ref` attributes, `v-if`, `v-model` or `v-bind` bindings that overrides rely on.
 - Not in a minor: change the public API of `Shopware.*`, registered services or stores.
 - Not in a minor: rename or remove position identifiers, assets or imports, functional selectors or root CSS selectors.
-- Not in a minor: stop calling a method or service that plugins override, for example by switching core to a new method or by ignoring an argument of a documented call signature. The override still loads, but has no effect.
-- Mark new components, services and methods `@private` until their API is meant to be public. Everything else is public from its first release.
+- Not in a minor: stop calling a method or service that plugins override, for example by switching core to a new method or by ignoring an argument of a documented call signature.
+  The override still loads, but has no effect.
+- Mark new components, services and methods `@private` until their API is meant to be public.
+  Everything else is public from its first release.
 - Put logic in methods or computed properties, not in template expressions, so that overrides can change it through `$super`.
 
 ### App system
@@ -225,20 +279,23 @@ Clients and SDKs are generated from the OpenAPI schema, so an imprecise schema i
 
 - Allowed: add config keys, environment variables and CLI options whose defaults keep the current behaviour.
 - Add every new `shopware.yaml` key to `config-schema.json` and declare its default in the shipped package configuration, not only in the test configuration.
-- Not in a minor: remove or rename a config key or environment variable. Keep reading the old name until the major.
+- Not in a minor: remove or rename a config key or environment variable.
+  Keep reading the old name until the major.
 - Not in a minor: change a default that changes behaviour.
 - Not in a minor: require new infrastructure or setup, such as a new messenger transport to consume or a database setting.
 - Not in a minor: rename or remove CLI commands, options or machine-readable output fields, change exit codes, or make an existing invocation fail or behave differently.
 - Raising the minimum PHP, database or search engine version is a hosting requirement change: announce it in `RELEASE_INFO` at least one minor ahead and document it in the system requirements; never ship it silently.
-- A new scheduled task changes what runs in every shop. Announce it in `RELEASE_INFO` with its interval and how to switch it off; `@experimental` tasks are no exception.
+- A new scheduled task changes what runs in every shop.
+  Announce it in `RELEASE_INFO` with its interval and how to switch it off; `@experimental` tasks are no exception.
 
 ## Enforced by CI
 
-These checks run on every PR. Do not re-check by hand what they catch.
+These checks run on every PR.
+Do not re-check by hand what they catch.
 
 | Check | What it catches |
 | --- | --- |
-| `bc-checker` job ([php.yml](../../.github/workflows/php.yml)) | PHP signature breaks against the PR base, or the last release tag outside PRs; skips `@internal`, PRs into a `/feature/` base branch, and breaks listed with a reason in `.bc-exclude.php`. |
+| `bc-checker` job ([php.yml](https://github.com/shopware/shopware/blob/trunk/.github/workflows/php.yml)) | PHP signature breaks against the PR base, or the last release tag outside PRs; skips `@internal`, PRs into a `/feature/` base branch, and breaks listed with a reason in `.bc-exclude.php`. |
 | `InternalClassRule` | Test classes, Storefront controllers, bundles, compiler passes, migrations and message handlers must be `@internal`; subscribers and subclasses of an `@internal` abstract class may be `@final` instead. |
 | `InternalMethodRule` | DI service constructors without `@internal`, or with a deprecation annotation. |
 | `DeprecatedMethodsThrowDeprecationRule` | Deprecated methods and classes that do not call `Feature::triggerDeprecationOrThrow()`. |
@@ -258,8 +315,10 @@ These checks run on every PR. Do not re-check by hand what they catch.
 | OpenAPI snapshot bot (`openapi-lint` job) | Posts the API schema diff on the PR; Redocly lint and the Store API schema migration report fail on mismatches. |
 | ESLint `require-position-identifier` | Administration components without a required Meteor SDK position identifier. |
 
-CI does not catch behaviour changes, changed defaults, Twig variable scope, Administration and Storefront JS API changes, or HTTP response semantics. Review those by hand.
+CI does not catch behaviour changes, changed defaults, Twig variable scope, Administration and Storefront JS API changes, or HTTP response semantics.
+Review those by hand.
 
 ## Documenting a break
 
-Every deprecation, break and externally relevant behaviour or configuration change gets release documentation in the same PR. Follow the [shopware-release-docs skill](../../.agents/skills/shopware-release-docs/SKILL.md) for what to write and where, and [documenting-a-release.md](../../delivery-process/documenting-a-release.md) for the process.
+Every deprecation, break and externally relevant behaviour or configuration change gets release documentation in the same PR.
+Follow the [shopware-release-docs skill](https://github.com/shopware/shopware/blob/trunk/.agents/skills/shopware-release-docs/SKILL.md) for what to write and where, and [documenting-a-release.md](https://github.com/shopware/shopware/blob/trunk/delivery-process/documenting-a-release.md) for the process.

@@ -37,12 +37,15 @@ Developers edit these files directly in the repository.
 * everything else we changed that developers should be aware of
 * Critical bugs (not every bug, therefore we have the complete changelog, but critical ones, esp when we do a patch release because of them should be documented)
 
-Remember: Describe **what** changed, **who** is affected, and **how** to adapt. Add one sentence on **why** when it tells developers how urgent the change is, for example a bug, a security or a performance problem. Leave out how it works internally and the history of the problem.
+Remember: Describe **what** changed, **who** is affected, and **how** to adapt.
+Add one sentence on **why** when it tells developers how urgent the change is, for example a bug, a security or a performance problem.
+Leave out how it works internally and the history of the problem.
 
 ### What needs to go into the UPGRADE file?
 
 * Everything that might cause a break in projects, extensions, integrations etc.
-* Especially every break defined by our backwards compatibility promise needs to be documented. See [Backward compatibility](../coding-guidelines/core/backward-compatibility.md).
+* Especially every break defined by our backwards compatibility promise needs to be documented.
+  See [Backward compatibility](../coding-guidelines/core/backward-compatibility.md).
 
 ### When you do not need to (explicitly) document a change
 
@@ -59,7 +62,8 @@ It’s primarily for internal engineers, support, and partners.
 Document a deprecation in both files, in the PR that introduces it:
 
 * In the `RELEASE_INFO` file, describe the replacement and who is affected.
-* In the `UPGRADE` file, describe what will break or be removed in the next major and how to migrate. Write this entry now, not later when the break takes effect.
+* In the `UPGRADE` file, describe what will break or be removed in the next major and how to migrate.
+  Write this entry now, not later when the break takes effect.
 
 ## What information do we need to provide per topic?
 

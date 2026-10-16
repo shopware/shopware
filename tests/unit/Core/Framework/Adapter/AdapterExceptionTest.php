@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Node\Expression\AbstractExpression;
+use Twig\Source;
 
 /**
  * @internal
@@ -19,6 +20,16 @@ use Twig\Node\Expression\AbstractExpression;
 #[CoversClass(AdapterException::class)]
 class AdapterExceptionTest extends TestCase
 {
+    public function testInvalidDeprecatedBlockDocumentation(): void
+    {
+        $source = new Source('', 'invalid.html.twig');
+        $exception = AdapterException::invalidDeprecatedBlockDocumentation(3, $source);
+
+        static::assertSame(3, $exception->getTemplateLine());
+        static::assertSame($source, $exception->getSourceContext());
+        static::assertSame('Deprecated block documentation must declare a removal version using "@deprecated tag:vX.Y.0" in "invalid.html.twig" at line 3.', $exception->getMessage());
+    }
+
     public function testUnsupportedOperator(): void
     {
         $exception = AdapterException::unsupportedOperator('$', 'testClass');

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Sitemap\Provider;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -213,6 +214,41 @@ class ProductUrlProviderTest extends TestCase
         static::assertCount(1, $urlResult->getUrls());
     }
 
+    public function testContainsOutOfStockVariantsInheritingCloseout(): void
+    {
+        $this->systemConfigService->set(self::CONFIG_HIDE_AFTER_CLOSEOUT, false, $this->salesChannelContext->getSalesChannelId());
+        [$outOfStockVariantId, $inStockVariantId] = $this->createVariantsInheritingCloseout();
+
+        $locations = $this->getLocations(3);
+
+        static::assertCount(2, $locations);
+        static::assertContains($this->getComparisonUrl($outOfStockVariantId), $locations);
+        static::assertContains($this->getComparisonUrl($inStockVariantId), $locations);
+    }
+
+    public function testContainsNoOutOfStockVariantsInheritingCloseout(): void
+    {
+        $this->systemConfigService->set(self::CONFIG_HIDE_AFTER_CLOSEOUT, true, $this->salesChannelContext->getSalesChannelId());
+        [$outOfStockVariantId, $inStockVariantId] = $this->createVariantsInheritingCloseout();
+
+        $locations = $this->getLocations(3);
+
+        static::assertSame([$this->getComparisonUrl($inStockVariantId)], $locations);
+        static::assertNotContains($this->getComparisonUrl($outOfStockVariantId), $locations);
+    }
+
+    public function testContainsOutOfStockCanonicalVariantInheritingCloseout(): void
+    {
+        $this->systemConfigService->set(self::CONFIG_HIDE_AFTER_CLOSEOUT, false, $this->salesChannelContext->getSalesChannelId());
+        [$outOfStockVariantId, , $parentId] = $this->createVariantsInheritingCloseout();
+        $this->productRepository->update(
+            [['id' => $parentId, 'canonicalProductId' => $outOfStockVariantId]],
+            $this->salesChannelContext->getContext()
+        );
+
+        static::assertSame([$this->getComparisonUrl($outOfStockVariantId)], $this->getLocations(3));
+    }
+
     public function testContainsHiddenProducts(): void
     {
         $this->systemConfigService->set(self::CONFIG_EXCLUDE_LINKED_PRODUCTS, false, $this->salesChannelContext->getSalesChannelId());
@@ -349,6 +385,59 @@ class ProductUrlProviderTest extends TestCase
             ]),
         ];
         $this->productRepository->create($products, $this->salesChannelContext->getContext());
+    }
+
+    /**
+     * @return array{string, string, string}
+     */
+    private function createVariantsInheritingCloseout(): array
+    {
+        $parentId = Uuid::randomHex();
+        $outOfStockVariantId = Uuid::randomHex();
+        $inStockVariantId = Uuid::randomHex();
+
+        $this->productRepository->create([
+            array_merge($this->getBasicProductData(), [
+                'id' => $parentId,
+                'productNumber' => Uuid::randomHex(),
+                'name' => 'closeout parent',
+                'isCloseout' => true,
+            ]),
+            array_merge($this->getBasicProductData(), [
+                'id' => $outOfStockVariantId,
+                'parentId' => $parentId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 0,
+            ]),
+            array_merge($this->getBasicProductData(), [
+                'id' => $inStockVariantId,
+                'parentId' => $parentId,
+                'productNumber' => Uuid::randomHex(),
+            ]),
+        ], $this->salesChannelContext->getContext());
+
+        static::assertSame(
+            ['is_closeout' => null, 'available' => '0'],
+            static::getContainer()->get(Connection::class)->fetchAssociative(
+                'SELECT is_closeout, available FROM product WHERE id = :id',
+                ['id' => Uuid::fromHexToBytes($outOfStockVariantId)]
+            )
+        );
+
+        return [$outOfStockVariantId, $inStockVariantId, $parentId];
+    }
+
+    /**
+     * @return array<string>
+     */
+    private function getLocations(int $limit): array
+    {
+        $host = $this->getHost($this->salesChannelContext);
+
+        return array_map(
+            static fn ($url) => $host . '/' . $url->getLoc(),
+            $this->getProductUrlProvider()->getUrls($this->salesChannelContext, $limit)->getUrls()
+        );
     }
 
     private function createHiddenVisibilityProduct(): void

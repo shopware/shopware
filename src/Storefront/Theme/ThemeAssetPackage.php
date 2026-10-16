@@ -23,7 +23,7 @@ class ThemeAssetPackage extends FallbackUrlPackage
         private readonly RequestStack $requestStack,
         private readonly AbstractThemePathBuilder $themePathBuilder
     ) {
-        parent::__construct($baseUrls, $versionStrategy);
+        parent::__construct($baseUrls, $versionStrategy, $requestStack);
     }
 
     public function getUrl(string $path): string

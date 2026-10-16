@@ -150,7 +150,7 @@ class DocumentGeneratorTest extends TestCase
         ]);
         $documentStruct = $this->documentGenerator->preview(InvoiceRenderer::TYPE, $operation, $order->getDeepLinkCode() ?? '', $this->context);
 
-        static::assertNotEmpty($documentStruct->getContent());
+        static::assertNotSame('', $documentStruct->getContent());
 
         $operation = new DocumentGenerateOperation(Uuid::randomHex());
 
@@ -169,7 +169,7 @@ class DocumentGeneratorTest extends TestCase
 
         $documentStruct = $this->documentGenerator->preview(InvoiceRenderer::TYPE, $operation, (string) $order->getDeepLinkCode(), $this->context);
 
-        static::assertNotEmpty($documentStruct->getContent());
+        static::assertNotSame('', $documentStruct->getContent());
     }
 
     public function testPreviewStorno(): void
@@ -218,7 +218,7 @@ class DocumentGeneratorTest extends TestCase
 
         $stornoStruct = $this->documentGenerator->preview(StornoRenderer::TYPE, $operation, (string) $order->getDeepLinkCode(), $this->context);
 
-        static::assertNotEmpty($stornoStruct->getContent());
+        static::assertNotSame('', $stornoStruct->getContent());
         static::assertStringContainsString('Cancellation 1000 for Invoice ' . $invoiceNumber, $stornoStruct->getContent());
         static::assertStringContainsString('Customer no. ' . $customerNo, $stornoStruct->getContent());
 
@@ -682,12 +682,12 @@ class DocumentGeneratorTest extends TestCase
         $operationInvoice = new DocumentGenerateOperation($this->orderId, PdfRenderer::FILE_EXTENSION, $documentConfiguration->jsonSerialize());
         $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operationInvoice], $this->context);
 
-        static::assertEmpty($result->getErrors());
-        static::assertNotEmpty($result->getSuccess()->getElements());
+        static::assertCount(0, $result->getErrors());
+        static::assertNotCount(0, $result->getSuccess()->getElements());
 
         $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operationInvoice], $this->context);
-        static::assertEmpty($result->getSuccess()->getElements());
-        static::assertNotEmpty($result->getErrors());
+        static::assertCount(0, $result->getSuccess()->getElements());
+        static::assertNotCount(0, $result->getErrors());
         static::assertArrayHasKey($this->orderId, $result->getErrors());
         static::assertSame('Document number 1001 has already been allocated.', $result->getErrors()[$this->orderId]->getMessage());
     }
@@ -724,7 +724,7 @@ class DocumentGeneratorTest extends TestCase
         );
 
         $errors = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $operation], $this->context)->getErrors();
-        static::assertNotEmpty($errors);
+        static::assertNotCount(0, $errors);
         static::assertArrayHasKey($this->orderId, $errors);
         static::assertSame($errors[$this->orderId]->getMessage(), 'Document number 1002 has already been allocated.');
     }

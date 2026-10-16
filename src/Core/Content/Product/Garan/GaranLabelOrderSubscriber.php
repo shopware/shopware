@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\Garan;
 use Shopware\Core\Checkout\Cart\Order\CartConvertedEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEvents;
+use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
@@ -17,7 +18,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Gives order line items without a stored GARAN label the label values of their product: stored when a cart is
- * converted, for line items that did not get them from the cart ({@see GaranLabelCartCollector}), and, until 6.8, in
+ * converted, for line items that did not get them from the cart ({@see ProductCartProcessor}), and, until 6.8, in
  * memory when a sales channel reads orders placed before the label was stored, so the storefront does not look up each
  * product.
  *

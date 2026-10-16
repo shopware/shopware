@@ -18,7 +18,7 @@ use Twig\Loader\ArrayLoader;
 final class GaranLabelFixtures
 {
     /**
-     * The label values of {@see self::createProduct()}
+     * The label values {@see self::assignLabel()} gives a product
      */
     public const PRODUCT_LABEL = ['guaranteeMonths' => 36, 'brand' => 'ACME', 'modelIdentifier' => 'ACME-36'];
 
@@ -38,17 +38,22 @@ final class GaranLabelFixtures
 
     public static function createProduct(string $id): ProductEntity
     {
+        $product = new ProductEntity();
+        $product->setId($id);
+        self::assignLabel($product);
+
+        return $product;
+    }
+
+    public static function assignLabel(ProductEntity $product): void
+    {
         $manufacturer = new ProductManufacturerEntity();
         $manufacturer->setId('manufacturer-id');
         $manufacturer->setTranslated(['name' => 'ACME']);
 
-        $product = new ProductEntity();
-        $product->setId($id);
         $product->setManufacturer($manufacturer);
         $product->setManufacturerNumber('ACME-36');
         $product->setGuaranteeMonths(36);
         $product->setGuaranteeConfirmed(true);
-
-        return $product;
     }
 }

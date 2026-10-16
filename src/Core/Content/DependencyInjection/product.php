@@ -75,7 +75,6 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdate\StockUpdateFilterProvider;
 use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater;
-use Shopware\Core\Content\Product\Garan\GaranLabelCartCollector;
 use Shopware\Core\Content\Product\Garan\GaranLabelDurationFormatter;
 use Shopware\Core\Content\Product\Garan\GaranLabelInlineImage;
 use Shopware\Core\Content\Product\Garan\GaranLabelMailSubscriber;
@@ -332,12 +331,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(GaranLabelResolver::class),
         ])
         ->tag('kernel.event_subscriber');
-
-    $services->set(GaranLabelCartCollector::class)
-        ->args([
-            service(GaranLabelResolver::class),
-        ])
-        ->tag('shopware.cart.collector', ['priority' => 4999]);
 
     $services->set(GaranLabelProductValidator::class)
         ->tag('kernel.event_subscriber');

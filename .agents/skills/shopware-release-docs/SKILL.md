@@ -27,14 +27,17 @@ Write into the following files, but only if the decision above applies:
   For deprecations, the old path still works; the entry tells developers what to change before it stops.
   Write the deprecation entry now, in the pull request that introduces the deprecation.
   Describe the concrete before and after, and write in past tense, as developers read this only after the next major release.
-  Past tense applies to deprecation entries too, for example: "`Foo::bar()` was deprecated and is removed in the next major. Use `Foo::baz()`."
+  Past tense applies to deprecation entries too, for example: "`Foo::bar()` was deprecated and is removed in the next major.
+  Use `Foo::baz()`."
 - Public REST/Admin/Store API route additions or changes: add or update the matching OpenAPI JSON schema under `src/Core/Framework/Api/ApiDefinition/Generator/Schema/<AdminApi|StoreApi>/paths`.
 
 ## What To Write
 
 Write from the outside user's perspective: what changed, who is affected, and what they should do.
 
-State the change and its impact. Add one sentence on why only when it tells developers how urgent the change is, for example a bug, a security or a performance problem. Leave out the internals of how it works and the history of the problem.
+State the change and its impact.
+Add one sentence on why only when it tells developers how urgent the change is, for example a bug, a security or a performance problem.
+Leave out the internals of how it works and the history of the problem.
 
 ## Formatting
 

@@ -24,6 +24,7 @@ import filenameRules from 'eslint-plugin-filename-rules';
 import vuejsAccessibility from 'eslint-plugin-vuejs-accessibility';
 import listeners from 'eslint-plugin-listeners';
 import json from '@eslint/json';
+import eslintComments from '@eslint-community/eslint-plugin-eslint-comments';
 
 import swTestRules from 'eslint-plugin-sw-test-rules';
 import twigVue from 'eslint-plugin-twig-vue';
@@ -78,6 +79,7 @@ const testFiles = [
     'test/**/*.ts',
 ];
 
+// Inline disables are blocked for these rules, so eslint-suppressions.json is the only way around them
 const limitRules = {
     complexity: [
         'error',
@@ -237,6 +239,26 @@ const baseRules = {
     'vue/one-component-per-file': 'off',
 
     'sw-core-rules/no-swallowed-errors': 'error',
+    '@eslint-community/eslint-comments/require-description': [
+        'error',
+        {
+            ignore: [
+                'eslint-enable',
+                'eslint-env',
+                'exported',
+                'global',
+                'globals',
+            ],
+        },
+    ],
+    '@eslint-community/eslint-comments/no-unlimited-disable': 'error',
+    '@eslint-community/eslint-comments/no-restricted-disable': [
+        'error',
+        ...Object.keys(limitRules),
+        'vue/max-template-depth',
+        'sw-test-rules/test-file-max-lines-warning',
+        'sw-test-rules/test-file-max-lines-error',
+    ],
 };
 
 export default [
@@ -270,6 +292,9 @@ export default [
             // Hand-written declaration files under build/ sit outside the tsconfig program (a sibling
             // .ts of the same name shadows them), so the typed parser cannot resolve them.
             'build/**/*.d.ts',
+            // Generated and gitignored
+            'src/entity-schema-definition.d.ts',
+            'test/_helper_/componentWrapper/component-imports.js',
         ],
     },
 
@@ -322,6 +347,7 @@ export default [
             'sw-test-rules': fixupPluginRules(swTestRules),
             'twig-vue': twigVue,
             listeners: fixupPluginRules(listeners),
+            '@eslint-community/eslint-comments': eslintComments,
         },
         languageOptions: {
             ecmaVersion: 'latest',
@@ -786,7 +812,13 @@ export default [
         ],
         rules: {
             ...baseRules,
-            '@typescript-eslint/ban-ts-comment': 0,
+            '@typescript-eslint/ban-ts-comment': [
+                'error',
+                { minimumDescriptionLength: 10 },
+            ],
+            '@typescript-eslint/no-non-null-assertion': 'error',
+            'sw-core-rules/no-double-cast': 'error',
+            'sw-core-rules/no-ts-fix-me': 'error',
             '@typescript-eslint/no-unsafe-member-access': 'error',
             '@typescript-eslint/no-unsafe-call': 'error',
             '@typescript-eslint/no-unsafe-assignment': 'error',

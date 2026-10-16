@@ -144,7 +144,6 @@ class AnalyticsControllerTest extends TestCase
         $analytics->setId(Uuid::randomHex());
         $analytics->setActive($analyticsActive);
 
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
         $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([$analytics])]);
 
         $controller = new AnalyticsController($route, new SalesChannelAnalyticsLoader($repository));

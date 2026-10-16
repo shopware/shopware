@@ -25,8 +25,7 @@ class SalesChannelAnalyticsLoaderTest extends TestCase
     public function testSalesChannelDoesNotHaveAnalytics(): void
     {
         $event = $this->getEvent(Generator::generateSalesChannelContext());
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> */
-        $repository = new StaticEntityRepository([]);
+        $repository = StaticEntityRepository::of(SalesChannelAnalyticsCollection::class);
 
         $loader = new SalesChannelAnalyticsLoader($repository);
         $loader->loadAnalytics($event);
@@ -42,7 +41,6 @@ class SalesChannelAnalyticsLoaderTest extends TestCase
         $event = $this->getEvent($salesChannelContext);
         $analytics = new SalesChannelAnalyticsEntity();
         $analytics->setId($analyticsId);
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> */
         $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([$analytics])]);
 
         $loader = new SalesChannelAnalyticsLoader($repository);
@@ -58,7 +56,6 @@ class SalesChannelAnalyticsLoaderTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->getSalesChannel()->setAnalyticsId($analyticsId);
         $event = $this->getEvent($salesChannelContext);
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> */
         $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
 
         $loader = new SalesChannelAnalyticsLoader($repository);
@@ -70,13 +67,14 @@ class SalesChannelAnalyticsLoaderTest extends TestCase
 
     public function testIsNotActiveWithoutAnalytics(): void
     {
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> */
-        $repository = new StaticEntityRepository([]);
+        $repository = StaticEntityRepository::of(SalesChannelAnalyticsCollection::class);
 
         $loader = new SalesChannelAnalyticsLoader($repository);
 
-        // the static repository fails on a search it has no result for, so no query runs
-        static::assertFalse($loader->isActive(Generator::generateSalesChannelContext()));
+        static::assertFalse(
+            $loader->isActive(Generator::generateSalesChannelContext()),
+            'A sales channel without an analytics id is never active. The empty static repository throws if the loader searches it.'
+        );
     }
 
     public function testIsActiveWithActiveAnalytics(): void
@@ -91,7 +89,6 @@ class SalesChannelAnalyticsLoaderTest extends TestCase
 
     public function testIsNotActiveWhenTheAnalyticsAreNotFound(): void
     {
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> */
         $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
 
         static::assertFalse((new SalesChannelAnalyticsLoader($repository))->isActive($this->contextWithAnalytics()));
@@ -103,7 +100,6 @@ class SalesChannelAnalyticsLoaderTest extends TestCase
         $analytics->setId(Uuid::randomHex());
         $analytics->setActive($active);
 
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> */
         $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([$analytics])]);
 
         return new SalesChannelAnalyticsLoader($repository);

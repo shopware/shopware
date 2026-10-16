@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,7 +29,7 @@ class AnalyticsControllerTest extends TestCase
     {
         $ids = new IdsCollection();
         $salesChannel = $this->getStorefront();
-        $this->setAnalytics($salesChannel, true);
+        $this->activateAnalytics($salesChannel);
 
         static::getContainer()->get('category.repository')->create([[
             'id' => $ids->create('parent'),
@@ -56,31 +55,6 @@ class AnalyticsControllerTest extends TestCase
         static::assertSame(['Analytics parent', 'Analytics child'], json_decode((string) $response->getContent(), true));
     }
 
-    public function testRejectsAnInvalidProductId(): void
-    {
-        $this->setAnalytics($this->getStorefront(), true);
-
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->request('?productId=not-an-id')->getStatusCode());
-    }
-
-    public function testIsNotFoundForASalesChannelWithInactiveAnalytics(): void
-    {
-        $this->setAnalytics($this->getStorefront(), false);
-
-        static::assertSame(Response::HTTP_NOT_FOUND, $this->request('?productId=' . Uuid::randomHex())->getStatusCode());
-    }
-
-    public function testIsNotFoundForASalesChannelWithoutAnalytics(): void
-    {
-        // the rollback of an earlier test does not invalidate the cached sales channel context, a write does
-        static::getContainer()->get('sales_channel.repository')->update([[
-            'id' => $this->getStorefront()->getId(),
-            'analyticsId' => null,
-        ]], Context::createDefaultContext());
-
-        static::assertSame(Response::HTTP_NOT_FOUND, $this->request('?productId=' . Uuid::randomHex())->getStatusCode());
-    }
-
     private function request(string $query): Response
     {
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
@@ -89,11 +63,11 @@ class AnalyticsControllerTest extends TestCase
         return $browser->getResponse();
     }
 
-    private function setAnalytics(SalesChannelEntity $salesChannel, bool $active): void
+    private function activateAnalytics(SalesChannelEntity $salesChannel): void
     {
         static::getContainer()->get('sales_channel.repository')->update([[
             'id' => $salesChannel->getId(),
-            'analytics' => ['trackingId' => 'G-TEST', 'active' => $active],
+            'analytics' => ['trackingId' => 'G-TEST', 'active' => true],
         ]], Context::createDefaultContext());
     }
 

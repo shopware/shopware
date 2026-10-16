@@ -19,7 +19,7 @@ const productStatesDeprecation = {
 };
 
 describe('app/service/product-stream-condition.service.js', () => {
-    const service = new ProductStreamConditionService();
+    const service = ProductStreamConditionService();
 
     it('should be able to add properties to general allowlist', async () => {
         expect(service.isPropertyInAllowList(null, 'newProp')).toBe(false);

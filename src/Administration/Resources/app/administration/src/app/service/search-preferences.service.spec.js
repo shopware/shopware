@@ -10,7 +10,7 @@ describe('searchPreferencesService', () => {
     });
 
     it('is registered correctly', () => {
-        let searchPreferencesService = new SearchPreferencesService();
+        let searchPreferencesService = SearchPreferencesService();
         searchPreferencesService = {
             createUserSearchPreferences: jest.fn(),
             getDefaultSearchPreferences: jest.fn(),
@@ -32,7 +32,7 @@ describe('searchPreferencesService', () => {
 
     describe('processSearchPreferences', () => {
         it('returns data correctly', async () => {
-            const searchPreferencesService = new SearchPreferencesService();
+            const searchPreferencesService = SearchPreferencesService();
             const searchPreferences = await searchPreferencesService.processSearchPreferences([
                 orderDefaultSearchConfiguration,
             ]);
@@ -65,7 +65,7 @@ describe('searchPreferencesService', () => {
             Shopware.Store.get('session').setCurrentUser({
                 id: 'user-id',
             });
-            const searchPreferencesService = new SearchPreferencesService();
+            const searchPreferencesService = SearchPreferencesService();
 
             expect(searchPreferencesService.createUserSearchPreferences()).toEqual({
                 key: 'search.preferences',

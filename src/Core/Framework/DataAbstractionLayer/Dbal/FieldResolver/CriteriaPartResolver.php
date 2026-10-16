@@ -242,7 +242,7 @@ class CriteriaPartResolver
 
     private function resolveField(CriteriaPartInterface $criteriaPart, string $accessor, EntityDefinition $definition, QueryBuilder $query, Context $context): void
     {
-        $accessor = str_replace('extensions.', '', $accessor);
+        $accessor = EntityDefinitionQueryHelper::removeExtensionPathSegments($accessor);
 
         $root = $definition->getEntityName();
 

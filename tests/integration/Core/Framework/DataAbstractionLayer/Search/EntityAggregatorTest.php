@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -12,6 +13,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\BucketAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
@@ -140,6 +142,25 @@ class EntityAggregatorTest extends TestCase
         static::assertFalse($agg->has($ids->get('white')));
         static::assertFalse($agg->has($ids->get('xs')));
         static::assertFalse($agg->has($ids->get('foo')));
+    }
+
+    /**
+     * A segment that only contains `extensions` as a substring must stay intact, so a nested
+     * aggregation field cannot resolve past unknown segments to a field off the association path.
+     * The accessor stays unmapped and the query is rejected while it is built.
+     */
+    public function testNestedAggregationFieldIsResolvedPerSegment(): void
+    {
+        $accessor = 'product.media.media.useextensions.r.email';
+
+        $criteria = new Criteria();
+        $criteria->addAggregation(new TermsAggregation('email', $accessor));
+
+        $this->expectExceptionObject(
+            new UnmappedFieldException($accessor, static::getContainer()->get(MediaDefinition::class))
+        );
+
+        $this->aggregator->aggregate($this->definition, $criteria, Context::createDefaultContext());
     }
 
     public function testSingleTermsAggregation(): void

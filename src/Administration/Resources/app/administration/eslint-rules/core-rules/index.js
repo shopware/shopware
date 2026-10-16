@@ -19,5 +19,7 @@ module.exports = {
         'valid-shopware-setup': require(path.resolve(__dirname, 'valid-shopware-setup.js')),
         'native-setup-filename': require(path.resolve(__dirname, 'native-setup-filename.js')),
         'no-swallowed-errors': require(path.resolve(__dirname, 'no-swallowed-errors.js')),
+        'max-component-members': require(path.resolve(__dirname, 'max-component-members.js')),
+        'max-function-lines': require(path.resolve(__dirname, 'max-function-lines.js')),
     },
 };

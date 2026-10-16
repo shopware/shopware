@@ -1,11 +1,297 @@
 {
+  "build/vue-setup-transform/flow-analysis/identifier-position.ts": {
+    "complexity": {
+      "count": 1
+    }
+  },
+  "build/vue-setup-transform/flow-analysis/references.ts": {
+    "complexity": {
+      "count": 1
+    }
+  },
+  "build/vue-setup-transform/flow-analysis/setup-references.ts": {
+    "complexity": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 2
+    }
+  },
+  "build/vue-setup-transform/script-analyzer/validation.ts": {
+    "complexity": {
+      "count": 1
+    }
+  },
+  "build/vue-setup-transform/template-analyzer/sw-block-bindings.ts": {
+    "complexity": {
+      "count": 1
+    }
+  },
+  "scripts/codemods/sfc-migration/component-source-model.ts": {
+    "complexity": {
+      "count": 2
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 2
+    }
+  },
+  "scripts/codemods/sfc-migration/hoist-block-slots.ts": {
+    "complexity": {
+      "count": 1
+    }
+  },
+  "scripts/codemods/sfc-migration/option-handlers.ts": {
+    "complexity": {
+      "count": 2
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-params": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "scripts/codemods/sfc-migration/rewrite-this.ts": {
+    "complexity": {
+      "count": 1
+    }
+  },
+  "scripts/codemods/sfc-migration/run-sfc-migration.ts": {
+    "complexity": {
+      "count": 2
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "scripts/codemods/sfc-migration/transform-script.ts": {
+    "complexity": {
+      "count": 2
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 2
+    }
+  },
+  "scripts/codemods/sfc-migration/validate.ts": {
+    "complexity": {
+      "count": 1
+    }
+  },
+  "scripts/extensionTooling/baseline.ts": {
+    "max-params": {
+      "count": 1
+    }
+  },
+  "scripts/extensionTooling/check-run.ts": {
+    "complexity": {
+      "count": 3
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 3
+    }
+  },
+  "scripts/extensionTooling/check-typescript-program.ts": {
+    "max-params": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "scripts/extensionTooling/check.ts": {
+    "complexity": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "scripts/extensionTooling/probe-live.ts": {
+    "max-params": {
+      "count": 1
+    }
+  },
+  "scripts/extensionTooling/report-check.ts": {
+    "complexity": {
+      "count": 1
+    }
+  },
+  "scripts/extensionTooling/select.ts": {
+    "complexity": {
+      "count": 1
+    }
+  },
+  "scripts/extensionTooling/setup-bridge.ts": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "scripts/extensionTooling/setup-configs.ts": {
+    "max-params": {
+      "count": 1
+    }
+  },
+  "scripts/extensionTooling/setup-discovery.ts": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "scripts/extensionTooling/setup.ts": {
+    "complexity": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "scripts/generate-shopware-modules/render-declarations.ts": {
+    "max-params": {
+      "count": 1
+    }
+  },
+  "src/app/adapter/composition-extension-system/index.ts": {
+    "complexity": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/adapter/composition-extension-system/options-api-setup-shim.ts": {
+    "sw-core-rules/max-function-lines": {
+      "count": 2
+    }
+  },
+  "src/app/adapter/options-composition-shim.ts": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/adapter/view/sw-vue-devtools.ts": {
+    "complexity": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 2
+    }
+  },
+  "src/app/adapter/view/vue.adapter.ts": {
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "src/app/component/context-menu/sw-context-button/index.js": {
+    "complexity": {
+      "count": 1
+    }
+  },
+  "src/app/component/data-grid/sw-data-grid/index.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/app/component/data-grid/sw-data-grid/sw-data-grid.html.twig": {
+    "vue/max-template-depth": {
+      "count": 6
+    }
+  },
+  "src/app/component/entity/sw-category-tree-field/index.js": {
+    "complexity": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "src/app/component/entity/sw-many-to-many-assignment-card/sw-many-to-many-assignment-card.html.twig": {
+    "vue/max-template-depth": {
+      "count": 4
+    }
+  },
   "src/app/component/extension-api/sw-iframe-renderer/index.ts": {
     "sw-core-rules/no-swallowed-errors": {
       "count": 1
     }
   },
+  "src/app/component/form/select/entity/sw-entity-single-select/index.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-code-editor/index.js": {
+    "max-params": {
+      "count": 2
+    }
+  },
+  "src/app/component/form/sw-colorpicker-deprecated/index.js": {
+    "complexity": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-custom-field-set-renderer/index.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig": {
+    "vue/max-template-depth": {
+      "count": 4
+    }
+  },
+  "src/app/component/form/sw-text-editor/index.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-text-editor/sw-text-editor-toolbar/index.js": {
+    "complexity": {
+      "count": 1
+    }
+  },
+  "src/app/component/index.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
   "src/app/component/media/sw-media-modal-delete/index.js": {
     "sw-core-rules/no-swallowed-errors": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-modal-folder-settings/sw-media-modal-folder-settings.html.twig": {
+    "vue/max-template-depth": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-upload-v2/index.js": {
+    "max-lines": {
       "count": 1
     }
   },
@@ -19,8 +305,197 @@
       "count": 5
     }
   },
+  "src/app/component/meteor-wrapper/mt-datepicker/index.ts": {
+    "complexity": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/sw-condition-unit-menu/index.js": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-admin-menu/index.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-desktop/index.js": {
+    "complexity": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-search-bar/index.js": {
+    "complexity": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-sidebar-renderer/index.ts": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/component/tree/sw-tree-item/index.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/app/component/tree/sw-tree/index.js": {
+    "complexity": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-shortcut-overview/index.js": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-upload-status/index.ts": {
+    "complexity": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-cms-state.ts": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-listing.ts": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-media-grid-listener.ts": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-media-sidebar-modal.ts": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-notification.ts": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-position.ts": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-user-settings.ts": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-video-cover.ts": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/decorator/condition-type-data-provider.decorator.ts": {
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "src/app/decorator/state-styling-provider.decorator.ts": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/directive/tooltip.directive.ts": {
+    "complexity": {
+      "count": 1
+    }
+  },
+  "src/app/init-post/worker.init.ts": {
+    "max-params": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/init/context.init.ts": {
+    "complexity": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/init/extension-data-handling.init.ts": {
+    "max-depth": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/init/tabs.init.ts": {
+    "complexity": {
+      "count": 1
+    },
+    "max-nested-callbacks": {
+      "count": 1
+    }
+  },
+  "src/app/plugin/shortcut.plugin.js": {
+    "complexity": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/service/criteria-helper.service.js": {
+    "complexity": {
+      "count": 1
+    }
+  },
+  "src/app/service/custom-field.service.js": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/service/file-validation.service.ts": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
   "src/app/service/filter.service.spec.js": {
     "sw-core-rules/no-swallowed-errors": {
+      "count": 1
+    }
+  },
+  "src/app/service/license-violations.service.js": {
+    "complexity": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
       "count": 1
     }
   },
@@ -29,12 +504,96 @@
       "count": 1
     }
   },
+  "src/app/service/product-stream-condition.service.js": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/service/rule-condition.service.ts": {
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "src/app/service/search-preferences.service.js": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/service/search-ranking.service.js": {
+    "max-params": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/app/service/search-type.service.js": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
   "src/core/application.ts": {
     "sw-core-rules/no-swallowed-errors": {
       "count": 1
     }
   },
+  "src/core/data/changeset-generator.data.js": {
+    "complexity": {
+      "count": 1
+    },
+    "max-params": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/core/data/entity-factory.data.js": {
+    "max-params": {
+      "count": 1
+    }
+  },
+  "src/core/data/entity-hydrator.data.ts": {
+    "max-params": {
+      "count": 6
+    }
+  },
+  "src/core/data/error-resolver.data.js": {
+    "max-params": {
+      "count": 1
+    }
+  },
+  "src/core/data/repository-factory.data.ts": {
+    "max-params": {
+      "count": 1
+    }
+  },
+  "src/core/data/repository.data.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-params": {
+      "count": 1
+    }
+  },
+  "src/core/factory/async-component.factory.ts": {
+    "complexity": {
+      "count": 2
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-params": {
+      "count": 1
+    }
+  },
   "src/core/factory/http.factory.js": {
+    "complexity": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    },
     "sw-core-rules/no-swallowed-errors": {
       "count": 1
     }
@@ -44,12 +603,107 @@
       "count": 1
     }
   },
+  "src/core/factory/module.factory.ts": {
+    "complexity": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/core/factory/router.factory.js": {
+    "complexity": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/core/factory/template.factory.js": {
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "src/core/factory/transform-legacy-block-conditionals.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-params": {
+      "count": 1
+    }
+  },
+  "src/core/helper/store-loader.helper.js": {
+    "max-params": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/cart-store-api.api.service.ts": {
+    "max-params": {
+      "count": 5
+    }
+  },
+  "src/core/service/api/checkout-store.api.service.ts": {
+    "max-params": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/document.api.service.js": {
+    "max-params": {
+      "count": 3
+    }
+  },
+  "src/core/service/api/documentV2.api.service.ts": {
+    "max-params": {
+      "count": 3
+    }
+  },
+  "src/core/service/api/mail.api.service.js": {
+    "complexity": {
+      "count": 1
+    },
+    "max-params": {
+      "count": 3
+    }
+  },
+  "src/core/service/api/media.api.service.js": {
+    "max-params": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/order-state-machine.api.service.ts": {
+    "max-params": {
+      "count": 3
+    }
+  },
+  "src/core/service/api/order.api.service.js": {
+    "max-params": {
+      "count": 5
+    }
+  },
+  "src/core/service/api/product-stream-preview.service.js": {
+    "max-params": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/state-machine.api.service.js": {
+    "max-params": {
+      "count": 2
+    }
+  },
+  "src/core/service/api/store-context.api.service.ts": {
+    "max-params": {
+      "count": 2
+    }
+  },
   "src/core/service/api/validation.api.service.ts": {
     "sw-core-rules/no-swallowed-errors": {
       "count": 1
     }
   },
   "src/core/service/extension-api-data.service.ts": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    },
     "sw-core-rules/no-swallowed-errors": {
       "count": 3
     }
@@ -59,13 +713,199 @@
       "count": 1
     }
   },
+  "src/core/service/login.service.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/core/worker/admin-worker.js": {
+    "max-params": {
+      "count": 1
+    }
+  },
+  "src/global.types.ts": {
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "src/meta/baseline.ts": {
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process/index.js": {
+    "complexity": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/page/sw-bulk-edit-order/index.js": {
+    "complexity": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/page/sw-bulk-edit-product/index.js": {
+    "complexity": {
+      "count": 2
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 2
+    }
+  },
+  "src/module/sw-bulk-edit/service/handler/bulk-edit-product.handler.js": {
+    "complexity": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-landing-page-tree/index.js": {
+    "max-nested-callbacks": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/page/sw-category-detail/index.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-nested-callbacks": {
+      "count": 3
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-layout-assignment-modal/index.ts": {
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-product-assignment/sw-cms-product-assignment.html.twig": {
+    "vue/max-template-depth": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-sidebar/index.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-slot/sw-cms-slot.html.twig": {
+    "vue/max-template-depth": {
+      "count": 3
+    }
+  },
+  "src/module/sw-cms/elements/buy-box/config/sw-cms-el-config-buy-box.html.twig": {
+    "vue/max-template-depth": {
+      "count": 2
+    }
+  },
+  "src/module/sw-cms/elements/cross-selling/config/sw-cms-el-config-cross-selling.html.twig": {
+    "vue/max-template-depth": {
+      "count": 2
+    }
+  },
+  "src/module/sw-cms/elements/image-gallery/config/sw-cms-el-config-image-gallery.html.twig": {
+    "vue/max-template-depth": {
+      "count": 5
+    }
+  },
+  "src/module/sw-cms/elements/image-slider/config/sw-cms-el-config-image-slider.html.twig": {
+    "vue/max-template-depth": {
+      "count": 6
+    }
+  },
+  "src/module/sw-cms/elements/product-description-reviews/config/sw-cms-el-config-product-description-reviews.html.twig": {
+    "vue/max-template-depth": {
+      "count": 2
+    }
+  },
+  "src/module/sw-cms/elements/product-listing/config/index.js": {
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-listing/config/sw-cms-el-config-product-listing.html.twig": {
+    "vue/max-template-depth": {
+      "count": 10
+    }
+  },
+  "src/module/sw-cms/elements/product-slider/config/sw-cms-el-config-product-slider.html.twig": {
+    "vue/max-template-depth": {
+      "count": 4
+    }
+  },
+  "src/module/sw-cms/page/sw-cms-detail/index.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-nested-callbacks": {
+      "count": 2
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
   "src/module/sw-cms/page/sw-cms-list/index.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    },
     "sw-core-rules/no-swallowed-errors": {
       "count": 1
     }
   },
+  "src/module/sw-cms/page/sw-cms-list/sw-cms-list.html.twig": {
+    "vue/max-template-depth": {
+      "count": 28
+    }
+  },
+  "src/module/sw-cms/service/cms.service.ts": {
+    "max-params": {
+      "count": 1
+    }
+  },
+  "src/module/sw-custom-entity/component/sw-generic-cms-page-assignment/index.ts": {
+    "max-nested-callbacks": {
+      "count": 1
+    }
+  },
+  "src/module/sw-custom-entity/page/sw-generic-custom-entity-detail/sw-generic-custom-entity-detail.html.twig": {
+    "vue/max-template-depth": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/component/sw-customer-card/sw-customer-card.html.twig": {
+    "vue/max-template-depth": {
+      "count": 2
+    }
+  },
   "src/module/sw-customer/component/sw-customer-imitate-customer-modal/index.js": {
     "sw-core-rules/no-swallowed-errors": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/page/sw-customer-list/index.js": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-extension-card-base/index.js": {
+    "complexity": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
       "count": 1
     }
   },
@@ -79,8 +919,308 @@
       "count": 1
     }
   },
+  "src/module/sw-extension/page/sw-extension-my-extensions-listing/index.js": {
+    "complexity": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal/index.js": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/modals/sw-flow-mail-send-modal/index.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/sw-flow-sequence-action/sw-flow-sequence-action.html.twig": {
+    "vue/max-template-depth": {
+      "count": 11
+    }
+  },
+  "src/module/sw-flow/component/sw-flow-trigger/index.js": {
+    "complexity": {
+      "count": 2
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/page/sw-flow-detail/index.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/service/flow-builder.service.ts": {
+    "complexity": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/sw-import-export-entity-path-select/index.js": {
+    "complexity": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/service/importExport.service.ts": {
+    "max-params": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/service/importExportProfileMapping.service.js": {
+    "complexity": {
+      "count": 1
+    },
+    "max-params": {
+      "count": 2
+    }
+  },
+  "src/module/sw-integration/component/sw-integration-mcp-allowlist/index.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-integration/component/sw-integration-mcp-allowlist/sw-integration-mcp-allowlist.html.twig": {
+    "vue/max-template-depth": {
+      "count": 21
+    }
+  },
+  "src/module/sw-mail-template/page/sw-mail-template-detail/index.js": {
+    "complexity": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-mail-template/page/sw-mail-template-detail/sw-mail-template-detail.html.twig": {
+    "vue/max-template-depth": {
+      "count": 2
+    }
+  },
+  "src/module/sw-media/component/sw-media-library/index.js": {
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-document-card/index.js": {
+    "complexity": {
+      "count": 2
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-params": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-document-card/sw-order-document-card.html.twig": {
+    "vue/max-template-depth": {
+      "count": 7
+    }
+  },
+  "src/module/sw-order/component/sw-order-line-items-grid/index.js": {
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-user-card/sw-order-user-card.html.twig": {
+    "vue/max-template-depth": {
+      "count": 2
+    }
+  },
+  "src/module/sw-order/page/sw-order-detail/index.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/page/sw-order-list/index.js": {
+    "sw-core-rules/max-function-lines": {
+      "count": 2
+    }
+  },
+  "src/module/sw-order/view/sw-order-create-base/index.js": {
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/view/sw-order-create-base/sw-order-create-base.html.twig": {
+    "vue/max-template-depth": {
+      "count": 2
+    }
+  },
+  "src/module/sw-product-stream/page/sw-product-stream-detail/index.js": {
+    "max-nested-callbacks": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variant-modal/index.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation/index.js": {
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-restrictions/index.js": {
+    "max-nested-callbacks": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-overview/index.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/helper/sw-products-variants-generator.js": {
+    "max-nested-callbacks": {
+      "count": 5
+    },
+    "max-params": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 2
+    }
+  },
+  "src/module/sw-product/page/sw-product-detail/index.js": {
+    "complexity": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-nested-callbacks": {
+      "count": 2
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/page/sw-product-list/index.js": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/module/sw-profile/page/sw-profile-index/index.js": {
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/sw-promotion-discount-component/index.js": {
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-review/page/sw-review-detail/sw-review-detail.html.twig": {
+    "vue/max-template-depth": {
+      "count": 27
+    }
+  },
+  "src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file/index.js": {
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-base/index.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-cache/page/sw-settings-cache-index/sw-settings-cache-index.html.twig": {
+    "vue/max-template-depth": {
+      "count": 6
+    }
+  },
+  "src/module/sw-settings-country/component/sw-multi-snippet-drag-and-drop/index.ts": {
+    "complexity": {
+      "count": 1
+    }
+  },
   "src/module/sw-settings-country/component/sw-settings-country-address-handling/index.ts": {
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    },
     "sw-core-rules/no-swallowed-errors": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-list/sw-settings-custom-field-set-list.html.twig": {
+    "vue/max-template-depth": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-document/page/sw-settings-document-detail/index.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-document/page/sw-settings-document-list/sw-settings-document-list.html.twig": {
+    "vue/max-template-depth": {
       "count": 1
     }
   },
@@ -90,8 +1230,47 @@
     }
   },
   "src/module/sw-settings-language/page/sw-settings-language-list/index.js": {
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    },
     "sw-core-rules/no-swallowed-errors": {
       "count": 2
+    }
+  },
+  "src/module/sw-settings-listing/page/sw-settings-listing/index.js": {
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-number-range/page/sw-settings-number-range-detail/index.js": {
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-modal/index.js": {
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/page/sw-settings-rule-detail/index.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/service/rule-assignment-configuration.service.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-function-lines": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/component/sw-settings-search-searchable-content/index.js": {
+    "sw-core-rules/max-function-lines": {
+      "count": 1
     }
   },
   "src/module/sw-settings-services/component/sw-settings-services-grant-permissions-modal/index.ts": {
@@ -99,8 +1278,54 @@
       "count": 1
     }
   },
+  "src/module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-wizard/sw-settings-shopware-updates-wizard.html.twig": {
+    "vue/max-template-depth": {
+      "count": 3
+    }
+  },
+  "src/module/sw-settings-snippet/page/sw-settings-snippet-list/index.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tag/page/sw-settings-tag-list/sw-settings-tag-list.html.twig": {
+    "vue/max-template-depth": {
+      "count": 10
+    }
+  },
   "src/module/sw-settings-tax/page/sw-settings-tax-list/index.js": {
     "sw-core-rules/no-swallowed-errors": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/page/sw-settings-tax-list/sw-settings-tax-list.html.twig": {
+    "vue/max-template-depth": {
+      "count": 3
+    }
+  },
+  "src/module/sw-settings/component/sw-system-config/index.js": {
+    "complexity": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings/component/sw-system-config/sw-system-config.html.twig": {
+    "vue/max-template-depth": {
+      "count": 4
+    }
+  },
+  "src/module/sw-users-permissions/page/sw-users-permissions-user-detail/index.js": {
+    "sw-core-rules/max-component-members": {
+      "count": 1
+    }
+  },
+  "src/shopware-virtual-modules.d.ts": {
+    "max-lines": {
       "count": 1
     }
   }

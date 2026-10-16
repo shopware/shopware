@@ -6,10 +6,14 @@ describe('plugin/google-analytics/product-category.helper', () => {
 
     beforeEach(() => {
         window.localStorage.clear();
+        window.salesChannelId = 'sales-channel-1';
+        document.documentElement.lang = 'en-GB';
     });
 
     afterEach(() => {
         jest.restoreAllMocks();
+        delete window.salesChannelId;
+        document.documentElement.lang = '';
     });
 
     test('returns the remembered categories of a product', () => {
@@ -35,6 +39,25 @@ describe('plugin/google-analytics/product-category.helper', () => {
 
         expect(ProductCategoryHelper.get('product-1')).toEqual(mugs);
         expect(JSON.parse(window.localStorage.getItem('swGaProductCategories'))).toHaveLength(1);
+    });
+
+    // sales channels and languages on the same origin share the local storage
+    test('keeps the categories of each sales channel and language apart', () => {
+        ProductCategoryHelper.remember('product-1', shirts);
+
+        document.documentElement.lang = 'de-DE';
+        expect(ProductCategoryHelper.get('product-1')).toEqual({});
+        ProductCategoryHelper.remember('product-1', mugs);
+
+        window.salesChannelId = 'sales-channel-2';
+        expect(ProductCategoryHelper.get('product-1')).toEqual({});
+
+        window.salesChannelId = 'sales-channel-1';
+        expect(ProductCategoryHelper.get('product-1')).toEqual(mugs);
+        ProductCategoryHelper.forget(['product-1']);
+
+        document.documentElement.lang = 'en-GB';
+        expect(ProductCategoryHelper.get('product-1')).toEqual(shirts);
     });
 
     test('returns no categories for an unknown product', () => {

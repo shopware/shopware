@@ -46,8 +46,11 @@ export default class AddShippingInfoOnRegisterEvent extends EventAwareAnalyticsE
         }
 
         // only rendered when the cart needs shipping, a cart of digital products has no method
-        const shippingTier = document.querySelector('[data-analytics-shipping-tier]')?.getAttribute('data-analytics-shipping-tier');
-        if (!shippingTier || CheckoutStepHelper.hasReported('add_shipping_info', shippingTier)) {
+        const shippingElement = document.querySelector('[data-analytics-shipping-tier]');
+        const shippingTier = shippingElement?.getAttribute('data-analytics-shipping-tier');
+        // the confirm page recognises the reported method by its id, see `AddShippingInfoEvent`
+        const methodKey = shippingElement?.getAttribute('data-analytics-shipping-method-id') || shippingTier;
+        if (!shippingTier || CheckoutStepHelper.hasReported('add_shipping_info', methodKey)) {
             return;
         }
 
@@ -66,6 +69,6 @@ export default class AddShippingInfoOnRegisterEvent extends EventAwareAnalyticsE
             'items': lineItems,
         });
 
-        CheckoutStepHelper.markReported('add_shipping_info', shippingTier);
+        CheckoutStepHelper.markReported('add_shipping_info', methodKey);
     }
 }

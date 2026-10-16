@@ -57,7 +57,7 @@
                 {% endif %}
 
                 {% if hasPhysicalItem and context.shippingMethod %}
-                    <div class="d-none" data-analytics-shipping-tier="{{ context.shippingMethod.translated.name }}"></div>
+                    <div class="d-none" data-analytics-shipping-tier="{{ context.shippingMethod.translated.name }}" data-analytics-shipping-method-id="{{ context.shippingMethod.id }}"></div>
                 {% endif %}
             {% endif %}
         {% endblock %}

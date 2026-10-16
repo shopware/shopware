@@ -17,6 +17,12 @@ export default class ProductPageHelper {
     static LISTING_SELECTOR = '.cms-element-product-listing-wrapper';
 
     /**
+     * `add_to_cart` waits for the requested categories, so a slow request reports it without them
+     * instead of holding it back until the shopper may have left the page.
+     */
+    static CATEGORY_REQUEST_TIMEOUT = 1000;
+
+    /**
      * Gets product data from available sources (detail page or product card)
      * @param {string} productId
      * @param {HTMLElement|null} fallbackElement - Optional element to search for product card (e.g., form)
@@ -295,7 +301,7 @@ export default class ProductPageHelper {
      * wishlist, a slider or a product element on a detail page, the path is requested from the storefront,
      * which resolves it through the Store API breadcrumb route. Product elements do not carry it,
      * because loading the categories of every product would slow down each render for an event that
-     * only fires on a click. A failed request reports no categories.
+     * only fires on a click. A failed or slow request reports no categories.
      *
      * @param {string} productId
      * @param {HTMLElement|null} element the element the interaction started from, if any
@@ -312,9 +318,13 @@ export default class ProductPageHelper {
             return {};
         }
 
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), ProductPageHelper.CATEGORY_REQUEST_TIMEOUT);
+
         try {
             const response = await fetch(`${url}?productId=${encodeURIComponent(productId)}`, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                signal: controller.signal,
             });
 
             if (!response.ok) {
@@ -329,6 +339,8 @@ export default class ProductPageHelper {
             return resolved;
         } catch {
             return {};
+        } finally {
+            clearTimeout(timeout);
         }
     }
 

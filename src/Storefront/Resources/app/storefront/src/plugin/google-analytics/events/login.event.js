@@ -55,8 +55,9 @@ export default class LoginEvent extends EventAwareAnalyticsEvent
 
         SessionStorage.removeItem(PENDING_LOGIN_KEY);
 
-        // a failed login renders the login form again with its fields marked as invalid
-        if (!this.active || document.querySelector('.login-form .is-invalid')) {
+        // A failed login renders the login form again with its fields marked as invalid. A password
+        // that no longer meets the password policies forwards to the password recovery instead.
+        if (!this.active || document.querySelector('.login-form .is-invalid, .account-recover-password-form')) {
             return;
         }
 

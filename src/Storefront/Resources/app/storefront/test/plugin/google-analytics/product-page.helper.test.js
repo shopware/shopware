@@ -242,6 +242,19 @@ describe('plugin/google-analytics/product-page.helper', () => {
             await expect(ProductPageHelper.resolveCategories('product-1')).resolves.toEqual({});
         });
 
+        test('reports no categories when the request takes too long', async () => {
+            jest.useFakeTimers();
+            global.fetch = jest.fn((requestUrl, { signal }) => new Promise((resolve, reject) => {
+                signal.addEventListener('abort', () => reject(new Error('aborted')));
+            }));
+
+            const resolved = ProductPageHelper.resolveCategories('product-1');
+            jest.advanceTimersByTime(ProductPageHelper.CATEGORY_REQUEST_TIMEOUT);
+
+            await expect(resolved).resolves.toEqual({});
+            jest.useRealTimers();
+        });
+
         test('requests nothing without the route, which is only rendered for active analytics', async () => {
             delete window.router;
 

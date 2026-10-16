@@ -850,31 +850,46 @@ The deliverability card of digital products has a new "Allow multiple units per 
 
 ### Storefront analytics send GA4 ecommerce events
 
-Storefront analytics now send ecommerce events in the format Google documents for GA4. Tracking setups have to adapt to these changes:
+Storefront analytics now send ecommerce events in the format Google documents for GA4.
+Tracking setups have to adapt to these changes:
 
-* With a `GTM-` tracking ID, ecommerce events are pushed to the data layer as `{ event, ecommerce }`. Google Tag Manager setups that read parameters from `eventModel` must use the `ecommerce` data layer variables instead.
-* Items use `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`, and numeric values are numbers instead of strings. Amounts are rounded to cents.
-* The event `value` of cart, checkout and `purchase` events is the position price including promotion discounts, and the applied promotion codes are reported as `coupon`. Discounts are no longer reported as items.
-* `login` and `sign_up` are reported again, and adding a product by its number on the cart page reports `add_to_cart`. They stopped working with 6.6.10.0 and 6.7.11.0, when these forms changed. `login` is now reported on the page after the login and only for a successful login, so a wrong password no longer counts as a login. The same holds for `sign_up`, which a guest checkout no longer reports.
+* With a `GTM-` tracking ID, ecommerce events are pushed to the data layer as `{ event, ecommerce }`.
+  Google Tag Manager setups that read parameters from `eventModel` must use the `ecommerce` data layer variables instead.
+* Items use `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`, and numeric values are numbers instead of strings.
+  Amounts are rounded to cents.
+* The event `value` of cart, checkout and `purchase` events is the position price including promotion discounts, and the applied promotion codes are reported as `coupon`.
+  Discounts are no longer reported as items.
+* `login` and `sign_up` are reported again, and adding a product by its number on the cart page reports `add_to_cart`.
+  They stopped working with 6.6.10.0 and 6.7.11.0, when these forms changed.
+  `login` is now reported on the page after the login and only for a successful login, so a wrong password no longer counts as a login.
+  The same holds for `sign_up`, which a guest checkout no longer reports.
 
-The `.hidden-line-items-information` element is only rendered for a sales channel with active analytics. The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html) describes the full payload.
+The `.hidden-line-items-information` element is only rendered for a sales channel with active analytics.
+The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html) describes the full payload.
+
 ### Category Twig function removal postponed to 6.9
 
 The deprecated `category_url` and `category_linknewtab` Twig functions remain available throughout 6.8 and will be removed in 6.9.0. Extension and theme developers should migrate to `category.seoUrl` (available on `SalesChannelCategoryEntity`) and `category.shouldOpenInNewTab`. See the [migration instructions](UPGRADE-6.9.md#removed-category_url-and-category_linknewtab-twig-functions).
 
 ### Storefront analytics recognize product elements of extensions
 
-Storefront analytics now treat every element with a `data-product-information` attribute as a product, not only the `.product-box`. Products that extensions render in their own markup are reported as well. The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#products) describes the expected attribute. The product box now reports the price of a matching price rule or the first graduated price, the same price as the product detail page, instead of the default price.
+Storefront analytics now treat every element with a `data-product-information` attribute as a product, not only the `.product-box`.
+Products that extensions render in their own markup are reported as well.
+The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#products) describes the expected attribute.
+The product box now reports the price of a matching price rule or the first graduated price, the same price as the product detail page, instead of the default price.
 
 ### Storefront analytics report brand and category of products added from a product box
 
-With active analytics, adding a product from a product box now posts its brand and categories in the line item payload, like the buy widget does. Cart, checkout and purchase events report them as `item_brand` and `item_category`.
+With active analytics, adding a product from a product box now posts its brand and categories in the line item payload, like the buy widget does.
+Cart, checkout and purchase events report them as `item_brand` and `item_category`.
 
 ### Storefront analytics report each checkout step once
 
 `add_shipping_info` and `add_payment_info` are now reported once per selected method of a checkout, instead of on every reload of the confirm page. A new customer reports `add_shipping_info` when registering in the checkout.
 The reorder of an order in the account now reports one `add_to_cart` with all line items of the order, each with product number, name, price, brand and categories of the original order. Before, it reported only the last line item, with its ID instead of the product number and without name and price.
 The reorder of an order in the account now reports one `add_to_cart` with all products of the order, each with product number, name, price, quantity, brand and categories of the original order. The reorder form posts only the order, so the products are rendered into the form as `[data-analytics-line-item]` elements while analytics is active.
+The reorder of an order in the account now reports one `add_to_cart` with all products of the order, each with product number, name, price, quantity, brand and categories of the original order.
+The reorder form posts only the order, so the products are rendered into the form as `[data-analytics-line-item]` elements while analytics is active.
 
 ### Essential characteristics label custom fields with their snippet
 

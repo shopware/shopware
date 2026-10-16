@@ -34,20 +34,30 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
         const formData = event.detail;
         const formElement = event.target;
 
-        // the reorder in the account adds all line items of an order with one form
+        // the reorder in the account posts only the order, its products are rendered into the form for analytics
         const lineItemElements = formElement.querySelectorAll('[data-analytics-line-item]');
         if (lineItemElements.length > 0) {
-            this._pushLineItems(formData, formElement, lineItemElements);
+            this._pushLineItems(formElement, lineItemElements);
             return;
         }
 
         let productId = null;
+        let isLineItemForm = false;
 
         formData.forEach((value, key) => {
+            if (key.startsWith('lineItems[')) {
+                isLineItemForm = true;
+            }
+
             if (key.endsWith('[id]')) {
                 productId = value;
             }
         });
+
+        // a form without line items, such as the reorder without the analytics markup, has no product to report
+        if (!isLineItemForm) {
+            return;
+        }
 
         if (!productId) {
             console.warn('[Google Analytics Plugin] Product ID could not be fetched. Skipping.');
@@ -152,14 +162,14 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
      * @param {NodeList} lineItemElements
      * @private
      */
-    _pushLineItems(formData, formElement, lineItemElements) {
+    _pushLineItems(formElement, lineItemElements) {
         const items = [...lineItemElements].map(element => {
             const id = element.getAttribute('data-id');
 
             return {
                 'item_id': element.getAttribute('data-sku') || id,
                 'item_name': element.getAttribute('data-name'),
-                'quantity': formData.get(`lineItems[${id}][quantity]`),
+                'quantity': element.getAttribute('data-quantity'),
                 'price': element.getAttribute('data-price'),
                 'item_brand': element.getAttribute('data-brand'),
                 'item_variant': element.getAttribute('data-variant'),

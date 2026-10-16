@@ -300,8 +300,6 @@ class WriteCommandExtractor
      */
     private function map(array $fields, DataStack $stack, EntityExistence $existence, WriteParameterBag $parameters): array
     {
-        $isCreate = !$existence->exists() || $existence->childChangedToParent();
-
         foreach ($fields as $field) {
             $kvPair = $this->getKeyValuePair($field, $stack, $existence);
             if ($kvPair === null) {

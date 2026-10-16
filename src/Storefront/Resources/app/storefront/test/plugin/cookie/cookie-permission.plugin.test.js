@@ -1,4 +1,5 @@
 import FormValidation from "src/helper/form-validation.helper";
+import DeviceDetection from "src/helper/device-detection.helper";
 import CookieStorage from "src/helper/storage/cookie-storage.helper";
 import CookiePermissionPlugin from "src/plugin/cookie/cookie-permission.plugin";
 
@@ -133,6 +134,21 @@ describe("CookiePermissionPlugin tests", () => {
 		expect(cookiePermissionPlugin.$emitter.publish).toHaveBeenCalledWith(
 			"removeBodyPadding",
 		);
+	});
+
+	test("does not prevent touchstart on the deny button", () => {
+		const isTouchDeviceSpy = jest.spyOn(DeviceDetection, "isTouchDevice").mockReturnValue(true);
+		const handleDenyButtonSpy = jest.spyOn(CookiePermissionPlugin.prototype, "_handleDenyButton");
+		cookiePermissionPlugin = new CookiePermissionPlugin(cookieBarElement);
+
+		const touchStartEvent = new Event("touchstart", { bubbles: true, cancelable: true });
+		cookiePermissionPlugin._button.dispatchEvent(touchStartEvent);
+
+		expect(handleDenyButtonSpy).not.toHaveBeenCalled();
+		expect(touchStartEvent.defaultPrevented).toBe(false);
+
+		handleDenyButtonSpy.mockRestore();
+		isTouchDeviceSpy.mockRestore();
 	});
 
 	test("sets body padding based on cookie bar height", () => {

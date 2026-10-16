@@ -147,22 +147,27 @@ class ProductPriceCalculatorTest extends TestCase
         yield 'Net price will be used for tax free state' => [$product, CartPrice::TAX_STATE_FREE, 10];
     }
 
-    public function testEnsureUnitCaching(): void
+    public function testUnitsAreLoadedOnceUntilReset(): void
     {
-        $property = new \ReflectionProperty(ProductPriceCalculator::class, 'units');
+        // every unit search consumes one queued result, so the queue length counts the loads
+        $unitRepository = new StaticEntityRepository([new UnitCollection(), new UnitCollection()]);
+        $calculator = new ProductPriceCalculator(
+            $unitRepository,
+            new QuantityPriceCalculator(
+                new GrossPriceCalculator(new TaxCalculator(), new CashRounding()),
+                new NetPriceCalculator(new TaxCalculator(), new CashRounding())
+            ),
+            new ExtensionDispatcher($this->eventDispatcher),
+        );
+        $context = static::createStub(SalesChannelContext::class);
 
-        static::assertNull($property->getValue($this->calculator));
+        $calculator->calculate([], $context);
+        $calculator->calculate([], $context);
+        static::assertCount(1, $unitRepository->searches, 'units are cached after the first calculation');
 
-        $this->calculator->calculate([], static::createStub(SalesChannelContext::class));
-
-        static::assertNotNull($property->getValue($this->calculator));
-
-        // repository mock assertion to ensure only one load
-        $this->calculator->calculate([], static::createStub(SalesChannelContext::class));
-
-        // good moment to test reset interface here
-        $this->calculator->reset();
-        static::assertNull($property->getValue($this->calculator));
+        $calculator->reset();
+        $calculator->calculate([], $context);
+        static::assertCount(0, $unitRepository->searches, 'reset() drops the cached units');
     }
 
     public function testCoreServiceThrowsDecorationException(): void

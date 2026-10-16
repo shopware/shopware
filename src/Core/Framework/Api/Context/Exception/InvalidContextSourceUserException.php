@@ -2,19 +2,20 @@
 
 namespace Shopware\Core\Framework\Api\Context\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
- * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed in v6.8.0.0. Use `\Shopware\Core\Framework\Store\StoreException::invalidContextSourceUser` instead.
- *
- * @codeCoverageIgnore
+ * @deprecated tag:v6.8.0 - Will be removed in v6.8.0.0. Use `\Shopware\Core\Framework\Store\StoreException::invalidContextSourceUser` instead.
  */
 #[Package('framework')]
 class InvalidContextSourceUserException extends ShopwareHttpException
 {
     public function __construct(string $contextSource)
     {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));
+
         parent::__construct(
             '{{ contextSource }} does not have a valid user ID',
             ['contextSource' => $contextSource]

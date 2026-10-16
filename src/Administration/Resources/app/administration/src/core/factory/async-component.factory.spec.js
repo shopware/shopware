@@ -2445,7 +2445,7 @@ describe('core/factory/async-component.factory.ts', () => {
         const asyncOverrideRegistration = ComponentFactory.override('component', asyncOverride);
 
         expect(asyncOverride).not.toHaveBeenCalled();
-        expect(twigBlockIndex.getBlockEntries('test')).toEqual([
+        expect(twigBlockIndex.getBlockEntries('component', 'test')).toEqual([
             {
                 componentName: 'component',
                 innerTemplate: 'Sync override',
@@ -2456,7 +2456,7 @@ describe('core/factory/async-component.factory.ts', () => {
         const asyncOverridePromise = asyncOverrideRegistration();
 
         expect(asyncOverride).toHaveBeenCalledTimes(1);
-        expect(twigBlockIndex.getBlockEntries('test')).toEqual([
+        expect(twigBlockIndex.getBlockEntries('component', 'test')).toEqual([
             {
                 componentName: 'component',
                 innerTemplate: 'Sync override',
@@ -2469,7 +2469,7 @@ describe('core/factory/async-component.factory.ts', () => {
         });
         await asyncOverridePromise;
 
-        expect(twigBlockIndex.getBlockEntries('test')).toEqual([
+        expect(twigBlockIndex.getBlockEntries('component', 'test')).toEqual([
             {
                 componentName: 'component',
                 innerTemplate: 'Sync override',

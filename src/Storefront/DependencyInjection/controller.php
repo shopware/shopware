@@ -5,6 +5,7 @@ namespace Shopware\Storefront\DependencyInjection;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartReorderRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddWishlistProductRoute;
@@ -27,7 +28,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\RemoveWishlistProductRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute;
-use Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute;
+use Shopware\Core\Checkout\DocumentV2\SalesChannel\DocumentRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
@@ -45,6 +46,7 @@ use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
+use Shopware\Core\Content\Product\SalesChannel\Garan\GaranLabelRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\ProductListRoute;
 use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\ProductPurchaseLimitRoute;
@@ -164,7 +166,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SetPaymentOrderRoute::class),
             service(HandlePaymentMethodRoute::class),
             service('event_dispatcher'),
-            service(AccountOrderDetailPageLoader::class),
+            service(AccountOrderDetailPageLoader::class)->nullOnInvalid(),
             service(OrderRoute::class),
             service(SalesChannelContextService::class),
             service(SystemConfigService::class),
@@ -228,6 +230,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(HtmlSanitizer::class),
             service(ProductListRoute::class),
             service(LineItemFactoryRegistry::class),
+            service(CartReorderRoute::class),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -337,6 +340,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SeoUrlPlaceholderHandlerInterface::class),
             service(ProductReviewLoader::class),
             service(ProductPurchaseLimitRoute::class),
+            service(GaranLabelRoute::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

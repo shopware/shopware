@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -34,7 +34,6 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Group('rules')]
 class LineItemGoodsTotalRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
@@ -283,9 +282,9 @@ class LineItemGoodsTotalRuleTest extends TestCase
         $rule->assign(['count' => 2, 'operator' => Rule::OPERATOR_GTE]);
 
         $lineItemCollection = new LineItemCollection([
-            $this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 3),
+            CartRuleFixture::createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 3),
         ]);
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         static::assertTrue($rule->match(new CartRuleScope($cart, static::createStub(SalesChannelContext::class))));
     }

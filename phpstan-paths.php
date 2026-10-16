@@ -53,7 +53,16 @@ $parameters = [
 // structure is required: the shorthand list form is only normalized by the neon loader and
 // gets dropped when returned from a PHP config file. In this form the entries append-merge
 // with the excludePaths in phpstan.neon.dist.
-if (!is_dir(__DIR__ . '/vendor-bin/danger-php/vendor')) {
+if (is_dir(__DIR__ . '/vendor-bin/danger-php/vendor')) {
+    // The result cache only tracks the root composer install. The danger-php classes live in a
+    // separate install, so a bump there would leave a restored cache convinced the Danger rules are
+    // unchanged. Registering the install manifest as a bootstrap file puts its hash into the fully
+    // invalidating part of the cache meta: a different danger-php version forces a full analysis.
+    // The manifest only returns an array, so executing it has no effect.
+    $parameters['bootstrapFiles'] = [
+        __DIR__ . '/vendor-bin/danger-php/vendor/composer/installed.php',
+    ];
+} else {
     $parameters['excludePaths'] = [
         'analyseAndScan' => [
             __DIR__ . '/src/Core/DevOps/StaticAnalyze/Danger',

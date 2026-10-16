@@ -1,6 +1,7 @@
 import Feature from 'src/helper/feature.helper';
 
-const majorIsActive = ['major', 'v6.8.0.0', 'V6_8_0_0'].includes(process.env.FEATURE_ALL);
+const majorIsActive = [process.env.FEATURE_ALL, process.env.V6_8_0_0]
+    .some(value => value && value !== '0' && value !== 'false');
 const featureAtModuleEvaluation = Feature.isActive('v6.8.0.0');
 
 describe('Storefront major feature setup', () => {

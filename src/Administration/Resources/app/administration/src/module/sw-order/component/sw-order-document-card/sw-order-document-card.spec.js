@@ -249,6 +249,7 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
                     getFileFormatSnippet: (format) => `${format}--snippet`,
                     sortFileFormats: (formats) => [...formats],
                     getAvailableDocumentTypes: () => Promise.resolve({}),
+                    getErrorTranslation: () => null,
                     getDocumentTypeLabel: (technicalName, label) => label?.['en-GB'] ?? `${technicalName}--type-snippet`,
                 },
                 numberRangeService: {
@@ -388,6 +389,81 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         expect(wrapper.vm.showModal).toBeFalsy();
         expect(wrapper.emitted('document-save')).toBeTruthy();
+    });
+
+    it('should offer creating a document once the last document of the order was deleted', async () => {
+        global.activeAclRoles = [
+            'order.editor',
+            'document.viewer',
+        ];
+
+        wrapper = await createWrapper({
+            ...defaultProps,
+            order: {
+                ...orderFixture,
+                documents: [documentFixture],
+            },
+        });
+        await flushPromises();
+
+        documentSearchMock.mockResolvedValue(getCollection('document', []));
+        await wrapper.vm.onDeleteDocument(documentFixture.id);
+        await flushPromises();
+
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
+        expect(wrapper.vm.showCreateDocumentButton).toBe(true);
+        expect(wrapper.vm.showCardFilter).toBe(false);
+        expect(wrapper.vm.emptyStateTitle).toBe('sw-order.documentCard.messageEmptyTitle');
+        expect(wrapper.find('.sw-order-document-card__empty-state .mt-button').exists()).toBe(true);
+    });
+
+    it('should show the empty state right after the listing deleted the last document', async () => {
+        global.activeAclRoles = [
+            'order.editor',
+            'document.viewer',
+        ];
+
+        wrapper = await createWrapper({
+            ...defaultProps,
+            order: {
+                ...orderFixture,
+                documents: [documentFixture],
+            },
+        });
+        await flushPromises();
+        await wrapper.setData({
+            documents: getCollection('document', [documentFixture]),
+        });
+
+        const listing = wrapper.findComponent('.sw-order-document-card__grid');
+        expect(listing.exists()).toBe(true);
+
+        documentSearchMock.mockResolvedValue(getCollection('document', []));
+        listing.vm.$emit('delete-item-finish', documentFixture.id);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-order-document-card__grid').exists()).toBe(false);
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
+        expect(wrapper.vm.showCreateDocumentButton).toBe(true);
+        expect(wrapper.vm.showCardFilter).toBe(false);
+    });
+
+    it('should keep the search when a search term matches no document', async () => {
+        wrapper = await createWrapper({
+            ...defaultProps,
+            order: {
+                ...orderFixture,
+                documents: [documentFixture],
+            },
+        });
+        await flushPromises();
+
+        wrapper.vm.onSearchTermChange('no-match');
+        await flushPromises();
+
+        expect(wrapper.vm.showCardFilter).toBe(true);
+        expect(wrapper.vm.showCreateDocumentButton).toBe(false);
+        expect(wrapper.vm.emptyStateTitle).toBe('sw-order.documentCard.messageNoDocumentFound');
     });
 
     // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
@@ -669,6 +745,90 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             dispatchEventSpy.mockRestore();
         },
     );
+
+    it.activeFeatureFlags(['DOCUMENT_GENERATION_REWORK']).each([
+        [
+            'changed automatic number',
+            '',
+            '1001',
+            true,
+        ],
+        [
+            'unchanged automatic number',
+            '',
+            '1000',
+            false,
+        ],
+        [
+            'manual number',
+            'manual',
+            'manual',
+            false,
+        ],
+        [
+            'failed creation',
+            '',
+            null,
+            false,
+        ],
+    ])('notifies appropriately for %s', async (scenario, documentNumber, assignedNumber, shouldNotify) => {
+        global.activeAclRoles = ['order.editor', 'document.viewer'];
+        wrapper = await createWrapper(defaultProps, 'sw.order.detail.details', {
+            'sw-order-create-document-modal': {
+                emits: ['update:documentType', 'document-create'],
+                template: '<div class="create-document-modal" />',
+            },
+        });
+        await wrapper.find('.sw-order-document-grid-button').trigger('click');
+        const modal = wrapper.findComponent('.create-document-modal');
+        modal.vm.$emit('update:documentType', { technicalName: 'invoice' });
+        await flushPromises();
+
+        if (assignedNumber === null) {
+            createDocumentV2Mock.mockRejectedValueOnce(new Error('Invalid document configuration'));
+        } else {
+            createDocumentV2Mock.mockResolvedValueOnce({
+                documentId: '1234',
+                documentNumber: assignedNumber,
+                formats: ['html'],
+            });
+        }
+        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        modal.vm.$emit(
+            'document-create',
+            {
+                documentNumber,
+                documentNumberPreview: '1000',
+                requestedFileFormats: ['html'],
+                documentDate: '2026-07-06T00:00:00.000Z',
+                documentComment: '',
+            },
+            '',
+        );
+        await flushPromises();
+
+        expect(createDocumentV2Mock).toHaveBeenCalledWith(
+            '1234',
+            'invoice',
+            ['html'],
+            documentNumber,
+            '2026-07-06T00:00:00.000Z',
+            '',
+            undefined,
+            null,
+        );
+        const numberChangedNotification = expect.objectContaining({
+            variant: 'info',
+            message: 'sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED',
+        });
+        if (shouldNotify) {
+            expect(notificationSpy).toHaveBeenCalledWith(numberChangedNotification);
+        } else {
+            expect(notificationSpy).not.toHaveBeenCalledWith(numberChangedNotification);
+        }
+        notificationSpy.mockRestore();
+        wrapper.unmount();
+    });
 
     it.activeFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
         'should use the V2 create endpoint when the feature flag is active',
@@ -1204,6 +1364,16 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 },
             },
         ]);
+    });
+
+    it('should label a document with the translated document type when the current language has no name', async () => {
+        const wrapper = await createWrapper();
+
+        expect(
+            wrapper.vm.documentTypeLabel({
+                documentType: { name: null, technicalName: 'invoice', translated: { name: 'Invoice' } },
+            }),
+        ).toBe('Invoice');
     });
 
     it('should exclude app-provided document types from documentTypeCriteria', async () => {

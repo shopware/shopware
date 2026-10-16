@@ -22,10 +22,12 @@ class ClassAliasMap
     private array $aliasesByCanonicalClassName = [];
 
     /**
-     * @param array<non-empty-string, class-string> $classAliases
+     * @param array<non-empty-string, class-string>|null $classAliases
      */
-    public function __construct(array $classAliases = ClassAliasRegistry::ALIASES)
+    public function __construct(?array $classAliases = null)
     {
+        $classAliases ??= ClassAliasRegistry::aliases();
+
         foreach ($classAliases as $previousClassName => $currentClassName) {
             $this->classAliases[\strtolower($previousClassName)] = $currentClassName;
             $this->aliasesByCanonicalClassName[\strtolower($currentClassName)][] = $previousClassName;

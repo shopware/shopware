@@ -58,9 +58,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class BCChangeAttributeUsageRule implements Rule
 {
-    private const VERSION_PATTERN = '/^v\d+\.\d+\.\d+$/';
+    private const VERSION_PATTERN = '/^v\d+\.\d+\.\d+$/D';
 
-    private const FEATURE_FLAG_PATTERN = '/^[A-Z]+(_[A-Z]+)*$/';
+    private const FEATURE_FLAG_PATTERN = '/^[A-Z]+(_[A-Z]+)*$/D';
 
     private const BC_CHANGE_NAMESPACE_PREFIX = 'Shopware\\Core\\Framework\\Deprecation\\BCChange\\';
 
@@ -361,7 +361,7 @@ class BCChangeAttributeUsageRule implements Rule
         $currentClassName = $class->getName();
         if ($this->classAliasMap->canonicalClassName($previousClassName) !== $currentClassName) {
             return [$this->error($line, \sprintf(
-                'ClassMoved on "%s": register the class alias "%s" => "%s" in ClassAliasRegistry::ALIASES.',
+                'ClassMoved on "%s": add the class alias "%s" => "%s" to ClassAliasRegistry::ALIASES in Platform or register it with ClassAliasRegistry::registerAliases() from the extension Composer autoload file.',
                 $symbol,
                 $previousClassName,
                 $currentClassName

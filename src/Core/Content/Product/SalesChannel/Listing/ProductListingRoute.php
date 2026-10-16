@@ -2,13 +2,17 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Extension\ProductListingCriteriaExtension;
+use Shopware\Core\Content\Product\Extension\ProductListingRouteExtension;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\ProductStream\Exception\EmptyProductStreamException;
+use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
@@ -41,6 +45,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         private readonly ProductStreamBuilderInterface|AbstractProductStreamBuilder $productStreamBuilder,
         private readonly CacheTagCollector $cacheTagCollector,
         private readonly ExtensionDispatcher $extensions,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -61,6 +66,15 @@ class ProductListingRoute extends AbstractProductListingRoute
         defaults: [PlatformRequest::ATTRIBUTE_ENTITY => ProductDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
     )]
     public function load(string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductListingRouteResponse
+    {
+        return $this->extensions->publish(
+            name: ProductListingRouteExtension::NAME,
+            extension: new ProductListingRouteExtension($categoryId, $request, $context, $criteria),
+            function: fn (string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductListingRouteResponse => $this->_load($categoryId, $context, $criteria),
+        );
+    }
+
+    private function _load(string $categoryId, SalesChannelContext $context, Criteria $criteria): ProductListingRouteResponse
     {
         $this->cacheTagCollector->addTag(self::buildName($categoryId));
 
@@ -111,10 +125,25 @@ class ProductListingRoute extends AbstractProductListingRoute
             );
 
             $productStreamBuilder = $this->productStreamBuilder;
-            if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
-                $productStreamBuilder->enrichCriteria($criteria, $productStreamId, $salesChannelContext->getContext());
-            } else {
-                $criteria->addFilter(...$productStreamBuilder->buildFilters($productStreamId, $salesChannelContext->getContext()));
+
+            try {
+                if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
+                    $productStreamBuilder->enrichCriteria($criteria, $productStreamId, $salesChannelContext->getContext());
+                } else {
+                    $criteria->addFilter(...$productStreamBuilder->buildFilters($productStreamId, $salesChannelContext->getContext()));
+                }
+            } catch (EmptyProductStreamException) {
+                // An empty group selects all products, as in the product export
+            } catch (NoFilterException $exception) {
+                $this->logger->warning(
+                    'Product stream configured for category listing has no usable filters.',
+                    [
+                        'productStreamId' => $productStreamId,
+                        'exception' => $exception,
+                    ]
+                );
+
+                $criteria->addFilter(new EqualsFilter('product.id', null));
             }
 
             return;

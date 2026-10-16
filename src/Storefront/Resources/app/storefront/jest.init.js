@@ -10,7 +10,7 @@ import { parse } from 'yaml';
 import getMajorFeatureFlags from '../../../../Administration/Resources/app/administration/test/_helper_/majorFeatureFlags';
 
 const featureConfig = parse(readFileSync(resolve(__dirname, '../../../../Core/Framework/Resources/config/packages/feature.yaml'), 'utf8'));
-const activeFlags = getMajorFeatureFlags(featureConfig, process.env.FEATURE_ALL ?? '');
+const activeFlags = getMajorFeatureFlags(featureConfig, process.env);
 Feature.init(Object.fromEntries(featureConfig.shopware.feature.flags
     .filter(({ name }) => activeFlags.includes(name.toUpperCase().replace(/[.:-]/g, '_')))
     .map(({ name }) => [name, true])));

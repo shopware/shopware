@@ -1,7 +1,7 @@
 /**
  * @sw-package discovery
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 import { MtSwitch, MtUrlField } from '@shopware-ag/meteor-component-library';
 import selectMtSelectOptionByText from '../../../../../../test/_helper_/select-mt-select-by-text';
@@ -236,7 +236,7 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
         await tabs.vm.$emit('new-item-active', 'settings');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('settings');
         expect(wrapper.find('.sw-cms-el-config-image-slider__tab-content').exists()).toBe(false);
@@ -321,7 +321,7 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         const speedSlide = wrapper.find('.sw-cms-el-config-image-slider__setting-speed-slide');
         const autoSlideOption = wrapper.find('.sw-cms-el-config-image-slider__setting-auto-slide input');
         await autoSlideOption.setChecked();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.showSlideConfig).toBe(true);
         expect(delaySlide.attributes().disabled).toBeUndefined();
@@ -339,7 +339,7 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
             mediaListSelectionV2Vm.mediaItems[2],
             true,
         );
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const items = wrapper.findAll('.sw-media-item');
 
@@ -431,7 +431,7 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
                 },
             ],
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const previewImage = wrapper.find('.sw-cms-el-config-image-slider__settings-link-prefix');
 
@@ -452,7 +452,7 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         await flushPromises();
 
         await wrapper.setData({ mediaItems: [] });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const previewImage = wrapper.find('.sw-cms-el-config-image-slider__settings-link-prefix');
 

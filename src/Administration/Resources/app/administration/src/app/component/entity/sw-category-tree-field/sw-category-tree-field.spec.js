@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { DOMWrapper, mount } from '@vue/test-utils';
+import { DOMWrapper, mount, flushPromises } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 const categoryData = [
@@ -132,7 +132,7 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
 
         wrapper.vm.term = 'some-search-term';
         await wrapper.find('.sw-category-tree__input-field').trigger('focus');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         await flushPromises();
 
         expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(true);
@@ -253,7 +253,7 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
         await flushPromises();
 
         await wrapper.find('.sw-category-tree-field__label-more').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         await flushPromises();
 
         wrapper.vm.$emit('categories-load-more');
@@ -305,7 +305,7 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
 
         await wrapper.find('.sw-category-tree__input-field').trigger('focus');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         await flushPromises();
 
         const documentBody = new DOMWrapper(document.body);

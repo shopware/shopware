@@ -4,7 +4,7 @@
  * @sw-package discovery
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import { MtUrlField } from '@shopware-ag/meteor-component-library';
 
 const { Context } = Shopware;
@@ -253,7 +253,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         );
 
         wrapper.vm.onClickOpenCreateDomainModal();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.getComponent('.sw-sales-channel-detail-domains__domain-language-select').vm.value).toBe(
             languages.first().id,
@@ -283,7 +283,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         );
 
         wrapper.vm.onClickOpenCreateDomainModal();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const currencySelect = wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select');
         const parsedCriteria = currencySelect.props('criteria').parse();
@@ -313,7 +313,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         );
 
         wrapper.vm.onClickOpenCreateDomainModal();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const currencySelect = wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select');
         const parsedCriteria = currencySelect.props('criteria').parse();

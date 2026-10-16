@@ -1,7 +1,7 @@
 /**
  * @sw-package inventory
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 // Turn off known errors
 import { missingGetListMethod } from 'test/_helper_/allowedErrors';
@@ -97,7 +97,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         global.activeAclRoles = ['product_search_config.editor'];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.onResetRanking = jest.fn();
         await flushPromises();
 
@@ -133,7 +133,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         global.activeAclRoles = ['product_search_config.editor'];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const searchConfigs = [
             {
                 apiAlias: null,

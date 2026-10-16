@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { config, mount } from '@vue/test-utils';
+import { config, mount, flushPromises } from '@vue/test-utils';
 
 import 'src/module/sw-login/view/sw-login-recovery';
 import 'src/app/component/form/sw-text-field';
@@ -125,7 +125,7 @@ describe('module/sw-login/recovery.spec.js', () => {
         );
 
         jest.advanceTimersByTime(1001);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('[role="banner"]').exists()).toBe(false);
 

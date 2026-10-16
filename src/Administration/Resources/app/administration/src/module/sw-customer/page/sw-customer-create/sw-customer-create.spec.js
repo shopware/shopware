@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 /**
  * @sw-package checkout
@@ -90,7 +90,7 @@ async function createWrapper({ customerRepositorySaveMock, languageRepositorySea
 describe('module/sw-customer/page/sw-customer-create', () => {
     it('should have valid email validation response when no email is given', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({
             customer: {
@@ -127,7 +127,7 @@ describe('module/sw-customer/page/sw-customer-create', () => {
         });
         const saveButton = wrapper.find('.sw-customer-create__save-action');
         await saveButton.trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(notificationMock).toHaveBeenCalledTimes(2);
         expect(notificationMock).toHaveBeenCalledWith({

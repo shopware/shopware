@@ -4,7 +4,7 @@
  * @sw-package inventory
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import { nextTick } from 'vue';
 
 const advancedModeSettings = {
@@ -533,7 +533,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 name: 'general',
             };
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         settings.forEach((entry) => {
             expect(entry.enabled).toBe(!keys.includes(entry.key));
@@ -547,7 +547,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should set purchasePrices to default value when given purchasePrices are empty', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.unmount();
         wrapper = await createWrapper(() =>
             Promise.resolve([

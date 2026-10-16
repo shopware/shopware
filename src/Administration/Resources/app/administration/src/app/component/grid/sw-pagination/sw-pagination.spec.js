@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import 'src/app/component/grid/sw-pagination';
 
 describe('src/component/grid/sw-pagination', () => {
@@ -36,11 +36,11 @@ describe('src/component/grid/sw-pagination', () => {
 
             // visit next page
             await nextPageButton.trigger('click');
-            await wrapper.vm.$nextTick();
+            await flushPromises();
         } else {
             // visit next page
             await arrowButton.trigger('click');
-            await wrapper.vm.$nextTick();
+            await flushPromises();
         }
 
         if (direction === 'right') {

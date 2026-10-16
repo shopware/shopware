@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import 'src/app/component/form/sw-dynamic-url-field';
 import selectMtSelectOptionByText from '../../../../../test/_helper_/select-mt-select-by-text';
 
@@ -212,14 +212,14 @@ describe('components/form/sw-text-editor/sw-dynamic-url-field', () => {
         categoryTreeField.vm.$emit('selection-add', {
             id: 'new-selection',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const dispatchedInputEvents = wrapper.emitted('update:value');
 
         expect(dispatchedInputEvents[0]).toStrictEqual(['124c71d524604ccbad6042edce3ac799/navigation/new-selection#']);
 
         categoryTreeField.vm.$emit('selection-remove');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(dispatchedInputEvents[1]).toStrictEqual(['']);
     });

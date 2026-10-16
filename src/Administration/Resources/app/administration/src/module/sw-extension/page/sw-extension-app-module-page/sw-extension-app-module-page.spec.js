@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 /**
  * @sw-package checkout
@@ -127,7 +127,7 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
 
         // wait for timeout and refresh component
         jest.runAllTimers();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.get('.sw-extension-app-module-error-page');
         expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
@@ -152,7 +152,7 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
 
         // wait for timeout and refresh component
         jest.runAllTimers();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-extension-app-module-error-page').exists()).toBe(false);
         expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
@@ -166,7 +166,7 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
         expect(wrapper.find('.smart-bar__content').exists()).toBeTruthy();
 
         Shopware.Store.get('extensionSdkModules').addHiddenSmartBar('standardModule');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.smart-bar__content').exists()).toBeFalsy();
     });

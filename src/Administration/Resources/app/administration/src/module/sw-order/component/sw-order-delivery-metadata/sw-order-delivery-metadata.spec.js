@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 /**
  * @sw-package checkout
@@ -60,7 +60,7 @@ describe('module/sw-order/component/sw-order-delivery-metadata', () => {
 
     it('should render formatting address for delivery address', async () => {
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-address .sw-address__formatting').text()).toBe(
             'Christa Stracke \\n \\n Philip Inlet \\n \\n \\n \\n 22005-3637 New Marilyneside \\n \\n Moldova (Republic of)',

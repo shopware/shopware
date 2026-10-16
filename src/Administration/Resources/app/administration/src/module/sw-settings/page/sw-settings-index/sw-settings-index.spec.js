@@ -3,7 +3,7 @@
 /**
  * @sw-package framework
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 async function createWrapper(
     privileges = [
@@ -468,7 +468,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         it('should filter items based on search term (term is part of label, case insensitive, white space around)', async () => {
             const wrapper = await createWrapper();
             wrapper.vm.searchQuery = '  uSeR  ';
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
 
@@ -501,7 +501,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             // Item 'Snippets' is expected to be found with search term 'Snippets and more'
             const wrapper = await createWrapper();
             wrapper.vm.searchQuery = 'Snippets and more';
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
 
@@ -524,7 +524,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         it('should show empty state when no settings items are available due to search filtering', async () => {
             const wrapper = await createWrapper();
             wrapper.vm.searchQuery = 'non-existing';
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
 

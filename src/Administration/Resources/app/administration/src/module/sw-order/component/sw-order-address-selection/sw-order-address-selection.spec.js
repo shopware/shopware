@@ -1,4 +1,4 @@
-import { DOMWrapper, mount } from '@vue/test-utils';
+import { DOMWrapper, mount, flushPromises } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
 import EntityValidationService from 'src/app/service/entity-validation.service';
 
@@ -210,7 +210,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
 
         await selectEdit.get('.sw-context-menu-item').trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.currentAddress).toMatchObject({
             street: 'Denesik Bridge',

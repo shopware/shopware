@@ -1,7 +1,7 @@
 /**
  * @sw-package inventory
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 async function createWrapper() {
     return mount(
@@ -142,7 +142,7 @@ describe('module/sw-settings-media/page/sw-settings-media', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(wrapper.find('.sw-card-view').find('.sw-system-config').find('.mt-card').exists()).toBeTruthy();
     });
 });

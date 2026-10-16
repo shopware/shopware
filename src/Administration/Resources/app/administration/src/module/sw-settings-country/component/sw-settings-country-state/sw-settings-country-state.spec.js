@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@discovery
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
     return mount(
@@ -120,7 +120,7 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
 
     it('should be able to create a new country state', async () => {
         const wrapper = await createWrapper(['country.editor']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-country-state__add-country-state-button');
         const createButtonComponent = wrapper.findComponent('.sw-settings-country-state__add-country-state-button');
@@ -131,7 +131,7 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
 
     it('should not be able to create a new country state', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createButton = wrapper.findByText('button', 'sw-settings-country.detail.buttonAddCountryState');
 
@@ -164,7 +164,7 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
 
     it('should not be able to edit a country state', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setProps({
             country: {
@@ -188,7 +188,7 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
 
     it('should be able to delete a country state', async () => {
         const wrapper = await createWrapper(['country.editor']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setProps({
             country: {
@@ -212,7 +212,7 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
 
     it('should not be able to delete a country state', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setProps({
             country: {

@@ -3,7 +3,7 @@
 /**
  * @sw-package discovery
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 
@@ -304,7 +304,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         const wrapper = await createWrapper('product_detail', {});
 
         wrapper.vm[loadingProperty] = true;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.isModalLoading).toBe(true);
         expect(wrapper.findComponent({ name: 'sw-loader' }).exists()).toBe(true);

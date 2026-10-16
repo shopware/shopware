@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 const pageId = 'TEST-PAGE-ID';
 const mockSlotId = 'MOCK-SLOT-ID';
@@ -119,7 +119,7 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
         await wrapper.find('.sw-generic-cms-page-assignment__change-layout-action').trigger('click');
 
         wrapper.getComponent('.sw-cms-layout-modal').vm.$emit('modal-layout-select', pageMock.id);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const updateCmsPageIdEvents = wrapper.emitted('update:cms-page-id');
         expect(updateCmsPageIdEvents).toHaveLength(1);
@@ -132,7 +132,7 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
         await wrapper.find('.sw-generic-cms-page-assignment__change-layout-action').trigger('click');
 
         wrapper.getComponent('.sw-cms-layout-modal').vm.$emit('modal-close');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-cms-layout-modal').exists()).toBe(false);
     });
@@ -160,12 +160,12 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
         await wrapper.setProps({
             cmsPageId: pageMock.id,
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.find('.sw-generic-cms-page-assignment__change-layout-action').trigger('click');
 
         wrapper.getComponent('.sw-cms-layout-modal').vm.$emit('modal-layout-select', mockPageId2);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const updateCmsPageIdEvents = wrapper.emitted('update:cms-page-id');
         expect(updateCmsPageIdEvents).toHaveLength(1);
@@ -178,10 +178,10 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
         await wrapper.setProps({
             cmsPageId: pageMock.id,
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.get('.sw-generic-cms-page-assignment__layout-reset').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const updateCmsPageIdEvents = wrapper.emitted('update:cms-page-id');
         expect(updateCmsPageIdEvents).toHaveLength(1);
@@ -194,7 +194,7 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
         await wrapper.setProps({
             cmsPageId: pageMock.id,
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.get('.sw-generic-cms-page-assignment__open-in-pagebuilder').trigger('click');
 
@@ -221,7 +221,7 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
                 },
             },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const pageMockWithOverrides = {
             id: pageMock.id,
@@ -304,10 +304,10 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
                 },
             },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.cmsPage.sections[0].blocks[0].slots[0].config.content.value = '<h1>TEST2<h1>';
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.emitted('update:slot-overrides')).toHaveLength(1);
         expect(wrapper.emitted('update:slot-overrides')[0]).toEqual([

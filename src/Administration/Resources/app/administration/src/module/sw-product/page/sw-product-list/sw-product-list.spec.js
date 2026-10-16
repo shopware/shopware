@@ -4,7 +4,7 @@
  * @sw-package inventory
  */
 
-import { mount, config } from '@vue/test-utils';
+import { mount, config, flushPromises } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
@@ -579,7 +579,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         // Setting `term` triggers the listing mixin's search watcher, which runs its own getList.
         // Let that settle against the real service before installing the counting mocks, so the
         // assertion only counts the explicit getList below (otherwise the watcher's call leaks in).
@@ -602,7 +602,7 @@ describe('module/sw-product/page/sw-product-list', () => {
     });
 
     it('should not get search ranking fields when term is null', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -625,7 +625,7 @@ describe('module/sw-product/page/sw-product-list', () => {
             term: 'foo',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -749,7 +749,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         await wrapper.setData({
             term: 'SW10001',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.filterCriteria.push(Criteria.equalsAny('manufacturer.id', [manufacturerId]));
 

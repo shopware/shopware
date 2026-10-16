@@ -3,7 +3,7 @@
 /**
  * @sw-package discovery
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 
 function createCategory({ id, name, parentId = null, childCount = 0, afterCategoryId = null, path = null }) {
@@ -716,7 +716,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
 
         const initialLoadedCategoryCount = Object.values(wrapper.vm.loadedCategories).length;
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.$refs.categoryTree.openTreeById = jest.fn();
 

@@ -1,6 +1,6 @@
 /* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
 
-import { config, DOMWrapper, mount } from '@vue/test-utils';
+import { config, DOMWrapper, mount, flushPromises } from '@vue/test-utils';
 import kebabCase from 'lodash-es/kebabCase';
 import ShopwareError from 'src/core/data/ShopwareError';
 import { createRouter, createWebHistory } from 'vue-router';
@@ -576,7 +576,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
             }),
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.getComponent({ name: 'mt-tabs' }).props('items')).toEqual([
             {
@@ -712,7 +712,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const wrapper = await createWrapper();
         await wrapper.setData(conditionTreeMock);
         await flushPromises();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const conditions = {
             ...conditionTreeMock,

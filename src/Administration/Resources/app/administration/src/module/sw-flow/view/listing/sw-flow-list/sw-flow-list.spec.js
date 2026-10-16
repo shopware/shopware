@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import { createPinia } from 'pinia';
 
 /**
@@ -222,7 +222,7 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
     it('should show custom trigger column correctly', async () => {
         const wrapper = await createWrapper(['flow.viewer'], true);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const item = wrapper.find('.sw-data-grid__row');
         expect(item.text()).toContain('sw-flow-custom-event.flow-list.checkout_order_placed');

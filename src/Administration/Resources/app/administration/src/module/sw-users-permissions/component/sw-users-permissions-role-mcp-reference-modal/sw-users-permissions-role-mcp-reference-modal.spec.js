@@ -97,7 +97,7 @@ describe('module/sw-users-permissions/component/sw-users-permissions-role-mcp-re
         await flushPromises();
 
         wrapper.vm.viewMode = 'tool';
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const labels = wrapper.findAll('.sw-users-permissions-role-mcp-reference-modal__row-label').map((el) => el.text());
 
@@ -162,7 +162,7 @@ describe('module/sw-users-permissions/component/sw-users-permissions-role-mcp-re
         await flushPromises();
 
         wrapper.vm.viewMode = 'tool';
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const labels = wrapper.findAll('.sw-users-permissions-role-mcp-reference-modal__row-label').map((el) => el.text());
 
@@ -177,7 +177,7 @@ describe('module/sw-users-permissions/component/sw-users-permissions-role-mcp-re
         await flushPromises();
 
         wrapper.vm.viewMode = 'tool';
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const labels = wrapper.findAll('.sw-users-permissions-role-mcp-reference-modal__row-label').map((el) => el.text());
 
@@ -196,7 +196,7 @@ describe('module/sw-users-permissions/component/sw-users-permissions-role-mcp-re
         await flushPromises();
 
         wrapper.vm.viewMode = 'tool';
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const labels = wrapper.findAll('.sw-users-permissions-role-mcp-reference-modal__row-label').map((el) => el.text());
 

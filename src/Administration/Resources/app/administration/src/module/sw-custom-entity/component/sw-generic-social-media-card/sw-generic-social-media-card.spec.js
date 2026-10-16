@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 const TEST_OG_TITLE = 'TEST_OG_Title';
 const TEST_OG_DESCRIPTION = 'TEST_OG_Description';
@@ -192,7 +192,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
 
         // open the media modal
         mediaUpload.vm.$emit('media-upload-sidebar-open');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const mediaModal = wrapper.getComponent('.sw-generic-social-media-card__media-modal');
         expect(mediaModal.props()).toEqual({
@@ -203,8 +203,8 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
 
         // select an image
         mediaModal.vm.$emit('media-modal-selection-change', [TEST_OG_IMAGE]);
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+        await flushPromises();
 
         // it should use the provided entity instead of fetching it from the repository
         expect(wrapper.vm.mediaRepository.get).not.toHaveBeenCalled();
@@ -225,7 +225,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
 
         // close the media modal
         mediaModal.vm.$emit('media-modal-close');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(wrapper.find('sw-generic-social-media-card__media-modal').exists()).toBe(false);
     });
 
@@ -236,7 +236,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
 
         // remove the image
         mediaUpload.vm.$emit('media-upload-remove-image');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(wrapper.emitted('update:og-image-id')).toEqual([[null]]);
     });
 });

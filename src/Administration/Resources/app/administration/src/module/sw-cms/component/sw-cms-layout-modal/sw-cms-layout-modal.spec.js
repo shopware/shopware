@@ -1,7 +1,7 @@
 /**
  * @sw-package discovery
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 const defaultCategoryId = 'default-category-id';
 const defaultProductId = 'default-product-id';
@@ -271,7 +271,7 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
         const column = wrapper.findAll('.sw-cms-layout-modal__content .sw-cms-list-item').at(productIndex);
         await column.find('.sw-cms-list-item__title').trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.selectedPageObject).toEqual(expected);
         expect(wrapper.vm.gridPreSelection).toStrictEqual({

@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-radio-field';
 
@@ -73,12 +73,12 @@ describe('components/form/sw-radio-field', () => {
         const customSlot = wrapper.find('#custom-slot');
 
         await wrapper.setData({ currentValue: 1 });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(customSlot.wrapperElement).toBeEnabled();
 
         await wrapper.setData({ currentValue: 2 });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(customSlot.wrapperElement).toBeDisabled();
     });

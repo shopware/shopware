@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 /**
  * @sw-package checkout
@@ -102,7 +102,7 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
     it('should not be able to save the delivery time', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-settings-delivery-time-detail__save');
         const nameField = wrapper.find('.mt-text-field input[aria-label="sw-settings-delivery-time.detail.labelName"]');
@@ -127,7 +127,7 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
     it('should be able to save the delivery time', async () => {
         const wrapper = await createWrapper(['delivery_times.editor']);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-settings-delivery-time-detail__save');
         const nameField = wrapper.find('.mt-text-field input[aria-label="sw-settings-delivery-time.detail.labelName"]');
@@ -151,14 +151,14 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
     it('should be able to create new delivery time', async () => {
         const wrapper = await createWrapper(['delivery_times.creator', 'delivery_times.editor']);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // Assume that user navigate to sw-setting-delivery-time-create page
         await wrapper.setData({
             deliveryTime: wrapper.vm.deliveryTimeRepository.create(),
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-settings-delivery-time-detail__save');
         const nameField = wrapper.find('.mt-text-field input[aria-label="sw-settings-delivery-time.detail.labelName"]');

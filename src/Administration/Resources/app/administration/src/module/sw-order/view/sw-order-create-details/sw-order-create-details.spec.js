@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import 'src/module/sw-order/mixin/cart-notification.mixin';
 
 /**
@@ -82,7 +82,7 @@ describe('src/module/sw-order/view/sw-order-create-details', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalled();
 
@@ -108,7 +108,7 @@ describe('src/module/sw-order/view/sw-order-create-details', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
 
@@ -134,7 +134,7 @@ describe('src/module/sw-order/view/sw-order-create-details', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.createNotificationWarning).toHaveBeenCalled();
 

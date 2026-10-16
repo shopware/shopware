@@ -4,7 +4,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 async function createWrapper(allowInlineDataMapping = true) {
     // set body for app
@@ -89,7 +89,7 @@ async function addAndCheckSelection(wrapper, element, start, end, text) {
 
     // add mouseup event to get selection
     document.dispatchEvent(new Event('mouseup'));
-    await wrapper.vm.$nextTick();
+    await flushPromises();
 
     // check if selection was set
     expect(wrapper.vm.selection).toBe(selection);
@@ -100,7 +100,7 @@ async function clearSelection(wrapper) {
     selection.removeAllRanges();
     document.dispatchEvent(new Event('mouseup'));
     wrapper.vm.selection = null;
-    await wrapper.vm.$nextTick();
+    await flushPromises();
 }
 
 describe('src/app/component/form/sw-text-editor', () => {
@@ -187,7 +187,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         // switch to code editor mode
         await wrapper.find('.mt-icon.icon--regular-code-xs').trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(wrapper.vm.isCodeEdit).toBe(true);
 
         // The placeholder should disappear, but the flag is still set
@@ -196,13 +196,13 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         // input something and expect the placeholderVisible flag to be unset
         wrapper.findComponent('#sw-code-editor').vm.$emit('blur', 'something');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(wrapper.vm.placeholderVisible).toBe(false);
 
         // switch to text editor mode and make sure that the placeholder is not displayed
         await wrapper.find('.mt-icon.icon--regular-code-xs').trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(wrapper.vm.isCodeEdit).toBe(false);
         expect(wrapper.find('.sw-text-editor__content-placeholder').exists()).toBe(false);
     });
@@ -233,7 +233,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         // insert link
         await buttonLink.find('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const expectedValue =
             '<p id="fooBarTest">Go to <a target="_blank" href="https://www.foo-bar.com" rel="noopener">foo-bar</a></p>';
@@ -293,7 +293,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
             // generate link
             wrapper.vm.onSetLink(link.value, link.target, displayAsButton, buttonVariant);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             // check if link was inserted correctly into content editor
             expect(contentEditor.element.innerHTML).toEqual(expectedValue);
@@ -740,7 +740,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         // click on link button
         linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
         await linkButtonIcon.trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // link menu should be opened
         linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');

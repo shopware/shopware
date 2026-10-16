@@ -1,7 +1,7 @@
 /**
  * @sw-package discovery
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 async function createWrapper(customOptions = {}) {
     return mount(await wrapTestComponent('sw-media-url-form', { sync: true }), {
@@ -68,7 +68,7 @@ describe('src/app/component/media/sw-media-url-form', () => {
 
         await wrapper.setData({ showModal: true });
         await flushPromises();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const modal = wrapper.find('.mt-modal');
         expect(modal.exists()).toBeTruthy();

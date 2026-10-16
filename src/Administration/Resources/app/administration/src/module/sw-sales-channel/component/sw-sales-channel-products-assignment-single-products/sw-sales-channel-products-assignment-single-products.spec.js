@@ -2,7 +2,7 @@
  * @sw-package discovery
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 let productData = [];
 
@@ -122,7 +122,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         ]);
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-data-grid').exists()).toBeTruthy();
     });
@@ -147,7 +147,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         ]);
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.find('.sw-data-grid__select-all.mt-field--checkbox__container input').trigger('click');
         expect(wrapper.emitted('selection-change').at(-1)).toEqual([
@@ -195,7 +195,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
 
     it('should get products when changing page', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.getProducts = jest.fn();
         expect(wrapper.vm.productCriteria.sortings).toEqual([]);
         wrapper.vm.products.criteria = mockCriteria();

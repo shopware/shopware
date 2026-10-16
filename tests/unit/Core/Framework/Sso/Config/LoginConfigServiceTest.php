@@ -195,6 +195,10 @@ class LoginConfigServiceTest extends TestCase
             'rawConfig' => self::createConfig(['authorize_path' => 'https://authorize']),
             'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is invalid path. Requires to start with "/"',
         ];
+        yield 'authorize_path with a trailing newline' => [
+            'rawConfig' => self::createConfig(['authorize_path' => "/authorize\n"]),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is invalid path. Requires to start with "/"',
+        ];
         yield 'token_path is null' => [
             'rawConfig' => self::createConfig([], ['token_path']),
             'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is missing',

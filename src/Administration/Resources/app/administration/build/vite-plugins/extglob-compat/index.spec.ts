@@ -4,7 +4,8 @@
 import fs from 'fs';
 import path from 'path';
 import { parse } from '@babel/parser';
-import ExtglobCompatPlugin, { toNegatedGlobPatterns } from './index';
+import { toNegatedGlobPatterns } from '../../../eslint-rules/deprecation-rules/utils/negated-glob-patterns';
+import ExtglobCompatPlugin from './index';
 
 type TransformResult = { code: string; map: { sources: string[] } } | null;
 

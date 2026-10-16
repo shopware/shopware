@@ -3,41 +3,10 @@
  */
 import MagicString from 'magic-string';
 import type { Plugin } from 'vite';
+// Shared with the code mods, which stay after this plugin is removed
+import { hasExtglob, toNegatedGlobPatterns } from '../../../eslint-rules/deprecation-rules/utils/negated-glob-patterns';
 
 type AstNode = { type: string; start: number; end: number } & Record<string, unknown>;
-
-const negatedExtglobPattern = /!\(([^()]*)\)/;
-const extglobPattern = /[!@?*+]\(/;
-
-/**
- * @private
- *
- * `./**\/!(*.spec|*.test).ts` becomes `['./**\/*.ts', '!./**\/{*.spec,*.test}.ts']`. A negated pattern cannot add files
- * back, so `!./index!(*.spec).ts` excludes every file of `./index*.ts`.
- */
-export function toNegatedGlobPatterns(pattern: string): string[] {
-    const isNegated = pattern.startsWith('!') && !pattern.startsWith('!(');
-    const body = isNegated ? pattern.slice(1) : pattern;
-    const extglob = negatedExtglobPattern.exec(body);
-
-    if (!extglob) {
-        return [pattern];
-    }
-
-    const allFiles = body.replace(extglob[0], '*');
-
-    if (isNegated) {
-        return [`!${allFiles}`];
-    }
-
-    const alternatives = extglob[1].split('|');
-    const excludedFiles = alternatives.length > 1 ? `{${alternatives.join(',')}}` : extglob[1];
-
-    return [
-        allFiles,
-        `!${body.replace(extglob[0], excludedFiles)}`,
-    ];
-}
 
 function isAstNode(value: unknown): value is AstNode {
     return typeof value === 'object' && value !== null && typeof (value as AstNode).type === 'string';
@@ -132,13 +101,13 @@ export default function ExtglobCompatPlugin({ warnOnRewrite = false } = {}): Plu
                     elements.forEach((element) => {
                         const pattern = element ? getStaticString(element) : null;
 
-                        if (!element || pattern === null || !extglobPattern.test(pattern)) {
+                        if (!element || pattern === null || !hasExtglob(pattern)) {
                             return;
                         }
 
                         const patterns = toNegatedGlobPatterns(pattern);
 
-                        if (patterns.some((rewritten) => extglobPattern.test(rewritten))) {
+                        if (patterns.some(hasExtglob)) {
                             this.warn(
                                 `Vite 8 does not match the extglob pattern "${pattern}" in ${id}. Use negated patterns instead.`,
                             );

@@ -73,3 +73,15 @@ export default function getMajorFeatureFlags(
 
     return flags.filter(active).map(({ name }) => normalizeName(name));
 }
+
+/**
+ * Whether a Jest run with `environment` activates a major, like `composer admin:unit:major` does with
+ * `V6_8_0_0=1`. The flags on by default, like `V6_7_0_0`, do not make a major run.
+ *
+ * @private
+ * @example
+ * isMajorRun(featureConfig, { V6_8_0_0: '1' }); // true
+ */
+export function isMajorRun(config: FeatureConfig, environment: Record<string, string | undefined>): boolean {
+    return getMajorFeatureFlags(config, environment).some(isMajorVersionFlag);
+}

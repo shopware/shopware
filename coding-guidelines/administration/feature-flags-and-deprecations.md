@@ -46,3 +46,39 @@ Component.register('sw-example', {
 Pass a registered major flag and a version like `v6.8.0.0`. Anything else could never throw, so it logs a console error instead.
 
 `@private` symbols and identifiers starting with `_` are no public contract and need no guard. See the [ADR](../../adr/2026-08-10-administration-javascript-deprecation-guards.md).
+
+### Deprecation baseline
+
+In Jest, every deprecation a test runs into fails the test unless the test asserts it. `src/Administration/Resources/app/administration/src/meta/deprecation-baseline.json` lists the known core usages that are not migrated yet, so these pass without an assertion:
+
+```json
+{
+    "The old usage of \"sw-loader\" is deprecated and will be removed in v6.8.0.0. Please use \"mt-loader\" instead.": {
+        "sw-extension-card-bought > sw-loader": [
+            "default",
+            "major"
+        ],
+        "sw-select-base > sw-loader": [
+            "major"
+        ]
+    }
+}
+```
+
+- The key is the deprecation message without the `Used in: …` line.
+- A usage site is `<template author> > <component>` when the guard runs inside a component: the component that guards, and the component whose template renders it (`sw-loader` alone when a spec mounts it). Outside a component, it is the path of the file that calls the deprecated function, relative to the Administration, or the spec that calls it.
+- Each usage site lists the Jest runs it passes in: `default` (`composer admin:unit`) and `major` (`composer admin:unit:major`, CI job "Jest Admin (major)").
+- Never add a usage to make a failing spec pass: migrate it to the replacement instead. Add an entry only on purpose, e.g. when a new guard lands before its callers are migrated.
+
+A spec that tests a deprecated path on purpose asserts the deprecation instead of listing it:
+
+```ts
+import { deprecations } from 'test/_helper_/deprecations';
+
+it('renders the legacy loader', async () => {
+    const wrapper = await createWrapper();
+
+    expect(deprecations).toHaveTriggered('The old usage of "sw-loader" is deprecated');
+    expect(wrapper.find('.sw-loader').exists()).toBe(true);
+});
+```

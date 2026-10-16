@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
+    ADMINISTRATION_DEPRECATION_BASELINE_PATH,
     FEATURE_REGISTRY_PATH,
     detectMajorTestArms,
     hasAcceptanceTestChanges,
@@ -104,6 +105,12 @@ test('major markers outside Administration source and tests do not enable the ma
 
 test('feature registry edits enable the major-js arm', () => {
     const diff = diffFor(FEATURE_REGISTRY_PATH, '+            - name: NEW_FLAG');
+
+    assert.equal(hasMajorJsMarkers(diff, parseMajorFlags(REGISTRY)), true);
+});
+
+test('deprecation baseline edits enable the major-js arm', () => {
+    const diff = diffFor(ADMINISTRATION_DEPRECATION_BASELINE_PATH, '+        "sw-select-base > sw-loader": ["major"]');
 
     assert.equal(hasMajorJsMarkers(diff, parseMajorFlags(REGISTRY)), true);
 });

@@ -5,6 +5,7 @@
 
 import { getDefaultActiveFeatureFlags } from './defaultActiveFeatureFlags';
 import normalizeFeatureFlag from './normalizeFeatureFlag';
+import { usageSite } from './deprecationUsageSite';
 
 /**
  * What an assertion or allowance matches a deprecation message against: a string matches part of it, a RegExp
@@ -20,13 +21,15 @@ type Expected = string | RegExp;
  *
  * @private
  * @example
- * { message: 'oldFunction() is deprecated.', stack: 'Error\n    at …', asserted: false }
+ * { message: 'oldFunction() is deprecated.', stack: 'Error\n    at …', usageSite: 'sw-page > sw-old', asserted: false }
  */
 export type RecordedDeprecation = {
     /** The guard's message, with component names as the running Administration shows them. */
     message: string;
     /** Where the guard was called, so a failure points at the line that used the deprecated API. */
     stack: string;
+    /** Where the deprecated API is used, see `test/_helper_/deprecationUsageSite.ts`. */
+    usageSite: string;
     /** A passing `toHaveTriggered()` matched it. */
     asserted: boolean;
 };
@@ -148,7 +151,13 @@ export function shouldHandleDeprecationsThroughMock(majorFlag: string, isMajorAc
  * recordDeprecation('oldFunction() is deprecated.');
  */
 export function recordDeprecation(message: string): void {
-    deprecations.entries.push({ message: withoutWrappedSuffix(message), stack: new Error().stack ?? '', asserted: false });
+    const stack = new Error().stack ?? '';
+    deprecations.entries.push({
+        message: withoutWrappedSuffix(message),
+        stack,
+        usageSite: usageSite(stack),
+        asserted: false,
+    });
 }
 
 /**
@@ -199,8 +208,8 @@ function location(frame: string): string {
 
 /**
  * Ends the log of the current test and clears it with its allowances, then throws one error listing every
- * deprecation that fails the test, each with the frames that lead to its usage. The Jest setup calls it after
- * each test.
+ * deprecation that fails the test, each with where it is used and the frames that lead there. The Jest setup
+ * calls it after each test.
  *
  * @private
  * @example
@@ -220,8 +229,12 @@ export function endDeprecationLog(): void {
     const message = [
         'The test ran into deprecations it did not assert. Fix each usage, or assert it with',
         '`expect(deprecations).toHaveTriggered(message)` from `test/_helper_/deprecations`.',
-        ...failing.map(({ message: deprecation, stack }, index) =>
-            [`\n${index + 1}. ${deprecation}`, ...usageFrames(stack).map((frame) => `   ↳ ${location(frame)}`)].join('\n'),
+        ...failing.map(({ message: deprecation, stack, usageSite: site }, index) =>
+            [
+                `\n${index + 1}. ${deprecation}`,
+                `   used in ${site}`,
+                ...usageFrames(stack).map((frame) => `   ↳ ${location(frame)}`),
+            ].join('\n'),
         ),
     ].join('\n');
     const error = new Error(message);

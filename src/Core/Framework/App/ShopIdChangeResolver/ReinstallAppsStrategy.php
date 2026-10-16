@@ -54,6 +54,8 @@ class ReinstallAppsStrategy implements ShopIdChangeStrategy
 
     public function resolve(Context $context): void
     {
+        // Verify APP_URL before deleting the shop ID: the delete cannot be undone, and every
+        // re-registration below would fail on the same check.
         $state = $this->appUrlVerifier->forceVerify($this->shopUrl);
 
         if (!$state->is(VerificationStatus::PASS)) {

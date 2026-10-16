@@ -8,8 +8,13 @@
     {% set blockId = block.id %}
 
     {% if element.data.products.elements %}
+        {# identifies the slider for analytics. A cross selling slider has no element id, its tab identifies the list instead #}
         <div
-            class="cms-element-{{ element.type }}{% if sliderConfig.displayMode.value == 'standard' and sliderConfig.verticalAlign.value %} has-vertical-alignment{% endif %}">
+            class="cms-element-{{ element.type }}{% if sliderConfig.displayMode.value == 'standard' and sliderConfig.verticalAlign.value %} has-vertical-alignment{% endif %}"
+            {% if element.id and storefrontAnalytics and storefrontAnalytics.isActive() %}
+                data-list-id="slider:{{ element.id }}"
+                {% if sliderConfig.title.value %}data-list-name="{{ sliderConfig.title.value }}"{% endif %}
+            {% endif %}>
             {% block element_product_slider_alignment %}
                 {% if config.verticalAlign.value %}
                     <div class="cms-element-alignment{% if sliderConfig.verticalAlign.value == 'center' %} align-self-center{% elseif sliderConfig.verticalAlign.value == 'flex-end' %} align-self-end{% else %} align-self-start{% endif %}">

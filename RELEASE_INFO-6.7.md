@@ -871,6 +871,13 @@ The guide [Storefront analytics with Google Analytics 4](https://developer.shopw
 
 The deprecated `category_url` and `category_linknewtab` Twig functions remain available throughout 6.8 and will be removed in 6.9.0. Extension and theme developers should migrate to `category.seoUrl` (available on `SalesChannelCategoryEntity`) and `category.shouldOpenInNewTab`. See the [migration instructions](UPGRADE-6.9.md#removed-category_url-and-category_linknewtab-twig-functions).
 
+### Storefront analytics recognize product elements of extensions
+
+Storefront analytics now treat every element with a `data-product-information` attribute as a product, not only the `.product-box`.
+Products that extensions render in their own markup are reported as well.
+The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#products) describes the expected attribute.
+The product box now reports the price of a matching price rule or the first graduated price, the same price as the product detail page, instead of the default price.
+
 ### Essential characteristics label custom fields with their snippet
 
 Essential characteristics of a product now label a custom field with its `customFields.<name>` snippet, which Shopware creates in every snippet set when the custom field is created. Editing that snippet in Settings > Snippets, or overriding it in a theme's snippet files, changes the label shown in the cart, the off-canvas cart and the checkout. Before, only the label from the custom field's configuration was used and changes to the snippet had no effect.

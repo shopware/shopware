@@ -49,6 +49,24 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
         });
     });
 
+    test('reports product elements of extensions that do not use the product box class', () => {
+        document.body.innerHTML = `
+            <div class="cms-element-product-listing-wrapper">
+                <article class="custom-teaser" data-product-information='{ "id": "1", "name": "Teaser", "price": 49.5, "sku": "custom-1" }'></article>
+            </div>
+        `;
+
+        new ViewItemListEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', {
+            'currency': 'EUR',
+            'value': 49.5,
+            'items': [
+                { item_id: 'custom-1', item_name: 'Teaser', price: 49.5 },
+            ],
+        });
+    });
+
     test('does not fire event when no product items are found', () => {
         document.body.innerHTML = `
             <div class="cms-element-product-listing-wrapper">
@@ -109,6 +127,7 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
         document.body.innerHTML = `
             <div class="cms-element-product-listing-wrapper">
                 <div class="product-box"></div>
+                <div class="product-box" data-product-information=""></div>
                 <div class="product-box" data-product-information='{"broken'></div>
                 <div class="product-box" data-product-information='{ "id": "1", "name": "Shirt", "price": 20, "sku": "SW10000" }'></div>
             </div>

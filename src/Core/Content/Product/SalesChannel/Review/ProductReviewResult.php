@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Product\SalesChannel\Review;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Deprecation\BCChange\BecomesReadonly;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
@@ -15,23 +14,18 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 class ProductReviewResult extends EntitySearchResult
 {
-    #[BecomesReadonly(version: 'v6.8.0')]
     protected ?string $parentId = null;
 
-    #[BecomesReadonly(version: 'v6.8.0')]
     protected string $productId;
 
-    #[BecomesReadonly(version: 'v6.8.0')]
     protected RatingMatrix $matrix;
 
-    #[BecomesReadonly(version: 'v6.8.0')]
     protected ?ProductReviewEntity $customerReview = null;
 
-    #[BecomesReadonly(version: 'v6.8.0')]
     protected int $totalReviewsInCurrentLanguage;
 
     /**
-     * Sets every property at once. From v6.8.0 on, the properties are readonly and cannot be set afterwards.
+     * Sets every property at once.
      *
      * @param EntitySearchResult<ProductReviewCollection> $result
      */
@@ -44,8 +38,6 @@ class ProductReviewResult extends EntitySearchResult
         ?string $parentId = null,
     ): self {
         $instance = self::createFrom($result);
-        // @deprecated tag:v6.8.0 - when the properties become readonly, set them in a constructor of this class and
-        // build the result here with `new self(...)`. The parent constructor can drop `final` once createNew() is removed
         $instance->matrix = $matrix;
         $instance->productId = $productId;
         $instance->totalReviewsInCurrentLanguage = $totalReviewsInCurrentLanguage;
@@ -61,7 +53,7 @@ class ProductReviewResult extends EntitySearchResult
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed; the property becomes readonly. Pass the value via fromSearchResult() instead.
+     * @deprecated tag:v6.8.0 - Will be removed. Pass the value via fromSearchResult() instead.
      */
     public function setProductId(string $productId): void
     {
@@ -76,7 +68,7 @@ class ProductReviewResult extends EntitySearchResult
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed; the property becomes readonly. Pass the value via fromSearchResult() instead.
+     * @deprecated tag:v6.8.0 - Will be removed. Pass the value via fromSearchResult() instead.
      */
     public function setMatrix(RatingMatrix $matrix): void
     {
@@ -91,7 +83,7 @@ class ProductReviewResult extends EntitySearchResult
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed; the property becomes readonly. Pass the value via fromSearchResult() instead.
+     * @deprecated tag:v6.8.0 - Will be removed. Pass the value via fromSearchResult() instead.
      */
     public function setCustomerReview(?ProductReviewEntity $customerReview): void
     {
@@ -106,7 +98,7 @@ class ProductReviewResult extends EntitySearchResult
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed; the property becomes readonly. Pass the value via fromSearchResult() instead.
+     * @deprecated tag:v6.8.0 - Will be removed. Pass the value via fromSearchResult() instead.
      */
     public function setTotalReviewsInCurrentLanguage(int $totalReviewsInCurrentLanguage): void
     {
@@ -121,7 +113,7 @@ class ProductReviewResult extends EntitySearchResult
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed; the property becomes readonly. Pass the value via fromSearchResult() instead.
+     * @deprecated tag:v6.8.0 - Will be removed. Pass the value via fromSearchResult() instead.
      */
     public function setParentId(?string $parentId): void
     {

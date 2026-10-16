@@ -97,6 +97,8 @@ Creating a language could return an uncaught `500` when an Elasticsearch/OpenSea
 
 `ProductListingResult::fromSearchResult()` was added for that change. It is deprecated and removed in v6.8.0.0. Build the result with `ProductListingResult::createFrom($searchResult)` and the setters instead.
 
+6.7.13.0 also announced that the properties of `ProductReviewResult` become `readonly` in v6.8.0. That is cancelled too. Its setters are still deprecated and will be removed in v6.8.0.0, so build the result with `ProductReviewResult::fromSearchResult()`.
+
 ### `ProductListingResult::setPage()` and `setLimit()` are deprecated
 
 6.7.13.0 listed both as staying supported. That is withdrawn: they come from `EntitySearchResult` now and will be removed in v6.8.0.0. Page the criteria in `AbstractListingProcessor::prepare()` instead.

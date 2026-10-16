@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils';
 /**
  * @sw-package checkout
  */
-async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
+async function createWrapper(privileges = [], isShopwareDefaultTax = true, additionalOptions = {}) {
     return mount(
         await wrapTestComponent('sw-settings-tax-detail', {
             sync: true,
@@ -52,6 +52,7 @@ async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
                                 'core.tax.defaultTaxRate': '',
                             }),
                     },
+                    ...additionalOptions.provide,
                 },
                 stubs: {
                     'sw-page': {
@@ -82,8 +83,22 @@ async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
                     'sw-custom-field-set-renderer': true,
                 },
             },
+            props: additionalOptions.props,
         },
     );
+}
+
+function createTaxDetailOptions(repository, props = {}) {
+    return {
+        props,
+        provide: {
+            repositoryFactory: { create: () => repository },
+            systemConfigApiService: {
+                getValues: () => Promise.resolve({}),
+                saveValues: () => Promise.resolve(),
+            },
+        },
+    };
 }
 
 describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
@@ -130,7 +145,13 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
     });
 
     it('should change the default tax rate', async () => {
-        const wrapper = await createWrapper(['tax.editor']);
+        const wrapper = await createWrapper(['tax.editor'], true, {
+            provide: {
+                systemConfigApiService: {
+                    getValues: () => Promise.resolve({}),
+                },
+            },
+        });
         await wrapper.setProps({
             taxId: '12345',
         });
@@ -142,5 +163,49 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
 
         // Check if config value is set to the default tax id
         expect(wrapper.vm.config['core.tax.defaultTaxRate']).toBe('12345');
+    });
+
+    it('should load the new tax when the taxId changes', async () => {
+        const repository = {
+            get: jest.fn((id) => Promise.resolve({ id, name: `Tax ${id}`, isNew: () => false })),
+        };
+        const wrapper = await createWrapper(
+            ['tax.editor'],
+            false,
+            createTaxDetailOptions(repository, { taxId: 'firstTaxId' }),
+        );
+        await flushPromises();
+
+        expect(wrapper.vm.tax.id).toBe('firstTaxId');
+
+        await wrapper.setProps({ taxId: 'secondTaxId' });
+        await flushPromises();
+
+        expect(repository.get).toHaveBeenLastCalledWith('secondTaxId');
+        expect(wrapper.vm.tax.id).toBe('secondTaxId');
+    });
+
+    it('should load a newly created tax only once after the redirect to its detail route', async () => {
+        const repository = {
+            create: () => ({ id: 'newTaxId', name: 'New tax', isNew: () => true }),
+            save: jest.fn(() => Promise.resolve()),
+            get: jest.fn((id) => Promise.resolve({ id, name: 'New tax', isNew: () => false })),
+        };
+        const wrapper = await createWrapper(['tax.creator'], false, createTaxDetailOptions(repository));
+        await flushPromises();
+
+        await wrapper.vm.onSave();
+        await flushPromises();
+
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.settings.tax.detail',
+            params: { id: 'newTaxId' },
+        });
+
+        await wrapper.setProps({ taxId: 'newTaxId' });
+        await flushPromises();
+
+        expect(repository.get).toHaveBeenCalledTimes(1);
+        expect(repository.get).toHaveBeenCalledWith('newTaxId');
     });
 });

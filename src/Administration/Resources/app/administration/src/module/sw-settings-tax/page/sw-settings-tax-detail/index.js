@@ -117,7 +117,7 @@ export default {
 
     watch: {
         taxId() {
-            if (!this.taxId) {
+            if (this.taxId !== this.tax.id) {
                 this.createdComponent();
             }
         },

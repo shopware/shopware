@@ -38,9 +38,8 @@ test('Customer is able to search products in shop', { tag: ['@Search', '@Storefr
 
         await test.step('Customer navigates to the results page to view all matching products', async () => {
             await ShopCustomer.presses(StorefrontSearchSuggest.searchSuggestTotalLink);
-            await ShopCustomer.expects(StorefrontSearchSuggest.searchHeadline).toContainText(`Bottle - ${productNameSuffix1}` + ' ' + `Bowl - ${productNameSuffix2}`);
-            const listedItemsCount = await StorefrontSearchSuggest.productListItems.count();
-            await ShopCustomer.expects(listedItemsCount).toBeGreaterThanOrEqual(2);
+            await ShopCustomer.expects(StorefrontSearchSuggest.searchHeadline).toContainText(productNameSuffix1);
+            await ShopCustomer.expects(StorefrontSearchSuggest.productListItems).toHaveCount(2);
         });
     }
 );

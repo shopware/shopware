@@ -78,12 +78,16 @@ export async function loadViteToolchain(): Promise<ViteToolchain> {
     };
 }
 
-function loadVite8Toolchain(): ViteToolchain {
+function assertVite8ToolchainInstalled(): void {
     if (!fs.existsSync(path.join(VITE_8_TOOLCHAIN_PATH, 'node_modules', 'vite'))) {
         throw new Error(
             `The ${FEATURE_FLAG} feature flag is active, but the Vite 8 toolchain is not installed. Run "npm ci" in "${VITE_8_TOOLCHAIN_PATH}".`,
         );
     }
+}
+
+function loadVite8Toolchain(): ViteToolchain {
+    assertVite8ToolchainInstalled();
 
     // `createRequire` resolves the packages from the toolchain and keeps the bundler of the Vite config from inlining
     // them. Requiring the ESM only packages works with the Node.js versions Vite 8 supports. An ESM entry file in the
@@ -103,11 +107,13 @@ function loadVite8Toolchain(): ViteToolchain {
 
 /** @private */
 export function getViteBinPath(): string {
-    const viteRoot = isVite8ToolchainActive()
-        ? path.join(VITE_8_TOOLCHAIN_PATH, 'node_modules', 'vite')
-        : path.dirname(require.resolve('vite/package.json'));
+    if (!isVite8ToolchainActive()) {
+        return path.join(path.dirname(require.resolve('vite/package.json')), 'bin', 'vite.js');
+    }
 
-    return path.join(viteRoot, 'bin', 'vite.js');
+    assertVite8ToolchainInstalled();
+
+    return path.join(VITE_8_TOOLCHAIN_PATH, 'node_modules', 'vite', 'bin', 'vite.js');
 }
 
 /** @private */

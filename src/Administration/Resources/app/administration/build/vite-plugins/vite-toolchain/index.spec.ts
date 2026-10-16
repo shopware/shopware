@@ -72,16 +72,25 @@ describe('build/vite-plugins/vite-toolchain', () => {
         expect(fs.existsSync(path.join(vite8NodeModules, 'vite', 'bin', 'vite.js'))).toBe(true);
     });
 
-    it('explains how to install the toolchain when the ADMIN_VITE_8 feature flag is active and it is missing', async () => {
-        dumpFeatureFlags({ ADMIN_VITE_8: true });
-        const existsSync = fs.existsSync;
-        jest.spyOn(fs, 'existsSync').mockImplementation((filePath) => {
-            return filePath === path.join(vite8NodeModules, 'vite') ? false : existsSync(filePath);
+    describe('when the ADMIN_VITE_8 feature flag is active and the toolchain is missing', () => {
+        const missingToolchainError = `The ADMIN_VITE_8 feature flag is active, but the Vite 8 toolchain is not installed. Run "npm ci" in "${VITE_8_TOOLCHAIN_PATH}".`;
+
+        beforeEach(() => {
+            dumpFeatureFlags({ ADMIN_VITE_8: true });
+            const existsSync = fs.existsSync;
+            jest.spyOn(fs, 'existsSync').mockImplementation((filePath) => {
+                return filePath === path.join(vite8NodeModules, 'vite') ? false : existsSync(filePath);
+            });
         });
 
-        await expect(loadViteToolchain()).rejects.toThrow(
-            `The ADMIN_VITE_8 feature flag is active, but the Vite 8 toolchain is not installed. Run "npm ci" in "${VITE_8_TOOLCHAIN_PATH}".`,
-        );
+        it('explains how to install the toolchain when loading it', async () => {
+            await expect(loadViteToolchain()).rejects.toThrow(missingToolchainError);
+        });
+
+        it('explains how to install the toolchain before the Vite CLI is started', () => {
+            expect(() => getViteBinPath()).toThrow(missingToolchainError);
+            expect(() => getViteCommand()).toThrow(missingToolchainError);
+        });
     });
 
     it.each([

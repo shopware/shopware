@@ -490,6 +490,12 @@ An app's MCP tool may only list `<required-privileges>` in `mcp.xml` that the ap
 
 The test helper trait `\Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait` is deprecated and will be removed in 6.8. Its `assertValues()` method now triggers a deprecation, and throws when the `v6.8.0.0` flag is active. Extension tests that use the trait should call `\Shopware\Core\Test\Assert\ArrayValues::assertValues($expected, $actual)` instead; the comparison is unchanged.
 
+### Markdown output for list commands
+
+`sales-channel:list`, `plugin:list`, `app:list` and `user:list` accept `--format=markdown` and print their table as Markdown, for example to paste it into tickets or documentation.
+Commands using `OutputFormatTrait` can support the format via `FORMAT_MARKDOWN` and `renderFormattedTable()`.
+The default table of `sales-channel:list` now uses the same style as the other list commands and lists each domain on its own line (separated by `<br>` in Markdown); scripts that parse its table output should switch to `--format=json`.
+
 ## API
 
 ### MCP tool results carry `structuredContent` and `isError`

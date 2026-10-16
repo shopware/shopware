@@ -2,6 +2,13 @@
 
 ## Critical Fixes
 
+### Theme configuration updates reach all descendants
+
+Saving a base theme now updates inherited runtime configuration and recompiles assigned descendant themes at every inheritance level.
+Child and grandchild themes no longer require a separate save after changing their base theme, and descendant-specific overrides are preserved.
+Deactivating or uninstalling a base theme is also blocked while any descendant theme or theme copy is assigned to a sales channel.
+The error identifies the affected themes and sales channels; remove or replace those assignments before removing the base theme.
+
 ### Content Security Policy for static HTML and SVG assets on Apache
 
 The Apache `.htaccess.dist` template now sends `script-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'` for existing `.html` files under `public/media` and `public/thumbnail`, and for SVG files.

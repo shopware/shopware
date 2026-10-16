@@ -9,9 +9,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\App\AppUploadService;
 use Shopware\Core\Framework\App\Event\AppUploadedEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Event\PluginManagementEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginUploadedEvent;
 use Shopware\Core\Framework\Plugin\ExtensionExtractor;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -32,6 +34,40 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(PluginManagementService::class)]
 class PluginManagementServiceTest extends TestCase
 {
+    public function testForwardsAppUploadOptionsToLifecycleUploadService(): void
+    {
+        $context = Context::createDefaultContext();
+        $file = static::createStub(UploadedFile::class);
+        $file->method('getClientOriginalName')->willReturn('example.zip');
+        $file->method('getPathname')->willReturn(__DIR__ . '/_fixtures/archives/App.zip');
+        $detector = static::createStub(PluginZipDetector::class);
+        $detector->method('detect')->willReturn(PluginManagementService::APP);
+        $appUploadService = $this->createMock(AppUploadService::class);
+        $appUploadService->expects($this->once())
+            ->method('upload')
+            ->with($file, $context, null, true, 'SwagApp', true);
+
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects($this->exactly(2))
+            ->method('dispatch')
+            ->with(static::callback(static fn (object $event): bool => $event instanceof PluginManagementEvent || $event instanceof AppUploadedEvent))
+            ->willReturnCallback(static fn (PluginManagementEvent|AppUploadedEvent $event): PluginManagementEvent|AppUploadedEvent => $event);
+
+        $service = new PluginManagementService(
+            '',
+            $detector,
+            static::createStub(ExtensionExtractor::class),
+            static::createStub(PluginService::class),
+            new Filesystem(),
+            static::createStub(CacheClearer::class),
+            $this->createClient([]),
+            $dispatcher,
+            $appUploadService
+        );
+
+        $service->uploadPlugin($file, $context, true, 'SwagApp', true);
+    }
+
     #[DataProvider('uploadProvider')]
     public function testDispatchesUploadEventOnlyForSuccessfulPluginUploads(string $type, bool $fails, string $archive = 'SwagFashionTheme.zip', string $pluginName = 'SwagFashionTheme', ?string $pluginVersion = 'v1.0.0'): void
     {
@@ -47,8 +83,14 @@ class PluginManagementServiceTest extends TestCase
             $extractor->expects($this->once())->method('extract');
         }
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        if (!$fails) {
-            $dispatcher->expects($this->once())->method('dispatch')->with(static::callback(static function (PluginUploadedEvent|AppUploadedEvent $event) use ($context, $pluginName, $pluginVersion, $type): bool {
+        $dispatcher->expects($this->exactly($fails ? 2 : 3))
+            ->method('dispatch')
+            ->with(static::callback(static function (PluginManagementEvent|PluginUploadedEvent|AppUploadedEvent $event) use ($context, $pluginName, $pluginVersion, $type): bool {
+                if ($event instanceof PluginManagementEvent) {
+                    static::assertSame($type === PluginManagementService::APP ? PluginManagementService::APP : PluginManagementService::PLUGIN, $event->extensionType);
+
+                    return true;
+                }
                 static::assertSame('example.zip', $event->filename);
                 if ($type === PluginManagementService::PLUGIN) {
                     static::assertInstanceOf(PluginUploadedEvent::class, $event);
@@ -62,10 +104,8 @@ class PluginManagementServiceTest extends TestCase
                 static::assertSame($context, $event->context);
 
                 return true;
-            }));
-        } else {
-            $dispatcher->expects($this->never())->method('dispatch');
-        }
+            }))
+            ->willReturnCallback(static fn (PluginManagementEvent|PluginUploadedEvent|AppUploadedEvent $event): PluginManagementEvent|PluginUploadedEvent|AppUploadedEvent => $event);
         $pluginService = $this->createMock(PluginService::class);
         $pluginService->expects($type === PluginManagementService::PLUGIN && !$fails ? $this->once() : $this->never())
             ->method('refreshPlugins');

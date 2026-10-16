@@ -149,6 +149,58 @@ class ExtensionStoreActionsControllerTest extends TestCase
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
+    public function testUploadExtensionsPassesUploadOptionsToPluginManagement(): void
+    {
+        $pluginManagement = $this->createMock(PluginManagementService::class);
+        $pluginManagement->expects($this->once())
+            ->method('uploadPlugin')
+            ->with(
+                static::isInstanceOf(UploadedFile::class),
+                static::isInstanceOf(Context::class),
+                true,
+                'SwagApp',
+                true,
+            );
+
+        $controller = new ExtensionStoreActionsController(
+            static::createStub(ExtensionLifecycleService::class),
+            static::createStub(ExtensionDownloader::class),
+            static::createStub(PluginService::class),
+            $pluginManagement,
+            $this->createFileSystemMock(),
+            true
+        );
+
+        $request = new Request([], ['technicalName' => 'SwagApp', 'allowNewPermissions' => true, 'updateOnly' => true]);
+        $file = static::createStub(UploadedFile::class);
+        $file->method('getMimeType')->willReturn('application/zip');
+        $file->method('getPathname')->willReturn(tempnam(sys_get_temp_dir(), __METHOD__));
+        $request->files->set('file', $file);
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $controller->uploadExtensions($request, Context::createDefaultContext())->getStatusCode());
+    }
+
+    public function testUploadExtensionsRejectsNonStringTechnicalName(): void
+    {
+        $controller = new ExtensionStoreActionsController(
+            static::createStub(ExtensionLifecycleService::class),
+            static::createStub(ExtensionDownloader::class),
+            static::createStub(PluginService::class),
+            static::createStub(PluginManagementService::class),
+            $this->createFileSystemMock(true),
+            true
+        );
+
+        $request = new Request([], ['technicalName' => 123]);
+        $file = static::createStub(UploadedFile::class);
+        $file->method('getMimeType')->willReturn('application/zip');
+        $file->method('getPathname')->willReturn(tempnam(sys_get_temp_dir(), __METHOD__));
+        $request->files->set('file', $file);
+
+        static::expectExceptionObject(StoreException::missingRequestParameter('technicalName'));
+        $controller->uploadExtensions($request, Context::createDefaultContext());
+    }
+
     public function testUploadExtensionsShallThrowExceptionIfPathToFileIsEmpty(): void
     {
         $controller = new ExtensionStoreActionsController(

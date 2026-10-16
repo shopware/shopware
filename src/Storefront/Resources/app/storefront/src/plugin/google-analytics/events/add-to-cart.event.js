@@ -1,5 +1,6 @@
 import EventAwareAnalyticsEvent from 'src/plugin/google-analytics/event-aware-analytics-event';
 import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
+import LineItemHelper from 'src/plugin/google-analytics/line-item.helper';
 
 export default class AddToCartEvent extends EventAwareAnalyticsEvent
 {
@@ -32,6 +33,14 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
 
         const formData = event.detail;
         const formElement = event.target;
+
+        // the reorder in the account posts only the order, its products are rendered into the form for analytics
+        const lineItemElements = formElement.querySelectorAll('[data-analytics-line-item]');
+        if (lineItemElements.length > 0) {
+            this._pushLineItems(formElement, lineItemElements);
+            return;
+        }
+
         let productId = null;
         let isLineItemForm = false;
 
@@ -45,7 +54,7 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
             }
         });
 
-        // reorder posts no line items, the route resolves them from the order, so there is nothing to report here
+        // a form without line items, such as the reorder without the analytics markup, has no product to report
         if (!isLineItemForm) {
             return;
         }
@@ -57,6 +66,8 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
 
         // Get product data - uses detail page meta tags or falls back to product card data
         const productData = ProductPageHelper.getProductData(productId, formElement);
+
+        this._addPayload(formData, productId, formElement);
 
         const quantity = formData.get(`lineItems[${productId}][quantity]`);
         const price = productData.value ?? ProductPageHelper.getValue();
@@ -74,6 +85,75 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
                 'item_brand': formData.get('brand-name') || productData.brand,
                 ...ProductPageHelper.getCategoriesFor(productId, formElement),
             }],
+        });
+    }
+
+    /**
+     * Hands brand and category to the cart with the add, the same payload the buy widget of the
+     * product detail page already posts. The checkout events read them from the line item payload,
+     * so neither the cart nor the checkout loads anything for analytics. This only runs for a sales
+     * channel with analytics and after consent, so a shop without tracking sends nothing extra.
+     *
+     * A product element sends its own brand and the category the shopper is browsing. A page
+     * without breadcrumb, such as the homepage or the search, sends no category, and neither does
+     * a product element on a product detail page, whose breadcrumb belongs to the page product.
+     *
+     * @param {FormData} formData
+     * @param {string} productId
+     * @param {HTMLElement|null} formElement
+     * @private
+     */
+    _addPayload(formData, productId, formElement) {
+        if (!ProductPageHelper.getProductCard(productId, formElement)) {
+            return;
+        }
+
+        const prefix = `lineItems[${productId}][payload]`;
+        const brand = ProductPageHelper.getProductCardData(productId, formElement).brand;
+
+        if (brand && !formData.has(`${prefix}[manufacturerName]`)) {
+            formData.set(`${prefix}[manufacturerName]`, brand);
+        }
+
+        const hasCategories = [...formData.keys()].some(key => key.startsWith(`${prefix}[categoryNames]`));
+        if (hasCategories || window.activeRoute === 'frontend.detail.page') {
+            return;
+        }
+
+        ProductPageHelper.getCategoryNames().forEach((name, index) => {
+            formData.set(`${prefix}[categoryNames][${index}]`, name);
+        });
+    }
+
+    /**
+     * Reports all line items of a form that adds several of them, such as the reorder of an order.
+     * Their data comes from the order, so prices and currency are those of the original order.
+     *
+     * @param {FormData} formData
+     * @param {HTMLElement} formElement
+     * @param {NodeList} lineItemElements
+     * @private
+     */
+    _pushLineItems(formElement, lineItemElements) {
+        const items = [...lineItemElements].map(element => {
+            const id = element.getAttribute('data-id');
+
+            return {
+                'item_id': element.getAttribute('data-sku') || id,
+                'item_name': element.getAttribute('data-name'),
+                'quantity': element.getAttribute('data-quantity'),
+                'price': element.getAttribute('data-price'),
+                'item_brand': element.getAttribute('data-brand'),
+                ...LineItemHelper.getCategoriesFromElement(element),
+            };
+        });
+
+        const value = items.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1), 0);
+
+        this.pushEvent('add_to_cart', {
+            'currency': formElement.getAttribute('data-analytics-currency') || ProductPageHelper.getCurrency(),
+            'value': value,
+            'items': items,
         });
     }
 }

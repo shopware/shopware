@@ -1,4 +1,5 @@
 import NativeEventEmitter from 'src/helper/emitter.helper';
+import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
 import AddToCartEvent from 'src/plugin/google-analytics/events/add-to-cart.event';
 
 /**
@@ -90,6 +91,98 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
                 }),
             ]),
         }));
+    });
+
+    describe('cart payload of a product element', () => {
+        const breadcrumb = `
+            <nav aria-label="breadcrumb">
+                <span class="breadcrumb-title">Clothing</span>
+                <span class="breadcrumb-title">Shirts</span>
+            </nav>
+        `;
+
+        function submitFromProductElement(markup, formData) {
+            document.body.innerHTML = markup;
+
+            const addToCartInstance = createMockPluginInstance();
+            document.querySelector('.form-slot').appendChild(addToCartInstance.el);
+            addToCartInstances.push(addToCartInstance);
+
+            new AddToCartEvent().execute();
+            addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+            return formData;
+        }
+
+        function createFormData() {
+            const formData = new FormData();
+            formData.append('lineItems[product-1][id]', 'product-1');
+            formData.append('lineItems[product-1][quantity]', '1');
+
+            return formData;
+        }
+
+        afterEach(() => {
+            delete window.activeRoute;
+        });
+
+        test('posts the brand of the product element and the categories of the listing', () => {
+            window.activeRoute = 'frontend.navigation.page';
+
+            const formData = submitFromProductElement(`
+                ${breadcrumb}
+                <article data-product-information='{"id":"product-1","brand":"Brand"}'>
+                    <div class="form-slot"></div>
+                </article>
+            `, createFormData());
+
+            expect(formData.get('lineItems[product-1][payload][manufacturerName]')).toBe('Brand');
+            expect(formData.get('lineItems[product-1][payload][categoryNames][0]')).toBe('Clothing');
+            expect(formData.get('lineItems[product-1][payload][categoryNames][1]')).toBe('Shirts');
+        });
+
+        test('keeps a payload the form already posts', () => {
+            window.activeRoute = 'frontend.navigation.page';
+            const formData = createFormData();
+            formData.append('lineItems[product-1][payload][manufacturerName]', 'Form Brand');
+            formData.append('lineItems[product-1][payload][categoryNames][abc]', 'Form Category');
+
+            submitFromProductElement(`
+                ${breadcrumb}
+                <article data-product-information='{"id":"product-1","brand":"Brand"}'>
+                    <div class="form-slot"></div>
+                </article>
+            `, formData);
+
+            expect(formData.get('lineItems[product-1][payload][manufacturerName]')).toBe('Form Brand');
+            expect(formData.get('lineItems[product-1][payload][categoryNames][abc]')).toBe('Form Category');
+            expect(formData.has('lineItems[product-1][payload][categoryNames][0]')).toBe(false);
+        });
+
+        test('posts no categories for a product element on a product detail page', () => {
+            window.activeRoute = 'frontend.detail.page';
+
+            const formData = submitFromProductElement(`
+                ${breadcrumb}
+                <article data-product-information='{"id":"product-1","brand":"Brand"}'>
+                    <div class="form-slot"></div>
+                </article>
+            `, createFormData());
+
+            expect(formData.get('lineItems[product-1][payload][manufacturerName]')).toBe('Brand');
+            expect(formData.has('lineItems[product-1][payload][categoryNames][0]')).toBe(false);
+        });
+
+        test('posts nothing for a form outside of a product element', () => {
+            window.activeRoute = 'frontend.navigation.page';
+
+            const formData = submitFromProductElement(`
+                ${breadcrumb}
+                <div class="form-slot"></div>
+            `, createFormData());
+
+            expect([...formData.keys()].some(key => key.includes('[payload]'))).toBe(false);
+        });
     });
 
     test('stays silent for a reorder form, which posts no line items', () => {
@@ -299,5 +392,57 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', expect.objectContaining({
             'value': 99.99,
         }));
+    });
+
+    test('reports every line item of the reorder of an order', () => {
+        const addToCartInstance = createMockPluginInstance();
+        addToCartInstance.el = document.createElement('form');
+        addToCartInstance.el.setAttribute('data-analytics-currency', 'USD');
+        addToCartInstance.el.innerHTML = `
+            <span data-analytics-line-item data-id="product-1" data-sku="SW-1" data-name="Shirt" data-price="19.99" data-quantity="2"
+                  data-brand="Brand" data-category-1="Clothing" data-category-2="Shirts"></span>
+            <span data-analytics-line-item data-id="product-2" data-sku="SW-2" data-name="Cap" data-price="5" data-quantity="3" data-brand=""></span>
+        `;
+        addToCartInstance.$emitter = new NativeEventEmitter(addToCartInstance.el);
+        addToCartInstances.push(addToCartInstance);
+
+        new AddToCartEvent().execute();
+
+        // the reorder form posts only the redirect, the route resolves the products of the order
+        const formData = new FormData();
+        formData.append('redirectTo', 'frontend.cart.offcanvas');
+
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+        expect(window.gtag).toHaveBeenCalledTimes(1);
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', {
+            'currency': 'USD',
+            'value': 54.98,
+            'items': [
+                { item_id: 'SW-1', item_name: 'Shirt', quantity: 2, price: 19.99, item_brand: 'Brand', item_category: 'Clothing', item_category2: 'Shirts' },
+                { item_id: 'SW-2', item_name: 'Cap', quantity: 3, price: 5 },
+            ],
+        });
+        expect([...formData.keys()].some(key => key.includes('[payload]'))).toBe(false);
+    });
+
+    test('reports a reordered line item without product number, price and quantity in the shop currency', () => {
+        const currencySpy = jest.spyOn(ProductPageHelper, 'getCurrency').mockReturnValue('EUR');
+        const addToCartInstance = createMockPluginInstance();
+        addToCartInstance.el = document.createElement('form');
+        addToCartInstance.el.innerHTML = '<span data-analytics-line-item data-id="product-1" data-name="Gift card"></span>';
+        addToCartInstance.$emitter = new NativeEventEmitter(addToCartInstance.el);
+        addToCartInstances.push(addToCartInstance);
+
+        new AddToCartEvent().execute();
+        addToCartInstance.$emitter.publish('beforeFormSubmit', new FormData());
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', {
+            'currency': 'EUR',
+            'value': 0,
+            'items': [{ item_id: 'product-1', item_name: 'Gift card' }],
+        });
+
+        currencySpy.mockRestore();
     });
 });

@@ -54,6 +54,20 @@ Extensions and integrations that read the product type of older order line items
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
 
 # 6.7.16.0
+## Features
+
+### Disable the Administration password recovery flow
+
+The Administration "forgot password" flow can now be disabled in `shopware.yaml`, for example when user passwords are managed externally via SSO. When disabled, no recovery mail is sent, existing recovery hashes can no longer be used to set a new password, and the Administration login page hides the "forgot password" link. The flow stays enabled by default. The state is exposed as `passwordRecoveryEnabled` in the response of `GET /api/oauth/sso/config`, so custom login pages can hide their recovery link the same way.
+
+```yaml
+shopware:
+    api:
+        user_recovery:
+            enabled: false
+```
+
+# 6.7.16.0 (upcoming)
 
 ## Critical Fixes
 
@@ -138,17 +152,6 @@ With the newly added tabs feature, plugin developers can now add another layer o
         </card>
     </tab>
 </config>
-```
-
-### Disable the Administration password recovery flow
-
-The Administration "forgot password" flow can now be disabled in `shopware.yaml`, for example when user passwords are managed externally via SSO. When disabled, no recovery mail is sent, existing recovery hashes can no longer be used to set a new password, and the Administration login page hides the "forgot password" link. The flow stays enabled by default. The state is exposed as `passwordRecoveryEnabled` in the response of `GET /api/oauth/sso/config`, so custom login pages can hide their recovery link the same way.
-
-```yaml
-shopware:
-    api:
-        user_recovery:
-            enabled: false
 ```
 
 ## Core

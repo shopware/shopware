@@ -2,6 +2,13 @@
 
 ## Critical Fixes
 
+### Theme configuration updates reach all descendants
+
+Saving a base theme now updates inherited runtime configuration and recompiles assigned descendant themes at every inheritance level.
+Child and grandchild themes no longer require a separate save after changing their base theme, and descendant-specific overrides are preserved.
+Deactivating or uninstalling a base theme is also blocked while any descendant theme or theme copy is assigned to a sales channel.
+The error identifies the affected themes and sales channels; remove or replace those assignments before removing the base theme.
+
 ### Content Security Policy for static HTML and SVG assets on Apache
 
 The Apache `.htaccess.dist` template now sends `script-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'` for existing `.html` files under `public/media` and `public/thumbnail`, and for SVG files.
@@ -19,7 +26,20 @@ Since 6.7.14.0, most line item conditions of the Rule Builder evaluated only lin
 
 The conditions now evaluate a line item by the data it carries instead of by its type, so line items of any type work with the built-in conditions again, with no change needed in extensions.
 
+### "Item with price/list price ratio" no longer matches line items without a list price
+
+Since 6.7.9.0, the Rule Builder condition "Item with price/list price ratio" treated line items without a list price as having a ratio of `0`.
+Conditions such as "Is less than 1" therefore also matched every line item without a list price,
+so promotions meant for reduced products applied to all products.
+
+Line items without a list price no longer have a ratio, so only the operators "Is not equal to" and "Is empty" match them.
+If you used "Is equal to 0" to target line items without a list price, use "Is empty" instead.
+
 ## Features
+
+### Digital products can use external file assignment
+
+In the Administration, digital products can be saved without uploaded files when file assignment is handled externally. When editing a product, the option is enabled by default if it has no downloads and disabled if it has downloads.
 
 ### System configuration tabs
 
@@ -577,6 +597,10 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 `POST /store-api/checkout/cart/reorder/{orderId}` adds an order's products to the cart, and the `checkout.cart.collect-reorder-line-items` extension lets you add or drop items before they reach the cart
 
 ## Administration
+
+### Import/export profile language tooltip deprecated
+
+The snippet key `sw-import-export.profile.addNewProfileTooltipLanguage` was deprecated and will be removed in 6.8.0 without replacement. Profiles can now be created in any content language, so extensions should remove references to this tooltip.
 
 ### `sw-empty-state` stays available until 6.9
 

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Address\Error\AddressValidationError;
+use Shopware\Core\Checkout\Cart\Address\Error\VatIdMissingError;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\GenericCartError;
@@ -55,6 +56,7 @@ class StorefrontControllerTest extends TestCase
     protected function setUp(): void
     {
         $this->controller = new TestStorefrontController();
+        (new TestSessionStorage())->clear();
     }
 
     public function testRenderStorefront(): void
@@ -599,6 +601,45 @@ class StorefrontControllerTest extends TestCase
 
         $this->controller->setContainer($container);
         $this->controller->testAddCartErrors($cart);
+    }
+
+    public function testVatIdMissingErrorLinksToProfile(): void
+    {
+        $cart = new Cart('foo');
+        $cart->addErrors(new VatIdMissingError());
+
+        $session = new Session(new TestSessionStorage());
+        $request = new Request();
+        $request->setSession($session);
+
+        $stack = new RequestStack();
+        $stack->push($request);
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator
+            ->expects($this->once())
+            ->method('trans')
+            ->with('checkout.vat-id-missing', ['%url%' => 'profileUrl'])
+            ->willReturn('VAT ID missing');
+
+        $router = $this->createMock(RouterInterface::class);
+        $router
+            ->expects($this->once())
+            ->method('generate')
+            ->with('frontend.account.profile.page')
+            ->willReturn('profileUrl');
+
+        $container = new ContainerBuilder();
+        $container->set('request_stack', $stack);
+        $container->set('translator', $translator);
+        $container->set('router', $router);
+
+        $this->controller->setContainer($container);
+        $this->controller->testAddCartErrors($cart);
+
+        $flashBag = $session->getBag('flashes');
+        static::assertInstanceOf(FlashBagInterface::class, $flashBag);
+        static::assertSame(['danger' => ['VAT ID missing']], $flashBag->all());
     }
 
     public function testRenderView(): void

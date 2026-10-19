@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
@@ -323,6 +324,8 @@ class MigrationForeignDefaultLanguageTest extends TestCase
 
     private function setupDB(Connection $orgConnection): Connection
     {
+        $orgConnection = MySQLFactory::createMigrationConnection($orgConnection);
+
         // Be sure that we are on the no migrations db
         static::assertStringContainsString('_no_migrations', $this->databaseName, 'Wrong DB ' . $this->databaseName);
 

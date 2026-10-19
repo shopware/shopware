@@ -420,6 +420,16 @@ Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new fo
 
 # Core
 
+## Multiple SQL statements restricted to migrations and installation
+
+Application database connections no longer accepted multiple SQL statements in a single call.
+Replace batches such as `executeStatement('UPDATE ...; DELETE ...')` with separate calls and keep any required transaction around them.
+
+Migration execution, discovery, and bookkeeping used a dedicated connection to the primary database.
+Use the connection passed to `MigrationStep::update()` and `MigrationStep::updateDestructive()` for migration queries; these methods and installer schema imports continued to support multiple statements.
+Migration queries no longer shared the application connection's transaction, session variables, or temporary tables.
+Commit application changes needed by a migration before running it, and do not expect an application transaction rollback to undo migration changes.
+
 <details>
 
 ## Invalid price definition exceptions

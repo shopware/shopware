@@ -83,6 +83,12 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Multiple SQL statements restricted in 6.8
+
+With `v6.8.0.0` active, application database connections reject multiple SQL statements in a single call.
+Execute statements separately in extensions.
+The connections passed to migration `update()` and `updateDestructive()` methods and the installer still allow multiple statements.
+
 ### Invalid price definition exception factory
 
 Use `DataAbstractionLayerException::invalidPriceFieldType()` instead of constructing the deprecated `InvalidPriceFieldTypeException`. The factory preserves the legacy exception in 6.7 and returns `DataAbstractionLayerException` with the same error code and message when `v6.8.0.0` is active.

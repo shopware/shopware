@@ -10,6 +10,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Tools\DsnParser;
 use Pdo\Mysql;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\Util\XmlUtils;
 
@@ -58,13 +59,14 @@ class MySQLFactory
             \PDO::ATTR_TIMEOUT => 5,
         ] + ($dsnParameters['driverOptions'] ?? []);
 
-        $initCommands = [
-            'SET @@session.time_zone = \'+00:00\'',
-            'SET @@group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED)',
-            'SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'))',
-        ];
+        if (Feature::isActive('v6.8.0.0')) {
+            $parameters['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] = false;
+        }
 
-        $parameters['driverOptions'][Mysql::ATTR_INIT_COMMAND] = \implode(';', $initCommands);
+        $parameters['driverOptions'][Mysql::ATTR_INIT_COMMAND] = 'SET
+            @@session.time_zone = \'+00:00\',
+            @@session.group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED),
+            @@session.sql_mode = (SELECT REPLACE(@@sql_mode, \'ONLY_FULL_GROUP_BY\', \'\'))';
 
         if ($sslCa = EnvironmentHelper::getVariable('DATABASE_SSL_CA')) {
             $parameters['driverOptions'][Mysql::ATTR_SSL_CA] = $sslCa;
@@ -129,6 +131,30 @@ class MySQLFactory
         }
 
         return DriverManager::getConnection($parameters, $config);
+    }
+
+    public static function createMigrationConnection(Connection $connection): Connection
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return $connection;
+        }
+
+        $parameters = $connection->getParams();
+
+        if ($connection instanceof PrimaryReadReplicaConnection && isset($parameters['primary'])) {
+            $parameters = array_replace($parameters, $parameters['primary']);
+            unset($parameters['primary'], $parameters['replica'], $parameters['keepReplica'], $parameters['wrapperClass']);
+        }
+
+        $parameters['driverOptions'] = [
+            Mysql::ATTR_MULTI_STATEMENTS => true,
+            // Persistent PDO handles can be reused across connections with different driver options.
+            \PDO::ATTR_PERSISTENT => false,
+        ] + ($parameters['driverOptions'] ?? []);
+
+        $parameters['persistent'] = false;
+
+        return DriverManager::getConnection($parameters, $connection->getConfiguration());
     }
 
     /**

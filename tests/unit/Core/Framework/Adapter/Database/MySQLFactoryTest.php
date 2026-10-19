@@ -7,11 +7,13 @@ use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
+use Pdo\Mysql;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -21,6 +23,74 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 class MySQLFactoryTest extends TestCase
 {
     use EnvTestBehaviour;
+
+    public function testMultiStatementsAreDisabledForApplicationConnections(): void
+    {
+        $params = MySQLFactory::create()->getParams();
+
+        static::assertFalse($params['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] ?? null);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0', 'v6.9.0.0'])]
+    public function testMultiStatementsRemainEnabledBeforeTheMajorRelease(): void
+    {
+        $connection = MySQLFactory::create();
+
+        $params = $connection->getParams();
+
+        static::assertArrayHasKey('driverOptions', $params);
+        static::assertArrayNotHasKey(Mysql::ATTR_MULTI_STATEMENTS, $params['driverOptions']);
+        static::assertSame($connection, MySQLFactory::createMigrationConnection($connection));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0', 'v6.9.0.0'])]
+    public function testExplicitMultiStatementRestrictionIsPreservedBeforeTheMajorRelease(): void
+    {
+        $this->setEnvVars([
+            'DATABASE_URL' => 'mysql://user:pass@localhost:3306/shopware?driverOptions[' . Mysql::ATTR_MULTI_STATEMENTS . ']=false',
+        ]);
+
+        static::assertFalse(MySQLFactory::create()->getParams()['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] ?? null);
+    }
+
+    public function testMigrationConnectionAllowsMultiStatementsWithoutChangingApplicationConnection(): void
+    {
+        $this->setEnvVars([
+            'DATABASE_URL' => 'mysql://user:pass@localhost:3306/shopware?persistent=1',
+            'DATABASE_PERSISTENT_CONNECTION' => '1',
+        ]);
+
+        $connection = MySQLFactory::create([new MyMiddleware()]);
+        $migrationConnection = MySQLFactory::createMigrationConnection($connection);
+
+        static::assertNotSame($connection, $migrationConnection);
+        static::assertTrue($migrationConnection->getParams()['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] ?? null);
+        static::assertFalse($migrationConnection->getParams()['driverOptions'][\PDO::ATTR_PERSISTENT] ?? null);
+        static::assertFalse($migrationConnection->getParams()['persistent'] ?? null);
+        static::assertFalse($connection->getParams()['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] ?? null);
+        static::assertTrue($connection->getParams()['driverOptions'][\PDO::ATTR_PERSISTENT] ?? null);
+        static::assertSame($connection->getConfiguration(), $migrationConnection->getConfiguration());
+        static::assertInstanceOf(MyDriver::class, $migrationConnection->getDriver());
+    }
+
+    public function testMigrationConnectionUsesThePrimaryDatabase(): void
+    {
+        $this->setEnvVars([
+            'DATABASE_URL' => 'mysql://user:pass@primary:3306/shopware',
+            'DATABASE_REPLICA_0_URL' => 'mysql://replica:pass@replica:3306/shopware',
+        ]);
+
+        $connection = MySQLFactory::create();
+        $migrationConnection = MySQLFactory::createMigrationConnection($connection);
+        $params = $migrationConnection->getParams();
+
+        static::assertNotInstanceOf(PrimaryReadReplicaConnection::class, $migrationConnection);
+        static::assertSame('primary', $params['host'] ?? null);
+        static::assertSame('user', $params['user'] ?? null);
+        static::assertTrue($params['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] ?? null);
+        static::assertFalse($connection->getParams()['primary']['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] ?? null);
+        static::assertFalse($connection->getParams()['replica'][0]['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] ?? null);
+    }
 
     public function testMiddlewaresAreUsed(): void
     {

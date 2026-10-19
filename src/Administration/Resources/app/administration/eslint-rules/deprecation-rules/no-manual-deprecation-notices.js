@@ -70,6 +70,8 @@ function staticText(sourceCode, node, seen = new Set()) {
             return staticText(sourceCode, node.argument, seen);
         case 'ConditionalExpression':
             return `${staticText(sourceCode, node.consequent, seen)} ${staticText(sourceCode, node.alternate, seen)}`;
+        case 'LogicalExpression':
+            return `${staticText(sourceCode, node.left, seen)} ${staticText(sourceCode, node.right, seen)}`;
         case 'Identifier':
             if (seen.has(node.name)) {
                 return '';

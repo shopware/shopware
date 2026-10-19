@@ -554,15 +554,6 @@ class RequestCriteriaBuilder
     }
 
     /**
-     * Request supplied associations are loaded by the DAL without any ownership scoping, so an association that is not
-     * exposed for the request's api source must be rejected before the criteria is executed, the same way the
-     * ApiCriteriaValidator rejects filters and sortings on such fields. Associations which are added server-side after
-     * parsing (e.g. in routes or plugins) are intentionally not affected.
-     *
-     * Every field is ApiAware for the Admin API by default (see Field::__construct), so Admin API requests are only
-     * affected by explicitly restricted fields.
-     */
-    /**
      * Partial loading (`fields`) turns every association in an accessor path into a loaded association at read time,
      * so the paths are held to the same rule as the `associations` parameter.
      */
@@ -575,6 +566,15 @@ class RequestCriteriaBuilder
         }
     }
 
+    /**
+     * Request supplied associations are loaded by the DAL without any ownership scoping, so an association that is not
+     * exposed for the request's api source must be rejected before the criteria is executed, the same way the
+     * ApiCriteriaValidator rejects filters and sortings on such fields. Associations which are added server-side after
+     * parsing (e.g. in routes or plugins) are intentionally not affected.
+     *
+     * Every field is ApiAware for the Admin API by default (see Field::__construct), so Admin API requests are only
+     * affected by explicitly restricted fields.
+     */
     private function validateAssociationIsApiAware(AssociationField $field, string $propertyName, Context $context): void
     {
         if ($field->getFlag(ApiCriteriaAware::class)) {

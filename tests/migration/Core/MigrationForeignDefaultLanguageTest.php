@@ -324,14 +324,14 @@ class MigrationForeignDefaultLanguageTest extends TestCase
 
     private function setupDB(Connection $orgConnection): Connection
     {
-        $orgConnection = MySQLFactory::createMigrationConnection($orgConnection);
-
         // Be sure that we are on the no migrations db
         static::assertStringContainsString('_no_migrations', $this->databaseName, 'Wrong DB ' . $this->databaseName);
 
         $orgConnection->executeStatement('DROP DATABASE IF EXISTS `' . $this->databaseName . '`');
 
         $orgConnection->executeStatement('CREATE DATABASE `' . $this->databaseName . '` DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_unicode_ci');
+
+        $orgConnection = MySQLFactory::createMigrationConnection($orgConnection);
 
         $connection = new Connection(
             array_merge(

@@ -1,3 +1,16 @@
+# 6.7.17.0 (upcoming)
+
+## Core
+
+### Multiple SQL statements restricted in 6.8
+
+With `DISABLE_SQL_MULTI_STATEMENTS=1`, application database connections reject multiple SQL statements in a single call.
+This flag is also enabled by `V6_8_0_0=1` unless explicitly disabled.
+Execute statements separately in extensions.
+Migration execution, discovery, and bookkeeping now always use a separate primary connection, even while the flag is disabled.
+Migration queries no longer share application transactions, session variables, or temporary tables; commit any application changes they need before running migrations.
+The connections passed to migration `update()` and `updateDestructive()` methods and the installer explicitly allow multiple statements.
+
 # 6.7.16.0 (upcoming)
 
 ## Critical Fixes
@@ -87,14 +100,6 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
-### Multiple SQL statements restricted in 6.8
-
-With `DISABLE_SQL_MULTI_STATEMENTS=1`, application database connections reject multiple SQL statements in a single call.
-This flag is also enabled by `V6_8_0_0=1` unless explicitly disabled.
-Execute statements separately in extensions.
-Migration execution, discovery, and bookkeeping now always use a separate primary connection, even while the flag is disabled.
-Migration queries no longer share application transactions, session variables, or temporary tables; commit any application changes they need before running migrations.
-The connections passed to migration `update()` and `updateDestructive()` methods and the installer explicitly allow multiple statements.
 ### Document-type deprecations
 
 Constructing the deprecated document-type definitions, entities and collections, including empty collections, throws when `v6.9.0.0` is active. Their getters and setters emit no deprecation notices. Use `document.typeName` and the document v2 type registry instead of the legacy DAL entities.

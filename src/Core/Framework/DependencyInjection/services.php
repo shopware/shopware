@@ -296,6 +296,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.migration_source');
 
     $services->set('doctrine.dbal.migration_connection', Connection::class)
+        ->public()
         ->factory([MySQLFactory::class, 'createMigrationConnection'])
         ->args([service(Connection::class)]);
 

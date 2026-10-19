@@ -196,6 +196,10 @@ export default {
             return Shopware.Store.get('swProductDetail').productType;
         },
 
+        isUploadedFileRequired() {
+            return this.productType === 'digital' && !Shopware.Store.get('swProductDetail').isDownloadExternallyManaged;
+        },
+
         ...mapPageErrors(errorConfiguration),
 
         identifier() {
@@ -827,6 +831,7 @@ export default {
                         product.properties = result;
                     }
 
+                    Shopware.Store.get('swProductDetail').isDownloadExternallyManaged = !product.downloads?.length;
                     Shopware.Store.get('swProductDetail').product = product;
 
                     if (this.product.parentId) {
@@ -1108,11 +1113,12 @@ export default {
         },
 
         customValidate(errors, product) {
-            if (this.productType === 'digital') {
-                // custom download product validation
-                if (product.downloads === undefined || product.downloads.length < 1) {
-                    errors.push(EntityValidationService.createRequiredError('/0/downloads'));
-                }
+            if (this.isUploadedFileRequired && (product.downloads === undefined || product.downloads.length < 1)) {
+                errors.push({
+                    ...EntityValidationService.createRequiredError('/0/downloads'),
+                    code: 'SW_PRODUCT_DOWNLOADS_EXTERNAL_MANAGEMENT_REQUIRED',
+                    detail: this.$t('sw-product.detailBase.downloadsExternalManagementRequired'),
+                });
             }
 
             return errors;

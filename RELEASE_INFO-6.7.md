@@ -87,6 +87,14 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Document-type deprecations
+
+Constructing the deprecated document-type definitions, entities and collections, including empty collections, throws when `v6.9.0.0` is active. Their getters and setters emit no deprecation notices. Use `document.typeName` and the document v2 type registry instead of the legacy DAL entities.
+
+### Import/export profile translation construction in major mode
+
+Constructing the deprecated `ImportExportProfileTranslationDefinition`, `ImportExportProfileTranslationEntity` or `ImportExportProfileTranslationCollection`, including an empty collection, now throws when `v6.8.0.0` is active. All remain usable before removal, without per-accessor deprecation notices. Profile label translations are being removed in 6.8; use the profile's technical name instead.
+
 ### Invalid price definition exception factory
 
 Use `DataAbstractionLayerException::invalidPriceFieldType()` instead of constructing the deprecated `InvalidPriceFieldTypeException`. The factory preserves the legacy exception in 6.7 and returns `DataAbstractionLayerException` with the same error code and message when `v6.8.0.0` is active.
@@ -564,6 +572,20 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
 
+### Store API reads every field of the compressed `_criteria` parameter
+
+On every Store API `GET` route, `_criteria` is now a compressed form of the query string. A `GET` request with `_criteria` reads the same fields as the `POST` request with that body, for example `limit`, `includes`, `slots`, `depth` or `options`. Before, many routes ignored these fields inside `_criteria`. Fields that a route reads from the `POST` body only, such as the listing filter flags, are still not read.
+
+If you send `_criteria`, note:
+
+- A field in `_criteria` wins over a query parameter of the same name. Other query parameters are applied next to it, also on the Admin API.
+- Values are read as strings, as in a query string, also by listing filters of extensions. `null` counts as not sent.
+- The `sw-include-search-info` header is respected together with `_criteria`.
+- An invalid `_criteria` value is answered with `400` on every Store API `GET` route.
+
+On the Store API, `includes` and `excludes` that are not an array are answered with `400` instead of `500`.
+
+The OpenAPI schema declares `_criteria` on more `GET` operations and no longer marks `search` of `searchSuggestGet`, `ids[]` of `readMediaGet` and `options[]` of `searchProductVariantIdsGet` as required.
 ### Store API schema describes line item payloads per type
 
 The Store API schema no longer restricts the line item `type` to the core values, because extensions add their own types such as `customized-products` or `subscriptionDiscount`. `payload` is an open object whose keys depend on `type`. The new `ProductLineItemPayload` and `PromotionLineItemPayload` schemas describe the payloads of `product` and `promotion` line items, and `LineItem` and `OrderLineItem` apply them through `if`/`then` conditions on `type`. Both mark every key core always writes as required, except `productType` and `composition`. An order keeps the payload of the version that placed it, so orders from older versions can lack keys added since. The cart `LineItem.payload` no longer references `ProductJsonApi`. That schema was removed, along with the JSON:API resource and relationship schemas that only it used.

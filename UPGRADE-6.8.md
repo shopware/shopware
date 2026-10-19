@@ -1448,6 +1448,10 @@ new HreflangLoaderParameter('frontend.home.page', $routeParameters, $salesChanne
 
 # Administration
 
+## Import/export profile language tooltip removed
+
+The deprecated snippet key `sw-import-export.profile.addNewProfileTooltipLanguage` was removed without replacement. Remove references to this tooltip from extensions, as profile creation no longer requires the system language.
+
 ## Removal of deprecated `config` data property in `sw-system-config` component
 
 The deprecated data property `config` in `sw-system-config` component with the legacy card structure was removed. Please use the new data property `schema` with the tab structure instead.

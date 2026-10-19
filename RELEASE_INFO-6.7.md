@@ -37,6 +37,10 @@ If you used "Is equal to 0" to target line items without a list price, use "Is e
 
 ## Features
 
+### Digital products can use external file assignment
+
+In the Administration, digital products can be saved without uploaded files when file assignment is handled externally. When editing a product, the option is enabled by default if it has no downloads and disabled if it has downloads.
+
 ### System configuration tabs
 
 With the newly added tabs feature, plugin developers can now add another layer of organization to the already existing cards in the system configuration. This allows to group related cards into individual tabs and provide a better overview for merchants when configuring a plugin. The feature is fully optional to use and works with partial usage as well - any cards not added to a tab are automatically gathered in a "General" tab.
@@ -595,6 +599,10 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 `POST /store-api/checkout/cart/reorder/{orderId}` adds an order's products to the cart, and the `checkout.cart.collect-reorder-line-items` extension lets you add or drop items before they reach the cart
 
 ## Administration
+
+### Import/export profile language tooltip deprecated
+
+The snippet key `sw-import-export.profile.addNewProfileTooltipLanguage` was deprecated and will be removed in 6.8.0 without replacement. Profiles can now be created in any content language, so extensions should remove references to this tooltip.
 
 ### `sw-empty-state` stays available until 6.9
 

@@ -262,7 +262,9 @@ abstract class StorefrontController extends AbstractController
                 }
 
                 if ($error instanceof VatIdMissingError || $error instanceof VatIdInvalidError) {
-                    $parameters['%url%'] = $this->generateUrl('frontend.account.profile.page');
+                    $parameters['%url%'] = $this->generateUrl('frontend.account.profile.page', [
+                        'redirectTo' => 'frontend.checkout.confirm.page',
+                    ]);
                 }
 
                 $translatedMessage = $this->trans('checkout.' . $error->getMessageKey(), $parameters);

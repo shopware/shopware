@@ -1007,6 +1007,13 @@ The zoom modal no longer waits for images without a source before it opens.
 
 These additions are experimental and become stable with 6.8.0.
 
+### Guests can open the profile page
+
+Guests can now open and save the profile page to correct their personal data, company and VAT ID, for example when the cart reports `vat-id-missing` or `vat-id-invalid`.
+The e-mail, password and account deletion sections stay hidden for guests, and their routes still reject them.
+The profile form keeps a `redirectTo` parameter, which the VAT ID errors use to send the customer back to the checkout after saving.
+Themes that override blocks of the personal data form in `page/account/profile/index.html.twig` should check that the content also suits guests.
+
 ## App system
 
 ### App requests keep body and signature across redirects

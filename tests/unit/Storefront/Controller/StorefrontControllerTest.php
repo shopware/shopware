@@ -629,7 +629,7 @@ class StorefrontControllerTest extends TestCase
         $router
             ->expects($this->once())
             ->method('generate')
-            ->with('frontend.account.profile.page')
+            ->with('frontend.account.profile.page', ['redirectTo' => 'frontend.checkout.confirm.page'])
             ->willReturn('profileUrl');
 
         $container = new ContainerBuilder();

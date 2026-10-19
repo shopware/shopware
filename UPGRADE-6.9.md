@@ -117,7 +117,8 @@ bin/console administration:check-extensions -- --only=MyPlugin --fix
 It renames `title` to `headline` and `subline` to `description`, moves the `actions` slot to `button`, and turns plain text default slots and `icon` slots with a single `mt-icon` or `sw-icon` into props.
 If `icon` or `subline` is not set, it passes the module icon or description that `sw-empty-state` used as fallback.
 Usages with custom `icon` slot content, markup in the default slot or dynamic bindings are only reported and have to be migrated manually.
-Check the `TODO Codemod` comment the rule adds above each converted usage. It names removed props and bound values that no longer fall back to the module icon or description.
+Check the `TODO Codemod` comment the rule adds above each converted usage.
+It names removed props and bound values that no longer fall back to the module icon or description.
 
 ## Legacy document components removed
 

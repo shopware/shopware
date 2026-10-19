@@ -6,6 +6,9 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parse } from 'yaml';
 
+// Not `ADMIN_PATH`: an exported shell value may point it at another checkout.
+const featureRegistryPath = resolve(__dirname, '../..', '../../../../Core/Framework/Resources/config/packages/feature.yaml');
+
 type FeatureFlag = {
     name: string;
     major?: string;
@@ -36,12 +39,7 @@ export type FeatureConfig = {
  * isMajorRun(loadFeatureConfig(), process.env);
  */
 export function loadFeatureConfig(): FeatureConfig {
-    return parse(
-        readFileSync(
-            resolve(process.env.ADMIN_PATH as string, '../../../../Core/Framework/Resources/config/packages/feature.yaml'),
-            'utf8',
-        ),
-    ) as FeatureConfig;
+    return parse(readFileSync(featureRegistryPath, 'utf8')) as FeatureConfig;
 }
 
 function normalizeName(name: string): string {

@@ -2,6 +2,9 @@
  * @sw-package framework
  * @private
  */
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { parse } from 'yaml';
 
 type FeatureFlag = {
     name: string;
@@ -9,13 +12,37 @@ type FeatureFlag = {
     default?: boolean;
 };
 
-type FeatureConfig = {
+/**
+ * The part of `feature.yaml` the major flag resolution reads.
+ *
+ * @private
+ * @example
+ * const config: FeatureConfig = { shopware: { feature: { flags: [{ name: 'V6_8_0_0' }] } } };
+ */
+export type FeatureConfig = {
     shopware?: {
         feature?: {
             flags?: Array<FeatureFlag>;
         };
     };
 };
+
+/**
+ * Loads the feature registry from `feature.yaml`, the file the PHP side resolves the flags from.
+ * Use it in Jest helpers that need the flag definitions; it reads the file on each call.
+ *
+ * @private
+ * @example
+ * isMajorRun(loadFeatureConfig(), process.env);
+ */
+export function loadFeatureConfig(): FeatureConfig {
+    return parse(
+        readFileSync(
+            resolve(process.env.ADMIN_PATH as string, '../../../../Core/Framework/Resources/config/packages/feature.yaml'),
+            'utf8',
+        ),
+    ) as FeatureConfig;
+}
 
 function normalizeName(name: string): string {
     return name.toUpperCase().replace(/[.:-]/g, '_');

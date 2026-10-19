@@ -2,11 +2,8 @@
  * @sw-package framework
  * @private
  */
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { parse } from 'yaml';
 import deprecationBaseline from 'src/meta/deprecation-baseline.json';
-import { isMajorRun } from './majorFeatureFlags';
+import { isMajorRun, loadFeatureConfig } from './majorFeatureFlags';
 import type { RecordedDeprecation } from './deprecations';
 
 /**
@@ -28,12 +25,7 @@ export type DeprecationRun = 'default' | 'major';
  */
 export type BaselinedUsages = Record<string, DeprecationRun[]>;
 
-const featureConfig = parse(
-    readFileSync(
-        resolve(process.env.ADMIN_PATH as string, '../../../../Core/Framework/Resources/config/packages/feature.yaml'),
-        'utf8',
-    ),
-) as Parameters<typeof isMajorRun>[0];
+const featureConfig = loadFeatureConfig();
 
 // Deprecation key → known usages, as in `src/meta/deprecation-baseline.json`.
 const baseline = deprecationBaseline as Record<string, BaselinedUsages>;

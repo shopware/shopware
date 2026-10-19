@@ -169,7 +169,7 @@
                                                         "type": "string"
                                                     },
                                                     "vatIds": {
-                                                        "description": "VAT IDs of the customer's company. Only valid when `accountType` is `business`, and only required when the country of the default billing address has `vatIdRequired` enabled.",
+                                                        "description": "VAT IDs of the customer's company. Only valid when `accountType` is `business`, and validated against the country of the active billing address: required when it has `vatIdRequired` enabled, and checked against its VAT ID pattern when it has `checkVatIdPattern` enabled.",
                                                         "type": "array",
                                                         "items": {
                                                             "type": "string"

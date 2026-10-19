@@ -58,6 +58,8 @@ The VAT ID settings of the country of the active billing address are now checked
 
 This also covers customers who registered before the settings were enabled or who switched to a billing address in another country later.
 Store API clients should show the error and let the customer fix the VAT ID via `/store-api/account/change-profile`.
+That route now also validates `vatIds` against the country of the active billing address instead of the default one, so a VAT ID it accepts passes the cart check.
+The Storefront profile page marks the VAT ID field as required based on the same country.
 
 ## API
 

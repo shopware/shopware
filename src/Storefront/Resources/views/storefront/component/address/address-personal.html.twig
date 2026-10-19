@@ -237,10 +237,10 @@
                                 {% set editMode = true %}
                             {% endif %}
 
-                            {# There is no country select on the profile form, so derive the "required" state from the customer's default billing country (same source the backend validates against). #}
+                            {# There is no country select on the profile form, so derive the "required" state from the customer's active billing country (same source the backend validates against). #}
                             {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
                                 vatIds: data.get('vatIds'),
-                                vatIdRequired: data.defaultBillingAddress.country.vatIdRequired ?? false,
+                                vatIdRequired: data.activeBillingAddress.country.vatIdRequired ?? false,
                             } %}
                         {% endblock %}
                     </div>

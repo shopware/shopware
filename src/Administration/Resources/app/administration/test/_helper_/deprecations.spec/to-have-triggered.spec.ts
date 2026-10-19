@@ -80,6 +80,15 @@ describe('test/_helper_/deprecations - toHaveTriggered', () => {
         expect(failure).not.toContain(oldFunctionMessage);
     });
 
+    it('covers every deprecation a broad string matches', () => {
+        oldFunction();
+        triggerOtherDeprecation();
+
+        expect(deprecations).toHaveTriggered('is deprecated.');
+
+        expect(failureOfEndDeprecationLog()).toBe('');
+    });
+
     it('accepts only the `deprecations` handle', () => {
         // @ts-expect-error the matcher type-checks only on the handle
         expect(() => expect({}).toHaveTriggered('oldFunction()')).toThrow(

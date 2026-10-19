@@ -51,13 +51,22 @@ describe('src/app/plugin/deprecation.plugin', () => {
         );
 
         it('reports the comment and where it is used while the major is inactive', () => {
-            mountInPage('<div><sw-legacy /><sw-legacy /></div>');
+            mountInPage('<sw-legacy />');
 
             expect(deprecations).toHaveTriggered(
                 'The component "sw-legacy" is deprecated and will be removed in Shopware v7.0.0.0.\n' +
                     'Use "mt-select" instead.\n' +
                     'Used in: VTU_ROOT > sw-page > sw-legacy',
             );
+        });
+
+        it('warns only once for repeated uses at the same site while the major is inactive', () => {
+            useProductionDeprecationGuard();
+            const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            mountInPage('<div><sw-legacy /><sw-legacy /></div>');
+
+            expect(warn).toHaveBeenCalledTimes(1);
         });
 
         it('reports each usage site while the major is inactive', () => {
@@ -71,8 +80,6 @@ describe('src/app/plugin/deprecation.plugin', () => {
         });
 
         it('reports a removal version that is no version as an unknown flag', () => {
-            // The unknown-flag report is console output of the production guard.
-            useProductionDeprecationGuard();
             const error = jest.spyOn(console, 'error').mockImplementation(() => {});
 
             mount({ ...legacyComponent, deprecated: true });

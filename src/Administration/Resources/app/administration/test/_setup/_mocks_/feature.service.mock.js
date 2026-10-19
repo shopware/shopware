@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import Feature from 'src/core/feature';
+import Feature, { UNREGISTERED_UPCOMING_MAJORS } from 'src/core/feature';
 import FeatureService from 'src/app/service/feature.service';
 import normalizeFeatureFlag from '../../_helper_/normalizeFeatureFlag';
 import { recordDeprecation, shouldHandleDeprecationsThroughMock } from '../../_helper_/deprecations';
@@ -27,7 +27,9 @@ const productionTriggerDeprecationOrThrow = Feature.triggerDeprecationOrThrow;
  * Mocks the real `triggerDeprecationOrThrow` and silences deprecations if they are explicitly asserted or allowed
  */
 function triggerDeprecationOrThrow(majorFlag, message) {
-    if (shouldHandleDeprecationsThroughMock(majorFlag, this.isActive(majorFlag))) {
+    const isMajorKnown = this.isRegistered(majorFlag) || UNREGISTERED_UPCOMING_MAJORS.includes(majorFlag.toUpperCase());
+
+    if (shouldHandleDeprecationsThroughMock(majorFlag, this.isActive(majorFlag), isMajorKnown)) {
         recordDeprecation(message);
         return;
     }

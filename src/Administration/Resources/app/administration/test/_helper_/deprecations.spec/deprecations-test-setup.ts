@@ -31,13 +31,7 @@ export function triggerOtherDeprecation(): void {
  * expect(failure).not.toContain('otherFunction() is deprecated.');
  */
 export function failureOfEndDeprecationLog(): string {
-    try {
-        endDeprecationLog();
-
-        return '';
-    } catch (error) {
-        return (error as Error).message;
-    }
+    return messageThrownBy(endDeprecationLog);
 }
 
 /**

@@ -31,6 +31,18 @@ describe('test/_helper_/deprecations - the guard in Jest', () => {
         expect(deprecations).toHaveTriggered(oldFunctionMessage);
     });
 
+    it('leaves an unknown major flag to the production guard, which reports it as a typo', () => {
+        const error = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+        Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_O', 'typoFunction() is deprecated.');
+
+        expect(deprecations).not.toHaveTriggered('typoFunction()');
+        expect(error).toHaveBeenCalledWith(
+            '[Deprecation]',
+            expect.stringContaining('"V6_8_0_O" is an unknown feature flag'),
+        );
+    });
+
     it.activeFeatureFlags(['v7.0.0.0'])('still throws at the call for a major the test activates itself', () => {
         expect(() => Shopware.Feature.triggerDeprecationOrThrow('V7_0_0_0', oldFunctionMessage)).toThrow(
             `Tried to access deprecated functionality: ${oldFunctionMessage}`,

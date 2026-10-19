@@ -3,6 +3,7 @@
  * @private
  */
 
+import path from 'path';
 import { getDefaultActiveFeatureFlags } from './defaultActiveFeatureFlags';
 import normalizeFeatureFlag from './normalizeFeatureFlag';
 
@@ -148,18 +149,22 @@ function withoutWrappedSuffix(message: string): string {
 /**
  * Whether to record a triggered deprecation
  * Won't record it if the major flag was explicitly activated by `it.activeFeatureFlags()` so it can still throw
- * @returns `false` when the deprecation is not recorded because of `it.activeFeatureFlags()`, outside a test, or
- * after `useProductionDeprecationGuard()`
+ * @returns `false` when the deprecation is not recorded because of `it.activeFeatureFlags()`, an unknown major
+ * flag the production guard reports as a typo, outside a test, or after `useProductionDeprecationGuard()`
  *
  * @private
  * @example
- * if (shouldHandleDeprecationsThroughMock(majorFlag, this.isActive(majorFlag))) { recordDeprecation(message); return; }
+ * if (shouldHandleDeprecationsThroughMock(majorFlag, this.isActive(majorFlag), isMajorKnown)) { recordDeprecation(message); return; }
  */
-export function shouldHandleDeprecationsThroughMock(majorFlag: string, isMajorActive: boolean): boolean {
+export function shouldHandleDeprecationsThroughMock(
+    majorFlag: string,
+    isMajorActive: boolean,
+    isMajorKnown: boolean,
+): boolean {
     const isActivatedByTest =
         isMajorActive && !getDefaultActiveFeatureFlags().map(normalizeFeatureFlag).includes(normalizeFeatureFlag(majorFlag));
 
-    return deprecations.isRecording && !isActivatedByTest;
+    return deprecations.isRecording && isMajorKnown && !isActivatedByTest;
 }
 
 /**
@@ -197,8 +202,14 @@ export function startDeprecationLog(): void {
     deprecations.isRecording = true;
 }
 
+/** The Administration directory `_jest.config.ts` runs from; failure reports show paths relative to it. */
+const adminPath = process.env.ADMIN_PATH ?? process.cwd();
+
+/** The repository root, so usages in the Storefront administration count as well. */
+const repositoryRoot = path.resolve(adminPath, '../../../../..');
+
 /**
- * @returns the call stack within the project (filtering out noise: node_modules and helper functions that will be there always)
+ * @returns the call stack within the repository (filtering out noise: node_modules and helper functions that will be there always)
  *
  * @example
  * usageFrames(entry.error); // ['    at oldFunction (/…/oldFunction.ts:13:13)', '    at … (/…/my.spec.ts:10:20)']
@@ -206,18 +217,20 @@ export function startDeprecationLog(): void {
 function usageFrames(error: Error): string[] {
     return (error.stack ?? '')
         .split('\n')
-        .filter((line) => /^\s+at /.test(line) && line.includes(process.cwd()))
+        .filter((line) => /^\s+at /.test(line) && line.includes(repositoryRoot))
         .filter((line) => !/node_modules|_helper_\/deprecations\.ts|feature\.service\.mock\.js/.test(line));
 }
 
 /**
- * The `file:line:column` of a stack frame, relative to the project, for the failure report.
+ * The `file:line:column` of a stack frame, relative to the Administration directory, for the failure report.
  *
  * @example
- * location('    at oldFunction (/app/test/oldFunction.ts:13:13)'); // 'test/oldFunction.ts:13:13'
+ * location('    at oldFunction (/<admin>/test/oldFunction.ts:13:13)'); // 'test/oldFunction.ts:13:13'
  */
 function location(frame: string): string {
-    return (/\(?(\S+:\d+:\d+)\)?$/.exec(frame)?.[1] ?? frame.trim()).replace(`${process.cwd()}/`, '');
+    const file = /\(?(\S+:\d+:\d+)\)?$/.exec(frame)?.[1];
+
+    return file ? path.relative(adminPath, file) : frame.trim();
 }
 
 /**

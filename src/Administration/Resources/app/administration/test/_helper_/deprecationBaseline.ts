@@ -58,8 +58,8 @@ export function currentRun(): DeprecationRun {
 }
 
 /**
- * Whether the checked-in baseline lists the usage site of `entry` as a known usage of its deprecation in the
- * current run, also with `DEPRECATION_BASELINE=update`.
+ * Whether the baseline lists the usage site of `entry` as a known usage of its deprecation in the current run,
+ * also with `DEPRECATION_BASELINE=update`.
  *
  * @private
  * @example

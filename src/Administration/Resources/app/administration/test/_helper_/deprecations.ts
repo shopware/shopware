@@ -8,6 +8,7 @@ import { getDefaultActiveFeatureFlags } from './defaultActiveFeatureFlags';
 import normalizeFeatureFlag from './normalizeFeatureFlag';
 import { location, ownFrames, usageSite } from './deprecationUsageSite';
 import { isBaselined, isListed, recordUsedBaselineEntry } from './deprecationBaseline';
+import { isBaselineUpdateRun } from './isBaselineUpdateRun';
 
 /**
  * What an assertion or allowance matches a deprecation message against: a string matches part of it, a RegExp
@@ -220,7 +221,7 @@ function isUnasserted(entry: RecordedDeprecation, allowed: readonly Expected[]):
  * deprecations.entries.filter((entry) => needsBaselineEntry(entry, deprecations.allowed));
  */
 function needsBaselineEntry(entry: RecordedDeprecation, allowed: readonly Expected[]): boolean {
-    return isListed(entry) || (isUnasserted(entry, allowed) && isBaselined(entry));
+    return isListed(entry) || (isBaselineUpdateRun() && isUnasserted(entry, allowed));
 }
 
 /**

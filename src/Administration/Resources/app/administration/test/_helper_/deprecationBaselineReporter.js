@@ -66,7 +66,8 @@ class DeprecationBaselineReporter {
         if (stale.length > 0) {
             this.fail(
                 `The deprecation baseline lists usages no spec of the ${this.run} run needs anymore. ` +
-                    `Remove "${this.run}" from them in ${this.baselinePath}:\n${stale.join('\n')}`,
+                    `Remove "${this.run}" from them in ${this.baselinePath}, ` +
+                    `or run DEPRECATION_BASELINE=update ${updateCommand(this.run)}:\n${stale.join('\n')}`,
             );
         }
     }
@@ -99,20 +100,32 @@ function isFullRun(globalConfig) {
         globalConfig.onlyChanged,
         globalConfig.onlyFailures,
         globalConfig.shard,
-        globalConfig.bail > 0,
         // Not in the global config: they filter the projects, or the spec files of a project.
         process.argv.some((arg) => /^--(test-?path-?ignore-?patterns|select-?projects)\b/i.test(arg)),
     ].some(Boolean);
 }
 
 /**
- * Whether every spec ran through: no failed test, no suite that crashed, no error of Jest itself.
+ * Whether every spec ran through: no failed test, no suite that crashed, no error of Jest itself, no interrupted
+ * watch run.
  *
  * @example
  * isGreen(results); // false after a crashed suite
  */
 function isGreen(results) {
-    return results.numFailedTests === 0 && results.numFailedTestSuites === 0 && !results.runExecError;
+    return (
+        results.numFailedTests === 0 && results.numFailedTestSuites === 0 && !results.runExecError && !results.wasInterrupted
+    );
+}
+
+/**
+ * The composer command whose update run rewrites the markings of `run`.
+ *
+ * @example
+ * updateCommand('major'); // 'composer admin:unit:major'
+ */
+function updateCommand(run) {
+    return run === 'major' ? 'composer admin:unit:major' : 'composer admin:unit';
 }
 
 /**

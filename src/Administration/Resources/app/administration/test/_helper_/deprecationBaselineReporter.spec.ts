@@ -17,10 +17,9 @@ const fullRun = {
     onlyChanged: false,
     onlyFailures: false,
     shard: undefined,
-    bail: 0,
 };
 
-const greenRun = { numFailedTests: 0, numFailedTestSuites: 0, runExecError: undefined };
+const greenRun = { numFailedTests: 0, numFailedTestSuites: 0, runExecError: undefined, wasInterrupted: false };
 
 const message = 'oldFunction() is deprecated.';
 
@@ -103,13 +102,19 @@ describe('test/_helper_/deprecationBaselineReporter', () => {
         });
 
         it.each([
+            ['default' as const, 'composer admin:unit:'],
+            ['major' as const, 'composer admin:unit:major:'],
+        ])('names the update command of the %s run on a stale usage', (jestRun, command) => {
+            expect(run([], { run: jestRun })?.message).toContain(`DEPRECATION_BASELINE=update ${command}`);
+        });
+
+        it.each([
             ['a path argument', { nonFlagArgs: ['src/app'] }],
             ['--testPathPatterns', { testPathPatterns: { isSet: () => true } }],
             ['-t', { testNamePattern: 'renders' }],
             ['--onlyChanged, --changedSince or --lastCommit', { onlyChanged: true }],
             ['--onlyFailures', { onlyFailures: true }],
             ['--shard', { shard: { shardIndex: 1, shardCount: 2 } }],
-            ['--bail', { bail: 1 }],
             ['--testPathIgnorePatterns', {}, ['--testPathIgnorePatterns', 'sw-order']],
             ['--test-path-ignore-patterns=', {}, ['--test-path-ignore-patterns=sw-order']],
             ['--selectProjects', {}, ['--selectProjects', 'administration']],
@@ -128,7 +133,7 @@ describe('test/_helper_/deprecationBaselineReporter', () => {
         });
 
         it('marks the run on exactly the usages it needed, keeping the markings of the other run', () => {
-            run([[message, 'sw-page']], { run: 'default' });
+            expect(run([[message, 'sw-page']], { run: 'default' })).toBeUndefined();
 
             expect(readBaseline()).toEqual({ [message]: { 'sw-author': ['major'], 'sw-page': ['default', 'major'] } });
         });
@@ -136,7 +141,7 @@ describe('test/_helper_/deprecationBaselineReporter', () => {
         it('drops a usage and a message no run marks anymore', () => {
             writeBaseline({ [message]: { 'sw-page': ['major'] }, 'b() is deprecated.': { 'sw-page': ['major'] } });
 
-            run([[message, 'sw-author']], { run: 'major' });
+            expect(run([[message, 'sw-author']], { run: 'major' })).toBeUndefined();
 
             expect(readBaseline()).toEqual({ [message]: { 'sw-author': ['major'] } });
         });
@@ -144,15 +149,17 @@ describe('test/_helper_/deprecationBaselineReporter', () => {
         it('writes messages, sites and runs sorted', () => {
             writeBaseline({ 'b() is deprecated.': { 'sw-page': ['major'] } });
 
-            run(
-                [
-                    ['b() is deprecated.', 'sw-page'],
-                    ['a() is deprecated.', 'sw-page'],
-                    ['b() is deprecated.', 'sw-author'],
-                    ['b() is deprecated.', 'sw-page'],
-                ],
-                { run: 'default' },
-            );
+            expect(
+                run(
+                    [
+                        ['b() is deprecated.', 'sw-page'],
+                        ['a() is deprecated.', 'sw-page'],
+                        ['b() is deprecated.', 'sw-author'],
+                        ['b() is deprecated.', 'sw-page'],
+                    ],
+                    { run: 'default' },
+                ),
+            ).toBeUndefined();
 
             expect(readFileSync(baselinePath, 'utf8')).toBe(
                 `${JSON.stringify(
@@ -170,6 +177,7 @@ describe('test/_helper_/deprecationBaselineReporter', () => {
             ['a failed test', { numFailedTests: 1, numFailedTestSuites: 1 }],
             ['a crashed suite', { numFailedTestSuites: 1 }],
             ['an error of Jest itself', { runExecError: { message: 'out of memory' } }],
+            ['an interrupted run', { wasInterrupted: true }],
         ])('keeps the baseline after a run with %s', (_failure, override) => {
             const before = readFileSync(baselinePath, 'utf8');
 

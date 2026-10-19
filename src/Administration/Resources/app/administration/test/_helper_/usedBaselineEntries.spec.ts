@@ -12,6 +12,25 @@ import {
 
 const entry = { message: 'oldFunction() is deprecated.', usageSite: 'src/app/main.ts' };
 
+/**
+ * Records `usedEntry` from a separate Node process, as a Jest worker would.
+ *
+ * @example
+ * recordInAnotherProcess({ message: 'a() is deprecated.', usageSite: 'sw-page' });
+ */
+function recordInAnotherProcess(usedEntry: typeof entry): void {
+    execFileSync(
+        process.execPath,
+        [
+            '-e',
+            `require(${JSON.stringify(require.resolve('./usedBaselineEntries'))}).recordUsedBaselineEntry(${JSON.stringify(
+                usedEntry,
+            )})`,
+        ],
+        { env: process.env },
+    );
+}
+
 describe('test/_helper_/usedBaselineEntries', () => {
     beforeEach(() => {
         // Keeps the used entries of these specs away from the run's reporter.
@@ -41,21 +60,21 @@ describe('test/_helper_/usedBaselineEntries', () => {
         startCollectingUsedBaselineEntries();
         recordUsedBaselineEntry(entry);
 
-        execFileSync(
-            process.execPath,
-            [
-                '-e',
-                `require(${JSON.stringify(require.resolve('./usedBaselineEntries'))}).recordUsedBaselineEntry(${JSON.stringify(
-                    { message: 'a() is deprecated.', usageSite: 'sw-page' },
-                )})`,
-            ],
-            { env: process.env },
-        );
+        recordInAnotherProcess({ message: 'a() is deprecated.', usageSite: 'sw-page' });
 
         expect(usedBaselineEntries()).toEqual([
             ['a() is deprecated.', 'sw-page'],
             [entry.message, entry.usageSite],
         ]);
+    });
+
+    it('lists an entry recorded by this process and another process once', () => {
+        startCollectingUsedBaselineEntries();
+        recordUsedBaselineEntry(entry);
+
+        recordInAnotherProcess(entry);
+
+        expect(usedBaselineEntries()).toEqual([[entry.message, entry.usageSite]]);
     });
 
     it('lists nothing after collecting stops', () => {

@@ -12,11 +12,10 @@
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
 import type { Config } from 'jest';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parse } from 'yaml';
-import { isMajorRun } from './test/_helper_/majorFeatureFlags';
+import { isMajorRun, loadFeatureConfig } from './test/_helper_/majorFeatureFlags';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -57,14 +56,11 @@ if (isCi) {
 }
 
 // The reporter checks and rewrites only the deprecation baseline's markings for this run.
-const featureConfig = parse(
-    readFileSync(join(__dirname, '../../../../Core/Framework/Resources/config/packages/feature.yaml'), 'utf8'),
-);
 const deprecationBaselineReporter: [string, Record<string, unknown>] = [
     '<rootDir>/test/_helper_/deprecationBaselineReporter.js',
     {
         baselinePath: join(__dirname, 'src/meta/deprecation-baseline.json'),
-        run: isMajorRun(featureConfig, process.env) ? 'major' : 'default',
+        run: isMajorRun(loadFeatureConfig(), process.env) ? 'major' : 'default',
     },
 ];
 

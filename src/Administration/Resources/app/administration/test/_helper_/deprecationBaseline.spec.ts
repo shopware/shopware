@@ -7,6 +7,7 @@ import {
     currentRun,
     deprecationBaselineKey,
     isBaselined,
+    recordUsedBaselineEntry,
     resetBaseline,
     type DeprecationRun,
 } from './deprecationBaseline';
@@ -101,6 +102,15 @@ describe('test/_helper_/deprecationBaseline', () => {
             endDeprecationLog();
 
             expect(usedBaselineEntries()).toEqual([[message, spec]]);
+        });
+
+        it('counts a listed usage the deprecation plugin appended its component path to under its baseline key', () => {
+            recordUsedBaselineEntry({
+                message: `${message}\nUsed in: sw-app > sw-page > sw-old`,
+                usageSite: 'sw-page > sw-old',
+            });
+
+            expect(usedBaselineEntries()).toEqual([[message, 'sw-page > sw-old']]);
         });
 
         it('does not count an entry listed only for the other run as used, even when the test asserts it', () => {

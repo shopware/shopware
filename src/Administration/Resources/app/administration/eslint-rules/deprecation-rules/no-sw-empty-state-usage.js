@@ -28,6 +28,9 @@ const ICON_ELEMENTS = ['mt-icon', 'sw-icon'];
 const MODULE_DESCRIPTION_FALLBACK = '$t($route.meta.$module.description)';
 const MODULE_ICON_FALLBACK = '$route.meta.$module.icon';
 
+// Translation functions always return a string
+const TRANSLATION_FUNCTIONS = ['$t', '$tc'];
+
 const MUSTACHE_PATTERN = /{{([\s\S]*?)}}/;
 
 const REASONS = {
@@ -69,6 +72,28 @@ function toTemplateLiteralText(text) {
 
 function wrapCondition(code) {
     return /^[\w$.]+$/.test(code) ? code : `(${code})`;
+}
+
+/**
+ * Whether the expression always resolves to a value, so the module fallback of sw-empty-state never applied.
+ */
+function isNeverNullish(expression) {
+    switch (expression?.type) {
+        case 'Literal':
+            return expression.value !== null;
+        // Binary operators always return a number, string or boolean
+        case 'TemplateLiteral':
+        case 'BinaryExpression':
+            return true;
+        case 'CallExpression':
+            return expression.callee.type === 'Identifier' && TRANSLATION_FUNCTIONS.includes(expression.callee.name);
+        case 'ConditionalExpression':
+            return isNeverNullish(expression.consequent) && isNeverNullish(expression.alternate);
+        case 'LogicalExpression':
+            return expression.operator !== '&&' && isNeverNullish(expression.right);
+        default:
+            return false;
+    }
 }
 
 /**
@@ -140,6 +165,17 @@ function readAttributeValue(sourceCode, attribute) {
     }
 
     return { kind: 'expr', code: sourceCode.getText(attribute.value.expression) };
+}
+
+/**
+ * Whether a bound value can resolve to null or undefined, for which sw-empty-state fell back to the module value.
+ */
+function losesModuleFallback(sourceCode, attribute, fallback) {
+    const expression = attribute.directive ? attribute.value?.expression : null;
+
+    return !!expression
+        && !isNeverNullish(expression)
+        && sourceCode.getText(expression).replace(/\s/g, '') !== fallback;
 }
 
 /**
@@ -399,10 +435,11 @@ function resolveShowDescription(sourceCode, attribute) {
 
 /**
  * Builds the attributes which replace the description, icon and layout of sw-empty-state.
- * Returns `{ renamedSubline, newAttributes }` or `{ reason }` if a value can't be expressed.
+ * Returns `{ renamedSubline, description, lostFallbacks, newAttributes }` or `{ reason }` if a value can't be expressed.
  */
 function buildNewAttributes(sourceCode, analysis) {
     const newAttributes = [];
+    const lostFallbacks = [];
     const showDescription = resolveShowDescription(sourceCode, analysis.showDescriptionAttribute);
     let renamedSubline = false;
 
@@ -412,6 +449,13 @@ function buildNewAttributes(sourceCode, analysis) {
     } else if (analysis.sublineAttribute) {
         description = readAttributeValue(sourceCode, analysis.sublineAttribute) ?? { kind: 'none' };
         renamedSubline = showDescription === true && description.kind !== 'none';
+
+        if (
+            showDescription !== false
+            && losesModuleFallback(sourceCode, analysis.sublineAttribute, MODULE_DESCRIPTION_FALLBACK)
+        ) {
+            lostFallbacks.push('"description" no longer falls back to the module description');
+        }
     } else {
         description = { kind: 'expr', code: MODULE_DESCRIPTION_FALLBACK };
     }
@@ -445,6 +489,8 @@ function buildNewAttributes(sourceCode, analysis) {
         newAttributes.push(iconAttribute);
     } else if (!analysis.iconAttribute) {
         newAttributes.push(`:icon="${MODULE_ICON_FALLBACK}"`);
+    } else if (losesModuleFallback(sourceCode, analysis.iconAttribute, MODULE_ICON_FALLBACK)) {
+        lostFallbacks.push('"icon" no longer falls back to the module icon');
     }
 
     // sw-empty-state was centered, mt-empty-state is left-aligned by default
@@ -452,7 +498,7 @@ function buildNewAttributes(sourceCode, analysis) {
         newAttributes.push('centered');
     }
 
-    return { renamedSubline, description, newAttributes };
+    return { renamedSubline, description, lostFallbacks, newAttributes };
 }
 
 /**
@@ -476,7 +522,7 @@ function getRemovalRange(sourceText, node) {
     return [start, end];
 }
 
-function buildTodoComment(analysis, description) {
+function buildTodoComment(analysis, { description, lostFallbacks }) {
     let comment = `TODO Codemod: Converted from ${OLD_COMPONENT} - please check if everything works correctly`;
 
     if (analysis.removedProps.length > 0) {
@@ -486,6 +532,10 @@ function buildTodoComment(analysis, description) {
     if (description.kind === 'static' && /<[a-z]/i.test(description.text)) {
         comment += '. The description is rendered as plain text, HTML is no longer supported';
     }
+
+    lostFallbacks.forEach((lostFallback) => {
+        comment += `. ${lostFallback} if it is null or undefined`;
+    });
 
     return `<!-- ${comment} -->`;
 }
@@ -596,7 +646,7 @@ module.exports = {
 
                         yield fixer.replaceText(
                             startTag,
-                            `${buildTodoComment(analysis, attributes.description)}\n${indentation}${newStartTag}`,
+                            `${buildTodoComment(analysis, attributes)}\n${indentation}${newStartTag}`,
                         );
 
                         if (!endTag) {

@@ -215,6 +215,48 @@ ruleTester.run('no-sw-empty-state-usage', rule, {
             errors: [{ message: MIGRATE_MESSAGE }],
         },
         {
+            name: 'notes the lost module fallbacks of bound subline and icon values',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-empty-state :title="title" :subline="emptyHint" :icon="orderIcon" />
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly. "description" no longer falls back to the module description if it is null or undefined. "icon" no longer falls back to the module icon if it is null or undefined -->
+    <mt-empty-state :headline="title" :description="emptyHint" :icon="orderIcon" centered />
+</template>`,
+            errors: [{ message: MIGRATE_MESSAGE }],
+        },
+        {
+            name: 'does not note module fallbacks for bound values which always resolve to a value',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-empty-state title="Title" :subline="filtered ? $tc('foo.filtered') : $t('foo.empty')" :icon="'regular-' + type" />
+</template>`,
+            output: `
+<template>
+    ${TODO}
+    <mt-empty-state headline="Title" :description="filtered ? $tc('foo.filtered') : $t('foo.empty')" :icon="'regular-' + type" centered />
+</template>`,
+            errors: [{ message: MIGRATE_MESSAGE }],
+        },
+        {
+            name: 'does not note module fallbacks for a hidden description or the module icon itself',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-empty-state title="Title" :subline="emptyHint" :show-description="false" :icon="$route.meta.$module.icon" />
+</template>`,
+            output: `
+<template>
+    ${TODO}
+    <mt-empty-state headline="Title" :icon="$route.meta.$module.icon" centered />
+</template>`,
+            errors: [{ message: MIGRATE_MESSAGE }],
+        },
+        {
             name: 'drops the description for a disabled showDescription',
             filename: 'test.html.twig',
             code: `

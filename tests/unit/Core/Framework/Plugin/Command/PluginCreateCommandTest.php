@@ -165,6 +165,22 @@ class PluginCreateCommandTest extends TestCase
             ],
             'message' => 'Invalid plugin namespace provided. Use PascalCase format.',
         ];
+
+        yield 'plugin name with a trailing newline' => [
+            'arguments' => [
+                'plugin-name' => "TestPlugin\n",
+                'plugin-namespace' => 'Test',
+            ],
+            'message' => 'Invalid plugin name provided. Use PascalCase format.',
+        ];
+
+        yield 'plugin namespace with a trailing newline' => [
+            'arguments' => [
+                'plugin-name' => 'TestPlugin',
+                'plugin-namespace' => "Test\n",
+            ],
+            'message' => 'Invalid plugin namespace provided. Use PascalCase format.',
+        ];
     }
 
     public function testRejectsExistingPluginDirectory(): void

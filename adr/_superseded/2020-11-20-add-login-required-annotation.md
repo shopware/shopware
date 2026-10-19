@@ -5,6 +5,8 @@ area: core
 tags: [annotation, login, customer, api, store-api]
 ---
 
+## Superseded by [Move controller level annotation into Symfony route annotation](../2022-02-09-controller-configuration-route-defaults.md)
+
 ## Context
 Some routes for the `sales-channel-api` and the `store-api/storefront` depend on `SalesChannelContext` to identify whether the Customer is logged or not.
 For keeping clean code, consistency, and more easy to readable API. We create a new annotation for routing `\Core\Framework\Routing\Annotation\LoginRequired`.

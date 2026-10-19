@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import { resolve } from 'node:path';
 import { mount, flushPromises } from '@vue/test-utils';
 import { defineAsyncComponent, type ComponentPublicInstance } from 'vue';
 import Feature from 'src/core/feature';
@@ -10,6 +11,8 @@ import { callerFile, location, ownFrames } from './deprecationUsageSite';
 import oldFunction, { oldWrappedFunction } from './_fixtures/deprecations/oldFunction';
 import oldFunctionCaller from './_fixtures/deprecations/oldFunctionCaller';
 import selfDeprecatingComponent from './_fixtures/deprecations/selfDeprecatingComponent';
+
+const admin = resolve(__dirname, '../..');
 
 // Registers the stand-in major of the fixtures, so the guard does not report it as a typo.
 Feature.init({ V7_0_0_0: false });
@@ -180,7 +183,6 @@ describe('test/_helper_/deprecationUsageSite', () => {
 
     describe('callerFile', () => {
         it('finds the caller on the stack, skipping the guard, dependencies and $super', () => {
-            const admin = process.env.ADMIN_PATH;
             const stack = [
                 'Error',
                 `    at recordDeprecation (${admin}/test/_helper_/deprecations.ts:83:18)`,
@@ -195,13 +197,12 @@ describe('test/_helper_/deprecationUsageSite', () => {
         });
 
         it('finds no caller when only the deprecated module is on the stack', () => {
-            expect(callerFile(`Error\n    at oldFunction (${process.env.ADMIN_PATH}/src/core/old.ts:12:5)`)).toBeUndefined();
+            expect(callerFile(`Error\n    at oldFunction (${admin}/src/core/old.ts:12:5)`)).toBeUndefined();
         });
     });
 
     describe('ownFrames', () => {
         it('skips the deprecation plugin, so the frames start at the usage', () => {
-            const admin = process.env.ADMIN_PATH;
             const stack = [
                 'Error',
                 `    at guard (${admin}/src/app/plugin/deprecation.plugin.ts:70:30)`,
@@ -213,7 +214,7 @@ describe('test/_helper_/deprecationUsageSite', () => {
     });
 
     describe('location', () => {
-        const file = `${process.env.ADMIN_PATH}/test/a folder/oldFunction.ts`;
+        const file = `${admin}/test/a folder/oldFunction.ts`;
 
         it('reads a frame with a function name and a path with spaces', () => {
             expect(ownFrames(`    at oldFunction (${file}:13:13)`).map(location)).toEqual([

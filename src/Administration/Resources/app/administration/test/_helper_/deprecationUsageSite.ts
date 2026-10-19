@@ -2,11 +2,12 @@
  * @sw-package framework
  * @private
  */
-import { join, relative } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import { getCurrentInstance, type ComponentInternalInstance } from 'vue';
 import type { DeprecationOptions } from 'src/core/feature';
 
-const adminPath = process.env.ADMIN_PATH as string;
+// Not `ADMIN_PATH`: an exported shell value may point it at another checkout.
+const adminPath = resolve(__dirname, '../..');
 
 // The guard and recorder, so the stack walk starts at the deprecated module, and the `$super` plumbing between
 // an extended component and its members.

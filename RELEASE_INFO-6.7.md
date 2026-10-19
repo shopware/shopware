@@ -535,6 +535,18 @@ The VAT ID settings of the country of the active billing address are now checked
 This also covers customers who registered before the settings were enabled or who switched to a billing address in another country later.
 Store API clients should show the error and let the customer fix the VAT ID via `/store-api/account/change-profile`.
 
+### `PromotionItemBuilder::buildPlaceholderItem()` is deprecated
+
+`PromotionItemBuilder::buildPlaceholderItem()` is deprecated and will be removed in 6.8.0.0, because `PromotionLineItemFactory::create()` builds the same promotion placeholder line item.
+Create the placeholder through the `LineItemFactoryRegistry` with the `promotion` type instead, as the Storefront and the order recalculation now do:
+
+```php
+$lineItem = $lineItemFactoryRegistry->create([
+    'type' => LineItem::PROMOTION_LINE_ITEM_TYPE,
+    'referencedId' => $code,
+], $salesChannelContext);
+```
+
 ## API
 
 ### MCP tool results carry `structuredContent` and `isError`

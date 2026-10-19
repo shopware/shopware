@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheKey;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
+use Shopware\Core\Framework\Adapter\Cache\Message\RefreshHttpCacheMessage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -358,7 +359,16 @@ class CacheStoreTest extends TestCase
 
     public function testLookupWithSoftPurgeAndStaleCache(): void
     {
-        $request = new Request();
+        $request = new Request(server: [
+            'HTTP_HOST' => 'shop.example',
+            'HTTP_X_FORWARDED_PROTO' => 'https',
+            'REQUEST_URI' => '/detail/1',
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '/index.php',
+            'REMOTE_ADDR' => '10.0.0.1',
+            'DATABASE_URL' => 'mysql://user:secret@database/shopware',
+            'APP_SECRET' => 'secret',
+        ]);
         $response = new Response();
         $response->headers->set('date', date('Y-m-d H:i:s', time() - 3600)); // 1 hour ago
 
@@ -403,7 +413,19 @@ class CacheStoreTest extends TestCase
 
         static::assertInstanceOf(Response::class, $result);
 
-        static::assertCount(1, $bus->getMessages());
+        $messages = $bus->getMessages();
+        static::assertCount(1, $messages);
+
+        $message = $messages[0]->getMessage();
+        static::assertInstanceOf(RefreshHttpCacheMessage::class, $message);
+        static::assertSame([
+            'HTTP_HOST' => 'shop.example',
+            'HTTP_X_FORWARDED_PROTO' => 'https',
+            'REQUEST_URI' => '/detail/1',
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '/index.php',
+            'REMOTE_ADDR' => '10.0.0.1',
+        ], $message->server);
     }
 
     #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]

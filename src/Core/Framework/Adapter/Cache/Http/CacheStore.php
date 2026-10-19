@@ -110,7 +110,7 @@ class CacheStore implements StoreInterface
                     // We keep the lock for a half hour, if not proceed in that time, the lock will be released, and we can re-dispatch the message
                     $item->expiresAt($this->clock->now()->modify('+' . self::HALF_HOUR . ' seconds'));
 
-                    $this->bus->dispatch(new RefreshHttpCacheMessage($lockKey, $request->query->all(), $request->attributes->all(), $request->cookies->all(), $request->server->all(), Request::getTrustedProxies(), Request::getTrustedHeaderSet()));
+                    $this->bus->dispatch(new RefreshHttpCacheMessage($lockKey, $request->query->all(), $request->attributes->all(), $request->cookies->all(), self::getRefreshServerParameters($request), Request::getTrustedProxies(), Request::getTrustedHeaderSet()));
                 });
             }
         }
@@ -291,6 +291,24 @@ class CacheStore implements StoreInterface
         $key = $this->cacheKeyGenerator->generate($request);
 
         return 'http_lock_' . $key->key;
+    }
+
+    /**
+     * The server bag also contains the process environment, which can hold credentials.
+     * The refresh message is persisted by the message queue transport, so it only gets the
+     * request headers and the server parameters Symfony needs to build a request.
+     *
+     * @return array<string, mixed>
+     */
+    private static function getRefreshServerParameters(Request $request): array
+    {
+        $requestParameters = Request::create('/')->server->all();
+
+        return array_filter(
+            $request->server->all(),
+            static fn (int|string $key): bool => \array_key_exists($key, $requestParameters) || str_starts_with((string) $key, 'HTTP_'),
+            \ARRAY_FILTER_USE_KEY
+        );
     }
 
     /**

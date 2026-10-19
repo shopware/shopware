@@ -115,7 +115,10 @@ describe('test/_helper_/deprecationUsageSite', () => {
                 template: '<sw-first-caller /><sw-second-caller />',
             });
 
-            expect(recordedSites()).toEqual(['sw-owner > sw-first-caller', 'sw-owner > sw-second-caller']);
+            expect(recordedSites()).toEqual([
+                'sw-owner > sw-first-caller',
+                'sw-owner > sw-second-caller',
+            ]);
         });
     });
 
@@ -125,12 +128,6 @@ describe('test/_helper_/deprecationUsageSite', () => {
             Shopware.Feature.triggerDeprecationOrThrow('V7_0_0_0', 'inlineGuard() is deprecated.');
 
             expect(recordedSites()).toEqual([spec, spec]);
-        });
-
-        it('names the file of a module that calls the deprecated function', () => {
-            oldFunctionCaller();
-
-            expect(recordedSites()).toEqual(['test/_helper_/_fixtures/deprecations/oldFunctionCaller.ts']);
         });
 
         it('names the caller of a deprecated function that guards through a helper of its module', () => {
@@ -143,6 +140,12 @@ describe('test/_helper_/deprecationUsageSite', () => {
             await mount(selfDeprecatingComponent).vm.load();
 
             expect(recordedSites()).toEqual([spec]);
+        });
+
+        it('names the file of a module that calls the deprecated function', () => {
+            oldFunctionCaller();
+
+            expect(recordedSites()).toEqual(['test/_helper_/_fixtures/deprecations/oldFunctionCaller.ts']);
         });
     });
 

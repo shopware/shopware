@@ -480,6 +480,62 @@ class ChangeCustomerProfileRouteTest extends TestCase
         static::assertSame($changeData['lastName'], $customer->getLastName());
     }
 
+    public function testVatIdIsRequiredWhenTheActiveBillingCountryRequiresIt(): void
+    {
+        $addressId = $this->createAddressInNewCountry(['vatIdRequired' => true]);
+        $this->browser->request('PATCH', '/store-api/context', ['billingAddressId' => $addressId]);
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/change-profile',
+                [
+                    'salutationId' => $this->getValidSalutationId(),
+                    'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'company' => 'Test Company',
+                ]
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('errors', $response);
+        static::assertContains('/vatIds', array_column(array_column($response['errors'], 'source'), 'pointer'));
+    }
+
+    public function testVatIdIsCheckedAgainstThePatternOfTheActiveBillingCountry(): void
+    {
+        $this->setVatIdOfTheCountryToValidateFormat();
+        $addressId = $this->createAddressInNewCountry(['checkVatIdPattern' => true, 'vatIdPattern' => 'ATU[0-9]{8}']);
+        $this->browser->request('PATCH', '/store-api/context', ['billingAddressId' => $addressId]);
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+
+        $changeData = [
+            'salutationId' => $this->getValidSalutationId(),
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'company' => 'Test Company',
+            'vatIds' => ['DE123456789'],
+        ];
+
+        $this->browser->request('POST', '/store-api/account/change-profile', $changeData);
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('errors', $response);
+        static::assertContains('/vatIds', array_column(array_column($response['errors'], 'source'), 'pointer'));
+
+        $changeData['vatIds'] = ['ATU12345678'];
+
+        $this->browser->request('POST', '/store-api/account/change-profile', $changeData);
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertTrue($response['success']);
+        static::assertSame(['ATU12345678'], $this->getCustomer()->getVatIds());
+    }
+
     public function testChangeProfileDataWithPrivateAccount(): void
     {
         $changeData = [
@@ -823,6 +879,28 @@ class ChangeCustomerProfileRouteTest extends TestCase
         $this->customerRepository->create([$customer], Context::createDefaultContext());
 
         return $customerId;
+    }
+
+    /**
+     * @param array<string, mixed> $country
+     */
+    private function createAddressInNewCountry(array $country): string
+    {
+        $addressId = Uuid::randomHex();
+
+        static::getContainer()->get('customer_address.repository')->create([[
+            'id' => $addressId,
+            'customerId' => $this->customerId,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'street' => 'Teststraße 1',
+            'city' => 'Wien',
+            'zipcode' => '1010',
+            'salutationId' => $this->getValidSalutationId(),
+            'country' => ['name' => 'VAT Test Country', ...$country],
+        ]], Context::createDefaultContext());
+
+        return $addressId;
     }
 
     private function setVatIdOfTheCountryToValidateFormat(): void

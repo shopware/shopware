@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Extension\ChangeCustomerProfileRouteExtension;
 use Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute;
+use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -26,6 +27,8 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -104,6 +107,61 @@ class ChangeCustomerProfileRouteTest extends TestCase
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         $change->change($data, $salesChannelContext, $customer);
+    }
+
+    public function testVatIdsAreValidatedAgainstTheActiveBillingCountry(): void
+    {
+        $defaultCountry = new CountryEntity();
+        $defaultCountry->setId(Uuid::randomHex());
+        $defaultCountry->setVatIdRequired(false);
+
+        $defaultBillingAddress = new CustomerAddressEntity();
+        $defaultBillingAddress->setCountryId($defaultCountry->getId());
+        $defaultBillingAddress->setCountry($defaultCountry);
+
+        $activeCountry = new CountryEntity();
+        $activeCountry->setId(Uuid::randomHex());
+        $activeCountry->setVatIdRequired(true);
+
+        $activeBillingAddress = new CustomerAddressEntity();
+        $activeBillingAddress->setCountryId($activeCountry->getId());
+        $activeBillingAddress->setCountry($activeCountry);
+
+        $customer = new CustomerEntity();
+        $customer->setId('customer1');
+        $customer->setDefaultBillingAddress($defaultBillingAddress);
+        $customer->setActiveBillingAddress($activeBillingAddress);
+
+        $validation = new DataValidationDefinition();
+        $validationFactory = static::createStub(CustomerValidationFactory::class);
+        $validationFactory
+            ->method('update')
+            ->willReturn($validation);
+
+        $change = new ChangeCustomerProfileRoute(
+            static::createStub(EntityRepository::class),
+            new EventDispatcher(),
+            static::createStub(DataValidator::class),
+            $validationFactory,
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $data = new RequestDataBag([
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'company' => 'Test Company',
+            'salutationId' => Uuid::randomHex(),
+        ]);
+
+        $change->change($data, static::createStub(SalesChannelContext::class), $customer);
+
+        $vatIdConstraints = $validation->getProperty('vatIds');
+
+        $vatIdentification = array_values(array_filter($vatIdConstraints, static fn (Constraint $constraint) => $constraint instanceof CustomerVatIdentification))[0] ?? null;
+        static::assertInstanceOf(CustomerVatIdentification::class, $vatIdentification);
+        static::assertSame($activeCountry->getId(), $vatIdentification->getCountryId());
+        static::assertContainsEquals(new NotBlank(), $vatIdConstraints);
     }
 
     public function testCustomFieldsGetPassed(): void

@@ -97,7 +97,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
             $validation->add('company', new NotBlank());
-            $billingAddress = $customer->getDefaultBillingAddress();
+            $billingAddress = $customer->getActiveBillingAddress();
             if ($billingAddress) {
                 $this->addVatIdsValidation($validation, $billingAddress);
             }

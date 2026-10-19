@@ -772,6 +772,18 @@ export default [
         },
     },
 
+    // The TS block above re-spreads baseRules, so test files need the exemption again.
+    {
+        files: [
+            '**/*.spec.ts',
+            '**/*.spec/*.ts',
+            'test/**/*.ts',
+        ],
+        rules: {
+            'sw-deprecation-rules/no-manual-deprecation-notices': 'off',
+        },
+    },
+
     {
         files: ['build/vue-setup-transform/**/*.ts'],
         rules: {

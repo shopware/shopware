@@ -4,7 +4,7 @@
 import { mount } from '@vue/test-utils';
 import { reactive } from 'vue';
 
-const getMock = jest.fn((id: string) =>
+const getMock = jest.fn((id) =>
     Promise.resolve({
         id,
         name: `name-${id}`,

@@ -451,7 +451,6 @@ const missingTests = [
     'src/module/sw-settings-custom-field/component/sw-custom-field-type-text/index.js',
     'src/module/sw-settings-custom-field/component/sw-custom-field-type-text-editor/index.js',
     'src/module/sw-settings-custom-field/index.js',
-    'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-detail/index.js',
     'src/module/sw-settings-customer-group/default-search-configuration.js',
     'src/module/sw-settings-customer-group/index.js',
     'src/module/sw-settings-delivery-times/index.js',

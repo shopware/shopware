@@ -28,8 +28,9 @@ export type BaselinedUsages = Record<string, DeprecationRun[]>;
 const featureConfig = loadFeatureConfig();
 
 // Deprecation key → known usages. The checked-in file stays untouched; `baseline` is the copy specs may extend.
-const checkedInBaseline = deprecationBaseline as Record<string, BaselinedUsages>;
-let baseline = structuredClone(checkedInBaseline);
+// A JSON copy, not `structuredClone`: plugin Jest setups load this file without the jsdom polyfill for it.
+const checkedInBaseline = JSON.stringify(deprecationBaseline);
+let baseline = JSON.parse(checkedInBaseline) as Record<string, BaselinedUsages>;
 
 /**
  * The key of a deprecation in the baseline: the message without the component path the deprecation plugin
@@ -87,5 +88,5 @@ export function baselineDeprecation({ message, callSites }: { message: string; c
  * beforeEach(resetBaseline);
  */
 export function resetBaseline(): void {
-    baseline = structuredClone(checkedInBaseline);
+    baseline = JSON.parse(checkedInBaseline) as Record<string, BaselinedUsages>;
 }

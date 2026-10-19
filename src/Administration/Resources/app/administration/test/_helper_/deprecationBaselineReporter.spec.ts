@@ -7,6 +7,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import DeprecationBaselineReporter from './deprecationBaselineReporter';
 import type { DeprecationRun } from './deprecationBaseline';
+import { ignoreBaselineUpdateRun } from './deprecations.spec/deprecations-test-setup';
+import { recordUsedBaselineEntry } from './usedBaselineEntries';
 
 const fullRun = {
     nonFlagArgs: [],
@@ -27,7 +29,7 @@ describe('test/_helper_/deprecationBaselineReporter', () => {
     let baselinePath: string;
 
     beforeEach(() => {
-        jest.replaceProperty(process, 'env', { ...process.env, DEPRECATION_BASELINE: undefined });
+        ignoreBaselineUpdateRun();
         baselineDirectory = mkdtempSync(join(tmpdir(), 'deprecation-baseline-spec-'));
         baselinePath = join(baselineDirectory, 'baseline.json');
         writeBaseline({ [message]: { 'sw-author': ['default', 'major'], 'sw-page': ['major'] } });
@@ -78,8 +80,7 @@ describe('test/_helper_/deprecationBaselineReporter', () => {
         const reporter = new DeprecationBaselineReporter(globalConfig, { baselinePath, run: jestRun });
 
         reporter.onRunStart();
-        const lines = usedEntries.map((usedEntry) => `${JSON.stringify(usedEntry)}\n`).join('');
-        writeFileSync(join(process.env.DEPRECATION_BASELINE_USED_ENTRIES as string, '1.jsonl'), lines);
+        usedEntries.forEach(([usedMessage, usageSite]) => recordUsedBaselineEntry({ message: usedMessage, usageSite }));
         reporter.onRunComplete(new Set(), results);
 
         return reporter.getLastError();

@@ -6,9 +6,8 @@
  * green run it fails on usages the baseline lists for this run that no spec needed, or with
  * `DEPRECATION_BASELINE=update` rewrites this run's markings from the usages the workers let pass.
  */
-const { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } = require('node:fs');
-const { tmpdir } = require('node:os');
-const { join } = require('node:path');
+const { readFileSync, writeFileSync } = require('node:fs');
+const { endUsedBaselineEntries, startUsedBaselineEntries, usedBaselineEntries } = require('./usedBaselineEntries');
 
 class DeprecationBaselineReporter {
     /**
@@ -23,14 +22,13 @@ class DeprecationBaselineReporter {
 
     onRunStart() {
         this.error = undefined;
-        this.usedEntriesDirectory = mkdtempSync(join(tmpdir(), 'deprecation-baseline-'));
-        // The workers start after this and inherit the environment, so they know where to record.
-        process.env.DEPRECATION_BASELINE_USED_ENTRIES = this.usedEntriesDirectory;
+        // The workers start after this, so they record into this run's collection.
+        startUsedBaselineEntries();
     }
 
     onRunComplete(_testContexts, results) {
-        const usedEntries = readUsedEntries(this.usedEntriesDirectory);
-        rmSync(this.usedEntriesDirectory, { recursive: true, force: true });
+        const usedEntries = usedBaselineEntries();
+        endUsedBaselineEntries();
         const isUpdate = process.env.DEPRECATION_BASELINE === 'update';
 
         if (!isFullRun(this.globalConfig)) {
@@ -113,29 +111,17 @@ function isGreen(results) {
 }
 
 /**
- * The usages the baseline let pass in all workers, each as `JSON.stringify([message, site])`, without duplicates.
- *
- * @example
- * readUsedEntries(directory); // Set { '["oldFunction() is deprecated.","src/app/main.ts"]' }
- */
-function readUsedEntries(usedEntriesDirectory) {
-    return new Set(
-        readdirSync(usedEntriesDirectory).flatMap((file) =>
-            readFileSync(join(usedEntriesDirectory, file), 'utf8').split('\n').filter(Boolean),
-        ),
-    );
-}
-
-/**
  * The usages the baseline lists for `run` that are missing from `usedEntries`, as `<site>: <message>`.
  *
  * @example
- * findStale({ 'old() is deprecated.': { 'sw-page': ['major'] } }, new Set(), 'major'); // ['sw-page: old() is deprecated.']
+ * findStale({ 'old() is deprecated.': { 'sw-page': ['major'] } }, [], 'major'); // ['sw-page: old() is deprecated.']
  */
 function findStale(baseline, usedEntries, run) {
+    const used = new Set(usedEntries.map((entry) => JSON.stringify(entry)));
+
     return Object.entries(baseline).flatMap(([message, sites]) =>
         Object.entries(sites)
-            .filter(([site, runs]) => runs.includes(run) && !usedEntries.has(JSON.stringify([message, site])))
+            .filter(([site, runs]) => runs.includes(run) && !used.has(JSON.stringify([message, site])))
             .map(([site]) => `${site}: ${message}`),
     );
 }
@@ -145,7 +131,7 @@ function findStale(baseline, usedEntries, run) {
  * no run marks anymore is dropped.
  *
  * @example
- * markRun({ 'old() is deprecated.': { 'sw-page': ['default'] } }, new Set(['["old() is deprecated.","sw-page"]']), 'major');
+ * markRun({ 'old() is deprecated.': { 'sw-page': ['default'] } }, [['old() is deprecated.', 'sw-page']], 'major');
  * // { 'old() is deprecated.': { 'sw-page': ['default', 'major'] } }
  */
 function markRun(baseline, usedEntries, run) {
@@ -160,10 +146,7 @@ function markRun(baseline, usedEntries, run) {
             runs.filter((otherRun) => otherRun !== run).forEach((otherRun) => mark(message, site, otherRun));
         });
     });
-    [...usedEntries].forEach((usedEntry) => {
-        const [message, site] = JSON.parse(usedEntry);
-        mark(message, site, run);
-    });
+    usedEntries.forEach(([message, site]) => mark(message, site, run));
 
     return sorted(marked);
 }

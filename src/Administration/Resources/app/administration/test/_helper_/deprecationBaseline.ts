@@ -2,10 +2,9 @@
  * @sw-package framework
  * @private
  */
-import { appendFileSync } from 'node:fs';
-import { join } from 'node:path';
 import deprecationBaseline from 'src/meta/deprecation-baseline.json';
 import { isMajorRun, loadFeatureConfig } from './majorFeatureFlags';
+import { recordUsedBaselineEntry as recordUsedEntry } from './usedBaselineEntries';
 import type { RecordedDeprecation } from './deprecations';
 
 /**
@@ -33,9 +32,6 @@ const featureConfig = loadFeatureConfig();
 // A JSON copy, not `structuredClone`: plugin Jest setups load this file without the jsdom polyfill for it.
 const checkedInBaseline = JSON.stringify(deprecationBaseline);
 let baseline = JSON.parse(checkedInBaseline) as Record<string, BaselinedUsages>;
-
-// The used entries this worker appended, so a usage read on every render is appended only once per file.
-const appendedUsedEntries = new Set<string>();
 
 /**
  * The key of a deprecation in the baseline: the message without the component path the deprecation plugin
@@ -85,29 +81,14 @@ export function isBaselined(entry: Pick<RecordedDeprecation, 'message' | 'usageS
 }
 
 /**
- * Tells `deprecationBaselineReporter.js` that the baseline let the usage of `entry` pass, through this worker's
- * file in the directory the reporter created. Without the reporter, e.g. in a spec, it does nothing.
+ * Tells `deprecationBaselineReporter.js` that the baseline let the usage of `entry` pass, under its baseline key.
  *
  * @private
  * @example
  * recordUsedBaselineEntry({ message: 'oldFunction() is deprecated.', usageSite: 'src/app/main.ts' });
  */
 export function recordUsedBaselineEntry({ message, usageSite }: Pick<RecordedDeprecation, 'message' | 'usageSite'>): void {
-    const usedEntriesDirectory = process.env.DEPRECATION_BASELINE_USED_ENTRIES;
-
-    if (!usedEntriesDirectory) {
-        return;
-    }
-
-    const usedEntriesFile = join(usedEntriesDirectory, `${process.pid}.jsonl`);
-    const usedEntry = JSON.stringify([deprecationBaselineKey(message), usageSite]);
-
-    if (appendedUsedEntries.has(`${usedEntriesFile} ${usedEntry}`)) {
-        return;
-    }
-
-    appendedUsedEntries.add(`${usedEntriesFile} ${usedEntry}`);
-    appendFileSync(usedEntriesFile, `${usedEntry}\n`);
+    recordUsedEntry({ message: deprecationBaselineKey(message), usageSite });
 }
 
 /**

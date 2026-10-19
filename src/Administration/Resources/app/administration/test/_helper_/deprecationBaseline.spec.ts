@@ -2,9 +2,6 @@
  * @sw-package framework
  */
 
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import {
     baselineDeprecation,
     currentRun,
@@ -14,7 +11,12 @@ import {
     type DeprecationRun,
 } from './deprecationBaseline';
 import { allowDeprecation, deprecations, endDeprecationLog } from './deprecations';
-import { failureOfEndDeprecationLog, oldFunctionMessage } from './deprecations.spec/deprecations-test-setup';
+import {
+    failureOfEndDeprecationLog,
+    ignoreBaselineUpdateRun,
+    oldFunctionMessage,
+} from './deprecations.spec/deprecations-test-setup';
+import { endUsedBaselineEntries, startUsedBaselineEntries, usedBaselineEntries } from './usedBaselineEntries';
 import oldFunction from './_fixtures/deprecations/oldFunction';
 
 const message = oldFunctionMessage;
@@ -22,44 +24,15 @@ const spec = 'test/_helper_/deprecationBaseline.spec.ts';
 const otherRun: DeprecationRun = currentRun() === 'major' ? 'default' : 'major';
 
 describe('test/_helper_/deprecationBaseline', () => {
-    let usedEntriesDirectory: string;
-    const usedEntriesDirectories: string[] = [];
-
     beforeEach(() => {
         resetBaseline();
         // Keeps the used entries of these specs away from the run's reporter, and its update mode away from these specs.
-        usedEntriesDirectory = mkdtempSync(join(tmpdir(), 'deprecation-baseline-spec-'));
-        usedEntriesDirectories.push(usedEntriesDirectory);
-        jest.replaceProperty(process, 'env', {
-            ...process.env,
-            DEPRECATION_BASELINE_USED_ENTRIES: usedEntriesDirectory,
-            DEPRECATION_BASELINE: undefined,
-        });
+        ignoreBaselineUpdateRun();
+        startUsedBaselineEntries();
     });
 
     // The setup's `afterEach` records the used entries of a test after the hooks of this file ran.
-    afterAll(() => {
-        usedEntriesDirectories.forEach((directory) => rmSync(directory, { recursive: true, force: true }));
-    });
-
-    /**
-     * The `[message, usage site]` pairs this worker recorded for the reporter during the test.
-     *
-     * @example
-     * expect(usedBaselineEntries()).toEqual([['oldFunction() is deprecated.', spec]]);
-     */
-    function usedBaselineEntries(): string[][] {
-        const usedEntriesFile = join(usedEntriesDirectory, `${process.pid}.jsonl`);
-
-        if (!existsSync(usedEntriesFile)) {
-            return [];
-        }
-
-        return readFileSync(usedEntriesFile, 'utf8')
-            .trim()
-            .split('\n')
-            .map((line) => JSON.parse(line) as string[]);
-    }
+    afterAll(endUsedBaselineEntries);
 
     describe('in a test', () => {
         it('lets a usage listed for the current run pass without an assertion', () => {

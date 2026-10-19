@@ -41,6 +41,24 @@ export function failureOfEndDeprecationLog(): string {
 }
 
 /**
+ * @returns the message `callback` throws, or `''` when it returns, so a `beforeAll` or a `describe` body can keep
+ * an error for a test to assert.
+ *
+ * @private
+ * @example
+ * const failure = messageThrownBy(() => allowDeprecation('oldFunction()'));
+ */
+export function messageThrownBy(callback: () => void): string {
+    try {
+        callback();
+
+        return '';
+    } catch (error) {
+        return (error as Error).message;
+    }
+}
+
+/**
  * Ends the current test's log the way the setup's hooks do between two tests, and starts the next one.
  *
  * @private

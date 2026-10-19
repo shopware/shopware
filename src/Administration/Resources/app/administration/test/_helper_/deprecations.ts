@@ -72,6 +72,21 @@ export class DeprecationLog {
  */
 export const deprecations = new DeprecationLog();
 
+/** Between the setup's `startDeprecationLog` and `endDeprecationLog`, so while a test or its hooks run. */
+let isTestRunning = false;
+
+/**
+ * Throws unless a test is running, because the setup resets what `helper` changes before every test.
+ *
+ * @example
+ * assertTestIsRunning('allowDeprecation');
+ */
+function assertTestIsRunning(helper: string): void {
+    if (!isTestRunning) {
+        throw new Error(`${helper}() only works inside a test or its beforeEach: the setup resets it before every test.`);
+    }
+}
+
 /**
  * Whether `message` matches `expected`, for both the assertion and the allowances.
  *
@@ -84,6 +99,7 @@ function matches(expected: Expected, message: string): boolean {
 
 /**
  * Silences a specific deprecation for the current test. Only use it in a spec that tests a deprecated component itself.
+ * Throws outside a test or its `beforeEach`.
  *
  * @private
  * @example
@@ -96,12 +112,14 @@ function matches(expected: Expected, message: string): boolean {
  * });
  */
 export function allowDeprecation(expected: Expected): void {
+    assertTestIsRunning('allowDeprecation');
     deprecations.allowed.push(expected);
 }
 
 /**
  * Disables the mock that can silence baselined or explicitly asserted deprecations.
  * Use it to test the `triggerDeprecationOrThrow` guard itself.
+ * Throws outside a test or its `beforeEach`.
  *
  * @private
  * @example
@@ -112,6 +130,7 @@ export function allowDeprecation(expected: Expected): void {
  * });
  */
 export function useProductionDeprecationGuard(): void {
+    assertTestIsRunning('useProductionDeprecationGuard');
     deprecations.isRecording = false;
 }
 
@@ -174,6 +193,7 @@ export function failsTheTest(entry: RecordedDeprecation, allowed: readonly Expec
  * beforeEach(startDeprecationLog);
  */
 export function startDeprecationLog(): void {
+    isTestRunning = true;
     deprecations.isRecording = true;
 }
 
@@ -212,6 +232,7 @@ function location(frame: string): string {
 export function endDeprecationLog(): void {
     const failing = deprecations.entries.filter((entry) => failsTheTest(entry, deprecations.allowed));
 
+    isTestRunning = false;
     deprecations.isRecording = false;
     deprecations.entries.length = 0;
     deprecations.allowed.length = 0;

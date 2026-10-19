@@ -51,14 +51,13 @@ Pass a registered major flag and a version like `v6.8.0.0`. Anything else could 
 
 ### Deprecation baseline
 
-`src/Administration/Resources/app/administration/src/meta/deprecation-baseline.json` lists the known core usages of deprecated APIs that are not migrated yet, so Jest lets them pass without an assertion.
-A full, green run fails on usages listed for it that no spec needs anymore.
-Remove the run from them when you migrate a usage.
-
-To regenerate the file, run both commands below, then review the diff.
-Each run rewrites only its own markings, and only after a full, green run:
+To update `src/Administration/Resources/app/administration/src/meta/deprecation-baseline.json`, run both commands;
+a full, green run of each lane rewrites only its own run's markings.
 
 ```bash
 DEPRECATION_BASELINE=update composer admin:unit
+```
+
+```bash
 DEPRECATION_BASELINE=update composer admin:unit:major
 ```

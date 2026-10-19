@@ -4,9 +4,9 @@
 
 import { execFileSync } from 'node:child_process';
 import {
-    endUsedBaselineEntries,
     recordUsedBaselineEntry,
-    startUsedBaselineEntries,
+    startCollectingUsedBaselineEntries,
+    stopCollectingUsedBaselineEntries,
     usedBaselineEntries,
 } from './usedBaselineEntries';
 
@@ -16,20 +16,20 @@ describe('test/_helper_/usedBaselineEntries', () => {
     beforeEach(() => {
         // Keeps the used entries of these specs away from the run's reporter.
         jest.replaceProperty(process, 'env', { ...process.env });
-        endUsedBaselineEntries();
+        stopCollectingUsedBaselineEntries();
     });
 
-    afterAll(endUsedBaselineEntries);
+    afterAll(stopCollectingUsedBaselineEntries);
 
-    it('records nothing before a start', () => {
+    it('records nothing before collecting starts', () => {
         recordUsedBaselineEntry(entry);
-        startUsedBaselineEntries();
+        startCollectingUsedBaselineEntries();
 
         expect(usedBaselineEntries()).toEqual([]);
     });
 
     it('lists an entry recorded twice once', () => {
-        startUsedBaselineEntries();
+        startCollectingUsedBaselineEntries();
 
         recordUsedBaselineEntry(entry);
         recordUsedBaselineEntry(entry);
@@ -37,8 +37,8 @@ describe('test/_helper_/usedBaselineEntries', () => {
         expect(usedBaselineEntries()).toEqual([[entry.message, entry.usageSite]]);
     });
 
-    it('lists the entries of a process started after the start, sorted', () => {
-        startUsedBaselineEntries();
+    it('lists the entries of a process started after collecting started, sorted', () => {
+        startCollectingUsedBaselineEntries();
         recordUsedBaselineEntry(entry);
 
         execFileSync(
@@ -58,11 +58,11 @@ describe('test/_helper_/usedBaselineEntries', () => {
         ]);
     });
 
-    it('lists nothing after the end', () => {
-        startUsedBaselineEntries();
+    it('lists nothing after collecting stops', () => {
+        startCollectingUsedBaselineEntries();
         recordUsedBaselineEntry(entry);
 
-        endUsedBaselineEntries();
+        stopCollectingUsedBaselineEntries();
 
         expect(usedBaselineEntries()).toEqual([]);
     });

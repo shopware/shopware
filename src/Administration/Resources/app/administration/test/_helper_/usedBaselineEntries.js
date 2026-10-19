@@ -19,21 +19,21 @@ let startedDirectory;
 const appended = new Set();
 
 /**
- * Starts collecting used baseline entries from this process and every worker it starts afterwards, replacing a
- * collection this process started before. The reporter calls it when a run starts; a spec calls it before each test.
+ * Starts collecting used baseline entries from this process and every worker it starts afterwards, replacing what
+ * this process collected before. The reporter calls it when a run starts; a spec calls it before each test.
  *
  * @private
  * @example
- * beforeEach(startUsedBaselineEntries);
+ * beforeEach(startCollectingUsedBaselineEntries);
  */
-function startUsedBaselineEntries() {
-    endUsedBaselineEntries();
+function startCollectingUsedBaselineEntries() {
+    stopCollectingUsedBaselineEntries();
     startedDirectory = mkdtempSync(join(tmpdir(), 'deprecation-baseline-'));
     process.env[DIRECTORY_VARIABLE] = startedDirectory;
 }
 
 /**
- * Records that the baseline let a usage pass. Does nothing while no collection is started, e.g. in a filtered run
+ * Records that the baseline let a usage pass. Does nothing while nothing collects, e.g. in a filtered run
  * without the reporter.
  *
  * @private
@@ -60,7 +60,7 @@ function recordUsedBaselineEntry({ message, usageSite }) {
 }
 
 /**
- * Every entry any process recorded since the start, as sorted `[message, usage site]` pairs without duplicates.
+ * Every entry any process recorded since collecting started, as sorted `[message, usage site]` pairs without duplicates.
  * The reporter reads them when the run completes.
  *
  * @private
@@ -88,9 +88,9 @@ function usedBaselineEntries() {
  * @private
  * @returns {void}
  * @example
- * afterAll(endUsedBaselineEntries);
+ * afterAll(stopCollectingUsedBaselineEntries);
  */
-function endUsedBaselineEntries() {
+function stopCollectingUsedBaselineEntries() {
     if (startedDirectory) {
         rmSync(startedDirectory, { recursive: true, force: true });
     }
@@ -100,4 +100,9 @@ function endUsedBaselineEntries() {
     delete process.env[DIRECTORY_VARIABLE];
 }
 
-module.exports = { startUsedBaselineEntries, recordUsedBaselineEntry, usedBaselineEntries, endUsedBaselineEntries };
+module.exports = {
+    startCollectingUsedBaselineEntries,
+    recordUsedBaselineEntry,
+    usedBaselineEntries,
+    stopCollectingUsedBaselineEntries,
+};

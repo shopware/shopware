@@ -8,7 +8,11 @@
  */
 const { readFileSync, writeFileSync } = require('node:fs');
 const { isBaselineUpdateRun } = require('./isBaselineUpdateRun');
-const { endUsedBaselineEntries, startUsedBaselineEntries, usedBaselineEntries } = require('./usedBaselineEntries');
+const {
+    startCollectingUsedBaselineEntries,
+    stopCollectingUsedBaselineEntries,
+    usedBaselineEntries,
+} = require('./usedBaselineEntries');
 
 class DeprecationBaselineReporter {
     /**
@@ -24,12 +28,12 @@ class DeprecationBaselineReporter {
     onRunStart() {
         this.error = undefined;
         // The workers start after this, so they record into this run's collection.
-        startUsedBaselineEntries();
+        startCollectingUsedBaselineEntries();
     }
 
     onRunComplete(_testContexts, results) {
         const usedEntries = usedBaselineEntries();
-        endUsedBaselineEntries();
+        stopCollectingUsedBaselineEntries();
         const isUpdate = isBaselineUpdateRun();
 
         if (!isFullRun(this.globalConfig)) {

@@ -16,7 +16,11 @@ import {
     ignoreBaselineUpdateRun,
     oldFunctionMessage,
 } from './deprecations.spec/deprecations-test-setup';
-import { endUsedBaselineEntries, startUsedBaselineEntries, usedBaselineEntries } from './usedBaselineEntries';
+import {
+    startCollectingUsedBaselineEntries,
+    stopCollectingUsedBaselineEntries,
+    usedBaselineEntries,
+} from './usedBaselineEntries';
 import oldFunction from './_fixtures/deprecations/oldFunction';
 
 const message = oldFunctionMessage;
@@ -28,11 +32,11 @@ describe('test/_helper_/deprecationBaseline', () => {
         resetBaseline();
         // Keeps the used entries of these specs away from the run's reporter, and its update mode away from these specs.
         ignoreBaselineUpdateRun();
-        startUsedBaselineEntries();
+        startCollectingUsedBaselineEntries();
     });
 
     // The setup's `afterEach` records the used entries of a test after the hooks of this file ran.
-    afterAll(endUsedBaselineEntries);
+    afterAll(stopCollectingUsedBaselineEntries);
 
     describe('in a test', () => {
         it('lets a usage listed for the current run pass without an assertion', () => {

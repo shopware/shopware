@@ -20,8 +20,9 @@
  *
  * The PHP arm retains that repository-wide marker detection. The Administration
  * Jest arm uses the same markers only in Administration source and test files;
- * a feature-registry change enables both arms because it changes both baselines. A change to the
- * Jest deprecation baseline enables the Jest arm, so the major run checks the usages it lists for that run.
+ * a feature-registry change enables both arms because it changes the flags of both major runs.
+ * A change to the Jest deprecation baseline enables the Jest arm, so the major run checks the
+ * usages it lists for that run.
  * Acceptance spec changes enable the ATS arm, using the same paths as
  * acceptance-tests-changed; fixtures, tasks and dependency-only changes do not.
  */

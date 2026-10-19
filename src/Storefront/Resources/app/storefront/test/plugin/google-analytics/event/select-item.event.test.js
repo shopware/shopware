@@ -57,6 +57,17 @@ describe('plugin/google-analytics/events/select-item.event', () => {
         });
     });
 
+    test('reports the search term of a product selected from the search result', () => {
+        renderListing([shirt], 'data-list-id="search" data-list-name="Search results" data-list-search-term="shirt"');
+
+        document.querySelector('.product-name').click();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'select_item', expect.objectContaining({
+            'item_list_id': 'search',
+            'search_term': 'shirt',
+        }));
+    });
+
     test('reports the brand and the variant of the product', () => {
         renderListing([shirt]);
 

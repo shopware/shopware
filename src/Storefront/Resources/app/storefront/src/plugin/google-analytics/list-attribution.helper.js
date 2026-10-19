@@ -26,16 +26,22 @@ export default class ListAttributionHelper
      * A list the page identified with `data-list-id` wins. Products of any other shopping experience
      * element, including those of extensions, are attributed to the element itself.
      *
+     * The search result also carries the search term, so the list events and the product view that
+     * follows show which products a query found.
+     *
      * @param {HTMLElement|null} element any element inside the list
-     * @returns {{item_list_id?: string, item_list_name?: string}}
+     * @returns {{item_list_id?: string, item_list_name?: string, search_term?: string}}
      */
     static getListFromElement(element) {
         const list = element?.closest('[data-list-id]');
 
         if (list) {
+            const searchTerm = list.getAttribute('data-list-search-term');
+
             return {
                 item_list_id: list.getAttribute('data-list-id') || undefined,
                 item_list_name: list.getAttribute('data-list-name') || undefined,
+                ...(searchTerm ? { search_term: searchTerm } : {}),
             };
         }
 

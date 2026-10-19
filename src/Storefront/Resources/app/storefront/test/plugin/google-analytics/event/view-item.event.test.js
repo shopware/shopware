@@ -154,4 +154,23 @@ describe('plugin/google-analytics/events/view-item.event', () => {
 
         expect(window.gtag.mock.calls[0][2].items[0]).not.toHaveProperty('item_list_id');
     });
+
+    test('reports the search term of a product selected from the search result on the event', () => {
+        ListAttributionHelper.remember('SW10000', { item_list_id: 'search', item_list_name: 'Search results', search_term: 'shirt' });
+
+        document.body.innerHTML = `
+            <div itemtype="https://schema.org/Product">
+                <span itemprop="sku">SW10000</span>
+                <span itemprop="name">Test Product</span>
+            </div>
+        `;
+
+        new ViewItemEvent().execute();
+
+        const [, , parameters] = window.gtag.mock.calls[0];
+
+        expect(parameters.search_term).toBe('shirt');
+        expect(parameters.items[0]).toEqual(expect.objectContaining({ 'item_list_id': 'search' }));
+        expect(parameters.items[0]).not.toHaveProperty('search_term');
+    });
 });

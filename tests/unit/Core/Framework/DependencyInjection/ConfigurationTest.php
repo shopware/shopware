@@ -834,6 +834,63 @@ class ConfigurationTest extends TestCase
         $this->processTelemetryLabel([]);
     }
 
+    public function testTelemetryMappingsMergePerKey(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'telemetry' => [
+                    'metrics' => [
+                        'mappings' => [
+                            'entity_group' => ['swag_blog_*' => 'blog', 'swag_shared' => 'core_value'],
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'telemetry' => [
+                    'metrics' => [
+                        'mappings' => [
+                            'entity_group' => ['swag_shared' => 'project_value'],
+                            'swag_custom' => ['foo' => 'bar'],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $mappings = $config['telemetry']['metrics']['mappings'];
+        static::assertSame('blog', $mappings['entity_group']['swag_blog_*']);
+        static::assertSame('project_value', $mappings['entity_group']['swag_shared']);
+        static::assertSame(['foo' => 'bar'], $mappings['swag_custom']);
+    }
+
+    public function testTelemetryMappingKeysAreNotNormalized(): void
+    {
+        // route names and action segments carry dashes, message keys carry backslashes; the default
+        // config-tree key normalization (`-` → `_`) would silently break every such lookup at runtime
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'telemetry' => [
+                    'metrics' => [
+                        'mappings' => [
+                            'route_domain' => ['store-api.product*' => 'product', 'frontend.checkout.line-item*' => 'cart'],
+                            'action_domain' => ['import-export' => 'import-export'],
+                            'message_group' => ['Swag\\Blog\\Message\\*' => 'blog'],
+                            'swag-paypal_refund_kind' => ['refund-full' => 'full'],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        static::assertSame([
+            'route_domain' => ['store-api.product*' => 'product', 'frontend.checkout.line-item*' => 'cart'],
+            'action_domain' => ['import-export' => 'import-export'],
+            'message_group' => ['Swag\\Blog\\Message\\*' => 'blog'],
+            'swag-paypal_refund_kind' => ['refund-full' => 'full'],
+        ], $config['telemetry']['metrics']['mappings']);
+    }
+
     /**
      * Each argument is one config source (framework, plugin, project, ...) for the same label,
      * merged in argument order.

@@ -59,8 +59,17 @@ Example: `task_name` uses a mapping rather than an allow list: scheduled tasks a
 
 ### 3. The names become contract
 
-At feature stabilization, metric names, label names, mapping names, the shipped group values, and the per-label mechanism (allow list vs mapping) join the BC promise: rename, removal, or mechanism switch only in majors, announced in the upgrade guide.
-Changing an allow-list label to a mapping breaks plugin config (contributed values combine with the now-open label and fail the build); the reverse silently orphans mapping entries.
+At feature stabilization, the following join the BC promise and change only in majors, announced in the upgrade guide:
+
+- metric names and label names,
+- mapping names and the identifier space each mapping is keyed on,
+- the merge semantics of `add_allowed_values`, `allowed_values` and `mappings`,
+- the per-label mechanism (allow list or mapping).
+  Switching an allow-list label to a mapping fails the container build for every plugin or project that contributed values to it;
+  the reverse silently orphans mapping entries.
+
+The shipped group values (the right-hand side of the mapping tables and the core `add_allowed_values`) are not part of the promise.
+Core may regroup, rename or add values in minors.
 
 ## Consequences
 
@@ -72,7 +81,7 @@ Changing an allow-list label to a mapping breaks plugin config (contributed valu
 - What folded into `other` is not reconstructable from the emitted series.
   If the need arises, an opt-in debug flag that logs replacements can be added without breaks.
 - Developers must choose a label's mechanism consciously: allow lists for sets where the raw value is desired and subtraction is rare, mappings for open, growing populations where folding into limited list of values is required.
-- Resolvers keep their signatures and `@internal` status; their job shrinks to key extraction, registry lookup, and structural fallback.
+- Resolvers keep their signatures and `@internal` status; their job shrinks to key extraction, registry lookup, and code-level fallback.
 
 ## Considered alternatives
 

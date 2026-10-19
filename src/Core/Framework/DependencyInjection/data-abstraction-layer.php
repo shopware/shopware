@@ -138,6 +138,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Script\AppContextCreator;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Telemetry\Telemetry;
@@ -967,7 +968,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.telemetry.subscriber');
 
     // shared entity-name bucketing for telemetry labels (DAL search collectors + HTTP request domain)
-    $services->set(EntityGroupResolver::class);
+    $services->set(EntityGroupResolver::class)
+        ->args([
+            service(LabelMappingRegistry::class),
+        ]);
 
     // injected into every EntityRepository by EntityCompilerPass; self-gates on the telemetry flag
     $services->set(DalSearchInstrumentor::class)

@@ -89,6 +89,24 @@ silently, in every environment. To collapse a label entirely, lock it to exactly
 Locking is an operator-level act: set `allowed_values` on a label you do not own only from project config or
 from a base plugin/bundle that acts as the installation's policy layer, never from a redistributed plugin.
 
+### Label mappings
+
+A mapping is a named table `key → label value` under `shopware.telemetry.metrics.mappings`, used by the
+label resolvers to bucket open identifier sets (entity names, route names, event names, ...) into bounded set of
+label values. A label served by a mapping is declared `policy: open`: the serving resolver owns the binding
+(a `MAPPING` class constant) and guarantees the bound.
+There is deliberately no label-level `mapping:` key - the binding lives in the resolver's key extraction and
+cannot be changed through config; an integration test pins that the resolver constants and the shipped tables match.
+
+- A key is exact, or a prefix when it ends with `*`. Exact beats prefix; the longest prefix wins.
+- Resolution order per key: configured entry → the resolver's code-level rule → `other`. Configured entries win,
+  so an extension or operator can always correct a heuristic — including folding core values
+  (`'swag_paypal_*': other`).
+- Entries merge per key: a later config source overrides the same key, so project config overrides core and
+  plugin entries. Extension-defined mapping names carry a vendor prefix (`swag_paypal_refund_kind`); bare
+  names are reserved for core.
+- Keys containing backslashes (message class FQCNs) must be single-quoted: `'Swag\Blog\Message\*': blog`.
+
 ### Transports
 
 The telemetry component provides a way to emit metrics to different transports. The transport is responsible for sending the metrics to the monitoring backend. Each transport is created as an external library that implements the telemetry abstraction layer specification.

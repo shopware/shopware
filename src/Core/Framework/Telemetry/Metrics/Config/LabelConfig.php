@@ -27,7 +27,7 @@ readonly class LabelConfig
     public static function fromDefinition(array $definition): self
     {
         // the config tree folds the two keys at container build: a non-empty `allowed_values`
-        // is the complete final list (locked label), otherwise `add_allowed_values` is
+        // is the complete final list (locked label), otherwise the merged `add_allowed_values` are
         $allowedValues = $definition['allowed_values'] ?? [];
         if ($allowedValues === []) {
             $allowedValues = $definition['add_allowed_values'] ?? [];

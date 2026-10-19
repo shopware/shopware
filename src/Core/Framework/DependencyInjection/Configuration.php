@@ -1584,6 +1584,17 @@ class Configuration implements ConfigurationInterface
                     ->end()
                     ->booleanNode('enabled')->defaultFalse()->end()
                     ->scalarNode('replace_unknown_label_values_with')->defaultValue('other')->end()
+                    ->arrayNode('mappings')
+                        ->useAttributeAsKey('name')
+                        // keys are free-form identifiers (route names, FQCN prefixes, ...): the default key
+                        // normalization would rewrite `store-api.*` to `store_api.*` and break the lookup
+                        ->normalizeKeys(false)
+                        ->arrayPrototype()
+                            ->useAttributeAsKey('key')
+                            ->normalizeKeys(false)
+                            ->scalarPrototype()->end()
+                        ->end()
+                    ->end()
                     ->arrayNode('definitions')
                         ->useAttributeAsKey('name')
                         ->arrayPrototype()
@@ -1610,11 +1621,8 @@ class Configuration implements ConfigurationInterface
                                                 if ($hasPolicy && $label['policy'] === LabelPolicy::OPEN->value && $hasValues) {
                                                     return true;
                                                 }
-                                                if (!$hasValues && !$hasPolicy) {
-                                                    return true;
-                                                }
 
-                                                return false;
+                                                return !$hasValues && !$hasPolicy;
                                             })
                                             ->thenInvalid('Each label must have values ("allowed_values" and/or "add_allowed_values") or "policy: open", but not both. Missing both is also invalid.')
                                         ->end()

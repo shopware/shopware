@@ -38,6 +38,7 @@ use Shopware\Core\Framework\Gateway\Context\Command\Handler\RegisterCustomerComm
 use Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry;
 use Shopware\Core\Framework\Gateway\Context\SalesChannel\ContextGatewayRoute;
 use Shopware\Core\Framework\Log\ExceptionLogger;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition;
@@ -520,5 +521,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     // Telemetry: shared sales_channel_type label resolver (cart calculation, order placed metrics)
-    $services->set(SalesChannelTypeResolver::class);
+    $services->set(SalesChannelTypeResolver::class)
+        ->args([
+            service(LabelMappingRegistry::class),
+        ]);
 };

@@ -234,6 +234,31 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         expect(rows).toHaveLength(2);
     });
 
+    it('should open the edit modal when clicking the domain url', async () => {
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages: getExampleLanguages(),
+                currencies: [],
+                domains: getExampleDomains(),
+            },
+        });
+
+        const link = wrapper.find('.sw-data-grid__body .sw-sales-channel-detail-domains__domain-url-link');
+        expect(link.attributes('role')).toBe('button');
+
+        await link.trigger('click');
+
+        expect(wrapper.vm.isEditingDomain).toBe(true);
+        expect(wrapper.vm.currentDomain.url).toBe(link.text());
+    });
+
+    it('should render the domain url as plain text when editing is disabled', async () => {
+        const wrapper = await createWrapper({ disableEdit: true }, getExampleDomains());
+
+        expect(wrapper.find('.sw-sales-channel-detail-domains__domain-url-link').exists()).toBe(false);
+        expect(wrapper.find('.sw-data-grid__body .sw-data-grid__cell--url').text()).toBe(wrapper.vm.sortedDomains[0].url);
+    });
+
     it('should sort all domains', async () => {
         const wrapper = await createWrapper({}, getExampleDomains());
 
@@ -619,6 +644,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
             },
             [],
         );
+        await flushPromises();
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         const expectedRow = rows.at(0);
@@ -756,6 +782,28 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         expect(wrapper.vm.currentDomain.snippetSet).toEqual(expect.objectContaining({ id: 'set-en-gb' }));
     });
 
+    it('should write the language and preselect the snippet set when the language select emits a value', async () => {
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages: getExampleLanguages(),
+                currencies: [],
+                domains: [],
+            },
+        });
+        await flushPromises();
+
+        wrapper.vm.onClickOpenCreateDomainModal();
+        await wrapper.vm.$nextTick();
+
+        wrapper
+            .getComponent('.sw-sales-channel-detail-domains__domain-language-select')
+            .vm.$emit('update:value', 'language-en');
+
+        expect(wrapper.vm.currentDomain.languageId).toBe('language-en');
+        expect(wrapper.vm.currentDomain.language).toEqual(expect.objectContaining({ id: 'language-en' }));
+        expect(wrapper.vm.currentDomain.snippetSetId).toBe('set-en-gb');
+    });
+
     it('should preselect the snippet set when opening the create modal with a language', async () => {
         const wrapper = await createWrapper({
             salesChannel: {
@@ -769,6 +817,40 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         wrapper.vm.onClickOpenCreateDomainModal({ languageId: 'language-de' });
 
         expect(wrapper.vm.currentDomain.snippetSetId).toBe('set-de-de');
+    });
+
+    it('should preselect the snippet set once the data arrives after the create modal was opened', async () => {
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages: getExampleLanguages(),
+                currencies: [],
+                domains: [],
+            },
+        });
+
+        wrapper.vm.onClickOpenCreateDomainModal({ languageId: 'language-de' });
+        expect(wrapper.vm.currentDomain.snippetSetId).toBeUndefined();
+
+        await flushPromises();
+
+        expect(wrapper.vm.currentDomain.snippetSetId).toBe('set-de-de');
+    });
+
+    it('should not override a chosen snippet set when the data arrives after the create modal was opened', async () => {
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages: getExampleLanguages(),
+                currencies: [],
+                domains: [],
+            },
+        });
+
+        wrapper.vm.onClickOpenCreateDomainModal({ languageId: 'language-de' });
+        wrapper.vm.currentDomain.snippetSetId = 'set-fr-fr';
+
+        await flushPromises();
+
+        expect(wrapper.vm.currentDomain.snippetSetId).toBe('set-fr-fr');
     });
 
     it('should keep the selected snippet set when the language changes within the same agnostic locale', async () => {

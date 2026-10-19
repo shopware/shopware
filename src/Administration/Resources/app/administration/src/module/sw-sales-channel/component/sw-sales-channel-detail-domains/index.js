@@ -278,15 +278,19 @@ export default {
 
     methods: {
         async createdComponent() {
-            this.measurementSystems = await this.measurementSystemRepository.search(this.measurementSystemCriteria);
-
             [
+                this.measurementSystems,
                 this.snippetSets,
                 this.locales,
             ] = await Promise.all([
+                this.measurementSystemRepository.search(this.measurementSystemCriteria),
                 this.snippetSetRepository.search(this.snippetSetCriteria),
                 this.localeRepository.search(this.localeCriteria),
             ]);
+
+            if (this.currentDomain && !this.isEditingDomain && !this.currentDomain.snippetSetId) {
+                this.preselectSnippetSet(this.currentDomain.languageId);
+            }
         },
 
         getLanguagePrefix(localeCode) {

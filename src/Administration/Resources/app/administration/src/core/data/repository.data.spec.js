@@ -400,4 +400,33 @@ describe('repository.data.ts', () => {
 
         expect(thrownError.message).toBe('Request failed with status code 400');
     });
+
+    describe('api errors on delete', () => {
+        const oldId = 'a5a4cd8fa3434cc6a8e2a7b7a9d0b3a1';
+        const newId = 'b1f6a8d2c4e94d7f9a3b5c7d9e1f2a3b';
+
+        beforeEach(() => {
+            Shopware.Store.get('error').resetApiErrors();
+            Shopware.Store.get('error').addApiError({
+                expression: `tax.${oldId}`,
+                error: { code: 'FRAMEWORK__DELETE_RESTRICTED' },
+            });
+        });
+
+        it('should clear old api errors when a delete succeeds', async () => {
+            responses.addResponse({ method: 'DELETE', url: `/tax/${newId}`, status: 204, response: {} });
+
+            await repositoryFactory.create('tax').delete(newId);
+
+            expect(Shopware.Store.get('error').api).toEqual({});
+        });
+
+        it('should clear old api errors when a sync delete succeeds', async () => {
+            responses.addResponse({ method: 'POST', url: '_action/sync', status: 200, response: { success: true } });
+
+            await repositoryFactory.create('tax').syncDeleted([newId]);
+
+            expect(Shopware.Store.get('error').api).toEqual({});
+        });
+    });
 });

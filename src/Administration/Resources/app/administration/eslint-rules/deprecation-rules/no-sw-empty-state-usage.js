@@ -3,8 +3,8 @@
  *
  * Migrates the deprecated `sw-empty-state` component to `mt-empty-state`.
  *
- * Usages without an automatic equivalent (custom `icon` slot content, markup in the default slot, dynamic bindings)
- * are reported without a fix and stay `sw-empty-state` until they are migrated manually.
+ * Usages without an automatic equivalent (custom `icon` slot content, markup in the default slot, conditional `icon`
+ * or default slot templates, dynamic bindings) are reported without a fix and stay `sw-empty-state` until they are migrated manually.
  */
 
 const OLD_COMPONENT = 'sw-empty-state';
@@ -38,6 +38,8 @@ const REASONS = {
     defaultSlot: 'the default slot renders markup, but "mt-empty-state" only supports a plain text "description"',
     dynamicBinding: 'dynamic bindings (v-bind="..." or :[...]) cannot be mapped to the new props',
     dynamicSlot: 'dynamic slot names cannot be mapped to the new slots',
+    conditionalIconSlot: 'the "icon" slot template has directives like v-if, which cannot be mapped to the "icon" prop',
+    conditionalDefaultSlot: 'the default slot template has directives like v-if, which cannot be mapped to the "description" prop',
     quotes: 'the description expression mixes single and double quotes',
 };
 
@@ -217,6 +219,13 @@ function getSlotName(element) {
 }
 
 /**
+ * Whether a slot template has attributes besides its v-slot, e.g. v-if / v-else, which render it conditionally.
+ */
+function hasSlotDirectives(template) {
+    return template.startTag.attributes.some((attribute) => parseAttribute(attribute).kind !== 'slot');
+}
+
+/**
  * Converts the content of the default slot into a description value.
  * Returns null if the content contains markup which can't be expressed as plain text.
  */
@@ -329,7 +338,8 @@ function analyze(sourceCode, node) {
         showDescriptionAttribute: null,
         hasCentered: false,
         iconSlot: null,
-        actionsSlot: null,
+        // Several "actions" templates are possible, e.g. with v-if / v-else
+        actionsSlotArguments: [],
         defaultTemplate: null,
         defaultNodes: [],
     };
@@ -381,10 +391,18 @@ function analyze(sourceCode, node) {
             reasons.add(REASONS.dynamicSlot);
         } else if (slot.name === 'default') {
             result.defaultTemplate = child;
+
+            if (hasSlotDirectives(child)) {
+                reasons.add(REASONS.conditionalDefaultSlot);
+            }
         } else if (slot.name === 'icon') {
             result.iconSlot = child;
+
+            if (hasSlotDirectives(child)) {
+                reasons.add(REASONS.conditionalIconSlot);
+            }
         } else if (slot.name === 'actions') {
-            result.actionsSlot = { element: child, argument: slot.argument };
+            result.actionsSlotArguments.push(slot.argument);
         }
     });
 
@@ -663,9 +681,9 @@ module.exports = {
                             return { range: getRemovalRange(sourceText, child), text: '' };
                         });
 
-                        if (analysis.actionsSlot) {
-                            childFixes.push({ range: analysis.actionsSlot.argument.range, text: 'button' });
-                        }
+                        analysis.actionsSlotArguments.forEach((argument) => {
+                            childFixes.push({ range: argument.range, text: 'button' });
+                        });
 
                         childFixes.sort((a, b) => a.range[0] - b.range[0]);
 

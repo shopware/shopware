@@ -126,6 +126,34 @@ ruleTester.run('no-sw-empty-state-usage', rule, {
             errors: [{ message: MIGRATE_MESSAGE }],
         },
         {
+            name: 'renames every conditional actions slot template',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-empty-state title="Title" icon="regular-products" subline="Subline">
+        <template v-if="canCreate" #actions>
+            <mt-button>Create</mt-button>
+        </template>
+        <template v-else #actions>
+            <mt-button>Request</mt-button>
+        </template>
+    </sw-empty-state>
+</template>`,
+            output: `
+<template>
+    ${TODO}
+    <mt-empty-state headline="Title" icon="regular-products" description="Subline" centered>
+        <template v-if="canCreate" #button>
+            <mt-button>Create</mt-button>
+        </template>
+        <template v-else #button>
+            <mt-button>Request</mt-button>
+        </template>
+    </mt-empty-state>
+</template>`,
+            errors: [{ message: MIGRATE_MESSAGE }],
+        },
+        {
             name: 'converts an icon slot with a single icon and unwraps the default slot text',
             filename: 'test.html.twig',
             code: `
@@ -312,6 +340,35 @@ ruleTester.run('no-sw-empty-state-usage', rule, {
             output: null,
             errors: [{
                 message: manualMessage('the "icon" slot renders custom content, but "mt-empty-state" only supports the "icon" prop'),
+            }],
+        },
+        {
+            name: 'reports conditional icon slot templates without a fix',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-empty-state title="Title">
+        <template v-if="isActive" #icon><mt-icon name="regular-checkmark" /></template>
+        <template v-else #icon><mt-icon name="regular-times" /></template>
+    </sw-empty-state>
+</template>`,
+            output: null,
+            errors: [{
+                message: manualMessage('the "icon" slot template has directives like v-if, which cannot be mapped to the "icon" prop'),
+            }],
+        },
+        {
+            name: 'reports a conditional default slot template without a fix',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-empty-state title="Title">
+        <template v-if="hasText" #default>Text</template>
+    </sw-empty-state>
+</template>`,
+            output: null,
+            errors: [{
+                message: manualMessage('the default slot template has directives like v-if, which cannot be mapped to the "description" prop'),
             }],
         },
         {

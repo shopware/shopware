@@ -646,7 +646,7 @@ The new ESLint rule `sw-deprecation-rules/no-sw-empty-state-usage` of the Admini
 bin/console administration:check-extensions -- --only=MyPlugin --fix
 ```
 
-Usages with custom `icon` slot content, markup in the default slot or dynamic bindings are only reported and have to be migrated manually.
+Usages with custom `icon` slot content, markup in the default slot, conditional `icon` or default slot templates or dynamic bindings are only reported and have to be migrated manually.
 Check the `TODO Codemod` comment the rule adds above each converted usage.
 
 ### Native setup components support defineModel()

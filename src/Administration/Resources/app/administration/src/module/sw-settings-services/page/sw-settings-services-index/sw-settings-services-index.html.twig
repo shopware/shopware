@@ -18,6 +18,16 @@
             position-identifier="sw-settings-services-header"
         />
 
+        <mt-banner
+            v-if="servicesWithConnectionProblem.length > 0"
+            class="sw-settings-services-index__connection-problem-banner"
+            variant="critical"
+        >
+            <p><b>{{ connectionProblemTitle }}</b></p>
+
+            <p>{{ $t('sw-settings-services.index.connection-problem-banner.message') }}</p>
+        </mt-banner>
+
         <sw-settings-services-hero
             :documentation-link="currentRevision.links['docs-url']"
             :feedback-link="currentRevision.links['feedback-url']"
@@ -88,6 +98,7 @@
                         v-for="service in services"
                         :key="service.name"
                         :service="service"
+                        :health="healthOf(service)"
                     />
                 </ul>
             </div>

@@ -221,4 +221,23 @@ describe('src/module/sw-settings-services/service/shopware-services-service.ts',
             },
         });
     });
+
+    it('loads the health of all apps keyed by app id', async () => {
+        const client = createHTTPClient();
+        const clientMock = new MockAdapter(client);
+        const loginService = createLoginService(client, Shopware.Context.api);
+        const shopwareServicesService = new ShopwareServicesService(client, loginService, jest.fn());
+
+        const appHealth = {
+            name: 'Service1',
+            status: 'ERROR',
+            reason: 'credentials_rejected',
+            lastStatusCode: 401,
+            lastAttemptAt: '2026-10-19 12:00:00.000',
+            lastAppActivityAt: null,
+        };
+        clientMock.onGet('app-system/health').reply(200, { status: 'ERROR', apps: { 'app-id': appHealth } });
+
+        await expect(shopwareServicesService.getAppSystemHealth()).resolves.toEqual({ 'app-id': appHealth });
+    });
 });

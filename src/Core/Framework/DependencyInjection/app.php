@@ -40,6 +40,7 @@ use Shopware\Core\Framework\App\Api\AppCmsController;
 use Shopware\Core\Framework\App\Api\AppJWTGenerateRoute;
 use Shopware\Core\Framework\App\Api\AppPrivilegeController;
 use Shopware\Core\Framework\App\Api\AppSecretRotationController;
+use Shopware\Core\Framework\App\Api\AppSystemHealthController;
 use Shopware\Core\Framework\App\Api\ShopIdController;
 use Shopware\Core\Framework\App\Api\VerifyShopController;
 use Shopware\Core\Framework\App\AppArchiveValidator;
@@ -140,6 +141,7 @@ use Shopware\Core\Framework\App\Subscriber\AppLoadedSubscriber;
 use Shopware\Core\Framework\App\Subscriber\AppScriptConditionConstraintsSubscriber;
 use Shopware\Core\Framework\App\Subscriber\CustomFieldProtectionSubscriber;
 use Shopware\Core\Framework\App\Subscriber\DiscardUnconfirmedAppSecretsListener;
+use Shopware\Core\Framework\App\SystemCheck\AppSystemCheck;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
 use Shopware\Core\Framework\App\Telemetry\AppTelemetrySubscriber;
 use Shopware\Core\Framework\App\Template\TemplateDefinition;
@@ -1113,5 +1115,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('shopware.rate_limiter'),
             service(AppUrlVerifier::class),
+        ]);
+
+    $services->set(AppSystemCheck::class)
+        ->args([
+            service(Connection::class),
+            service(ShopIdProvider::class),
+            service('cache.app'),
+            service(ClockInterface::class),
+        ])
+        ->tag('shopware.system_check');
+
+    $services->set(AppSystemHealthController::class)
+        ->public()
+        ->args([
+            service(AppSystemCheck::class),
         ]);
 };

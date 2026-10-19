@@ -278,6 +278,133 @@
           }
         }
       }
+    },
+    "/app-system/health": {
+      "get": {
+        "tags": [
+          "App System",
+          "Experimental"
+        ],
+        "summary": "Get the health of installed apps",
+        "description": "Returns a health status per installed app, derived from data the shop already stores, such as failing webhook deliveries and the last time the app called the Admin API. Results are cached for 60 seconds. Requires the `system.plugin_maintain` privilege. Treat unknown `reason` values as `UNKNOWN`. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+        "operationId": "getAppSystemHealth",
+        "parameters": [
+          {
+            "name": "appId",
+            "in": "query",
+            "description": "Only return the health of the app with this id.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The health of the requested apps.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "apps"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "OK",
+                        "UNKNOWN",
+                        "WARNING",
+                        "ERROR",
+                        "SKIPPED"
+                      ],
+                      "description": "The worst status of the returned apps."
+                    },
+                    "apps": {
+                      "type": "object",
+                      "description": "Health per app, keyed by app id.",
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "name",
+                          "status",
+                          "reason",
+                          "lastStatusCode",
+                          "lastAttemptAt",
+                          "lastAppActivityAt"
+                        ],
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "OK",
+                              "UNKNOWN",
+                              "WARNING",
+                              "ERROR",
+                              "SKIPPED"
+                            ]
+                          },
+                          "reason": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "enum": [
+                              "inactive",
+                              "shop_id_mismatch",
+                              "registration_incomplete",
+                              "credentials_rejected",
+                              "delivery_failing",
+                              "webhooks_suspended",
+                              "no_app_activity",
+                              "no_signal",
+                              null
+                            ]
+                          },
+                          "lastStatusCode": {
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "description": "Status code of the latest failed webhook delivery that is still being retried."
+                          },
+                          "lastAttemptAt": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "format": "date-time"
+                          },
+                          "lastAppActivityAt": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "format": "date-time",
+                            "description": "Last time the app requested an Admin API access token."
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          }
+        }
+      }
     }
   },
   "components": {

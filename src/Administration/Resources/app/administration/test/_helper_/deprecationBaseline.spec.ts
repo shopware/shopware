@@ -82,22 +82,14 @@ describe('test/_helper_/deprecationBaseline', () => {
     });
 
     describe('currentRun', () => {
-        // Jest gives each spec file its own copy of `process.env`, so the changes stay in this file.
-        const runEnvironment = { ...process.env };
-
-        afterEach(() => {
-            process.env = { ...runEnvironment };
-        });
-
         it('is major when the environment activates the major flag', () => {
-            process.env.V6_8_0_0 = '1';
+            jest.replaceProperty(process, 'env', { ...process.env, V6_8_0_0: '1' });
 
             expect(currentRun()).toBe('major');
         });
 
         it('is default when the environment activates no major flag', () => {
-            delete process.env.V6_8_0_0;
-            delete process.env.FEATURE_ALL;
+            jest.replaceProperty(process, 'env', { ...process.env, V6_8_0_0: undefined, FEATURE_ALL: undefined });
 
             expect(currentRun()).toBe('default');
         });

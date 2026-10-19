@@ -85,9 +85,12 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ### Multiple SQL statements restricted in 6.8
 
-With `v6.8.0.0` active, application database connections reject multiple SQL statements in a single call.
+With `DISABLE_SQL_MULTI_STATEMENTS=1`, application database connections reject multiple SQL statements in a single call.
+This flag is also enabled by `V6_8_0_0=1` unless explicitly disabled.
 Execute statements separately in extensions.
-The connections passed to migration `update()` and `updateDestructive()` methods and the installer still allow multiple statements.
+Migration execution, discovery, and bookkeeping now always use a separate primary connection, even while the flag is disabled.
+Migration queries no longer share application transactions, session variables, or temporary tables; commit any application changes they need before running migrations.
+The connections passed to migration `update()` and `updateDestructive()` methods and the installer explicitly allow multiple statements.
 
 ### Invalid price definition exception factory
 

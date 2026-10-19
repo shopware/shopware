@@ -423,6 +423,7 @@ Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new fo
 ## Multiple SQL statements restricted to migrations and installation
 
 Application database connections no longer accepted multiple SQL statements in a single call.
+The restriction was controlled by `DISABLE_SQL_MULTI_STATEMENTS`, which was enabled by the 6.8 major flag unless explicitly disabled.
 Replace batches such as `executeStatement('UPDATE ...; DELETE ...')` with separate calls and keep any required transaction around them.
 
 Migration execution, discovery, and bookkeeping used a dedicated connection to the primary database.

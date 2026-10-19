@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
+use Shopware\Core\Framework\Webhook\Health\EndpointState;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
@@ -64,6 +65,93 @@ class WebhookOutboxStoreTest extends TestCase
 
         $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_SUCCESS);
         $this->assertDeliveryDeleted('evt-1');
+    }
+
+    public function testRecordHeldOutboxEntryWritesPausedRowVerbatim(): void
+    {
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+
+        $entry = $this->store->recordHeldOutboxEntry($this->toEntry($message));
+
+        static::assertInstanceOf(OutboxEntry::class, $entry);
+        static::assertSame(WebhookEventLogDefinition::STATUS_PAUSED, $entry->deliveryStatus);
+
+        $delivery = $this->connection->fetchAssociative(
+            'SELECT delivery_status, execution_count FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes('evt-1')]
+        );
+        static::assertNotFalse($delivery);
+        static::assertSame(WebhookEventLogDefinition::STATUS_PAUSED, $delivery['delivery_status']);
+        static::assertSame(0, (int) $delivery['execution_count']);
+
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_PAUSED);
+    }
+
+    public function testResumedHeldBacklogDrainsInIdOrderAheadOfNewerTraffic(): void
+    {
+        $this->createWebhook('wh-1');
+        $heldFirst = $this->createMessage('evt-held-1', 'wh-1');
+        static::assertNotNull($this->store->recordHeldOutboxEntry($this->toEntry($heldFirst)));
+        static::assertNotNull($this->store->recordHeldOutboxEntry($this->toEntry($this->createMessage('evt-held-2', 'wh-1'))));
+        static::assertNotNull($this->store->recordOutboxEntry($this->toEntry($this->createMessage('evt-newer', 'wh-1'))));
+
+        $this->store->resumeDeliveriesForWebhook($this->ids->get('wh-1'));
+
+        $this->assertEventLogStatus('evt-held-1', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+        $this->assertEventLogStatus('evt-held-2', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+
+        $due = $this->store->fetchDue(
+            Hasher::hashBinary($heldFirst->getPartitionKey(), 'xxh128'),
+            [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY],
+            10
+        );
+
+        static::assertSame(
+            [$this->ids->get('evt-held-1'), $this->ids->get('evt-held-2'), $this->ids->get('evt-newer')],
+            array_map(static fn (OutboxEntry $entry) => $entry->webhookEventId, $due),
+            'the held backlog must drain in id order ahead of newer traffic'
+        );
+    }
+
+    public function testOrphanedHeldRowsAreExcludedFromStrandedFinderAndCancelledSeparately(): void
+    {
+        $this->createWebhook('wh-dead');
+        $orphan = $this->toEntry($this->createMessage('evt-orphan', 'wh-dead'));
+        static::assertNotNull($this->store->recordHeldOutboxEntry($orphan));
+
+        $this->createWebhook('wh-live');
+        $this->insertHealth('wh-live', EndpointState::Healthy);
+        static::assertNotNull($this->store->recordHeldOutboxEntry($this->toEntry($this->createMessage('evt-live', 'wh-live'))));
+
+        $this->connection->delete('webhook', ['id' => $this->ids->getBytes('wh-dead')]);
+        static::assertNull(
+            $this->connection->fetchOne(
+                'SELECT webhook_id FROM webhook_delivery WHERE webhook_event_log_id = :id',
+                ['id' => $this->ids->getBytes('evt-orphan')]
+            ),
+            'the FK must null the orphaned delivery row',
+        );
+
+        $stranded = $this->store->findWebhookIdsWithStrandedHolds();
+        static::assertNotContains(null, $stranded, 'an orphaned (webhook-deleted) row must not leak a NULL id into the finder');
+        static::assertContains($this->ids->get('wh-live'), $stranded, 'the live healthy webhook is a genuine stranded hold');
+
+        $this->store->cancelOrphanedHeldRows();
+
+        $this->assertDeliveryDeleted('evt-orphan');
+        $orphanLog = $this->connection->fetchAssociative(
+            'SELECT delivery_status, failure_reason, serialized_webhook_message FROM webhook_event_log WHERE id = :id',
+            ['id' => $this->ids->getBytes('evt-orphan')]
+        );
+        static::assertNotFalse($orphanLog);
+        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $orphanLog['delivery_status']);
+        static::assertSame(WebhookOutboxStore::CANCEL_REASON_ORPHANED, $orphanLog['failure_reason']);
+        static::assertSame($orphan->serializedMessage, $orphanLog['serialized_webhook_message'], 'cancel must keep the payload for replay');
+
+        $this->assertDeliveryExists('evt-live');
+        $this->assertEventLogStatus('evt-live', WebhookEventLogDefinition::STATUS_PAUSED);
+        static::assertContains($this->ids->get('wh-live'), $this->store->findWebhookIdsWithStrandedHolds());
     }
 
     public function testBackfillDeliveryCreatesDeliveryForQueuedEventLog(): void
@@ -719,6 +807,21 @@ class WebhookOutboxStoreTest extends TestCase
         );
     }
 
+    public function testResumeDeliveriesLeavesTheBacklogHeldWhenTheWebhookIsNotHealthy(): void
+    {
+        $this->createWebhook('wh-1');
+        $this->insertHealth('wh-1', EndpointState::Degraded);
+        static::assertNotNull($this->store->recordHeldOutboxEntry($this->toEntry($this->createMessage('evt-1', 'wh-1'))));
+
+        $this->store->resumeDeliveriesForWebhook($this->ids->get('wh-1'));
+
+        static::assertSame(WebhookEventLogDefinition::STATUS_PAUSED, $this->connection->fetchOne(
+            'SELECT delivery_status FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes('evt-1')]
+        ));
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_PAUSED);
+    }
+
     /**
      * First attempt is claimed (RUNNING, execution_count=1), then `resetRunningForPartition`
      * recovers it (back to PENDING_RETRY), then a second attempt is claimed (RUNNING,
@@ -792,6 +895,15 @@ class WebhookOutboxStoreTest extends TestCase
             'url' => 'https://example.com/webhook',
             'app_id' => $appId !== null ? Uuid::fromHexToBytes($appId) : null,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+    }
+
+    private function insertHealth(string $webhookKey, EndpointState $state): void
+    {
+        $this->connection->insert('webhook_health', [
+            'webhook_id' => $this->ids->getBytes($webhookKey),
+            'endpoint_state' => $state->value,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 

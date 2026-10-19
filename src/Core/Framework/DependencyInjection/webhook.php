@@ -7,6 +7,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Media\File\TrustedUrlResolver;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
@@ -24,6 +25,8 @@ use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Command\WebhookDrainToAsyncCommand;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Handler\WebhookEventMessageHandler;
+use Shopware\Core\Framework\Webhook\Health\HealthConfig;
+use Shopware\Core\Framework\Webhook\Health\WebhookHealthTick;
 use Shopware\Core\Framework\Webhook\Hookable\CoreHookableEventDescriber;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
@@ -151,6 +154,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(WebhookHealthService::class)
         ->args([
             service(Connection::class),
+            service(WebhookOutboxStore::class),
+            service(HealthConfig::class),
+            service(SymfonyClockInterface::class),
         ]);
 
     $services->set(MySQLWebhookReceiver::class)
@@ -167,8 +173,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(WebhookOutboxStore::class),
             service_closure('messenger.transport.async'),
             service_closure(MySQLWebhookReceiver::class),
+            service(WebhookHealthTick::class),
         ])
         ->tag('messenger.transport_factory');
+
+    $services->set(WebhookHealthTick::class)
+        ->args([
+            service(AbstractKeyValueStorage::class),
+            service(SymfonyClockInterface::class),
+            service('logger'),
+            service(WebhookHealthService::class),
+        ]);
 
     $services->set(WebhookDrainToAsyncCommand::class)
         ->args([
@@ -194,6 +209,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(WebhookDeliveryService::class),
             service(WebhookOutboxStore::class),
             service(PolicyRegistry::class),
+            service(WebhookHealthService::class),
         ]);
 
     $services->set(WebhookCacheClearer::class)
@@ -315,4 +331,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(WebhookCleanup::class),
         ])
         ->tag('messenger.message_handler');
+
+    $services->set(HealthConfig::class)
+        ->args([
+            param('shopware.webhook.health.cooldown_schedule_seconds'),
+            param('shopware.webhook.health.degraded_threshold_count'),
+            param('shopware.webhook.health.non_transient_threshold_count'),
+            param('shopware.webhook.health.max_suspended_days'),
+        ]);
 };

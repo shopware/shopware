@@ -33,7 +33,6 @@ const DEFAULT_MIN_SEARCH_TERM_LENGTH = 2;
 export const KEY_USER_SEARCH_PREFERENCE = 'search.preferences';
 /**
  * @memberOf module:app/service/search-ranking
- * @constructor
  * @method createSearchRankingService
  * @returns {Object}
  */

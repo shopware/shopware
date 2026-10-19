@@ -8,7 +8,6 @@ const utils = Shopware.Utils;
  * @private
  * @sw-package inventory
  * @memberOf module:app/service/product-stream-condition
- * @constructor
  * @method conditionService
  * @returns {Object}
  */

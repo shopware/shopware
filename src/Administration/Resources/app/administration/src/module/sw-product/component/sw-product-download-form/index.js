@@ -149,6 +149,8 @@ export default {
             productDownload.media = await this.mediaRepository.get(targetId);
 
             this.product.downloads.add(productDownload);
+            Shopware.Store.get('swProductDetail').isDownloadExternallyManaged = false;
+
             if (this.error) {
                 Shopware.Store.get('error').removeApiError(this.error.selfLink);
             }

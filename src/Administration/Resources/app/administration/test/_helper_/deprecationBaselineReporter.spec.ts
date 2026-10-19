@@ -24,67 +24,70 @@ const greenRun = { numFailedTests: 0, numFailedTestSuites: 0, runExecError: unde
 
 const message = 'oldFunction() is deprecated.';
 
-describe('test/_helper_/deprecationBaselineReporter', () => {
-    let baselineDirectory: string;
-    let baselinePath: string;
+/**
+ * The baseline each test starts from.
+ */
+const baselineBeforeTheRun = { [message]: { 'sw-author': ['default', 'major'], 'sw-page': ['major'] } };
 
+const baselineDirectory = mkdtempSync(join(tmpdir(), 'deprecation-baseline-spec-'));
+const baselinePath = join(baselineDirectory, 'baseline.json');
+
+/**
+ * Replaces the baseline file the reporter reads.
+ *
+ * @example
+ * writeBaseline({ 'old() is deprecated.': { 'sw-page': ['major'] } });
+ */
+function writeBaseline(baseline: object): void {
+    writeFileSync(baselinePath, JSON.stringify(baseline));
+}
+
+/**
+ * The baseline file the reporter wrote.
+ *
+ * @example
+ * expect(readBaseline()).toEqual({});
+ */
+function readBaseline(): unknown {
+    return JSON.parse(readFileSync(baselinePath, 'utf8'));
+}
+
+/**
+ * Runs the reporter as Jest would, with the workers having recorded `usedEntries` as `[message, site]`, and `argv`
+ * as the command line options. Returns the error the reporter reported, if any.
+ *
+ * @example
+ * expect(run([[message, 'sw-page']], { run: 'major' })).toBeUndefined();
+ */
+function run(
+    usedEntries: string[][],
+    {
+        globalConfig = fullRun as object,
+        run: jestRun = 'default' as DeprecationRun,
+        results = greenRun as object,
+        argv = [] as string[],
+    } = {},
+): Error | undefined {
+    jest.replaceProperty(process, 'argv', ['node', 'jest', ...argv]);
+    const reporter = new DeprecationBaselineReporter(globalConfig, { baselinePath, run: jestRun });
+
+    reporter.onRunStart();
+    usedEntries.forEach(([usedMessage, usageSite]) => recordUsedBaselineEntry({ message: usedMessage, usageSite }));
+    reporter.onRunComplete(new Set(), results);
+
+    return reporter.getLastError();
+}
+
+describe('test/_helper_/deprecationBaselineReporter', () => {
     beforeEach(() => {
         ignoreBaselineUpdateRun();
-        baselineDirectory = mkdtempSync(join(tmpdir(), 'deprecation-baseline-spec-'));
-        baselinePath = join(baselineDirectory, 'baseline.json');
-        writeBaseline({ [message]: { 'sw-author': ['default', 'major'], 'sw-page': ['major'] } });
+        writeBaseline(baselineBeforeTheRun);
         jest.spyOn(console, 'error').mockImplementation(() => {});
     });
 
-    afterEach(() => {
+    afterAll(() => {
         rmSync(baselineDirectory, { recursive: true, force: true });
     });
-
-    /**
-     * Replaces the baseline file the reporter reads.
-     *
-     * @example
-     * writeBaseline({ 'old() is deprecated.': { 'sw-page': ['major'] } });
-     */
-    function writeBaseline(baseline: object): void {
-        writeFileSync(baselinePath, JSON.stringify(baseline));
-    }
-
-    /**
-     * The baseline file the reporter wrote.
-     *
-     * @example
-     * expect(readBaseline()).toEqual({});
-     */
-    function readBaseline(): unknown {
-        return JSON.parse(readFileSync(baselinePath, 'utf8'));
-    }
-
-    /**
-     * Runs the reporter as Jest would, with the workers having recorded `usedEntries` as `[message, site]`, and `argv`
-     * as the command line options. Returns the error the reporter reported, if any.
-     *
-     * @example
-     * expect(run([[message, 'sw-page']], { run: 'major' })).toBeUndefined();
-     */
-    function run(
-        usedEntries: string[][],
-        {
-            globalConfig = fullRun as object,
-            run: jestRun = 'default' as DeprecationRun,
-            results = greenRun as object,
-            argv = [] as string[],
-        } = {},
-    ): Error | undefined {
-        jest.replaceProperty(process, 'argv', ['node', 'jest', ...argv]);
-        const reporter = new DeprecationBaselineReporter(globalConfig, { baselinePath, run: jestRun });
-
-        reporter.onRunStart();
-        usedEntries.forEach(([usedMessage, usageSite]) => recordUsedBaselineEntry({ message: usedMessage, usageSite }));
-        reporter.onRunComplete(new Set(), results);
-
-        return reporter.getLastError();
-    }
 
     describe('stale check', () => {
         it('passes a full run that needed every usage listed for it, ignoring those listed for the other run', () => {

@@ -276,7 +276,7 @@ export function endDeprecationLog(): void {
 /**
  * `expect(deprecations).toHaveTriggered(expected)`: passes when a deprecation of the current test matches
  * `expected`, and marks every matching one as asserted. Like `toThrow`, a string matches part of the message.
- * A broad string asserts every matching deprecation.
+ * It must match exactly one deprecation, which the test may have recorded several times.
  * Registered in `test/_setup/jest-extensions.ts`.
  *
  * @private
@@ -298,12 +298,25 @@ export function toHaveTriggered(this: jest.MatcherContext, received: unknown, ex
     }
 
     const matching = received.entries.filter((entry) => matches(expected, entry.message));
-    matching.forEach((entry) => {
-        entry.asserted = true;
-    });
+    const matchedMessages = [...new Set(matching.map(({ message }) => message))];
+    const isAmbiguous = !this.isNot && matchedMessages.length > 1;
+    const pass = matching.length > 0 && !isAmbiguous;
 
-    const recorded = received.entries.map(({ message }) => `  ${this.utils.printReceived(message)}`);
-    const pass = matching.length > 0;
+    if (pass) {
+        matching.forEach((entry) => {
+            entry.asserted = true;
+        });
+    }
+
+    const printList = (messages: string[]) => messages.map((message) => `  ${this.utils.printReceived(message)}`);
+    const recorded = printList(received.entries.map(({ message }) => message));
+    const expectation = isAmbiguous
+        ? [
+              `Expected one deprecation matching ${this.utils.printExpected(expected)}, but it matches ${matchedMessages.length}:`,
+              ...printList(matchedMessages),
+              'Use a more specific message.',
+          ]
+        : [`Expected ${pass ? 'no deprecation' : 'a deprecation'} matching: ${this.utils.printExpected(expected)}`];
 
     return {
         pass,
@@ -311,7 +324,7 @@ export function toHaveTriggered(this: jest.MatcherContext, received: unknown, ex
             [
                 hint,
                 '',
-                `Expected ${pass ? 'no deprecation' : 'a deprecation'} matching: ${this.utils.printExpected(expected)}`,
+                ...expectation,
                 `Deprecations recorded in this test:${recorded.length > 0 ? `\n${recorded.join('\n')}` : ' none'}`,
             ].join('\n'),
     };

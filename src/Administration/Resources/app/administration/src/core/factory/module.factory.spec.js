@@ -392,7 +392,9 @@ describe('core/factory/module.factory.js', () => {
                 },
             },
         });
-        expect(deprecations).toHaveTriggered('"snippets" property is deprecated');
+        expect(deprecations).toHaveTriggered('Module "sw-foo": the "snippets" property is deprecated');
+        expect(deprecations).toHaveTriggered('Module "sw-bar": the "snippets" property is deprecated');
+        expect(deprecations).toHaveTriggered('Module "sw-baz": the "snippets" property is deprecated');
     });
 
     it.activeFeatureFlags(['testFlag'])('should add settings item if feature flag is active', () => {

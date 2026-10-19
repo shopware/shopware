@@ -43,7 +43,8 @@ declare global {
         interface Matchers<R, T> {
             /**
              * Asserts that the current test ran into a deprecation matching `expected` (a string matches part of
-             * the message, like `toThrow`). Only for `deprecations` from `test/_helper_/deprecations`.
+             * the message, like `toThrow`). It must match exactly one deprecation, which the test may have recorded
+             * several times. Only for `deprecations` from `test/_helper_/deprecations`.
              */
             toHaveTriggered(expected: T extends DeprecationLog ? string | RegExp : never): R;
         }

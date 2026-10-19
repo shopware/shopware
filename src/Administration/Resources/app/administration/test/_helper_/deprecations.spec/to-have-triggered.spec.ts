@@ -25,11 +25,11 @@ describe('test/_helper_/deprecations - toHaveTriggered', () => {
         expect(deprecations).toHaveTriggered(/^oldFunction\(\)/);
     });
 
-    it('matches a global regular expression against every deprecation', () => {
+    it('covers every occurrence of the one deprecation it matches', () => {
         oldFunction();
-        triggerOtherDeprecation();
+        oldFunction();
 
-        expect(deprecations).toHaveTriggered(/is deprecated/g);
+        expect(deprecations).toHaveTriggered(/oldFunction\(\) is deprecated/g);
 
         expect(failureOfEndDeprecationLog()).toBe('');
     });
@@ -70,6 +70,15 @@ describe('test/_helper_/deprecations - toHaveTriggered', () => {
         );
     });
 
+    it('fails `.not` for a string that matches several deprecations', () => {
+        oldFunction();
+        triggerOtherDeprecation();
+
+        expect(() => expect(deprecations).not.toHaveTriggered('is deprecated.')).toThrow(
+            'Expected no deprecation matching: "is deprecated."',
+        );
+    });
+
     it('lists what was recorded when `.not` fails', () => {
         oldFunction();
 
@@ -89,13 +98,19 @@ describe('test/_helper_/deprecations - toHaveTriggered', () => {
         expect(failure).not.toContain(oldFunctionMessage);
     });
 
-    it('covers every deprecation a broad string matches', () => {
+    it('fails for a string that matches several deprecations and covers none of them', () => {
         oldFunction();
         triggerOtherDeprecation();
 
-        expect(deprecations).toHaveTriggered('is deprecated.');
+        expect(() => {
+            expect(deprecations).toHaveTriggered('is deprecated.');
+        }).toThrow(
+            'Expected one deprecation matching "is deprecated.", but it matches 2:\n  "oldFunction() is deprecated."\n  "otherFunction() is deprecated."\nUse a more specific message.',
+        );
 
-        expect(failureOfEndDeprecationLog()).toBe('');
+        const failure = failureOfEndDeprecationLog();
+        expect(failure).toContain('1. oldFunction() is deprecated.');
+        expect(failure).toContain('2. otherFunction() is deprecated.');
     });
 
     it('accepts only the `deprecations` handle', () => {

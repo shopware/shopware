@@ -3,7 +3,7 @@
  */
 
 import { mount, flushPromises } from '@vue/test-utils';
-import { defineAsyncComponent } from 'vue';
+import { defineAsyncComponent, type ComponentPublicInstance } from 'vue';
 import Feature from 'src/core/feature';
 import { allowDeprecation, deprecations } from './deprecations';
 import { callerFile, location, ownFrames } from './deprecationUsageSite';
@@ -83,7 +83,7 @@ describe('test/_helper_/deprecationUsageSite', () => {
             expect(recordedSites()).toEqual(['sw-legacy']);
         });
 
-        it('names the component and its author for a deprecated member the component reads itself', () => {
+        it('names only the running component, not its author, for a deprecated function it calls', () => {
             const selfDeprecating = {
                 name: 'sw-self-deprecating',
                 template: '<div>{{ legacyLabel }}</div>',
@@ -102,7 +102,16 @@ describe('test/_helper_/deprecationUsageSite', () => {
                 template: '<sw-self-deprecating />',
             });
 
-            expect(recordedSites()).toEqual(['sw-host > sw-self-deprecating']);
+            expect(recordedSites()).toEqual(['sw-self-deprecating']);
+        });
+
+        it('names the same site for a component calling a deprecated function, whichever parent renders it', () => {
+            const caller = { name: 'sw-caller', template: '<div />', created: oldFunction };
+
+            mount({ name: 'sw-list', components: { 'sw-caller': caller }, template: '<sw-caller />' });
+            mount({ name: 'sw-grid', components: { 'sw-caller': caller }, template: '<sw-caller />' });
+
+            expect(recordedSites()).toEqual(['sw-caller', 'sw-caller']);
         });
 
         it('tells two children of the same parent apart', () => {
@@ -116,9 +125,22 @@ describe('test/_helper_/deprecationUsageSite', () => {
             });
 
             expect(recordedSites()).toEqual([
-                'sw-owner > sw-first-caller',
-                'sw-owner > sw-second-caller',
+                'sw-first-caller',
+                'sw-second-caller',
             ]);
+        });
+
+        it('names the parent for a deprecated method it calls on a child through a template ref', () => {
+            mount({
+                name: 'sw-parent',
+                components: { 'sw-child': { name: 'sw-child', template: '<div />', methods: { oldMethod: oldFunction } } },
+                template: '<sw-child ref="child" />',
+                mounted(this: ComponentPublicInstance) {
+                    (this.$refs.child as { oldMethod: () => void }).oldMethod();
+                },
+            });
+
+            expect(recordedSites()).toEqual(['sw-parent']);
         });
     });
 

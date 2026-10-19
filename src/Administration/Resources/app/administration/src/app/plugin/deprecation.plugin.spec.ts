@@ -40,6 +40,17 @@ describe('src/app/plugin/deprecation.plugin', () => {
         jest.restoreAllMocks();
     });
 
+    it('blames the template that renders the component or passes the prop', () => {
+        const trigger = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow').mockImplementation(() => {});
+
+        mountInPage('<div><sw-legacy /><sw-image empty-icon="regular-image" /></div>');
+
+        expect(trigger.mock.calls.map(([, , options]) => options)).toEqual([
+            { _blame: 'author' },
+            { _blame: 'author' },
+        ]);
+    });
+
     describe('deprecated component', () => {
         it.activeFeatureFlags(['v7.0.0.0']).each(['v7.0.0.0', '7.0'])(
             'throws once the major of "%s" is active',

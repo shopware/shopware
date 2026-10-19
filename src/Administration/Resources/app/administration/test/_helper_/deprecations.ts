@@ -3,6 +3,7 @@
  * @private
  */
 
+import type { DeprecationOptions } from 'src/core/feature';
 import { getDefaultActiveFeatureFlags } from './defaultActiveFeatureFlags';
 import normalizeFeatureFlag from './normalizeFeatureFlag';
 import { location, ownFrames, usageSite } from './deprecationUsageSite';
@@ -175,14 +176,14 @@ export function shouldHandleDeprecationsThroughMock(
  *
  * @private
  * @example
- * recordDeprecation('oldFunction() is deprecated.');
+ * recordDeprecation('oldFunction() is deprecated.', options?._blame);
  */
-export function recordDeprecation(message: string): void {
+export function recordDeprecation(message: string, blame?: DeprecationOptions['_blame']): void {
     const error = new Error();
     deprecations.entries.push({
         message: withoutWrappedSuffix(message),
         error,
-        usageSite: usageSite(error),
+        usageSite: usageSite(error, blame),
         asserted: false,
     });
 }

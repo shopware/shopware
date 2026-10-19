@@ -4,6 +4,7 @@
  */
 import { join, relative } from 'node:path';
 import { getCurrentInstance, type ComponentInternalInstance } from 'vue';
+import type { DeprecationOptions } from 'src/core/feature';
 
 const adminPath = process.env.ADMIN_PATH as string;
 
@@ -18,20 +19,24 @@ const skippedFiles = [
 ].map((file) => join(adminPath, file));
 
 /**
- * Where a deprecated API is used, for a guard call that created `error`. Inside a running component, its
- * template author and itself, e.g. `sw-order-list > sw-loader`, or just `sw-loader` when the spec mounts it.
- * Else the Administration path of the file calling the deprecated module, else the spec. Only the last two read
- * the stack of `error`, because formatting it is expensive.
+ * Where a deprecated API is used, for a guard call that created `error`:
+ * - `blame` `'author'`, for a component or prop the deprecation plugin guards: its template author and itself,
+ *   e.g. `sw-order-list > sw-loader`, or just `sw-loader` when the spec mounts it.
+ * - else the caller is at fault: the running component, e.g. `sw-order-list`, else the Administration path of
+ *   the file calling the deprecated module, else the spec.
+ *
+ * Only the file and the spec read the stack of `error`, because formatting it is expensive.
  *
  * Call it synchronously from the guard, while the component that uses the deprecated API is still current.
  *
  * @private
  * @example
- * usageSite(new Error()); // 'sw-order-list > sw-loader'
+ * usageSite(new Error(), 'author'); // 'sw-order-list > sw-loader'
  */
-export function usageSite(error: Error): string {
+export function usageSite(error: Error, blame?: DeprecationOptions['_blame']): string {
     const instance = getCurrentInstance();
-    const components = instance ? [templateAuthor(instance), instance].map(componentName).filter(Boolean) : [];
+    const atFault = instance && blame === 'author' ? [templateAuthor(instance), instance] : [instance];
+    const components = atFault.map(componentName).filter(Boolean);
 
     if (components.length > 0) {
         return components.join(' > ');

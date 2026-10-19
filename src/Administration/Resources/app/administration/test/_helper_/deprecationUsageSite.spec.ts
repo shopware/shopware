@@ -84,8 +84,8 @@ describe('test/_helper_/deprecationUsageSite', () => {
         });
 
         it('names only the running component, not its author, for a deprecated function it calls', () => {
-            const selfDeprecating = {
-                name: 'sw-self-deprecating',
+            const caller = {
+                name: 'sw-caller',
                 template: '<div>{{ legacyLabel }}</div>',
                 computed: {
                     legacyLabel(): string {
@@ -97,12 +97,12 @@ describe('test/_helper_/deprecationUsageSite', () => {
             };
 
             mount({
-                name: 'sw-host',
-                components: { 'sw-self-deprecating': selfDeprecating },
-                template: '<sw-self-deprecating />',
+                name: 'sw-author',
+                components: { 'sw-caller': caller },
+                template: '<sw-caller />',
             });
 
-            expect(recordedSites()).toEqual(['sw-self-deprecating']);
+            expect(recordedSites()).toEqual(['sw-caller']);
         });
 
         it('names the same site for a component calling a deprecated function, whichever parent renders it', () => {
@@ -159,7 +159,8 @@ describe('test/_helper_/deprecationUsageSite', () => {
         });
 
         it('names whoever started the chain for a component calling its own deprecated method after an await', async () => {
-            await mount(selfDeprecatingComponent).vm.load();
+            mount(selfDeprecatingComponent);
+            await flushPromises();
 
             expect(recordedSites()).toEqual([spec]);
         });

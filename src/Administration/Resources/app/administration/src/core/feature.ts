@@ -25,7 +25,7 @@ export const UNREGISTERED_UPCOMING_MAJORS = ['V6_9_0_0'];
  */
 export type DeprecationOptions = {
     /**
-     * `'caller'` (default): the code that calls the deprecated API, i.e. the code running the guard.
+     * `'caller'` (default): the code that calls the deprecated API: the running component, else the calling file.
      * `'author'`: the template that renders the deprecated component or passes the deprecated prop. Only the
      * deprecation plugin passes it.
      */

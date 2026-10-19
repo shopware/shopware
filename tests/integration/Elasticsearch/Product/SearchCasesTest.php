@@ -386,6 +386,20 @@ class SearchCasesTest extends TestCase
         ];
 
         $ids = new IdsCollection();
+        yield 'bracket attached to a word shorter than the n-gram minimum does not stop the word from matching by prefix' => [
+            'ids' => $ids,
+            'products' => [
+                self::product($ids, 'b6-target', 'DE-B6-1', 'Tennis Captain Hat'),
+                self::product($ids, 'b6-other', 'DE-B6-2', 'Hammer Tool'),
+            ],
+            'searchFields' => ['name'],
+            'searchScores' => ['name' => 1000],
+            'minScore' => null,
+            'term' => 'tennis (cap',
+            'expectedFirst' => 'b6-target',
+        ];
+
+        $ids = new IdsCollection();
         yield 'lone G query does not hit products that only contain bare G from HSS-G' => [
             'ids' => $ids,
             'products' => [

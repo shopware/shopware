@@ -64,15 +64,15 @@ force a single persona.
 1. **Gather once** (cache): PR metadata, names-only diff, full/paginated diff,
    file list and stats, commits (only if `maintainer` runs). Workers receive
    slices or references, never repeated full context.
-2. **Classify deterministically** (references/CLASSIFY.md): write the
-   metadata (`fork`, `author_association`, `labels`, `fixes_issue`) to a
-   `meta.json` and run
-   `node .agents/skills/sw-review/scripts/classify.ts --range <merge-base>...<head> --base <base> --meta … --root <checkout> --rules-ref <merge-base>`.
-   The script produces the diff itself and reads the router index from the merge
-   base. The JSON it prints is the `change_profile`: path classes, signals,
-   size, and the selected guides with the personas each guide names. Never
-   derive a signal from the PR title or body, and never pass the diff through
-   the model to write a file.
+2. **Classify deterministically** (references/CLASSIFY.md): take
+   `scripts/classify.ts` from the merge base with `git show`, never from the
+   checkout, and run
+   `node .sw-review/classify.ts --range <merge-base>...<head> --base <base> --root <checkout> [--meta '{…}']`.
+   The script produces the diff itself, reads the touched files from the head
+   and the router index from the merge base. The JSON it prints is the
+   `change_profile`: path classes, signals, size, and the selected guides with
+   the personas each guide names. Never derive a signal from the PR title or
+   body, and never pass the diff through the model to write a file.
 3. **Gate personas** off the path classes and signals (table above).
 3a. **Attach guides**: every selected guide with `file_exists: true` goes into
    the `guides` list of each persona it names. There is no cap on the number of

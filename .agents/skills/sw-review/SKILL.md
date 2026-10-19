@@ -12,14 +12,14 @@ allowed-tools: >
     Task
     Bash(rg:*) Bash(git log:*) Bash(git show:*) Bash(git diff:*)
     Bash(git blame:*) Bash(git status:*) Bash(git rev-parse:*)
-    Bash(git branch:*)
+    Bash(git branch:*) Bash(git merge-base:*)
     Bash(gh pr view:*) Bash(gh pr diff:*) Bash(gh pr list:*)
     Bash(gh api repos/*/pulls/[0-9]*)
     Bash(gh api repos/*/pulls/[0-9]*/files*)
     Bash(gh api repos/*/pulls/[0-9]*/commits*)
     Bash(gh auth status:*) Bash(gh repo view:*)
     Bash(find:*) Bash(ls:*) Bash(jq:*) Bash(mktemp:*)
-    Bash(node .agents/skills/sw-review/scripts/classify.ts:*)
+    Bash(mkdir -p .sw-review:*) Bash(node .sw-review/classify.ts:*)
     Read Glob Grep
 ---
 
@@ -63,9 +63,15 @@ Input block rules:
     - Local: base `trunk` fallback `main`/`master`; gather diff, names, `HEAD`, branch.
     - Commits: gather only when `maintainer` will run and it is cheap.
     - Wrapper-fed: trust provided `pr`, `diff` / `diff_path`, `files`, optional `commits`.
-2. **Classify.** Write `{"fork","author_association","labels","fixes_issue"}` to a temp `meta.json` and run
-   `node .agents/skills/sw-review/scripts/classify.ts --range <merge-base>...<head> --base <base> --meta <meta.json> --root <checkout> --rules-ref <merge-base>`.
-   The script produces the diff itself and reads `guides/index.json` from the merge base. Keep the JSON as `change_profile` (`references/CLASSIFY.md`): path classes, signals, size, and the selected guides with the personas each guide names. Wrapper-fed (no git): use `--files` and `--diff` on the provided input. Never derive a signal from the PR title or body.
+2. **Classify.** Take the classifier from the merge base, never from the checkout, and run it:
+
+    ```bash
+    mkdir -p .sw-review
+    git show <merge-base>:.agents/skills/sw-review/scripts/classify.ts > .sw-review/classify.ts
+    node .sw-review/classify.ts --range <merge-base>...<head> --base <base> --root <checkout> --meta '{"fork":false,"author_association":"MEMBER","labels":[],"fixes_issue":false}'
+    ```
+
+    `<merge-base>` is `git merge-base <base> <head>`; `.sw-review/` is gitignored. The script produces the diff itself, reads the touched files from `<head>` and the router index and guides from the merge base, so neither a checked-out PR head nor the PR's own files decide what runs or what it is reviewed against. `--meta` is optional. Keep the JSON as `change_profile` (`references/CLASSIFY.md`): path classes, signals, size, and the selected guides with the personas each guide names. When the head is not available locally, take the script from `<base>` (for example `origin/trunk`) and pass the `gh pr diff` output with `--files` and `--diff` instead of `--range`; wrapper-fed (no git) works the same way on the provided input. Never derive a signal from the PR title or body.
 3. **Gate personas.** Slugs: `security`, `architecture`, `code-style`, `ux`, `maintainer`. Gate off path classes and signals (`maintainer` also runs when `platform-scope`, `bc-removal-before-major` or `release-docs` was selected). User override can force one.
 4. **Large PR: split, never skip.** Over caps from `references/DIFF-DISCIPLINE.md`:
     - Every gated persona still runs. A persona whose slice exceeds the per-worker cap is split into up to 3 workers by `change_profile.path_groups` (largest groups first); each worker gets the same persona, the same guides and its own `slice_label`.

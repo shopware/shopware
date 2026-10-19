@@ -8,24 +8,36 @@ way, and `tests/routing/` proves it.
 ## Run
 
 ```text
-node scripts/classify.ts --range <merge-base>...HEAD --base trunk \
-    --meta meta.json --root <checkout root> --rules-ref <merge-base>
+mkdir -p .sw-review
+git show <merge-base>:.agents/skills/sw-review/scripts/classify.ts > .sw-review/classify.ts
+node .sw-review/classify.ts --range <merge-base>...HEAD --base trunk \
+    --root <checkout root> [--meta '{"fork": false, ...}']
 ```
 
+- The script runs from a copy taken from the merge base (`.sw-review/` is
+  gitignored), never from the checked-out head, so a PR that edits
+  `classify.ts` cannot run its version in the reviewer's session. In CI the
+  workflow extracts it from the trusted commit the same way (see
+  `ci-profile.ts`).
 - `--range`: the script runs `git diff` itself, so the orchestrator never passes
   the diff through the model. The changed-path list includes the old names of
-  renamed files, so globs match both sides.
+  renamed files, so globs match both sides. Touched files are read from the
+  head of the range (`git show <head>:<path>`), not from the working tree, so
+  the `@internal` lookup sees the reviewed head whatever is checked out.
 - `--rules-ref`: `guides/index.json` and the guide files are read from that git
   ref, never from the checked-out head, so a PR cannot change the rules it is
-  reviewed against. Interactively that is the merge base of the PR; in CI it is
+  reviewed against. It defaults to the merge base of `--range`; in CI it is
   the trusted commit the scripts themselves come from (see `ci-profile.ts`).
   When the ref has no index yet (the guides are being introduced, or a stacked
   branch), the script falls back to the working tree and reports
   `"rules_source": "working-tree"`; there is nothing to protect in that case.
-- `--meta`: `{"fork": bool, "author_association": "...", "labels": [...], "fixes_issue": bool}`; all optional.
-- `--root`: the checkout; needed for `git` and for the `@internal` lookup.
+- `--meta`: `{"fork": bool, "author_association": "...", "labels": [...], "fixes_issue": bool}`,
+  as a file or as the JSON itself; all optional.
+- `--root`: the checkout; needed for `git`. Only the `--files`/`--diff` form
+  reads touched files from its working tree.
 - `--files files.txt --diff diff.patch` is the offline form used by the routing
-  tests (pre-computed inputs; a deleted file's path comes from the `---` line).
+  tests and by a review whose head is not available locally (pre-computed
+  inputs; a deleted file's path comes from the `---` line).
 - Input is normalised to LF; CRLF diffs classify like LF ones.
 - Needs Node 22.18 or newer: the script is TypeScript that Node runs directly
   (type stripping), without a build step or dependencies.
@@ -55,8 +67,8 @@ Output:
   inside `tests/**`. Path globs match old and new paths of renames.
 - `public_surface` is two-step: a candidate line (`public function`,
   `protected function`, `__construct(`) in a non-test PHP file, confirmed only
-  when the docblock directly above the class declaration does not carry
-  `@internal`. An `@internal` on a constructor or method (required on DI
+  when the docblock directly above the class declaration, read at the head of
+  the range, does not carry `@internal`. An `@internal` on a constructor or method (required on DI
   service constructors) does not make the class internal. A deleted file counts
   as candidate.
 - `di` means a service contract change in a DI file: a removed definition,

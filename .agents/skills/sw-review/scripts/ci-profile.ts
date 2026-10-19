@@ -24,7 +24,7 @@ import { execFileSync } from 'node:child_process';
 import { appendFileSync, mkdirSync, realpathSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { classify, collectRange, loadRulesFromRef, type Meta, type Profile } from './classify.ts';
+import { classify, collectRange, gitShowReader, loadRulesFromRef, type Meta, type Profile } from './classify.ts';
 
 // The REST pull request object (`gh api repos/{repo}/pulls/{n}`): `gh pr view --json` has
 // no author-association field. `head.repo` is null when the fork was deleted.
@@ -170,8 +170,8 @@ export function main(argv: string[], env: Env): number {
         return unavailable(`${trustedRef} has no .agents/skills/sw-review/guides/index.json`);
     }
 
-    const { files, diff, mergedFromBase } = collectRange(root, `${mergeBase}...HEAD`);
-    const profile = classify({ files, diff, base, meta: metaFromPullRequest(pr), root, rules, mergedFromBase });
+    const { files, diff, mergedFromBase, head } = collectRange(root, `${mergeBase}...HEAD`);
+    const profile = classify({ files, diff, base, meta: metaFromPullRequest(pr), root, rules, mergedFromBase, readFile: gitShowReader(root, head) });
 
     let checks: CheckRun[] = [];
     try {

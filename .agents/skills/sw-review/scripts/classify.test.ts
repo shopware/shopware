@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import {
     type GuideRule,
     type Meta,
@@ -10,10 +12,16 @@ import {
     type Rules,
     classIsInternal,
     classify,
+    collectRange,
+    gitShowReader,
     globToRegExp,
     isTestPath,
     loadRulesFromIndex,
     parseDiff,
+    parseMeta,
+    rangeSides,
+    resolveMergeBase,
+    workingTreeReader,
 } from './classify.ts';
 
 const diffFor = (path: string, hunk: string): string => `diff --git a/${path} b/${path}
@@ -354,4 +362,106 @@ test('over_cap above 200 files or 5000 changed lines', () => {
     assert.equal(run(files(200), lines(5000)).size.over_cap, false);
     assert.equal(run(files(201), '').size.over_cap, true);
     assert.equal(run(files(1), lines(5001)).size.over_cap, true);
+});
+
+test('public_surface uses the supplied reader and treats a missing file as not internal', () => {
+    const path = 'src/Core/Checkout/Cart/CartService.php';
+    const diff = diffFor(path, '+    public function add(): void');
+    const withReader = (readFile: (file: string) => string | null): string[] =>
+        classify({ files: [path], diff, base: 'trunk', root, rules: rulesOf([]), readFile }).signals;
+
+    assert.ok(!withReader(() => INTERNAL_CLASS).includes('public_surface'));
+    assert.ok(withReader(() => PUBLIC_CLASS).includes('public_surface'));
+    assert.ok(withReader(() => null).includes('public_surface'));
+});
+
+test('parseMeta reads a file or the JSON itself', () => {
+    const file = join(root, 'meta.json');
+    writeFileSync(file, '{"fork": true}');
+
+    assert.deepEqual(parseMeta(file), { fork: true });
+    assert.deepEqual(parseMeta(' {"labels": ["a"]}'), { labels: ['a'] });
+    assert.equal(parseMeta(join(root, 'missing.json')), undefined);
+});
+
+test('rangeSides reads <base>...<head> and defaults the head to HEAD', () => {
+    assert.deepEqual(rangeSides('abc123...feature'), { base: 'abc123', head: 'feature' });
+    assert.deepEqual(rangeSides('abc123...'), { base: 'abc123', head: 'HEAD' });
+    assert.deepEqual(rangeSides('abc123'), { base: 'abc123', head: 'HEAD' });
+});
+
+// A small repository: the class is public on `base` (checked out) and @internal on `feature`
+// (not named `head`: that collides with HEAD on case-insensitive filesystems), and only `base`
+// carries a router index. Range mode must read the touched file from `feature` and the rules
+// from the merge base, whatever the working tree holds.
+const repo = mkdtempSync(join(tmpdir(), 'sw-review-range-'));
+const CLASS_PATH = 'src/Core/Checkout/Cart/CartService.php';
+const INTERNAL_HEAD = `<?php
+
+namespace Shopware\\Core\\Checkout\\Cart;
+
+/**
+ * @internal
+ */
+class CartService
+{
+    public function add(): void
+    {
+    }
+}
+`;
+const git = (...args: string[]): string => execFileSync(
+    'git',
+    ['-C', repo, '-c', 'user.name=t', '-c', 'user.email=t@example.com', '-c', 'commit.gpgsign=false', '-c', 'core.hooksPath=/dev/null', ...args],
+    { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
+).trim();
+const put = (path: string, content: string): void => {
+    mkdirSync(dirname(join(repo, path)), { recursive: true });
+    writeFileSync(join(repo, path), content);
+};
+git('init', '-q', '-b', 'base');
+put(CLASS_PATH, PUBLIC_CLASS);
+put('.agents/skills/sw-review/guides/index.json', JSON.stringify({ guides: [{ guide: 'bc-php', personas: ['architecture'], always_for: ['php_src'] }] }));
+put('.agents/skills/sw-review/guides/bc-php.md', '---\ntitle: BC\n---\n');
+git('add', '-A');
+git('commit', '-q', '-m', 'base');
+const baseSha = git('rev-parse', 'HEAD');
+git('switch', '-q', '-c', 'feature');
+put(CLASS_PATH, INTERNAL_HEAD);
+git('add', '-A');
+git('commit', '-q', '-m', 'head');
+git('switch', '-q', 'base');
+
+test('range mode reads touched files from the head of the range, not the working tree', () => {
+    assert.equal(resolveMergeBase(repo, 'base...feature'), baseSha);
+    assert.equal(resolveMergeBase(repo, 'base...nope'), null);
+    assert.equal(classIsInternal(gitShowReader(repo, 'feature')(CLASS_PATH) ?? ''), true);
+    assert.equal(gitShowReader(repo, 'feature')('src/Missing.php'), null);
+    assert.equal(classIsInternal(workingTreeReader(repo)(CLASS_PATH) ?? ''), false);
+
+    const { files, diff, head } = collectRange(repo, 'base...feature');
+    assert.deepEqual(files, [CLASS_PATH]);
+    assert.equal(head, 'feature');
+    const fromHead = classify({ files, diff, base: 'base', root: repo, rules: rulesOf([]), readFile: gitShowReader(repo, head) });
+    const fromTree = classify({ files, diff, base: 'base', root: repo, rules: rulesOf([]) });
+
+    assert.ok(!fromHead.signals.includes('public_surface'), 'head says @internal');
+    assert.ok(fromTree.signals.includes('public_surface'), 'working tree is the public base');
+});
+
+test('CLI --range takes the rules from the merge base and --meta as inline JSON', () => {
+    const stdout = execFileSync(process.execPath, [
+        fileURLToPath(new URL('./classify.ts', import.meta.url)),
+        '--range', 'base...feature',
+        '--base', 'base',
+        '--root', repo,
+        '--meta', '{"fork": true}',
+    ], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    const profile = JSON.parse(stdout) as Profile;
+
+    assert.equal(profile.rules_source, baseSha);
+    assert.equal(profile.metadata.fork, true);
+    assert.ok(!profile.signals.includes('public_surface'));
+    assert.deepEqual(profile.guides.map((guide) => guide.guide), ['bc-php']);
+    assert.deepEqual(profile.all_guides, [{ guide: 'bc-php', title: 'BC', personas: ['architecture'] }]);
 });

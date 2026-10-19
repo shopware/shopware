@@ -15,12 +15,17 @@
  *          pass the diff through the model.
  * --rules-ref: read guides/index.json and the guide files from that git ref instead of
  *          the working tree, so a pull request cannot change the rules it is reviewed
- *          against. Use the merge base of the PR.
+ *          against. Defaults to the merge base of --range. The orchestrator takes this
+ *          script from the same commit (`git show <merge-base>:<path>`), so the PR cannot
+ *          change the code that classifies it either.
  * files.txt: one repo-relative path per line (post-change paths; deleted files too).
- * meta.json: optional {"fork": bool, "author_association": "...", "labels": [...], "fixes_issue": bool}.
+ * --meta:  optional {"fork": bool, "author_association": "...", "labels": [...], "fixes_issue": bool},
+ *          as a file or as the JSON itself.
  * Signals are computed on added/removed lines only (never on context lines) and
- * never inside tests/**; the one exception is "public_surface", which needs the
- * checkout to confirm that the touched class is not @internal.
+ * never inside tests/**; the one exception is "public_surface", which reads the touched
+ * file to confirm that its class is not @internal: from the head of --range, so the
+ * lookup sees the reviewed head whatever is checked out, or from the working tree for
+ * pre-computed inputs.
  *
  * Globs follow bash `case` semantics (`*` crosses `/`), regexes are the POSIX ERE
  * strings of the original grep-based script with `[[:space:]]` read as `\s`.
@@ -35,7 +40,9 @@ export interface Meta { fork?: boolean; author_association?: string; labels?: st
 export interface GuideRule { guide: string; personas: string[]; signals_any?: string[]; paths_any?: string[]; anchors_any?: string[]; always_for?: string[] }
 export interface Rules { source: string; guides: GuideRule[]; guideExists(slug: string): boolean; guideTitle(slug: string): string }
 export interface MergedCommit { sha: string; subject: string }
-export interface ClassifyInput { files: string[]; diff: string; base: string; meta?: Meta; root: string; rules: Rules; mergedFromBase?: MergedCommit[] }
+/** Source of a repo-relative file (post-change side); null when it does not exist there. */
+export type SourceReader = (path: string) => string | null;
+export interface ClassifyInput { files: string[]; diff: string; base: string; meta?: Meta; root: string; rules: Rules; mergedFromBase?: MergedCommit[]; readFile?: SourceReader }
 export interface Profile {
     base_ref: string;
     rules_source: string;
@@ -197,6 +204,42 @@ function gitSucceeds(root: string, args: string[]): boolean {
     }
 }
 
+/** Files of the working tree under root. */
+export function workingTreeReader(root: string): SourceReader {
+    return (path) => (isFile(`${root}/${path}`) ? readFileSync(`${root}/${path}`, 'utf8') : null);
+}
+
+/**
+ * Files as committed at a git ref (`git show <ref>:<path>`), so the lookup sees the reviewed
+ * head even when another branch, or the base, is checked out.
+ */
+export function gitShowReader(root: string, ref: string): SourceReader {
+    return (path) => {
+        try {
+            return git(root, ['show', `${ref}:${path}`], true);
+        } catch {
+            return null;
+        }
+    };
+}
+
+/** The two sides of `<base>...<head>`; a bare `<base>` means `<base>...HEAD`. */
+export function rangeSides(range: string): { base: string; head: string } {
+    const [base, head] = range.split('...');
+
+    return { base, head: head === undefined || head === '' ? 'HEAD' : head };
+}
+
+/** Merge base of the two sides of a range; null when git cannot resolve it. */
+export function resolveMergeBase(root: string, range: string): string | null {
+    const { base, head } = rangeSides(range);
+    try {
+        return git(root, ['merge-base', base, head], true).trim();
+    } catch {
+        return null;
+    }
+}
+
 /** First `title:` line of a guide file, without the key and the following whitespace. */
 function titleOf(content: string): string {
     const line = content.split('\n').find((candidate) => candidate.startsWith('title:'));
@@ -239,8 +282,8 @@ export function loadRulesFromIndex(indexPath: string): Rules {
     };
 }
 
-/** Diff, changed paths and merge commits of a range, read from git. */
-export function collectRange(root: string, range: string): { files: string[]; diff: string; mergedFromBase: MergedCommit[] } {
+/** Diff, changed paths, merge commits and the head side of a range, read from git. */
+export function collectRange(root: string, range: string): { files: string[]; diff: string; mergedFromBase: MergedCommit[]; head: string } {
     const diff = git(root, ['diff', '--no-color', '--no-ext-diff', '-M', range]);
     // changed paths: post-change names plus the old names of renames, so globs match both sides
     const names = git(root, ['diff', '--name-only', '-M', range]).split('\n');
@@ -258,7 +301,7 @@ export function collectRange(root: string, range: string): { files: string[]; di
             return { sha, subject };
         });
 
-    return { files, diff, mergedFromBase };
+    return { files, diff, mergedFromBase, head: rangeSides(range).head };
 }
 
 const PATH_CLASSES: Array<[string, string[]]> = [
@@ -314,6 +357,7 @@ export function classify(input: ClassifyInput): Profile {
     // Non-test changed lines for anchor matching.
     const srcLines = lines.filter((line) => !isTestPath(line.path));
     const meta = input.meta ?? {};
+    const readSource = input.readFile ?? workingTreeReader(input.root);
 
     const hit = (pattern: string, sign?: '+' | '-'): boolean => {
         const re = ereToRegExp(pattern);
@@ -367,11 +411,11 @@ export function classify(input: ClassifyInput): Profile {
                 sig.add('removal');
                 break;
             }
-            const file = `${input.root}/${line.path}`;
-            if (!internal.has(file)) {
-                internal.set(file, isFile(file) && classIsInternal(readFileSync(file, 'utf8')));
+            if (!internal.has(line.path)) {
+                const source = readSource(line.path);
+                internal.set(line.path, source !== null && classIsInternal(source));
             }
-            if (internal.get(file)) {
+            if (internal.get(line.path)) {
                 continue;
             }
             sig.add('public_surface');
@@ -502,6 +546,15 @@ export function classify(input: ClassifyInput): Profile {
     };
 }
 
+/** `--meta`: a JSON file, or the JSON itself when the value starts with `{`; undefined when neither exists. */
+export function parseMeta(value: string): Meta | undefined {
+    if (value.trimStart().startsWith('{')) {
+        return JSON.parse(value) as Meta;
+    }
+
+    return isFile(value) ? (JSON.parse(readFileSync(value, 'utf8')) as Meta) : undefined;
+}
+
 const FLAGS: Record<string, 'files' | 'diff' | 'range' | 'base' | 'meta' | 'root' | 'index' | 'rulesRef'> = {
     '--files': 'files',
     '--diff': 'diff',
@@ -531,16 +584,24 @@ export function main(argv: string[]): number {
     let files: string[];
     let diff: string;
     let mergedFromBase: MergedCommit[] = [];
+    let readFile: SourceReader | undefined;
     if (opts.range !== '') {
         if (opts.files !== '' || opts.diff !== '') {
             process.stderr.write('--range cannot be combined with --files/--diff\n');
             return 2;
         }
+        let head: string;
         try {
-            ({ files, diff, mergedFromBase } = collectRange(opts.root, opts.range));
+            ({ files, diff, mergedFromBase, head } = collectRange(opts.root, opts.range));
         } catch {
             process.stderr.write(`git diff ${opts.range} failed in ${opts.root}\n`);
             return 2;
+        }
+        // Touched files come from the head of the range, the rules from its merge base: the
+        // result does not depend on what is checked out, and the PR head decides neither.
+        readFile = gitShowReader(opts.root, head);
+        if (opts.rulesRef === '') {
+            opts.rulesRef = resolveMergeBase(opts.root, opts.range) ?? '';
         }
     } else {
         if (opts.files === '' || opts.diff === '') {
@@ -567,16 +628,21 @@ export function main(argv: string[]): number {
         if (opts.rulesRef !== '') {
             process.stderr.write(`note: ${opts.rulesRef} has no ${SKILL_REL}/guides/index.json; using the working tree\n`);
         }
-        const index = opts.index !== '' ? opts.index : `${dirname(fileURLToPath(import.meta.url))}/../guides/index.json`;
-        if (!isFile(index)) {
-            process.stderr.write(`guide index not found: ${index}\n`);
+        // The index of the checkout under --root, or the one next to this script when the script
+        // runs inside the skill folder (routing tests); a copy in .sw-review/ has no neighbours.
+        const candidates = opts.index !== ''
+            ? [opts.index]
+            : [`${opts.root}/${SKILL_REL}/guides/index.json`, `${dirname(fileURLToPath(import.meta.url))}/../guides/index.json`];
+        const index = candidates.find(isFile);
+        if (index === undefined) {
+            process.stderr.write(`guide index not found: ${candidates.join(', ')}\n`);
             return 2;
         }
         rules = loadRulesFromIndex(index);
     }
 
-    const meta = opts.meta !== '' && isFile(opts.meta) ? (JSON.parse(readFileSync(opts.meta, 'utf8')) as Meta) : undefined;
-    const profile = classify({ files, diff, base: opts.base, meta, root: opts.root, rules, mergedFromBase });
+    const meta = opts.meta === '' ? undefined : parseMeta(opts.meta);
+    const profile = classify({ files, diff, base: opts.base, meta, root: opts.root, rules, mergedFromBase, readFile });
     process.stdout.write(`${JSON.stringify(profile, null, 2)}\n`);
 
     return 0;

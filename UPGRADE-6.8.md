@@ -1447,9 +1447,9 @@ new HreflangLoaderParameter('frontend.home.page', $routeParameters, $salesChanne
 
 # Administration
 
-## Removed block `sw_settings_customer_group_detail_content_card_display_gross`
+## Import/export profile language tooltip removed
 
-The gross display toggle on the customer group detail page was replaced by separate controls for the tax display and the price calculation basis, and the empty block `sw_settings_customer_group_detail_content_card_display_gross` left in `sw-settings-customer-group-detail.html.twig` was removed. Extensions that customized the toggle extend `sw_settings_customer_group_detail_content_card_tax_display` or `sw_settings_customer_group_detail_content_card_price_basis` instead.
+The deprecated snippet key `sw-import-export.profile.addNewProfileTooltipLanguage` was removed without replacement. Remove references to this tooltip from extensions, as profile creation no longer requires the system language.
 
 ## Removal of deprecated `config` data property in `sw-system-config` component
 

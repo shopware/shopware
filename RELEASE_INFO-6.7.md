@@ -885,6 +885,17 @@ The deliverability card of digital products has a new "Allow multiple units per 
 - The Twig block `sw_product_media_form_grid_item` renders a single grid item, so an override can render its own items and keep `{% parent %}` for the product media.
 - The method `moveGalleryItem(item, position)` moves a grid item when it is dragged or marked as cover. Override it together with `galleryItems` when your items share the position space with the product media.
 
+### Snippet set selection for sales channel domains is grouped by language
+
+The snippet set select in the sales channel domain modal now lists all snippet sets, grouped by the languages of the sales channel.
+The group of the selected domain language comes first, followed by the groups of the other sales channel languages and one group with all remaining sets.
+Within a language group, sets matching a sales channel locale exactly are listed first.
+Selecting a language sets the snippet set with the same locale, or the first set of the same language, unless the selected set already belongs to that language.
+
+`sw-sales-channel-detail-domains` renders the select with `sw-grouped-single-select` instead of `sw-entity-single-select` inside the block `sw_sales_channel_detail_domains_input_snippet_set`.
+Overrides of that block or of the computed `snippetSetCriteria` need to be adjusted:
+the component now loads all snippet sets and locales once in `createdComponent` and builds the options in the computed `snippetSetOptions`.
+
 ## Storefront
 
 ### Category Twig function removal postponed to 6.9

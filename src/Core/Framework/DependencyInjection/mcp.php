@@ -463,6 +463,7 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.store_api.toolset_registry'),
             service(McpToolsetSessionStorage::class),
             service('request_stack'),
+            service(McpRequestedToolsetResolver::class),
         ])
         ->tag('shopware.store_api_mcp.tool');
 
@@ -482,6 +483,7 @@ return static function (ContainerConfigurator $container): void {
             service(McpToolsetRegistry::class),
             service(McpToolsetSessionStorage::class),
             service('request_stack'),
+            service(McpRequestedToolsetResolver::class),
         ])
         ->tag('mcp.tool');
 

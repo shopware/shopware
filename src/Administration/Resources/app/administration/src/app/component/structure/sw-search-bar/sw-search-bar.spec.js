@@ -1295,6 +1295,29 @@ describe('src/app/component/structure/sw-search-bar', () => {
         await flushPromises();
     });
 
+    it('should not send a global search request when the term leaves no search query', async () => {
+        wrapper = await createWrapper({
+            initialSearchType: '',
+            typeSearchAlwaysInContainer: false,
+        });
+
+        wrapper.vm.searchRankingService.buildGlobalSearchQueries = jest.fn(() => ({}));
+        wrapper.vm.searchService.searchQuery = jest.fn();
+
+        const searchInput = wrapper.find('.sw-search-bar__input');
+        await searchInput.trigger('focus');
+        await searchInput.setValue('(o) (c)');
+        await flushPromises();
+
+        await swSearchBarComponent.methods.doGlobalSearch.flush();
+        await flushPromises();
+
+        expect(wrapper.vm.searchRankingService.buildGlobalSearchQueries).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.searchService.searchQuery).not.toHaveBeenCalled();
+        expect(wrapper.vm.results.filter((result) => result.entity !== 'module')).toEqual([]);
+        expect(wrapper.vm.isLoading).toBe(false);
+    });
+
     it('should send search query scores for all entity when do global search', async () => {
         wrapper = await createWrapper(
             {

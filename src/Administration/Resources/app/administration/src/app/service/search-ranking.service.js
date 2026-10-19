@@ -90,6 +90,9 @@ export default function createSearchRankingService() {
             }
 
             const queryScores = _buildQueryScores(fields, searchTerm);
+            if (queryScores.length < 1) {
+                return;
+            }
 
             const criteria = criteriaCollection[entity] ?? new Criteria(1, defaultLimit);
             criteria.setTotalCountMode(defaultTotalCountMode);

@@ -593,9 +593,12 @@ export default {
                     this.searchLimit + 1,
                     0,
                 );
-                response = await this.searchService.searchQuery(queries, {
-                    'sw-inheritance': true,
-                });
+                response =
+                    Object.keys(queries).length > 0
+                        ? await this.searchService.searchQuery(queries, {
+                              'sw-inheritance': true,
+                          })
+                        : { data: {} };
             }
 
             const data = response.data;

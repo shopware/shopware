@@ -400,6 +400,16 @@ describe('app/service/search-ranking.service.js', () => {
         expect(actual).toEqual(expected);
     });
 
+    it('Should skip entities without a search query score when building global search queries', async () => {
+        createModules(searchRankingModules);
+        const service = new SearchRankingService();
+
+        const userSearchPreference = await service.getUserSearchPreference();
+        const actual = service.buildGlobalSearchQueries(userSearchPreference, '(o) (c)');
+
+        expect(actual).toEqual({});
+    });
+
     it.each(buildingCriteriaScoreQueryCase)(
         'Should building search query for entity when %',
         (testName, term, queryScores, newCriteria) => {

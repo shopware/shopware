@@ -11,10 +11,10 @@ import {
     type DeprecationRun,
 } from './deprecationBaseline';
 import { deprecations } from './deprecations';
-import { failureOfEndDeprecationLog } from './deprecations.spec/deprecations-test-setup';
+import { failureOfEndDeprecationLog, oldFunctionMessage } from './deprecations.spec/deprecations-test-setup';
 import oldFunction from './_fixtures/deprecations/oldFunction';
 
-const message = 'oldFunction() is deprecated.';
+const message = oldFunctionMessage;
 const spec = 'test/_helper_/deprecationBaseline.spec.ts';
 const otherRun: DeprecationRun = currentRun() === 'major' ? 'default' : 'major';
 

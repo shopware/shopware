@@ -28,7 +28,7 @@ use Symfony\Component\Validator\Validation;
 )]
 class PluginCreateCommand extends Command
 {
-    private const PASCAL_CASE_PATTERN = '/^[A-Z][a-zA-Z0-9]*$/';
+    private const PASCAL_CASE_PATTERN = '/^[A-Z][a-zA-Z0-9]*$/D';
 
     /**
      * @internal

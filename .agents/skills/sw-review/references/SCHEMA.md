@@ -25,7 +25,7 @@ Each finding:
 ```json
 {
     "severity": "blocking | major | minor | nit",
-    "category": "security | correctness | tests | maintainability | performance | compatibility | docs | supply_chain | privacy",
+    "category": "security | correctness | tests | maintainability | performance | compatibility | docs | supply_chain | privacy | scope",
     "file": "repo-relative/path.php",
     "line": 123,
     "claim": "One sentence, no hedging.",

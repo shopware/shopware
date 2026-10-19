@@ -323,11 +323,15 @@ export function pathClassOf(path: string): string {
 }
 
 /**
- * Lines whose content carries no code signal: tests, docs, release docs, generated files.
- * Generated globs are checked directly because `src/Storefront/*` classes a `dist/` file first.
+ * Lines whose content carries no code signal: tests, docs, release docs, generated files, and
+ * the agent tooling under `.agents/` (this classifier and the router index quote every
+ * anchor literally). Generated globs are checked directly because `src/Storefront/*` classes
+ * a `dist/` file first.
  */
 export const isAnchorFree = (path: string): boolean =>
-    isTestPath(path) || anyGlob(path, GENERATED_GLOBS) || ['docs', 'release-docs'].includes(pathClassOf(path));
+    isTestPath(path)
+    || anyGlob(path, [...GENERATED_GLOBS, '.agents/*'])
+    || ['docs', 'release-docs'].includes(pathClassOf(path));
 
 const cut = (path: string, segments: number): string => path.split('/').slice(0, segments).join('/');
 

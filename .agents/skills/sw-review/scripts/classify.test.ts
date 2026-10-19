@@ -203,11 +203,12 @@ for (const [signal, path, hunk] of SIGNAL_CASES) {
 
 test('anchors ignore docs, release docs and generated files', () => {
     const keyword = '+Use `CacheInvalidator::invalidate()` after a `#[Route(` with `_acl`; the `ScheduledTask` purges later.';
-    for (const path of ['coding-guidelines/core/http-cache-and-assets.md', 'UPGRADE-6.8.md', 'src/Storefront/Resources/app/storefront/dist/storefront/js/all.js']) {
+    for (const path of ['coding-guidelines/core/http-cache-and-assets.md', 'UPGRADE-6.8.md', 'src/Storefront/Resources/app/storefront/dist/storefront/js/all.js', '.agents/skills/sw-review/scripts/classify.ts']) {
         const signals = signalsOf([path], diffFor(path, keyword));
         assert.deepEqual(signals.filter((signal) => ['cache', 'acl_route', 'scheduled_task'].includes(signal)), [], path);
     }
     assert.ok(signalsOf(['src/Core/Cache.php'], diffFor('src/Core/Cache.php', keyword)).includes('cache'));
+    assert.ok(!signalsOf(['.agents/skills/sw-review/guides/index.json'], diffFor('.agents/skills/sw-review/guides/index.json', '+ "extends MigrationStep"')).includes('migration'));
 });
 
 test('anchors ignore context lines and test files', () => {

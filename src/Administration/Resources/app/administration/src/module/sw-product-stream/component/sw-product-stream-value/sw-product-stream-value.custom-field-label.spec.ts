@@ -66,6 +66,13 @@ async function createWrapper({ labelProperty, entity = 'product_manufacturer' }:
                 productTypes: [],
             },
             stubs: {
+                'sw-container': { template: '<div><slot /></div>' },
+                'sw-arrow-field': { template: '<div><slot /></div>' },
+                'sw-single-select': true,
+                'sw-entity-multi-id-select': true,
+                'sw-tagged-field': true,
+                'sw-number-field': true,
+                'sw-icon': true,
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
@@ -87,7 +94,7 @@ async function createWrapper({ labelProperty, entity = 'product_manufacturer' }:
     });
 }
 
-describe('src/module/sw-product-stream/component/sw-product-stream-value/sw-product-stream-value.custom-field-label.spec.ts', () => {
+describe('sw-product-stream-value custom field labels', () => {
     let wrapper: VueWrapper;
 
     afterEach(() => {
@@ -118,7 +125,10 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value/sw-prod
     it('creates a query for each configured label property', async () => {
         wrapper = await createWrapper({
             entity: 'customer',
-            labelProperty: ['firstName', 'lastName'],
+            labelProperty: [
+                'firstName',
+                'lastName',
+            ],
         });
         const viewModel = wrapper.vm as unknown as ProductStreamValueVm;
         viewModel.searchTerm = 'Ada';

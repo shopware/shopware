@@ -3,8 +3,10 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Address\Error\AddressValidationError;
+use Shopware\Core\Checkout\Cart\Address\Error\VatIdInvalidError;
 use Shopware\Core\Checkout\Cart\Address\Error\VatIdMissingError;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
@@ -603,10 +605,11 @@ class StorefrontControllerTest extends TestCase
         $this->controller->testAddCartErrors($cart);
     }
 
-    public function testVatIdMissingErrorLinksToProfile(): void
+    #[DataProvider('vatIdErrorProvider')]
+    public function testVatIdErrorsLinkToProfile(Error $error): void
     {
         $cart = new Cart('foo');
-        $cart->addErrors(new VatIdMissingError());
+        $cart->addErrors($error);
 
         $session = new Session(new TestSessionStorage());
         $request = new Request();
@@ -619,8 +622,8 @@ class StorefrontControllerTest extends TestCase
         $translator
             ->expects($this->once())
             ->method('trans')
-            ->with('checkout.vat-id-missing', ['%url%' => 'profileUrl'])
-            ->willReturn('VAT ID missing');
+            ->with('checkout.' . $error->getMessageKey(), ['%url%' => 'profileUrl'])
+            ->willReturn('VAT ID error');
 
         $router = $this->createMock(RouterInterface::class);
         $router
@@ -639,7 +642,14 @@ class StorefrontControllerTest extends TestCase
 
         $flashBag = $session->getBag('flashes');
         static::assertInstanceOf(FlashBagInterface::class, $flashBag);
-        static::assertSame(['danger' => ['VAT ID missing']], $flashBag->all());
+        static::assertSame(['danger' => ['VAT ID error']], $flashBag->all());
+    }
+
+    public static function vatIdErrorProvider(): \Generator
+    {
+        yield 'missing VAT ID' => [new VatIdMissingError()];
+
+        yield 'VAT ID not matching the country pattern' => [new VatIdInvalidError()];
     }
 
     public function testRenderView(): void

@@ -518,10 +518,10 @@ class CartOrderRouteTest extends TestCase
         static::assertNull($response['orderCustomer']['salutationId']);
     }
 
-    public function testBusinessCustomerNeedsVatIdWhenBillingCountryRequiresOne(): void
+    public function testBusinessCustomerNeedsValidVatIdWhenBillingCountryRequiresOne(): void
     {
         static::getContainer()->get('country.repository')->update([
-            ['id' => $this->validCountryId, 'vatIdRequired' => true],
+            ['id' => $this->validCountryId, 'vatIdRequired' => true, 'checkVatIdPattern' => true, 'vatIdPattern' => 'DE\d{9}'],
         ], Context::createDefaultContext());
 
         $email = Uuid::randomHex() . '@example.com';
@@ -533,13 +533,13 @@ class CartOrderRouteTest extends TestCase
         $this->login($email, 'shopware');
         $this->addProductToCart();
 
-        $this->browser->request('POST', '/store-api/checkout/order');
+        $this->assertOrderBlockedBy('vat-id-missing');
 
-        static::assertNotFalse($this->browser->getResponse()->getContent());
-        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $this->customerRepository->update([
+            ['id' => $customerId, 'vatIds' => ['ATU12345678']],
+        ], Context::createDefaultContext());
 
-        static::assertSame(CartException::CART_INVALID_CODE, $response['errors'][0]['code']);
-        static::assertStringContainsString('vat-id-missing', $response['errors'][0]['detail']);
+        $this->assertOrderBlockedBy('vat-id-invalid');
 
         $this->customerRepository->update([
             ['id' => $customerId, 'vatIds' => ['DE123456789']],
@@ -723,6 +723,17 @@ class CartOrderRouteTest extends TestCase
         ], Context::createDefaultContext());
 
         return $customerId;
+    }
+
+    private function assertOrderBlockedBy(string $errorKey): void
+    {
+        $this->browser->request('POST', '/store-api/checkout/order');
+
+        static::assertNotFalse($this->browser->getResponse()->getContent());
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(CartException::CART_INVALID_CODE, $response['errors'][0]['code']);
+        static::assertStringContainsString($errorKey, $response['errors'][0]['detail']);
     }
 
     private function addProductToCart(string $id = 'p1'): Response

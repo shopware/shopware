@@ -102,10 +102,10 @@ describe('test/_helper_/deprecationBaselineReporter', () => {
         });
 
         it.each([
-            ['default' as const, 'composer admin:unit\n'],
-            ['major' as const, 'composer admin:unit:major\n'],
+            ['default' as const, 'composer admin:unit'],
+            ['major' as const, 'composer admin:unit:major'],
         ])('names the update command of the %s run on a stale usage', (jestRun, command) => {
-            expect(run([], { run: jestRun })?.message).toContain(`DEPRECATION_BASELINE=update ${command}`);
+            expect(run([], { run: jestRun })?.message).toContain(`DEPRECATION_BASELINE=update ${command}\n`);
         });
 
         it.each([
@@ -193,6 +193,7 @@ describe('test/_helper_/deprecationBaselineReporter', () => {
             const error = run([], { globalConfig: { ...fullRun, onlyChanged: true } });
 
             expect(error?.message).toContain('needs a full run');
+            expect(error?.message).toContain('DEPRECATION_BASELINE=update composer admin:unit');
             expect(console.error).toHaveBeenCalledWith(expect.stringContaining('needs a full run'));
             expect(readFileSync(baselinePath, 'utf8')).toBe(before);
         });

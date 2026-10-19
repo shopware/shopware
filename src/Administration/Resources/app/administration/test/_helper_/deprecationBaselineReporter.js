@@ -38,7 +38,9 @@ class DeprecationBaselineReporter {
 
         if (!isFullRun(this.globalConfig)) {
             if (isUpdate) {
-                this.fail('DEPRECATION_BASELINE=update needs a full run of composer admin:unit or admin:unit:major.');
+                this.fail(
+                    `DEPRECATION_BASELINE=update needs a full run without filters: DEPRECATION_BASELINE=update ${updateCommand(this.run)}`,
+                );
             }
 
             return;

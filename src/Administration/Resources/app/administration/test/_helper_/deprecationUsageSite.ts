@@ -22,7 +22,7 @@ const skippedFiles = [
  * Where a deprecated API is used, for a guard call that created `error`:
  * - `blame` `'author'`, for a component or prop the deprecation plugin guards: its template author and itself,
  *   e.g. `sw-order-list > sw-loader`, or just `sw-loader` when the spec mounts it.
- * - `blame` `'usage'` (default), for any other guard, where the code using the deprecated API is at fault: the
+ * - `blame` `'caller'` (default), for any other guard, where the code calling the deprecated API is at fault: the
  *   running component, e.g. `sw-order-list`, else the Administration path of the file calling the deprecated
  *   module, else the spec.
  *
@@ -34,7 +34,7 @@ const skippedFiles = [
  * @example
  * usageSite(new Error(), 'author'); // 'sw-order-list > sw-loader'
  */
-export function usageSite(error: Error, blame: DeprecationOptions['_blame'] = 'usage'): string {
+export function usageSite(error: Error, blame: DeprecationOptions['_blame'] = 'caller'): string {
     const instance = getCurrentInstance();
     const atFault = instance && blame === 'author' ? [templateAuthor(instance), instance] : [instance];
     const components = atFault.map(componentName).filter(Boolean);

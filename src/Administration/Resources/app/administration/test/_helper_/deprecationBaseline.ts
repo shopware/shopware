@@ -19,7 +19,7 @@ import type { RecordedDeprecation } from './deprecations';
 export type DeprecationRun = 'default' | 'major';
 
 /**
- * The known usages of a deprecated API, per usage site the runs that hit it.
+ * The known usages of a deprecated API, per usage site the runs that use it.
  *
  * @private
  * @example
@@ -34,8 +34,8 @@ const featureConfig = loadFeatureConfig();
 const checkedInBaseline = JSON.stringify(deprecationBaseline);
 let baseline = JSON.parse(checkedInBaseline) as Record<string, BaselinedUsages>;
 
-// The hits this worker appended, so a usage read on every render is appended only once per hits file.
-const recordedHits = new Set<string>();
+// The used entries this worker appended, so a usage read on every render is appended only once per file.
+const appendedUsedEntries = new Set<string>();
 
 /**
  * The key of a deprecation in the baseline: the message without the component path the deprecation plugin
@@ -90,24 +90,24 @@ export function isBaselined(entry: Pick<RecordedDeprecation, 'message' | 'usageS
  *
  * @private
  * @example
- * recordBaselineHit({ message: 'oldFunction() is deprecated.', usageSite: 'src/app/main.ts' });
+ * recordUsedBaselineEntry({ message: 'oldFunction() is deprecated.', usageSite: 'src/app/main.ts' });
  */
-export function recordBaselineHit({ message, usageSite }: Pick<RecordedDeprecation, 'message' | 'usageSite'>): void {
-    const hitsDirectory = process.env.DEPRECATION_BASELINE_HITS;
+export function recordUsedBaselineEntry({ message, usageSite }: Pick<RecordedDeprecation, 'message' | 'usageSite'>): void {
+    const usedEntriesDirectory = process.env.DEPRECATION_BASELINE_USED_ENTRIES;
 
-    if (!hitsDirectory) {
+    if (!usedEntriesDirectory) {
         return;
     }
 
-    const hitsFile = join(hitsDirectory, `${process.pid}.jsonl`);
-    const hit = JSON.stringify([deprecationBaselineKey(message), usageSite]);
+    const usedEntriesFile = join(usedEntriesDirectory, `${process.pid}.jsonl`);
+    const usedEntry = JSON.stringify([deprecationBaselineKey(message), usageSite]);
 
-    if (recordedHits.has(`${hitsFile} ${hit}`)) {
+    if (appendedUsedEntries.has(`${usedEntriesFile} ${usedEntry}`)) {
         return;
     }
 
-    recordedHits.add(`${hitsFile} ${hit}`);
-    appendFileSync(hitsFile, `${hit}\n`);
+    appendedUsedEntries.add(`${usedEntriesFile} ${usedEntry}`);
+    appendFileSync(usedEntriesFile, `${usedEntry}\n`);
 }
 
 /**

@@ -22,40 +22,40 @@ const spec = 'test/_helper_/deprecationBaseline.spec.ts';
 const otherRun: DeprecationRun = currentRun() === 'major' ? 'default' : 'major';
 
 describe('test/_helper_/deprecationBaseline', () => {
-    let hitsDirectory: string;
-    const hitsDirectories: string[] = [];
+    let usedEntriesDirectory: string;
+    const usedEntriesDirectories: string[] = [];
 
     beforeEach(() => {
         resetBaseline();
-        // Keeps the hits of these specs away from the run's reporter, and its update mode away from these specs.
-        hitsDirectory = mkdtempSync(join(tmpdir(), 'deprecation-baseline-spec-'));
-        hitsDirectories.push(hitsDirectory);
+        // Keeps the used entries of these specs away from the run's reporter, and its update mode away from these specs.
+        usedEntriesDirectory = mkdtempSync(join(tmpdir(), 'deprecation-baseline-spec-'));
+        usedEntriesDirectories.push(usedEntriesDirectory);
         jest.replaceProperty(process, 'env', {
             ...process.env,
-            DEPRECATION_BASELINE_HITS: hitsDirectory,
+            DEPRECATION_BASELINE_USED_ENTRIES: usedEntriesDirectory,
             DEPRECATION_BASELINE: undefined,
         });
     });
 
-    // The setup's `afterEach` records the hits of a test after the hooks of this file ran.
+    // The setup's `afterEach` records the used entries of a test after the hooks of this file ran.
     afterAll(() => {
-        hitsDirectories.forEach((directory) => rmSync(directory, { recursive: true, force: true }));
+        usedEntriesDirectories.forEach((directory) => rmSync(directory, { recursive: true, force: true }));
     });
 
     /**
      * The `[message, usage site]` pairs this worker recorded for the reporter during the test.
      *
      * @example
-     * expect(recordedHits()).toEqual([['oldFunction() is deprecated.', spec]]);
+     * expect(usedBaselineEntries()).toEqual([['oldFunction() is deprecated.', spec]]);
      */
-    function recordedHits(): string[][] {
-        const hitsFile = join(hitsDirectory, `${process.pid}.jsonl`);
+    function usedBaselineEntries(): string[][] {
+        const usedEntriesFile = join(usedEntriesDirectory, `${process.pid}.jsonl`);
 
-        if (!existsSync(hitsFile)) {
+        if (!existsSync(usedEntriesFile)) {
             return [];
         }
 
-        return readFileSync(hitsFile, 'utf8')
+        return readFileSync(usedEntriesFile, 'utf8')
             .trim()
             .split('\n')
             .map((line) => JSON.parse(line) as string[]);
@@ -96,47 +96,47 @@ describe('test/_helper_/deprecationBaseline', () => {
     });
 
     describe('for the reporter', () => {
-        it('records a listed usage the test did not assert, once', () => {
+        it('counts a listed usage the test did not assert as used, once', () => {
             baselineDeprecation({ message, callSites: { [spec]: [currentRun()] } });
 
             oldFunction();
             oldFunction();
             endDeprecationLog();
 
-            expect(recordedHits()).toEqual([[message, spec]]);
+            expect(usedBaselineEntries()).toEqual([[message, spec]]);
         });
 
-        it('records a listed usage the test asserted', () => {
+        it('counts a listed usage the test asserted as used', () => {
             baselineDeprecation({ message, callSites: { [spec]: [currentRun()] } });
 
             oldFunction();
             expect(deprecations).toHaveTriggered(message);
             endDeprecationLog();
 
-            expect(recordedHits()).toEqual([[message, spec]]);
+            expect(usedBaselineEntries()).toEqual([[message, spec]]);
         });
 
-        it('records a listed usage the test allowed', () => {
+        it('counts a listed usage the test allowed as used', () => {
             baselineDeprecation({ message, callSites: { [spec]: [currentRun()] } });
             allowDeprecation(message);
 
             oldFunction();
             endDeprecationLog();
 
-            expect(recordedHits()).toEqual([[message, spec]]);
+            expect(usedBaselineEntries()).toEqual([[message, spec]]);
         });
 
-        it('does not record a usage listed only for the other run', () => {
+        it('does not count an entry listed only for the other run as used, even when the test asserts it', () => {
             baselineDeprecation({ message, callSites: { [spec]: [otherRun] } });
 
             oldFunction();
             expect(deprecations).toHaveTriggered(message);
             endDeprecationLog();
 
-            expect(recordedHits()).toEqual([]);
+            expect(usedBaselineEntries()).toEqual([]);
         });
 
-        it('lets every usage pass and records it with DEPRECATION_BASELINE=update, except asserted and allowed ones', () => {
+        it('lets every usage pass with DEPRECATION_BASELINE=update, counting the ones the test neither asserted nor allowed as used', () => {
             jest.replaceProperty(process.env, 'DEPRECATION_BASELINE', 'update');
             allowDeprecation('allowed()');
 
@@ -146,10 +146,10 @@ describe('test/_helper_/deprecationBaseline', () => {
             expect(deprecations).toHaveTriggered('asserted()');
 
             expect(failureOfEndDeprecationLog()).toBe('');
-            expect(recordedHits()).toEqual([[message, spec]]);
+            expect(usedBaselineEntries()).toEqual([[message, spec]]);
         });
 
-        it('keeps recording a listed usage the test asserted with DEPRECATION_BASELINE=update', () => {
+        it('still counts a listed usage the test asserted as used with DEPRECATION_BASELINE=update', () => {
             jest.replaceProperty(process.env, 'DEPRECATION_BASELINE', 'update');
             baselineDeprecation({ message, callSites: { [spec]: [currentRun()] } });
 
@@ -157,7 +157,7 @@ describe('test/_helper_/deprecationBaseline', () => {
             expect(deprecations).toHaveTriggered(message);
             endDeprecationLog();
 
-            expect(recordedHits()).toEqual([[message, spec]]);
+            expect(usedBaselineEntries()).toEqual([[message, spec]]);
         });
     });
 

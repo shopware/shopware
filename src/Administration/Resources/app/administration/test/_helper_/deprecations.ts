@@ -7,7 +7,7 @@ import type { DeprecationOptions } from 'src/core/feature';
 import { getDefaultActiveFeatureFlags } from './defaultActiveFeatureFlags';
 import normalizeFeatureFlag from './normalizeFeatureFlag';
 import { location, ownFrames, usageSite } from './deprecationUsageSite';
-import { isBaselined, isListed, recordBaselineHit } from './deprecationBaseline';
+import { isBaselined, isListed, recordUsedBaselineEntry } from './deprecationBaseline';
 
 /**
  * What an assertion or allowance matches a deprecation message against: a string matches part of it, a RegExp
@@ -246,7 +246,7 @@ export function startDeprecationLog(): void {
  */
 export function endDeprecationLog(): void {
     const { entries, allowed } = deprecations;
-    entries.filter((entry) => needsBaselineEntry(entry, allowed)).forEach(recordBaselineHit);
+    entries.filter((entry) => needsBaselineEntry(entry, allowed)).forEach(recordUsedBaselineEntry);
     const failing = entries.filter((entry) => failsTheTest(entry, allowed));
 
     isTestRunning = false;

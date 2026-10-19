@@ -59,14 +59,14 @@ describe('test/_helper_/deprecationBaselineReporter', () => {
     }
 
     /**
-     * Runs the reporter as Jest would, with the workers having recorded `hits` as `[message, site]`, and `argv`
+     * Runs the reporter as Jest would, with the workers having recorded `usedEntries` as `[message, site]`, and `argv`
      * as the command line options. Returns the error the reporter reported, if any.
      *
      * @example
      * expect(run([[message, 'sw-page']], { run: 'major' })).toBeUndefined();
      */
     function run(
-        hits: string[][],
+        usedEntries: string[][],
         {
             globalConfig = fullRun as object,
             run: jestRun = 'default' as DeprecationRun,
@@ -78,8 +78,8 @@ describe('test/_helper_/deprecationBaselineReporter', () => {
         const reporter = new DeprecationBaselineReporter(globalConfig, { baselinePath, run: jestRun });
 
         reporter.onRunStart();
-        const lines = hits.map((hit) => `${JSON.stringify(hit)}\n`).join('');
-        writeFileSync(join(process.env.DEPRECATION_BASELINE_HITS as string, '1.jsonl'), lines);
+        const lines = usedEntries.map((usedEntry) => `${JSON.stringify(usedEntry)}\n`).join('');
+        writeFileSync(join(process.env.DEPRECATION_BASELINE_USED_ENTRIES as string, '1.jsonl'), lines);
         reporter.onRunComplete(new Set(), results);
 
         return reporter.getLastError();

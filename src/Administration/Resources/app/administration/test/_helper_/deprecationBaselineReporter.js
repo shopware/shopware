@@ -23,14 +23,14 @@ class DeprecationBaselineReporter {
 
     onRunStart() {
         this.error = undefined;
-        this.hitsDirectory = mkdtempSync(join(tmpdir(), 'deprecation-baseline-'));
+        this.usedEntriesDirectory = mkdtempSync(join(tmpdir(), 'deprecation-baseline-'));
         // The workers start after this and inherit the environment, so they know where to record.
-        process.env.DEPRECATION_BASELINE_HITS = this.hitsDirectory;
+        process.env.DEPRECATION_BASELINE_USED_ENTRIES = this.usedEntriesDirectory;
     }
 
     onRunComplete(_testContexts, results) {
-        const hits = readHits(this.hitsDirectory);
-        rmSync(this.hitsDirectory, { recursive: true, force: true });
+        const usedEntries = readUsedEntries(this.usedEntriesDirectory);
+        rmSync(this.usedEntriesDirectory, { recursive: true, force: true });
         const isUpdate = process.env.DEPRECATION_BASELINE === 'update';
 
         if (!isFullRun(this.globalConfig)) {
@@ -41,7 +41,7 @@ class DeprecationBaselineReporter {
             return;
         }
 
-        // A failed spec may have stopped before some of its usages, so its hits are incomplete.
+        // A failed spec may have stopped before some of its usages, so its used entries are incomplete.
         if (!isGreen(results)) {
             if (isUpdate) {
                 this.fail(`DEPRECATION_BASELINE=update did not write ${this.baselinePath}: fix the failing specs first.`);
@@ -53,12 +53,12 @@ class DeprecationBaselineReporter {
         const baseline = JSON.parse(readFileSync(this.baselinePath, 'utf8'));
 
         if (isUpdate) {
-            writeFileSync(this.baselinePath, `${JSON.stringify(markRun(baseline, hits, this.run), null, 4)}\n`);
+            writeFileSync(this.baselinePath, `${JSON.stringify(markRun(baseline, usedEntries, this.run), null, 4)}\n`);
 
             return;
         }
 
-        const stale = findStale(baseline, hits, this.run);
+        const stale = findStale(baseline, usedEntries, this.run);
 
         if (stale.length > 0) {
             this.fail(
@@ -116,39 +116,39 @@ function isGreen(results) {
  * The usages the baseline let pass in all workers, each as `JSON.stringify([message, site])`, without duplicates.
  *
  * @example
- * readHits(directory); // Set { '["oldFunction() is deprecated.","src/app/main.ts"]' }
+ * readUsedEntries(directory); // Set { '["oldFunction() is deprecated.","src/app/main.ts"]' }
  */
-function readHits(hitsDirectory) {
+function readUsedEntries(usedEntriesDirectory) {
     return new Set(
-        readdirSync(hitsDirectory).flatMap((file) =>
-            readFileSync(join(hitsDirectory, file), 'utf8').split('\n').filter(Boolean),
+        readdirSync(usedEntriesDirectory).flatMap((file) =>
+            readFileSync(join(usedEntriesDirectory, file), 'utf8').split('\n').filter(Boolean),
         ),
     );
 }
 
 /**
- * The usages the baseline lists for `run` that are missing from `hits`, as `<site>: <message>`.
+ * The usages the baseline lists for `run` that are missing from `usedEntries`, as `<site>: <message>`.
  *
  * @example
  * findStale({ 'old() is deprecated.': { 'sw-page': ['major'] } }, new Set(), 'major'); // ['sw-page: old() is deprecated.']
  */
-function findStale(baseline, hits, run) {
+function findStale(baseline, usedEntries, run) {
     return Object.entries(baseline).flatMap(([message, sites]) =>
         Object.entries(sites)
-            .filter(([site, runs]) => runs.includes(run) && !hits.has(JSON.stringify([message, site])))
+            .filter(([site, runs]) => runs.includes(run) && !usedEntries.has(JSON.stringify([message, site])))
             .map(([site]) => `${site}: ${message}`),
     );
 }
 
 /**
- * `baseline` with `run` marked on exactly the usages in `hits`, keeping the markings of the other run. A usage
+ * `baseline` with `run` marked on exactly the usages in `usedEntries`, keeping the markings of the other run. A usage
  * no run marks anymore is dropped.
  *
  * @example
  * markRun({ 'old() is deprecated.': { 'sw-page': ['default'] } }, new Set(['["old() is deprecated.","sw-page"]']), 'major');
  * // { 'old() is deprecated.': { 'sw-page': ['default', 'major'] } }
  */
-function markRun(baseline, hits, run) {
+function markRun(baseline, usedEntries, run) {
     const marked = {};
     const mark = (message, site, markedRun) => {
         marked[message] = marked[message] ?? {};
@@ -160,8 +160,8 @@ function markRun(baseline, hits, run) {
             runs.filter((otherRun) => otherRun !== run).forEach((otherRun) => mark(message, site, otherRun));
         });
     });
-    [...hits].forEach((hit) => {
-        const [message, site] = JSON.parse(hit);
+    [...usedEntries].forEach((usedEntry) => {
+        const [message, site] = JSON.parse(usedEntry);
         mark(message, site, run);
     });
 

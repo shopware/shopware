@@ -35,6 +35,29 @@ so promotions meant for reduced products applied to all products.
 Line items without a list price no longer have a ratio, so only the operators "Is not equal to" and "Is empty" match them.
 If you used "Is equal to 0" to target line items without a list price, use "Is empty" instead.
 
+### Tax-free detection of new sales channel contexts matches the cart
+
+Since 6.7.5.0, the cart decides tax-free delivery by the customer type (`accountType`):
+commercial customers only get the country setting "Tax-free (B2B)", which needs a company and, in EU countries, a VAT ID;
+all other customers only get "Tax-free (B2C)".
+New sales channel contexts still accepted either setting (`TaxDetector::isNetDelivery()`), and only the cart calculation corrected their tax state afterwards.
+Rule Builder conditions were evaluated before that correction.
+For a commercial customer without a VAT ID in a country with "Tax-free (B2C)", conditions like "Cart amount" therefore saw net amounts, while the cart charged tax.
+
+`TaxDetector::isNetDelivery()` now applies the same split as the cart.
+Cart and order taxes do not change, but rules can match the affected customers differently than before, for example for shipping methods or promotions.
+
+If orders became taxed after updating to 6.7.5.0 or later, check these customers:
+
+- Private customers with a company or VAT ID: change their customer type to "Commercial" if they buy as a business.
+- Commercial customers without a VAT ID: add their VAT IDs, which EU countries need even when "VAT Reg.No. required" is off.
+
+```sql
+SELECT customer_number, account_type, company, vat_ids FROM customer
+WHERE (account_type = 'private' AND (company <> '' OR JSON_LENGTH(vat_ids) > 0))
+   OR (account_type = 'business' AND COALESCE(JSON_LENGTH(vat_ids), 0) = 0);
+```
+
 ## Features
 
 ### Digital products can use external file assignment

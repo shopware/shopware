@@ -863,6 +863,7 @@ Tracking setups have to adapt to these changes:
   They stopped working with 6.6.10.0 and 6.7.11.0, when these forms changed.
   `login` is now reported on the page after the login and only for a successful login, so a wrong password no longer counts as a login.
   The same holds for `sign_up`, which a guest checkout no longer reports.
+  A guest who creates an account with "Create account" on the checkout finish page reports `sign_up` as well.
 
 The `.hidden-line-items-information` element is only rendered for a sales channel with active analytics.
 The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html) describes the full payload.

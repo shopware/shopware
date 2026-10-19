@@ -79,5 +79,5 @@ export function startNextTest(): void {
  * beforeEach(ignoreBaselineUpdateRun);
  */
 export function ignoreBaselineUpdateRun(): void {
-    delete process.env.DEPRECATION_BASELINE;
+    jest.replaceProperty(process, 'env', { ...process.env, DEPRECATION_BASELINE: undefined });
 }

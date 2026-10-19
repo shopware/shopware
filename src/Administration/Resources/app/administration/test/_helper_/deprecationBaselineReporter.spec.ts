@@ -27,8 +27,7 @@ describe('test/_helper_/deprecationBaselineReporter', () => {
     let baselinePath: string;
 
     beforeEach(() => {
-        // Jest gives each spec file its own copy of `process.env`, so `onRunStart` cannot redirect other specs.
-        delete process.env.DEPRECATION_BASELINE;
+        jest.replaceProperty(process, 'env', { ...process.env, DEPRECATION_BASELINE: undefined });
         baselineDirectory = mkdtempSync(join(tmpdir(), 'deprecation-baseline-spec-'));
         baselinePath = join(baselineDirectory, 'baseline.json');
         writeBaseline({ [message]: { 'sw-author': ['default', 'major'], 'sw-page': ['major'] } });
@@ -121,7 +120,7 @@ describe('test/_helper_/deprecationBaselineReporter', () => {
 
     describe('with DEPRECATION_BASELINE=update', () => {
         beforeEach(() => {
-            process.env.DEPRECATION_BASELINE = 'update';
+            jest.replaceProperty(process.env, 'DEPRECATION_BASELINE', 'update');
         });
 
         it('marks the run on exactly the usages it needed, keeping the markings of the other run', () => {

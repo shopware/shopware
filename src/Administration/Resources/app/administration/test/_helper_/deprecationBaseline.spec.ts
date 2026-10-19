@@ -30,8 +30,11 @@ describe('test/_helper_/deprecationBaseline', () => {
         // Keeps the hits of these specs away from the run's reporter, and its update mode away from these specs.
         hitsDirectory = mkdtempSync(join(tmpdir(), 'deprecation-baseline-spec-'));
         hitsDirectories.push(hitsDirectory);
-        process.env.DEPRECATION_BASELINE_HITS = hitsDirectory;
-        delete process.env.DEPRECATION_BASELINE;
+        jest.replaceProperty(process, 'env', {
+            ...process.env,
+            DEPRECATION_BASELINE_HITS: hitsDirectory,
+            DEPRECATION_BASELINE: undefined,
+        });
     });
 
     // The setup's `afterEach` records the hits of a test after the hooks of this file ran.
@@ -134,7 +137,7 @@ describe('test/_helper_/deprecationBaseline', () => {
         });
 
         it('lets every usage pass and records it with DEPRECATION_BASELINE=update, except asserted and allowed ones', () => {
-            process.env.DEPRECATION_BASELINE = 'update';
+            jest.replaceProperty(process.env, 'DEPRECATION_BASELINE', 'update');
             allowDeprecation('allowed()');
 
             oldFunction();
@@ -147,7 +150,7 @@ describe('test/_helper_/deprecationBaseline', () => {
         });
 
         it('keeps recording a listed usage the test asserted with DEPRECATION_BASELINE=update', () => {
-            process.env.DEPRECATION_BASELINE = 'update';
+            jest.replaceProperty(process.env, 'DEPRECATION_BASELINE', 'update');
             baselineDeprecation({ message, callSites: { [spec]: [currentRun()] } });
 
             oldFunction();

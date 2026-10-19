@@ -33,8 +33,8 @@ function startCollectingUsedBaselineEntries() {
 }
 
 /**
- * Records that the baseline let a usage pass. Does nothing while nothing collects, e.g. in a filtered run
- * without the reporter.
+ * Records that the baseline let a usage pass. Does nothing while nothing collects,
+ * e.g. when Jest runs without the reporter (`--reporters=default`).
  *
  * @private
  * @param {{ message: string, usageSite: string }} entry `message`: the deprecation's baseline key.

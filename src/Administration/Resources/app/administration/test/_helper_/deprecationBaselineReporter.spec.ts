@@ -187,9 +187,14 @@ describe('test/_helper_/deprecationBaselineReporter', () => {
             expect(readFileSync(baselinePath, 'utf8')).toBe(before);
         });
 
-        it('refuses a filtered run', () => {
-            expect(run([], { globalConfig: { ...fullRun, onlyChanged: true } })?.message).toContain('needs a full run');
+        it('refuses a filtered run and keeps the baseline', () => {
+            const before = readFileSync(baselinePath, 'utf8');
+
+            const error = run([], { globalConfig: { ...fullRun, onlyChanged: true } });
+
+            expect(error?.message).toContain('needs a full run');
             expect(console.error).toHaveBeenCalledWith(expect.stringContaining('needs a full run'));
+            expect(readFileSync(baselinePath, 'utf8')).toBe(before);
         });
     });
 });

@@ -406,13 +406,11 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 
 ### Product line items carry the GARAN label they were shown with
 
-Cart and order product line items now store the GARAN label values in `payload.garanLabel`.
-Editing an order keeps the stored values; products added while editing get their current label.
-Order line items from before this change get the product's current label in `payload.garanLabel` when they are read through the Store API or the Storefront.
-Cart line items from before this change have no `garanLabel` key until the cart reloads their product.
-Line items without a stored `garanLabel` key show the product's current label until 6.8.0.0, and no GARAN label from then on.
-
-Headless frontends can read the stored values from the cart or order line item's payload instead of `/store-api/product/{productId}/garan-label`.
+Cart and order product line items now store their GARAN label values in `payload.garanLabel`; editing an order keeps them as is.
+A migration adds them to existing orders whose product has a GARAN label.
+Order line items without `payload.garanLabel` show no GARAN label, so write it with `guaranteeMonths`, `brand` and `modelIdentifier` if you create orders through the Admin API or the Sync API.
+Headless frontends can read the payload instead of calling `/store-api/product/{productId}/garan-label`.
+The `sw_garan_label_nested` Twig filter is deprecated.
 
 ### GARAN guarantee terms per product
 
@@ -436,7 +434,7 @@ The product detail page links the terms below the GARAN label, in the new block 
 - Default metrics prefix was changed from `io.opentelemetry.contrib.php.shopware` to `shopware.platform`.
 - `http.server.request.duration` now shows client-facing latency without post-response processing.
 - `cart.calculation.duration` records failed calculations (added `result=success|failed` label).
-- `Telemetry::instrument()` now collects duration metrics also for failed callbacks. 
+- `Telemetry::instrument()` now collects duration metrics also for failed callbacks.
 - Added support for lazy labels calculation in `DurationMetric` and `ConfiguredMetric` (see instrumentors for usage examples).
 - New methods `Telemetry::isMetricEnabled()` / `Meter::isEnabled()` saying if a metric would be emitted, so expensive calculations may be skipped for disabled metrics.
 - Metrics are flushed after all other terminate tasks.

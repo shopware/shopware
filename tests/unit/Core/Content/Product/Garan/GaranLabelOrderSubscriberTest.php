@@ -8,23 +8,15 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Order\CartConvertedEvent;
 use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
-use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
-use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
-use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Content\Product\Garan\GaranLabelOrderSubscriber;
 use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Unit\Core\Content\Product\Garan\_fixtures\GaranLabelFixtures;
 
 /**
@@ -34,12 +26,11 @@ use Shopware\Tests\Unit\Core\Content\Product\Garan\_fixtures\GaranLabelFixtures;
 #[CoversClass(GaranLabelOrderSubscriber::class)]
 class GaranLabelOrderSubscriberTest extends TestCase
 {
-    public function testSubscribesToCartConversionAndOrderLineItemReads(): void
+    public function testSubscribesToCartConversion(): void
     {
         static::assertSame(
             [
                 CartConvertedEvent::class => 'storeLabels',
-                OrderEvents::ORDER_LINE_ITEM_LOADED_EVENT => 'fillMissingLabels',
             ],
             GaranLabelOrderSubscriber::getSubscribedEvents()
         );
@@ -70,46 +61,6 @@ class GaranLabelOrderSubscriberTest extends TestCase
         $this->createSubscriber([$products])->storeLabels($event);
 
         static::assertSame($expected, $event->getConvertedCart()['lineItems'][0]['payload'][GaranLabelResolver::PAYLOAD_KEY]);
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     * @param array<string, int|string>|null $expected
-     */
-    #[DataProvider('labelProvider')]
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testFillsTheLabelWhenASalesChannelReadsTheOrder(array $payload, ProductCollection $products, ?array $expected): void
-    {
-        $lineItem = self::createOrderLineItem($payload);
-
-        $this->createSubscriber([$products])->fillMissingLabels(self::createLoadedEvent($lineItem, self::createSalesChannelApiContext()));
-
-        $payload = $lineItem->getPayload() ?? [];
-        static::assertArrayHasKey(GaranLabelResolver::PAYLOAD_KEY, $payload, 'the storefront would look up the product');
-        static::assertSame($expected, $payload[GaranLabelResolver::PAYLOAD_KEY]);
-    }
-
-    /**
-     * @return \Generator<string, array{Context, list<string>}>
-     */
-    public static function storedLabelOnlyProvider(): \Generator
-    {
-        yield 'the Admin API and the system read what is stored' => [Context::createDefaultContext(), []];
-        yield 'from 6.8 on, sales channels read what is stored' => [self::createSalesChannelApiContext(), ['v6.8.0.0']];
-    }
-
-    /**
-     * @param list<string> $activeFeatures
-     */
-    #[DataProvider('storedLabelOnlyProvider')]
-    public function testLeavesOrderLineItemsWithoutLabelAlone(Context $context, array $activeFeatures): void
-    {
-        $lineItem = self::createOrderLineItem([]);
-
-        // the repository throws on a search it has no result for
-        Feature::fake($activeFeatures, fn () => $this->createSubscriber([])->fillMissingLabels(self::createLoadedEvent($lineItem, $context)));
-
-        static::assertArrayNotHasKey(GaranLabelResolver::PAYLOAD_KEY, $lineItem->getPayload() ?? []);
     }
 
     public function testSearchesEachProductOnceWithInheritanceAndSkipsLineItemsWithoutProduct(): void
@@ -171,31 +122,5 @@ class GaranLabelOrderSubscriberTest extends TestCase
             Generator::generateSalesChannelContext(),
             new OrderConversionContext(),
         );
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    private static function createOrderLineItem(array $payload): OrderLineItemEntity
-    {
-        $lineItem = new OrderLineItemEntity();
-        $lineItem->setId('line-item-id');
-        $lineItem->setProductId('product-id');
-        $lineItem->setPayload($payload);
-
-        return $lineItem;
-    }
-
-    private static function createSalesChannelApiContext(): Context
-    {
-        return new Context(new SalesChannelApiSource(TestDefaults::SALES_CHANNEL));
-    }
-
-    /**
-     * @return EntityLoadedEvent<OrderLineItemEntity>
-     */
-    private static function createLoadedEvent(OrderLineItemEntity $lineItem, Context $context): EntityLoadedEvent
-    {
-        return new EntityLoadedEvent(new OrderLineItemDefinition(), [$lineItem], $context);
     }
 }

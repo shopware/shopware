@@ -309,11 +309,8 @@ The `sw_garan_label_mail` Twig filter and `Shopware\Core\Content\Product\Garan\G
 
 ## GARAN label only from the line item payload
 
-Cart and order line items show the GARAN label stored in their `payload.garanLabel`.
-Line items without that key show no GARAN label anymore: the Storefront no longer looks up their product, and the Store API no longer fills the key of order line items with the product's current label.
-This affects orders placed before 6.7.16.0 and orders created through the Admin API or the Sync API.
-
-If you create orders through the Admin API or the Sync API and want them to show the GARAN label, write `payload.garanLabel` on their product line items with the keys `guaranteeMonths`, `brand` and `modelIdentifier`.
+Cart line items show only the GARAN label stored in their `payload.garanLabel`, as order line items do since 6.7.16.0.
+The Storefront no longer looks up the product of line items without that key, they show no GARAN label.
 
 ## Shipping price matrix ranges use currency conversion
 

@@ -12,8 +12,8 @@
                 } %}
             {% endset %}
         {% endif %}
-    {% elseif not feature('v6.8.0.0') %}
-        {# @deprecated tag:v6.8.0 - The product lookup for line items without a stored label will be removed, they will show no GARAN label. #}
+    {% elseif displayMode !== 'order' and not feature('v6.8.0.0') %}
+        {# @deprecated tag:v6.8.0 - The product lookup for cart line items without a stored label will be removed, they will show no GARAN label like order line items. #}
         {% set garanLabel = productId|sw_garan_label_nested(context.context) %}
     {% endif %}
 

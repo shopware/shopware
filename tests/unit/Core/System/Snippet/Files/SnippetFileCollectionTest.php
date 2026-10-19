@@ -265,7 +265,7 @@ class SnippetFileCollectionTest extends TestCase
     public function testHasFileForPathDoesNotResolvePreviouslyIndexedFilesAfterAdd(): void
     {
         $firstFile = $this->createMock(AbstractSnippetFile::class);
-        $firstFile->expects(static::once())->method('getPath')->willReturn(__FILE__);
+        $firstFile->expects($this->once())->method('getPath')->willReturn(__FILE__);
         $secondFile = new MockSnippetFile('storefront.de', 'de-DE');
         $collection = new SnippetFileCollection();
         $collection->add($firstFile);

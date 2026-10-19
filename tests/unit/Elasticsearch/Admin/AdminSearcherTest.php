@@ -246,12 +246,12 @@ class AdminSearcherTest extends TestCase
         static::assertSame(1, $data['product']['total']);
     }
 
-    public function testSearchStripsBracketsAroundWordsSoTheLastWordIsMatchedByPrefix(): void
+    public function testSearchStripsBracketsAroundTheLastWordOnlyForItsPrefixMatch(): void
     {
         $this->client
             ->expects($this->once())
             ->method('msearch')
-            ->with($this->getQueryBody('tennis cap*'))
+            ->with($this->getQueryBody('tennis cap*', originalTerm: 'tennis (cap'))
             ->willReturn($this->getMockResponse('tennis cap'));
 
         $data = $this->searcher->search('tennis (cap', ['product'], Context::createDefaultContext());
@@ -330,11 +330,11 @@ class AdminSearcherTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function getQueryBody(string $query, string $timeout = '5s'): array
+    private function getQueryBody(string $query, string $timeout = '5s', ?string $originalTerm = null): array
     {
-        $originalTerm = rtrim($query, '*');
-        $splitTerms = explode(' ', $originalTerm);
+        $splitTerms = explode(' ', rtrim($query, '*'));
         $lastPart = (string) end($splitTerms);
+        $originalTerm ??= rtrim($query, '*');
         $termLevelTerm = mb_strtolower($originalTerm);
         $termLevelPrefixTerm = mb_strtolower($lastPart);
         $shouldQueries = [

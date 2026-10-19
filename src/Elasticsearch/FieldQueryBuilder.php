@@ -217,6 +217,9 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
             return null;
         }
 
+        // Only strips brackets at the start or end of each word, e.g. `(cap` -> `cap`
+        $token = preg_replace('/(?<!\S)[()\[\]{}<>\\\\]+|[()\[\]{}<>\\\\]+(?!\S)/u', '', $token) ?? $token;
+
         $matchBoolPrefixParams = ['boost' => $this->prefixBoost];
 
         if (!$this->useLanguageAnalyzer) {

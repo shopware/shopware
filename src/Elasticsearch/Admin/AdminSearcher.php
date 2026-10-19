@@ -231,7 +231,9 @@ class AdminSearcher
         $search = new Search();
         $splitTerms = explode(' ', $term);
         $lastPart = (string) end($splitTerms);
-        $prefixTerm = mb_strtolower($lastPart);
+        // Only strips brackets at the start or end of the last word, e.g. `(cap` -> `cap`
+        $prefixPart = preg_replace('/^[()\[\]{}<>\\\\]+|[()\[\]{}<>\\\\]+$/u', '', $lastPart) ?? $lastPart;
+        $prefixTerm = mb_strtolower($prefixPart);
 
         $search->addQuery(
             new MatchQuery('completion', $term, ['boost' => SearchRanking::HIGH_SEARCH_RANKING]),
@@ -242,13 +244,13 @@ class AdminSearcher
             BoolQuery::SHOULD
         );
 
-        if (preg_match('/^[\p{L}0-9]+$/Du', $lastPart)) {
+        if (preg_match('/^[\p{L}0-9]+$/Du', $prefixPart)) {
             $search->addQuery(
                 new PrefixQuery('completion', $prefixTerm, ['boost' => SearchRanking::MIDDLE_SEARCH_RANKING]),
                 BoolQuery::SHOULD
             );
 
-            $term .= '*';
+            $term = mb_substr($term, 0, mb_strlen($term) - mb_strlen($lastPart)) . $prefixPart . '*';
         }
 
         $search->addQuery(
@@ -279,8 +281,6 @@ class AdminSearcher
     private function extractTerm(string $rawTerm): string
     {
         $term = mb_substr(trim($rawTerm), 0, $this->termMaxLength);
-
-        $term = preg_replace('/(?<!\S)[()\[\]{}<>\\\\]+|[()\[\]{}<>\\\\]+(?!\S)/u', '', $term) ?? $term;
 
         $term = (string) mb_eregi_replace('\s(or)\s', '|', $term);
         $term = (string) mb_eregi_replace('\s(and)\s', ' + ', $term);

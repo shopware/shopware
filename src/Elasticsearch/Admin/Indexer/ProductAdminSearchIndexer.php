@@ -129,8 +129,10 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         $lastPart = (string) end($splitTerms);
         $identifierTerm = mb_strtolower($term);
         $identifierFields = ['ean', 'productNumber', 'manufacturerNumber'];
-        $isPrefixTerm = preg_match('/^[\p{L}0-9]+$/Du', $lastPart) === 1;
-        $textBoostedTerm = $isPrefixTerm ? $term . '*' : $term;
+        // Only strips brackets at the start or end of the last word, e.g. `(cap` -> `cap`
+        $prefixPart = preg_replace('/^[()\[\]{}<>\\\\]+|[()\[\]{}<>\\\\]+$/u', '', $lastPart) ?? $lastPart;
+        $isPrefixTerm = preg_match('/^[\p{L}0-9]+$/Du', $prefixPart) === 1;
+        $textBoostedTerm = $isPrefixTerm ? mb_substr($term, 0, mb_strlen($term) - mb_strlen($lastPart)) . $prefixPart . '*' : $term;
 
         foreach ($identifierFields as $field) {
             $criteria->addQuery(

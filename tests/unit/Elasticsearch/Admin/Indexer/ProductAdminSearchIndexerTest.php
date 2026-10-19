@@ -248,6 +248,22 @@ class ProductAdminSearchIndexerTest extends TestCase
         static::assertSame(["test\n"], array_column($textQueries, 'query'));
     }
 
+    public function testGlobalCriteriaStripsBracketsAroundTheLastWordOnlyForItsPrefixMatch(): void
+    {
+        $indexer = new ProductAdminSearchIndexer(
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $shouldQueries = $indexer->globalCriteria('tennis (cap', new Search())->getQueries()->toArray()['bool']['should'];
+
+        static::assertSame(['tennis cap*'], array_column(array_column($shouldQueries, 'simple_query_string'), 'query'));
+        static::assertSame('tennis (cap', array_column($shouldQueries, 'term')[1]['productNumber']['value']);
+    }
+
     private function getConnection(): Connection
     {
         $connection = static::createStub(Connection::class);

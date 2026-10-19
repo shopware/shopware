@@ -197,6 +197,32 @@ class FieldQueryBuilderTest extends TestCase
         }
     }
 
+    #[DataProvider('bracketAroundWordProvider')]
+    public function testPrefixMatchStripsBracketsAroundWordsWhileExactMatchKeepsThem(string $token, string $expectedPrefixQuery): void
+    {
+        $builder = new FieldQueryBuilder();
+        $field = new ResolvedField(new StringField('productNumber', 'productNumber'));
+        $config = new SearchFieldConfig('productNumber', 500, false, true, true, true);
+
+        $query = $builder->build($field, $token, $config, Context::createDefaultContext());
+
+        static::assertNotNull($query);
+        $queries = $query->toArray()['dis_max']['queries'];
+        static::assertSame($token, array_column(array_column($queries, 'term'), 'productNumber.exact')[0]['value']);
+        static::assertSame($expectedPrefixQuery, array_column(array_column($queries, 'match_bool_prefix'), 'productNumber.search')[0]['query']);
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function bracketAroundWordProvider(): iterable
+    {
+        yield 'bracket before a word' => ['(cap', 'cap'];
+        yield 'angle brackets around a product number' => ['<sw-100>', 'sw-100'];
+        yield 'bracket around a word inside a multi-word term' => ['tennis (cap', 'tennis cap'];
+        yield 'bracket inside a word is kept' => ['ab(12)cd', 'ab(12)cd'];
+    }
+
     public function testLanguageAnalyzerDisabledUsesWhitespaceAnalyzer(): void
     {
         $builder = new FieldQueryBuilder(4, false);

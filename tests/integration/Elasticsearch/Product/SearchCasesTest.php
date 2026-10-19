@@ -400,6 +400,20 @@ class SearchCasesTest extends TestCase
         ];
 
         $ids = new IdsCollection();
+        yield 'product number with a bracket at its edge still ranks first by exact match' => [
+            'ids' => $ids,
+            'products' => [
+                self::product($ids, 'b7-target', '>100', 'Plain Widget'),
+                self::product($ids, 'b7-other', '100', 'Plain Widget'),
+            ],
+            'searchFields' => ['productNumber'],
+            'searchScores' => ['productNumber' => 1000],
+            'minScore' => null,
+            'term' => '>100',
+            'expectedFirst' => 'b7-target',
+        ];
+
+        $ids = new IdsCollection();
         yield 'lone G query does not hit products that only contain bare G from HSS-G' => [
             'ids' => $ids,
             'products' => [

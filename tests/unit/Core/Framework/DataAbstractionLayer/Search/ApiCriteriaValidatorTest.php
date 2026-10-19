@@ -75,26 +75,22 @@ class ApiCriteriaValidatorTest extends TestCase
 
     public function testAFieldTheApiDoesNotExposeIsABadRequest(): void
     {
-        $criteria = (new Criteria())->addFilter(new EqualsFilter('orderLineItems.id', 1));
+        $exception = new ApiProtectionException('orderLineItems.id');
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        $this->expectExceptionObject($exception);
 
-        try {
-            $this->validator->validate('product', $criteria, new Context(new SalesChannelApiSource('test')));
-            static::fail('Expected an ApiProtectionException');
-        } catch (ApiProtectionException $e) {
-            static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        }
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('orderLineItems.id', 1));
+        $this->validator->validate('product', $criteria, new Context(new SalesChannelApiSource('test')));
     }
 
     public function testARuntimeFieldInTheCriteriaIsABadRequest(): void
     {
-        $criteria = (new Criteria())->addFilter(new ContainsFilter('variation', Uuid::randomHex()));
+        $exception = new RuntimeFieldInCriteriaException('variation');
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        $this->expectExceptionObject($exception);
 
-        try {
-            $this->validator->validate('product', $criteria, new Context(new AdminApiSource('test')));
-            static::fail('Expected a RuntimeFieldInCriteriaException');
-        } catch (RuntimeFieldInCriteriaException $e) {
-            static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        }
+        $criteria = (new Criteria())->addFilter(new ContainsFilter('variation', Uuid::randomHex()));
+        $this->validator->validate('product', $criteria, new Context(new AdminApiSource('test')));
     }
 
     public static function criteriaProvider(): \Generator

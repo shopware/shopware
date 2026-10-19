@@ -153,7 +153,7 @@ readonly class LoginConfigService
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
                     new Url(message: $invalidUrlMessage, requireTld: false),
-                    new Regex('/\w+(?!\/)$/D', 'should not end with "/"'),
+                    new Regex(pattern: '#/$#D', message: 'should not end with "/"', match: false),
                 ],
                 'authorize_path' => [
                     new NotNull(null, $isNullMessage),

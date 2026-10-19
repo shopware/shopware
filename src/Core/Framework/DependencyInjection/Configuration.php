@@ -1604,23 +1604,40 @@ class Configuration implements ConfigurationInterface
                                     ->arrayPrototype()
                                         ->validate()
                                             ->ifTrue(static function (array $label): bool {
-                                                $hasAllowedValues = isset($label['allowed_values']) && $label['allowed_values'] !== [];
+                                                $hasValues = ($label['allowed_values'] ?? []) !== [] || ($label['add_allowed_values'] ?? []) !== [];
                                                 $hasPolicy = isset($label['policy']);
 
-                                                if ($hasPolicy && $label['policy'] === LabelPolicy::OPEN->value && $hasAllowedValues) {
+                                                if ($hasPolicy && $label['policy'] === LabelPolicy::OPEN->value && $hasValues) {
                                                     return true;
                                                 }
-                                                if (!$hasAllowedValues && !$hasPolicy) {
+                                                if (!$hasValues && !$hasPolicy) {
                                                     return true;
                                                 }
 
                                                 return false;
                                             })
-                                            ->thenInvalid('Each label must have either "allowed_values" or "policy: open", but not both. Missing both is also invalid.')
+                                            ->thenInvalid('Each label must have values ("allowed_values" and/or "add_allowed_values") or "policy: open", but not both. Missing both is also invalid.')
+                                        ->end()
+                                        ->validate()
+                                            // fold to the effective state: a present `allowed_values` is the complete,
+                                            // final list and locks the label — all `add_allowed_values` contributions
+                                            // are discarded; otherwise the deduplicated contributions are the list
+                                            ->always(static function (array $label): array {
+                                                if (($label['allowed_values'] ?? []) !== []) {
+                                                    $label['add_allowed_values'] = [];
+                                                } elseif (($label['add_allowed_values'] ?? []) !== []) {
+                                                    $label['add_allowed_values'] = array_values(array_unique($label['add_allowed_values']));
+                                                }
+
+                                                return $label;
+                                            })
                                         ->end()
                                         ->children()
                                             ->arrayNode('allowed_values')
                                                 ->performNoDeepMerging()
+                                                ->scalarPrototype()->end()
+                                            ->end()
+                                            ->arrayNode('add_allowed_values')
                                                 ->scalarPrototype()->end()
                                             ->end()
                                             ->enumNode('policy')

@@ -72,17 +72,8 @@ class MetricLabelProcessor
                 return null;
             }
 
-            // Surface potential typos collapsing into the `other` bucket alongside truly uncategorized values)
-            if ($this->isDevOrTest()) {
-                $this->logger->notice(\sprintf(
-                    'Metric "%s" label "%s" value %s is not in the allowed list and was replaced with "%s".',
-                    $metricConfig->name,
-                    $name,
-                    var_export($value, true),
-                    $this->replacementValue,
-                ));
-            }
-
+            // silent in every environment: an out-of-list value is usually an extension that did not
+            // opt into telemetry, not an error (see adr/2026-10-19-telemetry-label-extensibility.md)
             $processed[$name] = $this->replacementValue;
         }
 

@@ -190,11 +190,13 @@ shopware:
                         # SalesChannelTypeResolver (known: storefront, api, product_comparison, agentic_commerce)
                         sales_channel_type:
                             policy: open
-                        # Payment method technical name. Default core config allows its built-in methods; every other
-                        # (plugin/app) method collapses to the `other` replacement value, while `none` marks orders
-                        # with no attributable payment method. Deployments widen this list to surface further providers.
+                        # Payment method technical name. Core contributes its built-in methods; plugins may widen the
+                        # list with their own `add_allowed_values`. Every method not in the effective list collapses
+                        # to the `other` replacement value silently, `none` marks orders with no attributable payment
+                        # method. A project may close the list with `allowed_values`, which also locks it against
+                        # further contributions.
                         payment_method:
-                            allowed_values: [payment_invoicepayment, payment_prepayment, payment_cashpayment, none, other]
+                            add_allowed_values: [payment_invoicepayment, payment_prepayment, payment_cashpayment, none, other]
 
                 order.line_items.count:
                     description: 'Line items per placed order'

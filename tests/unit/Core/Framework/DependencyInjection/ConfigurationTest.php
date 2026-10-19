@@ -776,6 +776,95 @@ class ConfigurationTest extends TestCase
         ]);
     }
 
+    public function testTelemetryAddAllowedValuesUnionsAcrossSources(): void
+    {
+        $label = $this->processTelemetryLabel(
+            ['add_allowed_values' => ['core_a', 'core_b', 'other']],
+            ['add_allowed_values' => ['plugin_a', 'core_b']],
+        );
+
+        static::assertSame(['core_a', 'core_b', 'other', 'plugin_a'], $label['add_allowed_values']);
+        static::assertSame([], $label['allowed_values'] ?? []);
+    }
+
+    public function testTelemetryAllowedValuesReplacesAndDiscardsContributions(): void
+    {
+        $label = $this->processTelemetryLabel(
+            ['add_allowed_values' => ['core_a', 'core_b']],
+            ['add_allowed_values' => ['plugin_a']],
+            ['allowed_values' => ['project_a', 'other']],
+        );
+
+        static::assertSame(['project_a', 'other'], $label['allowed_values']);
+        static::assertSame([], $label['add_allowed_values']);
+    }
+
+    public function testTelemetryLaterAllowedValuesWins(): void
+    {
+        $label = $this->processTelemetryLabel(
+            ['allowed_values' => ['first']],
+            ['allowed_values' => ['second']],
+        );
+
+        static::assertSame(['second'], $label['allowed_values']);
+    }
+
+    public function testTelemetryContributionsAfterLockAreStillDiscarded(): void
+    {
+        $label = $this->processTelemetryLabel(
+            ['allowed_values' => ['base']],
+            ['add_allowed_values' => ['plugin_a']],
+        );
+
+        static::assertSame(['base'], $label['allowed_values']);
+        static::assertSame([], $label['add_allowed_values']);
+    }
+
+    public function testTelemetryLabelRejectsOpenPolicyWithContributions(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        $this->processTelemetryLabel(['policy' => 'open', 'add_allowed_values' => ['a']]);
+    }
+
+    public function testTelemetryLabelRejectsMissingValuesAndPolicy(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        $this->processTelemetryLabel([]);
+    }
+
+    /**
+     * Each argument is one config source (framework, plugin, project, ...) for the same label,
+     * merged in argument order.
+     *
+     * @param array<string, mixed> ...$labelSources
+     *
+     * @return array<string, mixed> the processed configuration of that label
+     */
+    private function processTelemetryLabel(array ...$labelSources): array
+    {
+        $sources = [];
+        foreach ($labelSources as $labelSource) {
+            $sources[] = [
+                'telemetry' => [
+                    'metrics' => [
+                        'definitions' => [
+                            'test.metric' => [
+                                'type' => 'counter',
+                                'labels' => ['test_label' => $labelSource],
+                            ],
+                        ],
+                    ],
+                ],
+            ];
+        }
+
+        $config = (new Processor())->processConfiguration(new Configuration(), $sources);
+
+        return $config['telemetry']['metrics']['definitions']['test.metric']['labels']['test_label'];
+    }
+
     /**
      * @param mixed $value
      *

@@ -107,6 +107,11 @@ Shopware.Utils.debug.error(...debugArgs);
             errors: [{ messageId: 'manualNotice' }],
         },
         {
+            name: 'the notice as the default of a logical expression',
+            code: "console.warn(customMessage || 'foo is deprecated');",
+            errors: [{ messageId: 'manualNotice' }],
+        },
+        {
             name: 'the notice interpolated into a template literal from a variable',
             code: `
 const NOTICE = 'x is deprecated';

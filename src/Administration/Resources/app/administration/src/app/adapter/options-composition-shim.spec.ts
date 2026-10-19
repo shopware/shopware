@@ -1177,7 +1177,6 @@ describe('src/app/adapter/options-composition-shim', () => {
     describe('Unsupported features:', () => {
         it('should log error for custom render() functions', () => {
             const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
-            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
             convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 render() {
@@ -1191,7 +1190,6 @@ describe('src/app/adapter/options-composition-shim', () => {
             );
 
             consoleError.mockRestore();
-            consoleWarn.mockRestore();
         });
 
         it('should log warning for extends usage as it is unsupported', () => {

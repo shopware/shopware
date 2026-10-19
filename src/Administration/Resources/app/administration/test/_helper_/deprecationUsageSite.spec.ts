@@ -33,9 +33,9 @@ function recordedSites(): string[] {
  * Mounts `sw-author`, whose template renders the deprecated `sw-legacy` into the slot of `sw-card`.
  *
  * @example
- * mountDeprecatedComponentInSlot();
+ * mountDeprecatedComponentInASlot();
  */
-function mountDeprecatedComponentInSlot(): void {
+function mountDeprecatedComponentInASlot(): void {
     mount({
         name: 'sw-author',
         components: { 'sw-legacy': legacyComponent, 'sw-card': card },
@@ -51,7 +51,7 @@ describe('test/_helper_/deprecationUsageSite', () => {
 
     describe('inside a running component', () => {
         it('names the slot author, not the component rendering the slot', () => {
-            mountDeprecatedComponentInSlot();
+            mountDeprecatedComponentInASlot();
 
             expect(recordedSites()).toEqual(['sw-author > sw-legacy']);
         });
@@ -189,6 +189,19 @@ describe('test/_helper_/deprecationUsageSite', () => {
 
         it('finds no caller when only the deprecated module is on the stack', () => {
             expect(callerFile(`Error\n    at oldFunction (${process.env.ADMIN_PATH}/src/core/old.ts:12:5)`)).toBeUndefined();
+        });
+    });
+
+    describe('ownFrames', () => {
+        it('skips the deprecation plugin, so the frames start at the usage', () => {
+            const admin = process.env.ADMIN_PATH;
+            const stack = [
+                'Error',
+                `    at guard (${admin}/src/app/plugin/deprecation.plugin.ts:70:30)`,
+                `    at ${admin}/test/app/legacy.spec.ts:7:3`,
+            ].join('\n');
+
+            expect(ownFrames(stack).map(location)).toEqual(['test/app/legacy.spec.ts:7:3']);
         });
     });
 

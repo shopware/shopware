@@ -28,7 +28,7 @@ export type RecordedDeprecation = {
     /** The guard's message, with component names as the running Administration shows them. */
     message: string;
     /**
-     * Where the guard was called, so a failure points at the line that used the deprecated API. Its stack is read
+     * Where the guard was called, so a failure lists the frames that lead to the deprecated API. Its stack is read
      * only for `usageSite` outside a component and for the failure report, because formatting a stack is expensive.
      */
     error: Error;

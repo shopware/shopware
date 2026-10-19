@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { deprecations, startDeprecationLog } from '../deprecations';
+import { deprecations, endDeprecationLog, startDeprecationLog } from '../deprecations';
 import oldFunction from '../_fixtures/deprecations/oldFunction';
 import { failureOfEndDeprecationLog, oldFunctionMessage, triggerOtherDeprecation } from './deprecations-test-setup';
 
@@ -44,6 +44,24 @@ describe('test/_helper_/deprecations - endDeprecationLog', () => {
                 '   ↳ test/_helper_/deprecations.spec/end-deprecation-log.spec.ts:<line>:<col>',
             ].join('\n'),
         );
+    });
+
+    it('points the stack of the failure at the first unasserted usage', () => {
+        oldFunction();
+        triggerOtherDeprecation();
+
+        let failure = new Error();
+        try {
+            endDeprecationLog();
+        } catch (error) {
+            failure = error as Error;
+        }
+        startDeprecationLog();
+
+        const lines = (failure.stack ?? '').split('\n');
+        expect(lines[0]).toMatch(/^Error: The test ran into deprecations/);
+        expect(lines.find((line) => /^\s+at /.test(line))).toContain('test/_helper_/_fixtures/deprecations/oldFunction.ts:');
+        expect(lines.filter((line) => line.includes('test/_helper_/deprecations.ts'))).toEqual([]);
     });
 
     it('clears the log', () => {

@@ -8,12 +8,13 @@ import type { DeprecationOptions } from 'src/core/feature';
 
 const adminPath = process.env.ADMIN_PATH as string;
 
-// Neither the deprecated module nor its user: the guard's own files, so the stack walk starts at the deprecated
-// module that called it, and the `$super` chain between an extended component and its members.
+// The guard and recorder, so the stack walk starts at the deprecated module, and the `$super` plumbing between
+// an extended component and its members.
 const skippedFiles = [
     'src/core/feature.ts',
     'src/app/service/feature.service.ts',
     'test/_setup/_mocks_/feature.service.mock.js',
+    'src/app/plugin/deprecation.plugin.ts',
     'test/_helper_/deprecations.ts',
     'src/core/factory/async-component.factory.ts',
 ].map((file) => join(adminPath, file));
@@ -26,9 +27,11 @@ const skippedFiles = [
  *   running component, e.g. `sw-order-list`, else the Administration path of the file calling the deprecated
  *   module, else the spec.
  *
- * Only the file and the spec read the stack of `error`, because formatting it is expensive.
+ * Only the file fallback reads `error.stack`, because formatting a stack is expensive.
  *
  * Call it synchronously from the guard, while the component that uses the deprecated API is still current.
+ * Vue sets no current component in watcher callbacks and template event handlers, so their usages fall back to
+ * the calling file or the spec, like code after an `await`.
  *
  * @private
  * @example

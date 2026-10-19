@@ -14,7 +14,7 @@ The command always exits with `0`, which makes it suitable for install hooks in 
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
 
-# 6.7.16.0 (upcoming)
+# 6.7.16.0
 
 ## Critical Fixes
 

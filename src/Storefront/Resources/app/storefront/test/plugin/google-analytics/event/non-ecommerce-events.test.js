@@ -142,6 +142,26 @@ describe('plugin/google-analytics/events without ecommerce data', () => {
         expect(window.gtag).not.toHaveBeenCalled();
     });
 
+    // "Create account" on the checkout finish page converts the guest on its own page
+    test('sign_up reports the account a guest creates after the checkout', () => {
+        new SignUpEvent()._onFormSubmit(formEvent('account-guest-conversion__form'));
+        new SignUpEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'sign_up', { method: 'mail' });
+    });
+
+    // a rejected password or an email registered meanwhile renders the conversion form again
+    test('sign_up reports nothing when the next page shows the guest conversion form again', () => {
+        new SignUpEvent()._onFormSubmit(formEvent('account-guest-conversion__form'));
+        document.body.innerHTML = '<form class="account-guest-conversion__form"><input name="password"></form>';
+
+        new SignUpEvent().execute();
+        document.body.innerHTML = '';
+        new SignUpEvent().execute();
+
+        expect(window.gtag).not.toHaveBeenCalled();
+    });
+
     test('sign_up is checked on every page, because the shopper can land anywhere', () => {
         expect(new SignUpEvent().supports(null, null, 'frontend.checkout.confirm.page')).toBe(true);
     });

@@ -3,6 +3,8 @@ import SessionStorage from 'src/helper/storage/session-storage.helper';
 
 const PENDING_SIGN_UP_KEY = 'swGaPendingSignUp';
 
+const GUEST_CONVERSION_FORM_CLASS = 'account-guest-conversion__form';
+
 export default class SignUpEvent extends EventAwareAnalyticsEvent
 {
     /**
@@ -40,12 +42,15 @@ export default class SignUpEvent extends EventAwareAnalyticsEvent
 
         const target = event.target;
 
-        if (!target.classList.contains('register-form')) {
+        // a guest creates an account after the checkout through "Create account" on the finish page
+        const isGuestConversion = target.classList.contains(GUEST_CONVERSION_FORM_CLASS);
+
+        if (!isGuestConversion && !target.classList.contains('register-form')) {
             return;
         }
 
         // a guest checkout leaves "Create customer account" unchecked and creates no account
-        if (!new FormData(target).get('createCustomerAccount')) {
+        if (!isGuestConversion && !new FormData(target).get('createCustomerAccount')) {
             return;
         }
 
@@ -60,8 +65,9 @@ export default class SignUpEvent extends EventAwareAnalyticsEvent
 
         SessionStorage.removeItem(PENDING_SIGN_UP_KEY);
 
-        // a failed registration renders the register form again with its fields marked as invalid
-        if (!this.active || document.querySelector('.register-form .is-invalid')) {
+        // A failed registration renders the register form again with its fields marked as invalid.
+        // A failed guest conversion renders the conversion form again, not always with an invalid field.
+        if (!this.active || document.querySelector(`.register-form .is-invalid, .${GUEST_CONVERSION_FORM_CLASS}`)) {
             return;
         }
 

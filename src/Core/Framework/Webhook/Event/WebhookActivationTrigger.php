@@ -19,4 +19,6 @@ enum WebhookActivationTrigger: string
     case Manual = 'manual';
 
     case AppReset = 'app_reset';
+
+    case AppReactivateApi = 'app_reactivate_api';
 }

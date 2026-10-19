@@ -27,9 +27,9 @@ export type BaselinedUsages = Record<string, DeprecationRun[]>;
 
 const featureConfig = loadFeatureConfig();
 
-// Deprecation key → known usages, as in `src/meta/deprecation-baseline.json`.
-const baseline = deprecationBaseline as Record<string, BaselinedUsages>;
-const checkedInBaseline = JSON.stringify(baseline);
+// Deprecation key → known usages. The checked-in file stays untouched; `baseline` is the copy specs may extend.
+const checkedInBaseline = deprecationBaseline as Record<string, BaselinedUsages>;
+let baseline = structuredClone(checkedInBaseline);
 
 /**
  * The key of a deprecation in the baseline: the message without the component path the deprecation plugin
@@ -87,6 +87,5 @@ export function baselineDeprecation({ message, callSites }: { message: string; c
  * beforeEach(resetBaseline);
  */
 export function resetBaseline(): void {
-    Object.keys(baseline).forEach((message) => delete baseline[message]);
-    Object.assign(baseline, JSON.parse(checkedInBaseline));
+    baseline = structuredClone(checkedInBaseline);
 }

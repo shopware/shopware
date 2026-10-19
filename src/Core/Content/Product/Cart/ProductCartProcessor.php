@@ -80,7 +80,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         private readonly EntityCacheKeyGenerator $generator,
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly GaranLabelResolver $garanLabelResolver,
+        private readonly ?GaranLabelResolver $garanLabelResolver = null,
     ) {
     }
 
@@ -417,7 +417,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         ];
 
         // an edited order keeps the GARAN label it was placed with, see GaranLabelOrderSubscriber
-        if (!$behavior->hasPermission(CheckoutPermissions::SKIP_PRODUCT_RECALCULATION)) {
+        if ($this->garanLabelResolver !== null && !$behavior->hasPermission(CheckoutPermissions::SKIP_PRODUCT_RECALCULATION)) {
             $payload[GaranLabelResolver::PAYLOAD_KEY] = $this->garanLabelResolver->resolveSnapshot($product);
         }
 

@@ -7,20 +7,36 @@ import { resolve } from 'node:path';
 import { parse } from 'yaml';
 
 import Feature, { deprecationBaselineKey, UNREGISTERED_UPCOMING_MAJORS } from 'src/core/feature';
-import { baselineDeprecation, resetBaseline } from 'test/_helper_/deprecationBaseline';
+import deprecationBaseline from 'src/meta/deprecation-baseline.json';
 import normalizeFeatureFlag from 'test/_helper_/normalizeFeatureFlag';
 import { useProductionDeprecationGuard } from 'test/_helper_/deprecations';
+
+const listedBaselineKeys: string[] = [];
+
+/**
+ * Lists `key` in the deprecation baseline that `Feature.triggerDeprecationOrThrow` reads, until the test ends.
+ * Use it for runtime cases; the Jest baseline helper only changes the Jest-side copy.
+ *
+ * @example
+ * listInDeprecationBaseline('oldMethod() is deprecated.');
+ */
+function listInDeprecationBaseline(key: string): void {
+    (deprecationBaseline as Record<string, unknown>)[key] = { 'sw-page': ['default', 'major'] };
+    listedBaselineKeys.push(key);
+}
 
 describe('src/core/feature', () => {
     const originalFlags = { ...Feature.flags };
 
     beforeEach(() => {
         useProductionDeprecationGuard();
-        resetBaseline();
         Feature.init({ V7_0_0_0: false });
     });
 
     afterEach(() => {
+        listedBaselineKeys.splice(0).forEach((key) => {
+            delete (deprecationBaseline as Record<string, unknown>)[key];
+        });
         Feature.flags = { ...originalFlags };
         jest.restoreAllMocks();
     });
@@ -28,7 +44,7 @@ describe('src/core/feature', () => {
     describe('triggerDeprecationOrThrow', () => {
         it('throws once the major flag is active for a message the deprecation baseline does not list', () => {
             Feature.init({ V7_0_0_0: true });
-            baselineDeprecation({ message: 'otherMethod() is deprecated.', callSites: { 'sw-page': ['default', 'major'] } });
+            listInDeprecationBaseline('otherMethod() is deprecated.');
 
             expect(() => Feature.triggerDeprecationOrThrow('V7_0_0_0', 'oldMethod() is deprecated.')).toThrow(
                 'Tried to access deprecated functionality: oldMethod() is deprecated.',
@@ -38,10 +54,7 @@ describe('src/core/feature', () => {
         it('logs an error instead of throwing for a message in the deprecation baseline', () => {
             const error = jest.spyOn(console, 'error').mockImplementation(() => {});
             Feature.init({ V7_0_0_0: true });
-            baselineDeprecation({
-                message: 'baselinedMethod() is deprecated.',
-                callSites: { 'sw-page': ['default', 'major'] },
-            });
+            listInDeprecationBaseline('baselinedMethod() is deprecated.');
 
             const message = 'baselinedMethod() is deprecated.\nUsed in: sw-page > sw-example';
 
@@ -54,13 +67,12 @@ describe('src/core/feature', () => {
 
         it('warns for a message in the deprecation baseline while the major flag is inactive', () => {
             const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-            baselineDeprecation({
-                message: 'inactiveBaselinedMethod() is deprecated.',
-                callSites: { 'sw-page': ['default', 'major'] },
-            });
+            const error = jest.spyOn(console, 'error').mockImplementation(() => {});
+            listInDeprecationBaseline('inactiveBaselinedMethod() is deprecated.');
 
             Feature.triggerDeprecationOrThrow('V7_0_0_0', 'inactiveBaselinedMethod() is deprecated.');
 
+            expect(error).not.toHaveBeenCalled();
             expect(warn).toHaveBeenCalledWith('[Deprecation]', 'inactiveBaselinedMethod() is deprecated.');
         });
 

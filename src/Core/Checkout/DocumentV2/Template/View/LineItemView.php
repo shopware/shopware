@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\FloatComparator;
 
 /**
  * Precomputed view of a single billable line item.
@@ -270,8 +271,18 @@ final readonly class LineItemView
 
     private static function getUnitCode(OrderLineItemEntity $lineItem): string
     {
-        $uneceCode = $lineItem->getPayload()['uneceCode'] ?? null;
+        $payload = $lineItem->getPayload() ?? [];
+        $uneceCode = $payload['uneceCode'] ?? null;
+        $purchaseUnit = $payload['purchaseUnit'] ?? null;
 
-        return \is_string($uneceCode) && $uneceCode !== '' ? $uneceCode : UnitCode::PIECE->value;
+        if (!\is_string($uneceCode) || $uneceCode === '') {
+            return UnitCode::PIECE->value;
+        }
+
+        if (\is_numeric($purchaseUnit) && !FloatComparator::equals((float) $purchaseUnit, 1.0)) {
+            return UnitCode::PIECE->value;
+        }
+
+        return $uneceCode;
     }
 }

@@ -554,9 +554,19 @@ class ZugferdDocument
 
     private function getUnitCode(OrderLineItemEntity $lineItem): string
     {
-        $uneceCode = $lineItem->getPayload()['uneceCode'] ?? null;
+        $payload = $lineItem->getPayload() ?? [];
+        $uneceCode = $payload['uneceCode'] ?? null;
+        $purchaseUnit = $payload['purchaseUnit'] ?? null;
 
-        return \is_string($uneceCode) && $uneceCode !== '' ? $uneceCode : ZugferdUnitCodes::REC20_PIECE;
+        if (!\is_string($uneceCode) || $uneceCode === '') {
+            return ZugferdUnitCodes::REC20_PIECE;
+        }
+
+        if (\is_numeric($purchaseUnit) && !FloatComparator::equals((float) $purchaseUnit, 1.0)) {
+            return ZugferdUnitCodes::REC20_PIECE;
+        }
+
+        return $uneceCode;
     }
 
     private function getPercentageBasisAmount(bool $isPercentage, float $discountValue, float $actualAmount): ?float

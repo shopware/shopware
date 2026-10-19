@@ -640,6 +640,18 @@ class ZugferdDocumentTest extends TestCase
             'payload' => ['uneceCode' => null],
             'expectedCode' => 'H87',
         ];
+        yield 'code is used without a purchase unit' => [
+            'payload' => ['uneceCode' => 'KGM', 'purchaseUnit' => null],
+            'expectedCode' => 'KGM',
+        ];
+        yield 'code is used when one pack is exactly one unit' => [
+            'payload' => ['uneceCode' => 'KGM', 'purchaseUnit' => 1.0],
+            'expectedCode' => 'KGM',
+        ];
+        yield 'packed goods keep piece so the quantity still counts packs' => [
+            'payload' => ['uneceCode' => 'KGM', 'purchaseUnit' => 0.5],
+            'expectedCode' => 'H87',
+        ];
     }
 
     public function testUnitPriceIsWrittenWithFourDecimals(): void

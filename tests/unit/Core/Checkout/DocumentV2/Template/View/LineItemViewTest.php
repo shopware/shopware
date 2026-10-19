@@ -172,6 +172,9 @@ class LineItemViewTest extends TestCase
         yield 'code stored at order time is used' => ['payload' => ['uneceCode' => 'KGM'], 'expectedCode' => 'KGM'];
         yield 'order placed before the code existed falls back to piece' => ['payload' => ['productNumber' => 'SKU-1'], 'expectedCode' => 'H87'];
         yield 'product without a code falls back to piece' => ['payload' => ['uneceCode' => null], 'expectedCode' => 'H87'];
+        yield 'code is used without a purchase unit' => ['payload' => ['uneceCode' => 'KGM', 'purchaseUnit' => null], 'expectedCode' => 'KGM'];
+        yield 'code is used when one pack is exactly one unit' => ['payload' => ['uneceCode' => 'KGM', 'purchaseUnit' => 1.0], 'expectedCode' => 'KGM'];
+        yield 'packed goods keep piece so the quantity still counts packs' => ['payload' => ['uneceCode' => 'KGM', 'purchaseUnit' => 0.5], 'expectedCode' => 'H87'];
     }
 
     public function testListFromOrderFallsBackToPieceForCustomLineItems(): void

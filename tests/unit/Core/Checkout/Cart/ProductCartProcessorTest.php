@@ -238,7 +238,7 @@ class ProductCartProcessorTest extends TestCase
      * @param array<string, mixed> $unit
      */
     #[DataProvider('uneceCodePayloadProvider')]
-    public function testPayloadStoresTheUneceCodeOfTheUnit(?array $unit, ?string $expectedCode): void
+    public function testPayloadStoresTheUneceCodeAndPurchaseUnit(?array $unit, ?string $expectedCode): void
     {
         $cart = new Cart('test');
         $lineItem = new LineItem('A', 'product', 'A');
@@ -254,6 +254,7 @@ class ProductCartProcessorTest extends TestCase
             'stock' => 1,
             'type' => ProductDefinition::TYPE_PHYSICAL,
             'unit' => $unit === null ? null : (new UnitEntity())->assign($unit),
+            'purchaseUnit' => 0.5,
         ]);
 
         $processor = new ProductCartProcessor(
@@ -273,6 +274,7 @@ class ProductCartProcessorTest extends TestCase
 
         static::assertArrayHasKey('uneceCode', $lineItem->getPayload());
         static::assertSame($expectedCode, $lineItem->getPayload()['uneceCode']);
+        static::assertSame(0.5, $lineItem->getPayloadValue('purchaseUnit'));
     }
 
     /**

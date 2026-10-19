@@ -305,10 +305,11 @@ class ProductCartProcessorTest extends TestCase
     }
 
     #[DataProvider('variantUneceCodeProvider')]
-    public function testPayloadStoresTheUneceCodeOfTheVariantOrItsParent(bool $variantHasOwnUnit, string $expectedCode): void
+    public function testPayloadStoresTheUnitDataOfTheVariantOrItsParent(bool $variantHasOwnUnit, string $expectedCode): void
     {
         $this->createProduct([
             'unit' => ['id' => $this->ids->create('parent-unit'), 'shortCode' => 'kg', 'name' => 'Kilogram', 'uneceCode' => 'KGM'],
+            'purchaseUnit' => 0.5,
         ]);
 
         $variant = [
@@ -333,6 +334,7 @@ class ProductCartProcessorTest extends TestCase
         $item = $cart->getLineItems()->get($this->ids->get('variant'));
         static::assertNotNull($item);
         static::assertSame($expectedCode, $item->getPayloadValue('uneceCode'));
+        static::assertSame(0.5, $item->getPayloadValue('purchaseUnit'));
     }
 
     /**

@@ -8,7 +8,7 @@ The new `bin/console sales-channel:file:enable [ids...] [--all]` command switche
 It only creates missing files, so a file switched off in the Administration stays off, and a second run changes nothing.
 The command always exits with `0`, which makes it suitable for install hooks in `.shopware-project.yml`.
 
-# 6.7.16.0
+# 6.7.16.0 (upcoming)
 
 ## Critical Fixes
 

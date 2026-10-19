@@ -1,9 +1,8 @@
 import { test as base } from '@playwright/test';
 import type { FixtureTypes } from '@fixtures/AcceptanceTest';
-import { deleteOrderDocuments } from '@helpers/document-helpers';
 import type { DocumentTypes, DocumentOptions } from '@helpers/document-helpers';
 
-// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+// eslint-disable-next-line no-unused-vars
 type CreateDocumentTask = (options: DocumentOptions) => () => Promise<{ documentId: string }>;
 
 const documentEndpoints: Record<DocumentTypes, string> = {
@@ -22,11 +21,7 @@ const typesRequiringInvoice: DocumentTypes[] = [
 ];
 
 export const CreateDocument = base.extend<{ CreateDocument: CreateDocumentTask }, FixtureTypes>({
-    // TestDataService is a dependency so this teardown runs before its order cleanup.
-    // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-    CreateDocument: async ({ AdminApiContext, ShopAdmin, TestDataService }, use) => {
-        const orderIds = new Set<string>();
-
+    CreateDocument: async ({ AdminApiContext, ShopAdmin }, use) => {
         const task = (options: DocumentOptions) => {
             return async function CreateDocument() {
                 const { orderId, type, referencedDocumentId } = options;
@@ -49,7 +44,6 @@ export const CreateDocument = base.extend<{ CreateDocument: CreateDocumentTask }
                 });
 
                 ShopAdmin.expects(response.ok()).toBeTruthy();
-                orderIds.add(orderId);
 
                 const responseData = await response.json();
                 ShopAdmin.expects(responseData).toHaveProperty('data');
@@ -63,7 +57,5 @@ export const CreateDocument = base.extend<{ CreateDocument: CreateDocumentTask }
         };
 
         await use(task);
-
-        await deleteOrderDocuments(AdminApiContext, Array.from(orderIds));
     },
 });

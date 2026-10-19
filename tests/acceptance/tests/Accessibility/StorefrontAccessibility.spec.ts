@@ -1,13 +1,5 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { satisfies } from 'compare-versions';
-import { deleteOrderDocuments } from '@helpers/document-helpers';
-
-const placedOrderIds: string[] = [];
-
-// Documents generated for the placed order would block its deletion in the TestDataService cleanup.
-test.afterEach(async ({ AdminApiContext }) => {
-    await deleteOrderDocuments(AdminApiContext, placedOrderIds.splice(0));
-});
 
 test(
     'The Storefront should implement accessibility best practices.',
@@ -75,7 +67,6 @@ test(
             await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
             await ShopCustomer.attemptsTo(SubmitOrder());
             const orderId = StorefrontCheckoutFinish.getOrderId();
-            placedOrderIds.push(orderId);
             TestDataService.addCreatedRecord('order', orderId);
 
             await ShopCustomer.attemptsTo(ValidateAccessibility('Checkout Finish', true));

@@ -753,8 +753,10 @@ class ThemeServiceTest extends TestCase
                 [
                     'id' => $themeId,
                     'saleschannelId' => TestDefaults::SALES_CHANNEL,
-                    'dependentId' => $dependentThemeId,
-                    'dsaleschannelId' => TestDefaults::SALES_CHANNEL,
+                ],
+                [
+                    'id' => $dependentThemeId,
+                    'saleschannelId' => TestDefaults::SALES_CHANNEL,
                 ],
             ]
         );

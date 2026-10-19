@@ -78,10 +78,13 @@ function run(
 }
 
 describe('test/_helper_/deprecationBaselineReporter', () => {
+    let stderrWrite: jest.SpyInstance;
+
     beforeEach(() => {
         ignoreBaselineUpdateRun();
         writeBaseline(baselineBeforeTheRun);
         jest.spyOn(console, 'error').mockImplementation(() => {});
+        stderrWrite = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
     });
 
     afterAll(() => {
@@ -91,6 +94,20 @@ describe('test/_helper_/deprecationBaselineReporter', () => {
     describe('stale check', () => {
         it('passes a full run that needed every usage listed for it, ignoring those listed for the other run', () => {
             expect(run([[message, 'sw-author']], { run: 'default' })).toBeUndefined();
+        });
+
+        it('prints how many usages a full run checked', () => {
+            run(
+                [
+                    [message, 'sw-author'],
+                    [message, 'sw-page'],
+                ],
+                { run: 'major' },
+            );
+
+            expect(stderrWrite).toHaveBeenCalledWith(
+                'Deprecation baseline: checked the 2 usages listed for the major run.\n',
+            );
         });
 
         it('fails a full run on a usage listed for it that no spec needed', () => {
@@ -120,6 +137,24 @@ describe('test/_helper_/deprecationBaselineReporter', () => {
             ['--selectProjects', {}, ['--selectProjects', 'administration']],
         ])('does not report stale usages of a run filtered by %s', (_filter, override, argv: string[] = []) => {
             expect(run([], { globalConfig: { ...fullRun, ...override }, argv })).toBeUndefined();
+        });
+
+        it('prints in CI that it skipped the check of a filtered run', () => {
+            jest.replaceProperty(process, 'env', { ...process.env, CI: 'true' });
+
+            run([], { globalConfig: { ...fullRun, onlyChanged: true } });
+
+            expect(stderrWrite).toHaveBeenCalledWith(
+                'Deprecation baseline: skipped the stale check, because the run is filtered.\n',
+            );
+        });
+
+        it('stays quiet outside CI on a filtered run', () => {
+            jest.replaceProperty(process, 'env', { ...process.env, CI: undefined });
+
+            run([], { globalConfig: { ...fullRun, onlyChanged: true } });
+
+            expect(stderrWrite).not.toHaveBeenCalled();
         });
 
         it('does not report stale usages of a run with a failed or crashed spec', () => {
@@ -171,6 +206,7 @@ describe('test/_helper_/deprecationBaselineReporter', () => {
                     4,
                 )}\n`,
             );
+            expect(stderrWrite).toHaveBeenCalledWith('Deprecation baseline: marked the 3 usages of the default run.\n');
         });
 
         it.each([

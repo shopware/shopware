@@ -41,6 +41,9 @@ class DeprecationBaselineReporter {
                 this.fail(
                     `DEPRECATION_BASELINE=update needs a full run without filters: DEPRECATION_BASELINE=update ${updateCommand(this.run)}`,
                 );
+            } else if (process.env.CI) {
+                // CI logs show the check did not run; locally, filtered runs are the norm.
+                this.log('Deprecation baseline: skipped the stale check, because the run is filtered.');
             }
 
             return;
@@ -59,6 +62,7 @@ class DeprecationBaselineReporter {
 
         if (isUpdate) {
             writeFileSync(this.baselinePath, `${JSON.stringify(markRun(baseline, usedEntries, this.run), null, 4)}\n`);
+            this.log(`Deprecation baseline: marked the ${usedEntries.length} usages of the ${this.run} run.`);
 
             return;
         }
@@ -72,7 +76,20 @@ class DeprecationBaselineReporter {
                     `    DEPRECATION_BASELINE=update ${updateCommand(this.run)}\n` +
                     `Stale usages:\n${stale.join('\n')}`,
             );
+
+            return;
         }
+
+        this.log(
+            `Deprecation baseline: checked the ${countListed(baseline, this.run)} usages listed for the ${this.run} run.`,
+        );
+    }
+
+    /**
+     * Prints a line next to Jest's summary, the way Jest's own reporters do.
+     */
+    log(line) {
+        process.stderr.write(`${line}\n`);
     }
 
     /**
@@ -145,6 +162,16 @@ function findStale(baseline, usedEntries, run) {
             .filter(([site, runs]) => runs.includes(run) && !used.has(JSON.stringify([message, site])))
             .map(([site]) => `${site}: ${message}`),
     );
+}
+
+/**
+ * How many usages the baseline lists for `run`.
+ *
+ * @example
+ * countListed({ 'old() is deprecated.': { 'sw-page': ['major'], 'sw-author': ['default'] } }, 'major'); // 1
+ */
+function countListed(baseline, run) {
+    return Object.values(baseline).flatMap((sites) => Object.values(sites).filter((runs) => runs.includes(run))).length;
 }
 
 /**

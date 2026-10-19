@@ -108,9 +108,6 @@ test(
             await ShopCustomer.expects(StorefrontHeader.wishlistBasket).toHaveText('2');
             
             await ShopCustomer.presses(StorefrontHeader.wishlistIcon);
-            //const wishlistItems = StorefrontWishlist.page.getByRole("main").getByRole("list").getByRole("listitem");
-
-
             await ShopCustomer.expects(StorefrontWishlist.wishlistItems.nth(0)).toContainText(product3.name);
             await ShopCustomer.expects(StorefrontWishlist.wishlistItems.nth(1)).toContainText(product1.name);
         });

@@ -7,6 +7,7 @@
  * `DEPRECATION_BASELINE=update` rewrites this run's markings from the usages the workers let pass.
  */
 const { readFileSync, writeFileSync } = require('node:fs');
+const { isBaselineUpdateRun } = require('./isBaselineUpdateRun');
 const { endUsedBaselineEntries, startUsedBaselineEntries, usedBaselineEntries } = require('./usedBaselineEntries');
 
 class DeprecationBaselineReporter {
@@ -29,7 +30,7 @@ class DeprecationBaselineReporter {
     onRunComplete(_testContexts, results) {
         const usedEntries = usedBaselineEntries();
         endUsedBaselineEntries();
-        const isUpdate = process.env.DEPRECATION_BASELINE === 'update';
+        const isUpdate = isBaselineUpdateRun();
 
         if (!isFullRun(this.globalConfig)) {
             if (isUpdate) {

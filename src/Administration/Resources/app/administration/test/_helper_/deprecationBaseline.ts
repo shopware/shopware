@@ -3,6 +3,7 @@
  * @private
  */
 import deprecationBaseline from 'src/meta/deprecation-baseline.json';
+import { isBaselineUpdateRun } from './isBaselineUpdateRun';
 import { isMajorRun, loadFeatureConfig } from './majorFeatureFlags';
 import { recordUsedBaselineEntry as recordUsedEntry } from './usedBaselineEntries';
 import type { RecordedDeprecation } from './deprecations';
@@ -77,7 +78,7 @@ export function isListed({ message, usageSite }: Pick<RecordedDeprecation, 'mess
  * isBaselined({ message: 'oldFunction() is deprecated.', usageSite: 'src/app/main.ts' }); // false
  */
 export function isBaselined(entry: Pick<RecordedDeprecation, 'message' | 'usageSite'>): boolean {
-    return process.env.DEPRECATION_BASELINE === 'update' || isListed(entry);
+    return isBaselineUpdateRun() || isListed(entry);
 }
 
 /**

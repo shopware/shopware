@@ -12,6 +12,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -190,10 +191,10 @@ class PromotionDiscountCompositionTest extends TestCase
         // verify that the promotion has a total order count of 1 and the current customer is although tracked
         static::assertSame(1, $promotion->getOrderCount());
         static::assertNotNull($context->getCustomer());
-        static::assertSame(
-            [$customerId1 => 1],
-            $promotion->getOrdersPerCustomerCount()
-        );
+        // @deprecated tag:v6.8.0 - remove the per-customer assertions of this test together with orders_per_customer_count
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertSame([$customerId1 => 1], Feature::silent('v6.8.0.0', static fn (): ?array => $promotion->getOrdersPerCustomerCount()));
+        }
 
         // order promotion with two products
         $this->orderWithPromotion($code, [$productId1, $productId2], $context);
@@ -205,10 +206,9 @@ class PromotionDiscountCompositionTest extends TestCase
 
         // verify that the promotion has a total order count of 1 and the current customer is although tracked
         static::assertSame(2, $promotion->getOrderCount());
-        static::assertSame(
-            [$customerId1 => 2],
-            $promotion->getOrdersPerCustomerCount()
-        );
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertSame([$customerId1 => 2], Feature::silent('v6.8.0.0', static fn (): ?array => $promotion->getOrdersPerCustomerCount()));
+        }
 
         $context2 = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(
@@ -227,12 +227,17 @@ class PromotionDiscountCompositionTest extends TestCase
         static::assertNotNull($promotion);
 
         static::assertSame(3, $promotion->getOrderCount());
+
+        if (Feature::isActive('v6.8.0.0')) {
+            return;
+        }
+
         $expected = [
             $context2->getCustomer()->getId() => 1,
             $customerId1 => 2,
         ];
 
-        $actual = $promotion->getOrdersPerCustomerCount() ?? [];
+        $actual = Feature::silent('v6.8.0.0', static fn (): ?array => $promotion->getOrdersPerCustomerCount()) ?? [];
 
         ksort($expected);
         ksort($actual);

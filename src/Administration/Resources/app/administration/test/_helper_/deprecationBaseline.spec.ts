@@ -7,7 +7,6 @@ import {
     currentRun,
     deprecationBaselineKey,
     isBaselined,
-    recordUsedBaselineEntry,
     resetBaseline,
     type DeprecationRun,
 } from './deprecationBaseline';
@@ -16,6 +15,7 @@ import {
     failureOfEndDeprecationLog,
     ignoreBaselineUpdateRun,
     oldFunctionMessage,
+    useBaselineUpdateRun,
 } from './deprecations.spec/deprecations-test-setup';
 import {
     startCollectingUsedBaselineEntries,
@@ -105,12 +105,12 @@ describe('test/_helper_/deprecationBaseline', () => {
         });
 
         it('counts a listed usage the deprecation plugin appended its component path to under its baseline key', () => {
-            recordUsedBaselineEntry({
-                message: `${message}\nUsed in: sw-app > sw-page > sw-old`,
-                usageSite: 'sw-page > sw-old',
-            });
+            baselineDeprecation({ message, callSites: { [spec]: [currentRun()] } });
 
-            expect(usedBaselineEntries()).toEqual([[message, 'sw-page > sw-old']]);
+            Shopware.Feature.triggerDeprecationOrThrow('V6_9_0_0', `${message}\nUsed in: sw-app > sw-page`);
+            endDeprecationLog();
+
+            expect(usedBaselineEntries()).toEqual([[message, spec]]);
         });
 
         it('does not count an entry listed only for the other run as used, even when the test asserts it', () => {
@@ -124,7 +124,7 @@ describe('test/_helper_/deprecationBaseline', () => {
         });
 
         it('lets every usage pass with DEPRECATION_BASELINE=update, counting the ones the test neither asserted nor allowed as used', () => {
-            jest.replaceProperty(process.env, 'DEPRECATION_BASELINE', 'update');
+            useBaselineUpdateRun();
             allowDeprecation('allowed()');
 
             oldFunction();
@@ -137,7 +137,7 @@ describe('test/_helper_/deprecationBaseline', () => {
         });
 
         it('still counts a listed usage the test asserted as used with DEPRECATION_BASELINE=update', () => {
-            jest.replaceProperty(process.env, 'DEPRECATION_BASELINE', 'update');
+            useBaselineUpdateRun();
             baselineDeprecation({ message, callSites: { [spec]: [currentRun()] } });
 
             oldFunction();

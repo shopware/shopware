@@ -66,8 +66,9 @@ class DeprecationBaselineReporter {
         if (stale.length > 0) {
             this.fail(
                 `The deprecation baseline lists usages no spec of the ${this.run} run needs anymore. ` +
-                    `Remove "${this.run}" from them in ${this.baselinePath}, ` +
-                    `or run DEPRECATION_BASELINE=update ${updateCommand(this.run)}:\n${stale.join('\n')}`,
+                    `Remove "${this.run}" from them in ${this.baselinePath}, or run:\n` +
+                    `    DEPRECATION_BASELINE=update ${updateCommand(this.run)}\n` +
+                    `Stale usages:\n${stale.join('\n')}`,
             );
         }
     }

@@ -70,9 +70,8 @@ export function startNextTest(): void {
 }
 
 /**
- * Lets a deprecation fail the test as in a default run, also when the suite runs with
- * `DEPRECATION_BASELINE=update`, which lets every deprecation pass. Use it in specs that check which
- * deprecations fail a test.
+ * Pins the run to the normal baseline check, not update mode, even when the suite runs with
+ * `DEPRECATION_BASELINE=update`.
  *
  * @private
  * @example
@@ -80,4 +79,16 @@ export function startNextTest(): void {
  */
 export function ignoreBaselineUpdateRun(): void {
     jest.replaceProperty(process, 'env', { ...process.env, DEPRECATION_BASELINE: undefined });
+}
+
+/**
+ * Pins the run to `DEPRECATION_BASELINE=update`, where every deprecation passes and the run collects used
+ * baseline entries. Use it for cases that cover update mode.
+ *
+ * @private
+ * @example
+ * useBaselineUpdateRun();
+ */
+export function useBaselineUpdateRun(): void {
+    jest.replaceProperty(process, 'env', { ...process.env, DEPRECATION_BASELINE: 'update' });
 }

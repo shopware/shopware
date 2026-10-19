@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import DeprecationBaselineReporter from './deprecationBaselineReporter';
 import type { DeprecationRun } from './deprecationBaseline';
-import { ignoreBaselineUpdateRun } from './deprecations.spec/deprecations-test-setup';
+import { ignoreBaselineUpdateRun, useBaselineUpdateRun } from './deprecations.spec/deprecations-test-setup';
 import { recordUsedBaselineEntry } from './usedBaselineEntries';
 
 const fullRun = {
@@ -102,8 +102,8 @@ describe('test/_helper_/deprecationBaselineReporter', () => {
         });
 
         it.each([
-            ['default' as const, 'composer admin:unit:'],
-            ['major' as const, 'composer admin:unit:major:'],
+            ['default' as const, 'composer admin:unit\n'],
+            ['major' as const, 'composer admin:unit:major\n'],
         ])('names the update command of the %s run on a stale usage', (jestRun, command) => {
             expect(run([], { run: jestRun })?.message).toContain(`DEPRECATION_BASELINE=update ${command}`);
         });
@@ -129,7 +129,7 @@ describe('test/_helper_/deprecationBaselineReporter', () => {
 
     describe('with DEPRECATION_BASELINE=update', () => {
         beforeEach(() => {
-            jest.replaceProperty(process.env, 'DEPRECATION_BASELINE', 'update');
+            useBaselineUpdateRun();
         });
 
         it('marks the run on exactly the usages it needed, keeping the markings of the other run', () => {

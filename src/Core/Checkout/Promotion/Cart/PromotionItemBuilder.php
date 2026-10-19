@@ -41,10 +41,6 @@ class PromotionItemBuilder
     /**
      * @deprecated tag:v6.8.0 - Will be removed, use {@see PromotionLineItemFactory::create()} instead
      *
-     * Builds a new placeholder promotion line item that does not have
-     * any side effects for the calculation. It will contain the code
-     * within the payload which can then be used to create a real promotion item.
-     *
      * @throws CartException
      */
     public function buildPlaceholderItem(string $code): LineItem

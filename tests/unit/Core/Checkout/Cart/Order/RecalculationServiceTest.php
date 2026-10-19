@@ -661,6 +661,15 @@ class RecalculationServiceTest extends TestCase
                 ]), []);
             });
 
+        $promotionLineItemFactory = new PromotionLineItemFactory();
+
+        $factory = $this->createMock(LineItemFactoryInterface::class);
+        $factory->method('supports')->willReturnCallback($promotionLineItemFactory->supports(...));
+        $factory
+            ->expects($this->once())
+            ->method('create')
+            ->willReturnCallback($promotionLineItemFactory->create(...));
+
         $processor = $this->createMock(Processor::class);
         $processor
             ->expects($this->once())
@@ -685,7 +694,7 @@ class RecalculationServiceTest extends TestCase
             $entityRepository,
             $processor,
             $this->cartRuleLoader,
-            $this->lineItemFactoryRegistry(new PromotionLineItemFactory())
+            $this->lineItemFactoryRegistry($factory)
         );
 
         $recalculationService->addPromotionLineItem($order->getId(), 'CODE-123', $this->context);

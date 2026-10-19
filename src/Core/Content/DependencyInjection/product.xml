@@ -182,6 +182,12 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\Garan\GaranLabelOrderSubscriber">
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Garan\GaranLabelResolver"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\Garan\GaranLabelProductValidator">
             <tag name="kernel.event_subscriber"/>
         </service>

@@ -32,6 +32,27 @@ Alternatively, decouple your test runner from the platform by explicitly requiri
 
 <details>
 
+## Reorder form line item blocks removed
+
+`frontend.checkout.cart.reorder` resolves the reordered products from the order itself, so the reorder form no longer posts any `lineItems`. These two blocks in `storefront/page/account/order-history/order-item.html.twig` were emptied in 6.7 and are now removed:
+
+- `page_account_order_item_context_menu_reorder_form_line_items_input`
+- `page_account_order_item_context_menu_reorder_form_line_item_input`
+
+From 6.7 on an override still rendered but no longer changed what a reorder adds. To change what a reorder adds, listen to the `checkout.cart.collect-reorder-line-items` extension, which hands you the `OrderEntity` and the built `list<LineItem>`:
+
+```php
+public static function getSubscribedEvents(): array
+{
+    return [CheckoutCartCollectReorderLineItemsExtension::onPost() => 'addMyLineItems'];
+}
+
+public function addMyLineItems(CheckoutCartCollectReorderLineItemsExtension $extension): void
+{
+    $extension->result = [...($extension->result ?? []), $myLineItem];
+}
+```
+
 ## Document generation v2 is the default
 
 The `DOCUMENT_GENERATION_REWORK` feature flag now defaults to `true`. All Shopware-driven surfaces use document generation v2: the order documents section in the Administration, Flow Builder document actions, mail attachments, bulk edit, and the customer-facing download routes.
@@ -301,6 +322,14 @@ After a customer logs out, the storefront session now holds the context token th
 # API
 
 <details>
+
+## Product reviews require a rating
+
+`POST /store-api/product/{productId}/review` rejects a request without `points`, or with `"points": null`, with `400` and a `VIOLATION::IS_BLANK_ERROR` on `/points`. Before, such a review was saved without a rating. Headless frontends that let customers skip the rating have to send `points` between 1 and 5.
+
+The `product_review` entity marks `externalUser` and `points` as required and only accepts `points` from 1 to 5, so creating a review through the Admin API, the Sync API or a repository without them, or with `points` outside that range, fails. Integrations and imports that create reviews have to send both fields.
+
+The columns `product_review.external_user` and `product_review.points` become `NOT NULL` in the destructive migration step, so code of the previous version keeps working until then. That step fills `external_user` for existing reviews without an author, with the first name of the review's customer or an empty string for reviews without a customer, and sets `points` to `0` for existing reviews without a rating. `0` points now stands for a review without a rating: the rating average ignores these reviews, and integrations, apps and headless frontends that read `points` have to treat `0` the way they treated `null` before.
 
 ## Type-based number range preview Admin API removed
 
@@ -1753,20 +1782,6 @@ Plan to migrate all code to axios v1 as soon as possible.
 
 For detailed migration instructions, see the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
 The architectural rationale is documented in [Keep Administration HTTP transports behind a compatibility facade](adr/2026-07-23-administration-http-client-compatibility-facade.md).
-
-## Removal of "sw-empty-state"
-
-The old `sw-empty-state` component will be removed in the next major version.
-Please use the new `mt-empty-state` component instead.
-
-Before:
-```html
-<sw-empty-state title="short title" subline="longer subline" />
-```
-After:
-```html
-<mt-empty-state title="short title" description="longer description"/>
-```
 
 ## Removed empty state Twig block anchors
 

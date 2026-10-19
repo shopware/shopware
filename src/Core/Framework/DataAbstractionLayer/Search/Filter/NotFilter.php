@@ -2,30 +2,25 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
-use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
 class NotFilter extends MultiFilter
 {
     /**
-     * @param string|Filter $operator the connection operator of `$queries`, or the single filter to negate
      * @param array<Filter> $queries
      */
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'operator', newType: 'string|' . Filter::class, description: 'Accepts the single filter to negate, like NotFilter::negate().')]
     public function __construct(
-        string|Filter $operator,
+        string $operator,
         array $queries = []
     ) {
-        if (!$operator instanceof Filter) {
-            parent::__construct($operator, $queries);
+        parent::__construct($operator, $queries);
+    }
 
-            return;
-        }
-
-        if ($queries !== []) {
-            throw DataAbstractionLayerException::invalidFilterQuery('Additional queries cannot be passed when negating a single filter');
-        }
-
-        parent::__construct(self::CONNECTION_AND, [$operator]);
+    public static function negate(Filter $filter): self
+    {
+        return new self(self::CONNECTION_AND, [$filter]);
     }
 }

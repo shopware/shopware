@@ -446,7 +446,7 @@ With `v6.8.0.0`, `POST /store-api/product/{productId}/review` rejects a review w
 
 ### `NotFilter` negates a single filter
 
-`NotFilter` accepts a single filter instead of an operator and a list of queries, so `new NotFilter(new EqualsFilter('parentId', null))` replaces `new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('parentId', null)])`. Both create the same filter. The existing signature keeps working unchanged.
+`NotFilter::negate()` negates a single filter without an operator and a list of queries, so `NotFilter::negate(new EqualsFilter('parentId', null))` replaces `new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('parentId', null)])`. Both create the same filter. With `v6.8.0`, the `NotFilter` constructor accepts the single filter directly as well.
 
 ### Shared order restoration for Store API routes
 

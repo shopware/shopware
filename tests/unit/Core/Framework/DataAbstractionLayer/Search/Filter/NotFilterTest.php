@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Filter;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -32,21 +31,12 @@ class NotFilterTest extends TestCase
     {
         $equalsFilter = new EqualsFilter('product.active', true);
 
-        $filter = new NotFilter($equalsFilter);
+        $filter = NotFilter::negate($equalsFilter);
 
         static::assertSame(NotFilter::CONNECTION_AND, $filter->getOperator());
         static::assertSame([$equalsFilter], $filter->getQueries());
         static::assertSame(['product.active'], $filter->getFields());
         static::assertEquals(new NotFilter(NotFilter::CONNECTION_AND, [$equalsFilter]), $filter);
-    }
-
-    public function testRejectsQueriesNextToASingleFilter(): void
-    {
-        $this->expectExceptionObject(
-            DataAbstractionLayerException::invalidFilterQuery('Additional queries cannot be passed when negating a single filter')
-        );
-
-        new NotFilter(new EqualsFilter('product.active', true), [new EqualsFilter('product.stock', 0)]);
     }
 
     public function testRejectsAnInvalidOperator(): void

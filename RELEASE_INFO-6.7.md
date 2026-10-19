@@ -12,7 +12,7 @@ The command always exits with `0`, which makes it suitable for install hooks in 
 
 `NotFilter::negate()` negates a single filter without an operator and a list of queries, so `NotFilter::negate(new EqualsFilter('parentId', null))` replaces `new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('parentId', null)])`. Both create the same filter. With `v6.8.0`, the `NotFilter` constructor accepts the single filter directly as well.
 
-# 6.7.16.0 (upcoming)
+# 6.7.16.0
 
 ## Critical Fixes
 

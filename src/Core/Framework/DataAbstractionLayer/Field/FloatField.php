@@ -10,7 +10,9 @@ class FloatField extends Field implements StorageAware
 {
     public function __construct(
         private readonly string $storageName,
-        string $propertyName
+        string $propertyName,
+        private readonly ?float $minValue = null,
+        private readonly ?float $maxValue = null
     ) {
         parent::__construct($propertyName);
     }
@@ -18,6 +20,16 @@ class FloatField extends Field implements StorageAware
     public function getStorageName(): string
     {
         return $this->storageName;
+    }
+
+    public function getMinValue(): ?float
+    {
+        return $this->minValue;
+    }
+
+    public function getMaxValue(): ?float
+    {
+        return $this->maxValue;
     }
 
     protected function getSerializerClass(): string

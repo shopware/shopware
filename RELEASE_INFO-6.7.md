@@ -2,6 +2,20 @@
 
 ## Critical Fixes
 
+### Theme configuration updates reach all descendants
+
+Saving a base theme now updates inherited runtime configuration and recompiles assigned descendant themes at every inheritance level.
+Child and grandchild themes no longer require a separate save after changing their base theme, and descendant-specific overrides are preserved.
+Deactivating or uninstalling a base theme is also blocked while any descendant theme or theme copy is assigned to a sales channel.
+The error identifies the affected themes and sales channels; remove or replace those assignments before removing the base theme.
+
+### Content Security Policy for static HTML and SVG assets on Apache
+
+The Apache `.htaccess.dist` template now sends `script-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'` for existing `.html` files under `public/media` and `public/thumbnail`, and for SVG files.
+Application-rendered HTML and bundled HTML applications retain their existing behavior.
+Ensure your deployed `.htaccess` contains the updated Shopware section; installations without the Shopware update markers must merge it manually.
+Custom static documents must work without scripts, embedded documents, base URL overrides or form submissions; images and styles remain permitted.
+
 ### Sales channel contexts expose the default currency again
 
 `SalesChannelContext::getSalesChannel()->getCurrency()` returns the sales channel's default currency again, including when another currency is selected for the context. This restores the behavior before 6.7.15.0 for extensions that read the default currency. Use `SalesChannelContext::getCurrency()` for the currently selected currency.
@@ -12,7 +26,20 @@ Since 6.7.14.0, most line item conditions of the Rule Builder evaluated only lin
 
 The conditions now evaluate a line item by the data it carries instead of by its type, so line items of any type work with the built-in conditions again, with no change needed in extensions.
 
+### "Item with price/list price ratio" no longer matches line items without a list price
+
+Since 6.7.9.0, the Rule Builder condition "Item with price/list price ratio" treated line items without a list price as having a ratio of `0`.
+Conditions such as "Is less than 1" therefore also matched every line item without a list price,
+so promotions meant for reduced products applied to all products.
+
+Line items without a list price no longer have a ratio, so only the operators "Is not equal to" and "Is empty" match them.
+If you used "Is equal to 0" to target line items without a list price, use "Is empty" instead.
+
 ## Features
+
+### Digital products can use external file assignment
+
+In the Administration, digital products can be saved without uploaded files when file assignment is handled externally. When editing a product, the option is enabled by default if it has no downloads and disabled if it has downloads.
 
 ### System configuration tabs
 
@@ -404,6 +431,32 @@ The product detail page links the terms below the GARAN label, in the new block 
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
 
+### Telemetry updates
+
+- Default metrics prefix was changed from `io.opentelemetry.contrib.php.shopware` to `shopware.platform`.
+- `http.server.request.duration` now shows client-facing latency without post-response processing.
+- `cart.calculation.duration` records failed calculations (added `result=success|failed` label).
+- `Telemetry::instrument()` now collects duration metrics also for failed callbacks. 
+- Added support for lazy labels calculation in `DurationMetric` and `ConfiguredMetric` (see instrumentors for usage examples).
+- New methods `Telemetry::isMetricEnabled()` / `Meter::isEnabled()` saying if a metric would be emitted, so expensive calculations may be skipped for disabled metrics.
+- Metrics are flushed after all other terminate tasks.
+
+Metrics are still behind the feature flag `TELEMETRY_METRICS`.
+
+### Order recalculation keeps an open payment transaction in sync with the order total
+
+Recalculating an order, for example after editing it in the Administration, now moves the order's primary transaction to the new order total while the customer could still change the order's payment, so in the states of `OrderService::ALLOWED_TRANSACTION_STATES`: `open`, `cancelled`, `reminded`, `failed`, `chargeback` and `unconfirmed`. The transaction keeps its ID and state, and payment extensions reading `order_transaction.amount` of an order that isn't paid yet get the edited total instead of the amount the transaction was created with. Transactions in any other state keep their amount, also when the payment completes while the order is being edited.
+
+`OrderConverter::convertToCart()` now converts the order's transactions too, with the primary transaction first. With the new cart permission `CheckoutPermissions::KEEP_ORDER_TRANSACTION`, the cart processor keeps that transaction and moves it to the cart total instead of creating a new one, and `OrderConverter::convertToOrder()` writes it back as an update of its amount and payment method.
+
+### Product reviews will require an author and a rating
+
+With `v6.8.0.0`, `POST /store-api/product/{productId}/review` rejects a review without `points`, and the `product_review` entity marks `externalUser` and `points` as required and only accepts `points` from 1 to 5, so creating a review through the Admin API, the Sync API or a repository without them fails. The destructive migration step of the 6.8 update fills `product_review.external_user` for existing reviews without an author, with the first name of the review's customer or an empty string, sets `points` to `0` for existing reviews without a rating, and makes both columns `NOT NULL`. `0` points stands for a review without a rating: `product.ratingAverage` already ignores such reviews, like it ignores reviews without `points` today. Integrations, imports and headless frontends that create reviews should send both fields now, and those that read `points` should treat `0` like a missing rating; enable the `v6.8.0.0` feature flag to test it.
+
+### `FloatField` accepts a value range
+
+`FloatField` takes an optional `minValue` and `maxValue`, like `IntField`. A write with a value outside the range fails with a `WriteConstraintViolationException`.
+
 ### Shared order restoration for Store API routes
 
 `Shopware\Core\Checkout\Cart\Order\OrderRestorer::restore()` builds the sales channel context and cart of an existing order through `OrderConverter`, so its decorators and the context assembled events keep being invoked; `addRequiredAssociations()` adds the associations the order has to be loaded with. Read-only Store API routes opt in with the route default `_allowOrderRestoration`. For a request with an `orderId`, the restored objects are stored as `sw-effective-sales-channel-context`, `sw-effective-context` and `sw-effective-cart` and injected by the `SalesChannelContext`, `Context`, `Cart` and `Criteria` argument resolvers; the session attributes and `sw-context-token` stay untouched. A failing restoration answers `CHECKOUT__ORDER_RESTORATION_FAILED`.
@@ -553,7 +606,19 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 
 `/store-api/payment-method`, `/store-api/shipping-method` and `/store-api/checkout/gateway` accept an optional `orderId` (query or body). Combined with `onlyAvailable`, they evaluate availability for that order instead of the session: the order's currency, language, customer, addresses and stored rule IDs, without re-evaluating rules. The order must be loadable through `/store-api/order` for the logged-in customer or guest; unknown and foreign orders both answer `CHECKOUT__ORDER_ORDER_NOT_FOUND`. These responses are not cacheable. `POST /store-api/order/payment` validates on the same basis.
 
+### New Store API route to add the products of an order to the cart
+
+`POST /store-api/checkout/cart/reorder/{orderId}` adds an order's products to the cart, and the `checkout.cart.collect-reorder-line-items` extension lets you add or drop items before they reach the cart
+
 ## Administration
+
+### Import/export profile language tooltip deprecated
+
+The snippet key `sw-import-export.profile.addNewProfileTooltipLanguage` was deprecated and will be removed in 6.8.0 without replacement. Profiles can now be created in any content language, so extensions should remove references to this tooltip.
+
+### `sw-empty-state` stays available until 6.9
+
+The removal of the deprecated `sw-empty-state` component was moved from 6.8 to 6.9, so extensions using it keep working with 6.8. Development builds log a deprecation warning once per usage site, including the component path that renders it. Migrate to `mt-empty-state` before 6.9, see `UPGRADE-6.9.md`.
 
 ### Native setup components support defineModel()
 
@@ -570,6 +635,7 @@ swDefinePublic({ modelValue });
 The binding is ordinary base state: private unless listed in `swDefinePublic({ ... })`, and a write to it still emits, from the template, from a parent holding a template ref, and through an override that replaced it.
 
 `defineModel()` stays rejected in an override component, which declares neither props nor emits. Base components can use Vue's conventional binding names, including `const title = defineModel('title')` and `[modelValue, modelModifiers] = defineModel()`.
+
 ### [Internal] Native `<sw-block>` names are isolated per component
 
 Native `<sw-block>` blocks are now identified by `componentName + blockName`, matching how TwigJS identifies a `{% block %}`. Previously they matched on the block name alone, so a `<sw-block extends="foo">` or a legacy Twig override of `foo` could apply to a `<sw-block name="foo">` in an unrelated component. Blocks with the same name in different components are now isolated, and a `name` / `extends` pair only resolves against each other within the same component. No action is required from core or plugin developers.
@@ -884,6 +950,10 @@ The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced 
 ### Legal guarantee notice on the registration and other privacy notices
 
 `component/privacy-notice.html.twig` now shows the same legal guarantee notice paragraph and modal as the checkout confirmation, whenever `core.cart.showLegalGuaranteeNotice` is enabled and the form requires terms-of-service acceptance (for example the registration form), independent of the `core.loginRegistration.requireDataProtectionCheckbox` setting.
+
+### Reorder resolves its line items from the order
+
+The reorder form no longer posts `lineItems`, so its two hidden input blocks are empty and deprecated; add or drop reorder items with the `checkout.cart.collect-reorder-line-items` extension instead
 
 ### Savings percentage is based on the regulation price
 

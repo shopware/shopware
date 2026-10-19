@@ -11,6 +11,14 @@ export default [
         root: true,
         component: 'sw-desktop',
         redirect: '/sw/dashboard/index',
+        children: [
+            {
+                // Catch-all for unknown URLs, rendered inside `sw-desktop` to keep the main menu available
+                path: ':pathMatch(.*)*',
+                name: 'sw.not.found.index',
+                component: 'sw-not-found',
+            },
+        ],
     },
     {
         path: '/error',

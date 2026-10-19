@@ -8,17 +8,17 @@ way, and `tests/routing/` proves it.
 ## Run
 
 ```text
-mkdir -p .sw-review
+rm -rf .sw-review && mkdir -p .sw-review
 git show <merge-base>:.agents/skills/sw-review/scripts/classify.ts > .sw-review/classify.ts
 node .sw-review/classify.ts --range <merge-base>...HEAD --base trunk \
     --root <checkout root> [--meta '{"fork": false, ...}']
 ```
 
 - The script runs from a copy taken from the merge base (`.sw-review/` is
-  gitignored), never from the checked-out head, so a PR that edits
-  `classify.ts` cannot run its version in the reviewer's session. In CI the
-  workflow extracts it from the trusted commit the same way (see
-  `ci-profile.ts`).
+  gitignored and recreated first, so a planted symlink cannot redirect the
+  copy), never from the checked-out head, so a PR that edits `classify.ts`
+  cannot run its version in the reviewer's session. In CI the workflow
+  extracts it from the trusted commit the same way (see `ci-profile.ts`).
 - `--range`: the script runs `git diff` itself, so the orchestrator never passes
   the diff through the model. The changed-path list includes the old names of
   renamed files, so globs match both sides. Touched files are read from the

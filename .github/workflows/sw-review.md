@@ -78,6 +78,9 @@ steps:
     run: |
       set -euo pipefail
       scripts="${RUNNER_TEMP}/sw-review-scripts"
+      # Fresh folder: the checkout is the PR head and may carry a planted .sw-review; a symlink
+      # there would make the writes below land elsewhere (for example in the prompt file).
+      rm -rf .sw-review
       mkdir -p "$scripts" .sw-review
       git cat-file -e "${TRUSTED_REF}^{commit}" 2>/dev/null || git fetch --no-tags origin "$TRUSTED_REF"
       if ! git archive "$TRUSTED_REF" .agents/skills/sw-review/scripts | tar -x --strip-components=4 -C "$scripts"; then
@@ -88,6 +91,7 @@ steps:
 
 engine:
   id: claude
+  version: 2.1.303           # gh aw v0.89.21 defaults to 2.1.273, which rejects claude-opus-5-5 (needs 2.1.280+): the Opus personas below never ran
   model: claude-sonnet-5-5   # orchestrator/default; security & architecture personas escalate to opus below (COST.md strong tier)
   max-turns: 60              # bounds runaway loops; a gated multi-persona review completes well under this
   env:

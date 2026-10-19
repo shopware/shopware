@@ -21,7 +21,7 @@
  */
 
 import { execFileSync } from 'node:child_process';
-import { appendFileSync, mkdirSync, realpathSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { classify, collectRange, gitShowReader, loadRulesFromRef, type Meta, type Profile } from './classify.ts';
@@ -130,6 +130,12 @@ export function main(argv: string[], env: Env): number {
     const out = argv[0] ?? '.sw-review/profile.json';
     const root = process.cwd();
     mkdirSync(dirname(out), { recursive: true });
+    // The checkout is the PR head: never write through a path the PR may have planted there
+    // (a symlink at the output path). Remove whatever exists and create the file exclusively.
+    const write = (content: string): void => {
+        rmSync(out, { force: true, recursive: true });
+        writeFileSync(out, content, { flag: 'wx' });
+    };
 
     const summary = (text: string): void => {
         if (env.GITHUB_STEP_SUMMARY) {
@@ -137,16 +143,20 @@ export function main(argv: string[], env: Env): number {
         }
     };
     const unavailable = (reason: string): number => {
-        writeFileSync(out, `${JSON.stringify({ available: false, reason })}\n`);
+        write(`${JSON.stringify({ available: false, reason })}\n`);
         console.log(`sw-review profile: unavailable (${reason})`);
         summary(`### sw-review change profile\n\nunavailable: ${reason}\n`);
 
         return 0;
     };
 
+    // An API error body ({"message": "Not Found"}) is valid JSON too: check the shape.
     let pr: PullRequest;
     try {
         pr = ghJson<PullRequest>(['api', `repos/${repo}/pulls/${prNumber}`]);
+        if (typeof pr?.base?.ref !== 'string' || typeof pr.base.repo?.full_name !== 'string') {
+            throw new Error('not a pull request object');
+        }
     } catch {
         return unavailable(`could not read PR #${prNumber}`);
     }
@@ -181,7 +191,7 @@ export function main(argv: string[], env: Env): number {
     }
 
     const result: CiProfile = { ...profile, ci: ciState(checks) };
-    writeFileSync(out, `${JSON.stringify(result, null, 2)}\n`);
+    write(`${JSON.stringify(result, null, 2)}\n`);
     summary(stepSummary(result, base, mergeBase, trustedRef));
     console.log(`sw-review profile written to ${out} (${result.guides.length} guides, scripts and rules from ${trustedRef})`);
 

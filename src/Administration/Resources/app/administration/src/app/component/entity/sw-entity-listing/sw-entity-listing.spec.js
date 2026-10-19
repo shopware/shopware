@@ -9,24 +9,8 @@ import { allowDeprecation, deprecations } from 'test/_helper_/deprecations';
 
 const itemsDeprecation = 'The prop "items" of the component';
 
-async function createWrapper(propsData = {}, options = {}) {
-    // mock entity functions
-    const items = [
-        { name: 'Apple' },
-        { name: 'Shopware' },
-        { name: 'Google' },
-        { name: 'Microsoft' },
-    ];
-    items.total = 4;
-    items.criteria = {
-        page: null,
-        limit: null,
-    };
-
-    // Suppress console warnings by default unless explicitly testing them
-    const consoleWarnSpy = options.suppressWarnings !== false ? jest.spyOn(console, 'warn').mockImplementation() : null;
-
-    const wrapper = mount(await wrapTestComponent('sw-entity-listing', { sync: true }), {
+async function createWrapper(propsData = {}) {
+    return mount(await wrapTestComponent('sw-entity-listing', { sync: true }), {
         props: {
             columns: [{ property: 'name', label: 'Name' }],
             dataSource: new EntityCollection(null, null, null, new Criteria(1, 25), [
@@ -60,12 +44,6 @@ async function createWrapper(propsData = {}, options = {}) {
             },
         },
     });
-
-    if (consoleWarnSpy) {
-        consoleWarnSpy.mockRestore();
-    }
-
-    return wrapper;
 }
 
 describe('src/app/component/entity/sw-entity-listing', () => {

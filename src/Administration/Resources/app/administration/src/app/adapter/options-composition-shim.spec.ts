@@ -1840,7 +1840,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('setupWatchers() — dot-notation paths:', () => {
         it('should warn and skip dot-notation watch keys', async () => {
-            // Use a single spy that covers all console.warn calls to avoid nested-spy issues.
             const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
             const watchCallback = jest.fn();
 
@@ -2553,8 +2552,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             mount(originalComponent);
 
-            // convertWithSilencedWarning internally calls spy.mockRestore(), so our consoleWarn spy
-            // must be set up AFTER the call to avoid it being restored before the hook warning fires.
             const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 beforeUnmount() {},
                 methods: { noop() {} },

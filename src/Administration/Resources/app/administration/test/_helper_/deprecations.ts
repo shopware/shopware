@@ -3,7 +3,6 @@
  * @private
  */
 
-import path from 'path';
 import { getDefaultActiveFeatureFlags } from './defaultActiveFeatureFlags';
 import normalizeFeatureFlag from './normalizeFeatureFlag';
 
@@ -21,16 +20,11 @@ type Expected = string | RegExp;
  *
  * @private
  * @example
- * { message: 'oldFunction() is deprecated.', error: new Error(), asserted: false }
+ * { message: 'oldFunction() is deprecated.', asserted: false }
  */
 export type RecordedDeprecation = {
     /** The guard's message, with component names as the running Administration shows them. */
     message: string;
-    /**
-     * Where the guard was called, so a failure points at the line that used the deprecated API. Its stack is read
-     * only for the failure report, because formatting a stack is expensive and most entries never fail the test.
-     */
-    error: Error;
     /** A passing `toHaveTriggered()` matched it. */
     asserted: boolean;
 };
@@ -176,7 +170,7 @@ export function shouldHandleDeprecationsThroughMock(
  * recordDeprecation('oldFunction() is deprecated.');
  */
 export function recordDeprecation(message: string): void {
-    deprecations.entries.push({ message: withoutWrappedSuffix(message), error: new Error(), asserted: false });
+    deprecations.entries.push({ message: withoutWrappedSuffix(message), asserted: false });
 }
 
 /**
@@ -203,44 +197,9 @@ export function startDeprecationLog(): void {
     deprecations.isRecording = true;
 }
 
-/** The Administration directory; failure reports show paths relative to it. */
-const adminPath = path.resolve(__dirname, '../..');
-
-/** The repository root, so usages in the Storefront administration count as well. */
-const repositoryRoot = path.resolve(adminPath, '../../../../..');
-
-/**
- * @returns the call stack within the repository (filtering out noise: node_modules and helper functions that will be there always)
- *
- * @example
- * usageFrames(entry.error); // ['    at oldFunction (/…/oldFunction.ts:13:13)', '    at … (/…/my.spec.ts:10:20)']
- */
-function usageFrames(error: Error): string[] {
-    return (error.stack ?? '')
-        .split('\n')
-        .filter((line) => /^\s+at /.test(line) && line.includes(repositoryRoot))
-        .filter((line) => !/node_modules|_helper_\/deprecations\.ts|feature\.service\.mock\.js/.test(line));
-}
-
-/**
- * The `file:line:column` of a stack frame, relative to the Administration directory, for the failure report.
- *
- * @private
- * @example
- * location('    at oldFunction (/<admin>/test/oldFunction.ts:13:13)'); // 'test/oldFunction.ts:13:13'
- * location('    at /<admin>/test/oldFunction.ts:13:13'); // 'test/oldFunction.ts:13:13'
- */
-export function location(frame: string): string {
-    const [, inParentheses, bare] = /\((.+:\d+:\d+)\)$|^\s*at (.+:\d+:\d+)$/.exec(frame) ?? [];
-    const file = inParentheses ?? bare;
-
-    return file ? path.relative(adminPath, file) : frame.trim();
-}
-
 /**
  * Ends the log of the current test and clears it with its allowances, then throws one error listing every
- * deprecation that fails the test, each with the frames that lead to its usage. The Jest setup calls it after
- * each test.
+ * deprecation that fails the test. The Jest setup calls it after each test.
  *
  * @private
  * @example
@@ -261,16 +220,10 @@ export function endDeprecationLog(): void {
     const message = [
         'The test ran into deprecations it did not assert. Fix each usage, or assert it with',
         '`expect(deprecations).toHaveTriggered(message)` from `test/_helper_/deprecations`.',
-        ...failing.map(({ message: deprecation, error: usage }, index) =>
-            [`\n${index + 1}. ${deprecation}`, ...usageFrames(usage).map((frame) => `   ↳ ${location(frame)}`)].join('\n'),
-        ),
+        ...failing.map(({ message: deprecation }, index) => `\n${index + 1}. ${deprecation}`),
     ].join('\n');
-    const error = new Error(message);
 
-    // Jest prints a code frame from the stack, so it shows the first deprecation instead of this hook.
-    error.stack = [`Error: ${message}`, ...usageFrames(failing[0].error)].join('\n');
-
-    throw error;
+    throw new Error(message);
 }
 
 /**

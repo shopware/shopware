@@ -6,16 +6,6 @@ import { deprecations, startDeprecationLog } from '../deprecations';
 import oldFunction from '../_fixtures/deprecations/oldFunction';
 import { failureOfEndDeprecationLog, oldFunctionMessage, triggerOtherDeprecation } from './deprecations-test-setup';
 
-/**
- * `report` with every `:line:column` replaced, so the assertion survives edits that move code.
- *
- * @example
- * withoutLineNumbers('↳ test/oldFunction.ts:13:13'); // '↳ test/oldFunction.ts:<line>:<col>'
- */
-function withoutLineNumbers(report: string): string {
-    return report.replace(/:\d+:\d+/g, ':<line>:<col>');
-}
-
 describe('test/_helper_/deprecations - endDeprecationLog', () => {
     it('passes when the test asserted every deprecation', () => {
         oldFunction();
@@ -24,22 +14,18 @@ describe('test/_helper_/deprecations - endDeprecationLog', () => {
         expect(failureOfEndDeprecationLog()).toBe('');
     });
 
-    it('lists each unasserted deprecation with the lines that led to it', () => {
+    it('lists each unasserted deprecation', () => {
         oldFunction();
         triggerOtherDeprecation();
 
-        expect(withoutLineNumbers(failureOfEndDeprecationLog())).toBe(
+        expect(failureOfEndDeprecationLog()).toBe(
             [
                 'The test ran into deprecations it did not assert. Fix each usage, or assert it with',
                 '`expect(deprecations).toHaveTriggered(message)` from `test/_helper_/deprecations`.',
                 '',
                 '1. oldFunction() is deprecated.',
-                '   ↳ test/_helper_/_fixtures/deprecations/oldFunction.ts:<line>:<col>',
-                '   ↳ test/_helper_/deprecations.spec/end-deprecation-log.spec.ts:<line>:<col>',
                 '',
                 '2. otherFunction() is deprecated.',
-                '   ↳ test/_helper_/deprecations.spec/deprecations-test-setup.ts:<line>:<col>',
-                '   ↳ test/_helper_/deprecations.spec/end-deprecation-log.spec.ts:<line>:<col>',
             ].join('\n'),
         );
     });

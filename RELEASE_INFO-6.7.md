@@ -640,8 +640,12 @@ The snippet key `sw-import-export.profile.addNewProfileTooltipLanguage` was depr
 
 The removal of the deprecated `sw-empty-state` component was moved from 6.8 to 6.9, so extensions using it keep working with 6.8. Development builds log a deprecation warning once per usage site, including the component path that renders it. Migrate to `mt-empty-state` before 6.9, see `UPGRADE-6.9.md`.
 
-The new ESLint rule `sw-deprecation-rules/no-sw-empty-state-usage` migrates most usages automatically.
-Run it with `composer run admin:code-mods -- --fix --plugin-name <PluginName>` or `composer admin:check-extensions -- --fix`.
+The new ESLint rule `sw-deprecation-rules/no-sw-empty-state-usage` of the Administration extension tooling migrates most usages automatically:
+
+```bash
+bin/console administration:check-extensions -- --only=MyPlugin --fix
+```
+
 Usages with custom `icon` slot content or markup in the default slot are reported for manual migration.
 Review the `TODO Codemod` comments it adds to the converted templates.
 

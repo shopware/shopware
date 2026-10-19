@@ -521,6 +521,10 @@ Operators can configure the transition threshold and trial cooldowns through `sh
 
 Apps can inspect and reactivate their webhooks through `GET /api/app-system/webhook/state` and `POST /api/app-system/webhook/reactivate`. They can also subscribe to `webhook.health.activated`, `webhook.health.degraded`, `webhook.health.suspended`, and `webhook.health.disabled`. Admin users can inspect the health tick through `GET /api/_action/webhook/health-status` and disable a webhook through `POST /api/_action/webhook/{webhookId}/deactivate`.
 
+### Deprecated legacy webhook failure state
+
+`WebhookEntity::$active` and `$errorCount` and their accessors, `RetryWebhookMessageFailedSubscriber::failed()`, and `WebhookHealthService::recordLegacyFailure()` and `resetErrorCount()` are deprecated for removal in 6.8. Extensions should read `endpointState` from `GET /api/app-system/webhook/state` instead of the legacy fields.
+
 ## API
 
 ### MCP tool results carry `structuredContent` and `isError`

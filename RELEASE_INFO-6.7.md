@@ -10,6 +10,12 @@ The owner is recorded from the session and cannot be set through the API. Deleti
 
 Existing app-less webhooks have no recorded creator, so the update creates an admin integration labelled "Legacy webhooks" and assigns them to it. They keep receiving every event they subscribe to. Audit these webhooks after updating: recreate any that should run with narrower privileges as the user or integration it belongs to. Deleting the "Legacy webhooks" integration also deletes the webhooks assigned to it.
 
+### Webhooks belonging to an app can no longer be changed through the API
+
+Webhooks that belong to an app (`app_id` is set) are managed through the app's manifest. Requests that update or delete them through the Admin API or Sync API are rejected with a `400` and `FRAMEWORK__APP_WEBHOOK_NOT_MODIFIABLE`, whatever privileges the caller holds. Apps continue to add, change and remove their own webhooks through their manifest when they are installed or updated.
+
+Webhooks can also no longer be cloned through `POST /api/_action/clone/webhook/{id}`: the request is rejected with a `403` and `FRAMEWORK__CLONE_PROTECTED`. A clone kept the original's app, so it could deliver an app's events to another url.
+
 ### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
 
 The new `bin/console sales-channel:file:enable [ids...] [--all]` command switches on `llms.txt` and `AGENTS.md` for Storefront and Headless sales channels.

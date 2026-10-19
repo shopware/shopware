@@ -20,13 +20,16 @@ type Expected = string | RegExp;
  *
  * @private
  * @example
- * { message: 'oldFunction() is deprecated.', stack: 'Error\n    at …', asserted: false }
+ * { message: 'oldFunction() is deprecated.', error: new Error(), asserted: false }
  */
 export type RecordedDeprecation = {
     /** The guard's message, with component names as the running Administration shows them. */
     message: string;
-    /** Where the guard was called, so a failure points at the line that used the deprecated API. */
-    stack: string;
+    /**
+     * Where the guard was called, so a failure points at the line that used the deprecated API. Its stack is read
+     * only for the failure report, because formatting a stack is expensive and most entries never fail the test.
+     */
+    error: Error;
     /** A passing `toHaveTriggered()` matched it. */
     asserted: boolean;
 };
@@ -148,7 +151,7 @@ export function shouldHandleDeprecationsThroughMock(majorFlag: string, isMajorAc
  * recordDeprecation('oldFunction() is deprecated.');
  */
 export function recordDeprecation(message: string): void {
-    deprecations.entries.push({ message: withoutWrappedSuffix(message), stack: new Error().stack ?? '', asserted: false });
+    deprecations.entries.push({ message: withoutWrappedSuffix(message), error: new Error(), asserted: false });
 }
 
 /**
@@ -178,10 +181,10 @@ export function startDeprecationLog(): void {
  * @returns the call stack within the project (filtering out noise: node_modules and helper functions that will be there always)
  *
  * @example
- * usageFrames(entry.stack); // ['    at oldFunction (/…/oldFunction.ts:13:13)', '    at … (/…/my.spec.ts:10:20)']
+ * usageFrames(entry.error); // ['    at oldFunction (/…/oldFunction.ts:13:13)', '    at … (/…/my.spec.ts:10:20)']
  */
-function usageFrames(stack: string): string[] {
-    return stack
+function usageFrames(error: Error): string[] {
+    return (error.stack ?? '')
         .split('\n')
         .filter((line) => /^\s+at /.test(line) && line.includes(process.cwd()))
         .filter((line) => !/node_modules|_helper_\/deprecations\.ts|feature\.service\.mock\.js/.test(line));
@@ -220,14 +223,14 @@ export function endDeprecationLog(): void {
     const message = [
         'The test ran into deprecations it did not assert. Fix each usage, or assert it with',
         '`expect(deprecations).toHaveTriggered(message)` from `test/_helper_/deprecations`.',
-        ...failing.map(({ message: deprecation, stack }, index) =>
-            [`\n${index + 1}. ${deprecation}`, ...usageFrames(stack).map((frame) => `   ↳ ${location(frame)}`)].join('\n'),
+        ...failing.map(({ message: deprecation, error: usage }, index) =>
+            [`\n${index + 1}. ${deprecation}`, ...usageFrames(usage).map((frame) => `   ↳ ${location(frame)}`)].join('\n'),
         ),
     ].join('\n');
     const error = new Error(message);
 
     // Jest prints a code frame from the stack, so it shows the first deprecation instead of this hook.
-    error.stack = [`Error: ${message}`, ...usageFrames(failing[0].stack)].join('\n');
+    error.stack = [`Error: ${message}`, ...usageFrames(failing[0].error)].join('\n');
 
     throw error;
 }
@@ -235,6 +238,7 @@ export function endDeprecationLog(): void {
 /**
  * `expect(deprecations).toHaveTriggered(expected)`: passes when a deprecation of the current test matches
  * `expected`, and marks every matching one as asserted. Like `toThrow`, a string matches part of the message.
+ * A broad string asserts every matching deprecation.
  * Registered in `test/_setup/jest-extensions.ts`.
  *
  * @private

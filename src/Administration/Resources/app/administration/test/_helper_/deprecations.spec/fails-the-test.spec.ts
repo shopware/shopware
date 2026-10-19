@@ -6,7 +6,7 @@ import { failsTheTest, type RecordedDeprecation } from '../deprecations';
 import { oldFunctionMessage } from './deprecations-test-setup';
 
 describe('test/_helper_/deprecations - failsTheTest', () => {
-    const recorded: RecordedDeprecation = { message: oldFunctionMessage, stack: '', asserted: false };
+    const recorded: RecordedDeprecation = { message: oldFunctionMessage, error: new Error(), asserted: false };
 
     it('fails for one neither asserted nor allowed', () => {
         expect(failsTheTest(recorded, [])).toBe(true);

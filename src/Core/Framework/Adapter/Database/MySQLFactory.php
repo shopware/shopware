@@ -55,40 +55,7 @@ class MySQLFactory
             $parameters['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] = false;
         }
 
-        $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_0_URL');
-        if ($replicaUrl !== '') {
-            if (!isset($parameters['wrapperClass'])) {
-                $parameters['wrapperClass'] = PrimaryReadReplicaConnection::class;
-            }
-
-            // Keep the replica connection distinct from the primary one, so
-            // ReplicaConnectionResetter can switch back to the replica between
-            // requests. Without this option DBAL aliases the replica to the
-            // primary once the primary was used, which pins long running
-            // workers to the primary for their whole lifetime.
-            // See https://symfony.com/doc/current/doctrine/dbal.html#using-primary-replica-connections-read-replicas
-            if (!\array_key_exists('keepReplica', $parameters)) {
-                $parameters['keepReplica'] = true;
-            } else {
-                $parameters['keepReplica'] = (bool) self::castValue($parameters['keepReplica']);
-            }
-
-            $parameters['primary'] = $parameters;
-            unset($parameters['primary']['wrapperClass'], $parameters['primary']['primary'], $parameters['primary']['replica'], $parameters['primary']['keepReplica']);
-
-            $parameters['replica'] = [];
-            $dsnParser = new DsnParser(['mysql' => 'pdo_mysql']);
-
-            for ($i = 0; $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_' . $i . '_URL'); ++$i) {
-                $replicaParams = self::parseDsn($dsnParser, $replicaUrl);
-                unset($replicaParams['primary'], $replicaParams['replica'], $replicaParams['keepReplica']);
-
-                $parameters['replica'][$i] = array_merge([
-                    'charset' => $parameters['charset'],
-                ], $replicaParams);
-                $parameters['replica'][$i]['driverOptions'] = $parameters['driverOptions'] + ($replicaParams['driverOptions'] ?? []);
-            }
-        }
+        $parameters = self::addReplicaParameters($parameters);
 
         return DriverManager::getConnection($parameters, $config);
     }
@@ -161,6 +128,53 @@ class MySQLFactory
 
         if (EnvironmentHelper::getVariable('DATABASE_PROTOCOL_COMPRESSION')) {
             $parameters['driverOptions'][Mysql::ATTR_COMPRESS] = true;
+        }
+
+        return $parameters;
+    }
+
+    /**
+     * Only application connections use replicas; migrations must immediately read their own writes and schema changes on the primary.
+     *
+     * @param Params&array{charset: string, driverOptions: array<mixed>, ...} $parameters
+     *
+     * @return Params
+     */
+    private static function addReplicaParameters(array $parameters): array
+    {
+        $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_0_URL');
+        if ($replicaUrl !== '') {
+            if (!isset($parameters['wrapperClass'])) {
+                $parameters['wrapperClass'] = PrimaryReadReplicaConnection::class;
+            }
+
+            // Keep the replica connection distinct from the primary one, so
+            // ReplicaConnectionResetter can switch back to the replica between
+            // requests. Without this option DBAL aliases the replica to the
+            // primary once the primary was used, which pins long running
+            // workers to the primary for their whole lifetime.
+            // See https://symfony.com/doc/current/doctrine/dbal.html#using-primary-replica-connections-read-replicas
+            if (!\array_key_exists('keepReplica', $parameters)) {
+                $parameters['keepReplica'] = true;
+            } else {
+                $parameters['keepReplica'] = (bool) self::castValue($parameters['keepReplica']);
+            }
+
+            $parameters['primary'] = $parameters;
+            unset($parameters['primary']['wrapperClass'], $parameters['primary']['primary'], $parameters['primary']['replica'], $parameters['primary']['keepReplica']);
+
+            $parameters['replica'] = [];
+            $dsnParser = new DsnParser(['mysql' => 'pdo_mysql']);
+
+            for ($i = 0; $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_' . $i . '_URL'); ++$i) {
+                $replicaParams = self::parseDsn($dsnParser, $replicaUrl);
+                unset($replicaParams['primary'], $replicaParams['replica'], $replicaParams['keepReplica']);
+
+                $parameters['replica'][$i] = array_merge([
+                    'charset' => $parameters['charset'],
+                ], $replicaParams);
+                $parameters['replica'][$i]['driverOptions'] = $parameters['driverOptions'] + ($replicaParams['driverOptions'] ?? []);
+            }
         }
 
         return $parameters;

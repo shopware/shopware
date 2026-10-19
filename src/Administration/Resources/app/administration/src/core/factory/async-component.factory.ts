@@ -753,7 +753,8 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
         );
 
         const standardOverrideConfigs: AwaitedComponentConfig[] = resolvedEntries.map(
-            (resolvedConfig) => () => Promise.resolve(copyOverrideConfig(resolvedConfig)),
+            (resolvedConfig) => () =>
+                Promise.resolve(typeof resolvedConfig === 'boolean' ? resolvedConfig : copyOverrideConfig(resolvedConfig)),
         );
 
         // Continue with standard Options API overrides

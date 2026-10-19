@@ -88,4 +88,28 @@ class McpAllowlistTest extends TestCase
             [],
         ];
     }
+
+    /**
+     * @param array<mixed> $payload
+     */
+    #[DataProvider('payloadProvider')]
+    public function testIsValidPayload(array $payload, bool $expected): void
+    {
+        static::assertSame($expected, McpAllowlist::isValidPayload($payload));
+    }
+
+    /**
+     * @return iterable<string, array{array<mixed>, bool}>
+     */
+    public static function payloadProvider(): iterable
+    {
+        yield 'every type as a list' => [['tools' => ['shopware-entity-read'], 'resources' => ['shopware://entities'], 'prompts' => []], true];
+        yield 'a subset of the types' => [['tools' => ['shopware-entity-read']], true];
+        yield 'null per type' => [['tools' => null, 'resources' => null, 'prompts' => null], true];
+        yield 'empty payload' => [[], true];
+        yield 'unknown key' => [['tools' => null, 'unknownKey' => 'value'], false];
+        yield 'string instead of a list' => [['prompts' => 'not-valid'], false];
+        yield 'object instead of a list' => [['tools' => ['x' => 'shopware-entity-delete']], false];
+        yield 'non-string names' => [['tools' => [1, 2, 3]], false];
+    }
 }

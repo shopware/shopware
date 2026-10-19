@@ -1,3 +1,11 @@
+# 6.7.17.0 (upcoming)
+
+## Core
+
+### `NotFilter` negates a single filter
+
+`NotFilter::negate()` negates a single filter without an operator and a list of queries, so `NotFilter::negate(new EqualsFilter('parentId', null))` replaces `new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('parentId', null)])`. Both create the same filter. With `v6.8.0`, the `NotFilter` constructor accepts the single filter directly as well.
+
 # 6.7.16.0 (upcoming)
 
 ## Critical Fixes
@@ -443,10 +451,6 @@ With `v6.8.0.0`, `POST /store-api/product/{productId}/review` rejects a review w
 ### `FloatField` accepts a value range
 
 `FloatField` takes an optional `minValue` and `maxValue`, like `IntField`. A write with a value outside the range fails with a `WriteConstraintViolationException`.
-
-### `NotFilter` negates a single filter
-
-`NotFilter::negate()` negates a single filter without an operator and a list of queries, so `NotFilter::negate(new EqualsFilter('parentId', null))` replaces `new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('parentId', null)])`. Both create the same filter. With `v6.8.0`, the `NotFilter` constructor accepts the single filter directly as well.
 
 ### Shared order restoration for Store API routes
 

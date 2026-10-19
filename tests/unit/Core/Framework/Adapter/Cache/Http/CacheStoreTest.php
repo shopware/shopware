@@ -31,6 +31,44 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 #[CoversClass(CacheStore::class)]
 class CacheStoreTest extends TestCase
 {
+    /**
+     * Environment variables written by system:setup and the credential-bearing DSNs and URLs Shopware reads.
+     * The refresh message is persisted by the message queue transport, so none of them may end up in it.
+     */
+    private const SHOPWARE_ENVIRONMENT_VARIABLES = [
+        'ADMIN_OPENSEARCH_URL',
+        'APP_ENV',
+        'APP_SECRET',
+        'APP_URL',
+        'BLUE_GREEN_DEPLOYMENT',
+        'COMPOSER_HOME',
+        'DATABASE_REPLICA_0_URL',
+        'DATABASE_SSL_CA',
+        'DATABASE_SSL_CERT',
+        'DATABASE_SSL_DONT_VERIFY_SERVER_CERT',
+        'DATABASE_SSL_KEY',
+        'DATABASE_URL',
+        'INSTANCE_ID',
+        'LOCK_DSN',
+        'MAILER_DSN',
+        'MESSENGER_TRANSPORT_DSN',
+        'MESSENGER_TRANSPORT_FAILURE_DSN',
+        'MESSENGER_TRANSPORT_LOW_PRIORITY_DSN',
+        'OPENSEARCH_URL',
+        'PRODUCT_ANALYTICS_GATEWAY_URL',
+        'SERVICE_REGISTRY_URL',
+        'SHOPWARE_ADMIN_ES_ENABLED',
+        'SHOPWARE_ADMIN_ES_INDEX_PREFIX',
+        'SHOPWARE_ADMIN_ES_REFRESH_INDICES',
+        'SHOPWARE_CACHE_ID',
+        'SHOPWARE_CDN_STRATEGY_DEFAULT',
+        'SHOPWARE_ES_ENABLED',
+        'SHOPWARE_ES_INDEX_PREFIX',
+        'SHOPWARE_ES_INDEXING_ENABLED',
+        'SHOPWARE_HTTP_CACHE_ENABLED',
+        'SHOPWARE_HTTP_DEFAULT_TTL',
+    ];
+
     public function testGetLock(): void
     {
         $request = new Request();
@@ -359,6 +397,7 @@ class CacheStoreTest extends TestCase
 
     public function testLookupWithSoftPurgeAndStaleCache(): void
     {
+        $leakedValue = 'leaked-environment-value';
         $request = new Request(server: [
             'HTTP_HOST' => 'shop.example',
             'HTTP_X_FORWARDED_PROTO' => 'https',
@@ -366,8 +405,7 @@ class CacheStoreTest extends TestCase
             'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '/index.php',
             'REMOTE_ADDR' => '10.0.0.1',
-            'DATABASE_URL' => 'mysql://user:secret@database/shopware',
-            'APP_SECRET' => 'secret',
+            ...array_fill_keys(self::SHOPWARE_ENVIRONMENT_VARIABLES, $leakedValue),
         ]);
         $response = new Response();
         $response->headers->set('date', date('Y-m-d H:i:s', time() - 3600)); // 1 hour ago
@@ -426,6 +464,7 @@ class CacheStoreTest extends TestCase
             'SCRIPT_NAME' => '/index.php',
             'REMOTE_ADDR' => '10.0.0.1',
         ], $message->server);
+        static::assertStringNotContainsString($leakedValue, serialize($message));
     }
 
     #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]

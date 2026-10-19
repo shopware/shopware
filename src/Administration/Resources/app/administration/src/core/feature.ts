@@ -25,10 +25,11 @@ export const UNREGISTERED_UPCOMING_MAJORS = ['V6_9_0_0'];
  */
 export type DeprecationOptions = {
     /**
-     * `'author'`: the template that renders the deprecated component or passes the deprecated prop, not the code
-     * running the guard. Only the deprecation plugin passes it.
+     * `'usage'` (default): the code that uses the deprecated API, i.e. the code running the guard.
+     * `'author'`: the template that renders the deprecated component or passes the deprecated prop. Only the
+     * deprecation plugin passes it.
      */
-    _blame?: 'author';
+    _blame?: 'author' | 'usage';
 };
 
 /**

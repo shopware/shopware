@@ -38,7 +38,7 @@ class RecordOwnerSubscriber implements EventSubscriberInterface
 
         $source = $event->getContext()->getSource();
         $integrationId = $source instanceof AdminApiSource ? $source->getIntegrationId() : null;
-        $ownerId = $source instanceof AdminApiSource ? $integrationId ?? $source->getUserId() : null;
+        $ownerId = $source instanceof AdminApiSource ? Ownership::ownerIdOf($source) : null;
         $column = $integrationId !== null ? 'owner_integration_id' : 'owner_user_id';
 
         foreach ($inserts as $insert) {

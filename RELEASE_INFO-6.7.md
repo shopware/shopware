@@ -16,6 +16,10 @@ Webhooks that belong to an app (`app_id` is set) are managed through the app's m
 
 Webhooks can also no longer be cloned through `POST /api/_action/clone/webhook/{id}`: the request is rejected with a `403` and `FRAMEWORK__CLONE_PROTECTED`. A clone kept the original's app, so it could deliver an app's events to another url.
 
+### Webhooks without an app can only be changed by their owner
+
+A webhook without an app can only be updated or deleted through the API by the user or integration that created it. Requests from anyone else are rejected with a `400` and `FRAMEWORK__WEBHOOK_NOT_OWNED`, regardless of the `webhook:update` and `webhook:delete` privileges they hold. Administrators are not restricted.
+
 ### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
 
 The new `bin/console sales-channel:file:enable [ids...] [--all]` command switches on `llms.txt` and `AGENTS.md` for Storefront and Headless sales channels.

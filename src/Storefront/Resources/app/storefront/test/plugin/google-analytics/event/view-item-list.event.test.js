@@ -87,6 +87,34 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
         }));
     });
 
+    // GA4 shows which products a query found
+    test('reports the search term of the search result', () => {
+        document.body.innerHTML = `
+            <div class="cms-element-product-listing-wrapper" data-list-id="search" data-list-name="Search results" data-list-search-term="guitar">
+                <div class="product-box" data-product-information='{ "id": "1", "name": "Guitar", "price": 200, "sku": "SW10000" }'></div>
+            </div>
+        `;
+
+        new ViewItemListEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', expect.objectContaining({
+            'item_list_id': 'search',
+            'search_term': 'guitar',
+        }));
+    });
+
+    test('reports no search term for a list without one', () => {
+        document.body.innerHTML = `
+            <div class="cms-element-product-listing-wrapper" data-list-id="category:1" data-list-name="Shirts">
+                <div class="product-box" data-product-information='{ "id": "1", "name": "Shirt", "price": 20, "sku": "SW10000" }'></div>
+            </div>
+        `;
+
+        new ViewItemListEvent().execute();
+
+        expect(window.gtag.mock.calls[0][2]).not.toHaveProperty('search_term');
+    });
+
     // a page can render a listing and a slider, whose products belong to their own list
     test('reports only the products of the listing', () => {
         document.body.innerHTML = `

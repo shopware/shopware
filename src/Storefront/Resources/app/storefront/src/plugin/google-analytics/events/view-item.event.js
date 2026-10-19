@@ -48,11 +48,13 @@ export default class ViewItemEvent extends AnalyticsEvent
         }
 
         // the list the product was selected from, so both events describe one journey
-        const list = ListAttributionHelper.consume(productId, this._getProductIds());
+        const { search_term: searchTerm, ...list } = ListAttributionHelper.consume(productId, this._getProductIds());
 
         this.pushEvent('view_item', {
             'currency': productData.currency,
             'value': productData.value,
+            // the query that found the product is an event parameter, like on the search list events
+            ...(searchTerm ? { search_term: searchTerm } : {}),
             'items': [{
                 'item_id': productId,
                 'item_name': productName,

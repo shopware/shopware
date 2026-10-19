@@ -25,10 +25,11 @@
 } %}
 
 {% block product_listing %}
-    {# identifies the list for analytics, reported as the GA4 `item_list_id` and `item_list_name` #}
+    {# identifies the list for analytics, reported as the GA4 `item_list_id`, `item_list_name` and, for the search, `search_term` #}
     <div class="cms-element-product-listing-wrapper"
          {% if analyticsActive and listId|default(null) %}data-list-id="{{ listId }}"{% endif %}
          {% if analyticsActive and listName|default(null) %}data-list-name="{{ listName }}"{% endif %}
+         {% if analyticsActive and listSearchTerm|default(null) %}data-list-search-term="{{ listSearchTerm }}"{% endif %}
          data-listing-pagination="true"
          data-listing-pagination-options="{{ paginationConfig|json_encode }}"
          data-listing="true"

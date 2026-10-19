@@ -76,6 +76,11 @@ warn('sw-popover', 'The "resizeWidth" prop is deprecated.');
             errors: [{ messageId: 'manualNotice' }],
         },
         {
+            name: 'a deprecation label before an opaque message',
+            code: "function notify(message) { const { warn } = Shopware.Utils.debug; warn('Deprecation', message); }",
+            errors: [{ messageId: 'manualNotice' }],
+        },
+        {
             name: 'the notice assembled by concatenation',
             code: `
 console.warn(

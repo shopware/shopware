@@ -155,11 +155,11 @@
                     },
                     "uneceCode": {
                         "type": ["string", "null"],
-                        "description": "UN/ECE Recommendation 20 or 21 code of the product unit when the line item was calculated. Missing on carts and orders from before 6.7.16.0."
+                        "description": "UN/ECE Recommendation 20 or 21 code of the product unit when the line item was calculated."
                     },
                     "purchaseUnit": {
                         "type": ["number", "null"],
-                        "description": "Content of one sales unit in the product unit, for example 0.5 for a 500 g pack sold in kilograms. Missing on carts and orders from before 6.7.16.0."
+                        "description": "Content of one sales unit in the product unit, for example 0.5 for a 500 g pack sold in kilograms."
                     },
                     "productType": {
                         "$ref": "#/components/schemas/Product/properties/type",

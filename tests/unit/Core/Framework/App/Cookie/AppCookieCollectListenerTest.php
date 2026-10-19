@@ -12,14 +12,14 @@ use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
-use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Cookie\AppCookieCollectListener;
+use Shopware\Core\Framework\App\Cookie\CookieConfig;
+use Shopware\Core\Framework\App\Feature\AppFeature;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -39,7 +39,7 @@ class AppCookieCollectListenerTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
+        $appFeatures = $this->createAppFeatures(Uuid::randomHex(), [
             [
                 'value' => '',
                 'cookie' => 'swag-analytics',
@@ -47,7 +47,7 @@ class AppCookieCollectListenerTest extends TestCase
                 'snippet_name' => 'swag.analytics.name',
             ],
         ]);
-        $this->createListener($appEntity)->__invoke($event);
+        $this->createListener($appFeatures)->__invoke($event);
 
         $groups = $event->cookieGroupCollection;
         static::assertCount(1, $groups);
@@ -67,7 +67,7 @@ class AppCookieCollectListenerTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
+        $appFeatures = $this->createAppFeatures(Uuid::randomHex(), [
             [
                 'entries' => [
                     [
@@ -86,7 +86,7 @@ class AppCookieCollectListenerTest extends TestCase
                 'snippet_description' => 'app.cookies.group.description',
             ],
         ]);
-        $this->createListener($appEntity)->__invoke($event);
+        $this->createListener($appFeatures)->__invoke($event);
 
         $groups = $event->cookieGroupCollection;
         static::assertCount(1, $groups);
@@ -128,7 +128,7 @@ class AppCookieCollectListenerTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
+        $appFeatures = $this->createAppFeatures(Uuid::randomHex(), [
             [
                 'entries' => [
                     [
@@ -143,7 +143,7 @@ class AppCookieCollectListenerTest extends TestCase
                 'snippet_name' => CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED,
             ],
         ]);
-        $this->createListener($appEntity)->__invoke($event);
+        $this->createListener($appFeatures)->__invoke($event);
 
         $groups = $event->cookieGroupCollection;
         static::assertCount(1, $groups);
@@ -179,7 +179,7 @@ class AppCookieCollectListenerTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $firstAppEntity = $this->createAppEntity(Uuid::randomHex(), [
+        $firstAppFeatures = $this->createAppFeatures(Uuid::randomHex(), [
             [
                 'entries' => [
                     [
@@ -190,7 +190,7 @@ class AppCookieCollectListenerTest extends TestCase
                 'snippet_name' => 'app.cookie.group.name',
             ],
         ]);
-        $secondAppEntity = $this->createAppEntity(Uuid::randomHex(), [
+        $secondAppFeatures = $this->createAppFeatures(Uuid::randomHex(), [
             [
                 'entries' => [
                     [
@@ -205,7 +205,7 @@ class AppCookieCollectListenerTest extends TestCase
                 'snippet_name' => 'app.cookie.group.name',
             ],
         ]);
-        $this->createListener($firstAppEntity, $secondAppEntity)->__invoke($event);
+        $this->createListener([...$firstAppFeatures, ...$secondAppFeatures])->__invoke($event);
 
         $groups = $event->cookieGroupCollection;
         static::assertCount(1, $groups);
@@ -249,22 +249,40 @@ class AppCookieCollectListenerTest extends TestCase
 
     /**
      * @param list<Cookie> $cookies
+     *
+     * @return list<AppFeature<CookieConfig>>
      */
-    private function createAppEntity(string $appId, array $cookies): AppEntity
+    private function createAppFeatures(string $appId, array $cookies): array
     {
-        return (new AppEntity())->assign([
-            'id' => $appId,
-            '_uniqueIdentifier' => $appId,
-            'cookies' => $cookies,
-        ]);
+        return array_map(
+            static fn (array $cookie): AppFeature => new AppFeature(
+                $appId,
+                'TestApp',
+                true,
+                '1.0.0',
+                true,
+                new \DateTimeImmutable(),
+                new CookieConfig(
+                    $cookie['snippet_name'],
+                    $cookie['snippet_description'] ?? null,
+                    $cookie['cookie'] ?? null,
+                    $cookie['value'] ?? null,
+                    isset($cookie['expiration']) ? (int) $cookie['expiration'] : null,
+                    $cookie['entries'] ?? [],
+                ),
+            ),
+            $cookies,
+        );
     }
 
-    private function createListener(AppEntity ...$appEntity): AppCookieCollectListener
+    /**
+     * @param list<AppFeature<CookieConfig>> $features
+     */
+    private function createListener(array $features = []): AppCookieCollectListener
     {
-        $appRepo = new StaticEntityRepository([
-            new AppCollection([...$appEntity]),
-        ], new AppDefinition());
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willReturn($features);
 
-        return new AppCookieCollectListener($appRepo);
+        return new AppCookieCollectListener($storage);
     }
 }

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\ScriptCollection;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
@@ -70,9 +71,11 @@ class AppEntity extends Entity
     protected ?array $mainModule = null;
 
     /**
+     * @deprecated tag:v6.8.0 - App cookies are stored as app features. Use AppFeatureStorage instead.
+     *
      * @var list<Cookie>
      */
-    protected array $cookies;
+    protected array $cookies = [];
 
     /**
      * @var list<string>|null
@@ -318,18 +321,32 @@ class AppEntity extends Entity
     }
 
     /**
+     * @deprecated tag:v6.8.0 - App cookies are stored as app features. Use AppFeatureStorage instead.
+     *
      * @return list<Cookie>
      */
     public function getCookies(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         return $this->cookies;
     }
 
     /**
+     * @deprecated tag:v6.8.0 - App cookies are stored as app features. Use AppFeatureStorage instead.
+     *
      * @param list<Cookie> $cookies
      */
     public function setCookies(array $cookies): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $this->cookies = $cookies;
     }
 

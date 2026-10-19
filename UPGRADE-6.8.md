@@ -105,6 +105,12 @@ Write native setup SFCs instead. The build-time transform emits these calls for 
 
 See `src/Administration/Resources/app/administration/technical-docs/03-extensibility/07-native-setup-authoring.md` for the authoring rules.
 
+## App cookies moved out of the app entity
+
+App-declared cookies are now persisted through the generic app feature storage.
+
+The methods `AppEntity::getCookies()` and `setCookies()` are deprecated. They remain callable for backwards compatibility, but the app system no longer populates or consumes this field. Extensions must not use these accessors to read an app's cookies.
+
 ## Locale-aware sorting for product property group options
 
 To ensure product property group options are sorted more precisely based on locale code:

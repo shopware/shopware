@@ -22,7 +22,8 @@
  * --meta:  optional {"fork": bool, "author_association": "...", "labels": [...], "fixes_issue": bool},
  *          as a file or as the JSON itself.
  * Signals are computed on added/removed lines only (never on context lines) and
- * never inside tests/**; the one exception is "public_surface", which reads the touched
+ * never inside tests/**, docs, release docs or generated files (a guideline that mentions
+ * `HttpCache` is not a cache change); the one exception is "public_surface", which reads the touched
  * file to confirm that its class is not @internal: from the head of --range, so the
  * lookup sees the reviewed head whatever is checked out, or from the working tree for
  * pre-computed inputs.
@@ -304,6 +305,7 @@ export function collectRange(root: string, range: string): { files: string[]; di
     return { files, diff, mergedFromBase, head: rangeSides(range).head };
 }
 
+const GENERATED_GLOBS = ['*.lock', '*.lock.yml', '*/dist/*', '*.min.js', '*.snap'];
 const PATH_CLASSES: Array<[string, string[]]> = [
     ['tests', ['tests/*', '*/tests/*']],
     ['admin', ['src/Administration/*']],
@@ -311,9 +313,21 @@ const PATH_CLASSES: Array<[string, string[]]> = [
     ['core', ['src/*']],
     ['config-build', ['.github/*', 'composer.json', 'composer.lock', 'package.json', 'package-lock.json', '*.yaml', '*.yml']],
     ['release-docs', ['UPGRADE-*.md', 'RELEASE_INFO-*.md', 'changelog/*']],
-    ['generated', ['*.lock', '*.lock.yml', '*/dist/*', '*.min.js', '*.snap']],
+    ['generated', GENERATED_GLOBS],
     ['docs', ['*.md', 'docs/*', 'coding-guidelines/*', 'adr/*']],
 ];
+
+/** First matching path class, 'other' when none matches. */
+export function pathClassOf(path: string): string {
+    return PATH_CLASSES.find(([, globs]) => anyGlob(path, globs))?.[0] ?? 'other';
+}
+
+/**
+ * Lines whose content carries no code signal: tests, docs, release docs, generated files.
+ * Generated globs are checked directly because `src/Storefront/*` classes a `dist/` file first.
+ */
+export const isAnchorFree = (path: string): boolean =>
+    isTestPath(path) || anyGlob(path, GENERATED_GLOBS) || ['docs', 'release-docs'].includes(pathClassOf(path));
 
 const cut = (path: string, segments: number): string => path.split('/').slice(0, segments).join('/');
 
@@ -354,8 +368,9 @@ export function classify(input: ClassifyInput): Profile {
     // normalise CRLF so paths and anchors match
     const files = input.files.map((path) => path.replaceAll('\r', '')).filter((path) => path !== '');
     const { lines, deleted } = parseDiff(input.diff);
-    // Non-test changed lines for anchor matching.
-    const srcLines = lines.filter((line) => !isTestPath(line.path));
+    // Changed lines of code files only, for anchor matching: a guideline or an UPGRADE entry
+    // that names `CacheInvalidator` must not route the cache guide.
+    const srcLines = lines.filter((line) => !isAnchorFree(line.path));
     const meta = input.meta ?? {};
     const readSource = input.readFile ?? workingTreeReader(input.root);
 
@@ -374,9 +389,9 @@ export function classify(input: ClassifyInput): Profile {
     let phpSrc = false;
     let phpSrcTests = false;
     for (const path of files) {
-        const match = PATH_CLASSES.find(([, globs]) => anyGlob(path, globs));
-        classes.add(match === undefined ? 'other' : match[0]);
-        if (match?.[0] === 'tests') {
+        const pathClass = pathClassOf(path);
+        classes.add(pathClass);
+        if (pathClass === 'tests') {
             phpSrcTests = true;
         }
         if (isPhpSrc(path)) {

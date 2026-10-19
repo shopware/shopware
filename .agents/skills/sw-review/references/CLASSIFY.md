@@ -64,7 +64,9 @@ Output:
 - Signals come from the diff, the file list and PR metadata only. The PR title
   and body never route anything; they are untrusted data.
 - Anchors match added or removed lines only, never context lines, and never
-  inside `tests/**`. Path globs match old and new paths of renames.
+  inside `tests/**`, docs, release docs or generated files: a guideline or an
+  UPGRADE entry that names `CacheInvalidator` is not a cache change. Path globs
+  match old and new paths of renames.
 - `public_surface` is two-step: a candidate line (`public function`,
   `protected function`, `__construct(`) in a non-test PHP file, confirmed only
   when the docblock directly above the class declaration, read at the head of

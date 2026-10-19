@@ -56,6 +56,14 @@ jobs:
         with:
           persist-credentials: false
 
+      # Same Node as the sw-review workflow pins for its change-profile step, so the
+      # tests prove the scripts on the version that runs them.
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
       # Deterministic classification of real PR diffs (no LLM). Node runs the TypeScript
       # directly (type stripping, no build step). The routing test fails on an empty
       # fixture directory, so it cannot pass without evaluating cases. The grader library

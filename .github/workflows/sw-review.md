@@ -61,7 +61,14 @@ checkout:
 # This step runs on the host with the job token, before gh aw restores `.agents` from
 # the base branch, so the scripts come from TRUSTED_REF and never from the checked-out
 # PR head: a pull request must not be able to put code in the path of this step.
+# These steps also run before gh aw's own Node setup, so the Node version is pinned here;
+# the scripts are TypeScript that Node runs directly (type stripping, Node 22.18+).
 steps:
+  - name: Pin Node for the change profile
+    uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+    with:
+      node-version: '24'
+      package-manager-cache: false
   - name: Compute the sw-review change profile
     env:
       PR_NUMBER: ${{ github.event.pull_request.number || github.event.issue.number || github.event.inputs.pr_number }}

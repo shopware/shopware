@@ -2,7 +2,11 @@
  * @sw-package framework
  */
 
+import Feature from 'src/core/feature';
 import { endDeprecationLog, startDeprecationLog } from '../deprecations';
+
+// Registers the stand-in major of `oldFunction()`, so the guard does not report it as a typo.
+Feature.init({ V7_0_0_0: false });
 
 /**
  * The message of the `oldFunction()` fixture.

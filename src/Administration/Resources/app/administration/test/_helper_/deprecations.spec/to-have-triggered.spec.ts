@@ -25,6 +25,15 @@ describe('test/_helper_/deprecations - toHaveTriggered', () => {
         expect(deprecations).toHaveTriggered(/^oldFunction\(\)/);
     });
 
+    it('matches a global regular expression against every deprecation', () => {
+        oldFunction();
+        triggerOtherDeprecation();
+
+        expect(deprecations).toHaveTriggered(/is deprecated/g);
+
+        expect(failureOfEndDeprecationLog()).toBe('');
+    });
+
     it('fails at the assertion for a deprecation that did not fire', () => {
         oldFunction();
 

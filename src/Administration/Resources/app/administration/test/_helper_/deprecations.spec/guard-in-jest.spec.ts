@@ -50,6 +50,11 @@ describe('test/_helper_/deprecations - the guard in Jest', () => {
         expect(deprecations).not.toHaveTriggered(oldFunctionMessage);
     });
 
+    it.activeFeatureFlags(['v7.0.0.0'])('still throws at a module that imports Feature directly', () => {
+        expect(() => oldFunction()).toThrow(`Tried to access deprecated functionality: ${oldFunctionMessage}`);
+        expect(deprecations).not.toHaveTriggered(oldFunctionMessage);
+    });
+
     it('runs the production guard outside a test', () => {
         const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
         endDeprecationLog();

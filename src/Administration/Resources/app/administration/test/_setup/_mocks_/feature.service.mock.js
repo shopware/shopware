@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import Feature, { UNREGISTERED_UPCOMING_MAJORS } from 'src/core/feature';
+import Feature from 'src/core/feature';
 import FeatureService from 'src/app/service/feature.service';
 import normalizeFeatureFlag from '../../_helper_/normalizeFeatureFlag';
 import { recordDeprecation, shouldHandleDeprecationsThroughMock } from '../../_helper_/deprecations';
@@ -27,15 +27,16 @@ const productionTriggerDeprecationOrThrow = Feature.triggerDeprecationOrThrow;
  * Mocks the real `triggerDeprecationOrThrow` and silences deprecations if they are explicitly asserted or allowed
  */
 function triggerDeprecationOrThrow(majorFlag, message) {
-    const isMajorKnown = this.isRegistered(majorFlag) || UNREGISTERED_UPCOMING_MAJORS.includes(majorFlag.toUpperCase());
+    // `FeatureMock` knows the flags of `it.activeFeatureFlags()`, a directly imported `Feature` only those a spec
+    // sets with `Feature.init()`: the major counts as active when either does.
+    const feature = FeatureMock.isActive(majorFlag) ? FeatureMock : this;
 
-    if (shouldHandleDeprecationsThroughMock(majorFlag, this.isActive(majorFlag), isMajorKnown)) {
+    if (shouldHandleDeprecationsThroughMock(majorFlag, feature.isActive(majorFlag), this.isKnownMajor(majorFlag))) {
         recordDeprecation(message);
         return;
     }
 
-    // With the caller's `this`, so `FeatureMock` keeps the flags a test activates.
-    productionTriggerDeprecationOrThrow.call(this, majorFlag, message);
+    productionTriggerDeprecationOrThrow.call(feature, majorFlag, message);
 }
 
 Feature.triggerDeprecationOrThrow = triggerDeprecationOrThrow;

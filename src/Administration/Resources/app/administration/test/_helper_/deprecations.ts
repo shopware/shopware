@@ -95,7 +95,7 @@ function assertTestIsRunning(helper: string): void {
  * matches('sw-loader', 'The old usage of "sw-loader" is deprecated'); // true
  */
 function matches(expected: Expected, message: string): boolean {
-    return typeof expected === 'string' ? message.includes(expected) : expected.test(message);
+    return typeof expected === 'string' ? message.includes(expected) : message.search(expected) !== -1;
 }
 
 /**
@@ -154,15 +154,16 @@ function withoutWrappedSuffix(message: string): string {
  *
  * @private
  * @example
- * if (shouldHandleDeprecationsThroughMock(majorFlag, this.isActive(majorFlag), isMajorKnown)) { recordDeprecation(message); return; }
+ * if (shouldHandleDeprecationsThroughMock(majorFlag, Feature.isActive(majorFlag), Feature.isKnownMajor(majorFlag))) { recordDeprecation(message); return; }
  */
 export function shouldHandleDeprecationsThroughMock(
     majorFlag: string,
     isMajorActive: boolean,
     isMajorKnown: boolean,
 ): boolean {
+    const normalizedMajor = normalizeFeatureFlag(majorFlag);
     const isActivatedByTest =
-        isMajorActive && !getDefaultActiveFeatureFlags().map(normalizeFeatureFlag).includes(normalizeFeatureFlag(majorFlag));
+        isMajorActive && !getDefaultActiveFeatureFlags().some((flag) => normalizeFeatureFlag(flag) === normalizedMajor);
 
     return deprecations.isRecording && isMajorKnown && !isActivatedByTest;
 }
@@ -202,8 +203,8 @@ export function startDeprecationLog(): void {
     deprecations.isRecording = true;
 }
 
-/** The Administration directory `_jest.config.ts` runs from; failure reports show paths relative to it. */
-const adminPath = process.env.ADMIN_PATH ?? process.cwd();
+/** The Administration directory; failure reports show paths relative to it. */
+const adminPath = path.resolve(__dirname, '../..');
 
 /** The repository root, so usages in the Storefront administration count as well. */
 const repositoryRoot = path.resolve(adminPath, '../../../../..');
@@ -224,11 +225,14 @@ function usageFrames(error: Error): string[] {
 /**
  * The `file:line:column` of a stack frame, relative to the Administration directory, for the failure report.
  *
+ * @private
  * @example
  * location('    at oldFunction (/<admin>/test/oldFunction.ts:13:13)'); // 'test/oldFunction.ts:13:13'
+ * location('    at /<admin>/test/oldFunction.ts:13:13'); // 'test/oldFunction.ts:13:13'
  */
-function location(frame: string): string {
-    const file = /\(?(\S+:\d+:\d+)\)?$/.exec(frame)?.[1];
+export function location(frame: string): string {
+    const [, inParentheses, bare] = /\((.+:\d+:\d+)\)$|^\s*at (.+:\d+:\d+)$/.exec(frame) ?? [];
+    const file = inParentheses ?? bare;
 
     return file ? path.relative(adminPath, file) : frame.trim();
 }

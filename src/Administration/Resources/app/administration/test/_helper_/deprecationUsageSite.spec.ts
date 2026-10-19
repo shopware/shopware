@@ -130,6 +130,12 @@ describe('test/_helper_/deprecationUsageSite', () => {
             ]);
         });
 
+        it('falls back to the calling file for a component without a name', () => {
+            mount({ template: '<div />', created: oldFunction });
+
+            expect(recordedSites()).toEqual([spec]);
+        });
+
         it('names the parent for a deprecated method it calls on a child through a template ref', () => {
             mount({
                 name: 'sw-parent',

@@ -26,7 +26,20 @@ Since 6.7.14.0, most line item conditions of the Rule Builder evaluated only lin
 
 The conditions now evaluate a line item by the data it carries instead of by its type, so line items of any type work with the built-in conditions again, with no change needed in extensions.
 
+### "Item with price/list price ratio" no longer matches line items without a list price
+
+Since 6.7.9.0, the Rule Builder condition "Item with price/list price ratio" treated line items without a list price as having a ratio of `0`.
+Conditions such as "Is less than 1" therefore also matched every line item without a list price,
+so promotions meant for reduced products applied to all products.
+
+Line items without a list price no longer have a ratio, so only the operators "Is not equal to" and "Is empty" match them.
+If you used "Is equal to 0" to target line items without a list price, use "Is empty" instead.
+
 ## Features
+
+### Digital products can use external file assignment
+
+In the Administration, digital products can be saved without uploaded files when file assignment is handled externally. When editing a product, the option is enabled by default if it has no downloads and disabled if it has downloads.
 
 ### System configuration tabs
 
@@ -73,6 +86,14 @@ With the newly added tabs feature, plugin developers can now add another layer o
 ```
 
 ## Core
+
+### Document-type deprecations
+
+Constructing the deprecated document-type definitions, entities and collections, including empty collections, throws when `v6.9.0.0` is active. Their getters and setters emit no deprecation notices. Use `document.typeName` and the document v2 type registry instead of the legacy DAL entities.
+
+### Import/export profile translation construction in major mode
+
+Constructing the deprecated `ImportExportProfileTranslationDefinition`, `ImportExportProfileTranslationEntity` or `ImportExportProfileTranslationCollection`, including an empty collection, now throws when `v6.8.0.0` is active. All remain usable before removal, without per-accessor deprecation notices. Profile label translations are being removed in 6.8; use the profile's technical name instead.
 
 ### Invalid price definition exception factory
 
@@ -504,6 +525,18 @@ An app's MCP tool may only list `<required-privileges>` in `mcp.xml` that the ap
 
 The test helper trait `\Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait` is deprecated and will be removed in 6.8. Its `assertValues()` method now triggers a deprecation, and throws when the `v6.8.0.0` flag is active. Extension tests that use the trait should call `\Shopware\Core\Test\Assert\ArrayValues::assertValues($expected, $actual)` instead; the comparison is unchanged.
 
+### `PromotionItemBuilder::buildPlaceholderItem()` is deprecated
+
+`PromotionItemBuilder::buildPlaceholderItem()` is deprecated and will be removed in 6.8.0.0, because `PromotionLineItemFactory::create()` builds the same promotion placeholder line item.
+Create the placeholder through the `LineItemFactoryRegistry` with the `promotion` type instead, as the Storefront and the order recalculation now do:
+
+```php
+$lineItem = $lineItemFactoryRegistry->create([
+    'type' => LineItem::PROMOTION_LINE_ITEM_TYPE,
+    'referencedId' => $code,
+], $salesChannelContext);
+```
+
 ## API
 
 ### MCP tool results carry `structuredContent` and `isError`
@@ -549,6 +582,20 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
 
+### Store API reads every field of the compressed `_criteria` parameter
+
+On every Store API `GET` route, `_criteria` is now a compressed form of the query string. A `GET` request with `_criteria` reads the same fields as the `POST` request with that body, for example `limit`, `includes`, `slots`, `depth` or `options`. Before, many routes ignored these fields inside `_criteria`. Fields that a route reads from the `POST` body only, such as the listing filter flags, are still not read.
+
+If you send `_criteria`, note:
+
+- A field in `_criteria` wins over a query parameter of the same name. Other query parameters are applied next to it, also on the Admin API.
+- Values are read as strings, as in a query string, also by listing filters of extensions. `null` counts as not sent.
+- The `sw-include-search-info` header is respected together with `_criteria`.
+- An invalid `_criteria` value is answered with `400` on every Store API `GET` route.
+
+On the Store API, `includes` and `excludes` that are not an array are answered with `400` instead of `500`.
+
+The OpenAPI schema declares `_criteria` on more `GET` operations and no longer marks `search` of `searchSuggestGet`, `ids[]` of `readMediaGet` and `options[]` of `searchProductVariantIdsGet` as required.
 ### Store API schema describes line item payloads per type
 
 The Store API schema no longer restricts the line item `type` to the core values, because extensions add their own types such as `customized-products` or `subscriptionDiscount`. `payload` is an open object whose keys depend on `type`. The new `ProductLineItemPayload` and `PromotionLineItemPayload` schemas describe the payloads of `product` and `promotion` line items, and `LineItem` and `OrderLineItem` apply them through `if`/`then` conditions on `type`. Both mark every key core always writes as required, except `productType` and `composition`. An order keeps the payload of the version that placed it, so orders from older versions can lack keys added since. The cart `LineItem.payload` no longer references `ProductJsonApi`. That schema was removed, along with the JSON:API resource and relationship schemas that only it used.
@@ -584,6 +631,10 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 `POST /store-api/checkout/cart/reorder/{orderId}` adds an order's products to the cart, and the `checkout.cart.collect-reorder-line-items` extension lets you add or drop items before they reach the cart
 
 ## Administration
+
+### Import/export profile language tooltip deprecated
+
+The snippet key `sw-import-export.profile.addNewProfileTooltipLanguage` was deprecated and will be removed in 6.8.0 without replacement. Profiles can now be created in any content language, so extensions should remove references to this tooltip.
 
 ### `sw-empty-state` stays available until 6.9
 
@@ -845,6 +896,17 @@ The deliverability card of digital products has a new "Allow multiple units per 
 - The computed property `galleryItems` returns the grid items in display order. The grid and its placeholders are built from it.
 - The Twig block `sw_product_media_form_grid_item` renders a single grid item, so an override can render its own items and keep `{% parent %}` for the product media.
 - The method `moveGalleryItem(item, position)` moves a grid item when it is dragged or marked as cover. Override it together with `galleryItems` when your items share the position space with the product media.
+
+### Snippet set selection for sales channel domains is grouped by language
+
+The snippet set select in the sales channel domain modal now lists all snippet sets, grouped by the languages of the sales channel.
+The group of the selected domain language comes first, followed by the groups of the other sales channel languages and one group with all remaining sets.
+Within a language group, sets matching a sales channel locale exactly are listed first.
+Selecting a language sets the snippet set with the same locale, or the first set of the same language, unless the selected set already belongs to that language.
+
+`sw-sales-channel-detail-domains` renders the select with `sw-grouped-single-select` instead of `sw-entity-single-select` inside the block `sw_sales_channel_detail_domains_input_snippet_set`.
+Overrides of that block or of the computed `snippetSetCriteria` need to be adjusted:
+the component now loads all snippet sets and locales once in `createdComponent` and builds the options in the computed `snippetSetOptions`.
 
 ## Storefront
 

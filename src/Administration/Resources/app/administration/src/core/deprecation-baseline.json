@@ -82,5 +82,11 @@
             "default",
             "major"
         ]
+    },
+    "The prop \"items\" of the component \"sw-entity-advanced-selection-modal-grid\" is deprecated and will be removed in Shopware v6.8.0.0.\nUse \"dataSource\" instead. Migration: Change :items=\"data\" to :data-source=\"data\"": {
+        "sw-entity-advanced-selection-modal > sw-entity-advanced-selection-modal-grid": [
+            "default",
+            "major"
+        ]
     }
 }

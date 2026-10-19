@@ -4,6 +4,8 @@
 
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/select/entity/sw-entity-advanced-selection-modal';
+import EntityCollection from 'src/core/data/entity-collection.data';
+import Criteria from 'src/core/data/criteria.data';
 
 const EntityColumnsFixture = [
     {
@@ -67,7 +69,7 @@ const EntityFiltersFixture = {
     },
 };
 
-const createAdvancedSelectionModal = async (customOptions) => {
+const createAdvancedSelectionModal = async (customOptions, customStubs = {}) => {
     const options = {
         propsData: {
             entityName: 'test',
@@ -90,6 +92,7 @@ const createAdvancedSelectionModal = async (customOptions) => {
                 'sw-filter-panel': true,
                 'sw-entity-listing': true,
                 'sw-entity-advanced-selection-modal-grid': true,
+                ...customStubs,
             },
             provide: {
                 acl: {
@@ -208,5 +211,45 @@ describe('components/sw-entity-advanced-selection-modal', () => {
 
         expect(assignmentProperties).toContain('productPrices');
         expect(assignmentProperties).toContain('paymentMethods');
+    });
+
+    it('renders the result grid for loaded entities', async () => {
+        const searchModal = await createAdvancedSelectionModal(
+            {},
+            {
+                'sw-modal': { template: '<div><slot /></div>' },
+                'sw-entity-advanced-selection-modal-grid': await wrapTestComponent(
+                    'sw-entity-advanced-selection-modal-grid',
+                    { sync: true },
+                ),
+                'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
+                'sw-data-grid-settings': true,
+                'sw-data-grid-skeleton': true,
+                'sw-pagination': true,
+                'sw-bulk-edit-modal': true,
+                'sw-context-button': true,
+                'sw-context-menu-item': true,
+                'sw-checkbox-field': true,
+                'router-link': true,
+                'sw-provide': { template: '<slot/>', inheritAttrs: false },
+            },
+        );
+        await flushPromises();
+
+        await searchModal.setData({
+            entities: new EntityCollection(
+                null,
+                'test',
+                null,
+                new Criteria(1, 25),
+                [
+                    { id: 'id1', name: 'first' },
+                    { id: 'id2', name: 'second' },
+                ],
+                2,
+            ),
+        });
+
+        expect(searchModal.findAll('.sw-data-grid__body .sw-data-grid__row')).toHaveLength(2);
     });
 });

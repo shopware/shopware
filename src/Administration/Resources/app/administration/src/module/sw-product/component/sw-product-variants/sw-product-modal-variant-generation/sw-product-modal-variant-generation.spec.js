@@ -765,6 +765,39 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         expect(wrapper.get('.sw-product-variant-generation__generate-action').attributes('disabled')).toBeDefined();
     });
 
+    it('generates a digital variant without a file when external download management is on', async () => {
+        const wrapper = await createWrapper();
+        const saveVariants = jest.fn().mockResolvedValue();
+
+        await wrapper.setData({
+            variantGenerationQueue: {
+                createQueue: [{ id: 'variant-id', type: 'digital', downloads: [], options: [] }],
+                deleteQueue: [],
+            },
+            allowDigitalVariantsWithoutDownloads: true,
+            isLoading: false,
+            showUploadModal: true,
+            variantsGenerator: {
+                ...wrapper.vm.variantsGenerator,
+                saveVariants,
+                saveVariantRestrictions: () => Promise.resolve(),
+                saveVariantListingConfig: () => Promise.resolve(),
+                saveConfiguratorSettings: () => Promise.resolve(),
+            },
+        });
+
+        expect(wrapper.get('.sw-product-variant-generation__generate-action').attributes('disabled')).toBeUndefined();
+
+        wrapper.vm.generateVariants();
+        await flushPromises();
+
+        expect(saveVariants).toHaveBeenCalledWith(
+            expect.objectContaining({
+                createQueue: [expect.objectContaining({ type: 'digital', downloads: [] })],
+            }),
+        );
+    });
+
     it('should generate digital variants', async () => {
         const wrapper = await createWrapper();
 

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook\Authorization\EventLog;
 
-use Shopware\Core\Framework\Api\Acl\ApiCallerType;
+use Shopware\Core\Framework\Api\Acl\ApiCaller;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -95,28 +95,27 @@ class RestrictEventLogReadSubscriber implements EventSubscriberInterface, ResetI
             return null;
         }
 
-        $caller = ApiCallerType::of($source);
-        $callerId = $caller->idOf($source);
-        if ($callerId === null) {
+        $caller = ApiCaller::of($source);
+        if ($caller === null) {
             return new EqualsAnyFilter('webhookId', []);
         }
 
-        $this->ownedWebhookIds[$callerId] ??= $this->getWebhookIdsOwnedBy($caller, $callerId);
+        $this->ownedWebhookIds[$caller->id] ??= $this->getWebhookIdsOwnedBy($caller);
 
-        return new EqualsAnyFilter('webhookId', $this->ownedWebhookIds[$callerId]);
+        return new EqualsAnyFilter('webhookId', $this->ownedWebhookIds[$caller->id]);
     }
 
     /**
      * @return list<string>
      */
-    private function getWebhookIdsOwnedBy(ApiCallerType $caller, string $callerId): array
+    private function getWebhookIdsOwnedBy(ApiCaller $caller): array
     {
         $criteria = new Criteria();
-        $criteria->addFilter(match ($caller) {
-            ApiCallerType::User => new EqualsFilter('ownerUserId', $callerId),
-            ApiCallerType::Integration => new OrFilter([
-                new EqualsFilter('ownerIntegrationId', $callerId),
-                new EqualsFilter('app.integrationId', $callerId),
+        $criteria->addFilter(match ($caller->type) {
+            ApiCaller::USER => new EqualsFilter('ownerUserId', $caller->id),
+            ApiCaller::INTEGRATION => new OrFilter([
+                new EqualsFilter('ownerIntegrationId', $caller->id),
+                new EqualsFilter('app.integrationId', $caller->id),
             ]),
         });
 

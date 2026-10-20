@@ -1,3 +1,56 @@
+# 6.7.16.0
+
+## Reorder no longer posts its line items
+
+`frontend.checkout.cart.reorder` resolves the reordered products from the order, so the reorder form no longer posts `lineItems`. The blocks `page_account_order_item_context_menu_reorder_form_line_items_input` and `page_account_order_item_context_menu_reorder_form_line_item_input` in `storefront/page/account/order-history/order-item.html.twig` are empty and deprecated: an override still renders, but it no longer changes what a reorder adds. Subscribe to the `checkout.cart.collect-reorder-line-items` extension instead, which hands you the `OrderEntity` and the built `list<LineItem>`
+
+The form is only rendered when at least one of the order's products is still visible in the sales channel, so `page_account_order_item_context_menu_reorder_form` and the blocks inside it no longer render for an order whose products were all deactivated or deleted, or that carries no product line item at all. An order built only from a custom line item type therefore offers no reorder entry, and `checkout.cart.collect-reorder-line-items` is not reached from the storefront for it
+
+## Existing MCP integrations and non-admin users need an explicit MCP allowlist
+
+`user.mcp_allowlist` and `integration.mcp_allowlist` changed meaning when they are unset: this used to grant unrestricted MCP access, it now grants none. Only administrator users still bypass the allowlist, integrations never do. Affected credentials still authenticate, but the capability lists return only the discovery meta-tools and a `tools/call` for a domain tool is rejected.
+
+A per-type entry that is missing or explicitly `null` counts as an empty selection too, so an allowlist stored as `{"tools": ["shopware-entity-search"], "resources": null, "prompts": null}` keeps its tool and loses every resource and prompt. If you used the per-type "All" switch in the Administration, re-save the allowlist.
+
+Note which capabilities each integration actually uses before updating, then grant them under Settings > System > Integrations, on the user detail page, or through the API:
+
+```
+POST /api/_action/integration/{integrationId}/mcp-allowlist
+POST /api/_action/user/{userId}/mcp-allowlist
+
+{
+  "allowlist": {
+    "tools": ["shopware-entity-search", "shopware-entity-schema"],
+    "resources": ["shopware://entities"],
+    "prompts": []
+  }
+}
+```
+
+An empty array blocks a type. There is no value meaning "everything" for a principal without the administrator bypass, by design.
+
+Both routes now also require the matching entity privilege, `user:update` and `integration:update` respectively, and answer `403` without it. `users_and_permissions.editor` already grants `user:update`; a custom role carrying only the action privilege has to be extended.
+
+## Shared document classes moved to `DocumentV2`
+
+The legacy document classes that document generation v2 keeps moved from `Shopware\Core\Checkout\Document` into `Shopware\Core\Checkout\DocumentV2`, keeping their class names. `RenderedDocument` also moved into the `Struct` sub-namespace. The previous class names and service IDs keep working as aliases until Shopware 6.9. Replace them with the canonical names before upgrading to 6.9.
+
+| Previous (`Shopware\Core\Checkout\Document\`) | Canonical (`Shopware\Core\Checkout\DocumentV2\`) |
+|---|---|
+| `DocumentEntity` | `DocumentEntity` |
+| `DocumentDefinition` | `DocumentDefinition` |
+| `DocumentCollection` | `DocumentCollection` |
+| `Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity` | `Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity` |
+| `Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition` | `Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition` |
+| `Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection` | `Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection` |
+| `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity` | `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity` |
+| `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition` | `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition` |
+| `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection` | `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection` |
+| `Renderer\RenderedDocument` | `Struct\RenderedDocument` |
+| `SalesChannel\AbstractDocumentRoute` | `SalesChannel\AbstractDocumentRoute` |
+| `SalesChannel\DocumentRoute` | `SalesChannel\DocumentRoute` |
+| `Service\ReferenceInvoiceLoader` | `Service\ReferenceInvoiceLoader` |
+
 # 6.7.15.0
 
 ## Document generation v1 marked for replacement
@@ -76,23 +129,7 @@ The `document_type` and `document_type_translation` entities are deprecated with
 
 ### Relocated classes
 
-The following classes survive v1 and move into the `Shopware\Core\Checkout\DocumentV2` namespace with Shopware 6.9, keeping their class names.
-
-| Current location | Location from 6.9 |
-|---|---|
-| `DocumentEntity` | `DocumentV2\DocumentEntity` |
-| `DocumentDefinition` | `DocumentV2\DocumentDefinition` |
-| `DocumentCollection` | `DocumentV2\DocumentCollection` |
-| `Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity` | `DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity` |
-| `Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition` | `DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition` |
-| `Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection` | `DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection` |
-| `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity` | `DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity` |
-| `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition` | `DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition` |
-| `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection` | `DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection` |
-| `Renderer\RenderedDocument` | `DocumentV2\Struct\RenderedDocument` |
-| `SalesChannel\AbstractDocumentRoute` | `DocumentV2\SalesChannel\AbstractDocumentRoute` |
-| `SalesChannel\DocumentRoute` | `DocumentV2\SalesChannel\DocumentRoute` |
-| `Service\ReferenceInvoiceLoader` | `DocumentV2\Service\ReferenceInvoiceLoader` |
+The classes that survive v1 moved into the `Shopware\Core\Checkout\DocumentV2` namespace with Shopware 6.7.16.0. See "Shared document classes moved to `DocumentV2`" in the 6.7.16.0 section.
 
 ## Document generation v2 experimental public surface
 
@@ -172,7 +209,7 @@ The following components are fully deprecated including their registration, temp
 
 ## `Feature` becomes final
 
-`Shopware\Core\Framework\Feature` carries `#[BecomesFinal(version: 'v6.8.0')]` and cannot be extended from Shopware 6.8. It is a static utility class, call it directly instead of subclassing it.
+`Shopware\Core\Framework\Feature` becomes `final` with Shopware 6.8 and cannot be extended from then on. It is a static utility class, call its methods directly instead of subclassing it.
 
 # 6.7.14.0
 

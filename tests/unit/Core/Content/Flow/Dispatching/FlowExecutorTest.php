@@ -54,6 +54,7 @@ use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
+use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -918,7 +919,7 @@ class FlowExecutorTest extends TestCase
 
         $this->flowExecutor->executeAction($actionSequence, $flow);
 
-        static::assertEmpty($flow->getConfig());
+        static::assertCount(0, $flow->getConfig());
     }
 
     public function testExitActionExecutionIfFlowStopIsSet(): void
@@ -940,7 +941,7 @@ class FlowExecutorTest extends TestCase
 
         $this->flowExecutor->executeAction($actionSequence, $flow);
 
-        static::assertEmpty($flow->getConfig());
+        static::assertCount(0, $flow->getConfig());
     }
 
     public function testExitActionExecutionIfFlowIsDelayed(): void
@@ -974,7 +975,7 @@ class FlowExecutorTest extends TestCase
         $this->createFlowExecutor([self::ACTION_ADD_ORDER_TAG => $addOrderTagAction])
             ->executeAction($actionSequence, $flow);
 
-        static::assertNotEmpty($flow->getConfig());
+        static::assertNotCount(0, $flow->getConfig());
     }
 
     public function testExitActionExecutionIfNextActionIsNull(): void
@@ -1006,7 +1007,7 @@ class FlowExecutorTest extends TestCase
         $this->createFlowExecutor([self::ACTION_ADD_ORDER_TAG => $addOrderTagAction])
             ->executeAction($actionSequence, $flow);
 
-        static::assertNotEmpty($flow->getConfig());
+        static::assertNotCount(0, $flow->getConfig());
     }
 
     public function testSetCurrentSequenceInFlowStateForActionExecution(): void
@@ -1062,7 +1063,7 @@ class FlowExecutorTest extends TestCase
         $this->createFlowExecutor([self::ACTION_ADD_ORDER_TAG => $addOrderTagAction])
             ->executeAction($actionSequence, $flow);
 
-        static::assertNotEmpty($flow->getConfig());
+        static::assertNotCount(0, $flow->getConfig());
     }
 
     public function testExecuteStopsOnFlowStateReachesStop(): void
@@ -1188,7 +1189,7 @@ class FlowExecutorTest extends TestCase
             new ExtensionDispatcher($this->eventDispatcherMock),
             $this->loggerMock,
             $actions,
-            new FlowMetricsInstrumentor(static::createStub(Meter::class), new TriggerGroupResolver()),
+            new FlowMetricsInstrumentor(new Telemetry(static::createStub(Meter::class), 'test'), new TriggerGroupResolver()),
         );
     }
 }

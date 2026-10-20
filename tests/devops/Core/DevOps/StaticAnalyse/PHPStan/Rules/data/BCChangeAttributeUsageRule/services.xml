@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<container>
+    <services>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\ClassMovedAttributeUsage" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\ClassMovedAttributeUsage"/>
+        <service id="Shopware\Tests\Legacy\UnregisteredClass" alias="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\ClassMovedAttributeUsage">
+            <deprecated package="shopware/core" version="6.7.15.0">The "%alias_id%" service alias is deprecated.</deprecated>
+        </service>
+    </services>
+</container>

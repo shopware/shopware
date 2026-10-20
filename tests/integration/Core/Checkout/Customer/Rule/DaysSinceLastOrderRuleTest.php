@@ -138,7 +138,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
 
     private function createRealTestScope(): CheckoutRuleScope
     {
-        $checkoutContext = $this->createMock(SalesChannelContext::class);
+        $checkoutContext = static::createStub(SalesChannelContext::class);
         $customer = $this->createTestOrderAndReturnCustomer();
 
         $checkoutContext->method('getCustomer')

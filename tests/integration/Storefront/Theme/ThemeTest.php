@@ -560,7 +560,7 @@ class ThemeTest extends TestCase
                 })
             );
 
-        $scssCompilerMock = $this->createMock(ScssPhpCompiler::class);
+        $scssCompilerMock = static::createStub(ScssPhpCompiler::class);
 
         $kernel = new class(static::getContainer()->get('kernel')) implements KernelInterface {
             private readonly SimpleTheme $simpleTheme;
@@ -834,7 +834,7 @@ class ThemeTest extends TestCase
 
         $theme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertNotNull($theme);
-        static::assertEmpty($theme->getConfigValues());
+        static::assertNull($theme->getConfigValues());
 
         $data = [
             'id' => $theme->getId(),
@@ -856,8 +856,8 @@ class ThemeTest extends TestCase
         $resetTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertNotNull($resetTheme);
 
-        static::assertEmpty($resetTheme->getConfigValues());
-        static::assertNotEmpty($resetTheme->getUpdatedAt());
+        static::assertNull($resetTheme->getConfigValues());
+        static::assertNotNull($resetTheme->getUpdatedAt());
     }
 
     private function createBundleTheme(StorefrontPluginConfiguration $config, ThemeEntity $parentTheme): string

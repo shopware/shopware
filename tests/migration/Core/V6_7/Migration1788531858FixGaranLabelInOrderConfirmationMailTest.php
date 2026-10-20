@@ -50,19 +50,18 @@ class Migration1788531858FixGaranLabelInOrderConfirmationMailTest extends MailTe
 
         foreach (['en' => $translations->getEnHtml(), 'de' => $translations->getDeHtml()] as $language => $html) {
             static::assertIsString($html);
-            static::assertStringContainsString('sw_garan_label_nested_uri', $html, $language);
             static::assertStringContainsString(
-                '<img src="{{ garanLabelDataUri }}" width="195" height="30"',
+                '<img src="{{ garanLabel.cid }}" width="195" height="30"',
                 $html,
-                $language . ': the label image needs explicit dimensions, mail clients scale an SVG data URI to the container otherwise'
+                $language . ': the label image needs explicit dimensions, mail clients scale it to the container otherwise'
             );
             static::assertStringNotContainsString(
-                '<td colspan="6"><img src="{{ garanLabelDataUri }}"',
+                '<td colspan="6"><img src="{{ garanLabel.cid }}"',
                 $html,
                 $language . ': the label belongs into the product cell, not into a full width row of its own'
             );
             static::assertStringNotContainsString(
-                'src="{{ garanLabelDataUri }}" alt=""',
+                'src="{{ garanLabel.cid }}" alt=""',
                 $html,
                 $language . ': the label carries legally required information and must not be marked as decorative'
             );

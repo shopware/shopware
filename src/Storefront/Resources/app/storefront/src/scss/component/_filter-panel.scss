@@ -175,9 +175,10 @@ This file contains the generic styling for all filter items.
 }
 
 .filter-panel-offcanvas-header {
-    height: 80px;
+    min-height: 80px;
+    flex-shrink: 0;
     align-items: center;
-    padding: 25px;
+    padding: 0 25px;
     display: none;
 }
 

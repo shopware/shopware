@@ -123,8 +123,10 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-settings-country-state__add-country-state-button');
+        const createButtonComponent = wrapper.findComponent('.sw-settings-country-state__add-country-state-button');
 
         expect(createButton.attributes().disabled).toBeFalsy();
+        expect(createButtonComponent.props('size')).toBe('small');
     });
 
     it('should not be able to create a new country state', async () => {

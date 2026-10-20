@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\File\FileNameProvider;
@@ -30,6 +30,7 @@ use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationCollection;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationEntity;
+use Shopware\Storefront\Theme\Snippet\ThemeSnippetFileWriter;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
@@ -76,11 +77,11 @@ class ThemeLifecycleServiceTest extends TestCase
 
     private ThemeFilesystemResolver $themeFilesystemResolver;
 
-    private ThemeRuntimeConfigService&MockObject $themeRuntimeConfigService;
+    private ThemeRuntimeConfigService&Stub $themeRuntimeConfigService;
 
     protected function setUp(): void
     {
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getBundles')->willReturn([
             'ThemeWithFileAssociations' => new ThemeWithFileAssociations(),
             'ThemeWithLabels' => new ThemeWithLabels(),
@@ -102,23 +103,9 @@ class ThemeLifecycleServiceTest extends TestCase
         $this->mediaFolderRepository = static::getContainer()->get('media_folder.repository');
         $this->connection = static::getContainer()->get(Connection::class);
 
-        $this->themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
-
-        $this->themeLifecycleService = new ThemeLifecycleService(
-            static::getContainer()->get(StorefrontPluginRegistry::class),
-            $this->themeRepository,
-            $this->mediaRepository,
-            $this->mediaFolderRepository,
-            static::getContainer()->get('theme_media.repository'),
-            static::getContainer()->get(FileSaver::class),
-            static::getContainer()->get(FileNameProvider::class),
-            $this->themeFilesystemResolver,
-            static::getContainer()->get('language.repository'),
-            static::getContainer()->get('theme_child.repository'),
-            $this->connection,
-            static::getContainer()->get(StorefrontPluginConfigurationFactory::class),
-            $this->themeRuntimeConfigService,
-        );
+        // tests that assert on the runtime config service build their own instance with a mock instead
+        $this->themeRuntimeConfigService = static::createStub(ThemeRuntimeConfigService::class);
+        $this->themeLifecycleService = $this->createThemeLifecycleService($this->themeRuntimeConfigService);
 
         $this->context = Context::createDefaultContext();
     }
@@ -130,13 +117,14 @@ class ThemeLifecycleServiceTest extends TestCase
         $bundle = $this->getThemeConfig();
         $themeConfigurations = new StorefrontPluginConfigurationCollection([$bundle]);
 
+        $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
         foreach ($themeConfigurations as $themeConfiguration) {
-            $this->themeRuntimeConfigService->expects($this->once())
+            $runtimeConfigService->expects($this->once())
                 ->method('refreshRuntimeConfig')
                 ->with(static::anything(), $themeConfiguration, $this->context, false, $pluginConfigurationCollection);
         }
 
-        $this->themeLifecycleService->refreshThemes($this->context, $themeConfigurations);
+        $this->createThemeLifecycleService($runtimeConfigService)->refreshThemes($this->context, $themeConfigurations);
     }
 
     public function testItRegistersANewThemeCorrectly(): void
@@ -357,6 +345,8 @@ class ThemeLifecycleServiceTest extends TestCase
 
     public function testItSkipsTranslationsIfLanguageIsNotAvailable(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $bundle = $this->getThemeConfigWithLabels();
         $this->deleteLanguageForLocale('de-DE');
 
@@ -375,6 +365,8 @@ class ThemeLifecycleServiceTest extends TestCase
 
     public function testItUsesEnglishTranslationsAsFallbackIfDefaultLanguageIsNotProvided(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $bundle = $this->getThemeConfigWithLabels();
         $this->changeDefaultLanguageLocale('de-DE-1');
 
@@ -420,11 +412,12 @@ class ThemeLifecycleServiceTest extends TestCase
             static::assertSame($themeDefaultFolderId, $media->getMediaFolderId());
         }
 
-        $this->themeRuntimeConfigService->expects($this->once())
+        $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $runtimeConfigService->expects($this->once())
             ->method('deleteByTechnicalName')
             ->with($bundle->getTechnicalName());
 
-        $this->themeLifecycleService->removeTheme($bundle->getTechnicalName(), $this->context);
+        $this->createThemeLifecycleService($runtimeConfigService)->removeTheme($bundle->getTechnicalName(), $this->context);
 
         // check whether the theme is no longer in the table and the associated media have been deleted
         static::assertFalse($this->hasTheme($bundle));
@@ -468,16 +461,45 @@ class ThemeLifecycleServiceTest extends TestCase
             static::assertSame($themeDefaultFolderId, $media->getMediaFolderId());
         }
 
-        $this->themeRuntimeConfigService->expects($this->once())
+        $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $runtimeConfigService->expects($this->once())
             ->method('deleteByTechnicalName')
             ->with($bundle->getTechnicalName());
 
-        $this->themeLifecycleService->removeTheme($bundle->getTechnicalName(), $this->context);
+        $this->createThemeLifecycleService($runtimeConfigService)->removeTheme($bundle->getTechnicalName(), $this->context);
 
         // check whether the theme is no longer in the table and the associated media have been deleted
         static::assertFalse($this->hasTheme($bundle));
         static::assertCount(0, $this->mediaRepository->searchIds(new Criteria($ids), Context::createDefaultContext())->getIds());
         static::assertCount(0, $this->themeRepository->search(new Criteria([$childId, $themeEntity->getId()]), $this->context)->getEntities());
+    }
+
+    public function testItGeneratesAdministrationSnippetsFromLegacyLabelsAndRemovesThemWithTheTheme(): void
+    {
+        $bundle = $this->getThemeConfigWithLabels();
+        $privateFilesystem = static::getContainer()->get('shopware.filesystem.private');
+        $directory = 'snippets/administration/' . $bundle->getTechnicalName();
+
+        try {
+            $this->themeLifecycleService->refreshTheme($bundle, $this->context);
+
+            static::assertTrue($privateFilesystem->fileExists($directory . '/en-GB.json'));
+            static::assertTrue($privateFilesystem->fileExists($directory . '/de-DE.json'));
+
+            $snippets = \json_decode($privateFilesystem->read($directory . '/en-GB.json'), true, 512, \JSON_THROW_ON_ERROR);
+            static::assertSame(
+                'test label',
+                $snippets['sw-theme'][$bundle->getTechnicalName()]['default']['default']['default']['sw-image']['label'] ?? null,
+            );
+
+            $this->themeLifecycleService->removeTheme($bundle->getTechnicalName(), $this->context);
+
+            static::assertFalse($privateFilesystem->directoryExists($directory));
+        } finally {
+            if ($privateFilesystem->directoryExists($directory)) {
+                $privateFilesystem->deleteDirectory($directory);
+            }
+        }
     }
 
     private function getThemeConfig(): StorefrontPluginConfiguration
@@ -671,5 +693,25 @@ class ThemeLifecycleServiceTest extends TestCase
         }
 
         return $defaultFolder->first()->getId();
+    }
+
+    private function createThemeLifecycleService(ThemeRuntimeConfigService $runtimeConfigService): ThemeLifecycleService
+    {
+        return new ThemeLifecycleService(
+            static::getContainer()->get(StorefrontPluginRegistry::class),
+            $this->themeRepository,
+            $this->mediaRepository,
+            $this->mediaFolderRepository,
+            static::getContainer()->get('theme_media.repository'),
+            static::getContainer()->get(FileSaver::class),
+            static::getContainer()->get(FileNameProvider::class),
+            $this->themeFilesystemResolver,
+            static::getContainer()->get('language.repository'),
+            static::getContainer()->get('theme_child.repository'),
+            $this->connection,
+            static::getContainer()->get(StorefrontPluginConfigurationFactory::class),
+            $runtimeConfigService,
+            static::getContainer()->get(ThemeSnippetFileWriter::class),
+        );
     }
 }

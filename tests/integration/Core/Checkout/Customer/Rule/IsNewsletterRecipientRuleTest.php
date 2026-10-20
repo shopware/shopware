@@ -72,7 +72,7 @@ class IsNewsletterRecipientRuleTest extends TestCase
 
     public function testExistingNewsletterSalesChannelIdMatchesToTrue(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $customer = new CustomerEntity();
         $customer->setNewsletterSalesChannelIds([Uuid::randomHex() => 'foo', Uuid::randomHex() => 'bar']);
 
@@ -89,7 +89,7 @@ class IsNewsletterRecipientRuleTest extends TestCase
 
     public function testEmptyNewsletterSalesChannelIdsMatchesToFalse(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $customer = new CustomerEntity();
 
         $salesChannelContext->method('getCustomer')
@@ -103,7 +103,7 @@ class IsNewsletterRecipientRuleTest extends TestCase
 
     public function testMissingNewsletterSalesChannelIdMatchesToFalse(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $customer = new CustomerEntity();
         $customer->setNewsletterSalesChannelIds([Uuid::randomHex() => 'bar']);
 

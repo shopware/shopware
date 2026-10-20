@@ -97,7 +97,7 @@ class StoreControllerTest extends TestCase
 
         $context = new Context(new AdminApiSource($adminUser->getId()));
 
-        $clientExceptionMock = $this->createMock(ClientException::class);
+        $clientExceptionMock = static::createStub(ClientException::class);
         $clientExceptionMock->method('getResponse')
             ->willReturn(new Response());
 

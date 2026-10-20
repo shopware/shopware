@@ -7,6 +7,7 @@
         <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\GoodTaggedService" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\GoodTaggedService">
             <tag name="test.mapped"/>
             <tag name="test.union"/>
+            <tag name="shopware.inactiveFeature" flag="v6.8.0.0"/>
         </service>
         <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\InternalContractConsumer" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\InternalContractConsumer">
             <argument type="tagged_iterator" tag="test.internal"/>

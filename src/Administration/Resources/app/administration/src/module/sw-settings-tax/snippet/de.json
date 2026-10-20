@@ -58,6 +58,7 @@
       "labelZipCode": "Postleitzahl",
       "labelFromZipCode": "Bis ...",
       "labelToZipCode": "Von ...",
+      "emptyStateTitle": "Noch keine länderspezifischen Steuersätze",
       "emptyStateDescription": "Füge Steuerraten für verschiedene Länder hinzu.",
       "createStateDescription": "Speichere zuerst den Steuersatz, um weitere Länder hinzufügen zu können.",
       "textDeleteConfirm": "Bist Du Dir sicher, dass Du das Land \"{name}\" löschen möchtest?",

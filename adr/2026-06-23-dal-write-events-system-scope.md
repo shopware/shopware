@@ -3,7 +3,6 @@ title: Dispatch DAL Write Events in System Scope
 date: 2026-06-23
 area: framework
 tags: [dal, acl, api, events, extensions]
-status: accepted
 ---
 
 ## Context

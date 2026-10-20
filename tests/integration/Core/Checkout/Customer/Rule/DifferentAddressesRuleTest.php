@@ -74,7 +74,7 @@ class DifferentAddressesRuleTest extends TestCase
     public function testRuleNotMatchingWithoutAddresses(): void
     {
         $rule = new DifferentAddressesRule();
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         static::assertFalse($rule->match(new CheckoutRuleScope($salesChannelContext)));
 

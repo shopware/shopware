@@ -46,6 +46,16 @@
                                 "allOf": [
                                     {
                                         "$ref": "#/components/schemas/Criteria"
+                                    },
+                                    {
+                                        "properties": {
+                                            "orderId": {
+                                                "description": "Evaluates the availability for this order of the current customer instead of the current session. The availability filter is only applied together with `onlyAvailable`.",
+                                                "type": "string",
+                                                "pattern": "^[0-9a-f]{32}$"
+                                            }
+                                        },
+                                        "type": "object"
                                     }
                                 ]
                             }
@@ -70,7 +80,7 @@
                                                 },
                                                 "aggregations": {
                                                     "description": "aggregation result",
-                                                    "type": "object"
+                                                    "$ref": "#/components/schemas/EntitySearchResult/properties/aggregations"
                                                 },
                                                 "elements": {
                                                     "type": "array",
@@ -115,6 +125,16 @@
                 "parameters": [
                     {
                         "x-parameter-group": "criteria"
+                    },
+                    {
+                        "name": "orderId",
+                        "in": "query",
+                        "description": "Evaluates the availability for this order of the current customer instead of the current session. The availability filter is only applied together with `onlyAvailable`.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
                     }
                 ],
                 "responses": {

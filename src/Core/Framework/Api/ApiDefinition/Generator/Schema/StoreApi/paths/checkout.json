@@ -211,14 +211,7 @@
                 "operationId": "deleteCart",
                 "responses": {
                     "204": {
-                        "description": "Successfully deleted the cart",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/SuccessResponse"
-                                }
-                            }
-                        }
+                        "description": "Successfully deleted the cart"
                     },
                     "401": {
                         "$ref": "#/components/responses/401",
@@ -389,6 +382,73 @@
                 ]
             }
         },
+        "/checkout/cart/reorder/{orderId}": {
+            "post": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Add the products of an order to the cart",
+                "description": "This route adds the product line items of an existing order to the current cart. Only the order id is sent; the order is resolved for the logged-in customer and the current sales channel. Products that are no longer available in the sales channel are skipped and reported as errors on the returned cart.",
+                "operationId": "reorder",
+                "parameters": [
+                    {
+                        "name": "orderId",
+                        "in": "path",
+                        "description": "Identifier of the order whose products should be added to the cart.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The updated cart.",
+                        "headers": {
+                            "sw-context-token": {
+                                "description": "Contains sw-context-token value",
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Cart"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "The `orderId` does not reference an order of the logged-in customer in this sales channel."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": [],
+                        "ContextToken": []
+                    }
+                ]
+            }
+        },
         "/checkout/cart/line-item/delete": {
             "post": {
                 "tags": [
@@ -539,63 +599,43 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "payments",
+                                        "shipments",
+                                        "errors"
+                                    ],
                                     "properties": {
-                                        "paymentMethods": {
-                                            "properties": {
-                                                "total": {
-                                                    "description": "Total amount",
-                                                    "type": "integer"
-                                                },
-                                                "aggregations": {
-                                                    "description": "aggregation result",
-                                                    "type": "object"
-                                                },
-                                                "elements": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/PaymentMethod"
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        "shippingMethods": {
-                                            "properties": {
-                                                "total": {
-                                                    "description": "Total amount",
-                                                    "type": "integer"
-                                                },
-                                                "aggregations": {
-                                                    "description": "aggregation result",
-                                                    "type": "object"
-                                                },
-                                                "elements": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/ShippingMethod"
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        "errors": {
+                                        "payments": {
+                                            "description": "Payment methods that are available after the gateway ran.",
                                             "type": "array",
                                             "items": {
-                                                "properties": {
-                                                    "code": {
-                                                        "description": "Error code",
-                                                        "type": "string"
-                                                    },
-                                                    "detail": {
-                                                        "description": "Error detail",
-                                                        "type": "string"
-                                                    },
-                                                    "blocking": {
-                                                        "description": "If the error is blocking",
-                                                        "type": "boolean"
+                                                "$ref": "#/components/schemas/PaymentMethod"
+                                            }
+                                        },
+                                        "shipments": {
+                                            "description": "Shipping methods that are available after the gateway ran.",
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ShippingMethod"
+                                            }
+                                        },
+                                        "errors": {
+                                            "description": "Cart errors added by the gateway. An empty list is returned as `[]`, otherwise the errors are keyed by their id.",
+                                            "anyOf": [
+                                                {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/CartError"
+                                                    }
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "additionalProperties": {
+                                                        "$ref": "#/components/schemas/CartError"
                                                     }
                                                 }
-                                            }
+                                            ]
                                         }
                                     }
                                 }
@@ -613,6 +653,16 @@
                     }
                 ],
                 "parameters": [
+                    {
+                        "name": "orderId",
+                        "in": "query",
+                        "description": "Evaluates the availability for this order of the current customer instead of the current session.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
                     {
                         "$ref": "#/components/parameters/swLanguageId"
                     }

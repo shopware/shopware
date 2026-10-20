@@ -1,6 +1,8 @@
 name: Danger
 on:
   pull_request_target:
+    # `edited` re-runs the rules that judge the description, e.g. MissingPullRequestDescription
+    types: [opened, edited, synchronize, reopened]
 
 concurrency:
   group: danger-${{ github.event.pull_request.number }}

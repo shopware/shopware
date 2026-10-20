@@ -25,6 +25,29 @@ describe('src/app/service/entity-validation.service.js', () => {
         });
     });
 
+    it('should not report an empty string on a required field that allows one', () => {
+        Shopware.EntityDefinition.add('empty_string_validation_test', {
+            entity: 'empty_string_validation_test',
+            properties: {
+                id: { type: 'uuid', flags: { primary_key: true, required: true } },
+                requiredName: { type: 'string', flags: { required: true, allow_empty_string: true } },
+                plainName: { type: 'string', flags: { required: true } },
+            },
+        });
+
+        const service = createService();
+        service.errorResolver.handleWriteErrors = jest.fn(() => undefined);
+
+        const testEntity = entityFactory.create('empty_string_validation_test');
+        testEntity.requiredName = '';
+        testEntity.plainName = '';
+
+        expect(service.validate(testEntity)).toBe(false);
+        expect(service.errorResolver.handleWriteErrors.mock.calls[0][1].errors).toEqual([
+            { code: REQUIRED_ERROR_CODE, source: { pointer: '/0/plainName' } },
+        ]);
+    });
+
     it('should create a required shopware error with the right error code and source pointer', () => {
         const fieldPointer = '/0/name';
         const error = EntityValidationService.createRequiredError(fieldPointer);

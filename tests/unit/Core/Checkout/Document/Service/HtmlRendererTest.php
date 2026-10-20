@@ -7,9 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Extension\HtmlRendererExtension;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
-use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
+use Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -107,7 +107,7 @@ class HtmlRendererTest extends TestCase
 
         $generatorOutput = $htmlRenderer->render($rendered);
 
-        static::assertNotEmpty($generatorOutput);
+        static::assertNotSame('', $generatorOutput);
         static::assertSame($html, $generatorOutput);
 
         static::assertSame(HtmlRenderer::FILE_EXTENSION, $rendered->getFileExtension());

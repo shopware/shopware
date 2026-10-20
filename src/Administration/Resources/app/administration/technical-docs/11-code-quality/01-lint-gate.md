@@ -31,17 +31,12 @@ Some rules can't be disabled inline.
 They are listed in `rulesWithoutInlineDisable` in `eslint.config.ts`.
 For these rules the baseline is the only way around, and the baseline can't grow.
 
-Three checks block the other ways:
+Two checks block the other ways:
 
 | Comment | Blocked by |
 |---|---|
-| `eslint-disable`, `eslint-disable-line` or `eslint-disable-next-line` naming a listed rule, or a bare `eslint-disable` without rule names | `@eslint-community/eslint-comments/no-restricted-disable` |
+| `eslint-disable`, `eslint-disable-line` or `eslint-disable-next-line` naming a listed rule or an `eslint-comments/` rule, or a bare `eslint-disable` without rule names | `@eslint-community/eslint-comments/no-restricted-disable` |
 | `/* eslint <rule>: "off" */`, which changes a rule's config for the file | `@eslint-community/eslint-comments/no-use`, for every rule |
-| An `eslint-disable` comment that names an `eslint-comments/` rule | The CI step "Lint directives that switch off the lint gate", which runs `.github/bin/js/check-lint-directives.ts` |
-
-ESLint can't report the last one itself, because such a comment also disables the report about it.
-The CI step reads the files instead of running ESLint, so no comment turns it off.
-Run it locally from the repository root with `node .github/bin/js/check-lint-directives.ts src/Administration/Resources/app/administration src/Storefront/Resources/app/administration`.
 
 A rule that joins the list brings its existing inline disables into the baseline as `no-restricted-disable` violations.
 

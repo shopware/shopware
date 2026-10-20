@@ -20,12 +20,12 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(PromotionDefinition::class)]
 class PromotionDefinitionTest extends TestCase
 {
-    public function testOrdersPerCustomerCountIsRemovedWithTheMajor(): void
+    public function testOrdersPerCustomerCountIsRemovedWithTheRedemptionOptimization(): void
     {
         static::assertNull($this->getDefinition()->getFields()->get('ordersPerCustomerCount'));
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DisabledFeatures(['PROMOTION_REDEMPTION_OPTIMIZATION'])]
     public function testOrdersPerCustomerCountIsDeprecated(): void
     {
         $field = $this->getDefinition()->getFields()->get('ordersPerCustomerCount');

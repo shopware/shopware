@@ -65,7 +65,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
     public function testPromotionRedemptionUpdaterUpdateViaIndexer(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
+        Feature::skipTestIfActive('PROMOTION_REDEMPTION_OPTIMIZATION', $this);
 
         $this->createPromotionsAndOrder();
 
@@ -85,7 +85,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
     public function testPromotionRedemptionUpdaterUpdateViaEntityWrittenEvent(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
+        Feature::skipTestIfActive('PROMOTION_REDEMPTION_OPTIMIZATION', $this);
 
         $this->createPromotionsAndOrder();
 
@@ -187,7 +187,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
     public function testRemoveItemMultipleOrders(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
+        Feature::skipTestIfActive('PROMOTION_REDEMPTION_OPTIMIZATION', $this);
 
         $this->createPromotionsAndOrder();
         $firstCustomer = $this->ids->get('customer');
@@ -269,7 +269,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
     public function testPlacingAnOrderOnlyUpdatesTheEntryOfItsCustomer(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
+        Feature::skipTestIfActive('PROMOTION_REDEMPTION_OPTIMIZATION', $this);
 
         $this->createPromotionsAndOrder();
         $firstCustomer = $this->ids->get('customer');

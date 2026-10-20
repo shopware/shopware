@@ -123,9 +123,9 @@ class PromotionDefinition extends EntityDefinition
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
         ]);
 
-        if (!Feature::isActive('v6.8.0.0')) {
+        if (!Feature::isActive('PROMOTION_REDEMPTION_OPTIMIZATION')) {
             $fields->add(
-                (new JsonField('orders_per_customer_count', 'ordersPerCustomerCount'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE), new ResetOnClone(), new Deprecated('v6.7.16.0', 'v6.8.0.0'))->setDescription('The number of times the customer has used the code.'),
+                (new JsonField('orders_per_customer_count', 'ordersPerCustomerCount'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE), new ResetOnClone(), new Deprecated('v6.7.17.0', 'v6.8.0.0'))->setDescription('The number of times the customer has used the code.'),
             );
         }
 

@@ -64,7 +64,7 @@ class PromotionAlreadyRedeemedTest extends TestCase
     public function testReapplyingAOnceRedeemedCodeReportsAlreadyRedeemed(bool $clearStoredCustomerCount): void
     {
         if ($clearStoredCustomerCount) {
-            Feature::skipTestIfActive('v6.8.0.0', $this);
+            Feature::skipTestIfActive('PROMOTION_REDEMPTION_OPTIMIZATION', $this);
         }
 
         $productId = Uuid::randomHex();

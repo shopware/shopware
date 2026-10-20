@@ -46,7 +46,7 @@ class PromotionCloneTest extends TestCase
 
     public function testCloneResetsOrdersPerCustomerCount(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
+        Feature::skipTestIfActive('PROMOTION_REDEMPTION_OPTIMIZATION', $this);
 
         $context = Context::createDefaultContext();
         $sourceId = Uuid::randomHex();

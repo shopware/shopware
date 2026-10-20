@@ -102,7 +102,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
         $this->deletedCodes = [];
         foreach ($lineItems as $lineItem) {
             // @deprecated tag:v6.8.0 - remove together with orders_per_customer_count, including customer_id in the query above
-            if ($lineItem['customer_id'] !== null && !Feature::isActive('v6.8.0.0')) {
+            if ($lineItem['customer_id'] !== null && !Feature::isActive('PROMOTION_REDEMPTION_OPTIMIZATION')) {
                 $this->customerIds[$lineItem['promotion_id']][] = $lineItem['customer_id'];
             }
 
@@ -157,7 +157,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
         }
 
         // @deprecated tag:v6.8.0 - remove the customer lookup together with orders_per_customer_count
-        $customerIds = Feature::isActive('v6.8.0.0') ? [] : $this->fetchCustomerIds($lineItemIds);
+        $customerIds = Feature::isActive('PROMOTION_REDEMPTION_OPTIMIZATION') ? [] : $this->fetchCustomerIds($lineItemIds);
 
         $this->updateRedemptions($promotionIds, $customerIds);
     }
@@ -173,7 +173,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
             return;
         }
 
-        if (Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('PROMOTION_REDEMPTION_OPTIMIZATION')) {
             $this->updateRedemptions($ids, []);
 
             return;

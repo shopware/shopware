@@ -220,7 +220,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $updater->lineItemDeleted(new EntityDeletedEvent('order_line_item', [], Context::createDefaultContext()));
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DisabledFeatures(['PROMOTION_REDEMPTION_OPTIMIZATION'])]
     public function testUpdateValidCase(): void
     {
         $promotionId = Uuid::randomHex();

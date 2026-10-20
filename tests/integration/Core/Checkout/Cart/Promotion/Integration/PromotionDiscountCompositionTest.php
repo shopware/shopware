@@ -192,7 +192,7 @@ class PromotionDiscountCompositionTest extends TestCase
         static::assertSame(1, $promotion->getOrderCount());
         static::assertNotNull($context->getCustomer());
         // @deprecated tag:v6.8.0 - remove the per-customer assertions of this test together with orders_per_customer_count
-        if (!Feature::isActive('v6.8.0.0')) {
+        if (!Feature::isActive('PROMOTION_REDEMPTION_OPTIMIZATION')) {
             static::assertSame([$customerId1 => 1], Feature::silent('v6.8.0.0', static fn (): ?array => $promotion->getOrdersPerCustomerCount()));
         }
 
@@ -206,7 +206,7 @@ class PromotionDiscountCompositionTest extends TestCase
 
         // verify that the promotion has a total order count of 1 and the current customer is although tracked
         static::assertSame(2, $promotion->getOrderCount());
-        if (!Feature::isActive('v6.8.0.0')) {
+        if (!Feature::isActive('PROMOTION_REDEMPTION_OPTIMIZATION')) {
             static::assertSame([$customerId1 => 2], Feature::silent('v6.8.0.0', static fn (): ?array => $promotion->getOrdersPerCustomerCount()));
         }
 
@@ -228,7 +228,7 @@ class PromotionDiscountCompositionTest extends TestCase
 
         static::assertSame(3, $promotion->getOrderCount());
 
-        if (Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('PROMOTION_REDEMPTION_OPTIMIZATION')) {
             return;
         }
 

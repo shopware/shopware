@@ -51,13 +51,13 @@ Reviewers of such a pull request check the diff of `eslint-suppressions.json`.
 
 ## Rules
 
-| Group | Rules | Files | Why |
-|---|---|---|---|
-| Escape hatches | `@eslint-community/eslint-comments/require-description`, `@eslint-community/eslint-comments/no-unlimited-disable` | All | Every disable comment names its rules and says why |
-| Escape hatches | `@typescript-eslint/ban-ts-comment` with `minimumDescriptionLength: 10` | TypeScript | `@ts-expect-error` needs a reason, `@ts-ignore` and `@ts-nocheck` are not allowed |
-| Types | `@typescript-eslint/no-restricted-types` for `$TSFixMe` and `$TSFixMeFunction` | TypeScript | Both are `any` under another name |
-| Types | `@typescript-eslint/no-non-null-assertion`, `no-restricted-syntax` for `as unknown as` | TypeScript, no tests | Types match the runtime values instead of being cast into shape |
-| Errors | `sw-core-rules/no-swallowed-errors` | No tests | A `.catch()` that drops the error needs a comment that says why |
+| Rule | Files | Why |
+|---|---|---|
+| `@eslint-community/eslint-comments/require-description`, `@eslint-community/eslint-comments/no-unlimited-disable` | All | Every disable comment names its rules and says why |
+| `@typescript-eslint/ban-ts-comment` with `minimumDescriptionLength: 10` | TypeScript | `@ts-expect-error` needs a reason, `@ts-ignore` and `@ts-nocheck` are not allowed |
+| `@typescript-eslint/no-restricted-types` for `$TSFixMe` and `$TSFixMeFunction` | TypeScript | Both are `any` under another name |
+| `@typescript-eslint/no-non-null-assertion`, `no-restricted-syntax` for `as unknown as` | TypeScript, no tests | Types match the runtime values instead of being cast into shape |
+| `sw-core-rules/no-swallowed-errors` | No tests | A `.catch()` that drops the error needs a comment that says why |
 
 ## Inline disables
 
@@ -70,7 +70,7 @@ const id = this.$route.params.id!;
 
 `rulesWithoutInlineDisable` in `eslint.config.ts` lists the rules that can't be disabled with an `eslint-disable` comment.
 For these rules the baseline is the only way around.
-The list is empty for now; rules join it in the pull requests that add them.
+Rules join it in the pull requests that add them.
 
 Two rules of `@eslint-community/eslint-plugin-eslint-comments` enforce it:
 

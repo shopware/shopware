@@ -8,10 +8,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Twig\TwigFieldVisibilityTest
  */
 #[Package('fundamentals@framework')]
 class IntegrationEntity extends Entity
@@ -41,6 +44,8 @@ class IntegrationEntity extends Entity
     protected ?\DateTimeInterface $deletedAt = null;
 
     protected ?StateMachineHistoryCollection $stateMachineHistoryEntries = null;
+
+    protected ?WebhookCollection $webhooks = null;
 
     public function getLabel(): string
     {
@@ -146,5 +151,23 @@ class IntegrationEntity extends Entity
     public function setStateMachineHistoryEntries(StateMachineHistoryCollection $stateMachineHistoryEntries): void
     {
         $this->stateMachineHistoryEntries = $stateMachineHistoryEntries;
+    }
+
+    /**
+     * @internal
+     */
+    public function getWebhooks(): ?WebhookCollection
+    {
+        $this->checkIfPropertyAccessIsAllowed('webhooks');
+
+        return $this->webhooks;
+    }
+
+    /**
+     * @internal
+     */
+    public function setWebhooks(WebhookCollection $webhooks): void
+    {
+        $this->webhooks = $webhooks;
     }
 }

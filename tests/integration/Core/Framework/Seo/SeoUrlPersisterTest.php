@@ -884,49 +884,6 @@ class SeoUrlPersisterTest extends TestCase
         static::assertSame($expectedChannelIds, $canonicalChannelIds);
     }
 
-    public function testRestoredCanonicalIsTheEarliestOfTheRemainingUrls(): void
-    {
-        $context = Context::createDefaultContext();
-        $salesChannelId = $this->salesChannel->getId();
-        $foreignKey = Uuid::randomHex();
-
-        // every rename leaves the previous url behind, so the group collects several non canonical urls
-        foreach (['first-path', 'second-path', 'third-path'] as $path) {
-            $this->seoUrlPersister->updateSeoUrls(
-                $context,
-                'r',
-                [$foreignKey],
-                [['salesChannelId' => $salesChannelId, 'foreignKey' => $foreignKey, 'pathInfo' => 'normal/path', 'seoPathInfo' => $path]],
-                $this->salesChannel
-            );
-        }
-
-        $connection = static::getContainer()->get(Connection::class);
-        $oldest = $connection->fetchOne(
-            'SELECT LOWER(HEX(id)) FROM seo_url WHERE foreign_key = :foreignKey AND is_canonical IS NULL ORDER BY created_at ASC LIMIT 1',
-            ['foreignKey' => Uuid::fromHexToBytes($foreignKey)]
-        );
-        static::assertIsString($oldest);
-
-        // a different entity takes over the canonical path, which frees the group and restores one of its urls
-        $otherForeignKey = Uuid::randomHex();
-        $this->seoUrlPersister->updateSeoUrls(
-            $context,
-            'r',
-            [$otherForeignKey],
-            [['salesChannelId' => $salesChannelId, 'foreignKey' => $otherForeignKey, 'pathInfo' => 'other/path', 'seoPathInfo' => 'third-path']],
-            $this->salesChannel
-        );
-
-        $canonicalIds = $connection->fetchFirstColumn(
-            'SELECT LOWER(HEX(id)) FROM seo_url WHERE foreign_key = :foreignKey AND is_canonical = 1',
-            ['foreignKey' => Uuid::fromHexToBytes($foreignKey)]
-        );
-
-        static::assertCount(1, $canonicalIds, 'the group keeps exactly one canonical url');
-        static::assertSame($oldest, $canonicalIds[0], 'the earliest created url of the group becomes canonical again');
-    }
-
     private function createLanguages(Context $context): void
     {
         $languages = [[

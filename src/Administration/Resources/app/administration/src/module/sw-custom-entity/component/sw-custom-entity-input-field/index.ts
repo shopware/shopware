@@ -9,7 +9,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['feature'],
 
-    emits: ['update:value', 'change'],
+    emits: ['update:value'],
 
     props: {
         value: {
@@ -67,9 +67,6 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         onChange(eventInput: string | number): void {
             this.$emit('update:value', eventInput);
-            return;
-
-            this.$emit('change', eventInput);
         },
     },
 });

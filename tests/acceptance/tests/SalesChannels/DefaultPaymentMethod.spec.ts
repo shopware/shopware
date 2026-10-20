@@ -61,31 +61,33 @@ test(
 
         await ShopAdmin.expects(selectedText).toContainText(paymentMethodName);
 
-        const layout = await defaultPaymentMethodField.evaluate((element) => {
-            const label = element.querySelector('.sw-field__label')?.getBoundingClientRect();
-            const block = element.querySelector('.sw-block-field__block')?.getBoundingClientRect();
-            const text = element.querySelector('.sw-entity-single-select__selection-text')?.getBoundingClientRect();
-            const indicator = element.querySelector('.sw-select__selection-indicators')?.getBoundingClientRect();
+        await expect
+            .poll(() =>
+                defaultPaymentMethodField.evaluate((element) => {
+                    const label = element.querySelector('.sw-field__label')?.getBoundingClientRect();
+                    const block = element.querySelector('.sw-block-field__block')?.getBoundingClientRect();
+                    const text = element.querySelector('.sw-entity-single-select__selection-text')?.getBoundingClientRect();
+                    const indicator = element.querySelector('.sw-select__selection-indicators')?.getBoundingClientRect();
 
-            if (!label || !block || !text || !indicator) {
-                return null;
-            }
+                    if (!label || !block || !text || !indicator) {
+                        return null;
+                    }
 
-            return {
-                labelIsAboveField: label.bottom <= block.top,
-                textIsInsideField:
-                    text.left >= block.left &&
-                    text.top >= block.top &&
-                    text.right <= block.right &&
-                    text.bottom <= block.bottom,
-                indicatorIsInsideField: indicator.right <= block.right && indicator.bottom <= block.bottom,
-            };
-        });
-
-        expect(layout).toEqual({
-            labelIsAboveField: true,
-            textIsInsideField: true,
-            indicatorIsInsideField: true,
-        });
+                    return {
+                        labelIsAboveField: label.bottom <= block.top,
+                        textIsInsideField:
+                            text.left >= block.left &&
+                            text.top >= block.top &&
+                            text.right <= block.right &&
+                            text.bottom <= block.bottom,
+                        indicatorIsInsideField: indicator.right <= block.right && indicator.bottom <= block.bottom,
+                    };
+                }),
+            )
+            .toEqual({
+                labelIsAboveField: true,
+                textIsInsideField: true,
+                indicatorIsInsideField: true,
+            });
     },
 );

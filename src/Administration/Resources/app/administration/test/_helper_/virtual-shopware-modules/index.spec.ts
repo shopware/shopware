@@ -14,6 +14,9 @@ import swFormFieldMixin from 'shopware:mixins/sw-form-field';
 import ruleContainerMixin from 'shopware:mixins/ruleContainer';
 import useNotificationStore from 'shopware:stores/notification';
 import useSystemStore from 'shopware:stores/system';
+import composables, { useListing } from 'shopware:composables';
+import useListingDefault from 'shopware:composables/useListing';
+import directUseListing from 'src/app/composables/use-listing';
 
 describe('shopware:* virtual modules', () => {
     describe('root imports', () => {
@@ -22,6 +25,11 @@ describe('shopware:* virtual modules', () => {
             expect(object).toBe(Shopware.Utils.object);
             expect(Criteria).toBe(Shopware.Data.Criteria);
             expect(EntityCollection).toBe(Shopware.Data.EntityCollection);
+        });
+
+        it('export the composables the Administration itself imports', () => {
+            expect(useListing).toBe(directUseListing);
+            expect(composables.useListing).toBe(Shopware.Composables.useListing);
         });
 
         it('export working members', () => {
@@ -39,6 +47,10 @@ describe('shopware:* virtual modules', () => {
 
         it('export a DAL class as default', () => {
             expect(CriteriaClass).toBe(Shopware.Data.Criteria);
+        });
+
+        it('export a composable as default', () => {
+            expect(useListingDefault).toBe(directUseListing);
         });
 
         it('export a registered mixin as default', () => {

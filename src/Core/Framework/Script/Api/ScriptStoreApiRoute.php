@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Script\Api;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
-use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -62,10 +61,7 @@ class ScriptStoreApiRoute
         // hook: store-api-{hook}
         $this->executor->execute($responseHook);
 
-        $fields = new ResponseFields(
-            RequestParamHelper::get($request, 'includes', []),
-            RequestParamHelper::get($request, 'excludes', []),
-        );
+        $fields = ResponseFields::fromRequest($request);
 
         $symfonyResponse = $this->scriptResponseEncoder->encodeToSymfonyResponse(
             $responseHook->getScriptResponse(),
@@ -104,7 +100,7 @@ class ScriptStoreApiRoute
             return null;
         }
 
-        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+        if (!Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
             $invalidationStates = explode(',', (string) $response->headers->get(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
             if ($context->hasState(...$invalidationStates)) {
                 $this->logger->info('cache-miss: ' . $request->getPathInfo());
@@ -124,12 +120,12 @@ class ScriptStoreApiRoute
     {
         $item = $this->cache->getItem($cacheKey);
 
-        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+        if (!Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
             // add the header only for the response in cache and remove the header before the response is sent
             $symfonyResponse->headers->set(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER, implode(',', $cacheConfig->getInvalidationStates()));
         }
         $item = CacheCompressor::compress($item, $symfonyResponse);
-        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+        if (!Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
             $symfonyResponse->headers->remove(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER);
         }
 

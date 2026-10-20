@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Tool\McpEntityIncludes;
+use Shopware\Tests\Unit\Core\Framework\Mcp\Tool\Stub\McpEntityIncludesStub;
 
 /**
  * @internal
@@ -30,7 +31,12 @@ use Shopware\Core\Framework\Mcp\Tool\McpEntityIncludes;
 #[CoversTrait(McpEntityIncludes::class)]
 class McpEntityIncludesTest extends TestCase
 {
-    use McpEntityIncludes;
+    private McpEntityIncludesStub $includes;
+
+    protected function setUp(): void
+    {
+        $this->includes = new McpEntityIncludesStub();
+    }
 
     public function testScalarFieldsAreIncluded(): void
     {
@@ -42,7 +48,7 @@ class McpEntityIncludesTest extends TestCase
             ],
         ]);
 
-        $includes = $this->buildDefaultIncludes($product, new Criteria());
+        $includes = $this->includes->launchBuildDefaultIncludes($product, new Criteria());
 
         static::assertArrayHasKey('product', $includes);
         static::assertContains('id', $includes['product']);
@@ -64,7 +70,7 @@ class McpEntityIncludesTest extends TestCase
             ],
         ]);
 
-        $includes = $this->buildDefaultIncludes($product, new Criteria());
+        $includes = $this->includes->launchBuildDefaultIncludes($product, new Criteria());
 
         static::assertNotContains('categories', $includes['product']);
         static::assertArrayNotHasKey('category', $includes);
@@ -88,7 +94,7 @@ class McpEntityIncludesTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAssociation('manufacturer');
 
-        $includes = $this->buildDefaultIncludes($product, $criteria);
+        $includes = $this->includes->launchBuildDefaultIncludes($product, $criteria);
 
         static::assertContains('manufacturer', $includes['product']);
         static::assertContains('manufacturerId', $includes['product']);
@@ -120,7 +126,7 @@ class McpEntityIncludesTest extends TestCase
         $criteria = new Criteria();
         $criteria->getAssociation('properties')->addAssociation('group');
 
-        $includes = $this->buildDefaultIncludes($product, $criteria);
+        $includes = $this->includes->launchBuildDefaultIncludes($product, $criteria);
 
         static::assertContains('properties', $includes['product']);
         static::assertArrayHasKey('property_group_option', $includes);
@@ -158,7 +164,7 @@ class McpEntityIncludesTest extends TestCase
         $criteria = new Criteria();
         $criteria->getAssociation('cover')->addAssociation('media');
 
-        $includes = $this->buildDefaultIncludes($product, $criteria);
+        $includes = $this->includes->launchBuildDefaultIncludes($product, $criteria);
 
         static::assertContains('cover', $includes['product']);
         static::assertContains('media', $includes['product_media']);
@@ -178,7 +184,7 @@ class McpEntityIncludesTest extends TestCase
         ]);
 
         $criteria = new Criteria();
-        $this->applyDefaultIncludes($product, $criteria);
+        $this->includes->launchApplyDefaultIncludes($product, $criteria);
 
         $includes = $criteria->getIncludes();
         static::assertNotNull($includes);
@@ -197,7 +203,7 @@ class McpEntityIncludesTest extends TestCase
         ]);
 
         $criteria = new Criteria();
-        $this->applyDefaultIncludes($product, $criteria);
+        $this->includes->launchApplyDefaultIncludes($product, $criteria);
 
         $includes = $criteria->getIncludes();
         static::assertNotNull($includes);
@@ -217,7 +223,7 @@ class McpEntityIncludesTest extends TestCase
         $criteria = new Criteria();
         $criteria->setIncludes(['product' => ['id', 'name']]);
 
-        $this->applyDefaultIncludes($product, $criteria);
+        $this->includes->launchApplyDefaultIncludes($product, $criteria);
 
         $includes = $criteria->getIncludes();
         static::assertNotNull($includes);
@@ -238,7 +244,7 @@ class McpEntityIncludesTest extends TestCase
         $criteria = new Criteria();
         $criteria->setIncludes(['product' => ['id', 'name', 'translated']]);
 
-        $this->applyDefaultIncludes($product, $criteria);
+        $this->includes->launchApplyDefaultIncludes($product, $criteria);
 
         $includes = $criteria->getIncludes();
         static::assertNotNull($includes);
@@ -267,7 +273,7 @@ class McpEntityIncludesTest extends TestCase
             'manufacturer' => ['id', 'name'],
         ]);
 
-        $this->applyDefaultIncludes($product, $criteria);
+        $this->includes->launchApplyDefaultIncludes($product, $criteria);
 
         $includes = $criteria->getIncludes();
         static::assertNotNull($includes);
@@ -297,7 +303,7 @@ class McpEntityIncludesTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAssociation('categories');
 
-        $includes = $this->buildDefaultIncludes($product, $criteria);
+        $includes = $this->includes->launchBuildDefaultIncludes($product, $criteria);
 
         static::assertContains('categories', $includes['product']);
         static::assertArrayHasKey('category', $includes);
@@ -324,7 +330,7 @@ class McpEntityIncludesTest extends TestCase
         $criteria = new Criteria();
         $criteria->getAssociation('manufacturer')->addAssociation('products');
 
-        $includes = $this->buildDefaultIncludes($product, $criteria);
+        $includes = $this->includes->launchBuildDefaultIncludes($product, $criteria);
 
         static::assertContains('manufacturer', $includes['product']);
         static::assertArrayHasKey('manufacturer', $includes);
@@ -358,7 +364,7 @@ class McpEntityIncludesTest extends TestCase
             'tag' => ['id', 'name'],
         ]);
 
-        $this->applyDefaultIncludes($product, $criteria);
+        $this->includes->launchApplyDefaultIncludes($product, $criteria);
 
         $includes = $criteria->getIncludes();
         static::assertNotNull($includes);
@@ -378,7 +384,7 @@ class McpEntityIncludesTest extends TestCase
         $criteria = new Criteria();
         $criteria->setIncludes(['other_entity' => ['id']]);
 
-        $this->applyDefaultIncludes($product, $criteria);
+        $this->includes->launchApplyDefaultIncludes($product, $criteria);
 
         $includes = $criteria->getIncludes();
         static::assertNotNull($includes);
@@ -409,7 +415,7 @@ class McpEntityIncludesTest extends TestCase
         $criteria->getAssociation('manufacturer')->addAssociation('logo');
         $criteria->addAssociation('cover');
 
-        $this->applyDefaultIncludes($product, $criteria);
+        $this->includes->launchApplyDefaultIncludes($product, $criteria);
 
         $includes = $criteria->getIncludes();
         static::assertNotNull($includes);
@@ -432,7 +438,7 @@ class McpEntityIncludesTest extends TestCase
         $criteria->addAssociation('nonExistentField');
         $criteria->setIncludes(['product' => ['id', 'name']]);
 
-        $this->applyDefaultIncludes($product, $criteria);
+        $this->includes->launchApplyDefaultIncludes($product, $criteria);
 
         $includes = $criteria->getIncludes();
         static::assertNotNull($includes);
@@ -451,7 +457,7 @@ class McpEntityIncludesTest extends TestCase
         $criteria = new Criteria();
         $criteria->setIncludes(['product' => ['id', 'productNumber']]);
 
-        $this->applyDefaultIncludes($product, $criteria);
+        $this->includes->launchApplyDefaultIncludes($product, $criteria);
 
         $includes = $criteria->getIncludes();
         static::assertNotNull($includes);

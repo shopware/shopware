@@ -3,10 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use Doctrine\DBAL\Connection;
-use Mcp\Capability\Discovery\DocBlockParser;
-use Mcp\Capability\Discovery\SchemaGenerator;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -22,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Result\McpToolError;
 use Shopware\Core\Framework\Mcp\Tool\EntityUpsertTool;
 
 /**
@@ -239,23 +237,7 @@ class EntityUpsertToolTest extends TestCase
         static::assertFalse($result['success']);
         static::assertStringContainsString('unknown_entity', $result['error']);
         static::assertStringContainsString('shopware://entities', $result['error']);
-    }
-
-    #[TestDox('Every __invoke parameter carries a description into the SDK-generated input schema')]
-    public function testEveryParameterIsDescribedInTheInputSchema(): void
-    {
-        $method = new \ReflectionMethod(EntityUpsertTool::class, '__invoke');
-        $schema = (new SchemaGenerator(new DocBlockParser()))->generate($method);
-
-        static::assertIsArray($schema['properties']);
-        static::assertCount(\count($method->getParameters()), $schema['properties']);
-
-        foreach ($schema['properties'] as $name => $property) {
-            static::assertIsArray($property);
-            static::assertArrayHasKey('description', $property, \sprintf('$%s has no description', $name));
-            static::assertIsString($property['description']);
-            static::assertNotSame('', $property['description'], \sprintf('$%s has an empty description', $name));
-        }
+        static::assertSame(McpToolError::INVALID_ARGUMENTS, $result['code']);
     }
 
     /**

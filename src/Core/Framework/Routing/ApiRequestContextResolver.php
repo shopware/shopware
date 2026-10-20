@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -73,6 +74,11 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             }
         }
 
+        $indexingBehavior = $request->headers->get(PlatformRequest::HEADER_INDEXING_BEHAVIOR);
+        if (\in_array($indexingBehavior, [EntityIndexerRegistry::DISABLE_INDEXING, EntityIndexerRegistry::USE_INDEXING_QUEUE], true)) {
+            $context->addState($indexingBehavior);
+        }
+
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
     }
 
@@ -131,7 +137,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     private function resolveContextSource(Request $request): ContextSource
     {
         if ($userId = $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID)) {
-            $appIntegrationId = $request->headers->get(PlatformRequest::HEADER_APP_INTEGRATION_ID, '');
+            $appIntegrationId = strtolower((string) $request->headers->get(PlatformRequest::HEADER_APP_INTEGRATION_ID, ''));
 
             // The app integration id header is only to be used by a privileged user
             if ($appIntegrationId !== '' && $this->userAppIntegrationHeaderPrivileged($userId, $appIntegrationId)) {

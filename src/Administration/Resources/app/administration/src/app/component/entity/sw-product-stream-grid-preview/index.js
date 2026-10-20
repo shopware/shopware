@@ -125,13 +125,9 @@ export default {
             }
 
             if (this.searchTerm.length) {
-                return this.$t(
-                    'global.entity-components.productStreamPreview.emptyMessageNoSearchResults',
-                    this.searchTerm,
-                    {
-                        term: this.searchTerm,
-                    },
-                );
+                return this.$t('global.entity-components.productStreamPreview.emptyMessageNoSearchResults', {
+                    term: this.searchTerm,
+                });
             }
 
             return this.$t('global.entity-components.productStreamPreview.emptyMessageNoProducts');

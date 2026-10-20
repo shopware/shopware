@@ -56,11 +56,16 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
     /**
      * Though this is a GET route, caching was not added as the output may be altered depending on dynamic rules,
      * which is not taken into account during the cache hash calculation.
+     * Given an `orderId`, the route evaluates an existing order of the customer instead of the current session.
+     * Filtering by availability still requires `onlyAvailable`.
      */
     #[Route(
         path: '/store-api/shipping-method',
         name: 'store-api.shipping.method',
-        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => ShippingMethodDefinition::ENTITY_NAME],
+        defaults: [
+            PlatformRequest::ATTRIBUTE_ENTITY => ShippingMethodDefinition::ENTITY_NAME,
+            PlatformRequest::ATTRIBUTE_ALLOW_ORDER_RESTORATION => true,
+        ],
         methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse

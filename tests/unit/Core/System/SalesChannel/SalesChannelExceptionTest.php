@@ -17,6 +17,13 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(SalesChannelException::class)]
 class SalesChannelExceptionTest extends TestCase
 {
+    public function testMcpToolResultNotFoundMatchesTheAdminApiServer(): void
+    {
+        $e = SalesChannelException::mcpToolResultNotFound('abc');
+
+        static::assertSame('Tool result "abc" not found. It may have expired or been stored by another caller.', $e->uri);
+    }
+
     #[DataProvider('exceptionDataProvider')]
     public function testExceptions(ShopwareHttpException|SalesChannelException $exception, int $statusCode, string $errorCode, string $message): void
     {
@@ -106,5 +113,14 @@ class SalesChannelExceptionTest extends TestCase
             'errorCode' => SalesChannelException::CONTEXT_TOKEN_NOT_ACCESSIBLE,
             'message' => 'The context token is not accessible in Twig rendering context, as the token should never be leaked in HTML content.',
         ];
+    }
+
+    public function testWrongTypeInTheRequestIsAClientError(): void
+    {
+        $exception = SalesChannelException::invalidType('The includes must be of the type array, string given');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SalesChannelException::INVALID_TYPE, $exception->getErrorCode());
+        static::assertSame('The includes must be of the type array, string given', $exception->getMessage());
     }
 }

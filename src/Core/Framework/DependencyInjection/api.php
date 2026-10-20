@@ -52,6 +52,7 @@ use Shopware\Core\Framework\Api\Cors\CorsHeaderProviderInterface;
 use Shopware\Core\Framework\Api\EventListener\Authentication\ApiAuthenticationListener;
 use Shopware\Core\Framework\Api\EventListener\Authentication\SalesChannelAuthenticationListener;
 use Shopware\Core\Framework\Api\EventListener\Authentication\UserCredentialsChangedSubscriber;
+use Shopware\Core\Framework\Api\EventListener\CompressedCriteriaRequestListener;
 use Shopware\Core\Framework\Api\EventListener\CorsListener;
 use Shopware\Core\Framework\Api\EventListener\ExpectationSubscriber;
 use Shopware\Core\Framework\Api\EventListener\JsonRequestTransformerListener;
@@ -85,6 +86,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Feature\FeatureFlagRegistry;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
@@ -440,6 +442,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set(JsonRequestTransformerListener::class)
+        ->tag('kernel.event_subscriber');
+
+    $services->set(CompressedCriteriaRequestListener::class)
+        ->args([
+            service(CompressedCriteriaDecoder::class),
+        ])
         ->tag('kernel.event_subscriber');
 
     $services->set(ExpectationSubscriber::class)

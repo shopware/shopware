@@ -29,7 +29,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 #[Package('framework')]
 #[CoversClass(SalesChannelFileNotFoundSubscriber::class)]
-#[CoversClass(SalesChannelFileRequestPathResolver::class)]
 class SalesChannelFileNotFoundSubscriberTest extends TestCase
 {
     public function testGetSubscribedEvents(): void

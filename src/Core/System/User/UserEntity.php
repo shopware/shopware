@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyCollection;
@@ -63,6 +64,8 @@ class UserEntity extends Entity
     protected ?UserAccessKeyCollection $accessKeys = null;
 
     protected ?UserConfigCollection $configs = null;
+
+    protected ?WebhookCollection $webhooks = null;
 
     protected ?StateMachineHistoryCollection $stateMachineHistoryEntries = null;
 
@@ -377,5 +380,23 @@ class UserEntity extends Entity
     public function setTimeZone(string $timeZone): void
     {
         $this->timeZone = $timeZone;
+    }
+
+    /**
+     * @internal
+     */
+    public function getWebhooks(): ?WebhookCollection
+    {
+        $this->checkIfPropertyAccessIsAllowed('webhooks');
+
+        return $this->webhooks;
+    }
+
+    /**
+     * @internal
+     */
+    public function setWebhooks(WebhookCollection $webhooks): void
+    {
+        $this->webhooks = $webhooks;
     }
 }

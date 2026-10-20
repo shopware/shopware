@@ -46,6 +46,8 @@ function getDirectiveByName(name: string) {
 
 /**
  * Get the complete registry of directives.
+ *
+ * @returns {Map<String, Object>}
  */
 function getDirectiveRegistry() {
     return directiveRegistry;

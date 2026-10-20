@@ -199,6 +199,7 @@ class Tooltip {
      * Creates a wrapper around the original DOMElement.
      * This is needed because a disabled input field does not fire any mouse events and prevents the tooltip
      * therefore from working.
+     * @returns {HTMLElement}
      */
     createParentDOMElementWrapper() {
         const element = document.createElement('div');
@@ -263,6 +264,7 @@ class Tooltip {
 
     /**
      * Gets the parent element by tag name and tooltip id and returns true or false whether the element exists.
+     * @returns {boolean}
      * @private
      */
     _doesParentExist() {

@@ -78,6 +78,7 @@ type CustomFieldConditionConfig = {
  * @memberOf module:app/service/rule-condition
  * @constructor
  * @method createConditionService
+ * @returns {Object}
  */
 export default class RuleConditionService {
     $store: { [key: string]: Condition } = {};
@@ -575,8 +576,14 @@ export default class RuleConditionService {
     }
 
     /**
-     * Maps each restricted condition name to the associations of the rule that restrict it, for example
-     * `{ conditionName: [{ associationName: 'association', snippet: 'sw.snippet.association' }] }`.
+     * @param {Entity} r
+     * @returns {Object}
+     * {
+     *     conditionName: [
+     *         { associationName: "association", snippet: "sw.snippet.association"},
+     *         { associationName: "otherAssociation", snippet: "sw.snippet.otherAssociation"},
+     *     ]
+     * }
      */
     getRestrictedConditions(r: Entity<'rule'>) {
         if (!r) {
@@ -661,6 +668,9 @@ export default class RuleConditionService {
     /**
      * Checks the conditions with the current awareness configuration for the assignment name
      * and returns the result.
+     * @param {EntityCollection} conditions
+     * @param {String} assignmentName
+     * @returns {object}
      * Example return: {
      *      assignmentName: assignmentName,
      *      notEqualsViolations: [{}, {}],
@@ -723,6 +733,8 @@ export default class RuleConditionService {
     /**
      * Checks the conditions with the current awareness configuration and returns the result for
      * every assignment name.
+     * @param {EntityCollection} conditions
+     * @returns {object}
      * Example return: {
      *     associationName: {
      *         assignmentName: assignmentName,
@@ -756,6 +768,9 @@ export default class RuleConditionService {
 
     /**
      * Translates a list of violations and return the translated text
+     * @param {array} violations
+     * @param {string} connectionSnippetPath
+     * @returns {string}
      */
     getTranslatedConditionViolationList(violations: Array<{ label: string }>, connectionSnippetPath: string) {
         const app = Shopware.Application.getApplicationRoot();
@@ -776,6 +791,12 @@ export default class RuleConditionService {
         return text;
     }
 
+    /**
+     *
+     * @param {EntityCollection} ruleConditions
+     * @param {string|null} ruleAwareGroupKey
+     * @returns {object}
+     */
     getRestrictedRuleTooltipConfig(ruleConditions: EntityCollection<'rule_condition'>, ruleAwareGroupKey: string | null) {
         const app = Shopware.Application.getApplicationRoot();
 
@@ -821,6 +842,12 @@ export default class RuleConditionService {
         };
     }
 
+    /**
+     *
+     * @param {EntityCollection} ruleConditions
+     * @param {string|null} ruleAwareGroupKey
+     * @returns {boolean}
+     */
     isRuleRestricted(ruleConditions: EntityCollection<'rule_condition'>, ruleAwareGroupKey: string | null) {
         if (!ruleAwareGroupKey) {
             return false;

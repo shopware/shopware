@@ -26,10 +26,11 @@ export interface CurrencyOptions extends Intl.NumberFormatOptions {
  * Converts a Number to a formatted currency. Especially helpful for template filters.
  * Defaults to the currencyISOCode of the standard currency and locale of the user.
  *
- * @param val - Number which should be formatted as a currency.
- * @param sign - Currency sign which should be displayed
- * @param [decimalPlaces] - Number of decimal places
- * @returns Formatted string
+ * @param {Number} val - Number which should be formatted as a currency.
+ * @param {String} sign - Currency sign which should be displayed
+ * @param {Number} [decimalPlaces] - Number of decimal places
+ * @param {Object} additionalOptions
+ * @returns {string} Formatted string
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function currency(val: number, sign: string, decimalPlaces: number, additionalOptions: CurrencyOptions = {}): string {
@@ -91,6 +92,10 @@ interface DateFilterOptions extends Intl.DateTimeFormatOptions {
 
 /**
  * Formats a Date object to a localized string
+ *
+ * @param {string} val
+ * @param {Object} options
+ * @returns {string}
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function date(val: string, options: DateFilterOptions = {}): string {
@@ -125,6 +130,9 @@ export function date(val: string, options: DateFilterOptions = {}): string {
 
 /**
  * Formats a Date object to the currently selected timezone.
+ *
+ * @param {Date} dateObj
+ * @returns {Date}
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function dateWithUserTimezone(dateObj: Date = new Date()): Date {
@@ -146,6 +154,9 @@ export function dateWithUserTimezone(dateObj: Date = new Date()): Date {
 
 /**
  * Generates a md5 hash of the given value.
+ *
+ * @param {String} value
+ * @return {String}
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function md5(value: string): string {

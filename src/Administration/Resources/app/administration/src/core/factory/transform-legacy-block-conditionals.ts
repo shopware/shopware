@@ -209,6 +209,9 @@ let legacyTwigBlockIndexVersion = -1;
 /**
  * Clears cross-pass aliases between local and full condition chain keys.
  * Use it during test teardown or when rebuilding the legacy Twig block index from scratch.
+ *
+ * @example
+ * resetLegacyConditionContinuationContexts();
  */
 function resetLegacyConditionContinuationContexts(): void {
     legacyConditionContinuationContexts.clear();
@@ -972,6 +975,9 @@ function collectExistingCaseStartIndices(componentName: string): Record<string, 
 /**
  * Rebuilds the legacy Twig block index when stored entries or continuation aliases changed.
  * Use it lazily before reads so aliases discovered by native rewrites are reflected in shim entries.
+ *
+ * @example
+ * ensureLegacyTwigBlockIndex();
  */
 function ensureLegacyTwigBlockIndex(): void {
     if (!legacyTwigBlockIndexDirty && legacyTwigBlockIndexVersion === legacyConditionContinuationContextVersion) {
@@ -1071,6 +1077,9 @@ export function hasLegacyTwigBlockEntries(componentName: string, blockName: stri
 /**
  * Clears all indexed Twig block condition state.
  * Use it from test teardown or component-factory reset paths that rebuild templates from scratch.
+ *
+ * @example
+ * resetLegacyTwigBlockConditionIndex();
  *
  * @private
  */

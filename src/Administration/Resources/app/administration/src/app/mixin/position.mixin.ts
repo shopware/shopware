@@ -54,7 +54,11 @@ export default Shopware.Mixin.register(
             /**
              * Raises the position value bye swapping with the next entity
              *
-             * @param field - Name of the position column
+             * @param {EntityCollection} collection
+             * @param {Entity} selectedItem
+             * @param {String} field - Name of the position column
+             *
+             * @returns {EntityCollection}
              */
             raisePositionValue<EntityName extends keyof EntitySchema.EntityKeys>(
                 collection: EntityCollection<EntityName>,
@@ -67,8 +71,12 @@ export default Shopware.Mixin.register(
             /**
              * Raises/Lowers the position value bye swapping with the next entity
              *
-             * @param field - Name of the position column
-             * @param direction - 'ASC' or 'DESC' depending on the directions, where you want to move your position
+             * @param {EntityCollection} collection
+             * @param {Entity} selectedItem
+             * @param {String} field - Name of the position column
+             * @param {String} direction - 'ASC' or 'DESC' depending on the directions, where you want to move your position
+             *
+             * @returns {EntityCollection}
              */
             changePosition<EntityName extends keyof EntitySchema.EntityKeys>(
                 collection: EntityCollection<EntityName>,
@@ -114,8 +122,12 @@ export default Shopware.Mixin.register(
             /**
              * Gets the item id next to the selectedItem, while the direction decides which sibling to choose
              *
-             * @param field - Name of the position column
-             * @param direction - 'ASC' or 'DESC' depending on the directions
+             * @param {EntityCollection} collection
+             * @param {Entity} selectedItem
+             * @param {String} field - Name of the position column
+             * @param {String} direction - 'ASC' or 'DESC' depending on the directions
+             *
+             * @returns {int}
              */
             getSiblingIndex<EntityName extends keyof EntitySchema.EntityKeys>(
                 collection: EntityCollection<EntityName>,
@@ -144,8 +156,12 @@ export default Shopware.Mixin.register(
             /**
              * Gets the item next to the selectedItem, while the direction decides which sibling to choose
              *
-             * @param field - Name of the position column
-             * @param direction - 'ASC' or 'DESC' depending on the directions
+             * @param {EntityCollection} collection
+             * @param {Entity} selectedItem
+             * @param {String} field - Name of the position column
+             * @param {String} direction - 'ASC' or 'DESC' depending on the directions
+             *
+             * @returns {Entity|null}
              */
             getSibling<EntityName extends keyof EntitySchema.EntityKeys>(
                 collection: EntityCollection<EntityName>,
@@ -168,8 +184,11 @@ export default Shopware.Mixin.register(
             /**
              * Renumbers all position values incrementally
              *
-             * @param startIndex - Sets the position value of the first entry
-             * @param field - Name of the position column
+             * @param {EntityCollection} collection
+             * @param {int} startIndex - Sets the position value of the first entry
+             * @param {String} field - Name of the position column
+             *
+             * @returns {EntityCollection}
              */
             renumberPositions<EntityName extends keyof EntitySchema.EntityKeys>(
                 collection: EntityCollection<EntityName>,

@@ -24,7 +24,6 @@ import filenameRules from 'eslint-plugin-filename-rules';
 import vuejsAccessibility from 'eslint-plugin-vuejs-accessibility';
 import listeners from 'eslint-plugin-listeners';
 import json from '@eslint/json';
-import jsdoc from 'eslint-plugin-jsdoc';
 
 import swTestRules from 'eslint-plugin-sw-test-rules';
 import twigVue from 'eslint-plugin-twig-vue';
@@ -751,15 +750,9 @@ export default [
             '**/*.ts',
             '**/*.tsx',
         ],
-        plugins: {
-            jsdoc,
-        },
         rules: {
             ...baseRules,
             '@typescript-eslint/ban-ts-comment': 0,
-            // The signature already holds the type in TypeScript
-            'jsdoc/no-types': 'error',
-            'jsdoc/informative-docs': 'error',
             '@typescript-eslint/no-unsafe-member-access': 'error',
             '@typescript-eslint/no-unsafe-call': 'error',
             '@typescript-eslint/no-unsafe-assignment': 'error',

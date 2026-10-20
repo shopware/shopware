@@ -8,6 +8,7 @@ export default class TimezoneService {
      * @sw-package framework
      *
      * Returns an array of all timezones in the world
+     * @returns {Promise<string[]>}
      */
     async loadTimezones() {
         const timezonesImport = await import('@vvo/tzdb/time-zones-names.json');
@@ -19,6 +20,7 @@ export default class TimezoneService {
      * @sw-package framework
      *
      * Returns an array of time zones objects
+     * @returns {object[]}
      */
     getTimezoneOptions() {
         const timezones = getTimeZones();
@@ -40,6 +42,7 @@ export default class TimezoneService {
      * @sw-package framework
      * @param number
      * Returns a string containing UTC, hours, and minutes
+     * @returns {string}
      */
     toUTCTime(number: number): string {
         if (number === 0) {

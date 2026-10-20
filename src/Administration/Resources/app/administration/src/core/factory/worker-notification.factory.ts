@@ -53,6 +53,7 @@ let initialized = false;
 
 /**
  * Returns the registry
+ * @return {Map}
  */
 function getRegistry() {
     return registry;
@@ -76,6 +77,9 @@ export type NotificationWorkerOptions = {
 
 /**
  * Registers a new worker notification middleware function.
+ * @param {String} name
+ * @param {Object} opts
+ * @return {boolean}
  */
 function register(name: string, opts: NotificationWorkerOptions) {
     if (!name || !name.length) {
@@ -96,6 +100,8 @@ function register(name: string, opts: NotificationWorkerOptions) {
 
 /**
  * Removes an existing worker notification middleware function.
+ * @param {String} name
+ * @return {boolean}
  */
 function remove(name: string) {
     if (!name || !name.length) {
@@ -112,6 +118,9 @@ function remove(name: string) {
 
 /**
  * Overrides an existing worker notification middleware function.
+ * @param {String} name
+ * @param {Object} opts
+ * @return {boolean}
  */
 function override(name: string, opts: { name: string; fn: () => unknown }) {
     if (!registry.has(name)) {
@@ -128,6 +137,7 @@ function override(name: string, opts: { name: string; fn: () => unknown }) {
 
 /**
  * Initializes the middleware helper. If the helper was initialized before, the instance of the helper will be returned.
+ * @return {MiddlewareHelper}
  */
 function initialize() {
     if (initialized) {
@@ -143,6 +153,9 @@ function initialize() {
 
 /**
  * Helper method which wraps the middleware function.
+ * @param {String} name
+ * @param {Function} fn
+ * @return {Function}
  */
 function middlewareFunctionWrapper(name: string, fn: (next: () => unknown, data: unknown) => unknown) {
     return (next: () => unknown, data: { queue: Array<{ name: string }> }) => {
@@ -159,6 +172,8 @@ function middlewareFunctionWrapper(name: string, fn: (next: () => unknown, data:
 
 /**
  * Validates the options object
+ * @param {Object} opts
+ * @return {Boolean|boolean}
  */
 function validateOpts(opts: NotificationWorkerOptions) {
     return hasOwnProperty(opts, 'name') && opts.name.length > 0 && hasOwnProperty(opts, 'fn') && types.isFunction(opts.fn);
@@ -166,6 +181,7 @@ function validateOpts(opts: NotificationWorkerOptions) {
 
 /**
  * Helper method for unit tests
+ * @return {boolean}
  */
 function resetHelper() {
     helper = new MiddlewareHelper();

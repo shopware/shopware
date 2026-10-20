@@ -55,8 +55,9 @@ export default Shopware.Mixin.register(
             /**
              * Receives the whole settings entity via identifier key
              *
-             * @param identifier Used to identify its target use
-             * @param userId Id of the target user; `null` will use the current user
+             * @param {string} identifier Used to identify its target use
+             * @param {string|null} userId Id of the target user; `null` will use the current user
+             * @return {Promise<*>}
              */
             getUserSettingsEntity(
                 identifier: string,
@@ -80,8 +81,9 @@ export default Shopware.Mixin.register(
             /**
              * Receives settings values via identifier key
              *
-             * @param identifier Used to identify its target use
-             * @param userId Id of the target user; `null` will use the current user
+             * @param {string} identifier Used to identify its target use
+             * @param {string|null} userId Id of the target user; `null` will use the current user
+             * @return {Promise<*>}
              */
             async getUserSettings(identifier: string, userId = null): Promise<unknown> {
                 if (!this.acl.can('user_config:read')) {
@@ -106,9 +108,10 @@ export default Shopware.Mixin.register(
             /**
              * Saves settings to the currently logged in user
              *
-             * @param identifier Unique key to identify its target use
-             * @param entityValue Values to save
-             * @param userId Id of the target user; `null` will use the current user
+             * @param {string} identifier Unique key to identify its target use
+             * @param {{[key: string]: any}} entityValue Values to save
+             * @param {string|null} userId Id of the target user; `null` will use the current user
+             * @return {Promise<*>}
              */
             async saveUserSettings(
                 identifier: string,
@@ -158,8 +161,9 @@ export default Shopware.Mixin.register(
              * Provides the userSettings criteria used for the queries
              *
              * @internal
-             * @param identifier Used to identify its target use
-             * @param userId Id of the target user; `null` will use the current user
+             * @param {string} identifier Used to identify its target use
+             * @param {string|null} userId Id of the target user; `null` will use the current user
+             * @return {Criteria}
              */
             userGridSettingsCriteria(identifier: string, userId: EntityKey<'user'> | null = null) {
                 if (!userId) {

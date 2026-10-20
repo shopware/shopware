@@ -293,6 +293,7 @@ export default class PrivilegesService {
 
     /**
      *
+     * @returns {PrivilegesService}
      * @param privilegeMappings {Object[]}
      */
     public addPrivilegeMappingEntries(privilegeMappings: unknown) {

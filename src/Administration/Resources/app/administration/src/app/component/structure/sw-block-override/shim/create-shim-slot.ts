@@ -159,6 +159,9 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
     /**
      * Drops persisted chain state when the owning shim component is removed.
      * Use it as the shim component `beforeUnmount` hook.
+     *
+     * @example
+     * clearExtensionChain();
      */
     const clearExtensionChain = () => {
         getReservedLegacyConditionChainKeys(dataScopeRef.value, entry).forEach((chainKey) => {
@@ -287,6 +290,9 @@ function buildSetupContext(getDataScope: () => DataScope): Record<string, unknow
 /**
  * Resets module-level shim-slot state used to de-duplicate warnings.
  * Use it in test teardown only, never in production code.
+ *
+ * @example
+ * resetShimSlotState();
  *
  * @private
  */

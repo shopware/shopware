@@ -17,6 +17,10 @@ interface SortElements {
 
 /**
  * Sorts the elements by their after id property chain
+ *
+ * @param {array} elements
+ * @param {string} property
+ * @returns {array}
  */
 function afterSort(elements: SortElements[], property = 'afterId'): SortElements[] {
     if (elements.length === 0) {

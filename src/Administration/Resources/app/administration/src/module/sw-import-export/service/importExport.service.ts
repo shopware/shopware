@@ -24,6 +24,7 @@ export default class ImportExportService extends ApiService {
      * @param profileId {EntityKey<'import_export_profile'>} Profile entity
      * @param callback {Function} Callback for progress
      * @param config {Object} Additional config for profile
+     * @returns {Promise<void>}
      */
     async export(profileId: EntityKey<'import_export_profile'>, callback: () => unknown, config: unknown) {
         const expireDate = new Date();
@@ -46,6 +47,7 @@ export default class ImportExportService extends ApiService {
      * Download the export file
      *
      * @param fileId {EntityKey<'import_export_file'>} File entity
+     * @returns {string}
      */
     async getDownloadUrl(fileId: EntityKey<'import_export_file'>) {
         const accessTokenResponse: {
@@ -66,6 +68,7 @@ export default class ImportExportService extends ApiService {
      * Get url for profile template download.
      *
      * @param profileId {EntityKey<'import_export_profile'>}
+     * @returns {string}
      */
     async getTemplateFileDownloadUrl(profileId: EntityKey<'import_export_profile'>) {
         const prepareResponse: {
@@ -90,6 +93,7 @@ export default class ImportExportService extends ApiService {
      * @param sourceEntity {string} the source entity for the mapping
      * @param delimiter {string}
      * @param enclosure {string}
+     * @returns {Promise<Object>}
      */
     getMappingFromTemplate(file: File, sourceEntity: string, delimiter = ';', enclosure = '"') {
         const formData = new FormData();
@@ -120,6 +124,7 @@ export default class ImportExportService extends ApiService {
      * @param callback {Function} Callback for progress
      * @param config {Object} Additional config for profile
      * @param dryRun {Boolean} Set if import is a dry run
+     * @returns {Promise<void>}
      */
     async import(
         profileId: EntityKey<'import_export_profile'>,
@@ -155,6 +160,7 @@ export default class ImportExportService extends ApiService {
     /**
      * @param logEntry {EntityKey<'import_export_log'>} log entity
      * @param callback
+     * @returns {Promise<void>}
      */
     async trackProgress(
         logEntry: { data: { log: { id: EntityKey<'import_export_log'> } } },
@@ -187,7 +193,7 @@ export default class ImportExportService extends ApiService {
 
     /**
      * @param logId {EntityKey<'import_export_log'>} log id
-     * @returns - ApiService.handleResponse(response)
+     * @returns {Promise<*>} - ApiService.handleResponse(response)
      */
     cancel(logId: EntityKey<'import_export_log'>): Promise<unknown> {
         return this.httpClient

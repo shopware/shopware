@@ -95,12 +95,6 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
-    watch: {
-        date() {
-            this.formattedRelativeTime = this.formatRelativeTime();
-        },
-    },
-
     mounted() {
         // subscriber to the updater, which updates the formatted date every 30 seconds
         useUpdateClock(() => {
@@ -110,6 +104,12 @@ export default Shopware.Component.wrapComponentConfig({
             this.now = Date.now();
             this.formattedRelativeTime = this.formatRelativeTime();
         });
+    },
+
+    watch: {
+        date() {
+            this.formattedRelativeTime = this.formatRelativeTime();
+        },
     },
 
     methods: {

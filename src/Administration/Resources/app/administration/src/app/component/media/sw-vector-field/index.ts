@@ -9,9 +9,9 @@ import './sw-vector-field.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: ['feature'],
-
     emits: ['update:value', 'input-change', 'link-change'],
+
+    inject: ['feature'],
 
     mixins: [
         Shopware.Mixin.getByName('sw-form-field'),
@@ -66,6 +66,15 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
+    computed: {
+        classes(): Record<string, boolean> {
+            return {
+                'sw-vector-field': true,
+                [`sw-vector-field--${this.variant}`]: true,
+            };
+        },
+    },
+
     data() {
         return {
             linked: false,
@@ -77,13 +86,11 @@ export default Shopware.Component.wrapComponentConfig({
         };
     },
 
-    computed: {
-        classes(): Record<string, boolean> {
-            return {
-                'sw-vector-field': true,
-                [`sw-vector-field--${this.variant}`]: true,
-            };
-        },
+    mounted() {
+        if (this.linkable && this.value.x === this.value.y && this.value.x === this.value.z) {
+            this.linked = true;
+            this.$emit('link-change', this.linked);
+        }
     },
 
     watch: {
@@ -99,13 +106,6 @@ export default Shopware.Component.wrapComponentConfig({
                 };
             },
         },
-    },
-
-    mounted() {
-        if (this.linkable && this.value.x === this.value.y && this.value.x === this.value.z) {
-            this.linked = true;
-            this.$emit('link-change', this.linked);
-        }
     },
 
     methods: {

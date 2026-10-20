@@ -12,6 +12,12 @@ export default Shopware.Mixin.register(
     defineComponent({
         inject: ['feature'],
 
+        data() {
+            return {
+                inheritanceAttrs: {},
+            };
+        },
+
         provide() {
             return {
                 // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -34,12 +40,6 @@ export default Shopware.Mixin.register(
                 required: false,
                 default: null,
             },
-        },
-
-        data() {
-            return {
-                inheritanceAttrs: {},
-            };
         },
 
         computed: {

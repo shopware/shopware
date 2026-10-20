@@ -13,6 +13,12 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['userActivityService', 'loginService', 'feature'],
 
+    metaInfo() {
+        return {
+            title: this.$t('global.sw-admin-menu.textShopwareAdmin'),
+        };
+    },
+
     data(): {
         channel: BroadcastChannel | null;
         toasts: Toast[];
@@ -20,12 +26,6 @@ export default Shopware.Component.wrapComponentConfig({
         return {
             channel: null,
             toasts: [],
-        };
-    },
-
-    metaInfo() {
-        return {
-            title: this.$t('global.sw-admin-menu.textShopwareAdmin'),
         };
     },
 

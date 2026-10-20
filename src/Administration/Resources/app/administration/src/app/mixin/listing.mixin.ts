@@ -92,6 +92,40 @@ export default Shopware.Mixin.register(
             },
         },
 
+        created() {
+            this.previousRouteName = this.$route.name as string;
+
+            if (this.disableRouteParams) {
+                this.getList();
+                return;
+            }
+
+            const actualQueryParameters: LocationQuery = this.$route.query;
+
+            // When no route information are provided
+            if (Shopware.Utils.types.isEmpty(actualQueryParameters)) {
+                this.resetListing();
+            } else {
+                this.parseBooleanQueryParams(actualQueryParameters);
+
+                // otherwise update local data and fetch from server
+                this.updateData(actualQueryParameters);
+                this.getList();
+            }
+        },
+
+        beforeRouteLeave(to) {
+            const targetRouteName = typeof to !== 'string' && 'name' in to ? to.name : undefined;
+
+            // Routes from the `sw-bulk-edit` module are generated under `sw.bulk.edit.*`.
+            if (typeof targetRouteName === 'string' && targetRouteName.startsWith('sw.bulk.edit.')) {
+                return;
+            }
+
+            Shopware.Store.get('shopwareApps').selectedIds = [];
+            Shopware.Store.get('swBulkEdit').selectedIds = [];
+        },
+
         watch: {
             // Watch for changes in query parameters and update listing
             $route(newRoute, oldRoute) {
@@ -137,40 +171,6 @@ export default Shopware.Mixin.register(
             sortDirection() {
                 this.freshSearchTerm = false;
             },
-        },
-
-        created() {
-            this.previousRouteName = this.$route.name as string;
-
-            if (this.disableRouteParams) {
-                this.getList();
-                return;
-            }
-
-            const actualQueryParameters: LocationQuery = this.$route.query;
-
-            // When no route information are provided
-            if (Shopware.Utils.types.isEmpty(actualQueryParameters)) {
-                this.resetListing();
-            } else {
-                this.parseBooleanQueryParams(actualQueryParameters);
-
-                // otherwise update local data and fetch from server
-                this.updateData(actualQueryParameters);
-                this.getList();
-            }
-        },
-
-        beforeRouteLeave(to) {
-            const targetRouteName = typeof to !== 'string' && 'name' in to ? to.name : undefined;
-
-            // Routes from the `sw-bulk-edit` module are generated under `sw.bulk.edit.*`.
-            if (typeof targetRouteName === 'string' && targetRouteName.startsWith('sw.bulk.edit.')) {
-                return;
-            }
-
-            Shopware.Store.get('shopwareApps').selectedIds = [];
-            Shopware.Store.get('swBulkEdit').selectedIds = [];
         },
 
         methods: {

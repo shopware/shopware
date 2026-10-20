@@ -13,8 +13,8 @@ import SwSettingsUsageDataConsentCheckList from '../sw-settings-usage-data-conse
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({
-    name: 'sw-settings-usage-data-store-data-consent',
     template,
+    name: 'sw-settings-usage-data-store-data-consent',
 
     components: {
         SwSettingsUsageDataStoreDataConsentCard,

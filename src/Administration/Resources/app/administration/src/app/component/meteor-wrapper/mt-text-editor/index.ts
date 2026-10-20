@@ -14,8 +14,6 @@ import './mt-text-editor.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    emits: ['update:modelValue'],
-
     components: {
         'mt-text-editor-original': MtTextEditorOriginal,
     },
@@ -43,6 +41,8 @@ export default Shopware.Component.wrapComponentConfig({
             default: () => [],
         },
     },
+
+    emits: ['update:modelValue'],
 
     computed: {
         compatValue: {

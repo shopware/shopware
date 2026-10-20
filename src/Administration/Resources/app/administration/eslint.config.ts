@@ -81,9 +81,8 @@ const testFiles = [
 
 // Inline disables are blocked for these rules, so eslint-suppressions.json is the only way around them
 const rulesWithoutInlineDisable: string[] = [
-    'sw-core-rules/no-javascript-files',
+    'filename-rules/not-match',
     'sw-core-rules/no-new-mixins',
-    'sw-core-rules/require-wrap-component-config',
 ];
 
 /**
@@ -295,19 +294,15 @@ export default [
     ...pluginVue.configs['flat/recommended']
         .filter((c) => c.name === 'vue/base/setup' || c.name === 'vue/base/setup-for-vue')
         .map((c) => ({ ...c, ignores: ['**/*.json'] })),
+    // Vue rules scoped to JS, Vue, and Twig files only (not TS)
     ...pluginVue.configs['flat/recommended']
         .filter((c) => c.name !== 'vue/base/setup' && c.name !== 'vue/base/setup-for-vue')
         .map((c) => ({
             ...c,
             files: [
                 '**/*.js',
-                '**/*.ts',
                 '**/*.vue',
                 '**/*.html.twig',
-            ],
-            ignores: [
-                '**/*.spec.ts',
-                '**/*.spec/*.ts',
             ],
         })),
 
@@ -429,7 +424,7 @@ export default [
         },
     },
 
-    // JS files (non-spec): Vue parser
+    // JS files (non-spec): Vue parser + component rules
     {
         files: ['**/*.js'],
         ignores: ['**/*.spec.js'],
@@ -442,26 +437,6 @@ export default [
         rules: {
             'sw-core-rules/require-explicit-emits': 'error',
             'sw-core-rules/enforce-async-component-registers': 'error',
-            'sw-deprecation-rules/no-compat-conditions': ['error'],
-            'sw-deprecation-rules/no-empty-listeners': [
-                'error',
-                'enableFix',
-            ],
-            'sw-deprecation-rules/no-vue-options-api': 'off',
-        },
-    },
-
-    // Component rules for JS and TS source files
-    {
-        files: [
-            '**/*.js',
-            '**/*.ts',
-        ],
-        ignores: [
-            '**/*.spec.js',
-            '**/*.spec.ts',
-        ],
-        rules: {
             'vue/require-prop-types': 'error',
             'vue/require-default-prop': 'error',
             'vue/no-mutating-props': 'error',
@@ -521,6 +496,12 @@ export default [
             'vue/no-deprecated-events-api': 'error',
             'vue/require-slots-as-functions': 'error',
             'vue/no-deprecated-props-default-this': 'error',
+            'sw-deprecation-rules/no-compat-conditions': ['error'],
+            'sw-deprecation-rules/no-empty-listeners': [
+                'error',
+                'enableFix',
+            ],
+            'sw-deprecation-rules/no-vue-options-api': 'off',
         },
     },
 
@@ -776,23 +757,25 @@ export default [
         },
     },
 
-    // Patterns that only lived in documents before
+    // New source code is TypeScript, shared logic goes into composables
+    {
+        files: ['src/**/*.js'],
+        ignores: testFiles,
+        rules: {
+            'filename-rules/not-match': [
+                'error',
+                /\.js$/,
+            ],
+        },
+    },
     {
         files: [
             'src/**/*.js',
             'src/**/*.ts',
-            'src/**/*.vue',
         ],
         ignores: testFiles,
         rules: {
             'sw-core-rules/no-new-mixins': 'error',
-            'sw-core-rules/require-wrap-component-config': 'error',
-        },
-    },
-    {
-        files: ['src/**/*.js'],
-        rules: {
-            'sw-core-rules/no-javascript-files': 'error',
         },
     },
 

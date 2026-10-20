@@ -52,6 +52,59 @@ export default Shopware.Component.wrapComponentConfig({
         };
     },
 
+    created() {
+        this.heightHandler = Shopware.ExtensionAPI.handle('locationUpdateHeight', ({ height, locationId }) => {
+            if (locationId === this.locationId) {
+                const parsed = Number(height);
+                this.locationHeight = Number.isNaN(parsed) ? null : parsed;
+            }
+        });
+
+        this.urlHandler = Shopware.ExtensionAPI.handle(
+            'locationUpdateUrl',
+            async ({ hash, pathname, searchParams, locationId }) => {
+                if (locationId !== this.locationId) {
+                    return;
+                }
+
+                const filteredSearchParams = JSON.stringify(
+                    searchParams.filter(([key]) => {
+                        return ![
+                            'location-id',
+                            'color-scheme',
+                            'privileges',
+                            'shop-id',
+                            'shop-url',
+                            'timestamp',
+                            'sw-version',
+                            'sw-context-language',
+                            'sw-user-language',
+                            'shopware-shop-signature',
+                        ].includes(key);
+                    }),
+                );
+
+                await this.$router.replace({
+                    query: {
+                        [this.locationIdHashQueryKey]: hash,
+                        [this.locationIdPathnameQueryKey]: pathname,
+                        [this.locationIdSearchParamsQueryKey]: filteredSearchParams,
+                    },
+                });
+            },
+        );
+    },
+
+    beforeUnmount() {
+        if (this.heightHandler) {
+            this.heightHandler();
+        }
+
+        if (this.urlHandler) {
+            this.urlHandler();
+        }
+    },
+
     computed: {
         locationIdHashQueryKey(): string {
             return `locationId_${this.locationId}_hash`;
@@ -117,59 +170,6 @@ export default Shopware.Component.wrapComponentConfig({
         locationId() {
             this.signIframeSrc();
         },
-    },
-
-    created() {
-        this.heightHandler = Shopware.ExtensionAPI.handle('locationUpdateHeight', ({ height, locationId }) => {
-            if (locationId === this.locationId) {
-                const parsed = Number(height);
-                this.locationHeight = Number.isNaN(parsed) ? null : parsed;
-            }
-        });
-
-        this.urlHandler = Shopware.ExtensionAPI.handle(
-            'locationUpdateUrl',
-            async ({ hash, pathname, searchParams, locationId }) => {
-                if (locationId !== this.locationId) {
-                    return;
-                }
-
-                const filteredSearchParams = JSON.stringify(
-                    searchParams.filter(([key]) => {
-                        return ![
-                            'location-id',
-                            'color-scheme',
-                            'privileges',
-                            'shop-id',
-                            'shop-url',
-                            'timestamp',
-                            'sw-version',
-                            'sw-context-language',
-                            'sw-user-language',
-                            'shopware-shop-signature',
-                        ].includes(key);
-                    }),
-                );
-
-                await this.$router.replace({
-                    query: {
-                        [this.locationIdHashQueryKey]: hash,
-                        [this.locationIdPathnameQueryKey]: pathname,
-                        [this.locationIdSearchParamsQueryKey]: filteredSearchParams,
-                    },
-                });
-            },
-        );
-    },
-
-    beforeUnmount() {
-        if (this.heightHandler) {
-            this.heightHandler();
-        }
-
-        if (this.urlHandler) {
-            this.urlHandler();
-        }
     },
 
     methods: {

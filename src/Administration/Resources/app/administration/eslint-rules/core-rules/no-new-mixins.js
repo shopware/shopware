@@ -2,14 +2,35 @@
  * @sw-package framework
  */
 
-const createSelectorRule = require('./create-selector-rule');
+function isMixinObject(node) {
+    return (node.type === 'Identifier' && node.name === 'Mixin') ||
+        (node.type === 'MemberExpression' &&
+            node.property.name === 'Mixin' &&
+            node.object.type === 'Identifier' &&
+            node.object.name === 'Shopware');
+}
 
-module.exports = createSelectorRule({
-    description: 'Disallow registering new mixins',
-    // `Mixin.register()` and `Shopware.Mixin.register()`
-    selector: [
-        "CallExpression[callee.property.name='register'][callee.object.name='Mixin']",
-        "CallExpression[callee.property.name='register'][callee.object.property.name='Mixin']",
-    ].join(', '),
-    message: 'Do not register new mixins. Share the logic as a composable in src/app/composables instead.',
-});
+module.exports = {
+    meta: {
+        type: 'problem',
+        docs: {
+            description: 'Disallow registering new mixins',
+        },
+        schema: [],
+        messages: {
+            noNewMixins: 'Do not register new mixins. Share the logic as a composable in src/app/composables instead.',
+        },
+    },
+    create(context) {
+        return {
+            CallExpression(node) {
+                const { callee } = node;
+                if (callee.type === 'MemberExpression' &&
+                    callee.property.name === 'register' &&
+                    isMixinObject(callee.object)) {
+                    context.report({ node, messageId: 'noNewMixins' });
+                }
+            },
+        };
+    },
+};

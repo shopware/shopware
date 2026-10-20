@@ -86,9 +86,6 @@ function componentBlockKey(componentName: string, blockName: string): string {
  * </sw-block>
  */
 export default Shopware.Component.wrapComponentConfig({
-    render() {
-        return reduceToSingleRoot(this.template);
-    },
     props: {
         name: {
             type: String,
@@ -228,5 +225,8 @@ export default Shopware.Component.wrapComponentConfig({
         return {
             template,
         };
+    },
+    render() {
+        return reduceToSingleRoot(this.template);
     },
 });

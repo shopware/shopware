@@ -12,11 +12,11 @@ import template from './mt-card.html.twig';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inheritAttrs: false,
-
     components: {
         'mt-card-original': MtCard,
     },
+
+    inheritAttrs: false,
 
     props: {
         positionIdentifier: {

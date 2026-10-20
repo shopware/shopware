@@ -8,18 +8,6 @@ import './sw-cms-section-actions.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: {
-        feature: {
-            from: 'feature',
-            default: null,
-        },
-
-        swCmsSectionEmitPageConfigOpen: {
-            from: 'swCmsSectionEmitPageConfigOpen',
-            default: null,
-        },
-    },
-
     props: {
         section: {
             type: Object as PropType<Entity<'cms_section'>>,
@@ -30,6 +18,18 @@ export default Shopware.Component.wrapComponentConfig({
             type: Boolean,
             required: false,
             default: false,
+        },
+    },
+
+    inject: {
+        feature: {
+            from: 'feature',
+            default: null,
+        },
+
+        swCmsSectionEmitPageConfigOpen: {
+            from: 'swCmsSectionEmitPageConfigOpen',
+            default: null,
         },
     },
 

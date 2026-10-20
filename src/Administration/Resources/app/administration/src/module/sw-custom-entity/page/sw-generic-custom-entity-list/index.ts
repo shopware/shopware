@@ -62,6 +62,10 @@ export default Shopware.Component.wrapComponentConfig({
         };
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     computed: {
         customEntityName(): string {
             const entityName = this.$route.params.entityName as string;
@@ -156,10 +160,6 @@ export default Shopware.Component.wrapComponentConfig({
 
             void this.getList();
         },
-    },
-
-    created() {
-        this.createdComponent();
     },
 
     methods: {

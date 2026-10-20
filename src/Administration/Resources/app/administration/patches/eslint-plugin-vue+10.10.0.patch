@@ -11,16 +11,3 @@ index 4e00161..b05171d 100644
  	const options = parseOptions(context.options[0], context.options[1] || {}, defaultOptions);
  	const sourceCode = context.sourceCode;
  	const offsets = /* @__PURE__ */ new Map();
-diff --git a/node_modules/eslint-plugin-vue/dist/utils/index.js b/node_modules/eslint-plugin-vue/dist/utils/index.js
-index 39f762f..73d42f8 100644
---- a/node_modules/eslint-plugin-vue/dist/utils/index.js
-+++ b/node_modules/eslint-plugin-vue/dist/utils/index.js
-@@ -2041,6 +2041,8 @@ var require_utils = /* @__PURE__ */ require_runtime.__commonJSMin(((exports, mod
- 		if (parent.type === "CallExpression") {
- 			const callee = parent.callee;
- 			if (callee.type === "MemberExpression") {
-+				// Shopware: `Shopware.Component.wrapComponentConfig({})` is `defineComponent({})` under another name
-+				if (getStaticPropertyName(callee) === "wrapComponentConfig") return isObjectArgument(parent) ? "defineComponent" : null;
- 				const calleeObject = skipTSAsExpression(callee.object);
- 				if (calleeObject.type === "Identifier") {
- 					const propName = getStaticPropertyName(callee);

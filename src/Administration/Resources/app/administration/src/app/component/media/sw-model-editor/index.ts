@@ -89,12 +89,6 @@ export default Shopware.Component.wrapComponentConfig({
         };
     },
 
-    computed: {
-        mediaRepository(): Repository<'media'> {
-            return this.repositoryFactory.create('media');
-        },
-    },
-
     watch: {
         async source(): Promise<void> {
             this.modelEntity = this.source as Entity<'media'>;
@@ -113,6 +107,12 @@ export default Shopware.Component.wrapComponentConfig({
 
     mounted() {
         this.mountedComponent();
+    },
+
+    computed: {
+        mediaRepository(): Repository<'media'> {
+            return this.repositoryFactory.create('media');
+        },
     },
 
     methods: {

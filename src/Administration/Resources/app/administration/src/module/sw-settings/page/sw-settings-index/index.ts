@@ -27,6 +27,15 @@ export default Shopware.Component.wrapComponentConfig({
         };
     },
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
+    created() {
+        if (!Shopware.Feature.isActive('v6.8.0.0')) {
+            void this.getUserConfig();
+        }
+    },
+
     metaInfo() {
         return {
             title: this.$createTitle(),
@@ -109,15 +118,6 @@ export default Shopware.Component.wrapComponentConfig({
                     .filter(removeEmptyGroups),
             );
         },
-    },
-
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed without replacement
-     */
-    created() {
-        if (!Shopware.Feature.isActive('v6.8.0.0')) {
-            void this.getUserConfig();
-        }
     },
 
     methods: {

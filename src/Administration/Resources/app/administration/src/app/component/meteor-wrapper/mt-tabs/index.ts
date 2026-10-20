@@ -15,11 +15,11 @@ import './mt-tabs.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    emits: ['new-item-active'],
-
     components: {
         'mt-tabs-original': MtTabs,
     },
+
+    emits: ['new-item-active'],
 
     props: {
         positionIdentifier: {

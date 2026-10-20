@@ -44,14 +44,8 @@ export default Shopware.Component.wrapComponentConfig({
         };
     },
 
-    computed: {
-        mediaRepository(): Repository<'media'> {
-            return this.repositoryFactory.create('media');
-        },
-
-        uploadTag(): string {
-            return `sw-generic-social-media-card-${createId().substring(0, 8)}`;
-        },
+    created(): void {
+        void this.onCreated();
     },
 
     watch: {
@@ -62,8 +56,14 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
-    created(): void {
-        void this.onCreated();
+    computed: {
+        mediaRepository(): Repository<'media'> {
+            return this.repositoryFactory.create('media');
+        },
+
+        uploadTag(): string {
+            return `sw-generic-social-media-card-${createId().substring(0, 8)}`;
+        },
     },
 
     methods: {

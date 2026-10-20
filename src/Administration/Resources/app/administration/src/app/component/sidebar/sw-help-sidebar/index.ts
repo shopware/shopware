@@ -19,6 +19,14 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['shortcutService'],
 
+    data(): {
+        viewportWidth: number;
+    } {
+        return {
+            viewportWidth: window.innerWidth,
+        };
+    },
+
     props: {
         /**
          * @description The selector of the element where the sidebar should be appended to
@@ -38,14 +46,6 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: 0,
         },
-    },
-
-    data(): {
-        viewportWidth: number;
-    } {
-        return {
-            viewportWidth: window.innerWidth,
-        };
     },
 
     computed: {

@@ -51,10 +51,7 @@ Jest                # Testing framework
 - When using feature flags in Jest tests, you must consult `adr/2026-08-06-administration-jest-feature-flag-helpers.md`
 - Use TypeScript for all new code
 - Do NOT introduce breaking changes to public APIs without prior discussion
-- Model new code on these reference implementations, not on the code next to it, which often predates our current rules:
-  - Component with spec: `src/app/component/media/sw-media-folder-thumbnail/`
-  - Composable with spec: `src/app/composables/use-theme.ts`
-  - Pinia store with spec: `src/app/store/tabs.store.ts`
+- Follow existing code style and patterns
 - Use the provided linting and formatting scripts (see below)
 
 ## Lint gate

@@ -43,6 +43,8 @@ The baselines hold no autofixable findings, so `npm run lint:fix` never produces
 ### Ways around the rules
 
 The size, complexity and structure rules can't be disabled inline, so the baseline is the only way around them.
+ESLint blocks disable comments for them and rule config comments for every rule.
+A CI step that reads the files blocks the disable comments that would switch off these checks.
 Every other rule can be disabled with a reason.
 
 A CI job compares the per-rule totals of the baselines with the base branch.

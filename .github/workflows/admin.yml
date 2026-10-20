@@ -58,6 +58,12 @@ jobs:
             src/Administration/Resources/app/administration/node_modules/.stylelintcache
           key: admin-lint-${{ runner.os }}-${{ hashFiles('src/Administration/Resources/app/administration/package-lock.json', 'src/Administration/Resources/app/administration/eslint.config.ts', 'src/Administration/Resources/app/administration/.stylelintrc') }}
 
+      # ESLint can't report a disable comment that also disables the rule reporting it
+      - name: Lint directives that switch off the lint gate
+        run: |
+          node .github/bin/js/check-lint-directives.ts \
+            src/Administration/Resources/app/administration \
+            src/Storefront/Resources/app/administration
       - name: Lint
         working-directory: src/Administration/Resources/app/administration
         run: npm run lint

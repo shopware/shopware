@@ -11,6 +11,7 @@ test(
         AdminFlowBuilderDetail,
         IdProvider,
         AdminApiContext,
+        TestDataService,
     }) => {
         const flowTemplateName = 'Order placed';
         const flowTemplateSingleTerms = flowTemplateName.split(' ');
@@ -49,6 +50,7 @@ test(
             await ShopAdmin.expects(AdminFlowBuilderDetail.saveButtonLoader).toBeVisible();
             await ShopAdmin.expects(AdminFlowBuilderDetail.saveButtonLoader).not.toBeVisible();
             const flowId = await getFlowId(flowName, AdminApiContext);
+            TestDataService.addCreatedRecord('flow', flowId);
             const flowEqualsTemplate = await compareFlowTemplateWithFlow(flowId, flowTemplateId, AdminApiContext);
             ShopAdmin.expects(flowEqualsTemplate).toBe(true);
         });

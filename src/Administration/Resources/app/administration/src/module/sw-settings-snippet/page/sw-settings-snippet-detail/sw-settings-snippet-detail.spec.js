@@ -216,6 +216,25 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         expect(secondInput.attributes('disabled')).toBe(state);
     });
 
+    it('should link each translation label to its own input', async () => {
+        const wrapper = await createWrapper(['snippet.viewer', 'snippet.editor']);
+        await flushPromises();
+
+        await wrapper.setData({
+            isLoading: false,
+        });
+        await flushPromises();
+
+        const inputs = wrapper.findAll('input[aria-label="sw-settings-snippet.detail.labelContent"]');
+        const ids = inputs.map((input) => input.attributes('id'));
+
+        expect(inputs).toHaveLength(2);
+        expect(new Set(ids).size).toBe(2);
+        ids.forEach((id) => {
+            expect(wrapper.findAll(`label[for="${id}"]`)).toHaveLength(1);
+        });
+    });
+
     it('should have a disabled save button', async () => {
         const wrapper = await createWrapper('snippet.viewer');
         await flushPromises();

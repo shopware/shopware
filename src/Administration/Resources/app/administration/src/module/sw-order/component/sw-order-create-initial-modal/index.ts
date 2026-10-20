@@ -137,9 +137,11 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            void this.cancelCart().then(() => {
-                this.$emit('modal-close');
-            });
+            void this.cancelCart()
+                .catch(() => undefined)
+                .then(() => {
+                    this.$emit('modal-close');
+                });
         },
 
         async onPreviewOrder(): Promise<void> {

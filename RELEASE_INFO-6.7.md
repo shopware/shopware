@@ -846,6 +846,16 @@ The deliverability card of digital products has a new "Allow multiple units per 
 - The Twig block `sw_product_media_form_grid_item` renders a single grid item, so an override can render its own items and keep `{% parent %}` for the product media.
 - The method `moveGalleryItem(item, position)` moves a grid item when it is dragged or marked as cover. Override it together with `galleryItems` when your items share the position space with the product media.
 
+### More Administration components declare their emitted events
+
+About 30 Administration components now list the events they emit in `emits`, for example `sw-datepicker`, `sw-password-field`, `sw-url-field`, `sw-textarea-field` and `sw-string-filter`.
+Listeners for these events are no longer part of the component's `$attrs`, so they fire once per event instead of twice.
+If you override the template of one of these components and render your own field with `v-bind="$attrs"`, forward `update:modelValue` explicitly:
+
+```html
+<mt-text-field v-bind="$attrs" @update:model-value="$emit('update:modelValue', $event)" />
+```
+
 ## Storefront
 
 ### Category Twig function removal postponed to 6.9

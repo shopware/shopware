@@ -25,8 +25,8 @@ class Migration1792476248AddSellerCountryNotification extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        // Fresh installations create their users afterwards, and users only see notifications created after them
-        if ($this->isInstallation()) {
+        // Users only see notifications created after them, so fresh installations without users yet need none
+        if (!$connection->fetchOne('SELECT 1 FROM `user` LIMIT 1')) {
             return;
         }
 

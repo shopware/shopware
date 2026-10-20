@@ -1117,6 +1117,7 @@
       "theme": "Theme | Themes",
       "unit": "Unit | Units",
       "user": "User | Users",
+      "webhook": "Webhook | Webhooks",
       "landing_page": "Landing page | Landing pages",
       "delivery_time": "Delivery time | Delivery times",
       "import_export_profile": "Import/export profile | Import/export profiles",
@@ -1380,6 +1381,10 @@
     "general": {
       "messagePlaceholder": "Oops, something went terribly wrong."
     }
+  },
+  "sw-not-found": {
+    "title": "Page not found",
+    "description": "The page you were looking for could not be found. It may have been moved or no longer exists."
   },
   "sw-property-search": {
     "placeholderSearch": "Search values...",

@@ -28,12 +28,14 @@ class StagingAppHandlerTest extends TestCase
                 ['id' => 'app_id', 'integration_id' => 'integration_id', 'name' => 'test'],
             ]);
 
+        $order = [];
         $tables = [];
         $ids = [];
 
         $connection
             ->method('delete')
-            ->willReturnCallback(static function (string $table, array $criteria) use (&$tables, &$ids): int {
+            ->willReturnCallback(static function (string $table, array $criteria) use (&$order, &$tables, &$ids): int {
+                $order[] = 'delete:' . $table;
                 $tables[] = $table;
                 $ids[] = $criteria['id'];
 
@@ -42,7 +44,10 @@ class StagingAppHandlerTest extends TestCase
 
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider->expects($this->once())
-            ->method('deleteShopId');
+            ->method('deleteShopId')
+            ->willReturnCallback(static function () use (&$order): void {
+                $order[] = 'deleteShopId';
+            });
 
         $handler = new StagingAppHandler($connection, $shopIdProvider);
         $handler->__invoke(new SetupStagingEvent(
@@ -52,6 +57,8 @@ class StagingAppHandlerTest extends TestCase
             []
         ));
 
+        // the ShopId check that decides secret retention needs the app rows, so the ShopId goes first
+        static::assertSame(['deleteShopId', 'delete:app', 'delete:integration'], $order);
         static::assertSame(['app', 'integration'], $tables);
         static::assertSame(['app_id', 'integration_id'], $ids);
     }

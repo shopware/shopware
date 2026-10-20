@@ -105,6 +105,7 @@ class DefinitionValidator
         'admin_elasticsearch_index_task',
         'app_config',
         'app_feature',
+        'app_retained_secret',
         'cart',
         'deleted_apps',
         'migration',

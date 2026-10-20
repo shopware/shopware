@@ -6,6 +6,7 @@ use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
+use Shopware\Core\Framework\App\RetainedSecret\AppRetainedSecretGateway;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -40,6 +41,7 @@ final class DeleteCascadeAppsHandler extends ScheduledTaskHandler
         private readonly EntityRepository $aclRoleRepository,
         private readonly EntityRepository $integrationRepository,
         private readonly ClockInterface $clock,
+        private readonly AppRetainedSecretGateway $retainedSecrets,
     ) {
         parent::__construct($scheduledTaskRepository, $logger);
     }
@@ -56,6 +58,8 @@ final class DeleteCascadeAppsHandler extends ScheduledTaskHandler
 
         $this->deleteIds($this->aclRoleRepository, $criteria, $context);
         $this->deleteIds($this->integrationRepository, $criteria, $context);
+
+        $this->retainedSecrets->purgeExpired();
     }
 
     /**

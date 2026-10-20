@@ -21,9 +21,9 @@ readonly class StagingAppHandler
 
     public function __invoke(SetupStagingEvent $event): void
     {
-        $this->deleteAppsWithAppServer($event);
-
         $this->shopIdProvider->deleteShopId();
+
+        $this->deleteAppsWithAppServer($event);
     }
 
     private function deleteAppsWithAppServer(SetupStagingEvent $event): void

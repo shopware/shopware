@@ -942,6 +942,23 @@ This applies to all translated app texts, including flow actions and their confi
 
 The app events `app.installed`, `app.updated`, `app.activated`, `app.deactivated`, `app.deleted`, `app.permissions.updated` and `app.config.changed` are now only delivered to app webhooks. Webhooks created through the Admin API no longer receive them. Apps keep subscribing to them in their manifest, as before.
 
+### App secrets survive a ShopId deletion for 72 hours
+
+When a shop is copied, for example to a staging environment, the copy can register the apps again and take over the production shop's registration, so production's app secret no longer works.
+Deleting the ShopId on the copy (`reinstall-apps`, `uninstall-apps`, `system:setup:staging`) used to lose the secret the app now trusts.
+Shopware now keeps the secrets of all registered apps for 72 hours before it deletes the ShopId, as long as the shop still passes the ShopId check.
+
+Print them on the copy with `bin/console app:secret:recoverable <appName>`.
+Use `--raw` to print only the secrets, one per line.
+On the production shop, hand them to the rotation, which tries them before its own secrets:
+
+```bash
+bin/console app:secret:rotate <appName> --adopt-secrets < secrets.txt
+```
+
+`--adopt-secrets` reads the secrets from standard input, never from the command line, and requires an app name.
+The output of `app:secret:recoverable` contains live app secrets: moving them from the copy to production safely is up to the shop operator.
+
 # 6.7.15.0
 
 ## Features

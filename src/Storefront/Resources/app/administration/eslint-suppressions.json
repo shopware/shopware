@@ -1,1 +1,40 @@
-{}
+{
+  "src/extension/sw-sales-channel/view/sw-sales-channel-detail-theme/index.spec.js": {
+    "sw-test-rules/no-vm-access": {
+      "count": 32
+    }
+  },
+  "src/modules/sw-settings-storefront/page/sw-settings-storefront-index/sw-settings-storefront-index.spec.js": {
+    "sw-test-rules/no-vm-access": {
+      "count": 30
+    }
+  },
+  "src/modules/sw-theme-manager/component/sw-theme-list-item/sw-theme-list-item.spec.js": {
+    "sw-test-rules/no-vm-access": {
+      "count": 14
+    }
+  },
+  "src/modules/sw-theme-manager/component/sw-theme-modal/sw-theme-modal.spec.js": {
+    "sw-test-rules/no-vm-access": {
+      "count": 18
+    }
+  },
+  "src/modules/sw-theme-manager/mixin/sw-theme.mixin.spec.js": {
+    "sw-test-rules/no-vm-access": {
+      "count": 70
+    }
+  },
+  "src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.spec.js": {
+    "sw-test-rules/no-vm-access": {
+      "count": 80
+    },
+    "sw-test-rules/test-file-max-lines-error": {
+      "count": 1
+    }
+  },
+  "src/modules/sw-theme-manager/page/sw-theme-manager-list/sw-theme-manager-list.spec.js": {
+    "sw-test-rules/no-vm-access": {
+      "count": 38
+    }
+  }
+}

@@ -143,6 +143,11 @@ Shops now uninstall a service once the service registry lists it as `retired` in
 Live state transitions batch history and state writes. `EntityWriteEvent` subscribers can receive multiple entities: filter with `getCommandsForEntity()` and make pre-write work idempotent or compensate it through `addError()`. `WriteCommandExceptionEvent` and error callbacks can run before SQL executes, and each failed attempt runs its error callbacks before it is retried. Retries stop once success callbacks or written listeners begin, or compensation fails. MariaDB error `1020` is now retryable.
 ## API
 
+### Webhook owners are readable
+
+`ownerUserId` and `ownerIntegrationId` of a webhook can now be read through the Admin API, and the new `ownerUser` and `ownerIntegration` associations load the owning user or integration.
+Both stay write-protected: the owner is still set from the session when a webhook is created.
+
 ### Criteria on fields the API does not expose is a bad request
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Webhook;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -110,6 +111,65 @@ class WebhookApiTest extends TestCase
         $webhook = $this->loadWebhook($webhookId);
         static::assertSame($integrationId, $webhook->getOwnerIntegrationId());
         static::assertNull($webhook->getOwnerUserId());
+    }
+
+    /**
+     * @param non-empty-string $association
+     */
+    #[DataProvider('ownerAssociationProvider')]
+    public function testAWebhookCannotBeCreatedForSomeoneElseThroughTheOwnerAssociation(string $association): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $ownerId = $association === 'ownerUser'
+            ? TestUser::createNewTestUser($connection)->getUserId()
+            : TestIntegration::create($connection, [])->getId();
+
+        $this->getBrowser()->jsonRequest('POST', '/api/webhook/', [
+            'name' => 'My super webhook',
+            'eventName' => 'product.written',
+            'url' => 'http://localhost',
+            $association => ['id' => $ownerId],
+        ]);
+
+        $this->assertApiErrors([
+            ['code' => 'FRAMEWORK__WRITE_CONSTRAINT_VIOLATION', 'field' => $association],
+            ['code' => 'FRAMEWORK__WRITE_CONSTRAINT_VIOLATION', 'field' => $association . 'Id'],
+        ]);
+    }
+
+    /**
+     * @return iterable<string, array{non-empty-string}>
+     */
+    public static function ownerAssociationProvider(): iterable
+    {
+        yield 'owner user' => ['ownerUser'];
+        yield 'owner integration' => ['ownerIntegration'];
+    }
+
+    public function testTheOwningUserCanBeRead(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $userId = TestUser::createNewTestUser($connection)->getUserId();
+        $webhookId = WebhookBuilder::ownedByUser($userId)->insert($connection);
+
+        $webhook = $this->searchWebhook($webhookId, 'ownerUser');
+
+        static::assertSame($userId, $webhook['ownerUserId']);
+        static::assertSame($userId, $webhook['ownerUser']['id']);
+        static::assertNull($webhook['ownerIntegrationId']);
+    }
+
+    public function testTheOwningIntegrationCanBeRead(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $integrationId = TestIntegration::create($connection, [])->getId();
+        $webhookId = WebhookBuilder::ownedByIntegration($integrationId)->insert($connection);
+
+        $webhook = $this->searchWebhook($webhookId, 'ownerIntegration');
+
+        static::assertSame($integrationId, $webhook['ownerIntegrationId']);
+        static::assertSame($integrationId, $webhook['ownerIntegration']['id']);
+        static::assertNull($webhook['ownerUserId']);
     }
 
     public function testAppWebhookCannotBeUpdatedViaApi(): void
@@ -475,6 +535,25 @@ class WebhookApiTest extends TestCase
         ]);
 
         return $webhookId;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function searchWebhook(string $webhookId, string $association): array
+    {
+        $this->getBrowser()->jsonRequest('POST', '/api/search/webhook', [
+            'ids' => [$webhookId],
+            'associations' => [$association => []],
+        ], ['HTTP_ACCEPT' => 'application/json']);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
+
+        $webhook = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['data'][0];
+        static::assertIsArray($webhook);
+
+        return $webhook;
     }
 
     private function loadWebhook(string $webhookId): WebhookEntity

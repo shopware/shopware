@@ -24,7 +24,6 @@ Run them in `src/Administration/Resources/app/administration`, or through the co
 
 | Group | Rules | Why |
 |---|---|---|
-| Errors | `sw-core-rules/no-swallowed-errors` | A `.catch()` that drops the error needs a comment that says why |
 
 ## Inline disables
 

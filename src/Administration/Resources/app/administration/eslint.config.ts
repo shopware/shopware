@@ -209,7 +209,6 @@ const baseRules = {
     'vue/prefer-import-from-vue': 'off',
     'vue/one-component-per-file': 'off',
 
-    'sw-core-rules/no-swallowed-errors': 'error',
     '@eslint-community/eslint-comments/no-restricted-disable': [
         'error',
         ...rulesWithoutInlineDisable,

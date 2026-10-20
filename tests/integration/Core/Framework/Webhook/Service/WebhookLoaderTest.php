@@ -225,21 +225,35 @@ class WebhookLoaderTest extends TestCase
         static::assertSame([], static::getContainer()->get(WebhookLoader::class)->getWebhooks());
     }
 
-    public function testWebhooksOwnedByAnAppsIntegrationAreOnlyLoadedWhileTheAppIsActive(): void
+    public function testAWebhookOwnedByAnAppsIntegrationIsLoadedWithTheApp(): void
     {
         $this->installApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
-        $integrationId = $this->connection->fetchOne('SELECT LOWER(HEX(integration_id)) FROM app WHERE name = :name', ['name' => 'minimal']);
-        static::assertIsString($integrationId);
-        WebhookBuilder::ownedByIntegration($integrationId)
+        $app = $this->connection->fetchAssociative('SELECT LOWER(HEX(id)) AS id, LOWER(HEX(integration_id)) AS integrationId, LOWER(HEX(acl_role_id)) AS aclRoleId FROM app WHERE name = :name', ['name' => 'minimal']);
+        static::assertIsArray($app);
+        WebhookBuilder::ownedByIntegration($app['integrationId'])
             ->id($this->ids->get('wh-1'))
+            ->subscribe(CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com')
+            ->name('hook1')
             ->insert($this->connection);
-        $loader = static::getContainer()->get(WebhookLoader::class);
 
-        $this->connection->update('app', ['active' => 0], ['name' => 'minimal']);
-        static::assertSame([], $loader->getWebhooks());
-
-        $this->connection->update('app', ['active' => 1], ['name' => 'minimal']);
-        static::assertCount(1, $loader->getWebhooks());
+        // also loaded while the app is inactive, the AppEventPolicy decides about the delivery
+        static::assertEquals(
+            new Webhook(
+                $this->ids->get('wh-1'),
+                'hook1',
+                'checkout.customer.before.login',
+                'https://test.com',
+                false,
+                $app['id'],
+                'minimal',
+                'local',
+                false,
+                '1.0.0',
+                'dont_tell',
+                roles: new AclRoles(false, [$app['aclRoleId']]),
+            ),
+            $this->loadWebhook()
+        );
 
         $this->removeApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
     }

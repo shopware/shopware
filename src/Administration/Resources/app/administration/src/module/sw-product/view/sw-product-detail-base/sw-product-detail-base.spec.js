@@ -331,7 +331,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         expect(wrapper.getComponent({ name: 'sw-product-download-form' }).props('required')).toBe(false);
 
         wrapper.vm.onDownloadExternalManagementChange(false);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.getComponent({ name: 'sw-product-download-form' }).props('required')).toBe(true);
     });

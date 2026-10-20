@@ -710,7 +710,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         await flushPromises();
 
         wrapper.vm.onClickOpenCreateDomainModal();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const snippetSetSelect = wrapper.getComponent('.sw-sales-channel-detail-domains__domain-snippet-set-select');
 
@@ -743,7 +743,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         wrapper.vm.onClickOpenCreateDomainModal();
         wrapper.vm.onSnippetSetSelect('set-de-ch');
         wrapper.vm.onLanguageSelect('language-en');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const snippetSetSelect = wrapper.getComponent('.sw-sales-channel-detail-domains__domain-snippet-set-select');
 
@@ -793,7 +793,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         await flushPromises();
 
         wrapper.vm.onClickOpenCreateDomainModal();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper
             .getComponent('.sw-sales-channel-detail-domains__domain-language-select')

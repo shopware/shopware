@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import { deprecations } from 'test/_helper_/deprecations';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 /**
  * @sw-package checkout
@@ -80,6 +80,7 @@ const createWrapper = async (stubOverrides = {}) => {
 
 describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matrix', () => {
     beforeEach(async () => {
+        allowDeprecation('sw-settings-shipping-price-matrix.shippingRuleFilterCriteria is deprecated');
         Shopware.Store.get('swShippingDetail').shippingMethod = {
             id: 'shippingMethodId',
             taxType: 'auto',
@@ -113,11 +114,16 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     it.activeFeatureFlags(['v6.8.0.0'])('should have price filter option', async () => {
+        // Where the test itself activates the major, the guard logs the baselined deprecation instead of recording it.
+        const error = jest.spyOn(console, 'error').mockImplementation(() => {});
         const wrapper = await createWrapper();
 
         const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;
 
-        expect(deprecations).toHaveTriggered('sw-settings-shipping-price-matrix.shippingRuleFilterCriteria is deprecated');
+        error.mock.calls.forEach(([label, message]) => {
+            expect(label).toBe('[Deprecation]');
+            expect(message).toContain('sw-settings-shipping-price-matrix.shippingRuleFilterCriteria is deprecated');
+        });
 
         expect(shippingRuleFilterCriteria.filters[0].queries).toHaveLength(2);
         expect(shippingRuleFilterCriteria.filters[0].queries[0].value).toBe('price');

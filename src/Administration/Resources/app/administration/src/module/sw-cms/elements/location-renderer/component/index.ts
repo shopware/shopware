@@ -20,6 +20,16 @@ export default Component.wrapComponentConfig({
         },
     },
 
+    data(): {
+        unpublishData: null | (() => void);
+        unpublishDataWithElementId: null | (() => void);
+    } {
+        return {
+            unpublishData: null,
+            unpublishDataWithElementId: null,
+        };
+    },
+
     computed: {
         src(): string {
             // Add this.element.id to the url as a query param
@@ -53,16 +63,6 @@ export default Component.wrapComponentConfig({
 
     created(): void {
         this.createdComponent();
-    },
-
-    data(): {
-        unpublishData: null | (() => void);
-        unpublishDataWithElementId: null | (() => void);
-    } {
-        return {
-            unpublishData: null,
-            unpublishDataWithElementId: null,
-        };
     },
 
     methods: {

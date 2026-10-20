@@ -26,6 +26,7 @@ Run them in `src/Administration/Resources/app/administration`, or through the co
 
 | Group | Rules | Why |
 |---|---|---|
+| Structure | `sw-core-rules/no-javascript-files`, `sw-core-rules/require-wrap-component-config`, `sw-core-rules/no-new-mixins` | New code is TypeScript, components are wrapped in `wrapComponentConfig()` so the Vue rules check them, shared logic goes into composables |
 | Errors | `sw-core-rules/no-swallowed-errors` | A `.catch()` that drops the error needs a comment that says why |
 | Unused code | Fallow, configured in `.fallowrc.json` | Unused files, exports and dependencies are removed instead of copied |
 

@@ -86,14 +86,14 @@ function isShopOldEnough(): boolean {
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({
-    template,
     name: 'sw-settings-usage-data-consent-modal-data-provider',
+    template,
+
+    inject: ['acl'],
 
     components: {
         SwSettingsUsageDataConsentModal,
     },
-
-    inject: ['acl'],
 
     computed: {
         storeDataConsent() {

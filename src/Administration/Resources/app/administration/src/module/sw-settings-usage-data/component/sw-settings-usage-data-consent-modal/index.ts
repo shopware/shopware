@@ -14,16 +14,16 @@ import SwSettingsUsageDataConsentCheckList from './subcomponents/sw-settings-usa
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({
-    template,
     name: 'sw-settings-usage-data-consent-modal',
+    template,
+
+    inject: ['acl'],
 
     components: {
         SwSettingsUsageDataStoreDataConsentCard,
         SwSettingsUsageDataUserDataConsentCard,
         SwSettingsUsageDataConsentCheckList,
     },
-
-    inject: ['acl'],
 
     props: {
         storedStoreDataConsent: {
@@ -50,21 +50,6 @@ export default Shopware.Component.wrapComponentConfig({
             isLoading: false,
             modalOpenedAt: 0,
         };
-    },
-
-    created() {
-        /*
-         we need to break the reactivity here, otherwise the card
-         would disappear when backend data consent is updated
-         */
-        this.initialStoreDataConsent = this.storedStoreDataConsent;
-        this.storeDataConsent = this.initialStoreDataConsent;
-
-        this.initialUserDataConsent = this.storedUserDataConsent;
-        this.userDataConsent = this.initialUserDataConsent;
-
-        this.modalOpenedAt = Date.now();
-        dispatchConsentEvent('consent_modal_viewed', { consents_shown: this.visibleOptions });
     },
 
     computed: {
@@ -116,6 +101,21 @@ export default Shopware.Component.wrapComponentConfig({
                 (this.storeDataConsent || (this.showUserDataConsent && this.userDataConsent))
             );
         },
+    },
+
+    created() {
+        /*
+         we need to break the reactivity here, otherwise the card
+         would disappear when backend data consent is updated
+         */
+        this.initialStoreDataConsent = this.storedStoreDataConsent;
+        this.storeDataConsent = this.initialStoreDataConsent;
+
+        this.initialUserDataConsent = this.storedUserDataConsent;
+        this.userDataConsent = this.initialUserDataConsent;
+
+        this.modalOpenedAt = Date.now();
+        dispatchConsentEvent('consent_modal_viewed', { consents_shown: this.visibleOptions });
     },
 
     methods: {

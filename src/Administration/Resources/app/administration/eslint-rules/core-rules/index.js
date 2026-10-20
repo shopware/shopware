@@ -16,6 +16,9 @@ module.exports = {
         'require-global-default-use': require('./require-global-default-use'),
         'valid-shopware-setup': require('./valid-shopware-setup'),
         'native-setup-filename': require('./native-setup-filename'),
+        'no-javascript-files': require('./no-javascript-files'),
+        'no-new-mixins': require('./no-new-mixins'),
+        'require-wrap-component-config': require('./require-wrap-component-config'),
         'no-swallowed-errors': require('./no-swallowed-errors'),
     },
 };

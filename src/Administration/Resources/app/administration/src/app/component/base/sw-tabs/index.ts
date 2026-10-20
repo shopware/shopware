@@ -89,6 +89,14 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
+    data(): {
+        activeItem: unknown;
+    } {
+        return {
+            activeItem: null,
+        };
+    },
+
     computed: {
         shouldUseMeteorComponent() {
             if (this.useMeteorComponent) {
@@ -134,14 +142,6 @@ export default Shopware.Component.wrapComponentConfig({
                 return [];
             });
         },
-    },
-
-    data(): {
-        activeItem: unknown;
-    } {
-        return {
-            activeItem: null,
-        };
     },
 
     mounted() {

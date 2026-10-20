@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Address;
 
-use Shopware\Core\Checkout\Cart\Address\Error\VatIdInvalidError;
 use Shopware\Core\Checkout\Cart\Address\Error\VatIdMissingError;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
@@ -25,34 +24,14 @@ class VatIdValidator implements CartValidatorInterface
             return;
         }
 
-        $country = $customer->getActiveBillingAddress()?->getCountry();
-        if ($country === null) {
+        if (!$customer->getActiveBillingAddress()?->getCountry()?->getVatIdRequired()) {
             return;
         }
 
-        $vatIds = \array_filter($customer->getVatIds() ?? []);
-
-        if ($vatIds === []) {
-            if ($country->getVatIdRequired()) {
-                $errors->add(new VatIdMissingError());
-            }
-
+        if (\array_filter($customer->getVatIds() ?? []) !== []) {
             return;
         }
 
-        $vatIdPattern = $country->getVatIdPattern();
-        if (!$country->getCheckVatIdPattern() || $vatIdPattern === null || $vatIdPattern === '') {
-            return;
-        }
-
-        $regex = '/^(?:' . $vatIdPattern . ')$/D';
-
-        foreach ($vatIds as $vatId) {
-            if (!preg_match($regex, $vatId)) {
-                $errors->add(new VatIdInvalidError());
-
-                return;
-            }
-        }
+        $errors->add(new VatIdMissingError());
     }
 }

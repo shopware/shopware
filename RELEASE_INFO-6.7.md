@@ -49,16 +49,12 @@ The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physica
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
 
-### The cart validates the VAT ID of business customers
+### Business customers need a VAT ID for countries that require one
 
-The VAT ID settings of the country of the active billing address are now checked in the cart of business customers, and violations block the order:
-
-- `vat-id-missing`: the country has "VAT Reg.No. required" enabled, but the customer has no VAT ID.
-- `vat-id-invalid`: the country checks the VAT ID pattern, and a VAT ID of the customer doesn't match it.
-
-This also covers customers who registered before the settings were enabled or who switched to a billing address in another country later.
-Store API clients should show the error and let the customer fix the VAT ID via `/store-api/account/change-profile`.
-That route now also validates `vatIds` against the country of the active billing address instead of the default one, so a VAT ID it accepts passes the cart check.
+If the country of the active billing address has "VAT Reg.No. required" enabled, the cart of a business customer without a VAT ID now carries the blocking error `vat-id-missing`, and the order can't be placed.
+This also covers customers who registered before the setting was enabled or who switched to a billing address in such a country later.
+Store API clients should show the error and let the customer add the VAT ID via `/store-api/account/change-profile`.
+That route now validates `vatIds` against the country of the active billing address instead of the default one, the same country the cart checks.
 The Storefront profile page marks the VAT ID field as required based on the same country.
 
 ## API
@@ -71,9 +67,9 @@ A criteria that filters, sorts, queries or aggregates by a field the API does no
 
 ### Guests can open the profile page
 
-Guests can now open and save the profile page to correct their personal data, company and VAT ID, for example when the cart reports `vat-id-missing` or `vat-id-invalid`.
+Guests can now open and save the profile page to correct their personal data, company and VAT ID, for example when the cart reports `vat-id-missing`.
 The e-mail, password and account deletion sections stay hidden for guests, and their routes still reject them.
-The profile form keeps a `redirectTo` parameter, which the VAT ID errors use to send the customer back to the checkout after saving.
+The profile form keeps a `redirectTo` parameter, which the `vat-id-missing` error uses to send the customer back to the checkout after saving.
 Themes that override blocks of the personal data form in `page/account/profile/index.html.twig` should check that the content also suits guests.
 
 # 6.7.16.0

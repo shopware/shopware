@@ -108,10 +108,10 @@ class ProductExportEventListenerTest extends TestCase
             ->method('search')
             ->willReturn(new EntitySearchResult('product_export', 2, $exports, null, new Criteria([$firstId, $secondId]), $context));
 
-        $fileHandler = $this->createMock(ProductExportFileHandlerInterface::class);
+        $fileHandler = static::createStub(ProductExportFileHandlerInterface::class);
         $fileHandler->method('getFilePath')->willReturnOnConsecutiveCalls('/export/first.csv', '/export/second.csv');
 
-        $fs = $this->createMock(FilesystemOperator::class);
+        $fs = static::createStub(FilesystemOperator::class);
         $fs->method('fileExists')->willReturn(false);
 
         $listener = new ProductExportEventListener($productExportRepository, $fileHandler, $fs);

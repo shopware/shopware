@@ -210,7 +210,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(SalesChannelFileNotFoundSubscriber::class)
         ->args([
-            service(SalesChannelFileLoader::class),
+            service(SalesChannelFileRoute::class),
             service(SalesChannelFileRequestPathResolver::class),
             service(SalesChannelContextRequestRestorer::class),
         ])

@@ -225,7 +225,6 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
 
             await wrapper.find('.sw-sidebar-renderer__button-collapse').trigger('click');
             await flushPromises();
-            await flushPromises();
 
             expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('512px');
             expect(mockLocalStorage.setItem).toHaveBeenCalledWith('sw-sidebar-width', '512');

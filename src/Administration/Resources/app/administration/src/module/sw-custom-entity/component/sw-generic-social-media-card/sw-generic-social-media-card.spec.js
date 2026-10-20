@@ -204,7 +204,6 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
         // select an image
         mediaModal.vm.$emit('media-modal-selection-change', [TEST_OG_IMAGE]);
         await flushPromises();
-        await flushPromises();
 
         // it should use the provided entity instead of fetching it from the repository
         expect(wrapper.vm.mediaRepository.get).not.toHaveBeenCalled();

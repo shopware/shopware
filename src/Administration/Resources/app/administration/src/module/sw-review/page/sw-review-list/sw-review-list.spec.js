@@ -81,7 +81,6 @@ describe('module/sw-review/page/sw-review-list', () => {
         const wrapper = await createWrapper();
         await wrapper.setData({ total: 2 });
         await flushPromises();
-        await flushPromises();
 
         const deleteMenuItem = wrapper.find('sw-entity-listing-stub');
         expect(deleteMenuItem.attributes()['allow-delete']).toBe('false');

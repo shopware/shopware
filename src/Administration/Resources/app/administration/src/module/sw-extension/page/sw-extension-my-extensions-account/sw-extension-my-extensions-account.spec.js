@@ -106,7 +106,6 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
         await passwordField.setValue('v3ryS3cret');
 
         await flushPromises();
-        await flushPromises();
 
         // login
         await loginButton.trigger('click');
@@ -124,7 +123,6 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
         // create component with logged in view
         const wrapper = await createWrapper();
         await flushPromises();
-        await flushPromises();
 
         // check if layout shows the logged in information
         const loginStatus = wrapper.find('.sw-extension-my-extensions-account__wrapper-content-login-status-id');
@@ -137,7 +135,6 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
 
         // create component with logged in view
         const wrapper = await createWrapper();
-        await flushPromises();
         await flushPromises();
 
         // check if logout button exists

@@ -465,8 +465,6 @@ describe('components/sw-entity-single-select', () => {
         });
         await flushPromises();
 
-        await flushPromises();
-
         const { singleSelection } = swEntitySingleSelect.vm;
 
         expect(singleSelection).not.toBeNull();
@@ -651,7 +649,6 @@ describe('components/sw-entity-single-select', () => {
 
         swEntitySingleSelect.vm.loadData();
         await flushPromises();
-        await flushPromises();
 
         await swEntitySingleSelect.find('.sw-select__selection').trigger('click');
         await swEntitySingleSelect.find('input').setValue('first');
@@ -732,7 +729,6 @@ describe('components/sw-entity-single-select', () => {
         });
         await flushPromises();
 
-        await flushPromises();
         expect(swEntitySingleSelect.find('.sw-entity-single-select__selection-text').text()).toBe('test');
 
         await swEntitySingleSelect.find('input').trigger('click');

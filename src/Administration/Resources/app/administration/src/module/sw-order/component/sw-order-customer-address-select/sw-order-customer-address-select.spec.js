@@ -188,7 +188,6 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         jest.advanceTimersByTime(100);
 
         await flushPromises();
-        await flushPromises();
 
         expect(wrapper.vm.customerAddresses.map((address) => address.id)).toEqual(['1', '2']);
     });
@@ -228,7 +227,6 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         jest.advanceTimersByTime(100);
 
         await flushPromises();
-        await flushPromises();
 
         const resultItems = singleSelect.findAll('.sw-select-result');
 
@@ -251,7 +249,6 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
 
         jest.advanceTimersByTime(100);
 
-        await flushPromises();
         await flushPromises();
 
         expect(wrapper.vm.customerAddresses.map((address) => address.id)).toEqual(['1']);
@@ -294,7 +291,6 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
 
         jest.advanceTimersByTime(100);
 
-        await flushPromises();
         await flushPromises();
 
         expect(wrapper.vm.customerAddresses.map((address) => address.id)).toEqual(['30', '26']);

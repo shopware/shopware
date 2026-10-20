@@ -292,7 +292,6 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         );
 
         await flushPromises();
-        await flushPromises();
 
         expect(errorNotificationSpy).toHaveBeenCalledWith({
             message: 'sw-settings-product-feature-sets.detail.messageSaveError',

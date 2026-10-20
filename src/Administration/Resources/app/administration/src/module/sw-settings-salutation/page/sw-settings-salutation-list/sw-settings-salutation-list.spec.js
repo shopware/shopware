@@ -129,7 +129,6 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
         const wrapper = await createWrapper(['salutation.creator']);
         await flushPromises();
 
-        await flushPromises();
         const createButton = wrapper.find('.sw-settings-salutation-list__create');
 
         expect(createButton.attributes().disabled).toBeFalsy();

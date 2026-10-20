@@ -74,7 +74,6 @@ describe('module/sw-property/page/sw-property-detail', () => {
 
         const wrapper = await createWrapper();
         await flushPromises();
-        await flushPromises();
 
         await wrapper.setData({
             isLoading: false,

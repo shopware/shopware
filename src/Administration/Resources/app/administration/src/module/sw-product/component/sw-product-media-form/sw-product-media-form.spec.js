@@ -156,7 +156,6 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await flushPromises();
         expect(wrapper.find('.is--cover').exists()).toBeTruthy();
     });
 

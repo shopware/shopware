@@ -99,7 +99,6 @@ describe('module/sw-cms/component/sw-cms-page-form', () => {
     it("should have only one empty state 'card'", async () => {
         const wrapper = await createWrapper();
         await flushPromises();
-        await flushPromises();
         const lengthOfEmptyStates = wrapper.findAll('.sw-cms-page-form__block-card.is--empty').length;
 
         expect(lengthOfEmptyStates).toBe(1);
@@ -139,7 +138,6 @@ describe('module/sw-cms/component/sw-cms-page-form', () => {
         const formDeviceActions = wrapper.find('.sw-cms-page-form__device-actions');
         const blockFormDeviceActions = wrapper.find('.sw-cms-page-form__block-device-actions');
 
-        await flushPromises();
         await flushPromises();
 
         expect(formDeviceActions.exists()).toBeTruthy();

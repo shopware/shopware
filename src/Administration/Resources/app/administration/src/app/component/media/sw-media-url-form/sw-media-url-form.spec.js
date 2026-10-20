@@ -68,7 +68,6 @@ describe('src/app/component/media/sw-media-url-form', () => {
 
         await wrapper.setData({ showModal: true });
         await flushPromises();
-        await flushPromises();
 
         const modal = wrapper.find('.mt-modal');
         expect(modal.exists()).toBeTruthy();

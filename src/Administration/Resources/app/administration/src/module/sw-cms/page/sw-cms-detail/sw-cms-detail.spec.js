@@ -479,7 +479,6 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         wrapper.vm.onDemoEntityChange();
 
         await flushPromises();
-        await flushPromises();
 
         expect(State.currentDemoEntity).toMatchObject({
             id: categoryID,
@@ -491,7 +490,6 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         wrapper.vm.onDemoEntityChange('TEST-ID');
 
-        await flushPromises();
         await flushPromises();
 
         expect(State.currentDemoEntity).toMatchObject({
@@ -522,14 +520,12 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         wrapper.vm.onDemoEntityChange();
 
         await flushPromises();
-        await flushPromises();
 
         expect(State.currentDemoEntity).toBeNull();
         expect(State.currentDemoProducts).toEqual([]);
 
         wrapper.vm.onDemoEntityChange('TEST-ID');
 
-        await flushPromises();
         await flushPromises();
 
         expect(State.currentDemoEntity).toMatchObject({ id: productID });

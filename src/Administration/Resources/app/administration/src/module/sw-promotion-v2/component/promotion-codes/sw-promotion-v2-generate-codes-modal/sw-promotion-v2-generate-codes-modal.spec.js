@@ -108,7 +108,6 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
         expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__suffix').props('modelValue')).toBe('_SUFFIX');
 
         await flushPromises();
-        await flushPromises();
 
         expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__preview').props('modelValue')).toBe(mockCode);
     });
@@ -120,7 +119,6 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
 
         await flushPromises();
         jest.advanceTimersByTime(1000);
-        await flushPromises();
         await flushPromises();
 
         expect(wrapper.find('.sw-promotion-v2-generate-codes-modal__prefix').exists()).toBe(false);

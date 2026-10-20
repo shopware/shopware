@@ -142,7 +142,6 @@ describe('module/sw-settings-media/page/sw-settings-media', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await flushPromises();
         expect(wrapper.find('.sw-card-view').find('.sw-system-config').find('.mt-card').exists()).toBeTruthy();
     });
 });

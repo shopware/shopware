@@ -221,7 +221,6 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         expect(selectionText.text()).toBe('sw-sales-channel-switch.labelDefaultOption');
         await salesChannelSwitch.find('.sw-select__selection').trigger('click');
         await flushPromises();
-        await flushPromises();
 
         const selectStoreFront = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(selectStoreFront.text()).toBe('Storefront');
@@ -295,7 +294,6 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         expect(selectionText.text()).toBe('sw-sales-channel-switch.labelDefaultOption');
         await salesChannelSwitch.find('.sw-select__selection').trigger('click');
         await flushPromises();
-        await flushPromises();
 
         const selectStoreFront = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(selectStoreFront.text()).toBe('Storefront');
@@ -346,12 +344,10 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         expect(selectionText.text()).toBe('sw-sales-channel-switch.labelDefaultOption');
         await salesChannelSwitch.find('.sw-select__selection').trigger('click');
         await flushPromises();
-        await flushPromises();
 
         const selectHeadless = new DOMWrapper(document.body).get('.sw-select-option--2');
         expect(selectHeadless.text()).toBe('Headless');
         await selectHeadless.trigger('click');
-        await flushPromises();
         await flushPromises();
 
         selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
@@ -426,12 +422,10 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         expect(selectionText.text()).toBe('sw-sales-channel-switch.labelDefaultOption');
         await salesChannelSwitch.find('.sw-select__selection').trigger('click');
         await flushPromises();
-        await flushPromises();
 
         const selectStoreFront = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(selectStoreFront.text()).toBe('Storefront');
         await selectStoreFront.trigger('click');
-        await flushPromises();
         await flushPromises();
 
         selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');

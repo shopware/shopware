@@ -1161,7 +1161,6 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });

@@ -220,7 +220,6 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-discount-component',
             .find('.mt-switch input[aria-label="sw-promotion.detail.main.discounts.flagProductScopeLabel"]')
             .setChecked(true);
         await flushPromises();
-        await flushPromises();
 
         expect(wrapper.find('.sw-promotion-discount-component__select-discount-rules').exists()).toBeTruthy();
     });

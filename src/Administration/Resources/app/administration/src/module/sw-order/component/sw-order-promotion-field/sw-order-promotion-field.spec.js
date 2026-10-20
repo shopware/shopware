@@ -209,7 +209,6 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         expect(wrapper.vm.disabledAutoPromotions).toBeTruthy();
 
         await flushPromises();
-        await flushPromises();
 
         expect(wrapper.vm.disabledAutoPromotions).toBeFalsy();
         expect(wrapper.vm.hasAutomaticPromotions).toBeTruthy();

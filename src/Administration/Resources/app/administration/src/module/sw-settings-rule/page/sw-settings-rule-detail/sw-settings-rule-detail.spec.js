@@ -712,7 +712,6 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const wrapper = await createWrapper();
         await wrapper.setData(conditionTreeMock);
         await flushPromises();
-        await flushPromises();
 
         const conditions = {
             ...conditionTreeMock,

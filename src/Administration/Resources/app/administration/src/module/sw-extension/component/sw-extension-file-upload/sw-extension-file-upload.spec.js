@@ -88,7 +88,6 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
         await uploadButton.trigger('click');
 
         await flushPromises();
-        await flushPromises();
 
         const warningModal = wrapper.get('.sw-extension-file-upload-confirm-modal');
 

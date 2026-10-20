@@ -63,6 +63,9 @@ jobs:
       - name: Lint
         working-directory: src/Administration/Resources/app/administration
         run: npm run lint
+      - name: Lint unused code
+        working-directory: src/Administration/Resources/app/administration
+        run: npm run lint:fallow
       - name: Lint types
         working-directory: src/Administration/Resources/app/administration
         run: npm run lint:types

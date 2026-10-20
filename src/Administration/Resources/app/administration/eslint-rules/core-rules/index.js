@@ -2,23 +2,21 @@
  * @sw-package framework
  */
 
-const path = require('path');
-
 module.exports = {
     rules: {
-        'require-position-identifier': require(path.resolve(__dirname, 'require-position-identifier.js')),
-        'require-package-annotation': require(path.resolve(__dirname, 'require-package-annotation.js')),
-        'require-explicit-emits': require(path.resolve(__dirname, 'require-explicit-emits.js')),
-        'move-v-if-conditions-to-blocks': require(path.resolve(__dirname, 'move-v-if-conditions-to-blocks.js')),
-        'remove-empty-templates': require(path.resolve(__dirname, 'remove-empty-templates.js')),
-        'move-slots-to-wrap-blocks': require(path.resolve(__dirname, 'move-slots-to-wrap-blocks.js')),
-        'replace-top-level-blocks-to-extends': require(path.resolve(__dirname, 'replace-top-level-blocks-to-extends.js')),
-        'enforce-async-component-registers': require(path.resolve(__dirname, 'enforce-async-component-registers.js')),
-        'no-tc-translation': require(path.resolve(__dirname, 'no-tc-translation.js')),
-        'require-global-default-use': require(path.resolve(__dirname, 'require-global-default-use.js')),
-        'valid-shopware-setup': require(path.resolve(__dirname, 'valid-shopware-setup.js')),
-        'native-setup-filename': require(path.resolve(__dirname, 'native-setup-filename.js')),
-        'no-swallowed-errors': require(path.resolve(__dirname, 'no-swallowed-errors.js')),
-        'no-new-mixins': require(path.resolve(__dirname, 'no-new-mixins.js')),
+        'require-position-identifier': require('./require-position-identifier'),
+        'require-package-annotation': require('./require-package-annotation'),
+        'require-explicit-emits': require('./require-explicit-emits'),
+        'move-v-if-conditions-to-blocks': require('./move-v-if-conditions-to-blocks'),
+        'remove-empty-templates': require('./remove-empty-templates'),
+        'move-slots-to-wrap-blocks': require('./move-slots-to-wrap-blocks'),
+        'replace-top-level-blocks-to-extends': require('./replace-top-level-blocks-to-extends'),
+        'enforce-async-component-registers': require('./enforce-async-component-registers'),
+        'no-tc-translation': require('./no-tc-translation'),
+        'require-global-default-use': require('./require-global-default-use'),
+        'valid-shopware-setup': require('./valid-shopware-setup'),
+        'native-setup-filename': require('./native-setup-filename'),
+        'no-swallowed-errors': require('./no-swallowed-errors'),
+        'no-new-mixins': require('./no-new-mixins'),
     },
 };

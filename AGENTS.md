@@ -136,4 +136,5 @@ Only add the explicit three-form `zero | singular | plural` variant when the zer
 | **Twig** (Storefront)  | `composer ludtwig:storefront` | `composer ludtwig:storefront:fix`            |
 | **Snippets**           | `composer translation:lint`   | Manual fix required                          |
 | **Prettier** (Admin)   | `composer format:admin`       | `composer format:admin:fix`                  |
+| **Dead code** (Admin)  | `composer fallow:admin`       | `composer fallow:admin:prune`                |
 | **GitHub Actions**     | `composer lint:actions`       | `composer lint:actions:fix`                  |

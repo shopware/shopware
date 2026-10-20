@@ -110,7 +110,10 @@ class CacheStore implements StoreInterface
                     // We keep the lock for a half hour, if not proceed in that time, the lock will be released, and we can re-dispatch the message
                     $item->expiresAt($this->clock->now()->modify('+' . self::HALF_HOUR . ' seconds'));
 
-                    $this->bus->dispatch(new RefreshHttpCacheMessage($lockKey, $request->query->all(), $request->attributes->all(), $request->cookies->all(), self::getRefreshServerParameters($request), Request::getTrustedProxies(), Request::getTrustedHeaderSet()));
+                    // The handler uses a mock session, so the session cookie is not needed
+                    $cookies = array_diff_key($request->cookies->all(), [$this->sessionName => true]);
+
+                    $this->bus->dispatch(new RefreshHttpCacheMessage($lockKey, $request->query->all(), $request->attributes->all(), $cookies, self::getRefreshServerParameters($request), Request::getTrustedProxies(), Request::getTrustedHeaderSet()));
                 });
             }
         }
@@ -308,13 +311,19 @@ class CacheStore implements StoreInterface
         // Environment variables can look like headers. Names loaded from .env files are listed in SYMFONY_DOTENV_VARS.
         // HTTP_PROXY is a common environment variable with proxy credentials, and no request needs it as a header
         $dotenvNames = $request->server->get('SYMFONY_DOTENV_VARS');
-        $environmentNames = array_flip(\is_string($dotenvNames) && $dotenvNames !== '' ? explode(',', $dotenvNames) : []);
-        $environmentNames['HTTP_PROXY'] = true;
+        $droppedNames = array_flip(\is_string($dotenvNames) && $dotenvNames !== '' ? explode(',', $dotenvNames) : []);
+        $droppedNames['HTTP_PROXY'] = true;
+
+        // Credentials are not needed to rebuild a cacheable page: e.g. basic auth in front of a staging shop.
+        // Cookies are passed separately, so the raw cookie header with the session id is not needed either
+        $droppedNames['HTTP_AUTHORIZATION'] = true;
+        $droppedNames['HTTP_PROXY_AUTHORIZATION'] = true;
+        $droppedNames['HTTP_COOKIE'] = true;
 
         return array_filter(
             $request->server->all(),
             static fn (int|string $key): bool => \array_key_exists($key, $requestNames)
-                || (str_starts_with((string) $key, 'HTTP_') && !\array_key_exists($key, $environmentNames)),
+                || (str_starts_with((string) $key, 'HTTP_') && !\array_key_exists($key, $droppedNames)),
             \ARRAY_FILTER_USE_KEY
         );
     }

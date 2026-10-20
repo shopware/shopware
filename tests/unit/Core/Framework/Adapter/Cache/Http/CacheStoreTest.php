@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Adapter\Cache\Message\RefreshHttpCacheMessage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
@@ -398,7 +399,10 @@ class CacheStoreTest extends TestCase
     public function testLookupWithSoftPurgeAndStaleCache(): void
     {
         $leakedValue = 'leaked-environment-value';
-        $request = new Request(server: [
+        $request = new Request(cookies: [
+            PlatformRequest::FALLBACK_SESSION_NAME => $leakedValue,
+            'sw-cache-hash' => 'context-hash',
+        ], server: [
             'HTTP_HOST' => 'shop.example',
             'HTTP_X_FORWARDED_PROTO' => 'https',
             'HTTPS' => 'on',
@@ -411,6 +415,10 @@ class CacheStoreTest extends TestCase
             'HTTP_PROXY' => $leakedValue,
             'HTTP_DOTENV_PROXY' => $leakedValue,
             'SYMFONY_DOTENV_VARS' => 'APP_SECRET,HTTP_DOTENV_PROXY',
+            // credentials sent with the request, e.g. basic auth in front of a staging shop, and the session id
+            'HTTP_AUTHORIZATION' => 'Basic ' . $leakedValue,
+            'HTTP_PROXY_AUTHORIZATION' => 'Basic ' . $leakedValue,
+            'HTTP_COOKIE' => PlatformRequest::FALLBACK_SESSION_NAME . '=' . $leakedValue . '; sw-cache-hash=context-hash',
         ]);
         $response = new Response();
         $response->headers->set('date', date('Y-m-d H:i:s', time() - 3600)); // 1 hour ago
@@ -470,6 +478,7 @@ class CacheStoreTest extends TestCase
             'SCRIPT_NAME' => '/index.php',
             'REMOTE_ADDR' => '10.0.0.1',
         ], $message->server);
+        static::assertSame(['sw-cache-hash' => 'context-hash'], $message->cookies);
         static::assertStringNotContainsString($leakedValue, serialize($message));
     }
 

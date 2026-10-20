@@ -261,7 +261,7 @@
   },
   "src/app/component/form/select/base/sw-select-result-list/sw-select-result-list.spec.js": {
     "sw-test-rules/no-vm-access": {
-      "count": 4
+      "count": 6
     }
   },
   "src/app/component/form/select/base/sw-select-result/sw-select-result.spec.js": {
@@ -2071,7 +2071,7 @@
   },
   "src/module/sw-product/component/sw-product-download-form/sw-product-download-form.spec.js": {
     "sw-test-rules/no-vm-access": {
-      "count": 5
+      "count": 6
     }
   },
   "src/module/sw-product/component/sw-product-guarantee-form/sw-product-guarantee-form.spec.js": {
@@ -2121,7 +2121,7 @@
   },
   "src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation/sw-product-modal-variant-generation.spec.js": {
     "sw-test-rules/no-vm-access": {
-      "count": 64
+      "count": 66
     }
   },
   "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-prices/sw-product-variants-configurator-prices.spec.js": {
@@ -2156,7 +2156,7 @@
   },
   "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": {
     "sw-test-rules/no-vm-access": {
-      "count": 149
+      "count": 154
     }
   },
   "src/module/sw-product/page/sw-product-list/sw-product-list.spec.js": {
@@ -2166,7 +2166,7 @@
   },
   "src/module/sw-product/view/sw-product-detail-base/sw-product-detail-base.spec.js": {
     "sw-test-rules/no-vm-access": {
-      "count": 24
+      "count": 31
     }
   },
   "src/module/sw-product/view/sw-product-detail-context-prices/sw-product-detail-context-prices.spec.js": {
@@ -2296,7 +2296,7 @@
   },
   "src/module/sw-sales-channel/component/sw-sales-channel-detail-domains/sw-sales-channel-detail-domains.spec.js": {
     "sw-test-rules/no-vm-access": {
-      "count": 35
+      "count": 78
     }
   },
   "src/module/sw-sales-channel/component/sw-sales-channel-measurement/sw-sales-channel-measurement.spec.js": {
@@ -2951,7 +2951,7 @@
   },
   "src/module/sw-users-permissions/component/sw-users-permissions-role-mcp-reference-modal/sw-users-permissions-role-mcp-reference-modal.spec.js": {
     "sw-test-rules/no-vm-access": {
-      "count": 34
+      "count": 32
     }
   },
   "src/module/sw-users-permissions/components/sw-users-permissions-additional-permissions/sw-users-permissions-additional-permissions.spec.js": {

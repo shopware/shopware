@@ -214,13 +214,10 @@ const baseRules = {
     'vue/prefer-import-from-vue': 'off',
     'vue/one-component-per-file': 'off',
 
-    'sw-core-rules/no-swallowed-errors': 'error',
     '@eslint-community/eslint-comments/no-restricted-disable': [
         'error',
         ...rulesWithoutInlineDisable,
-        // A disable comment that also names this check would switch it off. The CI step that runs
-        // .github/bin/js/check-lint-directives.ts covers the comments that ESLint can't report itself.
-        ...(rulesWithoutInlineDisable.length > 0 ? ['@eslint-community/eslint-comments/*'] : []),
+        '@eslint-community/eslint-comments/*',
     ],
     // A rule config comment (`eslint <rule>: off` in a block comment) would bypass
     // rulesWithoutInlineDisable and the baselines

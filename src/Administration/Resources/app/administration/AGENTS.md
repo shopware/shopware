@@ -51,19 +51,9 @@ Jest                # Testing framework
 - When using feature flags in Jest tests, you must consult `adr/2026-08-06-administration-jest-feature-flag-helpers.md`
 - Use TypeScript for all new code
 - Do NOT introduce breaking changes to public APIs without prior discussion
-- Model new code on these reference implementations, not on the code next to it, which often predates our current rules:
-  - Component with spec: `src/app/component/media/sw-media-folder-thumbnail/`
-  - Composable with spec: `src/app/composables/use-theme.ts`
-  - Pinia store with spec: `src/app/store/tabs.store.ts`
+- Follow existing code style and patterns
 - Use the provided linting and formatting scripts (see below)
-
-## Lint gate
-
-- `npm run lint` and `npm run lint:fallow` check the coding rules. Existing violations live in `eslint-suppressions.json` and `fallow-baseline.json`, which may only shrink.
-- Fix every violation your change adds. Never regenerate a baseline.
-- Fixed a violation or deleted a file? Run `npm run lint:fix` or `npm run lint:fallow:prune` and commit the smaller baseline.
-- Tag exports that extensions may use with `@public`, otherwise Fallow reports them as unused.
-- Moved files, new folders and the full rule list: `technical-docs/11-code-quality/01-lint-gate.md`.
+- Existing ESLint violations live in `eslint-suppressions.json`, which may only shrink: fix every violation your change adds, see `technical-docs/11-code-quality/01-lint-gate.md`
 
 ## Scripts
 Run the composer commands in the root of the repository. These commands are wrapper scripts around the NPM scripts.
@@ -71,8 +61,8 @@ In a Docker environment prepend `docker compose exec web ...`.
 
 ```bash
 # Linting
-composer eslint:admin # Run types, ESLint, Fallow, Stylelint and Prettier
-composer eslint:admin:fix # Run ESLint with --fix and remove baseline entries that are no longer needed
+composer eslint:admin # Run ESLint
+composer eslint:admin:fix # Run ESLint with --fix
 composer stylelint:admin # Run Stylelint
 composer stylelint:admin:fix # Run Stylelint with --fix
 

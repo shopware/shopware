@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Twig\TwigFieldVisibilityTest
  */
 #[Package('framework')]
 class WebhookEntity extends Entity
@@ -25,11 +27,26 @@ class WebhookEntity extends Entity
 
     protected ?string $appId = null;
 
+    /**
+     * @internal
+     */
+    protected ?string $ownerUserId = null;
+
+    /**
+     * @internal
+     */
+    protected ?string $ownerIntegrationId = null;
+
     protected bool $active;
 
     protected int $errorCount;
 
     protected ?AppEntity $app = null;
+
+    /**
+     * @var list<string>|null
+     */
+    protected ?array $aclRoleIds = null;
 
     public function getName(): string
     {
@@ -91,6 +108,42 @@ class WebhookEntity extends Entity
         $this->app = $app;
     }
 
+    /**
+     * @internal
+     */
+    public function getOwnerUserId(): ?string
+    {
+        $this->checkIfPropertyAccessIsAllowed('ownerUserId');
+
+        return $this->ownerUserId;
+    }
+
+    /**
+     * @internal
+     */
+    public function setOwnerUserId(?string $ownerUserId): void
+    {
+        $this->ownerUserId = $ownerUserId;
+    }
+
+    /**
+     * @internal
+     */
+    public function getOwnerIntegrationId(): ?string
+    {
+        $this->checkIfPropertyAccessIsAllowed('ownerIntegrationId');
+
+        return $this->ownerIntegrationId;
+    }
+
+    /**
+     * @internal
+     */
+    public function setOwnerIntegrationId(?string $ownerIntegrationId): void
+    {
+        $this->ownerIntegrationId = $ownerIntegrationId;
+    }
+
     public function isActive(): bool
     {
         return $this->active;
@@ -109,5 +162,21 @@ class WebhookEntity extends Entity
     public function setErrorCount(int $errorCount): void
     {
         $this->errorCount = $errorCount;
+    }
+
+    /**
+     * @return list<string>|null
+     */
+    public function getAclRoleIds(): ?array
+    {
+        return $this->aclRoleIds;
+    }
+
+    /**
+     * @param list<string>|null $aclRoleIds
+     */
+    public function setAclRoleIds(?array $aclRoleIds): void
+    {
+        $this->aclRoleIds = $aclRoleIds;
     }
 }

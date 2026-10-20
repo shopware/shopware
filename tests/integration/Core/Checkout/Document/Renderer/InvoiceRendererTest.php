@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Checkout\Document\Event\InvoiceOrdersEvent;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
@@ -34,6 +35,7 @@ use Shopware\Core\System\Currency\CurrencyFormatter;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
 use Shopware\Core\Test\TestDefaults;
@@ -470,9 +472,12 @@ class InvoiceRendererTest extends TestCase
                 static::assertInstanceOf(OrderEntity::class, $order);
 
                 static::assertNotNull($order->getOrderCustomer());
-                $container->get('customer.repository')->update([[
-                    'id' => $order->getOrderCustomer()->getCustomerId(),
-                    'vatIds' => ['VAT-123123'],
+                $container->get('order.repository')->update([[
+                    'id' => $orderId,
+                    'orderCustomer' => [
+                        'id' => $order->getOrderCustomer()->getId(),
+                        'vatIds' => ['VAT-123123'],
+                    ],
                 ]], Context::createDefaultContext());
 
                 $orderAddress = $order->getDeliveries()?->first()?->getShippingOrderAddress();
@@ -498,13 +503,12 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotNull($order->getAddresses());
                 static::assertNotNull($order->getOrderCustomer());
 
-                $customer = $order->getOrderCustomer()->getCustomer();
                 $rendered = $rendered->getContent();
 
-                static::assertNotNull($customer);
-                static::assertNotNull($customer->getVatIds());
+                $vatIds = $order->getOrderCustomer()->getVatIds();
+                static::assertNotNull($vatIds);
 
-                $vatId = $customer->getVatIds()[0];
+                $vatId = $vatIds[0];
 
                 static::assertStringContainsString("VAT Reg.No: $vatId", $rendered);
             },
@@ -521,9 +525,12 @@ class InvoiceRendererTest extends TestCase
                 static::assertInstanceOf(OrderEntity::class, $order);
 
                 static::assertNotNull($order->getOrderCustomer());
-                $container->get('customer.repository')->update([[
-                    'id' => $order->getOrderCustomer()->getCustomerId(),
-                    'vatIds' => ['VAT-123123'],
+                $container->get('order.repository')->update([[
+                    'id' => $orderId,
+                    'orderCustomer' => [
+                        'id' => $order->getOrderCustomer()->getId(),
+                        'vatIds' => ['VAT-123123'],
+                    ],
                 ]], Context::createDefaultContext());
 
                 $orderAddress = $order->getDeliveries()?->first()?->getShippingOrderAddress();
@@ -550,11 +557,9 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotNull($order->getAddresses());
                 static::assertNotNull($order->getOrderCustomer());
 
-                $customer = $order->getOrderCustomer()->getCustomer();
                 $rendered = $rendered->getContent();
 
-                static::assertNotNull($customer);
-                static::assertNotNull($customer->getVatIds());
+                static::assertNotNull($order->getOrderCustomer()->getVatIds());
 
                 static::assertStringNotContainsString('VAT Reg.No:', $rendered);
             },
@@ -571,9 +576,12 @@ class InvoiceRendererTest extends TestCase
                 static::assertInstanceOf(OrderEntity::class, $order);
 
                 static::assertNotNull($order->getOrderCustomer());
-                $container->get('customer.repository')->update([[
-                    'id' => $order->getOrderCustomer()->getCustomerId(),
-                    'vatIds' => [],
+                $container->get('order.repository')->update([[
+                    'id' => $orderId,
+                    'orderCustomer' => [
+                        'id' => $order->getOrderCustomer()->getId(),
+                        'vatIds' => [],
+                    ],
                 ]], Context::createDefaultContext());
 
                 $orderAddress = $order->getDeliveries()?->first()?->getShippingOrderAddress();
@@ -600,11 +608,9 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotNull($order->getAddresses());
                 static::assertNotNull($order->getOrderCustomer());
 
-                $customer = $order->getOrderCustomer()->getCustomer();
                 $rendered = $rendered->getContent();
 
-                static::assertNotNull($customer);
-                static::assertCount(0, $customer->getVatIds() ?? []);
+                static::assertCount(0, $order->getOrderCustomer()->getVatIds() ?? []);
 
                 static::assertStringNotContainsString('VAT Reg.No:', $rendered);
             },
@@ -809,6 +815,7 @@ class InvoiceRendererTest extends TestCase
         bool $isEuMember,
         bool $validateVat,
         string $vatNumber,
+        bool $sellsFromTheDeliveryCountry,
         bool $shouldDisplay
     ): void {
         $cart = $this->generateDemoCartWithTaxes([7]);
@@ -855,6 +862,15 @@ class InvoiceRendererTest extends TestCase
         }
 
         static::getContainer()->get('country.repository')->upsert([$updateData], Context::createDefaultContext());
+
+        // A supply that stays inside the shop's own member state is domestic and never carries the note,
+        // so every cross-border case has to supply from another member state
+        static::getContainer()->get(SystemConfigService::class)->set(
+            'core.basicInformation.sellerCountryId',
+            $sellsFromTheDeliveryCountry ? $countryId : $this->getAnotherEuCountryId($orderAddress->getCountry()?->getIso())
+        );
+
+        static::getContainer()->get(VatIdPatternProvider::class)->reset();
 
         static::getContainer()->get('order_customer.repository')->upsert([
             [
@@ -904,6 +920,7 @@ class InvoiceRendererTest extends TestCase
             'isEuMember' => true,
             'validateVat' => false,
             'vatNumber' => 'DE123456789',
+            'sellsFromTheDeliveryCountry' => false,
             'shouldDisplay' => false,
         ];
 
@@ -914,6 +931,7 @@ class InvoiceRendererTest extends TestCase
             'isEuMember' => true,
             'validateVat' => false,
             'vatNumber' => 'DE123456789',
+            'sellsFromTheDeliveryCountry' => false,
             'shouldDisplay' => true,
         ];
 
@@ -924,6 +942,7 @@ class InvoiceRendererTest extends TestCase
             'isEuMember' => true,
             'validateVat' => false,
             'vatNumber' => 'DE123456789',
+            'sellsFromTheDeliveryCountry' => false,
             'shouldDisplay' => false,
         ];
 
@@ -934,6 +953,7 @@ class InvoiceRendererTest extends TestCase
             'isEuMember' => false,
             'validateVat' => false,
             'vatNumber' => 'DE123456789',
+            'sellsFromTheDeliveryCountry' => false,
             'shouldDisplay' => false,
         ];
 
@@ -944,6 +964,7 @@ class InvoiceRendererTest extends TestCase
             'isEuMember' => true,
             'validateVat' => true,
             'vatNumber' => 'DE123456789',
+            'sellsFromTheDeliveryCountry' => false,
             'shouldDisplay' => true,
         ];
 
@@ -954,7 +975,71 @@ class InvoiceRendererTest extends TestCase
             'isEuMember' => true,
             'validateVat' => true,
             'vatNumber' => 'invalid',
+            'sellsFromTheDeliveryCountry' => false,
             'shouldDisplay' => false,
         ];
+
+        yield 'should be displayed because the VAT ID belongs to another EU member state' => [
+            'customerType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'enableIntraCommunityDeliveryLabel' => true,
+            'enableTaxFreeB2bOption' => true,
+            'isEuMember' => true,
+            'validateVat' => true,
+            'vatNumber' => 'NL123456789B01',
+            'sellsFromTheDeliveryCountry' => false,
+            'shouldDisplay' => true,
+        ];
+
+        yield 'should not be displayed because the VAT ID belongs to no EU member state' => [
+            'customerType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'enableIntraCommunityDeliveryLabel' => true,
+            'enableTaxFreeB2bOption' => true,
+            'isEuMember' => true,
+            'validateVat' => true,
+            'vatNumber' => 'CHE116281838',
+            'sellsFromTheDeliveryCountry' => false,
+            'shouldDisplay' => false,
+        ];
+
+        yield 'should not be displayed because the goods stay in the shop\'s own member state' => [
+            'customerType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'enableIntraCommunityDeliveryLabel' => true,
+            'enableTaxFreeB2bOption' => true,
+            'isEuMember' => true,
+            'validateVat' => true,
+            'vatNumber' => 'NL123456789B01',
+            'sellsFromTheDeliveryCountry' => true,
+            'shouldDisplay' => false,
+        ];
+
+        yield 'should not be displayed for a domestic supply carrying the delivery country\'s own VAT ID' => [
+            'customerType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'enableIntraCommunityDeliveryLabel' => true,
+            'enableTaxFreeB2bOption' => true,
+            'isEuMember' => true,
+            'validateVat' => true,
+            'vatNumber' => 'DE123456789',
+            'sellsFromTheDeliveryCountry' => true,
+            'shouldDisplay' => false,
+        ];
+
+        yield 'should not be displayed for a domestic supply while the VAT ID pattern check is off' => [
+            'customerType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'enableIntraCommunityDeliveryLabel' => true,
+            'enableTaxFreeB2bOption' => true,
+            'isEuMember' => true,
+            'validateVat' => false,
+            'vatNumber' => 'DE123456789',
+            'sellsFromTheDeliveryCountry' => true,
+            'shouldDisplay' => false,
+        ];
+    }
+
+    /**
+     * @return string the id of an EU member state the goods are not delivered to
+     */
+    private function getAnotherEuCountryId(?string $deliveryCountryIso): string
+    {
+        return $this->getCountryIdByIsoCode($deliveryCountryIso === 'BE' ? 'NL' : 'BE');
     }
 }

@@ -51,9 +51,9 @@ Reviewers of such a pull request check the diff of `eslint-suppressions.json`.
 
 ## Rules
 
-| Rule | Why |
-|---|---|
-| `sw-test-rules/no-vm-access` | Specs assert what a component renders, emits or requests, not its internals through `wrapper.vm` |
+| Rule | Files | Why |
+|---|---|---|
+| `sw-test-rules/no-vm-access` | `*.spec.js`, `*.spec.ts` | Specs assert what a component renders, emits or requests, not its internals through `wrapper.vm` |
 
 `sw-test-rules/no-vm-access` allows `.vm.$emit()`, which is how Vue Test Utils simulates an event from a child or stub.
 Where a spec has no other way, an inline disable with a reason is allowed, for example `// eslint-disable-next-line sw-test-rules/no-vm-access -- <reason>`.
@@ -62,7 +62,7 @@ Where a spec has no other way, an inline disable with a reason is allowed, for e
 
 `rulesWithoutInlineDisable` in `eslint.config.ts` lists the rules that can't be disabled with an `eslint-disable` comment.
 For these rules the baseline is the only way around.
-The list is empty for now; rules join it in the pull requests that add them.
+Rules join it in the pull requests that add them.
 
 Two rules of `@eslint-community/eslint-plugin-eslint-comments` enforce it:
 

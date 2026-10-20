@@ -72,8 +72,8 @@ const vueParser = vueParserSetup.languageOptions.parser;
 const testFiles = [
     '**/*.spec.js',
     '**/*.spec.ts',
-    '**/*.spec/*.js',
-    '**/*.spec/*.ts',
+    '**/*.spec/**/*.js',
+    '**/*.spec/**/*.ts',
     '**/fixtures/*.js',
     'test/**/*.js',
     'test/**/*.ts',

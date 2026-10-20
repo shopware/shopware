@@ -17,10 +17,10 @@ use Symfony\Component\HttpFoundation\Request;
 class RefreshHttpCacheMessageTest extends TestCase
 {
     /**
-     * Environment variables written by system:setup and the credential-bearing DSNs and URLs Shopware reads.
-     * The message is persisted by the message queue transport, so none of them may end up in it.
+     * Examples of server keys that don't come from the request, which the allowlist has to drop.
+     * Taken from system:setup and the credential-bearing DSNs and URLs Shopware reads. Not a complete list.
      */
-    private const SHOPWARE_ENVIRONMENT_VARIABLES = [
+    private const NON_REQUEST_SERVER_KEYS = [
         'ADMIN_OPENSEARCH_URL',
         'APP_ENV',
         'APP_SECRET',
@@ -67,7 +67,7 @@ class RefreshHttpCacheMessageTest extends TestCase
             'REMOTE_ADDR' => '10.0.0.1',
         ];
         $droppedServer = [
-            ...array_fill_keys(self::SHOPWARE_ENVIRONMENT_VARIABLES, $leakedValue),
+            ...array_fill_keys(self::NON_REQUEST_SERVER_KEYS, $leakedValue),
             // environment variables that look like headers, from the process environment and from a .env file
             'HTTP_PROXY' => $leakedValue,
             'HTTP_DOTENV_PROXY' => $leakedValue,

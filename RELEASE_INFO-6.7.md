@@ -47,6 +47,10 @@ The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physica
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
 
+### Sync requests report products deleted earlier in the request as deleted
+
+A sync request that deletes a product and then its prices, media, cross-sellings, manufacturer or another entity whose deletion would update that product, for example its inherited data or a reference set to `null`, no longer reports the product as updated. The product now appears in `deleted` of the sync response and triggers `product.deleted` instead of `product.written`.
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request
@@ -469,10 +473,6 @@ This will allow async payment methods to leave the order transaction in "unconfi
 ### Promotion redemptions are recounted faster
 
 Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a query that matches promotion line items by `promotion_id` alone.
-
-### Sync requests report products deleted earlier in the request as deleted
-
-A sync request that deletes a product and then its prices, media, cross-sellings, manufacturer or another entity whose deletion would update that product, for example its inherited data or a reference set to `null`, no longer reports the product as updated. The product now appears in `deleted` of the sync response and triggers `product.deleted` instead of `product.written`.
 
 ### Large MCP tool results from extensions are offloaded like core results
 

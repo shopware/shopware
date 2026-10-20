@@ -42,6 +42,12 @@ The new `bin/console sales-channel:file:enable [ids...] [--all]` command switche
 It only creates missing files, so a file switched off in the Administration stays off, and a second run changes nothing.
 The command always exits with `0`, which makes it suitable for install hooks in `.shopware-project.yml`.
 
+### Remote thumbnails skip SVGs
+
+With `shopware.media.remote_thumbnails.enable`, SVGs now have an empty `thumbnails` collection, as in local mode.
+Before, their `srcset` claimed widths that the returned original file did not have, so browsers rendered small SVG logos far too small.
+Media loaded without the `mediaType` field keep their thumbnail URLs, as the type can't be checked.
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request

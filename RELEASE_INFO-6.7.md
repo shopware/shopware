@@ -110,6 +110,13 @@ The browser keeps the requested categories in the local storage under `swGaProdu
 
 The wishlist page holds the removal of a product back for at most one second, until `remove_from_wishlist` is sent.
 
+### Storefront analytics report `select_item` and the list of a product
+
+Storefront analytics now report `select_item`, and `view_item_list`, `select_item` and `view_item` report the list of a product as `item_list_id`, `item_list_name` and `index`.
+The list IDs, such as `category:<id>` or `search`, are a contract that Google Tag Manager triggers can rely on.
+For the search result, these events also report the query as `search_term`, so GA4 shows which products a search found.
+The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#lists) lists them and shows how extensions identify their own lists.
+
 # 6.7.16.0
 
 ## Critical Fixes
@@ -1025,49 +1032,6 @@ the component now loads all snippet sets and locales once in `createdComponent` 
 ### Category Twig function removal postponed to 6.9
 
 The deprecated `category_url` and `category_linknewtab` Twig functions remain available throughout 6.8 and will be removed in 6.9.0. Extension and theme developers should migrate to `category.seoUrl` (available on `SalesChannelCategoryEntity`) and `category.shouldOpenInNewTab`. See the [migration instructions](UPGRADE-6.9.md#removed-category_url-and-category_linknewtab-twig-functions).
-
-### Storefront analytics recognize product elements of extensions
-
-Storefront analytics now treat every element with a `data-product-information` attribute as a product, not only the `.product-box`.
-Products that extensions render in their own markup are reported as well.
-The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#products) describes the expected attribute.
-The product box now reports the price of a matching price rule or the first graduated price, the same price as the product detail page, instead of the default price.
-
-### Storefront analytics report brand and category of products added from a product box
-
-With active analytics, adding a product from a product box now posts its brand and categories in the line item payload, like the buy widget does.
-Cart, checkout and purchase events report them as `item_brand` and `item_category`.
-
-### Storefront analytics report each checkout step once
-
-`add_shipping_info` and `add_payment_info` are now reported once per selected method of a checkout, instead of on every reload of the confirm page.
-A new customer reports `add_shipping_info` when registering in the checkout.
-The reorder of an order in the account now reports one `add_to_cart` with all line items of the order, each with product number, name, price, brand and categories of the original order.
-Before, it reported only the last line item, with its ID instead of the product number and without name and price.
-The reorder of an order in the account now reports one `add_to_cart` with all products of the order, each with product number, name, price, quantity, brand and categories of the original order.
-The reorder form posts only the order, so the products are rendered into the form as `[data-analytics-line-item]` elements while analytics is active.
-The reorder of an order in the account now reports one `add_to_cart` with all products of the order, each with product number, name, price, quantity, brand and categories of the original order.
-The reorder form posts only the order, so the products are rendered into the form as `[data-analytics-line-item]` elements while analytics is active.
-
-### Storefront analytics report item variants and graduated prices
-
-Storefront analytics now report the selected options of a variant as `item_variant`.
-`add_to_cart` on the product detail page reports the graduated price of the quantity the cart holds after the add.
-
-### Storefront analytics request the categories of products outside a category
-
-For a product the page breadcrumb does not describe, such as on the homepage or the wishlist, or in a product slider of a category page, `add_to_cart` and the wishlist events now report the categories of the product.
-They are requested from the new HTTP cached route `frontend.analytics.product-categories`, which returns a 404 for a sales channel without active analytics.
-The browser keeps the requested categories in the local storage under `swGaProductCategories`, so the cart, checkout and purchase events report them as well without requesting anything.
-
-The wishlist page holds the removal of a product back for at most one second, until `remove_from_wishlist` is sent.
-
-### Storefront analytics report `select_item` and the list of a product
-
-Storefront analytics now report `select_item`, and `view_item_list`, `select_item` and `view_item` report the list of a product as `item_list_id`, `item_list_name` and `index`.
-The list IDs, such as `category:<id>` or `search`, are a contract that Google Tag Manager triggers can rely on.
-For the search result, these events also report the query as `search_term`, so GA4 shows which products a search found.
-The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#lists) lists them and shows how extensions identify their own lists.
 
 ### Essential characteristics label custom fields with their snippet
 

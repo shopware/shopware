@@ -14,6 +14,7 @@
 - Internationalization & Snippets (`08-i18n/`)
 - Security (`09-security/`)
 - Commercial (`10-commercial/`)
+- Code quality (`11-code-quality/`)
 
 ## Expansion Guidelines
 

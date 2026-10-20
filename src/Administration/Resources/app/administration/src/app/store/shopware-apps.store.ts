@@ -3,6 +3,9 @@
  */
 import type { AppModuleDefinition } from 'src/core/service/api/app-modules.service';
 
+/**
+ * @public
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface ShopwareAppsState {
     apps: AppModuleDefinition[];

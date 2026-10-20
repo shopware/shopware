@@ -64,6 +64,12 @@
         "**/entity-schema-definition",
         "**/component-imports"
     ],
+    "ignoreExports": [
+        {
+            "file": "eslint-rules/core-rules/component-options.js",
+            "exports": ["findProperty", "getPropertyName"]
+        }
+    ],
     "overrides": [
         {
             "files": ["src/core/factory/state-deprecated.factory.js", "src/core/helper/store-loader.helper.js"],

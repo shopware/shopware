@@ -217,7 +217,8 @@ const baseRules = {
         // .github/bin/js/check-lint-directives.ts covers the comments that ESLint can't report itself.
         ...(rulesWithoutInlineDisable.length > 0 ? ['@eslint-community/eslint-comments/*'] : []),
     ],
-    // `/* eslint <rule>: off */` would bypass rulesWithoutInlineDisable and the baselines
+    // A rule config comment (`eslint <rule>: off` in a block comment) would bypass
+    // rulesWithoutInlineDisable and the baselines
     '@eslint-community/eslint-comments/no-use': [
         'error',
         {

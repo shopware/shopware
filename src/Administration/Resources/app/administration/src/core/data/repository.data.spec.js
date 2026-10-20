@@ -428,5 +428,25 @@ describe('repository.data.ts', () => {
 
             expect(Shopware.Store.get('error').api).toEqual({});
         });
+
+        it('should keep old api errors on delete when keepApiErrors is set', async () => {
+            responses.addResponse({ method: 'DELETE', url: `/tax/${newId}`, status: 204, response: {} });
+
+            await repositoryFactory.create('tax', null, { keepApiErrors: true }).delete(newId);
+
+            expect(Shopware.Store.get('error').getErrorsForEntity('tax', oldId)).toMatchObject({
+                code: 'FRAMEWORK__DELETE_RESTRICTED',
+            });
+        });
+
+        it('should keep old api errors on sync delete when keepApiErrors is set', async () => {
+            responses.addResponse({ method: 'POST', url: '_action/sync', status: 200, response: { success: true } });
+
+            await repositoryFactory.create('tax', null, { keepApiErrors: true }).syncDeleted([newId]);
+
+            expect(Shopware.Store.get('error').getErrorsForEntity('tax', oldId)).toMatchObject({
+                code: 'FRAMEWORK__DELETE_RESTRICTED',
+            });
+        });
     });
 });

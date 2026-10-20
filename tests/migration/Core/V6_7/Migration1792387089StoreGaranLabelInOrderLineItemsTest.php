@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Migration\V6_7\Migration1783944800AddGaranLabel;
 use Shopware\Core\Migration\V6_7\Migration1792387089StoreGaranLabelInOrderLineItems;
 use Shopware\Tests\Migration\MigrationTestTrait;
 
@@ -131,6 +132,31 @@ class Migration1792387089StoreGaranLabelInOrderLineItemsTest extends TestCase
         foreach ($this->fetchPayloads($lineItemIds) as $payload) {
             static::assertArrayHasKey('garanLabel', $payload);
         }
+    }
+
+    public function testSkipsLineItemsCreatedBeforeTheGaranFieldsWereAdded(): void
+    {
+        // a 6.6 shop added the fields with the backported migration, it records the 6.7 one when it updates
+        $this->connection->executeStatement(
+            'INSERT INTO `migration` (`class`, `creation_timestamp`, `update`) VALUES (:class, 1783944800, \'2026-07-01 00:00:00.000000\')',
+            ['class' => 'Shopware\Core\Migration\V6_6\Migration1783944800AddGaranLabel']
+        );
+        $this->connection->executeStatement(
+            'UPDATE `migration` SET `update` = \'2026-09-01 00:00:00.000000\' WHERE `class` = :class',
+            ['class' => Migration1783944800AddGaranLabel::class]
+        );
+
+        $productId = $this->insertProduct(self::PRODUCT, null, [self::ORDER_LANGUAGE => 'ACME']);
+        [$beforeId, $sinceId] = $this->insertLineItems($productId, 2, []);
+        $this->connection->executeStatement(
+            'UPDATE `order_line_item` SET `created_at` = IF(`id` = :beforeId, \'2026-06-30 23:59:59.999\', \'2026-07-01 00:00:00.000\') WHERE `id` IN (:beforeId, :sinceId)',
+            ['beforeId' => $beforeId, 'sinceId' => $sinceId]
+        );
+
+        (new Migration1792387089StoreGaranLabelInOrderLineItems())->update($this->connection);
+
+        static::assertArrayNotHasKey('garanLabel', $this->fetchPayloads([$beforeId])[0]);
+        static::assertArrayHasKey('garanLabel', $this->fetchPayloads([$sinceId])[0]);
     }
 
     /**

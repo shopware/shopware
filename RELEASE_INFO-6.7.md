@@ -419,7 +419,7 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 ### Product line items carry the GARAN label they were shown with
 
 Cart and order product line items now store their GARAN label values in `payload.garanLabel`; editing an order keeps them as is.
-A migration adds them to existing orders whose product has a GARAN label.
+A migration adds them to order line items created since the update that introduced GARAN labels, if their product has one.
 Order line items without `payload.garanLabel` show no GARAN label, so write it with `guaranteeMonths`, `brand` and `modelIdentifier` if you create orders through the Admin API or the Sync API.
 Headless frontends can read the payload instead of calling `/store-api/product/{productId}/garan-label`.
 The `sw_garan_label_nested` Twig filter is deprecated.

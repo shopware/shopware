@@ -311,6 +311,8 @@ The `sw_garan_label_mail` Twig filter and `Shopware\Core\Content\Product\Garan\G
 
 Cart line items show only the GARAN label stored in their `payload.garanLabel`, as order line items do since 6.7.16.0.
 The Storefront no longer looks up the product of line items without that key, they show no GARAN label.
+The `sw_garan_label_nested` Twig filter and `Shopware\Core\Content\Product\Garan\GaranLabelTwigFilter::renderNestedLabel()` were removed.
+Render the label from `lineItem.payload.garanLabel` instead, as `storefront/component/line-item/element/garan-label.html.twig` does.
 
 ## Shipping price matrix ranges use currency conversion
 

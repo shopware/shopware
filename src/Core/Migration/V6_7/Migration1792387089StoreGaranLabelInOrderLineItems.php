@@ -22,6 +22,11 @@ class Migration1792387089StoreGaranLabelInOrderLineItems extends MigrationStep
 {
     private const BATCH_SIZE = 1000;
 
+    private const GARAN_FIELD_MIGRATIONS = [
+        'Shopware\\Core\\Migration\\V6_6\\Migration1783944800AddGaranLabel',
+        Migration1783944800AddGaranLabel::class,
+    ];
+
     public function getCreationTimestamp(): int
     {
         return 1792387089;
@@ -34,12 +39,20 @@ class Migration1792387089StoreGaranLabelInOrderLineItems extends MigrationStep
             return;
         }
 
+        $garanSince = $connection->fetchOne(
+            'SELECT MIN(`update`) FROM `migration` WHERE `class` IN (:classes)',
+            ['classes' => self::GARAN_FIELD_MIGRATIONS],
+            ['classes' => ArrayParameterType::STRING]
+        );
+
         $lastId = '';
 
         do {
             $ids = $connection->fetchFirstColumn(
-                'SELECT `id` FROM `order_line_item` WHERE `id` > :lastId AND `type` = :type ORDER BY `id` LIMIT :limit',
-                ['lastId' => $lastId, 'type' => 'product', 'limit' => self::BATCH_SIZE],
+                'SELECT `id` FROM `order_line_item`
+                WHERE `id` > :lastId AND `type` = :type AND `created_at` >= :garanSince
+                ORDER BY `id` LIMIT :limit',
+                ['lastId' => $lastId, 'type' => 'product', 'garanSince' => $garanSince, 'limit' => self::BATCH_SIZE],
                 ['lastId' => ParameterType::BINARY, 'limit' => ParameterType::INTEGER]
             );
 

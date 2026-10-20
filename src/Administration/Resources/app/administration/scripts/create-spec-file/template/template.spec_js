@@ -35,5 +35,5 @@ describe('<component-path>', () => {
         await flushPromises();
     });
 
-    // TODO: Add tests for what the component renders, emits or requests
+    it.todo('should render, emit or request what the component is for');
 });

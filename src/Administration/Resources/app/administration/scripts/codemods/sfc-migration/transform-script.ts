@@ -151,14 +151,6 @@ function composableImports(composables: ResolvedComposable[]): string[] {
     ];
 }
 
-function macroCall(macro: 'defineProps' | 'defineEmits', argument: string | null, binding: string | null): string | null {
-    if (argument === null) {
-        return null;
-    }
-
-    return binding ? `const ${binding} = ${macro}(${argument});` : `${macro}(${argument});`;
-}
-
 /**
  * The render phase: collected descriptors plus the rewritten MagicString become the `<script setup>`
  * body. Every `snip()` below reads text the rewrite pass already touched, so this must run last.
@@ -263,8 +255,16 @@ function renderScript(
         helperBlock || null,
         injectBlock || null,
         collected.inheritAttrs !== null ? `defineOptions({ inheritAttrs: ${collected.inheritAttrs} });` : null,
-        macroCall('defineProps', propsText, usesProps ? 'props' : null),
-        macroCall('defineEmits', emitsText, usesEmit ? 'emit' : null),
+        propsText !== null
+            ? usesProps
+                ? `const props = defineProps(${propsText});`
+                : `defineProps(${propsText});`
+            : null,
+        emitsText !== null
+            ? usesEmit
+                ? `const emit = defineEmits(${emitsText});`
+                : `defineEmits(${emitsText});`
+            : null,
         // After the macro bindings a composable call can be handed, before the member sections that
         // read what it returns.
         composableBlock || null,

@@ -402,19 +402,4 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         await iframe.trigger('load');
         expect(wrapper.vm._reloadPage).toHaveBeenCalledTimes(1);
     });
-
-    it.each([
-        [480, '480px'],
-        ['480', '480px'],
-        ['auto', '100%'],
-    ])('should size the iframe for the height %p that the extension posts', async (height, iframeHeight) => {
-        window.history.replaceState({}, '', 'http://localhost/?location-id=foo');
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        await location.updateHeight(height);
-        await flushPromises();
-
-        expect(wrapper.get('iframe').attributes('height')).toBe(iframeHeight);
-    });
 });

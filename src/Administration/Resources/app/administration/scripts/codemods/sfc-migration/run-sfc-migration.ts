@@ -361,16 +361,6 @@ async function runMigration(
     return result;
 }
 
-function describeWriteMode(write: boolean, replaceOriginals: boolean): string {
-    if (!write) {
-        return ' (dry run — nothing written)';
-    }
-
-    return replaceOriginals
-        ? ' (drafts written; eligible entry points replaced; Twig retained)'
-        : ' (validated Vue drafts written; legacy sources retained)';
-}
-
 function printReport(result: MigrationResult, targetDir: string, write: boolean, replaceOriginals: boolean): void {
     const histogram = new Map<string, number>();
     const classes = new Map<ComponentReport['registration'], number>();
@@ -405,7 +395,11 @@ function printReport(result: MigrationResult, targetDir: string, write: boolean,
     const split = COMPONENT_CLASSES.filter((componentClass) => classes.has(componentClass))
         .map((componentClass) => `${classes.get(componentClass)} ${componentClass}`)
         .join(' / ');
-    const mode = describeWriteMode(write, replaceOriginals);
+    const mode = write
+        ? replaceOriginals
+            ? ' (drafts written; eligible entry points replaced; Twig retained)'
+            : ' (validated Vue drafts written; legacy sources retained)'
+        : ' (dry run — nothing written)';
 
     console.log(
         `\n${total} components${split ? ` (${split})` : ''}: ${stats.full} full, ${stats.partial} partial, ` +

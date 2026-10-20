@@ -190,25 +190,18 @@ function collectThisMemberNames(node: t.Node, names: Set<string>): void {
     });
 }
 
-function writeTarget(node: t.Node): t.Node | null {
-    if (node.type === 'AssignmentExpression') {
-        return node.left;
-    }
-
-    if (node.type === 'UpdateExpression') {
-        return node.argument;
-    }
-
-    return null;
-}
-
 /**
  * Every `this.<member>` name written to inside `node`, again ignoring what `this` binds at each site.
  * Compound assignments and `++`/`--` count: all of them need the target to be assignable.
  */
 function collectAssignedThisMemberNames(node: t.Node, names: Set<string>): void {
     traverseFast(node, (descendant) => {
-        const target = writeTarget(descendant);
+        const target =
+            descendant.type === 'AssignmentExpression'
+                ? descendant.left
+                : descendant.type === 'UpdateExpression'
+                  ? descendant.argument
+                  : null;
 
         if (!target || !isThisMember(target)) {
             return;

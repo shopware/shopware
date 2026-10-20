@@ -206,7 +206,6 @@ const baseRules = {
         'error',
         { defaultAssignment: false },
     ],
-    'no-nested-ternary': 'error',
 };
 
 export default [

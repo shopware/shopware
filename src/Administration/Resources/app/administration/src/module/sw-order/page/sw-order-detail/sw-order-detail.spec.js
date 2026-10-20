@@ -194,6 +194,27 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.hasNewVersionId).toBe(true);
     });
 
+    it('should drop the edit state of the previous order when another order is opened', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());
+        wrapper.vm.orderRepository.createVersion = jest.fn(() => Promise.resolve({ versionId: 'nextVersionId' }));
+        await wrapper.setData({
+            hasOrderDeepEdit: true,
+            missingProductLineItems: [{ id: 'missing-line-item' }],
+            promotionsToDelete: ['promotion-line-item'],
+            deliveryDiscountsToDelete: ['delivery-discount'],
+        });
+
+        await wrapper.setProps({ orderId: Shopware.Utils.createId() });
+
+        expect(wrapper.vm.hasOrderDeepEdit).toBe(false);
+        expect(wrapper.vm.missingProductLineItems).toEqual([]);
+        expect(wrapper.vm.promotionsToDelete).toEqual([]);
+        expect(wrapper.vm.deliveryDiscountsToDelete).toEqual([]);
+    });
+
     it('should keep the version when the page is stored in the back-forward cache', async () => {
         wrapper = await createWrapper();
         wrapper.vm.orderRepository.deleteVersionWithKeepalive = jest.fn(() => Promise.resolve());

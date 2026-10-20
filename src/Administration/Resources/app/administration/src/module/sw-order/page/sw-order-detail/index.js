@@ -245,6 +245,12 @@ export default {
     watch: {
         orderId(orderId, previousOrderId) {
             this.beforeDestroyComponent(false, previousOrderId);
+
+            this.hasOrderDeepEdit = false;
+            this.missingProductLineItems = [];
+            this.promotionsToDelete = [];
+            this.deliveryDiscountsToDelete = [];
+
             this.createdComponent();
         },
 

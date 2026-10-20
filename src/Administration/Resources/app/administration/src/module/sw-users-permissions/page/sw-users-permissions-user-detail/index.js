@@ -245,6 +245,11 @@ export default {
         },
 
         '$route.params.id'() {
+            this.mediaItem = null;
+            this.isEmailAlreadyInUse = false;
+            this.isUsernameUsed = false;
+            this.userThemeSelection = null;
+            this.userModuleIconColorsSelection = null;
             this.createdComponent();
         },
     },

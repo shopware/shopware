@@ -230,4 +230,29 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
         expect(search).toHaveBeenCalledTimes(2);
         expect(wrapper.vm.paymentMethod.id).toBe('second-id');
     });
+
+    it('should drop the media of the previous payment method when the new one has none', async () => {
+        const route = reactive({ query: {}, params: { id: 'first-id' } });
+        const search = jest.fn((criteria) =>
+            Promise.resolve({
+                first: () =>
+                    Promise.resolve({
+                        id: criteria.ids[0],
+                        name: 'Test settings-payment',
+                        mediaId: null,
+                        getEntityName: () => 'payment-method',
+                    }),
+            }),
+        );
+        const wrapper = await createWrapper([], {}, route, search);
+        await flushPromises();
+
+        await wrapper.setData({ mediaItem: { id: 'first-media' } });
+
+        route.params.id = 'second-id';
+        await flushPromises();
+
+        expect(wrapper.vm.paymentMethod.id).toBe('second-id');
+        expect(wrapper.vm.mediaItem).toBeNull();
+    });
 });

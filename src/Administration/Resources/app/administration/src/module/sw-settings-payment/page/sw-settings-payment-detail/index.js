@@ -137,6 +137,8 @@ export default {
         },
 
         '$route.params.id'() {
+            // loading the entity only sets the media item when the new payment method has one
+            this.mediaItem = null;
             this.createdComponent();
         },
     },

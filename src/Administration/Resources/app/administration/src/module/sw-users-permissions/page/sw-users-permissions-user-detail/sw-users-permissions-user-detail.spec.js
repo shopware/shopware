@@ -783,4 +783,40 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(wrapper.vm.userId).toBe('second-id');
         expect(wrapper.vm.user.id).toBe('second-id');
     });
+
+    it('should drop the avatar and check results of the previous user when the route id changes', async () => {
+        await wrapper.unmount();
+
+        const route = reactive({
+            params: { id: 'first-id' },
+            meta: { $module: { icon: 'regular-content' } },
+        });
+        const userGet = jest.fn((id) =>
+            Promise.resolve({
+                id,
+                username: id,
+                accessKeys: { entity: 'product' },
+            }),
+        );
+        wrapper = await createWrapper('users_and_permissions.editor', {
+            global: { stubs: {} },
+            route,
+            userGet,
+        });
+        await flushPromises();
+
+        await wrapper.setData({
+            mediaItem: { id: 'first-avatar' },
+            isEmailAlreadyInUse: true,
+            isUsernameUsed: true,
+        });
+
+        route.params.id = 'second-id';
+        await flushPromises();
+
+        expect(wrapper.vm.user.id).toBe('second-id');
+        expect(wrapper.vm.mediaItem).toBeNull();
+        expect(wrapper.vm.isEmailAlreadyInUse).toBe(false);
+        expect(wrapper.vm.isUsernameUsed).toBe(false);
+    });
 });

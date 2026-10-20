@@ -88,6 +88,15 @@ If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0
 
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
+## Hosting & Configuration
+
+### Storefront readiness checks skip pages restricted by extensions
+
+The `ProductDetailReadiness` and `ProductListingReadiness` system checks only probe product and listing pages an anonymous visitor can see.
+Pages that extensions such as Dynamic Access restrict by rules no longer fail `bin/console system:check --context=pre_rollout`.
+If a sales channel has no visible page, the check reports `SKIPPED`.
+A sales channel whose domain cannot be resolved is now reported as its own failure, and the other sales channels are still checked.
+
 # 6.7.16.0
 
 ## Critical Fixes

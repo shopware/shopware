@@ -53,13 +53,7 @@ Jest                # Testing framework
 - Do NOT introduce breaking changes to public APIs without prior discussion
 - Follow existing code style and patterns
 - Use the provided linting and formatting scripts (see below)
-
-## Lint gate
-
-- `npm run lint` checks the coding rules. Existing violations live in `eslint-suppressions.json`, which may only shrink.
-- Fix every violation your change adds. Never regenerate a baseline.
-- Fixed a violation or deleted a file? Run `npm run lint:fix` and commit the smaller baseline.
-- Moved files, new folders and the full rule list: `technical-docs/11-code-quality/01-lint-gate.md`.
+- Existing ESLint violations live in `eslint-suppressions.json`, which may only shrink: fix every violation your change adds, see `technical-docs/11-code-quality/01-lint-gate.md`
 
 ## Scripts
 Run the composer commands in the root of the repository. These commands are wrapper scripts around the NPM scripts.
@@ -67,8 +61,8 @@ In a Docker environment prepend `docker compose exec web ...`.
 
 ```bash
 # Linting
-composer eslint:admin # Run types, ESLint, Stylelint and Prettier
-composer eslint:admin:fix # Run ESLint with --fix and remove baseline entries that are no longer needed
+composer eslint:admin # Run ESLint
+composer eslint:admin:fix # Run ESLint with --fix
 composer stylelint:admin # Run Stylelint
 composer stylelint:admin:fix # Run Stylelint with --fix
 

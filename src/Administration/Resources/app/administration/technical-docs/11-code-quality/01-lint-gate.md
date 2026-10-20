@@ -2,94 +2,64 @@
 
 > Status: Stable
 
-The lint gate is the set of rules that `npm run lint` checks in the Administration.
-Rules that only live in documents do not hold, so every rule a tool can check is part of the gate.
-
-Existing violations are recorded in baselines.
-New code has to follow every rule, and the baselines may only shrink.
-The decision behind the gate is in [`adr/2026-10-16-administration-lint-gate.md`](../../../../../../../adr/2026-10-16-administration-lint-gate.md).
-
-## Commands
-
-Run them in `src/Administration/Resources/app/administration`, or through the composer wrappers in the repository root.
-
-| Command | What it does |
-|---|---|
-| `npm run lint` | ESLint with the gate rules and `eslint-suppressions.json` |
-| `npm run lint:all` | Types, ESLint, Stylelint and Prettier (`composer eslint:admin`) |
-| `npm run lint:fix` | ESLint autofix, removes suppressions that are no longer needed (`composer eslint:admin:fix`) |
-
-## Rules
-
-| Group | Rules | Why |
-|---|---|---|
-
-## Inline disables
-
-Some rules can't be disabled inline.
-They are listed in `rulesWithoutInlineDisable` in `eslint.config.ts`.
-For these rules the baseline is the only way around, and the baseline can't grow.
-
-Two checks block the other ways:
-
-| Comment | Blocked by |
-|---|---|
-| `eslint-disable`, `eslint-disable-line` or `eslint-disable-next-line` naming a listed rule or an `eslint-comments/` rule, or a bare `eslint-disable` without rule names | `@eslint-community/eslint-comments/no-restricted-disable` |
-| `/* eslint <rule>: "off" */`, which changes a rule's config for the file | `@eslint-community/eslint-comments/no-use`, for every rule |
-
-A rule that joins the list brings its existing inline disables into the baseline as `no-restricted-disable` violations.
+Existing ESLint violations in the Administration are recorded in a baseline.
+New code has to follow every rule, and the baseline may only shrink.
+The decision is in [`adr/2026-10-16-administration-lint-gate.md`](../../../../../../../adr/2026-10-16-administration-lint-gate.md).
 
 ## Baselines
 
 | Baseline | Covers |
 |---|---|
-| `src/Administration/Resources/app/administration/eslint-suppressions.json` | ESLint in the Administration |
-| `src/Storefront/Resources/app/administration/eslint-suppressions.json` | ESLint in the Storefront's Administration modules |
+| `src/Administration/Resources/app/administration/eslint-suppressions.json` | The Administration |
+| `src/Storefront/Resources/app/administration/eslint-suppressions.json` | The Storefront's Administration modules |
 
-`eslint-suppressions.json` counts the violations per file and rule.
+Each baseline is ESLint's own [bulk suppressions](https://eslint.org/docs/latest/use/suppressions) file.
+It counts the violations per file and rule.
 A file passes while it has at most as many violations of a rule as recorded.
-One more, even in a line you did not touch, fails the lint.
+One more, even in a line you did not touch, fails `npm run lint`.
 
-The CI job "Lint baselines do not grow" compares the totals per rule with the base branch.
-It fails when a total grows, or when a baseline still holds entries of a deleted file.
-Shrinking needs no review, so the baselines have no code owner.
+## Working with the baseline
 
-A rule that joins the gate brings its existing violations into the baseline.
-The job lets them in only when the same pull request changes `eslint.config.ts`, which needs a review from the framework team.
+- A rule fires in a file you changed: fix the violation.
+- You fixed a violation or deleted a file: run `npm run lint:fix`, which also removes the entries that are no longer needed, and commit the smaller baseline.
+- You moved or renamed a file: the baseline stores paths, so the violations of the moved file count as new.
+  Fix them, or run `npm run lint:fix` and then `npx eslint <new path> --suppress-rule <rule>` for each rule that still fires.
+  The totals stay the same.
+- A folder without a baseline joins the gate: run `npm run lint -- --suppress-all` once in that folder and commit the new `eslint-suppressions.json`.
+  Add the file to the "Lint baselines do not grow" job in `.github/workflows/admin.yml`.
 
-Never regenerate a baseline with `eslint --suppress-all`.
-That would record every new violation as an old one.
+Never run `--suppress-all` on a folder that already has a baseline.
+It would record every new violation as an old one.
 
-## When the gate fails
+## Growth check
 
-### A rule fires in a file you changed
+The CI job "Lint baselines do not grow" runs `.github/bin/js/check-baseline-growth.ts` on pull requests and in the merge queue.
+It compares the totals per rule with the base commit and fails when a total grows.
+Totals, not per-file counts, so that moving a file does not count as a new violation.
 
-Fix the violation.
-If the file already has baselined violations of that rule, your change added one more.
+It also fails when a baseline still holds entries of a file that no longer exists.
+Those entries would let a new violation of the same rule pass in another file.
+`npm run lint:fix` removes them.
 
-### You fixed a violation
+## How a new rule joins
 
-ESLint fails with "There are suppressions left that do not occur anymore".
-Run `npm run lint:fix` and commit the smaller `eslint-suppressions.json`.
+A pull request that turns on a rule with existing violations adds them to the baseline with `npx eslint --suppress-rule <rule>`.
+The growth check lets a rule that has no entries on the base commit in only when the same pull request changes `eslint.config.ts`.
 
-### You moved or renamed a file
+This is a known gap: any change to `eslint.config.ts` lets any new rule into the baseline.
+Reviewers of such a pull request check the diff of `eslint-suppressions.json`.
 
-The baseline stores paths, so the violations of the moved file count as new.
-Fix them if you can.
+## Inline disables
 
-If you can't fix them in the same change, move the entries:
+`rulesWithoutInlineDisable` in `eslint.config.ts` lists the rules that can't be disabled with an `eslint-disable` comment.
+For these rules the baseline is the only way around.
+The list is empty for now; rules join it in the pull requests that add them.
 
-1. Run `npm run lint:fix`, which removes the entries of the old path.
-2. Run `npx eslint <new path> --suppress-rule <rule>` for each rule that still fires.
+Two rules of `@eslint-community/eslint-plugin-eslint-comments` enforce it:
 
-The totals stay the same, so the growth check passes.
+- `no-restricted-disable` reports disable comments that name a listed rule or an `eslint-comments/` rule, and bare `eslint-disable` comments without rule names.
+- `no-use` reports rule config comments such as `/* eslint <rule>: "off" */` for every rule.
 
-### You deleted a file
+A block comment that disables `no-restricted-disable` itself also hides its own report, so ESLint can't catch that one.
 
-Run `npm run lint:fix`.
-The growth check fails as long as `eslint-suppressions.json` holds entries of the deleted file.
-
-### A new folder uses the gate
-
-Run `npm run lint -- --suppress-all` once in the folder, which needs its own `lint` script, and commit the new `eslint-suppressions.json`.
-Add it to the "Lint baselines do not grow" job in `.github/workflows/admin.yml`.
+A rule that joins the list brings its existing inline disables into the baseline as `no-restricted-disable` violations.

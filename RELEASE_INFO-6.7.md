@@ -1,4 +1,80 @@
-# 6.7.16.0 (upcoming)
+# 6.7.17.0 (upcoming)
+
+## Core
+
+### Webhooks without an app are now authorized against their owner
+
+Webhooks created through the Admin API without an app (`POST /api/webhook` without `app_id`) are now authorized against the ACL privileges of the user or integration that created them. An admin owner receives every event it subscribes to, and a non-admin owner only receives events it is allowed to read.
+
+The owner is recorded from the session and cannot be set through the API. Deleting the owning user or integration also deletes its app-less webhooks: a webhook has no meaning once the owner whose privileges authorize it is gone. App webhooks go through the same check: their owner is the app's integration, so they are authorized against the app's role as before.
+
+Existing app-less webhooks have no recorded creator, so the update creates an admin integration labelled "Legacy webhooks" and assigns them to it. They keep receiving every event they subscribe to. Audit these webhooks after updating: recreate any that should run with narrower privileges as the user or integration it belongs to. Deleting the "Legacy webhooks" integration also deletes the webhooks assigned to it.
+
+### Webhooks belonging to an app can no longer be changed through the API
+
+Webhooks that belong to an app (`app_id` is set) are managed through the app's manifest. Requests that update or delete them through the Admin API or Sync API are rejected with a `400` and `FRAMEWORK__APP_WEBHOOK_NOT_MODIFIABLE`, whatever privileges the caller holds. Apps continue to add, change and remove their own webhooks through their manifest when they are installed or updated.
+
+Webhooks can also no longer be cloned through `POST /api/_action/clone/webhook/{id}`: the request is rejected with a `403` and `FRAMEWORK__CLONE_PROTECTED`. A clone kept the original's app, so it could deliver an app's events to another url.
+
+### Webhooks without an app can only be changed by their owner
+
+A webhook without an app can only be updated or deleted through the API by the user or integration that created it. Requests from anyone else are rejected with a `400` and `FRAMEWORK__WEBHOOK_NOT_OWNED`, regardless of the `webhook:update` and `webhook:delete` privileges they hold. Administrators are not restricted.
+
+### Webhooks created through the API are validated against the event they subscribe to
+
+`POST /api/webhook` and `PATCH /api/webhook/{id}` now check the event a webhook subscribes to, as an app manifest already was. Requests are rejected with a `400` and `FRAMEWORK__WEBHOOK_EVENT_NOT_PERMITTED` when webhooks cannot receive the event, or `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` when the webhook's owner lacks a privilege the event requires. Previously any event name was accepted and the webhook simply never fired.
+
+A non-admin user or integration now needs the read privilege of every event it subscribes to in addition to `webhook:create`; a webhook on `product.written` requires `product:read`. Administrators are not restricted, unless the webhook is limited to some of their roles.
+
+### Webhooks created through the API can be limited to some of their owner's ACL roles
+
+A webhook without an app accepts an optional `aclRoleIds` list. It then only receives events those roles allow, even when its owner holds more roles; leave it unset to keep inheriting every role of the owner. For an administrator owner, the listed roles are used as they are.
+
+```json
+{ "name": "Product sync", "eventName": "product.written", "url": "https://example.com", "aclRoleIds": ["0193b1c2d3e47f5a8b9c0d1e2f3a4b5c"] }
+```
+
+The list must not be empty or contain empty entries, and the listed roles must be held by the owner, unless the owner is an administrator; otherwise the write is rejected with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `aclRoleIds`. The subscribed event must be covered by the privileges of the listed roles, otherwise `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` is returned, also when an administrator changes somebody else's webhook.
+
+### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
+
+The new `bin/console sales-channel:file:enable [ids...] [--all]` command switches on `llms.txt` and `AGENTS.md` for Storefront and Headless sales channels.
+It only creates missing files, so a file switched off in the Administration stays off, and a second run changes nothing.
+The command always exits with `0`, which makes it suitable for install hooks in `.shopware-project.yml`.
+
+### Order line items of older orders get their product type
+
+This release fills `payload.productType` for every product and custom order line item that does not have it yet, based on the line item's deprecated `states`.
+The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physical line items, so most line items of older orders had no product type.
+Values that are already set are kept.
+Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
+
+### The cart validates the VAT ID of business customers
+
+The VAT ID settings of the country of the active billing address are now checked in the cart of business customers, and violations block the order:
+
+- `vat-id-missing`: the country has "VAT Reg.No. required" enabled, but the customer has no VAT ID.
+- `vat-id-invalid`: the country checks the VAT ID pattern, and a VAT ID of the customer doesn't match it.
+
+This also covers customers who registered before the settings were enabled or who switched to a billing address in another country later.
+Store API clients should show the error and let the customer fix the VAT ID via `/store-api/account/change-profile`.
+
+## API
+
+### Criteria on fields the API does not expose is a bad request
+
+A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
+
+## Storefront
+
+### Guests can open the profile page
+
+Guests can now open and save the profile page to correct their personal data, company and VAT ID, for example when the cart reports `vat-id-missing` or `vat-id-invalid`.
+The e-mail, password and account deletion sections stay hidden for guests, and their routes still reject them.
+The profile form keeps a `redirectTo` parameter, which the VAT ID errors use to send the customer back to the checkout after saving.
+Themes that override blocks of the personal data form in `page/account/profile/index.html.twig` should check that the content also suits guests.
+
+# 6.7.16.0
 
 ## Critical Fixes
 
@@ -525,16 +601,6 @@ An app's MCP tool may only list `<required-privileges>` in `mcp.xml` that the ap
 
 The test helper trait `\Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait` is deprecated and will be removed in 6.8. Its `assertValues()` method now triggers a deprecation, and throws when the `v6.8.0.0` flag is active. Extension tests that use the trait should call `\Shopware\Core\Test\Assert\ArrayValues::assertValues($expected, $actual)` instead; the comparison is unchanged.
 
-### The cart validates the VAT ID of business customers
-
-The VAT ID settings of the country of the active billing address are now checked in the cart of business customers, and violations block the order:
-
-- `vat-id-missing`: the country has "VAT Reg.No. required" enabled, but the customer has no VAT ID.
-- `vat-id-invalid`: the country checks the VAT ID pattern, and a VAT ID of the customer doesn't match it.
-
-This also covers customers who registered before the settings were enabled or who switched to a billing address in another country later.
-Store API clients should show the error and let the customer fix the VAT ID via `/store-api/account/change-profile`.
-
 ### `PromotionItemBuilder::buildPlaceholderItem()` is deprecated
 
 `PromotionItemBuilder::buildPlaceholderItem()` is deprecated and will be removed in 6.8.0.0, because `PromotionLineItemFactory::create()` builds the same promotion placeholder line item.
@@ -1019,13 +1085,6 @@ The zoom modal no longer waits for images without a source before it opens.
 
 These additions are experimental and become stable with 6.8.0.
 
-### Guests can open the profile page
-
-Guests can now open and save the profile page to correct their personal data, company and VAT ID, for example when the cart reports `vat-id-missing` or `vat-id-invalid`.
-The e-mail, password and account deletion sections stay hidden for guests, and their routes still reject them.
-The profile form keeps a `redirectTo` parameter, which the VAT ID errors use to send the customer back to the checkout after saving.
-Themes that override blocks of the personal data form in `page/account/profile/index.html.twig` should check that the content also suits guests.
-
 ## App system
 
 ### App requests keep body and signature across redirects
@@ -1065,6 +1124,12 @@ This applies to all translated app texts, including flow actions and their confi
 ### App events are only delivered to the app they are about
 
 The app events `app.installed`, `app.updated`, `app.activated`, `app.deactivated`, `app.deleted`, `app.permissions.updated` and `app.config.changed` are now only delivered to app webhooks. Webhooks created through the Admin API no longer receive them. Apps keep subscribing to them in their manifest, as before.
+
+### App MCP capabilities use generic feature storage
+
+App-declared MCP tools, prompts, and resources are now persisted through the generic app feature storage. Installed apps do not need to change their `mcp.xml`, but their existing MCP tools, prompts, and resources are not migrated. Reinstall or update affected apps after upgrading to re-register them.
+
+The dedicated app MCP DAL aggregates (`app_mcp_tool`, `app_mcp_prompt`, `app_mcp_resource` and their translation tables) and their accessors on `AppEntity` and `LanguageEntity` were experimental and have been removed.
 
 # 6.7.15.0
 

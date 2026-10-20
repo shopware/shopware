@@ -49,11 +49,16 @@ The growth check lets a rule that has no entries on the base commit in only when
 This is a known gap: any change to `eslint.config.ts` lets any new rule into the baseline.
 Reviewers of such a pull request check the diff of `eslint-suppressions.json`.
 
+## Rules
+
+| Rule | Files | Why |
+|---|---|---|
+
 ## Inline disables
 
 `rulesWithoutInlineDisable` in `eslint.config.ts` lists the rules that can't be disabled with an `eslint-disable` comment.
 For these rules the baseline is the only way around.
-The list is empty for now; rules join it in the pull requests that add them.
+Rules join it in the pull requests that add them.
 
 Two rules of `@eslint-community/eslint-plugin-eslint-comments` enforce it:
 

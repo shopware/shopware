@@ -247,9 +247,11 @@
                 name="sw-field--country-checkVatIdPattern"
                 class="sw-settings-country-general__field-check-vatid-format sw-settings-country-general__option-items"
                 bordered
-                :disabled="!acl.can('country.editor') || undefined"
+                :disabled="!acl.can('country.editor') || !country.vatIdPattern || undefined"
                 :label="$t('sw-settings-country.detail.labelCheckVatIdFormat')"
-                :help-text="$t('sw-settings-country.detail.helpTextCheckVatIdFormat')"
+                :help-text="country.vatIdPattern
+                    ? $t('sw-settings-country.detail.helpTextCheckVatIdFormat')
+                    : $t('sw-settings-country.detail.helpTextCheckVatIdFormatNoPattern')"
             />
             {% endblock %}
 

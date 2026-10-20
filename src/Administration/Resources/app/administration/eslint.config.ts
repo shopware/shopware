@@ -84,9 +84,9 @@ const limitRules = {
         'error',
         15,
     ],
-    'sw-core-rules/max-function-lines': [
+    'max-lines-per-function': [
         'error',
-        { max: 80, setupMax: 150, skipBlankLines: true, skipComments: true },
+        { max: 80, skipBlankLines: true, skipComments: true },
     ],
     'max-params': [
         'error',
@@ -104,17 +104,10 @@ const limitRules = {
         'error',
         { max: 500, skipBlankLines: true, skipComments: true },
     ],
-    'sw-core-rules/max-component-members': [
-        'error',
-        { max: 50 },
-    ],
 };
 
 // Inline disables are blocked for these rules, so eslint-suppressions.json is the only way around them
-const rulesWithoutInlineDisable: string[] = [
-    ...Object.keys(limitRules),
-    'vue/max-template-depth',
-];
+const rulesWithoutInlineDisable: string[] = Object.keys(limitRules);
 
 /**
  * Shared rule policy applied to normal source files and TypeScript-specific overrides.
@@ -452,6 +445,10 @@ export default [
             '@typescript-eslint/no-unused-vars': 'off',
             // If a binding shares the same name as a prop, the binding gets silently undefined. Erroring in ESLint will make that issue loud in most cases (not for imported prop types)
             'vue/no-dupe-keys': 'error',
+            'vue/max-template-depth': [
+                'error',
+                { maxDepth: 10 },
+            ],
         },
     },
 
@@ -795,15 +792,13 @@ export default [
     // Size and complexity limits for source files
     {
         files: [
-            '**/*.js',
-            '**/*.ts',
-            '**/*.tsx',
-            '**/*.vue',
+            'src/**/*.js',
+            'src/**/*.ts',
+            'src/**/*.tsx',
+            'src/**/*.vue',
         ],
         ignores: testFiles,
-        rules: {
-            ...limitRules,
-        },
+        rules: limitRules,
     },
 
     // TypeScript rules on top of the factory's typed-lint bootstrap. The

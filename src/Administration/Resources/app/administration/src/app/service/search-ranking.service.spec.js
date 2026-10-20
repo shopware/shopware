@@ -159,16 +159,20 @@ describe('app/service/search-ranking.service.js', () => {
             new Criteria(1, 25).setTerm('o c'),
         ],
         [
-            'term has brackets around words, which are stripped',
+            'term has brackets around words, which are also searched without them',
             'tennis (cap [shoe] <sock \\bag',
             {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
             new Criteria(1, 25)
                 .addQuery(Criteria.contains('product.name', 'tennis'), searchRankingPoint.HIGH_SEARCH_RANKING)
+                .addQuery(Criteria.contains('product.name', '(cap'), searchRankingPoint.HIGH_SEARCH_RANKING)
                 .addQuery(Criteria.contains('product.name', 'cap'), searchRankingPoint.HIGH_SEARCH_RANKING)
+                .addQuery(Criteria.contains('product.name', '[shoe]'), searchRankingPoint.HIGH_SEARCH_RANKING)
                 .addQuery(Criteria.contains('product.name', 'shoe'), searchRankingPoint.HIGH_SEARCH_RANKING)
+                .addQuery(Criteria.contains('product.name', '<sock'), searchRankingPoint.HIGH_SEARCH_RANKING)
                 .addQuery(Criteria.contains('product.name', 'sock'), searchRankingPoint.HIGH_SEARCH_RANKING)
+                .addQuery(Criteria.contains('product.name', '\\bag'), searchRankingPoint.HIGH_SEARCH_RANKING)
                 .addQuery(Criteria.contains('product.name', 'bag'), searchRankingPoint.HIGH_SEARCH_RANKING),
         ],
         [
@@ -183,12 +187,14 @@ describe('app/service/search-ranking.service.js', () => {
             ),
         ],
         [
-            'term has a word shorter than 2 characters after stripping its brackets',
+            'term has a word shorter than 2 characters without its brackets, which is only searched as typed',
             'order (c)',
             {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
-            new Criteria(1, 25).addQuery(Criteria.contains('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING),
+            new Criteria(1, 25)
+                .addQuery(Criteria.contains('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING)
+                .addQuery(Criteria.contains('product.name', '(c)'), searchRankingPoint.HIGH_SEARCH_RANKING),
         ],
         [
             'term has just two words with the same',
@@ -405,7 +411,7 @@ describe('app/service/search-ranking.service.js', () => {
         const service = new SearchRankingService();
 
         const userSearchPreference = await service.getUserSearchPreference();
-        const actual = service.buildGlobalSearchQueries(userSearchPreference, '(o) (c)');
+        const actual = service.buildGlobalSearchQueries(userSearchPreference, 'o c');
 
         expect(actual).toEqual({});
     });

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\ElasticsearchException;
@@ -231,8 +232,11 @@ class AdminSearcher
         $search = new Search();
         $splitTerms = explode(' ', $term);
         $lastPart = (string) end($splitTerms);
-        // Only strips brackets at the start or end of the last word, e.g. `(cap` -> `cap`
+        // Strips brackets at the start or end of the last word for its prefix match, e.g. `(cap` -> `cap`, if enough is left
         $prefixPart = preg_replace('/^[()\[\]{}<>\\\\]+|[()\[\]{}<>\\\\]+$/u', '', $lastPart) ?? $lastPart;
+        if (mb_strlen($prefixPart) < AbstractTokenFilter::DEFAULT_MIN_SEARCH_TERM_LENGTH) {
+            $prefixPart = $lastPart;
+        }
         $prefixTerm = mb_strtolower($prefixPart);
 
         $search->addQuery(

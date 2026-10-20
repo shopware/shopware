@@ -316,8 +316,8 @@ export default function createSearchRankingService() {
     function _buildQueryScores(fieldScores, searchTerm) {
         let terms = searchTerm
             .split(' ')
-            // Only strips brackets at the start or end of each word, e.g. `(cap` -> `cap`
-            .map((term) => term.replace(/^[()[\]{}<>\\]+|[()[\]{}<>\\]+$/gu, ''))
+            // Also searches words without brackets at their start or end, e.g. `(cap` as `cap`
+            .flatMap((term) => [term, term.replace(/^[()[\]{}<>\\]+|[()[\]{}<>\\]+$/gu, '')])
             .filter((term) => {
                 return term.length >= minSearchTermLength;
             });

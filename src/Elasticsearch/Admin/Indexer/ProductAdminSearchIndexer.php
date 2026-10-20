@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -129,8 +130,11 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         $lastPart = (string) end($splitTerms);
         $identifierTerm = mb_strtolower($term);
         $identifierFields = ['ean', 'productNumber', 'manufacturerNumber'];
-        // Only strips brackets at the start or end of the last word, e.g. `(cap` -> `cap`
+        // Strips brackets at the start or end of the last word for its prefix match, e.g. `(cap` -> `cap`, if enough is left
         $prefixPart = preg_replace('/^[()\[\]{}<>\\\\]+|[()\[\]{}<>\\\\]+$/u', '', $lastPart) ?? $lastPart;
+        if (mb_strlen($prefixPart) < AbstractTokenFilter::DEFAULT_MIN_SEARCH_TERM_LENGTH) {
+            $prefixPart = $lastPart;
+        }
         $isPrefixTerm = preg_match('/^[\p{L}0-9]+$/Du', $prefixPart) === 1;
         $textBoostedTerm = $isPrefixTerm ? mb_substr($term, 0, mb_strlen($term) - mb_strlen($lastPart)) . $prefixPart . '*' : $term;
 

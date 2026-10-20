@@ -259,6 +259,22 @@ class AdminSearcherTest extends TestCase
         static::assertSame(1, $data['product']['total']);
     }
 
+    public function testSearchKeepsBracketsAroundTheLastWordWhenTooLittleIsLeftWithoutThem(): void
+    {
+        $this->client
+            ->expects($this->once())
+            ->method('msearch')
+            ->with(static::callback(static function (array $params): bool {
+                $shouldQueries = $params['body'][1]['query']['bool']['should'];
+
+                return array_column($shouldQueries, 'prefix') === []
+                    && array_column(array_column($shouldQueries, 'simple_query_string'), 'query') === ['shirt (m', 'shirt (m'];
+            }))
+            ->willReturn($this->getMockResponse('shirt (m)'));
+
+        $this->searcher->search('shirt (m', ['product'], Context::createDefaultContext());
+    }
+
     public function testSearchNormalizesTermLevelQueries(): void
     {
         $this->client

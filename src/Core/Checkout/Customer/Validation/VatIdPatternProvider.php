@@ -16,7 +16,8 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * Matches VAT IDs against the patterns configured in Settings > Countries, either against a single
  * country's pattern or against the patterns of every EU member state. Deciding about the
- * intra-community exemption additionally needs the seller's member state from Settings > Basic information.
+ * intra-community exemption additionally needs the seller's member state from Settings > Basic information,
+ * which falls back to the sales channel's default country while it is not set.
  *
  * @internal
  */
@@ -39,6 +40,11 @@ class VatIdPatternProvider implements ResetInterface
      * @var array<string, array{isEu: bool, checkPattern: bool, pattern: string|null}|null>
      */
     private array $countrySettings = [];
+
+    /**
+     * @var array<string, string> sales channel id => id of its default country
+     */
+    private array $salesChannelCountryIds = [];
 
     /**
      * @param EntityRepository<CountryCollection> $countryRepository
@@ -91,6 +97,7 @@ class VatIdPatternProvider implements ResetInterface
         $this->euPatterns = null;
         $this->euCountryIds = [];
         $this->countrySettings = [];
+        $this->salesChannelCountryIds = [];
     }
 
     /**
@@ -214,8 +221,8 @@ class VatIdPatternProvider implements ResetInterface
     }
 
     /**
-     * @return string|null the ISO code of the member state the seller supplies from, null when none is
-     *                     configured or the configured country lies outside the EU
+     * @return string|null the ISO code of the member state the seller supplies from, null when the configured
+     *                     country, or the sales channel's default country without one, lies outside the EU
      */
     private function getSellerState(string $salesChannelId): ?string
     {
@@ -226,12 +233,27 @@ class VatIdPatternProvider implements ResetInterface
         $countryId = $this->systemConfigService->getString(self::SELLER_COUNTRY_CONFIG_KEY, $salesChannelId);
 
         if ($countryId === '') {
-            return null;
+            $countryId = $this->getSalesChannelCountryId($salesChannelId);
         }
 
         $iso = array_search(strtolower($countryId), $this->getEuCountryIds(), true);
 
         return $iso === false ? null : $iso;
+    }
+
+    private function getSalesChannelCountryId(string $salesChannelId): string
+    {
+        if (\array_key_exists($salesChannelId, $this->salesChannelCountryIds)) {
+            return $this->salesChannelCountryIds[$salesChannelId];
+        }
+
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('salesChannelDefaultAssignments.id', $salesChannelId));
+        $criteria->setTitle('vat-id-pattern-provider::sales-channel-country');
+
+        $countryId = $this->countryRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+        return $this->salesChannelCountryIds[$salesChannelId] = (string) $countryId;
     }
 
     /**

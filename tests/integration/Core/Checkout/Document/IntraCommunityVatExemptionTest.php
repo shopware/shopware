@@ -160,21 +160,20 @@ class IntraCommunityVatExemptionTest extends TestCase
         );
     }
 
-    public function testAShopWithoutASellerCountryKeepsTheOrderTaxedAndTheNoteOff(): void
+    public function testAShopWithoutASellerCountrySuppliesFromTheSalesChannelsDefaultCountry(): void
     {
-        // Without the setting a domestic supply is indistinguishable from an intra-community one, so
-        // the exemption is withheld
+        // The test sales channel's default country is Germany, which stands in for the missing setting
         $this->sellFrom(null);
 
         $this->salesChannelContext = $this->createSalesChannelContext();
 
         $cart = $this->generateDemoCartWithTaxes([19]);
-        static::assertNotSame(CartPrice::TAX_STATE_FREE, $cart->getPrice()->getTaxStatus());
+        static::assertSame(CartPrice::TAX_STATE_FREE, $cart->getPrice()->getTaxStatus());
 
         $orderId = $this->persistCart($cart);
         $this->generateInvoice($orderId);
 
-        static::assertStringNotContainsString(
+        static::assertStringContainsString(
             self::INTRA_COMMUNITY_NOTE,
             $this->render(static::getContainer()->get(InvoiceRenderer::class), $orderId)
         );

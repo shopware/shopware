@@ -421,7 +421,10 @@ agentic-commerce 1.3.0 and earlier put their UCP tools in `discovery`. Update to
 
 ### Company tax exemption accepts VAT IDs from other EU member states
 
-The new *Shop owner's country* setting (`core.basicInformation.sellerCountryId`, per sales channel) in Settings > Basic information changes *Tax-free (B2B)* once it is set:
+The new *Shop owner's country* setting (`core.basicInformation.sellerCountryId`, per sales channel) in Settings > Basic information sets the shop's own member state for *Tax-free (B2B)*.
+While it is empty, the sales channel's default country is used.
+If the country used is not an EU member state, *Tax-free (B2B)* behaves as before.
+Otherwise, the following applies right after the update:
 
 - A VAT ID of any other EU member state is exempt, one of the shop's own member state is not.
 - A delivery within the shop's own member state is never exempt. *Tax-free (B2C)* is unaffected.
@@ -528,7 +531,7 @@ The product detail page links the terms below the GARAN label, in the new block 
 - Default metrics prefix was changed from `io.opentelemetry.contrib.php.shopware` to `shopware.platform`.
 - `http.server.request.duration` now shows client-facing latency without post-response processing.
 - `cart.calculation.duration` records failed calculations (added `result=success|failed` label).
-- `Telemetry::instrument()` now collects duration metrics also for failed callbacks. 
+- `Telemetry::instrument()` now collects duration metrics also for failed callbacks.
 - Added support for lazy labels calculation in `DurationMetric` and `ConfiguredMetric` (see instrumentors for usage examples).
 - New methods `Telemetry::isMetricEnabled()` / `Meter::isEnabled()` saying if a metric would be emitted, so expensive calculations may be skipped for disabled metrics.
 - Metrics are flushed after all other terminate tasks.

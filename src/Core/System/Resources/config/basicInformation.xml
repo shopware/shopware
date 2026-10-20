@@ -50,6 +50,8 @@
             <label lang="de-DE">Shopbetreiber-Land</label>
             <placeholder>Select a country...</placeholder>
             <placeholder lang="de-DE">Land auswählen ...</placeholder>
+            <helpText>If nothing is selected here, the default country of the sales channel will be used.</helpText>
+            <helpText lang="de-DE">Wenn hier nichts ausgewählt ist, wird das Standardland des Verkaufskanals verwendet.</helpText>
         </component>
 
         <input-field type="text-editor">

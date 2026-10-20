@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -535,10 +536,10 @@ class TaxDetectorTest extends TestCase
         static::assertTrue($this->createDetector(self::EU_PATTERNS, 'DE')->isCompanyTaxFree($context, $country));
     }
 
-    public function testIsCompanyTaxFreeRejectsEveryOtherMemberStateWhileNoSellerCountryIsConfigured(): void
+    public function testIsCompanyTaxFreeRejectsEveryOtherMemberStateWhileTheShopSuppliesFromNoMemberState(): void
     {
-        // Without the setting a domestic supply is indistinguishable from an intra-community one, so
-        // only the delivery country's own pattern counts
+        // Without a member state of the shop a domestic supply is indistinguishable from an intra-community
+        // one, so only the delivery country's own pattern counts
         $country = (new CountryEntity())->assign([
             'companyTax' => new TaxFreeConfig(true),
             'isEu' => true,
@@ -558,7 +559,7 @@ class TaxDetectorTest extends TestCase
         static::assertFalse($this->createDetector(self::EU_PATTERNS)->isCompanyTaxFree($context, $country));
     }
 
-    public function testIsCompanyTaxFreeStillAcceptsTheDeliveryCountrysOwnPatternWhileNoSellerCountryIsConfigured(): void
+    public function testIsCompanyTaxFreeStillAcceptsTheDeliveryCountrysOwnPatternWhileTheShopSuppliesFromNoMemberState(): void
     {
         $country = (new CountryEntity())->assign([
             'companyTax' => new TaxFreeConfig(true),
@@ -670,9 +671,9 @@ class TaxDetectorTest extends TestCase
         static::assertTrue($this->createDetector(self::EU_PATTERNS, 'DE')->isCompanyTaxFree($context, $country));
     }
 
-    public function testIsCompanyTaxFreeAcceptsADomesticDeliveryWhileNoSellerCountryIsConfigured(): void
+    public function testIsCompanyTaxFreeAcceptsADomesticDeliveryWhileTheShopSuppliesFromNoMemberState(): void
     {
-        // Without the setting the shop cannot tell a domestic supply apart.
+        // Without a member state of the shop it cannot tell a domestic supply apart.
         $country = (new CountryEntity())->assign([
             'iso' => 'DE',
             'companyTax' => new TaxFreeConfig(true),
@@ -695,7 +696,8 @@ class TaxDetectorTest extends TestCase
 
     /**
      * @param array<string, string> $euPatterns ISO code => VAT ID format pattern
-     * @param string|null $sellerIso the member state the shop supplies from, null when it configured none
+     * @param string|null $sellerIso the member state the shop supplies from, null when it configured none and the
+     *                               sales channel's default country lies outside the EU
      */
     private function createDetector(array $euPatterns = [], ?string $sellerIso = null): TaxDetector
     {
@@ -704,6 +706,11 @@ class TaxDetectorTest extends TestCase
         $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturnCallback(
             static fn (Criteria $criteria, Context $context) => new EntitySearchResult(CountryDefinition::ENTITY_NAME, $countries->count(), $countries, null, $criteria, $context)
+        );
+        // The sales channel's default country is none of the EU countries
+        $defaultCountryId = Uuid::randomHex();
+        $repository->method('searchIds')->willReturnCallback(
+            static fn (Criteria $criteria, Context $context) => new IdSearchResult(1, [$defaultCountryId => ['primaryKey' => $defaultCountryId, 'data' => []]], $criteria, $context)
         );
 
         return new TaxDetector(new VatIdPatternProvider($repository, $this->createSystemConfigService($countries, $sellerIso)));

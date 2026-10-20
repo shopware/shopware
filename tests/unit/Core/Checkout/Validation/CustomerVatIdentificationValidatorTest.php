@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -233,7 +234,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
         ));
     }
 
-    public function testAVatIdOfAnotherMemberStateIsRejectedForATaxDecisionWhileNoSellerCountryIsConfigured(): void
+    public function testAVatIdOfAnotherMemberStateIsRejectedWhileTheShopSuppliesFromNoMemberState(): void
     {
         // A domestic supply is indistinguishable from an intra-community one, so the fallback stays off
         $validator = $this->createValidator('BE\\d{10}', self::EU_PATTERNS);
@@ -265,6 +266,11 @@ class CustomerVatIdentificationValidatorTest extends TestCase
                 $euPatterns,
                 $criteria->getIds() === [] ? null : self::createCountry((string) $criteria->getIds()[0], $countryPattern, $isEu, $checkVatIdPattern),
             )
+        );
+        // The sales channel's default country is none of the EU countries
+        $defaultCountryId = Uuid::randomHex();
+        $repository->method('searchIds')->willReturnCallback(
+            static fn (Criteria $criteria, Context $context) => new IdSearchResult(1, [$defaultCountryId => ['primaryKey' => $defaultCountryId, 'data' => []]], $criteria, $context)
         );
 
         $systemConfigService = static::createStub(SystemConfigService::class);

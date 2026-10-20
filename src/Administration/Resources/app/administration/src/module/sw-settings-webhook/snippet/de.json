@@ -1,0 +1,35 @@
+{
+  "sw-settings-webhook": {
+    "general": {
+      "mainMenuItemGeneral": "Webhooks",
+      "descriptionTextModule": "Webhooks von Benutzern, Integrationen und Apps ansehen und verwalten"
+    },
+    "list": {
+      "columnName": "Name",
+      "columnEvent": "Ereignis",
+      "columnUrl": "URL",
+      "columnOwner": "Eigentümer",
+      "columnRoles": "Beschränkt auf",
+      "columnActive": "Aktiv",
+      "columnErrorCount": "Fehler",
+      "ownerUser": "Benutzer",
+      "ownerIntegration": "Integration",
+      "ownerApp": "App",
+      "ownerAppIntegration": "App-Integration",
+      "tooltipAppWebhookNotDeletable": "Dieser Webhook gehört zu einer App.",
+      "messageSaveError": "Webhook \"{name}\" konnte nicht gespeichert werden.",
+      "messageDeleteError": "Der Webhook konnte nicht gelöscht werden.",
+      "emptyStateHeadline": "Noch keine Webhooks",
+      "emptyStateDescription": "Hier siehst Du Webhooks, die über die API angelegt oder von Apps registriert wurden.",
+      "messageSaveSuccess": "Webhook \"{name}\" wurde gespeichert.",
+      "placeholderSearchBar": "Webhooks durchsuchen ..."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "webhook": {
+        "label": "Webhooks"
+      }
+    }
+  }
+}

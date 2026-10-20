@@ -88,6 +88,10 @@ If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0
 
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
+### Bulk order status handler results
+
+`bulkEditStatus()` waits for every selected status field and loads at most 100 order IDs per request, with at most five orders transitioning concurrently. Successful responses are returned in ID-batch order, repository-result order within each batch, then selected status-field order. Failures identify the order and status field and distinguish unavailable orders, loading failures, and transition failures; failed HTTP transitions are not automatically replayed.
+
 # 6.7.16.0
 
 ## Critical Fixes

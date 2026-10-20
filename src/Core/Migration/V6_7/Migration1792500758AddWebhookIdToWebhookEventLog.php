@@ -19,6 +19,8 @@ class Migration1792500758AddWebhookIdToWebhookEventLog extends MigrationStep
 
     public function update(Connection $connection): void
     {
+        // No foreign key: log entries are kept after their webhook is deleted.
+        // Indexed because the event log is filtered by webhook_id for every caller who isn't an admin.
         $columnAdded = $this->addColumn($connection, 'webhook_event_log', 'webhook_id', 'BINARY(16)');
         if ($columnAdded) {
             $connection->executeStatement('ALTER TABLE `webhook_event_log` ADD INDEX `idx.webhook_event_log.webhook_id` (`webhook_id`)');

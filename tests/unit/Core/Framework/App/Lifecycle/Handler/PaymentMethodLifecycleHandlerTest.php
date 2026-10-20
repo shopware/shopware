@@ -18,8 +18,6 @@ use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Handler\PaymentMethodLifecycleHandler;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -187,10 +185,7 @@ class PaymentMethodLifecycleHandlerTest extends TestCase
         static::assertIsString($png);
 
         $this->paymentMethodRepository->addSearch(new PaymentMethodCollection());
-        $existingMedia = new PartialEntity();
-        $existingMedia->setUniqueIdentifier($existingMediaId);
-        $existingMedia->assign(['id' => $existingMediaId, 'fileName' => 'payment_app_paymentPersister_paymentWithIcon']);
-        $this->mediaRepository->addSearch(new EntityCollection([$existingMedia]));
+        $this->mediaRepository->addSearch([$existingMediaId]);
 
         $mediaService = $this->createMock(MediaService::class);
         $mediaService->expects($this->once())

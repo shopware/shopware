@@ -16,7 +16,6 @@ use Shopware\Core\Framework\App\Manifest\Xml\PaymentMethod\PaymentMethod;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -78,18 +77,6 @@ class PaymentMethodLifecycleHandler extends AbstractLifecycleHandler
         $paymentMethods = $payments !== null ? $payments->getPaymentMethods() : [];
         $upserts = [];
 
-        // the media of every icon is looked up once for all payment methods instead of once per payment method, and
-        // only when an icon actually needs it
-        $mediaIdsByFileName = null;
-        $resolveMediaId = function (string $fileName) use (&$mediaIdsByFileName, $paymentMethods, $appName, $context): ?string {
-            $mediaIdsByFileName ??= $this->fetchMediaIdsByFileName(array_map(
-                fn (PaymentMethod $paymentMethod): string => $this->iconFileName($appName, $paymentMethod),
-                $paymentMethods
-            ), $context->context);
-
-            return $mediaIdsByFileName[$fileName] ?? null;
-        };
-
         foreach ($paymentMethods as $paymentMethod) {
             $payload = $paymentMethod->toArray($context->defaultLocale);
             $payload['handlerIdentifier'] = AppHandlerIdentifier::build($appName, $paymentMethod->getIdentifier());
@@ -100,7 +87,7 @@ class PaymentMethodLifecycleHandler extends AbstractLifecycleHandler
 
             $payload['appPaymentMethod']['appId'] = $appId;
             $payload['appPaymentMethod']['appName'] = $appName;
-            $payload['appPaymentMethod']['originalMediaId'] = $this->getMediaId($context->appFilesystem, $appName, $paymentMethod, $context->context, $existingAppPaymentMethod, $resolveMediaId);
+            $payload['appPaymentMethod']['originalMediaId'] = $this->getMediaId($context->appFilesystem, $appName, $paymentMethod, $context->context, $existingAppPaymentMethod);
 
             if ($existing && $existingAppPaymentMethod) {
                 $existingPaymentMethods->remove($existing->getId());
@@ -226,7 +213,7 @@ class PaymentMethodLifecycleHandler extends AbstractLifecycleHandler
         $this->paymentMethodRepository->update($paymentMethods, $context);
     }
 
-    private function getMediaId(Filesystem $fs, string $appName, PaymentMethod $paymentMethod, Context $context, ?AppPaymentMethodEntity $existing, \Closure $resolveMediaId): ?string
+    private function getMediaId(Filesystem $fs, string $appName, PaymentMethod $paymentMethod, Context $context, ?AppPaymentMethodEntity $existing): ?string
     {
         if (!$iconPath = $paymentMethod->getIcon()) {
             return null;
@@ -236,11 +223,11 @@ class PaymentMethodLifecycleHandler extends AbstractLifecycleHandler
             return null;
         }
 
-        $fileName = $this->iconFileName($appName, $paymentMethod);
+        $fileName = \sprintf('payment_app_%s_%s', $appName, $paymentMethod->getIdentifier());
         $icon = $fs->read($iconPath);
         $extension = pathinfo($paymentMethod->getIcon() ?? '', \PATHINFO_EXTENSION);
         $mimeType = $this->mimeDetector->detectMimeTypeFromBuffer($icon);
-        $mediaId = $existing?->getOriginalMediaId() ?? $resolveMediaId($fileName);
+        $mediaId = $existing?->getOriginalMediaId() ?? $this->checkFileExists($fileName, $context);
 
         if (!$mimeType) {
             return null;
@@ -258,35 +245,11 @@ class PaymentMethodLifecycleHandler extends AbstractLifecycleHandler
         );
     }
 
-    private function iconFileName(string $appName, PaymentMethod $paymentMethod): string
+    private function checkFileExists(string $fileName, Context $context): ?string
     {
-        return \sprintf('payment_app_%s_%s', $appName, $paymentMethod->getIdentifier());
-    }
-
-    /**
-     * @param list<string> $fileNames
-     *
-     * @return array<string, string> file name to media id
-     */
-    private function fetchMediaIdsByFileName(array $fileNames, Context $context): array
-    {
-        if ($fileNames === []) {
-            return [];
-        }
-
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('fileName', $fileNames));
-        $criteria->addFields(['id', 'fileName']);
+        $criteria->addFilter(new EqualsFilter('fileName', $fileName));
 
-        $mediaIds = [];
-        foreach ($this->mediaRepository->search($criteria, $context) as $media) {
-            $fileName = $media->get('fileName');
-
-            if (\is_string($fileName)) {
-                $mediaIds[$fileName] = $media->getUniqueIdentifier();
-            }
-        }
-
-        return $mediaIds;
+        return $this->mediaRepository->searchIds($criteria, $context)->firstId();
     }
 }

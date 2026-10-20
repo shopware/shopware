@@ -151,14 +151,14 @@ class PluginService implements ResetInterface
         return $errors;
     }
 
-    /**
-     * @throws PluginNotFoundException
-     */
     public function reset(): void
     {
         $this->languageIdsByLocale = [];
     }
 
+    /**
+     * @throws PluginNotFoundException
+     */
     public function getPluginByName(string $pluginName, Context $context): PluginEntity
     {
         $criteria = new Criteria();

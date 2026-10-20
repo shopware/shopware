@@ -37,7 +37,8 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Validator\Constraints\Regex;
 
 /**
- * Reports patterns with an unescaped `$` or `\Z` but neither `D` nor `m`: they also match before a trailing newline.
+ * Reports patterns with an unescaped `$` or `\Z` and no `D` modifier: they also match before a trailing newline.
+ * Patterns with `m` (or inline `(?m)`) are skipped: they ask for per-line anchors, and PCRE ignores `D` with `m`.
  * Covers `preg_*`, the Symfony `Regex` constraint and the Finder regex filters; an unreadable `preg_*` or `Regex`
  * pattern is reported as unresolved. Not covered: runtime modifiers and `#[Regex]` attributes.
  *

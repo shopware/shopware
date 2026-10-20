@@ -118,12 +118,24 @@ export default {
                 .addAssociation('stateMachineState')
                 .addSorting(Criteria.sort('createdAt'));
 
-            criteria
-                .getAssociation('deliveries')
-                .addAssociation('stateMachineState')
-                .addAssociation('shippingOrderAddress')
-                .addAssociation('shippingMethod')
-                .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
+                criteria
+                    .getAssociation('transactions')
+                    .addAssociation('stateMachineState')
+                    .addSorting(Criteria.sort('createdAt'));
+
+                criteria
+                    .addAssociation('primaryOrderTransaction.paymentMethod')
+                    .addAssociation('primaryOrderDelivery.shippingMethod')
+                    .addAssociation('primaryOrderDelivery.shippingOrderAddress.country');
+
+                criteria
+                    .getAssociation('deliveries')
+                    .addAssociation('stateMachineState')
+                    .addAssociation('shippingOrderAddress')
+                    .addAssociation('shippingMethod')
+                    .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'))
+                    .addSorting(Criteria.sort('id', 'ASC'));
+            }
 
             return criteria;
         },

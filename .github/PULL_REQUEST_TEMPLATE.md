@@ -26,7 +26,16 @@ including the business context, so reviewers understand its purpose.
 Context the diff cannot show.
 Reviewers read the code.
 - Your approach in one or two sentences
-- Changes with a big blast radius, such as public API, config, schema, or shared behaviour
+
+Add a "#### Impact" sub-section only if the PR has one of these:
+- New or changed public API
+- Breaking change
+- Database migration or schema change
+- New or changed configuration
+- More work in code that runs on every request or for every item, such as cart, checkout, listings, or indexing:
+  additional database queries, queries inside loops, cache invalidation, or bigger payloads
+Describe what exactly changes and what extension developers have to do.
+Leave the sub-section out otherwise.
 -->
 
 ### 3. Testing
@@ -41,7 +50,7 @@ Reviewers read the code.
 ### 4. Additional notes
 
 <!--
-- Breaking changes, migrations, or follow-up work
+- Follow-up work
 - Anything reviewers should look at closely, or where to start reviewing, in one or two sentences
 -->
 
@@ -82,8 +91,12 @@ Content:
   They look like substance and survive every length cut.
 - Name the thing, not how it is wired.
   Selectors, CSS properties, exact default values, call order, type names and the chain of effects between them are all in the diff, stated more precisely.
-- Always name changes with a big blast radius: public API, configuration, database schema, events, caching, or behaviour other features rely on.
-  One line each.
+- Add the "Impact" sub-section only when one of its listed changes applies.
+  Say what exactly changes, for example which method, field, or table.
+  Never write that something did not change, such as "no public API changed".
+- For performance, state the cost per request or per item, for example "one extra query per line item".
+  Add numbers only if you measured them.
+  Do not speculate about possible slowdowns.
 - Mention a rejected alternative only when a reviewer would otherwise ask "why not X?".
   One line, no argument.
 - Describe the change, never the work session.

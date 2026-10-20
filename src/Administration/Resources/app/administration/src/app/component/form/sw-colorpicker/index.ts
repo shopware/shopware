@@ -1,4 +1,4 @@
-/* eslint-disable sw-core-rules/require-explicit-emits -- the deprecated colorpicker's update:value reaches the parent only through $attrs. @deprecated tag:v6.8.0 - Remove together with the component */
+/* eslint-disable sw-core-rules/require-explicit-emits -- the deprecated colorpicker's update:value reaches the parent only through $attrs */
 import template from './sw-colorpicker.html.twig';
 
 /**

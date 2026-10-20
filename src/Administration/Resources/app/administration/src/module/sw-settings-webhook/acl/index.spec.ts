@@ -30,6 +30,7 @@ describe('src/module/sw-settings-webhook/acl', () => {
                 viewer: {
                     privileges: [
                         'webhook:read',
+                        'webhook_event_log:read',
                         'app:read',
                         'user:read',
                         'integration:read',

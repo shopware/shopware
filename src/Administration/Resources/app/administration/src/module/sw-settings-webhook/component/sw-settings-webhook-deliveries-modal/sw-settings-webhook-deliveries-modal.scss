@@ -1,0 +1,15 @@
+.sw-settings-webhook-deliveries-modal {
+    &__content {
+        max-height: 480px;
+        overflow: auto;
+        margin: var(--scale-size-16) 0 0;
+        padding: var(--scale-size-16);
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-xs);
+        background-color: var(--color-background-secondary-default);
+        font-family: var(--font-family-monospace);
+        font-size: var(--font-size-xs);
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+}

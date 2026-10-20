@@ -6,8 +6,9 @@ import './index';
 jest.mock('./acl', () => ({}));
 
 describe('src/module/sw-settings-webhook', () => {
-    it('registers the list page', () => {
+    it('registers the list page and the deliveries modal', () => {
         expect(Shopware.Component.getComponentRegistry().has('sw-settings-webhook-list')).toBe(true);
+        expect(Shopware.Component.getComponentRegistry().has('sw-settings-webhook-deliveries-modal')).toBe(true);
     });
 
     it('registers the module next to the integrations in the system settings', () => {

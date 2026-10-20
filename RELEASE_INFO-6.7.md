@@ -215,7 +215,7 @@ bin/console administration:check-extensions -- --only=MyPlugin --fix
 To keep a rule off, set it to `'off'` in the `eslint.config.mjs` of your extension, or record the current findings with `--update-baseline`.
 ### Webhooks in the settings
 
-The new page Settings > System > Webhooks lists all webhooks with their owner and the roles they are limited to.
+The new page Settings > System > Webhooks lists all webhooks with their owner and the roles they are limited to, and shows the recent deliveries of each webhook.
 Users with the new "Webhooks" permissions can switch webhooks on and off and delete webhooks that do not belong to an app.
 The ownership rules of the Admin API still apply, so only the owner or an administrator can change a webhook.
 

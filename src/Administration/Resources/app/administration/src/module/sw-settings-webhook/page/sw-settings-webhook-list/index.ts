@@ -27,6 +27,7 @@ export default Component.wrapComponentConfig({
         roleNames: Record<string, string>;
         integrationApps: Record<string, Entity<'app'>>;
         isLoading: boolean;
+        deliveriesWebhook: Entity<'webhook'> | null;
         sortBy: string;
         sortDirection: 'ASC' | 'DESC';
     } {
@@ -35,6 +36,7 @@ export default Component.wrapComponentConfig({
             roleNames: {},
             integrationApps: {},
             isLoading: false,
+            deliveriesWebhook: null,
             sortBy: 'name',
             sortDirection: 'ASC',
         };
@@ -232,6 +234,14 @@ export default Component.wrapComponentConfig({
                         message: this.$t('sw-settings-webhook.list.messageSaveError', { name: webhook.name }),
                     });
                 });
+        },
+
+        openDeliveries(webhook: Entity<'webhook'>): void {
+            this.deliveriesWebhook = webhook;
+        },
+
+        closeDeliveries(): void {
+            this.deliveriesWebhook = null;
         },
 
         onDeleteFailed(): void {

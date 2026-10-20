@@ -132,6 +132,7 @@ async function createWrapper({
                                 <div class="roles"><slot name="column-roles" v-bind="{ item }"></slot></div>
                                 <div class="active"><slot name="column-active" v-bind="{ item, isInlineEdit: false }"></slot></div>
                                 <div class="active-edit"><slot name="column-active" v-bind="{ item, isInlineEdit: true }"></slot></div>
+                                <div class="more"><slot name="more-actions" v-bind="{ item }"></slot></div>
                                 <div class="delete">
                                     <slot name="delete-action" v-bind="{ item, allowDelete, showDelete: () => {} }"></slot>
                                 </div>
@@ -140,7 +141,14 @@ async function createWrapper({
                 },
                 'sw-context-menu-item': {
                     props: ['disabled'],
-                    template: '<button class="sw-context-menu-item" :disabled="disabled"><slot></slot></button>',
+                    emits: ['click'],
+                    template:
+                        '<button class="sw-context-menu-item" :disabled="disabled" @click="$emit(\'click\')"><slot></slot></button>',
+                },
+                'sw-settings-webhook-deliveries-modal': {
+                    name: 'sw-settings-webhook-deliveries-modal',
+                    props: ['webhook'],
+                    template: '<div class="deliveries-modal"></div>',
                 },
                 'mt-badge': {
                     template: '<span class="mt-badge"><slot></slot></span>',
@@ -276,6 +284,22 @@ describe('src/module/sw-settings-webhook/page/sw-settings-webhook-list', () => {
             message: 'sw-settings-webhook.list.messageSaveError',
         });
         expect(webhookSearch).toHaveBeenCalledTimes(2);
+    });
+
+    it('opens and closes the deliveries of a webhook', async () => {
+        const { wrapper } = await createWrapper();
+
+        expect(wrapper.find('.deliveries-modal').exists()).toBe(false);
+
+        await wrapper.find('.row-user-webhook .more button').trigger('click');
+
+        const modal = wrapper.findComponent({ name: 'sw-settings-webhook-deliveries-modal' });
+        expect(modal.props('webhook')).toEqual(expect.objectContaining({ id: 'user-webhook' }));
+
+        (modal.vm as ComponentPublicInstance).$emit('modal-close');
+        await flushPromises();
+
+        expect(wrapper.find('.deliveries-modal').exists()).toBe(false);
     });
 
     it('allows deleting webhooks, except those of apps', async () => {

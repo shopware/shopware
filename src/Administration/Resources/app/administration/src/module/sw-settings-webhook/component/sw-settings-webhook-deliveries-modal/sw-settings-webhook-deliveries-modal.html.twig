@@ -1,0 +1,97 @@
+{% block sw_settings_webhook_deliveries_modal %}
+<mt-modal-root
+    :is-open="isOpen"
+    @change="onModalRootChange"
+>
+    <mt-modal
+        width="l"
+        :title="$t('sw-settings-webhook.deliveries.title', { name: webhook.name })"
+    >
+        <template #default>
+            <template v-if="selectedDelivery">
+                <mt-tabs
+                    position-identifier="sw-settings-webhook-deliveries-modal"
+                    :default-item="activeTab"
+                    :items="detailTabs"
+                    :use-routes-for-extensions="false"
+                    :small="true"
+                    @new-item-active="activeTab = $event"
+                />
+
+                <pre class="sw-settings-webhook-deliveries-modal__content">{{ activeTab === 'payload' ? formattedPayload : formattedResponse }}</pre>
+            </template>
+
+            <mt-empty-state
+                v-else-if="deliveries && deliveries.total === 0"
+                icon="regular-bolt"
+                :headline="$t('sw-settings-webhook.deliveries.emptyStateHeadline')"
+                :description="$t('sw-settings-webhook.deliveries.emptyStateDescription')"
+            />
+
+            <sw-data-grid
+                v-else
+                :data-source="deliveries ?? []"
+                :columns="deliveryColumns"
+                :is-loading="!deliveries"
+                :show-selection="false"
+                :show-actions="false"
+                :show-settings="false"
+                :allow-column-edit="false"
+            >
+                <template #column-createdAt="{ item }">
+                    <sw-time-ago :date="item.createdAt" />
+                </template>
+
+                <template #column-deliveryStatus="{ item }">
+                    <mt-badge :variant="deliveryStatusVariant(item.deliveryStatus)">
+                        {{ deliveryStatusLabel(item.deliveryStatus) }}
+                    </mt-badge>
+                </template>
+
+                <template #column-requestContent="{ item }">
+                    <a
+                        role="button"
+                        tabindex="0"
+                        @click="openDelivery(item, 'payload')"
+                        @keydown.enter="openDelivery(item, 'payload')"
+                    >
+                        {{ preview(item.requestContent) }}
+                    </a>
+                </template>
+
+                <template #column-responseContent="{ item }">
+                    <a
+                        v-if="preview(item.responseContent)"
+                        role="button"
+                        tabindex="0"
+                        @click="openDelivery(item, 'response')"
+                        @keydown.enter="openDelivery(item, 'response')"
+                    >
+                        {{ preview(item.responseContent) }}
+                    </a>
+
+                    <template v-else>
+                        {{ item.responseReasonPhrase }}
+                    </template>
+                </template>
+
+                <template #column-processingTime="{ item }">
+                    <template v-if="item.processingTime">
+                        {{ item.processingTime }} ms
+                    </template>
+                </template>
+            </sw-data-grid>
+        </template>
+
+        <template #footer>
+            <mt-button
+                v-if="selectedDelivery"
+                variant="secondary"
+                @click="selectedDelivery = null"
+            >
+                {{ $t('sw-settings-webhook.deliveries.buttonBack') }}
+            </mt-button>
+        </template>
+    </mt-modal>
+</mt-modal-root>
+{% endblock %}

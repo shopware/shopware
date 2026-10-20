@@ -21,8 +21,30 @@
       "messageDeleteError": "The webhook could not be deleted.",
       "emptyStateHeadline": "No webhooks yet",
       "emptyStateDescription": "Webhooks created through the API or registered by apps are shown here.",
+      "actionShowDeliveries": "Show deliveries",
       "messageSaveSuccess": "Webhook \"{name}\" has been saved.",
       "placeholderSearchBar": "Search webhooks..."
+    },
+    "deliveries": {
+      "title": "Deliveries of \"{name}\"",
+      "columnSentAt": "Sent",
+      "columnStatus": "Status",
+      "columnResponse": "Response",
+      "columnDuration": "Duration",
+      "emptyStateHeadline": "No deliveries yet",
+      "emptyStateDescription": "Deliveries show up here once the event happens.",
+      "status": {
+        "success": "Delivered",
+        "failed": "Failed",
+        "pending_retry": "Retrying",
+        "queued": "Queued",
+        "running": "Sending"
+      },
+      "columnCode": "Code",
+      "columnPayload": "Payload",
+      "buttonBack": "Back to deliveries",
+      "tabPayload": "Payload",
+      "tabResponse": "Response"
     }
   },
   "sw-privileges": {

@@ -7,9 +7,10 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
     key: 'webhook',
     roles: {
         viewer: {
-            // the owners and roles of the webhooks are shown in the list
+            // the owners, roles and deliveries of the webhooks are shown in the list
             privileges: [
                 'webhook:read',
+                'webhook_event_log:read',
                 'app:read',
                 'user:read',
                 'integration:read',

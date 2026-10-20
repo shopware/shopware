@@ -5,6 +5,10 @@ import './acl';
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-webhook-list', () => import('./page/sw-settings-webhook-list'));
+Shopware.Component.register(
+    'sw-settings-webhook-deliveries-modal',
+    () => import('./component/sw-settings-webhook-deliveries-modal'),
+);
 
 Shopware.Module.register('sw-settings-webhook', {
     type: 'core',

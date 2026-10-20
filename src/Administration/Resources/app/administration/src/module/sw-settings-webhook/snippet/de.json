@@ -21,8 +21,30 @@
       "messageDeleteError": "Der Webhook konnte nicht gelöscht werden.",
       "emptyStateHeadline": "Noch keine Webhooks",
       "emptyStateDescription": "Hier siehst Du Webhooks, die über die API angelegt oder von Apps registriert wurden.",
+      "actionShowDeliveries": "Zustellungen anzeigen",
       "messageSaveSuccess": "Webhook \"{name}\" wurde gespeichert.",
       "placeholderSearchBar": "Webhooks durchsuchen ..."
+    },
+    "deliveries": {
+      "title": "Zustellungen von \"{name}\"",
+      "columnSentAt": "Gesendet",
+      "columnStatus": "Status",
+      "columnResponse": "Antwort",
+      "columnDuration": "Dauer",
+      "emptyStateHeadline": "Noch keine Zustellungen",
+      "emptyStateDescription": "Zustellungen erscheinen hier, sobald das Ereignis eintritt.",
+      "status": {
+        "success": "Zugestellt",
+        "failed": "Fehlgeschlagen",
+        "pending_retry": "Neuer Versuch geplant",
+        "queued": "In Warteschlange",
+        "running": "Wird gesendet"
+      },
+      "columnCode": "Code",
+      "columnPayload": "Payload",
+      "buttonBack": "Zurück zu den Zustellungen",
+      "tabPayload": "Payload",
+      "tabResponse": "Antwort"
     }
   },
   "sw-privileges": {

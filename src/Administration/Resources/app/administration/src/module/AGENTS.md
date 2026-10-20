@@ -93,117 +93,67 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
 
 ## Page Patterns
 
-Pages follow the component rules from `src/app/AGENTS.md`: TypeScript, `wrapComponentConfig()` and composables instead of mixins.
-
 ### List Page
-
-The `listing` mixin stays on Options API list pages, because `useListing()` only works inside `setup()` and can't call back into a `getList()` method there.
-
 ```ts
-import type CriteriaType from 'src/core/data/criteria.data';
-import type RepositoryType from 'src/core/data/repository.data';
-import template from './sw-product-list.html.twig';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
-export default Shopware.Component.wrapComponentConfig({
-  template,
-
+export default {
   inject: ['repositoryFactory', 'acl'],
-
-  mixins: [Mixin.getByName('listing')],
-
-  data(): { products: EntityCollection<'product'> | null; isLoading: boolean } {
-    return {
-      products: null,
-      isLoading: false,
-    };
-  },
+  mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
   computed: {
-    productRepository(): RepositoryType<'product'> {
+    repository() {
       return this.repositoryFactory.create('product');
     },
 
-    productCriteria(): CriteriaType {
+    criteria() {
       const criteria = new Criteria(this.page, this.limit);
       criteria.setTerm(this.term);
       criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
-
       return criteria;
-    },
+    }
   },
 
   methods: {
-    async getList(): Promise<void> {
+    async getList() {
       this.isLoading = true;
-      this.products = await this.productRepository.search(this.productCriteria, Shopware.Context.api);
-      this.total = this.products.total ?? 0;
+      this.items = await this.repository.search(this.criteria, Shopware.Context.api);
+      this.total = this.items.total;
       this.isLoading = false;
-    },
-  },
-});
+    }
+  }
+};
 ```
 
 ### Detail Page
-
 ```ts
-import type RepositoryType from 'src/core/data/repository.data';
-import useNotification from 'src/app/composables/use-notification';
-import template from './sw-product-detail.html.twig';
-
-const { Criteria } = Shopware.Data;
-const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-
-export default Shopware.Component.wrapComponentConfig({
-  template,
-
+export default {
   inject: ['repositoryFactory', 'acl'],
-
-  props: {
-    productId: {
-      type: String,
-      required: true,
-    },
-  },
-
-  data(): { product: Entity<'product'> | null } {
-    return {
-      product: null,
-    };
-  },
+  mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
   computed: {
-    productRepository(): RepositoryType<'product'> {
+    repository() {
       return this.repositoryFactory.create('product');
     },
-
-    ...mapPropertyErrors('product', ['name', 'price']),
+    ...mapPropertyErrors('product', ['name', 'price'])
   },
 
   methods: {
-    async loadProduct(): Promise<void> {
+    async loadEntity() {
       const criteria = new Criteria();
       criteria.addAssociation('manufacturer');
 
-      this.product = await this.productRepository.get(this.productId, Shopware.Context.api, criteria);
+      this.entity = await this.repository.get(this.entityId, Shopware.Context.api, criteria);
     },
 
-    async onSave(): Promise<void> {
-      if (!this.product) {
-        return;
-      }
-
-      await this.productRepository.save(this.product, Shopware.Context.api);
+    async onSave() {
+      await this.repository.save(this.entity, Shopware.Context.api);
 
       // ✅ CRITICAL: Reload to sync origin for change tracking
-      await this.loadProduct();
+      this.entity = await this.repository.get(this.entity.id, Shopware.Context.api);
 
-      useNotification().createNotificationSuccess({ message: this.$t('sw-product.detail.messageSaveSuccess') });
-    },
-  },
-});
+      this.createNotificationSuccess({ message: this.$t('sw.product.detail.messageSaved') });
+    }
+  }
+};
 ```
 
 ## Snippets (i18n)

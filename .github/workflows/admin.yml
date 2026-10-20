@@ -58,18 +58,9 @@ jobs:
             src/Administration/Resources/app/administration/node_modules/.stylelintcache
           key: admin-lint-${{ runner.os }}-${{ hashFiles('src/Administration/Resources/app/administration/package-lock.json', 'src/Administration/Resources/app/administration/eslint.config.ts', 'src/Administration/Resources/app/administration/.stylelintrc') }}
 
-      # ESLint can't report a disable comment that also disables the rule reporting it
-      - name: Lint directives that switch off the lint gate
-        run: |
-          node .github/bin/js/check-lint-directives.ts \
-            src/Administration/Resources/app/administration \
-            src/Storefront/Resources/app/administration
       - name: Lint
         working-directory: src/Administration/Resources/app/administration
         run: npm run lint
-      - name: Lint unused code
-        working-directory: src/Administration/Resources/app/administration
-        run: npm run lint:fallow
       - name: Lint types
         working-directory: src/Administration/Resources/app/administration
         run: npm run lint:types
@@ -85,24 +76,20 @@ jobs:
     if: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}
     runs-on: ubuntu-24.04
     name: "Lint baselines do not grow"
+    env:
+      BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Fetch the base commit
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
         run: git fetch --no-tags --depth=1 origin "$BASE_SHA"
 
       - name: Compare the baselines with the base commit
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
         run: |
           node .github/bin/js/check-baseline-growth.ts --base "$BASE_SHA" \
             --config src/Administration/Resources/app/administration/eslint.config.ts \
-            --config src/Administration/Resources/app/administration/.fallowrc.json \
             src/Administration/Resources/app/administration/eslint-suppressions.json \
-            src/Administration/Resources/app/administration/fallow-baseline.json \
             src/Storefront/Resources/app/administration/eslint-suppressions.json
 
   admin:

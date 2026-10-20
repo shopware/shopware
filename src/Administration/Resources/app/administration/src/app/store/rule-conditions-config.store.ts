@@ -26,8 +26,5 @@ const ruleConditionsConfig = Shopware.Store.register({
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type RuleConditionsConfig = ReturnType<typeof ruleConditionsConfig>;
 
-/**
- * @public
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default ruleConditionsConfig;

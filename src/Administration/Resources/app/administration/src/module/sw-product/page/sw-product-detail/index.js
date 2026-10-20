@@ -1024,7 +1024,7 @@ export default {
         },
 
         fetchSalesChannelByIds(ids) {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, null);
 
             criteria.addFilter(Criteria.equalsAny('id', ids));
 

@@ -2,6 +2,12 @@
 
 ## Core
 
+### Services can be reset between requests in long running runtimes
+
+With the new `LONGRUNNING_ENVIRONMENT` feature flag, services tagged with `kernel.reset` are reset between two requests handled by the same kernel instance, as in a plain Symfony application. Without the flag the reset never runs, so resettable services keep their state for the whole lifetime of a worker in long running runtimes (for example FrankenPHP worker mode, RoadRunner, or Swoole). Enable the flag if you run Shopware in such a runtime; in PHP-FPM setups it changes nothing. Extensions that rely on state surviving across requests must move that state to an explicit cache or store.
+
+The flag also disables Symfony's own `http_cache` service, even if `framework.http_cache.enabled` is set in the project configuration. HTTP caching keeps being handled by Shopware's own cache layer. Projects that reference the `http_cache` service must remove those references before enabling the flag. The flag becomes the default with Shopware 6.8.
+
 ### Webhooks without an app are now authorized against their owner
 
 Webhooks created through the Admin API without an app (`POST /api/webhook` without `app_id`) are now authorized against the ACL privileges of the user or integration that created them. An admin owner receives every event it subscribes to, and a non-admin owner only receives events it is allowed to read.
@@ -137,11 +143,6 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
-### Services can be reset between requests in long running runtimes
-
-With the new `LONGRUNNING_ENVIRONMENT` feature flag, services tagged with `kernel.reset` are reset between two requests handled by the same kernel instance, as in a plain Symfony application. Without the flag the reset never runs, so resettable services keep their state for the whole lifetime of a worker in long running runtimes (for example FrankenPHP worker mode, RoadRunner, or Swoole). Enable the flag if you run Shopware in such a runtime; in PHP-FPM setups it changes nothing. Extensions that rely on state surviving across requests must move that state to an explicit cache or store.
-
-The flag also disables Symfony's own `http_cache` service, even if `framework.http_cache.enabled` is set in the project configuration. HTTP caching keeps being handled by Shopware's own cache layer. Projects that reference the `http_cache` service must remove those references before enabling the flag. The flag becomes the default with Shopware 6.8.
 ### Document-type deprecations
 
 Constructing the deprecated document-type definitions, entities and collections, including empty collections, throws when `v6.9.0.0` is active. Their getters and setters emit no deprecation notices. Use `document.typeName` and the document v2 type registry instead of the legacy DAL entities.

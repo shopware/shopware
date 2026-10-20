@@ -6,9 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
-use Shopware\Core\Framework\App\Aggregate\AppMcpPrompt\AppMcpPromptCollection;
-use Shopware\Core\Framework\App\Aggregate\AppMcpResource\AppMcpResourceCollection;
-use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolCollection;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
@@ -118,9 +115,6 @@ class AppEntityTest extends TestCase
         $flowActions = new AppFlowActionCollection();
         $flowEvents = new AppFlowEventCollection();
         $appShippingMethods = new EntityCollection();
-        $mcpTools = new AppMcpToolCollection();
-        $mcpPrompts = new AppMcpPromptCollection();
-        $mcpResources = new AppMcpResourceCollection();
 
         $app->setTranslations($translations);
         $app->setIntegration($integration);
@@ -137,9 +131,6 @@ class AppEntityTest extends TestCase
         $app->setFlowActions($flowActions);
         $app->setFlowEvents($flowEvents);
         $app->setAppShippingMethods($appShippingMethods);
-        $app->setMcpTools($mcpTools);
-        $app->setMcpPrompts($mcpPrompts);
-        $app->setMcpResources($mcpResources);
 
         static::assertSame($translations, $app->getTranslations());
         static::assertSame($integration, $app->getIntegration());
@@ -156,8 +147,5 @@ class AppEntityTest extends TestCase
         static::assertSame($flowActions, $app->getFlowActions());
         static::assertSame($flowEvents, $app->getFlowEvents());
         static::assertSame($appShippingMethods, $app->getAppShippingMethods());
-        static::assertSame($mcpTools, $app->getMcpTools());
-        static::assertSame($mcpPrompts, $app->getMcpPrompts());
-        static::assertSame($mcpResources, $app->getMcpResources());
     }
 }

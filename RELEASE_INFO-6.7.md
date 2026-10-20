@@ -48,6 +48,17 @@ The command always exits with `0`, which makes it suitable for install hooks in 
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
 
+## Storefront
+
+### Breadcrumb template variables prepared for 6.8
+
+Templates that extend `layout_breadcrumb_list_item` in `@Storefront/storefront/layout/breadcrumb.html.twig` can now use `activeId` for the active category in every breadcrumb mode.
+Switch comparisons against `categoryId` to `activeId`, because `categoryId` holds the current entry with the `BREADCRUMB_REWORK` or `v6.8.0.0` flag.
+
+With the `v6.8.0.0` flag active, the template no longer sets the deprecated `breadcrumbCategory` and `breadcrumbKeys` variables and ignores the `breadcrumbCollection` input.
+Use `breadcrumb` and `loop.last` instead, and pass the entries as `breadcrumb`.
+See `UPGRADE-6.8.md` for the full variable mapping.
+
 # 6.7.16.0
 
 ## Critical Fixes

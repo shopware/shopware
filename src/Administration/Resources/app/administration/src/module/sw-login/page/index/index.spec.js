@@ -81,6 +81,15 @@ describe('src/module/sw-login/page/index/index.js', () => {
         expect(wrapper.find('.sw-login__forgot-password-action').exists()).toBe(true);
     });
 
+    it('should not show the forgot password link when password recovery is disabled', async () => {
+        wrapper = await createWrapper({}, { $route: { name: 'sw.login.index.login' } });
+
+        wrapper.vm.setLoginConfig({ useDefault: true, url: '', passwordRecoveryEnabled: false });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-login__forgot-password-action').exists()).toBe(false);
+    });
+
     it('should not show the forgot password link for an SSO-only config', async () => {
         wrapper = await createWrapper({}, { $route: { name: 'sw.login.index.login' } });
 

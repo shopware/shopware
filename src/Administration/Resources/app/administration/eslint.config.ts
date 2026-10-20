@@ -68,6 +68,16 @@ const filenameRulesPatched = {
 const vueParserSetup = pluginVue.configs['flat/recommended'].find((c) => c.name === 'vue/base/setup-for-vue');
 const vueParser = vueParserSetup.languageOptions.parser;
 
+const testFiles = [
+    '**/*.spec.js',
+    '**/*.spec.ts',
+    '**/*.spec/*.js',
+    '**/*.spec/*.ts',
+    '**/fixtures/*.js',
+    'test/**/*.js',
+    'test/**/*.ts',
+];
+
 /**
  * Shared rule policy applied to normal source files and TypeScript-specific overrides.
  *
@@ -631,15 +641,7 @@ export default [
 
     // Test files
     {
-        files: [
-            '**/*.spec.js',
-            '**/*.spec.ts',
-            '**/*.spec/*.js',
-            '**/*.spec/*.ts',
-            '**/fixtures/*.js',
-            'test/**/*.js',
-            'test/**/*.ts',
-        ],
+        files: testFiles,
         ...jestPlugin.configs['flat/recommended'],
         languageOptions: {
             ...jestPlugin.configs['flat/recommended'].languageOptions,

@@ -38,6 +38,15 @@ async function createWrapper(customProps = {}, domains = []) {
                             'labelProperty',
                         ],
                     },
+                    'sw-grouped-single-select': {
+                        template: '<div><slot></slot></div>',
+                        props: [
+                            'value',
+                            'options',
+                            'groups',
+                            'searchFunction',
+                        ],
+                    },
                     'sw-radio-field': true,
                     'sw-single-select': await wrapTestComponent('sw-single-select', { sync: true }),
                     'sw-container': {
@@ -61,7 +70,7 @@ async function createWrapper(customProps = {}, domains = []) {
                 },
                 provide: {
                     repositoryFactory: {
-                        create: () => ({
+                        create: (entity) => ({
                             create: () => {
                                 return {
                                     id: '44de136acf314e7184401d36406c1e90',
@@ -71,20 +80,7 @@ async function createWrapper(customProps = {}, domains = []) {
 
                             search: () =>
                                 Promise.resolve(
-                                    new EntityCollection(null, null, Context.api, null, [
-                                        {
-                                            id: 'metric',
-                                            name: 'Metric system',
-                                            translated: { name: 'Metric system' },
-                                            technicalName: 'metric',
-                                        },
-                                        {
-                                            id: 'imperial',
-                                            name: 'Imperial system',
-                                            translated: { name: 'Imperial system' },
-                                            technicalName: 'imperial',
-                                        },
-                                    ]),
+                                    new EntityCollection(null, entity, Context.api, null, getSearchResults(entity)),
                                 ),
                         }),
                     },
@@ -102,6 +98,61 @@ async function createWrapper(customProps = {}, domains = []) {
             },
         },
     );
+}
+
+function getSearchResults(entity) {
+    if (entity === 'snippet_set') {
+        return getExampleSnippetSets();
+    }
+
+    if (entity === 'locale') {
+        return getExampleLocales();
+    }
+
+    return [
+        {
+            id: 'metric',
+            name: 'Metric system',
+            translated: { name: 'Metric system' },
+            technicalName: 'metric',
+        },
+        {
+            id: 'imperial',
+            name: 'Imperial system',
+            translated: { name: 'Imperial system' },
+            technicalName: 'imperial',
+        },
+    ];
+}
+
+function getExampleLocales() {
+    return [
+        { id: 'locale-de-de', code: 'de-DE', name: 'German', translated: { name: 'Deutsch' } },
+        { id: 'locale-de-ch', code: 'de-CH', name: 'German', translated: { name: 'Deutsch' } },
+        { id: 'locale-en-gb', code: 'en-GB', name: 'English', translated: { name: 'English' } },
+        { id: 'locale-en-au', code: 'en-AU', name: 'English', translated: { name: 'English' } },
+        { id: 'locale-fr-fr', code: 'fr-FR', name: 'French', translated: { name: 'Français' } },
+    ];
+}
+
+function getExampleSnippetSets() {
+    return [
+        { id: 'set-fr-fr', name: 'BASE fr-FR', iso: 'fr-FR' },
+        { id: 'set-es-es', name: 'BASE es-ES', iso: 'es-ES' },
+        { id: 'set-en-us', name: 'BASE en-US', iso: 'en-US' },
+        { id: 'set-de-ch', name: 'BASE de-CH', iso: 'de-CH' },
+        { id: 'set-en-gb', name: 'BASE en-GB', iso: 'en-GB' },
+        { id: 'set-de-de', name: 'BASE de-DE', iso: 'de-DE' },
+        { id: 'set-de-du', name: 'Deutsch (Du)', iso: 'de-DE' },
+    ];
+}
+
+function getExampleLanguages() {
+    return new EntityCollection('/languages', 'languages', Context.api, null, [
+        { id: 'language-de', name: 'Deutsch', localeId: 'locale-de-de' },
+        { id: 'language-en', name: 'English', localeId: 'locale-en-gb' },
+        { id: 'language-en-au', name: 'English (Australia)', localeId: 'locale-en-au' },
+    ]);
 }
 
 function getExampleDomains() {
@@ -181,6 +232,31 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(rows).toHaveLength(2);
+    });
+
+    it('should open the edit modal when clicking the domain url', async () => {
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages: getExampleLanguages(),
+                currencies: [],
+                domains: getExampleDomains(),
+            },
+        });
+
+        const link = wrapper.find('.sw-data-grid__body .sw-sales-channel-detail-domains__domain-url-link');
+        expect(link.attributes('role')).toBe('button');
+
+        await link.trigger('click');
+
+        expect(wrapper.vm.isEditingDomain).toBe(true);
+        expect(wrapper.vm.currentDomain.url).toBe(link.text());
+    });
+
+    it('should render the domain url as plain text when editing is disabled', async () => {
+        const wrapper = await createWrapper({ disableEdit: true }, getExampleDomains());
+
+        expect(wrapper.find('.sw-sales-channel-detail-domains__domain-url-link').exists()).toBe(false);
+        expect(wrapper.find('.sw-data-grid__body .sw-data-grid__cell--url').text()).toBe(wrapper.vm.sortedDomains[0].url);
     });
 
     it('should sort all domains', async () => {
@@ -568,6 +644,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
             },
             [],
         );
+        await flushPromises();
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         const expectedRow = rows.at(0);
@@ -620,5 +697,239 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
             },
         });
         expect(storefrontWrapper.vm.salesChannelIsHeadless).toBe(false);
+    });
+
+    it('should group snippet sets matching the sales channel languages first', async () => {
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages: getExampleLanguages(),
+                currencies: [],
+                domains: [],
+            },
+        });
+        await flushPromises();
+
+        wrapper.vm.onClickOpenCreateDomainModal();
+        await wrapper.vm.$nextTick();
+
+        const snippetSetSelect = wrapper.getComponent('.sw-sales-channel-detail-domains__domain-snippet-set-select');
+
+        expect(snippetSetSelect.props('groups')).toEqual([
+            { id: 'de', label: 'Deutsch' },
+            { id: 'en', label: 'English' },
+            { id: 'misc', label: 'sw-sales-channel.detail.snippetSetGroupOther' },
+        ]);
+        expect(snippetSetSelect.props('options').map((option) => [option.value, option.group])).toEqual([
+            ['set-de-de', 'de'],
+            ['set-de-du', 'de'],
+            ['set-de-ch', 'de'],
+            ['set-en-gb', 'en'],
+            ['set-en-us', 'en'],
+            ['set-es-es', 'misc'],
+            ['set-fr-fr', 'misc'],
+        ]);
+    });
+
+    it('should move the group of the selected domain language to the top', async () => {
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages: getExampleLanguages(),
+                currencies: [],
+                domains: [],
+            },
+        });
+        await flushPromises();
+
+        wrapper.vm.onClickOpenCreateDomainModal();
+        wrapper.vm.onSnippetSetSelect('set-de-ch');
+        wrapper.vm.onLanguageSelect('language-en');
+        await wrapper.vm.$nextTick();
+
+        const snippetSetSelect = wrapper.getComponent('.sw-sales-channel-detail-domains__domain-snippet-set-select');
+
+        expect(snippetSetSelect.props('groups').map((group) => group.id)).toEqual([
+            'en',
+            'de',
+            'misc',
+        ]);
+        expect(snippetSetSelect.props('options').map((option) => option.value)).toEqual([
+            'set-en-gb',
+            'set-en-us',
+            'set-de-de',
+            'set-de-du',
+            'set-de-ch',
+            'set-es-es',
+            'set-fr-fr',
+        ]);
+    });
+
+    it('should preselect the snippet set matching the selected language', async () => {
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages: getExampleLanguages(),
+                currencies: [],
+                domains: [],
+            },
+        });
+        await flushPromises();
+
+        wrapper.vm.onClickOpenCreateDomainModal();
+        expect(wrapper.vm.currentDomain.snippetSetId).toBeUndefined();
+
+        wrapper.vm.onLanguageSelect('language-en');
+
+        expect(wrapper.vm.currentDomain.snippetSetId).toBe('set-en-gb');
+        expect(wrapper.vm.currentDomain.snippetSet).toEqual(expect.objectContaining({ id: 'set-en-gb' }));
+    });
+
+    it('should write the language and preselect the snippet set when the language select emits a value', async () => {
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages: getExampleLanguages(),
+                currencies: [],
+                domains: [],
+            },
+        });
+        await flushPromises();
+
+        wrapper.vm.onClickOpenCreateDomainModal();
+        await wrapper.vm.$nextTick();
+
+        wrapper
+            .getComponent('.sw-sales-channel-detail-domains__domain-language-select')
+            .vm.$emit('update:value', 'language-en');
+
+        expect(wrapper.vm.currentDomain.languageId).toBe('language-en');
+        expect(wrapper.vm.currentDomain.language).toEqual(expect.objectContaining({ id: 'language-en' }));
+        expect(wrapper.vm.currentDomain.snippetSetId).toBe('set-en-gb');
+    });
+
+    it('should preselect the snippet set when opening the create modal with a language', async () => {
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages: getExampleLanguages(),
+                currencies: [],
+                domains: [],
+            },
+        });
+        await flushPromises();
+
+        wrapper.vm.onClickOpenCreateDomainModal({ languageId: 'language-de' });
+
+        expect(wrapper.vm.currentDomain.snippetSetId).toBe('set-de-de');
+    });
+
+    it('should preselect the snippet set once the data arrives after the create modal was opened', async () => {
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages: getExampleLanguages(),
+                currencies: [],
+                domains: [],
+            },
+        });
+
+        wrapper.vm.onClickOpenCreateDomainModal({ languageId: 'language-de' });
+        expect(wrapper.vm.currentDomain.snippetSetId).toBeUndefined();
+
+        await flushPromises();
+
+        expect(wrapper.vm.currentDomain.snippetSetId).toBe('set-de-de');
+    });
+
+    it('should not override a chosen snippet set when the data arrives after the create modal was opened', async () => {
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages: getExampleLanguages(),
+                currencies: [],
+                domains: [],
+            },
+        });
+
+        wrapper.vm.onClickOpenCreateDomainModal({ languageId: 'language-de' });
+        wrapper.vm.currentDomain.snippetSetId = 'set-fr-fr';
+
+        await flushPromises();
+
+        expect(wrapper.vm.currentDomain.snippetSetId).toBe('set-fr-fr');
+    });
+
+    it('should keep the selected snippet set when the language changes within the same agnostic locale', async () => {
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages: getExampleLanguages(),
+                currencies: [],
+                domains: [],
+            },
+        });
+        await flushPromises();
+
+        wrapper.vm.onClickOpenCreateDomainModal();
+        wrapper.vm.onSnippetSetSelect('set-de-ch');
+        wrapper.vm.onLanguageSelect('language-de');
+
+        expect(wrapper.vm.currentDomain.snippetSetId).toBe('set-de-ch');
+        expect(wrapper.vm.currentDomain.snippetSet).toEqual(expect.objectContaining({ id: 'set-de-ch' }));
+    });
+
+    it('should swap the snippet set when the language changes to another agnostic locale', async () => {
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages: getExampleLanguages(),
+                currencies: [],
+                domains: [],
+            },
+        });
+        await flushPromises();
+
+        wrapper.vm.onClickOpenCreateDomainModal();
+        wrapper.vm.onSnippetSetSelect('set-de-ch');
+        wrapper.vm.onLanguageSelect('language-en');
+
+        expect(wrapper.vm.currentDomain.snippetSetId).toBe('set-en-gb');
+        expect(wrapper.vm.currentDomain.snippetSet).toEqual(expect.objectContaining({ id: 'set-en-gb' }));
+    });
+
+    it('should fall back to the first snippet set of the agnostic locale without an exact match', async () => {
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages: getExampleLanguages(),
+                currencies: [],
+                domains: [],
+            },
+        });
+        await flushPromises();
+
+        wrapper.vm.onClickOpenCreateDomainModal();
+        wrapper.vm.onSnippetSetSelect('set-fr-fr');
+        wrapper.vm.onLanguageSelect('language-en-au');
+
+        expect(wrapper.vm.currentDomain.snippetSetId).toBe('set-en-gb');
+    });
+
+    it('should search snippet sets by name and iso', async () => {
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages: getExampleLanguages(),
+                currencies: [],
+                domains: [],
+            },
+        });
+        await flushPromises();
+
+        const search = (searchTerm) =>
+            wrapper.vm
+                .snippetSetSearchFunction({
+                    options: wrapper.vm.snippetSetOptions,
+                    labelProperty: 'label',
+                    searchTerm,
+                })
+                .map((option) => option.value);
+
+        expect(search('de-ch')).toEqual(['set-de-ch']);
+        expect(search('Deutsch')).toEqual(['set-de-du']);
+        expect(search('de-DE')).toEqual([
+            'set-de-de',
+            'set-de-du',
+        ]);
     });
 });

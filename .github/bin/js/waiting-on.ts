@@ -45,7 +45,8 @@
  *   2. carries `lifecycle/DoNotClose`                     -> nobody    (parked-by-label)
  *   3. review decision CHANGES_REQUESTED
  *        no author activity since that review             -> author    (changes-requested)
- *        author has answered it                           -> shopware  (re-review-pending)
+ *        author answered, a maintainer wrote after that   -> author    (author-turn)
+ *        author answered and has the last word            -> shopware  (re-review-pending)
  *   4. review decision APPROVED
  *        head conflicts with the base branch              -> author    (needs-rebase)
  *        an unresolved thread where we wrote last         -> author    (open-question)
@@ -62,7 +63,11 @@
  * answered on 28 May, so the decision still reads CHANGES_REQUESTED while the ball is
  * ours; on #17314 the author last touched it in June and a maintainer asked for changes
  * on 1 September. Same field value, opposite answers — only the timestamp of the last
- * still-blocking review separates them.
+ * still-blocking review separates them. The answer is not final either: the decision stays
+ * CHANGES_REQUESTED for the whole conversation that follows, so once the author has replied
+ * the last word decides, as in step 7. On #20934 the author answered on 29 September and the
+ * thread went back and forth for two weeks; on 14 October a maintainer asked for one more
+ * change, and reading only the first reply had kept the ball on our side the whole time.
  *
  * Step 5 exists because `reviewDecision` is not an approval count. `trunk` requires two
  * approvals, so one approval reads as REVIEW_REQUIRED, indistinguishable from a pull
@@ -231,6 +236,15 @@ export function classifyPullRequest(facts: PullRequestFacts): WaitingOnVerdict {
         const blockedAt = facts.lastChangesRequestedAt;
 
         if (blockedAt && lastAuthorActivityAt && lastAuthorActivityAt > blockedAt) {
+            if (lastMaintainerActivityAt && lastMaintainerActivityAt > lastAuthorActivityAt) {
+                return {
+                    waitingOn: 'author',
+                    reason: 'author-turn',
+                    message: 'the author answered the requested changes and a maintainer wrote last',
+                    since: lastMaintainerActivityAt,
+                };
+            }
+
             return {
                 waitingOn: 'shopware',
                 reason: 're-review-pending',

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Webhook\Authorization\EventLog;
 
 use Shopware\Core\Framework\Api\Acl\ApiCallerType;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeEntityAggregationEvent;
@@ -92,15 +91,7 @@ class RestrictEventLogReadSubscriber implements EventSubscriberInterface, ResetI
     private function getRestriction(Context $context): ?Filter
     {
         $source = $context->getSource();
-        if ($context->getScope() === Context::SYSTEM_SCOPE || $source instanceof SystemSource) {
-            return null;
-        }
-
-        if (!$source instanceof AdminApiSource) {
-            return new EqualsAnyFilter('webhookId', []);
-        }
-
-        if ($source->isAdmin()) {
+        if ($context->getScope() === Context::SYSTEM_SCOPE || !$source instanceof AdminApiSource || $source->isAdmin()) {
             return null;
         }
 

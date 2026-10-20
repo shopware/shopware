@@ -1,17 +1,1 @@
-{
-  "src/init/api-service.init.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    }
-  },
-  "src/modules/sw-settings-storefront/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    }
-  },
-  "src/modules/sw-theme-manager/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    }
-  }
-}
+{}

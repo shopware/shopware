@@ -2,6 +2,7 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
+import swMediaFolderThumbnail from './index';
 
 async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('sw-media-folder-thumbnail', { sync: true }), {
@@ -61,12 +62,16 @@ describe('components/media/sw-media-folder-thumbnail', () => {
         expect(svg.findAll('path')[0].attributes('fill')).toBe('var(--color-background-brand-default)');
     });
 
-    it('should warn about an unknown variant', async () => {
-        const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    it('should reject unknown variants', () => {
+        const { variant: variantProp } = (
+            swMediaFolderThumbnail as unknown as {
+                props: { variant: { validator: (value: string) => boolean } };
+            }
+        ).props;
 
-        await createWrapper({ variant: 'unknown' });
-
-        const [[message]] = warn.mock.calls;
-        expect(message).toContain('Invalid prop: custom validator check failed for prop "variant"');
+        expect(variantProp.validator('default')).toBe(true);
+        expect(variantProp.validator('back')).toBe(true);
+        expect(variantProp.validator('back-breadcrumb')).toBe(true);
+        expect(variantProp.validator('unknown')).toBe(false);
     });
 });

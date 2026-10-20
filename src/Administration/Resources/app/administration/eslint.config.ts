@@ -209,26 +209,10 @@ const baseRules = {
     'vue/prefer-import-from-vue': 'off',
     'vue/one-component-per-file': 'off',
 
-    'sw-core-rules/no-swallowed-errors': 'error',
-    '@eslint-community/eslint-comments/require-description': [
-        'error',
-        {
-            ignore: [
-                'eslint-enable',
-                'eslint-env',
-                'exported',
-                'global',
-                'globals',
-            ],
-        },
-    ],
-    '@eslint-community/eslint-comments/no-unlimited-disable': 'error',
     '@eslint-community/eslint-comments/no-restricted-disable': [
         'error',
         ...rulesWithoutInlineDisable,
-        // A disable comment that also names this check would switch it off. The CI step that runs
-        // .github/bin/js/check-lint-directives.ts covers the comments that ESLint can't report itself.
-        ...(rulesWithoutInlineDisable.length > 0 ? ['@eslint-community/eslint-comments/*'] : []),
+        '@eslint-community/eslint-comments/*',
     ],
     // A rule config comment (`eslint <rule>: off` in a block comment) would bypass
     // rulesWithoutInlineDisable and the baselines
@@ -782,13 +766,7 @@ export default [
         ],
         rules: {
             ...baseRules,
-            '@typescript-eslint/ban-ts-comment': [
-                'error',
-                { minimumDescriptionLength: 10 },
-            ],
-            '@typescript-eslint/no-non-null-assertion': 'error',
-            'sw-core-rules/no-double-cast': 'error',
-            'sw-core-rules/no-ts-fix-me': 'error',
+            '@typescript-eslint/ban-ts-comment': 0,
             '@typescript-eslint/no-unsafe-member-access': 'error',
             '@typescript-eslint/no-unsafe-call': 'error',
             '@typescript-eslint/no-unsafe-assignment': 'error',

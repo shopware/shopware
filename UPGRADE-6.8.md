@@ -32,6 +32,27 @@ Alternatively, decouple your test runner from the platform by explicitly requiri
 
 <details>
 
+## Reorder form line item blocks removed
+
+`frontend.checkout.cart.reorder` resolves the reordered products from the order itself, so the reorder form no longer posts any `lineItems`. These two blocks in `storefront/page/account/order-history/order-item.html.twig` were emptied in 6.7 and are now removed:
+
+- `page_account_order_item_context_menu_reorder_form_line_items_input`
+- `page_account_order_item_context_menu_reorder_form_line_item_input`
+
+From 6.7 on an override still rendered but no longer changed what a reorder adds. To change what a reorder adds, listen to the `checkout.cart.collect-reorder-line-items` extension, which hands you the `OrderEntity` and the built `list<LineItem>`:
+
+```php
+public static function getSubscribedEvents(): array
+{
+    return [CheckoutCartCollectReorderLineItemsExtension::onPost() => 'addMyLineItems'];
+}
+
+public function addMyLineItems(CheckoutCartCollectReorderLineItemsExtension $extension): void
+{
+    $extension->result = [...($extension->result ?? []), $myLineItem];
+}
+```
+
 ## Document generation v2 is the default
 
 The `DOCUMENT_GENERATION_REWORK` feature flag now defaults to `true`. All Shopware-driven surfaces use document generation v2: the order documents section in the Administration, Flow Builder document actions, mail attachments, bulk edit, and the customer-facing download routes.
@@ -692,6 +713,22 @@ $cart->addErrors(new \Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFo
 $cart->addErrors(new \Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError($name));
 ```
 
+## Removal of `PromotionItemBuilder::buildPlaceholderItem()`
+
+`\Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder::buildPlaceholderItem()` was removed.
+Create the promotion placeholder line item through the `LineItemFactoryRegistry` with the `promotion` type, or call `PromotionLineItemFactory::create()` directly:
+
+```php
+// Before
+$lineItem = $promotionItemBuilder->buildPlaceholderItem($code);
+
+// After
+$lineItem = $lineItemFactoryRegistry->create([
+    'type' => LineItem::PROMOTION_LINE_ITEM_TYPE,
+    'referencedId' => $code,
+], $salesChannelContext);
+```
+
 ## Removal of `$options` parameter in custom validator's constraints
 
 The `$options` of all Shopware's custom validator constraint are removed, if you use one of them, please use named argument instead
@@ -1031,6 +1068,9 @@ foreach ($entities as $entity) {
 
 The translation of the import/export profile label has been removed.
 Profiles are now identified and displayed only by their technical name.
+
+Direct construction of `ImportExportProfileTranslationDefinition`, `ImportExportProfileTranslationEntity` and `ImportExportProfileTranslationCollection`, including empty collections, already throws when the `v6.8.0.0` feature flag is active. Remove these constructions and use the profile's technical name instead of translated labels.
+
 - The `$label` property and the following methods in `Shopware\Core\Content\ImportExport\ImportExportProfileEntity` have been removed:
   - `getLabel()`
   - `setLabel()`
@@ -1427,6 +1467,10 @@ new HreflangLoaderParameter('frontend.home.page', $routeParameters, $salesChanne
 
 # Administration
 
+## Import/export profile language tooltip removed
+
+The deprecated snippet key `sw-import-export.profile.addNewProfileTooltipLanguage` was removed without replacement. Remove references to this tooltip from extensions, as profile creation no longer requires the system language.
+
 ## Removal of deprecated `config` data property in `sw-system-config` component
 
 The deprecated data property `config` in `sw-system-config` component with the legacy card structure was removed. Please use the new data property `schema` with the tab structure instead.
@@ -1766,20 +1810,6 @@ Plan to migrate all code to axios v1 as soon as possible.
 
 For detailed migration instructions, see the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
 The architectural rationale is documented in [Keep Administration HTTP transports behind a compatibility facade](adr/2026-07-23-administration-http-client-compatibility-facade.md).
-
-## Removal of "sw-empty-state"
-
-The old `sw-empty-state` component will be removed in the next major version.
-Please use the new `mt-empty-state` component instead.
-
-Before:
-```html
-<sw-empty-state title="short title" subline="longer subline" />
-```
-After:
-```html
-<mt-empty-state title="short title" description="longer description"/>
-```
 
 ## Removed empty state Twig block anchors
 

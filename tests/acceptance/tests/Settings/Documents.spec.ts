@@ -40,14 +40,15 @@ test(
             await ShopAdmin.goesTo(AdminOrderDetail.url(order.id, 'documents'));
 
             const documentRow = AdminOrderDetail.getDocumentRow(0);
+            const markAsSent = AdminOrderDetail.page.locator('.sw-order-document-card__context-button-mark-sent');
 
             await ShopAdmin.expects(documentRow.row).toBeVisible();
             await documentRow.contextMenuButton.click();
 
-            await ShopAdmin.expects(AdminOrderDetail.contextMenu).toBeVisible();
-            await AdminOrderDetail.contextMenuMarkAsSent.click();
+            await ShopAdmin.expects(markAsSent).toBeVisible();
+            await markAsSent.click();
 
-            await ShopAdmin.expects(AdminOrderDetail.contextMenu).not.toBeVisible();
+            await ShopAdmin.expects(markAsSent).not.toBeVisible();
             await ShopAdmin.expects(documentRow.sentCheckmark).toBeVisible();
         });
 

@@ -94,7 +94,7 @@
       "criteria": {
         "title": "Sorting criteria",
         "selectPlaceholder": "Search and add criteria...",
-        "emptyStateSubline": "No criteria defined for this sorting option yet."
+        "emptyStateSubline": "No criteria defined for this sorting option yet"
       },
       "delete": {
         "modalTitle": "Delete criterion",

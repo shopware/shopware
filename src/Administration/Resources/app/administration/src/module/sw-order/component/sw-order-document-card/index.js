@@ -65,6 +65,7 @@ export default {
     data() {
         return {
             documentsLoading: false,
+            documentsLoaded: false,
             cardLoading: false,
             documents: new EntityCollection(null, null, null, new Criteria(1, 25), [], 0),
             documentTypes: null,
@@ -239,16 +240,24 @@ export default {
             return this.isLoading || this.documentsLoading || this.cardLoading;
         },
 
+        orderHasDocuments() {
+            if (!this.documentsLoaded) {
+                return this.order?.documents?.length > 0;
+            }
+
+            return !this.documentsEmpty || !!this.term;
+        },
+
         showCardFilter() {
-            return this.order?.documents?.length > 0;
+            return this.orderHasDocuments;
         },
 
         showCreateDocumentButton() {
-            return !this.order?.documents?.length;
+            return !this.orderHasDocuments;
         },
 
         emptyStateTitle() {
-            return this.order?.documents?.length > 0
+            return this.orderHasDocuments
                 ? this.$t('sw-order.documentCard.messageNoDocumentFound')
                 : this.$t('sw-order.documentCard.messageEmptyTitle');
         },
@@ -287,6 +296,10 @@ export default {
                 this.$emit('update-loading', value);
             },
         },
+
+        'order.id'() {
+            this.getList();
+        },
     },
 
     created() {
@@ -323,7 +336,7 @@ export default {
             const technicalName = document.typeName;
 
             if (!technicalName) {
-                return document.documentType?.name ?? '';
+                return document.documentType?.translated?.name ?? document.documentType?.name ?? '';
             }
 
             return this.documentV2Service.getDocumentTypeLabel(
@@ -340,7 +353,7 @@ export default {
                 let errorMessage = payload.detail;
                 if (payload.code === 'DOCUMENT__NUMBER_ALREADY_EXISTS') {
                     const translationKey = 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS';
-                    errorMessage = this.$t(translationKey, 1, payload.meta.parameters || {});
+                    errorMessage = this.$t(translationKey, payload.meta.parameters || {});
                 }
 
                 this.createNotificationError({
@@ -366,10 +379,16 @@ export default {
 
         getList() {
             this.documentsLoading = true;
+            const orderId = this.order.id;
 
             return this.documentRepository.search(this.documentCriteria).then((response) => {
+                if (orderId !== this.order.id) {
+                    return Promise.resolve();
+                }
+
                 this.total = response.total;
                 this.documents = response;
+                this.documentsLoaded = true;
                 this.documentsLoading = false;
                 return Promise.resolve();
             });
@@ -603,6 +622,17 @@ export default {
 
                     this.isLoadingDocument = false;
                     return;
+                }
+
+                if (
+                    !params.documentNumber &&
+                    params.documentNumberPreview &&
+                    documentCreateResponse.documentNumber &&
+                    documentCreateResponse.documentNumber !== params.documentNumberPreview
+                ) {
+                    this.createNotificationInfo({
+                        message: this.$t('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
+                    });
                 }
 
                 const documentId = documentCreateResponse.documentId;

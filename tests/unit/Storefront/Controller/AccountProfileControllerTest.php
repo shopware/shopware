@@ -75,10 +75,10 @@ class AccountProfileControllerTest extends TestCase
             new Request()
         );
 
-        static::assertSame('frontend.account.profile.page', $this->controller->forwardToRoute);
-        static::assertTrue($this->controller->forwardToRouteAttributes['passwordFormViolation']);
-        static::assertInstanceOf(ConstraintViolationException::class, $this->controller->forwardToRouteAttributes['formViolations']);
-        static::assertSame(['account.passwordChangeNoSuccess'], $this->controller->flashBag[StorefrontController::DANGER]);
+        static::assertSame('frontend.account.profile.page', $this->controller->recorder()->forwardToRoute);
+        static::assertTrue($this->controller->recorder()->forwardToRouteAttributes['passwordFormViolation']);
+        static::assertInstanceOf(ConstraintViolationException::class, $this->controller->recorder()->forwardToRouteAttributes['formViolations']);
+        static::assertSame(['account.passwordChangeNoSuccess'], $this->controller->recorder()->flashBag[StorefrontController::DANGER]);
     }
 
     public function testSavePasswordWithDefaultRedirect(): void
@@ -90,8 +90,8 @@ class AccountProfileControllerTest extends TestCase
             new Request()
         );
 
-        static::assertArrayHasKey('frontend.account.profile.page', $this->controller->redirected);
-        static::assertSame(['account.passwordChangeSuccess'], $this->controller->flashBag[StorefrontController::SUCCESS]);
+        static::assertArrayHasKey('frontend.account.profile.page', $this->controller->recorder()->redirected);
+        static::assertSame(['account.passwordChangeSuccess'], $this->controller->recorder()->flashBag[StorefrontController::SUCCESS]);
     }
 
     public function testSavePasswordWithCustomRedirect(): void
@@ -103,7 +103,7 @@ class AccountProfileControllerTest extends TestCase
             new Request([], ['redirectTo' => 'frontend.home.page'])
         );
 
-        static::assertArrayHasKey('frontend.home.page', $this->controller->redirected);
+        static::assertArrayHasKey('frontend.home.page', $this->controller->recorder()->redirected);
     }
 
     public function testSavePasswordWithForwardToParam(): void
@@ -115,7 +115,7 @@ class AccountProfileControllerTest extends TestCase
             new Request([], ['forwardTo' => 'frontend.account.home.page'])
         );
 
-        static::assertSame('frontend.account.home.page', $this->controller->forwardToRoute);
+        static::assertSame('frontend.account.home.page', $this->controller->recorder()->forwardToRoute);
     }
 
     private function passwordDataBag(): RequestDataBag

@@ -137,6 +137,60 @@ class ShippingMethodValidatorTest extends TestCase
         static::assertSame([$this->ids->get('replacement')], $this->fetchPriceIds());
     }
 
+    public function testReplacingEveryPriceWithANestedZeroCostCartValuePriceWithinOneSyncIsAllowed(): void
+    {
+        $this->createShippingMethod(active: true, priceKeys: ['price']);
+
+        $operations = [
+            new SyncOperation(
+                'delete-old-prices',
+                ShippingMethodPriceDefinition::ENTITY_NAME,
+                SyncOperation::ACTION_DELETE,
+                [['id' => $this->ids->get('price')]]
+            ),
+            new SyncOperation(
+                'write',
+                ShippingMethodDefinition::ENTITY_NAME,
+                SyncOperation::ACTION_UPSERT,
+                [[
+                    'id' => $this->ids->get('shipping'),
+                    'prices' => [[
+                        'id' => $this->ids->create('replacement'),
+                        'calculation' => 2,
+                        'quantityStart' => 0,
+                        'currencyPrice' => [[
+                            'currencyId' => Defaults::CURRENCY,
+                            'net' => 0,
+                            'gross' => 0,
+                            'linked' => true,
+                        ]],
+                    ]],
+                ]]
+            ),
+        ];
+
+        $exception = $this->write(fn () => static::getContainer()->get(SyncService::class)
+            ->sync($operations, $this->context, new SyncBehavior()));
+
+        static::assertNull($exception);
+        static::assertSame([$this->ids->get('replacement')], $this->fetchPriceIds());
+
+        $replacement = $this->shippingMethodPriceRepository
+            ->search(new Criteria([$this->ids->get('replacement')]), $this->context)
+            ->getEntities()
+            ->first();
+        static::assertNotNull($replacement);
+        static::assertSame(2, $replacement->getCalculation());
+        static::assertSame(0.0, $replacement->getQuantityStart());
+
+        $currencyPrices = $replacement->getCurrencyPrice();
+        static::assertNotNull($currencyPrices);
+        $price = $currencyPrices->getCurrencyPrice(Defaults::CURRENCY);
+        static::assertNotNull($price);
+        static::assertSame(0.0, $price->getNet());
+        static::assertSame(0.0, $price->getGross());
+    }
+
     public function testPriceInsertedAndDeletedWithinOneSyncDoesNotOffsetTheLastPriceDeletion(): void
     {
         $this->createShippingMethod(active: true, priceKeys: ['price']);

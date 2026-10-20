@@ -8,8 +8,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\Document\DocumentEntity;
+use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -29,6 +29,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -702,6 +704,79 @@ class MediaRepositoryTest extends TestCase
 
         $deletedMedia = $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($mediaId);
         static::assertNull($deletedMedia);
+    }
+
+    public function testPathWithLiteralPercentIsPersistedAndUrlEncodedAsStorageKey(): void
+    {
+        $mediaId = Uuid::randomHex();
+
+        $this->mediaRepository->create(
+            [
+                [
+                    'id' => $mediaId,
+                    'fileName' => 'fifty-off',
+                    'fileExtension' => 'png',
+                    'mimeType' => 'image/png',
+                    'private' => false,
+                    'path' => 'media/ab/cd/50%20off.png',
+                    'thumbnails' => [
+                        [
+                            'width' => 100,
+                            'height' => 100,
+                            'path' => 'media/ab/cd/50%20off_100x100.png',
+                            'mediaThumbnailSize' => [
+                                'id' => Uuid::randomHex(),
+                                'width' => 100,
+                                'height' => 100,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            $this->context
+        );
+
+        $criteria = new Criteria([$mediaId]);
+        $criteria->addAssociation('thumbnails');
+
+        $media = Feature::withFeatureEnabled('v6.8.0.0', fn () => $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($mediaId));
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertSame('media/ab/cd/50%20off.png', $media->getPath());
+        static::assertStringContainsString('/media/ab/cd/50%2520off.png?ts=', $media->getUrl());
+
+        $thumbnail = $media->getThumbnails()?->first();
+        static::assertInstanceOf(MediaThumbnailEntity::class, $thumbnail);
+        static::assertSame('media/ab/cd/50%20off_100x100.png', $thumbnail->getPath());
+        static::assertStringContainsString('/media/ab/cd/50%2520off_100x100.png', $thumbnail->getUrl());
+
+        $legacyMedia = Feature::withFeatureDisabled('v6.8.0.0', fn () => $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($mediaId));
+        static::assertInstanceOf(MediaEntity::class, $legacyMedia);
+        static::assertStringContainsString('/media/ab/cd/50%20off.png?ts=', $legacyMedia->getUrl());
+    }
+
+    public function testAltTextLongerThan255CharactersIsRejected(): void
+    {
+        $mediaId = Uuid::randomHex();
+
+        try {
+            $this->mediaRepository->create([
+                ['id' => $mediaId, 'name' => 'test media', 'alt' => str_repeat('a', 256)],
+            ], $this->context);
+
+            static::fail('An alt text longer than 255 characters must be rejected');
+        } catch (WriteException $e) {
+            $errors = iterator_to_array($e->getErrors());
+            static::assertCount(1, $errors);
+            static::assertStringEndsWith('/alt', $errors[0]['source']['pointer']);
+        }
+
+        $this->mediaRepository->create([
+            ['id' => $mediaId, 'name' => 'test media', 'alt' => str_repeat('a', 255)],
+        ], $this->context);
+
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->getEntities()->first();
+        static::assertNotNull($media);
+        static::assertSame(str_repeat('a', 255), $media->getAlt());
     }
 
     /**

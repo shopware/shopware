@@ -168,6 +168,11 @@ class McpCapabilityDiscoveryTest extends TestCase
         static::assertNotContains('shopware-entity-delete', $tools);
         static::assertNotContains('shopware-system-config-read', $tools);
         static::assertNotContains('shopware-order-state', $tools);
+
+        // shopware-toolsets-list takes no parameters. Its empty `properties` must reach the client
+        // as a JSON object, or strict clients reject the whole tools/list (#18722).
+        static::assertStringContainsString('"properties":{}', $content);
+        static::assertStringNotContainsString('"properties":[]', $content);
     }
 
     public function testEnablingToolsetDeliversToolsListChangedNotification(): void
@@ -198,7 +203,7 @@ class McpCapabilityDiscoveryTest extends TestCase
         $toolsetRegistry = static::getContainer()->get(McpToolsetRegistry::class);
         static::assertInstanceOf(McpToolsetRegistry::class, $toolsetRegistry);
         $toolsets = $toolsetRegistry->toolsets();
-        static::assertNotEmpty($toolsets, 'expected at least one enable-able toolset');
+        static::assertNotCount(0, $toolsets, 'expected at least one enable-able toolset');
         $toolsetName = $toolsets[0]['name'];
 
         // Enable a toolset via the actual tool call. The notification is not part of this response;
@@ -255,6 +260,11 @@ class McpCapabilityDiscoveryTest extends TestCase
             $this->jsonRpcMethods((string) $drainResponse->getContent()),
             'client never received tools/list_changed after enabling a toolset',
         );
+
+        // The batch is re-encoded message by message on its way to SSE; that must not turn the
+        // empty `properties` of a parameterless tool into `[]` (#18722).
+        static::assertStringContainsString('"properties":{}', (string) $drainResponse->getContent());
+        static::assertStringNotContainsString('"properties":[]', (string) $drainResponse->getContent());
     }
 
     /**

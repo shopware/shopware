@@ -208,6 +208,8 @@ export default [
             'scripts/**/*',
             '!scripts/extensionTooling/',
             '!scripts/extensionTooling/**/*',
+            '!scripts/generate-shopware-modules/',
+            '!scripts/generate-shopware-modules/**/*',
             '!scripts/codemods/',
             '!scripts/codemods/sfc-migration/',
             '!scripts/codemods/sfc-migration/**/*',
@@ -237,11 +239,14 @@ export default [
     // usage through sw-deprecation-rules instead of
     // @typescript-eslint/no-deprecated, type-checks its spec files, and runs
     // its own stricter twig pipeline below instead of the lenient legacy one.
+    // It keeps its extglobs until 6.8, because the Jest setups of extensions
+    // transform its sources with older babel-plugin-shopware-vite-meta-glob versions.
     ...shopwareAdminExtension({
         tsconfigRootDir: __dirname,
         legacyTwig: false,
         srcImportBoundary: false,
         deprecatedApiSeverity: 'off',
+        vite8DeprecationSeverity: 'off',
         specFiles: 'typed',
     }),
 

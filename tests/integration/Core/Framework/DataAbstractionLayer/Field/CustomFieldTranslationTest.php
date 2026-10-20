@@ -295,7 +295,6 @@ class CustomFieldTranslationTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.child', $now));
         $result = $repo->search($criteria, $context);
-        $expected = [];
         static::assertSame(array_combine($expected, $expected), $result->getEntities()->getIds());
 
         // root -> system
@@ -463,7 +462,6 @@ class CustomFieldTranslationTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.sub', $now));
         $result = $repo->search($criteria, $context);
-        $expected = [];
         static::assertSame(array_combine($expected, $expected), $result->getEntities()->getIds());
 
         // root -> system

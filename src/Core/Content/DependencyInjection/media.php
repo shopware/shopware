@@ -46,6 +46,7 @@ use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\FileService;
 use Shopware\Core\Content\Media\File\FileUrlValidator;
 use Shopware\Core\Content\Media\File\FileUrlValidatorInterface;
+use Shopware\Core\Content\Media\File\GlbContentValidator;
 use Shopware\Core\Content\Media\File\SvgContentValidator;
 use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Content\Media\File\WindowsStyleFileNameProvider;
@@ -96,6 +97,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
@@ -207,6 +209,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.media.svg.allowed_attributes'),
             param('shopware.media.svg.allowed_reference_attributes'),
         ])
+        ->tag('shopware.media.file_content.validator');
+
+    $services->set(GlbContentValidator::class)
         ->tag('shopware.media.file_content.validator');
 
     $services->set(FileSaver::class)
@@ -647,6 +652,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('media.repository'),
             service(CacheTagCollector::class),
+            service(ExtensionDispatcher::class),
         ]);
     // endregion Routes
 

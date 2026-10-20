@@ -380,10 +380,18 @@
             >
                 <div class="sw-settings-document-detail__company_card_required">
                     {% block sw_settings_document_detail_content_field_media %}
+                    <sw-upload-listener
+                        class="sw-settings-document-detail__company_card_media-upload-listener"
+                        :upload-tag="documentConfig.id"
+                        auto-upload
+                        @media-upload-finish="onCompanyLogoUploadFinish"
+                    />
                     <sw-media-compact-upload-v2
                         class="sw-settings-document-detail__company_card_media"
                         name="sw-field--documentConfig-logoId"
                         :source="documentConfig.logoId"
+                        :upload-tag="documentConfig.id"
+                        default-folder="document"
                         :label="$t('sw-settings-document.detail.labelCompanyLogo')"
                         @media-upload-remove-image="documentConfig.logoId = null"
                         @selection-change="onChangeCompanyLogo"

@@ -15,7 +15,7 @@ use Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Tests\Unit\Core\Content\Product\Cms\ProductSlider\ProductSliderUnitTrait;
+use Shopware\Tests\Unit\Core\Content\Product\Cms\ProductSlider\ProductSliderFixture;
 
 /**
  * @internal
@@ -24,7 +24,7 @@ use Shopware\Tests\Unit\Core\Content\Product\Cms\ProductSlider\ProductSliderUnit
 #[CoversClass(ProductSliderCmsElementResolver::class)]
 class ProductSliderCmsElementResolverTest extends TestCase
 {
-    use ProductSliderUnitTrait;
+    private FieldConfigCollection $config;
 
     private LoggerInterface&MockObject $logger;
 
@@ -52,8 +52,8 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
         $this->config->add(new FieldConfig('products', FieldConfig::SOURCE_STATIC, null));
 
-        $slot = $this->getSlot();
-        $collection = $this->getResolver()->collect($slot, $this->getResolverContext());
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $collection = $this->getResolver()->collect($slot, ProductSliderFixture::getResolverContext());
 
         static::assertNull($collection);
     }
@@ -69,8 +69,8 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $processor->expects($this->once())->method('getSource')->willReturn('not-existing-processor');
         $this->processors[] = $processor;
 
-        $slot = $this->getSlot();
-        $collection = $this->getResolver()->collect($slot, $this->getResolverContext());
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $collection = $this->getResolver()->collect($slot, ProductSliderFixture::getResolverContext());
         static::assertNull($collection);
     }
 
@@ -91,8 +91,8 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
         $this->processors['static'] = $processor;
 
-        $slot = $this->getSlot();
-        static::assertSame($collection, $this->getResolver()->collect($slot, $this->getResolverContext()));
+        $slot = ProductSliderFixture::getSlot($this->config);
+        static::assertSame($collection, $this->getResolver()->collect($slot, ProductSliderFixture::getResolverContext()));
     }
 
     public function testEnrichWithEmptyConfig(): void
@@ -102,13 +102,13 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
         $this->config->add(new FieldConfig('products', FieldConfig::SOURCE_STATIC, null));
 
-        $slot = $this->getSlot();
+        $slot = ProductSliderFixture::getSlot($this->config);
         $data = new ElementDataCollection();
 
         $processor = $this->createMock(AbstractProductSliderProcessor::class);
         $processor->expects($this->never())->method('enrich');
 
-        $this->getResolver()->enrich($slot, $this->getResolverContext(), $data);
+        $this->getResolver()->enrich($slot, ProductSliderFixture::getResolverContext(), $data);
     }
 
     public function testEnrichNoProcessorFound(): void
@@ -123,10 +123,10 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $processor->expects($this->never())->method('enrich');
         $this->processors[] = $processor;
 
-        $slot = $this->getSlot();
+        $slot = ProductSliderFixture::getSlot($this->config);
         $data = new ElementDataCollection();
 
-        $this->getResolver()->enrich($slot, $this->getResolverContext(), $data);
+        $this->getResolver()->enrich($slot, ProductSliderFixture::getResolverContext(), $data);
     }
 
     public function testEnrich(): void
@@ -135,9 +135,9 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
         $this->config->add(new FieldConfig('products', FieldConfig::SOURCE_STATIC, 'VALID-VALUE'));
 
-        $slot = $this->getSlot();
+        $slot = ProductSliderFixture::getSlot($this->config);
         $data = new ElementDataCollection();
-        $resolverContext = $this->getResolverContext();
+        $resolverContext = ProductSliderFixture::getResolverContext();
 
         $processor = $this->createMock(AbstractProductSliderProcessor::class);
         $processor->method('getSource')->willReturn(FieldConfig::SOURCE_STATIC);
@@ -145,7 +145,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
         $this->processors['static'] = $processor;
 
-        $this->getResolver()->enrich($slot, $this->getResolverContext(), $data);
+        $this->getResolver()->enrich($slot, ProductSliderFixture::getResolverContext(), $data);
     }
 
     private function getResolver(): ProductSliderCmsElementResolver

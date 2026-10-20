@@ -86,6 +86,9 @@
                         }
                     },
                     {
+                        "$ref": "#/components/parameters/CompressedCriteria"
+                    },
+                    {
                         "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
@@ -132,7 +135,7 @@
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "pattern": "^[0-9a-f]{32}$'"
+                            "pattern": "^[0-9a-f]{32}$"
                         }
                     },
                     {
@@ -185,7 +188,20 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/NoneFieldsCriteria"
+                                "allOf": [
+                                    {
+                                        "properties": {
+                                            "slots": {
+                                                "description": "Resolves only the given slot identifiers. The identifiers have to be separated by a `|` character.",
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/NoneFieldsCriteria"
+                                    }
+                                ]
                             }
                         }
                     }
@@ -235,7 +251,7 @@
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "pattern": "^[0-9a-f]{32}$'"
+                            "pattern": "^[0-9a-f]{32}$"
                         }
                     },
                     {
@@ -263,6 +279,15 @@
                         "required": false,
                         "schema": {
                             "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "slots",
+                        "in": "query",
+                        "description": "Resolves only the given slot identifiers. The identifiers have to be separated by a `|` character.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     {
@@ -579,8 +604,7 @@
                             "schema": {
                                 "required": [
                                     "title",
-                                    "content",
-                                    "points"
+                                    "content"
                                 ],
                                 "properties": {
                                     "name": {
@@ -600,7 +624,7 @@
                                         "type": "string"
                                     },
                                     "points": {
-                                        "description": "The review rating for the product.",
+                                        "description": "The review rating for the product, from 1 to 5. When it is omitted, the review is saved without a rating. From Shopware 6.8.0.0 on it is required.",
                                         "type": "number",
                                         "format": "double"
                                     }
@@ -802,8 +826,8 @@
                     {
                         "name": "options[]",
                         "in": "query",
-                        "description": "The options parameter for the variant to find. Array of option IDs.",
-                        "required": true,
+                        "description": "The options parameter for the variant to find. Array of option IDs. Can also be sent inside `_criteria`.",
+                        "required": false,
                         "schema": {
                             "type": "array",
                             "items": {
@@ -819,6 +843,9 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/CompressedCriteria"
                     },
                     {
                         "$ref": "#/components/parameters/swLanguageId"

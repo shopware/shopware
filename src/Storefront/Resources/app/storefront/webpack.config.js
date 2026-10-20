@@ -171,6 +171,15 @@ const coreConfig = {
                     },
                 ],
             },
+            {
+                // three.js/DRACO ships a .wasm decoder that dive imports as a URL (`?url`).
+                // Emit it as an asset so its public URL can be fetched by the DRACOLoader at runtime.
+                test: /\.wasm$/,
+                type: 'asset/resource',
+                generator: {
+                    filename: 'assets/wasm/[name].[contenthash:8][ext]',
+                },
+            },
             ...(() => {
                 if (isHotMode) {
                     return [

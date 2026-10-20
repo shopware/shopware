@@ -25,6 +25,8 @@ class HtmlSanitizer implements ResetInterface
      */
     private array $purifiers = [];
 
+    private ?\HTMLPurifier $plainTextPurifier = null;
+
     private readonly string $cacheDir;
 
     private readonly HtmlPurifierConfigProvider $configProvider;
@@ -80,6 +82,24 @@ class HtmlSanitizer implements ResetInterface
         return $this->purifiers[$hash]->purify($text);
     }
 
+    /**
+     * Removes all HTML elements and attributes from the given text while keeping their text content, except for
+     * elements like `<script>` or `<style>`, whose content is dropped. A `<` that does not start a tag and any
+     * HTML entity are kept verbatim.
+     */
+    public function stripTags(string $text): string
+    {
+        if (!str_contains($text, '<')) {
+            return $text;
+        }
+
+        $this->plainTextPurifier ??= new \HTMLPurifier($this->getPlainTextConfig());
+
+        $purified = $this->plainTextPurifier->purify(str_replace('&', '&amp;', $text));
+
+        return htmlspecialchars_decode($purified, \ENT_NOQUOTES);
+    }
+
     public function reset(): void
     {
         $this->purifiers = [];
@@ -98,6 +118,16 @@ class HtmlSanitizer implements ResetInterface
         }
 
         $config->set('Cache.SerializerPermissions', 0775 & ~umask());
+
+        return $config;
+    }
+
+    private function getPlainTextConfig(): \HTMLPurifier_Config
+    {
+        $config = $this->getBaseConfig();
+        $config->set('HTML.AllowedElements', []);
+        $config->set('HTML.AllowedAttributes', []);
+        $config->set('Core.NormalizeNewlines', false);
 
         return $config;
     }

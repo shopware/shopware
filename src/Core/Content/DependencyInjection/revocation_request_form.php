@@ -6,6 +6,7 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Cms\Service\CmsFormSlotConfigResolver;
 use Shopware\Core\Content\RevocationRequest\SalesChannel\RevocationRequestRoute;
 use Shopware\Core\Content\RevocationRequest\Validation\RevocationRequestFormValidationFactory;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -31,5 +32,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(ClockInterface::class),
             service(CmsFormSlotConfigResolver::class),
+            service(ExtensionDispatcher::class),
         ]);
 };

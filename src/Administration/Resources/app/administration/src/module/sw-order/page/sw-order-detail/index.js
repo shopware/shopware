@@ -244,7 +244,6 @@ export default {
 
     watch: {
         orderId() {
-            Store.get('swOrderDetail').setCustomer(null);
             this.createdComponent();
         },
 
@@ -306,7 +305,7 @@ export default {
 
         beforeDestroyComponent(useKeepalive = false) {
             Store.get('swOrderDetail').setOrderAddressIds(null);
-            Store.get('swOrderDetail').setCustomer(null);
+            Store.get('swOrderDetail').resetCustomer();
 
             if (this.hasNewVersionId) {
                 const oldVersionContext = this.versionContext;

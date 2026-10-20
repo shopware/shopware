@@ -201,6 +201,18 @@
                             :label="$t('sw-profile.index.labelThemeField') + ' (Experimental)'"
                         />
                         {% endblock %}
+
+                        {% block sw_settings_user_detail_grid_content_module_icon_colors %}
+                        <mt-select
+                            v-if="isCurrentUser"
+                            v-model="userModuleIconColors"
+                            name="sw-field--user-module-icon-colors"
+                            class="sw-settings-user-detail__grid-module-icon-colors"
+                            :label="$t('sw-profile.index.labelModuleIconColorsField')"
+                            :options="moduleIconColorsOptions"
+                            hide-clearable-button
+                        />
+                        {% endblock %}
                     </div>
                     {% endblock %}
                 </mt-card>
@@ -318,6 +330,7 @@
 
                         <mt-empty-state
                             v-if="integrations.length === 0 && !isLoading"
+                            centered
                             :icon="$route.meta.$module.icon"
                             :headline="$t('sw-users-permissions.users.user-detail.noAccessKeysTitle')"
                             :description="$t('sw-users-permissions.users.user-detail.noAccessKeysSubline')"

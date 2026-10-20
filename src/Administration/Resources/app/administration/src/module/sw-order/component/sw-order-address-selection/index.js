@@ -69,17 +69,21 @@ export default {
 
         versionContext: () => Store.get('swOrderDetail').versionContext,
 
+        orderCustomer() {
+            return this.order.orderCustomer;
+        },
+
+        /**
+         * Shared with the other address selections of the order through the store, so that an address created or
+         * edited here is immediately selectable in all of them.
+         */
         customer: {
             get() {
                 return Store.get('swOrderDetail').customer;
             },
             set(customer) {
-                Store.get('swOrderDetail').setCustomer(customer);
+                Store.get('swOrderDetail').customer = customer;
             },
-        },
-
-        orderCustomer() {
-            return this.order.orderCustomer;
         },
 
         orderRepository() {
@@ -94,6 +98,9 @@ export default {
             return this.repositoryFactory.create('customer');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, the customer is loaded by the `swOrderDetail` store
+         */
         customerCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('addresses.country');
@@ -128,12 +135,11 @@ export default {
                 })
                 .filter((item) => item !== null);
 
-            if (this.address) {
+            this.address &&
                 addresses.unshift({
                     label: this.addressLabel(this.address),
                     ...this.address,
                 });
-            }
 
             return addresses;
         },
@@ -166,7 +172,7 @@ export default {
         'orderCustomer.customerId': {
             handler(customerId, previousCustomerId) {
                 if (!customerId) {
-                    this.customer = null;
+                    Store.get('swOrderDetail').resetCustomer();
                     return;
                 }
 
@@ -263,16 +269,16 @@ export default {
 
             this.customer.addresses.push(address);
 
-            const savedAddressId = address.id;
+            const customerId = this.customer.id;
 
             return this.customerRepository
                 .save(this.customer)
-                .then(() => this.getCustomer(true))
+                .then(() => Store.get('swOrderDetail').loadCustomer(customerId, true))
                 .then(() => {
                     this.pendingDefaultAddressIds = {};
                     this.currentAddress = null;
 
-                    this.onAddressChange(savedAddressId);
+                    this.onAddressChange(address.id);
                 });
         },
 
@@ -364,15 +370,10 @@ export default {
         },
 
         onCancelAddress() {
-            Object.entries(this.pendingDefaultAddressIds).forEach(
-                ([
-                    name,
-                    addressId,
-                ]) => {
-                    this.customer[name] = addressId;
-                    delete this[name];
-                },
-            );
+            Object.entries(this.pendingDefaultAddressIds).forEach(([name, addressId]) => {
+                this.customer[name] = addressId;
+                delete this[name];
+            });
 
             this.pendingDefaultAddressIds = {};
             this.currentAddress = null;
@@ -395,22 +396,12 @@ export default {
 
         getCustomer(forceReload = false) {
             if (!this.orderCustomer.customerId) {
-                this.customer = null;
+                Store.get('swOrderDetail').resetCustomer();
 
                 return Promise.reject();
             }
 
-            if (!forceReload && this.customer?.id === this.orderCustomer.customerId) {
-                return Promise.resolve(this.customer);
-            }
-
-            return this.customerRepository
-                .get(this.orderCustomer.customerId, Shopware.Context.api, this.customerCriteria)
-                .then((customer) => {
-                    this.customer = customer;
-
-                    return customer;
-                });
+            return Store.get('swOrderDetail').loadCustomer(this.orderCustomer.customerId, forceReload);
         },
 
         getCustomFieldSet() {

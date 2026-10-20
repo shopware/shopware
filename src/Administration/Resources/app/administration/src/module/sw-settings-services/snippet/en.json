@@ -41,10 +41,8 @@
         "install-hint": "Afterwards, run {command} to install the services right away."
       },
       "installation-stalled": {
-        "title": "The installation is taking longer than expected",
-        "description": "Services are installed in the background. If they don't show up, check the following on your server:",
-        "option-workers": "A message queue worker is running, for example {command}",
-        "option-install": "Install the services right away with {command}",
+        "title": "Services are still being installed",
+        "description": "Services are installed in the background, which can take a while. You will be notified as soon as they are ready.",
         "button-check-again": "Check again"
       }
     },

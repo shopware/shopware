@@ -406,7 +406,7 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
             expect(shopwareServicesService.getInstalledServices).toHaveBeenCalledTimes(callsAfterInstallation);
         });
 
-        it('shows debugging options when the installation takes too long', async () => {
+        it('stops refreshing and offers to check again when the installation takes long', async () => {
             const shopwareServicesService = Shopware.Service('shopwareServicesService');
             shopwareServicesService.getInstalledServices.mockImplementation(async () => []);
             shopwareServicesService.getServicesStatus.mockImplementation(async () =>
@@ -424,7 +424,14 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
             }
 
             const stalledBanner = page.get('.sw-settings-services-index__installation-stalled-banner');
-            expect(stalledBanner.findAll('.sw-settings-services-index__debug-options li')).toHaveLength(2);
+            expect(stalledBanner.text()).toContain('sw-settings-services.index.installation-stalled.description');
+            expect(stalledBanner.find('code').exists()).toBe(false);
+
+            const callsWhenStalled = shopwareServicesService.getInstalledServices.mock.calls.length;
+            jest.advanceTimersByTime(60_000);
+            await flushPromises();
+
+            expect(shopwareServicesService.getInstalledServices).toHaveBeenCalledTimes(callsWhenStalled);
 
             shopwareServicesService.getInstalledServices.mockImplementation(async () => [firstService]);
             shopwareServicesService.getServicesStatus.mockImplementation(async () => installationStatus([]));

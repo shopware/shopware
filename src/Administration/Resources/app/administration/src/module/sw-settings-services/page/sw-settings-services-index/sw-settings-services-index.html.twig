@@ -142,26 +142,6 @@
 
                     <p>{{ $t('sw-settings-services.index.installation-stalled.description') }}</p>
 
-                    <ul class="sw-settings-services-index__debug-options">
-                        <i18n-t
-                            keypath="sw-settings-services.index.installation-stalled.option-workers"
-                            tag="li"
-                        >
-                            <template #command>
-                                <code>bin/console messenger:consume async</code>
-                            </template>
-                        </i18n-t>
-
-                        <i18n-t
-                            keypath="sw-settings-services.index.installation-stalled.option-install"
-                            tag="li"
-                        >
-                            <template #command>
-                                <code>bin/console services:install</code>
-                            </template>
-                        </i18n-t>
-                    </ul>
-
                     <mt-button
                         variant="secondary"
                         size="small"

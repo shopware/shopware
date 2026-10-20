@@ -305,9 +305,16 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
 
         expect(wrapper.vm.productSortingEntity.id).toBe(getProductSortings()[0].id);
 
+        await wrapper.setData({
+            sortingOptionTechnicalNameError: { code: 'previous-error' },
+            sortingOptionLabelError: { code: 'previous-error' },
+        });
+
         route.params.id = getProductSortings()[1].id;
         await flushPromises();
 
+        expect(wrapper.vm.sortingOptionTechnicalNameError).toBeNull();
+        expect(wrapper.vm.sortingOptionLabelError).toBeNull();
         expect(wrapper.vm.productSortingEntity.id).toBe(getProductSortings()[1].id);
         expect(wrapper.vm.productSortingEntity.label).toBe('Price ascending');
     });

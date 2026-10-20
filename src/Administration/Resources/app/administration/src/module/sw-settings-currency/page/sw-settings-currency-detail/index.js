@@ -184,6 +184,9 @@ export default {
     watch: {
         currencyId() {
             if (this.currencyId !== this.currency.id) {
+                this.currencyCountryRoundings = null;
+                this.currentCurrencyCountry = null;
+                this.searchTerm = '';
                 this.createdComponent();
             }
         },

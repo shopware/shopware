@@ -310,6 +310,31 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-list/sw-
         ]);
     });
 
+    it('should drop the selection, search, paging and modals of the previous set when the set id changes', async () => {
+        const wrapper = await createWrapper(['custom_field.editor', 'custom_field.deleter']);
+        await flushPromises();
+
+        wrapper.vm.$refs.grid.selectAll(true);
+        await wrapper.setData({
+            term: 'old term',
+            page: 2,
+            currentCustomField: { id: 'old-field' },
+            deleteCustomField: [{ id: 'old-field' }],
+        });
+        expect(Object.keys(wrapper.vm.$refs.grid.getSelection()).length).toBeGreaterThan(0);
+        expect(wrapper.vm.deleteButtonDisabled).toBe(false);
+
+        await wrapper.setProps({ set: { id: 'other-set-id', customFields: {} } });
+        await flushPromises();
+
+        expect(wrapper.vm.$refs.grid.getSelection()).toEqual({});
+        expect(wrapper.vm.deleteButtonDisabled).toBe(true);
+        expect(wrapper.vm.term).toBe('');
+        expect(wrapper.vm.page).toBe(1);
+        expect(wrapper.vm.currentCustomField).toBeNull();
+        expect(wrapper.vm.deleteCustomField).toBeNull();
+    });
+
     it('should not reload the custom fields when the page reloads the same set after saving', async () => {
         const repo = mockCustomFieldRepository();
         const searchSpy = jest.spyOn(repo, 'search');

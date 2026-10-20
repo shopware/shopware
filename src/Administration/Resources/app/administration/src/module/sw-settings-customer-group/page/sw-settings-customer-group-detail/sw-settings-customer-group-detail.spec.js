@@ -335,9 +335,12 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             });
         });
 
+        await wrapper.setData({ registrationTitleError: { code: 'previous-error' } });
+
         await wrapper.setProps({ customerGroupId: '2' });
         await flushPromises();
 
+        expect(wrapper.vm.registrationTitleError).toBeNull();
         expect(getSpy).toHaveBeenCalledWith('2', expect.anything(), expect.anything());
         expect(wrapper.vm.customerGroup.id).toBe('2');
     });

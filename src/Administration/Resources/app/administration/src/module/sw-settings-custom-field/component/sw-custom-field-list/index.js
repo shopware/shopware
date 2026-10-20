@@ -63,6 +63,13 @@ export default {
         },
 
         'set.id'() {
+            // the selection, search, paging and open modals belong to the fields of the previous set
+            this.$refs.grid?.selectAll(false);
+            this.deleteButtonDisabled = true;
+            this.currentCustomField = null;
+            this.deleteCustomField = null;
+            this.term = '';
+            this.page = 1;
             this.loadCustomFields();
         },
     },

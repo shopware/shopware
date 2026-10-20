@@ -415,4 +415,26 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
         expect(wrapper.vm.activeCustomer.id).toBe('2');
         expect(wrapper.find('td').text()).toContain('Schmidt');
     });
+
+    it('should recreate the address grid and drop the address state of the previous customer when the customer is replaced', async () => {
+        const previousGrid = wrapper.vm.$refs.addressGrid;
+        wrapper.vm.defaultShippingAddressId = 'previous-shipping-address-id';
+        wrapper.vm.defaultBillingAddressId = 'previous-billing-address-id';
+        await wrapper.setData({ showDeleteAddressModal: 'previous-address-id' });
+
+        await wrapper.setProps({ customer: { id: '2', addresses: [] } });
+
+        expect(wrapper.vm.$refs.addressGrid).not.toBe(previousGrid);
+        expect(wrapper.vm.showDeleteAddressModal).toBe(false);
+        expect(wrapper.vm.defaultShippingAddressId).toBeNull();
+        expect(wrapper.vm.defaultBillingAddressId).toBeNull();
+    });
+
+    it('should keep the address grid when the same customer is reloaded', async () => {
+        const previousGrid = wrapper.vm.$refs.addressGrid;
+
+        await wrapper.setProps({ customer: { ...wrapper.props('customer') } });
+
+        expect(wrapper.vm.$refs.addressGrid).toBe(previousGrid);
+    });
 });

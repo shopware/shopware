@@ -614,6 +614,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         const orderDetailStore = Shopware.Store.get('swOrderDetail');
         orderDetailStore.order = {
             ...orderDetailStore.order,
+            id: 'second-order-id',
             orderCustomer: {
                 customerId: '2b8f9d5e0c4a4b1f8e7d6c5b4a392817',
             },
@@ -621,5 +622,52 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await flushPromises();
 
         expect(orderDetailStore.loadCustomer).toHaveBeenLastCalledWith('2b8f9d5e0c4a4b1f8e7d6c5b4a392817');
+    });
+
+    it('should load the new customer when the customer of the same order changes', async () => {
+        await flushPromises();
+
+        const orderDetailStore = Shopware.Store.get('swOrderDetail');
+        orderDetailStore.order = {
+            ...orderDetailStore.order,
+            orderCustomer: {
+                customerId: '2b8f9d5e0c4a4b1f8e7d6c5b4a392817',
+            },
+        };
+        await flushPromises();
+
+        expect(orderDetailStore.loadCustomer).toHaveBeenLastCalledWith('2b8f9d5e0c4a4b1f8e7d6c5b4a392817');
+    });
+
+    it('should load the customer again when the next order belongs to the same customer', async () => {
+        await flushPromises();
+
+        const orderDetailStore = Shopware.Store.get('swOrderDetail');
+        orderDetailStore.loadCustomer.mockClear();
+
+        // the order detail page resets the customer before it loads the next order
+        orderDetailStore.resetCustomer();
+        orderDetailStore.order = { ...orderDetailStore.order, id: 'second-order-id' };
+        await flushPromises();
+
+        expect(orderDetailStore.loadCustomer).toHaveBeenCalledTimes(1);
+        expect(orderDetailStore.loadCustomer).toHaveBeenCalledWith('63e27affb5804538b5b06cb4e344b130');
+        expect(orderDetailStore.customer).not.toBeNull();
+    });
+
+    it('should drop the address state of the previous order when the order is replaced', async () => {
+        await flushPromises();
+
+        wrapper.vm.onChangeDefaultAddress({ name: 'shipping-address', id: 'customer-address-id', value: true });
+
+        Shopware.Store.get('swOrderDetail').order = {
+            ...Shopware.Store.get('swOrderDetail').order,
+            id: 'second-order-id',
+        };
+        await wrapper.setProps({ address: { ...wrapper.props('address'), id: 'second-order-address-id' } });
+        await flushPromises();
+
+        expect(wrapper.vm.defaultShippingAddressId).toBeNull();
+        expect(wrapper.vm.orderAddressId).toBe('second-order-address-id');
     });
 });

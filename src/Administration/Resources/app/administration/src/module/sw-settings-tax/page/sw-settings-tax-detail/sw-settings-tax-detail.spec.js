@@ -185,6 +185,26 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
         expect(wrapper.vm.tax.id).toBe('secondTaxId');
     });
 
+    it('should drop the default tax rate change of the previous tax when the taxId changes', async () => {
+        const repository = {
+            get: jest.fn((id) => Promise.resolve({ id, name: `Tax ${id}`, isNew: () => false })),
+        };
+        const wrapper = await createWrapper(
+            ['tax.editor'],
+            false,
+            createTaxDetailOptions(repository, { taxId: 'firstTaxId' }),
+        );
+        await flushPromises();
+
+        wrapper.vm.onChangeDefaultTaxRate();
+        expect(wrapper.vm.config['core.tax.defaultTaxRate']).toBe('firstTaxId');
+
+        await wrapper.setProps({ taxId: 'secondTaxId' });
+        await flushPromises();
+
+        expect(wrapper.vm.config).toEqual({});
+    });
+
     it('should load a newly created tax only once after the redirect to its detail route', async () => {
         const repository = {
             create: () => ({ id: 'newTaxId', name: 'New tax', isNew: () => true }),

@@ -216,6 +216,19 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-detail', () 
         expect(wrapper.vm.salutation.id).toBe('2');
     });
 
+    it('should drop the key error of the previous salutation when the salutationId changes', async () => {
+        const wrapper = await createWrapper(['salutation.editor']);
+        await flushPromises();
+
+        await wrapper.setData({ invalidKey: true, isKeyChecking: true });
+
+        await wrapper.setProps({ salutationId: '2' });
+        await flushPromises();
+
+        expect(wrapper.vm.invalidKey).toBe(false);
+        expect(wrapper.vm.isKeyChecking).toBe(false);
+    });
+
     it('should load a newly created salutation only once after the redirect to its detail route', async () => {
         const repository = {
             create: () => ({ id: 'newSalutationId', salutationKey: 'new', isNew: () => true }),

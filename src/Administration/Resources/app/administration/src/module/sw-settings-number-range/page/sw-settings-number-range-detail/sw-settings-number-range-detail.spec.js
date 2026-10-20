@@ -267,4 +267,33 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
         expect(get).toHaveBeenCalledTimes(2);
         expect(wrapper.vm.numberRange.id).toBe('second-id');
     });
+
+    it('should drop the pattern parts of the previous number range when the route id changes', async () => {
+        const route = reactive({ params: { id: 'first-id' } });
+        const patterns = { 'first-id': '{date}{n}', 'second-id': '' };
+        const get = jest.fn((id) =>
+            Promise.resolve({
+                id,
+                name: id,
+                pattern: patterns[id],
+                global: false,
+                type: { global: false },
+                translated: { name: id },
+            }),
+        );
+        const wrapper = await createWrapper(route, get);
+        await flushPromises();
+
+        expect(wrapper.vm.advanced).toBe(true);
+        await wrapper.setData({ prefix: 'OLD-', suffix: '-OLD' });
+
+        route.params.id = 'second-id';
+        await flushPromises();
+
+        expect(wrapper.vm.numberRange.id).toBe('second-id');
+        expect(wrapper.vm.advanced).toBe(false);
+        expect(wrapper.vm.simplePossible).toBe(true);
+        expect(wrapper.vm.prefix).toBe('');
+        expect(wrapper.vm.suffix).toBe('');
+    });
 });

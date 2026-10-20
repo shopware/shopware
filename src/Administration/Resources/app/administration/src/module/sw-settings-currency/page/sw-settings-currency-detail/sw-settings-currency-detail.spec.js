@@ -164,6 +164,24 @@ describe('module/sw-settings-currency/page/sw-settings-currency-detail', () => {
         expect(wrapper.vm.currency.id).toBe('secondCurrencyId');
     });
 
+    it('should drop the country roundings and their search of the previous currency when creating a new one', async () => {
+        const repository = createSwitchableCurrencyRepository();
+        const wrapper = await createWrapper(['currencies.editor', 'currencies.creator'], {
+            repository,
+            props: { currencyId: 'firstCurrencyId' },
+        });
+        await flushPromises();
+
+        await wrapper.setData({ currencyCountryRoundings: [{ id: 'first-rounding' }], searchTerm: 'old term' });
+
+        await wrapper.setProps({ currencyId: null });
+        await flushPromises();
+
+        expect(wrapper.vm.currency.id).toBe('newCurrencyId');
+        expect(wrapper.vm.currencyCountryRoundings).toBeNull();
+        expect(wrapper.vm.searchTerm).toBe('');
+    });
+
     it('should load a newly created currency only once after the redirect to its detail route', async () => {
         const repository = createSwitchableCurrencyRepository();
         const wrapper = await createWrapper(['currencies.creator'], { repository });

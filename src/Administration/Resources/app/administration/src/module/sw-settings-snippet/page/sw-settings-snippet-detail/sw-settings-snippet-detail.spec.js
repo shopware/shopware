@@ -270,6 +270,27 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         expect(getCustomListSpy).toHaveBeenCalledWith(1, 25, { translationKey: ['test1'] });
     });
 
+    it('should drop the key state and list query of the previous key when the route key changes', async () => {
+        const route = reactive({
+            meta: { $module: { color: 'blue', icon: 'icon' } },
+            query: { page: 1, limit: 25, ids: [] },
+            params: { key: 'account.addressCreateBtn' },
+        });
+        const wrapper = await createWrapper(['snippet.viewer'], route);
+        await flushPromises();
+
+        await wrapper.setData({ isInvalidKey: true });
+
+        route.query = { page: 2, limit: 50, ids: ['id'] };
+        route.params.key = 'test1';
+        await flushPromises();
+
+        expect(wrapper.vm.isInvalidKey).toBe(false);
+        expect(wrapper.vm.page).toBe(2);
+        expect(wrapper.vm.limit).toBe(50);
+        expect(wrapper.vm.queryIds).toEqual(['id']);
+    });
+
     it('should load the snippets only once when saving pushes the renamed key', async () => {
         const route = reactive({
             meta: { $module: { color: 'blue', icon: 'icon' } },

@@ -72,6 +72,10 @@ export default {
             return this.order.orderCustomer;
         },
 
+        customerLoadKey() {
+            return `${this.order?.id}:${this.orderCustomer?.customerId}`;
+        },
+
         /**
          * Shared with the other address selections of the order through the store, so that an address created or
          * edited here is immediately selectable in all of them.
@@ -168,8 +172,20 @@ export default {
             immediate: true,
         },
 
-        'orderCustomer.customerId'() {
+        // the order detail page resets the customer when it switches to another order,
+        // so it is loaded again also when both orders belong to the same customer
+        customerLoadKey() {
             this.getCustomer();
+        },
+
+        'order.id'() {
+            this.currentAddress = null;
+            this.defaultShippingAddressId = null;
+            this.defaultBillingAddressId = null;
+        },
+
+        'address.id'(addressId) {
+            this.orderAddressId = addressId;
         },
 
         currentAddress(newValue, oldValue) {

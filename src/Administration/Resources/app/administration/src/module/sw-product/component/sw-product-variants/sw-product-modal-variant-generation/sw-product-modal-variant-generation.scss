@@ -48,6 +48,13 @@
             align-items: center;
         }
 
+        .sw-product-modal-variant-generation__switches {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--scale-size-24);
+            align-items: center;
+        }
+
         .sw-data-grid.sw-product-modal-variant-generation__grid .sw-data-grid__item .sw-field--switch.sw-field--default {
             margin: 0 var(--scale-size-16) 0;
         }

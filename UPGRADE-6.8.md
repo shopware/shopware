@@ -28,9 +28,57 @@ The PHPUnit version provided by the Shopware platform was upgraded to 13. If you
 
 Alternatively, decouple your test runner from the platform by explicitly requiring the PHPUnit version you expect in your plugin and using that separate installation in your test pipeline. Managing PHPUnit separately can be preferable when testing across multiple Shopware and PHP versions: choose a PHPUnit version compatible with your supported PHP versions and any Shopware test helpers your tests use, rather than adopting PHPUnit 13 for every test run.
 
+## Administration build updated to Vite 8
+
+The Administration and the Administration code of plugins and apps were built with Vite 6 before and are built with Vite 8 now. Vite 8 uses Rolldown and Oxc instead of Rollup and esbuild. Building the Administration requires Node.js `^20.19.0 || >=22.12.0`.
+
+In Shopware 6.7, you can already build with Vite 8 by activating the `ADMIN_VITE_8` feature flag, for example with `ADMIN_VITE_8=1 composer watch:admin`.
+
+Check the Administration code of your plugin or app for these changes:
+
+* `import.meta.glob` with extglob patterns like `!(*.spec)` matches no files in production builds, and depending on the pattern also in the watcher. Replace them with negated patterns:
+
+  ```js
+  // Before
+  import.meta.glob('./**/!(*.spec).{j,t}s', { eager: true });
+  // After
+  import.meta.glob(['./**/*.{j,t}s', '!./**/*.spec.{j,t}s'], { eager: true });
+  ```
+
+  If your Jest setup transforms `import.meta.glob` with `babel-plugin-shopware-vite-meta-glob`, update it to 0.0.6 or newer first. Older versions ignore negated patterns in arrays and exclude nothing. A `^0.0.x` range does not pick up 0.0.6 automatically.
+
+  `composer run admin:code-mods -- --fix -v 6.8 -p YourPlugin` rewrites them for you.
+
+  With the `ADMIN_VITE_8` flag in 6.7, Shopware still rewrites negated extglobs in plugins and apps and logs a warning for each one. 6.8 no longer rewrites them.
+
+* A default import of a CommonJS module resolves to `module.exports` if the importing file is an `.mjs`/`.mts` file, the nearest `package.json` sets `"type": "module"`, or the module does not set `__esModule`. Otherwise it resolves to `module.exports.default`. Check default imports of CommonJS dependencies.
+
+If your plugin or app ships its own `vite.config.*` or Vite plugins, follow the [Vite 7](https://v7.vite.dev/guide/migration) and [Vite 8](https://vite.dev/guide/migration) migration guides.
+
 # Changed Functionality
 
 <details>
+
+## Reorder form line item blocks removed
+
+`frontend.checkout.cart.reorder` resolves the reordered products from the order itself, so the reorder form no longer posts any `lineItems`. These two blocks in `storefront/page/account/order-history/order-item.html.twig` were emptied in 6.7 and are now removed:
+
+- `page_account_order_item_context_menu_reorder_form_line_items_input`
+- `page_account_order_item_context_menu_reorder_form_line_item_input`
+
+From 6.7 on an override still rendered but no longer changed what a reorder adds. To change what a reorder adds, listen to the `checkout.cart.collect-reorder-line-items` extension, which hands you the `OrderEntity` and the built `list<LineItem>`:
+
+```php
+public static function getSubscribedEvents(): array
+{
+    return [CheckoutCartCollectReorderLineItemsExtension::onPost() => 'addMyLineItems'];
+}
+
+public function addMyLineItems(CheckoutCartCollectReorderLineItemsExtension $extension): void
+{
+    $extension->result = [...($extension->result ?? []), $myLineItem];
+}
+```
 
 ## Document generation v2 is the default
 
@@ -302,6 +350,14 @@ After a customer logs out, the storefront session now holds the context token th
 
 <details>
 
+## Product reviews require a rating
+
+`POST /store-api/product/{productId}/review` rejects a request without `points`, or with `"points": null`, with `400` and a `VIOLATION::IS_BLANK_ERROR` on `/points`. Before, such a review was saved without a rating. Headless frontends that let customers skip the rating have to send `points` between 1 and 5.
+
+The `product_review` entity marks `externalUser` and `points` as required and only accepts `points` from 1 to 5, so creating a review through the Admin API, the Sync API or a repository without them, or with `points` outside that range, fails. Integrations and imports that create reviews have to send both fields.
+
+The columns `product_review.external_user` and `product_review.points` become `NOT NULL` in the destructive migration step, so code of the previous version keeps working until then. That step fills `external_user` for existing reviews without an author, with the first name of the review's customer or an empty string for reviews without a customer, and sets `points` to `0` for existing reviews without a rating. `0` points now stands for a review without a rating: the rating average ignores these reviews, and integrations, apps and headless frontends that read `points` have to treat `0` the way they treated `null` before.
+
 ## Type-based number range preview Admin API removed
 
 The type-based Admin API number range preview route `/api/_action/number-range/preview-pattern/{type}` has been removed.
@@ -370,12 +426,36 @@ The `/api/_action/mail-template/validate` route has been removed without replace
 The Admin API detail routes `/api/customer/{customerId}/default-billing-address`, `/api/customer/{customerId}/default-shipping-address`, and `/api/order/{orderId}/billing-address` now resolve their configured reference only.
 Previously, these routes could return unrelated records or fail because the underlying DAL associations were not modeled as one-to-one associations.
 
+## MCP tool results no longer wrap their data in a `{"success": …}` text envelope
+
+Tool results of both MCP servers (`/api/_mcp` and `/store-api/_mcp`) carry their data in `structuredContent`, and a failed call sets `isError: true`. Until 6.8.0 the first text block additionally contained the legacy envelope `{"success": true, "data": …, "_meta": …}` or `{"success": false, "error": …}`. With 6.8.0 that envelope is removed:
+
+- The first text block holds the result data as plain JSON (the copy of `structuredContent` the MCP specification asks for), or the error message for a failed call.
+- A failed call follows with its details as a text block `{"details": {…}}`, when it has any.
+- A summary, if the tool gives one, follows as a separate text block.
+- The metadata (for example `dryRun`, `total`, `resourceUri`, `usage`) follows as a text block `{"_meta": {…}}`, and is also sent in the result's `_meta` with the prefix `shopware/` (for example `shopware/dryRun`).
+
+If your MCP client or integration parses `content[0].text` as `{"success": …, "data": …}`:
+
+- Read `structuredContent` for the data and `isError` for the outcome. Both are already sent on 6.7, so you can switch before updating. `structuredContent` requires protocol revision 2025-06-18 or later; on older revisions read the first text block.
+- Read metadata from the result's `_meta` (`shopware/<key>`) instead of the envelope's `_meta`.
+- For error details, read `structuredContent.error` (`code`, `message`, `details`) instead of the envelope's `error` and `code`.
+
+Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new format.
+
 </details>
 
 # Core
 
 <details>
 
+## Invalid price definition exceptions
+
+`PriceDefinitionFieldSerializer` now throws `DataAbstractionLayerException` for invalid price-definition types instead of the removed `InvalidPriceFieldTypeException`. Update exception catches and use `DataAbstractionLayerException::invalidPriceFieldType()` to construct this error. Its error code, status, and message remain unchanged.
+
+## `ReverseProxyCompilerPass` removed
+
+`Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass` was removed without replacement. Remove any manual registration of the compiler pass, and do not rely on reverse proxy services being absent from the container when the reverse proxy is disabled.
 ## Removal of legacy `ConfigurationService` getters
 
 The `getConfiguration()` and `getResolvedConfiguration()` methods of `Shopware\Core\System\SystemConfig\Service\ConfigurationService` have been removed.
@@ -653,6 +733,22 @@ $this->addPromotionNotEligibleError($name, $cart);
 // After
 $cart->addErrors(new \Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError($code));
 $cart->addErrors(new \Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError($name));
+```
+
+## Removal of `PromotionItemBuilder::buildPlaceholderItem()`
+
+`\Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder::buildPlaceholderItem()` was removed.
+Create the promotion placeholder line item through the `LineItemFactoryRegistry` with the `promotion` type, or call `PromotionLineItemFactory::create()` directly:
+
+```php
+// Before
+$lineItem = $promotionItemBuilder->buildPlaceholderItem($code);
+
+// After
+$lineItem = $lineItemFactoryRegistry->create([
+    'type' => LineItem::PROMOTION_LINE_ITEM_TYPE,
+    'referencedId' => $code,
+], $salesChannelContext);
 ```
 
 ## Removal of `$options` parameter in custom validator's constraints
@@ -994,6 +1090,9 @@ foreach ($entities as $entity) {
 
 The translation of the import/export profile label has been removed.
 Profiles are now identified and displayed only by their technical name.
+
+Direct construction of `ImportExportProfileTranslationDefinition`, `ImportExportProfileTranslationEntity` and `ImportExportProfileTranslationCollection`, including empty collections, already throws when the `v6.8.0.0` feature flag is active. Remove these constructions and use the profile's technical name instead of translated labels.
+
 - The `$label` property and the following methods in `Shopware\Core\Content\ImportExport\ImportExportProfileEntity` have been removed:
   - `getLabel()`
   - `setLabel()`
@@ -1107,6 +1206,26 @@ Refection has significantly improved in particular since PHP 8.1, therefore the 
 ```diff
 - $fileName = ReflectionHelper->getFileName(MyClass::class);
 + $fileName = \ReflectionClass(MyClass::class)->getFileName();
+```
+
+## Removal of `\Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait`
+
+The test helper trait `AssertValuesTrait` is removed. Use the static assertion class `\Shopware\Core\Test\Assert\ArrayValues` instead, which compares the same way:
+
+```diff
+- use Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait;
++ use Shopware\Core\Test\Assert\ArrayValues;
+
+  class MyTest extends TestCase
+  {
+-     use AssertValuesTrait;
+
+      public function testSomething(): void
+      {
+-         $this->assertValues($expected, $actual);
++         ArrayValues::assertValues($expected, $actual);
+      }
+  }
 ```
 
 ## Removal of ErrorRoutes
@@ -1360,7 +1479,19 @@ $this->cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior(
 ```
 
 
+## `HreflangLoaderParameter` no longer derives the homepage from the route name
+
+`HreflangLoaderParameter::isHomepage()` only reads the `$homepage` constructor argument and no longer compares the route name with `frontend.home.page`. If you construct `HreflangLoaderParameter` for the homepage, pass `true` as `$homepage`, otherwise no homepage hreflang links are generated:
+
+```php
+new HreflangLoaderParameter('frontend.home.page', $routeParameters, $salesChannelContext, true);
+```
+
 # Administration
+
+## Import/export profile language tooltip removed
+
+The deprecated snippet key `sw-import-export.profile.addNewProfileTooltipLanguage` was removed without replacement. Remove references to this tooltip from extensions, as profile creation no longer requires the system language.
 
 ## Removal of deprecated `config` data property in `sw-system-config` component
 
@@ -1701,20 +1832,6 @@ Plan to migrate all code to axios v1 as soon as possible.
 
 For detailed migration instructions, see the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
 The architectural rationale is documented in [Keep Administration HTTP transports behind a compatibility facade](adr/2026-07-23-administration-http-client-compatibility-facade.md).
-
-## Removal of "sw-empty-state"
-
-The old `sw-empty-state` component will be removed in the next major version.
-Please use the new `mt-empty-state` component instead.
-
-Before:
-```html
-<sw-empty-state title="short title" subline="longer subline" />
-```
-After:
-```html
-<mt-empty-state title="short title" description="longer description"/>
-```
 
 ## Removed empty state Twig block anchors
 
@@ -2216,11 +2333,6 @@ The following Twig blocks have been removed:
   - `sw_theme_manager_detail_content_sections`
   - `sw_theme_manager_detail_content_fields`
 
-## Removal of $tc function:
-
-* The `$tc` function will be completely removed
-* All translation calls should use `$t` instead
-
 ## Removed translation of import/export profile label
 
 The translation of the import/export profile label has been removed.
@@ -2653,11 +2765,6 @@ The following variables were removed:
 * CSS classes `is-ctl-*` and `is-act-*`
 * JavaScript window properties `window.controllerName` and `window.actionName`
 
-## Removal of `hasChildren` variable in `item-link.html.twig`
-
-The variable `hasChildren` is not set inside the `@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig` template anymore, as it should be set in the templates which include these templates.
-In the default templates this is done in the `@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig` template.
-
 ## Removal of `pathIdList` option in NavbarPlugin
 
 The `pathIdList` option in `NavbarPlugin` and the corresponding key in the `navbarOptions` template variable in `navbar.html.twig` were removed.
@@ -2671,14 +2778,24 @@ Use the `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` instead to
 The `snippet_name` and `snippet_description` properties on cookies in Twig templates have been removed.
 Use `name` and `description` instead.
 
-## Removed theme.json translations
+## Deprecated theme.json translations
 
-We removed properties `label` and `helpText` properties of `theme.json`, to use the snippet system of the administration instead.
+The `label` and `helpText` properties of `theme.json` were deprecated in favor of the administration snippet system. The theme manager reads its labels from administration snippets with a constructed key.
 
-A constructed snippet key is now required.
-This affects `label` and `helpText` properties in the `theme.json`, which are used in the theme manager.
-The snippet keys to be used are constructed as follows.
-The mentioned `themeName` implies the `technicalName` property of the theme, or its respective parent theme name, since snippets are inherited from the parent theme as well.
+Themes that still define the properties keep working: on `theme:refresh` and plugin installation or update, Shopware converts them into administration snippets under `snippets/administration/<technicalName>/<locale>.json` in the private filesystem. That conversion is all Shopware still does with the properties. Snippet files shipped by the theme always win over the generated ones, and a warning is logged while a theme relies on them.
+
+Run the following command to create the snippet files in the theme and remove the deprecated properties from the `theme.json`:
+
+```bash
+bin/console theme:migrate-translations <technicalName> --strip
+```
+
+The command writes `Resources/app/administration/src/snippet/<locale>.json`, keeps snippets the theme already maintains there, and warns when a generated file would shadow an existing `<language>.json`. Use `--dry-run` to preview. You should prefer the language-agnostic file names (`en.json`, `de.json`) the administration and the storefront use themselves, unless the theme deliberately ships different texts per region. For app themes the files go to `Resources/app/administration/snippet`. Keep the locale file names there, make sure `en-GB.json` exists, and refresh the app afterwards so the snippets are imported.
+
+Labels of tabs, blocks, sections and fields a child theme inherits are placed through the fields of its parent themes, so a theme that only relabels an inherited group or field gets the matching snippet without redefining the field. Labels of blocks or sections that no field of the theme or its parents uses have no snippet key. The command lists them as not migratable, so move the label to a group in use or drop it before running `--strip`.
+
+The snippet keys are constructed as follows.
+The mentioned `technicalName` implies the `technicalName` property of the theme, or its respective parent theme name, since snippets are inherited from the parent theme as well.
 Also, please notice that unnamed tabs, blocks or sections will be accessible via `default`.
 
 Examples:
@@ -2701,25 +2818,13 @@ Examples:
 Both deprecated fields `label` & `helpText` of `Shopware\Storefront\Theme\ThemeEntity` are removed.
 Please use the snippet keys to be found in `\Shopware\Storefront\Theme\ThemeService::getThemeConfigurationStructuredFields` instead.
 
+The legacy translations are no longer persisted in `theme_translation.labels` and `theme_translation.help_texts` either, because `theme:refresh` and the plugin lifecycle stopped writing them. Both columns and the `labels`/`helpTexts` properties of `ThemeTranslationEntity` are removed. Read the labels from the administration snippets instead, which are generated from the `theme.json` as described in "Deprecated theme.json translations" above.
+
 ## Removed `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields`
 
 The `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields` methods have been removed.
 Use the new `ThemeConfigurationService::getPlainThemeConfiguration` and `ThemeConfigurationService::getThemeConfigurationFieldStructure` methods instead.
 The new methods return the same data as the old ones, excluding the deprecated fields.
-
-## Removed `category_url` and `category_linknewtab` twig functions
-
-The `category_url` and `category_linknewtab` twig functions have been removed.
-The data is now directly available in the category entities, therefore use `category.seoUrl` or `category.shouldOpenInNewTab` instead.
-
-```diff
-<a class="link"
--   href="{{ category_url(item) }}"
-+   href="{{ item.seoUrl }}"
--   {% if category_linknewtab(item) %}target="_blank"{% endif %}
-+   {% if item.shouldOpenInNewTab %}target="_blank"{% endif %}
-</a>
-```
 
 ## Removed `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` Twig functions
 

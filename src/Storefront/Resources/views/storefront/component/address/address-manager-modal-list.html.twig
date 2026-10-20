@@ -10,15 +10,16 @@
     {% set defaultAddressId = context.customer.defaultBillingAddress.id %}
 {% endif %}
 
-{# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. Support for `type` will be removed. #}
-{% set type = addressType %}
+{% if not feature('v6.8.0.0') %}
+    {# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. Support for `type` will be removed. #}
+    {% set type = addressType %}
+{% endif %}
 
 {% block address_base_default_address_item %}
     {% for address in  page.addresses %}
         {% if address.id == activeAddressId %}
             {% sw_include '@Storefront/storefront/component/address/address-manager-item.html.twig' with {
                 addressType,
-                type: addressType,
                 activeAddressId,
                 defaultAddressId,
                 address
@@ -41,7 +42,6 @@
     {% if activeAddressId !== address.id %}
         {% sw_include '@Storefront/storefront/component/address/address-manager-item.html.twig' with {
             addressType,
-            type: addressType,
             activeAddressId,
             defaultAddressId,
             address

@@ -31,8 +31,6 @@ use Twig\Environment;
 #[CoversClass(DatabaseImportController::class)]
 class DatabaseImportControllerTest extends TestCase
 {
-    use InstallerControllerTestTrait;
-
     private DatabaseConnectionFactory&Stub $connectionFactory;
 
     private MockObject&DatabaseMigrator $databaseMigrator;
@@ -54,7 +52,7 @@ class DatabaseImportControllerTest extends TestCase
             $this->connectionFactory,
             $this->databaseMigrator
         );
-        $this->controller->setContainer($this->getInstallerContainer($this->twig, ['router' => $this->router]));
+        $this->controller->setContainer(InstallerControllerFixture::getInstallerContainer($this->twig, ['router' => $this->router]));
     }
 
     #[After]
@@ -96,7 +94,7 @@ class DatabaseImportControllerTest extends TestCase
         $this->twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/database-import.html.twig',
-                array_merge($this->getDefaultViewParams(), [
+                array_merge(InstallerControllerFixture::getDefaultViewParams(), [
                     'error' => null,
                 ])
             )

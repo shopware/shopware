@@ -27,8 +27,7 @@
       "basicCaptchaNotice": "Die Basic-Captcha-Lösung wird nicht als barrierefrei betrachtet. Wir empfehlen, eine Lösung zu verwenden, die keine Benutzerinteraktion benötigt."
     },
     "sellerCountryNotification": {
-      "message": "Wähle das Shopbetreiber-Land unter Einstellungen > Stammdaten aus. Bis dahin entscheidet das Standardland des jeweiligen Verkaufskanals über steuerfreie Lieferungen an Unternehmen.",
-      "openSettings": "Stammdaten öffnen"
+      "message": "Wähle das Shopbetreiber-Land unter Einstellungen > Stammdaten aus. Bis dahin entscheidet das Standardland des jeweiligen Verkaufskanals über steuerfreie Lieferungen an Unternehmen."
     }
   }
 }

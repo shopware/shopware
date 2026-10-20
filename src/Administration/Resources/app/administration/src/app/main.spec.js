@@ -135,9 +135,6 @@ describe('src/app/main.ts', () => {
             await import('src/core/service/customer-group-registration-listener.service')
         ).default;
 
-        jest.mock('src/core/service/seller-country-listener.service');
-        serviceMocks.SellerCountryListener = (await import('src/core/service/seller-country-listener.service')).default;
-
         jest.mock('src/app/service/locale-helper.service');
         serviceMocks.LocaleHelperService = (await import('src/app/service/locale-helper.service')).default;
 

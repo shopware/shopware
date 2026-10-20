@@ -313,6 +313,7 @@ class ShopwareClass implements CustomShopwareProperties {
             t: createTranslate(i18nGlobal.t, 'Shopware.Snippet.t'),
             /**
              * @deprecated tag:v6.9.0 - Will be removed, use Shopware.Snippet.t instead.
+             * @deprecationGuard static-only - A value property; the `createDeprecatedTc` wrapper reports every call itself.
              */
             tc: createDeprecatedTc(i18nGlobal.t, 'Shopware.Snippet.tc', 'Shopware.Snippet.t'),
         };

@@ -278,6 +278,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement, `sw-order-state-select-v2` derives the state color from `stateName`
          */
         backgroundStyle(stateType) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-general-info.backgroundStyle() is deprecated and will be removed without replacement. `sw-order-state-select-v2` derives the state color from `stateName`.',
+            );
+
             let technicalName;
 
             switch (stateType) {

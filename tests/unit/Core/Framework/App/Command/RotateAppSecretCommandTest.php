@@ -268,4 +268,71 @@ class RotateAppSecretCommandTest extends TestCase
         $outputText = $output->fetch();
         static::assertStringContainsString('App TestApp secret rotation failed due: Registration failed', $outputText);
     }
+
+    public function testAdoptSecretsPassesTrimmedNonEmptyStdinLinesToRotation(): void
+    {
+        $appId = Uuid::randomHex();
+        $app = new AppEntity();
+        $app->setId($appId);
+        $app->setName('TestApp');
+
+        $appRepository = static::createStub(EntityRepository::class);
+        $appRepository->method('search')
+            ->willReturnCallback(static fn (Criteria $criteria, Context $context): EntitySearchResult => new EntitySearchResult('app', 1, new AppCollection([$app]), null, $criteria, $context));
+
+        $rotationService = $this->createMock(AppSecretRotationService::class);
+        $rotationService->expects($this->once())
+            ->method('rotateNow')
+            ->with($appId, static::isInstanceOf(Context::class), AppSecretRotationService::TRIGGER_CLI, ['secret-b', 'secret-a']);
+
+        $input = new ArrayInput(['name' => 'TestApp', '--adopt-secrets' => true]);
+        $input->setStream($this->streamOf("secret-b\n\n  secret-a  \n"));
+
+        $command = new RotateAppSecretCommand($appRepository, $rotationService, static::createStub(ActiveAppsLoader::class));
+
+        static::assertSame(Command::SUCCESS, $command->run($input, new BufferedOutput()));
+    }
+
+    public function testAdoptSecretsRequiresAnAppName(): void
+    {
+        $rotationService = $this->createMock(AppSecretRotationService::class);
+        $rotationService->expects($this->never())->method('rotateNow');
+
+        $input = new ArrayInput(['--adopt-secrets' => true]);
+        $input->setStream($this->streamOf("secret-b\n"));
+        $output = new BufferedOutput();
+
+        $command = new RotateAppSecretCommand(static::createStub(EntityRepository::class), $rotationService, static::createStub(ActiveAppsLoader::class));
+
+        static::assertSame(Command::FAILURE, $command->run($input, $output));
+        static::assertStringContainsString('requires an app name', $output->fetch());
+    }
+
+    public function testAdoptSecretsFailsWhenStdinHoldsNoSecret(): void
+    {
+        $rotationService = $this->createMock(AppSecretRotationService::class);
+        $rotationService->expects($this->never())->method('rotateNow');
+
+        $input = new ArrayInput(['name' => 'TestApp', '--adopt-secrets' => true]);
+        $input->setStream($this->streamOf("\n  \n"));
+        $output = new BufferedOutput();
+
+        $command = new RotateAppSecretCommand(static::createStub(EntityRepository::class), $rotationService, static::createStub(ActiveAppsLoader::class));
+
+        static::assertSame(Command::FAILURE, $command->run($input, $output));
+        static::assertStringContainsString('No secrets were read', $output->fetch());
+    }
+
+    /**
+     * @return resource
+     */
+    private function streamOf(string $contents)
+    {
+        $stream = fopen('php://memory', 'r+');
+        static::assertIsResource($stream);
+        fwrite($stream, $contents);
+        rewind($stream);
+
+        return $stream;
+    }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\ShopId;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
+use Shopware\Core\Framework\App\RetainedSecret\AppRetainedSecretGateway;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -29,7 +30,8 @@ class ShopIdProvider implements ResetInterface
         private readonly SystemConfigService $systemConfigService,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly Connection $connection,
-        private readonly FingerprintGenerator $fingerprintGenerator
+        private readonly FingerprintGenerator $fingerprintGenerator,
+        private readonly AppRetainedSecretGateway $retainedSecrets,
     ) {
     }
 
@@ -72,6 +74,8 @@ class ShopIdProvider implements ResetInterface
 
     public function deleteShopId(): void
     {
+        $this->retainAppSecretsIfShopIdIsOwned();
+
         $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY, null, true);
         $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2, null, false);
 
@@ -104,6 +108,20 @@ class ShopIdProvider implements ResetInterface
         }
 
         $this->shopId = $shopId;
+    }
+
+    private function retainAppSecretsIfShopIdIsOwned(): void
+    {
+        /** @var ShopIdV2Config|null $storedConfig */
+        $storedConfig = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
+        if (!\is_array($storedConfig)) {
+            return;
+        }
+
+        $stored = ShopId::fromSystemConfig($storedConfig);
+        if ($this->fingerprintGenerator->matchFingerprints($stored->fingerprints)->isMatching()) {
+            $this->retainedSecrets->retainCandidates($stored->id);
+        }
     }
 
     private function hasAppsRegisteredAtAppServers(): bool

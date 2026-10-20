@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
+use Shopware\Core\Framework\App\RetainedSecret\AppRetainedSecretGateway;
 use Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsHandler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -71,6 +72,7 @@ class DeleteCascadeAppsHandlerTest extends TestCase
             $this->aclRoleRepo,
             $this->integrationRepo,
             new NativeClock(),
+            static::getContainer()->get(AppRetainedSecretGateway::class),
         );
 
         $handler->run();

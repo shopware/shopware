@@ -306,11 +306,14 @@ export default [
     // usage through sw-deprecation-rules instead of
     // @typescript-eslint/no-deprecated, type-checks its spec files, and runs
     // its own stricter twig pipeline below instead of the lenient legacy one.
+    // It keeps its extglobs until 6.8, because the Jest setups of extensions
+    // transform its sources with older babel-plugin-shopware-vite-meta-glob versions.
     ...shopwareAdminExtension({
         tsconfigRootDir: __dirname,
         legacyTwig: false,
         srcImportBoundary: false,
         deprecatedApiSeverity: 'off',
+        vite8DeprecationSeverity: 'off',
         specFiles: 'typed',
     }),
 

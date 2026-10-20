@@ -77,7 +77,7 @@ import type { LegacyConditionCaseOptions } from '../../component/structure/sw-bl
 import useSystem from '../../composables/use-system';
 import useSession from '../../composables/use-session';
 
-const { Component, State, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { legacyIf, legacyElseIf, legacyElse } = useLegacyConditionContext();
 
 /**
@@ -154,7 +154,7 @@ export default class VueAdapter extends ViewAdapter {
         this.initPlugins();
         this.initDirectives();
 
-        const vuexRoot = State._store;
+        const vuexRoot = Shopware._state._store;
         const i18n = this.initLocales();
 
         // add router to View

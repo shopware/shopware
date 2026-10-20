@@ -96,7 +96,8 @@ jobs:
             --config src/Administration/Resources/app/administration/eslint.config.ts \
             --config src/Administration/Resources/app/administration/.fallowrc.json \
             src/Administration/Resources/app/administration/eslint-suppressions.json \
-            src/Administration/Resources/app/administration/fallow-baseline.json
+            src/Administration/Resources/app/administration/fallow-baseline.json \
+            src/Storefront/Resources/app/administration/eslint-suppressions.json
 
   admin:
     needs:

@@ -44,6 +44,7 @@ A rule that joins the list brings its existing inline disables into the baseline
 |---|---|
 | `src/Administration/Resources/app/administration/eslint-suppressions.json` | ESLint in the Administration |
 | `src/Administration/Resources/app/administration/fallow-baseline.json` | Fallow in the Administration |
+| `src/Storefront/Resources/app/administration/eslint-suppressions.json` | ESLint in the Storefront's Administration modules |
 
 `eslint-suppressions.json` counts the violations per file and rule.
 A file passes while it has at most as many violations of a rule as recorded.

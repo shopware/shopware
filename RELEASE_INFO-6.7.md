@@ -62,6 +62,7 @@ For `ENABLE_SERVICES=auto` it also shows the `APP_ENV` the shop runs in, because
 While services install, the page shows the ones still pending and refreshes the list until they are installed.
 If that takes longer than two minutes, it points to the message queue worker and `bin/console services:install`.
 The page reads this from the new `GET /api/services/status` route, which requires the `system.plugin_maintain` permission.
+
 ### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag
 
 The new `ADMIN_VITE_8` feature flag builds the Administration and the Administration code of extensions with Vite 8.

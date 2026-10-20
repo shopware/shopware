@@ -302,11 +302,20 @@ class CacheStore implements StoreInterface
      */
     private static function getRefreshServerParameters(Request $request): array
     {
-        $requestParameters = Request::create('/')->server->all();
+        // An https URL makes Symfony include the HTTPS parameter, which keeps the scheme and therefore the cache key
+        $requestParameters = Request::create('https://localhost/')->server->all();
+
+        // Environment variables can look like headers. Symfony Dotenv lists the names it loaded from .env files in
+        // SYMFONY_DOTENV_VARS. Process environment variables cannot be told apart from headers under PHP-FPM, so
+        // HTTP_PROXY, which can carry proxy credentials and is stripped as a header anyway (httpoxy), is always dropped
+        $dotenvNames = $request->server->get('SYMFONY_DOTENV_VARS');
+        $environmentNames = array_flip(\is_string($dotenvNames) && $dotenvNames !== '' ? explode(',', $dotenvNames) : []);
+        $environmentNames['HTTP_PROXY'] = true;
 
         return array_filter(
             $request->server->all(),
-            static fn (int|string $key): bool => \array_key_exists($key, $requestParameters) || str_starts_with((string) $key, 'HTTP_'),
+            static fn (int|string $key): bool => \array_key_exists($key, $requestParameters)
+                || (str_starts_with((string) $key, 'HTTP_') && !\array_key_exists($key, $environmentNames)),
             \ARRAY_FILTER_USE_KEY
         );
     }

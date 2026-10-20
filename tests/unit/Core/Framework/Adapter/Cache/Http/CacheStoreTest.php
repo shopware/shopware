@@ -401,11 +401,16 @@ class CacheStoreTest extends TestCase
         $request = new Request(server: [
             'HTTP_HOST' => 'shop.example',
             'HTTP_X_FORWARDED_PROTO' => 'https',
+            'HTTPS' => 'on',
             'REQUEST_URI' => '/detail/1',
             'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '/index.php',
             'REMOTE_ADDR' => '10.0.0.1',
             ...array_fill_keys(self::SHOPWARE_ENVIRONMENT_VARIABLES, $leakedValue),
+            // environment variables that look like headers, from the process environment and from a .env file
+            'HTTP_PROXY' => $leakedValue,
+            'HTTP_DOTENV_PROXY' => $leakedValue,
+            'SYMFONY_DOTENV_VARS' => 'APP_SECRET,HTTP_DOTENV_PROXY',
         ]);
         $response = new Response();
         $response->headers->set('date', date('Y-m-d H:i:s', time() - 3600)); // 1 hour ago
@@ -459,6 +464,7 @@ class CacheStoreTest extends TestCase
         static::assertSame([
             'HTTP_HOST' => 'shop.example',
             'HTTP_X_FORWARDED_PROTO' => 'https',
+            'HTTPS' => 'on',
             'REQUEST_URI' => '/detail/1',
             'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '/index.php',

@@ -35,9 +35,9 @@ The owner fields cannot be written or read through the API, so the owner cannot 
 
 The loader skips any app-less row without an owner, which can only come from a direct database write. Both owner columns cascade on delete: removing a user or integration removes the app-less webhooks it owns.
 
-### Existing webhooks are assigned to the oldest admin
+### Existing webhooks are assigned to a new admin integration
 
-There is no record of who created the existing app-less webhooks. The migration assigns them to the oldest admin user, so they keep delivering as before. Merchants should check them and recreate any that should run with fewer privileges.
+There is no record of who created the existing app-less webhooks. The migration creates one admin integration, labelled "Legacy webhooks", and assigns them to it, so they keep delivering as before. A user would tie the webhooks to that user's lifecycle: deleting the user would silently delete them. Merchants should check the webhooks and recreate any that should run with fewer privileges.
 
 ### Delivery is authorized against the owner
 

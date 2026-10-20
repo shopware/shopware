@@ -1,0 +1,87 @@
+{
+  "openapi": "3.2.0",
+  "info": {
+    "title": "Shopware Services API",
+    "version": "v1"
+  },
+  "paths": {
+    "/services/status": {
+      "get": {
+        "tags": [
+          "App System"
+        ],
+        "summary": "Get the installation status of Shopware Services",
+        "description": "Returns whether this installation installs Shopware Services, the environment values that decide it, and the services of the service registry that are not installed yet. Requires the `system.plugin_maintain` permission.",
+        "operationId": "getServicesStatus",
+        "responses": {
+          "200": {
+            "description": "The installation status of Shopware Services.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "enabled",
+                    "enableServices",
+                    "appEnv",
+                    "pending"
+                  ],
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "description": "Whether this installation installs Shopware Services."
+                    },
+                    "enableServices": {
+                      "type": "string",
+                      "description": "The configured value of the `ENABLE_SERVICES` environment variable. `auto` installs services only in the `prod` environment."
+                    },
+                    "appEnv": {
+                      "type": "string",
+                      "description": "The environment the shop runs in (`APP_ENV`)."
+                    },
+                    "pending": {
+                      "type": "array",
+                      "description": "Services of the service registry that are going to be installed but are not installed yet. Empty while services are disabled.",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "name",
+                          "label"
+                        ],
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "enabled": true,
+                  "enableServices": "auto",
+                  "appEnv": "prod",
+                  "pending": [
+                    {
+                      "name": "SwagCopilot",
+                      "label": "Copilot"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          }
+        }
+      }
+    }
+  }
+}

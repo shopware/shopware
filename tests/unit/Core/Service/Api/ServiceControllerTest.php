@@ -19,6 +19,7 @@ use Shopware\Core\Service\Message\UpdateServiceMessage;
 use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceLifecycle;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
@@ -371,6 +372,33 @@ class ServiceControllerTest extends TestCase
 
         $manager->expects($this->once())->method('enable');
         $controller->enableServices();
+    }
+
+    public function testStatus(): void
+    {
+        $context = Context::createDefaultContext(new AdminApiSource('AABB'));
+
+        $manager = static::createStub(LifecycleManager::class);
+        $manager->method('describeEnablement')->willReturn([
+            'enabled' => true,
+            'enableServices' => 'auto',
+            'appEnv' => 'prod',
+        ]);
+        $manager->method('pendingInstallation')->willReturn([
+            new ServiceEntry('SwagCopilot', 'Copilot', 'https://copilot.example.com', '/app-endpoint'),
+        ]);
+
+        $response = $this->createController(manager: $manager)->status($context);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame([
+            'enabled' => true,
+            'enableServices' => 'auto',
+            'appEnv' => 'prod',
+            'pending' => [
+                ['name' => 'SwagCopilot', 'label' => 'Copilot'],
+            ],
+        ], json_decode((string) $response->getContent(), true));
     }
 
     public function testReturnsCategorizedPermissions(): void

@@ -29,7 +29,24 @@
       "label-documentation-link": "Documentation",
       "label-tos-link": "Terms & Conditions",
       "installing-services-title": "Installing Shopware Services",
-      "installing-services-description": "This might take a while. You will be notified as soon as the installations are complete. In the meantime you can freely use your Shopware administration."
+      "installing-services-description": "This might take a while. You will be notified as soon as the installations are complete. In the meantime you can freely use your Shopware administration.",
+      "pending-service-description": "Installing…",
+      "turned-off": {
+        "title": "Shopware Services are turned off for this installation",
+        "reason-auto": "Services are configured with {enableServices}, which only turns them on when the shop runs with {requiredAppEnv}. This shop runs with {appEnv}.",
+        "reason-disabled": "Services are turned off with {enableServices}.",
+        "options-intro": "To use Shopware Services, change the environment on your server, for example in your .env.local file:",
+        "option-enable": "Set {enableServices} to turn them on in every environment",
+        "option-prod": "Or run the shop with {requiredAppEnv}",
+        "install-hint": "Afterwards, run {command} to install the services right away."
+      },
+      "installation-stalled": {
+        "title": "The installation is taking longer than expected",
+        "description": "Services are installed in the background. If they don't show up, check the following on your server:",
+        "option-workers": "A message queue worker is running, for example {command}",
+        "option-install": "Install the services right away with {command}",
+        "button-check-again": "Check again"
+      }
     },
     "service-card": {
       "status-active": "Active",

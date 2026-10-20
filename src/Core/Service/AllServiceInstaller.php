@@ -54,6 +54,17 @@ class AllServiceInstaller
     }
 
     /**
+     * @return list<ServiceEntry> The registry services that are not installed yet
+     */
+    public function pending(Context $context): array
+    {
+        return array_values($this->getNewServices(
+            $this->serviceStorage->findAll($context),
+            $this->serviceRegistryClient->getAll(),
+        ));
+    }
+
+    /**
      * @param list<Service> $existingServices
      * @param array<ServiceEntry> $registryServices
      *

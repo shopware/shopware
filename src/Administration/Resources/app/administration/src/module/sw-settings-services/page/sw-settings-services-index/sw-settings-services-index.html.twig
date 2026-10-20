@@ -48,7 +48,75 @@
                 </mt-banner>
 
                 <mt-banner
-                    v-if="config.disabled"
+                    v-if="!servicesEnabled"
+                    class="sw-settings-services-index__services-turned-off-banner"
+                    variant="attention"
+                >
+                    <p><b>{{ $t('sw-settings-services.index.turned-off.title') }}</b></p>
+
+                    <i18n-t
+                        v-if="servicesAutoEnabled"
+                        keypath="sw-settings-services.index.turned-off.reason-auto"
+                        tag="p"
+                    >
+                        <template #enableServices>
+                            <code>ENABLE_SERVICES=auto</code>
+                        </template>
+
+                        <template #requiredAppEnv>
+                            <code>APP_ENV=prod</code>
+                        </template>
+
+                        <template #appEnv>
+                            <code>APP_ENV={{ status.appEnv }}</code>
+                        </template>
+                    </i18n-t>
+
+                    <i18n-t
+                        v-else
+                        keypath="sw-settings-services.index.turned-off.reason-disabled"
+                        tag="p"
+                    >
+                        <template #enableServices>
+                            <code>ENABLE_SERVICES={{ status.enableServices }}</code>
+                        </template>
+                    </i18n-t>
+
+                    <p>{{ $t('sw-settings-services.index.turned-off.options-intro') }}</p>
+
+                    <ul class="sw-settings-services-index__debug-options">
+                        <i18n-t
+                            keypath="sw-settings-services.index.turned-off.option-enable"
+                            tag="li"
+                        >
+                            <template #enableServices>
+                                <code>ENABLE_SERVICES=true</code>
+                            </template>
+                        </i18n-t>
+
+                        <i18n-t
+                            v-if="servicesAutoEnabled"
+                            keypath="sw-settings-services.index.turned-off.option-prod"
+                            tag="li"
+                        >
+                            <template #requiredAppEnv>
+                                <code>APP_ENV=prod</code>
+                            </template>
+                        </i18n-t>
+                    </ul>
+
+                    <i18n-t
+                        keypath="sw-settings-services.index.turned-off.install-hint"
+                        tag="p"
+                    >
+                        <template #command>
+                            <code>bin/console services:install</code>
+                        </template>
+                    </i18n-t>
+                </mt-banner>
+
+                <mt-banner
+                    v-if="servicesEnabled && config.disabled"
                     class="sw-settings-services-index__services-deactivated-banner"
                     variant="attention"
                 >
@@ -65,8 +133,46 @@
                     </mt-button>
                 </mt-banner>
 
+                <mt-banner
+                    v-if="installationStalled && installing"
+                    class="sw-settings-services-index__installation-stalled-banner"
+                    variant="info"
+                >
+                    <p><b>{{ $t('sw-settings-services.index.installation-stalled.title') }}</b></p>
+
+                    <p>{{ $t('sw-settings-services.index.installation-stalled.description') }}</p>
+
+                    <ul class="sw-settings-services-index__debug-options">
+                        <i18n-t
+                            keypath="sw-settings-services.index.installation-stalled.option-workers"
+                            tag="li"
+                        >
+                            <template #command>
+                                <code>bin/console messenger:consume async</code>
+                            </template>
+                        </i18n-t>
+
+                        <i18n-t
+                            keypath="sw-settings-services.index.installation-stalled.option-install"
+                            tag="li"
+                        >
+                            <template #command>
+                                <code>bin/console services:install</code>
+                            </template>
+                        </i18n-t>
+                    </ul>
+
+                    <mt-button
+                        variant="secondary"
+                        size="small"
+                        @click="checkInstallationProgress"
+                    >
+                        {{ $t('sw-settings-services.index.installation-stalled.button-check-again') }}
+                    </mt-button>
+                </mt-banner>
+
                 <div
-                    v-if="!config.disabled && services.length === 0"
+                    v-if="installing && services.length === 0 && pendingServices.length === 0"
                     class="sw-settings-services-index__installing-card"
                 >
                     <div class="sw-settings-services-index__installing-card-loader">
@@ -81,7 +187,7 @@
                 </div>
 
                 <ul
-                    v-else-if="services.length > 0"
+                    v-if="services.length > 0 || pendingServices.length > 0"
                     class="sw-settings-services__available-services"
                 >
                     <sw-settings-services-service-card
@@ -89,6 +195,22 @@
                         :key="service.name"
                         :service="service"
                     />
+
+                    <li
+                        v-for="pendingService in pendingServices"
+                        :key="pendingService.name"
+                        class="sw-settings-services-index__pending-service"
+                    >
+                        <div class="sw-settings-services-index__pending-service-loader">
+                            <mt-loader size="var(--scale-size-24)" />
+                        </div>
+
+                        <div>
+                            <h4>{{ pendingService.label }}</h4>
+
+                            <p>{{ $t('sw-settings-services.index.pending-service-description') }}</p>
+                        </div>
+                    </li>
                 </ul>
             </div>
 

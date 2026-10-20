@@ -53,6 +53,16 @@ Extensions and integrations that read the product type of older order line items
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
 
+## Administration
+
+### Services page shows why services are not installed
+
+The Shopware Services settings page now says when the server keeps services turned off, with the configured `ENABLE_SERVICES` value.
+For `ENABLE_SERVICES=auto` it also shows the `APP_ENV` the shop runs in, because `auto` only installs services in `prod`, and lists the settings that turn them on.
+While services install, the page shows the ones still pending and refreshes the list until they are installed.
+If that takes longer than two minutes, it points to the message queue worker and `bin/console services:install`.
+The page reads this from the new `GET /api/services/status` route, which requires the `system.plugin_maintain` permission.
+
 # 6.7.16.0
 
 ## Critical Fixes

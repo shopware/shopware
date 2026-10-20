@@ -33,6 +33,16 @@ export type ServiceDescription = {
     state_change_permitted: boolean;
 };
 
+/**
+ * @private
+ */
+export type ServicesStatus = {
+    enabled: boolean;
+    enableServices: string;
+    appEnv: string;
+    pending: Array<{ name: string; label: string }>;
+};
+
 type ServiceConfigurationConfigValues = {
     'core.services.disabled'?: boolean;
     'core.services.permissionsConsent'?: string;
@@ -88,6 +98,16 @@ export default class ShopwareServicesService extends ApiService {
                     ? (JSON.parse(configValues['core.services.permissionsConsent']) as PermissionsConsent)
                     : undefined,
         };
+    }
+
+    getServicesStatus(): Promise<ServicesStatus> {
+        return this.httpClient
+            .get('services/status', {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                return response.data as ServicesStatus;
+            });
     }
 
     acceptRevision(revision: string): Promise<void> {

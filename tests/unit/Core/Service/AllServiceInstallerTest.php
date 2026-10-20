@@ -198,6 +198,26 @@ class AllServiceInstallerTest extends TestCase
         static::assertSame([], $this->logs->getRecords());
     }
 
+    public function testPendingListsRegistryServicesThatAreNotInstalledYet(): void
+    {
+        $installer = $this->installer($this->buildAppRepository([
+            AppFixture::createAppEntity(name: 'Service1'),
+        ]));
+
+        $this->registryClient->method('getAll')->willReturn([
+            $this->entry(name: 'Service1'),
+            $this->entry(name: 'Service2'),
+            $this->entry(name: 'Service3'),
+        ]);
+
+        $this->serviceLifecycle->expects($this->never())->method('install');
+
+        static::assertEquals(
+            [$this->entry(name: 'Service2'), $this->entry(name: 'Service3')],
+            $installer->pending(Context::createDefaultContext()),
+        );
+    }
+
     /**
      * @param StaticEntityRepository<AppCollection> $appRepository
      */

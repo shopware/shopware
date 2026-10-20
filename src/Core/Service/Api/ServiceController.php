@@ -16,6 +16,7 @@ use Shopware\Core\Service\Message\UpdateServiceMessage;
 use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceLifecycle;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Shopware\Core\Service\ServiceStorage;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -159,6 +160,26 @@ class ServiceController
         $this->manager->enable();
 
         return new Response();
+    }
+
+    #[Route(
+        path: '/api/services/status',
+        name: 'api.services.status',
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain'],
+        ],
+        methods: [Request::METHOD_GET]
+    )]
+    public function status(Context $context): JsonResponse
+    {
+        return new JsonResponse([
+            ...$this->manager->describeEnablement(),
+            'pending' => array_map(static fn (ServiceEntry $entry) => [
+                'name' => $entry->name,
+                'label' => $entry->description,
+            ], $this->manager->pendingInstallation($context)),
+        ]);
     }
 
     #[Route(

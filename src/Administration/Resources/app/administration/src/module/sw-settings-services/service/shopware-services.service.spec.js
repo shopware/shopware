@@ -190,6 +190,25 @@ describe('src/module/sw-settings-services/service/shopware-services-service.ts',
         expect(clientMock.history.post[0].url).toBe(`service/${action}/MyCoolService`);
     });
 
+    it('returns the services status', async () => {
+        const client = createHTTPClient();
+        const clientMock = new MockAdapter(client);
+        const loginService = createLoginService(client, Shopware.Context.api);
+        const systemConfigService = new SystemConfigApiService(client, loginService);
+        const shopwareServicesService = new ShopwareServicesService(client, loginService, systemConfigService);
+
+        const status = {
+            enabled: false,
+            enableServices: 'auto',
+            appEnv: 'dev',
+            pending: [],
+        };
+
+        clientMock.onGet('services/status').reply(200, status);
+
+        expect(await shopwareServicesService.getServicesStatus()).toEqual(status);
+    });
+
     it('returns categorized permissions', async () => {
         const client = createHTTPClient();
         const clientMock = new MockAdapter(client);

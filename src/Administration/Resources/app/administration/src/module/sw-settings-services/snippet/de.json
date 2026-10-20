@@ -29,7 +29,24 @@
       "label-documentation-link": "Dokumentation",
       "label-tos-link": "AGB",
       "installing-services-title": "Shopware Services werden installiert",
-      "installing-services-description": "Dies kann eine Weile dauern. Du wirst benachrichtigt, sobald die Installationen abgeschlossen sind. In der Zwischenzeit kannst Du Deine Shopware Administration frei nutzen."
+      "installing-services-description": "Dies kann eine Weile dauern. Du wirst benachrichtigt, sobald die Installationen abgeschlossen sind. In der Zwischenzeit kannst Du Deine Shopware Administration frei nutzen.",
+      "pending-service-description": "Wird installiert …",
+      "turned-off": {
+        "title": "Shopware Services sind für diese Installation ausgeschaltet",
+        "reason-auto": "Services sind mit {enableServices} konfiguriert und werden damit nur eingeschaltet, wenn der Shop mit {requiredAppEnv} läuft. Dieser Shop läuft mit {appEnv}.",
+        "reason-disabled": "Services sind mit {enableServices} ausgeschaltet.",
+        "options-intro": "Um Shopware Services zu nutzen, passe die Umgebung auf Deinem Server an, zum Beispiel in Deiner .env.local-Datei:",
+        "option-enable": "Setze {enableServices}, um sie in jeder Umgebung einzuschalten",
+        "option-prod": "Oder betreibe den Shop mit {requiredAppEnv}",
+        "install-hint": "Führe danach {command} aus, um die Services sofort zu installieren."
+      },
+      "installation-stalled": {
+        "title": "Die Installation dauert länger als erwartet",
+        "description": "Services werden im Hintergrund installiert. Wenn sie nicht erscheinen, prüfe Folgendes auf Deinem Server:",
+        "option-workers": "Ein Message-Queue-Worker läuft, zum Beispiel {command}",
+        "option-install": "Installiere die Services sofort mit {command}",
+        "button-check-again": "Erneut prüfen"
+      }
     },
     "service-card": {
       "status-active": "Aktiv",

@@ -54,6 +54,7 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\App\GuzzleHistoryCollector;
+use Shopware\Core\Test\Integration\Builder\Webhook\WebhookBuilder;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\Messenger\Envelope;
@@ -306,7 +307,10 @@ class WebhookManagerTest extends TestCase
 
     public function testDispatchesBusinessEventToWebhookWithoutApp(): void
     {
-        $this->createWebhook('hook1', CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com', ownerUserId: $this->adminId);
+        WebhookBuilder::ownedByUser($this->adminId)
+            ->subscribe(CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com')
+            ->name('hook1')
+            ->insert($this->connection);
 
         $this->appendNewResponse(new Response(200));
 
@@ -347,7 +351,10 @@ class WebhookManagerTest extends TestCase
     public function testAWebhookIsDeliveredWhenItsOwnerMayReadTheEvent(): void
     {
         $ownerId = TestUser::createNewTestUser($this->connection, ['product:read'])->getUserId();
-        $this->createWebhook('hook1', ProductEvents::PRODUCT_WRITTEN_EVENT, 'https://test.com', ownerUserId: $ownerId);
+        WebhookBuilder::ownedByUser($ownerId)
+            ->subscribe(ProductEvents::PRODUCT_WRITTEN_EVENT, 'https://test.com')
+            ->name('hook1')
+            ->insert($this->connection);
 
         $this->appendNewResponse(new Response(200));
 
@@ -359,7 +366,10 @@ class WebhookManagerTest extends TestCase
     public function testAWebhookIsNotDeliveredWhenItsOwnerMayNotReadTheEvent(): void
     {
         $ownerId = TestUser::createNewTestUser($this->connection, ['customer:read'])->getUserId();
-        $this->createWebhook('hook1', ProductEvents::PRODUCT_WRITTEN_EVENT, 'https://test.com', ownerUserId: $ownerId);
+        WebhookBuilder::ownedByUser($ownerId)
+            ->subscribe(ProductEvents::PRODUCT_WRITTEN_EVENT, 'https://test.com')
+            ->name('hook1')
+            ->insert($this->connection);
 
         $this->appendNewResponse(new Response(200));
 
@@ -370,8 +380,14 @@ class WebhookManagerTest extends TestCase
 
     public function testDispatchedWebhooksDontWrapEventMultipleTimes(): void
     {
-        $this->createWebhook('hook1', CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com', ownerUserId: $this->adminId);
-        $this->createWebhook('hook2', CustomerBeforeLoginEvent::EVENT_NAME, 'https://test2.com', ownerUserId: $this->adminId);
+        WebhookBuilder::ownedByUser($this->adminId)
+            ->subscribe(CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com')
+            ->name('hook1')
+            ->insert($this->connection);
+        WebhookBuilder::ownedByUser($this->adminId)
+            ->subscribe(CustomerBeforeLoginEvent::EVENT_NAME, 'https://test2.com')
+            ->name('hook2')
+            ->insert($this->connection);
 
         $this->appendNewResponse(new Response(200));
         $this->appendNewResponse(new Response(200));
@@ -415,7 +431,10 @@ class WebhookManagerTest extends TestCase
 
     public function testDispatchesWrappedEntityWrittenEventToWebhookWithoutApp(): void
     {
-        $this->createWebhook('hook1', ProductEvents::PRODUCT_WRITTEN_EVENT, 'https://test.com', ownerUserId: $this->adminId);
+        WebhookBuilder::ownedByUser($this->adminId)
+            ->subscribe(ProductEvents::PRODUCT_WRITTEN_EVENT, 'https://test.com')
+            ->name('hook1')
+            ->insert($this->connection);
         $context = Context::createDefaultContext();
 
         $this->appendNewResponse(new Response(200));
@@ -525,7 +544,10 @@ class WebhookManagerTest extends TestCase
 
     public function testDoesntDispatchesWrappedBusinessEventToWebhook(): void
     {
-        $this->createWebhook('hook1', CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com', ownerUserId: $this->adminId);
+        WebhookBuilder::ownedByUser($this->adminId)
+            ->subscribe(CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com')
+            ->name('hook1')
+            ->insert($this->connection);
 
         $this->appendNewResponse(new Response(200));
 
@@ -551,7 +573,10 @@ class WebhookManagerTest extends TestCase
                 'url' => 'https://test.com',
             ],
         ]);
-        $this->createWebhook('hook2', AppDeletedEvent::NAME, 'https://test2.com');
+        WebhookBuilder::ownedByUser($this->adminId)
+            ->subscribe(AppDeletedEvent::NAME, 'https://test2.com')
+            ->name('hook2')
+            ->insert($this->connection);
 
         $this->appendNewResponse(new Response(200));
         $this->appendNewResponse(new Response(200));
@@ -1023,8 +1048,10 @@ class WebhookManagerTest extends TestCase
 
     public function testItDoesDispatchWebhookMessageQueueWithoutApp(): void
     {
-        $webhookId = Uuid::randomHex();
-        $this->createWebhook('hook1', ProductEvents::PRODUCT_WRITTEN_EVENT, 'https://test.com', webhookId: $webhookId, ownerUserId: $this->adminId);
+        $webhookId = WebhookBuilder::ownedByUser($this->adminId)
+            ->subscribe(ProductEvents::PRODUCT_WRITTEN_EVENT, 'https://test.com')
+            ->name('hook1')
+            ->insert($this->connection);
 
         $entityId = Uuid::randomHex();
         $event = $this->getEntityWrittenEvent($entityId);
@@ -1149,8 +1176,10 @@ class WebhookManagerTest extends TestCase
 
     public function testAsyncDispatchWithoutAppUsesDefaultPartitionKey(): void
     {
-        $webhookId = Uuid::randomHex();
-        $this->createWebhook('hook1', ProductEvents::PRODUCT_WRITTEN_EVENT, 'https://test.com', webhookId: $webhookId, ownerUserId: $this->adminId);
+        WebhookBuilder::ownedByUser($this->adminId)
+            ->subscribe(ProductEvents::PRODUCT_WRITTEN_EVENT, 'https://test.com')
+            ->name('hook1')
+            ->insert($this->connection);
 
         $entityId = Uuid::randomHex();
         $event = $this->getEntityWrittenEvent($entityId);
@@ -1572,8 +1601,10 @@ class WebhookManagerTest extends TestCase
 
     public function testSyncDispatchWithNonAppWebhookCreatesOutboxEntry(): void
     {
-        $webhookId = Uuid::randomHex();
-        $this->createWebhook('hook1', CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com', webhookId: $webhookId, ownerUserId: $this->adminId);
+        WebhookBuilder::ownedByUser($this->adminId)
+            ->subscribe(CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com')
+            ->name('hook1')
+            ->insert($this->connection);
 
         $this->appendNewResponse(new Response(200));
 
@@ -1604,21 +1635,6 @@ class WebhookManagerTest extends TestCase
         static::assertSame(CustomerBeforeLoginEvent::EVENT_NAME, $eventLog['event_name']);
         // Non-app webhook has no app_name
         static::assertNull($eventLog['app_name']);
-    }
-
-    private function createWebhook(string $name, string $eventName, string $url, ?string $appId = null, ?string $webhookId = null, ?string $ownerUserId = null): void
-    {
-        $payload = array_filter([
-            'id' => $webhookId ? Uuid::fromHexToBytes($webhookId) : Uuid::randomBytes(),
-            'name' => $name,
-            'event_name' => $eventName,
-            'url' => $url,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            'app_id' => $appId ? Uuid::fromHexToBytes($appId) : null,
-            'owner_user_id' => $ownerUserId ? Uuid::fromHexToBytes($ownerUserId) : null,
-        ]);
-
-        $this->connection->insert('webhook', $payload);
     }
 
     /**
@@ -1671,7 +1687,11 @@ class WebhookManagerTest extends TestCase
         ];
 
         foreach ($webhooks as $webhook) {
-            $this->createWebhook($webhook['name'], $webhook['event_name'], $webhook['url'], $app->getId(), $webhook['id'] ?? null);
+            WebhookBuilder::ofApp($app->getId())
+                ->id($webhook['id'] ?? Uuid::randomHex())
+                ->subscribe($webhook['event_name'], $webhook['url'])
+                ->name($webhook['name'])
+                ->insert($this->connection);
         }
 
         if ($permissions !== null && $appId !== null) {

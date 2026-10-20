@@ -62,6 +62,38 @@ For `ENABLE_SERVICES=auto` it also shows the `APP_ENV` the shop runs in, because
 While services install, the page shows the ones still pending and refreshes the list until they are installed.
 If that takes longer than two minutes, it points to the message queue worker and `bin/console services:install`.
 The page reads this from the new `GET /api/services/status` route, which requires the `system.plugin_maintain` permission.
+### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag
+
+The new `ADMIN_VITE_8` feature flag builds the Administration and the Administration code of extensions with Vite 8.
+Vite 8 becomes the default with Shopware 6.8, so you can use the flag to test your extensions now:
+
+```bash
+ADMIN_VITE_8=1 composer watch:admin
+ADMIN_VITE_8=1 composer build:js:admin
+```
+
+With the flag, building the Administration requires Node.js `^20.19.0 || >=22.12.0`.
+The `postinstall` script of the Administration installs Vite 8 into `build/vite-8`.
+If your CI restores the Administration dependencies from a cache without running that script, also run `npm ci` in `build/vite-8`.
+
+With the flag, the watcher serves all files over HTTP/2.
+Browsers only use HTTP/2 over HTTPS, so put HTTPS in front of the watcher:
+
+* Run `shopware-cli project proxy up` and open `https://admin-watch.<project>.shopware.local`.
+* Or set `SHOPWARE_ADMIN_HTTPS_CERTIFICATE_FILE` and `SHOPWARE_ADMIN_HTTPS_KEY_FILE` to a certificate and its key, for example created with [mkcert](https://github.com/FiloSottile/mkcert).
+  Relative paths are resolved from the project root.
+
+To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
+It bundles the Administration and its plugins, but not apps.
+Changes to plugin files reload the page instead of using HMR.
+
+Vite 8 does not match extglob patterns like `!(*.spec)` in `import.meta.glob`.
+Replace them with negated patterns like `['./**/*.{j,t}s', '!./**/*.spec.{j,t}s']`.
+`composer admin:check-extensions` warns about them, and `composer run admin:code-mods -- --fix -v 6.8 -p YourPlugin` rewrites them.
+Until 6.8, Shopware rewrites them when the flag is active and logs a warning for each one.
+If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0.6 or newer, because older versions ignore negated patterns.
+
+For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 # 6.7.16.0
 

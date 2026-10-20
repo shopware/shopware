@@ -111,7 +111,10 @@ const limitRules = {
 };
 
 // Inline disables are blocked for these rules, so eslint-suppressions.json is the only way around them
-const rulesWithoutInlineDisable: string[] = [];
+const rulesWithoutInlineDisable: string[] = [
+    ...Object.keys(limitRules),
+    'vue/max-template-depth',
+];
 
 /**
  * Shared rule policy applied to normal source files and TypeScript-specific overrides.

@@ -426,8 +426,23 @@
       "count": 1
     }
   },
+  "src/app/directive/index.ts": {
+    "@eslint-community/eslint-comments/no-restricted-disable": {
+      "count": 1
+    }
+  },
+  "src/app/directive/popover.directive.ts": {
+    "@eslint-community/eslint-comments/no-restricted-disable": {
+      "count": 1
+    }
+  },
   "src/app/directive/tooltip.directive.ts": {
     "complexity": {
+      "count": 1
+    }
+  },
+  "src/app/filter/index.ts": {
+    "@eslint-community/eslint-comments/no-restricted-disable": {
       "count": 1
     }
   },

@@ -1,4 +1,108 @@
-# 6.7.16.0 (upcoming)
+# 6.7.17.0 (upcoming)
+
+## Core
+
+### Webhooks without an app are now authorized against their owner
+
+Webhooks created through the Admin API without an app (`POST /api/webhook` without `app_id`) are now authorized against the ACL privileges of the user or integration that created them. An admin owner receives every event it subscribes to, and a non-admin owner only receives events it is allowed to read.
+
+The owner is recorded from the session and cannot be set through the API. Deleting the owning user or integration also deletes its app-less webhooks: a webhook has no meaning once the owner whose privileges authorize it is gone. App webhooks go through the same check: their owner is the app's integration, so they are authorized against the app's role as before.
+
+Existing app-less webhooks have no recorded creator, so the update creates an admin integration labelled "Legacy webhooks" and assigns them to it. They keep receiving every event they subscribe to. Audit these webhooks after updating: recreate any that should run with narrower privileges as the user or integration it belongs to. Deleting the "Legacy webhooks" integration also deletes the webhooks assigned to it.
+
+### Webhooks belonging to an app can no longer be changed through the API
+
+Webhooks that belong to an app (`app_id` is set) are managed through the app's manifest. Requests that update or delete them through the Admin API or Sync API are rejected with a `400` and `FRAMEWORK__APP_WEBHOOK_NOT_MODIFIABLE`, whatever privileges the caller holds. Apps continue to add, change and remove their own webhooks through their manifest when they are installed or updated.
+
+Webhooks can also no longer be cloned through `POST /api/_action/clone/webhook/{id}`: the request is rejected with a `403` and `FRAMEWORK__CLONE_PROTECTED`. A clone kept the original's app, so it could deliver an app's events to another url.
+
+### Webhooks without an app can only be changed by their owner
+
+A webhook without an app can only be updated or deleted through the API by the user or integration that created it. Requests from anyone else are rejected with a `400` and `FRAMEWORK__WEBHOOK_NOT_OWNED`, regardless of the `webhook:update` and `webhook:delete` privileges they hold. Administrators are not restricted.
+
+### Webhooks created through the API are validated against the event they subscribe to
+
+`POST /api/webhook` and `PATCH /api/webhook/{id}` now check the event a webhook subscribes to, as an app manifest already was. Requests are rejected with a `400` and `FRAMEWORK__WEBHOOK_EVENT_NOT_PERMITTED` when webhooks cannot receive the event, or `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` when the webhook's owner lacks a privilege the event requires. Previously any event name was accepted and the webhook simply never fired.
+
+A non-admin user or integration now needs the read privilege of every event it subscribes to in addition to `webhook:create`; a webhook on `product.written` requires `product:read`. Administrators are not restricted, unless the webhook is limited to some of their roles.
+
+### Webhooks created through the API can be limited to some of their owner's ACL roles
+
+A webhook without an app accepts an optional `aclRoleIds` list. It then only receives events those roles allow, even when its owner holds more roles; leave it unset to keep inheriting every role of the owner. For an administrator owner, the listed roles are used as they are.
+
+```json
+{ "name": "Product sync", "eventName": "product.written", "url": "https://example.com", "aclRoleIds": ["0193b1c2d3e47f5a8b9c0d1e2f3a4b5c"] }
+```
+
+The list must not be empty or contain empty entries, and the listed roles must be held by the owner, unless the owner is an administrator; otherwise the write is rejected with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `aclRoleIds`. The subscribed event must be covered by the privileges of the listed roles, otherwise `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` is returned, also when an administrator changes somebody else's webhook.
+
+### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
+
+The new `bin/console sales-channel:file:enable [ids...] [--all]` command switches on `llms.txt` and `AGENTS.md` for Storefront and Headless sales channels.
+It only creates missing files, so a file switched off in the Administration stays off, and a second run changes nothing.
+The command always exits with `0`, which makes it suitable for install hooks in `.shopware-project.yml`.
+
+### Order line items of older orders get their product type
+
+This release fills `payload.productType` for every product and custom order line item that does not have it yet, based on the line item's deprecated `states`.
+The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physical line items, so most line items of older orders had no product type.
+Values that are already set are kept.
+Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
+
+## API
+
+### Criteria on fields the API does not expose is a bad request
+
+A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
+
+## Storefront
+
+### Storefront analytics send GA4 ecommerce events
+
+Storefront analytics now send ecommerce events in the format Google documents for GA4.
+Tracking setups have to adapt to these changes:
+
+* With a `GTM-` tracking ID, ecommerce events are pushed to the data layer as `{ event, ecommerce }`.
+  Google Tag Manager setups that read parameters from `eventModel` must use the `ecommerce` data layer variables instead.
+* Items use `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`, and numeric values are numbers instead of strings.
+  Amounts are rounded to cents.
+* The event `value` of cart, checkout and `purchase` events is the position price including promotion discounts, and the applied promotion codes are reported as `coupon`.
+  Discounts are no longer reported as items.
+* `login` and `sign_up` are reported again, and adding a product by its number on the cart page reports `add_to_cart`.
+  They stopped working with 6.6.10.0 and 6.7.11.0, when these forms changed.
+  `login` is now reported on the page after the login and only for a successful login, so a wrong password no longer counts as a login.
+  The same holds for `sign_up`, which a guest checkout no longer reports.
+  A guest who creates an account with "Create account" on the checkout finish page reports `sign_up` as well.
+
+The `.hidden-line-items-information` element is only rendered for a sales channel with active analytics.
+The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html) describes the full payload.
+
+### Storefront analytics recognize product elements of extensions
+
+Storefront analytics now treat every element with a `data-product-information` attribute as a product, not only the `.product-box`.
+Products that extensions render in their own markup are reported as well.
+The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#products) describes the expected attribute.
+The product box now reports the price of a matching price rule or the first graduated price, the same price as the product detail page, instead of the default price.
+
+### Storefront analytics report brand and category of products added from a product box
+
+With active analytics, adding a product from a product box now posts its brand and categories in the line item payload, like the buy widget does.
+Cart, checkout and purchase events report them as `item_brand` and `item_category`.
+
+The reorder of an order in the account now reports one `add_to_cart` with all products of the order, each with product number, name, price, quantity, brand and categories of the original order.
+The reorder form posts only the order, so the products are rendered into the form as `[data-analytics-line-item]` elements while analytics is active.
+
+### Storefront analytics report each checkout step once
+
+`add_shipping_info` and `add_payment_info` are now reported once per selected method of a checkout, instead of on every reload of the confirm page.
+A new customer reports `add_shipping_info` when registering in the checkout.
+
+### Storefront analytics report item variants and graduated prices
+
+Storefront analytics now report the selected options of a variant as `item_variant`.
+`add_to_cart` on the product detail page reports the graduated price of the quantity the cart holds after the add.
+
+# 6.7.16.0
 
 ## Critical Fixes
 
@@ -910,26 +1014,6 @@ the component now loads all snippet sets and locales once in `createdComponent` 
 
 ## Storefront
 
-### Storefront analytics send GA4 ecommerce events
-
-Storefront analytics now send ecommerce events in the format Google documents for GA4.
-Tracking setups have to adapt to these changes:
-
-* With a `GTM-` tracking ID, ecommerce events are pushed to the data layer as `{ event, ecommerce }`.
-  Google Tag Manager setups that read parameters from `eventModel` must use the `ecommerce` data layer variables instead.
-* Items use `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`, and numeric values are numbers instead of strings.
-  Amounts are rounded to cents.
-* The event `value` of cart, checkout and `purchase` events is the position price including promotion discounts, and the applied promotion codes are reported as `coupon`.
-  Discounts are no longer reported as items.
-* `login` and `sign_up` are reported again, and adding a product by its number on the cart page reports `add_to_cart`.
-  They stopped working with 6.6.10.0 and 6.7.11.0, when these forms changed.
-  `login` is now reported on the page after the login and only for a successful login, so a wrong password no longer counts as a login.
-  The same holds for `sign_up`, which a guest checkout no longer reports.
-  A guest who creates an account with "Create account" on the checkout finish page reports `sign_up` as well.
-
-The `.hidden-line-items-information` element is only rendered for a sales channel with active analytics.
-The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html) describes the full payload.
-
 ### Category Twig function removal postponed to 6.9
 
 The deprecated `category_url` and `category_linknewtab` Twig functions remain available throughout 6.8 and will be removed in 6.9.0. Extension and theme developers should migrate to `category.seoUrl` (available on `SalesChannelCategoryEntity`) and `category.shouldOpenInNewTab`. See the [migration instructions](UPGRADE-6.9.md#removed-category_url-and-category_linknewtab-twig-functions).
@@ -1104,6 +1188,12 @@ This applies to all translated app texts, including flow actions and their confi
 ### App events are only delivered to the app they are about
 
 The app events `app.installed`, `app.updated`, `app.activated`, `app.deactivated`, `app.deleted`, `app.permissions.updated` and `app.config.changed` are now only delivered to app webhooks. Webhooks created through the Admin API no longer receive them. Apps keep subscribing to them in their manifest, as before.
+
+### App MCP capabilities use generic feature storage
+
+App-declared MCP tools, prompts, and resources are now persisted through the generic app feature storage. Installed apps do not need to change their `mcp.xml`, but their existing MCP tools, prompts, and resources are not migrated. Reinstall or update affected apps after upgrading to re-register them.
+
+The dedicated app MCP DAL aggregates (`app_mcp_tool`, `app_mcp_prompt`, `app_mcp_resource` and their translation tables) and their accessors on `AppEntity` and `LanguageEntity` were experimental and have been removed.
 
 # 6.7.15.0
 

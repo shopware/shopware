@@ -49,10 +49,7 @@ Extensions and integrations that read the product type of older order line items
 
 ### Product search and suggest extensions before the criteria are resolved
 
-`ProductSearchResolveCriteriaExtension` (`product-search-route.resolve-criteria`) and `ProductSuggestResolveCriteriaExtension` (`product-suggest-route.resolve-criteria`) wrap the whole product search and suggest, before the listing criteria are resolved from the request:
-
-* `onPre()` can still change the request, for example `limit`, `order` or filters, and the incoming criteria before core reads them, or answer the request by setting `$extension->result` and stopping propagation.
-* `onPost()` receives the processed listing result.
+`ProductSearchResolveCriteriaExtension` (`product-search-route.resolve-criteria`) and `ProductSuggestResolveCriteriaExtension` (`product-suggest-route.resolve-criteria`) wrap the whole product search and suggest, before the listing criteria are resolved from the request.
 
 To work on the resolved criteria instead, use `ProductSearchRouteExtension` and `ProductSuggestRouteExtension`, which run inside these extensions.
 

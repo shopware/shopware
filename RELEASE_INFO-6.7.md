@@ -53,6 +53,7 @@ If the country of the active billing address has "VAT Reg.No. required" enabled,
 This also covers customers who registered before the setting was enabled or who switched to a billing address in such a country later.
 Store API clients should show the error and let the customer add the VAT ID via `/store-api/account/change-profile`.
 That route now validates `vatIds` against the country of the active billing address instead of the default one, the same country the cart checks.
+Headless clients find that address as `customer.activeBillingAddress` in `/store-api/context`.
 The Storefront profile page marks the VAT ID field as required based on the same country.
 
 ## API

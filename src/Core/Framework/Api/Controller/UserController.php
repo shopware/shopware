@@ -59,12 +59,13 @@ class UserController extends AbstractController
     )]
     public function me(Context $context, Request $request, ResponseFactoryInterface $responseFactory): Response
     {
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw ApiException::invalidAdminSource($context->getSource()::class);
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource) {
+            throw ApiException::invalidAdminSource($source::class);
         }
 
-        $userId = $context->getSource()->getUserId();
-        if (!$userId) {
+        $userId = $source->getUserId();
+        if (!$userId || $source->getIntegrationId() !== null) {
             throw ApiException::userNotLoggedIn();
         }
         $criteria = new Criteria([$userId]);
@@ -89,12 +90,13 @@ class UserController extends AbstractController
     )]
     public function updateMe(Context $context, Request $request, ResponseFactoryInterface $responseFactory): Response
     {
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw ApiException::invalidAdminSource($context->getSource()::class);
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource) {
+            throw ApiException::invalidAdminSource($source::class);
         }
 
-        $userId = $context->getSource()->getUserId();
-        if (!$userId) {
+        $userId = $source->getUserId();
+        if (!$userId || $source->getIntegrationId() !== null) {
             throw ApiException::userNotLoggedIn();
         }
 
@@ -122,12 +124,13 @@ class UserController extends AbstractController
     )]
     public function status(Context $context): Response
     {
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw ApiException::invalidAdminSource($context->getSource()::class);
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource) {
+            throw ApiException::invalidAdminSource($source::class);
         }
 
-        $userId = $context->getSource()->getUserId();
-        if (!$userId) {
+        $userId = $source->getUserId();
+        if (!$userId || $source->getIntegrationId() !== null) {
             throw ApiException::userNotLoggedIn();
         }
         $result = $this->userRepository->searchIds(new Criteria([$userId]), $context);
@@ -146,12 +149,13 @@ class UserController extends AbstractController
     )]
     public function logout(Context $context): Response
     {
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw ApiException::invalidAdminSource($context->getSource()::class);
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource) {
+            throw ApiException::invalidAdminSource($source::class);
         }
 
-        $userId = $context->getSource()->getUserId();
-        if (!$userId) {
+        $userId = $source->getUserId();
+        if (!$userId || $source->getIntegrationId() !== null) {
             throw ApiException::userNotLoggedIn();
         }
 
@@ -175,9 +179,10 @@ class UserController extends AbstractController
 
         $source = $context->getSource();
 
+        $isSelf = $source instanceof AdminApiSource && $source->getIntegrationId() === null && $source->getUserId() === $userId;
+
         if ((!$source instanceof AdminApiSource)
-            || (!$source->isAllowed('user:update')
-            && $source->getUserId() !== $userId)
+            || (!$source->isAllowed('user:update') && !$isSelf)
         ) {
             throw new PermissionDeniedException();
         }
@@ -236,7 +241,7 @@ class UserController extends AbstractController
             throw new PermissionDeniedException();
         }
 
-        $isSelfUpdate = $source->getUserId() === $data['id'];
+        $isSelfUpdate = $source->getIntegrationId() === null && $source->getUserId() === $data['id'];
         $canUpdateUsers = $source->isAllowed('user:update');
 
         if (!$canUpdateUsers && !$isSelfUpdate) {

@@ -126,7 +126,7 @@ class OAuthAuthorizeController extends AbstractController
         }
 
         $userId = $source->getUserId();
-        if ($userId === null || $userId === '') {
+        if ($userId === null || $userId === '' || $source->getIntegrationId() !== null) {
             throw ApiException::userNotLoggedIn();
         }
 

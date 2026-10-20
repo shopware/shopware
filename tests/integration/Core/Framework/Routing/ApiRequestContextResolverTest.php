@@ -653,7 +653,8 @@ class ApiRequestContextResolverTest extends TestCase
 
         $source = $context->getSource();
 
-        static::assertSame($user->getUserId(), $source->getUserId());
+        // Security (GHSA-g8r6-cxw8-f75w): the integration never acts as the user named in the header.
+        static::assertNull($source->getUserId());
         static::assertSame($integrationId, $source->getIntegrationId());
         static::assertFalse($source->isAdmin());
 
@@ -700,13 +701,114 @@ class ApiRequestContextResolverTest extends TestCase
 
         $source = $context->getSource();
 
-        static::assertSame($user->getUserId(), $source->getUserId());
+        // Security (GHSA-g8r6-cxw8-f75w): the integration never acts as the user named in the header.
+        static::assertNull($source->getUserId());
         static::assertSame($integrationId, $source->getIntegrationId());
         static::assertFalse($source->isAdmin());
 
         static::assertTrue($source->isAllowed('product:read'));
         static::assertTrue($source->isAllowed('media:read'));
         static::assertFalse($source->isAllowed('category:read'));
+    }
+
+    /**
+     * Security regression (GHSA-g8r6-cxw8-f75w): a standard (non-app) integration must never act
+     * as the user named in the `sw-app-user-id` header. The header may only narrow the resolved
+     * permissions; the identity on the source stays the integration, so `getUserId()` is null.
+     */
+    public function testStandardIntegrationDoesNotActAsNamedUser(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $ids = new IdsCollection();
+
+        $user = $this->createUser([
+            'user-role' => ['product:read', 'product:write', 'category:read'],
+        ], false);
+
+        $integrationId = $ids->create('integration');
+        $integrationAccessKey = AccessKeyHelper::generateAccessKey('integration');
+        $connection->insert('integration', [
+            'id' => Uuid::fromHexToBytes($integrationId),
+            'access_key' => $integrationAccessKey,
+            'secret_access_key' => TestDefaults::HASHED_PASSWORD,
+            'label' => 'test integration',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'admin' => 0,
+        ]);
+
+        $this->addRoleToIntegration($integrationId, ['product:read', 'media:read', 'category:read']);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'test');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $integrationAccessKey);
+        $request->headers->set(PlatformRequest::HEADER_APP_USER_ID, $user->getUserId());
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
+
+        $this->resolver->resolve($request);
+
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
+        static::assertInstanceOf(AdminApiSource::class, $context->getSource());
+
+        $source = $context->getSource();
+
+        // The integration does not become the named user.
+        static::assertNull($source->getUserId());
+        static::assertSame($integrationId, $source->getIntegrationId());
+        static::assertFalse($source->isAdmin());
+
+        // The header still narrows permissions to the intersection of integration and user privileges.
+        static::assertTrue($source->isAllowed('product:read'));
+        static::assertTrue($source->isAllowed('category:read'));
+        static::assertFalse($source->isAllowed('product:write'));
+        static::assertFalse($source->isAllowed('media:read'));
+        static::assertFalse($source->isAllowed('order:read'));
+    }
+
+    /**
+     * Security regression (GHSA-g8r6-cxw8-f75w): the account-takeover case. A non-admin standard
+     * integration names an administrator in `sw-app-user-id`. It must not be resolved as that
+     * administrator (no admin identity, no admin scope), so routes keyed on `getUserId()` cannot
+     * act on the administrator's behalf.
+     */
+    public function testStandardIntegrationCannotImpersonateAdminViaUserIdHeader(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $ids = new IdsCollection();
+
+        $admin = $this->createUser([], true);
+
+        $integrationId = $ids->create('integration');
+        $integrationAccessKey = AccessKeyHelper::generateAccessKey('integration');
+        $connection->insert('integration', [
+            'id' => Uuid::fromHexToBytes($integrationId),
+            'access_key' => $integrationAccessKey,
+            'secret_access_key' => TestDefaults::HASHED_PASSWORD,
+            'label' => 'test integration',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'admin' => 0,
+        ]);
+
+        $this->addRoleToIntegration($integrationId, ['user_change_me', 'user:read']);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'test');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $integrationAccessKey);
+        $request->headers->set(PlatformRequest::HEADER_APP_USER_ID, $admin->getUserId());
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
+
+        $this->resolver->resolve($request);
+
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
+        static::assertInstanceOf(AdminApiSource::class, $context->getSource());
+
+        $source = $context->getSource();
+
+        // The integration is never resolved as the administrator.
+        static::assertNull($source->getUserId());
+        static::assertSame($integrationId, $source->getIntegrationId());
+        static::assertFalse($source->isAdmin());
     }
 
     public function testIntegrationUserIdHeaderWithInvalidUserIdIsIgnored(): void
@@ -785,7 +887,8 @@ class ApiRequestContextResolverTest extends TestCase
 
         $source = $context->getSource();
 
-        static::assertSame($user->getUserId(), $source->getUserId());
+        // Security (GHSA-g8r6-cxw8-f75w): the integration never acts as the user named in the header.
+        static::assertNull($source->getUserId());
         static::assertSame($integrationId, $source->getIntegrationId());
         static::assertFalse($source->isAdmin());
 
@@ -829,7 +932,8 @@ class ApiRequestContextResolverTest extends TestCase
 
         $source = $context->getSource();
 
-        static::assertSame($user->getUserId(), $source->getUserId());
+        // Security (GHSA-g8r6-cxw8-f75w): the integration never acts as the user named in the header.
+        static::assertNull($source->getUserId());
         static::assertSame($integrationId, $source->getIntegrationId());
         static::assertTrue($source->isAdmin());
 
@@ -1026,6 +1130,67 @@ class ApiRequestContextResolverTest extends TestCase
         static::assertFalse($source->isAllowed('category:read'));
         static::assertFalse($source->isAllowed('media:read'));
         static::assertFalse($source->isAllowed('order:read'));
+    }
+
+    /**
+     * Security regression (GHSA-g8r6-cxw8-f75w): an app may not act on behalf of a deactivated user,
+     * even an administrator. An inactive user holds no privileges, so the app-delegation check fails
+     * with the usual missing-privilege error instead of granting access.
+     */
+    public function testAppCannotDelegateForInactiveAdminUser(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $ids = new IdsCollection();
+
+        // an administrator who is deactivated
+        $user = $this->createUser([], true);
+        $connection->executeStatement(
+            'UPDATE `user` SET active = 0 WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($user->getUserId())]
+        );
+
+        $integrationId = $ids->create('integration');
+        $integrationAccessKey = AccessKeyHelper::generateAccessKey('integration');
+        $connection->insert('integration', [
+            'id' => Uuid::fromHexToBytes($integrationId),
+            'access_key' => $integrationAccessKey,
+            'secret_access_key' => TestDefaults::HASHED_PASSWORD,
+            'label' => 'test integration',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'admin' => 0,
+        ]);
+
+        $connection->insert('acl_role', [
+            'id' => Uuid::fromHexToBytes($ids->create('app_acl_role')),
+            'name' => 'app role',
+            'privileges' => '["product:read"]',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $connection->insert('app', [
+            'id' => Uuid::fromHexToBytes($ids->create('app')),
+            'name' => 'TestApp',
+            'path' => 'test',
+            'active' => 1,
+            'configurable' => 0,
+            'version' => '1.0.0',
+            'integration_id' => Uuid::fromHexToBytes($integrationId),
+            'acl_role_id' => Uuid::fromHexToBytes($ids->get('app_acl_role')),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'test');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $integrationAccessKey);
+        $request->headers->set(PlatformRequest::HEADER_APP_USER_ID, $user->getUserId());
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
+
+        try {
+            $this->resolver->resolve($request);
+            static::fail('Expected a missing-privilege error for an inactive user');
+        } catch (\Throwable $e) {
+            static::assertStringContainsString('app.TestApp', $e->getMessage());
+        }
     }
 
     public function testAppWithoutUserIdHeader(): void

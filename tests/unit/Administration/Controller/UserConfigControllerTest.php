@@ -72,6 +72,27 @@ class UserConfigControllerTest extends TestCase
         $this->userConfigController->getConfigMe(Context::createDefaultContext(), new Request());
     }
 
+    /**
+     * Security regression (GHSA-g8r6-cxw8-f75w): the per-user config (which can hold secrets such as
+     * `core.frw.userToken`) must not be reachable by an integration that names a user through the
+     * `sw-app-user-id` header (a source carrying both a user id and an integration id).
+     */
+    public function testGetConfigMeThrowsWhenAuthenticatedAsIntegrationNamingUser(): void
+    {
+        $this->expectExceptionObject(ApiException::userNotLoggedIn());
+
+        $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex(), Uuid::randomHex()));
+        $this->userConfigController->getConfigMe($context, new Request());
+    }
+
+    public function testUpdateConfigMeThrowsWhenAuthenticatedAsIntegrationNamingUser(): void
+    {
+        $this->expectExceptionObject(ApiException::userNotLoggedIn());
+
+        $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex(), Uuid::randomHex()));
+        $this->userConfigController->updateConfigMe($context, new Request([], ['some-key' => 'some-value']));
+    }
+
     public function testGetConfigMeReturnsDataWithKeys(): void
     {
         $userConfigEntity = new UserConfigEntity();

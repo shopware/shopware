@@ -93,7 +93,7 @@ class UserConfigController extends AbstractController
         }
 
         $userId = $source->getUserId();
-        if (!$userId) {
+        if (!$userId || $source->getIntegrationId() !== null) {
             throw ApiException::userNotLoggedIn();
         }
 

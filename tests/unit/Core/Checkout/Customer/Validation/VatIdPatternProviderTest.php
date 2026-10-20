@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -226,6 +227,36 @@ class VatIdPatternProviderTest extends TestCase
         );
     }
 
+    public function testTheSalesChannelsDefaultCountryIsReadOncePerSalesChannel(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+
+        // The cart asks the provider several times per calculation
+        $provider = new VatIdPatternProvider(
+            $this->createCountryRepositoryReadingTheSalesChannelCountry($this->exactly(2)),
+            static::createStub(SystemConfigService::class),
+        );
+
+        static::assertTrue($provider->isDomesticSupply('BE', $salesChannelId));
+        static::assertTrue($provider->isDomesticSupply('BE', $salesChannelId));
+        static::assertTrue($provider->isDomesticSupply('BE', Uuid::randomHex()));
+    }
+
+    public function testResetMakesTheSalesChannelsDefaultCountryBeReadAgain(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+
+        $provider = new VatIdPatternProvider(
+            $this->createCountryRepositoryReadingTheSalesChannelCountry($this->exactly(2)),
+            static::createStub(SystemConfigService::class),
+        );
+
+        $provider->isDomesticSupply('BE', $salesChannelId);
+        $provider->reset();
+
+        static::assertTrue($provider->isDomesticSupply('BE', $salesChannelId));
+    }
+
     public function testTheCountrySettingsAreCachedPerCountry(): void
     {
         $repository = $this->createCountryRepositoryExpecting(
@@ -404,9 +435,9 @@ class VatIdPatternProviderTest extends TestCase
         static::assertFalse($provider->acceptsVatId('BE0123456789', 'NL\\d{9}B\\d{2}', true, Uuid::randomHex()));
     }
 
-    public function testAMemberStateRejectsAForeignVatIdWhileTheShopConfiguredNoSellerCountry(): void
+    public function testAMemberStateRejectsTheVatIdOfTheSalesChannelsDefaultCountryWhileNoSellerCountryIsConfigured(): void
     {
-        $provider = $this->createProviderSellingFrom('');
+        $provider = $this->createProviderSellingFrom('', salesChannelCountryId: self::BE_ID);
 
         static::assertFalse($provider->acceptsVatId('BE0123456789', 'NL\\d{9}B\\d{2}', true, Uuid::randomHex()));
     }
@@ -433,11 +464,27 @@ class VatIdPatternProviderTest extends TestCase
         static::assertFalse($provider->isIntraCommunityVatId('CHE123456789', Uuid::randomHex()));
     }
 
-    public function testNoMemberStateCountsWhileTheShopConfiguredNoSellerCountry(): void
+    public function testTheSalesChannelsDefaultCountryIsTheSellersMemberStateWhileNoSellerCountryIsConfigured(): void
     {
-        // Without a seller country a domestic supply is indistinguishable from an intra-community one,
-        // so the fallback stays off
-        $provider = $this->createProviderSellingFrom('');
+        $provider = $this->createProviderSellingFrom('', salesChannelCountryId: self::BE_ID);
+
+        static::assertFalse($provider->isIntraCommunityVatId('BE0123456789', Uuid::randomHex()));
+        static::assertTrue($provider->isIntraCommunityVatId('NL123456789B01', Uuid::randomHex()));
+    }
+
+    public function testAConfiguredSellerCountryWinsOverTheSalesChannelsDefaultCountry(): void
+    {
+        $provider = $this->createProviderSellingFrom(self::NL_ID, salesChannelCountryId: self::BE_ID);
+
+        static::assertTrue($provider->isIntraCommunityVatId('BE0123456789', Uuid::randomHex()));
+        static::assertFalse($provider->isIntraCommunityVatId('NL123456789B01', Uuid::randomHex()));
+    }
+
+    public function testNoMemberStateCountsWhileNoSellerCountryIsConfiguredAndTheSalesChannelSellsFromOutsideTheEu(): void
+    {
+        // Without a member state a domestic supply is indistinguishable from an intra-community one,
+        // so the exemption stays off
+        $provider = $this->createProviderSellingFrom('', salesChannelCountryId: Uuid::randomHex());
 
         static::assertFalse($provider->isIntraCommunityVatId('BE0123456789', Uuid::randomHex()));
         static::assertFalse($provider->isIntraCommunityVatId('NL123456789B01', Uuid::randomHex()));
@@ -496,9 +543,17 @@ class VatIdPatternProviderTest extends TestCase
         static::assertFalse($provider->isDomesticSupply('NL', Uuid::randomHex()));
     }
 
-    public function testNoDeliveryIsDomesticWhileTheShopConfiguredNoSellerCountry(): void
+    public function testADeliveryStayingInTheSalesChannelsDefaultCountryIsDomesticWhileNoSellerCountryIsConfigured(): void
     {
-        $provider = $this->createProviderSellingFrom('');
+        $provider = $this->createProviderSellingFrom('', salesChannelCountryId: self::BE_ID);
+
+        static::assertTrue($provider->isDomesticSupply('BE', Uuid::randomHex()));
+        static::assertFalse($provider->isDomesticSupply('NL', Uuid::randomHex()));
+    }
+
+    public function testNoDeliveryIsDomesticWhileNoSellerCountryIsConfiguredAndTheSalesChannelSellsFromOutsideTheEu(): void
+    {
+        $provider = $this->createProviderSellingFrom('', salesChannelCountryId: Uuid::randomHex());
 
         static::assertFalse($provider->isDomesticSupply('BE', Uuid::randomHex()));
     }
@@ -544,12 +599,15 @@ class VatIdPatternProviderTest extends TestCase
         static::assertFalse($provider->isIntraCommunityVatId('BE0123456789', ''));
     }
 
-    private function createProviderSellingFrom(string $sellerCountryId): VatIdPatternProvider
+    private function createProviderSellingFrom(string $sellerCountryId, ?string $salesChannelCountryId = null): VatIdPatternProvider
     {
-        $repository = $this->createCountryRepository([
-            ['iso' => 'BE', 'id' => self::BE_ID, 'vatIdPattern' => 'BE\\d{10}'],
-            ['iso' => 'NL', 'id' => self::NL_ID, 'vatIdPattern' => 'NL\\d{9}B\\d{2}'],
-        ]);
+        $repository = $this->createCountryRepository(
+            [
+                ['iso' => 'BE', 'id' => self::BE_ID, 'vatIdPattern' => 'BE\\d{10}'],
+                ['iso' => 'NL', 'id' => self::NL_ID, 'vatIdPattern' => 'NL\\d{9}B\\d{2}'],
+            ],
+            salesChannelCountryId: $salesChannelCountryId,
+        );
 
         $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('getString')->willReturn($sellerCountryId);
@@ -576,14 +634,18 @@ class VatIdPatternProviderTest extends TestCase
     /**
      * @param list<array{iso: string|null, id: string, vatIdPattern: string|null}> $euCountries
      * @param array{isEu: bool, checkVatIdPattern: bool, vatIdPattern: string|null}|null $country
+     * @param string|null $salesChannelCountryId the default country of every sales channel, null for none
      *
      * @return EntityRepository<CountryCollection>
      */
-    private function createCountryRepository(array $euCountries = [], ?array $country = null): EntityRepository
+    private function createCountryRepository(array $euCountries = [], ?array $country = null, ?string $salesChannelCountryId = null): EntityRepository
     {
         $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturnCallback(
             static fn (Criteria $criteria, Context $context) => self::search($criteria, $context, $euCountries, $country)
+        );
+        $repository->method('searchIds')->willReturnCallback(
+            static fn (Criteria $criteria, Context $context) => self::searchSalesChannelCountry($criteria, $context, $salesChannelCountryId)
         );
 
         return $repository;
@@ -603,6 +665,31 @@ class VatIdPatternProviderTest extends TestCase
         );
 
         return $repository;
+    }
+
+    /**
+     * @return EntityRepository<CountryCollection>
+     */
+    private function createCountryRepositoryReadingTheSalesChannelCountry(InvocationOrder $invocations): EntityRepository
+    {
+        $euCountries = [['iso' => 'BE', 'id' => self::BE_ID, 'vatIdPattern' => 'BE\\d{10}']];
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('search')->willReturnCallback(
+            static fn (Criteria $criteria, Context $context) => self::search($criteria, $context, $euCountries, null)
+        );
+        $repository->expects($invocations)->method('searchIds')->willReturnCallback(
+            static fn (Criteria $criteria, Context $context) => self::searchSalesChannelCountry($criteria, $context, self::BE_ID)
+        );
+
+        return $repository;
+    }
+
+    private static function searchSalesChannelCountry(Criteria $criteria, Context $context, ?string $countryId): IdSearchResult
+    {
+        $data = $countryId === null ? [] : [$countryId => ['primaryKey' => $countryId, 'data' => []]];
+
+        return new IdSearchResult(\count($data), $data, $criteria, $context);
     }
 
     /**

@@ -461,15 +461,14 @@ class TaxDetectorTest extends TestCase
         static::assertTrue($detector->isNetDelivery($context));
     }
 
-    public function testIsNotNetDeliveryWithCompanyFreeTaxAndVatIdOfOtherEuMemberStateWhileNoSellerCountryIsConfigured(): void
+    public function testIsNetDeliveryWithCompanyFreeTaxAndVatIdOfOtherEuMemberStateWhileNoSellerCountryIsConfigured(): void
     {
         $context = $this->createMock(SalesChannelContext::class);
 
         $beCountry = $this->enableCompanyTaxFree('BE');
         $this->sellFrom(null);
 
-        // Without a seller country a domestic supply is indistinguishable from an intra-community one,
-        // so the fallback stays off
+        // The test sales channel's default country is Germany, which stands in for the missing setting
         $customer = new CustomerEntity();
         $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
         $customer->setVatIds(['NL123456789B01']);
@@ -485,7 +484,7 @@ class TaxDetectorTest extends TestCase
         $context->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
 
         $detector = static::getContainer()->get(TaxDetector::class);
-        static::assertFalse($detector->isNetDelivery($context));
+        static::assertTrue($detector->isNetDelivery($context));
     }
 
     public function testIsNotNetDeliveryWithCompanyFreeTaxAndVatIdOfTheSellersOwnMemberState(): void
@@ -538,7 +537,8 @@ class TaxDetectorTest extends TestCase
     }
 
     /**
-     * @param string|null $iso null for a shop that has not configured its member state yet
+     * @param string|null $iso null for a shop that has not configured its member state yet, which then supplies
+     *                         from its sales channel's default country
      */
     private function sellFrom(?string $iso): void
     {

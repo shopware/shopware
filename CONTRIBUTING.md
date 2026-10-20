@@ -14,13 +14,16 @@ Task-specific guidance lives in Agent Skills under [`.agents/skills/`](.agents/s
 
 ## Pull request checklist
 
+- **Comments**: Comment only non-obvious code.
+  Do not restate what the code already says.
 - **Tests**: Add tests that fail without your change.
 - **Release notes**: Needed only if the change is relevant for external developers.
-  - Informational change: add an entry to `RELEASE_INFO-6.<major>.md` under "Upcoming". Describe the consequences and how external developers are affected.
-  - Breaking change: add a section to `UPGRADE-6.<next-major>.md`. Cover what changed, why, the impact, and how to adapt.
+  - Informational change: add an entry to `RELEASE_INFO-6.<major>.md` under "Upcoming".
+    Describe the consequences and how external developers are affected.
+  - Breaking change: add a section to `UPGRADE-6.<next-major>.md`.
+    Cover what changed, why, the impact, and how to adapt.
   - See [Documenting a release](https://github.com/shopware/shopware/blob/trunk/delivery-process/documenting-a-release.md).
 - **Documentation**: Update docs and agent skills under `.agents/skills/` that your change affects.
-- **Comments**: Explain non-obvious types, values, functions, and lines of code.
 
 ## Docker Setup (Recommended)
 

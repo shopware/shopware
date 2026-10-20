@@ -1,4 +1,59 @@
-# 6.7.16.0 (upcoming)
+# 6.7.17.0 (upcoming)
+
+## Core
+
+### Webhooks are authorized against their owner
+
+Webhooks created through the Admin API without an app now belong to the user or integration that created them, and only receive the events their owner is allowed to read. Nothing changes for webhooks an app registers in its manifest.
+
+* **Owner:** The owner is recorded from the session and cannot be set through the API. An admin owner receives every event it subscribes to; a non-admin owner only receives events it has the read privilege for. A user or integration that still owns webhooks can't be deleted (`409`, `FRAMEWORK__DELETE_RESTRICTED`): delete its webhooks first.
+* **Existing webhooks:** Existing webhooks without an app have no recorded creator, so the update creates an admin integration labelled "Legacy webhooks", assigns them to it and prefixes their names with `[Legacy] `. They keep receiving every event they subscribe to. Audit them after updating and recreate any that should run with narrower privileges as the user or integration they belong to. The "Legacy webhooks" integration can only be deleted after its webhooks. To find them, search by the name prefix through the Admin API:
+
+  ```http
+  POST /api/search/webhook
+  { "filter": [{ "type": "prefix", "field": "name", "value": "[Legacy] " }] }
+  ```
+
+  or in the database:
+
+  ```sql
+  SELECT LOWER(HEX(w.id)) AS id, w.name, w.event_name, w.url
+  FROM webhook w
+  JOIN integration i ON i.id = w.owner_integration_id
+  WHERE i.label = 'Legacy webhooks';
+  ```
+* **Webhooks an app created through the API:** They belong to the app's integration, so they are no longer delivered while the app is inactive, and they are deleted when the app is uninstalled.
+* **Subscriptions are validated:** `POST /api/webhook` and `PATCH /api/webhook/{id}` now check the event a webhook subscribes to, the same check webhooks in app manifests already get. Requests are rejected with a `400` and `FRAMEWORK__WEBHOOK_EVENT_NOT_PERMITTED` when webhooks cannot receive the event, or `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` when the owner lacks a privilege the event requires. A non-admin owner needs the read privilege of the event in addition to `webhook:create`, e.g. `product:read` for `product.written`. Previously any event name was accepted and the webhook simply never fired.
+* **Only the owner may change a webhook:** A webhook without an app can only be updated or deleted through the API by its owner or an administrator. Anyone else gets a `400` and `FRAMEWORK__WEBHOOK_NOT_OWNED`, regardless of their `webhook:update` and `webhook:delete` privileges.
+* **App webhooks are managed by their manifest:** Webhooks with an `app_id` can no longer be updated or deleted through the Admin API or Sync API (`400`, `FRAMEWORK__APP_WEBHOOK_NOT_MODIFIABLE`). The only exception: an administrator may change their `active` flag, e.g. to switch a webhook back on after it was switched off for failing deliveries. Webhooks can also no longer be cloned through `POST /api/_action/clone/webhook/{id}` (`403`, `FRAMEWORK__CLONE_PROTECTED`).
+* **Limiting a webhook to some of its owner's roles:** A webhook without an app accepts an optional `aclRoleIds` list. It then only receives events whose required permissions are covered by these roles. Leave it out to use all of the owner's roles.
+
+  ```json
+  { "name": "Product sync", "eventName": "product.written", "url": "https://example.com", "aclRoleIds": ["0193b1c2d3e47f5a8b9c0d1e2f3a4b5c"] }
+  ```
+
+  The list must not be empty or contain empty entries, every role must exist, and every role must be held by the owner unless the owner is an administrator. Otherwise the write is rejected with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `aclRoleIds`. If the event is not covered by the listed roles, `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` is returned, also when an administrator changes somebody else's webhook.
+
+### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
+
+The new `bin/console sales-channel:file:enable [ids...] [--all]` command switches on `llms.txt` and `AGENTS.md` for Storefront and Headless sales channels.
+It only creates missing files, so a file switched off in the Administration stays off, and a second run changes nothing.
+The command always exits with `0`, which makes it suitable for install hooks in `.shopware-project.yml`.
+
+### Order line items of older orders get their product type
+
+This release fills `payload.productType` for every product and custom order line item that does not have it yet, based on the line item's deprecated `states`.
+The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physical line items, so most line items of older orders had no product type.
+Values that are already set are kept.
+Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
+
+## API
+
+### Criteria on fields the API does not expose is a bad request
+
+A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
+
+# 6.7.16.0
 
 ## Critical Fixes
 

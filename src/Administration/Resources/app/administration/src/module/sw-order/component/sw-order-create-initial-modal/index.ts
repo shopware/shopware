@@ -138,7 +138,9 @@ export default Component.wrapComponentConfig({
             }
 
             void this.cancelCart()
-                .catch(() => undefined)
+                .catch(() => {
+                    // The modal closes even when the cart could not be cancelled
+                })
                 .then(() => {
                     this.$emit('modal-close');
                 });

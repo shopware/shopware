@@ -400,11 +400,11 @@ class SearchCasesTest extends TestCase
         ];
 
         $ids = new IdsCollection();
-        yield 'bracket before a word shorter than the minimum search length still matches it as typed' => [
+        yield 'word shorter than the minimum search length without its brackets is dropped like the word itself' => [
             'ids' => $ids,
             'products' => [
-                self::product($ids, 'b8-target', 'DE-B8-1', 'Shirt (M)'),
-                self::product($ids, 'b8-other', 'DE-B8-2', 'Shirt (L)'),
+                self::product($ids, 'b8-target', 'DE-B8-1', 'Shirt (L)'),
+                self::product($ids, 'b8-other', 'DE-B8-2', 'Hammer Tool'),
             ],
             'searchFields' => ['name'],
             'searchScores' => ['name' => 1000],
@@ -412,20 +412,6 @@ class SearchCasesTest extends TestCase
             'term' => 'shirt (m',
             'expectedFirst' => 'b8-target',
             'mustNotContainKeys' => ['b8-other'],
-        ];
-
-        $ids = new IdsCollection();
-        yield 'product number with a bracket at its edge still ranks first by exact match' => [
-            'ids' => $ids,
-            'products' => [
-                self::product($ids, 'b7-target', '>100', 'Plain Widget'),
-                self::product($ids, 'b7-other', '100', 'Plain Widget'),
-            ],
-            'searchFields' => ['productNumber'],
-            'searchScores' => ['productNumber' => 1000],
-            'minScore' => null,
-            'term' => '>100',
-            'expectedFirst' => 'b7-target',
         ];
 
         $ids = new IdsCollection();

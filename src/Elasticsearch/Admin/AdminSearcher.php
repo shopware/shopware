@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\ElasticsearchException;
@@ -232,12 +231,7 @@ class AdminSearcher
         $search = new Search();
         $splitTerms = explode(' ', $term);
         $lastPart = (string) end($splitTerms);
-        // Strips brackets at the start or end of the last word for its prefix match, e.g. `(cap` -> `cap`, if enough is left
-        $prefixPart = preg_replace('/^[()\[\]{}<>\\\\]+|[()\[\]{}<>\\\\]+$/u', '', $lastPart) ?? $lastPart;
-        if (mb_strlen($prefixPart) < AbstractTokenFilter::DEFAULT_MIN_SEARCH_TERM_LENGTH) {
-            $prefixPart = $lastPart;
-        }
-        $prefixTerm = mb_strtolower($prefixPart);
+        $prefixTerm = mb_strtolower($lastPart);
 
         $search->addQuery(
             new MatchQuery('completion', $term, ['boost' => SearchRanking::HIGH_SEARCH_RANKING]),
@@ -248,13 +242,13 @@ class AdminSearcher
             BoolQuery::SHOULD
         );
 
-        if (preg_match('/^[\p{L}0-9]+$/Du', $prefixPart)) {
+        if (preg_match('/^[\p{L}0-9]+$/Du', $lastPart)) {
             $search->addQuery(
                 new PrefixQuery('completion', $prefixTerm, ['boost' => SearchRanking::MIDDLE_SEARCH_RANKING]),
                 BoolQuery::SHOULD
             );
 
-            $term = mb_substr($term, 0, mb_strlen($term) - mb_strlen($lastPart)) . $prefixPart . '*';
+            $term .= '*';
         }
 
         $search->addQuery(
@@ -285,6 +279,9 @@ class AdminSearcher
     private function extractTerm(string $rawTerm): string
     {
         $term = mb_substr(trim($rawTerm), 0, $this->termMaxLength);
+
+        // Only strips brackets at the start or end of each word, e.g. `(cap` -> `cap`
+        $term = preg_replace('/(?<!\S)[()\[\]{}<>\\\\]+|[()\[\]{}<>\\\\]+(?!\S)/u', '', $term) ?? $term;
 
         $term = (string) mb_eregi_replace('\s(or)\s', '|', $term);
         $term = (string) mb_eregi_replace('\s(and)\s', ' + ', $term);

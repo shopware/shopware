@@ -246,33 +246,17 @@ class AdminSearcherTest extends TestCase
         static::assertSame(1, $data['product']['total']);
     }
 
-    public function testSearchStripsBracketsAroundTheLastWordOnlyForItsPrefixMatch(): void
+    public function testSearchStripsBracketsAroundWords(): void
     {
         $this->client
             ->expects($this->once())
             ->method('msearch')
-            ->with($this->getQueryBody('tennis cap*', originalTerm: 'tennis (cap'))
+            ->with($this->getQueryBody('tennis cap*'))
             ->willReturn($this->getMockResponse('tennis cap'));
 
         $data = $this->searcher->search('tennis (cap', ['product'], Context::createDefaultContext());
 
         static::assertSame(1, $data['product']['total']);
-    }
-
-    public function testSearchKeepsBracketsAroundTheLastWordWhenTooLittleIsLeftWithoutThem(): void
-    {
-        $this->client
-            ->expects($this->once())
-            ->method('msearch')
-            ->with(static::callback(static function (array $params): bool {
-                $shouldQueries = $params['body'][1]['query']['bool']['should'];
-
-                return array_column($shouldQueries, 'prefix') === []
-                    && array_column(array_column($shouldQueries, 'simple_query_string'), 'query') === ['shirt (m', 'shirt (m'];
-            }))
-            ->willReturn($this->getMockResponse('shirt (m)'));
-
-        $this->searcher->search('shirt (m', ['product'], Context::createDefaultContext());
     }
 
     public function testSearchNormalizesTermLevelQueries(): void
@@ -346,11 +330,11 @@ class AdminSearcherTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function getQueryBody(string $query, string $timeout = '5s', ?string $originalTerm = null): array
+    private function getQueryBody(string $query, string $timeout = '5s'): array
     {
-        $splitTerms = explode(' ', rtrim($query, '*'));
+        $originalTerm = rtrim($query, '*');
+        $splitTerms = explode(' ', $originalTerm);
         $lastPart = (string) end($splitTerms);
-        $originalTerm ??= rtrim($query, '*');
         $termLevelTerm = mb_strtolower($originalTerm);
         $termLevelPrefixTerm = mb_strtolower($lastPart);
         $shouldQueries = [

@@ -819,6 +819,11 @@
       "count": 27
     }
   },
+  "src/module/sw-sales-channel/component/sw-sales-channel-detail-domains/index.js": {
+    "max-lines": {
+      "count": 1
+    }
+  },
   "src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js": {
     "max-lines": {
       "count": 1

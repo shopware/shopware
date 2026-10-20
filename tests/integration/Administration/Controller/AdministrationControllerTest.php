@@ -51,8 +51,7 @@ class AdministrationControllerTest extends TestCase
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($response);
         static::assertArrayHasKey('de-DE', $response);
-        // en-GB is not provided because all snippets are already provided in de-DE, so no fallback snippet is needed
-        static::assertArrayNotHasKey('en-GB', $response);
+        static::assertArrayNotHasKey('en-GB', $response, 'en-GB is not provided because de-DE already provides all snippets, so no fallback snippet is needed');
     }
 
     public function testSnippetRouteDoesNotDeliverSnippetsTwice(): void

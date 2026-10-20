@@ -6,18 +6,16 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
-use League\OAuth2\Server\Exception\OAuthServerException;
 use Shopware\Administration\Events\PreResetExcludedSearchTermEvent;
 use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollectorInterface;
-use Shopware\Administration\Snippet\SnippetFinderInterface;
+use Shopware\Administration\Snippet\AdministrationSnippetService;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueCheck;
 use Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueChecker;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
-use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -60,13 +58,6 @@ class AdministrationController extends AbstractController
      */
     public const CACHE_ID_ADMINISTRATION = 'administration';
 
-    private const FALLBACK_LOCALE = 'en-GB';
-
-    private const UNAUTHENTICATED_SNIPPET_NAMESPACES = [
-        'sw-login',
-        'global',
-    ];
-
     private readonly bool $esAdministrationEnabled;
 
     private readonly bool $esStorefrontEnabled;
@@ -86,7 +77,7 @@ class AdministrationController extends AbstractController
     public function __construct(
         private readonly TemplateFinderInterface $finder,
         private readonly FirstRunWizardService $firstRunWizardService,
-        private readonly SnippetFinderInterface $snippetFinder,
+        private readonly AdministrationSnippetService $snippetService,
         private readonly array $supportedApiVersions,
         private readonly KnownIpsCollectorInterface $knownIpsCollector,
         private readonly Connection $connection,
@@ -100,7 +91,6 @@ class AdministrationController extends AbstractController
         private readonly FilesystemOperator $fileSystem,
         private readonly string $serviceRegistryUrl,
         private readonly EntityRepository $languageRepository,
-        private readonly SymfonyBearerTokenValidator $tokenValidator,
         private readonly string $analyticsGatewayUrl,
         private readonly CustomerEmailUniqueChecker $customerEmailUniqueChecker,
         private readonly string $refreshTokenTtl = 'P1W',
@@ -177,16 +167,7 @@ class AdministrationController extends AbstractController
     )]
     public function snippets(Request $request): Response
     {
-        $snippets = [];
-        $locale = (string) $request->query->get('locale', self::FALLBACK_LOCALE);
-        $snippets[$locale] = $this->snippetFinder->findSnippets($locale);
-
-        if ($locale !== self::FALLBACK_LOCALE) {
-            $snippets[self::FALLBACK_LOCALE] = $this->snippetFinder->findSnippets(self::FALLBACK_LOCALE);
-        }
-
-        $snippets = $this->filterByAuthentication($request, $snippets);
-        $snippets = $this->filterFallbackSnippets($snippets, $locale);
+        $snippets = $this->snippetService->getSnippets($request);
 
         $response = new JsonResponse($snippets);
         $response->setEtag(Hasher::hash($snippets));
@@ -451,82 +432,5 @@ class AdministrationController extends AbstractController
         $criteria->addAssociation('boundSalesChannel');
 
         return $this->customerRepository->search($criteria, $context)->getEntities()->first();
-    }
-
-    /**
-     * @description Filters snippets based on authentication status. If the request is unauthenticated, only the bare minimum of translations is available.
-     *
-     * @param array<string, mixed> $snippets
-     *
-     * @return array<string, mixed>
-     */
-    private function filterByAuthentication(Request $request, array $snippets): array
-    {
-        try {
-            $this->tokenValidator->validateAuthorization($request);
-        } catch (OAuthServerException) {
-            foreach ($snippets as $locale => $localeSnippets) {
-                $snippets[$locale] = \array_filter(
-                    $localeSnippets,
-                    static fn (string $key) => \in_array($key, self::UNAUTHENTICATED_SNIPPET_NAMESPACES, true),
-                    \ARRAY_FILTER_USE_KEY
-                );
-            }
-        }
-
-        return $snippets;
-    }
-
-    /**
-     * @description Removes every snippet key (deep) from the fallback locale that is already provided by the requested locale, as it can never be reached as a fallback. Locales without any remaining snippets are omitted.
-     *
-     * @param array<string, array<string, mixed>> $snippets
-     *
-     * @return array<string, array<string, mixed>>
-     */
-    private function filterFallbackSnippets(array $snippets, string $locale): array
-    {
-        if ($locale !== self::FALLBACK_LOCALE && isset($snippets[$locale], $snippets[self::FALLBACK_LOCALE])) {
-            $snippets[self::FALLBACK_LOCALE] = $this->removeKnownKeys($snippets[self::FALLBACK_LOCALE], $snippets[$locale]);
-        }
-
-        return \array_filter($snippets);
-    }
-
-    /**
-     * @param array<string, mixed> $snippets
-     * @param array<string, mixed> $known
-     *
-     * @return array<string, mixed>
-     */
-    private function removeKnownKeys(array $snippets, array $known): array
-    {
-        foreach ($snippets as $key => $value) {
-            if (!isset($known[$key])) {
-                continue;
-            }
-
-            if (!\is_array($value)) {
-                if (!\is_array($known[$key])) {
-                    unset($snippets[$key]);
-                }
-
-                continue;
-            }
-
-            if (!\is_array($known[$key])) {
-                continue;
-            }
-
-            $value = $this->removeKnownKeys($value, $known[$key]);
-
-            if ($value === []) {
-                unset($snippets[$key]);
-            } else {
-                $snippets[$key] = $value;
-            }
-        }
-
-        return $snippets;
     }
 }

@@ -129,9 +129,7 @@ do not create them, and do not use them in tests, fixtures, or examples unless t
 | **Twig** (Storefront)  | `composer ludtwig:storefront` | `composer ludtwig:storefront:fix`            |
 | **Snippets**           | `composer translation:lint`   | Manual fix required                          |
 | **Prettier** (Admin)   | `composer format:admin`       | `composer format:admin:fix`                  |
-| **Dead code** (Admin)  | `composer fallow:admin`       | `composer fallow:admin:prune`                |
 | **GitHub Actions**     | `composer lint:actions`       | `composer lint:actions:fix`                  |
 
-`composer eslint:admin` also runs Fallow.
 The Administration fix commands only remove baseline entries that are no longer needed; every new violation must be fixed manually.
 See `src/Administration/Resources/app/administration/technical-docs/11-code-quality/01-lint-gate.md`.

@@ -39,4 +39,3 @@
 
 .github/workflows/*.lock.yml linguist-generated=true
 **/eslint-suppressions.json linguist-generated=true
-**/fallow-baseline.json linguist-generated=true

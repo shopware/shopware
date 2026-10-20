@@ -2,8 +2,11 @@
  * @sw-package framework
  */
 
+const path = require('path');
+
 module.exports = {
     rules: {
-        'no-src-imports': require('./no-src-imports'),
+        // eslint-disable-next-line global-require
+        'no-src-imports': require(path.resolve(__dirname, 'no-src-imports.js')),
     },
 };

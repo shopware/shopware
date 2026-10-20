@@ -95,9 +95,11 @@ const productMock = {
 };
 
 let repositoryFactoryDeleteMock;
+let assignMock;
 
 async function createWrapper({ salesChannel, products } = {}) {
     repositoryFactoryDeleteMock = jest.fn(async () => {});
+    assignMock = jest.fn(async () => 1);
 
     const wrapper = mount(
         await wrapTestComponent('sw-sales-channel-detail-products', {
@@ -167,6 +169,9 @@ async function createWrapper({ salesChannel, products } = {}) {
                     'sw-product-variant-info': true,
                 },
                 provide: {
+                    salesChannelProductAssignmentApiService: {
+                        assign: assignMock,
+                    },
                     repositoryFactory: {
                         create: (entity) => {
                             return {
@@ -411,29 +416,77 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     it('should add products successful', async () => {
         const { wrapper } = await createWrapper();
         await flushPromises();
-        wrapper.vm.saveProductVisibilities = jest.fn(() => Promise.resolve());
+        assignMock.mockResolvedValue(1);
+        wrapper.vm.createNotificationSuccess = jest.fn();
+        wrapper.vm.getProducts = jest.fn(() => Promise.resolve());
 
-        await wrapper.setData({ products: productsMock });
+        await wrapper.setData({ products: productsMock, showProductsModal: true });
         await wrapper.vm.onAddProducts([{ id: '103', active: true, productNumber: '003' }]);
 
-        expect(wrapper.vm.saveProductVisibilities).toHaveBeenCalledWith(
-            expect.arrayContaining([expect.objectContaining({ productId: '103' })]),
-        );
+        expect(assignMock).toHaveBeenCalledWith('storefrontSalesChannelTypeId', {
+            productIds: ['103'],
+            productStreamIds: [],
+            categoryIds: [],
+        });
+        expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledWith({
+            message: 'sw-sales-channel.detail.products.messageProductsAssigned',
+        });
+        expect(wrapper.vm.getProducts).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.showProductsModal).toBe(false);
+        expect(wrapper.vm.isAssignProductLoading).toBe(false);
 
-        wrapper.vm.saveProductVisibilities.mockRestore();
+        wrapper.vm.createNotificationSuccess.mockRestore();
+        wrapper.vm.getProducts.mockRestore();
+    });
+
+    it('should pass categories and product groups of the selection to the assignment action', async () => {
+        const { wrapper } = await createWrapper();
+        await flushPromises();
+        wrapper.vm.createNotificationSuccess = jest.fn();
+        wrapper.vm.getProducts = jest.fn(() => Promise.resolve());
+
+        await wrapper.vm.onAddProducts([], {
+            productIds: [],
+            productStreamIds: ['stream-1'],
+            categoryIds: ['category-1'],
+        });
+
+        expect(assignMock).toHaveBeenCalledWith('storefrontSalesChannelTypeId', {
+            productIds: [],
+            productStreamIds: ['stream-1'],
+            categoryIds: ['category-1'],
+        });
+
+        wrapper.vm.createNotificationSuccess.mockRestore();
+        wrapper.vm.getProducts.mockRestore();
     });
 
     it('should add products failed', async () => {
         const { wrapper } = await createWrapper();
         await flushPromises();
-        wrapper.vm.saveProductVisibilities = jest.fn(() => Promise.resolve());
 
         await expect(wrapper.vm.onAddProducts([])).rejects.toEqual();
 
         expect(wrapper.vm.showProductsModal).toBe(false);
-        expect(wrapper.vm.saveProductVisibilities).not.toHaveBeenCalled();
+        expect(assignMock).not.toHaveBeenCalled();
+    });
 
-        wrapper.vm.saveProductVisibilities.mockRestore();
+    it('should show an error notification when the assignment action fails', async () => {
+        const { wrapper } = await createWrapper();
+        await flushPromises();
+        assignMock.mockRejectedValue(new Error('Whoops!'));
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.getProducts = jest.fn(() => Promise.resolve());
+
+        await wrapper.vm.onAddProducts([{ id: '103' }]);
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({ message: 'Whoops!' });
+        expect(wrapper.vm.getProducts).not.toHaveBeenCalled();
+        expect(wrapper.vm.showProductsModal).toBe(false);
+        expect(wrapper.vm.isAssignProductLoading).toBe(false);
+
+        wrapper.vm.createNotificationError.mockRestore();
+        wrapper.vm.getProducts.mockRestore();
     });
 
     it('should save product visibilities successful', async () => {

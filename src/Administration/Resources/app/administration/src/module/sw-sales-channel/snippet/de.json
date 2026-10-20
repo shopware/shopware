@@ -155,6 +155,7 @@
                 "titleEmptyState": "Noch keine Produkte",
                 "titleEmptyStateTable": "Keine passenden Produkte gefunden",
                 "buttonAddProducts": "{productCount} Produkte hinzufügen | {productCount} Produkt hinzufügen | {productCount} Produkte hinzufügen",
+                "messageProductsAssigned": "{count} Produkt dem Verkaufskanal zugewiesen. | {count} Produkte dem Verkaufskanal zugewiesen.",
                 "columnProductName": "Produktname",
                 "columnActive": "Aktiv",
                 "columnProductNumber": "Produktnummer",

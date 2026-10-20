@@ -137,7 +137,14 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         await wrapper.findByText('button', 'sw-sales-channel.detail.products.buttonAddProducts').trigger('click');
 
         expect(wrapper.emitted('products-add')).toBeTruthy();
-        expect(wrapper.emitted('products-add')[0]).toEqual([wrapper.vm.products]);
+        expect(wrapper.emitted('products-add')[0]).toEqual([
+            wrapper.vm.products,
+            {
+                productIds: ['1'],
+                categoryIds: [],
+                productStreamIds: [],
+            },
+        ]);
     });
 
     it('should emit products data when clicking Add Products button to assign product by categories', async () => {
@@ -161,7 +168,50 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         await assignButton.trigger('click');
 
         expect(wrapper.emitted('products-add')).toBeTruthy();
-        expect(wrapper.emitted('products-add')[0]).toEqual([products]);
+        expect(wrapper.emitted('products-add')[0]).toEqual([
+            products,
+            {
+                productIds: ['1', '2'],
+                categoryIds: [],
+                productStreamIds: [],
+            },
+        ]);
+    });
+
+    it('should emit category and product group ids next to the products when tabs report a server side selection', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.onChangeSelection([{ id: '1' }], 'singleProducts');
+        wrapper.vm.onChangeSelection([], 'categoryProducts', { ids: ['category-1'], total: 500 });
+        wrapper.vm.onChangeSelection([], 'groupProducts', { ids: ['stream-1', 'stream-2'], total: 1024 });
+        await flushPromises();
+
+        expect(wrapper.vm.productCount).toBe(1525);
+
+        await wrapper.findByText('button', 'sw-sales-channel.detail.products.buttonAddProducts').trigger('click');
+
+        expect(wrapper.emitted('products-add')[0]).toEqual([
+            [{ id: '1' }],
+            {
+                productIds: ['1'],
+                categoryIds: ['category-1'],
+                productStreamIds: ['stream-1', 'stream-2'],
+            },
+        ]);
+    });
+
+    it('should reset the server side selection when a tab reports plain products again', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.onChangeSelection([], 'groupProducts', { ids: ['stream-1'], total: 1024 });
+        wrapper.vm.onChangeSelection([{ id: '2' }], 'groupProducts');
+
+        expect(wrapper.vm.productCount).toBe(1);
+        expect(wrapper.vm.selection).toEqual({
+            productIds: ['2'],
+            categoryIds: [],
+            productStreamIds: [],
+        });
     });
 
     it('should remove duplicated products before emitting', async () => {

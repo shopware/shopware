@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Framework\Webhook\Outbox\StreamLockService;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
+use Shopware\Core\Test\Integration\Builder\Webhook\WebhookBuilder;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Clock\MockClock;
 
@@ -45,7 +46,7 @@ class WebhookOutboxStoreTest extends TestCase
 
     public function testFullRetryCycle(): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
         $this->store->recordOutboxEntry($this->toEntry($message));
 
@@ -68,7 +69,7 @@ class WebhookOutboxStoreTest extends TestCase
 
     public function testBackfillDeliveryCreatesDeliveryForQueuedEventLog(): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
 
         $this->connection->insert('webhook_event_log', [
@@ -111,7 +112,7 @@ class WebhookOutboxStoreTest extends TestCase
     #[DataProvider('nonQueuedEventLogStatusProvider')]
     public function testBackfillDeliverySkipsWhenEventLogIsNotQueued(string $status): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
 
         $this->connection->insert('webhook_event_log', [
@@ -137,7 +138,7 @@ class WebhookOutboxStoreTest extends TestCase
     public function testBackfillDeliverySkipsWhenDeliveryAlreadyExists(): void
     {
         // Second backfill call is idempotent — first commit wins.
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
 
         $this->connection->insert('webhook_event_log', [
@@ -158,7 +159,7 @@ class WebhookOutboxStoreTest extends TestCase
 
     public function testSerializedWebhookMessageIsStoredInEventLog(): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
         $entry = $this->toEntry($message);
         $this->store->recordOutboxEntry($entry);
@@ -174,7 +175,7 @@ class WebhookOutboxStoreTest extends TestCase
 
     public function testEnsureOutboxEntryReturnsNullOnDuplicateInsert(): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
         $insert = $this->toEntry($message);
 
@@ -226,7 +227,7 @@ class WebhookOutboxStoreTest extends TestCase
 
     public function testMarkPendingRetrySchedulesWithGivenRetryAt(): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
         $this->store->recordOutboxEntry($this->toEntry($message));
 
@@ -249,7 +250,7 @@ class WebhookOutboxStoreTest extends TestCase
         $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
 
         // Test with a different retry time
-        $this->createWebhook('wh-2');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-2'))->insert($this->connection);
         $message2 = $this->createMessage('evt-2', 'wh-2');
         $this->store->recordOutboxEntry($this->toEntry($message2));
         $entry2 = $this->store->markRunning($this->ids->get('evt-2'));
@@ -269,7 +270,7 @@ class WebhookOutboxStoreTest extends TestCase
 
     public function testMarkPendingRetryPersistsResponseData(): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
         $this->store->recordOutboxEntry($this->toEntry($message));
 
@@ -299,7 +300,7 @@ class WebhookOutboxStoreTest extends TestCase
 
     public function testMarkRunningReturnsExecutionInfo(): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
         $this->store->recordOutboxEntry($this->toEntry($message));
 
@@ -312,7 +313,7 @@ class WebhookOutboxStoreTest extends TestCase
 
     public function testMarkRunningReturnsNullAfterSuccess(): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
         $this->store->recordOutboxEntry($this->toEntry($message));
 
@@ -326,7 +327,7 @@ class WebhookOutboxStoreTest extends TestCase
 
     public function testMarkRunningReturnsNullOnSecondCall(): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
         $this->store->recordOutboxEntry($this->toEntry($message));
 
@@ -346,7 +347,7 @@ class WebhookOutboxStoreTest extends TestCase
 
     public function testMarkRunningTransitionsDuePendingRetryToRunning(): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
         $this->store->recordOutboxEntry($this->toEntry($message));
 
@@ -383,7 +384,7 @@ class WebhookOutboxStoreTest extends TestCase
      */
     public function testMarkRunningIgnoresStrayDeliveryRowForTerminalEventLog(): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
         $this->store->recordOutboxEntry($this->toEntry($message));
 
@@ -447,7 +448,7 @@ class WebhookOutboxStoreTest extends TestCase
 
     public function testFinalMessengerRetryOnRunningDeliveryIsNoop(): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
         $this->store->recordOutboxEntry($this->toEntry($message));
 
@@ -460,7 +461,7 @@ class WebhookOutboxStoreTest extends TestCase
 
     public function testFinalMessengerRetryOnFuturePendingRetryIsNoop(): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
         $this->store->recordOutboxEntry($this->toEntry($message));
 
@@ -475,7 +476,7 @@ class WebhookOutboxStoreTest extends TestCase
 
     public function testFinalMessengerRetryMarksFreshQueuedAsFailed(): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
         $this->store->recordOutboxEntry($this->toEntry($message));
 
@@ -486,7 +487,7 @@ class WebhookOutboxStoreTest extends TestCase
 
     public function testFinalMessengerRetryMarksDuePendingRetryAsFailed(): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
         $this->store->recordOutboxEntry($this->toEntry($message));
 
@@ -501,7 +502,7 @@ class WebhookOutboxStoreTest extends TestCase
 
     public function testFinalMessengerRetryIgnoresTerminalEventLog(): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
         $this->store->recordOutboxEntry($this->toEntry($message));
 
@@ -533,7 +534,7 @@ class WebhookOutboxStoreTest extends TestCase
      */
     public function testMarkFailedDoesNotRollBackTerminalEventLog(): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
         $this->store->recordOutboxEntry($this->toEntry($message));
 
@@ -567,7 +568,7 @@ class WebhookOutboxStoreTest extends TestCase
 
     public function testUndeliverableFetchedEntryMarksQueuedDeliveryFailed(): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
         $this->store->recordOutboxEntry($this->toEntry($message));
 
@@ -583,7 +584,7 @@ class WebhookOutboxStoreTest extends TestCase
 
     public function testStaleUndeliverableFetchedEntryDoesNotDeleteActiveAttempt(): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
         $this->store->recordOutboxEntry($this->toEntry($message));
 
@@ -630,7 +631,7 @@ class WebhookOutboxStoreTest extends TestCase
     #[DataProvider('fetchDueSkippedRowsProvider')]
     public function testFetchDueSkipsRowsThatAreNotDue(\Closure $setupSkipped): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
 
         $dueMessage = $this->createMessage('evt-due', 'wh-1');
         $skippedMessage = $this->createMessage('evt-skipped', 'wh-1');
@@ -652,7 +653,7 @@ class WebhookOutboxStoreTest extends TestCase
 
     public function testResetRunningForPartitionOnTerminalEventLogIsNoop(): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
         $this->store->recordOutboxEntry($this->toEntry($message));
 
@@ -692,7 +693,7 @@ class WebhookOutboxStoreTest extends TestCase
         $store = new WebhookOutboxStore($this->connection, $clock);
         $streamLockService = new StreamLockService($this->connection, $clock);
 
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
         $partitionKey = Hasher::hashBinary($message->getPartitionKey(), 'xxh128');
 
@@ -728,7 +729,7 @@ class WebhookOutboxStoreTest extends TestCase
      */
     private function setUpStaleFirstAttempt(): OutboxEntry
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
         $message = $this->createMessage('evt-1', 'wh-1');
         $this->store->recordOutboxEntry($this->toEntry($message));
 
@@ -781,18 +782,6 @@ class WebhookOutboxStoreTest extends TestCase
             ['id' => $this->ids->getBytes($eventKey)]
         );
         static::assertFalse($exists, 'Expected delivery row to be deleted');
-    }
-
-    private function createWebhook(string $webhookKey, ?string $appId = null): void
-    {
-        $this->connection->insert('webhook', [
-            'id' => $this->ids->getBytes($webhookKey),
-            'name' => 'test-hook',
-            'event_name' => 'product.written',
-            'url' => 'https://example.com/webhook',
-            'app_id' => $appId !== null ? Uuid::fromHexToBytes($appId) : null,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
     }
 
     private function createMessage(

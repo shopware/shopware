@@ -5,17 +5,23 @@ namespace Shopware\Core\Framework\Webhook;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\CloneProtection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Integration\IntegrationDefinition;
+use Shopware\Core\System\User\UserDefinition;
 
 /**
  * @codeCoverageIgnore
@@ -54,6 +60,14 @@ class WebhookDefinition extends EntityDefinition
         ];
     }
 
+    /**
+     * A clone keeps the app and owner of the original, so it would let a caller deliver an app's webhook to their own url.
+     */
+    protected function defineProtections(): EntityProtectionCollection
+    {
+        return new EntityProtectionCollection([new CloneProtection(Context::SYSTEM_SCOPE)]);
+    }
+
     protected function defineFields(): FieldCollection
     {
         $collection = new FieldCollection([
@@ -64,8 +78,11 @@ class WebhookDefinition extends EntityDefinition
             new BoolField('only_live_version', 'onlyLiveVersion'),
             (new IntField('error_count', 'errorCount', 0))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
             new BoolField('active', 'active'),
-            new FkField('app_id', 'appId', AppDefinition::class),
+            (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
+            (new FkField('owner_user_id', 'ownerUserId', UserDefinition::class))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->removeFlag(ApiAware::class),
+            (new FkField('owner_integration_id', 'ownerIntegrationId', IntegrationDefinition::class))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->removeFlag(ApiAware::class),
+            new ListField('acl_role_ids', 'aclRoleIds', IdField::class),
         ]);
 
         return $collection;

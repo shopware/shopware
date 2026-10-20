@@ -1382,6 +1382,10 @@
       "messagePlaceholder": "Es ist ein Fehler aufgetreten. Die Seite konnte nicht geladen werden."
     }
   },
+  "sw-not-found": {
+    "title": "Seite nicht gefunden",
+    "description": "Die gesuchte Seite konnte nicht gefunden werden. Möglicherweise wurde sie verschoben oder existiert nicht mehr."
+  },
   "sw-property-search": {
     "placeholderSearch": "Ausprägungen durchsuchen ...",
     "selected": "{count} Ausprägung gewählt | {count} Ausprägungen gewählt",

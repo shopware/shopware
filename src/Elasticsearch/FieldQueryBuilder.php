@@ -217,16 +217,25 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
             return null;
         }
 
-        // Only strips brackets at the start or end of each word, e.g. `(cap` -> `cap`
-        $token = preg_replace('/(?<!\S)[()\[\]{}<>\\\\]+|[()\[\]{}<>\\\\]+(?!\S)/u', '', $token) ?? $token;
-
         $matchBoolPrefixParams = ['boost' => $this->prefixBoost];
 
         if (!$this->useLanguageAnalyzer) {
             $matchBoolPrefixParams['analyzer'] = ElasticsearchFieldBuilder::ANALYZER_WHITESPACE;
         }
 
-        return new MatchBoolPrefixQuery($searchField, $token, $matchBoolPrefixParams);
+        $prefixQuery = new MatchBoolPrefixQuery($searchField, $token, $matchBoolPrefixParams);
+
+        // Also matches the words without brackets at their start or end, e.g. `(cap` as `cap`
+        $strippedToken = preg_replace('/(?<!\S)[()\[\]{}<>\\\\]+|[()\[\]{}<>\\\\]+(?!\S)/u', '', $token) ?? $token;
+        if ($strippedToken === $token) {
+            return $prefixQuery;
+        }
+
+        $query = new DisMaxQuery();
+        $query->addQuery($prefixQuery);
+        $query->addQuery(new MatchBoolPrefixQuery($searchField, $strippedToken, $matchBoolPrefixParams));
+
+        return $query;
     }
 
     private function buildNgramQuery(string $token, SearchFieldConfig $config): ?BuilderInterface

@@ -197,8 +197,11 @@ class FieldQueryBuilderTest extends TestCase
         }
     }
 
+    /**
+     * @param list<string> $expectedPrefixQueries
+     */
     #[DataProvider('bracketAroundWordProvider')]
-    public function testPrefixMatchStripsBracketsAroundWordsWhileExactMatchKeepsThem(string $token, string $expectedPrefixQuery): void
+    public function testPrefixMatchAlsoMatchesWordsWithoutBracketsWhileExactMatchKeepsThem(string $token, array $expectedPrefixQueries): void
     {
         $builder = new FieldQueryBuilder();
         $field = new ResolvedField(new StringField('productNumber', 'productNumber'));
@@ -209,18 +212,20 @@ class FieldQueryBuilderTest extends TestCase
         static::assertNotNull($query);
         $queries = $query->toArray()['dis_max']['queries'];
         static::assertSame($token, array_column(array_column($queries, 'term'), 'productNumber.exact')[0]['value']);
-        static::assertSame($expectedPrefixQuery, array_column(array_column($queries, 'match_bool_prefix'), 'productNumber.search')[0]['query']);
+
+        $prefixQueries = array_column($queries, 'match_bool_prefix') ?: array_column(array_column($queries, 'dis_max')[0]['queries'], 'match_bool_prefix');
+        static::assertSame($expectedPrefixQueries, array_column(array_column($prefixQueries, 'productNumber.search'), 'query'));
     }
 
     /**
-     * @return iterable<string, array{string, string}>
+     * @return iterable<string, array{string, list<string>}>
      */
     public static function bracketAroundWordProvider(): iterable
     {
-        yield 'bracket before a word' => ['(cap', 'cap'];
-        yield 'angle brackets around a product number' => ['<sw-100>', 'sw-100'];
-        yield 'bracket around a word inside a multi-word term' => ['tennis (cap', 'tennis cap'];
-        yield 'bracket inside a word is kept' => ['ab(12)cd', 'ab(12)cd'];
+        yield 'bracket before a word' => ['(cap', ['(cap', 'cap']];
+        yield 'angle brackets around a product number' => ['<sw-100>', ['<sw-100>', 'sw-100']];
+        yield 'bracket around a word inside a multi-word term' => ['tennis (cap', ['tennis (cap', 'tennis cap']];
+        yield 'bracket inside a word only matches the word as typed' => ['ab(12)cd', ['ab(12)cd']];
     }
 
     public function testLanguageAnalyzerDisabledUsesWhitespaceAnalyzer(): void

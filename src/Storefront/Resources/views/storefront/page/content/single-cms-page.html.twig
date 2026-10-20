@@ -18,8 +18,8 @@
 {% block single_cms_page_body %}
     {# @deprecated tag:v6.8.0 - CSS classes `is-ctl-*` and `is-act-*` will be removed, use `is-active-route-*` instead. #}
     <body class="{% block single_cms_page_body_classes %}
-        {%- if controllerName is not empty -%}is-ctl-{{ controllerName|lower }} {% endif -%}
-        {%- if controllerAction is not empty -%}is-act-{{ controllerAction|lower }} {% endif -%}
+        {%- if not feature('v6.8.0.0') and controllerName is not empty -%}is-ctl-{{ controllerName|lower }} {% endif -%}
+        {%- if not feature('v6.8.0.0') and controllerAction is not empty -%}is-act-{{ controllerAction|lower }} {% endif -%}
         {%- if activeRoute is not empty -%}is-active-route-{{ activeRoute|replace({'.': '-'}) }}{%- endif -%}
     {%- endblock %}">
         {% block single_cms_page_body_inner %}

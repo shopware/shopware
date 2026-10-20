@@ -52,48 +52,8 @@
             "default"
         ]
     },
-    "The component \"sw-agentic-commerce-tracking-config\" is deprecated and will be removed in Shopware v6.8.0.0.\nWill be removed.": {
-        "sw-agentic-commerce-tracking-config": [
-            "default",
-            "major"
-        ]
-    },
-    "The component \"sw-condition-line-item-in-category\" is deprecated and will be removed in Shopware v6.8.0.0.\nUse sw-condition-generic instead.": {
-        "sw-condition-line-item-in-category": [
-            "default",
-            "major"
-        ]
-    },
-    "The component \"sw-condition-line-item-purchase-price\" is deprecated and will be removed in Shopware v6.8.0.0.\nUse sw-condition-generic instead.": {
-        "sw-condition-line-item-purchase-price": [
-            "default",
-            "major"
-        ]
-    },
-    "The component \"sw-order-create-address-modal\" is deprecated and will be removed in Shopware v6.8.0.0.\nWill be removed, is not used anymore.": {
-        "sw-order-create-address-modal": [
-            "default",
-            "major"
-        ]
-    },
-    "The component \"sw-order-create-base\" is deprecated and will be removed in Shopware v6.8.0.0.\nWill be removed, is not used anymore.": {
-        "sw-order-create-base": [
-            "default",
-            "major"
-        ]
-    },
-    "The component \"sw-order-create-details-footer\" is deprecated and will be removed in Shopware v6.8.0.0.\nWill be removed, is not used anymore.": {
-        "sw-order-create-details-footer": [
-            "default",
-            "major"
-        ]
-    },
     "The component \"sw-order-document-settings-credit-note-modal\" is deprecated and will be removed in Shopware v6.9.0.0.\nRemoved with document generation v1.": {
         "sw-order-document-card > sw-order-document-settings-credit-note-modal": [
-            "default",
-            "major"
-        ],
-        "sw-order-document-settings-credit-note-modal": [
             "default",
             "major"
         ]
@@ -102,58 +62,16 @@
         "sw-order-document-card > sw-order-document-settings-delivery-note-modal": [
             "default",
             "major"
-        ],
-        "sw-order-document-settings-delivery-note-modal": [
-            "default",
-            "major"
         ]
     },
     "The component \"sw-order-document-settings-invoice-modal\" is deprecated and will be removed in Shopware v6.9.0.0.\nRemoved with document generation v1.": {
         "sw-order-document-card > sw-order-document-settings-invoice-modal": [
             "default",
             "major"
-        ],
-        "sw-order-document-settings-invoice-modal": [
-            "default",
-            "major"
-        ]
-    },
-    "The component \"sw-order-document-settings-modal\" is deprecated and will be removed in Shopware v6.9.0.0.\nRemoved with document generation v1.": {
-        "sw-order-document-settings-modal": [
-            "default",
-            "major"
         ]
     },
     "The component \"sw-order-document-settings-storno-modal\" is deprecated and will be removed in Shopware v6.9.0.0.\nRemoved with document generation v1.": {
         "sw-order-document-card > sw-order-document-settings-storno-modal": [
-            "default",
-            "major"
-        ],
-        "sw-order-document-settings-storno-modal": [
-            "default",
-            "major"
-        ]
-    },
-    "The component \"sw-order-select-document-type-modal\" is deprecated and will be removed in Shopware v6.9.0.0.\nRemoved with document generation v1.": {
-        "sw-order-select-document-type-modal": [
-            "default",
-            "major"
-        ]
-    },
-    "The component \"sw-order-state-history-card\" is deprecated and will be removed in Shopware v6.8.0.0.\nWill be removed without replacement.": {
-        "sw-order-state-history-card": [
-            "default",
-            "major"
-        ]
-    },
-    "The component \"sw-product-settings-mode\" is deprecated and will be removed in Shopware v6.8.0.0.\nComponent will be removed. No longer used.": {
-        "sw-product-settings-mode": [
-            "default",
-            "major"
-        ]
-    },
-    "The component \"sw-settings-storefront-configuration\" is deprecated and will be removed in Shopware v6.8.0.0.\nWill be removed without replacement.": {
-        "sw-settings-storefront-configuration": [
             "default",
             "major"
         ]
@@ -194,26 +112,8 @@
             "major"
         ]
     },
-    "The prop \"emptyImagePath\" of the component \"sw-entity-advanced-selection-modal\" is deprecated and will be removed in Shopware v6.8.0.0.\nUse \"emptyIcon\" instead.": {
-        "sw-entity-advanced-selection-modal": [
-            "default",
-            "major"
-        ]
-    },
-    "The prop \"isLoading\" of the component \"sw-order-state-history-modal\" is deprecated and will be removed in Shopware v6.8.0.0.\nWill be removed without replacement.": {
-        "sw-order-state-history-modal": [
-            "default",
-            "major"
-        ]
-    },
     "The prop \"items\" of the component \"sw-entity-advanced-selection-modal-grid\" is deprecated and will be removed in Shopware v6.8.0.0.\nUse \"dataSource\" instead. Migration: Change :items=\"data\" to :data-source=\"data\"": {
         "sw-entity-advanced-selection-modal > sw-entity-advanced-selection-modal-grid": [
-            "default",
-            "major"
-        ]
-    },
-    "The prop \"productStates\" of the component \"sw-product-variants-overview\" is deprecated and will be removed in Shopware v6.8.0.0.\nUse `productType` prop instead.": {
-        "sw-product-variants-overview": [
             "default",
             "major"
         ]

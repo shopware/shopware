@@ -1,200 +1,82 @@
 /**
- * Fail a pull request that grows a lint baseline.
- *
- * The Administration baselines (`eslint-suppressions.json`) record existing
- * violations so only new code has to follow the gate rules. A pull request may shrink them, which
- * every cleanup does, but must not grow them. CODEOWNERS cannot tell the two apart, so this check
- * compares the totals per rule with the base commit.
- *
- * Totals instead of per-file counts, because a moved or renamed file changes the keys of its entries
- * without adding a violation.
- *
- * A baseline that does not exist on the base commit is new. That is how a folder adopts the gate
- * (`npm run lint -- --suppress-all`), so it passes, and its totals are printed for the review.
- *
- * A rule without entries on the base commit is new to the baseline. That is how a rule joins the gate
- * with its existing violations, so it passes, but only when the pull request also changes one of the
- * `--config` files. Those have a code owner, so turning on a rule still needs a review.
- *
- * ESLint only reports unused suppressions for the files it lints, so the entries of a deleted file stay
- * behind and would let a new violation of the same rule pass. The check fails on them; `npm run lint:fix`
- * removes them.
+ * Fails when the per-rule totals of an ESLint baseline (eslint-suppressions.json) grow compared with the base commit.
+ * See src/Administration/Resources/app/administration/technical-docs/11-code-quality/01-lint-gate.md.
  */
 
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { parseArgs } from 'node:util';
 
-export type Totals = Record<string, number>;
+type Suppressions = Record<string, Record<string, { count: number }>>;
 
-type EslintSuppressions = Record<string, Record<string, { count: number }>>;
+const git = (...args: string[]): string =>
+    execFileSync('git', args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] });
 
-export type Row = {
-    key: string;
-    base: number;
-    head: number;
+const readFromBase = (base: string, path: string): Suppressions => {
+    try {
+        git('cat-file', '-e', `${base}:${path}`);
+    } catch {
+        return {};
+    }
+
+    return JSON.parse(git('show', `${base}:${path}`)) as Suppressions;
 };
 
-export const eslintTotals = (suppressions: EslintSuppressions): Totals => {
-    const totals: Totals = {};
-
+const totals = (suppressions: Suppressions): Record<string, number> => {
+    const result: Record<string, number> = {};
     for (const rules of Object.values(suppressions)) {
         for (const [rule, { count }] of Object.entries(rules)) {
-            totals[rule] = (totals[rule] ?? 0) + count;
+            result[rule] = (result[rule] ?? 0) + count;
         }
     }
 
-    return totals;
+    return result;
 };
 
-export const totalsFor = (content: string): Totals => eslintTotals(JSON.parse(content) as EslintSuppressions);
+const { values, positionals: paths } = parseArgs({
+    options: { base: { type: 'string' }, config: { type: 'string', multiple: true } },
+    allowPositionals: true,
+});
+const { base, config: configs = [] } = values;
 
-export const compareTotals = (base: Totals, head: Totals): Row[] => {
-    const keys = [...new Set([...Object.keys(base), ...Object.keys(head)])].sort();
+if (!base || configs.length === 0 || paths.length === 0) {
+    process.stderr.write('usage: check-baseline-growth.ts --base <sha> --config <file>... <eslint-suppressions.json>...\n');
+    process.exit(2);
+}
 
-    return keys.map((key) => ({ key, base: base[key] ?? 0, head: head[key] ?? 0 }));
-};
+// A rule that is new to a baseline may only come in together with a reviewed config change
+const configChanged = git('diff', '--name-only', base, '--', ...configs).trim() !== '';
+const failures: string[] = [];
 
-export const isNewRule = ({ base, head }: Row): boolean => base === 0 && head > 0;
+for (const path of paths) {
+    const head: Suppressions = existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : {};
+    const baseTotals = totals(readFromBase(base, path));
+    const headTotals = totals(head);
 
-export const grownRows = (rows: Row[], configChanged: boolean): Row[] =>
-    rows.filter((row) => row.head > row.base && !(configChanged && isNewRule(row)));
+    console.log(path);
+    for (const rule of [...new Set([...Object.keys(baseTotals), ...Object.keys(headTotals)])].sort()) {
+        const before = baseTotals[rule] ?? 0;
+        const after = headTotals[rule] ?? 0;
+        const grew = after > before && !(before === 0 && configChanged);
 
-// ESLint stores the paths relative to the folder it runs in, which is the folder of the baseline
-export const staleFiles = (path: string, content: string, exists: (file: string) => boolean): string[] => {
-    return Object.keys(JSON.parse(content) as EslintSuppressions)
-        .filter((file) => !exists(join(dirname(path), file)))
-        .sort();
-};
-
-export const formatReport = (path: string, rows: Row[], isNew: boolean, configChanged = false): string => {
-    const header = isNew ? `${path} (new baseline, not on the base commit)` : path;
-    const grown = new Set(grownRows(rows, configChanged));
-    const lines = rows.map((row) => {
-        let marker = '';
-        if (!isNew && grown.has(row)) {
-            marker = '  <-- grew';
-        } else if (!isNew && isNewRule(row)) {
-            marker = '  <-- new rule';
-        }
-
-        return `  ${row.key}: ${isNew ? '-' : row.base} -> ${row.head}${marker}`;
-    });
-
-    return [header, ...lines].join('\n');
-};
-
-// git diff exits with 1 when the file differs from the base commit
-const changedSince = (baseSha: string, path: string): boolean => {
-    const result = spawnSync('git', ['diff', '--quiet', baseSha, '--', path], { stdio: 'ignore' });
-    if (result.status !== 0 && result.status !== 1) {
-        throw new Error(`Could not compare ${path} with ${baseSha}.`);
-    }
-
-    return result.status === 1;
-};
-
-const parseArgs = (args: string[]): { baseSha?: string; configs: string[]; paths: string[] } => {
-    const parsed: { baseSha?: string; configs: string[]; paths: string[] } = { configs: [], paths: [] };
-    for (let i = 0; i < args.length; i += 1) {
-        if (args[i] === '--base') {
-            i += 1;
-            parsed.baseSha = args[i];
-        } else if (args[i] === '--config') {
-            i += 1;
-            parsed.configs.push(args[i]);
-        } else {
-            parsed.paths.push(args[i]);
+        console.log(`  ${rule}: ${before} -> ${after}${grew ? '  <-- grew' : ''}`);
+        if (grew) {
+            failures.push(`${path}: ${rule} grew from ${before} to ${after}. Fix the new violations instead.`);
         }
     }
 
-    return parsed;
-};
-
-// git reports a missing commit like a missing path, so an unknown commit would pass every baseline as new
-const assertCommitExists = (baseSha: string): void => {
-    try {
-        execFileSync('git', ['cat-file', '-e', `${baseSha}^{commit}`], { stdio: 'ignore' });
-    } catch {
-        throw new Error(`Could not read the base commit ${baseSha}. Fetch it before running this check.`);
-    }
-};
-
-// Returns null when the file does not exist on the base commit
-const readFromBase = (baseSha: string, path: string): string | null => {
-    try {
-        return execFileSync('git', ['show', `${baseSha}:${path}`], {
-            encoding: 'utf8',
-            maxBuffer: 64 * 1024 * 1024,
-            stdio: ['ignore', 'pipe', 'pipe'],
-        });
-    } catch (error) {
-        const stderr = String((error as { stderr?: unknown }).stderr ?? '');
-
-        if (/does not exist in|exists on disk, but not in/.test(stderr)) {
-            return null;
-        }
-
-        throw new Error(`Could not read ${path} from ${baseSha}: ${stderr.trim()}`);
-    }
-};
-
-const main = (): void => {
-    const { baseSha, configs, paths } = parseArgs(process.argv.slice(2));
-
-    if (!baseSha || paths.length === 0) {
-        process.stderr.write(
-            'usage: check-baseline-growth.ts --base <sha> [--config <file>]... <baseline.json>...\n',
-        );
-        process.exit(2);
-    }
-
-    assertCommitExists(baseSha);
-    const configChanged = configs.some((config) => changedSince(baseSha, config));
-
-    let grew = false;
-    const stale: string[] = [];
-
-    for (const path of paths) {
-        const headContent = existsSync(path) ? readFileSync(path, 'utf8') : null;
-        const head = headContent === null ? {} : totalsFor(headContent);
-        const baseContent = readFromBase(baseSha, path);
-        const isNew = baseContent === null;
-        const rows = compareTotals(isNew ? {} : totalsFor(baseContent), head);
-
-        process.stdout.write(`${formatReport(path, rows, isNew, configChanged)}\n\n`);
-
-        if (!isNew && grownRows(rows, configChanged).length > 0) {
-            grew = true;
-        }
-
-        if (headContent !== null) {
-            stale.push(...staleFiles(path, headContent, existsSync).map((file) => `${path}: ${file}`));
+    // Entries of a deleted file would let a new violation of the same rule pass elsewhere
+    for (const file of Object.keys(head)) {
+        if (!existsSync(join(dirname(path), file))) {
+            failures.push(`${path}: ${file} no longer exists. Run \`npm run lint:fix\` to remove its entries.`);
         }
     }
+}
 
-    process.stdout.write(`Compared ${paths.length} baseline(s) with ${baseSha}.\n`);
+console.log(`Compared ${paths.length} baseline(s) with ${base}.`);
 
-    if (stale.length > 0) {
-        process.stderr.write(
-            `These baseline entries belong to files that no longer exist. Run \`npm run lint:fix\` to remove them:\n` +
-                `${stale.map((entry) => `  ${entry}`).join('\n')}\n`,
-        );
-    }
-
-    if (grew) {
-        process.stderr.write(
-            'A baseline grew. Fix the new violations instead of adding them to the baseline, see\n' +
-                'src/Administration/Resources/app/administration/technical-docs/11-code-quality/01-lint-gate.md\n',
-        );
-    }
-
-    if (grew || stale.length > 0) {
-        process.exit(1);
-    }
-};
-
-// Run the script if called directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-    main();
+if (failures.length > 0) {
+    process.stderr.write(`${failures.join('\n')}\n`);
+    process.exit(1);
 }

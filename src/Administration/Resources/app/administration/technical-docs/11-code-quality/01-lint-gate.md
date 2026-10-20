@@ -18,7 +18,6 @@ Run them in `src/Administration/Resources/app/administration`, or through the co
 | `npm run lint` | ESLint with the gate rules and `eslint-suppressions.json` |
 | `npm run lint:all` | Types, ESLint, Stylelint and Prettier (`composer eslint:admin`) |
 | `npm run lint:fix` | ESLint autofix, removes suppressions that are no longer needed (`composer eslint:admin:fix`) |
-| `npm run lint:baseline:init` | Creates `eslint-suppressions.json` for a folder that has none yet |
 
 ## Rules
 
@@ -60,7 +59,6 @@ The job lets them in only when the same pull request changes `eslint.config.ts`,
 
 Never regenerate a baseline with `eslint --suppress-all`.
 That would record every new violation as an old one.
-`npm run lint:baseline:init` refuses to run when a baseline exists.
 
 ## When the gate fails
 
@@ -93,5 +91,5 @@ The growth check fails as long as `eslint-suppressions.json` holds entries of th
 
 ### A new folder uses the gate
 
-Run `npm run lint:baseline:init` once in the folder, which needs its own `lint` script, and commit the new `eslint-suppressions.json`.
+Run `npm run lint -- --suppress-all` once in the folder, which needs its own `lint` script, and commit the new `eslint-suppressions.json`.
 Add it to the "Lint baselines do not grow" job in `.github/workflows/admin.yml`.

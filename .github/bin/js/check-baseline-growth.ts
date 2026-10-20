@@ -10,7 +10,7 @@
  * without adding a violation.
  *
  * A baseline that does not exist on the base commit is new. That is how a folder adopts the gate
- * (`npm run lint:baseline:init`), so it passes, and its totals are printed for the review.
+ * (`npm run lint -- --suppress-all`), so it passes, and its totals are printed for the review.
  *
  * A rule without entries on the base commit is new to the baseline. That is how a rule joins the gate
  * with its existing violations, so it passes, but only when the pull request also changes one of the

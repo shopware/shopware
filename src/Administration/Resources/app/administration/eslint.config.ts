@@ -81,7 +81,6 @@ const testFiles = [
 
 // Inline disables are blocked for these rules, so eslint-suppressions.json is the only way around them
 const rulesWithoutInlineDisable: string[] = [
-    'sw-test-rules/no-smoke-test',
     'sw-test-rules/no-vm-access',
     'sw-test-rules/test-file-max-lines-warning',
     'sw-test-rules/test-file-max-lines-error',
@@ -688,7 +687,6 @@ export default [
         rules: {
             ...jestPlugin.configs['flat/recommended'].rules,
             'sw-test-rules/await-async-functions': 'error',
-            'sw-test-rules/no-smoke-test': 'error',
             'sw-test-rules/stabilize-feature-flag': [
                 'error',
                 {

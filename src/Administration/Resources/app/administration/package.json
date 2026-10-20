@@ -92,6 +92,7 @@
     "date-fns-tz": "2.0.1",
     "debug": "4.4.3",
     "dompurify": "3.4.16",
+    "entities": "4.5.0",
     "eslint-plugin-listeners": "1.5.1",
     "flatpickr": "4.6.13",
     "focus-trap": "7.6.4",

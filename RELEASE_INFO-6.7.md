@@ -53,6 +53,22 @@ Extensions and integrations that read the product type of older order line items
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
 
+## Features
+
+### Disable the Administration password recovery flow
+
+The Administration "forgot password" flow can now be disabled in `shopware.yaml`, for example when user passwords are managed externally via SSO.
+When disabled, no recovery mail is sent, existing recovery hashes can no longer be used to set a new password, and the Administration login page hides the "forgot password" link.
+The flow stays enabled by default.
+The state is exposed as `passwordRecoveryEnabled` in the response of `GET /api/oauth/sso/config`, so custom login pages can hide their recovery link the same way.
+
+```yaml
+shopware:
+    api:
+        user_recovery:
+            enabled: false
+```
+
 ## Administration
 
 ### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag
@@ -87,6 +103,15 @@ Until 6.8, Shopware rewrites them when the flag is active and logs a warning for
 If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0.6 or newer, because older versions ignore negated patterns.
 
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
+
+## Hosting & Configuration
+
+### Storefront readiness checks skip pages restricted by extensions
+
+The `ProductDetailReadiness` and `ProductListingReadiness` system checks only probe product and listing pages an anonymous visitor can see.
+Pages that extensions such as Dynamic Access restrict by rules no longer fail `bin/console system:check --context=pre_rollout`.
+If a sales channel has no visible page, the check reports `SKIPPED`.
+A sales channel whose domain cannot be resolved is now reported as its own failure, and the other sales channels are still checked.
 
 # 6.7.16.0
 

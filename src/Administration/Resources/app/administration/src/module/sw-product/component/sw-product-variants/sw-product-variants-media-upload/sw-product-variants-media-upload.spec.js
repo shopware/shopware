@@ -4,7 +4,7 @@
  * @sw-package inventory
  */
 
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 describe('src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload', () => {

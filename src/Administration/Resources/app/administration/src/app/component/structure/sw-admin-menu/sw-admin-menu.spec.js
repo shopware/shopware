@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { config, DOMWrapper, flushPromises } from '@vue/test-utils';
+import { config, DOMWrapper } from '@vue/test-utils';
 import createWrapper, { registerAdminModules } from './sw-admin-menu.spec/create-wrapper';
 
 /** fixtures */

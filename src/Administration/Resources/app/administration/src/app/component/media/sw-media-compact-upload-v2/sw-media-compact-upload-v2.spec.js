@@ -1,7 +1,7 @@
 /**
  * @sw-package discovery
  */
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 describe('src/app/component/media/sw-media-compact-upload-v2', () => {
     let wrapper;

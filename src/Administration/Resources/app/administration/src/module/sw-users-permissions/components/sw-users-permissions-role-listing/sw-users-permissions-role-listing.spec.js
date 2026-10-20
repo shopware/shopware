@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@framework
  */
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFunction = () => {}) {
     return mount(

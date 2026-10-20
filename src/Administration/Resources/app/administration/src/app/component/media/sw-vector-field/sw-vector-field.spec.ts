@@ -6,7 +6,7 @@
     @typescript-eslint/no-unsafe-member-access,
     @typescript-eslint/no-explicit-any
 */
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(overrides: Record<string, unknown> = {}): Promise<any> {
     return mount((await wrapTestComponent('sw-vector-field', { sync: true })) as any, {

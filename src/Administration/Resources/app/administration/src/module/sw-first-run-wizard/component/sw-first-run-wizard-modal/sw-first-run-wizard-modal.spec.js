@@ -3,7 +3,7 @@
 /**
  * @sw-package fundamentals@after-sales
  */
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 const swFirstRunWizardWelcomeButtonConfig = [
     {

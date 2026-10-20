@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 const uploadTaskMock = {
     running: false,

@@ -1,7 +1,7 @@
 /**
  * @sw-package inventory
  */
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 // Turn off known errors
 import { missingGetListMethod } from 'test/_helper_/allowedErrors';

@@ -1,7 +1,7 @@
 /**
  * @sw-package checkout
  */
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 const mockCode = 'PREFIX_ABCD_SUFFIX';
 async function createWrapper(propsData = {}, apiService = {}) {

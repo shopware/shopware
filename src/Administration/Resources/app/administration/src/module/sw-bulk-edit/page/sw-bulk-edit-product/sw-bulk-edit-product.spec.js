@@ -3,7 +3,7 @@
 /**
  * @sw-package inventory
  */
-import { config, DOMWrapper, mount, flushPromises } from '@vue/test-utils';
+import { config, DOMWrapper, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 
 let bulkEditResponse = {

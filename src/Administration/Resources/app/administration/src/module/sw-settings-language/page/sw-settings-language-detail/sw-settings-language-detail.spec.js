@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@discovery
  */
-import { DOMWrapper, mount, flushPromises } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = [], languageId = null, stubTranslationIsoField = true) {
     const languageRepositoryGet = jest.fn((id) => {

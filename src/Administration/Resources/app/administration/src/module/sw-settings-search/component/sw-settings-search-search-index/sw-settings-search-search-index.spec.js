@@ -1,7 +1,7 @@
 /**
  * @sw-package inventory
  */
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/app/mixin/notification.mixin';
 
 async function createWrapper(privileges = []) {

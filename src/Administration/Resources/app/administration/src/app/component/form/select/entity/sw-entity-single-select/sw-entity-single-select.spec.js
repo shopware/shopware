@@ -4,7 +4,7 @@
  * @sw-package framework
  */
 
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import utils from 'src/core/service/util.service';
 

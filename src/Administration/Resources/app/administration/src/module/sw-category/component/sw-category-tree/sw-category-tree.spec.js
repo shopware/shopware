@@ -3,7 +3,7 @@
 /**
  * @sw-package discovery
  */
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 
 function createCategory({ id, name, parentId = null, childCount = 0, afterCategoryId = null, path = null }) {

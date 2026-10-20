@@ -1,4 +1,4 @@
-import { DOMWrapper, mount, flushPromises } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 /**
  * @sw-package inventory

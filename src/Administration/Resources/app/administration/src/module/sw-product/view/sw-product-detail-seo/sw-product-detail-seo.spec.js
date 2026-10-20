@@ -1,7 +1,7 @@
 /**
  * @sw-package inventory
  */
-import { DOMWrapper, mount, flushPromises } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import uuid from 'test/_helper_/uuid';
 
 const classes = {

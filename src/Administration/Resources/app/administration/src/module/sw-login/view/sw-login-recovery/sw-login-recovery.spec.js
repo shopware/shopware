@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { config, mount, flushPromises } from '@vue/test-utils';
+import { config, mount } from '@vue/test-utils';
 
 import 'src/module/sw-login/view/sw-login-recovery';
 import 'src/app/component/form/sw-text-field';

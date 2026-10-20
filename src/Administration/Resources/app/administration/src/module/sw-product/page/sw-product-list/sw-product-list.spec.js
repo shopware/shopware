@@ -4,7 +4,7 @@
  * @sw-package inventory
  */
 
-import { mount, config, flushPromises } from '@vue/test-utils';
+import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';

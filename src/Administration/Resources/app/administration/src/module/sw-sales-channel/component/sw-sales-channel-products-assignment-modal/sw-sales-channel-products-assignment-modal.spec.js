@@ -2,7 +2,7 @@
  * @sw-package discovery
  */
 
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/app/component/base/sw-button';
 
 async function createWrapper(activeTab = 'singleProducts', featureActive = false) {

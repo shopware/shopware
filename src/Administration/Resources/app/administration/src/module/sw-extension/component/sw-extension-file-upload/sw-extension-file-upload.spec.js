@@ -1,4 +1,4 @@
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import findByText from '../../../../../test/_helper_/find-by-text';
 
 const uploadSpy = jest.fn(() => Promise.resolve({}));

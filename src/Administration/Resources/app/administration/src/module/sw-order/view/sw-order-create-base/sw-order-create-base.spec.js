@@ -2,7 +2,7 @@
  * @sw-package checkout
  */
 
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-create-base', { sync: true }), {

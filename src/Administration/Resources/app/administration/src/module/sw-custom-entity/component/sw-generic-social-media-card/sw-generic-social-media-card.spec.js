@@ -1,4 +1,4 @@
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 const TEST_OG_TITLE = 'TEST_OG_Title';
 const TEST_OG_DESCRIPTION = 'TEST_OG_Description';

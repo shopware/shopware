@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import uuid from 'test/_helper_/uuid';
 
 async function createWrapper(systemLanguageIso = '', translations = [], customOptions = {}) {

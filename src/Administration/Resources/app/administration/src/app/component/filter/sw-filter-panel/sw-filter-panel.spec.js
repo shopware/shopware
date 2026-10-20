@@ -8,7 +8,7 @@ import 'src/app/component/filter/sw-existence-filter';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/filter/sw-base-filter';
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import selectMtSelectOptionByText from '../../../../../test/_helper_/select-mt-select-by-text';
 
 const filters = [

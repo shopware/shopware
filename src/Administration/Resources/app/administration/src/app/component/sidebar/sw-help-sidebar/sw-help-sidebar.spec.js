@@ -1,7 +1,7 @@
 /**
  * @sw-package buyers-experience
  */
-import { config, mount, flushPromises } from '@vue/test-utils';
+import { config, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 
 async function createWrapper(viewportWidth = 1920) {

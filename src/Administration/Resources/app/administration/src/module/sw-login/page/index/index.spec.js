@@ -1,4 +1,4 @@
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(methodOverrides = {}, mocks = {}) {
     const swLogin = await wrapTestComponent('sw-login', {

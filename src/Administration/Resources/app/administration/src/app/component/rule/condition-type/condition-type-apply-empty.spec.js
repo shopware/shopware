@@ -2,7 +2,7 @@
 /**
  * @sw-package fundamentals@after-sales
  */
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 import path from 'path';
 

@@ -1,4 +1,4 @@
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 const pageId = 'TEST-PAGE-ID';
 const mockSlotId = 'MOCK-SLOT-ID';

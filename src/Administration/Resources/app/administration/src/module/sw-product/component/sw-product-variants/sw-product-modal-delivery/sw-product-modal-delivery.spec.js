@@ -2,7 +2,7 @@
  * @sw-package inventory
  */
 
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper({ featureActive = false, product = {}, save = () => Promise.resolve({}) } = {}) {
     return mount(await wrapTestComponent('sw-product-modal-delivery', { sync: true }), {

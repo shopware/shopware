@@ -1,7 +1,7 @@
 /**
  * @sw-package discovery
  */
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(customOptions = {}) {
     return mount(await wrapTestComponent('sw-media-url-form', { sync: true }), {

@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { shallowMount, flushPromises } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 
 async function createWrapper(additionalSlots = null) {
     return shallowMount(await wrapTestComponent('sw-modal', { sync: true }), {

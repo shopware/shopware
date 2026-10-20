@@ -10,7 +10,6 @@ import {
     setupListingHooks,
     shopwareService,
 } from './sw-extension-my-extensions-listing.fixtures';
-import { flushPromises } from '@vue/test-utils';
 
 describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () => {
     setupListingHooks();

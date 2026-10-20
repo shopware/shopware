@@ -1,4 +1,4 @@
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import { ui } from '@shopware-ag/meteor-admin-sdk';
 import initializeSidebar from 'src/app/init/sidebar.init';
 

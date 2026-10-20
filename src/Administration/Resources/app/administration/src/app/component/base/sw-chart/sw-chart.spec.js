@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import en from 'apexcharts/dist/locales/en.json';
 import nl from 'apexcharts/dist/locales/nl.json';
 

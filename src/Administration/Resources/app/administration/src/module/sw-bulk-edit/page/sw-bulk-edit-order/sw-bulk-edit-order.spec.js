@@ -3,7 +3,7 @@
 /**
  * @sw-package checkout
  */
-import { config, mount, flushPromises } from '@vue/test-utils';
+import { config, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import Criteria from 'src/core/data/criteria.data';
 

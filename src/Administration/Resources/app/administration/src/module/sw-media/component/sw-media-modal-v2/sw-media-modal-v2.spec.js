@@ -1,7 +1,7 @@
 /**
  * @sw-package discovery
  */
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper({ featureActive = false } = {}) {
     return mount(await wrapTestComponent('sw-media-modal-v2', { sync: true }), {

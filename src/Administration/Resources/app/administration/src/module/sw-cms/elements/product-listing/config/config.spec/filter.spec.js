@@ -2,7 +2,6 @@
  * @sw-package discovery
  */
 import { createWrapper, registerCmsPageStore } from './fixtures';
-import { flushPromises } from '@vue/test-utils';
 
 describe('src/module/sw-cms/elements/product-listing/config - filters', () => {
     beforeAll(() => {

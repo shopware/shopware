@@ -3,7 +3,7 @@
 /**
  * @sw-package inventory
  */
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/app/component/utils/sw-loader';
 import 'src/app/component/base/sw-button';
 import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';

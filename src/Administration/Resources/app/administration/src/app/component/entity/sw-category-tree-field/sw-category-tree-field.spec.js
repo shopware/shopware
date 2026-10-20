@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { DOMWrapper, mount, flushPromises } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 const categoryData = [

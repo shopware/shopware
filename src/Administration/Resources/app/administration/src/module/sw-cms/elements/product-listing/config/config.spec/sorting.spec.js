@@ -3,7 +3,6 @@
  */
 import { toRaw } from 'vue';
 import { createWrapper, EntityCollection, registerCmsPageStore } from './fixtures';
-import { flushPromises } from '@vue/test-utils';
 
 describe('src/module/sw-cms/elements/product-listing/config - sorting', () => {
     beforeAll(() => {

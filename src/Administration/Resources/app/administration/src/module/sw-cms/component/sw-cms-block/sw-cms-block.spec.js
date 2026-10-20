@@ -2,7 +2,7 @@
  * @sw-package discovery
  */
 
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 async function createWrapper(blockConfig = {}) {

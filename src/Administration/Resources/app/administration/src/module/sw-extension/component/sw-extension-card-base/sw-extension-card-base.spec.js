@@ -1,4 +1,4 @@
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(propsData = {}, provide = {}) {
     return mount(await wrapTestComponent('sw-extension-card-base', { sync: true }), {

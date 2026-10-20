@@ -1,7 +1,7 @@
 /**
  * @sw-package discovery
  */
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 
 const { Module } = Shopware;

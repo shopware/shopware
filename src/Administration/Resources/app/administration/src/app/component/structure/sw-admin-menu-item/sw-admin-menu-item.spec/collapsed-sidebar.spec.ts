@@ -5,7 +5,6 @@
 import { TOOLTIP_OPEN_TRIGGER_PROPS } from 'src/app/component/structure/sw-admin-menu-item';
 import createWrapper from './create-wrapper';
 import catalogues from './catalogues';
-import { flushPromises } from '@vue/test-utils';
 
 describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', () => {
     beforeEach(() => {

@@ -4,7 +4,7 @@
  * @sw-package discovery
  */
 
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import { MtUrlField } from '@shopware-ag/meteor-component-library';
 
 const { Context } = Shopware;

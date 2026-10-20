@@ -1,4 +1,4 @@
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(propsData = {}) {
     return mount(await wrapTestComponent('sw-extension-bulk-deactivation-modal', { sync: true }), {

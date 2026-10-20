@@ -3,7 +3,7 @@
 /**
  * @sw-package discovery
  */
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import { reactive } from 'vue';
 
 import EntityCollection from 'src/core/data/entity-collection.data';

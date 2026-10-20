@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@after-sales
  */
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import ImportExportProfileMappingService from '../../service/importExportProfileMapping.service';
 
 function getMockParentProfiles(total = 1) {

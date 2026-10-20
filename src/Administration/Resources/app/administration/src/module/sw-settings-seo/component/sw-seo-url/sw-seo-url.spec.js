@@ -2,7 +2,7 @@
  * @sw-package inventory
  */
 
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 // from Defaults.php
 const STOREFRONT_TYPE_ID = '8a243080f92e4c719546314b577cf82b';

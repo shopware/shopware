@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { shallowMount, flushPromises } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 
 import { tooltipRegistry } from 'src/app/directive/tooltip.directive';
 

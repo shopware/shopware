@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/app/component/structure/sw-media-modal-renderer';
 
 describe('src/app/component/structure/sw-media-modal-renderer', () => {

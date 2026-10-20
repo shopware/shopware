@@ -1,4 +1,4 @@
-import { DOMWrapper, mount, flushPromises } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
 import EntityValidationService from 'src/app/service/entity-validation.service';
 

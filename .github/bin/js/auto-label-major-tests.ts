@@ -129,7 +129,7 @@ export type MajorTestArms = {
 // All run conditions beyond the workflow-level `if: github.event_name == 'pull_request'`
 // live here so they are unit-testable instead of being an untestable YAML expression.
 export function shouldDetect(context: PullRequestDetectionContext): boolean {
-    if (context.eventName !== 'pull_request') {
+    if (context.eventName !== 'pull_request_target') {
         return false;
     }
 
@@ -137,13 +137,8 @@ export function shouldDetect(context: PullRequestDetectionContext): boolean {
         return false;
     }
 
-    const pullRequest = context.payload.pull_request;
-    // fork PRs cannot mint the app token needed for the label to trigger the matrix
-    if (pullRequest.head.repo.full_name !== `${context.repo.owner}/${context.repo.repo}`) {
-        return false;
-    }
-
-    const labels = (pullRequest.labels ?? []).map((label) => label.name);
+    // fork PRs included: pull_request_target runs base code only and reads the head as data
+    const labels = (context.payload.pull_request.labels ?? []).map((label) => label.name);
 
     return !labels.includes('major-tests') &&
         ['major-php', 'major-js', 'major-acceptance'].some((label) => !labels.includes(label));
@@ -265,7 +260,7 @@ export function labelsForMajorTestArms(arms: MajorTestArms, existingLabels: Pull
 
 export async function detectMajorTestArms({ github, core, context }: DetectionToolkit): Promise<MajorTestArms> {
     if (!shouldDetect(context)) {
-        core.info('skipping major-flag detection: event, fork head, or existing label rules it out');
+        core.info('skipping major-flag detection: event or existing labels rule it out');
 
         return { php: false, js: false, acceptance: false };
     }

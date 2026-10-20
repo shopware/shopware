@@ -45,10 +45,12 @@ Three mechanisms decide how much runs:
   `matrix: ${{ fromJson(...) }}` — the expression must stay on `matrix:`, since
   zizmor cannot audit a file whose whole `strategy:` block is an expression.
 - **Major arms** — opt in on a PR with the `major-php`, `major-js`, or
-  `major-acceptance` label, or the `major-tests` umbrella. `01-pr-issue-labeler.yml`
+  `major-acceptance` label, or the `major-tests` umbrella. `major-label.yml`
   applies the relevant PHP and Administration JS labels automatically when the diff
   touches major feature flags, and `major-acceptance` when acceptance specs change.
-  This detector retains its same-repository PR restriction; fork PRs can opt in manually.
+  It runs on `pull_request_target`, so fork PRs are labeled too.
+  The merge queue does not run the major arms itself; `major-lanes-gate.yml` blocks a
+  queued PR whose labels select an arm that is not green on its head commit.
   Nightly and manual runs ignore the labels. The
   upcoming major flag is set directly in `integration-major.yml`, `acceptance.yml`,
   and the migration suite in `php.yml`; update those three workflow settings when

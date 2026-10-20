@@ -227,7 +227,7 @@ test('markdown inside Administration source does not enable the major-js arm', (
 });
 
 const baseContext = (overrides: Partial<TestContext> = {}): TestContext => ({
-    eventName: 'pull_request',
+    eventName: 'pull_request_target',
     repo: { owner: 'shopware', repo: 'shopware' },
     payload: {
         action: 'opened',
@@ -243,8 +243,9 @@ test('shouldDetect accepts an unlabeled same-repo PR being opened', () => {
     assert.equal(shouldDetect(baseContext()), true);
 });
 
-test('shouldDetect rejects non-pull_request events', () => {
+test('shouldDetect rejects events other than pull_request_target', () => {
     assert.equal(shouldDetect(baseContext({ eventName: 'issues' })), false);
+    assert.equal(shouldDetect(baseContext({ eventName: 'pull_request' })), false);
 });
 
 test('shouldDetect rejects other PR actions', async () => {
@@ -253,10 +254,10 @@ test('shouldDetect rejects other PR actions', async () => {
     assert.equal(shouldDetect(context), false);
 });
 
-test('shouldDetect rejects fork heads', async () => {
+test('shouldDetect accepts fork heads', () => {
     const context = baseContext();
     context.payload.pull_request.head.repo.full_name = 'fork/shopware';
-    assert.equal(shouldDetect(context), false);
+    assert.equal(shouldDetect(context), true);
 });
 
 test('shouldDetect permits detection until all three per-arm labels are present', () => {

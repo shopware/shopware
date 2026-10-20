@@ -324,7 +324,7 @@ class EntityWriter implements EntityWriterInterface
 
                 $primary = EntityHydrator::encodePrimaryKey($affectedDefinition, ['id' => $key], $writeContext->getContext());
 
-                if ($this->isDeletedInQueue($queue, $affectedDefinition->getEntityName(), $primary)) {
+                if ($this->isDeletedInQueue($queue, $affectedDefinition, $primary)) {
                     continue;
                 }
 
@@ -351,19 +351,10 @@ class EntityWriter implements EntityWriterInterface
     /**
      * @param array<string, string> $primaryKey
      */
-    private function isDeletedInQueue(WriteCommandQueue $queue, string $entityName, array $primaryKey): bool
+    private function isDeletedInQueue(WriteCommandQueue $queue, EntityDefinition $definition, array $primaryKey): bool
     {
-        ksort($primaryKey);
-
-        foreach ($queue->getCommands()[$entityName] ?? [] as $command) {
-            if (!$command instanceof DeleteCommand) {
-                continue;
-            }
-
-            $deletedPrimaryKey = $command->getPrimaryKey();
-            ksort($deletedPrimaryKey);
-
-            if ($deletedPrimaryKey === $primaryKey) {
+        foreach ($queue->getCommandsForEntity($definition, $primaryKey) as $command) {
+            if ($command instanceof DeleteCommand) {
                 return true;
             }
         }

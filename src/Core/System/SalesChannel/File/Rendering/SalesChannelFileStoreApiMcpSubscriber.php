@@ -18,8 +18,12 @@ final class SalesChannelFileStoreApiMcpSubscriber implements EventSubscriberInte
 {
     private const STORE_API_MCP_ROUTE = 'store-api.mcp.endpoint';
 
-    public function __construct(private readonly UrlGeneratorInterface $urlGenerator)
-    {
+    private const FILE_NAMES = ['llms.txt', '.well-known/ai-catalog.json'];
+
+    public function __construct(
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly string $appUrl,
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -32,25 +36,24 @@ final class SalesChannelFileStoreApiMcpSubscriber implements EventSubscriberInte
     public function addStoreApiMcpContext(SalesChannelFileRenderParametersExtension $extension): void
     {
         if ($extension->file->fileFamily !== SalesChannelFile::DEFAULT_FILE_FAMILY
-            || $extension->file->fileName !== '.well-known/ai-catalog.json'
+            || !\in_array($extension->file->fileName, self::FILE_NAMES, true)
             || !\is_array($extension->result)
         ) {
             return;
         }
 
-        $baseUrl = $this->resolveBaseUrl($extension);
-        if ($baseUrl === null) {
-            return;
-        }
+        $appUrl = rtrim($this->appUrl, '/');
+        $context = ['appUrl' => $appUrl];
 
-        $context = [
-            'baseUrl' => $baseUrl,
-            'publisher' => $this->extractPublisher($baseUrl),
-        ];
+        $baseUrl = $this->resolveBaseUrl($extension);
+        if ($baseUrl !== null) {
+            $context['baseUrl'] = $baseUrl;
+            $context['publisher'] = $this->extractPublisher($baseUrl);
+        }
 
         if ($extension->salesChannel->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API) {
             $path = $this->urlGenerator->generate(self::STORE_API_MCP_ROUTE, [], UrlGeneratorInterface::ABSOLUTE_PATH);
-            $context['storeApiMcpServerUrl'] = rtrim($baseUrl, '/') . $path;
+            $context['storeApiMcpServerUrl'] = $appUrl . $path;
         }
 
         $extension->result['salesChannelFileContext'] = $context;
@@ -64,15 +67,13 @@ final class SalesChannelFileStoreApiMcpSubscriber implements EventSubscriberInte
         }
 
         $domainId = $extension->context->getDomainId();
-        if ($domainId !== null) {
-            $domain = $domains->get($domainId);
+        $domain = $domainId !== null ? $domains->get($domainId) : null;
 
-            if ($domain instanceof SalesChannelDomainEntity) {
-                return rtrim($domain->getUrl(), '/');
-            }
+        if (!$domain instanceof SalesChannelDomainEntity) {
+            $languageId = $extension->context->getLanguageId();
+            $domain = $domains->firstWhere(static fn (SalesChannelDomainEntity $domain) => $domain->getLanguageId() === $languageId)
+                ?? $domains->first();
         }
-
-        $domain = $domains->first();
 
         return $domain instanceof SalesChannelDomainEntity ? rtrim($domain->getUrl(), '/') : null;
     }

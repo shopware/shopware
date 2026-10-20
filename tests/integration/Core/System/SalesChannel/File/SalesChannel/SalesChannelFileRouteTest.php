@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\System\SalesChannel\File\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -32,6 +33,7 @@ class SalesChannelFileRouteTest extends TestCase
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('headless-sales-channel'),
             'typeId' => Defaults::SALES_CHANNEL_TYPE_API,
+            'domains' => [['url' => 'https://headless-frontend.test']],
         ]);
     }
 
@@ -47,6 +49,7 @@ class SalesChannelFileRouteTest extends TestCase
         static::assertSame('text/plain; charset=utf-8', $response->headers->get('content-type'));
         static::assertStringContainsString('This is a Shopware-powered online shop.', $content);
         static::assertStringContainsString('Custom public guidance', $content);
+        static::assertStringContainsString('](' . $this->getAppUrl() . '/store-api/context)', $content);
     }
 
     public function testAiCatalogInSubFolderListsTheStoreApiMcpServerOfTheHeadlessSalesChannel(): void
@@ -62,7 +65,8 @@ class SalesChannelFileRouteTest extends TestCase
 
         $catalog = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($catalog);
-        static::assertSame('http://localhost/store-api/_mcp', $catalog['entries'][0]['url'] ?? null);
+        static::assertSame('urn:air:headless-frontend.test:server:store-api-mcp', $catalog['entries'][0]['identifier'] ?? null);
+        static::assertSame($this->getAppUrl() . '/store-api/_mcp', $catalog['entries'][0]['url'] ?? null);
     }
 
     public function testDisabledFileIsNotFound(): void
@@ -70,6 +74,11 @@ class SalesChannelFileRouteTest extends TestCase
         $this->browser->request('GET', '/store-api/sales-channel-file/AGENTS.md');
 
         static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
+    }
+
+    private function getAppUrl(): string
+    {
+        return rtrim((string) EnvironmentHelper::getVariable('APP_URL'), '/');
     }
 
     /**

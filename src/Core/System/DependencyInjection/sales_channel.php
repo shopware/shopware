@@ -98,6 +98,7 @@ use Shopware\Core\System\SalesChannel\Validation\SalesChannelValidator;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
@@ -190,6 +191,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(SalesChannelFileStoreApiMcpSubscriber::class)
         ->args([
             service('router'),
+            env('APP_URL'),
         ])
         ->tag('kernel.event_subscriber');
 

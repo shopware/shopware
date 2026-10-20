@@ -2,15 +2,15 @@
 
 namespace Shopware\Core\Framework\Mcp\Loader;
 
-use Doctrine\DBAL\Connection;
-use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
+use Shopware\Core\Framework\App\Mcp\Feature\McpToolConfig;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @experimental stableVersion:v6.8.0
  *
- * Reads runtime metadata for app MCP tools from the database: declared required
- * privileges and the toolset group each tool belongs to.
+ * Reads runtime metadata for app MCP tools from app feature storage: declared
+ * required privileges and the toolset group each tool belongs to.
  *
  * @internal
  */
@@ -18,8 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 class AppMcpPrivilegeProvider
 {
     public function __construct(
-        private readonly Connection $connection,
-        private readonly LoggerInterface $logger,
+        private readonly AppFeatureStorage $storage,
     ) {
     }
 
@@ -28,27 +27,9 @@ class AppMcpPrivilegeProvider
      */
     public function getAppToolPrivileges(): array
     {
-        try {
-            $rows = $this->connection->fetchAllAssociative(
-                'SELECT CONCAT(a.name, \'-\', t.name) AS tool_name, t.required_privileges
-                 FROM app_mcp_tool t
-                 INNER JOIN app a ON t.app_id = a.id AND a.active = 1
-                 WHERE t.required_privileges IS NOT NULL',
-            );
-        } catch (\Throwable $e) {
-            $this->logger->error('Failed to load app MCP tool privileges', [
-                'exception' => $e->getMessage(),
-            ]);
-
-            return [];
-        }
-
         $map = [];
-        foreach ($rows as $row) {
-            $decoded = json_decode((string) $row['required_privileges'], true);
-            if (\is_array($decoded)) {
-                $map[(string) $row['tool_name']] = array_values($decoded);
-            }
+        foreach ($this->storage->forActiveApps(McpToolConfig::class) as $feature) {
+            $map[$feature->appName . '-' . $feature->config->name] = $feature->config->requiredPrivileges;
         }
 
         return $map;
@@ -63,23 +44,9 @@ class AppMcpPrivilegeProvider
      */
     public function getAppToolGroups(): array
     {
-        try {
-            $rows = $this->connection->fetchAllAssociative(
-                'SELECT CONCAT(a.name, \'-\', t.name) AS tool_name, a.name AS group_name
-                 FROM app_mcp_tool t
-                 INNER JOIN app a ON t.app_id = a.id AND a.active = 1',
-            );
-        } catch (\Throwable $e) {
-            $this->logger->error('Failed to load app MCP tool groups', [
-                'exception' => $e->getMessage(),
-            ]);
-
-            return [];
-        }
-
         $map = [];
-        foreach ($rows as $row) {
-            $map[(string) $row['tool_name']] = (string) $row['group_name'];
+        foreach ($this->storage->forActiveApps(McpToolConfig::class) as $feature) {
+            $map[$feature->appName . '-' . $feature->config->name] = $feature->appName;
         }
 
         return $map;

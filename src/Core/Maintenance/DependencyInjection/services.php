@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Shopware\Core\Installer\Finish\SystemLocker;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelCreateCommand;
+use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelFileEnableCommand;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelListCommand;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelMaintenanceDisableCommand;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelMaintenanceEnableCommand;
@@ -162,6 +163,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(SalesChannelListCommand::class)
         ->args([
             service('sales_channel.repository'),
+        ])
+        ->tag('console.command');
+
+    $services->set(SalesChannelFileEnableCommand::class)
+        ->args([
+            service('sales_channel.repository'),
+            service('sales_channel_file.repository'),
         ])
         ->tag('console.command');
 

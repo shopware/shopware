@@ -1059,6 +1059,7 @@ class WebhookDispatchEndToEndTest extends TestCase
             'name' => $name,
             'event_name' => $eventName,
             'url' => $url,
+            'owner_user_id' => $this->connection->fetchOne('SELECT id FROM user WHERE username = :username', ['username' => 'admin']),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

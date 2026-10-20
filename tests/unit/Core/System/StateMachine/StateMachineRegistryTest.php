@@ -357,6 +357,11 @@ class StateMachineRegistryTest extends TestCase
         $historyRepository = $this->createMock(EntityRepository::class);
         $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, $dispatcher, $entityRepository, $historyRepository);
 
+        $fixture->historyRepository->expects($this->never())
+            ->method('create');
+        $fixture->entityRepository->expects($this->never())
+            ->method('upsert');
+
         $fixture->entityWriter->expects($this->once())
             ->method('sync')
             ->willReturn(new WriteResult([], [], [

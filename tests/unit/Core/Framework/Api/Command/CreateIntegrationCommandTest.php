@@ -60,7 +60,7 @@ class CreateIntegrationCommandTest extends TestCase
         static::assertSame($adminOption, $admin);
 
         $output = $cmd->getDisplay();
-        static::assertNotEmpty($output);
+        static::assertNotSame('', $output);
 
         $parsedEnv = (new Dotenv())->parse($output);
         static::assertCount(2, $parsedEnv);
@@ -102,7 +102,7 @@ class CreateIntegrationCommandTest extends TestCase
         static::assertFalse($admin);
 
         $output = $cmd->getDisplay();
-        static::assertNotEmpty($output);
+        static::assertNotSame('', $output);
 
         $parsedEnv = (new Dotenv())->parse($output);
         static::assertCount(2, $parsedEnv);

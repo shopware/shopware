@@ -53,8 +53,11 @@ const vueParser = resolveVueParser();
  * - `legacyTwig`: lint `.html.twig` component templates through the Twig-Vue
  *   processor. Disable for SFC-only extensions.
  * - `internalApiSeverity`: umbrella severity for the API-boundary rules
- *   (usage of `@deprecated` members). Internal plugins that intentionally
+ *   (usage of `@deprecated` members, including the deprecated i18n
+ *   syntax). Internal plugins that intentionally
  *   consume internal APIs may lower this in their own config.
+ * - `vite8DeprecationSeverity`: severity of the rules for code that breaks
+ *   with Vite 8, the build tool of Shopware 6.8 (defaults to `warn`).
  * - `ignores`: additional global ignore patterns.
  *
  * Host options — the Administration's own config composes this factory too
@@ -80,6 +83,7 @@ export function shopwareAdminExtension(options = {}) {
         extensionRoots = [],
         legacyTwig = true,
         internalApiSeverity = 'error',
+        vite8DeprecationSeverity = 'warn',
         ignores = [],
         deprecatedApiSeverity = internalApiSeverity,
         templateDeprecationSeverity = internalApiSeverity,
@@ -220,6 +224,27 @@ export function shopwareAdminExtension(options = {}) {
             files: scope([...typescriptFilePatterns, ...vueFilePatterns]),
             rules: {
                 '@typescript-eslint/no-deprecated': deprecatedApiSeverity,
+            },
+        },
+        {
+            name: 'shopware/admin-extension/i18n-deprecations',
+            files: scope([...javascriptFilePatterns, ...typescriptFilePatterns, ...templateFilePatterns]),
+            plugins: {
+                'sw-core-rules': swCoreRules,
+            },
+            rules: {
+                // Autofixes the deprecated `$tc()` / `Shopware.Snippet.tc()` calls and the vue-i18n 8 argument order.
+                'sw-core-rules/no-tc-translation': internalApiSeverity,
+            },
+        },
+        {
+            name: 'shopware/admin-extension/vite-8-deprecations',
+            files: scope([...javascriptFilePatterns, ...typescriptFilePatterns, ...vueFilePatterns]),
+            plugins: {
+                'sw-deprecation-rules': swDeprecationRules,
+            },
+            rules: {
+                'sw-deprecation-rules/no-import-meta-glob-extglob': vite8DeprecationSeverity,
             },
         },
         {

@@ -6,6 +6,18 @@
         max-width: max-content;
         min-width: var(--scale-size-128);
     }
+
+    .sw-tagged-field {
+        overflow-y: hidden;
+
+        .sw-block-field__block {
+            overflow-x: unset;
+        }
+
+        &__tag-list {
+            flex-wrap: nowrap;
+        }
+    }
 }
 
 .sw-condition-generic {
@@ -16,6 +28,7 @@
         display: flex;
         align-items: stretch;
         gap: var(--scale-size-4);
+        overflow: hidden;
 
         .sw-form-field-renderer,
         .sw-condition-value-between-date {

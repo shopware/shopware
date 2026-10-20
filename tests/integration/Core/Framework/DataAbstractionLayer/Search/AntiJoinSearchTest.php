@@ -337,7 +337,7 @@ class AntiJoinSearchTest extends TestCase
 
         $ids = $productRepository->searchIds($criteria, $enGbContext)->getIds();
         static::assertIsArray($ids);
-        static::assertEmpty($ids);
+        static::assertCount(0, $ids);
 
         $rawDeContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM]);
         $criteria = (new Criteria())->addFilter($notGreenFilter);
@@ -370,7 +370,7 @@ class AntiJoinSearchTest extends TestCase
 
         $ids = $productRepository->searchIds($criteria, $rawDeContext)->getIds();
         static::assertIsArray($ids);
-        static::assertEmpty($ids);
+        static::assertCount(0, $ids);
 
         $deContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, true);
         $criteria = (new Criteria())->addFilter($notGruenFilter);

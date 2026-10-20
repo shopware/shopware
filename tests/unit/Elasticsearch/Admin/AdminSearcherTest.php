@@ -127,7 +127,7 @@ class AdminSearcherTest extends TestCase
 
         $data = $searcher->search('elasticsearch', ['test'], Context::createDefaultContext());
 
-        static::assertEmpty($data);
+        static::assertCount(0, $data);
     }
 
     public function testSearchFallsBackToTheDalWhenTheEntityHasNoIndexer(): void
@@ -228,7 +228,7 @@ class AdminSearcherTest extends TestCase
 
         $data = $this->searcher->search('product 3800', ['product'], Context::createDefaultContext());
 
-        static::assertNotEmpty($data['product']);
+        static::assertNotCount(0, $data['product']);
         static::assertSame(1, $data['product']['total']);
     }
 
@@ -242,7 +242,20 @@ class AdminSearcherTest extends TestCase
 
         $data = $this->searcher->search('123', ['product'], Context::createDefaultContext());
 
-        static::assertNotEmpty($data['product']);
+        static::assertNotCount(0, $data['product']);
+        static::assertSame(1, $data['product']['total']);
+    }
+
+    public function testSearchStripsBracketsAroundWords(): void
+    {
+        $this->client
+            ->expects($this->once())
+            ->method('msearch')
+            ->with($this->getQueryBody('tennis cap*'))
+            ->willReturn($this->getMockResponse('tennis cap'));
+
+        $data = $this->searcher->search('tennis (cap', ['product'], Context::createDefaultContext());
+
         static::assertSame(1, $data['product']['total']);
     }
 
@@ -256,7 +269,7 @@ class AdminSearcherTest extends TestCase
 
         $data = $this->searcher->search('LAPTO', ['product'], Context::createDefaultContext());
 
-        static::assertNotEmpty($data['product']);
+        static::assertNotCount(0, $data['product']);
         static::assertSame(1, $data['product']['total']);
     }
 
@@ -418,7 +431,7 @@ class AdminSearcherTest extends TestCase
      */
     private function assertSearchResult(array $data, int $total, string $indexer, string $index): void
     {
-        static::assertNotEmpty($data['product']);
+        static::assertIsArray($data['product']);
         static::assertSame($total, $data['product']['total']);
         static::assertSame($indexer, $data['product']['indexer']);
         static::assertSame($index, $data['product']['index']);

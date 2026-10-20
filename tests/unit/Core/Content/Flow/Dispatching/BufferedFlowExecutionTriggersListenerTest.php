@@ -46,7 +46,7 @@ class BufferedFlowExecutionTriggersListenerTest extends TestCase
                 $this->bufferedFlowExecutionTriggersListener::getSubscribedEvents()
             );
         } else {
-            static::assertEmpty($this->bufferedFlowExecutionTriggersListener::getSubscribedEvents());
+            static::assertCount(0, $this->bufferedFlowExecutionTriggersListener::getSubscribedEvents());
         }
     }
 

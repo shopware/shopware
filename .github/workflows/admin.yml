@@ -108,13 +108,62 @@ jobs:
         run: npm --prefix src/Administration/Resources/app/administration run unit -- --silent
 
       - name: Upload coverage
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           files: build/artifacts/jest/cobertura-coverage.xml
           flags: jest-admin
           disable_search: true
+          disable_file_fixes: true
+
+  # @deprecated tag:v6.8.0 - Remove together with the ADMIN_VITE_8 feature flag, Vite 8 then builds the Administration by default.
+  build-vite-8:
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
+    runs-on: ubuntu-24.04
+    name: "Admin build (Vite 8)"
+    timeout-minutes: 30
+    env:
+      NODE_VERSION: 'lts/*'
+
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            src/Administration/Resources/app/administration/package-lock.json
+            src/Administration/Resources/app/administration/build/vite-8/package-lock.json
+
+      # The postinstall script of the Administration also installs the Vite 8 toolchain in build/vite-8
+      - name: Install admin dependencies
+        run: npm --prefix src/Administration/Resources/app/administration ci
+
+      # The flag is only set here, so the steps of setup-shopware are not affected by it
+      - name: Build the Administration and the Administration code of the bundles
+        env:
+          ADMIN_VITE_8: '1'
+        run: composer run build:js:admin
+
+      # vite-plugin-symfony writes its own version into entrypoints.json, and version 8 only ships with the Vite 8 toolchain.
+      # The Storefront is the only core bundle with Administration code, so its output proves that build/plugins.vite.ts used Vite 8, too.
+      - name: Assert that Vite 8 built the Administration and the Storefront bundle
+        run: |
+          set -euo pipefail
+          for out in src/Administration/Resources/public/administration src/Storefront/Resources/public/administration; do
+            jq -e '.version[1] == 8' "$out/.vite/entrypoints.json"
+            jq -e '[.[] | select(.isEntry)] | length > 0' "$out/.vite/manifest.json"
+            jq -r '.[].file' "$out/.vite/manifest.json" | xargs -I{} test -s "$out/{}"
+          done
 
   extension-tooling-e2e:
     needs:
@@ -186,6 +235,7 @@ jobs:
       - markdown-only-changes
       - lint
       - admin
+      - build-vite-8
       - license-check
 
     runs-on: Ubuntu-latest
@@ -194,5 +244,5 @@ jobs:
         uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # v1.3.0
         with:
           # allowed-failures: docs, linters
-          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'lint, admin, license-check' || '' }}
+          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'lint, admin, build-vite-8, license-check' || '' }}
           jobs: ${{ toJSON(needs) }}

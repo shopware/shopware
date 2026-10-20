@@ -11,7 +11,6 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfig;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider;
-use Shopware\Core\Framework\Telemetry\Metrics\Exception\MissingMetricConfigurationException;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Metric;
@@ -197,8 +196,225 @@ class MeterTest extends TestCase
             true,
         );
 
-        $this->expectException(MissingMetricConfigurationException::class);
+        $this->expectExceptionObject(TelemetryException::metricMissingConfiguration('test'));
         $meter->emit($configuredMetric);
+    }
+
+    public function testIsEnabledReturnsTrueForEnabledMetric(): void
+    {
+        $metricConfig = new MetricConfig(name: 'test', description: 'test', type: Type::COUNTER, enabled: true, parameters: []);
+
+        $meter = new Meter(
+            static::createStub(TransportCollection::class),
+            $this->configProviderWithSuccessfulExpectation($metricConfig, lookups: 1),
+            static::createStub(MetricLabelProcessor::class),
+            static::createStub(LoggerInterface::class),
+            'prod',
+            true,
+        );
+
+        static::assertTrue($meter->isEnabled('test'));
+    }
+
+    public function testIsEnabledReturnsFalseForDisabledMetric(): void
+    {
+        $metricConfig = new MetricConfig(name: 'test', description: 'test', type: Type::COUNTER, enabled: false, parameters: []);
+
+        $meter = new Meter(
+            static::createStub(TransportCollection::class),
+            $this->configProviderWithSuccessfulExpectation($metricConfig, lookups: 1),
+            static::createStub(MetricLabelProcessor::class),
+            static::createStub(LoggerInterface::class),
+            'prod',
+            true,
+        );
+
+        static::assertFalse($meter->isEnabled('test'));
+    }
+
+    public function testIsEnabledReturnsFalseWhenTelemetryDisabled(): void
+    {
+        $configProvider = $this->createMock(MetricConfigProvider::class);
+        $configProvider->expects($this->never())->method('get');
+
+        $meter = new Meter(
+            static::createStub(TransportCollection::class),
+            $configProvider,
+            static::createStub(MetricLabelProcessor::class),
+            static::createStub(LoggerInterface::class),
+            'prod',
+            false,
+        );
+
+        static::assertFalse($meter->isEnabled('test'));
+    }
+
+    public function testIsEnabledLogsAndReturnsFalseForUnconfiguredMetricInProd(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with(
+                static::stringContains('Missing configuration'),
+                static::arrayHasKey('exception')
+            );
+
+        $configProvider = $this->createMock(MetricConfigProvider::class);
+        $configProvider->expects($this->once())
+            ->method('get')
+            ->with('test')
+            ->willThrowException(TelemetryException::metricMissingConfiguration('test'));
+
+        $meter = new Meter(
+            static::createStub(TransportCollection::class),
+            $configProvider,
+            static::createStub(MetricLabelProcessor::class),
+            $logger,
+            'prod',
+            true,
+        );
+
+        static::assertFalse($meter->isEnabled('test'));
+    }
+
+    public function testIsEnabledThrowsForUnconfiguredMetricInTestEnv(): void
+    {
+        $configProvider = $this->createMock(MetricConfigProvider::class);
+        $configProvider->expects($this->once())
+            ->method('get')
+            ->with('test')
+            ->willThrowException(TelemetryException::metricMissingConfiguration('test'));
+
+        $meter = new Meter(
+            static::createStub(TransportCollection::class),
+            $configProvider,
+            static::createStub(MetricLabelProcessor::class),
+            static::createStub(LoggerInterface::class),
+            'test',
+            true,
+        );
+
+        $this->expectExceptionObject(TelemetryException::metricMissingConfiguration('test'));
+        $meter->isEnabled('test');
+    }
+
+    public function testEmitSkipsProcessingForDisabledMetric(): void
+    {
+        $metricConfig = new MetricConfig(name: 'test', description: 'test', type: Type::COUNTER, enabled: false, parameters: []);
+
+        $labelProcessor = $this->createMock(MetricLabelProcessor::class);
+        $labelProcessor->expects($this->never())->method('process');
+
+        $collection = $this->createMock(TransportCollection::class);
+        $collection->expects($this->never())->method('getIterator');
+
+        $meter = new Meter(
+            $collection,
+            $this->configProviderWithSuccessfulExpectation($metricConfig, lookups: 1),
+            $labelProcessor,
+            static::createStub(LoggerInterface::class),
+            'prod',
+            true,
+        );
+
+        $meter->emit(new ConfiguredMetric('test', 1));
+    }
+
+    public function testEmitResolvesLabelAndValueClosures(): void
+    {
+        $metricConfig = new MetricConfig(name: 'test', description: 'test', type: Type::COUNTER, enabled: true, parameters: []);
+
+        $emitted = null;
+        $transport = $this->createMock(MetricTransportInterface::class);
+        $transport->expects($this->once())->method('emit')->willReturnCallback(static function (Metric $metric) use (&$emitted): void {
+            $emitted = $metric;
+        });
+
+        $meter = new Meter(
+            $this->createTransportCollectionMock([$transport]),
+            $this->configProviderWithSuccessfulExpectation($metricConfig),
+            $this->createPassthroughLabelProcessor(),
+            static::createStub(LoggerInterface::class),
+            'prod',
+            true,
+        );
+
+        $meter->emit(new ConfiguredMetric(
+            'test',
+            static fn (): int => 41 + 1,
+            static fn (): array => ['test' => 'lazy'],
+        ));
+
+        static::assertNotNull($emitted);
+        static::assertSame(42, $emitted->value);
+        static::assertSame(['test' => 'lazy'], $emitted->labels);
+    }
+
+    public function testDiscardedMetricNeverComputesItsValue(): void
+    {
+        $metricConfig = new MetricConfig(name: 'test', description: 'test', type: Type::COUNTER, enabled: true, parameters: []);
+
+        $labelProcessor = $this->createMock(MetricLabelProcessor::class);
+        $labelProcessor->expects($this->once())->method('process')->willReturn(null);
+
+        $collection = $this->createMock(TransportCollection::class);
+        $collection->expects($this->never())->method('getIterator');
+
+        $meter = new Meter(
+            $collection,
+            $this->configProviderWithSuccessfulExpectation($metricConfig),
+            $labelProcessor,
+            static::createStub(LoggerInterface::class),
+            'prod',
+            true,
+        );
+
+        $meter->emit(new ConfiguredMetric(
+            'test',
+            static fn (): int => throw new \LogicException('value must not be computed for a discarded metric'),
+            ['region' => 'unknown'],
+        ));
+    }
+
+    public function testThrowingLabelClosureIsLoggedAndSwallowedInProd(): void
+    {
+        $metricConfig = new MetricConfig(name: 'test', description: 'test', type: Type::COUNTER, enabled: true, parameters: []);
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with('label error', static::arrayHasKey('exception'));
+
+        $collection = $this->createMock(TransportCollection::class);
+        $collection->expects($this->never())->method('getIterator');
+
+        $meter = new Meter(
+            $collection,
+            $this->configProviderWithSuccessfulExpectation($metricConfig),
+            static::createStub(MetricLabelProcessor::class),
+            $logger,
+            'prod',
+            true,
+        );
+
+        $meter->emit(new ConfiguredMetric('test', 1, static fn (): array => throw new \RuntimeException('label error')));
+    }
+
+    public function testThrowingLabelClosureIsRethrownInTestEnv(): void
+    {
+        $metricConfig = new MetricConfig(name: 'test', description: 'test', type: Type::COUNTER, enabled: true, parameters: []);
+
+        $meter = new Meter(
+            static::createStub(TransportCollection::class),
+            $this->configProviderWithSuccessfulExpectation($metricConfig),
+            static::createStub(MetricLabelProcessor::class),
+            static::createStub(LoggerInterface::class),
+            'test',
+            true,
+        );
+
+        $this->expectExceptionObject(new \RuntimeException('label error'));
+        $meter->emit(new ConfiguredMetric('test', 1, static fn (): array => throw new \RuntimeException('label error')));
     }
 
     public function testLabelProcessorDiscardPreventsEmission(): void
@@ -233,7 +449,14 @@ class MeterTest extends TestCase
     {
         $configuredMetric = new ConfiguredMetric('test', 1, ['test' => 'test']);
         $metricConfig = new MetricConfig(name: 'test', description: 'test', type: Type::COUNTER, enabled: true, parameters: [], unit: 'unit');
-        $metric = Metric::fromConfigured($configuredMetric, $metricConfig, ['test' => 'test']);
+        $metric = Metric::fromArray([
+            'name' => 'test',
+            'type' => Type::COUNTER,
+            'value' => 1,
+            'labels' => ['test' => 'test'],
+            'description' => 'test',
+            'unit' => 'unit',
+        ]);
         $transportCall = static::callback(static function (Metric $inputMetric) use ($metric) {
             self::assertEquals($metric, $inputMetric);
 
@@ -243,10 +466,11 @@ class MeterTest extends TestCase
         return [$configuredMetric, $metricConfig, $metric, $transportCall];
     }
 
-    public function configProviderWithSuccessfulExpectation(mixed $metricConfig): MetricConfigProvider&MockObject
+    public function configProviderWithSuccessfulExpectation(mixed $metricConfig, int $lookups = 2): MetricConfigProvider&MockObject
     {
+        // emit() resolves the config twice: once in the isEnabled() gate, once while processing
         $metricConfigProvider = $this->createMock(MetricConfigProvider::class);
-        $metricConfigProvider->expects($this->once())->method('get')->with('test')->willReturn($metricConfig);
+        $metricConfigProvider->expects($this->exactly($lookups))->method('get')->with('test')->willReturn($metricConfig);
 
         return $metricConfigProvider;
     }

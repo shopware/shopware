@@ -31,6 +31,16 @@ class CacheStore implements StoreInterface
     private const HALF_HOUR = 1800;
 
     /**
+     * Headers that are never needed to rebuild a cacheable page.
+     */
+    private const DROPPED_REFRESH_HEADERS = [
+        'HTTP_AUTHORIZATION', // e.g. basic auth in front of a staging shop
+        'HTTP_PROXY_AUTHORIZATION',
+        'HTTP_COOKIE', // cookies are passed separately
+        'HTTP_PROXY', // usually an environment variable with proxy credentials
+    ];
+
+    /**
      * @var array<string, bool>
      */
     private array $locks = [];
@@ -110,10 +120,16 @@ class CacheStore implements StoreInterface
                     // We keep the lock for a half hour, if not proceed in that time, the lock will be released, and we can re-dispatch the message
                     $item->expiresAt($this->clock->now()->modify('+' . self::HALF_HOUR . ' seconds'));
 
-                    // The handler uses a mock session, so the session cookie is not needed
-                    $cookies = array_diff_key($request->cookies->all(), [$this->sessionName => true]);
-
-                    $this->bus->dispatch(new RefreshHttpCacheMessage($lockKey, $request->query->all(), $request->attributes->all(), $cookies, self::getRefreshServerParameters($request), Request::getTrustedProxies(), Request::getTrustedHeaderSet()));
+                    $this->bus->dispatch(new RefreshHttpCacheMessage(
+                        lockKey: $lockKey,
+                        query: $request->query->all(),
+                        attributes: $request->attributes->all(),
+                        // The handler uses a mock session, so the session cookie is not needed
+                        cookies: array_diff_key($request->cookies->all(), [$this->sessionName => true]),
+                        server: self::getRefreshServerParameters($request),
+                        trustedIps: Request::getTrustedProxies(),
+                        trustedHeaderSet: Request::getTrustedHeaderSet(),
+                    ));
                 });
             }
         }
@@ -305,27 +321,32 @@ class CacheStore implements StoreInterface
      */
     private static function getRefreshServerParameters(Request $request): array
     {
-        // Only the parameter names are used. The URL just has to be https, so that Symfony also sets HTTPS and the scheme is kept
-        $requestNames = array_flip(array_keys(Request::create('https://localhost/')->server->all()));
+        // Only the names are used. The URL just has to be https, so that Symfony also sets HTTPS and the scheme is kept
+        $symfonyNames = array_keys(Request::create('https://localhost/')->server->all());
+        $droppedNames = [...self::DROPPED_REFRESH_HEADERS, ...self::getDotenvNames($request)];
 
-        // Environment variables can look like headers. Names loaded from .env files are listed in SYMFONY_DOTENV_VARS.
-        // HTTP_PROXY is a common environment variable with proxy credentials, and no request needs it as a header
-        $dotenvNames = $request->server->get('SYMFONY_DOTENV_VARS');
-        $droppedNames = array_flip(\is_string($dotenvNames) && $dotenvNames !== '' ? explode(',', $dotenvNames) : []);
-        $droppedNames['HTTP_PROXY'] = true;
+        $parameters = [];
+        foreach ($request->server->all() as $name => $value) {
+            $isHeader = str_starts_with((string) $name, 'HTTP_') && !\in_array($name, $droppedNames, true);
 
-        // Credentials are not needed to rebuild a cacheable page: e.g. basic auth in front of a staging shop.
-        // Cookies are passed separately, so the raw cookie header with the session id is not needed either
-        $droppedNames['HTTP_AUTHORIZATION'] = true;
-        $droppedNames['HTTP_PROXY_AUTHORIZATION'] = true;
-        $droppedNames['HTTP_COOKIE'] = true;
+            if ($isHeader || \in_array($name, $symfonyNames, true)) {
+                $parameters[$name] = $value;
+            }
+        }
 
-        return array_filter(
-            $request->server->all(),
-            static fn (int|string $key): bool => \array_key_exists($key, $requestNames)
-                || (str_starts_with((string) $key, 'HTTP_') && !\array_key_exists($key, $droppedNames)),
-            \ARRAY_FILTER_USE_KEY
-        );
+        return $parameters;
+    }
+
+    /**
+     * Environment variables can look like headers. Symfony lists the names loaded from .env files.
+     *
+     * @return list<string>
+     */
+    private static function getDotenvNames(Request $request): array
+    {
+        $names = $request->server->get('SYMFONY_DOTENV_VARS');
+
+        return \is_string($names) && $names !== '' ? explode(',', $names) : [];
     }
 
     /**

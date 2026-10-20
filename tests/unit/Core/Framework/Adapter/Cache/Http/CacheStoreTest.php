@@ -399,10 +399,7 @@ class CacheStoreTest extends TestCase
     public function testLookupWithSoftPurgeAndStaleCache(): void
     {
         $leakedValue = 'leaked-environment-value';
-        $request = new Request(cookies: [
-            PlatformRequest::FALLBACK_SESSION_NAME => $leakedValue,
-            'sw-cache-hash' => 'context-hash',
-        ], server: [
+        $keptServer = [
             'HTTP_HOST' => 'shop.example',
             'HTTP_X_FORWARDED_PROTO' => 'https',
             'HTTPS' => 'on',
@@ -410,6 +407,8 @@ class CacheStoreTest extends TestCase
             'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '/index.php',
             'REMOTE_ADDR' => '10.0.0.1',
+        ];
+        $droppedServer = [
             ...array_fill_keys(self::SHOPWARE_ENVIRONMENT_VARIABLES, $leakedValue),
             // environment variables that look like headers, from the process environment and from a .env file
             'HTTP_PROXY' => $leakedValue,
@@ -419,7 +418,11 @@ class CacheStoreTest extends TestCase
             'HTTP_AUTHORIZATION' => 'Basic ' . $leakedValue,
             'HTTP_PROXY_AUTHORIZATION' => 'Basic ' . $leakedValue,
             'HTTP_COOKIE' => PlatformRequest::FALLBACK_SESSION_NAME . '=' . $leakedValue . '; sw-cache-hash=context-hash',
-        ]);
+        ];
+        $request = new Request(cookies: [
+            PlatformRequest::FALLBACK_SESSION_NAME => $leakedValue,
+            'sw-cache-hash' => 'context-hash',
+        ], server: [...$keptServer, ...$droppedServer]);
         $response = new Response();
         $response->headers->set('date', date('Y-m-d H:i:s', time() - 3600)); // 1 hour ago
 
@@ -469,15 +472,7 @@ class CacheStoreTest extends TestCase
 
         $message = $messages[0]->getMessage();
         static::assertInstanceOf(RefreshHttpCacheMessage::class, $message);
-        static::assertSame([
-            'HTTP_HOST' => 'shop.example',
-            'HTTP_X_FORWARDED_PROTO' => 'https',
-            'HTTPS' => 'on',
-            'REQUEST_URI' => '/detail/1',
-            'REQUEST_METHOD' => 'GET',
-            'SCRIPT_NAME' => '/index.php',
-            'REMOTE_ADDR' => '10.0.0.1',
-        ], $message->server);
+        static::assertSame($keptServer, $message->server);
         static::assertSame(['sw-cache-hash' => 'context-hash'], $message->cookies);
         static::assertStringNotContainsString($leakedValue, serialize($message));
     }

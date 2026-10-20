@@ -63,7 +63,8 @@ class AdministrationControllerTest extends TestCase
 
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($response);
-        static::assertNotEmpty($response['de-DE']);
+        static::assertIsArray($response['de-DE']);
+        static::assertNotSame([], $response['de-DE']);
 
         $duplicates = array_intersect_key(
             $this->flattenSnippets($response['de-DE']),
@@ -85,7 +86,7 @@ class AdministrationControllerTest extends TestCase
         static::assertIsArray($response);
 
         foreach ($response as $localeSnippets) {
-            static::assertEmpty(array_diff(array_keys($localeSnippets), ['sw-login', 'global']));
+            static::assertSame([], array_values(array_diff(array_keys($localeSnippets), ['sw-login', 'global'])));
         }
 
         static::assertArrayHasKey('sw-login', ($response['de-DE'] ?? []) + ($response['en-GB'] ?? []));

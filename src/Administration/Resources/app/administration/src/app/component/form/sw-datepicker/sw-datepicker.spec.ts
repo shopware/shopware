@@ -4,11 +4,11 @@
 
 import { mount } from '@vue/test-utils';
 
-function createFieldStub(modelProp: 'modelValue' | 'value') {
+function createFieldStub(name: string, modelProp: 'modelValue' | 'value') {
     return {
         props: [modelProp],
         emits: [`update:${modelProp}`],
-        template: `<input class="field-stub" @input="$emit('update:${modelProp}', $event.target.value)" />`,
+        template: `<input class="field-stub ${name}" @input="$emit('update:${modelProp}', $event.target.value)" />`,
     };
 }
 
@@ -16,8 +16,8 @@ async function createWrapper(options: { props?: Record<string, unknown>; attrs?:
     return mount(await wrapTestComponent('sw-datepicker', { sync: true }), {
         global: {
             stubs: {
-                'mt-datepicker': createFieldStub('modelValue'),
-                'sw-datepicker-deprecated': createFieldStub('value'),
+                'mt-datepicker': createFieldStub('mt-datepicker', 'modelValue'),
+                'sw-datepicker-deprecated': createFieldStub('sw-datepicker-deprecated', 'value'),
             },
         },
         ...options,
@@ -28,7 +28,8 @@ describe('src/app/component/base/sw-datepicker', () => {
     it('should render the mt-datepicker', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.find('.field-stub').exists()).toBe(true);
+        expect(wrapper.find('.mt-datepicker').exists()).toBe(true);
+        expect(wrapper.find('.sw-datepicker-deprecated').exists()).toBe(false);
     });
 
     it.each([

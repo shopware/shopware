@@ -15,6 +15,8 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\StreamableInputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -42,6 +44,7 @@ class RotateAppSecretCommand extends Command
     protected function configure(): void
     {
         $this->addArgument('name', InputArgument::OPTIONAL, 'The name of the app (if not provided, rotates all active apps)');
+        $this->addOption('adopt-secrets', null, InputOption::VALUE_NONE, 'Read secrets to try first from standard input, one per line (requires an app name)');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -53,6 +56,22 @@ class RotateAppSecretCommand extends Command
 
         if ($name !== null && !\is_string($name)) {
             throw new \InvalidArgumentException('Argument $name must be a string');
+        }
+
+        $adoptedSecrets = [];
+        if ($input->getOption('adopt-secrets')) {
+            if ($name === null) {
+                $io->error('The --adopt-secrets option requires an app name.');
+
+                return self::FAILURE;
+            }
+
+            $adoptedSecrets = $this->readSecretsFromInput($input);
+            if ($adoptedSecrets === []) {
+                $io->error('No secrets were read from standard input.');
+
+                return self::FAILURE;
+            }
         }
 
         $appNames = $this->getAppNamesToRotate($name);
@@ -80,7 +99,7 @@ class RotateAppSecretCommand extends Command
 
         foreach ($apps as $app) {
             try {
-                $this->rotationService->rotateNow($app->getId(), $context, AppSecretRotationService::TRIGGER_CLI);
+                $this->rotationService->rotateNow($app->getId(), $context, AppSecretRotationService::TRIGGER_CLI, $adoptedSecrets);
                 $io->success(\sprintf('App %s secrets rotated successfully.', $app->getName()));
             } catch (\Throwable $exception) {
                 $io->error(\sprintf('App %s secret rotation failed due: %s', $app->getName(), $exception->getMessage()));
@@ -93,6 +112,18 @@ class RotateAppSecretCommand extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function readSecretsFromInput(InputInterface $input): array
+    {
+        $stream = $input instanceof StreamableInputInterface ? $input->getStream() : null;
+
+        $lines = explode("\n", (string) stream_get_contents($stream ?? \STDIN));
+
+        return array_values(array_filter(array_map('trim', $lines), static fn (string $line): bool => $line !== ''));
     }
 
     /**

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
+use Shopware\Core\Framework\App\RetainedSecret\AppRetainedSecretGateway;
 use Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -56,6 +57,20 @@ class DeleteCascadeAppsHandlerTest extends TestCase
         static::assertSame([], $integrationRepository->deletes);
     }
 
+    public function testPurgesExpiredRetainedSecrets(): void
+    {
+        $retainedSecrets = $this->createMock(AppRetainedSecretGateway::class);
+        $retainedSecrets->expects($this->once())->method('purgeExpired');
+
+        $handler = $this->createHandler(
+            StaticEntityRepository::of(AclRoleCollection::class, [[]]),
+            StaticEntityRepository::of(IntegrationCollection::class, [[]]),
+            $retainedSecrets,
+        );
+
+        $handler->run();
+    }
+
     /**
      * @param StaticEntityRepository<AclRoleCollection> $aclRoleRepository
      * @param StaticEntityRepository<IntegrationCollection> $integrationRepository
@@ -63,6 +78,7 @@ class DeleteCascadeAppsHandlerTest extends TestCase
     private function createHandler(
         StaticEntityRepository $aclRoleRepository,
         StaticEntityRepository $integrationRepository,
+        ?AppRetainedSecretGateway $retainedSecrets = null,
     ): DeleteCascadeAppsHandler {
         return new DeleteCascadeAppsHandler(
             StaticEntityRepository::of(ScheduledTaskCollection::class),
@@ -70,6 +86,7 @@ class DeleteCascadeAppsHandlerTest extends TestCase
             $aclRoleRepository,
             $integrationRepository,
             new MockClock(new \DateTimeImmutable('2024-01-02 12:00:00')),
+            $retainedSecrets ?? static::createStub(AppRetainedSecretGateway::class),
         );
     }
 }

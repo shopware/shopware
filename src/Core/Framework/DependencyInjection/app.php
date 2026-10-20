@@ -65,6 +65,7 @@ use Shopware\Core\Framework\App\Command\DeactivateAppCommand;
 use Shopware\Core\Framework\App\Command\InstallAppCommand;
 use Shopware\Core\Framework\App\Command\RefreshAppCommand;
 use Shopware\Core\Framework\App\Command\RotateAppSecretCommand;
+use Shopware\Core\Framework\App\Command\ShowRecoverableAppSecretsCommand;
 use Shopware\Core\Framework\App\Command\UninstallAppCommand;
 use Shopware\Core\Framework\App\Command\ValidateAppCommand;
 use Shopware\Core\Framework\App\Context\Gateway\AppContextGateway;
@@ -116,6 +117,7 @@ use Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler;
 use Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService;
 use Shopware\Core\Framework\App\Privileges\AppCapability;
 use Shopware\Core\Framework\App\Privileges\Privileges;
+use Shopware\Core\Framework\App\RetainedSecret\AppRetainedSecretGateway;
 use Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsHandler;
 use Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsTask;
 use Shopware\Core\Framework\App\ScheduledTask\SystemHeartbeatHandler;
@@ -219,6 +221,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(Connection::class),
             service(FingerprintGenerator::class),
+            service(AppRetainedSecretGateway::class),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 
@@ -623,6 +626,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('acl_role.repository'),
             service('integration.repository'),
             service(ClockInterface::class),
+            service(AppRetainedSecretGateway::class),
         ])
         ->tag('messenger.message_handler');
 
@@ -858,6 +862,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
+    $services->set(ShowRecoverableAppSecretsCommand::class)
+        ->args([
+            service('app.repository'),
+            service(AppRetainedSecretGateway::class),
+        ])
+        ->tag('console.command');
+
     $services->set(ShopIdController::class)
         ->public()
         ->args([
@@ -1077,6 +1088,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(DeletedAppsGateway::class)
         ->args([
             service(Connection::class),
+        ]);
+
+    $services->set(AppRetainedSecretGateway::class)
+        ->args([
+            service(Connection::class),
+            service(ClockInterface::class),
         ]);
 
     $services->set(AppSecretResolver::class)

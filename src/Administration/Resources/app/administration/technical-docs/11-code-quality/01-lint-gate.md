@@ -49,6 +49,15 @@ The growth check lets a rule that has no entries on the base commit in only when
 This is a known gap: any change to `eslint.config.ts` lets any new rule into the baseline.
 Reviewers of such a pull request check the diff of `eslint-suppressions.json`.
 
+## Rules
+
+| Rule | Why |
+|---|---|
+| `sw-test-rules/no-vm-access` | Specs assert what a component renders, emits or requests, not its internals through `wrapper.vm` |
+
+`sw-test-rules/no-vm-access` allows `.vm.$emit()`, which is how Vue Test Utils simulates an event from a child or stub.
+Where a spec has no other way, an inline disable with a reason is allowed, for example `// eslint-disable-next-line sw-test-rules/no-vm-access -- <reason>`.
+
 ## Inline disables
 
 `rulesWithoutInlineDisable` in `eslint.config.ts` lists the rules that can't be disabled with an `eslint-disable` comment.

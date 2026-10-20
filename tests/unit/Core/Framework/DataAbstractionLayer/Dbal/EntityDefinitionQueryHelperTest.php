@@ -158,6 +158,13 @@ class EntityDefinitionQueryHelperTest extends TestCase
         yield 'question mark' => ['pro?duct'];
         yield 'colon' => ['pro:duct'];
         yield 'control character' => ["pro\nduct"];
+        yield 'single quote' => ["pro'duct"];
+        yield 'double quote' => ['pro"duct'];
+        yield 'double dash comment' => ['pro--duct'];
+        yield 'backslash' => ['pro\\duct'];
+        yield 'semicolon' => ['pro;duct'];
+        yield 'block comment alias t/*' => ['t/*'];
+        yield 'block comment close */' => ['a*/b'];
     }
 
     #[DataProvider('provideDisallowedIdentifiers')]
@@ -166,6 +173,52 @@ class EntityDefinitionQueryHelperTest extends TestCase
         $this->expectExceptionObject(DataAbstractionLayerException::invalidIdentifier($identifier));
 
         EntityDefinitionQueryHelper::escape($identifier);
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function provideAllowedIdentifiers(): \Generator
+    {
+        yield 'plain' => ['product'];
+        yield 'snake case storage name' => ['customer_tax'];
+        yield 'dashed aggregation name' => ['price-count'];
+        yield 'dotted key suffix' => ['my_agg.key'];
+        yield 'nested root alias' => ['product.translation.override_1'];
+        yield 'single dash is allowed' => ['a-b'];
+        // lone slash/star cannot form a comment marker, so API-supplied labels keep working
+        yield 'lone slash in label' => ['price/range'];
+        yield 'lone star in label' => ['col*'];
+    }
+
+    #[DataProvider('provideAllowedIdentifiers')]
+    public function testEscapeAcceptsValidIdentifiers(string $identifier): void
+    {
+        static::assertSame('`' . $identifier . '`', EntityDefinitionQueryHelper::escape($identifier));
+    }
+
+    /**
+     * @return \Generator<string, array{string, bool}>
+     */
+    public static function provideJsonPaths(): \Generator
+    {
+        yield 'simple segment' => ['.foo', true];
+        yield 'nested segments' => ['.foo.bar', true];
+        yield 'hyphenated key' => ['.foo-bar', true];
+        yield 'quoted dotted key' => ['."foo.bar"', true];
+        // lone slash/star are inert inside the quote()-wrapped path, so JSON keys keep working
+        yield 'allows lone slash' => ['.a/b', true];
+        yield 'allows lone star' => ['.a*b', true];
+        // the filter-side half of the advisory chain: */ closes the comment the alias opened
+        yield 'rejects comment close */' => ['.a*/b', false];
+        yield 'rejects comment open /*' => ['.a/*b', false];
+        yield 'rejects control character' => [".a\nb", false];
+    }
+
+    #[DataProvider('provideJsonPaths')]
+    public function testIsValidJsonPath(string $path, bool $expected): void
+    {
+        static::assertSame($expected, EntityDefinitionQueryHelper::isValidJsonPath($path));
     }
 
     private function getRegistry(): DefinitionInstanceRegistry

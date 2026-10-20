@@ -131,6 +131,12 @@ class AggregationParserTest extends TestCase
     {
         yield 'line break' => ["invalid\r\nname"];
         yield 'null byte' => ["invalid\0name"];
+        yield 'single quote' => ["foo'foo"];
+        yield 'double quote' => ['foo"foo'];
+        yield 'double dash comment' => ['foo--foo'];
+        yield 'backslash' => ['foo\\foo'];
+        yield 'semicolon' => ['foo;foo'];
+        yield 'block comment alias t/*' => ['t/*'];
     }
 
     #[DataProvider('provideControlCharacterNames')]
@@ -160,7 +166,7 @@ class AggregationParserTest extends TestCase
         $error = array_shift($errors);
 
         static::assertNotNull($error);
-        static::assertSame('The aggregation name should not contain a backtick, question mark, colon, or control character.', $error['detail']);
+        static::assertSame('The aggregation name should not contain a backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character.', $error['detail']);
         static::assertCount(0, $criteria->getAggregations());
     }
 
@@ -381,7 +387,7 @@ class AggregationParserTest extends TestCase
 
         static::assertNotNull($error);
 
-        static::assertSame('The aggregation name should not contain a backtick, question mark, colon, or control character.', $error['detail']);
+        static::assertSame('The aggregation name should not contain a backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character.', $error['detail']);
     }
 
     /**
@@ -393,6 +399,10 @@ class AggregationParserTest extends TestCase
         yield 'question mark' => ['foo?foo'];
         yield 'colon' => ['foo:foo'];
         yield 'control character' => ["foo\nfoo"];
+        yield 'single quote' => ["foo'foo"];
+        yield 'double quote' => ['foo"foo'];
+        yield 'double dash comment' => ['foo--foo'];
+        yield 'block comment */' => ['foo*/foo'];
     }
 
     #[DataProvider('provideDisallowedRangeKeys')]
@@ -423,7 +433,7 @@ class AggregationParserTest extends TestCase
         $error = array_shift($errors);
 
         static::assertNotNull($error);
-        static::assertSame('The range aggregation key should not contain a backtick, question mark, colon, or control character.', $error['detail']);
+        static::assertSame('The range aggregation key should not contain a backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character.', $error['detail']);
         static::assertCount(0, $criteria->getAggregations());
     }
 }

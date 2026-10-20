@@ -42,20 +42,20 @@ class ShopIdProvider implements ResetInterface
             return $this->shopId;
         }
 
-        $this->shopId = $this->fetchShopIdFromSystemConfig() ?? $this->regenerateAndSetShopId();
+        $shopId = $this->fetchShopIdFromSystemConfig() ?? $this->regenerateAndSetShopId();
 
-        $fingerprintsComparison = $this->fingerprintGenerator->matchFingerprints($this->shopId->fingerprints);
+        $fingerprintsComparison = $this->fingerprintGenerator->matchFingerprints($shopId->fingerprints);
         if (!$fingerprintsComparison->isMatching()) {
             if ($this->hasAppsRegisteredAtAppServers()) {
-                throw AppException::shopIdChangeSuggested($this->shopId, $fingerprintsComparison);
+                throw AppException::shopIdChangeSuggested($shopId, $fingerprintsComparison);
             }
 
             // if the shop does not have any apps we can update the existing shop id value
             // with the new APP_URL as no app knows the shop id
-            $this->regenerateAndSetShopId($this->shopId->id);
+            return $this->regenerateAndSetShopId($shopId->id);
         }
 
-        return $this->shopId;
+        return $this->shopId = $shopId;
     }
 
     public function regenerateAndSetShopId(?string $existingShopId = null): ShopId

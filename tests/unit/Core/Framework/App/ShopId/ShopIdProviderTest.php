@@ -161,6 +161,46 @@ class ShopIdProviderTest extends TestCase
         $provider->getShopId();
     }
 
+    public function testKeepsThrowingWhileFingerprintsStillMismatch(): void
+    {
+        $systemConfigService = static::createStub(SystemConfigService::class);
+        $systemConfigService->method('get')->willReturn((array) ShopId::v2('1234567890'));
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturn(1);
+
+        $fingerprintGenerator = static::createStub(FingerprintGenerator::class);
+        $fingerprintGenerator->method('matchFingerprints')
+            ->willReturn(new FingerprintComparisonResult(
+                [],
+                [
+                    AppUrl::IDENTIFIER => new FingerprintMismatch(
+                        AppUrl::IDENTIFIER,
+                        'https://old.url',
+                        'https://new.url',
+                        100,
+                    ),
+                ],
+                75,
+            ));
+
+        $provider = new ShopIdProvider(
+            $systemConfigService,
+            new CollectingEventDispatcher(),
+            $connection,
+            $fingerprintGenerator,
+        );
+
+        try {
+            $provider->getShopId();
+            static::fail('Expected the first call to suggest a ShopId change');
+        } catch (ShopIdChangeSuggestedException) {
+        }
+
+        static::expectException(ShopIdChangeSuggestedException::class);
+        $provider->getShopId();
+    }
+
     public function testUpdatesShopIdIfFingerprintsHaveChangedButHasNoAppsRegisteredAtAppServers(): void
     {
         $shopId = ShopId::v2('1234567890', [

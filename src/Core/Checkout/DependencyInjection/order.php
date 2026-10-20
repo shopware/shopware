@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\CartSerializationCleaner;
 use Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
+use Shopware\Core\Checkout\Cart\Order\OrderRestorer;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
@@ -28,6 +29,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTr
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStateHandler;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefundPosition\OrderTransactionCaptureRefundPositionDefinition;
 use Shopware\Core\Checkout\Order\Api\OrderActionController;
+use Shopware\Core\Checkout\Order\Listener\OrderRestorationListener;
 use Shopware\Core\Checkout\Order\Listener\OrderStateChangeEventListener;
 use Shopware\Core\Checkout\Order\OrderAddressService;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -37,6 +39,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute;
 use Shopware\Core\Checkout\Order\Subscriber\OrderSalutationSubscriber;
+use Shopware\Core\Checkout\Order\Subscriber\OrderTransactionVersionMergeSubscriber;
 use Shopware\Core\Checkout\Order\Telemetry\OrderMetricsSubscriber;
 use Shopware\Core\Checkout\Order\Validation\OrderValidationFactory;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
@@ -138,6 +141,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('rule.repository'),
         ]);
 
+    $services->set(OrderRestorer::class)
+        ->args([
+            service(OrderConverter::class),
+            service(CartService::class),
+        ]);
+
     $services->set(OrderTransactionStateHandler::class)
         ->args([
             service(StateMachineRegistry::class),
@@ -203,7 +212,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('order.repository'),
             service(OrderConverter::class),
             service(CartRuleLoader::class),
-            service(CartService::class),
+            service(OrderRestorer::class),
             service('event_dispatcher'),
             service(InitialStateIdLoader::class),
             service(CheckoutGatewayRoute::class),
@@ -222,9 +231,22 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
+    $services->set(OrderRestorationListener::class)
+        ->args([
+            service(OrderRoute::class),
+            service(OrderRestorer::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
     $services->set(OrderSalutationSubscriber::class)
         ->args([
             service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(OrderTransactionVersionMergeSubscriber::class)
+        ->args([
+            service('order_transaction.repository'),
         ])
         ->tag('kernel.event_subscriber');
 

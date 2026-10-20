@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersister;
-use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\Order\OrderRestorer;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountNewsletterRecipientRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\CustomerGroupRegistrationSettingsRoute;
@@ -67,6 +67,7 @@ use Shopware\Core\System\Salutation\SalesChannel\SalutationRoute;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Checkout\Customer\CustomerGroupSubscriber;
+use Shopware\Storefront\Checkout\Order\OrderProductAvailabilityResolver;
 use Shopware\Storefront\Checkout\Payment\BlockedPaymentMethodSwitcher;
 use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
 use Shopware\Storefront\Controller\ScriptController;
@@ -567,6 +568,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(OrderRoute::class),
             service(Translator::class),
             service(SystemConfigService::class),
+            service(OrderProductAvailabilityResolver::class),
         ]);
 
     $services->set(CheckoutConfirmPageLoader::class)
@@ -613,6 +615,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CustomerRoute::class),
             service(NewsletterAccountPageletLoader::class),
             service(Translator::class),
+            service(OrderProductAvailabilityResolver::class),
         ]);
 
     $services->set(AccountOrderPageLoader::class)
@@ -621,6 +624,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(OrderRoute::class),
             service(Translator::class),
+            service(OrderProductAvailabilityResolver::class),
+        ]);
+
+    $services->set(OrderProductAvailabilityResolver::class)
+        ->args([
+            service('sales_channel.product.repository'),
+            service(SystemConfigService::class),
+            service(ProductCloseoutFilterFactory::class),
         ]);
 
     $services->set(AccountOrderDetailPageLoader::class)
@@ -637,10 +648,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(OrderRoute::class),
             service(CheckoutGatewayRoute::class),
-            service(OrderConverter::class),
+            service(OrderRestorer::class),
             service(OrderService::class),
             service(Translator::class),
-            service(CartService::class),
         ]);
 
     $services->set(AccountLoginPageLoader::class)

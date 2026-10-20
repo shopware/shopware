@@ -48,6 +48,7 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
@@ -571,21 +572,17 @@ class CheckoutControllerTest extends TestCase
             $loadedCarts[] = $event->getCart()->getToken();
         };
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-        $dispatcher->addListener(CartLoadedEvent::class, $tracker);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CartLoadedEvent::class, $tracker);
 
-        try {
-            $browser->request('GET', '/checkout/cart.json');
-        } finally {
-            $dispatcher->removeListener(CartLoadedEvent::class, $tracker);
-        }
+        $browser->request('GET', '/checkout/cart.json');
 
         static::assertCount(1, $loadedCarts);
 
         $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(1, $response['lineItems']);
-        static::assertNotEmpty($response['hash']);
+        static::assertIsString($response['hash']);
+        static::assertNotSame('', $response['hash']);
     }
 
     public function testCheckoutConfirmPageLoadedHookScriptsAreExecuted(): void
@@ -726,7 +723,7 @@ class CheckoutControllerTest extends TestCase
 
         $response = static::getContainer()->get(CheckoutController::class)->info($request, $salesChannelContext);
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testCheckoutOffcanvasRendersOptionalPromotionField(): void

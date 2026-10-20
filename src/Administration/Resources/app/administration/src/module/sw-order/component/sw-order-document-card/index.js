@@ -349,7 +349,7 @@ export default {
                 let errorMessage = payload.detail;
                 if (payload.code === 'DOCUMENT__NUMBER_ALREADY_EXISTS') {
                     const translationKey = 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS';
-                    errorMessage = this.$t(translationKey, 1, payload.meta.parameters || {});
+                    errorMessage = this.$t(translationKey, payload.meta.parameters || {});
                 }
 
                 this.createNotificationError({
@@ -613,6 +613,17 @@ export default {
 
                     this.isLoadingDocument = false;
                     return;
+                }
+
+                if (
+                    !params.documentNumber &&
+                    params.documentNumberPreview &&
+                    documentCreateResponse.documentNumber &&
+                    documentCreateResponse.documentNumber !== params.documentNumberPreview
+                ) {
+                    this.createNotificationInfo({
+                        message: this.$t('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
+                    });
                 }
 
                 const documentId = documentCreateResponse.documentId;

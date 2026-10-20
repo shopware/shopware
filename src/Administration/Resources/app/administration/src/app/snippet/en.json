@@ -21,7 +21,8 @@
       "FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE": "The selected sales channel is in maintenance mode and your IP address is not allowlisted. Disable maintenance mode or add your IP address to the allowlist.",
       "THEME__INVALID_SCSS_VAR": "SCSS value \"{value}\" is not valid for type \"{type}\".",
       "DOCUMENT_BASE_CONFIG_INVALID_PAYMENT_DUE_DATE": "The payment due date must be a relative date such as \"+14 days\".",
-      "INVALID_GARAN_GUARANTEE_MONTHS": "The guarantee duration must be empty or a half-year value between 30 and 600 months, e.g. 30, 36 or 42."
+      "INVALID_GARAN_GUARANTEE_MONTHS": "The guarantee duration must be empty or a half-year value between 30 and 600 months, e.g. 30, 36 or 42.",
+      "INVALID_GARAN_GUARANTEE_TERMS_URL": "The guarantee terms URL must start with http:// or https://."
     },
     "default": {
       "add": "Add",
@@ -817,6 +818,7 @@
         "lineItemTotalPriceRule": "Item total (qty × price)",
         "lineItemWithQuantityRule": "Item with quantity",
         "lineItemPerItemQuantityRule": "Quantity per item",
+        "orderDaysSincePlacedRule": "Time since order was placed",
         "orderTagRule": "Order with tag",
         "orderTrackingCodeRule": "Tracking code",
         "orderDeliveryStatusRule": "Delivery status",
@@ -1378,6 +1380,10 @@
     "general": {
       "messagePlaceholder": "Oops, something went terribly wrong."
     }
+  },
+  "sw-not-found": {
+    "title": "Page not found",
+    "description": "The page you were looking for could not be found. It may have been moved or no longer exists."
   },
   "sw-property-search": {
     "placeholderSearch": "Search values...",

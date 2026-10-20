@@ -116,11 +116,11 @@ class CartLineItemControllerTest extends TestCase
         $flashBag = $this->getFlashBag();
 
         if ($expected) {
-            static::assertNotEmpty($flashBag->get('success'));
+            static::assertNotCount(0, $flashBag->get('success'));
             static::assertNotNull($cartLineItem);
         } else {
             $flashes = $flashBag->get('danger');
-            static::assertNotEmpty($flashes);
+            static::assertNotCount(0, $flashes);
             static::assertSame(static::getContainer()->get('translator')->trans('error.productNotFound', ['%number%' => static::getContainer()->get(HtmlSanitizer::class)->sanitize($productNumber, null, true)]), $flashes[0]);
             static::assertNull($cartLineItem);
         }

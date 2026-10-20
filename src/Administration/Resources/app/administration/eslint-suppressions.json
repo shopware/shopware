@@ -974,11 +974,6 @@
       "count": 1
     }
   },
-  "src/app/component/structure/sw-block-override/sw-block-override.spec/test-utils/create-data-scope-fixture.js": {
-    "filename-rules/not-match": {
-      "count": 1
-    }
-  },
   "src/app/component/structure/sw-card-view/index.js": {
     "filename-rules/not-match": {
       "count": 1

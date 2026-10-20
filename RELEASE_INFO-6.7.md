@@ -2,39 +2,37 @@
 
 ## Core
 
-### Webhooks without an app are now authorized against their owner
+### Webhooks are authorized against their owner
 
-Webhooks created through the Admin API without an app (`POST /api/webhook` without `app_id`) are now authorized against the ACL privileges of the user or integration that created them. An admin owner receives every event it subscribes to, and a non-admin owner only receives events it is allowed to read.
+Webhooks created through the Admin API without an app now belong to the user or integration that created them, and only receive the events their owner is allowed to read. Nothing changes for webhooks an app registers in its manifest.
 
-The owner is recorded from the session and cannot be set through the API. Deleting the owning user or integration also deletes its app-less webhooks: a webhook has no meaning once the owner whose privileges authorize it is gone. App webhooks go through the same check: their owner is the app's integration, so they are authorized against the app's role as before.
+* **Owner:** The owner is recorded from the session and cannot be set through the API. An admin owner receives every event it subscribes to; a non-admin owner only receives events it has the read privilege for. A user or integration that still owns webhooks can't be deleted (`409`, `FRAMEWORK__DELETE_RESTRICTED`): delete its webhooks first.
+* **Existing webhooks:** Existing webhooks without an app have no recorded creator, so the update creates an admin integration labelled "Legacy webhooks", assigns them to it and prefixes their names with `[Legacy] `. They keep receiving every event they subscribe to. Audit them after updating and recreate any that should run with narrower privileges as the user or integration they belong to. The "Legacy webhooks" integration can only be deleted after its webhooks. To find them, search by the name prefix through the Admin API:
 
-Existing app-less webhooks have no recorded creator, so the update creates an admin integration labelled "Legacy webhooks" and assigns them to it. They keep receiving every event they subscribe to. Audit these webhooks after updating: recreate any that should run with narrower privileges as the user or integration it belongs to. Deleting the "Legacy webhooks" integration also deletes the webhooks assigned to it.
+  ```http
+  POST /api/search/webhook
+  { "filter": [{ "type": "prefix", "field": "name", "value": "[Legacy] " }] }
+  ```
 
-### Webhooks belonging to an app can no longer be changed through the API
+  or in the database:
 
-Webhooks that belong to an app (`app_id` is set) are managed through the app's manifest. Requests that update or delete them through the Admin API or Sync API are rejected with a `400` and `FRAMEWORK__APP_WEBHOOK_NOT_MODIFIABLE`, whatever privileges the caller holds. Apps continue to add, change and remove their own webhooks through their manifest when they are installed or updated.
+  ```sql
+  SELECT LOWER(HEX(w.id)) AS id, w.name, w.event_name, w.url
+  FROM webhook w
+  JOIN integration i ON i.id = w.owner_integration_id
+  WHERE i.label = 'Legacy webhooks';
+  ```
+* **Webhooks an app created through the API:** They belong to the app's integration, so they are no longer delivered while the app is inactive, and they are deleted when the app is uninstalled.
+* **Subscriptions are validated:** `POST /api/webhook` and `PATCH /api/webhook/{id}` now check the event a webhook subscribes to, the same check webhooks in app manifests already get. Requests are rejected with a `400` and `FRAMEWORK__WEBHOOK_EVENT_NOT_PERMITTED` when webhooks cannot receive the event, or `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` when the owner lacks a privilege the event requires. A non-admin owner needs the read privilege of the event in addition to `webhook:create`, e.g. `product:read` for `product.written`. Previously any event name was accepted and the webhook simply never fired.
+* **Only the owner may change a webhook:** A webhook without an app can only be updated or deleted through the API by its owner or an administrator. Anyone else gets a `400` and `FRAMEWORK__WEBHOOK_NOT_OWNED`, regardless of their `webhook:update` and `webhook:delete` privileges.
+* **App webhooks are managed by their manifest:** Webhooks with an `app_id` can no longer be updated or deleted through the Admin API or Sync API (`400`, `FRAMEWORK__APP_WEBHOOK_NOT_MODIFIABLE`). The only exception: an administrator may change their `active` flag, e.g. to switch a webhook back on after it was switched off for failing deliveries. Webhooks can also no longer be cloned through `POST /api/_action/clone/webhook/{id}` (`403`, `FRAMEWORK__CLONE_PROTECTED`).
+* **Limiting a webhook to some of its owner's roles:** A webhook without an app accepts an optional `aclRoleIds` list. It then only receives events whose required permissions are covered by these roles. Leave it out to use all of the owner's roles.
 
-Webhooks can also no longer be cloned through `POST /api/_action/clone/webhook/{id}`: the request is rejected with a `403` and `FRAMEWORK__CLONE_PROTECTED`. A clone kept the original's app, so it could deliver an app's events to another url.
+  ```json
+  { "name": "Product sync", "eventName": "product.written", "url": "https://example.com", "aclRoleIds": ["0193b1c2d3e47f5a8b9c0d1e2f3a4b5c"] }
+  ```
 
-### Webhooks without an app can only be changed by their owner
-
-A webhook without an app can only be updated or deleted through the API by the user or integration that created it. Requests from anyone else are rejected with a `400` and `FRAMEWORK__WEBHOOK_NOT_OWNED`, regardless of the `webhook:update` and `webhook:delete` privileges they hold. Administrators are not restricted.
-
-### Webhooks created through the API are validated against the event they subscribe to
-
-`POST /api/webhook` and `PATCH /api/webhook/{id}` now check the event a webhook subscribes to, as an app manifest already was. Requests are rejected with a `400` and `FRAMEWORK__WEBHOOK_EVENT_NOT_PERMITTED` when webhooks cannot receive the event, or `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` when the webhook's owner lacks a privilege the event requires. Previously any event name was accepted and the webhook simply never fired.
-
-A non-admin user or integration now needs the read privilege of every event it subscribes to in addition to `webhook:create`; a webhook on `product.written` requires `product:read`. Administrators are not restricted, unless the webhook is limited to some of their roles.
-
-### Webhooks created through the API can be limited to some of their owner's ACL roles
-
-A webhook without an app accepts an optional `aclRoleIds` list. It then only receives events those roles allow, even when its owner holds more roles; leave it unset to keep inheriting every role of the owner. For an administrator owner, the listed roles are used as they are.
-
-```json
-{ "name": "Product sync", "eventName": "product.written", "url": "https://example.com", "aclRoleIds": ["0193b1c2d3e47f5a8b9c0d1e2f3a4b5c"] }
-```
-
-The list must not be empty or contain empty entries, and the listed roles must be held by the owner, unless the owner is an administrator; otherwise the write is rejected with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `aclRoleIds`. The subscribed event must be covered by the privileges of the listed roles, otherwise `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` is returned, also when an administrator changes somebody else's webhook.
+  The list must not be empty or contain empty entries, every role must exist, and every role must be held by the owner unless the owner is an administrator. Otherwise the write is rejected with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `aclRoleIds`. If the event is not covered by the listed roles, `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` is returned, also when an administrator changes somebody else's webhook.
 
 ### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
 
@@ -54,6 +52,41 @@ Extensions and integrations that read the product type of older order line items
 ### Criteria on fields the API does not expose is a bad request
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
+
+## Administration
+
+### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag
+
+The new `ADMIN_VITE_8` feature flag builds the Administration and the Administration code of extensions with Vite 8.
+Vite 8 becomes the default with Shopware 6.8, so you can use the flag to test your extensions now:
+
+```bash
+ADMIN_VITE_8=1 composer watch:admin
+ADMIN_VITE_8=1 composer build:js:admin
+```
+
+With the flag, building the Administration requires Node.js `^20.19.0 || >=22.12.0`.
+The `postinstall` script of the Administration installs Vite 8 into `build/vite-8`.
+If your CI restores the Administration dependencies from a cache without running that script, also run `npm ci` in `build/vite-8`.
+
+With the flag, the watcher serves all files over HTTP/2.
+Browsers only use HTTP/2 over HTTPS, so put HTTPS in front of the watcher:
+
+* Run `shopware-cli project proxy up` and open `https://admin-watch.<project>.shopware.local`.
+* Or set `SHOPWARE_ADMIN_HTTPS_CERTIFICATE_FILE` and `SHOPWARE_ADMIN_HTTPS_KEY_FILE` to a certificate and its key, for example created with [mkcert](https://github.com/FiloSottile/mkcert).
+  Relative paths are resolved from the project root.
+
+To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
+It bundles the Administration and its plugins, but not apps.
+Changes to plugin files reload the page instead of using HMR.
+
+Vite 8 does not match extglob patterns like `!(*.spec)` in `import.meta.glob`.
+Replace them with negated patterns like `['./**/*.{j,t}s', '!./**/*.spec.{j,t}s']`.
+`composer admin:check-extensions` warns about them, and `composer run admin:code-mods -- --fix -v 6.8 -p YourPlugin` rewrites them.
+Until 6.8, Shopware rewrites them when the flag is active and logs a warning for each one.
+If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0.6 or newer, because older versions ignore negated patterns.
+
+For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 # 6.7.16.0
 

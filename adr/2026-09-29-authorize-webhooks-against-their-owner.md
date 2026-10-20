@@ -33,11 +33,11 @@ The owner of a webhook is a user or an integration:
 
 The owner fields cannot be written or read through the API, so the owner cannot be spoofed.
 
-The loader skips any app-less row without an owner, which can only come from a direct database write. Both owner columns cascade on delete: removing a user or integration removes the app-less webhooks it owns.
+The loader skips any app-less row without an owner, which can only come from a direct database write. A user or integration that still owns app-less webhooks cannot be deleted: the DAL rejects it with `FRAMEWORK__DELETE_RESTRICTED`, so its webhooks have to be deleted first and are never lost unnoticed. The owner columns still cascade on delete in the database, which only matters for direct database deletes.
 
 ### Existing webhooks are assigned to a new admin integration
 
-There is no record of who created the existing app-less webhooks. The migration creates one admin integration, labelled "Legacy webhooks", and assigns them to it, so they keep delivering as before. A user would tie the webhooks to that user's lifecycle: deleting the user would silently delete them. Merchants should check the webhooks and recreate any that should run with fewer privileges.
+There is no record of who created the existing app-less webhooks. The migration creates one admin integration, labelled "Legacy webhooks", and assigns them to it, so they keep delivering as before. A user would tie the webhooks to that user's lifecycle: the user could not be deleted while they exist. Merchants should check the webhooks and recreate any that should run with fewer privileges.
 
 ### Delivery is authorized against the owner
 
@@ -75,6 +75,7 @@ An app-less webhook can be limited to some ACL roles with an optional `aclRoleId
   * `FRAMEWORK__WEBHOOK_EVENT_NOT_PERMITTED`: the event can't be subscribed to, because it isn't hookable or a policy refuses it.
   * `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING`: the owner isn't allowed to receive the event. The message names the missing privileges.
 * For a webhook without an app, `Hookable::isAllowed()` receives `Hookable::NO_APP_ID` as the app id.
+* Deleting a user or integration that still owns app-less webhooks is rejected with the existing `FRAMEWORK__DELETE_RESTRICTED` (HTTP 409).
 
 ## Considered Approaches
 
@@ -102,5 +103,5 @@ Rejected as a breaking change for existing API clients. The optional `aclRoleIds
 ### Negative / trade-offs
 
 * Existing app-less webhooks run with admin privileges until a merchant recreates them.
-* Deleting a user or integration deletes the app-less webhooks it owns.
+* A user or integration that still owns app-less webhooks can only be deleted after its webhooks. The Administration has no webhook list, so that needs the Admin API.
 * Narrowing with `aclRoleIds` is coarser than a privilege list: limiting a webhook to a single privilege needs a role that grants exactly that privilege.

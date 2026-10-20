@@ -96,11 +96,9 @@ describe('src/app/component/form/select/base/sw-select-result', () => {
     });
 
     it('should react on $parent.$parent event', async () => {
-        const swSelectResultWrapper = wrapper.findComponent('.sw-select-result').vm;
         expect(swSelectResult.methods.checkIfSelected).toHaveBeenCalledTimes(0);
 
         wrapper.vm.emitSelectItemByKeyboard();
-        await swSelectResultWrapper.$nextTick();
         await flushPromises();
 
         expect(swSelectResult.methods.checkIfSelected).toHaveBeenCalledTimes(1);

@@ -64,6 +64,7 @@ export default {
             customerAddressCustomFieldSets: null,
             orderAddressId: cloneDeep(this.address?.id),
             selectedAddressFormatting: '',
+            pendingDefaultAddressIds: {},
         };
     },
 
@@ -116,15 +117,9 @@ export default {
         },
 
         addressOptions() {
-            const selectedAddressId = this.selectedAddressId;
-            const orderAddress = this.address;
-
             const addresses = (this.customer?.addresses || [])
                 .map((item) => {
-                    const matchesOrderAddress = this.addressesRepresentSamePlace(orderAddress, item);
-
-                    // Same place as the order address: keep only when that customer row is selected
-                    if (matchesOrderAddress && !(item.id === selectedAddressId && selectedAddressId !== orderAddress?.id)) {
+                    if (this.address && this.address.hash === item.hash) {
                         return null;
                     }
 
@@ -137,24 +132,10 @@ export default {
                 })
                 .filter((item) => item !== null);
 
-            const selectedOption = addresses.find((item) => item.id === selectedAddressId);
-            const selectedIsSamePlaceAsOrder =
-                !!orderAddress && !!selectedOption && this.addressesRepresentSamePlace(orderAddress, selectedOption);
-
-            // Prepend the order address when needed, but never when the active selection is
-            // already in the list and represents the same place (duplicate active row).
-            const shouldPrependOrderAddress =
-                !!orderAddress &&
-                !selectedIsSamePlaceAsOrder &&
-                !addresses.some(
-                    (item) => item.id === orderAddress.id || this.addressesRepresentSamePlace(orderAddress, item),
-                );
-
-            if (shouldPrependOrderAddress) {
+            if (this.address) {
                 addresses.unshift({
-                    label: this.addressLabel(orderAddress),
-                    ...orderAddress,
-                    id: orderAddress.id,
+                    label: this.addressLabel(this.address),
+                    ...this.address,
                 });
             }
 
@@ -250,6 +231,7 @@ export default {
                 return this.orderRepository
                     .save(this.order, this.versionContext)
                     .then(() => {
+                        this.pendingDefaultAddressIds = {};
                         this.currentAddress = null;
 
                         this.onAddressChange(this.address.id, true);
@@ -279,6 +261,7 @@ export default {
                 .save(this.customer)
                 .then(() => this.getCustomer(true))
                 .then(() => {
+                    this.pendingDefaultAddressIds = {};
                     this.currentAddress = null;
 
                     this.onAddressChange(savedAddressId);
@@ -318,14 +301,35 @@ export default {
                 if (this.defaultBillingAddressId) {
                     this.customer.defaultBillingAddressId = this.defaultBillingAddressId;
                 }
+
+                this.pendingDefaultAddressIds = {};
                 return;
             }
 
             const preFix = this.createPrefix(data.name, '-address');
             const name = `default${preFix}AddressId`;
 
+            if (!Object.prototype.hasOwnProperty.call(this.pendingDefaultAddressIds, name)) {
+                this.pendingDefaultAddressIds[name] = this.customer[name];
+            }
+
             this[name] = this.customer[name];
             this.customer[name] = data.id;
+        },
+
+        onCancelAddress() {
+            Object.entries(this.pendingDefaultAddressIds).forEach(
+                ([
+                    name,
+                    addressId,
+                ]) => {
+                    this.customer[name] = addressId;
+                    delete this[name];
+                },
+            );
+
+            this.pendingDefaultAddressIds = {};
+            this.currentAddress = null;
         },
 
         createPrefix(string, replace) {
@@ -390,41 +394,6 @@ export default {
                 .catch(() => {
                     this.selectedAddressFormatting = '';
                 });
-        },
-
-        /**
-         * Match by API hash, or by the same fields AddressHashSubscriber uses when hash is missing
-         * (e.g. client-side drafts before reload).
-         */
-        addressesRepresentSamePlace(left, right) {
-            if (!left || !right) {
-                return false;
-            }
-
-            if (left.hash && right.hash && left.hash === right.hash) {
-                return true;
-            }
-
-            return this.getAddressContentKey(left) === this.getAddressContentKey(right);
-        },
-
-        getAddressContentKey(address) {
-            return [
-                address.firstName,
-                address.lastName,
-                address.zipcode,
-                address.city,
-                address.company,
-                address.department,
-                address.title,
-                address.street,
-                address.additionalAddressLine1,
-                address.additionalAddressLine2,
-                address.countryId,
-                address.countryStateId,
-            ]
-                .filter(v => v)
-                .join('|');
         },
 
         addressLabel(address) {

@@ -502,74 +502,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(wrapper.vm.addressOptions.some((option) => option.id === 'new-but-same-hash-address')).toBe(false);
     });
 
-    it('should dedupe customer address matching order content when hash is missing', async () => {
-        await flushPromises();
-
-        wrapper.vm.customer.addresses.push({
-            street: 'Denesik Bridge',
-            zipcode: '05132',
-            city: 'Bernierstad',
-            company: 'Muster SE',
-            department: 'People & Culture',
-            id: 'same-content-without-hash',
-            countryId: undefined,
-            country: {
-                translated: {
-                    name: 'Buzbach',
-                },
-            },
-            countryState: {
-                translated: {
-                    name: 'NRW',
-                },
-            },
-            getEntityName: () => 'customer_address',
-        });
-
-        const optionsWithSameStreet = wrapper.vm.addressOptions.filter((option) => option.street === 'Denesik Bridge');
-
-        expect(optionsWithSameStreet).toHaveLength(1);
-        expect(optionsWithSameStreet[0].id).toBe('38e8895864a649a1b2ec806dad02ab87');
-        expect(wrapper.vm.addressOptions.some((option) => option.id === 'same-content-without-hash')).toBe(false);
-    });
-
-    it('should keep selected customer address once when it matches order content', async () => {
-        const selectedCustomerAddressId = 'selected-same-content-address';
-
-        Shopware.Store.get('swOrderDetail').setCustomer(null);
-        wrapper = await createWrapper({
-            addressId: selectedCustomerAddressId,
-        });
-        await flushPromises();
-
-        wrapper.vm.customer.addresses.push({
-            street: 'Denesik Bridge',
-            zipcode: '05132',
-            city: 'Bernierstad',
-            company: 'Muster SE',
-            department: 'People & Culture',
-            id: selectedCustomerAddressId,
-            country: {
-                translated: {
-                    name: 'Buzbach',
-                },
-            },
-            countryState: {
-                translated: {
-                    name: 'NRW',
-                },
-            },
-            getEntityName: () => 'customer_address',
-        });
-
-        const optionsWithSameStreet = wrapper.vm.addressOptions.filter((option) => option.street === 'Denesik Bridge');
-
-        expect(optionsWithSameStreet).toHaveLength(1);
-        expect(optionsWithSameStreet[0].id).toBe(selectedCustomerAddressId);
-        expect(wrapper.vm.addressOptions.some((option) => option.id === '38e8895864a649a1b2ec806dad02ab87')).toBe(false);
-    });
-
-    it('should keep both options when company and department differ', async () => {
+    it('should keep both options when hashes differ', async () => {
         const selectedCustomerAddressId = 'different-company-address';
 
         Shopware.Store.get('swOrderDetail').setCustomer(null);
@@ -601,8 +534,8 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
                 street: 'Denesik Bridge',
                 zipcode: '05132',
                 city: 'Bernierstad',
-                company: 'Other Company',
-                department: 'Sales',
+                company: 'Muster SE',
+                department: 'People & Culture',
                 id: selectedCustomerAddressId,
                 hash: 'customer-hash-b',
                 firstName: 'Max',

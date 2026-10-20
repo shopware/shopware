@@ -1,0 +1,129 @@
+{
+    "$schema": "./node_modules/fallow/schema.json",
+    "minimumVersion": "3.34.1",
+    "entry": [
+        "_jest.config.ts",
+        "eslint-rules/**/index.js",
+        "extension-tooling/*.mjs",
+        "lighthouse-auth.js",
+        "scripts/runNpmAudit.ts"
+    ],
+    "dynamicallyLoaded": [
+        "build/plugins.vite.ts",
+        "build/vue-setup-transform/index.js",
+        "src/app/assets/scss/mixins.scss",
+        "src/app/assets/scss/variables.scss"
+    ],
+    "framework": [
+        {
+            "name": "jest-config",
+            "enablers": ["jest"],
+            "entryPointRole": "test",
+            "entryPoints": [
+                "test/globalTeardown.js",
+                "test/_setup/*.{js,ts}",
+                "test/_mocks_/*.js",
+                "test/transformer/*.js",
+                "test/_helper_/jest-resolver.js",
+                "test/_helper_/failedSpecFileReporter.js",
+                "test/_helper_/virtual-shopware-modules/register-mocks.js"
+            ],
+            "toolingDependencies": [
+                "@swc/jest",
+                "babel-plugin-shopware-vite-meta-glob",
+                "jest-expect-message",
+                "jest-junit",
+                "jest-silent-reporter",
+                "lodash"
+            ]
+        },
+        {
+            "name": "eslint-import-resolvers",
+            "enablers": ["eslint"],
+            "toolingDependencies": ["eslint-import-resolver-typescript", "eslint-import-resolver-vite"]
+        },
+        {
+            "name": "postcss-config",
+            "detection": { "type": "fileExists", "pattern": ".postcssrc.js" },
+            "configPatterns": [".postcssrc.js"],
+            "toolingDependencies": ["autoprefixer"]
+        },
+        {
+            "name": "jsdoc-config",
+            "enablers": ["jsdoc"],
+            "configPatterns": ["jsdoc.config.js"],
+            "toolingDependencies": ["jsdoc", "docdash"]
+        }
+    ],
+    "ignorePatterns": ["!build/**", "scripts/codemods/sfc-migration/__fixtures__/**"],
+    "ignoreFindings": ["build/vite-plugins/**/_fixtures/**"],
+    "ignoreDependencies": ["shopware:*", "src"],
+    "ignoreUnresolvedImports": [
+        "~scss/**",
+        "**/_mocks_/entity-schema.json",
+        "**/entity-schema-definition",
+        "**/component-imports"
+    ],
+    "overrides": [
+        {
+            "files": ["src/core/factory/state-deprecated.factory.js", "src/core/helper/store-loader.helper.js"],
+            "rules": { "unused-files": "off" }
+        }
+    ],
+    "rules": {
+        "unused-files": "error",
+        "unused-exports": "error",
+        "unused-types": "error",
+        "unused-dependencies": "error",
+        "unused-dev-dependencies": "error",
+        "unused-optional-dependencies": "error",
+        "unresolved-imports": "error",
+        "unlisted-dependencies": "error",
+        "unused-enum-members": "off",
+        "unused-class-members": "off",
+        "unused-store-members": "off",
+        "unprovided-injects": "off",
+        "unrendered-components": "off",
+        "unused-component-props": "off",
+        "unused-component-emits": "off",
+        "unused-component-inputs": "off",
+        "unused-component-outputs": "off",
+        "unused-svelte-events": "off",
+        "unused-effect-layers": "off",
+        "unused-tagged-errors": "off",
+        "unproduced-catch-tags": "off",
+        "unused-server-actions": "off",
+        "unused-load-data-keys": "off",
+        "css-token-drift": "off",
+        "css-duplicate-block": "off",
+        "css-selector-complexity": "off",
+        "css-dead-surface": "off",
+        "css-broken-reference": "off",
+        "complexity-cyclomatic": "off",
+        "complexity-cognitive": "off",
+        "complexity-crap": "off",
+        "duplicate-exports": "off",
+        "type-only-dependencies": "off",
+        "test-only-dependencies": "off",
+        "dev-dependencies-in-production": "off",
+        "circular-dependencies": "off",
+        "re-export-cycle": "off",
+        "package-cycle": "off",
+        "boundary-violation": "off",
+        "stale-suppressions": "off",
+        "unused-catalog-entries": "off",
+        "empty-catalog-groups": "off",
+        "unresolved-catalog-references": "off",
+        "unused-dependency-overrides": "off",
+        "misconfigured-dependency-overrides": "off",
+        "policy-violation": "off",
+        "invalid-client-export": "off",
+        "mixed-client-server-barrel": "off",
+        "misplaced-directive": "off",
+        "route-collision": "off",
+        "dynamic-segment-name-conflict": "off",
+        "weakened-tests": "off",
+        "added-suppression": "off",
+        "test-only-branch": "off"
+    }
+}

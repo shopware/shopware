@@ -63,7 +63,7 @@ jobs:
         run: npm run lint
       - name: Lint unused code
         working-directory: src/Administration/Resources/app/administration
-        run: npm run lint:knip
+        run: npm run lint:fallow
       - name: Lint types
         working-directory: src/Administration/Resources/app/administration
         run: npm run lint:types
@@ -94,9 +94,9 @@ jobs:
         run: |
           node .github/bin/js/check-baseline-growth.ts --base "$BASE_SHA" \
             --config src/Administration/Resources/app/administration/eslint.config.ts \
-            --config src/Administration/Resources/app/administration/knip.json \
+            --config src/Administration/Resources/app/administration/.fallowrc.json \
             src/Administration/Resources/app/administration/eslint-suppressions.json \
-            src/Administration/Resources/app/administration/knip-baseline.json
+            src/Administration/Resources/app/administration/fallow-baseline.json
 
   admin:
     needs:

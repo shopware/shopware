@@ -284,6 +284,8 @@
         "eslint:storefront:admin-modules:fix": "Codestyle checks the Storefront's admin-modules JS files and fixes them if possible",
         "eslint:acceptance": "Codestyle checks the acceptance test suite TS files",
         "eslint:acceptance:fix": "Codestyle checks the acceptance test suite TS files and fixes them if possible",
+        "fallow:admin": "Finds unused files, exports and dependencies in the Administration with Fallow",
+        "fallow:admin:prune": "Removes fixed entries from the Administration's Fallow baseline",
         "format:acceptance": "Dry run Prettier for the acceptance test suite",
         "format:acceptance:fix": "Format the acceptance test suite with Prettier",
         "format:admin": "Dry run Prettier for all Administration workspaces",
@@ -296,8 +298,6 @@
         "init:db": " ",
         "init:js": " ",
         "init:testdb": "Initializes the test database",
-        "knip:admin": "Finds unused files, exports and dependencies in the Administration with knip",
-        "knip:admin:prune": "Removes fixed entries from the Administration's knip baseline",
         "lint": "Shorthand for the composer commands 'stylelint', 'eslint', 'cs' and 'translation:lint'",
         "lint:actions": "Lints GitHub Actions workflows/actions with actionlint, checks their formatting with yamlfmt, and audits them with zizmor",
         "lint:actions:fix": "Formats GitHub Actions workflows/actions with yamlfmt",
@@ -431,6 +431,8 @@
         "eslint:storefront:admin-modules:fix": "@npm:storefront:admin-modules run lint:fix",
         "eslint:acceptance": "@npm:acceptance run lint",
         "eslint:acceptance:fix": "@npm:acceptance run lint:fix",
+        "fallow:admin": "@npm:admin run lint:fallow",
+        "fallow:admin:prune": "@npm:admin run lint:fallow:prune",
         "format:acceptance": "@npm:acceptance run format",
         "format:acceptance:fix": "@npm:acceptance run format:fix",
         "format:admin": [
@@ -467,8 +469,6 @@
             "@putenv FORCE_INSTALL=true",
             "@php src/Core/TestBootstrap.php"
         ],
-        "knip:admin": "@npm:admin run lint:knip",
-        "knip:admin:prune": "@npm:admin run lint:knip:prune",
         "lint": [
             "@stylelint",
             "@eslint",

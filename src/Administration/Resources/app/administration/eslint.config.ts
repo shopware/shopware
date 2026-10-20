@@ -15,6 +15,7 @@ import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import { fixupPluginRules } from '@eslint/compat';
 import importX from 'eslint-plugin-import-x';
+import eslintComments from '@eslint-community/eslint-plugin-eslint-comments';
 import jestPlugin from 'eslint-plugin-jest';
 import prettier from 'eslint-config-prettier';
 import globals from 'globals';
@@ -77,6 +78,9 @@ const testFiles = [
     'test/**/*.js',
     'test/**/*.ts',
 ];
+
+// Inline disables are blocked for these rules, so eslint-suppressions.json is the only way around them
+const rulesWithoutInlineDisable: string[] = [];
 
 /**
  * Shared rule policy applied to normal source files and TypeScript-specific overrides.
@@ -206,6 +210,10 @@ const baseRules = {
     'vue/one-component-per-file': 'off',
 
     'sw-core-rules/no-swallowed-errors': 'error',
+    '@eslint-community/eslint-comments/no-restricted-disable': [
+        'error',
+        ...rulesWithoutInlineDisable,
+    ],
 };
 
 export default [
@@ -239,6 +247,9 @@ export default [
             // Hand-written declaration files under build/ sit outside the tsconfig program (a sibling
             // .ts of the same name shadows them), so the typed parser cannot resolve them.
             'build/**/*.d.ts',
+            // Generated and gitignored
+            'src/entity-schema-definition.d.ts',
+            'test/_helper_/componentWrapper/component-imports.js',
         ],
     },
 
@@ -291,6 +302,7 @@ export default [
             'sw-test-rules': fixupPluginRules(swTestRules),
             'twig-vue': twigVue,
             listeners: fixupPluginRules(listeners),
+            '@eslint-community/eslint-comments': eslintComments,
         },
         languageOptions: {
             ecmaVersion: 'latest',

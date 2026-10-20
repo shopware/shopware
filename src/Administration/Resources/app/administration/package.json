@@ -149,6 +149,7 @@
     "@babel/preset-env": "7.29.5",
     "@babel/preset-typescript": "7.28.5",
     "@babel/register": "7.25.9",
+    "@eslint-community/eslint-plugin-eslint-comments": "4.8.1",
     "@eslint/compat": "2.0.2",
     "@eslint/js": "9.39.3",
     "@eslint/json": "2.0.0",

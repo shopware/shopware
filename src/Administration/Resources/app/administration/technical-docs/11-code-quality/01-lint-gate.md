@@ -29,6 +29,15 @@ Run them in `src/Administration/Resources/app/administration`, or through the co
 | Errors | `sw-core-rules/no-swallowed-errors` | A `.catch()` that drops the error needs a comment that says why |
 | Unused code | Fallow, configured in `.fallowrc.json` | Unused files, exports and dependencies are removed instead of copied |
 
+## Inline disables
+
+Some rules can't be disabled inline.
+They are listed in `rulesWithoutInlineDisable` in `eslint.config.ts`, and `@eslint-community/eslint-comments/no-restricted-disable` reports every `eslint-disable` comment for them.
+A bare `eslint-disable` without rule names counts as one, too.
+For these rules the baseline is the only way around, and the baseline can't grow.
+
+A rule that joins the list brings its existing inline disables into the baseline as `no-restricted-disable` violations.
+
 ## Baselines
 
 | Baseline | Covers |

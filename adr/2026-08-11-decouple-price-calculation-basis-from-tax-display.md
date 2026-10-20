@@ -74,6 +74,12 @@ Loose ends handled:
 - **Tax providers** replace the calculated taxes after the calculation and keep the displayed flavor fixed,
   as before. The basis therefore only holds while a provider's rates match the shop's tax rules; a
   basis-aware tax adjustment is a possible follow-up.
+- **Single amounts** such as absolute and fixed-price promotion discounts, the cap of percentage discounts,
+  manual shipping costs and credits carry one value instead of a net/gross pair.
+  The basis has nothing to choose from, so they keep the display flavor, as before.
+  Under a net basis the net value of an absolute discount therefore differs per country,
+  by about 0.7 % of the discount between 19 % and 20 %.
+  Reading single amounts in the basis flavor is a possible follow-up.
 - **Admin**: the customer group detail page offers the tax display and the price basis as two independent
   controls, each writing its own field.
 

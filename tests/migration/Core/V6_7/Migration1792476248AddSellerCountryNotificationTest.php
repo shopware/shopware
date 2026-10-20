@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1792476248AddSellerCountryNotification;
@@ -26,13 +25,11 @@ class Migration1792476248AddSellerCountryNotificationTest extends TestCase
 
         $this->connection = KernelLifecycleManager::getConnection();
 
-        unset($_SERVER[MigrationStep::INSTALL_ENVIRONMENT_VARIABLE], $_ENV[MigrationStep::INSTALL_ENVIRONMENT_VARIABLE]);
         $this->deleteNotification();
     }
 
     protected function tearDown(): void
     {
-        unset($_SERVER[MigrationStep::INSTALL_ENVIRONMENT_VARIABLE], $_ENV[MigrationStep::INSTALL_ENVIRONMENT_VARIABLE]);
         $this->deleteNotification();
 
         parent::tearDown();
@@ -58,13 +55,19 @@ class Migration1792476248AddSellerCountryNotificationTest extends TestCase
         static::assertSame(['system.system_config'], json_decode((string) $notifications[0]['required_privileges'], true, 512, \JSON_THROW_ON_ERROR));
     }
 
-    public function testUpdateSkipsFreshInstallations(): void
+    public function testUpdateSkipsShopsWithoutUsers(): void
     {
-        $_SERVER[MigrationStep::INSTALL_ENVIRONMENT_VARIABLE] = true;
+        $this->connection->beginTransaction();
 
-        (new Migration1792476248AddSellerCountryNotification())->update($this->connection);
+        try {
+            $this->connection->executeStatement('DELETE FROM `user`');
 
-        static::assertCount(0, $this->fetchNotifications());
+            (new Migration1792476248AddSellerCountryNotification())->update($this->connection);
+
+            static::assertCount(0, $this->fetchNotifications());
+        } finally {
+            $this->connection->rollBack();
+        }
     }
 
     /**

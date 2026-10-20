@@ -64,6 +64,20 @@ Media loaded without the `mediaType` field keep their thumbnail URLs, as the typ
 
 ## API
 
+### Webhooks without an app can be signed
+
+Webhooks created through the Admin API accept an optional `secret`.
+When it is set, each delivery carries a `shopware-shop-signature` header with the HMAC-SHA256 of the request body, the same signature app webhooks get with the app secret.
+The secret can be written, but the API never returns it.
+Writing a new secret replaces the old one immediately.
+Existing webhooks stay unsigned until a secret is set.
+Webhooks registered in an app's manifest are always signed with the app secret.
+
+```http
+PATCH /api/webhook/{id}
+{ "secret": "a-long-random-string" }
+```
+
 ### Criteria on fields the API does not expose is a bad request
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.

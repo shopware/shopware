@@ -82,6 +82,7 @@ class WebhookDefinition extends EntityDefinition
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
             (new FkField('owner_user_id', 'ownerUserId', UserDefinition::class))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->removeFlag(ApiAware::class),
             (new FkField('owner_integration_id', 'ownerIntegrationId', IntegrationDefinition::class))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->removeFlag(ApiAware::class),
+            (new StringField('secret', 'secret'))->removeFlag(ApiAware::class),
             (new ListField('acl_role_ids', 'aclRoleIds', IdField::class))->setDescription('IDs of ACL roles the webhook is limited to. It only receives events whose required permissions are covered by these roles. Each role must be one its owner has. Leave it out to use all of the owner\'s roles. An empty list is not allowed.'),
         ]);
 

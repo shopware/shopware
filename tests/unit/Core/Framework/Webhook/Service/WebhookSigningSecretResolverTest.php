@@ -50,23 +50,32 @@ class WebhookSigningSecretResolverTest extends TestCase
         );
     }
 
-    public function testNonAppWebhookKeepsItsCarriedSecretWithoutAnyLookup(): void
+    public function testNonAppWebhookIsSignedWithItsOwnSecret(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('fetchOne');
-        $resolver = new WebhookSigningSecretResolver($connection, new DeletedAppsGateway($connection));
+        $resolver = $this->resolver(appSecret: false, deletedSecret: false, webhookSecret: 'webhook-secret');
 
         static::assertSame(
-            'carried-secret',
-            $resolver->resolve($this->message(appId: null, carried: 'carried-secret', appName: null))
+            'webhook-secret',
+            $resolver->resolve($this->message(appId: null, carried: null, appName: null))
         );
     }
 
-    private function resolver(string|false $appSecret, string|false $deletedSecret): WebhookSigningSecretResolver
+    public function testNonAppWebhookWithoutASecretIsNotSigned(): void
+    {
+        $resolver = $this->resolver(appSecret: false, deletedSecret: false, webhookSecret: null);
+
+        static::assertNull($resolver->resolve($this->message(appId: null, carried: null, appName: null)));
+    }
+
+    private function resolver(string|false $appSecret, string|false $deletedSecret, ?string $webhookSecret = null): WebhookSigningSecretResolver
     {
         $connection = static::createStub(Connection::class);
         $connection->method('fetchOne')->willReturnCallback(
-            static fn (string $sql): string|false => str_contains($sql, 'deleted_apps') ? $deletedSecret : $appSecret
+            static fn (string $sql): string|false|null => match (true) {
+                str_contains($sql, 'deleted_apps') => $deletedSecret,
+                str_contains($sql, '`webhook`') => $webhookSecret,
+                default => $appSecret,
+            }
         );
 
         return new WebhookSigningSecretResolver($connection, new DeletedAppsGateway($connection));

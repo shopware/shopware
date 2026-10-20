@@ -1,5 +1,3 @@
-/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
-
 import { config, DOMWrapper, mount } from '@vue/test-utils';
 import kebabCase from 'lodash-es/kebabCase';
 import ShopwareError from 'src/core/data/ShopwareError';

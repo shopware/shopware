@@ -1,5 +1,3 @@
-/* eslint-disable sw-test-rules/test-file-max-lines-warning */
-
 import { mount } from '@vue/test-utils';
 
 import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';

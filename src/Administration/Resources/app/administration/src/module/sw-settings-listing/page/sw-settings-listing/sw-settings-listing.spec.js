@@ -1,5 +1,3 @@
-/* eslint-disable sw-test-rules/test-file-max-lines-warning */
-
 import { DOMWrapper, mount } from '@vue/test-utils';
 
 /**

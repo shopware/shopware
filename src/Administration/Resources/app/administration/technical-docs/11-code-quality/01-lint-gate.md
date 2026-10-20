@@ -6,6 +6,12 @@ Existing ESLint violations in the Administration are recorded in a baseline.
 New code has to follow every rule, and the baseline may only shrink.
 The decision is in [`adr/2026-10-16-administration-lint-gate.md`](../../../../../../../adr/2026-10-16-administration-lint-gate.md).
 
+## Rules
+
+| Group | Rules | Why |
+|---|---|---|
+| Size and complexity | `complexity` (15), `max-lines-per-function` (80), `max-params` (4), `max-nested-callbacks` (3), `max-depth` (4), `max-lines` (500) for files in `src/` except specs, `vue/max-template-depth` (10) for templates | Small units are easier to read, test and override |
+
 ## Baselines
 
 | Baseline | Covers |
@@ -53,7 +59,8 @@ Reviewers of such a pull request check the diff of `eslint-suppressions.json`.
 
 `rulesWithoutInlineDisable` in `eslint.config.ts` lists the rules that can't be disabled with an `eslint-disable` comment.
 For these rules the baseline is the only way around.
-The list is empty for now; rules join it in the pull requests that add them.
+It holds the size and complexity rules.
+`vue/max-template-depth` is not listed, because `eslint-disable` comments have no effect in Twig templates.
 
 Two rules of `@eslint-community/eslint-plugin-eslint-comments` enforce it:
 

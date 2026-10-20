@@ -71,7 +71,8 @@ When it is set, each delivery carries a `shopware-shop-signature` header with th
 The secret can be written, but the API never returns it.
 Writing a new secret replaces the old one immediately.
 Existing webhooks stay unsigned until a secret is set.
-Webhooks registered in an app's manifest are always signed with the app secret.
+Webhooks of an app, from its manifest or created through the API by its integration, are always signed with the app secret.
+Setting a `secret` on a webhook of an app's integration is rejected with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `secret`.
 
 ```http
 PATCH /api/webhook/{id}

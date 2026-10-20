@@ -332,6 +332,21 @@ class WebhookLoaderTest extends TestCase
         static::assertSame([], static::getContainer()->get(WebhookLoader::class)->getSubscriptions([$this->ids->get('wh-1')]));
     }
 
+    public function testGetAppIntegrationIdsOnlyReturnsIntegrationsOfAnApp(): void
+    {
+        $this->installApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
+        $appIntegrationId = $this->connection->fetchOne('SELECT LOWER(HEX(integration_id)) FROM app WHERE name = :name', ['name' => 'minimal']);
+        static::assertIsString($appIntegrationId);
+        $integrationId = TestIntegration::create($this->connection, [])->getId();
+
+        static::assertSame(
+            [$appIntegrationId],
+            static::getContainer()->get(WebhookLoader::class)->getAppIntegrationIds([$appIntegrationId, $integrationId])
+        );
+
+        $this->removeApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
+    }
+
     /**
      * @param list<string> $privileges
      */

@@ -81,6 +81,24 @@ class WebhookLoader
     }
 
     /**
+     * @param list<string> $integrationIds
+     *
+     * @return list<string> the given integration ids that belong to an app
+     */
+    public function getAppIntegrationIds(array $integrationIds): array
+    {
+        if ($integrationIds === []) {
+            return [];
+        }
+
+        return $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(`integration_id`)) FROM `app` WHERE `integration_id` IN (:integrationIds)',
+            ['integrationIds' => Uuid::fromHexToBytesList($integrationIds)],
+            ['integrationIds' => ArrayParameterType::BINARY]
+        );
+    }
+
+    /**
      * @return list<Webhook>
      */
     public function getWebhooks(): array

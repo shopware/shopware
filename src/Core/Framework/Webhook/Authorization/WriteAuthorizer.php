@@ -68,6 +68,7 @@ class WriteAuthorizer
             }
         }
 
+        $violations += $this->getSecretViolations(array_diff_key($written, $violations), $stored, $context);
         $violations += $this->getAclRoleIdsViolations(array_diff_key($written, $violations));
         $violations += $this->getSubscriptionViolations(array_diff_key($written, $violations), $stored, $context);
 
@@ -107,6 +108,52 @@ class WriteAuthorizer
             }
 
             $violations[$webhookId] = WebhookException::webhookNotOwned($webhookId);
+        }
+
+        return $violations;
+    }
+
+    /**
+     * A webhook of an app's integration is signed with the app secret, so it can't have its own secret.
+     *
+     * @param array<string, WriteCommand> $commands keyed by webhook id
+     * @param array<string, WebhookSubscription> $stored keyed by webhook id
+     *
+     * @return array<string, HttpException> keyed by webhook id
+     */
+    private function getSecretViolations(array $commands, array $stored, Context $context): array
+    {
+        $source = $context->getSource();
+        $integrationIds = [];
+        foreach ($commands as $webhookId => $command) {
+            if (($command->getPayload()['secret'] ?? null) === null) {
+                continue;
+            }
+
+            // an API insert is always owned by the caller, see RecordOwnerSubscriber
+            if ($command instanceof InsertCommand && $source instanceof AdminApiSource && $source->getIntegrationId() !== null) {
+                $integrationIds[$webhookId] = $source->getIntegrationId();
+            }
+
+            $current = $stored[$webhookId] ?? null;
+            if ($command instanceof UpdateCommand && $current?->ownerType === SubscriberType::Integration) {
+                $integrationIds[$webhookId] = $current->ownerId;
+            }
+        }
+
+        $appIntegrationIds = $this->webhookLoader->getAppIntegrationIds(array_values(array_unique($integrationIds)));
+
+        $violations = [];
+        foreach ($integrationIds as $webhookId => $integrationId) {
+            if (!\in_array($integrationId, $appIntegrationIds, true)) {
+                continue;
+            }
+
+            $message = 'Webhooks of an app are signed with the app secret, so secret can\'t be set.';
+            $violations[$webhookId] = new WriteConstraintViolationException(
+                new ConstraintViolationList([new ConstraintViolation($message, $message, [], null, '/secret', null)]),
+                $commands[$webhookId]->getPath()
+            );
         }
 
         return $violations;

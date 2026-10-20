@@ -177,7 +177,7 @@ class ConvertGuestRouteTest extends TestCase
         try {
             $route->convertGuest($requestDataBag, $this->salesChannelContext, $this->customer);
         } finally {
-            static::assertEmpty($this->customerRepository->updates);
+            static::assertCount(0, $this->customerRepository->updates);
         }
     }
 

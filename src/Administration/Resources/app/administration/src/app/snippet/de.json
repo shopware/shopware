@@ -21,7 +21,8 @@
       "FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE": "Der ausgewählte Verkaufskanal befindet sich im Wartungsmodus und Deine IP-Adresse steht nicht auf der Allowlist. Deaktiviere den Wartungsmodus oder füge Deine IP-Adresse zur Allowlist hinzu.",
       "THEME__INVALID_SCSS_VAR": "SCSS-Wert \"{value}\" ist nicht gültig für Typ \"{type}\".",
       "DOCUMENT_BASE_CONFIG_INVALID_PAYMENT_DUE_DATE": "Das Zahlungsziel muss ein relatives Datum sein, z. B. \"+14 days\".",
-      "INVALID_GARAN_GUARANTEE_MONTHS": "Die Garantiedauer muss leer sein oder ein Halbjahreswert zwischen 30 und 600 Monaten, z. B. 30, 36 oder 42."
+      "INVALID_GARAN_GUARANTEE_MONTHS": "Die Garantiedauer muss leer sein oder ein Halbjahreswert zwischen 30 und 600 Monaten, z. B. 30, 36 oder 42.",
+      "INVALID_GARAN_GUARANTEE_TERMS_URL": "Die URL der Garantiebedingungen muss mit http:// oder https:// beginnen."
     },
     "default": {
       "add": "Hinzufügen",
@@ -817,6 +818,7 @@
         "lineItemTotalPriceRule": "Positionssumme (Menge × Preis)",
         "lineItemWithQuantityRule": "Position mit Menge",
         "lineItemPerItemQuantityRule": "Menge pro Position",
+        "orderDaysSincePlacedRule": "Zeit seit Bestelldatum",
         "orderTagRule": "Bestellung mit Tag",
         "orderTrackingCodeRule": "Sendungsnummer",
         "orderDeliveryStatusRule": "Lieferstatus",
@@ -1115,6 +1117,7 @@
       "theme": "Theme | Themes",
       "unit": "Maßeinheit | Maßeinheiten",
       "user": "Benutzer",
+      "webhook": "Webhook | Webhooks",
       "landing_page": "Landingpage | Landingpages",
       "delivery_time": "Lieferzeit | Lieferzeiten",
       "import_export_profile": "Import/Export-Profil | Import/Export-Profile",
@@ -1378,6 +1381,10 @@
     "general": {
       "messagePlaceholder": "Es ist ein Fehler aufgetreten. Die Seite konnte nicht geladen werden."
     }
+  },
+  "sw-not-found": {
+    "title": "Seite nicht gefunden",
+    "description": "Die gesuchte Seite konnte nicht gefunden werden. Möglicherweise wurde sie verschoben oder existiert nicht mehr."
   },
   "sw-property-search": {
     "placeholderSearch": "Ausprägungen durchsuchen ...",

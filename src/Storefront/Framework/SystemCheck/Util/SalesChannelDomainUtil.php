@@ -57,7 +57,7 @@ readonly class SalesChannelDomainUtil
     {
         // Remove '{' from start and '}i' from end, applied by Request::setTrustedHosts.
         $trustedHosts = array_map(
-            static fn (string $pattern) => preg_replace('/^\{(.*)\}i$/', '$1', $pattern),
+            static fn (string $pattern) => preg_replace('/^\{(.*)\}i$/D', '$1', $pattern),
             Request::getTrustedHosts()
         );
 

@@ -115,6 +115,7 @@ final class DocumentV2Controller extends AbstractController
         return new JsonResponse([
             'deepLinkCode' => $document->getDeepLinkCode(),
             'documentId' => $document->getId(),
+            'documentNumber' => $document->getDocumentNumber(),
             'formats' => $generationRequest->requestedFormats,
         ]);
     }

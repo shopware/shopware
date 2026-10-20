@@ -51,10 +51,10 @@ Reviewers of such a pull request check the diff of `eslint-suppressions.json`.
 
 ## Rules
 
-| Rule | Why |
-|---|---|
-| `filename-rules/not-match` | New source files in `src` are TypeScript, specs are excluded |
-| `sw-core-rules/no-new-mixins` | Shared logic goes into a composable in `src/app/composables`, using existing mixins stays allowed |
+| Rule | Files | Why |
+|---|---|---|
+| `filename-rules/not-match` | JavaScript files in `src`, specs are excluded | New source files in `src` are TypeScript |
+| `sw-core-rules/no-new-mixins` | `src`, specs are excluded | Shared logic goes into a composable in `src/app/composables`, using existing mixins stays allowed |
 
 ## Inline disables
 

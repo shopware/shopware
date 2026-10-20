@@ -149,6 +149,44 @@ class WriteAuthorizerTest extends TestCase
         $this->assertViolation($this->authorize([$update]), WebhookException::WEBHOOK_NOT_OWNED);
     }
 
+    public function testAnAppsIntegrationCannotGiveItsWebhookASecret(): void
+    {
+        $appIntegrationId = Uuid::randomHex();
+        $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
+        $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([]);
+        $this->aclRoleLoader->method('getRoles')->willReturnCallback(
+            static function (array $userIds, array $integrationIds) use ($appIntegrationId): IdentityRoleMap {
+                $roles = array_fill_keys($integrationIds, new AclRoles(false, ['role']));
+
+                return new IdentityRoleMap([], $roles, [$appIntegrationId]);
+            }
+        );
+
+        $this->assertSecretViolation($this->authorize(
+            [$this->insertWebhook(secret: 'my-secret', ownerIntegrationId: $appIntegrationId)],
+            new Context(new AdminApiSource(null, $appIntegrationId))
+        ));
+        static::assertSame([], $this->authorize(
+            [$this->insertWebhook(secret: 'my-secret', ownerIntegrationId: Uuid::randomHex())],
+            new Context(new AdminApiSource(null, Uuid::randomHex()))
+        ));
+    }
+
+    public function testASecretCannotBeSetOnAWebhookOfAnAppsIntegrationEvenByAnAdmin(): void
+    {
+        $appIntegrationId = Uuid::randomHex();
+        $update = $this->updateWebhook(['secret' => 'my-secret']);
+        $this->storeWebhook($update, IdentityType::Integration, $appIntegrationId);
+
+        $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
+        $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([]);
+        $this->aclRoleLoader->method('getRoles')->willReturn(
+            new IdentityRoleMap([], [$appIntegrationId => new AclRoles(false, ['role'])], [$appIntegrationId])
+        );
+
+        $this->assertSecretViolation($this->authorize([$update], $this->userContext(Uuid::randomHex(), isAdmin: true)));
+    }
+
     public function testAnEmptyAclRoleListIsRejected(): void
     {
         $violations = $this->authorize([$this->insertWebhook(aclRoleIds: [])]);
@@ -396,12 +434,22 @@ class WriteAuthorizerTest extends TestCase
     /**
      * @param list<string>|null $aclRoleIds
      */
-    private function insertWebhook(string $eventName = 'product.written', ?array $aclRoleIds = null): InsertCommand
+    private function insertWebhook(string $eventName = 'product.written', ?array $aclRoleIds = null, ?string $secret = null, ?string $ownerIntegrationId = null): InsertCommand
     {
         $id = Uuid::randomBytes();
-        $payload = ['id' => $id, 'event_name' => $eventName, 'owner_user_id' => Uuid::fromHexToBytes(self::USER_ID)];
+        $payload = ['id' => $id, 'event_name' => $eventName];
+        if ($ownerIntegrationId !== null) {
+            $payload['owner_integration_id'] = Uuid::fromHexToBytes($ownerIntegrationId);
+        } else {
+            $payload['owner_user_id'] = Uuid::fromHexToBytes(self::USER_ID);
+        }
+
         if ($aclRoleIds !== null) {
             $payload['acl_role_ids'] = json_encode($aclRoleIds, \JSON_THROW_ON_ERROR);
+        }
+
+        if ($secret !== null) {
+            $payload['secret'] = $secret;
         }
 
         return new InsertCommand($this->webhookDefinition(), $payload, ['id' => $id], static::createStub(EntityExistence::class), '/insert');
@@ -428,6 +476,16 @@ class WriteAuthorizerTest extends TestCase
     {
         static::assertCount(1, $violations);
         static::assertSame($errorCode, $violations[0]->getErrorCode());
+    }
+
+    /**
+     * @param list<HttpException> $violations
+     */
+    private function assertSecretViolation(array $violations): void
+    {
+        static::assertCount(1, $violations);
+        static::assertInstanceOf(WriteConstraintViolationException::class, $violations[0]);
+        static::assertSame('/secret', $violations[0]->getViolations()->get(0)->getPropertyPath());
     }
 
     /**

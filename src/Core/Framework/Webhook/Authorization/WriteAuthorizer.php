@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Webhook\Authorization;
 use Shopware\Core\Framework\Api\Acl\AclRoleLoader;
 use Shopware\Core\Framework\Api\Acl\AclRoles;
 use Shopware\Core\Framework\Api\Acl\ApiCaller;
+use Shopware\Core\Framework\Api\Acl\IdentityRoleMap;
 use Shopware\Core\Framework\Api\Acl\IdentityType;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -31,7 +32,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[Package('framework')]
 class WriteAuthorizer
 {
-    private const COLUMNS = ['event_name', 'acl_role_ids', 'app_id', 'owner_integration_id', 'owner_user_id'];
+    private const COLUMNS = ['event_name', 'acl_role_ids', 'app_id', 'owner_integration_id', 'owner_user_id', 'secret'];
 
     public function __construct(
         private readonly SubscriptionValidator $subscriptionValidator,
@@ -61,9 +62,21 @@ class WriteAuthorizer
 
         $violations = $this->getModificationViolations(array_filter($rows, $this->changesStoredWebhook(...)), $context);
 
+        // each webhook as it will be after the write, and its owner's roles, shared by the checks below
+        $resulting = array_filter(array_map(
+            static fn (OutcomeRow $row): ?WebhookSubscription => WebhookSubscription::fromRow($row->toResultingArray()),
+            $rows
+        ));
+        $owners = $this->aclRoleLoader->getRoles(
+            $this->ownerIdsOf($resulting, IdentityType::User),
+            $this->ownerIdsOf($resulting, IdentityType::Integration),
+        );
+
+        $violations += $this->getSecretViolations($rows, array_diff_key($resulting, $violations), $owners);
+
         $written = array_filter($rows, static fn (OutcomeRow $row): bool => $row->payloadContainsAny('event_name', 'acl_role_ids'));
         $violations += $this->getAclRoleIdsViolations(array_diff_key($written, $violations));
-        $violations += $this->getSubscriptionViolations(array_diff_key($written, $violations), $context);
+        $violations += $this->getSubscriptionViolations(array_diff_key($written, $violations), $resulting, $owners, $context);
 
         return array_values($violations);
     }
@@ -103,6 +116,32 @@ class WriteAuthorizer
     }
 
     /**
+     * A webhook of an app's integration is signed with the app secret, so it can't have its own secret.
+     *
+     * @param array<string, OutcomeRow> $rows keyed by webhook id
+     * @param array<string, WebhookSubscription> $resulting each webhook as it will be after the write, keyed by webhook id
+     *
+     * @return array<string, HttpException> keyed by webhook id
+     */
+    private function getSecretViolations(array $rows, array $resulting, IdentityRoleMap $owners): array
+    {
+        $violations = [];
+        foreach ($resulting as $webhookId => $webhook) {
+            if ($rows[$webhookId]->getPayloadValue('secret') !== null
+                && $webhook->ownerType === IdentityType::Integration
+                && $owners->isType($webhook->ownerId, IdentityType::App)) {
+                $violations[$webhookId] = $this->writeViolation(
+                    $rows[$webhookId],
+                    '/secret',
+                    'Webhooks of an app are signed with the app secret, so secret can\'t be set.'
+                );
+            }
+        }
+
+        return $violations;
+    }
+
+    /**
      * aclRoleIds is either left out, to use all of the owner's roles, or a list of role ids.
      *
      * @param array<string, OutcomeRow> $rows keyed by webhook id
@@ -127,13 +166,21 @@ class WriteAuthorizer
                 continue;
             }
 
-            $violations[$webhookId] = new WriteConstraintViolationException(
-                new ConstraintViolationList([new ConstraintViolation($message, $message, [], null, '/aclRoleIds', $aclRoleIds)]),
-                $row->path
-            );
+            $violations[$webhookId] = $this->writeViolation($row, '/aclRoleIds', $message, $aclRoleIds);
         }
 
         return $violations;
+    }
+
+    /**
+     * @param list<string>|null $invalidValue
+     */
+    private function writeViolation(OutcomeRow $row, string $path, string $message, ?array $invalidValue = null): WriteConstraintViolationException
+    {
+        return new WriteConstraintViolationException(
+            new ConstraintViolationList([new ConstraintViolation($message, $message, [], null, $path, $invalidValue)]),
+            $row->path,
+        );
     }
 
     /**
@@ -141,22 +188,23 @@ class WriteAuthorizer
      * event must be covered by the webhook's roles. An update is judged on the stored webhook with the update applied.
      *
      * @param array<string, OutcomeRow> $rows keyed by webhook id
+     * @param array<string, WebhookSubscription> $resulting each webhook as it will be after the write, keyed by webhook id
      *
      * @return array<string, HttpException> keyed by webhook id
      */
-    private function getSubscriptionViolations(array $rows, Context $context): array
+    private function getSubscriptionViolations(array $rows, array $resulting, IdentityRoleMap $owners, Context $context): array
     {
         $caller = ApiCaller::of($context->getSource());
         if ($caller === null) {
             return [];
         }
 
-        $written = array_filter(array_map(static fn (OutcomeRow $row): ?WebhookSubscription => WebhookSubscription::fromRow($row->toResultingArray()), $rows));
+        $written = array_intersect_key($resulting, $rows);
         if ($written === []) {
             return [];
         }
 
-        [$webhookRoles, $violations] = $this->resolveRoles($rows, $written);
+        [$webhookRoles, $violations] = $this->resolveRoles($rows, $written, $owners);
         $rolePrivileges = $this->aclRoleLoader->getPrivilegesForRoles(array_merge(...array_column($webhookRoles, 'roleIds')));
 
         $subscriptions = [];
@@ -188,12 +236,8 @@ class WriteAuthorizer
      *
      * @return array{array<string, AclRoles>, array<string, HttpException>} the roles and the violations, both keyed by webhook id
      */
-    private function resolveRoles(array $rows, array $written): array
+    private function resolveRoles(array $rows, array $written, IdentityRoleMap $owners): array
     {
-        $owners = $this->aclRoleLoader->getRoles(
-            $this->ownerIdsOf($written, IdentityType::User),
-            $this->ownerIdsOf($written, IdentityType::Integration),
-        );
         $listedRoleIds = array_merge(...array_map(
             static fn (WebhookSubscription $webhook): array => $webhook->aclRoleIds ?? [],
             array_values($written)

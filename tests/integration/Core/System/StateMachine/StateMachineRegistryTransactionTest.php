@@ -19,8 +19,8 @@ use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 use Shopware\Core\Test\Integration\Builder\Order\OrderBuilder;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -36,7 +36,7 @@ class StateMachineRegistryTransactionTest extends TestCase
 
     private StateMachineRegistry $registry;
 
-    private EventDispatcherInterface $dispatcher;
+    private EventHookDispatcher $hooks;
 
     private string $orderId;
 
@@ -48,7 +48,7 @@ class StateMachineRegistryTransactionTest extends TestCase
         $this->connection = $container->get(Connection::class);
         $this->context = Context::createDefaultContext();
         $this->registry = $container->get(StateMachineRegistry::class);
-        $this->dispatcher = $container->get('event_dispatcher');
+        $this->hooks = EventHookDispatcher::fromContainer($container);
 
         // Retries must own the outermost transaction, so these fixtures are explicitly cleaned up.
         static::assertSame(0, $this->connection->getTransactionNestingLevel());
@@ -60,8 +60,6 @@ class StateMachineRegistryTransactionTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->resetEventDispatcher();
-
         try {
             static::assertSame(0, $this->connection->getTransactionNestingLevel());
         } finally {
@@ -74,7 +72,7 @@ class StateMachineRegistryTransactionTest extends TestCase
     public function testWrittenFailureRollsBackStateAndHistoryAndAllowsAnExplicitRetry(string $entityName, \Throwable $failure): void
     {
         $writtenCalls = 0;
-        $this->addEventListener($this->dispatcher, StateMachineTransitionEvent::class, function (): void {
+        $this->hooks->on(StateMachineTransitionEvent::class, function (): void {
             ++$this->transitionEvents;
         });
         $listener = static function (EntityWrittenContainerEvent $event) use ($entityName, $failure, &$writtenCalls): void {
@@ -86,7 +84,7 @@ class StateMachineRegistryTransactionTest extends TestCase
 
             throw $failure;
         };
-        $this->dispatcher->addListener(EntityWrittenContainerEvent::class, $listener, 10000);
+        $this->hooks->on(EntityWrittenContainerEvent::class, $listener);
 
         try {
             try {
@@ -101,7 +99,7 @@ class StateMachineRegistryTransactionTest extends TestCase
             static::assertSame(0, $this->countHistory());
             static::assertSame(0, $this->transitionEvents);
         } finally {
-            $this->dispatcher->removeListener(EntityWrittenContainerEvent::class, $listener);
+            $this->hooks->off(EntityWrittenContainerEvent::class, $listener);
         }
 
         $this->registry->transition(new Transition('order', $this->orderId, 'cancel', 'stateId'), $this->context);
@@ -127,7 +125,7 @@ class StateMachineRegistryTransactionTest extends TestCase
         $successCalls = 0;
         $errorCalls = 0;
         $exceptionEvents = 0;
-        $this->addEventListener($this->dispatcher, EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$successCalls, &$errorCalls): void {
+        $this->hooks->on(EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$successCalls, &$errorCalls): void {
             $event->addSuccess(static function () use (&$successCalls): void {
                 ++$successCalls;
             });
@@ -135,10 +133,10 @@ class StateMachineRegistryTransactionTest extends TestCase
                 ++$errorCalls;
             });
         });
-        $this->addEventListener($this->dispatcher, WriteCommandExceptionEvent::class, static function () use (&$exceptionEvents): void {
+        $this->hooks->on(WriteCommandExceptionEvent::class, static function () use (&$exceptionEvents): void {
             ++$exceptionEvents;
         });
-        $this->addEventListener($this->dispatcher, PostWriteValidationEvent::class, static function () use (&$attempts): void {
+        $this->hooks->on(PostWriteValidationEvent::class, static function () use (&$attempts): void {
             if (++$attempts === 1) {
                 throw self::recordChangedException();
             }
@@ -160,15 +158,15 @@ class StateMachineRegistryTransactionTest extends TestCase
         $errorCalls = 0;
         $exceptionEvents = 0;
         $failure = self::recordChangedException();
-        $this->addEventListener($this->dispatcher, EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$errorCalls): void {
+        $this->hooks->on(EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$errorCalls): void {
             $event->addError(static function () use (&$errorCalls): void {
                 ++$errorCalls;
             });
         });
-        $this->addEventListener($this->dispatcher, WriteCommandExceptionEvent::class, static function () use (&$exceptionEvents): void {
+        $this->hooks->on(WriteCommandExceptionEvent::class, static function () use (&$exceptionEvents): void {
             ++$exceptionEvents;
         });
-        $this->addEventListener($this->dispatcher, PostWriteValidationEvent::class, static function () use (&$attempts, $failure): never {
+        $this->hooks->on(PostWriteValidationEvent::class, static function () use (&$attempts, $failure): never {
             ++$attempts;
 
             throw $failure;
@@ -193,7 +191,7 @@ class StateMachineRegistryTransactionTest extends TestCase
         $successCalls = 0;
         $errorCalls = 0;
         $failure = self::recordChangedException();
-        $this->addEventListener($this->dispatcher, EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$successCalls, &$errorCalls, $failure): void {
+        $this->hooks->on(EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$successCalls, &$errorCalls, $failure): void {
             $event->addSuccess(static function () use (&$successCalls, $failure): never {
                 ++$successCalls;
 
@@ -221,7 +219,7 @@ class StateMachineRegistryTransactionTest extends TestCase
     {
         $pending = 0;
         $attempts = 0;
-        $this->addEventListener($this->dispatcher, EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$pending): void {
+        $this->hooks->on(EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$pending): void {
             ++$pending;
             $event->addSuccess(static function () use (&$pending): void {
                 --$pending;
@@ -230,7 +228,7 @@ class StateMachineRegistryTransactionTest extends TestCase
                 --$pending;
             });
         });
-        $this->addEventListener($this->dispatcher, PostWriteValidationEvent::class, static function () use (&$attempts): void {
+        $this->hooks->on(PostWriteValidationEvent::class, static function () use (&$attempts): void {
             if (++$attempts === 1) {
                 throw self::recordChangedException();
             }
@@ -248,7 +246,7 @@ class StateMachineRegistryTransactionTest extends TestCase
     {
         $attempts = 0;
         $errorCalls = 0;
-        $this->addEventListener($this->dispatcher, EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$attempts, &$errorCalls): void {
+        $this->hooks->on(EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$attempts, &$errorCalls): void {
             $event->addError(static function () use (&$errorCalls): void {
                 ++$errorCalls;
             });
@@ -272,15 +270,15 @@ class StateMachineRegistryTransactionTest extends TestCase
         $errorCalls = 0;
         $failure = self::recordChangedException();
         $notificationFailure = new \RuntimeException('Exception listener failed');
-        $this->addEventListener($this->dispatcher, EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$errorCalls): void {
+        $this->hooks->on(EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$errorCalls): void {
             $event->addError(static function () use (&$errorCalls): void {
                 ++$errorCalls;
             });
         });
-        $this->addEventListener($this->dispatcher, WriteCommandExceptionEvent::class, static function () use ($notificationFailure): never {
+        $this->hooks->on(WriteCommandExceptionEvent::class, static function () use ($notificationFailure): never {
             throw $notificationFailure;
         });
-        $this->addEventListener($this->dispatcher, PostWriteValidationEvent::class, static function () use (&$attempts, $failure): never {
+        $this->hooks->on(PostWriteValidationEvent::class, static function () use (&$attempts, $failure): never {
             ++$attempts;
 
             throw $failure;
@@ -307,12 +305,12 @@ class StateMachineRegistryTransactionTest extends TestCase
     public function testErrorCallbackFailureKeepsTheOriginalErrorAndStopsRetries(\Throwable $failure, \Throwable $callbackFailure): void
     {
         $attempts = 0;
-        $this->addEventListener($this->dispatcher, EntityWriteEvent::class, static function (EntityWriteEvent $event) use ($callbackFailure): void {
+        $this->hooks->on(EntityWriteEvent::class, static function (EntityWriteEvent $event) use ($callbackFailure): void {
             $event->addError(static function () use ($callbackFailure): never {
                 throw $callbackFailure;
             });
         });
-        $this->addEventListener($this->dispatcher, PostWriteValidationEvent::class, static function () use (&$attempts, $failure): never {
+        $this->hooks->on(PostWriteValidationEvent::class, static function () use (&$attempts, $failure): never {
             ++$attempts;
 
             throw $failure;

@@ -34,8 +34,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Shopware\Core\Test\Integration\Builder\Order\OrderBuilder;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -51,7 +51,7 @@ class FlowExecutorTransactionTest extends TestCase
 
     private FlowExecutor $executor;
 
-    private EventDispatcherInterface $dispatcher;
+    private EventHookDispatcher $hooks;
 
     private string $orderId;
 
@@ -63,7 +63,7 @@ class FlowExecutorTransactionTest extends TestCase
         $this->connection = $container->get(Connection::class);
         $this->context = Context::createDefaultContext();
         $this->executor = $container->get(FlowExecutor::class);
-        $this->dispatcher = $container->get('event_dispatcher');
+        $this->hooks = EventHookDispatcher::fromContainer($container);
 
         // The Flow action must own the outermost transaction for contention retries to run.
         static::assertSame(0, $this->connection->getTransactionNestingLevel());
@@ -78,8 +78,6 @@ class FlowExecutorTransactionTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->resetEventDispatcher();
-
         try {
             static::assertSame(0, $this->connection->getTransactionNestingLevel());
         } finally {
@@ -94,7 +92,7 @@ class FlowExecutorTransactionTest extends TestCase
         $attempts = 0;
         $successCalls = 0;
         $errorCalls = 0;
-        $this->addEventListener($this->dispatcher, EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$successCalls, &$errorCalls): void {
+        $this->hooks->on(EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$successCalls, &$errorCalls): void {
             if ($event->getCommandsForEntity('order') === []) {
                 return;
             }
@@ -106,7 +104,7 @@ class FlowExecutorTransactionTest extends TestCase
                 ++$errorCalls;
             });
         });
-        $this->addEventListener($this->dispatcher, PostWriteValidationEvent::class, static function () use (&$attempts): void {
+        $this->hooks->on(PostWriteValidationEvent::class, static function () use (&$attempts): void {
             if (++$attempts === 1) {
                 throw self::recordChangedException();
             }
@@ -126,10 +124,10 @@ class FlowExecutorTransactionTest extends TestCase
         $transitionCalls = 0;
         $paymentAttempts = 0;
         $failure = self::recordChangedException();
-        $this->addEventListener($this->dispatcher, StateMachineTransitionEvent::class, static function () use (&$transitionCalls): void {
+        $this->hooks->on(StateMachineTransitionEvent::class, static function () use (&$transitionCalls): void {
             ++$transitionCalls;
         });
-        $this->addEventListener($this->dispatcher, PostWriteValidationEvent::class, static function (PostWriteValidationEvent $event) use (&$paymentAttempts, $failure): void {
+        $this->hooks->on(PostWriteValidationEvent::class, static function (PostWriteValidationEvent $event) use (&$paymentAttempts, $failure): void {
             foreach ($event->getCommands() as $command) {
                 if ($command->getEntityName() === 'order_transaction') {
                     ++$paymentAttempts;
@@ -162,9 +160,9 @@ class FlowExecutorTransactionTest extends TestCase
         $attempts = 0;
         $successCalls = 0;
         $errorCalls = 0;
-        $contentionErrors = 0;
+        $contentionErrors = [];
 
-        $this->addEventListener($this->dispatcher, EntityWriteEvent::class, static function (EntityWriteEvent $event) use ($blocker, &$attempts, &$successCalls, &$errorCalls): void {
+        $this->hooks->on(EntityWriteEvent::class, static function (EntityWriteEvent $event) use ($blocker, &$attempts, &$successCalls, &$errorCalls): void {
             if ($event->getCommandsForEntity('order') === []) {
                 return;
             }
@@ -178,10 +176,8 @@ class FlowExecutorTransactionTest extends TestCase
                 $blocker->rollBack();
             });
         });
-        $this->addEventListener($this->dispatcher, WriteCommandExceptionEvent::class, static function (WriteCommandExceptionEvent $event) use (&$contentionErrors): void {
-            ++$contentionErrors;
-            static::assertInstanceOf(LockWaitTimeoutException::class, $event->getException());
-            static::assertSame(1205, $event->getException()->getCode());
+        $this->hooks->on(WriteCommandExceptionEvent::class, static function (WriteCommandExceptionEvent $event) use (&$contentionErrors): void {
+            $contentionErrors[] = $event->getException();
         });
 
         try {
@@ -202,7 +198,9 @@ class FlowExecutorTransactionTest extends TestCase
         }
 
         static::assertSame(2, $attempts);
-        static::assertSame(1, $contentionErrors);
+        static::assertCount(1, $contentionErrors);
+        static::assertInstanceOf(LockWaitTimeoutException::class, $contentionErrors[0]);
+        static::assertSame(1205, $contentionErrors[0]->getCode());
         static::assertSame(1, $errorCalls);
         static::assertSame(1, $successCalls);
         static::assertSame('cancelled', $this->readOrderState());
@@ -264,8 +262,8 @@ class FlowExecutorTransactionTest extends TestCase
         $stockStorage = $this->createMock(AbstractStockStorage::class);
         $stockStorage->expects($this->once())->method('alter')->willThrowException($failure);
         $subscriber = new OrderStockSubscriber($this->connection, $stockStorage, enableStockManagement: true);
-        $this->addEventListener($this->dispatcher, StateMachineTransitionEvent::class, $subscriber->stateChanged(...), 10000);
-        $this->addEventListener($this->dispatcher, EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$successCalls): void {
+        $this->hooks->on(StateMachineTransitionEvent::class, $subscriber->stateChanged(...));
+        $this->hooks->on(EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$successCalls): void {
             $event->addSuccess(static function () use (&$successCalls): void {
                 ++$successCalls;
             });
@@ -288,7 +286,7 @@ class FlowExecutorTransactionTest extends TestCase
         $attempts = 0;
         $failure = self::recordChangedException();
         $tagRepository = static::getContainer()->get('tag.repository');
-        $this->addEventListener($this->dispatcher, EntityWriteEvent::class, static function (EntityWriteEvent $event) use ($tagId, $tagRepository, &$attempts): void {
+        $this->hooks->on(EntityWriteEvent::class, static function (EntityWriteEvent $event) use ($tagId, $tagRepository, &$attempts): void {
             if ($event->getCommandsForEntity('order') === []) {
                 return;
             }
@@ -296,7 +294,7 @@ class FlowExecutorTransactionTest extends TestCase
             ++$attempts;
             $tagRepository->create([['id' => $tagId, 'name' => $tagId]], Context::createDefaultContext());
         });
-        $this->addEventListener($this->dispatcher, PostWriteValidationEvent::class, static function (PostWriteValidationEvent $event) use ($failure): void {
+        $this->hooks->on(PostWriteValidationEvent::class, static function (PostWriteValidationEvent $event) use ($failure): void {
             foreach ($event->getCommands() as $command) {
                 if ($command->getEntityName() === 'order') {
                     throw $failure;
@@ -323,7 +321,7 @@ class FlowExecutorTransactionTest extends TestCase
         $container = static::getContainer();
 
         return new FlowExecutor(
-            $this->dispatcher,
+            $container->get('event_dispatcher'),
             $container->get(AppFlowActionProvider::class),
             $container->get(RuleLoader::class),
             $container->get(FlowRuleScopeBuilder::class),

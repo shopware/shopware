@@ -2,18 +2,22 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Loader;
 
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception as DBALException;
+use Mcp\Capability\Registry\PromptReference;
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\Prompt;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\App\Feature\AppFeature;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
+use Shopware\Core\Framework\App\Feature\TranslatedString;
+use Shopware\Core\Framework\App\Mcp\Feature\McpPromptConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Loader\AbstractAppMcpLoader;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPromptLoader;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 
 /**
  * @internal
@@ -24,90 +28,75 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpPromptLoader;
 #[CoversClass(AbstractAppMcpLoader::class)]
 class AbstractAppMcpLoaderTest extends TestCase
 {
-    private Connection&Stub $connection;
+    private AppFeatureStorage&Stub $storage;
 
     private AppMcpPromptLoader $loader;
 
     protected function setUp(): void
     {
-        $this->connection = static::createStub(Connection::class);
+        $this->storage = static::createStub(AppFeatureStorage::class);
+        $localeProvider = static::createStub(LanguageLocaleCodeProvider::class);
+        $localeProvider->method('getLocaleForLanguageId')->willReturn('en-GB');
         $this->loader = new AppMcpPromptLoader(
-            $this->connection,
+            $this->storage,
             static::createStub(AppMcpCapabilityExecutor::class),
+            $localeProvider,
             new NullLogger(),
         );
     }
 
-    public function testLoadWithDBALExceptionRegistersNoPrompts(): void
+    public function testNoActiveAppsRegisterNoPrompts(): void
     {
-        $exception = new class('DB error') extends \Exception implements DBALException {};
+        $this->storage->method('forActiveApps')->willReturn([]);
 
-        $this->connection->method('fetchAllAssociative')
-            ->willThrowException($exception);
-
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->never())->method('registerPrompt');
-
-        $this->loader->load($registry);
+        static::assertSame([], $this->registeredPrompts());
     }
 
-    public function testDescriptionFallsBackToPromptNameWhenNoLabelOrDescription(): void
+    public function testAPromptWithAnEmptyLabelAndDescriptionIsDescribedByItsName(): void
     {
-        $promptRow = [
-            'name' => 'mystery-prompt',
-            'url' => 'https://app.example.com/mcp/prompt/mystery',
-            'app_name' => 'my-app',
-            'app_secret' => 'secret',
-            'label' => null,
-            'description' => null,
-        ];
+        $this->storage->method('forActiveApps')->willReturn([
+            $this->feature(new McpPromptConfig('order-context', 'https://app.example.com/mcp/prompt/order-context', new TranslatedString(['en-GB' => '']), new TranslatedString([]))),
+        ]);
 
-        $this->connection->method('fetchAllAssociative')->willReturn([$promptRow]);
+        $prompt = $this->registeredPrompts()[0];
 
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->once())
-            ->method('registerPrompt')
-            ->with(
-                static::callback(function (Prompt $prompt): bool {
-                    static::assertNull($prompt->title);
-                    static::assertSame('my-app-mystery-prompt', $prompt->description);
-
-                    return true;
-                }),
-                static::isCallable(),
-                [],
-            );
-
-        $this->loader->load($registry);
+        static::assertNull($prompt->title);
+        static::assertSame('my-app-order-context', $prompt->description);
     }
 
-    public function testLoadWithEmptyResultRegistersNoPrompts(): void
+    public function testAPromptNamedWithTheShopwarePrefixIsSkipped(): void
     {
-        $this->connection->method('fetchAllAssociative')
-            ->willReturn([]);
+        $this->storage->method('forActiveApps')->willReturn([
+            $this->feature(new McpPromptConfig('context', 'https://app.example.com/mcp/prompt/context', new TranslatedString([]), new TranslatedString([])), 'shopware'),
+        ]);
 
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->never())->method('registerPrompt');
-
-        $this->loader->load($registry);
+        static::assertSame([], $this->registeredPrompts());
     }
 
-    public function testPromptWithReservedShopwarePrefixIsSkipped(): void
+    /**
+     * @return list<Prompt>
+     */
+    private function registeredPrompts(): array
     {
-        $promptRow = [
-            'name' => 'context',
-            'url' => 'https://app.example.com/mcp/prompt/context',
-            'app_name' => 'shopware',
-            'app_secret' => 'secret',
-            'label' => null,
-            'description' => null,
-        ];
+        $prompts = [];
 
-        $this->connection->method('fetchAllAssociative')->willReturn([$promptRow]);
+        $registry = static::createStub(RegistryInterface::class);
+        $registry->method('registerPrompt')->willReturnCallback(function (Prompt $prompt) use (&$prompts): PromptReference {
+            $prompts[] = $prompt;
 
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->never())->method('registerPrompt');
+            return static::createStub(PromptReference::class);
+        });
 
         $this->loader->load($registry);
+
+        return $prompts;
+    }
+
+    /**
+     * @return AppFeature<McpPromptConfig>
+     */
+    private function feature(McpPromptConfig $config, string $appName = 'my-app'): AppFeature
+    {
+        return new AppFeature('0189aaaabbbbcccc0000000000000001', $appName, true, '0.0.0', true, new \DateTimeImmutable(), $config);
     }
 }

@@ -5,12 +5,13 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, beforeEach, test } from 'node:test';
-import { eslintTotals, knipTotals } from './check-baseline-growth.ts';
+import { eslintTotals, fallowTotals } from './check-baseline-growth.ts';
 
 const SCRIPT = join(dirname(fileURLToPath(import.meta.url)), 'check-baseline-growth.ts');
 const ESLINT = 'admin/eslint-suppressions.json';
-const KNIP = 'admin/knip-baseline.json';
+const FALLOW = 'admin/fallow-baseline.json';
 const CONFIG = 'admin/eslint.config.ts';
+const FALLOW_CONFIG = 'admin/.fallowrc.json';
 
 let repo: string;
 let baseSha: string;
@@ -26,6 +27,16 @@ const touch = (path: string): void => {
     mkdirSync(join(repo, dirname(path)), { recursive: true });
     writeFileSync(join(repo, path), '');
 };
+
+const fallowBaseline = (categories: Record<string, string[]>) => ({
+    kind: 'dead-code',
+    analysis_identity: { mode: 'syntactic', capabilities: [], completeness: 'complete' },
+    identity: 'dc1',
+    unused_files: [],
+    unused_exports: [],
+    unused_types: [],
+    ...categories,
+});
 
 const run = (...args: string[]) => {
     const result = spawnSync(process.execPath, [SCRIPT, ...args], { cwd: repo, encoding: 'utf8' });
@@ -43,7 +54,14 @@ beforeEach(() => {
         'src/a.js': { 'sw-core-rules/no-javascript-files': { count: 1 }, complexity: { count: 2 } },
         'src/b.js': { 'sw-core-rules/no-javascript-files': { count: 1 } },
     });
-    write(KNIP, ['exports|src/a.ts|unused', 'types|src/b.ts|Unused']);
+    write(
+        FALLOW,
+        fallowBaseline({
+            unused_files: ['unused-file:build/old.ts'],
+            unused_exports: ['unused-export:src/a.ts:unused'],
+        }),
+    );
+    write(FALLOW_CONFIG, {});
     touch('admin/src/a.js');
     touch('admin/src/b.js');
     writeFileSync(join(repo, CONFIG), 'export default [];');
@@ -66,16 +84,24 @@ test('eslintTotals sums the counts per rule over all files', () => {
     );
 });
 
-test('knipTotals counts the entries per issue type', () => {
-    assert.deepEqual(knipTotals(['exports|a.ts|x', 'exports|b.ts|y', 'files|c.ts|c.ts']), { exports: 2, files: 1 });
+test('fallowTotals counts the entries per issue category and skips the metadata', () => {
+    assert.deepEqual(
+        fallowTotals(
+            fallowBaseline({
+                unused_exports: ['unused-export:src/a.ts:x', 'unused-export:src/b.ts:y'],
+                unused_class_members: ['unused-class-member:src/c.ts:default:z'],
+            }),
+        ),
+        { unused_exports: 2, unused_class_members: 1 },
+    );
 });
 
 test('passes and prints the totals when nothing changed', () => {
-    const result = run('--base', baseSha, ESLINT, KNIP);
+    const result = run('--base', baseSha, ESLINT, FALLOW);
 
     assert.equal(result.status, 0);
     assert.match(result.output, /complexity: 2 -> 2/);
-    assert.match(result.output, /exports: 1 -> 1/);
+    assert.match(result.output, /unused_exports: 1 -> 1/);
     assert.match(result.output, /Compared 2 baseline\(s\)/);
 });
 
@@ -100,13 +126,45 @@ test('fails when a rule total grows', () => {
     assert.match(result.output, /complexity: 2 -> 3 {2}<-- grew/);
 });
 
-test('fails when a knip issue type grows', () => {
-    write(KNIP, ['exports|src/a.ts|unused', 'exports|src/c.ts|other', 'types|src/b.ts|Unused']);
+test('passes when a Fallow baseline shrinks', () => {
+    write(FALLOW, fallowBaseline({ unused_exports: ['unused-export:src/a.ts:unused'] }));
 
-    const result = run('--base', baseSha, KNIP);
+    const result = run('--base', baseSha, FALLOW);
+
+    assert.equal(result.status, 0);
+    assert.match(result.output, /unused_files: 1 -> 0/);
+});
+
+test('fails when a Fallow issue category grows', () => {
+    write(
+        FALLOW,
+        fallowBaseline({
+            unused_files: ['unused-file:build/old.ts'],
+            unused_exports: ['unused-export:src/a.ts:unused', 'unused-export:src/c.ts:other'],
+        }),
+    );
+
+    const result = run('--base', baseSha, FALLOW);
 
     assert.equal(result.status, 1);
-    assert.match(result.output, /exports: 1 -> 2 {2}<-- grew/);
+    assert.match(result.output, /unused_exports: 1 -> 2 {2}<-- grew/);
+});
+
+test('passes a new Fallow issue category when .fallowrc.json changes too', () => {
+    write(FALLOW_CONFIG, { rules: { 'unused-types': 'error' } });
+    write(
+        FALLOW,
+        fallowBaseline({
+            unused_files: ['unused-file:build/old.ts'],
+            unused_exports: ['unused-export:src/a.ts:unused'],
+            unused_types: ['unused-type:src/b.ts:Unused'],
+        }),
+    );
+
+    const result = run('--base', baseSha, '--config', FALLOW_CONFIG, FALLOW);
+
+    assert.equal(result.status, 0);
+    assert.match(result.output, /unused_types: 0 -> 1 {2}<-- new rule/);
 });
 
 test('fails when a new rule appears in a baseline without a config change', () => {

@@ -1,10 +1,10 @@
 /**
  * Fail a pull request that grows a lint baseline.
  *
- * The Administration baselines (`eslint-suppressions.json`, `knip-baseline.json`) record existing
+ * The Administration baselines (`eslint-suppressions.json`, `fallow-baseline.json`) record existing
  * violations so only new code has to follow the gate rules. A pull request may shrink them, which
  * every cleanup does, but must not grow them. CODEOWNERS cannot tell the two apart, so this check
- * compares the totals per rule (ESLint) or per issue type (knip) with the base commit.
+ * compares the totals per rule (ESLint) or per issue category (Fallow) with the base commit.
  *
  * Totals instead of per-file counts, because a moved or renamed file changes the keys of its entries
  * without adding a violation.
@@ -18,7 +18,7 @@
  *
  * ESLint only reports unused suppressions for the files it lints, so the entries of a deleted file stay
  * behind and would let a new violation of the same rule pass. The check fails on them; `npm run lint:fix`
- * removes them. knip needs no such check, its baseline preprocessor already fails on fixed entries.
+ * removes them. Fallow needs no such check, `npm run lint:fallow` already fails on fixed entries.
  */
 
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -47,23 +47,26 @@ export const eslintTotals = (suppressions: EslintSuppressions): Totals => {
     return totals;
 };
 
-// Entries look like `exports|src/file.ts|symbol`
-export const knipTotals = (entries: string[]): Totals => {
+// Each issue category is a top-level array of entries, next to metadata like `kind` and `analysis_identity`
+export const fallowTotals = (baseline: Record<string, unknown>): Totals => {
     const totals: Totals = {};
 
-    for (const entry of entries) {
-        const [type] = entry.split('|');
-        totals[type] = (totals[type] ?? 0) + 1;
+    for (const [category, entries] of Object.entries(baseline)) {
+        if (Array.isArray(entries) && entries.length > 0) {
+            totals[category] = entries.length;
+        }
     }
 
     return totals;
 };
 
+const isFallowBaseline = (path: string): boolean => path.endsWith('fallow-baseline.json');
+
 export const totalsFor = (path: string, content: string): Totals => {
     const parsed: unknown = JSON.parse(content);
 
-    if (path.endsWith('knip-baseline.json')) {
-        return knipTotals(parsed as string[]);
+    if (isFallowBaseline(path)) {
+        return fallowTotals(parsed as Record<string, unknown>);
     }
 
     return eslintTotals(parsed as EslintSuppressions);
@@ -82,7 +85,7 @@ export const grownRows = (rows: Row[], configChanged: boolean): Row[] =>
 
 // ESLint stores the paths relative to the folder it runs in, which is the folder of the baseline
 export const staleFiles = (path: string, content: string, exists: (file: string) => boolean): string[] => {
-    if (path.endsWith('knip-baseline.json')) {
+    if (isFallowBaseline(path)) {
         return [];
     }
 

@@ -107,7 +107,7 @@ class ApiService {
         return parseJsonApi(data) as T;
     }
 
-    static getVersionHeader(versionId: string): { 'sw-version-id': string } {
+    static getVersionHeader(versionId: EntityKey<'version'>): { 'sw-version-id': EntityKey<'version'> } {
         return { 'sw-version-id': versionId };
     }
 

@@ -8,6 +8,7 @@ import {
     User,
 } from '@fixtures/AcceptanceTest';
 import {
+    markUiShellUpdateModalSeen,
     parseCapturedRequests,
     removeSymfonyToolbar,
     setupConsentInterceptor,
@@ -38,6 +39,7 @@ test.describe('Product Analytics - Consent Modal Validation', { tag: '@ProductAn
             const AdminSettingsListing = new AdminPageObjects['SettingsListing'](page);
 
             await page.clock.install({ time: new Date(new Date().setMonth(new Date().getMonth() + MONTHS_AHEAD)) });
+            await markUiShellUpdateModalSeen(page);
 
             await test.step('Modify product analytics API and consent API requests.', async () => {
                 const { consentHandler } = setupConsentInterceptor();
@@ -182,6 +184,7 @@ test.describe('Product Analytics - Consent Modal Validation', { tag: '@ProductAn
             const user: User = await TestDataService.createUser();
 
             await page.clock.install({ time: new Date(new Date().setMonth(new Date().getMonth() + MONTHS_AHEAD)) });
+            await markUiShellUpdateModalSeen(page);
 
             await test.step('Modify product analytics API and consent API requests.', async () => {
                 const { trackingEventHandler } = setupProductAnalyticsInterceptor();
@@ -225,6 +228,7 @@ test.describe('Product Analytics - Consent Modal Validation', { tag: '@ProductAn
             const user: User = await TestDataService.createUser({ admin: false });
 
             await page.clock.install({ time: new Date(new Date().setMonth(new Date().getMonth() + MONTHS_AHEAD)) });
+            await markUiShellUpdateModalSeen(page);
 
             await test.step('Modify product analytics API and consent API requests.', async () => {
                 const { trackingEventHandler } = setupProductAnalyticsInterceptor();
@@ -294,6 +298,7 @@ test.describe('Product Analytics - Consent Modal Validation', { tag: '@ProductAn
             const AdminConsentModal = new AdminPageObjects['DataSharingConsentModal'](page);
 
             await page.clock.install({ time: new Date(new Date().setMonth(new Date().getMonth() + MONTHS_AHEAD)) });
+            await markUiShellUpdateModalSeen(page);
 
             await test.step('Modify product analytics API and consent API requests.', async () => {
                 const { trackingEventHandler } = setupProductAnalyticsInterceptor();
@@ -321,6 +326,7 @@ test.describe('Product Analytics - Consent Modal Validation', { tag: '@ProductAn
                 const user2: User = await TestDataService.createUser();
 
                 await page.clock.install({ time: new Date(new Date().setMonth(new Date().getMonth() + MONTHS_AHEAD)) });
+                await markUiShellUpdateModalSeen(page);
 
                 await loginToAdministration(page, user2, TestDataService.AdminApiClient);
 

@@ -1,3 +1,4 @@
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-search-bar-item.html.twig';
 import './sw-search-bar-item.scss';
 
@@ -143,19 +144,17 @@ export default {
         },
 
         iconName() {
-            return [
-                'module',
-                'frequently_used',
-            ].includes(this.type) && this.item?.icon
+            return ['module', 'frequently_used'].includes(this.type) && this.item?.icon
                 ? this.item.icon
                 : this.entityIconName;
         },
 
         iconColor() {
-            return [
-                'module',
-                'frequently_used',
-            ].includes(this.type) && this.item?.color
+            if (!useModuleIconColors().enabled.value) {
+                return 'var(--color-icon-primary-default)';
+            }
+
+            return ['module', 'frequently_used'].includes(this.type) && this.item?.color
                 ? this.item.color
                 : this.entityIconColor;
         },

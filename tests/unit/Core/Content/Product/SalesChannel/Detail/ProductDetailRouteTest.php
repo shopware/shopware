@@ -32,6 +32,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -109,6 +110,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setId(Uuid::randomHex());
         $productEntity->setCmsPageId('4');
         $productEntity->setUniqueIdentifier('mainVariant');
+        $productEntity->internalSetEntityData('product', new FieldVisibility([]));
         $productRepository = $this->createMock(SalesChannelRepository::class);
         $productRepository->expects($this->exactly(1))
             ->method('search')
@@ -137,6 +139,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setId($this->idsCollection->create('product1'));
         $productEntity->setAvailable(true);
         $productEntity->setUniqueIdentifier('BestVariant');
+        $productEntity->internalSetEntityData('product', new FieldVisibility([]));
 
         $product1Id = $this->idsCollection->create('product1');
         $idsSearchResult = new IdSearchResult(
@@ -188,6 +191,7 @@ class ProductDetailRouteTest extends TestCase
         $productTerm->setId($this->idsCollection->create('term'));
         $productTerm->setUniqueIdentifier('term');
         $productTerm->setName('term');
+        $productTerm->internalSetEntityData('product', new FieldVisibility([]));
 
         $product1Id = $this->idsCollection->create('product1');
         $idsSearchResult = new IdSearchResult(
@@ -244,6 +248,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setId($mainVariantId);
         $productEntity->setCmsPageId('4');
         $productEntity->setUniqueIdentifier('mainVariant');
+        $productEntity->internalSetEntityData('product', new FieldVisibility([]));
 
         $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, static function (ResolveVariantIdEvent $event) use ($mainVariantId): void {
             static::assertSame($mainVariantId, $event->getResolvedVariantId());
@@ -290,6 +295,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setCmsPageId('4');
         $productEntity->setUniqueIdentifier('2');
         $productEntity->setAvailable(true);
+        $productEntity->internalSetEntityData('product', new FieldVisibility([]));
         $productRepository = $this->createMock(SalesChannelRepository::class);
         $productRepository->expects($this->once())
             ->method('search')
@@ -334,6 +340,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setCmsPageId('4');
         $productEntity->setUniqueIdentifier('best-variant');
         $productEntity->setAvailable(true);
+        $productEntity->internalSetEntityData('product', new FieldVisibility([]));
         $productRepository = $this->createMock(SalesChannelRepository::class);
         $productRepository->expects($this->once())
             ->method('searchIds')
@@ -397,6 +404,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setId($variantId);
         $productEntity->setCmsPageId('4');
         $productEntity->setAvailable(true);
+        $productEntity->internalSetEntityData('product', new FieldVisibility([]));
         $productRepository = $this->createMock(SalesChannelRepository::class);
         $productRepository->expects($this->once())
             ->method('search')
@@ -445,6 +453,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setCmsPageId('4');
         $productEntity->setUniqueIdentifier('2');
         $productEntity->setAvailable(true);
+        $productEntity->internalSetEntityData('product', new FieldVisibility([]));
         $productRepository = $this->createMock(SalesChannelRepository::class);
         $productRepository->expects($this->once())
             ->method('search')
@@ -488,6 +497,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setCmsPageId('4');
         $productEntity->setUniqueIdentifier('2');
         $productEntity->setAvailable(true);
+        $productEntity->internalSetEntityData('product', new FieldVisibility([]));
         $productRepository = $this->createMock(SalesChannelRepository::class);
         $productRepository->expects($this->once())
             ->method('search')
@@ -520,6 +530,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setId(Uuid::randomHex());
         $productEntity->setCmsPageId('4');
         $productEntity->setUniqueIdentifier('BestVariant');
+        $productEntity->internalSetEntityData('product', new FieldVisibility([]));
 
         $criteria2 = new Criteria([$this->idsCollection->get('product2')]);
         $criteria2->setTitle('product-detail-route');
@@ -553,6 +564,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setId(Uuid::randomHex());
         $productEntity->setCmsPageId('4');
         $productEntity->setUniqueIdentifier('mainVariant');
+        $productEntity->internalSetEntityData('product', new FieldVisibility([]));
         $productRepository = $this->createMock(SalesChannelRepository::class);
         $productRepository->expects($this->exactly(2))
             ->method('search')
@@ -591,6 +603,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setId(Uuid::randomHex());
         $productEntity->setCmsPageId('4');
         $productEntity->setUniqueIdentifier('mainVariant');
+        $productEntity->internalSetEntityData('product', new FieldVisibility([]));
 
         $productRepository = $this->createMock(SalesChannelRepository::class);
         $productRepository->expects($this->exactly(2))
@@ -719,9 +732,11 @@ class ProductDetailRouteTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setId(Uuid::randomHex());
         $product->setCategoryIds([$defaultBreadcrumbCategory->getId(), $secondCategory->getId()]);
+        $product->internalSetEntityData('product', new FieldVisibility([]));
 
         $productWithoutCategories = new SalesChannelProductEntity();
         $productWithoutCategories->setId(Uuid::randomHex());
+        $productWithoutCategories->internalSetEntityData('product', new FieldVisibility([]));
 
         yield 'Load default breadcrumb category with disabled referrer feature' => [
             $product,

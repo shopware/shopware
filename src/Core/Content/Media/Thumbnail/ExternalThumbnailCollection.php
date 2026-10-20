@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<ExternalThumbnailData>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class ExternalThumbnailCollection extends Collection

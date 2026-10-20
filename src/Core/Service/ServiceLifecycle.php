@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
+use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -52,6 +53,7 @@ class ServiceLifecycle
         private readonly RequirementsValidator $requirementsValidator,
         private readonly Client $serviceRegistryClient,
         private readonly ServiceClientFactory $serviceClientFactory,
+        private readonly Privileges $privileges,
     ) {
     }
 
@@ -111,14 +113,18 @@ class ServiceLifecycle
     }
 
     /**
-     * Re-evaluate every installed service and uninstall any whose installation-gating requirements are
-     * no longer met (e.g. services were disabled as a unit).
+     * Repair installed state independently of registry availability or revision changes.
      */
     public function reevaluateInstalled(Context $context): void
     {
         foreach ($this->serviceStorage->findAll($context) as $service) {
-            if (!$this->requirementsValidator->isSatisfied($service->requirements, Gate::INSTALLATION)) {
-                $this->uninstall($service->name, $context);
+            try {
+                $this->reevaluate($service, $context);
+            } catch (\Throwable $exception) {
+                $this->logger->warning('Cannot reconcile service state', [
+                    'service' => $service->name,
+                    'exception' => $exception,
+                ]);
             }
         }
     }
@@ -181,6 +187,29 @@ class ServiceLifecycle
         $criteria->setLimit(1);
 
         return $this->appRepository->search($criteria, $context)->getEntities()->first()?->getId();
+    }
+
+    private function reevaluate(ServiceDto $service, Context $context): void
+    {
+        if (!$this->requirementsValidator->isSatisfied($service->requirements, Gate::INSTALLATION)) {
+            $this->uninstall($service->name, $context);
+
+            return;
+        }
+
+        if ($this->requirementsValidator->isSatisfied($service->requirements, Gate::PRIVILEGES)) {
+            if ($service->requestedPrivileges !== []) {
+                $this->privileges->acceptAllForApps([$service->id], $context);
+            }
+        } elseif ($service->privileges !== []) {
+            $this->privileges->revokeAllForApps([$service->id], $context);
+        }
+
+        if (!$service->active && !$this->requirementsValidator->permitsStateChange($service->requirements)) {
+            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
+                $this->appManager->activate($service->app, $context);
+            });
+        }
     }
 
     private function performInstall(ServiceEntry $entry, AppInfo $appInfo, Context $context): bool

@@ -1,6 +1,12 @@
 @import "~scss/mixins";
 
 .sw-extension-card-base {
+    &__select {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     &.is--deactivated {
         background: var(--color-background-tertiary-default);
         box-shadow: none;
@@ -58,7 +64,7 @@
     .sw-meteor-card__content .sw-meteor-card__content-wrapper {
         display: grid;
         grid-column-gap: 24px;
-        grid-template-columns: 24px 56px 5fr 2fr minmax(min-content, 1fr) auto;
+        grid-template-columns: auto 24px 56px 5fr 2fr minmax(min-content, 1fr) auto;
         align-items: center;
         padding: 16px 32px;
         border: none;

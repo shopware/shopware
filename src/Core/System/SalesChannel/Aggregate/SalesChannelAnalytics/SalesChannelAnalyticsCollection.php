@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<SalesChannelAnalyticsEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class SalesChannelAnalyticsCollection extends EntityCollection

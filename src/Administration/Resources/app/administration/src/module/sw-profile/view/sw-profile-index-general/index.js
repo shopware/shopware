@@ -2,6 +2,7 @@
  * @sw-package fundamentals@framework
  */
 import template from './sw-profile-index-general.html.twig';
+import './sw-profile-index-general.scss';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
@@ -9,14 +10,13 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'acl',
-        'ssoSettingsService',
-    ],
+    inject: ['acl', 'ssoSettingsService'],
 
     emits: [
         'new-password-change',
         'new-password-confirm-change',
+        'user-theme-change',
+        'user-module-icon-colors-change',
         'media-upload',
         'media-remove',
         'media-open',
@@ -79,12 +79,20 @@ export default {
             type: Array,
             required: true,
         },
+        userTheme: {
+            type: String,
+            required: false,
+            default: 'system',
+        },
+        userModuleIconColors: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {
-        ...mapPropertyErrors('user', [
-            'password',
-        ]),
+        ...mapPropertyErrors('user', ['password']),
 
         computedNewPassword: {
             get() {
@@ -112,6 +120,37 @@ export default {
                     label: language.customLabel,
                 };
             });
+        },
+
+        computedUserTheme: {
+            get() {
+                return this.userTheme;
+            },
+            set(userTheme) {
+                this.$emit('user-theme-change', userTheme);
+            },
+        },
+
+        moduleIconColorsOptions() {
+            return [
+                {
+                    value: 'neutral',
+                    label: this.$t('sw-profile.index.optionModuleIconColorsNeutral'),
+                },
+                {
+                    value: 'module',
+                    label: this.$t('sw-profile.index.optionModuleIconColorsColored'),
+                },
+            ];
+        },
+
+        computedUserModuleIconColors: {
+            get() {
+                return this.userModuleIconColors ? 'module' : 'neutral';
+            },
+            set(value) {
+                this.$emit('user-module-icon-colors-change', value === 'module');
+            },
         },
     },
 

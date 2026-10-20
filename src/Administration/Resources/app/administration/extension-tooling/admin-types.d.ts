@@ -18,6 +18,11 @@ import '../src/global.types';
 import '../src/entity-schema-definition';
 import '../src/html-shim';
 
+// The native-setup compile-time macros (`swDefinePublic`, `swDefineOverride`,
+// `useSw*`). The Shopware setup transform strips them, but extension code
+// references them in `<script setup>`, so they must be in the type surface.
+import '../build/vue-setup-transform/shopware-setup-macros';
+
 // Global `ServiceContainer` augmentations that live outside the module graph
 // reachable from `global.types.ts`. The Administration's own program compiles
 // all of `src/**/*`, so these are implicitly present there; extension programs

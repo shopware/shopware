@@ -16,29 +16,16 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
             dependencies: [],
         },
         editor: {
-            privileges: [
-                'salutation:update',
-            ],
-            dependencies: [
-                'salutation.viewer',
-            ],
+            privileges: ['salutation:update'],
+            dependencies: ['salutation.viewer'],
         },
         creator: {
-            privileges: [
-                'salutation:create',
-            ],
-            dependencies: [
-                'salutation.viewer',
-                'salutation.editor',
-            ],
+            privileges: ['salutation:create'],
+            dependencies: ['salutation.viewer', 'salutation.editor'],
         },
         deleter: {
-            privileges: [
-                'salutation:delete',
-            ],
-            dependencies: [
-                'salutation.viewer',
-            ],
+            privileges: ['salutation:delete'],
+            dependencies: ['salutation.viewer'],
         },
     },
 });

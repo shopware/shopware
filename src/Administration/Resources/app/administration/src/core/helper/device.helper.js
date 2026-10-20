@@ -90,6 +90,16 @@ DeviceHelper.prototype = Object.assign(DeviceHelper.prototype, {
     },
 
     /**
+     * Returns a MediaQueryList for the given media query.
+     *
+     * @param {String} query
+     * @returns {MediaQueryList}
+     */
+    getMediaQuery(query) {
+        return window.matchMedia(query);
+    },
+
+    /**
      * Returns the pixel ratio of the device as a number.
      *
      * @returns {number}

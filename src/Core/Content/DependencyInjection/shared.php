@@ -12,12 +12,18 @@ use Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\SalesChannelProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\StateMachineStateProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\UserRecoveryProvider;
+use Shopware\Core\Content\Shared\MailFlow\DocumentResolver;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
+
+    $services->set(DocumentResolver::class)
+        ->args([
+            service('document.repository'),
+        ]);
 
     // Mail & Flow Data Providers
     $services->set(OrderProvider::class)

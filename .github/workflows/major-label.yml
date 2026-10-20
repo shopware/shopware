@@ -1,0 +1,45 @@
+name: Label major relevance
+# Rule and reasoning: .github/bin/js/major-label.ts
+#
+# pull_request_target, not pull_request: a fork PR's GITHUB_TOKEN is read-only on
+# pull_request no matter the permissions block, and 11% of the pull requests carrying
+# major markers come from forks. Safe here because the job never checks out or executes
+# the PR head — only the base ref and the diff, fetched as data through the API.
+#
+# No app token: unlike major-php, neither label triggers another workflow, so the
+# GITHUB_TOKEN write granted by pull_request_target is enough.
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  label:
+    name: Major label
+    runs-on: ubuntu-24.04
+    steps:
+      # The base ref, never the PR head: a fork must not be able to edit the registry or
+      # the path map that judge it.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            .github/bin/js
+            .github/major-paths.yml
+            src/Core/Framework/Resources/config/packages/feature.yaml
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const { readFileSync } = await import('node:fs')
+            const { detectMajorLabels, applyMajorLabels } = await import('${{ github.workspace }}/.github/bin/js/major-label.ts')
+            const readFile = (path) => readFileSync(`${{ github.workspace }}/${path}`, 'utf8')
+            const labels = await detectMajorLabels({ github, core, context }, readFile)
+            await applyMajorLabels({ github, context }, labels)

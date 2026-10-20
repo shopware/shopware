@@ -11,6 +11,7 @@ use PHPStan\Rules\RuleErrorBuilder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\CoversNothing;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
 use Shopware\Core\Framework\Log\Package;
 
@@ -51,7 +52,7 @@ class CoversAttributeRule implements Rule
 
         if ($hasCovers && !$isUnitTest) {
             return [
-                RuleErrorBuilder::message('Only Unit & Migration test classes can have CoversClass, CoversFunction or CoversNothing attribute')
+                RuleErrorBuilder::message('Only Unit & Migration test classes can have CoversClass, CoversTrait, CoversFunction or CoversNothing attribute')
                     ->identifier('shopware.unexpectedTestCovers')
                     ->build(),
             ];
@@ -63,7 +64,7 @@ class CoversAttributeRule implements Rule
 
         if ($isUnitTest && !$hasCovers) {
             return [
-                RuleErrorBuilder::message('Unit & Migration test classes must have CoversClass, CoversFunction or CoversNothing attribute')
+                RuleErrorBuilder::message('Unit & Migration test classes must have CoversClass, CoversTrait, CoversFunction or CoversNothing attribute')
                     ->identifier('shopware.expectedTestCovers')
                     ->build(),
             ];
@@ -77,7 +78,7 @@ class CoversAttributeRule implements Rule
         foreach ($class->getOriginalNode()->attrGroups as $group) {
             $name = $group->attrs[0]->name;
 
-            if (\in_array($name->toString(), [CoversClass::class, CoversFunction::class, CoversNothing::class], true)) {
+            if (\in_array($name->toString(), [CoversClass::class, CoversTrait::class, CoversFunction::class, CoversNothing::class], true)) {
                 return true;
             }
         }

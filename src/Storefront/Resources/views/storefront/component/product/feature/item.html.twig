@@ -17,15 +17,21 @@
     {% endif %}
 
     {% if not (type is empty or feature.label is empty or feature.value is empty) %}
-        <li class="product-feature-list-item">
-
+        {% set featureContent %}
             {% sw_include '@Storefront/storefront/component/product/feature/types/' ~ type ~ '.html.twig' with {
                 type: type,
                 label: feature.label,
                 value: feature.value,
             } %}
+        {% endset %}
 
-        </li>
+        {% if featureContent|striptags|trim is not empty %}
+            <li class="product-feature-list-item">
+
+                {{ featureContent }}
+
+            </li>
+        {% endif %}
     {% endif %}
 
 {% endblock %}

@@ -10,10 +10,27 @@
     .sw-product-guarantee-form__switches {
         display: flex;
         align-items: center;
-        height: 100%;
+
+        /*
+         * Sit on the input row rather than in the middle of the column, so the switch keeps its
+         * place when the duration field below it grows a validation error. The offset is the
+         * field label: a 16px line box plus the gap Meteor puts under it.
+         */
+        height: var(--scale-size-48);
+        margin-top: calc(16px + var(--scale-size-8));
 
         .mt-switch {
             margin: 0;
+        }
+    }
+
+    .sw-product-guarantee-form__requirements-notice {
+        margin: var(--scale-size-24) 0 0;
+
+        ul {
+            margin: var(--scale-size-4) 0 0;
+            padding-left: var(--scale-size-16);
+            list-style: disc outside;
         }
     }
 }

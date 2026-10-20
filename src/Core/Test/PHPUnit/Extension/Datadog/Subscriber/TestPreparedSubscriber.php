@@ -9,6 +9,8 @@ use Shopware\Core\Test\PHPUnit\Extension\Common\TimeKeeper;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class TestPreparedSubscriber implements PreparedSubscriber

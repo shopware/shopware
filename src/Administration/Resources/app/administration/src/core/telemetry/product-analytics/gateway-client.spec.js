@@ -66,10 +66,7 @@ describe('src/core/telemetry/product-analytics/gateway-client', () => {
 
         expect(fetchMock).toHaveBeenCalledTimes(1);
 
-        const [
-            url,
-            options,
-        ] = fetchMock.mock.calls[0];
+        const [url, options] = fetchMock.mock.calls[0];
         expect(url).toBe('https://gw.test/v2/event/anonymous');
         expect(options).toEqual(
             expect.objectContaining({
@@ -128,10 +125,7 @@ describe('src/core/telemetry/product-analytics/gateway-client', () => {
 
         expect(fetchMock).toHaveBeenCalledTimes(1);
 
-        const [
-            url,
-            options,
-        ] = fetchMock.mock.calls[0];
+        const [url, options] = fetchMock.mock.calls[0];
         expect(url).toBe('https://gw.test/v2/event');
 
         const payload = JSON.parse(options.body);

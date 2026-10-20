@@ -109,10 +109,7 @@ async function createWrapper(props = defaultProps, privileges = []) {
                                 </div>
                             </div>
                         `,
-                        props: [
-                            'disabled',
-                            'options',
-                        ],
+                        props: ['disabled', 'options'],
                         data() {
                             return {
                                 showPopover: false,
@@ -141,10 +138,7 @@ async function createWrapper(props = defaultProps, privileges = []) {
                                 </div>
                             </div>
                         `,
-                        props: [
-                            'disabled',
-                            'error',
-                        ],
+                        props: ['disabled', 'error'],
                     },
                 },
             },

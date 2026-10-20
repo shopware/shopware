@@ -21,8 +21,6 @@ use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
-use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
-use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -36,7 +34,6 @@ use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -69,16 +66,6 @@ class SendMailActionTest extends TestCase
      */
     private LoggerInterface $logger;
 
-    /**
-     * @var LanguageLocaleCodeProvider&Stub
-     */
-    private LanguageLocaleCodeProvider $languageLocaleProvider;
-
-    /**
-     * @var AbstractTranslator&Stub
-     */
-    private AbstractTranslator $translator;
-
     private SendMailAction $action;
 
     protected function setUp(): void
@@ -86,8 +73,6 @@ class SendMailActionTest extends TestCase
         $this->mailTemplate = new MailTemplateEntity();
         $this->mailService = static::createStub(AbstractMailService::class);
         $this->mailTemplateRepository = static::createStub(EntityRepository::class);
-        $this->languageLocaleProvider = static::createStub(LanguageLocaleCodeProvider::class);
-        $this->translator = static::createStub(Translator::class);
         $this->mailTemplateTypeRepository = static::createStub(EntityRepository::class);
         $this->logger = static::createStub(LoggerInterface::class);
 
@@ -282,16 +267,6 @@ class SendMailActionTest extends TestCase
             ->method('search')
             ->willReturn($entitySearchResult);
 
-        $translator = $this->createMock(Translator::class);
-        $translator->expects($this->once())
-            ->method('getSnippetSetId')
-            ->willReturn(null);
-
-        $languageLocaleProvider = $this->createMock(LanguageLocaleCodeProvider::class);
-        $languageLocaleProvider->expects($this->once())
-            ->method('getLocaleForLanguageId')
-            ->willReturn('en-GB');
-
         $mailService = $this->createMock(AbstractMailService::class);
         $mailService->expects($this->once())
             ->method('send')
@@ -314,8 +289,6 @@ class SendMailActionTest extends TestCase
         $this->createAction(
             mailService: $mailService,
             mailTemplateRepository: $mailTemplateRepository,
-            translator: $translator,
-            languageLocaleProvider: $languageLocaleProvider,
         )->handleFlow($flow);
     }
 
@@ -454,16 +427,6 @@ class SendMailActionTest extends TestCase
             ->method('search')
             ->willReturn($entitySearchResult);
 
-        $translator = $this->createMock(Translator::class);
-        $translator->expects($this->once())
-            ->method('getSnippetSetId')
-            ->willReturn(null);
-
-        $languageLocaleProvider = $this->createMock(LanguageLocaleCodeProvider::class);
-        $languageLocaleProvider->expects($this->once())
-            ->method('getLocaleForLanguageId')
-            ->willReturn('en-GB');
-
         $mailService = $this->createMock(AbstractMailService::class);
         $mailService->expects($this->once())
             ->method('send')
@@ -488,8 +451,6 @@ class SendMailActionTest extends TestCase
         $this->createAction(
             mailService: $mailService,
             mailTemplateRepository: $mailTemplateRepository,
-            translator: $translator,
-            languageLocaleProvider: $languageLocaleProvider,
         )->handleFlow($flow);
     }
 
@@ -501,8 +462,6 @@ class SendMailActionTest extends TestCase
         ?AbstractMailService $mailService = null,
         ?EntityRepository $mailTemplateRepository = null,
         ?EntityRepository $mailTemplateTypeRepository = null,
-        ?AbstractTranslator $translator = null,
-        ?LanguageLocaleCodeProvider $languageLocaleProvider = null,
         ?Connection $connection = null,
         ?JsonEntityEncoder $encoder = null,
         bool $updateMailTemplateType = true,
@@ -513,9 +472,7 @@ class SendMailActionTest extends TestCase
             $this->logger,
             static::createStub(EventDispatcherInterface::class),
             $mailTemplateTypeRepository ?? $this->mailTemplateTypeRepository,
-            $translator ?? $this->translator,
             $connection ?? static::createStub(Connection::class),
-            $languageLocaleProvider ?? $this->languageLocaleProvider,
             $encoder ?? static::createStub(JsonEntityEncoder::class),
             static::createStub(DefinitionInstanceRegistry::class),
             $updateMailTemplateType

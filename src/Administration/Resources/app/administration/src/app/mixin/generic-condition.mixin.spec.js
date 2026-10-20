@@ -47,9 +47,7 @@ Shopware.Component.register('sw-mock', {
 async function createWrapper() {
     return mount(await Shopware.Component.build('sw-mock'), {
         global: {
-            mixins: [
-                Shopware.Mixin.getByName('generic-condition'),
-            ],
+            mixins: [Shopware.Mixin.getByName('generic-condition')],
             mocks: {
                 condition: {
                     type: 'cartLineItemDimensionWeight',
@@ -138,10 +136,7 @@ describe('app/mixin/generic-condition', () => {
             name: 'status',
             type: 'single-select',
             config: {
-                options: [
-                    'option1',
-                    'option2',
-                ],
+                options: ['option1', 'option2'],
             },
         };
 
@@ -166,10 +161,7 @@ describe('app/mixin/generic-condition', () => {
             name: 'tags',
             type: 'multi-select',
             config: {
-                options: [
-                    'optionA',
-                    'optionB',
-                ],
+                options: ['optionA', 'optionB'],
             },
         };
 
@@ -222,10 +214,7 @@ describe('app/mixin/generic-condition', () => {
         Shopware.Store.get('ruleConditionsConfig').config = {
             cartLineItemDimensionWeight: {
                 operatorSet: {
-                    operators: [
-                        '=',
-                        '!=',
-                    ],
+                    operators: ['=', '!='],
                     isMatchAny: !expected,
                 },
                 fields: [{ name: 'field', type: fieldType, config: {} }],
@@ -236,12 +225,6 @@ describe('app/mixin/generic-condition', () => {
         await flushPromises();
 
         expect(wrapper.vm.operators).toEqual([]);
-        expect(conditionDataProviderServiceMock.getOperatorOptionsByIdentifiers).toHaveBeenCalledWith(
-            [
-                '=',
-                '!=',
-            ],
-            expected,
-        );
+        expect(conditionDataProviderServiceMock.getOperatorOptionsByIdentifiers).toHaveBeenCalledWith(['=', '!='], expected);
     });
 });

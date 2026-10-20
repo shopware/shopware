@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesReadonly;
 use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -27,47 +28,32 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
 {
     use StateAwareTrait;
 
-    /**
-     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-     */
+    #[BecomesReadonly(version: 'v6.8.0')]
     protected AggregationResultCollection $aggregations;
 
-    /**
-     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-     */
+    #[BecomesReadonly(version: 'v6.8.0')]
     protected int $page;
 
-    /**
-     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-     */
+    #[BecomesReadonly(version: 'v6.8.0')]
     protected ?int $limit = null;
 
     /**
      * @param TEntityCollection $entities
      */
     final public function __construct(
-        /**
-         * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-         */
+        #[BecomesReadonly(version: 'v6.8.0')]
         protected string $entity,
-        /**
-         * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-         */
+        #[BecomesReadonly(version: 'v6.8.0')]
         protected int $total,
         /**
-         * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-         *
          * @var TEntityCollection
          */
+        #[BecomesReadonly(version: 'v6.8.0')]
         protected EntityCollection $entities,
         ?AggregationResultCollection $aggregations,
-        /**
-         * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-         */
+        #[BecomesReadonly(version: 'v6.8.0')]
         protected Criteria $criteria,
-        /**
-         * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-         */
+        #[BecomesReadonly(version: 'v6.8.0')]
         protected Context $context,
     ) {
         $firstEntity = $entities->first();

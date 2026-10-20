@@ -119,9 +119,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
     });
 
     it('should be able to save edit', async () => {
-        const wrapper = await createWrapper([
-            'product_manufacturer.editor',
-        ]);
+        const wrapper = await createWrapper(['product_manufacturer.editor']);
         await flushPromises();
 
         const addButton = wrapper.find('.sw-manufacturer-detail__save-action');
@@ -137,9 +135,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
     });
 
     it('should be able to edit the manufacturer', async () => {
-        const wrapper = await createWrapper([
-            'product_manufacturer.editor',
-        ]);
+        const wrapper = await createWrapper(['product_manufacturer.editor']);
         await flushPromises();
 
         const logoUpload = wrapper.find('.sw-manufacturer-detail__logo-upload');
@@ -191,9 +187,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
             message: 'global.notification.notificationLoadingDataErrorMessage',
         });
 
-        expect(wrapper.vm.customFieldSets).toEqual([
-            { id: 'MOCK_CUSTOM_FIELD_SET_ID' },
-        ]);
+        expect(wrapper.vm.customFieldSets).toEqual([{ id: 'MOCK_CUSTOM_FIELD_SET_ID' }]);
     });
 
     it('should set loading to false if only the custom field set request fails', async () => {

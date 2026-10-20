@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -125,6 +126,8 @@ class ShippingCostRoute extends AbstractShippingCostRoute
     ): DeliveryCollection {
         $clonedContext = clone $salesChannelContext;
         $cart = clone $originalCart;
+        // the what-if calculation must never address the customer's persisted cart
+        $cart->setToken(Uuid::randomHex());
 
         // Setting data to avoid loading them twice - and separate
         $cart->getData()->set('shipping-method-' . $shippingMethod->getId(), $shippingMethod);

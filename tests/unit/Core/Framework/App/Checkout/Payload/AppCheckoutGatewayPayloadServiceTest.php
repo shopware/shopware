@@ -26,7 +26,7 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('framework')]
 #[CoversClass(AppCheckoutGatewayPayloadService::class)]
 class AppCheckoutGatewayPayloadServiceTest extends TestCase
 {

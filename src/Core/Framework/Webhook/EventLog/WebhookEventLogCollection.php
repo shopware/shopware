@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<WebhookEventLogEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class WebhookEventLogCollection extends EntityCollection

@@ -7,7 +7,7 @@
 >
     <div class="sw-order-upload-document-modal__header-fields">
         <mt-select
-            v-model="documentTypeId"
+            v-model="selectedTechnicalName"
             class="sw-order-upload-document-modal__document-type"
             :label="$t('sw-order.components.createDocumentModal.labelDocumentType')"
             :placeholder="$t('sw-order.components.createDocumentModal.placeholderDocumentType')"
@@ -24,7 +24,7 @@
             :label="$t('sw-order.components.uploadDocumentModal.labelFileFormat')"
             :placeholder="$t('sw-order.components.uploadDocumentModal.placeholderFileFormat')"
             :options="fileFormatOptions"
-            :disabled="!currentDocumentType || isModalLoading"
+            :disabled="!currentTechnicalName || isModalLoading"
             :help-text="$t('sw-order.components.uploadDocumentModal.helpTextFileFormat')"
             required
         />
@@ -37,7 +37,7 @@
         >
 
         <div
-            v-if="!isModalLoading && !currentDocumentType"
+            v-if="!isModalLoading && !currentTechnicalName"
             class="sw-order-upload-document-modal__empty-state"
         >
             <mt-empty-state

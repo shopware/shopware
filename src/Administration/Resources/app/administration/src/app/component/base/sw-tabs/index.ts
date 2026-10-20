@@ -6,12 +6,21 @@ import template from './sw-tabs.html.twig';
  *
  * @private
  * @status ready
- * @description Wrapper component for sw-tabs and mt-tabs. Autoswitches between the two components.
+ * @deprecated tag:v6.9.0 - Will be removed. Use `mt-tabs` instead.
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {
+        /**
+         * Enables the temporary Meteor compatibility path.
+         */
+        useMeteorComponent: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
         /**
          * Only used for new mt-tabs component
          */
@@ -22,17 +31,17 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        useMeteorComponent() {
-            // Use new meteor component in major
-            if (Shopware.Feature.isActive('V6_8_0_0')) {
+        shouldUseMeteorComponent() {
+            if (this.useMeteorComponent) {
                 return true;
             }
 
-            // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
-                'sw-tabs',
-                'The old usage of "sw-tabs" is deprecated and will be removed in v6.8.0.0. Please use "mt-tabs" instead.',
-            );
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                Shopware.Utils.debug.warn(
+                    'sw-tabs',
+                    'The "sw-tabs" wrapper is deprecated and will be removed in v6.9.0.0. Please use "mt-tabs" instead.',
+                );
+            }
 
             return false;
         },

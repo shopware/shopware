@@ -14,16 +14,11 @@ const { Mixin, Module } = Shopware;
 export default {
     template,
 
-    inject: [
-        'searchPreferencesService',
-        'searchRankingService',
-    ],
+    inject: ['searchPreferencesService', 'searchRankingService'],
 
     emits: ['modal-close'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {

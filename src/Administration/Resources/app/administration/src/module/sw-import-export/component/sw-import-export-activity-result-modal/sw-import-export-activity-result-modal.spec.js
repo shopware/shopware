@@ -65,36 +65,12 @@ describe('module/sw-import-export/components/sw-import-export-activity-result-mo
     }
 
     it.each([
-        [
-            'Profile name',
-            'default_product',
-            'profile',
-        ],
-        [
-            'File name',
-            'Default product_20211108-141453.csv',
-            'file-name',
-        ],
-        [
-            'Imported records',
-            '1',
-            'imported',
-        ],
-        [
-            'Date / time',
-            '08/11/2021, 14:50',
-            'date',
-        ],
-        [
-            'User',
-            'admin',
-            'user',
-        ],
-        [
-            'Type',
-            'sw-import-export.activity.detail.importLabel',
-            'type',
-        ],
+        ['Profile name', 'default_product', 'profile'],
+        ['File name', 'Default product_20211108-141453.csv', 'file-name'],
+        ['Imported records', '1', 'imported'],
+        ['Date / time', '08/11/2021, 14:50', 'date'],
+        ['User', 'admin', 'user'],
+        ['Type', 'sw-import-export.activity.detail.importLabel', 'type'],
     ])('should display %s', async (_, expectedValue, selector) => {
         const wrapper = await createWrapper();
         await flushPromises();

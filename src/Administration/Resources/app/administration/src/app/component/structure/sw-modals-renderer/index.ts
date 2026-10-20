@@ -47,10 +47,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             const originalVariant = button.variant ?? 'primary';
             const mappedVariant = variantMap[originalVariant] ?? originalVariant;
-            const isGhost = [
-                'ghost',
-                'ghost-danger',
-            ].includes(originalVariant);
+            const isGhost = ['ghost', 'ghost-danger'].includes(originalVariant);
 
             return {
                 method: button.method ?? ((): undefined => undefined),

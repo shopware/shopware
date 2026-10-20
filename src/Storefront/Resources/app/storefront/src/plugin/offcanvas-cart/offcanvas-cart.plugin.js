@@ -42,6 +42,7 @@ export default class OffCanvasCartPlugin extends Plugin {
     init() {
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this.client = new HttpClient();
+        this._requestQueue = Promise.resolve();
         this._registerOpenTriggerEvents();
     }
 
@@ -108,10 +109,19 @@ export default class OffCanvasCartPlugin extends Plugin {
 
         if (numberInputs) {
             numberInputs.forEach((input) => {
-                input.addEventListener('change', Debouncer.debounce(
+                // On the form: the `QuantitySelectorPlugin` withholds events on the input.
+                const delayedChange = Debouncer.debounce(
                     this._onChangeProductQuantity.bind(this),
                     this.options.changeQuantityInputDelay,
-                ));
+                );
+                input.form?.addEventListener('change', (event) => {
+                    if (event.detail?.submitImmediately) {
+                        delayedChange.flush(event);
+                        return;
+                    }
+
+                    delayedChange(event);
+                });
             });
         }
     }
@@ -202,21 +212,32 @@ export default class OffCanvasCartPlugin extends Plugin {
      * @private
      */
     _fireRequest(form, selector, callback) {
-        ElementLoadingIndicatorUtil.create(form.closest(selector));
+        const container = form.closest(selector);
+        ElementLoadingIndicatorUtil.create(container);
 
         const cb = callback ? callback.bind(this) : this._onOffCanvasOpened.bind(this, this._updateOffCanvasContent.bind(this));
         const requestUrl = form.getAttribute('action');
         const data = FormSerializeUtil.serialize(form);
 
-        this.$emitter.publish('beforeFireRequest');
+        // Snapshot the form before a preceding response replaces it, then apply mutations
+        // in order. Dropping responses cannot prevent older requests from changing the cart.
+        this._requestQueue = this._requestQueue
+            .then(() => {
+                this.$emitter.publish('beforeFireRequest');
 
-        fetch(requestUrl, {
-            method: 'POST',
-            body: data,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
-        })
+                return fetch(requestUrl, {
+                    method: 'POST',
+                    body: data,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                });
+            })
             .then(response => response.text())
-            .then(response => cb(response));
+            .then(response => cb(response))
+            .catch((error) => {
+                // A failed mutation must not block later edits in the queue.
+                ElementLoadingIndicatorUtil.remove(container);
+                console.warn('Unable to update the off-canvas cart.', error);
+            });
     }
 
     /**
@@ -251,7 +272,7 @@ export default class OffCanvasCartPlugin extends Plugin {
 
         this.$emitter.publish('onChangeProductQuantity');
 
-        this._saveFocusState(select);
+        this._saveFocusState(form.contains(document.activeElement) ? document.activeElement : select);
         this._fireRequest(form, selector);
     }
 
@@ -314,7 +335,7 @@ export default class OffCanvasCartPlugin extends Plugin {
         const url = window.router['frontend.cart.offcanvas'];
 
         const _callback = () => {
-            fetch(url, {
+            return fetch(url, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' },
             })
                 .then(response => response.text())

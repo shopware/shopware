@@ -81,10 +81,7 @@ export default {
 
     methods: {
         onSortingChanged(value) {
-            const [
-                sortBy,
-                sortDirection,
-            ] = value.split(':');
+            const [sortBy, sortDirection] = value.split(':');
             this.$emit('sorting-changed', { sortBy, sortDirection });
         },
     },

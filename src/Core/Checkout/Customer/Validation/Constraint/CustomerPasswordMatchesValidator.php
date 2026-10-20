@@ -45,7 +45,7 @@ class CustomerPasswordMatchesValidator extends ConstraintValidator
 
             return;
         } catch (BadCredentialsException) {
-            $this->context->buildViolation($constraint->message)
+            $this->context->buildViolation($constraint->getMessage())
                 ->setCode(CustomerPasswordMatches::CUSTOMER_PASSWORD_NOT_CORRECT)
                 ->addViolation();
         }

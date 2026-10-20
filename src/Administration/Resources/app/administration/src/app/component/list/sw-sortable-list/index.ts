@@ -62,7 +62,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         items: {
-            type: Array as PropType<Array<Entity<keyof EntitySchema.Entities>>>,
+            type: Array as PropType<Array<Entity<keyof EntitySchema.EntityKeys>>>,
             required: true,
         },
         sortable: {
@@ -99,7 +99,7 @@ export default Shopware.Component.wrapComponentConfig({
         dragElement: Element | null;
         defaultConfig: DragConfig;
         defaultScrollOnDragConf: ScrollOnDragConf;
-        sortedItems: Array<Entity<keyof EntitySchema.Entities>>;
+        sortedItems: Array<Entity<keyof EntitySchema.EntityKeys>>;
         scrollEventTicking: boolean;
     } {
         return {
@@ -163,8 +163,8 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onDragEnter(
-            draggedComponent: Entity<keyof EntitySchema.Entities>,
-            droppedComponent: Entity<keyof EntitySchema.Entities>,
+            draggedComponent: Entity<keyof EntitySchema.EntityKeys>,
+            droppedComponent: Entity<keyof EntitySchema.EntityKeys>,
         ): void {
             if (!this.isSortable) {
                 return;

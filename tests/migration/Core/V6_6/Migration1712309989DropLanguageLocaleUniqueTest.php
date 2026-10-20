@@ -15,7 +15,7 @@ use Shopware\Core\System\Language\LanguageDefinition;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('fundamentals@discovery')]
 #[CoversClass(Migration1712309989DropLanguageLocaleUnique::class)]
 class Migration1712309989DropLanguageLocaleUniqueTest extends TestCase
 {

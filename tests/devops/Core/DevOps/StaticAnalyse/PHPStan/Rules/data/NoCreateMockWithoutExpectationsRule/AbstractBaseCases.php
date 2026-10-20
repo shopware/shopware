@@ -81,6 +81,75 @@ class CoveredChildCases extends AbstractDependencyCases
 
 /**
  * @internal
+ *
+ * The runtime-notice shape this rule went blind on: the base creates the fixture in setUp() and only
+ * stub-configures it in its inherited test; the subclasses chain `parent::setUp()`. The override used
+ * to shadow the base setUp() out of view together with its createMock().
+ */
+abstract class AbstractChainedSetUpCases extends TestCase
+{
+    protected BaseDependency $sharedDependency;
+
+    protected function setUp(): void
+    {
+        $this->sharedDependency = $this->createMock(BaseDependency::class); // FLAGGED as stub once each chaining subclass is analysed
+    }
+
+    public function testSharedValue(): void
+    {
+        $this->sharedDependency->method('value')->willReturn('base');
+
+        static::assertSame('base', (new BaseSut($this->sharedDependency))->run());
+    }
+}
+
+/**
+ * @internal
+ *
+ * Chains `parent::setUp()`, so the base's shared double is live in every test here without ever being
+ * ->expects()-ed. FLAGGED at the base's createMock line.
+ */
+class ChainedSetUpChildCases extends AbstractChainedSetUpCases
+{
+    private BaseDependency $ownDependency;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->ownDependency = $this->createMock(BaseDependency::class);
+    }
+
+    public function testOwnValue(): void
+    {
+        $this->ownDependency->expects($this->once())->method('value')->willReturn('own');
+
+        static::assertSame('own', (new BaseSut($this->ownDependency))->run());
+    }
+}
+
+/**
+ * @internal
+ *
+ * Replaces setUp() without chaining: the base's shared double is never created for these tests, so its
+ * createMock() must NOT be flagged through this subclass. The inherited testSharedValue() would fail at
+ * runtime here — that is this fixture's concern, not the rule's.
+ */
+class ReplacedSetUpChildCases extends AbstractChainedSetUpCases
+{
+    protected function setUp(): void
+    {
+        $this->sharedDependency = $this->createMock(BaseDependency::class);
+        $this->sharedDependency->expects($this->once())->method('value')->willReturn('replaced');
+    }
+
+    public function testReplacedValue(): void
+    {
+        static::assertSame('replaced', (new BaseSut($this->sharedDependency))->run());
+    }
+}
+
+/**
+ * @internal
  */
 class BaseSut
 {

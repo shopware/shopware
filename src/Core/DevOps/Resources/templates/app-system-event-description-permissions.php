@@ -43,6 +43,12 @@ EOD,
     'customer.recovery.request' => <<<'EOD'
 Triggers when a customer recovers his password
 EOD,
+    'document.generation.completed' => <<<'EOD'
+Triggers when a document is generated or uploaded for an order
+EOD,
+    'document.generation.deleted' => <<<'EOD'
+Triggers when a document is deleted
+EOD,
     'mail.after.create.message' => <<<'EOD'
 __EMPTY__
 EOD,

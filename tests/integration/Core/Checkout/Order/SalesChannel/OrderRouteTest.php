@@ -464,7 +464,7 @@ class OrderRouteTest extends TestCase
 
         $dispatcher->removeListener(MailSentEvent::class, $this->handleMailSentEvent(...));
 
-        static::assertSame(1, $this->mailSentEventCounter, 'The ‘mail.sent’ event was executed too often');
+        static::assertSame(0, $this->mailSentEventCounter, 'Resubmitting the unchanged payment method must not notify the customer');
     }
 
     public function testSetPaymentOrderWrongPayment(): void
@@ -571,6 +571,7 @@ class OrderRouteTest extends TestCase
     {
         $addressId = Uuid::randomHex();
         $orderLineItemId = Uuid::randomHex();
+        $transactionId = Uuid::randomHex();
         $salutation = $this->getValidSalutationId();
 
         $order = [
@@ -587,14 +588,15 @@ class OrderRouteTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'primaryOrderTransactionId' => $transactionId,
                 'transactions' => [
                     [
-                        'id' => Uuid::randomHex(),
+                        'id' => $transactionId,
                         'paymentMethodId' => $this->defaultPaymentMethodId,
                         'amount' => [
-                            'unitPrice' => 5.0,
-                            'totalPrice' => 15.0,
-                            'quantity' => 3,
+                            'unitPrice' => 10.0,
+                            'totalPrice' => 10.0,
+                            'quantity' => 1,
                             'calculatedTaxes' => [],
                             'taxRules' => [],
                         ],

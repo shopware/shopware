@@ -654,12 +654,12 @@ class CrossSellingRouteTest extends TestCase
         $route = new ProductCrossSellingRoute(
             static::getContainer()->get('product_cross_selling.repository'),
             $eventDispatcher,
-            $this->createMock(ProductStreamBuilderInterface::class),
+            static::createStub(ProductStreamBuilderInterface::class),
             static::getContainer()->get('sales_channel.product.repository'),
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(ProductListingLoader::class),
-            $this->createMock(AbstractProductCloseoutFilterFactory::class),
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(ProductListingLoader::class),
+            static::createStub(AbstractProductCloseoutFilterFactory::class),
+            static::createStub(CacheTagCollector::class),
             static::getContainer()->get(Connection::class),
         );
 

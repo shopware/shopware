@@ -9,6 +9,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @final
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class PostAppDeletedEvent extends Event implements ShopwareEvent

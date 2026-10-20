@@ -11,9 +11,7 @@ const { CMS } = Shopware.Constants;
 export default {
     template,
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     data() {
         return {

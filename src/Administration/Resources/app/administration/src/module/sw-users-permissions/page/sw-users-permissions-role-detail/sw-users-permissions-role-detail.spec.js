@@ -70,27 +70,17 @@ async function createWrapper(
                     'sw-verify-user-modal': true,
                     'sw-tabs': {
                         name: 'sw-tabs',
-                        props: [
-                            'defaultItem',
-                            'positionIdentifier',
-                        ],
+                        props: ['defaultItem', 'positionIdentifier'],
                         template: '<div class="sw-tabs"><slot /></div>',
                     },
                     'sw-tabs-item': {
                         name: 'sw-tabs-item',
-                        props: [
-                            'route',
-                            'title',
-                        ],
+                        props: ['route', 'title'],
                         template: '<div class="sw-tabs-item"><slot /></div>',
                     },
                     'mt-tabs': {
                         name: 'mt-tabs',
-                        props: [
-                            'positionIdentifier',
-                            'defaultItem',
-                            'items',
-                        ],
+                        props: ['positionIdentifier', 'defaultItem', 'items'],
                         template: '<div class="mt-tabs"></div>',
                     },
                     'router-view': true,
@@ -205,10 +195,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should not contain any privileges', async () => {
         wrapper = await createWrapper({
-            privileges: [
-                'system:clear:cache',
-                'system.clear_cache',
-            ],
+            privileges: ['system:clear:cache', 'system.clear_cache'],
         });
 
         await flushPromises();
@@ -218,10 +205,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should contain only role privileges', async () => {
         wrapper = await createWrapper({
-            privileges: [
-                'system:clear:cache',
-                'system.clear_cache',
-            ],
+            privileges: ['system:clear:cache', 'system.clear_cache'],
             privilegeMappingEntries: [
                 {
                     category: 'additional_permissions',
@@ -245,10 +229,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should contain only roles privileges', async () => {
         wrapper = await createWrapper({
-            privileges: [
-                'orders.create_discounts',
-                'system.clear_cache',
-            ],
+            privileges: ['orders.create_discounts', 'system.clear_cache'],
             privilegeMappingEntries: [
                 {
                     category: 'additional_permissions',
@@ -330,10 +311,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         expect(wrapper.vm.role.privileges).not.toContain('product:update');
         expect(wrapper.vm.role.privileges).not.toContain('order:read');
 
-        expect(wrapper.vm.detailedPrivileges).toEqual([
-            'product:update',
-            'order:read',
-        ]);
+        expect(wrapper.vm.detailedPrivileges).toEqual(['product:update', 'order:read']);
     });
 
     it('should save privilege with all privileges and admin privilege key combination', async () => {
@@ -365,10 +343,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
             {
                 isNew: isNew,
                 name: 'demoRole',
-                privileges: [
-                    'system.clear_cache',
-                    'system:clear:cache',
-                ].sort(),
+                privileges: ['system.clear_cache', 'system:clear:cache'].sort(),
             },
             contextMock,
         );
@@ -376,10 +351,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should save privileges with all privileges and admin privilege key combinations', async () => {
         wrapper = await createWrapper({
-            privileges: [
-                'system.clear_cache',
-                'orders.create_discounts',
-            ],
+            privileges: ['system.clear_cache', 'orders.create_discounts'],
             privilegeMappingEntries: [
                 {
                     category: 'additional_permissions',
@@ -430,11 +402,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should save privileges with all privileges, admin privilege key combinations and detailed privileges', async () => {
         wrapper = await createWrapper({
-            privileges: [
-                'system.clear_cache',
-                'orders.create_discounts',
-                'product:read',
-            ],
+            privileges: ['system.clear_cache', 'orders.create_discounts', 'product:read'],
             privilegeMappingEntries: [
                 {
                     category: 'additional_permissions',
@@ -486,11 +454,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should merge privileges and detailed privileges', async () => {
         wrapper = await createWrapper({
-            privileges: [
-                'system.clear_cache',
-                'orders.create_discounts',
-                'product:read',
-            ],
+            privileges: ['system.clear_cache', 'orders.create_discounts', 'product:read'],
             privilegeMappingEntries: [
                 {
                     category: 'additional_permissions',
@@ -545,11 +509,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should save privileges with all privileges from getPrivileges() method', async () => {
         wrapper = await createWrapper({
-            privileges: [
-                'promotion.viewer',
-                'promotion.editor',
-                'promotion.creator',
-            ],
+            privileges: ['promotion.viewer', 'promotion.editor', 'promotion.creator'],
             privilegeMappingEntries: [
                 {
                     category: 'permissions',
@@ -562,16 +522,11 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                         },
                         editor: {
                             privileges: ['rule:update'],
-                            dependencies: [
-                                'rule.viewer',
-                            ],
+                            dependencies: ['rule.viewer'],
                         },
                         creator: {
                             privileges: ['rule:create'],
-                            dependencies: [
-                                'rule.viewer',
-                                'rule.editor',
-                            ],
+                            dependencies: ['rule.viewer', 'rule.editor'],
                         },
                     },
                 },
@@ -585,22 +540,12 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                             dependencies: [],
                         },
                         editor: {
-                            privileges: [
-                                'promotion:update',
-                            ],
-                            dependencies: [
-                                'promotion.viewer',
-                            ],
+                            privileges: ['promotion:update'],
+                            dependencies: ['promotion.viewer'],
                         },
                         creator: {
-                            privileges: [
-                                'promotion:create',
-                                privilegesService.getPrivileges('rule.creator'),
-                            ],
-                            dependencies: [
-                                'promotion.viewer',
-                                'promotion.editor',
-                            ],
+                            privileges: ['promotion:create', privilegesService.getPrivileges('rule.creator')],
+                            dependencies: ['promotion.viewer', 'promotion.editor'],
                         },
                     },
                 },

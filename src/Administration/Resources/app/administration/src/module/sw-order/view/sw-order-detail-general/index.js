@@ -52,9 +52,7 @@ export default {
         'error',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         orderId: {
@@ -201,18 +199,19 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         updateLoading(loadingValue) {
-            Store.get('swOrderDetail').setLoading([
-                'order',
-                loadingValue,
-            ]);
+            Store.get('swOrderDetail').setLoading(['order', loadingValue]);
         },
 
-        reloadEntityData() {
+        reloadEntityData(isSaved = true) {
             if (this.swOrderDetailOnReloadEntityData) {
-                this.swOrderDetailOnReloadEntityData();
+                this.swOrderDetailOnReloadEntityData(isSaved);
             } else {
-                this.$emit('reload-entity-data');
+                this.$emit('reload-entity-data', isSaved);
             }
+        },
+
+        discardLineItemEdit() {
+            this.reloadEntityData(false);
         },
 
         saveAndReload() {

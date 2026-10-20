@@ -97,10 +97,6 @@ final readonly class KeyFetcher
     {
         $data = json_decode($result, true, 512, \JSON_THROW_ON_ERROR);
 
-        if (!isset($data['keys']) || !\is_array($data['keys'])) {
-            return false;
-        }
-
-        return true;
+        return isset($data['keys']) && \is_array($data['keys']);
     }
 }

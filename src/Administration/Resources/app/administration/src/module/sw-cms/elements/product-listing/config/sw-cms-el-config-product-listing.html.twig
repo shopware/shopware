@@ -196,6 +196,8 @@
                 :element="element"
                 :label="$t('sw-cms.elements.productListing.config.tab.filter')"
                 class="sw-cms-el-config-product-listing__config-filter"
+                @inheritance:remove="onFilterInheritanceRemove"
+                @inheritance:restore="onFilterInheritanceRestore"
             >
                 <template #default="{ isInherited }">
                     {% block sw_cms_element_product_listing_config_mt_filter_info %}
@@ -304,7 +306,7 @@
                                     {% block sw_cms_element_product_listing_config_mt_filter_property_grid_column_status %}
                                     <mt-switch
                                         class="sw-cms-el-config-product-listing__property-grid-switch"
-                                        :disabled="column.disabled"
+                                        :disabled="column.disabled || isInherited"
                                         :model-value="item.active"
                                         @update:model-value="propertyStatusChanged($event, item.id)"
                                     />
@@ -557,6 +559,8 @@
                         :element="element"
                         :label="$t('sw-cms.elements.productListing.config.tab.filter')"
                         class="sw-cms-el-config-product-listing__config-filter"
+                        @inheritance:remove="onFilterInheritanceRemove"
+                        @inheritance:restore="onFilterInheritanceRestore"
                     >
                         <template #default="{ isInherited }">
                         {% block sw_cms_element_product_listing_config_filter_info %}
@@ -665,7 +669,7 @@
                                                     {% block sw_cms_element_product_listing_config_filter_property_grid_column_status %}
                                             <mt-switch
                                                 class="sw-cms-el-config-product-listing__property-grid-switch"
-                                                :disabled="column.disabled"
+                                                :disabled="column.disabled || isInherited"
                                                 :model-value="item.active"
                                                 @update:model-value="propertyStatusChanged($event, item.id)"
                                             />

@@ -13,13 +13,9 @@ const USER_CONFIG_KEY = 'extension.plugin_upload';
 export default {
     template,
 
-    inject: [
-        'extensionStoreActionService',
-    ],
+    inject: ['extensionStoreActionService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -74,12 +70,7 @@ export default {
                             return;
                         }
 
-                        const message = [
-                            this.$t(error.message),
-                            error.details,
-                        ]
-                            .filter(Boolean)
-                            .join('<br />');
+                        const message = [this.$t(error.message), error.details].filter(Boolean).join('<br />');
 
                         this.createNotificationError({
                             message: message,

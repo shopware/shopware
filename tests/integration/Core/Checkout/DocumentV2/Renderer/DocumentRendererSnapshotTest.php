@@ -339,6 +339,12 @@ class DocumentRendererSnapshotTest extends TestCase
             DocumentType::CANCELLATION_INVOICE => [CancellationInvoiceDataProvider::KEY => $this->buildCancellationInvoiceRenderData($order)],
             DocumentType::CREDIT_NOTE => [CreditNoteDataProvider::KEY => $this->buildCreditNoteRenderData($order)],
             DocumentType::DELIVERY_NOTE => [DeliveryNoteDataProvider::KEY => $this->buildDeliveryNoteRenderData()],
+            /**
+             * The app_provided sentinel is not a renderable document type, it carries no provider data.
+             *
+             * @phpstan-ignore classConstant.deprecated
+             */
+            DocumentType::APP_PROVIDED => [],
         };
 
         return $data;

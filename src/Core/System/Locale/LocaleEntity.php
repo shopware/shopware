@@ -10,6 +10,9 @@ use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationCollection;
 use Shopware\Core\System\User\UserCollection;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class LocaleEntity extends Entity
 {

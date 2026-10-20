@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Admin;
 use Shopware\Core\Framework\App\Manifest\Xml\AllowedHost\AllowedHosts;
 use Shopware\Core\Framework\App\Manifest\Xml\Cookie\Cookies;
+use Shopware\Core\Framework\App\Manifest\Xml\Document\Documents;
 use Shopware\Core\Framework\App\Manifest\Xml\Gateway\CheckoutGateway;
 use Shopware\Core\Framework\App\Manifest\Xml\Gateway\ContextGateway;
 use Shopware\Core\Framework\App\Manifest\Xml\Gateway\Gateways;
@@ -58,6 +59,7 @@ class Manifest
         private readonly ?CustomFields $customFields,
         private readonly ?Webhooks $webhooks,
         private readonly ?Cookies $cookies,
+        private readonly ?Documents $documents,
         private readonly ?Payments $payments,
         private readonly ?RuleConditions $ruleConditions,
         private readonly ?Storefront $storefront,
@@ -178,6 +180,11 @@ class Manifest
     public function getCookies(): ?Cookies
     {
         return $this->cookies;
+    }
+
+    public function getDocuments(): ?Documents
+    {
+        return $this->documents;
     }
 
     public function getPayments(): ?Payments
@@ -307,6 +314,8 @@ class Manifest
             $webhooks = $webhooks === null ? null : Webhooks::fromXml($webhooks);
             $cookies = $doc->getElementsByTagName('cookies')->item(0);
             $cookies = $cookies === null ? null : Cookies::fromXml($cookies);
+            $documents = $doc->getElementsByTagName('documents')->item(0);
+            $documents = $documents === null ? null : Documents::fromXml($documents);
             $payments = $doc->getElementsByTagName('payments')->item(0);
             $payments = $payments === null ? null : Payments::fromXml($payments);
             $ruleConditions = $doc->getElementsByTagName('rule-conditions')->item(0);
@@ -354,6 +363,7 @@ class Manifest
             $customFields,
             $webhooks,
             $cookies,
+            $documents,
             $payments,
             $ruleConditions,
             $storefront,

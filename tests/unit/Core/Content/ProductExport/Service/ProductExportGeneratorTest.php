@@ -31,6 +31,7 @@ use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -996,6 +997,7 @@ class ProductExportGeneratorTest extends TestCase
         $product->setParentId($parentId);
         $product->setChildCount($childCount);
         $product->setAutoIncrement($autoIncrement);
+        $product->internalSetEntityData('product', new FieldVisibility([]));
 
         return $product;
     }

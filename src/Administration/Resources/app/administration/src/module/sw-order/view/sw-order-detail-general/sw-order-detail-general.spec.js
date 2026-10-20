@@ -70,6 +70,8 @@ const orderMock = {
     lineItems: [],
 };
 
+orderMock.primaryOrderDelivery = orderMock.deliveries[0];
+
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-detail-general', { sync: true }), {
         global: {
@@ -211,13 +213,14 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         expect(wrapper.emitted('recalculate-and-reload')).toBeTruthy();
     });
 
-    it('should emit event recalculate-and-reload when cancel editing line item successfully', async () => {
+    it('should reload without recalculating when cancel editing line item successfully', async () => {
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper();
         const generalInfo = wrapper.findComponent('sw-order-line-items-grid-stub');
         await generalInfo.vm.$emit('item-cancel');
 
-        expect(wrapper.emitted('recalculate-and-reload')).toBeTruthy();
+        expect(wrapper.emitted('recalculate-and-reload')).toBeFalsy();
+        expect(wrapper.emitted('reload-entity-data')).toEqual([[false]]);
     });
 
     it('should emit event save-and-recalculate when editing line item successfully', async () => {

@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 #[Entity('measurement_display_unit', since: '6.7.1.0')]

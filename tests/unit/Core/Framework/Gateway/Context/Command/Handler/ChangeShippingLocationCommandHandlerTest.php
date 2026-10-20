@@ -18,7 +18,7 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('framework')]
 #[CoversClass(ChangeShippingLocationCommandHandler::class)]
 class ChangeShippingLocationCommandHandlerTest extends TestCase
 {
@@ -107,9 +107,12 @@ class ChangeShippingLocationCommandHandlerTest extends TestCase
         $this->expectExceptionObject(GatewayException::handlerException('Country with iso code {{ isoCode }} not found', ['isoCode' => 'DE']));
 
         $handler = new ChangeShippingLocationCommandHandler($countryRepo, static::createStub(EntityRepository::class));
-        $handler->handle($command, $context, $parameters);
 
-        static::assertSame([], $parameters);
+        try {
+            $handler->handle($command, $context, $parameters);
+        } finally {
+            static::assertSame([], $parameters);
+        }
     }
 
     public function testHandleWithCountryStateIso(): void
@@ -167,9 +170,12 @@ class ChangeShippingLocationCommandHandlerTest extends TestCase
         $this->expectExceptionObject(GatewayException::handlerException('Country state with short code {{ shortCode }} not found', ['shortCode' => 'DE-BY']));
 
         $handler = new ChangeShippingLocationCommandHandler(static::createStub(EntityRepository::class), $countryStateRepo);
-        $handler->handle($command, $context, $parameters);
 
-        static::assertSame([], $parameters);
+        try {
+            $handler->handle($command, $context, $parameters);
+        } finally {
+            static::assertSame([], $parameters);
+        }
     }
 
     public function testHandleWithCountryAndState(): void

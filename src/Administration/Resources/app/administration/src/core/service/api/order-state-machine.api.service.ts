@@ -14,7 +14,13 @@ class OrderStateMachineApiService extends ApiService {
         this.name = 'orderStateMachineService';
     }
 
-    transitionOrderState(orderId: string, actionName: string, options = {}, additionalParams = {}, additionalHeaders = {}) {
+    transitionOrderState(
+        orderId: EntityKey<'order'>,
+        actionName: string,
+        options = {},
+        additionalParams = {},
+        additionalHeaders = {},
+    ) {
         const route = `_action/order/${orderId}/state/${actionName}`;
 
         const headers = this.getBasicHeaders(additionalHeaders);
@@ -26,7 +32,7 @@ class OrderStateMachineApiService extends ApiService {
     }
 
     transitionOrderTransactionState(
-        orderTransactionId: string,
+        orderTransactionId: EntityKey<'order_transaction'>,
         actionName: string,
         options = {},
         additionalParams = {},
@@ -43,7 +49,7 @@ class OrderStateMachineApiService extends ApiService {
     }
 
     transitionOrderDeliveryState(
-        orderDeliveryStateId: string,
+        orderDeliveryStateId: EntityKey<'state_machine_state'>,
         actionName: string,
         options = {},
         additionalParams = {},

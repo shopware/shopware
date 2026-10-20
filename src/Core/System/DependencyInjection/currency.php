@@ -8,6 +8,7 @@ use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCoun
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
 use Shopware\Core\System\Currency\Api\CurrencyIsoCodeFkResolver;
 use Shopware\Core\System\Currency\CurrencyDefinition;
+use Shopware\Core\System\Currency\CurrencyExceptionHandler;
 use Shopware\Core\System\Currency\CurrencyFormatter;
 use Shopware\Core\System\Currency\CurrencyLoadSubscriber;
 use Shopware\Core\System\Currency\CurrencyValidator;
@@ -39,6 +40,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(CurrencyValidator::class)
         ->tag('kernel.event_subscriber');
+
+    $services->set(CurrencyExceptionHandler::class)
+        ->tag('shopware.dal.exception_handler');
 
     $services->set(CurrencyRule::class)
         ->tag('shopware.rule.definition');

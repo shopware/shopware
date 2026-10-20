@@ -21,7 +21,8 @@
             </div>
         {% endif %}
 
-        <div class="row mt-4">
+        <div class="row mt-4"
+             data-checkout-customer-storage-reset="true">
             {% sw_include '@Storefront/storefront/component/checkout/add-product-by-number.html.twig' %}
         </div>
     {% else %}

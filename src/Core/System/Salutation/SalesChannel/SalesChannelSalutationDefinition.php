@@ -8,6 +8,9 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class SalesChannelSalutationDefinition extends SalutationDefinition implements SalesChannelDefinitionInterface
 {

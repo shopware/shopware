@@ -89,11 +89,7 @@ describe('core/factory/async-component.factory.ts - native block condition chain
         });
 
         const wrapper = await mountNativeBlockComponent('native-block-nested-twig-chain-two');
-        const branches = [
-            '.condition-one',
-            '.condition-two',
-            '.condition-three',
-        ];
+        const branches = ['.condition-one', '.condition-two', '.condition-three'];
 
         expectOnlyBranch(wrapper, branches, '.condition-three');
 
@@ -263,10 +259,7 @@ describe('core/factory/async-component.factory.ts - native block condition chain
         ).default;
         const { legacyConditionContext } = useLegacyConditionContext();
         const chainKey = `${wrapper.vm.$.uid}:lifecycle_cleanup_block:0`;
-        const branches = [
-            '.base-condition',
-            '.extension-fallback',
-        ];
+        const branches = ['.base-condition', '.extension-fallback'];
 
         expectOnlyBranch(wrapper, branches, '.extension-fallback');
         expect(legacyConditionContext[chainKey]).toBeDefined();

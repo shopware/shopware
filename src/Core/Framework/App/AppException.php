@@ -78,6 +78,7 @@ class AppException extends HttpException
     final public const APP_REQUIREMENTS_NOT_MET = 'FRAMEWORK__APP_REQUIREMENTS_NOT_MET';
     final public const RE_REGISTRATION_FAILED = 'FRAMEWORK__APP_RE_REGISTRATION_FAILED';
     final public const CAPABILITY_NOT_GRANTED = 'FRAMEWORK__APP_CAPABILITY_NOT_GRANTED';
+    final public const APP_SYSTEM_REQUEST_NOT_ALLOWED = 'FRAMEWORK__APP_SYSTEM_REQUEST_NOT_ALLOWED';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -197,6 +198,15 @@ class AppException extends HttpException
             'Configuration of app "{{ appName }}" is invalid: {{ error }}',
             ['appName' => $appName, 'error' => $error->getMessage()],
             $previous
+        );
+    }
+
+    public static function appSystemRequestNotAllowed(string $reason): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_SYSTEM_REQUEST_NOT_ALLOWED,
+            $reason,
         );
     }
 

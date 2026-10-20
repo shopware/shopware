@@ -9,6 +9,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Content\Media\SalesChannel\MediaRoute;
@@ -301,6 +302,98 @@ class CacheInvalidationSubscriberTest extends TestCase
             ->with([NavigationRoute::ALL_TAG]);
 
         $subscriber->invalidateNavigationRoute($event);
+    }
+
+    public function testInvalidateCategoryRouteForCategoryTranslationSlotConfigChanges(): void
+    {
+        $categoryId = Uuid::randomHex();
+        $categoryTranslationId = ['categoryId' => $categoryId, 'languageId' => Uuid::randomHex()];
+        $context = Context::createDefaultContext();
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
+
+        $event = new EntityWrittenContainerEvent(
+            $context,
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    CategoryTranslationDefinition::ENTITY_NAME,
+                    [
+                        new EntityWriteResult(
+                            $categoryTranslationId,
+                            [
+                                'slotConfig' => ['slot-id' => ['content' => ['value' => 'new content']]],
+                            ],
+                            CategoryTranslationDefinition::ENTITY_NAME,
+                            EntityWriteResult::OPERATION_UPDATE,
+                        ),
+                    ],
+                    $context,
+                ),
+            ]),
+            [],
+        );
+
+        $this->cacheInvalidator
+            ->expects($this->once())
+            ->method('invalidate')
+            ->with([CategoryRoute::buildName($categoryId)]);
+
+        $this->createSubscriber()->invalidateCategoryRouteByCategoryTranslationChanges($event);
+    }
+
+    public function testDoesNotInvalidateCategoryRouteForOtherCategoryTranslationChanges(): void
+    {
+        $context = Context::createDefaultContext();
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
+        $event = new EntityWrittenContainerEvent(
+            $context,
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    CategoryTranslationDefinition::ENTITY_NAME,
+                    [
+                        new EntityWriteResult(
+                            ['categoryId' => Uuid::randomHex(), 'languageId' => Uuid::randomHex()],
+                            ['metaDescription' => 'new description'],
+                            CategoryTranslationDefinition::ENTITY_NAME,
+                            EntityWriteResult::OPERATION_UPDATE,
+                        ),
+                    ],
+                    $context,
+                ),
+            ]),
+            [],
+        );
+
+        $this->cacheInvalidator->expects($this->never())->method('invalidate');
+
+        $this->createSubscriber()->invalidateCategoryRouteByCategoryTranslationChanges($event);
+    }
+
+    public function testDoesNotInvalidateCategoryRouteWhenChangedTranslationHasNoCategoryId(): void
+    {
+        $context = Context::createDefaultContext();
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
+        $event = new EntityWrittenContainerEvent(
+            $context,
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    CategoryTranslationDefinition::ENTITY_NAME,
+                    [
+                        new EntityWriteResult(
+                            ['languageId' => Uuid::randomHex()],
+                            ['slotConfig' => ['slot-id' => ['content' => ['value' => 'new content']]]],
+                            CategoryTranslationDefinition::ENTITY_NAME,
+                            EntityWriteResult::OPERATION_UPDATE,
+                        ),
+                    ],
+                    $context,
+                ),
+            ]),
+            [],
+        );
+
+        $this->cacheInvalidator->expects($this->never())->method('invalidate');
+
+        $this->createSubscriber()->invalidateCategoryRouteByCategoryTranslationChanges($event);
     }
 
     public function testInvalidateNavigationRouteWithMultipleTriggers(): void
@@ -716,7 +809,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         return new CacheInvalidationSubscriber(
             $this->cacheInvalidator,
             $this->connection,
-            true
+            true,
         );
     }
 }

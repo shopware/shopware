@@ -18,9 +18,7 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-number-field', () => {
-    it('should render the mt-number-field when major feature flag is enabled', async () => {
-        global.activeFeatureFlags = ['ENABLE_METEOR_COMPONENTS'];
-
+    it('should render the mt-number-field', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.html()).toContain('mt-number-field');

@@ -104,7 +104,7 @@ class LogCleanupTaskHandlerTest extends TestCase
 
         $handler = new LogCleanupTaskHandler(
             $this->scheduledTaskRepository,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             $this->systemConfigService,
             $this->connection
         );

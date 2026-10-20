@@ -15,10 +15,7 @@ const categoryMock = {
 
 const productStreamMock = {
     name: 'Very cheap pc parts',
-    apiFilter: [
-        'foo',
-        'bar',
-    ],
+    apiFilter: ['foo', 'bar'],
     invalid: false,
 };
 
@@ -135,10 +132,7 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
             .vm.$emit('update:value', 'some_product_stream_id');
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.productStreamFilter).toEqual([
-            'foo',
-            'bar',
-        ]);
+        expect(wrapper.vm.productStreamFilter).toEqual(['foo', 'bar']);
         expect(wrapper.vm.productStreamInvalid).toBe(false);
     });
 

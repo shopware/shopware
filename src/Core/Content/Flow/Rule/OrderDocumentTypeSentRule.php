@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Flow\Rule;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\FlowRule;
 use Shopware\Core\Framework\Rule\Rule;
@@ -59,7 +60,7 @@ class OrderDocumentTypeSentRule extends FlowRule
         $sentTypeIds = [];
         foreach ($documents->getElements() as $document) {
             if ($document->getSent()) {
-                $sentTypeIds[] = $document->getDocumentTypeId();
+                $sentTypeIds[] = Feature::silent('v6.9.0.0', static fn (): string => $document->getDocumentTypeId());
             }
         }
 

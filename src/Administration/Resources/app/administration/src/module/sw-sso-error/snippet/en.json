@@ -10,7 +10,8 @@
         "text": "Your login was successful, but you don't have access to this Shopware store.",
         "button": "Log in with different account",
         "loggedInAsPrefix": "Logged in as:",
-        "logoAltText": "Shopware logo"
+        "logoAltText": "Shopware logo",
+        "loadingLabel": "Loading..."
       }
     }
   }

@@ -1475,6 +1475,134 @@ class EntityReaderTest extends TestCase
         static::assertSame(['X', 'E', 'D'], array_values($streets));
     }
 
+    public function testLoadOneToManyWithPaginationSupportsSearchTerm(): void
+    {
+        $context = Context::createDefaultContext();
+        $customerId = Uuid::randomHex();
+        $defaultAddressId = Uuid::randomHex();
+
+        $this->customerRepository->upsert([[
+            'id' => $customerId,
+            'firstName' => 'Test',
+            'lastName' => 'Test',
+            'customerNumber' => 'A',
+            'salutationId' => $this->getValidSalutationId(),
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'email' => 'test@test.com' . Uuid::randomHex(),
+            'defaultShippingAddressId' => $defaultAddressId,
+            'defaultBillingAddressId' => $defaultAddressId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'group' => ['name' => 'test'],
+            'addresses' => [
+                [
+                    'id' => $defaultAddressId,
+                    'street' => 'Red',
+                    'zipcode' => 'A',
+                    'city' => 'A',
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => 'A',
+                    'lastName' => 'a',
+                    'countryId' => $this->getValidCountryId(),
+                ],
+                [
+                    'street' => 'Dark red',
+                    'zipcode' => 'A',
+                    'city' => 'A',
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => 'A',
+                    'lastName' => 'a',
+                    'countryId' => $this->getValidCountryId(),
+                ],
+                [
+                    'street' => 'Blue',
+                    'zipcode' => 'A',
+                    'city' => 'A',
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => 'A',
+                    'lastName' => 'a',
+                    'countryId' => $this->getValidCountryId(),
+                ],
+            ],
+        ]], $context);
+
+        $criteria = new Criteria([$customerId]);
+        $criteria->getAssociation('addresses')->setLimit(5)->setTerm('red');
+
+        $customer = $this->customerRepository->search($criteria, $context)->getEntities()->get($customerId);
+        static::assertInstanceOf(CustomerEntity::class, $customer);
+
+        $addresses = $customer->getAddresses();
+        static::assertInstanceOf(CustomerAddressCollection::class, $addresses);
+
+        $streets = $addresses->map(static fn (CustomerAddressEntity $address) => $address->getStreet());
+        sort($streets);
+
+        static::assertSame(['Dark red', 'Red'], $streets);
+    }
+
+    public function testLoadOneToManyWithPaginationIgnoresScoreSortingWithoutScoreQuery(): void
+    {
+        $context = Context::createDefaultContext();
+        $customerId = Uuid::randomHex();
+        $defaultAddressId = Uuid::randomHex();
+
+        $this->customerRepository->upsert([[
+            'id' => $customerId,
+            'firstName' => 'Test',
+            'lastName' => 'Test',
+            'customerNumber' => 'A',
+            'salutationId' => $this->getValidSalutationId(),
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'email' => 'test@test.com' . Uuid::randomHex(),
+            'defaultShippingAddressId' => $defaultAddressId,
+            'defaultBillingAddressId' => $defaultAddressId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'group' => ['name' => 'test'],
+            'addresses' => [
+                [
+                    'id' => $defaultAddressId,
+                    'street' => 'A',
+                    'zipcode' => 'A',
+                    'city' => 'A',
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => 'A',
+                    'lastName' => 'a',
+                    'countryId' => $this->getValidCountryId(),
+                ],
+                [
+                    'street' => 'B',
+                    'zipcode' => 'A',
+                    'city' => 'A',
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => 'A',
+                    'lastName' => 'a',
+                    'countryId' => $this->getValidCountryId(),
+                ],
+                [
+                    'street' => 'C',
+                    'zipcode' => 'A',
+                    'city' => 'A',
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => 'A',
+                    'lastName' => 'a',
+                    'countryId' => $this->getValidCountryId(),
+                ],
+            ],
+        ]], $context);
+
+        $criteria = new Criteria([$customerId]);
+        $criteria->getAssociation('addresses')
+            ->setLimit(3)
+            ->addSorting(new FieldSorting(Criteria::SCORE_FIELD));
+
+        $customer = $this->customerRepository->search($criteria, $context)->getEntities()->get($customerId);
+        static::assertInstanceOf(CustomerEntity::class, $customer);
+
+        $addresses = $customer->getAddresses();
+        static::assertInstanceOf(CustomerAddressCollection::class, $addresses);
+        static::assertCount(3, $addresses);
+    }
+
     public function testLoadOneToManySupportsPagination(): void
     {
         $context = Context::createDefaultContext();
@@ -1734,6 +1862,40 @@ class EntityReaderTest extends TestCase
 
         static::assertContains($id2, $category2->getProducts()->getIds());
         static::assertContains($id3, $category2->getProducts()->getIds());
+
+        $criteria = new Criteria([$id1, $id2]);
+        $criteria->getAssociation('products')->setIds([$id1]);
+
+        $categories = $this->categoryRepository
+            ->search($criteria, $context)
+            ->getEntities();
+
+        $category1 = $categories->get($id1);
+        $category2 = $categories->get($id2);
+
+        static::assertInstanceOf(CategoryEntity::class, $category1);
+        static::assertSame([$id1], array_values($category1->getProducts()?->getIds() ?? []));
+
+        static::assertInstanceOf(CategoryEntity::class, $category2);
+        static::assertSame([], $category2->getProducts()?->getIds() ?? []);
+
+        $criteria = new Criteria([$id1, $id2]);
+        $criteria->getAssociation('products')
+            ->setIds([$id1])
+            ->addSorting(new FieldSorting('product.name'));
+
+        $categories = $this->categoryRepository
+            ->search($criteria, $context)
+            ->getEntities();
+
+        $category1 = $categories->get($id1);
+        $category2 = $categories->get($id2);
+
+        static::assertInstanceOf(CategoryEntity::class, $category1);
+        static::assertSame([$id1], array_values($category1->getProducts()?->getIds() ?? []));
+
+        static::assertInstanceOf(CategoryEntity::class, $category2);
+        static::assertSame([], $category2->getProducts()?->getIds() ?? []);
     }
 
     public function testLoadManyToManySupportsFilter(): void

@@ -5,6 +5,18 @@ import { mount } from '@vue/test-utils';
 
 const { Criteria, EntityCollection } = Shopware.Data;
 
+const currencySearch = jest.fn((criteria) =>
+    Promise.resolve(
+        new EntityCollection('', 'currency', Shopware.Context.api, criteria, [
+            {
+                id: 'currencyId',
+                isSystemDefault: true,
+                factor: 3,
+            },
+        ]),
+    ),
+);
+
 async function createWrapper(propOverrides = {}) {
     return mount(
         await wrapTestComponent('sw-promotion-discount-component', {
@@ -19,10 +31,7 @@ async function createWrapper(propOverrides = {}) {
                     'sw-select-field': {
                         template:
                             '<select class="sw-field sw-select-field" :value="value" @change="$emit(\'update:value\', $event.target.value)"><slot></slot></select>',
-                        props: [
-                            'value',
-                            'disabled',
-                        ],
+                        props: ['value', 'disabled'],
                     },
                     'sw-select-rule-create': {
                         template: '<div class="sw-select-rule-create"></div>',
@@ -52,16 +61,7 @@ async function createWrapper(propOverrides = {}) {
                         create: (entity) => {
                             if (entity === 'currency') {
                                 return {
-                                    search: () =>
-                                        Promise.resolve(
-                                            new EntityCollection('', 'currency', Shopware.Context.api, new Criteria(1, 25), [
-                                                {
-                                                    id: 'currencyId',
-                                                    isSystemDefault: true,
-                                                    factor: 3,
-                                                },
-                                            ]),
-                                        ),
+                                    search: currencySearch,
                                 };
                             }
 
@@ -165,6 +165,19 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-discount-component',
         });
     });
 
+    beforeEach(() => {
+        currencySearch.mockClear();
+    });
+
+    it('should load all currencies for the advanced prices', async () => {
+        global.activeAclRoles = [];
+
+        await createWrapper();
+
+        expect(currencySearch).toHaveBeenCalledTimes(1);
+        expect(currencySearch.mock.calls[0][0].getLimit()).toBe(500);
+    });
+
     it('should have disabled form fields', async () => {
         global.activeAclRoles = [];
 
@@ -255,11 +268,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-discount-component',
             },
         });
 
-        expect(wrapper.vm.discountTypeOptions.map(({ value }) => value)).toEqual([
-            'absolute',
-            'percentage',
-            'fixed',
-        ]);
+        expect(wrapper.vm.discountTypeOptions.map(({ value }) => value)).toEqual(['absolute', 'percentage', 'fixed']);
     });
 
     it('should normalize fixed item price to fixed price for shipping costs discounts', async () => {

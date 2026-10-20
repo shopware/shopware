@@ -2,5 +2,9 @@
 <container>
     <services>
         <service id="Shopware\Core\DevOps\MyFakeNamespace\DeprecatedClass" class="Shopware\Core\DevOps\MyFakeNamespace\DeprecatedClass"/>
+        <service id="decorated.service" class="Shopware\Core\DevOps\MyFakeNamespace\DecoratedService"/>
+        <service id="Shopware\Core\DevOps\MyFakeNamespace\DeprecatedDecorator" class="Shopware\Core\DevOps\MyFakeNamespace\DeprecatedDecorator">
+            <tag name="container.decorator" id="decorated.service"/>
+        </service>
     </services>
 </container>

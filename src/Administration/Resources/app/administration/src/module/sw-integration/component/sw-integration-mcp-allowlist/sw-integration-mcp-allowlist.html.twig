@@ -4,11 +4,21 @@
     <div class="sw-integration-mcp-allowlist__sticky">
         {% block sw_integration_mcp_allowlist_admin_banner %}
         <mt-banner
-            v-if="isAdmin"
+            v-if="unrestrictedWhenUnset"
             variant="info"
             class="sw-integration-mcp-allowlist__admin-banner"
         >
             {{ $t('sw-integration.mcp.adminBanner') }}
+        </mt-banner>
+        {% endblock %}
+
+        {% block sw_integration_mcp_allowlist_no_selection_banner %}
+        <mt-banner
+            v-if="hasNoEffectiveCapabilities"
+            variant="attention"
+            class="sw-integration-mcp-allowlist__no-selection-banner"
+        >
+            {{ $t('sw-integration.mcp.noSelectionBanner') }}
         </mt-banner>
         {% endblock %}
 

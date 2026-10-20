@@ -184,21 +184,16 @@
                             @inheritance-remove="props.removeInheritance"
                         />
 
-                        <mt-number-field
-                            v-model="props.currentValue.gross"
-                            :name="`sw-field--${item.id}-${currency.id}-gross`"
-                            :size="compact ? 'small' : 'default'"
-                            class="sw-settings-shipping-price-matrix__price-input"
-                            :digits="50"
-                            :disabled="props.isInherited || disabled"
-                        />
-                        <mt-number-field
-                            v-model="props.currentValue.net"
-                            :name="`sw-field--${item.id}-${currency.id}-net`"
-                            :size="compact ? 'small' : 'default'"
-                            class="sw-settings-shipping-price-matrix__price-input"
-                            :digits="50"
-                            :disabled="props.isInherited || disabled"
+                        {# No class: `inheritAttrs: false` would pass it to the inner number fields. #}
+                        <sw-price-field
+                            :value="[props.currentValue]"
+                            :currency="currency"
+                            :tax-rate="{ id: taxRateId }"
+                            :inherited="props.isInherited"
+                            :disabled="disabled"
+                            :compact="compact"
+                            :label="false"
+                            :name="`sw-field--${item.id}-${currency.id}`"
                         />
                     </template>
                 </sw-inherit-wrapper>

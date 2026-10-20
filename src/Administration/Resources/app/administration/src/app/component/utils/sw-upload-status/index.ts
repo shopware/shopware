@@ -1,6 +1,5 @@
 import { UploadEvents } from 'src/core/service/api/media.api.service';
 import { type Snackbar, useSnackbar } from '@shopware-ag/meteor-component-library';
-import type MediaApiService from 'src/core/service/api/media.api.service';
 
 const UploadStatus = {
     ACTIVE: 'active',
@@ -112,12 +111,8 @@ const GatewayErrorStatuses = [
  */
 export default Shopware.Component.wrapComponentConfig({
     template: '<slot />',
-    inject: [
-        'mediaService',
-    ],
-    mixins: [
-        Shopware.Mixin.getByName('notification'),
-    ],
+    inject: ['mediaService'],
+    mixins: [Shopware.Mixin.getByName('notification')],
     data() {
         return {
             uploads: new Map<string, FileInfo>(),
@@ -201,7 +196,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
     methods: {
         registerListeners() {
-            (this.mediaService as MediaApiService).addDefaultListener(this.onUploadEvent.bind(this));
+            this.mediaService.addDefaultListener(this.onUploadEvent.bind(this));
         },
         getUploadId(name: string, size: number): string {
             return `${name}:${size}`;

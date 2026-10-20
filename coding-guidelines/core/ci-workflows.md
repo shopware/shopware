@@ -89,6 +89,13 @@ skipped job is visible in the UI, a suppressed failure is not.
   an unparsed file is an unaudited file. `zizmor-collection-guard.ts` reconciles
   those warnings against a known list so a new one fails the lint, and so a
   listed file that starts parsing again is reported as a stale entry.
+- Workflows are mirrored to `shopware/shopware-private` by `sync.yml` and run
+  there too. `link-private-pr.yml` fired on every issue closed in the mirror and
+  failed at octo-sts, whose `ShopwareLinkClosingPR` identity only trusts
+  `repo:shopware/shopware:ref:refs/heads/trunk` — and with a token it would have
+  resolved the private issue number against the public repository. Fixed by a
+  `github.repository` guard on the job; see
+  [`.github/AGENTS.md`](../../.github/AGENTS.md).
 
 ## Reviewing a CI change
 
@@ -99,6 +106,8 @@ skipped job is visible in the UI, a suppressed failure is not.
 3. Is there `run:` logic that a unit test could have covered?
 4. Are new third-party actions pinned to a hash?
 5. Has the change actually been run — and, for a guard, been seen to fail?
+6. Does it also belong in `shopware-private`, and does the octo-sts identity
+   or a `github.repository` guard say so?
 
 ## Related
 

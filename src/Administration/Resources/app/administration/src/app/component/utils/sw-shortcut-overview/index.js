@@ -22,10 +22,7 @@ export default {
 
     inject: ['shortcutService'],
 
-    emits: [
-        'shortcut-open',
-        'shortcut-close',
-    ],
+    emits: ['shortcut-open', 'shortcut-close'],
 
     props: {
         showModal: {
@@ -84,6 +81,16 @@ export default {
                         id: utils.createId(),
                         title: this.$t('sw-shortcut-overview.functionSpecialShortcutOpenFilters'),
                         content: this.$t('sw-shortcut-overview.keyboardShortcutSpecialShortcutOpenFilters'),
+                    },
+                    {
+                        id: utils.createId(),
+                        title: this.$t('sw-shortcut-overview.functionSpecialShortcutToggleNavigation'),
+                        content: this.$t('sw-shortcut-overview.keyboardShortcutSpecialShortcutToggleNavigation'),
+                    },
+                    {
+                        id: utils.createId(),
+                        title: this.$t('sw-shortcut-overview.functionSpecialShortcutCycleTheme'),
+                        content: this.$t('sw-shortcut-overview.keyboardShortcutSpecialShortcutCycleTheme'),
                     },
                     {
                         id: utils.createId(),

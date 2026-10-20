@@ -19,7 +19,7 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(SalesChannelRule::class)]
 class SalesChannelRuleTest extends TestCase
 {

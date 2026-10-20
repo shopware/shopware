@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Document\Extension;
 
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\DocumentV2\Renderer\AbstractDocumentRenderer;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Extensions\Extension;
 use Shopware\Core\Framework\Log\Package;
 
@@ -18,6 +20,12 @@ use Shopware\Core\Framework\Log\Package;
  * @extends Extension<string>
  */
 #[Package('checkout')]
+#[ExperimentalReplacement(
+    version: 'v6.9.0',
+    feature: 'DOCUMENT_GENERATION_REWORK',
+    replacement: AbstractDocumentRenderer::class,
+    description: 'DocumentV2 ships its own HTML, PDF and ZUGFeRD renderers. Implement AbstractDocumentRenderer to add a custom output format.',
+)]
 final class HtmlRendererExtension extends Extension
 {
     public const NAME = 'html-renderer';

@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
  * Each matching provider is called once per generation request. Its output is stored in the
  * RenderInput so multiple renderers can reuse the same prepared data.
  *
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  *
  * @codeCoverageIgnore
  */

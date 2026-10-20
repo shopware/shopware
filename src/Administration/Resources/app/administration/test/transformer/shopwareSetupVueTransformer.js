@@ -13,7 +13,7 @@ const { transformShopwareSetupSfc } = require('../../build/vue-setup-transform')
  * Whether a file belongs to an installed dependency.
  *
  * Mirrors the Vite plugin's guard. Needed despite Jest's default `transformIgnorePatterns`, because
- * jest.config.ts un-ignores `@shopware-ag/meteor-component-library`, which ships Options-API `.vue` files.
+ * the Jest config un-ignores `@shopware-ag/meteor-component-library`, which ships Options-API `.vue` files.
  *
  * @param {string} filename
  * @returns {boolean}

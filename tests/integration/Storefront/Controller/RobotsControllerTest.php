@@ -123,6 +123,8 @@ class RobotsControllerTest extends TestCase
 
         Allow: /media/*?ts=
 
+        Allow: /thumbnail/*?ts=
+
         Disallow: {$domainPath}/account/
         Disallow: {$domainPath}/checkout/
         Disallow: {$domainPath}/widgets/

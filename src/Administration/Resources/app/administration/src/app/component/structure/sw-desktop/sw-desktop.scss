@@ -15,16 +15,16 @@
         grid-template-rows: 50px auto;
     }
 
-    @media screen and (max-width: 500px) {
-        display: block;
-
-        .sw-desktop__content {
-            height: 100%;
-        }
+    .sw-desktop__content {
+        margin: var(--scale-size-8) var(--scale-size-8) var(--scale-size-8) 0;
+        border: 1px solid var(--color-border-secondary-default);
+        border-radius: var(--border-radius-l);
+        background: var(--color-elevation-surface-default);
+        overflow: hidden;
     }
 
     .sw-staging-bar {
-        grid-column: 1 / 4;
+        grid-column: 1 / -1;
         display: flex;
         justify-content: center;
         background: rgb(61, 68, 77);
@@ -32,5 +32,17 @@
         font-weight: bold;
         padding: 1rem;
         position: sticky;
+    }
+
+    // The off-canvas menu no longer occupies a grid column below this breakpoint
+    @media screen and (max-width: 1280px) {
+        grid-template-columns: 1fr auto;
+
+        .sw-desktop__content {
+            height: 100%;
+            margin: 0;
+            border: 0;
+            border-radius: 0;
+        }
     }
 }

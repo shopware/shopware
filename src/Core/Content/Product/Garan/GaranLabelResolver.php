@@ -26,7 +26,7 @@ class GaranLabelResolver
             return null;
         }
 
-        $brand = trim((string) $product->getManufacturer()?->getName());
+        $brand = trim((string) $product->getManufacturer()?->getTranslation('name'));
         $modelIdentifier = trim((string) $product->getManufacturerNumber());
         $duration = $this->durationFormatter->formatMonths($product->getGuaranteeMonths());
 

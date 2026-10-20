@@ -12,6 +12,22 @@ interface MenuService {
     getNavigationFromApps(apps: AppModuleDefinition[]): AppModuleDefinition[];
 }
 
+/**
+ * Navigation entries are not required to carry an `id` — path-only entries are valid — so the
+ * identity of an entry is its id with the path as fallback. Must match how the admin menu keys
+ * its branches, otherwise collapsing one id-less branch would drop every other id-less entry.
+ */
+function menuEntryKey(entry: NavigationEntry): string | undefined {
+    return entry.id ?? entry.path;
+}
+
+/**
+ * Pre-rework versions auto-wrote 'sw-admin-menu-expanded' as 'false' on every small-viewport load,
+ * so its value does not reflect a user choice — a fresh key keeps only deliberate toggles.
+ */
+const SIDEBAR_EXPANDED_STORAGE_KEY = 'sw-admin-menu-sidebar-expanded';
+localStorage.removeItem('sw-admin-menu-expanded');
+
 const adminMenuStore = Shopware.Store.register({
     id: 'adminMenu',
 
@@ -19,7 +35,7 @@ const adminMenuStore = Shopware.Store.register({
         /**
          * The expanded state of the sidebar menu
          */
-        isExpanded: localStorage.getItem('sw-admin-menu-expanded') !== 'false',
+        isExpanded: localStorage.getItem(SIDEBAR_EXPANDED_STORAGE_KEY) !== 'false',
         /**
          * The entries that are currently expanded in the sidebar menu
          */
@@ -42,6 +58,13 @@ const adminMenuStore = Shopware.Store.register({
          * @param entry The Navigation Entry to expand
          */
         expandMenuEntry(entry: NavigationEntry) {
+            const key = menuEntryKey(entry);
+
+            // Entries without id and path share the key undefined, so never deduplicate them
+            if (key !== undefined && this.expandedEntries.some((e) => menuEntryKey(e) === key)) {
+                return;
+            }
+
             this.expandedEntries.push(entry);
         },
         /**
@@ -49,21 +72,28 @@ const adminMenuStore = Shopware.Store.register({
          * @param entry The Navigation Entry to collapse
          */
         collapseMenuEntry(entry: NavigationEntry) {
-            this.expandedEntries = this.expandedEntries.filter((e) => e.id !== entry.id);
-        },
-        /**
-         * Expands the  sidebar menu
-         */
-        collapseSidebar() {
-            this.isExpanded = false;
-            localStorage.setItem('sw-admin-menu-expanded', 'false');
+            const key = menuEntryKey(entry);
+
+            if (key === undefined) {
+                this.expandedEntries = this.expandedEntries.filter((e) => e !== entry);
+                return;
+            }
+
+            this.expandedEntries = this.expandedEntries.filter((e) => menuEntryKey(e) !== key);
         },
         /**
          * Collapses the sidebar menu
          */
+        collapseSidebar() {
+            this.isExpanded = false;
+            localStorage.setItem(SIDEBAR_EXPANDED_STORAGE_KEY, 'false');
+        },
+        /**
+         * Expands the sidebar menu
+         */
         expandSidebar() {
             this.isExpanded = true;
-            localStorage.setItem('sw-admin-menu-expanded', 'true');
+            localStorage.setItem(SIDEBAR_EXPANDED_STORAGE_KEY, 'true');
         },
     },
 

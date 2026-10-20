@@ -9,8 +9,25 @@
 
         {% block component_privacy_dpi %}
             {% set cmsPath = 'frontend.cms.page' %}
-            {% set privacyNoticeSnippet = 'general.privacyNoticeTextModal' %}
+            {% set requiresTermsOfService = requiresTermsOfService ?? true %}
+            {% set showLegalGuaranteeNotice = requiresTermsOfService and config('core.cart.showLegalGuaranteeNotice') %}
+            {% set legalGuaranteeNoticeModalId = 'legalGuaranteeNoticeModal' %}
+            {% set legalGuaranteeNoticeModalTagOpen = '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-bs-toggle="modal" data-bs-target="#' ~ legalGuaranteeNoticeModalId ~ '">' %}
+            {% set legalGuaranteeNoticeModalTagClose = '</button>' %}
+
+            {% block component_privacy_legal_guarantee_notice_paragraph %}
+                {% if showLegalGuaranteeNotice %}
+                    <p class="legal-guarantee-notice">
+                        {{ 'checkout.confirmLegalGuaranteeNotice'|trans({
+                            '%legalGuaranteeNoticeModalTagOpen%': legalGuaranteeNoticeModalTagOpen,
+                            '%legalGuaranteeNoticeModalTagClose%': legalGuaranteeNoticeModalTagClose,
+                        })|raw }}
+                    </p>
+                {% endif %}
+            {% endblock %}
+
             {% if config('core.loginRegistration.requireDataProtectionCheckbox') == 1 %}
+                {% set privacyNoticeSnippet = requiresTermsOfService ? 'general.privacyNoticeTextModal' : 'contact.privacyNoticeTextModal' %}
 
                 {% set dataProtectionLabel = privacyNoticeSnippet|trans({
                     '%privacyModalTagOpen%': '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.privacyPage') }) ~ '">',
@@ -26,6 +43,8 @@
                     validationRules: 'required',
                 } %}
             {% else %}
+                {% set privacyNoticeSnippet = requiresTermsOfService ? 'general.privacyNoticeInformation' : 'contact.privacyNoticeInformation' %}
+
                 <div class="data-protection-information">
                     {% block component_privacy_label %}
                         <div>
@@ -39,6 +58,45 @@
                     {% endblock %}
                 </div>
             {% endif %}
+
+            {% block component_privacy_legal_guarantee_notice_modal %}
+                {% if showLegalGuaranteeNotice %}
+                    <div class="modal modal-lg fade"
+                         id="{{ legalGuaranteeNoticeModalId }}"
+                         tabindex="-1"
+                         role="dialog"
+                         aria-modal="true"
+                         aria-hidden="true"
+                         aria-labelledby="{{ legalGuaranteeNoticeModalId }}-header">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                {% block component_privacy_legal_guarantee_notice_modal_header %}
+                                    <div class="modal-header">
+                                        <div id="{{ legalGuaranteeNoticeModalId }}-header" class="modal-title js-pseudo-modal-template-title-element h5">
+                                            {{ 'checkout.confirmLegalGuaranteeNoticeLink'|trans|sw_sanitize }}
+                                        </div>
+                                        <button class="btn-close close"
+                                                type="button"
+                                                data-bs-dismiss="modal"
+                                                aria-label="{{ 'global.default.close'|trans|striptags }}">
+                                        </button>
+                                    </div>
+                                {% endblock %}
+
+                                {% block component_privacy_legal_guarantee_notice_modal_body %}
+                                    <div class="modal-body confirm-legal-guarantee-notice">
+                                        <a href="{{ context.languageId|sw_legal_guarantee_notice_link }}"
+                                           target="_blank"
+                                           rel="noopener">
+                                            {{ context.languageId|sw_legal_guarantee_notice }}
+                                        </a>
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endblock %}
         {% endblock %}
     </fieldset>
 {% endblock %}

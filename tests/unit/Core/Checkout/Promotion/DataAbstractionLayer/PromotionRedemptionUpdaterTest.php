@@ -94,7 +94,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection
             ->expects($this->never())
-            ->method('fetchFirstColumn');
+            ->method('fetchAllAssociative');
 
         $event = EntityWriteEvent::create(
             WriteContext::createFromContext(Context::createDefaultContext()),
@@ -109,7 +109,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection
             ->expects($this->never())
-            ->method('fetchFirstColumn');
+            ->method('fetchAllAssociative');
 
         $event = EntityWriteEvent::create(
             WriteContext::createFromContext(Context::createDefaultContext()->createWithVersionId(Uuid::randomHex())),
@@ -123,14 +123,14 @@ class PromotionRedemptionUpdaterTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects($this->once())
-            ->method('fetchFirstColumn')
-            ->willReturn([Uuid::randomHex()]);
-
-        $connection
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('fetchAllAssociative')
-            ->willReturn([]);
+            ->willReturnOnConsecutiveCalls(
+                // beforeDelete: the deleted promotion line item (no individual code in the payload)
+                [['promotion_id' => Uuid::randomHex(), 'payload' => '{}', 'order_id' => Uuid::randomHex()]],
+                // update(): recalculated totals
+                []
+            );
 
         $registry = new StaticDefinitionInstanceRegistry(
             [OrderLineItemDefinition::class],
@@ -155,6 +155,67 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $writeEvent = EntityWriteEvent::create(
             WriteContext::createFromContext(Context::createDefaultContext()),
             [$validInsertCommand, $updateCommand]
+        );
+
+        $updater = $this->getUpdater($connection);
+        $updater->beforeDelete($writeEvent);
+        $updater->lineItemDeleted(new EntityDeletedEvent('order_line_item', [], Context::createDefaultContext()));
+    }
+
+    public function testItemDeleteReleasesIndividualCode(): void
+    {
+        $orderId = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->exactly(2))
+            ->method('fetchAllAssociative')
+            ->willReturnOnConsecutiveCalls(
+                // beforeDelete: the deleted promotion line item redeemed an individual code
+                [['promotion_id' => Uuid::randomHex(), 'payload' => '{"code": "individual-code"}', 'order_id' => $orderId]],
+                // update(): recalculated totals
+                []
+            );
+
+        $countStatement = static::createStub(Statement::class);
+        $releaseStatement = $this->createMock(Statement::class);
+
+        $connection
+            ->method('prepare')
+            ->willReturnCallback(static fn (string $sql) => str_contains($sql, 'promotion_individual_code') ? $releaseStatement : $countStatement);
+
+        $params = [
+            ['code', 'individual-code'],
+            ['orderId', $orderId],
+        ];
+        $matcher = $this->exactly(\count($params));
+        $releaseStatement->expects($matcher)
+            ->method('bindValue')
+            ->willReturnCallback(static function (string $key, $value) use ($matcher, $params): void {
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][0], $key);
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
+            });
+
+        $releaseStatement
+            ->expects($this->once())
+            ->method('executeStatement')
+            ->willReturn(1);
+
+        $registry = new StaticDefinitionInstanceRegistry(
+            [OrderLineItemDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+
+        $deleteCommand = new DeleteCommand(
+            $registry->get(OrderLineItemDefinition::class),
+            ['id' => Uuid::randomBytes()],
+            static::createStub(EntityExistence::class),
+        );
+
+        $writeEvent = EntityWriteEvent::create(
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            [$deleteCommand]
         );
 
         $updater = $this->getUpdater($connection);

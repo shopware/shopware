@@ -159,10 +159,7 @@ describe('components/sw-entity-single-select', () => {
             props: {
                 value: 'selected-id',
                 entity: 'test',
-                cacheKey: [
-                    'shared-data',
-                    'test-entities',
-                ],
+                cacheKey: ['shared-data', 'test-entities'],
                 cacheTtl: 1000,
             },
             global: {
@@ -191,11 +188,7 @@ describe('components/sw-entity-single-select', () => {
             expect.any(Object),
             expect.any(Object),
             expect.objectContaining({
-                cacheKey: expect.arrayContaining([
-                    'shared-data',
-                    'test-entities',
-                    'search',
-                ]),
+                cacheKey: expect.arrayContaining(['shared-data', 'test-entities', 'search']),
                 ttl: 1000,
             }),
         );
@@ -237,6 +230,29 @@ describe('components/sw-entity-single-select', () => {
         const { singleSelection } = swEntitySingleSelect.vm;
 
         expect(singleSelection).toBeNull();
+    });
+
+    it('does not clear an unresolved selection when disabled', async () => {
+        const repository = {
+            get: jest.fn().mockResolvedValue(null),
+        };
+        const wrapper = await createEntitySingleSelect({
+            props: {
+                value: 'unresolved-id',
+                disabled: true,
+            },
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => repository,
+                    },
+                },
+            },
+        });
+        await flushPromises();
+
+        expect(repository.get).toHaveBeenCalledWith('unresolved-id', expect.any(Object), expect.any(Object), undefined);
+        expect(wrapper.emitted('update:value')).toBeUndefined();
     });
 
     it('should have disabled state results according to function', async () => {
@@ -616,9 +632,7 @@ describe('components/sw-entity-single-select', () => {
         await swEntitySingleSelect.find('input').trigger('change');
         await swEntitySingleSelect.vm.$nextTick();
 
-        expect(swEntitySingleSelect.emitted('search-term-change')[0]).toEqual([
-            'first',
-        ]);
+        expect(swEntitySingleSelect.emitted('search-term-change')[0]).toEqual(['first']);
     });
 
     it('should not display variations', async () => {

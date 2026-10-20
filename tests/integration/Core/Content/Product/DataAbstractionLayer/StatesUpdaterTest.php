@@ -86,7 +86,7 @@ class StatesUpdaterTest extends TestCase
                     [
                         'media' => [
                             'fileName' => 'foo',
-                            'fileExtension' => 'bar',
+                            'fileExtension' => 'png',
                             'private' => true,
                         ],
                     ],

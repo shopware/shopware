@@ -122,10 +122,7 @@ async function createWrapper(privileges = []) {
                 `,
                     },
                     'sw-entity-listing': {
-                        props: [
-                            'items',
-                            'dataSource',
-                        ],
+                        props: ['items', 'dataSource'],
                         template: `
                     <div>
                         <template v-for="item in (dataSource || items)">
@@ -156,9 +153,7 @@ async function createWrapper(privileges = []) {
 
 describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
     it('should be able to create a new tag', async () => {
-        const wrapper = await createWrapper([
-            'tag.creator',
-        ]);
+        const wrapper = await createWrapper(['tag.creator']);
         await wrapper.vm.$nextTick();
 
         const addButton = wrapper.find('.sw-settings-tag-list__button-create');
@@ -184,9 +179,7 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
     });
 
     it('should be able to edit a tag', async () => {
-        const wrapper = await createWrapper([
-            'tag.editor',
-        ]);
+        const wrapper = await createWrapper(['tag.editor']);
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('.sw-settings-tag-list__edit-action');
@@ -204,9 +197,7 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
     });
 
     it('should be able to delete a tag', async () => {
-        const wrapper = await createWrapper([
-            'tag.deleter',
-        ]);
+        const wrapper = await createWrapper(['tag.deleter']);
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('.sw-settings-tag-list__delete-action');
@@ -228,18 +219,13 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
         await wrapper.vm.$nextTick();
 
         const expected = {};
-        Object.entries(connections).forEach(
-            ([
-                propertyName,
-                count,
-            ]) => {
-                if (!count) {
-                    return;
-                }
+        Object.entries(connections).forEach(([propertyName, count]) => {
+            if (!count) {
+                return;
+            }
 
-                expected[propertyName] = count;
-            },
-        );
+            expected[propertyName] = count;
+        });
         const counts = wrapper.vm.getCounts('1');
 
         expect(counts).toEqual(expected);

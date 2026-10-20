@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
  * @internal only for use by the app-system
  *
  * @extends EntityCollection<ScriptEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class ScriptCollection extends EntityCollection

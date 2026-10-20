@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Mcp\Tool;
 
 use Doctrine\DBAL\Connection;
 use Mcp\Capability\Attribute\McpTool;
+use Mcp\Capability\Attribute\Schema;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
@@ -47,9 +48,13 @@ class ThemeConfigTool extends McpToolResponse
     }
 
     public function __invoke(
+        #[Schema(description: 'The sales channel\'s UUID, or its name as shown in the admin, e.g. "Storefront". See the shopware://sales-channels resource.')]
         string $salesChannelId = '',
+        #[Schema(description: '"get" to read the current theme config, "update" to change it.')]
         string $action = 'get',
+        #[Schema(description: 'A JSON OBJECT of theme config values to write, as a string — keyed by config field name, e.g. {"sw-color-brand-primary":{"value":"#189eff"}}. Only read by action "update"; call "get" first to see the field names and their current shape.')]
         string $config = '{}',
+        #[Schema(description: 'Preview the change without writing. Leave true first, then call again with false to persist.')]
         bool $dryRun = true,
     ): string {
         if ($action !== 'get' && $action !== 'update') {

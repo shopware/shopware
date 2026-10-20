@@ -22,6 +22,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -210,6 +211,8 @@ class CmsSlotsDataResolverTest extends TestCase
 
         $wanted = (new SalesChannelProductEntity())->assign(['id' => 'id-1']);
         $other = (new SalesChannelProductEntity())->assign(['id' => 'id-2']);
+        $wanted->internalSetEntityData('product', new FieldVisibility([]));
+        $other->internalSetEntityData('product', new FieldVisibility([]));
 
         // the merged direct read fetches the ids of all slots at once, each slot only gets its own ids back
         $this->productRepository->method('search')->willReturn(new EntitySearchResult(

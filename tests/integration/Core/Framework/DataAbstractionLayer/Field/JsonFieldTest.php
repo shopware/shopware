@@ -16,11 +16,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\UnexpectedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\JsonDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ModifyJsonFieldExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NestedDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -299,6 +301,75 @@ EOF;
         static::assertInstanceOf(WriteConstraintViolationException::class, $fieldExceptionThree);
         static::assertSame('/0/data/foo/baz', $fieldExceptionThree->getPath());
         static::assertSame('/deep', $fieldExceptionThree->getViolations()->get(0)->getPropertyPath());
+    }
+
+    public function testUndefinedJsonPropertyIsRejected(): void
+    {
+        $id = Uuid::randomHex();
+        $context = $this->createWriteContext();
+
+        $data = [
+            'id' => $id,
+            'data' => [
+                'gross' => 15.0,
+                'extended' => [
+                    'maxSuggestCount' => 10,
+                    'maxSearchCount' => 30,
+                ],
+            ],
+        ];
+
+        $ex = null;
+
+        try {
+            $this->getWriter()->insert($this->registerDefinition(NestedDefinition::class), [$data], $context);
+        } catch (WriteException $ex) {
+        }
+
+        static::assertInstanceOf(WriteException::class, $ex);
+        static::assertCount(1, $ex->getExceptions());
+        static::assertInstanceOf(UnexpectedFieldException::class, $ex->getExceptions()[0]);
+        static::assertSame('extended', $ex->getExceptions()[0]->getFieldName());
+    }
+
+    public function testModifyFieldsCanExtendJsonPropertyMapping(): void
+    {
+        $id = Uuid::randomHex();
+        $context = $this->createWriteContext();
+
+        $data = [
+            'id' => $id,
+            'data' => [
+                'gross' => 15.0,
+                'extended' => [
+                    'maxSuggestCount' => 10,
+                    'maxSearchCount' => 30,
+                ],
+            ],
+        ];
+
+        $this->getWriter()->insert(
+            $this->registerDefinitionWithExtensions(NestedDefinition::class, ModifyJsonFieldExtension::class),
+            [$data],
+            $context
+        );
+
+        $stored = $this->connection->fetchOne(
+            'SELECT `data` FROM `_test_nullable` WHERE `id` = :id',
+            ['id' => Uuid::fromHexToBytes($id)]
+        );
+
+        static::assertIsString($stored);
+        static::assertSame(
+            [
+                'gross' => 15.0,
+                'extended' => [
+                    'maxSuggestCount' => 10,
+                    'maxSearchCount' => 30,
+                ],
+            ],
+            json_decode($stored, true, 512, \JSON_THROW_ON_ERROR)
+        );
     }
 
     public function testWriteUtf8(): void

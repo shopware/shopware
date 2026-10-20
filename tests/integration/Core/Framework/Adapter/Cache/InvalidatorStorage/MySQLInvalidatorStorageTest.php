@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\RetryableException;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\TransactionIsolationLevel;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorage;
@@ -26,14 +26,15 @@ class MySQLInvalidatorStorageTest extends TestCase
 
     private Connection $connection;
 
-    private LoggerInterface&MockObject $logger;
+    private LoggerInterface&Stub $logger;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
+        // the exception test builds its own storage with a logger mock, every other test only needs a stub
+        $this->logger = static::createStub(LoggerInterface::class);
 
         $this->storage = new MySQLInvalidatorStorage($this->connection, $this->logger);
     }
@@ -164,7 +165,8 @@ class MySQLInvalidatorStorageTest extends TestCase
 
     public function testLoadAndDeleteExceptionIsCaughtAndLogged(): void
     {
-        $this->logger->expects($this->once())->method('warning')
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('warning')
             ->with('Cache tags could not be fetched or removed from storage. Possible deadlock encountered. If the error persists, try the redis adapter. Error: Deadlock');
 
         $connection = $this->createMock(Connection::class);
@@ -177,7 +179,7 @@ class MySQLInvalidatorStorageTest extends TestCase
             ->method('fetchAllAssociative')
             ->willReturn([['id' => 'id1', 'tag1'], ['id' => 'id2', 'tag2']]);
 
-        $statement = $this->createMock(Statement::class);
+        $statement = static::createStub(Statement::class);
 
         $e = new class('Deadlock') extends \Exception implements RetryableException {};
 
@@ -194,7 +196,7 @@ class MySQLInvalidatorStorageTest extends TestCase
             ->method('transactional')
             ->willReturnCallback(static fn (callable $cb) => $cb());
 
-        $storage = new MySQLInvalidatorStorage($connection, $this->logger);
+        $storage = new MySQLInvalidatorStorage($connection, $logger);
         $storage->loadAndDelete();
     }
 }

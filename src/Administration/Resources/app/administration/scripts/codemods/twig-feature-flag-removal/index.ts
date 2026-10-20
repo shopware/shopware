@@ -4,7 +4,7 @@ import readline from 'readline';
 
 const terminalInterface = readline.createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
 });
 
 function modifyCode(inputCode: string): string {
@@ -76,12 +76,12 @@ function modifyCode(inputCode: string): string {
     return outputLines.join('\n');
 }
 
-terminalInterface.question('What is the source directory of the files you want to change? \n', givenSrcPath => {
+terminalInterface.question('What is the source directory of the files you want to change? \n', (givenSrcPath) => {
     const srcPath = path.resolve(givenSrcPath);
 
     // Read all files recursively ending with .html.twig
     function throughDirectory(directoryPath: string, files: string[] = []) {
-        fs.readdirSync(directoryPath).forEach(file => {
+        fs.readdirSync(directoryPath).forEach((file) => {
             const absolutePath = path.join(directoryPath, file);
 
             if (fs.statSync(absolutePath).isDirectory()) {
@@ -95,7 +95,7 @@ terminalInterface.question('What is the source directory of the files you want t
     }
 
     // Filter array with strings and return only .html.twig files
-    const twigFiles = throughDirectory(srcPath).filter(file => file.endsWith('.html.twig'));
+    const twigFiles = throughDirectory(srcPath).filter((file) => file.endsWith('.html.twig'));
 
     // Loop through all .html.twig files and modify them
     for (const twigFile of twigFiles) {
@@ -108,7 +108,7 @@ terminalInterface.question('What is the source directory of the files you want t
 
     console.log('Finished modifying files.');
     console.warn(
-        'WARNING: It could be that the indentation of the files is not correct anymore. Please check the files manually.'
+        'WARNING: It could be that the indentation of the files is not correct anymore. Please check the files manually.',
     );
     terminalInterface.close();
 });

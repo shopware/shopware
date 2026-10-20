@@ -287,6 +287,6 @@ class LineItemGoodsTotalRuleTest extends TestCase
         ]);
         $cart = $this->createCart($lineItemCollection);
 
-        static::assertTrue($rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))));
+        static::assertTrue($rule->match(new CartRuleScope($cart, static::createStub(SalesChannelContext::class))));
     }
 }

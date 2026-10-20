@@ -37,7 +37,7 @@ class NewsletterRegisterEvent extends Event implements SalesChannelAware, MailAw
     {
         return (new EventDataCollection())
             ->add(NewsletterRecipientAware::NEWSLETTER_RECIPIENT, new EntityType(NewsletterRecipientDefinition::class))
-            ->add(FlowMailVariables::URL, new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add(FlowMailVariables::URL, new ScalarValueType(ScalarValueType::TYPE_STRING), [EventDataCollection::HIDDEN_FROM_WEBHOOK => true]);
     }
 
     /**

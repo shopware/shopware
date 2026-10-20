@@ -4,24 +4,19 @@
     :class="swMediaBreadcrumbsClasses"
 >
     {% block sw_media_breadcrumbs_root_folder %}
-    <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
     <a
         class="sw-media-breadcrumbs__button-back-to-root"
         role="button"
         tabindex="0"
+        :aria-label="$t('sw-media.index.rootFolderName')"
         @click="onBreadcrumbsItemClicked(null)"
         @keydown.enter="onBreadcrumbsItemClicked(null)"
     >
-        <img
+        <sw-media-folder-thumbnail
             v-if="!small"
-            :src="assetFilter('/administration/administration/static/img/media/multicolor-folder-breadcrumbs-back-to-root.svg')"
-            alt="Folder breadcrumbs back-to-root"
-        >
-        <img
-            v-else
-            :src="assetFilter('/administration/administration/static/img/media/multicolor-folder-breadcrumbs.svg')"
-            alt="Folder breadcrumbs"
-        >
+            variant="back-breadcrumb"
+        />
+        <sw-media-folder-thumbnail v-else />
     </a>
     {% endblock %}
 

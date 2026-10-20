@@ -6,7 +6,7 @@ import './sw-extension-config.scss';
 const { Mixin } = Shopware;
 
 type ComponentData = {
-    salesChannelId: string | null;
+    salesChannelId: EntityKey<'sales_channel'> | null;
     extension: Extension | null;
     fromLink: RouteLocationNamedRaw | null;
 };
@@ -25,13 +25,9 @@ export default Shopware.Component.wrapComponentConfig({
         });
     },
 
-    inject: [
-        'shopwareExtensionService',
-    ],
+    inject: ['shopwareExtensionService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         namespace: {

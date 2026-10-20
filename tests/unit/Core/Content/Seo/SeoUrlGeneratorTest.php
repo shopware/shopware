@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
@@ -60,7 +61,7 @@ class SeoUrlGeneratorTest extends TestCase
 
     public function testGenerateProducesSeoUrlWithCorrectFields(): void
     {
-        $entity = new ArrayEntity(['id' => 'entity-1']);
+        $entity = $this->createTestEntity();
 
         $entityRepository = new StaticEntityRepository([
             new EntityCollection([$entity]),
@@ -109,7 +110,7 @@ class SeoUrlGeneratorTest extends TestCase
 
     public function testGenerateForHeadlessStoresRelativeSeoPathInfo(): void
     {
-        $entity = new ArrayEntity(['id' => 'entity-1']);
+        $entity = $this->createTestEntity();
 
         $entityRepository = new StaticEntityRepository([
             new EntityCollection([$entity]),
@@ -174,7 +175,7 @@ class SeoUrlGeneratorTest extends TestCase
 
     public function testGenerateSkipsEmptySeoPathInfo(): void
     {
-        $entity = new ArrayEntity(['id' => 'entity-1']);
+        $entity = $this->createTestEntity();
         $entityRepository = new StaticEntityRepository([
             new EntityCollection([$entity]),
             new EntityCollection(),
@@ -209,7 +210,7 @@ class SeoUrlGeneratorTest extends TestCase
 
     public function testGenerateYieldsAnErrorWhenTheTemplateRendersAnEmptyPath(): void
     {
-        $entity = new ArrayEntity(['id' => 'entity-1']);
+        $entity = $this->createTestEntity();
         $entityRepository = new StaticEntityRepository([
             new EntityCollection([$entity]),
             new EntityCollection(),
@@ -247,7 +248,7 @@ class SeoUrlGeneratorTest extends TestCase
 
     public function testGenerateKeepsTheMappingErrorWhenTheTemplateRendersAnEmptyPath(): void
     {
-        $entity = new ArrayEntity(['id' => 'entity-1']);
+        $entity = $this->createTestEntity();
         $entityRepository = new StaticEntityRepository([
             new EntityCollection([$entity]),
             new EntityCollection(),
@@ -328,7 +329,7 @@ class SeoUrlGeneratorTest extends TestCase
 
     public function testGenerateFlagsRenderingErrorsIfConfiguredToSkipInvalid(): void
     {
-        $entity = new ArrayEntity(['id' => 'entity-1']);
+        $entity = $this->createTestEntity();
         $entityRepository = new StaticEntityRepository([
             new EntityCollection([$entity]),
             new EntityCollection(),
@@ -369,7 +370,7 @@ class SeoUrlGeneratorTest extends TestCase
 
     public function testGenerateThrowsOnRenderingErrorIfNotConfiguredToSkip(): void
     {
-        $entity = new ArrayEntity(['id' => 'entity-1']);
+        $entity = $this->createTestEntity();
         $entityRepository = new StaticEntityRepository([
             new EntityCollection([$entity]),
             new EntityCollection(),
@@ -402,7 +403,7 @@ class SeoUrlGeneratorTest extends TestCase
 
     public function testGenerateThrowsExceptionWhileParsingTemplate(): void
     {
-        $entity = new ArrayEntity(['id' => 'entity-1']);
+        $entity = $this->createTestEntity();
         $entityRepository = new StaticEntityRepository([
             new EntityCollection([$entity]),
         ], $this->createTestDefinition());
@@ -418,7 +419,7 @@ class SeoUrlGeneratorTest extends TestCase
 
     public function testGenerateWithLastFieldHasRuntimeFlag(): void
     {
-        $entity = new ArrayEntity(['id' => 'entity-1']);
+        $entity = $this->createTestEntity();
         $entityRepository = new StaticEntityRepository([
             new EntityCollection([$entity]),
             new EntityCollection(),
@@ -498,6 +499,14 @@ class SeoUrlGeneratorTest extends TestCase
         }
 
         return $twig;
+    }
+
+    private function createTestEntity(): ArrayEntity
+    {
+        $entity = new ArrayEntity(['id' => 'entity-1']);
+        $entity->internalSetEntityData(self::TEST_ENTITY_NAME, new FieldVisibility([]));
+
+        return $entity;
     }
 
     private function createTestDefinition(): EntityDefinition

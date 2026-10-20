@@ -14,21 +14,16 @@ const { Component, Mixin } = Shopware;
 export default Component.wrapComponentConfig({
     template,
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     props: {
         /**
          * Either the id of the unit when in edit mode or null when in create mode.
          */
         unitId: {
-            type: String,
+            type: String as unknown as PropType<EntityKey<'unit'> | null>,
             required: false,
             default: null,
         },
@@ -50,10 +45,7 @@ export default Component.wrapComponentConfig({
             return criteria;
         },
 
-        ...mapPropertyErrors('unit', [
-            'name',
-            'shortCode',
-        ]),
+        ...mapPropertyErrors('unit', ['name', 'shortCode']),
     },
 
     data(): {
@@ -112,6 +104,10 @@ export default Component.wrapComponentConfig({
 
     methods: {
         loadUnit(): void {
+            if (this.unitId === null) {
+                return;
+            }
+
             this.isLoading = true;
 
             this.unitRepository

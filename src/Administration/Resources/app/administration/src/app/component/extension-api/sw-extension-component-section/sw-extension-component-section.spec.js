@@ -42,11 +42,6 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
                     ...props,
                 },
                 global: {
-                    provide: {
-                        feature: {
-                            isActive: (flag) => global.activeFeatureFlags.includes(flag),
-                        },
-                    },
                     stubs,
                 },
             },
@@ -90,11 +85,11 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
     });
 
     beforeEach(async () => {
-        global.activeFeatureFlags = [];
         Shopware.Store.get('extensionComponentSections').identifier = {};
     });
 
-    it('should not render tabs in card section', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should not render tabs in card section', async () => {
         Shopware.Store.get('extensionComponentSections').addSection({
             component: 'card',
             positionId: 'test-position',
@@ -107,11 +102,27 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         wrapper = await createWrapper();
         await flushPromises();
 
-        const tabs = wrapper.find('.sw-tabs');
-        expect(tabs.exists()).toBe(false);
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
     });
 
-    it('should render deprecated tabs in card section when the major feature flag is inactive', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should not render tabs in card section', async () => {
+        Shopware.Store.get('extensionComponentSections').addSection({
+            component: 'card',
+            positionId: 'test-position',
+            props: {
+                title: 'test-card',
+                subtitle: 'test-card-description',
+            },
+        });
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render deprecated tabs in card section', async () => {
         addSectionWithTabs();
 
         wrapper = await createWrapper();
@@ -127,8 +138,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         expect(activeTab.text()).toBe('Tab 1');
     });
 
-    it('should render meteor tabs in card section when the major feature flag is active', async () => {
-        global.activeFeatureFlags = ['v6.8.0.0'];
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs in card section', async () => {
         addSectionWithTabs();
 
         wrapper = await createWrapper();
@@ -151,7 +161,8 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         expect(wrapper.find('.sw-tabs').exists()).toBe(false);
     });
 
-    it('should switch tab when clicking deprecated tabs', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should switch tab when clicking deprecated tabs', async () => {
         addSectionWithTabs();
 
         wrapper = await createWrapper();
@@ -170,8 +181,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         expect(activeIframe.vm.$attrs['location-id']).toBe('tab-2');
     });
 
-    it('should switch tab when meteor tabs emit a new active item', async () => {
-        global.activeFeatureFlags = ['v6.8.0.0'];
+    it.activeFeatureFlags(['v6.8.0.0'])('should switch tab when meteor tabs emit a new active item', async () => {
         addSectionWithTabs();
 
         wrapper = await createWrapper();
@@ -191,10 +201,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         expect(tabs.props('defaultItem')).toBe('tab-2');
     });
 
-    it.each([
-        'dev',
-        'prod',
-    ])('should be deprecated in %s env', async (env) => {
+    it.each(['dev', 'prod'])('should be deprecated in %s env', async (env) => {
         Shopware.Store.get('extensionComponentSections').addSection({
             component: 'card',
             positionId: 'test-position',
@@ -274,10 +281,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
             wrapper = await createWrapper();
             await flushPromises();
 
-            expect(orderedNames()).toEqual([
-                'ServiceExtension',
-                'AppExtension',
-            ]);
+            expect(orderedNames()).toEqual(['ServiceExtension', 'AppExtension']);
         });
 
         it('orders by ascending priority within the same group', async () => {
@@ -292,11 +296,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
             wrapper = await createWrapper();
             await flushPromises();
 
-            expect(orderedNames()).toEqual([
-                'AppA',
-                'AppB',
-                'AppC',
-            ]);
+            expect(orderedNames()).toEqual(['AppA', 'AppB', 'AppC']);
         });
 
         it('renders entries without a priority below those that set one', async () => {
@@ -309,10 +309,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
             wrapper = await createWrapper();
             await flushPromises();
 
-            expect(orderedNames()).toEqual([
-                'AppPositioned',
-                'AppUnset',
-            ]);
+            expect(orderedNames()).toEqual(['AppPositioned', 'AppUnset']);
         });
 
         it('keeps registration order for entries with an unset priority (no name bias)', async () => {
@@ -328,11 +325,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
             wrapper = await createWrapper();
             await flushPromises();
 
-            expect(orderedNames()).toEqual([
-                'Charlie',
-                'Alpha',
-                'Bravo',
-            ]);
+            expect(orderedNames()).toEqual(['Charlie', 'Alpha', 'Bravo']);
         });
 
         it('keeps registration order for entries sharing the same priority', async () => {
@@ -346,10 +339,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
             await flushPromises();
 
             // Equal priority → stable sort preserves insertion order (Second was registered first).
-            expect(orderedNames()).toEqual([
-                'Second',
-                'First',
-            ]);
+            expect(orderedNames()).toEqual(['Second', 'First']);
         });
 
         it('keeps services on top even when an app has a lower priority', async () => {
@@ -362,10 +352,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
             wrapper = await createWrapper();
             await flushPromises();
 
-            expect(orderedNames()).toEqual([
-                'ServiceExtension',
-                'AppExtension',
-            ]);
+            expect(orderedNames()).toEqual(['ServiceExtension', 'AppExtension']);
         });
 
         it('treats sections whose extension is unknown as non-services', async () => {
@@ -377,10 +364,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
             wrapper = await createWrapper();
             await flushPromises();
 
-            expect(orderedNames()).toEqual([
-                'ServiceExtension',
-                'UnknownExtension',
-            ]);
+            expect(orderedNames()).toEqual(['ServiceExtension', 'UnknownExtension']);
         });
 
         it('orders distinct priorities deterministically regardless of registration order', async () => {
@@ -406,11 +390,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
 
             // Service first, then apps by ascending priority — identical both runs because
             // every entry has a distinct priority (no reliance on registration order).
-            expect(firstRun).toEqual([
-                'ServiceZ',
-                'AppA',
-                'AppB',
-            ]);
+            expect(firstRun).toEqual(['ServiceZ', 'AppA', 'AppB']);
             expect(orderedNames()).toEqual(firstRun);
         });
     });

@@ -361,10 +361,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
-                lineItems: [
-                    ...mockItems,
-                    deletedProductItem,
-                ],
+                lineItems: [...mockItems, deletedProductItem],
             },
         });
 
@@ -598,10 +595,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to create new empty line item', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         let itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
@@ -615,17 +609,16 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         expect(itemRows).toHaveLength(1);
 
         const firstRow = itemRows.at(0);
-        expect(firstRow.find('.sw-data-grid__cell--quantity').text()).toBe('1 x');
+        expect(firstRow.classes()).toContain('is--inline-edit');
+        expect(firstRow.find('.sw-order-product-select').exists()).toBe(true);
         expect(firstRow.find('.sw-data-grid__cell--unitPrice').text()).toBe('...');
         expect(firstRow.find('.sw-data-grid__cell--price-taxRules\\[0\\]').text()).toBe('0 %');
         expect(firstRow.find('.sw-data-grid__cell--totalPrice').text()).toBe('...');
+        expect(wrapper.vm.order.lineItems[0].quantity).toBe(1);
     });
 
     it('should able to create new product line item', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
@@ -645,10 +638,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to create new custom line item', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         const buttonAddCustomItem = wrapper.find('.sw-order-line-items-grid__create-custom-item');
@@ -665,11 +655,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to create new credit line item', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-            'orders.create_discounts',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor', 'orders.create_discounts'];
         const wrapper = await createWrapper();
 
         const buttonAddCreditItem = wrapper.find('.sw-order-line-items-grid__can-create-discounts-button');
@@ -686,14 +672,16 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to cancel inline edit', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
-        const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
-        await buttonAddItem.trigger('click');
+        await wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [{ ...mockItems[0] }],
+                taxStatus: 'gross',
+            },
+        });
 
         const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(itemRows).toHaveLength(1);
@@ -706,13 +694,11 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
 
         await flushPromises();
         expect(wrapper.emitted('item-cancel')).toBeTruthy();
+        expect(wrapper.vm.order.lineItems).toHaveLength(1);
     });
 
     it('should able to delete single item', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
@@ -734,31 +720,30 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to delete empty single item', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
+
+        // The first item stays in inline edit, so only the second one exposes its context menu
         await buttonAddItem.trigger('click');
+        await flushPromises();
+        await buttonAddItem.trigger('click');
+        await flushPromises();
 
         let itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(itemRows).toHaveLength(1);
+        expect(itemRows).toHaveLength(2);
 
         const firstRow = itemRows[0];
 
         await firstRow.find('.sw-data-grid__cell--actions .sw-context-menu-item[variant="danger"]').trigger('click');
 
         itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(itemRows).toHaveLength(0);
+        expect(itemRows).toHaveLength(1);
     });
 
     it('should able to delete multiple items', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
@@ -781,10 +766,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to delete empty items', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
@@ -806,10 +788,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to edit single item', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         await wrapper.setProps({

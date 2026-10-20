@@ -113,9 +113,13 @@ class PermissionsServiceTest extends TestCase
         $invalidRevision = 'invalid-date';
 
         $this->expectExceptionObject(ServiceException::invalidPermissionsRevisionFormat($invalidRevision));
-        $this->permissionsService->grant($invalidRevision, $this->context);
-        $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
-        static::assertSame('', $storedRevision);
+
+        try {
+            $this->permissionsService->grant($invalidRevision, $this->context);
+        } finally {
+            $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
+            static::assertSame('', $storedRevision);
+        }
     }
 
     public function testMultipleGrantPermissionsCallsOverridesPrevious(): void

@@ -14,6 +14,7 @@ use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
 use Shopware\Core\System\StateMachine\StateMachineLocker;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\StateMachineTransitionValidator;
 use Shopware\Core\System\StateMachine\StateMachineTranslationDefinition;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
@@ -43,6 +44,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
+
+    // @deprecated tag:v6.8.0 - remove the registration together with StateMachineTransitionValidator
+    $services->set(StateMachineTransitionValidator::class)
+        ->args([
+            service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber');
 
     $services->set(StateMachineLocker::class)
         ->args([

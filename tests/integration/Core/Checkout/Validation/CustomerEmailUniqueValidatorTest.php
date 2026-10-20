@@ -85,7 +85,7 @@ class CustomerEmailUniqueValidatorTest extends TestCase
             $violation = $violations->get(1);
 
             static::assertNotEmpty($violation);
-            static::assertSame($constraint->message, $violation->getMessageTemplate());
+            static::assertSame($constraint->getMessage(), $violation->getMessageTemplate());
         }
     }
 
@@ -119,7 +119,7 @@ class CustomerEmailUniqueValidatorTest extends TestCase
             $violation = $violations->get(1);
 
             static::assertNotEmpty($violation);
-            static::assertSame($constraint->message, $violation->getMessageTemplate());
+            static::assertSame($constraint->getMessage(), $violation->getMessageTemplate());
         }
     }
 
@@ -166,7 +166,7 @@ class CustomerEmailUniqueValidatorTest extends TestCase
 
     private function createConstraint(string $salesChannelId): CustomerEmailUnique
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')
             ->willReturn($salesChannelId);
 

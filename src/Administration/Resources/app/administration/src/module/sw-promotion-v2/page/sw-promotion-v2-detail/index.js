@@ -12,11 +12,7 @@ const { mapPageErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -173,6 +169,8 @@ export default {
             });
             this.isLoading = true;
 
+            Shopware.Store.get('shopwareApps').selectedIds = this.promotionId ? [this.promotionId] : [];
+
             if (!this.promotionId) {
                 // set language to system language
                 if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
@@ -184,10 +182,6 @@ export default {
 
                 return;
             }
-
-            Shopware.Store.get('shopwareApps').selectedIds = [
-                this.promotionId,
-            ];
 
             this.loadEntityData();
         },
@@ -231,12 +225,7 @@ export default {
                 return;
             }
 
-            if (
-                ![
-                    this.cleanUpIndividualCodes,
-                    this.cleanUpFixedCode,
-                ].some((check) => check)
-            ) {
+            if (![this.cleanUpIndividualCodes, this.cleanUpFixedCode].some((check) => check)) {
                 this.savePromotion();
 
                 return;

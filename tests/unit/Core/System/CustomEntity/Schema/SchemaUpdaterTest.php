@@ -12,6 +12,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\CustomEntityException;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntityNameValidator;
 use Shopware\Core\System\CustomEntity\Schema\SchemaUpdater;
 
 /**
@@ -29,7 +30,7 @@ class SchemaUpdaterTest extends TestCase
         ];
         $schema = new Schema();
 
-        $updater = new SchemaUpdater();
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
         $updater->applyCustomEntities($schema, [$entity]);
 
         $this->assertColumns($schema, 'custom_entity_empty_entity', ['id', 'created_at', 'updated_at']);
@@ -43,10 +44,22 @@ class SchemaUpdaterTest extends TestCase
         ];
         $schema = new Schema();
 
-        $updater = new SchemaUpdater();
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
         $updater->applyCustomEntities($schema, [$entity]);
 
         $this->assertColumns($schema, 'ce_empty_entity', ['id', 'created_at', 'updated_at']);
+    }
+
+    public function testInvalidNamesAreRejectedThroughTheNameValidator(): void
+    {
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
+
+        $this->expectExceptionObject(CustomEntityException::invalidFieldName('ce_poc', 'foo bar'));
+
+        $updater->applyCustomEntities(new Schema(), [[
+            'name' => 'ce_poc',
+            'fields' => \json_encode([['name' => 'foo bar', 'type' => 'int', 'storeApiAware' => true]], \JSON_THROW_ON_ERROR),
+        ]]);
     }
 
     public function testExtendingExistingTables(): void
@@ -63,7 +76,7 @@ class SchemaUpdaterTest extends TestCase
             'fields' => '[{"name":"product","reference":"product","onDelete":"set-null","inherited":true,"type":"one-to-one"}]',
         ];
 
-        $updater = new SchemaUpdater();
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
         $updater->applyCustomEntities($schema, [$customEntity]);
 
         $this->assertColumns($schema, 'product', ['customentityextensionproduct']);
@@ -94,7 +107,7 @@ class SchemaUpdaterTest extends TestCase
             new Table('language', [new Column('id', Type::getType(Types::BINARY))]),
         ]);
 
-        $updater = new SchemaUpdater();
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
         $updater->applyCustomEntities($schema, $entities);
 
         $this->assertColumns($schema, 'custom_entity_blog', ['id', 'top_seller_id', 'author_id', 'created_at', 'updated_at', 'position', 'rating']);
@@ -110,7 +123,7 @@ class SchemaUpdaterTest extends TestCase
     {
         $schema = new Schema();
 
-        $updater = new SchemaUpdater();
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
         $updater->applyCustomEntities($schema, $entities);
 
         foreach ($expectedSchema as $tableName => $columns) {
@@ -198,7 +211,7 @@ class SchemaUpdaterTest extends TestCase
     {
         $schema = new Schema();
 
-        $updater = new SchemaUpdater();
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
         $updater->applyCustomEntities($schema, $entities);
 
         foreach ($expectedNonExistTableNames as $nonExistTableName) {
@@ -282,7 +295,7 @@ class SchemaUpdaterTest extends TestCase
     public function testAssociationWithoutIgnoreMissingReference(array $entities): void
     {
         $schema = new Schema();
-        $updater = new SchemaUpdater();
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
         $this->expectException(CustomEntityException::class);
         $this->expectExceptionMessageMatches('/Association reference table "custom_entity_right" not found/');
         $updater->applyCustomEntities($schema, $entities);

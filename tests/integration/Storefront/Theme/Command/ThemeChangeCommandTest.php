@@ -106,9 +106,13 @@ class ThemeChangeCommandTest extends TestCase
 
         $this->themeRepository->create($themes, $context);
 
+        // without --sync the command defers the switch until the (background) compilation finished
+        $expectedContext = Context::createDefaultContext();
+        $expectedContext->addState(ThemeService::STATE_DEFER_ASSIGNMENT);
+
         $this->themeService->expects($this->exactly(1))
             ->method('assignTheme')
-            ->with($themes[0]['id'], $salesChannel['id'], $context);
+            ->with($themes[0]['id'], $salesChannel['id'], $expectedContext);
 
         $this->commandTester->execute([
             'theme-name' => $themes[0]['technicalName'],
@@ -118,6 +122,8 @@ class ThemeChangeCommandTest extends TestCase
 
     public function testThemeChangeCommandWithNotExistingSalesChannelAndTheme(): void
     {
+        $this->themeService->expects($this->never())->method(static::anything());
+
         $this->commandTester->execute(['theme-name' => 'not existing theme', '--sales-channel' => 'not existing saleschannel'], ['interactive' => true]);
 
         static::assertStringContainsString('[ERROR] Could not find sales channel with ID not existing saleschannel', $this->commandTester->getDisplay());
@@ -125,6 +131,8 @@ class ThemeChangeCommandTest extends TestCase
 
     public function testThemeChangeCommandWithNoSalesChannel(): void
     {
+        $this->themeService->expects($this->never())->method(static::anything());
+
         $this->commandTester->execute(['--all' => true, '--sales-channel' => 'foo'], ['interactive' => true]);
 
         static::assertStringContainsString('[ERROR] You can use either --sales-channel or --all, not both at the same time.', $this->commandTester->getDisplay());

@@ -11,6 +11,7 @@ use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
 use Shopware\Core\Content\Sitemap\SitemapException;
 use Shopware\Core\Content\Sitemap\Struct\SitemapGenerationResult;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -54,7 +55,17 @@ class SitemapExporter implements SitemapExporterInterface
         $this->lock($context, $force);
 
         try {
-            $this->initSitemapHandles($context);
+            if (!$this->initSitemapHandles($context)) {
+                // Headless sales channels without an external storefront domain for the current language have
+                // nothing to generate - mirrors the silent skip of the SEO URL generation.
+                return new SitemapGenerationResult(
+                    true,
+                    $lastProvider,
+                    null,
+                    $context->getSalesChannelId(),
+                    $context->getLanguageId()
+                );
+            }
 
             foreach ($this->urlProvider as $urlProvider) {
                 do {
@@ -120,15 +131,21 @@ class SitemapExporter implements SitemapExporterInterface
         return \sprintf('sitemap-exporter-running-%s-%s', $salesChannelContext->getSalesChannelId(), $salesChannelContext->getLanguageId());
     }
 
-    private function initSitemapHandles(SalesChannelContext $context): void
+    private function initSitemapHandles(SalesChannelContext $context): bool
     {
         $languageId = $context->getLanguageId();
         $domainsEntity = $context->getSalesChannel()->getDomains();
+        $isHeadless = $context->getSalesChannel()->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API;
 
         $sitemapDomains = [];
         if ($domainsEntity instanceof SalesChannelDomainCollection) {
             foreach ($domainsEntity as $domain) {
                 if ($domain->getLanguageId() === $languageId) {
+                    // domains of headless sales channels only qualify when they point at the external storefront
+                    if ($isHeadless && !$domain->getIsExternalStorefront()) {
+                        continue;
+                    }
+
                     $urlParts = \parse_url($domain->getUrl());
 
                     if ($urlParts === false) {
@@ -156,10 +173,16 @@ class SitemapExporter implements SitemapExporterInterface
         }
 
         if ($sitemapHandles === []) {
+            if ($isHeadless) {
+                return false;
+            }
+
             throw SitemapException::invalidDomain();
         }
 
         $this->sitemapHandles = $sitemapHandles;
+
+        return true;
     }
 
     private function processSiteMapHandles(UrlResult $result): void

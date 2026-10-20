@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
  * The generation pipeline loads the order at the referenced document's snapshot instead of
  * creating a new version, in preview too.
  *
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  */
 #[Package('after-sales')]
 interface RendersReferencedSnapshot extends ReferencesDocument

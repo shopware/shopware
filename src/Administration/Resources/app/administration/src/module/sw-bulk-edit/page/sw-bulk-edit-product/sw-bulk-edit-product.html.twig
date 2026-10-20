@@ -15,14 +15,27 @@
     <template #smart-bar-back>
         <router-link
             v-if="isChild"
-            class="smart-bar__back-btn"
+            v-slot="{ href, navigate }"
             :to="{ name: 'sw.product.detail.variants', params: { id: $route.params.parentId } }"
-            :style="{ 'color': $route.meta.$module?.color }"
+            custom
         >
-            <mt-icon
-                name="regular-chevron-left"
-                size="var(--scale-size-16)"
-            />
+            <!-- Rendered as a real link so open-in-new-tab and middle click keep working. -->
+            <mt-button
+                is="a"
+                class="smart-bar__back-btn"
+                variant="secondary"
+                size="default"
+                square
+                :href="href"
+                :aria-label="$t('global.sw-page.backButton')"
+                :title="$t('global.sw-page.backButton')"
+                @click="navigate"
+            >
+                <mt-icon
+                    name="solid-long-arrow-left"
+                    size="12px"
+                />
+            </mt-button>
         </router-link>
     </template>
     {% endblock %}

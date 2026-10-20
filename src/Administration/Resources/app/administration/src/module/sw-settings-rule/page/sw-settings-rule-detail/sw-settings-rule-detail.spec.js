@@ -1,6 +1,6 @@
 /* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
 
-import { config, mount } from '@vue/test-utils';
+import { config, DOMWrapper, mount } from '@vue/test-utils';
 import kebabCase from 'lodash-es/kebabCase';
 import ShopwareError from 'src/core/data/ShopwareError';
 import { createRouter, createWebHistory } from 'vue-router';
@@ -112,10 +112,7 @@ const languageRepositoryMock = {
 };
 
 const languageSwitchStub = {
-    props: [
-        'saveChangesFunction',
-        'abortChangeFunction',
-    ],
+    props: ['saveChangesFunction', 'abortChangeFunction'],
     emits: ['on-change'],
     data() {
         return {
@@ -208,7 +205,7 @@ const routeLeaveOrUpdateTestCases = [
     },
 ];
 
-async function createWrapper(props = defaultProps, provide = {}, { featureActive = false } = {}) {
+async function createWrapper(props = defaultProps, provide = {}) {
     delete config.global.mocks.$router;
     delete config.global.mocks.$route;
 
@@ -323,9 +320,6 @@ async function createWrapper(props = defaultProps, provide = {}, { featureActive
                 'sw-extension-teaser-popover': true,
             },
             provide: {
-                feature: {
-                    isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
-                },
                 ruleConditionDataProviderService: ruleConditionDataProviderServiceMock,
                 ruleConditionsConfigApiService: ruleConditionsConfigApiServiceMock,
                 repositoryFactory: {
@@ -402,10 +396,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         await createWrapper();
         await flushPromises();
 
-        const association = [
-            'tags',
-            'flowSequences',
-        ];
+        const association = ['tags', 'flowSequences'];
 
         const aggregations = [
             'personaPromotions',
@@ -451,11 +442,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getModuleTypes: () => [],
                 addScriptConditions: () => {},
                 getRestrictionsByAssociation: awarenessFunc,
-                getAwarenessKeysWithEqualsAnyConfig: () => [
-                    'personaPromotions',
-                    'orderPromotions',
-                    'cartPromotions',
-                ],
+                getAwarenessKeysWithEqualsAnyConfig: () => ['personaPromotions', 'orderPromotions', 'cartPromotions'],
                 getDeprecationsInTree: () => [],
                 getFlowOnlyTypesInTree: () => [],
             },
@@ -507,10 +494,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const expectedRepositories = [
             ['app_script_condition'],
             ['rule'],
-            [
-                ruleMock.conditions.entity,
-                ruleMock.conditions.source,
-            ],
+            [ruleMock.conditions.entity, ruleMock.conditions.source],
         ];
 
         expect(wrapper.vm.repositoryFactory.create).toHaveBeenCalledTimes(3);
@@ -542,7 +526,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-settings-rule-detail__cancel-action').attributes('tooltip-mock-message')).toBe('ESC');
     });
 
-    it('should render fallback tab items', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the fallback sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render fallback tab items', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -551,8 +536,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor route tabs when the major feature flag is active', async () => {
-        const wrapper = await createWrapper(defaultProps, {}, { featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor route tabs', async () => {
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
@@ -577,8 +562,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-settings-rule-detail__tab-item-general').exists()).toBe(false);
     });
 
-    it('should pass validation errors to meteor tabs', async () => {
-        const wrapper = await createWrapper(defaultProps, {}, { featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should pass validation errors to meteor tabs', async () => {
+        const wrapper = await createWrapper();
         await flushPromises();
 
         Shopware.Store.get('error').addApiError({
@@ -609,8 +594,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         ]);
     });
 
-    it('should navigate when a meteor route tab is selected', async () => {
-        const wrapper = await createWrapper(defaultProps, {}, { featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should navigate when a meteor route tab is selected', async () => {
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const routerSpy = jest.spyOn(wrapper.vm.$router, 'push').mockResolvedValue();
@@ -653,10 +638,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         }
 
         expect(conditionRepositoryMock.search).toHaveBeenCalledTimes(2);
-        expect(conditionRepositoryMock.search.mock.calls[1]).toEqual([
-            criteria,
-            Context.api,
-        ]);
+        expect(conditionRepositoryMock.search.mock.calls[1]).toEqual([criteria, Context.api]);
     });
 
     it.each([
@@ -817,10 +799,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should clone duplicate rule', async () => {
-        global.activeAclRoles = [
-            'rule.editor',
-            'rule.creator',
-        ];
+        global.activeAclRoles = ['rule.editor', 'rule.creator'];
 
         const wrapper = await createWrapper();
         await wrapper.setData(conditionTreeMock);
@@ -833,7 +812,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
 
         ruleRepositoryMock.search.mockClear();
 
-        await wrapper.find('.sw-settings-rule-detail__save-duplicate-action').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-settings-rule-detail__save-duplicate-action').trigger('click');
         await flushPromises();
 
         expect(ruleRepositoryMock.save).toHaveBeenCalledTimes(1);
@@ -847,7 +826,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         });
     });
 
-    it('should reload rule when switching from assignments to base tab', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy rule-detail tabs.
+    it.deprecated('v6.8.0.0')('should reload rule when switching from assignments to base tab', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -858,6 +838,28 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-settings-rule-detail-assignments').exists()).toBe(true);
 
         await wrapper.find('.sw-settings-rule-detail__tab-item-general').trigger('click');
+        await flushPromises();
+        expect(wrapper.find('.sw-settings-rule-detail-base').exists()).toBe(true);
+
+        expect(ruleRepositoryMock.search).toHaveBeenCalledTimes(2);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should reload rule when switching from assignments to base tab', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-rule-detail-base').exists()).toBe(true);
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+        const assignmentsTab = tabs.props('items').find((tab) => tab.name === 'sw.settings.rule.detail.assignments');
+
+        await assignmentsTab.onClick();
+        await flushPromises();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments').exists()).toBe(true);
+
+        const generalTab = tabs.props('items').find((tab) => tab.name === 'sw.settings.rule.detail.base');
+
+        await generalTab.onClick();
         await flushPromises();
         expect(wrapper.find('.sw-settings-rule-detail-base').exists()).toBe(true);
 
@@ -1123,9 +1125,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getModuleTypes: () => [],
                 addScriptConditions: () => {},
                 getRestrictionsByAssociation: awarenessFunc,
-                getAwarenessKeysWithEqualsAnyConfig: () => [
-                    'testRelation',
-                ],
+                getAwarenessKeysWithEqualsAnyConfig: () => ['testRelation'],
                 getDeprecationsInTree: () => [],
                 getFlowOnlyTypesInTree: () => [],
             },
@@ -1153,9 +1153,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getModuleTypes: () => [],
                 addScriptConditions: () => {},
                 getRestrictionsByAssociation: awarenessFunc,
-                getAwarenessKeysWithEqualsAnyConfig: () => [
-                    'testRelation',
-                ],
+                getAwarenessKeysWithEqualsAnyConfig: () => ['testRelation'],
                 getDeprecationsInTree: () => [],
                 getFlowOnlyTypesInTree: () => [],
             },
@@ -1178,9 +1176,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getModuleTypes: () => [],
                 addScriptConditions: () => {},
                 getRestrictionsByAssociation: jest.fn(),
-                getAwarenessKeysWithEqualsAnyConfig: () => [
-                    'testRelation',
-                ],
+                getAwarenessKeysWithEqualsAnyConfig: () => ['testRelation'],
                 getDeprecationsInTree: () => [],
                 getFlowOnlyTypesInTree: () => [],
             },
@@ -1308,11 +1304,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         };
         await wrapper.setData({
             ...conditionTreeWithInvalidDateRanges,
-            conditions: [
-                { id: 'some-id' },
-                { id: 'another-id' },
-                { id: 'date-range-condition' },
-            ],
+            conditions: [{ id: 'some-id' }, { id: 'another-id' }, { id: 'date-range-condition' }],
         });
         wrapper.vm.createNotificationError = jest.fn();
 
@@ -1398,11 +1390,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                     children: [],
                 },
             ],
-            conditions: [
-                { id: 'first-reversed' },
-                { id: 'second-reversed' },
-                { id: 'valid' },
-            ],
+            conditions: [{ id: 'first-reversed' }, { id: 'second-reversed' }, { id: 'valid' }],
         });
 
         await wrapper.get('.sw-settings-rule-detail__save-action').trigger('click');

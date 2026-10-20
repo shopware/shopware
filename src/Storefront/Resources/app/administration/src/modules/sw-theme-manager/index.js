@@ -34,9 +34,9 @@ Module.register('sw-theme-manager', {
     description: 'sw-theme-manager.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#ff68b4',
-    icon: 'regular-content',
-    favicon: 'icon-module-content.png',
+    color: 'var(--sw-color-module-pink-default)',
+    icon: 'regular-tools',
+    favicon: 'icon-module-content.svg',
     entity: 'theme',
 
     routes: {
@@ -61,8 +61,8 @@ Module.register('sw-theme-manager', {
         {
             id: 'sw-theme-manager',
             label: 'sw-theme-manager.general.mainMenuItemGeneral',
-            color: '#ff68b4',
-            icon: 'default-object-image',
+            color: 'var(--sw-color-module-pink-default)',
+            icon: 'regular-tools',
             path: 'sw.theme.manager.index',
             privilege: 'theme.viewer',
             position: 80,

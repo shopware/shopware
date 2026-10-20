@@ -68,29 +68,17 @@ async function createWrapper(startingValue) {
                     props: ['value'],
                 },
                 'sw-email-field': {
-                    props: [
-                        'value',
-                        'label',
-                        'placeholder',
-                    ],
+                    props: ['value', 'label', 'placeholder'],
                     template:
                         '<input class="sw-email-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
                 },
                 'sw-text-field': {
-                    props: [
-                        'value',
-                        'label',
-                        'placeholder',
-                    ],
+                    props: ['value', 'label', 'placeholder'],
                     template:
                         '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
                 },
                 'sw-entity-single-select': {
-                    props: [
-                        'value',
-                        'label',
-                        'placeholder',
-                    ],
+                    props: ['value', 'label', 'placeholder'],
                     template:
                         '<input class="sw-entity-single-select" :value="value" @input="$emit(\'update:value\', $event.target.value)">',
                 },
@@ -104,10 +92,7 @@ async function createWrapper(startingValue) {
                     template: '<div class="sw-category-tree-field"></div>',
                 },
                 'sw-media-field': {
-                    props: [
-                        'value',
-                        'label',
-                    ],
+                    props: ['value', 'label'],
                     template:
                         '<input class="sw-media-field" :value="value" @input="$emit(\'update:value\', $event.target.value)">',
                 },
@@ -166,20 +151,13 @@ describe('components/form/sw-text-editor/sw-dynamic-url-field', () => {
             const inputSelector = link.inputSelector ? link.inputSelector : link.selector;
             await wrapper.find(inputSelector).setValue(placeholderId);
 
-            if (
-                [
-                    'detail',
-                    'media',
-                ].includes(link.type)
-            ) {
+            if (['detail', 'media'].includes(link.type)) {
                 placeholderId += '#';
             }
 
             const dispatchedInputEvents = wrapper.emitted('update:value').at(0);
 
-            expect(dispatchedInputEvents).toStrictEqual([
-                link.prefix + placeholderId,
-            ]);
+            expect(dispatchedInputEvents).toStrictEqual([link.prefix + placeholderId]);
         });
     });
 
@@ -238,9 +216,7 @@ describe('components/form/sw-text-editor/sw-dynamic-url-field', () => {
 
         const dispatchedInputEvents = wrapper.emitted('update:value');
 
-        expect(dispatchedInputEvents[0]).toStrictEqual([
-            '124c71d524604ccbad6042edce3ac799/navigation/new-selection#',
-        ]);
+        expect(dispatchedInputEvents[0]).toStrictEqual(['124c71d524604ccbad6042edce3ac799/navigation/new-selection#']);
 
         categoryTreeField.vm.$emit('selection-remove');
         await wrapper.vm.$nextTick();

@@ -63,7 +63,7 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
 
         $makeLanguage = static fn () => (new LanguageEntity())->assign(['id' => Uuid::randomHex()]);
 
-        $collection = new EntitySearchResult('test', 1, new LanguageCollection([$makeLanguage(), $makeLanguage(), $makeLanguage()]), null, new Criteria(), Context::createDefaultContext());
+        $collection = new EntitySearchResult('language', 1, new LanguageCollection([$makeLanguage(), $makeLanguage(), $makeLanguage()]), null, new Criteria(), Context::createDefaultContext());
 
         $repository = static::createStub(EntityRepository::class);
         $repository

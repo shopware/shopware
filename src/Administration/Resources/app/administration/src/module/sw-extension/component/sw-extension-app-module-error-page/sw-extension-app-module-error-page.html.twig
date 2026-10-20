@@ -1,22 +1,19 @@
 {% block sw_extension_app_module_error_page %}
 <div class="sw-extension-app-module-error-page">
-    <img
-        :src="assetFilter('administration/administration/static/img/error-pages/app-error.svg')"
-        alt="Error page background with a cute little space kitty"
-        class="sw-extension-app-module-error-page__illustration"
+    <mt-empty-state
+        :centered="true"
+        icon="regular-search"
+        :headline="$t('sw-extension.sw-extension-app-module-error-page.error.heading')"
+        :description="$t('sw-extension.sw-extension-app-module-error-page.error.description')"
     >
-
-    <div class="sw-extension-app-module-error-page__text-content">
-        <h3>{{ $t('sw-extension.sw-extension-app-module-error-page.error.heading') }}</h3>
-        <p>{{ $t('sw-extension.sw-extension-app-module-error-page.error.phrase') }}</p>
-        <p>{{ $t('sw-extension.sw-extension-app-module-error-page.error.info') }}</p>
-
-        <mt-button
-            variant="primary"
-            @click="goBack"
-        >
-            {{ $t('global.default.back') }}
-        </mt-button>
-    </div>
+        <template #button>
+            <mt-button
+                variant="primary"
+                @click="goBack"
+            >
+                {{ $t('global.default.back') }}
+            </mt-button>
+        </template>
+    </mt-empty-state>
 </div>
 {% endblock %}

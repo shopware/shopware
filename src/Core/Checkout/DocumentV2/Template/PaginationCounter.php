@@ -11,8 +11,6 @@ use Shopware\Core\Framework\Log\Package;
  * `counter is divisible by itemsPerPage`. Stays a stateful object so the count survives nested
  * template includes within one render.
  *
- * @codeCoverageIgnore
- *
  * @internal
  */
 #[Package('after-sales')]

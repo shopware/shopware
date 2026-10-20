@@ -182,6 +182,29 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
         );
     });
 
+    it('should exclude app-provided document types from documentTypeCriteria', async () => {
+        await createWrapper();
+        await flushPromises();
+
+        expect(documentTypeRepsoitoryMock.search).toHaveBeenCalledWith(
+            expect.objectContaining({
+                filters: expect.arrayContaining([
+                    {
+                        type: 'not',
+                        operator: 'AND',
+                        queries: [
+                            {
+                                type: 'equals',
+                                field: 'technicalName',
+                                value: 'app_provided',
+                            },
+                        ],
+                    },
+                ]),
+            }),
+        );
+    });
+
     it('should add help text & disabled if document type needs invoice to be created first', async () => {
         documentRepositoryMock.searchIds.mockResolvedValueOnce(getCollection('document', []));
 

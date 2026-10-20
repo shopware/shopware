@@ -21,8 +21,9 @@
     "mcp": {
       "cardTitle": "MCP-Allowlist",
       "modalTitle": "MCP-Allowlist",
-      "infoText": "Lege fest, welche MCP-Funktionen diese Integration nutzen darf. Wenn \"Alle Funktionen\" aktiviert ist, sind alle registrierten Tools, Ressourcen und Prompts zugänglich. Deaktiviere die Option, um den Zugriff pro Typ zu konfigurieren. Hinweis: Tools benötigen zusätzlich die passenden Entitätsrechte aus der zugewiesenen Rolle.",
-      "adminBanner": "Diese Integration verfügt über Administrator-Rechte. Alle MCP-Funktionen sind standardmäßig zugänglich. Du kannst den Zugriff hier auf bestimmte Tools, Ressourcen oder Prompts einschränken.",
+      "infoText": "Wähle aus, welche MCP-Funktionen diese Integration nutzen darf. Alles, was nicht ausgewählt ist, wird blockiert. Hinweis: Tools benötigen zusätzlich die passenden Entitätsrechte aus der zugewiesenen Rolle.",
+      "adminBanner": "Dieser Benutzer ist Administrator. Alle MCP-Funktionen sind unabhängig von der Auswahl unten zugänglich.",
+      "noSelectionBanner": "Es sind keine Funktionen ausgewählt, daher ist derzeit nichts über MCP erreichbar. Wähle die benötigten Tools, Ressourcen und Prompts aus.",
       "allCapabilitiesLabel": "Alle Funktionen",
       "allTypeLabel": "Alle",
       "toolsSection": "Tools",

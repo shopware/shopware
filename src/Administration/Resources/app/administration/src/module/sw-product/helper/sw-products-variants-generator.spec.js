@@ -18,14 +18,9 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
     let variantsGenerator;
 
     beforeAll(() => {
-        Object.entries(entitySchemaMock).forEach(
-            ([
-                entityName,
-                entityDefinition,
-            ]) => {
-                Shopware.EntityDefinition.add(entityName, entityDefinition);
-            },
-        );
+        Object.entries(entitySchemaMock).forEach(([entityName, entityDefinition]) => {
+            Shopware.EntityDefinition.add(entityName, entityDefinition);
+        });
 
         Shopware.Service().register('syncService', () => {
             return {
@@ -56,6 +51,16 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
         productEntity.getOrigin().variantRestrictions = originVariantRestrictions;
         productEntity.getDraft().variantRestrictions = originVariantRestrictions;
         productEntity.variantRestrictions = variantRestrictions;
+
+        return productEntity;
+    }
+
+    function createProductEntityWithListingConfig(originConfig, variantListingConfig = originConfig) {
+        const productEntity = entityFactory.create('product', 'product-123');
+
+        productEntity.getOrigin().variantListingConfig = originConfig;
+        productEntity.getDraft().variantListingConfig = originConfig;
+        productEntity.variantListingConfig = variantListingConfig;
 
         return productEntity;
     }
@@ -231,11 +236,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
     });
 
     it('should filter variants correctly', async () => {
-        const newVariations = [
-            [
-                'e10fed21a07149958427cb5339ee4c31',
-            ],
-        ];
+        const newVariations = [['e10fed21a07149958427cb5339ee4c31']];
 
         const variationOnServer = {
             '455ff20cec764a2aab42d2282d08456c': {
@@ -257,21 +258,12 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
 
         expect(variants).toEqual({
             createQueue: [],
-            deleteQueue: [
-                '455ff20cec764a2aab42d2282d08456c',
-            ],
+            deleteQueue: ['455ff20cec764a2aab42d2282d08456c'],
         });
     });
 
     it('should delete existing variants matching newly added restrictions', async () => {
-        const newVariations = [
-            [
-                'd6e90b99fe4842d487b53b59e50491a4',
-            ],
-            [
-                'e10fed21a07149958427cb5339ee4c31',
-            ],
-        ];
+        const newVariations = [['d6e90b99fe4842d487b53b59e50491a4'], ['e10fed21a07149958427cb5339ee4c31']];
 
         const variationOnServer = {
             '455ff20cec764a2aab42d2282d08456c': {
@@ -308,9 +300,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
 
         expect(variants).toEqual({
             createQueue: [],
-            deleteQueue: [
-                'a6ebe32c706b4a16a69041b31df5d7fb',
-            ],
+            deleteQueue: ['a6ebe32c706b4a16a69041b31df5d7fb'],
         });
     });
 
@@ -318,24 +308,15 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
         const mockCreateQueue = [
             {
                 parentId: 'parent1',
-                options: [
-                    { id: 'option1' },
-                    { id: 'option2' },
-                ],
+                options: [{ id: 'option1' }, { id: 'option2' }],
             },
             {
                 parentId: 'parent1',
-                options: [
-                    { id: 'option1' },
-                    { id: 'option3' },
-                ],
+                options: [{ id: 'option1' }, { id: 'option3' }],
             },
             {
                 parentId: 'parent1',
-                options: [
-                    { id: 'option2' },
-                    { id: 'option3' },
-                ],
+                options: [{ id: 'option2' }, { id: 'option3' }],
             },
         ];
 
@@ -363,9 +344,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                 variantRestrictions: [
                     {
                         id: 'restriction1',
-                        values: [
-                            { id: 'value1', group: 'group1', options: [] },
-                        ],
+                        values: [{ id: 'value1', group: 'group1', options: [] }],
                     },
                     {
                         id: 'restriction2',
@@ -405,17 +384,11 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
             expect(result).toEqual([
                 {
                     parentId: 'parent1',
-                    options: [
-                        { id: 'option1' },
-                        { id: 'option3' },
-                    ],
+                    options: [{ id: 'option1' }, { id: 'option3' }],
                 },
                 {
                     parentId: 'parent1',
-                    options: [
-                        { id: 'option2' },
-                        { id: 'option3' },
-                    ],
+                    options: [{ id: 'option2' }, { id: 'option3' }],
                 },
             ]);
         });
@@ -438,17 +411,11 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
             expect(result).toEqual([
                 {
                     parentId: 'parent1',
-                    options: [
-                        { id: 'option1' },
-                        { id: 'option2' },
-                    ],
+                    options: [{ id: 'option1' }, { id: 'option2' }],
                 },
                 {
                     parentId: 'parent1',
-                    options: [
-                        { id: 'option2' },
-                        { id: 'option3' },
-                    ],
+                    options: [{ id: 'option2' }, { id: 'option3' }],
                 },
             ]);
         });
@@ -778,10 +745,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
 
             const createQueue = [
                 {
-                    options: [
-                        { id: 'new-option-1' },
-                        { id: 'new-option-2' },
-                    ],
+                    options: [{ id: 'new-option-1' }, { id: 'new-option-2' }],
                 },
             ];
 
@@ -830,10 +794,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
             const calledPayload = syncSpy.mock.calls[0][0][0].payload;
 
             expect(calledPayload).toHaveLength(2);
-            expect(calledPayload.map((s) => s.optionId).sort()).toEqual([
-                'option-existing',
-                'option-new-in-queue',
-            ]);
+            expect(calledPayload.map((s) => s.optionId).sort()).toEqual(['option-existing', 'option-new-in-queue']);
 
             syncSpy.mockRestore();
         });
@@ -859,6 +820,97 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
 
             expect(syncSpy).not.toHaveBeenCalled();
             expect(result).toBeUndefined();
+
+            syncSpy.mockRestore();
+        });
+    });
+    describe('saveVariantListingConfig', () => {
+        it('should apply the main product default for completely new variant products', async () => {
+            const newProduct = JSON.parse(JSON.stringify(product));
+            newProduct.variantListingConfig = null;
+
+            await new Promise((resolve) => {
+                variantsGenerator.once('queues', resolve);
+                variantsGenerator.generateVariants(currencies, newProduct);
+            });
+
+            expect(newProduct.variantListingConfig).toEqual({ displayParent: true });
+        });
+
+        it('should resolve immediately when product is missing', async () => {
+            variantsGenerator.product = null;
+            const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync');
+
+            const result = await variantsGenerator.saveVariantListingConfig();
+
+            expect(result).toBeUndefined();
+            expect(syncSpy).not.toHaveBeenCalled();
+
+            syncSpy.mockRestore();
+        });
+
+        it('should resolve immediately when the variant listing config is not set', async () => {
+            variantsGenerator.product = createProductEntityWithListingConfig(null);
+            const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync');
+
+            const result = await variantsGenerator.saveVariantListingConfig();
+
+            expect(result).toBeUndefined();
+            expect(syncSpy).not.toHaveBeenCalled();
+
+            syncSpy.mockRestore();
+        });
+
+        it('should upsert the variant listing config default applied during the generation', async () => {
+            const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
+            const variantListingConfig = { displayParent: true };
+
+            variantsGenerator.product = createProductEntityWithListingConfig(null, variantListingConfig);
+
+            await variantsGenerator.saveVariantListingConfig();
+
+            expect(syncSpy).toHaveBeenCalledWith(
+                [
+                    {
+                        entity: 'product',
+                        action: 'upsert',
+                        payload: [
+                            {
+                                id: 'product-123',
+                                variantListingConfig,
+                            },
+                        ],
+                    },
+                ],
+                {},
+                { 'single-operation': 1 },
+            );
+
+            const calledConfig = syncSpy.mock.calls[0][0][0].payload[0].variantListingConfig;
+            expect(calledConfig).not.toBe(variantListingConfig);
+
+            syncSpy.mockRestore();
+        });
+
+        it('should resolve immediately when the variant listing config did not change', async () => {
+            const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
+
+            variantsGenerator.product = createProductEntityWithListingConfig({
+                displayParent: null,
+                mainVariantId: null,
+                configuratorGroupConfig: [
+                    {
+                        id: 'group-1',
+                        representation: 'box',
+                        expressionForListings: true,
+                    },
+                ],
+            });
+
+            const result = await variantsGenerator.saveVariantListingConfig();
+
+            expect(result).toBeUndefined();
+            expect(syncSpy).not.toHaveBeenCalled();
 
             syncSpy.mockRestore();
         });

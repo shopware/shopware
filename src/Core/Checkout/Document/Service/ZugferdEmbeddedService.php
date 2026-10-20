@@ -11,12 +11,18 @@ use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[Package('after-sales')]
+#[ExperimentalReplacement(
+    version: 'v6.9.0',
+    feature: 'DOCUMENT_GENERATION_REWORK',
+    description: 'DocumentV2 embeds ZUGFeRD XML through its own PDF renderer.',
+)]
 final class ZugferdEmbeddedService
 {
     final public const SHOPWARE_ZUGFERD_CREATOR_TAG_PREFIX = 'Shopware@';

@@ -60,7 +60,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
 
         $customerRepository = new StaticEntityRepository([
             new EntitySearchResult(
-                CustomerEntity::class,
+                'customer',
                 1,
                 new CustomerCollection([$customer]),
                 null,
@@ -206,7 +206,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
 
         $customerRepository = new StaticEntityRepository([
             new EntitySearchResult(
-                CustomerEntity::class,
+                'customer',
                 1,
                 new CustomerCollection([$customer]),
                 null,
@@ -293,7 +293,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
 
         $customerRepository = new StaticEntityRepository([
             new EntitySearchResult(
-                CustomerEntity::class,
+                'customer',
                 1,
                 new CustomerCollection([$customer]),
                 null,

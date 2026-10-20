@@ -10,10 +10,7 @@ import './sw-text-editor-toolbar-button.scss';
 export default {
     template,
 
-    emits: [
-        'button-click',
-        'menu-toggle',
-    ],
+    emits: ['button-click', 'menu-toggle'],
 
     props: {
         buttonConfig: {
@@ -89,14 +86,7 @@ export default {
         },
 
         onToggleMenu(event, button) {
-            if (
-                ![
-                    'link',
-                    'table',
-                    'foreColor',
-                ].includes(button.type) &&
-                !button.children
-            ) {
+            if (!['link', 'table', 'foreColor'].includes(button.type) && !button.children) {
                 return;
             }
 

@@ -375,13 +375,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     // sees the most specific error first.
     assertScriptRules(ast, classified, mode, scriptOffset);
     const { publicEntries, overrideEntries } = extractMarkerEntries(classified, scriptOffset);
-    assertReservedMacroNames(
-        [
-            ...classified.bindings.bindings,
-            ...classified.importedBindings,
-        ],
-        scriptOffset,
-    );
+    assertReservedMacroNames([...classified.bindings.bindings, ...classified.importedBindings], scriptOffset);
 
     // 4 - assemble the mode-specific analysis
     const shared = buildSharedAnalysis(script, classified);

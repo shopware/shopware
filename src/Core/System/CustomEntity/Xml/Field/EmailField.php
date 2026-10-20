@@ -8,6 +8,8 @@ use Shopware\Core\System\CustomEntity\Xml\Field\Traits\TranslatableTrait;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class EmailField extends Field

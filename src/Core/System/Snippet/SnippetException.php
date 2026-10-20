@@ -48,6 +48,10 @@ class SnippetException extends HttpException
 
     final public const SNIPPET_TRANSLATIONS_UNAVAILABLE = 'SYSTEM__TRANSLATIONS_UNAVAILABLE';
 
+    final public const SNIPPET_LANGUAGE_NOT_AVAILABLE_IN_SALES_CHANNEL = 'SYSTEM__SNIPPET_LANGUAGE_NOT_AVAILABLE_IN_SALES_CHANNEL';
+
+    final public const SNIPPET_TOO_MANY_PREFIXES = 'SYSTEM__SNIPPET_TOO_MANY_PREFIXES';
+
     public static function invalidFilterName(): self
     {
         return new self(
@@ -260,6 +264,26 @@ class SnippetException extends HttpException
             self::SNIPPET_COUNTRY_AGNOSTIC_FILE_LINTER_INVALID_EXTENSIONS,
             'Specified argument "{{ extensionNames }}" does not contain valid extensions.',
             ['extensionNames' => implode(', ', $extensionName)],
+        );
+    }
+
+    public static function languageNotAvailableInSalesChannel(string $languageId, string $salesChannelId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SNIPPET_LANGUAGE_NOT_AVAILABLE_IN_SALES_CHANNEL,
+            'The language "{{ languageId }}" is not available for sales channel "{{ salesChannelId }}".',
+            ['languageId' => $languageId, 'salesChannelId' => $salesChannelId],
+        );
+    }
+
+    public static function tooManyPrefixes(int $count, int $limit): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SNIPPET_TOO_MANY_PREFIXES,
+            'Too many snippet prefixes requested: {{ count }} given, at most {{ limit }} are allowed.',
+            ['count' => $count, 'limit' => $limit],
         );
     }
 }

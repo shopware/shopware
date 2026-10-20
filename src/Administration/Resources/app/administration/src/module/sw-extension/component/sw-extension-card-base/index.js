@@ -20,13 +20,9 @@ export default {
 
     inheritAttrs: false,
 
-    inject: [
-        'shopwareExtensionService',
-        'extensionStoreActionService',
-        'cacheApiService',
-    ],
+    inject: ['shopwareExtensionService', 'extensionStoreActionService', 'cacheApiService'],
 
-    emits: ['update-list'],
+    emits: ['update-list', 'select-change'],
 
     mixins: ['sw-extension-error'],
 
@@ -34,6 +30,16 @@ export default {
         extension: {
             type: Object,
             required: true,
+        },
+        selected: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        bulkLoading: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 
@@ -54,6 +60,10 @@ export default {
     },
 
     computed: {
+        showLoader() {
+            return this.isLoading || this.bulkLoading;
+        },
+
         /**
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
@@ -144,6 +154,10 @@ export default {
             }
 
             return false;
+        },
+
+        hasActiveSubscription() {
+            return this.extension.storeLicense?.variant === 'rent' && this.extension.storeLicense.expirationDate === null;
         },
 
         isUpdateable() {
@@ -251,12 +265,7 @@ export default {
                 return true;
             }
 
-            if (
-                !this.extensionManagementDisabled &&
-                this.extension.storeLicense &&
-                this.extension.storeLicense.variant === 'rent' &&
-                this.extension.storeLicense.expirationDate === null
-            ) {
+            if (!this.extensionManagementDisabled && this.hasActiveSubscription) {
                 return true;
             }
 

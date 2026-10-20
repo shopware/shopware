@@ -134,18 +134,13 @@ class SyntaxValidationTemplateError extends Error {
 
 function createSimulationResponse(mailTemplateContent) {
     return Object.fromEntries(
-        Object.entries(mailTemplateContent).map(
-            ([
-                key,
+        Object.entries(mailTemplateContent).map(([key, content]) => [
+            key,
+            {
+                type: 'success',
                 content,
-            ]) => [
-                key,
-                {
-                    type: 'success',
-                    content,
-                },
-            ],
-        ),
+            },
+        ]),
     );
 }
 
@@ -243,9 +238,7 @@ async function createWrapper(privileges = []) {
                 'sw-text-field': true,
                 'sw-context-menu-item': true,
                 'sw-code-editor': {
-                    props: [
-                        'disabled',
-                    ],
+                    props: ['disabled'],
                     template: '<input type="text" class="sw-code-editor" :disabled="disabled" />',
                     methods: {
                         defineAutocompletion() {},

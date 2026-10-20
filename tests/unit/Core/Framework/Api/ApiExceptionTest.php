@@ -282,6 +282,17 @@ class ApiExceptionTest extends TestCase
         static::assertSame(ApiException::API_INVALID_ACCESS_KEY_IDENTIFIER_EXCEPTION, $exception->getErrorCode());
     }
 
+    public function testInvalidOAuthRedirectUri(): void
+    {
+        $previous = new \RuntimeException('Library validation failed');
+        $exception = ApiException::invalidOAuthRedirectUri($previous);
+
+        static::assertSame(ApiException::API_OAUTH_INVALID_REDIRECT_URI, $exception->getErrorCode());
+        static::assertSame(400, $exception->getStatusCode());
+        static::assertSame('Redirect URL is not registered for this application.', $exception->getMessage());
+        static::assertSame($previous, $exception->getPrevious());
+    }
+
     public function testSalesChannelInMaintenanceMode(): void
     {
         $exception = ApiException::salesChannelInMaintenanceMode();

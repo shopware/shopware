@@ -23,9 +23,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     emits: ['modal-close'],
 
-    mixins: [
-        Shopware.Mixin.getByName('notification'),
-    ],
+    mixins: [Shopware.Mixin.getByName('notification')],
 
     props: {
         page: {

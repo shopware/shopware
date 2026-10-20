@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
-use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
@@ -13,6 +13,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextCreatedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -64,7 +65,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
      */
     public function __construct(
         private readonly AbstractSalesChannelContextFactory $factory,
-        private readonly CartRuleLoader $ruleLoader,
+        private readonly CartCalculator $cartCalculator,
         private readonly SalesChannelContextPersister $contextPersister,
         private readonly CartService $cartService,
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -109,7 +110,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
                 $session[self::IMITATING_USER_ID] = $parameters->getImitatingUserId();
             }
 
-            $context = $this->factory->create($token, $parameters->getSalesChannelId(), $session);
+            $context = $this->createContext($token, $parameters, $session);
 
             if ($parameters->getOriginalContext()?->hasState(Context::ELASTICSEARCH_EXPLAIN_MODE)) {
                 $context->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
@@ -139,12 +140,12 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
             $esiRequest = $currentRequest?->attributes->has('_esi') ?? false;
             if (!$this->cartService->hasCart($token) || !$esiRequest) {
                 // @deprecated tag:v6.8.0 - Permission will always be true
-                $result = $context->withPermissions(
+                $cart = $context->withPermissions(
                     [AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => Feature::isActive('DEFERRED_CART_ERRORS')],
-                    fn (SalesChannelContext $context) => $this->ruleLoader->loadByToken($context, $token),
+                    fn (SalesChannelContext $context) => $this->cartCalculator->calculateByToken($token, $context),
                 );
 
-                $this->cartService->setCart($result->getCart());
+                $this->cartService->setCart($cart);
 
                 // the rule loader updates the rules in the context, save them to the session for later reuse
                 $requestSession?->set(self::RULE_IDS, $context->getRuleIds());
@@ -156,5 +157,58 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
             return $context;
         });
+    }
+
+    /**
+     * @param array<string, mixed> $session
+     */
+    private function createContext(string $token, SalesChannelContextServiceParameters $parameters, array &$session): SalesChannelContext
+    {
+        // A stored selection can become unavailable after a sales channel configuration change. Explicit request options must still fail.
+        $recoveredOptions = [];
+        while (true) {
+            try {
+                return $this->factory->create($token, $parameters->getSalesChannelId(), $session);
+            } catch (SalesChannelException $exception) {
+                $staleOption = $this->getStalePersistedOption($exception, $parameters, $session);
+                if ($staleOption === null || isset($recoveredOptions[$staleOption])) {
+                    throw $exception;
+                }
+
+                unset($session[$staleOption]);
+                if ($staleOption === self::CURRENCY_ID && $parameters->getCurrencyId() !== null) {
+                    $session[self::CURRENCY_ID] = $parameters->getCurrencyId();
+                }
+
+                $customerId = $session[self::CUSTOMER_ID] ?? null;
+                $this->contextPersister->save(
+                    $token,
+                    [$staleOption => null],
+                    $parameters->getSalesChannelId(),
+                    \is_string($customerId) ? $customerId : null,
+                );
+                $recoveredOptions[$staleOption] = true;
+            }
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $session
+     */
+    private function getStalePersistedOption(SalesChannelException $exception, SalesChannelContextServiceParameters $parameters, array $session): ?string
+    {
+        if ($exception->getErrorCode() === SalesChannelException::SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION
+            && $parameters->getLanguageId() === null
+            && \array_key_exists(self::LANGUAGE_ID, $session)) {
+            return self::LANGUAGE_ID;
+        }
+
+        if ($exception->getErrorCode() === SalesChannelException::CURRENCY_DOES_NOT_EXISTS_EXCEPTION
+            && $parameters->getOverwriteCurrencyId() === null
+            && \array_key_exists(self::CURRENCY_ID, $session)) {
+            return self::CURRENCY_ID;
+        }
+
+        return null;
     }
 }

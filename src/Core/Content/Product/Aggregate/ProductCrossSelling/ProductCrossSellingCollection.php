@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductCrossSellingEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 class ProductCrossSellingCollection extends EntityCollection

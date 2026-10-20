@@ -240,8 +240,6 @@ class FeatureFlagRegistryTest extends TestCase
 
     public function testEnableNoneToggleableMajorFeatureThrowsException(): void
     {
-        $exception = FeatureException::featureCannotBeToggled('FEATURE_MAJOR');
-        static::expectExceptionObject($exception);
         Feature::resetRegisteredFeatures();
         Feature::registerFeatures([
             'FEATURE_ABC' => [
@@ -262,6 +260,9 @@ class FeatureFlagRegistryTest extends TestCase
             [],
             true
         );
+
+        $exception = FeatureException::featureCannotBeToggled('FEATURE_MAJOR');
+        static::expectExceptionObject($exception);
 
         $service->enable('FEATURE_MAJOR');
     }

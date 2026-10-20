@@ -27,12 +27,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Controller\AccountOrderController;
@@ -188,6 +191,67 @@ class AccountOrderControllerTest extends TestCase
         static::assertSame('frontend.account.order.single.page', $response->getTargetUrl());
     }
 
+    public function testOrderChangePaymentPassesTheSelectedPaymentMethodToTheEditOrderPage(): void
+    {
+        $ids = new IdsCollection();
+
+        $contextSwitchRoute = $this->createMock(AbstractContextSwitchRoute::class);
+        $contextSwitchRoute
+            ->expects($this->never())
+            ->method('switchContext');
+
+        $controller = $this->createController(
+            $this->orderRouteMock,
+            $this->handlePaymentRouteMock,
+            $contextSwitchRoute,
+        );
+
+        $request = new Request();
+        $request->request->set('paymentMethodId', $ids->get('payment-method'));
+
+        $response = $controller->orderChangePayment($ids->get('order'), $request, Generator::generateSalesChannelContext());
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('frontend.account.edit-order.page', $response->getTargetUrl());
+        static::assertSame(
+            [[
+                'parameters' => [
+                    'orderId' => $ids->get('order'),
+                    'paymentMethodId' => $ids->get('payment-method'),
+                ],
+                'status' => Response::HTTP_FOUND,
+            ]],
+            $controller->redirected['frontend.account.edit-order.page']
+        );
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testOrderChangePaymentStillSwitchesTheContext(): void
+    {
+        $ids = new IdsCollection();
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $contextSwitchRoute = $this->createMock(AbstractContextSwitchRoute::class);
+        $contextSwitchRoute
+            ->expects($this->once())
+            ->method('switchContext')
+            ->with(
+                new RequestDataBag([SalesChannelContextService::PAYMENT_METHOD_ID => $ids->get('payment-method')]),
+                $salesChannelContext
+            );
+
+        $controller = $this->createController(
+            $this->orderRouteMock,
+            $this->handlePaymentRouteMock,
+            $contextSwitchRoute,
+        );
+
+        $request = new Request();
+        $request->request->set('paymentMethodId', $ids->get('payment-method'));
+
+        $controller->orderChangePayment($ids->get('order'), $request, $salesChannelContext);
+    }
+
     public function testTransactionsStateMachineAssociationIsLoadedOnOrderUpdate(): void
     {
         $ids = new IdsCollection();
@@ -255,11 +319,12 @@ class AccountOrderControllerTest extends TestCase
     private function createController(
         AbstractOrderRoute $orderRoute,
         AbstractHandlePaymentMethodRoute $handlePaymentRoute,
+        ?AbstractContextSwitchRoute $contextSwitchRoute = null,
     ): AccountOrderControllerTestClass {
         return new AccountOrderControllerTestClass(
             static::createStub(AccountOrderPageLoader::class),
             $this->accountEditOrderPageLoaderMock,
-            static::createStub(AbstractContextSwitchRoute::class),
+            $contextSwitchRoute ?? static::createStub(AbstractContextSwitchRoute::class),
             static::createStub(AbstractCancelOrderRoute::class),
             static::createStub(AbstractSetPaymentOrderRoute::class),
             $handlePaymentRoute,

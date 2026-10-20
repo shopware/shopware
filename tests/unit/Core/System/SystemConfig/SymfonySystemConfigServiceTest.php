@@ -120,4 +120,14 @@ class SymfonySystemConfigServiceTest extends TestCase
         static::assertSame(['key' => 'value2', 'nested' => ['key' => 'value2'], 'second' => ['key' => 'test']], $service->override($merged, 'salesChannelId', inherit: false));
         static::assertSame(['key' => 'value2', 'nested' => ['key' => 'value2'], 'first' => ['key' => 'test'], 'second' => ['key' => 'test']], $service->override($merged, 'salesChannelId'));
     }
+
+    public function testOverrideNestedKeepsEmptyArraySalesChannelValue(): void
+    {
+        $service = new SymfonySystemConfigService([
+            'default' => ['key' => ['global-id']],
+            'salesChannelId' => ['key' => []],
+        ]);
+
+        static::assertSame(['key' => []], $service->override([], 'salesChannelId'));
+    }
 }

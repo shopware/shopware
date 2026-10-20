@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionDiscountZeroValueError;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionExcludedError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCalculator;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
@@ -121,6 +122,38 @@ class PromotionCalculatorTest extends TestCase
         static::assertNotNull($promotionLineItem->getPrice());
 
         static::assertSame(-10.0, $promotionLineItem->getPrice()->getTotalPrice());
+    }
+
+    public function testCalculateInformsAboutRedeemedCodeThatGrantsNoDiscount(): void
+    {
+        $discountItem = $this->getDiscountItem($this->getPromotionId());
+        $discountItem->setPayloadValue('code', 'PHPUNIT');
+        $discountItem->setPriceDefinition(new AbsolutePriceDefinition(0.0));
+
+        $productLineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $productLineItem->setPrice(new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $productLineItem->setStackable(true);
+
+        $toCalculate = new Cart(Uuid::randomHex());
+        $toCalculate->add($productLineItem);
+        $toCalculate->setPrice(new CartPrice(84.03, 100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS));
+
+        $this->promotionCalculator->calculate(
+            new LineItemCollection([$discountItem]),
+            new Cart(Uuid::randomHex()),
+            $toCalculate,
+            $this->salesChannelContext,
+            new CartBehavior()
+        );
+
+        static::assertCount(0, $toCalculate->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE));
+
+        $errors = $toCalculate->getErrors()->filterInstance(PromotionDiscountZeroValueError::class);
+        static::assertCount(1, $errors);
+
+        $error = $errors->first();
+        static::assertInstanceOf(PromotionDiscountZeroValueError::class, $error);
+        static::assertSame('PHPUnit', $error->getName());
     }
 
     public function testCalculateWithPreventedCombination(): void

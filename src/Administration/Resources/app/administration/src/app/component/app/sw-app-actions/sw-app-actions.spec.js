@@ -76,7 +76,9 @@ describe('sw-app-actions', () => {
             'sw-modal': true,
             'sw-extension-icon': await wrapTestComponent('sw-extension-icon', { sync: true }),
             'sw-checkbox-field': true,
-            'mt-floating-ui': true,
+            'mt-floating-ui': {
+                template: '<div><slot /></div>',
+            },
         };
 
         router = createRouter();
@@ -86,9 +88,7 @@ describe('sw-app-actions', () => {
         jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
         jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
 
-        Shopware.Store.get('shopwareApps').selectedIds = [
-            Shopware.Utils.createId(),
-        ];
+        Shopware.Store.get('shopwareApps').selectedIds = [Shopware.Utils.createId()];
 
         await router.push({ name: 'index' });
     });
@@ -103,9 +103,7 @@ describe('sw-app-actions', () => {
     it('creates an sw-app-action-button per action', async () => {
         wrapper = await createWrapper(router);
 
-        Shopware.Store.get('shopwareApps').selectedIds = [
-            Shopware.Utils.createId(),
-        ];
+        Shopware.Store.get('shopwareApps').selectedIds = [Shopware.Utils.createId()];
 
         router.push({ name: 'sw.product.detail' });
         await flushPromises();
@@ -122,16 +120,12 @@ describe('sw-app-actions', () => {
     });
 
     it('should not reset the selectedIds on creation when entity exists', async () => {
-        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
-            expect.any(String),
-        ]);
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([expect.any(String)]);
 
         wrapper = await createWrapper(router);
         await flushPromises();
 
-        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
-            expect.any(String),
-        ]);
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([expect.any(String)]);
     });
 
     it('does not reload actions when only listing query parameters change', async () => {
@@ -198,9 +192,7 @@ describe('sw-app-actions', () => {
     it('calls appActionButtonService.runAction if triggered by context menu button', async () => {
         wrapper = await createWrapper(router);
 
-        Shopware.Store.get('shopwareApps').selectedIds = [
-            Shopware.Utils.createId(),
-        ];
+        Shopware.Store.get('shopwareApps').selectedIds = [Shopware.Utils.createId()];
 
         router.push({ name: 'sw.product.detail' });
         await flushPromises();
@@ -239,9 +231,7 @@ describe('sw-app-actions', () => {
         wrapper = await createWrapper(router);
         wrapper.vm.createNotification = jest.fn();
 
-        Shopware.Store.get('shopwareApps').selectedIds = [
-            Shopware.Utils.createId(),
-        ];
+        Shopware.Store.get('shopwareApps').selectedIds = [Shopware.Utils.createId()];
 
         router.push({ name: 'sw.product.detail' });
         await flushPromises();
@@ -274,9 +264,7 @@ describe('sw-app-actions', () => {
         };
         wrapper = await createWrapper(router, openModalResponseData);
 
-        Shopware.Store.get('shopwareApps').selectedIds = [
-            Shopware.Utils.createId(),
-        ];
+        Shopware.Store.get('shopwareApps').selectedIds = [Shopware.Utils.createId()];
 
         router.push({ name: 'sw.product.detail' });
         await flushPromises();

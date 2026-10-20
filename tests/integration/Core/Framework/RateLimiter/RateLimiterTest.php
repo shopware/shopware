@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\RateLimiter;
 
+use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\ServerRequest;
 use League\OAuth2\Server\AuthorizationServer;
@@ -60,20 +61,33 @@ class RateLimiterTest extends TestCase
 
     private AbstractSalesChannelContextFactory $salesChannelContextFactory;
 
+    private static bool $rateLimitedKernelBooted = false;
+
     public static function setUpBeforeClass(): void
     {
         DisableRateLimiterCompilerPass::disableNoLimit();
-        KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
     }
 
     public static function tearDownAfterClass(): void
     {
         DisableRateLimiterCompilerPass::enableNoLimit();
-        KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
+        // shut down only: the next class boots its kernel lazily inside a test context, which
+        // recompiles with the rate limiter restored
+        KernelLifecycleManager::ensureKernelShutdown();
+        self::$rateLimitedKernelBooted = false;
     }
 
     protected function setUp(): void
     {
+        // the rate-limiter pass applies at container compile time, so this class needs a freshly
+        // compiled kernel. It is booted here rather than in setUpBeforeClass(): a deprecation
+        // triggered during a static-context kernel boot has no TestCase object on the call stack
+        // and crashes PHPUnit's event system instead of being recorded
+        if (!self::$rateLimitedKernelBooted) {
+            KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
+            self::$rateLimitedKernelBooted = true;
+        }
+
         $this->context = Context::createDefaultContext();
         $this->ids = new IdsCollection();
 
@@ -308,11 +322,11 @@ class RateLimiterTest extends TestCase
 
     public function testResetRateLimitOauth(): void
     {
-        $psrFactory = $this->createMock(PsrHttpFactory::class);
-        $psrFactory->method('createRequest')->willReturn($this->createMock(ServerRequest::class));
-        $psrFactory->method('createResponse')->willReturn($this->createMock(ResponseInterface::class));
+        $psrFactory = static::createStub(PsrHttpFactory::class);
+        $psrFactory->method('createRequest')->willReturn(static::createStub(ServerRequest::class));
+        $psrFactory->method('createResponse')->willReturn(static::createStub(ResponseInterface::class));
 
-        $authorizationServer = $this->createMock(AuthorizationServer::class);
+        $authorizationServer = static::createStub(AuthorizationServer::class);
         $authorizationServer->method('respondToAccessTokenRequest')->willReturn(new Response());
 
         $controller = new AdminAuthController(
@@ -321,6 +335,7 @@ class RateLimiterTest extends TestCase
             $this->mockResetLimiter([
                 RateLimiter::OAUTH => 1,
             ]),
+            static::getContainer()->get(Connection::class),
         );
 
         $controller->token(new Request());
@@ -386,7 +401,7 @@ class RateLimiterTest extends TestCase
 
     public function testResetRateLimtitUserRecovery(): void
     {
-        $recoveryService = $this->createMock(UserRecoveryService::class);
+        $recoveryService = static::createStub(UserRecoveryService::class);
         $userEntity = new UserEntity();
         $userEntity->setUsername('admin');
         $userEntity->setEmail('test@test.de');
@@ -430,9 +445,9 @@ class RateLimiterTest extends TestCase
         $factory = new RateLimiterFactory(
             $config,
             new CacheStorage(new ArrayAdapter()),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(SystemConfigService::class),
             new NativeClock(),
-            $this->createMock(LockFactory::class),
+            static::createStub(LockFactory::class),
         );
 
         static::assertInstanceOf(NoLimiter::class, $factory->create('example'));

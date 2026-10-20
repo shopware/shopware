@@ -7,7 +7,7 @@
 >
     <div class="sw-order-create-document-modal__header-fields">
         <mt-select
-            v-model="documentTypeId"
+            v-model="selectedTechnicalName"
             class="sw-order-create-document-modal__document-type"
             :label="$t('sw-order.components.createDocumentModal.labelDocumentType')"
             :placeholder="$t('sw-order.components.createDocumentModal.placeholderDocumentType')"
@@ -25,7 +25,7 @@
             :placeholder="$t('sw-order.components.createDocumentModal.placeholderFileFormats')"
             :options="fileFormatOptions"
             :enable-multi-selection="true"
-            :disabled="!currentDocumentType || isModalLoading"
+            :disabled="!currentTechnicalName || isModalLoading"
             required
         />
     </div>
@@ -37,7 +37,7 @@
         >
 
         <div
-            v-if="!isModalLoading && !currentDocumentType"
+            v-if="!isModalLoading && !currentTechnicalName"
             class="sw-order-create-document-modal__empty-state"
         >
             <mt-empty-state

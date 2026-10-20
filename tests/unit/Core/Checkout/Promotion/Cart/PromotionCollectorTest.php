@@ -154,6 +154,51 @@ class PromotionCollectorTest extends TestCase
         static::assertFalse($cart->getErrors()->has('promotion-not-eligible'));
     }
 
+    public function testSecondCodeOfSamePromotionIsRejectedWithNotice(): void
+    {
+        $codeFirst = 'individual-code-1';
+        $codeSecond = 'individual-code-2';
+        $discountId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+
+        $product = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex());
+
+        $cart = new Cart(Uuid::randomHex());
+        $cart->setLineItems(new LineItemCollection([$product]));
+
+        $cartExtension = new CartExtension();
+        $cartExtension->addCode($codeFirst);
+        $cartExtension->addCode($codeSecond);
+        $cart->addExtension(CartExtension::KEY, $cartExtension);
+
+        // both codes resolve to the same promotion (global lookup returns it, so no individual lookup);
+        // the final call is the automatic-promotion lookup which returns nothing
+        $promotion = $this->createPromotion($promotionId, $codeFirst, [$discountId]);
+        $this->gateway->method('get')->willReturn(
+            new PromotionCollection([$promotion]),
+            new PromotionCollection([$promotion]),
+            new PromotionCollection(),
+        );
+
+        $cartDataCollection = new CartDataCollection();
+
+        $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
+
+        /** @var LineItemCollection $promotions */
+        $promotions = $cartDataCollection->get(PromotionProcessor::DATA_KEY);
+        static::assertInstanceOf(LineItemCollection::class, $promotions);
+        static::assertCount(1, $promotions, 'The promotion must only be applied once');
+
+        // the redundant code is dropped so it does not linger in the cart
+        static::assertSame([$codeFirst], $cartExtension->getCodes());
+
+        // the customer is informed why the second code was not applied
+        $error = $cart->getErrors()->get('promotion-not-eligible');
+        static::assertInstanceOf(PromotionNotEligibleError::class, $error);
+        static::assertSame('promotion-not-eligible-already-added', $error->getMessageKey());
+        static::assertTrue($error->isPersistent());
+    }
+
     public function testPromotionWithoutDiscount(): void
     {
         $code = 'promotions-code';

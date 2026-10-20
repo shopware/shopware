@@ -8,10 +8,7 @@ import template from './sw-order-leave-page-modal.html.twig';
 export default {
     template,
 
-    emits: [
-        'page-leave-confirm',
-        'page-leave-cancel',
-    ],
+    emits: ['page-leave-confirm', 'page-leave-cancel'],
 
     methods: {
         onConfirm() {

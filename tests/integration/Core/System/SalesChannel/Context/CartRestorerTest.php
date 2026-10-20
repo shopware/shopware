@@ -6,8 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersister;
-use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Event\BeforeCartMergeEvent;
 use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -83,7 +83,7 @@ class CartRestorerTest extends TestCase
         $this->contextPersister = static::getContainer()->get(SalesChannelContextPersister::class);
         /** @var AbstractSalesChannelContextFactory $contextFactory */
         $contextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
-        $cartRuleLoader = static::getContainer()->get(CartRuleLoader::class);
+        $cartCalculator = static::getContainer()->get(CartCalculator::class);
         $requestStack = static::getContainer()->get(RequestStack::class);
 
         $this->customerId = $this->createCustomer()->getId();
@@ -92,7 +92,7 @@ class CartRestorerTest extends TestCase
             $contextFactory,
             $this->contextPersister,
             $this->cartService,
-            $cartRuleLoader,
+            $cartCalculator,
             $this->cartPersister,
             $this->eventDispatcher,
             $requestStack

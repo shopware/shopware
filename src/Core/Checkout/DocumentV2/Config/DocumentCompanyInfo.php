@@ -8,7 +8,7 @@ use Shopware\Core\System\Country\CountryEntity;
 /**
  * @codeCoverageIgnore
  *
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  */
 #[Package('after-sales')]
 final readonly class DocumentCompanyInfo

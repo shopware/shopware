@@ -1,22 +1,20 @@
 {% block sw_login_recovery_recovery %}
 <div class="sw-login-recovery-recovery">
-    {% block sw_login_recovery_recovery_headline %}
-    <h2 class="sw-login__form-headline">
-        <router-link
-            class="sw-login__back"
-            :to="{ name: 'sw.login.index.login' }"
-        >
-            <mt-icon
-                class="sw-login__back-arrow"
-                name="regular-long-arrow-left"
-                size="14px"
-            />
-        </router-link>
-
-        <span>{{ $t('sw-login.recovery.recovery.headline') }}</span>
-    </h2>
-    {% endblock %}
     <template v-if="hashValid === true">
+        {% block sw_login_recovery_recovery_headline %}
+        <div class="sw-login__heading">
+            <h1 class="sw-login__content-headline">
+                {{ $t('sw-login.recovery.recovery.headline') }}
+            </h1>
+
+            {% block sw_login_recovery_recovery_text %}
+            <p class="sw-login__content-description">
+                {{ $t('sw-login.recovery.recovery.text') }}
+            </p>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
         {% block sw_login_recovery_recovery_form %}
         <form @submit.prevent="updatePassword">
             {% block sw_login_recovery_recovery_form_new_password_field %}
@@ -25,6 +23,7 @@
                 v-model="newPassword"
                 :label="$t('sw-login.recovery.recovery.newPasswordField.label')"
                 :error="userPasswordError"
+                required
             />
             {% endblock %}
 
@@ -32,6 +31,7 @@
             <mt-password-field
                 v-model="newPasswordConfirm"
                 :label="$t('sw-login.recovery.recovery.passwordConfirmField.label')"
+                required
             />
             {% endblock %}
 
@@ -39,6 +39,8 @@
             <div class="sw-login__submit">
                 <mt-button
                     variant="primary"
+                    size="default"
+                    :block="true"
                     :disabled="!validatePasswords()"
                     type="submit"
                 >
@@ -50,14 +52,14 @@
         {% endblock %}
     </template>
 
-    <template v-else-if="hashValid === false">
-        <mt-banner variant="critical">
-            {{ $t('sw-login.recovery.recovery.errorMessage') }}
-        </mt-banner>
-    </template>
-
     <template v-else>
-        <mt-loader />
+        <div
+            class="sw-login__view-loader"
+            role="status"
+            :aria-label="$t('sw-login.general.loadingLabel')"
+        >
+            <mt-loader />
+        </div>
     </template>
 </div>
 {% endblock %}

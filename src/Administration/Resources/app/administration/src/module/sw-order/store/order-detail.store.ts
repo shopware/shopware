@@ -4,8 +4,8 @@
 import type { ContextState } from '../../../app/composables/use-context';
 
 interface OrderAddressId {
-    orderAddressId: string;
-    customerAddressId: string;
+    orderAddressId: EntityKey<'order_address'>;
+    customerAddressId: EntityKey<'customer_address'>;
     type: string;
     edited: boolean;
 }
@@ -15,8 +15,8 @@ const swOrderDetailStore = Shopware.Store.register({
 
     state() {
         return {
-            order: null as EntitySchema.order | null,
-            customer: null as EntitySchema.customer | null,
+            order: null as Entity<'order'> | null,
+            customer: null as Entity<'customer'> | null,
             loading: {
                 order: false, // live version id
                 recalculation: false, // custom version id
@@ -64,7 +64,7 @@ const swOrderDetailStore = Shopware.Store.register({
             const { orderAddressId, customerAddressId, type, edited } = value;
 
             // Handle deletion scenario where orderAddressId matches customerAddressId
-            if (orderAddressId === customerAddressId && !edited) {
+            if (String(orderAddressId) === String(customerAddressId) && !edited) {
                 this.orderAddressIds = this.orderAddressIds.filter(
                     (ids) => !(ids.orderAddressId === orderAddressId && ids.type === type),
                 );

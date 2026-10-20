@@ -7,7 +7,6 @@ use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRou
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
 use Shopware\Core\Content\RevocationRequest\SalesChannel\AbstractRevocationRequestRoute;
 use Shopware\Core\Framework\Adapter\Translation\ConstraintViolationTranslator;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -179,11 +178,7 @@ class FormController extends StorefrontController
         try {
             $data->set('storefrontUrl', $request->attributes->get(RequestTransformer::STOREFRONT_URL));
 
-            if (Feature::isActive('v6.8.0.0')) {
-                $this->subscribeRoute->subscribeWithResponse($data, $context, false);
-            } else {
-                $this->subscribeRoute->subscribe($data, $context, false);
-            }
+            $this->subscribeRoute->subscribeWithResponse($data, $context, false);
 
             $response[] = [
                 'type' => 'success',
@@ -237,7 +232,7 @@ class FormController extends StorefrontController
         $response = [];
 
         try {
-            $this->unsubscribeRoute->unsubscribe($data, $context);
+            $this->unsubscribeRoute->unsubscribeWithResponse($data, $context);
             $response[] = [
                 'type' => 'success',
                 'alert' => $this->trans('newsletter.subscriptionRevokeSuccess'),

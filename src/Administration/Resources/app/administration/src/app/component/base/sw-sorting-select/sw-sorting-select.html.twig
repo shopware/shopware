@@ -5,6 +5,8 @@
         :label="$t('sw-cms.sorting.labelSort')"
         :model-value="sortingConditionConcatenation"
         :options="sortingConditionOptions"
+        hide-clearable-button
+        small
         @update:model-value="onSortingChanged"
     />
 </div>

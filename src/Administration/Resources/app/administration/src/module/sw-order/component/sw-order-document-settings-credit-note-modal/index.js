@@ -1,10 +1,11 @@
-/**
- * @sw-package after-sales
- */
 import template from './sw-order-document-settings-credit-note-modal.html.twig';
 import './sw-order-document-settings-credit-note-modal.scss';
 import { DOCUMENT_TYPES } from '../../order.types';
 
+/**
+ * @sw-package after-sales
+ * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

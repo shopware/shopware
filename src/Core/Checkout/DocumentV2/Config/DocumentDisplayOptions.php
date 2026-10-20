@@ -11,7 +11,7 @@ use Shopware\Core\Migration\V6_4\Migration1610439375AddEUStatesAsDefaultForIntra
  * Backed by the merchants `document_base_config.config` JSON; built by
  * {@see DocumentConfigLoader} and shared across renderers.
  *
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  *
  * @codeCoverageIgnore
  */

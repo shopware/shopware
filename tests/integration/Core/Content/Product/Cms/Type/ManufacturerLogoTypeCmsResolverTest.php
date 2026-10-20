@@ -46,7 +46,7 @@ class ManufacturerLogoTypeCmsResolverTest extends TestCase
 
     public function testCollect(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -59,7 +59,7 @@ class ManufacturerLogoTypeCmsResolverTest extends TestCase
 
     public function testEnrichWithoutContext(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
 
         $slot = new CmsSlotEntity();
@@ -81,7 +81,7 @@ class ManufacturerLogoTypeCmsResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setId('product_01');
         $product->setManufacturer($manufacturer);
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), static::getContainer()->get(SalesChannelProductDefinition::class), $product);
+        $resolverContext = new EntityResolverContext(static::createStub(SalesChannelContext::class), new Request(), static::getContainer()->get(SalesChannelProductDefinition::class), $product);
         $result = new ElementDataCollection();
 
         $media = new MediaEntity();
@@ -124,7 +124,7 @@ class ManufacturerLogoTypeCmsResolverTest extends TestCase
         $product->setManufacturer($manufacturer);
 
         $resolverContext = new EntityResolverContext(
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Request(),
             static::getContainer()->get(SalesChannelProductDefinition::class),
             $product

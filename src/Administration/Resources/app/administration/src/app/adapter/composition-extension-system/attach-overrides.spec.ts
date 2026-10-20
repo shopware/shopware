@@ -5,7 +5,7 @@
  * an already-executed native <script setup> body.
  */
 
-import { defineComponent, ref, computed } from 'vue';
+import { defineComponent, ref, computed, onBeforeMount } from 'vue';
 import { mount } from '@vue/test-utils';
 import { attachOverrides, overrideComponentSetup, _overridesMap } from 'src/app/adapter/composition-extension-system';
 
@@ -79,6 +79,65 @@ describe('src/app/adapter/composition-extension-system attachOverrides', () => {
             },
         });
     }
+
+    it('lowered shape: a public computed is not evaluated during setup', () => {
+        const evaluate = jest.fn(() => 2);
+
+        const base = defineComponent({
+            template: '<div />',
+            setup() {
+                const __swSetupAuthor_doubled = computed(evaluate);
+
+                attachOverrides({
+                    name: 'loweredLazyComputed',
+                    public: { doubled: __swSetupAuthor_doubled },
+                    private: {},
+                });
+
+                return {};
+            },
+        });
+
+        const wrapper = mount(base);
+
+        // The template never reads `doubled`, so nothing should have run it.
+        expect(evaluate).not.toHaveBeenCalled();
+
+        wrapper.unmount();
+    });
+
+    it('lowered shape: a public computed may depend on state a lifecycle hook initializes', () => {
+        const base = defineComponent({
+            template: '<div>{{ derived }}</div>',
+            setup() {
+                const __swSetupAuthor_lateState = ref<Record<string, number> | null>(null);
+                const __swSetupAuthor_derived = computed(() => Object.keys(__swSetupAuthor_lateState.value!).length);
+
+                onBeforeMount(() => {
+                    __swSetupAuthor_lateState.value = { a: 1 };
+                });
+
+                const { lateState, derived } = attachOverrides({
+                    name: 'loweredLateState',
+                    public: {
+                        lateState: __swSetupAuthor_lateState,
+                        derived: __swSetupAuthor_derived,
+                    },
+                    private: {},
+                }) as unknown as { lateState: unknown; derived: unknown };
+
+                return { lateState, derived };
+            },
+        });
+
+        // Evaluating the computed while building the data scope threw here, because `lateState` was
+        // still `null` - the hook that fills it only runs after setup.
+        const wrapper = mount(base);
+
+        expect(wrapper.text()).toBe('1');
+
+        wrapper.unmount();
+    });
 
     it('lowered shape: a computed replacement DOES reach the template', async () => {
         const wrapper = mount(createLoweredBase('loweredComputed'));

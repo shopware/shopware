@@ -18,31 +18,16 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
             dependencies: [],
         },
         editor: {
-            privileges: [
-                'language:update',
-                'system:translation:create',
-            ],
-            dependencies: [
-                'language.viewer',
-            ],
+            privileges: ['language:update', 'system:translation:create'],
+            dependencies: ['language.viewer'],
         },
         creator: {
-            privileges: [
-                'language:create',
-            ],
-            dependencies: [
-                'language.viewer',
-                'language.editor',
-            ],
+            privileges: ['language:create'],
+            dependencies: ['language.viewer', 'language.editor'],
         },
         deleter: {
-            privileges: [
-                'language:delete',
-                'system:translation:delete',
-            ],
-            dependencies: [
-                'language.viewer',
-            ],
+            privileges: ['language:delete', 'system:translation:delete'],
+            dependencies: ['language.viewer'],
         },
     },
 });

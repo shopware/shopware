@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelRepositoryIterator;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -157,6 +158,7 @@ class SalesChannelRepositoryIteratorTest extends TestCase
     private function product(int $autoIncrement): SalesChannelProductEntity
     {
         $product = new SalesChannelProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
         $product->setId(Uuid::randomHex());
         $product->setAutoIncrement($autoIncrement);
 

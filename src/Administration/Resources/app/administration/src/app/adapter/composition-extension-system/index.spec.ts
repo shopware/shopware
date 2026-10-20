@@ -12,7 +12,7 @@
 import { createExtendableSetup, overrideComponentSetup, _overridesMap } from 'src/app/adapter/composition-extension-system';
 import { mount } from '@vue/test-utils';
 import type { EmitFn } from 'vue';
-import { ref, computed, reactive, defineComponent } from 'vue';
+import { ref, computed, reactive, defineComponent, watch, nextTick } from 'vue';
 import type { SetupContext, Slot } from '@vue/runtime-core';
 
 // Helper functions to test type safety, based on https://github.com/tsdjs/tsd
@@ -3570,5 +3570,60 @@ describe('src/app/adapter/composition-extension-system', () => {
             });
         });
         /* eslint-enable jest/expect-expect */
+    });
+
+    describe('Effect disposal:', () => {
+        it('disposes watchers created by late-registered overrides when the component unmounts', async () => {
+            const externalSource = ref(0);
+            const watcherCalls = jest.fn();
+
+            const originalComponent = defineComponent({
+                template: '<div>Count: {{ count }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup(
+                        {
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        },
+                        () => {
+                            const count = ref(1);
+
+                            return {
+                                public: {
+                                    count,
+                                },
+                            };
+                        },
+                    ),
+            });
+
+            const wrapper = mount(originalComponent);
+
+            // Late registration: the override applies inside the overrides watcher, outside any
+            // active effect scope. The watcher it creates must still be tied to the component.
+            overrideComponentSetup()('originalComponent', () => {
+                watch(externalSource, watcherCalls);
+
+                return {
+                    count: ref(5),
+                };
+            });
+
+            await flushPromises();
+            expect(wrapper.text()).toBe('Count: 5');
+
+            externalSource.value += 1;
+            await nextTick();
+            expect(watcherCalls).toHaveBeenCalledTimes(1);
+
+            wrapper.unmount();
+
+            externalSource.value += 1;
+            await nextTick();
+
+            // Without scope handling the override's watcher would survive the unmount and fire again.
+            expect(watcherCalls).toHaveBeenCalledTimes(1);
+        });
     });
 });

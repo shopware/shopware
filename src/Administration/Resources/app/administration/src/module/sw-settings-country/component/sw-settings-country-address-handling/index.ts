@@ -43,20 +43,10 @@ interface AddressFormatRow {
 }
 
 const DefaultAddressFormat = [
-    [
-        'address/company',
-        'symbol/dash',
-        'address/department',
-    ],
-    [
-        'address/first_name',
-        'address/last_name',
-    ],
+    ['address/company', 'symbol/dash', 'address/department'],
+    ['address/first_name', 'address/last_name'],
     ['address/street'],
-    [
-        'address/zipcode',
-        'address/city',
-    ],
+    ['address/zipcode', 'address/city'],
     ['address/country'],
 ] as string[][];
 const PREVIEW_LOADING_HIDE_DELAY = 300 as number;
@@ -69,14 +59,11 @@ const PREVIEW_LOADING_HIDE_DELAY = 300 as number;
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'acl',
-        'customSnippetApiService',
-    ],
+    inject: ['acl', 'customSnippetApiService'],
 
     props: {
         country: {
-            type: Object as PropType<EntitySchema.Entities['country']>,
+            type: Object as PropType<Entity<'country'>>,
             required: true,
         },
 
@@ -91,7 +78,7 @@ export default Component.wrapComponentConfig({
         draggedItem: DragItem | null;
         droppedItem: DragItem | null;
         snippets: TreeItem[] | [];
-        customerId: string | null;
+        customerId: EntityKey<'customer'> | null;
         customer: Entity<'customer'> | null;
         isOpenModal: boolean;
         currentPosition: number | null;
@@ -311,12 +298,7 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            if (
-                ![
-                    draggedItem.index,
-                    droppedItem.index,
-                ].every((position) => typeof position === 'number')
-            ) {
+            if (![draggedItem.index, droppedItem.index].every((position) => typeof position === 'number')) {
                 return;
             }
 
@@ -330,9 +312,7 @@ export default Component.wrapComponentConfig({
             const newAddressFormat = this.swapPosition(
                 draggedItem.index,
                 this.getRowDropIndex(draggedItem.index, rowDragPreview?.targetIndex ?? this.getRowTargetIndex(dropPosition)),
-                [
-                    draggedSnippet,
-                ],
+                [draggedSnippet],
             );
 
             if (newAddressFormat) {
@@ -460,16 +440,7 @@ export default Component.wrapComponentConfig({
             }
 
             const snippet = this.addressFormat[source];
-            const swag =
-                dest === 'above'
-                    ? [
-                          [],
-                          snippet,
-                      ]
-                    : [
-                          snippet,
-                          [],
-                      ];
+            const swag = dest === 'above' ? [[], snippet] : [snippet, []];
 
             this.updateCountry('addressFormat', this.swapPosition(source, source, swag) ?? []);
         },
@@ -515,7 +486,7 @@ export default Component.wrapComponentConfig({
             return `${item.firstName}, ${item.lastName}`;
         },
 
-        onChangeCustomer(customerId: string, customer: Entity<'customer'>): void {
+        onChangeCustomer(customerId: EntityKey<'customer'>, customer: Entity<'customer'>): void {
             this.customer = null;
             if (!customerId || !customer) {
                 return;
@@ -556,7 +527,7 @@ export default Component.wrapComponentConfig({
                 .catch(() => {});
         },
 
-        renderFormattingAddress(address?: EntitySchema.Entities['customer_address']): Promise<unknown> {
+        renderFormattingAddress(address?: Entity<'customer_address'>): Promise<unknown> {
             this.previewRenderToken += 1;
             const previewRenderToken = this.previewRenderToken;
 

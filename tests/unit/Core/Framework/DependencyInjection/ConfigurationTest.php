@@ -78,6 +78,9 @@ class ConfigurationTest extends TestCase
         static::assertInstanceOf(ArrayNodeDefinition::class, $children['excluded_locales']);
         static::assertInstanceOf(ArrayNodeDefinition::class, $children['plugin_mapping']);
         static::assertInstanceOf(ArrayNodeDefinition::class, $children['languages']);
+        static::assertInstanceOf(BooleanNodeDefinition::class, $children['use_local_filesystem']);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $children['scheduled_task']);
+        static::assertInstanceOf(BooleanNodeDefinition::class, $children['scheduled_task']->getChildNodeDefinitions()['enabled']);
     }
 
     public function testTranslationConfigRejectsInvalidListType(): void
@@ -97,6 +100,65 @@ class ConfigurationTest extends TestCase
         ]);
     }
 
+    #[DataProvider('validNoVarySearchProvider')]
+    public function testNoVarySearchConfigTreeNode(string $value): void
+    {
+        $config = $this->processNoVarySearch($value);
+
+        static::assertSame($value, $config['http_cache']['policies']['my_policy']['headers']['no_vary_search']);
+    }
+
+    /**
+     * @return iterable<string, array{0: string}>
+     */
+    public static function validNoVarySearchProvider(): iterable
+    {
+        yield 'key order' => ['key-order'];
+        yield 'params list' => ['key-order, params=("utm_source" "gclid")'];
+        yield 'all params with except' => ['params, except=("q")'];
+    }
+
+    public function testNoVarySearchDefaultsToNull(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'http_cache' => [
+                    'policies' => [
+                        'my_policy' => ['headers' => ['cache_control' => ['public' => true]]],
+                    ],
+                ],
+            ],
+        ]);
+
+        static::assertNull($config['http_cache']['policies']['my_policy']['headers']['no_vary_search']);
+    }
+
+    /**
+     * @param mixed $value
+     */
+    #[DataProvider('invalidNoVarySearchProvider')]
+    public function testNoVarySearchConfigRejectsInvalidValues($value, string $given): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException(\sprintf(
+            'Invalid configuration for path "shopware.http_cache.policies.my_policy.headers.no_vary_search": '
+            . 'The "no_vary_search" option must be a single line of printable ASCII, %s given.',
+            $given
+        )));
+
+        $this->processNoVarySearch($value);
+    }
+
+    /**
+     * @return iterable<string, array{0: mixed, 1: string}>
+     */
+    public static function invalidNoVarySearchProvider(): iterable
+    {
+        // a header value must never be able to smuggle a second header
+        yield 'header injection via CRLF' => ["key-order\r\nX-Injected: 1", '"key-order\r\nX-Injected: 1"'];
+        yield 'newline' => ["key-order\n", '"key-order\n"'];
+        yield 'empty string' => ['', '""'];
+    }
+
     public function testTranslationConfigDefaultsToNull(): void
     {
         $configuration = new Configuration();
@@ -114,6 +176,10 @@ class ConfigurationTest extends TestCase
             'pseudo_locales' => null,
             'plugin_mapping' => null,
             'languages' => null,
+            'use_local_filesystem' => false,
+            'scheduled_task' => [
+                'enabled' => true,
+            ],
         ], $config['translation']);
     }
 
@@ -318,6 +384,58 @@ class ConfigurationTest extends TestCase
 
         static::assertArrayHasKey('relevant_keyword_count', $nodes);
         static::assertInstanceOf(IntegerNodeDefinition::class, $nodes['relevant_keyword_count']);
+    }
+
+    public function testWebhookDoesNotAcceptNetworkPolicy(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'webhook' => [
+                    'allow_unencrypted_traffic' => true,
+                ],
+            ],
+        ]);
+    }
+
+    public function testAppSystemNetworkPolicyDefaultsAreSecure(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), []);
+
+        static::assertTrue($config['app_system']['enable_url_validation']);
+        static::assertFalse($config['app_system']['allow_unencrypted_traffic']);
+        static::assertSame([], $config['app_system']['allowed_private_ip_addresses']);
+    }
+
+    public function testAppSystemNetworkPolicyCanBeConfigured(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'app_system' => [
+                    'enable_url_validation' => false,
+                    'allow_unencrypted_traffic' => true,
+                    'allowed_private_ip_addresses' => ['10.0.0.10', 'fd00::1'],
+                ],
+            ],
+        ]);
+
+        static::assertFalse($config['app_system']['enable_url_validation']);
+        static::assertTrue($config['app_system']['allow_unencrypted_traffic']);
+        static::assertSame(['10.0.0.10', 'fd00::1'], $config['app_system']['allowed_private_ip_addresses']);
+    }
+
+    public function testAppSystemNetworkPolicyRejectsInvalidAllowedIpAddress(): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException('Invalid configuration for path "shopware.app_system.allowed_private_ip_addresses.0": ""not-an-ip"" is not a valid IP address.'));
+
+        (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'app_system' => [
+                    'allowed_private_ip_addresses' => ['not-an-ip'],
+                ],
+            ],
+        ]);
     }
 
     public function testFilesystemVisibilityOverrideKeepsConfiguredAdapter(): void
@@ -551,6 +669,29 @@ class ConfigurationTest extends TestCase
                     ],
                     'foobar' => [
                         'core.listing.allowBuyInListing' => false,
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return array<string, mixed>
+     */
+    private function processNoVarySearch($value): array
+    {
+        return (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'http_cache' => [
+                    'policies' => [
+                        'my_policy' => [
+                            'headers' => [
+                                'cache_control' => ['public' => true],
+                                'no_vary_search' => $value,
+                            ],
+                        ],
                     ],
                 ],
             ],

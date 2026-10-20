@@ -747,7 +747,7 @@ describe('form-validation', () => {
             // '_GRECAPTCHA' is a technically-required cookie that is NOT removed on revoke
             // (see CaptchaCookieCollectListener), while 'cookie-preference' is. If the validator
             // trusted the stale '_GRECAPTCHA' cookie, the form would submit without a token and
-            // the server would reject it with a 500 (CaptchaException).
+            // the server would reject it as a failed captcha.
             const mockGetItem = jest.spyOn(require('src/helper/storage/cookie-storage.helper').default, 'getItem');
             mockGetItem.mockImplementation((key) => (key === '_GRECAPTCHA' ? '1' : null));
 

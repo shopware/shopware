@@ -62,10 +62,7 @@ async function createWrapper(privileges = []) {
                     'sw-card-view': true,
                     'sw-ignore-class': true,
                     'sw-entity-listing': {
-                        props: [
-                            'items',
-                            'dataSource',
-                        ],
+                        props: ['items', 'dataSource'],
                         template: `
                     <div>
                         <template v-for="item in (dataSource || items)">
@@ -115,9 +112,7 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
     });
 
     it('should allow edit with edit permission', async () => {
-        wrapper = await createWrapper([
-            'number_ranges.editor',
-        ]);
+        wrapper = await createWrapper(['number_ranges.editor']);
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
         const entityListing = wrapper.find('.sw-settings-number-range-list-grid');
@@ -133,9 +128,7 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
     });
 
     it('should now allow delete without delete permission', async () => {
-        wrapper = await createWrapper([
-            'number_ranges.editor',
-        ]);
+        wrapper = await createWrapper(['number_ranges.editor']);
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
@@ -151,9 +144,7 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
     });
 
     it('should be able to delete if user has delete permission', async () => {
-        wrapper = await createWrapper([
-            'number_ranges.deleter',
-        ]);
+        wrapper = await createWrapper(['number_ranges.deleter']);
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 

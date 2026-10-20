@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -48,6 +49,7 @@ class ContextRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('salesChannel', $response);
         static::assertSame($response['salesChannel']['id'], $this->ids->get('sales-channel'));
+        static::assertSame($response['token'], $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
     public function testFetchingContextWithCustomer(): void

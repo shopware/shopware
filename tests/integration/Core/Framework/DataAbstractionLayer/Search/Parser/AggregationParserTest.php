@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search\Parser;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -121,6 +122,46 @@ class AggregationParserTest extends TestCase
         static::assertInstanceOf(AvgAggregation::class, $avgAggregation);
         static::assertSame('avg', $avgAggregation->getName());
         static::assertSame('product.stock', $avgAggregation->getField());
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function provideControlCharacterNames(): \Generator
+    {
+        yield 'line break' => ["invalid\r\nname"];
+        yield 'null byte' => ["invalid\0name"];
+    }
+
+    #[DataProvider('provideControlCharacterNames')]
+    public function testControlCharacterNotAllowedInAggregationName(string $name): void
+    {
+        $criteria = new Criteria();
+        $searchRequestException = new SearchRequestException();
+
+        $this->parser->buildAggregations(
+            static::getContainer()->get(ProductDefinition::class),
+            [
+                'aggregations' => [
+                    [
+                        'name' => $name,
+                        'type' => 'avg',
+                        'field' => 'stock',
+                    ],
+                ],
+            ],
+            $criteria,
+            $searchRequestException
+        );
+
+        $errors = iterator_to_array($searchRequestException->getErrors(), false);
+        static::assertCount(1, $errors);
+
+        $error = array_shift($errors);
+
+        static::assertNotNull($error);
+        static::assertSame('The aggregation name should not contain a backtick, question mark, colon, or control character.', $error['detail']);
+        static::assertCount(0, $criteria->getAggregations());
     }
 
     public function testICanCreateNestedAggregations(): void
@@ -340,6 +381,49 @@ class AggregationParserTest extends TestCase
 
         static::assertNotNull($error);
 
-        static::assertSame('The aggregation name should not contain a question mark or colon.', $error['detail']);
+        static::assertSame('The aggregation name should not contain a backtick, question mark, colon, or control character.', $error['detail']);
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function provideDisallowedRangeKeys(): \Generator
+    {
+        yield 'backtick' => ['foo`foo'];
+        yield 'question mark' => ['foo?foo'];
+        yield 'colon' => ['foo:foo'];
+        yield 'control character' => ["foo\nfoo"];
+    }
+
+    #[DataProvider('provideDisallowedRangeKeys')]
+    public function testDisallowedCharsNotAllowedInRangeAggregationKey(string $key): void
+    {
+        $criteria = new Criteria();
+        $searchRequestException = new SearchRequestException();
+
+        $this->parser->buildAggregations(
+            static::getContainer()->get(ProductDefinition::class),
+            [
+                'aggregations' => [
+                    [
+                        'name' => 'range_test',
+                        'type' => 'range',
+                        'field' => 'stock',
+                        'ranges' => [['key' => $key, 'from' => 0]],
+                    ],
+                ],
+            ],
+            $criteria,
+            $searchRequestException
+        );
+
+        $errors = iterator_to_array($searchRequestException->getErrors(), false);
+        static::assertCount(1, $errors);
+
+        $error = array_shift($errors);
+
+        static::assertNotNull($error);
+        static::assertSame('The range aggregation key should not contain a backtick, question mark, colon, or control character.', $error['detail']);
+        static::assertCount(0, $criteria->getAggregations());
     }
 }

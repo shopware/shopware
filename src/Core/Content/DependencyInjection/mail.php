@@ -21,6 +21,7 @@ use Shopware\Core\Content\Mail\Transport\SmtpOauthTokenProvider;
 use Shopware\Core\Content\Mail\Transport\SmtpOauthTransportFactoryDecorator;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Content\Shared\MailFlow\DocumentResolver;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
@@ -78,6 +79,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LanguageLocaleCodeProvider::class),
             service(MailTemplateContentBuilder::class),
             service(MailMetricsInstrumentor::class),
+            service(Translator::class),
         ]);
 
     $services->set(MailGroupResolver::class);
@@ -93,8 +95,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(MailService::class),
             service('mail_template.repository'),
             service('logger'),
-            service(Translator::class),
-            service(LanguageLocaleCodeProvider::class),
             service(Connection::class),
         ]);
 
@@ -104,9 +104,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(MediaService::class),
             service('media.repository'),
             service(DocumentGenerator::class),
-            service(Connection::class),
             service('document.repository'),
             service('monolog.logger.business_events'),
+            service(DocumentResolver::class),
         ]);
 
     $services->set(MailPayloadFactory::class);

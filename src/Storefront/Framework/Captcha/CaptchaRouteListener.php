@@ -12,7 +12,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Validator\ConstraintViolation;
 
 /**
  * @internal
@@ -63,34 +62,23 @@ readonly class CaptchaRouteListener implements EventSubscriberInterface
 
         foreach ($this->captchas as $captcha) {
             $captchaConfig = $activeCaptchas[$captcha->getName()] ?? [];
-            if (
-                $captcha->supports($request, $captchaConfig) && !$captcha->isValid($request, $captchaConfig)
-            ) {
-                $violations = $captcha->getViolations();
-
-                if ($captcha->shouldBreak()) {
-                    $exception = CaptchaException::invalid($captcha);
-                    if ($request->isXmlHttpRequest() && $violations->count() === 0) {
-                        $violations->add(new ConstraintViolation(
-                            $exception->getMessage(),
-                            'Invalid captcha',
-                            $exception->getParameters(),
-                            '',
-                            '',
-                            '',
-                            null,
-                            $exception->getErrorCode()
-                        ));
-                    } else {
-                        throw $exception;
-                    }
-                }
-
-                $event->setController(fn () => $this->container->get(ErrorController::class)->onCaptchaFailure($violations, $request));
-
-                // Return on first invalid captcha
-                return;
+            if (!$captcha->supports($request, $captchaConfig)) {
+                continue;
             }
+
+            $violations = $captcha->validate($request, $captchaConfig);
+            if ($violations->count() === 0) {
+                continue;
+            }
+
+            if ($captcha->shouldBreak() && !$request->isXmlHttpRequest()) {
+                throw CaptchaException::invalid($captcha);
+            }
+
+            $event->setController(fn () => $this->container->get(ErrorController::class)->onCaptchaFailure($violations, $request));
+
+            // Return on first invalid captcha
+            return;
         }
     }
 }

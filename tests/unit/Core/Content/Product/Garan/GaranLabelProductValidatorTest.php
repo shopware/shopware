@@ -98,6 +98,7 @@ class GaranLabelProductValidatorTest extends TestCase
     #[TestWith([36])]
     #[TestWith([48])]
     #[TestWith([30])]
+    #[TestWith([600])]
     public function testAllowsValidGuaranteeMonths(int $months): void
     {
         $id = Uuid::randomBytes();
@@ -120,6 +121,29 @@ class GaranLabelProductValidatorTest extends TestCase
             WriteContext::createFromContext(Context::createDefaultContext()),
             [
                 new InsertCommand($this->registry->getByEntityName('product'), ['id' => $id, 'guarantee_months' => 24], ['id' => $id], static::createStub(EntityExistence::class), '/insert'),
+            ]
+        );
+
+        $this->validator->validate($event);
+
+        static::assertCount(1, $event->getExceptions()->getExceptions());
+        $exception = $event->getExceptions()->getExceptions()[0];
+
+        static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
+        static::assertCount(1, $exception->getViolations());
+
+        $violation = $exception->getViolations()->get(0);
+        static::assertSame(GaranLabelProductValidator::VIOLATION_CODE, $violation->getCode());
+        static::assertSame('/insert/guaranteeMonths', $violation->getPropertyPath());
+    }
+
+    public function testCatchesInsertWithTooHighDuration(): void
+    {
+        $id = Uuid::randomBytes();
+        $event = new PreWriteValidationEvent(
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            [
+                new InsertCommand($this->registry->getByEntityName('product'), ['id' => $id, 'guarantee_months' => 606], ['id' => $id], static::createStub(EntityExistence::class), '/insert'),
             ]
         );
 

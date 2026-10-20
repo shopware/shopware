@@ -31,6 +31,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
 use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Clock\MockClock;
 
@@ -122,6 +123,7 @@ class WebhookDeliveryServiceTest extends TestCase
         static::assertCount(0, $this->bus->getMessages());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testProcessDeliversBatchSynchronouslyWhenForceSynchronous(): void
     {
         $msg = $this->createMessage();
@@ -141,6 +143,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->logger->expects($this->never())->method('error');
 
         $service = $this->createService(isAdminWorkerEnabled: false);
+
         $service->process([$msg], forceSynchronous: true);
 
         static::assertCount(0, $this->bus->getMessages());

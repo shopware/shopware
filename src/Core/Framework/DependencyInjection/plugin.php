@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DependencyInjection;
 
 use Composer\Autoload\ClassLoader;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
@@ -57,7 +58,6 @@ use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Subscriber\PluginAclPrivilegesSubscriber;
 use Shopware\Core\Framework\Plugin\Subscriber\PluginLoadedSubscriber;
 use Shopware\Core\Framework\Plugin\Telemetry\PluginTelemetrySubscriber;
-use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\PluginIdProvider;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
@@ -286,6 +286,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('parameter_bag'),
             service('event_dispatcher'),
         ]);
+
+    $services->alias(
+        'Shopware\Core\Framework\Plugin\Util\AssetService',
+        AssetService::class,
+    )->deprecate('shopware/core', '6.7.15.0', 'The "%alias_id%" service alias is deprecated and will be removed in v6.8.0. Use Shopware\Core\Framework\Adapter\Asset\AssetService instead.');
 
     // Requirement
     $services->set(RequirementsValidator::class)

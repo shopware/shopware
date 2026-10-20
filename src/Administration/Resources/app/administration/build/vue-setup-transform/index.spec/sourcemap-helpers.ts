@@ -205,15 +205,8 @@ export function expectGeneratedTokenUnmapped(result: TransformResult, generatedN
 
     expect(start).toBeGreaterThanOrEqual(0);
 
-    [
-        start,
-        middle,
-        end,
-    ].forEach((index) => {
-        [
-            SourceMapConsumer.GREATEST_LOWER_BOUND,
-            SourceMapConsumer.LEAST_UPPER_BOUND,
-        ].forEach((bias) => {
+    [start, middle, end].forEach((index) => {
+        [SourceMapConsumer.GREATEST_LOWER_BOUND, SourceMapConsumer.LEAST_UPPER_BOUND].forEach((bias) => {
             const mappedPosition = originalPositionForIndex(result, index, bias);
 
             expect(mappedPosition.source).toBeNull();

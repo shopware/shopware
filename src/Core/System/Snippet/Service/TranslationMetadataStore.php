@@ -4,8 +4,8 @@ namespace Shopware\Core\System\Snippet\Service;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
-use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemException;
+use League\Flysystem\FilesystemOperator;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataCollection;
@@ -34,7 +34,7 @@ class TranslationMetadataStore
     public function __construct(
         private readonly TranslationConfig $config,
         private readonly ClientInterface $client,
-        private readonly Filesystem $filesystem,
+        private readonly FilesystemOperator $filesystem,
         private readonly CacheInterface $cache,
     ) {
     }

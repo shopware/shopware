@@ -22,7 +22,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class CustomFieldsUnusedMediaSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

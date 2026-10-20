@@ -42,6 +42,6 @@ class IncrementerGatewayRegistryTest extends TestCase
         $this->expectExceptionObject(new IncrementGatewayNotFoundException('custom_pool'));
 
         $registry = static::getContainer()->get('shopware.increment.gateway.registry');
-        static::assertNull($registry->get('custom_pool'));
+        $registry->get('custom_pool');
     }
 }

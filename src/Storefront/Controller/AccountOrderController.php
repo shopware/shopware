@@ -86,13 +86,6 @@ class AccountOrderController extends StorefrontController
         ],
         methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
-    #[Route(
-        path: '/account/order',
-        name: 'frontend.account.order.page',
-        options: ['seo' => false],
-        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_NO_STORE => true],
-        methods: [Request::METHOD_GET, Request::METHOD_POST]
-    )]
     public function orderOverview(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->orderPageLoader->load($request, $context);
@@ -202,12 +195,6 @@ class AccountOrderController extends StorefrontController
         ],
         methods: [Request::METHOD_GET]
     )]
-    #[Route(
-        path: '/account/order/edit/{orderId}',
-        name: 'frontend.account.edit-order.page',
-        defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
-        methods: [Request::METHOD_GET]
-    )]
     public function editOrder(string $orderId, Request $request, SalesChannelContext $context): Response
     {
         try {
@@ -288,16 +275,24 @@ class AccountOrderController extends StorefrontController
     )]
     public function orderChangePayment(string $orderId, Request $request, SalesChannelContext $context): Response
     {
-        $this->contextSwitchRoute->switchContext(
-            new RequestDataBag(
-                [
-                    SalesChannelContextService::PAYMENT_METHOD_ID => RequestParamHelper::get($request, 'paymentMethodId'),
-                ]
-            ),
-            $context
-        );
+        $paymentMethodId = RequestParamHelper::get($request, 'paymentMethodId');
 
-        return $this->redirectToRoute('frontend.account.edit-order.page', ['orderId' => $orderId]);
+        // @deprecated tag:v6.8.0 - remove this if block, the edit order page selects the payment method of the order
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->contextSwitchRoute->switchContext(
+                new RequestDataBag(
+                    [
+                        SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
+                    ]
+                ),
+                $context
+            );
+        }
+
+        return $this->redirectToRoute('frontend.account.edit-order.page', [
+            'orderId' => $orderId,
+            'paymentMethodId' => $paymentMethodId,
+        ]);
     }
 
     #[Route(

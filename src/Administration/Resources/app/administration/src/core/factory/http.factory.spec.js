@@ -36,10 +36,8 @@ function createHTTPClientWithSpies() {
 describe('core/factory/http.factory.js', () => {
     let httpClient;
     let mock;
-    let activeFeatureFlags;
 
     beforeEach(async () => {
-        activeFeatureFlags = [...global.activeFeatureFlags];
         /**
          * axios-client-mock does not work with request interceptors. So we enable our interceptor here
          */
@@ -47,10 +45,6 @@ describe('core/factory/http.factory.js', () => {
         httpClient = createHTTPClient();
         mock = new MockAdapter(httpClient);
         process.env.NODE_ENV = 'test';
-    });
-
-    afterEach(() => {
-        global.activeFeatureFlags = activeFeatureFlags;
     });
 
     it('should create a HTTP client with response interceptors', async () => {
@@ -67,100 +61,100 @@ describe('core/factory/http.factory.js', () => {
         expect(mock.history.get).toHaveLength(1);
     });
 
-    it.each([
-        ['FRAMEWORK__STORE_SESSION_EXPIRED'],
-        ['FRAMEWORK__STORE_SHOP_SECRET_INVALID'],
-    ])('should intercept and retry if error code matches', async (errorCode) => {
-        mock.onGet('/store-route-requiring-auth')
-            .replyOnce(403, {
+    it.each([['FRAMEWORK__STORE_SESSION_EXPIRED'], ['FRAMEWORK__STORE_SHOP_SECRET_INVALID']])(
+        'should intercept and retry if error code matches',
+        async (errorCode) => {
+            mock.onGet('/store-route-requiring-auth')
+                .replyOnce(403, {
+                    errors: [
+                        {
+                            code: errorCode,
+                        },
+                    ],
+                })
+                .onGet('/store-route-requiring-auth')
+                .replyOnce(200, {});
+
+            expect(mock.history.get).toHaveLength(0);
+
+            await httpClient.get('/store-route-requiring-auth');
+
+            expect(mock.history.get).toHaveLength(2);
+        },
+    );
+
+    it.each([['FRAMEWORK__STORE_SESSION_EXPIRED'], ['FRAMEWORK__STORE_SHOP_SECRET_INVALID']])(
+        'should reject the request and reset the counter once the retry limit is hit',
+        async (errorCode) => {
+            mock.onGet('/store-route-requiring-auth').reply(403, {
                 errors: [
                     {
                         code: errorCode,
                     },
                 ],
-            })
-            .onGet('/store-route-requiring-auth')
-            .replyOnce(200, {});
+            });
 
-        expect(mock.history.get).toHaveLength(0);
+            const getError = async () => {
+                try {
+                    await httpClient.get('/store-route-requiring-auth');
 
-        await httpClient.get('/store-route-requiring-auth');
+                    throw new Error('Expected error to be thrown');
+                } catch (error) {
+                    return error;
+                }
+            };
 
-        expect(mock.history.get).toHaveLength(2);
-    });
+            const error = await getError();
+            expect(error.response.status).toBe(403);
+            expect(error.response.data).toEqual({
+                errors: [
+                    {
+                        code: errorCode,
+                    },
+                ],
+            });
 
-    it.each([
-        ['FRAMEWORK__STORE_SESSION_EXPIRED'],
-        ['FRAMEWORK__STORE_SHOP_SECRET_INVALID'],
-    ])('should reject the request and reset the counter once the retry limit is hit', async (errorCode) => {
-        mock.onGet('/store-route-requiring-auth').reply(403, {
-            errors: [
-                {
-                    code: errorCode,
-                },
-            ],
-        });
+            expect(mock.history.get).toHaveLength(2);
+        },
+    );
 
-        const getError = async () => {
-            try {
-                await httpClient.get('/store-route-requiring-auth');
+    it.each([['FRAMEWORK__STORE_SESSION_EXPIRED'], ['FRAMEWORK__STORE_SHOP_SECRET_INVALID']])(
+        'should treat each request separately',
+        async (errorCode) => {
+            mock.onGet('/store-route-requiring-auth').reply(403, {
+                errors: [
+                    {
+                        code: errorCode,
+                    },
+                ],
+            });
 
-                throw new Error('Expected error to be thrown');
-            } catch (error) {
-                return error;
-            }
-        };
+            const getError = async () => {
+                try {
+                    await Promise.all([
+                        httpClient.get('/store-route-requiring-auth'),
+                        httpClient.get('/store-route-requiring-auth'),
+                    ]);
 
-        const error = await getError();
-        expect(error.response.status).toBe(403);
-        expect(error.response.data).toEqual({
-            errors: [
-                {
-                    code: errorCode,
-                },
-            ],
-        });
+                    throw new Error('Expected error to be thrown');
+                } catch (error) {
+                    return error;
+                }
+            };
 
-        expect(mock.history.get).toHaveLength(2);
-    });
+            const error = await getError();
+            expect(error.response.status).toBe(403);
+            expect(error.response.data).toEqual({
+                errors: [
+                    {
+                        code: errorCode,
+                    },
+                ],
+            });
 
-    it.each([
-        ['FRAMEWORK__STORE_SESSION_EXPIRED'],
-        ['FRAMEWORK__STORE_SHOP_SECRET_INVALID'],
-    ])('should treat each request separately', async (errorCode) => {
-        mock.onGet('/store-route-requiring-auth').reply(403, {
-            errors: [
-                {
-                    code: errorCode,
-                },
-            ],
-        });
-
-        const getError = async () => {
-            try {
-                await Promise.all([
-                    httpClient.get('/store-route-requiring-auth'),
-                    httpClient.get('/store-route-requiring-auth'),
-                ]);
-
-                throw new Error('Expected error to be thrown');
-            } catch (error) {
-                return error;
-            }
-        };
-
-        const error = await getError();
-        expect(error.response.status).toBe(403);
-        expect(error.response.data).toEqual({
-            errors: [
-                {
-                    code: errorCode,
-                },
-            ],
-        });
-
-        expect(mock.history.get).toHaveLength(4);
-    });
+            expect(mock.history.get).toHaveLength(4);
+        },
+    );
 
     it('should add current vue route, as http header to trace', async () => {
         Shopware.Application.view = {
@@ -176,10 +170,7 @@ describe('core/factory/http.factory.js', () => {
         mock.onGet('/test').reply((request) => {
             expect(request.headers['shopware-admin-active-route']).toBe('sw-dashboard-index');
 
-            return [
-                200,
-                {},
-            ];
+            return [200, {}];
         });
 
         await httpClient.get('/test');
@@ -211,10 +202,7 @@ describe('core/factory/http.factory.js', () => {
                             entity: 'product',
                             usages: [
                                 {
-                                    count: [
-                                        2,
-                                        2,
-                                    ],
+                                    count: [2, 2],
                                     entityName: 'category',
                                 },
                             ],
@@ -246,8 +234,8 @@ describe('core/factory/http.factory.js', () => {
         expect(typeof httpClient.request).toBe('function');
     });
 
-    it('should use axios v0 by default before v6.8', async () => {
-        global.activeFeatureFlags = global.activeFeatureFlags.filter((flag) => flag !== 'V6_8_0_0');
+    // @deprecated tag:v6.8.0 - Axios v1 becomes the default client.
+    it.deprecated('v6.8.0.0')('should use axios v0 by default before v6.8', async () => {
         const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
         const axiosV0Request = jest.spyOn(axiosV0, 'request');
         const axiosV1Request = jest.spyOn(axiosV1Client, 'request');
@@ -261,8 +249,8 @@ describe('core/factory/http.factory.js', () => {
         expect(axiosV1Request).not.toHaveBeenCalled();
     });
 
-    it('should opt in to axios v1 per request before v6.8', async () => {
-        global.activeFeatureFlags = global.activeFeatureFlags.filter((flag) => flag !== 'V6_8_0_0');
+    // @deprecated tag:v6.8.0 - Axios v1 becomes the default client.
+    it.deprecated('v6.8.0.0')('should opt in to axios v1 per request before v6.8', async () => {
         const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
         const axiosV0Request = jest.spyOn(axiosV0, 'request');
         const axiosV1Request = jest.spyOn(axiosV1Client, 'request');
@@ -282,8 +270,8 @@ describe('core/factory/http.factory.js', () => {
         expect(axiosV1Request).toHaveBeenCalledTimes(1);
     });
 
-    it('should support the axios URL and config call form', async () => {
-        global.activeFeatureFlags = global.activeFeatureFlags.filter((flag) => flag !== 'V6_8_0_0');
+    // @deprecated tag:v6.8.0 - Axios v1 becomes the default client.
+    it.deprecated('v6.8.0.0')('should support the axios URL and config call form', async () => {
         const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
         const axiosV0Request = jest.spyOn(axiosV0, 'request');
         const axiosV1Request = jest.spyOn(axiosV1Client, 'request').mockResolvedValue({ data: { success: true } });
@@ -306,13 +294,7 @@ describe('core/factory/http.factory.js', () => {
         });
     });
 
-    it('should use axios v1 by default with v6.8', async () => {
-        global.activeFeatureFlags = [
-            ...new Set([
-                ...global.activeFeatureFlags,
-                'V6_8_0_0',
-            ]),
-        ];
+    it.activeFeatureFlags(['v6.8.0.0'])('should use axios v1 by default with v6.8', async () => {
         const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
         const axiosV0Request = jest.spyOn(axiosV0, 'request');
         const axiosV1Request = jest.spyOn(axiosV1Client, 'request');
@@ -326,13 +308,7 @@ describe('core/factory/http.factory.js', () => {
         expect(axiosV1Request).toHaveBeenCalledTimes(1);
     });
 
-    it('should opt out to axios v0 per request with v6.8', async () => {
-        global.activeFeatureFlags = [
-            ...new Set([
-                ...global.activeFeatureFlags,
-                'V6_8_0_0',
-            ]),
-        ];
+    it.activeFeatureFlags(['v6.8.0.0'])('should opt out to axios v0 per request with v6.8', async () => {
         const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
         const axiosV0Request = jest.spyOn(axiosV0, 'request');
         const axiosV1Request = jest.spyOn(axiosV1Client, 'request');
@@ -351,10 +327,7 @@ describe('core/factory/http.factory.js', () => {
         const clientMock = new MockAdapter(client);
         clientMock.onPost('/test-form').reply((config) => {
             expect(config.headers['Content-Type']).toContain('multipart/form-data');
-            return [
-                200,
-                {},
-            ];
+            return [200, {}];
         });
 
         await client.postForm('/test-form', { name: 'v0' }, { useAxiosV1: false });
@@ -385,10 +358,7 @@ describe('core/factory/http.factory.js', () => {
         });
         clientMock.onGet('/test-mirrored').reply((config) => {
             expect(config.headers['x-shopware-test']).toBe('mirrored');
-            return [
-                200,
-                {},
-            ];
+            return [200, {}];
         });
 
         await client.get('/test-mirrored', { useAxiosV1: false });

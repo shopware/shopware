@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\JsonF
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class JsonField extends Field implements StorageAware
 {
@@ -33,6 +36,19 @@ class JsonField extends Field implements StorageAware
     public function getPropertyMapping(): array
     {
         return $this->propertyMapping;
+    }
+
+    /**
+     * Adds a nested field to the JSON property mapping.
+     *
+     * Use this from {@see \Shopware\Core\Framework\DataAbstractionLayer\EntityExtension::modifyFields()} to extend an existing JSON schema,
+     * for example to add another entity key to a structured map such as `hitCount`.
+     */
+    public function addPropertyMapping(Field $field): static
+    {
+        $this->propertyMapping[] = $field;
+
+        return $this;
     }
 
     /**

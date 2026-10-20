@@ -177,6 +177,7 @@ class CheckoutControllerTest extends TestCase
     {
         $cart = new Cart(Uuid::randomHex());
 
+        $this->cartServiceMock->method('getCart')->willReturn($cart);
         $this->cartLoadRouteMock->method('load')->willReturn(
             new CartResponse($cart)
         );

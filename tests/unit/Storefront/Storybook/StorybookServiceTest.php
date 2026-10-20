@@ -13,6 +13,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -163,6 +164,7 @@ class StorybookServiceTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $product = new SalesChannelProductEntity();
+        $product->internalSetEntityData(ProductDefinition::ENTITY_NAME, new FieldVisibility([]));
         $product->setId('product-id-123');
         $product->setUniqueIdentifier('product-id-123');
 

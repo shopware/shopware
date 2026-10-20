@@ -1,7 +1,7 @@
 <sw-page class="sw-flow-list-index">
     <template #search-bar>
         <sw-search-bar
-            initial-search-type="flow"
+            :initial-search-type="searchType"
             :placeholder="$t('sw-flow.general.placeholderSearchBar')"
             :initial-search="term"
             @search="onSearch"

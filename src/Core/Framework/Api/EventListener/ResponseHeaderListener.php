@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\EventListener;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -17,7 +18,6 @@ class ResponseHeaderListener implements EventSubscriberInterface
     private const HEADERS = [
         PlatformRequest::HEADER_VERSION_ID,
         PlatformRequest::HEADER_LANGUAGE_ID,
-        PlatformRequest::HEADER_CONTEXT_TOKEN,
     ];
 
     public static function getSubscribedEvents(): array
@@ -29,8 +29,13 @@ class ResponseHeaderListener implements EventSubscriberInterface
 
     public function onResponse(ResponseEvent $event): void
     {
+        $headers = self::HEADERS;
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('CACHE_REWORK')) {
+            $headers[] = PlatformRequest::HEADER_CONTEXT_TOKEN;
+        }
+
         $headersBag = $event->getResponse()->headers;
-        foreach (self::HEADERS as $header) {
+        foreach ($headers as $header) {
             if ($headersBag->has($header) || !$event->getRequest()->headers->has($header)) {
                 continue;
             }

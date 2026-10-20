@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\Snippet\SnippetCollection;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class SnippetSetEntity extends Entity
 {

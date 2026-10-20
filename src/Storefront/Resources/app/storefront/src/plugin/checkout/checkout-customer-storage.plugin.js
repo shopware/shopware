@@ -1,12 +1,14 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import Storage from 'src/helper/storage/storage.helper';
+import SessionStorage from 'src/helper/storage/session-storage.helper';
 
 const CUSTOMER_COMMENT_KEY = 'customerComment';
 const TOS_KEY = 'tos';
+const REVOCATION_KEY = 'revocation';
 
 /**
- * Persists checkout customer-specific form data so drafts do not leak
- * across account switches on the same device.
+ * Persists checkout customer-specific form data in the session storage, so it survives
+ * the page reloads within a checkout without leaking across account switches or
+ * outliving the browsing session it was entered in.
  *
  * @sw-package checkout
  */
@@ -71,17 +73,22 @@ export default class CheckoutCustomerStoragePlugin extends Plugin {
                     }
                 },
             },
-            {
-                key: TOS_KEY,
-                resolveElement: () => this._getFormElementByName(TOS_KEY),
-                events: ['change'],
-                normalizeValue: (value) => value === true ? true : null,
-                readValue: (element) => element.checked ? true : null,
-                writeValue: (element, value) => {
-                    element.checked = value === true;
-                },
-            },
+            this._getCheckboxFieldDefinition(TOS_KEY),
+            this._getCheckboxFieldDefinition(REVOCATION_KEY),
         ];
+    }
+
+    _getCheckboxFieldDefinition(key) {
+        return {
+            key,
+            resolveElement: () => this._getFormElementByName(key),
+            events: ['change'],
+            normalizeValue: (value) => value === true ? true : null,
+            readValue: (element) => element.checked ? true : null,
+            writeValue: (element, value) => {
+                element.checked = value === true;
+            },
+        };
     }
 
     _resolveFields() {
@@ -150,7 +157,7 @@ export default class CheckoutCustomerStoragePlugin extends Plugin {
     }
 
     _getParsedStorage(storageKey) {
-        const storedValue = Storage.getItem(storageKey);
+        const storedValue = SessionStorage.getItem(storageKey);
 
         if (typeof storedValue !== 'string' || storedValue === '') {
             return {
@@ -215,11 +222,11 @@ export default class CheckoutCustomerStoragePlugin extends Plugin {
 
     _setStoredCustomers(storedCustomers) {
         if (Object.keys(storedCustomers).length === 0) {
-            Storage.removeItem(this.options.storageKey);
+            SessionStorage.removeItem(this.options.storageKey);
 
             return;
         }
 
-        Storage.setItem(this.options.storageKey, JSON.stringify(storedCustomers));
+        SessionStorage.setItem(this.options.storageKey, JSON.stringify(storedCustomers));
     }
 }

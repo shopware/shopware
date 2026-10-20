@@ -50,26 +50,15 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'category:update',
                 'landing_page:update',
             ],
-            dependencies: [
-                'cms.viewer',
-            ],
+            dependencies: ['cms.viewer'],
         },
         creator: {
-            privileges: [
-                'cms_page:create',
-            ],
-            dependencies: [
-                'cms.viewer',
-                'cms.editor',
-            ],
+            privileges: ['cms_page:create'],
+            dependencies: ['cms.viewer', 'cms.editor'],
         },
         deleter: {
-            privileges: [
-                'cms_page:delete',
-            ],
-            dependencies: [
-                'cms.viewer',
-            ],
+            privileges: ['cms_page:delete'],
+            dependencies: ['cms.viewer'],
         },
     },
 });

@@ -87,4 +87,32 @@ class CartExceptionTest extends TestCase
         static::assertStringContainsString('The cart is invalid, got 1 error(s):', $exception->getMessage());
         static::assertStringContainsString('error-id', $exception->getMessage());
     }
+
+    public function testInvalidQuantity(): void
+    {
+        $e = CartException::invalidQuantity(0);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(CartException::CART_INVALID_LINE_ITEM_QUANTITY_CODE, $e->getErrorCode());
+        static::assertSame('The quantity must be a positive integer. Given: "0"', $e->getMessage());
+    }
+
+    public function testInvalidChildQuantity(): void
+    {
+        $e = CartException::invalidChildQuantity(1, 2);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(CartException::CART_INVALID_CHILD_LINE_ITEM_QUANTITY_CODE, $e->getErrorCode());
+        static::assertSame('The quantity of a child "1" must be a multiple of the parent quantity "2"', $e->getMessage());
+    }
+
+    public function testInvalidChildQuantityHasDedicatedErrorCode(): void
+    {
+        // regression: both exceptions previously shared CART_INVALID_LINE_ITEM_QUANTITY_CODE, which broke
+        // the "%quantity%" placeholder of the shared storefront message for the child quantity case.
+        static::assertNotSame(
+            CartException::invalidQuantity(0)->getErrorCode(),
+            CartException::invalidChildQuantity(1, 2)->getErrorCode()
+        );
+    }
 }

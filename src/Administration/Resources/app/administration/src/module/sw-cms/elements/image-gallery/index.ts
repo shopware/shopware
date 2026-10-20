@@ -17,7 +17,7 @@ Shopware.Component.register('sw-cms-el-image-gallery', () => import('./component
 type ImageGalleryItemConfig = {
     newTab: boolean;
     url: string;
-    mediaId: string;
+    mediaId: EntityKey<'media'>;
 };
 
 type ImageGalleryItem = {

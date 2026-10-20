@@ -14,14 +14,9 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: [
-        'selection-change',
-        'product-loading',
-    ],
+    emits: ['selection-change', 'product-loading'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         salesChannel: {
@@ -63,9 +58,7 @@ export default {
             criteria.filters = this.productStreamFilter;
             criteria.addAssociation('visibilities.salesChannel');
             criteria.addFilter(
-                Criteria.not('AND', [
-                    Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id),
-                ]),
+                Criteria.not('AND', [Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id)]),
             );
 
             return criteria;

@@ -2,7 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -13,6 +15,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\SsoService;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -83,15 +86,117 @@ class UserControllerTest extends TestCase
         static::assertSame('Europe/Berlin', $userRepository->upserts[0][0]['timeZone']);
     }
 
-    public function testUpdateMeRejectsFieldsOutsideTheSelfProfileAllowlist(): void
+    /**
+     * updateMe() must reject any field that is not part of the self-service profile allow-list.
+     *
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('forbiddenUpdateMePayloadProvider')]
+    public function testUpdateMeRejectsFieldsOutsideTheSelfProfileAllowlist(array $payload): void
     {
         static::expectExceptionObject(ApiException::missingPrivileges(['user:update']));
 
         $controller = $this->createController();
         $context = Context::createDefaultContext(new AdminApiSource('test-user-id'));
-        $request = Request::create('/', Request::METHOD_PATCH, ['title' => 'Dr.']);
+        $request = Request::create('/', Request::METHOD_PATCH, $payload);
 
         $controller->updateMe($context, $request, static::createStub(ResponseFactoryInterface::class));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function forbiddenUpdateMePayloadProvider(): iterable
+    {
+        yield 'field outside the profile allow-list' => [[
+            'title' => 'Dr.',
+        ]];
+
+        yield 'another field outside the profile allow-list' => [[
+            'active' => false,
+        ]];
+
+        yield 'custom fields outside the profile allow-list' => [[
+            'customFields' => ['foo' => 'bar'],
+        ]];
+    }
+
+    public function testUpdateMeAllowsLinkingAnAvatarMedia(): void
+    {
+        $userId = 'test-user-id';
+        $mediaId = Uuid::randomHex();
+        $context = Context::createDefaultContext(new AdminApiSource($userId));
+        $request = Request::create('/', Request::METHOD_PATCH, ['avatarMedia' => ['id' => $mediaId]]);
+        $userDefinition = new UserDefinition();
+        $userRepository = StaticEntityRepository::of(UserCollection::class, [], $userDefinition);
+        $responseFactory = $this->createMock(ResponseFactoryInterface::class);
+        $responseFactory->expects($this->once())
+            ->method('createRedirectResponse')
+            ->willReturn(new Response());
+
+        $controller = $this->createController(userRepository: $userRepository, userDefinition: $userDefinition);
+        $controller->updateMe($context, $request, $responseFactory);
+
+        static::assertSame(['id' => $mediaId], $userRepository->upserts[0][0]['avatarMedia']);
+    }
+
+    /**
+     * updateMe() accepts `avatarMedia` only as an id link; every other shape must be rejected.
+     *
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('forbiddenAvatarMediaPayloadProvider')]
+    public function testUpdateMeRejectsAvatarMediaBeyondAnIdLink(array $payload): void
+    {
+        static::expectExceptionObject(ApiException::missingPrivileges(['user:update']));
+
+        $controller = $this->createController();
+        $context = Context::createDefaultContext(new AdminApiSource('test-user-id'));
+        $request = Request::create('/', Request::METHOD_PATCH, $payload);
+
+        $controller->updateMe($context, $request, static::createStub(ResponseFactoryInterface::class));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function forbiddenAvatarMediaPayloadProvider(): iterable
+    {
+        yield 'nested user association' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'user' => ['id' => Uuid::randomHex()]],
+        ]];
+
+        yield 'nested avatarUsers association' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'avatarUsers' => [['id' => Uuid::randomHex()]]],
+        ]];
+
+        yield 'nested association in the extensions container' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'extensions' => ['user' => ['id' => Uuid::randomHex()]]],
+        ]];
+
+        yield 'extra scalar field next to the id' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'fileName' => 'renamed'],
+        ]];
+
+        yield 'link without an id' => [[
+            'avatarMedia' => ['fileName' => 'renamed'],
+        ]];
+
+        yield 'empty link' => [[
+            'avatarMedia' => [],
+        ]];
+
+        yield 'non string id' => [[
+            'avatarMedia' => ['id' => ['nested']],
+        ]];
+
+        yield 'plain id instead of a link' => [[
+            'avatarMedia' => Uuid::randomHex(),
+        ]];
+
+        yield 'null' => [[
+            'avatarMedia' => null,
+        ]];
     }
 
     /**
@@ -102,6 +207,9 @@ class UserControllerTest extends TestCase
         ?EntityRepository $userRepository = null,
         ?UserDefinition $userDefinition = null,
     ): UserController {
+        $connection = static::createStub(Connection::class);
+        $connection->method('transactional')->willReturnCallback(static fn (\Closure $func) => $func($connection));
+
         return new UserController(
             $userRepository ?? static::createStub(EntityRepository::class),
             static::createStub(EntityRepository::class),
@@ -109,6 +217,7 @@ class UserControllerTest extends TestCase
             static::createStub(EntityRepository::class),
             $userDefinition ?? static::createStub(UserDefinition::class),
             $ssoService ?? static::createStub(SsoService::class),
+            $connection,
         );
     }
 }

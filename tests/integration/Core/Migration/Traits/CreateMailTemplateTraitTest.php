@@ -18,7 +18,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 class CreateMailTemplateTraitTest extends TestCase
 {
     use CreateMailTemplateTrait;

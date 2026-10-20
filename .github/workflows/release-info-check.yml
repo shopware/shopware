@@ -1,6 +1,9 @@
 name: Check release info sections
 # Rule and reasoning: .github/bin/js/release-info-sections.ts
 #
+# Two rules share the one status: the lines a PR adds must sit in the version section
+# its milestone names, and they must not repeat a heading that section already carries.
+#
 # Require the `release-info/section` commit status in branch protection and the
 # merge queue, not this job name — the job stays green by design.
 #

@@ -258,9 +258,7 @@ const cmsElements = {
             if (slot.config.products?.entity) {
                 return {
                     'entity-products': {
-                        value: [
-                            '0190e3b777b078d4a4097dff345ec692',
-                        ],
+                        value: ['0190e3b777b078d4a4097dff345ec692'],
                         key: 'products',
                         name: 'product',
                     },
@@ -291,9 +289,7 @@ const cmsElements = {
 
                 return {
                     'entity-categories': {
-                        value: [
-                            '0190e3b777b078d4a4097dff345ec692',
-                        ],
+                        value: ['0190e3b777b078d4a4097dff345ec692'],
                         key: 'categories',
                         name: 'category',
                         searchCriteria,
@@ -307,9 +303,7 @@ const cmsElements = {
 
                 return {
                     'entity-invalid': {
-                        value: [
-                            '0190e3b777b078d4a4097dff345ec692',
-                        ],
+                        value: ['0190e3b777b078d4a4097dff345ec692'],
                         key: 'invalid',
                         name: 'invalid',
                         searchCriteria: slot.config.invalidNoCriteria?.entity ? undefined : searchCriteria,

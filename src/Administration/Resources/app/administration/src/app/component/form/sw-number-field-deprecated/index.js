@@ -34,15 +34,9 @@ export default {
             type: String,
             required: false,
             default: 'float',
-            validValues: [
-                'float',
-                'int',
-            ],
+            validValues: ['float', 'int'],
             validator(value) {
-                return [
-                    'float',
-                    'int',
-                ].includes(value);
+                return ['float', 'int'].includes(value);
             },
         },
 

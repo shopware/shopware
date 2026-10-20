@@ -90,6 +90,32 @@ class MySQLFactoryTest extends TestCase
         ]);
     }
 
+    public function testReplicaConfigurationKeepsReplicaConnectionByDefault(): void
+    {
+        $this->setEnvVars([
+            'DATABASE_URL' => 'mysql://user:pass@localhost:3306/shopware',
+            'DATABASE_REPLICA_0_URL' => 'mysql://replica_user:replica_pass@replica_host:3307/replica_db',
+        ]);
+
+        $params = MySQLFactory::create()->getParams();
+
+        static::assertArrayHasKey('keepReplica', $params);
+        static::assertTrue($params['keepReplica']);
+    }
+
+    public function testKeepReplicaCanBeDisabledViaDsn(): void
+    {
+        $this->setEnvVars([
+            'DATABASE_URL' => 'mysql://user:pass@localhost:3306/shopware?keepReplica=0',
+            'DATABASE_REPLICA_0_URL' => 'mysql://replica_user:replica_pass@replica_host:3307/replica_db',
+        ]);
+
+        $params = MySQLFactory::create()->getParams();
+
+        static::assertArrayHasKey('keepReplica', $params);
+        static::assertFalse($params['keepReplica']);
+    }
+
     public function testDriverOptionsFromDsnArePreserved(): void
     {
         // PDO::MYSQL_ATTR_LOCAL_INFILE = 1001 (enable LOAD DATA LOCAL INFILE)

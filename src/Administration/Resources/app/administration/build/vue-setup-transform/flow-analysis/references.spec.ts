@@ -22,10 +22,7 @@ describe('build/vue-setup-transform/flow-analysis references', () => {
     });
 
     it('reads both the object and the key of a computed optional chain', () => {
-        expect(getReferences('source?.[dynamicKey]')).toEqual([
-            'dynamicKey',
-            'source',
-        ]);
+        expect(getReferences('source?.[dynamicKey]')).toEqual(['dynamicKey', 'source']);
     });
 
     it('looks through TS as-casts', () => {
@@ -33,9 +30,7 @@ describe('build/vue-setup-transform/flow-analysis references', () => {
     });
 
     it('lets callback parameters shadow outer names', () => {
-        expect(getReferences('items.map(({ info, label: localLabel }) => info + localLabel).join(",")')).toEqual([
-            'items',
-        ]);
+        expect(getReferences('items.map(({ info, label: localLabel }) => info + localLabel).join(",")')).toEqual(['items']);
     });
 
     it('does not let a named function-expression id suppress a same-named sibling read', () => {
@@ -49,10 +44,7 @@ describe('build/vue-setup-transform/flow-analysis references', () => {
     });
 
     it('reads default values inside callback parameters', () => {
-        expect(getReferences('items.map(({ label = fallbackLabel }) => label)')).toEqual([
-            'fallbackLabel',
-            'items',
-        ]);
+        expect(getReferences('items.map(({ label = fallbackLabel }) => label)')).toEqual(['fallbackLabel', 'items']);
     });
 
     it('lets earlier parameters shadow reads in later defaults', () => {
@@ -64,35 +56,21 @@ describe('build/vue-setup-transform/flow-analysis references', () => {
     });
 
     it('excludes template-scope names', () => {
-        expect(
-            getReferences('info + label', [
-                'info',
-            ]),
-        ).toEqual(['label']);
+        expect(getReferences('info + label', ['info'])).toEqual(['label']);
     });
 
     it('handles inline-handler statements, scoping local declarations', () => {
         // Not a single expression, so it parses as statements: `doubled` is declared locally and does
         // not read from setup, while `count` and `emit` do.
-        expect(getReferences('const doubled = count * 2; emit(doubled)')).toEqual([
-            'count',
-            'emit',
-        ]);
+        expect(getReferences('const doubled = count * 2; emit(doubled)')).toEqual(['count', 'emit']);
     });
 
     it('scopes block-statement declarations', () => {
-        expect(getReferences('if (visible) { const local = count; log(local) }')).toEqual([
-            'count',
-            'log',
-            'visible',
-        ]);
+        expect(getReferences('if (visible) { const local = count; log(local) }')).toEqual(['count', 'log', 'visible']);
     });
 
     it('scopes catch-clause parameters', () => {
-        expect(getReferences('try { risky() } catch (error) { report(error) }')).toEqual([
-            'report',
-            'risky',
-        ]);
+        expect(getReferences('try { risky() } catch (error) { report(error) }')).toEqual(['report', 'risky']);
     });
 
     it('scopes a named function expression and its parameters', () => {
@@ -114,18 +92,11 @@ describe('build/vue-setup-transform/flow-analysis references', () => {
         });
 
         it('collects several targets across statements', () => {
-            expect(getWriteTargets('first = 1; second++')).toEqual([
-                'first',
-                'second',
-            ]);
+            expect(getWriteTargets('first = 1; second++')).toEqual(['first', 'second']);
         });
 
         it('excludes template-scope names', () => {
-            expect(
-                getWriteTargets('local = 1', [
-                    'local',
-                ]),
-            ).toEqual([]);
+            expect(getWriteTargets('local = 1', ['local'])).toEqual([]);
         });
 
         it('does not treat a member write as a direct identifier write', () => {

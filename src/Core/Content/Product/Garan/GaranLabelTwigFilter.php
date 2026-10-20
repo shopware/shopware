@@ -37,12 +37,28 @@ class GaranLabelTwigFilter extends AbstractExtension
             new TwigFilter('sw_garan_label_nested', $this->renderNestedLabel(...), ['is_safe' => ['html']]),
             new TwigFilter('sw_garan_label_data_uri', $this->renderAsDataUri(...)),
             new TwigFilter('sw_garan_label_nested_uri', $this->renderNestedAsDataUri(...)),
+            new TwigFilter('sw_garan_label_text_length', $this->fitTextLength(...)),
+            new TwigFilter('sw_garan_label_duration_text_length', $this->fitDurationTextLength(...)),
         ];
     }
 
     public function formatDuration(?int $guaranteeMonths): ?string
     {
         return $this->durationFormatter->formatMonths($guaranteeMonths);
+    }
+
+    /**
+     * The label templates are also included directly, so the fit has to be available to the
+     * templates themselves rather than only to `GaranLabelRenderer`.
+     */
+    public function fitTextLength(?string $value, float $clearWidth, float $fontSize, float $letterSpacing = 0.0): ?float
+    {
+        return GaranLabelTextFitter::fitTextLength($value, $clearWidth, $fontSize, $letterSpacing);
+    }
+
+    public function fitDurationTextLength(?string $value, float $clearWidth, float $fontSize, float $letterSpacing = 0.0): ?float
+    {
+        return GaranLabelTextFitter::fitDurationTextLength($value, $clearWidth, $fontSize, $letterSpacing);
     }
 
     public function render(?string $productId, Context $context): ?string

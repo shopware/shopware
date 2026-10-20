@@ -10,17 +10,7 @@ test(
             description: 'https://github.com/shopware/shopware/issues/15749',
         },
     },
-    async ({
-        ShopAdmin,
-        AdminFlowBuilderListing,
-        AdminFlowBuilderDetail,
-        IdProvider,
-        TestDataService,
-        CreateFlow,
-        InstanceMeta,
-    }) => {
-        test.skip(InstanceMeta.isSaaS, 'Test is skipped in SaaS due to flakiness');
-
+    async ({ ShopAdmin, AdminFlowBuilderListing, AdminFlowBuilderDetail, IdProvider, TestDataService, CreateFlow }) => {
         const uniqueId = IdProvider.getIdPair().uuid;
         const tagName = `Test tag - ${uniqueId}`;
         const flowName = `Test flow - ${uniqueId}`;

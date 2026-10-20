@@ -41,7 +41,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 #[CoversClass(StructEncoder::class)]
 class StructEncoderTest extends TestCase
 {
@@ -160,6 +160,52 @@ class StructEncoderTest extends TestCase
 
         static::assertArrayHasKey('customFields', $encoded);
         static::assertSame($expectedCustomFields, $encoded['customFields']);
+    }
+
+    public function testCustomFieldsWithPriceValueBeforeScalarValueAreEncoded(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+
+        $product->setCustomFields([
+            'custom_price_field' => new PriceCollection(),
+            'custom_text_field' => 'Example text',
+        ]);
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
+
+        $encoded = $structEncoder->encode($product, new ResponseFields());
+
+        static::assertSame('Example text', $encoded['customFields']['custom_text_field']);
+    }
+
+    public function testCustomFieldsWithPriceValueAreFiltered(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+
+        $product->setCustomFields([
+            'custom_price_field' => new PriceCollection(),
+            'visible_field' => 'Visible text',
+            'blocked_field' => 'Blocked text',
+        ]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                [
+                    'entity_name' => 'product',
+                    'name' => 'blocked_field',
+                ],
+            ]);
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class], $connection);
+
+        $encoded = $structEncoder->encode($product, new ResponseFields());
+
+        static::assertSame('Visible text', $encoded['customFields']['visible_field']);
+        static::assertArrayNotHasKey('blocked_field', $encoded['customFields']);
     }
 
     public function testCustomFieldsFieldIsBlocked(): void

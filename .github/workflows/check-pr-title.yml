@@ -19,3 +19,8 @@ jobs:
       - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # 6.1.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          subjectPattern: ^.*(?<!…)$ # PR title needs to match regex, so ensure it does not end with ellipsis
+          subjectPatternError: |
+            PR title ends with "…", probably because it was shortened by GitHub.
+            Make sure the title is descriptive enough, as it will be used as the commit message.

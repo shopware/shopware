@@ -68,6 +68,11 @@ parameters:
         allowedUnitTestClassNamespaces:
             - Shopware\Tests\Unit\
             - Shopware\Tests\Migration\
+        # narrows NoCreateMockWithoutExpectationsRule enforcement; consumers rolling the rule out
+        # domain by domain append their enabled test namespaces to this list
+        createMockWithoutExpectationsEnabledNamespaces:
+            - 'Shopware\Tests\Unit\'
+            - 'Shopware\Tests\DevOps\'
 
 services:
     -   factory: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration(%shopware%)
@@ -79,4 +84,5 @@ parametersSchema:
         allowedNonDomainExceptions: list(string),
         allowedStorefrontRouteNamespaces: list(string),
         allowedUnitTestClassNamespaces: list(string),
+        createMockWithoutExpectationsEnabledNamespaces: list(string),
 ])

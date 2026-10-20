@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class PluginPreActivateEvent extends PluginLifecycleEvent
 {

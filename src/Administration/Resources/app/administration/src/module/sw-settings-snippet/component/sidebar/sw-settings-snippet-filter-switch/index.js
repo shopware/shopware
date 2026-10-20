@@ -48,10 +48,7 @@ export default {
                 if (!value.length) {
                     return true;
                 }
-                return [
-                    'small',
-                    'large',
-                ].includes(value);
+                return ['small', 'large'].includes(value);
             },
         },
 

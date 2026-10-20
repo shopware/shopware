@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\DocumentMerger;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileNameBuilder;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
@@ -107,7 +108,8 @@ class DocumentMergerTest extends TestCase
             static::getContainer()->get(MediaService::class),
             $this->documentGenerator,
             $mockFpdi,
-            $this->createMock(Filesystem::class),
+            static::createStub(Filesystem::class),
+            static::getContainer()->get(DocumentFileNameBuilder::class),
         );
 
         $doc1 = Uuid::randomHex();
@@ -149,7 +151,8 @@ class DocumentMergerTest extends TestCase
             static::getContainer()->get(MediaService::class),
             $mockGenerator,
             static::getContainer()->get('pdf.merger'),
-            $this->createMock(Filesystem::class),
+            static::createStub(Filesystem::class),
+            static::getContainer()->get(DocumentFileNameBuilder::class),
         );
 
         $documentId = Uuid::randomHex();
@@ -215,7 +218,8 @@ class DocumentMergerTest extends TestCase
             static::getContainer()->get(MediaService::class),
             $this->documentGenerator,
             $mockFpdi,
-            $this->createMock(Filesystem::class),
+            static::createStub(Filesystem::class),
+            static::getContainer()->get(DocumentFileNameBuilder::class),
         );
 
         $result = $documentMerger->merge($docIds, $this->context);
@@ -259,6 +263,10 @@ class DocumentMergerTest extends TestCase
                 static::assertInstanceOf(RenderedDocument::class, $mergeResult);
                 static::assertSame('Dummy output', $mergeResult->getContent());
                 static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $mergeResult->getContentType());
+                static::assertSame(
+                    DeliveryNoteRenderer::TYPE . '_' . (new \DateTimeImmutable())->format('Y-m-d') . '.pdf',
+                    $mergeResult->getName()
+                );
             },
         ];
 
@@ -279,6 +287,10 @@ class DocumentMergerTest extends TestCase
                 static::assertInstanceOf(RenderedDocument::class, $mergeResult);
                 static::assertSame('Dummy output', $mergeResult->getContent());
                 static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $mergeResult->getContentType());
+                static::assertSame(
+                    DeliveryNoteRenderer::TYPE . '_' . (new \DateTimeImmutable())->format('Y-m-d') . '.pdf',
+                    $mergeResult->getName()
+                );
             },
         ];
     }
@@ -332,7 +344,7 @@ class DocumentMergerTest extends TestCase
         }
 
         // force zip creation
-        $mockFpdi = $this->createMock(Fpdi::class);
+        $mockFpdi = static::createStub(Fpdi::class);
         $mockFpdi->method('setSourceFile')
             ->willThrowException(new FpdiException('PDF merge failed'));
 
@@ -342,6 +354,7 @@ class DocumentMergerTest extends TestCase
             $this->documentGenerator,
             $mockFpdi,
             $filesystem,
+            static::getContainer()->get(DocumentFileNameBuilder::class),
         );
 
         $result = $documentMerger->merge($docIds, $this->context);
@@ -349,6 +362,10 @@ class DocumentMergerTest extends TestCase
         static::assertNotNull($result);
         static::assertSame('zip', $result->getFileExtension());
         static::assertSame('application/zip', $result->getContentType());
+        static::assertSame(
+            DeliveryNoteRenderer::TYPE . '_' . (new \DateTimeImmutable())->format('Y-m-d') . '.zip',
+            $result->getName()
+        );
 
         // save content to a temporary zip file
         $filesystem = static::getContainer()->get('filesystem');

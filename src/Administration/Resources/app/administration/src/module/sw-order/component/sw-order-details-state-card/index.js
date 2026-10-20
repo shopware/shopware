@@ -20,14 +20,9 @@ export default {
         'swOrderDetailAskAndSaveEdits',
     ],
 
-    emits: [
-        'show-status-history',
-        'save-edits',
-    ],
+    emits: ['show-status-history', 'save-edits'],
 
-    mixins: [
-        'notification',
-    ],
+    mixins: ['notification'],
 
     props: {
         order: {
@@ -151,6 +146,9 @@ export default {
             if (this.lastStateChange?.integration) {
                 const integrationLabel = this.lastStateChange.integration.label;
                 return `${integrationLabel} (${this.$t('sw-order.stateCard.labelIntegration')})`;
+            }
+            if (this.lastStateChange?.sourceType === 'sales-channel') {
+                return this.$t('sw-order.stateCard.labelCustomer');
             }
 
             return this.$t('sw-order.stateCard.labelSystemUser');

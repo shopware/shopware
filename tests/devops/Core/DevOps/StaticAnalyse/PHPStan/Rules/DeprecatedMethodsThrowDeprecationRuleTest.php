@@ -29,6 +29,10 @@ class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
                 'Method "deprecatedWithoutTrigger" of class "Shopware\Core\DevOps\MyFakeNamespace\DeprecatedMethods" is marked as deprecated, but does not call "Feature::triggerDeprecationOrThrow". All deprecated methods need to trigger a deprecation warning.',
                 19,
             ],
+            [
+                'Method "deprecatedWithRemovedReasons" of class "Shopware\Core\DevOps\MyFakeNamespace\DeprecatedMethods" is marked as deprecated, but does not call "Feature::triggerDeprecationOrThrow". All deprecated methods need to trigger a deprecation warning.',
+                26,
+            ],
         ]);
     }
 
@@ -39,6 +43,17 @@ class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
             [
                 'Class "Shopware\Core\DevOps\MyFakeNamespace\DeprecatedClass" is marked as deprecated, but method "publicMethodWithoutTrigger" does not call "Feature::triggerDeprecationOrThrow". All public methods of deprecated classes need to trigger a deprecation warning.',
                 16,
+            ],
+        ]);
+    }
+
+    #[RunInSeparateProcess]
+    public function testDeprecatedServiceDecoratorsDoNotNeedToTriggerClassDeprecations(): void
+    {
+        $this->analyse([__DIR__ . '/data/DeprecatedMethodsThrowDeprecationRule/DeprecatedDecorator.php'], [
+            [
+                'Method "explicitlyDeprecatedMethod" of class "Shopware\\Core\\DevOps\\MyFakeNamespace\\DeprecatedDecorator" is marked as deprecated, but does not call "Feature::triggerDeprecationOrThrow". All deprecated methods need to trigger a deprecation warning.',
+                17,
             ],
         ]);
     }

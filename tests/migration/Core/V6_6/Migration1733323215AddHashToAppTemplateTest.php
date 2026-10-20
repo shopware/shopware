@@ -13,7 +13,7 @@ use Shopware\Core\Migration\V6_6\Migration1733323215AddHashToAppTemplate;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('framework')]
 #[CoversClass(Migration1733323215AddHashToAppTemplate::class)]
 class Migration1733323215AddHashToAppTemplateTest extends TestCase
 {

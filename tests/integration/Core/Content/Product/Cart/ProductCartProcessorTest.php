@@ -319,14 +319,15 @@ class ProductCartProcessorTest extends TestCase
      * @param array{type: string, id: string|null, name: string|null, position: int} $testedFeature
      * @param array<string, mixed> $productData
      * @param array{type: string, value: mixed, label: string} $expectedFeature
+     * @param array<string, mixed> $customFieldData
      */
     #[DataProvider('productFeatureProvider')]
-    public function testProductFeaturesContainCorrectInformation(array $testedFeature, array $productData, array $expectedFeature): void
+    public function testProductFeaturesContainCorrectInformation(array $testedFeature, array $productData, array $expectedFeature, array $customFieldData = []): void
     {
         $this->createLanguage(self::TEST_LANGUAGE_ID);
 
         if ($testedFeature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD) {
-            $this->createCustomField([]);
+            $this->createCustomField($customFieldData);
         }
 
         $this->createProduct([...[
@@ -355,7 +356,8 @@ class ProductCartProcessorTest extends TestCase
      * @return iterable<string, array{
      *     array{type: string, id: string|null, name: string|null, position: int},
      *     array<string, mixed>,
-     *     array{type: string, value: mixed, label: string}
+     *     array{type: string, value: mixed, label: string},
+     *     3?: array<string, mixed>
      * }>
      */
     public static function productFeatureProvider(): iterable
@@ -513,6 +515,78 @@ class ProductCartProcessorTest extends TestCase
                     'content' => 'Dolor sit amet.',
                 ],
                 'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
+            ],
+        ];
+        yield 'custom field of the system language is exposed as a custom field feature' => [
+            [
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
+                'id' => null,
+                'name' => 'lorem_ipsum',
+                'position' => 3,
+            ],
+            [
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => [
+                        'name' => 'Default',
+                        'customFields' => [
+                            'lorem_ipsum' => 'Default',
+                        ],
+                    ],
+                    self::TEST_LANGUAGE_ID => [
+                        'name' => 'Dolor sit amet.',
+                    ],
+                ],
+            ],
+            [
+                'label' => 'lorem_ipsum',
+                'value' => [
+                    'id' => self::CUSTOM_FIELD_ID,
+                    'type' => CustomFieldTypes::TEXT,
+                    'content' => 'Default',
+                ],
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
+            ],
+        ];
+        yield 'select custom field exposes the labels of the selected options' => [
+            [
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
+                'id' => null,
+                'name' => 'lorem_ipsum',
+                'position' => 3,
+            ],
+            [
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => [
+                        'name' => 'Default',
+                        'customFields' => [
+                            'lorem_ipsum' => ['oak', 'pine'],
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'label' => 'lorem_ipsum',
+                'value' => [
+                    'id' => self::CUSTOM_FIELD_ID,
+                    'type' => CustomFieldTypes::SELECT,
+                    'content' => ['oak', 'pine'],
+                    'display' => ['Oak', 'Pine'],
+                ],
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
+            ],
+            [
+                'type' => CustomFieldTypes::SELECT,
+                'config' => [
+                    'componentName' => 'sw-multi-select',
+                    'customFieldType' => CustomFieldTypes::SELECT,
+                    'label' => [
+                        'en-GB' => 'lorem_ipsum',
+                    ],
+                    'options' => [
+                        ['value' => 'oak', 'label' => ['en-GB' => 'Oak']],
+                        ['value' => 'pine', 'label' => ['en-GB' => 'Pine']],
+                    ],
+                ],
             ],
         ];
         yield 'translated pack unit is exposed as a reference price feature' => [

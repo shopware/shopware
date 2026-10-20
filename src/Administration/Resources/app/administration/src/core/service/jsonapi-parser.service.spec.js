@@ -6,11 +6,7 @@ import jsonApiParserService from 'src/core/service/jsonapi-parser.service';
 
 describe('core/service/jsonapi-parser.service.js', () => {
     it('should reject when we are providing an array, number, undefined or null', async () => {
-        const arrayParser = jsonApiParserService([
-            1,
-            2,
-            3,
-        ]);
+        const arrayParser = jsonApiParserService([1, 2, 3]);
         expect(arrayParser).toBeNull();
 
         const nestedArrayParser = jsonApiParserService([

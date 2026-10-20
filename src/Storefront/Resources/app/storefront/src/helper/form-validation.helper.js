@@ -435,7 +435,7 @@ export default class FormValidation {
      *     skipped, but the token check below still runs.
      *  2. Token presence, always. The reCAPTCHA submit handler initializes asynchronously,
      *     so the field can still be empty while the plugin is loading. An empty value is the
-     *     empty-token case that fails server-side with a 500 (CaptchaException). Block the
+     *     empty-token case the server rejects as a failed captcha. Block the
      *     submit with a token-specific message and do not show the cookie bar, since consent
      *     is not the problem here.
      *

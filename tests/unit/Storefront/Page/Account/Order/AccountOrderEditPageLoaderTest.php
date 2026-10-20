@@ -12,6 +12,8 @@ use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -30,6 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
@@ -277,6 +280,138 @@ class AccountOrderEditPageLoaderTest extends TestCase
         $pageLoader = $this->createPageLoader(genericPageLoader: $genericPageLoader);
 
         $page = $pageLoader->load($request, Generator::generateSalesChannelContext());
+    }
+
+    public function testLoadSelectsThePaymentMethodOfTheOrder(): void
+    {
+        $orderPaymentMethod = new PaymentMethodEntity();
+        $orderPaymentMethod->setId(Uuid::randomHex());
+        $orderPaymentMethod->setAfterOrderEnabled(true);
+
+        $contextPaymentMethod = new PaymentMethodEntity();
+        $contextPaymentMethod->setId(Uuid::randomHex());
+        $contextPaymentMethod->setAfterOrderEnabled(true);
+
+        $this->expectPaymentMethods(new PaymentMethodCollection([$orderPaymentMethod, $contextPaymentMethod]));
+
+        $order = $this->expectOrder($orderPaymentMethod->getId());
+
+        $request = new Request();
+        $request->attributes->set('orderId', $order->getId());
+
+        $page = $this->createPageLoader()->load(
+            $request,
+            Generator::generateSalesChannelContext(paymentMethod: $contextPaymentMethod)
+        );
+
+        static::assertSame($orderPaymentMethod->getId(), $page->getSelectedPaymentMethodId());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testLoadSelectsThePaymentMethodOfTheLatestOrderTransaction(): void
+    {
+        $paymentMethod = new PaymentMethodEntity();
+        $paymentMethod->setId(Uuid::randomHex());
+        $paymentMethod->setAfterOrderEnabled(true);
+
+        $this->expectPaymentMethods(new PaymentMethodCollection([$paymentMethod]));
+
+        $previousTransaction = new OrderTransactionEntity();
+        $previousTransaction->setId(Uuid::randomHex());
+        $previousTransaction->setPaymentMethodId(Uuid::randomHex());
+
+        $latestTransaction = new OrderTransactionEntity();
+        $latestTransaction->setId(Uuid::randomHex());
+        $latestTransaction->setPaymentMethodId($paymentMethod->getId());
+
+        $order = $this->expectOrder();
+        $order->setTransactions(new OrderTransactionCollection([$previousTransaction, $latestTransaction]));
+
+        $request = new Request();
+        $request->attributes->set('orderId', $order->getId());
+
+        $page = $this->createPageLoader()->load($request, Generator::generateSalesChannelContext());
+
+        static::assertSame($paymentMethod->getId(), $page->getSelectedPaymentMethodId());
+    }
+
+    public function testLoadSelectsTheRequestedPaymentMethod(): void
+    {
+        $requestedPaymentMethod = new PaymentMethodEntity();
+        $requestedPaymentMethod->setId(Uuid::randomHex());
+        $requestedPaymentMethod->setAfterOrderEnabled(true);
+
+        $this->expectPaymentMethods(new PaymentMethodCollection([$requestedPaymentMethod]));
+
+        $order = $this->expectOrder(Uuid::randomHex());
+
+        $request = new Request();
+        $request->attributes->set('orderId', $order->getId());
+        $request->query->set('paymentMethodId', $requestedPaymentMethod->getId());
+
+        $page = $this->createPageLoader()->load($request, Generator::generateSalesChannelContext());
+
+        static::assertSame($requestedPaymentMethod->getId(), $page->getSelectedPaymentMethodId());
+    }
+
+    public function testLoadIgnoresARequestedPaymentMethodThatIsNotAvailable(): void
+    {
+        $orderPaymentMethod = new PaymentMethodEntity();
+        $orderPaymentMethod->setId(Uuid::randomHex());
+        $orderPaymentMethod->setAfterOrderEnabled(true);
+
+        $this->expectPaymentMethods(new PaymentMethodCollection([$orderPaymentMethod]));
+
+        $order = $this->expectOrder($orderPaymentMethod->getId());
+
+        $request = new Request();
+        $request->attributes->set('orderId', $order->getId());
+        $request->query->set('paymentMethodId', Uuid::randomHex());
+
+        $page = $this->createPageLoader()->load($request, Generator::generateSalesChannelContext());
+
+        static::assertSame($orderPaymentMethod->getId(), $page->getSelectedPaymentMethodId());
+    }
+
+    private function expectOrder(?string $paymentMethodId = null): OrderEntity
+    {
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+
+        if ($paymentMethodId !== null) {
+            $transaction = new OrderTransactionEntity();
+            $transaction->setId(Uuid::randomHex());
+            $transaction->setPaymentMethodId($paymentMethodId);
+
+            $order->setPrimaryOrderTransaction($transaction);
+        }
+
+        $this->orderRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willReturn(new OrderRouteResponse(
+                new EntitySearchResult(
+                    OrderDefinition::ENTITY_NAME,
+                    1,
+                    new OrderCollection([$order]),
+                    null,
+                    new Criteria(),
+                    Context::createDefaultContext()
+                )
+            ));
+
+        return $order;
+    }
+
+    private function expectPaymentMethods(PaymentMethodCollection $paymentMethods): void
+    {
+        $this->checkoutGatewayRoute
+            ->method('load')
+            ->willReturn(new CheckoutGatewayRouteResponse(
+                $paymentMethods,
+                new ShippingMethodCollection(),
+                new ErrorCollection(),
+            ));
     }
 
     private function createPageLoader(

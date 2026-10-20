@@ -7,20 +7,10 @@
 import { mount } from '@vue/test-utils';
 
 const addressFormat = [
-    [
-        'address/company',
-        'symbol/dash',
-        'address/department',
-    ],
-    [
-        'address/first_name',
-        'address/last_name',
-    ],
+    ['address/company', 'symbol/dash', 'address/department'],
+    ['address/first_name', 'address/last_name'],
     ['address/street'],
-    [
-        'address/zipcode',
-        'address/city',
-    ],
+    ['address/zipcode', 'address/city'],
     ['address/country'],
 ];
 
@@ -75,6 +65,9 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                     <div class="sw-popover" :class="popoverClass">
                         <slot></slot>
                     </div>`,
+        },
+        'mt-floating-ui': {
+            template: '<div><slot /></div>',
         },
         'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
         'sw-select-result': await wrapTestComponent('sw-select-result'),
@@ -212,14 +205,9 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be able to edit the address handling tab', async () => {
-        wrapper = await createWrapper(
-            [
-                'country.editor',
-            ],
-            {
-                defaultPostalCodePattern: '\\d{5}',
-            },
-        );
+        wrapper = await createWrapper(['country.editor'], {
+            defaultPostalCodePattern: '\\d{5}',
+        });
         await flushPromises();
 
         const countryForceStateInRegistrationField = wrapper.find(
@@ -300,14 +288,9 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be able to toggle advanced postal code pattern', async () => {
-        wrapper = await createWrapper(
-            [
-                'country.editor',
-            ],
-            {
-                defaultPostalCodePattern: '\\d{5}',
-            },
-        );
+        wrapper = await createWrapper(['country.editor'], {
+            defaultPostalCodePattern: '\\d{5}',
+        });
 
         await wrapper.setProps({
             country: {
@@ -331,14 +314,9 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be not able to toggle advanced postal code pattern', async () => {
-        wrapper = await createWrapper(
-            [
-                'country.editor',
-            ],
-            {
-                defaultPostalCodePattern: '\\d{5}',
-            },
-        );
+        wrapper = await createWrapper(['country.editor'], {
+            defaultPostalCodePattern: '\\d{5}',
+        });
 
         await wrapper.setProps({
             country: {
@@ -429,9 +407,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should able to show the modal with insert new snippet', async () => {
-        wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        wrapper = await createWrapper(['country.editor']);
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-country-new-snippet-modal').exists()).toBeFalsy();
@@ -458,9 +434,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be able to add a new row above than current row', async () => {
-        wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        wrapper = await createWrapper(['country.editor']);
 
         await wrapper.setProps({
             country: { addressFormat },
@@ -490,9 +464,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be able to add a new row below than current row', async () => {
-        wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        wrapper = await createWrapper(['country.editor']);
 
         await wrapper.setProps({
             country: { addressFormat },
@@ -524,9 +496,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be able to move the current row to the top', async () => {
-        wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        wrapper = await createWrapper(['country.editor']);
 
         await wrapper.setProps({
             country: { addressFormat },
@@ -536,20 +506,10 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         let swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
         expect(wrapper.vm.country.addressFormat).toEqual([
-            [
-                'address/company',
-                'symbol/dash',
-                'address/department',
-            ],
-            [
-                'address/first_name',
-                'address/last_name',
-            ],
+            ['address/company', 'symbol/dash', 'address/department'],
+            ['address/first_name', 'address/last_name'],
             ['address/street'],
-            [
-                'address/zipcode',
-                'address/city',
-            ],
+            ['address/zipcode', 'address/city'],
             ['address/country'],
         ]);
 
@@ -571,20 +531,10 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
         expect(addressHandlingWrapper.vm.addressFormat).toEqual([
             ['address/country'],
-            [
-                'address/company',
-                'symbol/dash',
-                'address/department',
-            ],
-            [
-                'address/first_name',
-                'address/last_name',
-            ],
+            ['address/company', 'symbol/dash', 'address/department'],
+            ['address/first_name', 'address/last_name'],
             ['address/street'],
-            [
-                'address/zipcode',
-                'address/city',
-            ],
+            ['address/zipcode', 'address/city'],
         ]);
 
         expect(swMultiSnippet[0].findAll('.sw-select-selection-list > li')).toHaveLength(2);
@@ -593,9 +543,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be able to move the current row to the bottom', async () => {
-        wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        wrapper = await createWrapper(['country.editor']);
 
         await wrapper.setProps({
             country: { addressFormat },
@@ -606,20 +554,10 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         let swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
         expect(wrapper.vm.country.addressFormat).toEqual([
-            [
-                'address/company',
-                'symbol/dash',
-                'address/department',
-            ],
-            [
-                'address/first_name',
-                'address/last_name',
-            ],
+            ['address/company', 'symbol/dash', 'address/department'],
+            ['address/first_name', 'address/last_name'],
             ['address/street'],
-            [
-                'address/zipcode',
-                'address/city',
-            ],
+            ['address/zipcode', 'address/city'],
             ['address/country'],
         ]);
 
@@ -639,21 +577,11 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
         expect(wrapper.vm.country.addressFormat).toEqual([
-            [
-                'address/company',
-                'symbol/dash',
-                'address/department',
-            ],
+            ['address/company', 'symbol/dash', 'address/department'],
             ['address/street'],
-            [
-                'address/zipcode',
-                'address/city',
-            ],
+            ['address/zipcode', 'address/city'],
             ['address/country'],
-            [
-                'address/first_name',
-                'address/last_name',
-            ],
+            ['address/first_name', 'address/last_name'],
         ]);
         expect(swMultiSnippet[1].findAll('.sw-select-selection-list > li')).toHaveLength(2);
         expect(swMultiSnippet[3].findAll('.sw-select-selection-list > li')).toHaveLength(2);
@@ -661,9 +589,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be able to delete the current row', async () => {
-        wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        wrapper = await createWrapper(['country.editor']);
 
         await wrapper.setProps({
             country: { addressFormat },
@@ -691,37 +617,25 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be able to save config when starting drag', async () => {
-        wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        wrapper = await createWrapper(['country.editor']);
         await flushPromises();
 
         const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
         await addressHandlingWrapper.vm.onDragStart({
             data: {
                 index: 0,
-                snippet: [
-                    'address/company',
-                    'symbol/dash',
-                    'address/department',
-                ],
+                snippet: ['address/company', 'symbol/dash', 'address/department'],
             },
         });
 
         expect(addressHandlingWrapper.vm.draggedItem).toEqual({
             index: 0,
-            snippet: [
-                'address/company',
-                'symbol/dash',
-                'address/department',
-            ],
+            snippet: ['address/company', 'symbol/dash', 'address/department'],
         });
     });
 
     it('should not be able to save config with an invalid item when ending drag', async () => {
-        wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        wrapper = await createWrapper(['country.editor']);
         await flushPromises();
 
         const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
@@ -737,32 +651,20 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         await addressHandlingWrapper.vm.onDragStart({
             data: {
                 index: 0,
-                snippet: [
-                    'address/company',
-                    'symbol/dash',
-                    'address/department',
-                ],
+                snippet: ['address/company', 'symbol/dash', 'address/department'],
             },
         });
         await flushPromises();
 
         expect(addressHandlingWrapper.vm.draggedItem).toEqual({
             index: 0,
-            snippet: [
-                'address/company',
-                'symbol/dash',
-                'address/department',
-            ],
+            snippet: ['address/company', 'symbol/dash', 'address/department'],
         });
 
         await addressHandlingWrapper.vm.onDragEnter(
             {
                 index: 0,
-                snippet: [
-                    'address/company',
-                    'symbol/dash',
-                    'address/department',
-                ],
+                snippet: ['address/company', 'symbol/dash', 'address/department'],
             },
             null,
         );
@@ -777,9 +679,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be able to save config when drag ends', async () => {
-        wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        wrapper = await createWrapper(['country.editor']);
         await flushPromises();
 
         const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
@@ -789,67 +689,38 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         await addressHandlingWrapper.vm.onDragStart({
             data: {
                 index: 0,
-                snippet: [
-                    'address/company',
-                    'symbol/dash',
-                    'address/department',
-                ],
+                snippet: ['address/company', 'symbol/dash', 'address/department'],
             },
         });
 
         expect(addressHandlingWrapper.vm.draggedItem).toEqual({
             index: 0,
-            snippet: [
-                'address/company',
-                'symbol/dash',
-                'address/department',
-            ],
+            snippet: ['address/company', 'symbol/dash', 'address/department'],
         });
 
         await addressHandlingWrapper.vm.onDragEnter(
             {
                 index: 0,
-                snippet: [
-                    'address/company',
-                    'symbol/dash',
-                    'address/department',
-                ],
+                snippet: ['address/company', 'symbol/dash', 'address/department'],
             },
             {
                 index: 1,
-                snippet: [
-                    'address/company',
-                    'symbol/dash',
-                    'address/department',
-                ],
+                snippet: ['address/company', 'symbol/dash', 'address/department'],
             },
         );
 
         expect(addressHandlingWrapper.vm.droppedItem).toEqual({
             index: 1,
-            snippet: [
-                'address/company',
-                'symbol/dash',
-                'address/department',
-            ],
+            snippet: ['address/company', 'symbol/dash', 'address/department'],
         });
     });
 
     it('should be able to move a row on dragging', async () => {
-        wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        wrapper = await createWrapper(['country.editor']);
         await flushPromises();
 
-        expect(wrapper.vm.country.addressFormat[0]).toEqual([
-            'address/company',
-            'symbol/dash',
-            'address/department',
-        ]);
-        expect(wrapper.vm.country.addressFormat[1]).toEqual([
-            'address/first_name',
-            'address/last_name',
-        ]);
+        expect(wrapper.vm.country.addressFormat[0]).toEqual(['address/company', 'symbol/dash', 'address/department']);
+        expect(wrapper.vm.country.addressFormat[1]).toEqual(['address/first_name', 'address/last_name']);
 
         const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
 
@@ -905,32 +776,16 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         await addressHandlingWrapper.vm.onDrop();
         await flushPromises();
 
-        expect(wrapper.vm.country.addressFormat[0]).toEqual([
-            'address/company',
-            'symbol/dash',
-            'address/department',
-        ]);
+        expect(wrapper.vm.country.addressFormat[0]).toEqual(['address/company', 'symbol/dash', 'address/department']);
 
         await dragRow(0, 3);
         await addressHandlingWrapper.vm.onDrop();
         await flushPromises();
 
-        expect(wrapper.vm.country.addressFormat[0]).toEqual([
-            'address/first_name',
-            'address/last_name',
-        ]);
-        expect(wrapper.vm.country.addressFormat[1]).toEqual([
-            'address/street',
-        ]);
-        expect(wrapper.vm.country.addressFormat[2]).toEqual([
-            'address/zipcode',
-            'address/city',
-        ]);
-        expect(wrapper.vm.country.addressFormat[3]).toEqual([
-            'address/company',
-            'symbol/dash',
-            'address/department',
-        ]);
+        expect(wrapper.vm.country.addressFormat[0]).toEqual(['address/first_name', 'address/last_name']);
+        expect(wrapper.vm.country.addressFormat[1]).toEqual(['address/street']);
+        expect(wrapper.vm.country.addressFormat[2]).toEqual(['address/zipcode', 'address/city']);
+        expect(wrapper.vm.country.addressFormat[3]).toEqual(['address/company', 'symbol/dash', 'address/department']);
         expect(addressHandlingWrapper.vm.rowDragPreview).toBeNull();
 
         const rowsAfterDrop = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
@@ -945,11 +800,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         await addressHandlingWrapper.vm.onDrop();
         await flushPromises();
 
-        expect(wrapper.vm.country.addressFormat[0]).toEqual([
-            'address/company',
-            'symbol/dash',
-            'address/department',
-        ]);
+        expect(wrapper.vm.country.addressFormat[0]).toEqual(['address/company', 'symbol/dash', 'address/department']);
 
         await dragRow(0, 2);
 
@@ -961,9 +812,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should use the line position when dragging a row over a nested snippet drop zone', async () => {
-        wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        wrapper = await createWrapper(['country.editor']);
         await flushPromises();
 
         const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
@@ -994,28 +843,15 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         await addressHandlingWrapper.vm.onDrop();
         await flushPromises();
 
-        expect(wrapper.vm.country.addressFormat[2]).toEqual([
-            'address/company',
-            'symbol/dash',
-            'address/department',
-        ]);
+        expect(wrapper.vm.country.addressFormat[2]).toEqual(['address/company', 'symbol/dash', 'address/department']);
     });
 
     it('should be able to add a new snippet to another line on dragging', async () => {
-        wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        wrapper = await createWrapper(['country.editor']);
         await flushPromises();
 
-        expect(wrapper.vm.country.addressFormat[0]).toEqual([
-            'address/company',
-            'symbol/dash',
-            'address/department',
-        ]);
-        expect(wrapper.vm.country.addressFormat[1]).toEqual([
-            'address/first_name',
-            'address/last_name',
-        ]);
+        expect(wrapper.vm.country.addressFormat[0]).toEqual(['address/company', 'symbol/dash', 'address/department']);
+        expect(wrapper.vm.country.addressFormat[1]).toEqual(['address/first_name', 'address/last_name']);
 
         const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
         await addressHandlingWrapper.vm.onDropEnd(0, {
@@ -1026,18 +862,12 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             },
             dropData: {
                 index: 1,
-                snippet: [
-                    'address/first_name',
-                    'address/last_name',
-                ],
+                snippet: ['address/first_name', 'address/last_name'],
             },
         });
         await flushPromises();
 
-        expect(wrapper.vm.country.addressFormat[0]).toEqual([
-            'address/company',
-            'symbol/dash',
-        ]);
+        expect(wrapper.vm.country.addressFormat[0]).toEqual(['address/company', 'symbol/dash']);
 
         expect(wrapper.vm.country.addressFormat[1]).toEqual([
             'address/first_name',
@@ -1047,24 +877,12 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should preview and move a snippet to the target position in another line', async () => {
-        wrapper = await createWrapper(
-            [
-                'country.editor',
+        wrapper = await createWrapper(['country.editor'], {
+            addressFormat: [
+                ['address/company', 'symbol/dash', 'address/department'],
+                ['address/first_name', 'address/last_name'],
             ],
-            {
-                addressFormat: [
-                    [
-                        'address/company',
-                        'symbol/dash',
-                        'address/department',
-                    ],
-                    [
-                        'address/first_name',
-                        'address/last_name',
-                    ],
-                ],
-            },
-        );
+        });
         await flushPromises();
 
         const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
@@ -1076,10 +894,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             },
             dropData: {
                 index: 1,
-                snippet: [
-                    'address/first_name',
-                    'address/last_name',
-                ],
+                snippet: ['address/first_name', 'address/last_name'],
             },
         });
 
@@ -1120,10 +935,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             },
         });
 
-        expect(wrapper.vm.country.addressFormat[0]).toEqual([
-            'address/company',
-            'symbol/dash',
-        ]);
+        expect(wrapper.vm.country.addressFormat[0]).toEqual(['address/company', 'symbol/dash']);
         expect(wrapper.vm.country.addressFormat[1]).toEqual([
             'address/first_name',
             'address/department',
@@ -1132,22 +944,13 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should move snippets before the target snippet in different lines', async () => {
-        wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        wrapper = await createWrapper(['country.editor']);
 
         await wrapper.setProps({
             country: {
                 addressFormat: [
-                    [
-                        'address/company',
-                        'symbol/dash',
-                        'address/department',
-                    ],
-                    [
-                        'address/first_name',
-                        'address/last_name',
-                    ],
+                    ['address/company', 'symbol/dash', 'address/department'],
+                    ['address/first_name', 'address/last_name'],
                 ],
             },
         });
@@ -1173,15 +976,11 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             'address/last_name',
             'address/department',
         ]);
-        expect(wrapper.vm.country.addressFormat[1]).toEqual([
-            'address/first_name',
-        ]);
+        expect(wrapper.vm.country.addressFormat[1]).toEqual(['address/first_name']);
     });
 
     it('should be able to preview formatting with the customer', async () => {
-        wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        wrapper = await createWrapper(['country.editor']);
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-country-preview-template__content').exists()).toBe(false);
@@ -1193,7 +992,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         await flushPromises();
 
-        const selectResult = wrapper.get('.sw-select-result-list-popover-wrapper');
+        const selectResult = wrapper.get('.sw-select-result-list__content');
 
         await selectResult.findAll('li')[0].trigger('click');
 
@@ -1207,15 +1006,13 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should update the preview when the address markup changes after selecting a customer', async () => {
-        wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        wrapper = await createWrapper(['country.editor']);
         await flushPromises();
 
         await wrapper.get('.sw-entity-single-select input').trigger('click');
         await flushPromises();
 
-        await wrapper.get('.sw-select-result-list-popover-wrapper').findAll('li')[0].trigger('click');
+        await wrapper.get('.sw-select-result-list__content').findAll('li')[0].trigger('click');
         await flushPromises();
 
         renderMock.mockResolvedValueOnce({
@@ -1235,9 +1032,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be able to revert address to the default', async () => {
-        wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        wrapper = await createWrapper(['country.editor']);
 
         await wrapper.setProps({
             country: { addressFormat },

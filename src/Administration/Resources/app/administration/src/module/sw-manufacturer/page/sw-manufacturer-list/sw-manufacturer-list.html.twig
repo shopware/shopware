@@ -66,7 +66,7 @@
                 v-if="!isLoading && !total"
                 :centered="true"
                 :icon="$route.meta.$module.icon"
-                :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-empty-state.messageNoResultTitle')"
+                :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-manufacturer.list.messageEmpty')"
                 :description="isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : $t($route.meta.$module.description)"
                 :link-text="isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
                 :link-href="isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"

@@ -19,10 +19,7 @@ export default {
         'feature',
     ],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     data() {
         return {
@@ -251,10 +248,7 @@ export default {
         },
 
         async loadTranslationMetadata() {
-            const [
-                listResponse,
-                metaResponse,
-            ] = await Promise.all([
+            const [listResponse, metaResponse] = await Promise.all([
                 this.translationService.getList().catch(() => null),
                 this.translationService.getMeta().catch(() => null),
             ]);
@@ -283,6 +277,23 @@ export default {
             return this.$t('sw-settings-language.list.salesChannelCount', count);
         },
 
+        localeLabel(item) {
+            const localeCode = item.locale?.code;
+
+            if (!localeCode) {
+                return '';
+            }
+
+            const metadata = this.translationMetadata[localeCode];
+
+            // Pseudo languages borrow a real locale code, so only their own name describes them
+            if (metadata?.isPseudoLanguage) {
+                return metadata.name;
+            }
+
+            return Shopware.Utils.format.localeName(localeCode);
+        },
+
         getSnippetStatus(item) {
             const localeCode = item.locale?.code;
 
@@ -300,6 +311,10 @@ export default {
             }
 
             return 'updateAvailable';
+        },
+
+        onAddLanguage() {
+            this.showAddLanguageModal = true;
         },
 
         async onLanguageAdded(locale) {
@@ -321,10 +336,7 @@ export default {
                 return;
             }
 
-            await Promise.all([
-                this.getList(),
-                this.loadTranslationMetadata(),
-            ]);
+            await Promise.all([this.getList(), this.loadTranslationMetadata()]);
         },
 
         async onUpdateAllSnippets() {
@@ -450,10 +462,7 @@ export default {
 
         invalidateLanguageCaches() {
             Shopware.Service('cacheService').invalidateCaches({
-                cacheKey: [
-                    'shared-data',
-                    'active-languages',
-                ],
+                cacheKey: ['shared-data', 'active-languages'],
             });
         },
 

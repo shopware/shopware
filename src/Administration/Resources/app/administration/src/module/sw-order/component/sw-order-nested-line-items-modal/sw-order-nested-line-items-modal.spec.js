@@ -35,10 +35,7 @@ const mockParent = {
     type: 'product',
     label: 'Parent Item',
     quantity: 1,
-    children: [
-        getMockChild('1', 'parent'),
-        getMockChild('2', 'parent'),
-    ],
+    children: [getMockChild('1', 'parent'), getMockChild('2', 'parent')],
     totalPrice: 200,
     unitPrice: 200,
     price: {

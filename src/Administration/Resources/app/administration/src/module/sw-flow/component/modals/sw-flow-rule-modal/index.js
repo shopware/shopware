@@ -19,15 +19,9 @@ export default {
         'feature',
     ],
 
-    emits: [
-        'process-finish',
-        'modal-close',
-    ],
+    emits: ['process-finish', 'modal-close'],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 
     props: {
         ruleId: {
@@ -126,10 +120,7 @@ export default {
 
         ...mapState(() => Store.get('swFlow'), ['flow']),
 
-        ...mapPropertyErrors('rule', [
-            'name',
-            'priority',
-        ]),
+        ...mapPropertyErrors('rule', ['name', 'priority']),
     },
 
     created() {
@@ -232,10 +223,7 @@ export default {
 
         onConditionsChanged({ conditions, deletedIds }) {
             this.conditionTree = conditions;
-            this.deletedIds = [
-                ...this.deletedIds,
-                ...deletedIds,
-            ];
+            this.deletedIds = [...this.deletedIds, ...deletedIds];
         },
 
         getRuleDetail() {

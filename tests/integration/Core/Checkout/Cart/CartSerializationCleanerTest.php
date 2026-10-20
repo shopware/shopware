@@ -74,7 +74,7 @@ class CartSerializationCleanerTest extends TestCase
     #[DataProvider('cleanupCoversProvider')]
     public function testLineItemCovers(Cart $cart, ?MediaEntity $expectedCover): void
     {
-        $dispatcher = $this->createMock(EventDispatcher::class);
+        $dispatcher = static::createStub(EventDispatcher::class);
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())->method('fetchFirstColumn');
 

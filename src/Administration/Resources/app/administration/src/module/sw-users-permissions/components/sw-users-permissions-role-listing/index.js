@@ -11,18 +11,11 @@ const { Criteria } = Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'ssoSettingsService',
-    ],
+    inject: ['repositoryFactory', 'acl', 'ssoSettingsService'],
 
     emits: ['get-list'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     data() {
         return {

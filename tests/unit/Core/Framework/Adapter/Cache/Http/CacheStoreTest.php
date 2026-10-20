@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
+use Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Message\RefreshHttpCacheMessageTest;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Clock\MockClock;
@@ -32,44 +33,6 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 #[CoversClass(CacheStore::class)]
 class CacheStoreTest extends TestCase
 {
-    /**
-     * Environment variables written by system:setup and the credential-bearing DSNs and URLs Shopware reads.
-     * The refresh message is persisted by the message queue transport, so none of them may end up in it.
-     */
-    private const SHOPWARE_ENVIRONMENT_VARIABLES = [
-        'ADMIN_OPENSEARCH_URL',
-        'APP_ENV',
-        'APP_SECRET',
-        'APP_URL',
-        'BLUE_GREEN_DEPLOYMENT',
-        'COMPOSER_HOME',
-        'DATABASE_REPLICA_0_URL',
-        'DATABASE_SSL_CA',
-        'DATABASE_SSL_CERT',
-        'DATABASE_SSL_DONT_VERIFY_SERVER_CERT',
-        'DATABASE_SSL_KEY',
-        'DATABASE_URL',
-        'INSTANCE_ID',
-        'LOCK_DSN',
-        'MAILER_DSN',
-        'MESSENGER_TRANSPORT_DSN',
-        'MESSENGER_TRANSPORT_FAILURE_DSN',
-        'MESSENGER_TRANSPORT_LOW_PRIORITY_DSN',
-        'OPENSEARCH_URL',
-        'PRODUCT_ANALYTICS_GATEWAY_URL',
-        'SERVICE_REGISTRY_URL',
-        'SHOPWARE_ADMIN_ES_ENABLED',
-        'SHOPWARE_ADMIN_ES_INDEX_PREFIX',
-        'SHOPWARE_ADMIN_ES_REFRESH_INDICES',
-        'SHOPWARE_CACHE_ID',
-        'SHOPWARE_CDN_STRATEGY_DEFAULT',
-        'SHOPWARE_ES_ENABLED',
-        'SHOPWARE_ES_INDEX_PREFIX',
-        'SHOPWARE_ES_INDEXING_ENABLED',
-        'SHOPWARE_HTTP_CACHE_ENABLED',
-        'SHOPWARE_HTTP_DEFAULT_TTL',
-    ];
-
     public function testGetLock(): void
     {
         $request = new Request();
@@ -396,33 +359,18 @@ class CacheStoreTest extends TestCase
         static::assertCount(1, $bus->getMessages());
     }
 
+    /**
+     * Only checks that the refresh message is built from the request. What it keeps and drops is covered here:
+     *
+     * @see RefreshHttpCacheMessageTest
+     */
     public function testLookupWithSoftPurgeAndStaleCache(): void
     {
         $leakedValue = 'leaked-environment-value';
-        $keptServer = [
-            'HTTP_HOST' => 'shop.example',
-            'HTTP_X_FORWARDED_PROTO' => 'https',
-            'HTTPS' => 'on',
-            'REQUEST_URI' => '/detail/1',
-            'REQUEST_METHOD' => 'GET',
-            'SCRIPT_NAME' => '/index.php',
-            'REMOTE_ADDR' => '10.0.0.1',
-        ];
-        $droppedServer = [
-            ...array_fill_keys(self::SHOPWARE_ENVIRONMENT_VARIABLES, $leakedValue),
-            // environment variables that look like headers, from the process environment and from a .env file
-            'HTTP_PROXY' => $leakedValue,
-            'HTTP_DOTENV_PROXY' => $leakedValue,
-            'SYMFONY_DOTENV_VARS' => 'APP_SECRET,HTTP_DOTENV_PROXY',
-            // credentials sent with the request, e.g. basic auth in front of a staging shop, and the session id
-            'HTTP_AUTHORIZATION' => 'Basic ' . $leakedValue,
-            'HTTP_PROXY_AUTHORIZATION' => 'Basic ' . $leakedValue,
-            'HTTP_COOKIE' => PlatformRequest::FALLBACK_SESSION_NAME . '=' . $leakedValue . '; sw-cache-hash=context-hash',
-        ];
-        $request = new Request(cookies: [
-            PlatformRequest::FALLBACK_SESSION_NAME => $leakedValue,
-            'sw-cache-hash' => 'context-hash',
-        ], server: [...$keptServer, ...$droppedServer]);
+        $request = new Request(
+            cookies: [PlatformRequest::FALLBACK_SESSION_NAME => $leakedValue],
+            server: ['HTTP_HOST' => 'shop.example', 'REQUEST_URI' => '/detail/1', 'DATABASE_URL' => $leakedValue],
+        );
         $response = new Response();
         $response->headers->set('date', date('Y-m-d H:i:s', time() - 3600)); // 1 hour ago
 
@@ -472,8 +420,7 @@ class CacheStoreTest extends TestCase
 
         $message = $messages[0]->getMessage();
         static::assertInstanceOf(RefreshHttpCacheMessage::class, $message);
-        static::assertSame($keptServer, $message->server);
-        static::assertSame(['sw-cache-hash' => 'context-hash'], $message->cookies);
+        static::assertSame(['HTTP_HOST' => 'shop.example', 'REQUEST_URI' => '/detail/1'], $message->server);
         static::assertStringNotContainsString($leakedValue, serialize($message));
     }
 

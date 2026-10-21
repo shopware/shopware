@@ -47,6 +47,17 @@ The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physica
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
 
+### Public constant for the MCP connect-URL toolset selection
+
+`McpToolsetRegistry::QUERY_PARAMETER` now names the `toolsets` query parameter that selects toolsets in the MCP connect URL, on `/api/_mcp` and `/store-api/_mcp`.
+Use it instead of checking for an internal class.
+Code that also supports 6.7.15 or 6.7.16, which have the parameter but not the constant, detects the parameter with `\defined(McpToolsetRegistry::class . '::ALL_TOOLSETS')` and uses the literal `'toolsets'`.
+
+`shopware-toolsets-list` now reports the toolsets selected in the connect URL as enabled.
+The name `all` is reserved for selecting every toolset, so tools of a plugin, bundle or app group named `all` are listed in the `other` toolset.
+Give such tools a group with another name.
+`McpToolsetRegistry::advertisedTools(['all'])` now returns the tools of every toolset, as `advertisedToolsForNames(['all'])` does.
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request
@@ -664,12 +675,6 @@ $lineItem = $lineItemFactoryRegistry->create([
     'referencedId' => $code,
 ], $salesChannelContext);
 ```
-
-### Public constant for the MCP connect-URL toolset selection
-
-`McpToolsetRegistry::QUERY_PARAMETER` now names the `toolsets` query parameter that selects toolsets in the MCP connect URL, on `/api/_mcp` and `/store-api/_mcp`. The parameter exists since 6.7.15.0, the constant since 6.7.16.0. Code that also supports 6.7.15 detects the parameter with `\defined(McpToolsetRegistry::class . '::ALL_TOOLSETS')` and uses the literal `'toolsets'`. Do not probe the internal `McpRequestedToolsetResolver` class, which can be renamed without notice.
-
-`shopware-toolsets-list` now reports the toolsets selected in the connect URL as enabled. A tool group named `all` now belongs to the `other` toolset, because `?toolsets=all` selects every toolset. `McpToolsetRegistry::advertisedTools()` resolves `all` the same way as `advertisedToolsForNames()`.
 
 ## API
 

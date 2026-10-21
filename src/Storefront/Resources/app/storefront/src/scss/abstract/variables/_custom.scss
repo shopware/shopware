@@ -7,6 +7,7 @@ Contains custom non bootstrap variables.
 */
 
 $search-suggest-zindex: 1000 !default;
+// @deprecated tag:v6.8.0 - The custom offcanvas z-index variable is not used anymore. To override the offcanvas z-index, use the bootstrap variable $zindex-offcanvas instead.
 $offcanvas-zindex: 1050 !default;
 $cookie-msg-zindex: 1100 !default;
 $scroll-up-zindex: 700 !default;

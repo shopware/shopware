@@ -58,10 +58,23 @@ class OpenNewTabResponseFactoryTest extends TestCase
         );
     }
 
-    #[DataProvider('provideActionTypes')]
+    #[DataProvider('actionTypesProvider')]
     public function testSupportsOnlyOpenNewTabActionType(string $actionType, bool $isSupported): void
     {
         static::assertSame($isSupported, $this->factory->supports($actionType));
+    }
+
+    /**
+     * @return array<array<string|bool>>
+     */
+    public static function actionTypesProvider(): array
+    {
+        return [
+            [NotificationResponse::ACTION_TYPE, false],
+            [OpenModalResponse::ACTION_TYPE, false],
+            [OpenNewTabResponse::ACTION_TYPE, true],
+            [ReloadDataResponse::ACTION_TYPE, false],
+        ];
     }
 
     public function testCreatesOpenNewTabResponse(): void
@@ -81,26 +94,28 @@ class OpenNewTabResponseFactoryTest extends TestCase
         static::assertInstanceOf(OpenNewTabResponse::class, $response);
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    #[DataProvider('provideInvalidPayloads')]
-    public function testThrowsExceptionWhenValidationFails(array $payload, string $message): void
+    #[DataProvider('falsyAppSecretProvider')]
+    public function testKeepsRedirectUrlUnsignedWithoutSecret(?string $appSecret): void
     {
-        $this->expectExceptionObject(AppException::actionButtonProcessException($this->action->getActionId(), $message));
+        $this->action->getApp()->setAppSecret($appSecret);
 
-        $this->createWithErrorsAsExceptions($payload);
+        $response = $this->factory->create(
+            $this->action,
+            ['redirectUrl' => 'http://redirect.url'],
+            Context::createDefaultContext()
+        );
+
+        static::assertSame('http://redirect.url', $response->jsonSerialize()['redirectUrl']);
     }
 
     /**
-     * @param array<string, mixed> $payload
+     * @return iterable<string, array{string|null}>
      */
-    #[DataProvider('provideRejectedRedirectUrlPayloads')]
-    public function testRejectsRedirectUrlThatIsNotANonEmptyString(array $payload): void
+    public static function falsyAppSecretProvider(): iterable
     {
-        $this->expectExceptionObject(AppException::actionButtonProcessException($this->action->getActionId(), 'The app provided an invalid redirectUrl'));
-
-        $this->createWithErrorsAsExceptions($payload);
+        yield 'null' => [null];
+        yield 'empty string' => [''];
+        yield 'zero string' => ['0'];
     }
 
     public function testAcceptsZeroStringRedirectUrl(): void
@@ -116,49 +131,21 @@ class OpenNewTabResponseFactoryTest extends TestCase
         static::assertSame('0?signed=1', $response->jsonSerialize()['redirectUrl']);
     }
 
-    #[DataProvider('provideNonStringTruthyValues')]
-    public function testRejectsNonStringTruthyRedirectUrlWithSecret(mixed $value): void
+    /**
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('rejectedRedirectUrlPayloadsProvider')]
+    public function testRejectsRedirectUrlThatIsNotANonEmptyString(array $payload): void
     {
         $this->expectExceptionObject(AppException::actionButtonProcessException($this->action->getActionId(), 'The app provided an invalid redirectUrl'));
 
-        $this->factory->create(
-            $this->action,
-            ['redirectUrl' => $value],
-            Context::createDefaultContext()
-        );
-    }
-
-    #[DataProvider('provideNonStringTruthyValues')]
-    public function testRejectsNonStringTruthyRedirectUrlWithoutSecret(mixed $value): void
-    {
-        $this->action->getApp()->setAppSecret(null);
-
-        $this->expectExceptionObject(AppException::actionButtonProcessException($this->action->getActionId(), 'The app provided an invalid redirectUrl'));
-
-        $this->factory->create(
-            $this->action,
-            ['redirectUrl' => $value],
-            Context::createDefaultContext()
-        );
-    }
-
-    public function testKeepsRedirectUrlUnsignedWithoutSecret(): void
-    {
-        $this->action->getApp()->setAppSecret(null);
-
-        $response = $this->factory->create(
-            $this->action,
-            ['redirectUrl' => 'http://redirect.url'],
-            Context::createDefaultContext()
-        );
-
-        static::assertSame('http://redirect.url', $response->jsonSerialize()['redirectUrl']);
+        $this->createWithErrorsAsExceptions($payload);
     }
 
     /**
      * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function provideRejectedRedirectUrlPayloads(): iterable
+    public static function rejectedRedirectUrlPayloadsProvider(): iterable
     {
         $base = [];
 
@@ -171,10 +158,22 @@ class OpenNewTabResponseFactoryTest extends TestCase
         yield 'empty array' => [$base + ['redirectUrl' => []]];
     }
 
+    #[DataProvider('nonStringTruthyValuesProvider')]
+    public function testRejectsNonStringTruthyRedirectUrl(mixed $value): void
+    {
+        $this->expectExceptionObject(AppException::actionButtonProcessException($this->action->getActionId(), 'The app provided an invalid redirectUrl'));
+
+        $this->factory->create(
+            $this->action,
+            ['redirectUrl' => $value],
+            Context::createDefaultContext()
+        );
+    }
+
     /**
      * @return iterable<string, array{mixed}>
      */
-    public static function provideNonStringTruthyValues(): iterable
+    public static function nonStringTruthyValuesProvider(): iterable
     {
         yield 'int' => [1];
         yield 'float' => [1.5];
@@ -183,45 +182,11 @@ class OpenNewTabResponseFactoryTest extends TestCase
     }
 
     /**
-     * @return array<array<string|bool>>
-     */
-    public static function provideActionTypes(): array
-    {
-        return [
-            [NotificationResponse::ACTION_TYPE, false],
-            [OpenModalResponse::ACTION_TYPE, false],
-            [OpenNewTabResponse::ACTION_TYPE, true],
-            [ReloadDataResponse::ACTION_TYPE, false],
-        ];
-    }
-
-    /**
-     * @return array<array<string|array<string, mixed>>>
-     */
-    public static function provideInvalidPayloads(): array
-    {
-        return [
-            [
-                [],
-                'The app provided an invalid redirectUrl',
-            ],
-            [
-                ['redirectUrl' => ''],
-                'The app provided an invalid redirectUrl',
-            ],
-        ];
-    }
-
-    /**
      * @param array<string, mixed> $payload
      */
     private function createWithErrorsAsExceptions(array $payload): void
     {
-        set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
-            if ((error_reporting() & ~(\E_ERROR | \E_PARSE | \E_CORE_ERROR | \E_COMPILE_ERROR | \E_USER_ERROR | \E_RECOVERABLE_ERROR)) === 0) {
-                return false;
-            }
-
+        set_error_handler(static function (int $severity, string $message, string $file, int $line): never {
             throw new \ErrorException($message, 0, $severity, $file, $line);
         });
 

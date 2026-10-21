@@ -36,11 +36,6 @@ class WriteCommandQueueTest extends TestCase
         );
     }
 
-    public function testEmptyQueueYieldsNoCommands(): void
-    {
-        static::assertSame([], (new WriteCommandQueue())->getCommandsInOrder($this->registry));
-    }
-
     public function testReturnsAllCommandsOfOneEntityInInsertionOrder(): void
     {
         $queue = new WriteCommandQueue();
@@ -83,6 +78,11 @@ class WriteCommandQueueTest extends TestCase
         $country = $this->countryInsert($queue, $countryId);
 
         static::assertSame([$independentState, $country, $dependentState], $queue->getCommandsInOrder($this->registry));
+    }
+
+    public function testEmptyQueueYieldsNoCommands(): void
+    {
+        static::assertSame([], (new WriteCommandQueue())->getCommandsInOrder($this->registry));
     }
 
     private function countryInsert(WriteCommandQueue $queue, ?string $id = null): WriteCommand

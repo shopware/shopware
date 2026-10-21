@@ -39,11 +39,7 @@ class CmsVersionMergeSubscriberTest extends TestCase
         // @phpstan-ignore argument.type
         $event = new BeforeVersionMergeEvent($writes);
 
-        set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
-            if ((error_reporting() & ~(\E_ERROR | \E_PARSE | \E_CORE_ERROR | \E_COMPILE_ERROR | \E_USER_ERROR | \E_RECOVERABLE_ERROR)) === 0) {
-                return false;
-            }
-
+        set_error_handler(static function (int $severity, string $message, string $file, int $line): never {
             throw new \ErrorException($message, 0, $severity, $file, $line);
         });
 

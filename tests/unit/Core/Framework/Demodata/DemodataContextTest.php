@@ -36,14 +36,6 @@ class DemodataContextTest extends TestCase
         static::assertSame(['id-1'], $context->getIds('product'));
     }
 
-    public function testGetIdsSearchesAgainAfterAnEmptyResult(): void
-    {
-        $context = $this->createContext(StaticEntityRepository::of(EntityCollection::class, [[], ['id-1']]));
-
-        static::assertSame([], $context->getIds('product'));
-        static::assertSame(['id-1'], $context->getIds('product'));
-    }
-
     public function testGetIdsCachesPerEntity(): void
     {
         $context = $this->createContext(StaticEntityRepository::of(EntityCollection::class, [['product-1'], ['tax-1']]));
@@ -51,6 +43,14 @@ class DemodataContextTest extends TestCase
         static::assertSame(['product-1'], $context->getIds('product'));
         static::assertSame(['tax-1'], $context->getIds('tax'));
         static::assertSame(['product-1'], $context->getIds('product'));
+    }
+
+    public function testGetIdsSearchesAgainAfterAnEmptyResult(): void
+    {
+        $context = $this->createContext(StaticEntityRepository::of(EntityCollection::class, [[], ['id-1']]));
+
+        static::assertSame([], $context->getIds('product'));
+        static::assertSame(['id-1'], $context->getIds('product'));
     }
 
     /**

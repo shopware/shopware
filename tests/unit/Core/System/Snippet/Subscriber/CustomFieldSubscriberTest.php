@@ -24,7 +24,7 @@ class CustomFieldSubscriberTest extends TestCase
     /**
      * @param array<string, mixed> $payload
      */
-    #[DataProvider('provideUsableLabels')]
+    #[DataProvider('usableLabelsProvider')]
     public function testLoadsSnippetSetsForUsableLabel(array $payload): void
     {
         $connection = $this->createMock(Connection::class);
@@ -36,7 +36,7 @@ class CustomFieldSubscriberTest extends TestCase
     /**
      * @param array<string, mixed> $payload
      */
-    #[DataProvider('provideUnusableLabels')]
+    #[DataProvider('unusableLabelsProvider')]
     public function testSkipsWriteWithoutUsableLabel(array $payload): void
     {
         $connection = $this->createMock(Connection::class);
@@ -48,7 +48,7 @@ class CustomFieldSubscriberTest extends TestCase
     /**
      * @param array<string, mixed> $payload
      */
-    #[DataProvider('provideScalarLabels')]
+    #[DataProvider('scalarLabelsProvider')]
     public function testScalarLabelInsertsNameFallbackSnippetForEachSnippetSet(array $payload): void
     {
         $connection = $this->createMock(Connection::class);
@@ -79,7 +79,7 @@ class CustomFieldSubscriberTest extends TestCase
     /**
      * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function provideUsableLabels(): iterable
+    public static function usableLabelsProvider(): iterable
     {
         yield 'label map' => [['name' => 'field', 'config' => ['label' => ['en-GB' => 'Label']]]];
         yield 'label map with empty text' => [['name' => 'field', 'config' => ['label' => ['en-GB' => '']]]];
@@ -88,7 +88,7 @@ class CustomFieldSubscriberTest extends TestCase
     /**
      * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function provideUnusableLabels(): iterable
+    public static function unusableLabelsProvider(): iterable
     {
         yield 'config without label' => [['name' => 'field', 'config' => ['type' => 'text']]];
         yield 'config empty array' => [['name' => 'field', 'config' => []]];
@@ -103,7 +103,7 @@ class CustomFieldSubscriberTest extends TestCase
     /**
      * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function provideScalarLabels(): iterable
+    public static function scalarLabelsProvider(): iterable
     {
         yield 'label non-empty string' => [['name' => 'field', 'config' => ['label' => 'Label']]];
         yield 'label zero string' => [['name' => 'field', 'config' => ['label' => '0']]];
@@ -122,11 +122,7 @@ class CustomFieldSubscriberTest extends TestCase
     {
         $subscriber = new CustomFieldSubscriber($connection, new MockClock(new \DateTimeImmutable('2026-04-15 12:00:00')));
 
-        set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
-            if ((error_reporting() & ~(\E_ERROR | \E_PARSE | \E_CORE_ERROR | \E_COMPILE_ERROR | \E_USER_ERROR | \E_RECOVERABLE_ERROR)) === 0) {
-                return false;
-            }
-
+        set_error_handler(static function (int $severity, string $message, string $file, int $line): never {
             throw new \ErrorException($message, 0, $severity, $file, $line);
         });
 

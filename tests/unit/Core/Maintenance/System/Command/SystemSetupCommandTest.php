@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Maintenance\System\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Command\SystemSetupCommand;
@@ -67,27 +68,28 @@ class SystemSetupCommandTest extends TestCase
         parent::tearDown();
     }
 
+    #[TestDox('The composer home option is used unless it is falsy')]
     #[DataProvider('composerHomeOptionProvider')]
-    public function testComposerHomeFromOption(mixed $option, bool $usesFallback): void
+    public function testComposerHomeFromOption(mixed $option, string $expected): void
     {
         static::assertSame(
-            $usesFallback ? $this->tempProjectDir() . '/var/cache/composer' : $option,
+            str_replace('%projectDir%', $this->tempProjectDir(), $expected),
             $this->runSetupAndReadComposerHome(['--composer-home' => $option]),
         );
     }
 
     /**
-     * @return iterable<string, array{mixed, bool}>
+     * @return iterable<string, array{mixed, string}>
      */
     public static function composerHomeOptionProvider(): iterable
     {
-        yield 'empty string' => ['', true];
-        yield 'zero string' => ['0', true];
-        yield 'boolean false' => [false, true];
-        yield 'boolean true' => [true, true];
-        yield 'path' => ['/custom/composer', false];
-        yield 'double zero string' => ['00', false];
-        yield 'space' => [' ', false];
+        yield 'empty string' => ['', '%projectDir%/var/cache/composer'];
+        yield 'zero string' => ['0', '%projectDir%/var/cache/composer'];
+        yield 'boolean false' => [false, '%projectDir%/var/cache/composer'];
+        yield 'boolean true' => [true, '%projectDir%/var/cache/composer'];
+        yield 'path' => ['/custom/composer', '/custom/composer'];
+        yield 'double zero string' => ['00', '00'];
+        yield 'space' => [' ', ' '];
     }
 
     public function testComposerHomeFallsBackWithoutOptionOrEnvironment(): void
@@ -100,25 +102,26 @@ class SystemSetupCommandTest extends TestCase
         );
     }
 
+    #[TestDox('The composer home environment variable is used unless it is falsy')]
     #[DataProvider('composerHomeEnvironmentProvider')]
-    public function testComposerHomeFromEnvironment(string $environment, bool $usesFallback): void
+    public function testComposerHomeFromEnvironment(string $environment, string $expected): void
     {
         $_SERVER['COMPOSER_HOME'] = $environment;
 
         static::assertSame(
-            $usesFallback ? $this->tempProjectDir() . '/var/cache/composer' : $environment,
+            str_replace('%projectDir%', $this->tempProjectDir(), $expected),
             $this->runSetupAndReadComposerHome([]),
         );
     }
 
     /**
-     * @return iterable<string, array{string, bool}>
+     * @return iterable<string, array{string, string}>
      */
     public static function composerHomeEnvironmentProvider(): iterable
     {
-        yield 'empty string' => ['', true];
-        yield 'zero string' => ['0', true];
-        yield 'path' => ['/env/composer', false];
+        yield 'empty string' => ['', '%projectDir%/var/cache/composer'];
+        yield 'zero string' => ['0', '%projectDir%/var/cache/composer'];
+        yield 'path' => ['/env/composer', '/env/composer'];
     }
 
     public function testEnvFileGeneration(): void

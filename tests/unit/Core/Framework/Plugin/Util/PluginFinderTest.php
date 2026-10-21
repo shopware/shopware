@@ -6,6 +6,7 @@ use Composer\IO\NullIO;
 use Composer\Package\CompletePackage;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Composer\PackageProvider;
@@ -106,7 +107,8 @@ class PluginFinderTest extends TestCase
     /**
      * @param array<string, mixed> $extra
      */
-    #[DataProvider('provideAcceptedExtras')]
+    #[TestDox('A composer plugin declaring a class and a label is discovered')]
+    #[DataProvider('acceptedExtrasProvider')]
     public function testLocalPluginWithUsableExtraIsFound(array $extra): void
     {
         static::assertArrayHasKey('Swag\LabelTest', $this->findLocalPlugins($extra));
@@ -115,7 +117,8 @@ class PluginFinderTest extends TestCase
     /**
      * @param array<string, mixed> $extra
      */
-    #[DataProvider('provideRejectedExtras')]
+    #[TestDox('A composer plugin lacking a usable class or label is dropped')]
+    #[DataProvider('rejectedExtrasProvider')]
     public function testLocalPluginWithUnusableExtraIsRejected(array $extra): void
     {
         static::assertArrayNotHasKey('Swag\LabelTest', $this->findLocalPlugins($extra));
@@ -124,7 +127,8 @@ class PluginFinderTest extends TestCase
     /**
      * @param array<string, mixed> $extra
      */
-    #[DataProvider('provideRejectedExtras')]
+    #[TestDox('A composer plugin lacking a usable class or label records an error')]
+    #[DataProvider('rejectedExtrasProvider')]
     public function testLocalPluginWithUnusableExtraReportsAnError(array $extra): void
     {
         $errors = new ExceptionCollection();
@@ -136,7 +140,8 @@ class PluginFinderTest extends TestCase
     /**
      * @param array<string, mixed> $extra
      */
-    #[DataProvider('provideAcceptedExtras')]
+    #[TestDox('A composer plugin declaring a class and a label records no error')]
+    #[DataProvider('acceptedExtrasProvider')]
     public function testLocalPluginWithUsableExtraReportsNoError(array $extra): void
     {
         $errors = new ExceptionCollection();
@@ -148,7 +153,7 @@ class PluginFinderTest extends TestCase
     /**
      * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function provideAcceptedExtras(): iterable
+    public static function acceptedExtrasProvider(): iterable
     {
         $class = 'Swag\LabelTest';
 
@@ -167,7 +172,7 @@ class PluginFinderTest extends TestCase
     /**
      * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function provideRejectedExtras(): iterable
+    public static function rejectedExtrasProvider(): iterable
     {
         $class = 'Swag\LabelTest';
 

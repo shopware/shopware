@@ -398,8 +398,28 @@ class OrderSerializerTest extends TestCase
         ];
 
         yield 'transaction with state' => [
-            'state' => new StateMachineStateEntity(),
-            'expected' => (new StateMachineStateEntity())->jsonSerialize(),
+            'state' => (new StateMachineStateEntity())->assign(['technicalName' => 'state-technical-name']),
+            'expected' => [
+                'extensions' => [],
+                'versionId' => null,
+                'translated' => [],
+                'createdAt' => null,
+                'updatedAt' => null,
+                'name' => null,
+                'technicalName' => 'state-technical-name',
+                'stateMachine' => null,
+                'fromStateMachineTransitions' => null,
+                'toStateMachineTransitions' => null,
+                'translations' => null,
+                'orders' => null,
+                'orderTransactionCaptures' => null,
+                'orderTransactionCaptureRefunds' => null,
+                'orderTransactions' => null,
+                'orderDeliveries' => null,
+                'fromStateMachineHistoryEntries' => null,
+                'toStateMachineHistoryEntries' => null,
+                'customFields' => null,
+            ],
         ];
     }
 

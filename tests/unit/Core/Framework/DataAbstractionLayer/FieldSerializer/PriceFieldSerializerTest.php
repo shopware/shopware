@@ -428,16 +428,12 @@ class PriceFieldSerializerTest extends TestCase
         static::assertNull($price->getPercentage());
     }
 
-    #[DataProvider('provideRowsWithoutUsableCurrencyId')]
+    #[DataProvider('rowsWithoutUsableCurrencyIdProvider')]
     public function testDecodeRowWithoutUsableCurrencyIdThrowsMissingFieldValue(mixed $row): void
     {
         $this->expectExceptionObject(DataAbstractionLayerException::missingFieldValue(new PriceField('test', 'test')));
 
-        set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
-            if ((error_reporting() & ~(\E_ERROR | \E_PARSE | \E_CORE_ERROR | \E_COMPILE_ERROR | \E_USER_ERROR | \E_RECOVERABLE_ERROR)) === 0) {
-                return false;
-            }
-
+        set_error_handler(static function (int $severity, string $message, string $file, int $line): never {
             throw new \ErrorException($message, 0, $severity, $file, $line);
         });
 
@@ -448,7 +444,7 @@ class PriceFieldSerializerTest extends TestCase
         }
     }
 
-    #[DataProvider('provideNonStringCurrencyIds')]
+    #[DataProvider('nonStringCurrencyIdsProvider')]
     public function testDecodeRowWithNonStringCurrencyIdThrowsMissingFieldValue(mixed $currencyId): void
     {
         $this->expectExceptionObject(DataAbstractionLayerException::missingFieldValue(new PriceField('test', 'test')));
@@ -475,7 +471,7 @@ class PriceFieldSerializerTest extends TestCase
     /**
      * @return iterable<string, array{mixed}>
      */
-    public static function provideRowsWithoutUsableCurrencyId(): iterable
+    public static function rowsWithoutUsableCurrencyIdProvider(): iterable
     {
         yield 'currencyId missing' => [['net' => 1.0, 'gross' => 1.0, 'linked' => true]];
         yield 'currencyId null' => [self::priceRow(null)];
@@ -492,7 +488,7 @@ class PriceFieldSerializerTest extends TestCase
     /**
      * @return iterable<string, array{mixed}>
      */
-    public static function provideNonStringCurrencyIds(): iterable
+    public static function nonStringCurrencyIdsProvider(): iterable
     {
         yield 'int' => [5];
         yield 'float' => [1.5];

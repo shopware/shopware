@@ -33,15 +33,13 @@ class FlowGeneratorTest extends TestCase
     {
         $ruleFetches = 0;
         $connection = static::createStub(Connection::class);
+        $ruleQueryResults = [0 => ['mail-1'], 1 => ['rule-1', 'rule-2']];
         $connection->method('fetchFirstColumn')->willReturnCallback(
-            static function (string $sql) use (&$ruleFetches): array {
-                if (str_contains($sql, 'FROM rule ')) {
-                    ++$ruleFetches;
+            static function (string $sql) use (&$ruleFetches, $ruleQueryResults): array {
+                $isRuleQuery = (int) str_contains($sql, 'FROM rule ');
+                $ruleFetches += $isRuleQuery;
 
-                    return ['rule-1', 'rule-2'];
-                }
-
-                return ['mail-1'];
+                return $ruleQueryResults[$isRuleQuery];
             }
         );
         $connection->method('fetchAllKeyValue')->willReturn(['tag-1' => 'Tag']);
@@ -58,27 +56,49 @@ class FlowGeneratorTest extends TestCase
             }
 
             /**
-             * @param string $format
-             * @param array<mixed> $arguments
+             * @param int $chanceOfGettingTrue
              */
-            public function format($format, $arguments = []): mixed
+            public function boolean($chanceOfGettingTrue = 50): bool
             {
-                if ($format === 'boolean') {
-                    return true;
-                }
+                return true;
+            }
 
-                if ($format === 'word') {
-                    return 'word';
-                }
+            public function word(): string
+            {
+                return 'word';
+            }
 
-                $elements = $arguments[0];
-                \assert(\is_array($elements));
+            /**
+             * @param array<mixed> $array
+             */
+            public function randomElement($array = ['a', 'b', 'c']): mixed
+            {
+                $this->recordStringList($array);
 
-                if ($elements === [] || \is_string(reset($elements))) {
-                    $this->ruleLists->append(array_values($elements));
-                }
+                return reset($array);
+            }
 
-                return $elements === [] ? null : reset($elements);
+            /**
+             * @param array<mixed> $array
+             * @param int $count
+             */
+            public function randomElements($array = ['a', 'b', 'c'], $count = 1): mixed
+            {
+                $this->recordStringList($array);
+
+                return reset($array);
+            }
+
+            /**
+             * @param array<mixed> $array
+             */
+            private function recordStringList(array $array): void
+            {
+                $stringLists = array_filter(
+                    [array_values($array)],
+                    static fn (array $list): bool => array_filter($list, 'is_string') === $list
+                );
+                $this->ruleLists->exchangeArray(array_merge($this->ruleLists->getArrayCopy(), $stringLists));
             }
         };
 
@@ -95,11 +115,10 @@ class FlowGeneratorTest extends TestCase
         $actionCollector->method('collect')->willReturn(new FlowActionCollectorResponse($actions));
 
         $registry = static::createStub(DefinitionInstanceRegistry::class);
-        $registry->method('getRepository')->willReturnCallback(
-            static fn (string $name) => $name === 'tag'
-                ? StaticEntityRepository::of(TagCollection::class, [['tag-1']])
-                : StaticEntityRepository::of(FlowCollection::class, [])
-        );
+        $registry->method('getRepository')->willReturnMap([
+            ['tag', StaticEntityRepository::of(TagCollection::class, [['tag-1']])],
+            ['flow', StaticEntityRepository::of(FlowCollection::class, [])],
+        ]);
 
         $demodataContext = static::createStub(DemodataContext::class);
         $demodataContext->method('getFaker')->willReturn($faker);

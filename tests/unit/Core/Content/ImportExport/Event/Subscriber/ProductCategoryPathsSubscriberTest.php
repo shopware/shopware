@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\ImportExport\Event\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\Subscriber\ProductCategoryPathsSubscriber;
@@ -11,10 +12,8 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
@@ -27,6 +26,7 @@ class ProductCategoryPathsSubscriberTest extends TestCase
      * @param array<string, mixed> $record
      * @param list<array{id: string}> $expectedCategories
      */
+    #[TestDox('Existing categories are kept and the resolved category is appended: $_dataName')]
     #[DataProvider('existingCategoriesProvider')]
     public function testResolvedCategoriesAreMergedIntoExistingOnes(array $record, array $expectedCategories): void
     {
@@ -39,6 +39,7 @@ class ProductCategoryPathsSubscriberTest extends TestCase
      * @param array<string, mixed> $row
      * @param array<string, mixed> $expectedRecord
      */
+    #[TestDox('A category_paths cell is turned into a category assignment only when it holds a value: $_dataName')]
     #[DataProvider('categoryPathsCellProvider')]
     public function testCategoryPathsCell(array $row, array $expectedRecord): void
     {
@@ -125,13 +126,7 @@ class ProductCategoryPathsSubscriberTest extends TestCase
      */
     private function importRecord(array $record, array $row): array
     {
-        $categoryRepository = static::createStub(EntityRepository::class);
-        $categoryRepository->method('searchIds')->willReturn(new IdSearchResult(
-            1,
-            ['resolved-id' => ['primaryKey' => 'resolved-id', 'data' => []]],
-            new Criteria(),
-            Context::createDefaultContext()
-        ));
+        $categoryRepository = new StaticEntityRepository([['resolved-id']]);
 
         $subscriber = new ProductCategoryPathsSubscriber($categoryRepository, static::createStub(SyncServiceInterface::class));
 
@@ -142,11 +137,7 @@ class ProductCategoryPathsSubscriberTest extends TestCase
             Context::createDefaultContext()
         );
 
-        set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
-            if ((error_reporting() & ~(\E_ERROR | \E_PARSE | \E_CORE_ERROR | \E_COMPILE_ERROR | \E_USER_ERROR | \E_RECOVERABLE_ERROR)) === 0) {
-                return false;
-            }
-
+        set_error_handler(static function (int $severity, string $message, string $file, int $line): never {
             throw new \ErrorException($message, 0, $severity, $file, $line);
         });
 

@@ -291,39 +291,51 @@ class VersionManagerTest extends TestCase
         $versionManager->merge($versionId, static::createStub(WriteContext::class));
     }
 
-    public function testMergeDispatchesInsertAndUpdateWritesAsLists(): void
+    /**
+     * @param list<VersionCommitDataEntity> $commitData
+     * @param array<string, array<string, list<array<string, mixed>>>> $expectedWrites
+     */
+    #[DataProvider('mergeWritesProvider')]
+    public function testMergeDispatchesWritesAsLists(array $commitData, array $expectedWrites): void
     {
-        $writes = $this->mergeAndCaptureWrites([
-            $this->createCommitData('data-1', 'insert', 'product-1', ['id' => 'product-1']),
-            $this->createCommitData('data-2', 'insert', 'product-2', ['id' => 'product-2']),
-            $this->createCommitData('data-3', 'update', 'product-3', ['id' => 'product-3']),
-        ]);
-
-        static::assertSame([
-            'insert' => ['product' => [['id' => 'product-1'], ['id' => 'product-2']]],
-            'update' => ['product' => [['id' => 'product-3']]],
-            'delete' => ['version_commit' => [['id' => 'commit-1']]],
-        ], $writes);
+        static::assertSame($expectedWrites, $this->mergeAndCaptureWrites($commitData));
     }
 
-    public function testMergeDispatchesDeleteWritesAsLists(): void
+    /**
+     * @return iterable<string, array{list<VersionCommitDataEntity>, array<string, array<string, list<array<string, mixed>>>>}>
+     */
+    public static function mergeWritesProvider(): iterable
     {
-        $writes = $this->mergeAndCaptureWrites([
-            $this->createCommitData('data-1', 'delete', 'product-1', null),
-            $this->createCommitData('data-2', 'delete', 'product-2', null),
-        ]);
-
-        static::assertSame([
-            'insert' => [],
-            'update' => [],
-            'delete' => [
-                'product' => [
-                    ['id' => 'product-1', 'versionId' => self::MERGE_VERSION_ID],
-                    ['id' => 'product-2', 'versionId' => self::MERGE_VERSION_ID],
-                ],
-                'version_commit' => [['id' => 'commit-1']],
+        yield 'insert and update writes' => [
+            [
+                self::createCommitData('data-1', 'insert', 'product-1', ['id' => 'product-1']),
+                self::createCommitData('data-2', 'insert', 'product-2', ['id' => 'product-2']),
+                self::createCommitData('data-3', 'update', 'product-3', ['id' => 'product-3']),
             ],
-        ], $writes);
+            [
+                'insert' => ['product' => [['id' => 'product-1'], ['id' => 'product-2']]],
+                'update' => ['product' => [['id' => 'product-3']]],
+                'delete' => ['version_commit' => [['id' => 'commit-1']]],
+            ],
+        ];
+
+        yield 'delete writes' => [
+            [
+                self::createCommitData('data-1', 'delete', 'product-1', null),
+                self::createCommitData('data-2', 'delete', 'product-2', null),
+            ],
+            [
+                'insert' => [],
+                'update' => [],
+                'delete' => [
+                    'product' => [
+                        ['id' => 'product-1', 'versionId' => self::MERGE_VERSION_ID],
+                        ['id' => 'product-2', 'versionId' => self::MERGE_VERSION_ID],
+                    ],
+                    'version_commit' => [['id' => 'commit-1']],
+                ],
+            ],
+        ];
     }
 
     /**
@@ -688,7 +700,7 @@ class VersionManagerTest extends TestCase
     /**
      * @param array<string, mixed>|null $payload
      */
-    private function createCommitData(string $id, string $action, string $entityId, ?array $payload): VersionCommitDataEntity
+    private static function createCommitData(string $id, string $action, string $entityId, ?array $payload): VersionCommitDataEntity
     {
         $data = new VersionCommitDataEntity();
         $data->setId($id);

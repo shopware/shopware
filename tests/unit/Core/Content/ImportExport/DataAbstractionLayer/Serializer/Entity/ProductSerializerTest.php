@@ -36,60 +36,163 @@ class ProductSerializerTest extends TestCase
 {
     /**
      * @param array<string, mixed> $record
+     * @param list<array<string, mixed>> $expectedMedia
      */
-    #[DataProvider('noConfiguratorSettingsProvider')]
-    public function testDeserializeWithoutConfiguratorSettings(array $record): void
+    #[DataProvider('mediaStringProvider')]
+    public function testDeserializeMediaString(array $record, array $expectedMedia): void
     {
         $result = $this->deserialize($record);
 
-        static::assertArrayNotHasKey('configuratorSettings', $result);
+        static::assertSame($expectedMedia, $result['media'] ?? null);
+        static::assertArrayNotHasKey('_error', $result);
     }
 
     /**
-     * @return iterable<string, array{record: array<string, mixed>}>
+     * @return iterable<string, array{record: array<string, mixed>, expectedMedia: list<array<string, mixed>>}>
      */
-    public static function noConfiguratorSettingsProvider(): iterable
+    public static function mediaStringProvider(): iterable
     {
-        $option = ['id' => 'option-id'];
+        $media = static fn (string $url): array => ['media' => ['id' => 'media-id', 'url' => $url]];
 
-        yield 'parentId absent' => [
-            'record' => ['options' => [$option]],
+        yield 'media absent' => [
+            'record' => [],
+            'expectedMedia' => [],
         ];
 
-        yield 'parentId null' => [
-            'record' => ['parentId' => null, 'options' => [$option]],
+        yield 'media null' => [
+            'record' => ['media' => null],
+            'expectedMedia' => [],
         ];
 
-        yield 'parentId empty string' => [
-            'record' => ['parentId' => '', 'options' => [$option]],
+        yield 'media empty string' => [
+            'record' => ['media' => ''],
+            'expectedMedia' => [],
         ];
 
-        yield 'options absent' => [
-            'record' => ['parentId' => 'parent-id'],
+        yield 'media string zero is a url' => [
+            'record' => ['media' => '0'],
+            'expectedMedia' => [$media('0')],
         ];
 
-        yield 'options null' => [
-            'record' => ['parentId' => 'parent-id', 'options' => null],
+        yield 'media one url' => [
+            'record' => ['media' => 'https://example.com/a.png'],
+            'expectedMedia' => [$media('https://example.com/a.png')],
         ];
 
-        yield 'options empty array' => [
-            'record' => ['parentId' => 'parent-id', 'options' => []],
+        yield 'media several urls' => [
+            'record' => ['media' => 'https://example.com/a.png|https://example.com/b.png'],
+            'expectedMedia' => [$media('https://example.com/a.png'), $media('https://example.com/b.png')],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $entity
+     */
+    #[DataProvider('productMediaProvider')]
+    public function testSerializeMediaUrls(array $entity, string $expected): void
+    {
+        $result = $this->serialize($entity);
+
+        static::assertSame($expected, $result['media']);
+    }
+
+    /**
+     * @return iterable<string, array{entity: array<string, mixed>, expected: string}>
+     */
+    public static function productMediaProvider(): iterable
+    {
+        $first = ['media' => ['url' => 'first-url'], 'position' => 1];
+        $second = ['media' => ['url' => 'second-url'], 'position' => 2];
+        $medias = [$first, $second];
+
+        yield 'cover absent' => [
+            'entity' => ['media' => $medias],
+            'expected' => 'first-url|second-url',
         ];
 
-        yield 'parentId empty array' => [
-            'record' => ['parentId' => [], 'options' => [$option]],
+        yield 'cover null' => [
+            'entity' => ['media' => $medias, 'cover' => null],
+            'expected' => 'first-url|second-url',
         ];
 
-        yield 'options empty string' => [
-            'record' => ['parentId' => 'parent-id', 'options' => ''],
+        yield 'cover empty array' => [
+            'entity' => ['media' => $medias, 'cover' => []],
+            'expected' => 'first-url|second-url',
         ];
 
-        yield 'options string zero' => [
-            'record' => ['parentId' => 'parent-id', 'options' => '0'],
+        yield 'cover empty string' => [
+            'entity' => ['media' => $medias, 'cover' => ''],
+            'expected' => 'first-url|second-url',
         ];
 
-        yield 'options non-empty string' => [
-            'record' => ['parentId' => 'parent-id', 'options' => 'abc'],
+        yield 'cover array drops its url' => [
+            'entity' => ['media' => $medias, 'cover' => ['media' => ['url' => 'first-url']]],
+            'expected' => 'second-url',
+        ];
+
+        yield 'cover entity drops its url' => [
+            'entity' => ['media' => $medias, 'cover' => (new ProductMediaEntity())->assign([
+                'media' => (new MediaEntity())->assign(['url' => 'second-url']),
+            ])],
+            'expected' => 'first-url',
+        ];
+
+        yield 'cover set without product medias' => [
+            'entity' => ['media' => [], 'cover' => ['media' => ['url' => 'first-url']]],
+            'expected' => '',
+        ];
+
+        yield 'product media without media key is skipped' => [
+            'entity' => ['media' => [['position' => 0], $second]],
+            'expected' => 'second-url',
+        ];
+
+        yield 'product media with null media is skipped' => [
+            'entity' => ['media' => [['media' => null, 'position' => 0], $second]],
+            'expected' => 'second-url',
+        ];
+
+        yield 'product media with empty media array and a cover is skipped' => [
+            'entity' => ['media' => [['media' => [], 'position' => 0], $first], 'cover' => ['media' => ['url' => 'second-url']]],
+            'expected' => 'first-url',
+        ];
+
+        yield 'product media with empty string media is skipped' => [
+            'entity' => ['media' => [['media' => '', 'position' => 0], $second]],
+            'expected' => 'second-url',
+        ];
+
+        yield 'product media with string zero media is skipped' => [
+            'entity' => ['media' => [['media' => '0', 'position' => 0], $second]],
+            'expected' => 'second-url',
+        ];
+
+        yield 'product media with non-empty string media is skipped' => [
+            'entity' => ['media' => [['media' => 'abc', 'position' => 0], $second]],
+            'expected' => 'second-url',
+        ];
+
+        yield 'product media with integer media is skipped' => [
+            'entity' => ['media' => [['media' => 5, 'position' => 0], $second]],
+            'expected' => 'second-url',
+        ];
+
+        yield 'product media with empty media array is skipped' => [
+            'entity' => ['media' => [['media' => [], 'position' => 0], $second]],
+            'expected' => 'second-url',
+        ];
+
+        yield 'product media entity without media is skipped' => [
+            'entity' => ['media' => [(new ProductMediaEntity())->assign(['media' => null, 'position' => 0]), $second]],
+            'expected' => 'second-url',
+        ];
+
+        yield 'product media entity with media is exported' => [
+            'entity' => ['media' => [(new ProductMediaEntity())->assign([
+                'media' => (new MediaEntity())->assign(['url' => 'entity-url']),
+                'position' => 0,
+            ]), $second]],
+            'expected' => 'entity-url|second-url',
         ];
     }
 
@@ -166,208 +269,60 @@ class ProductSerializerTest extends TestCase
 
     /**
      * @param array<string, mixed> $record
-     * @param list<array<string, mixed>> $expectedMedia
      */
-    #[DataProvider('mediaStringProvider')]
-    public function testDeserializeMediaString(array $record, array $expectedMedia): void
+    #[DataProvider('noConfiguratorSettingsProvider')]
+    public function testDeserializeWithoutConfiguratorSettings(array $record): void
     {
         $result = $this->deserialize($record);
 
-        static::assertSame($expectedMedia, $result['media'] ?? null);
-        static::assertArrayNotHasKey('_error', $result);
+        static::assertArrayNotHasKey('configuratorSettings', $result);
     }
 
     /**
-     * @return iterable<string, array{record: array<string, mixed>, expectedMedia: list<array<string, mixed>>}>
+     * @return iterable<string, array{record: array<string, mixed>}>
      */
-    public static function mediaStringProvider(): iterable
+    public static function noConfiguratorSettingsProvider(): iterable
     {
-        $media = static fn (string $url): array => ['media' => ['id' => 'media-id', 'url' => $url]];
+        $option = ['id' => 'option-id'];
 
-        yield 'media absent' => [
-            'record' => [],
-            'expectedMedia' => [],
+        yield 'parentId absent' => [
+            'record' => ['options' => [$option]],
         ];
 
-        yield 'media null' => [
-            'record' => ['media' => null],
-            'expectedMedia' => [],
+        yield 'parentId null' => [
+            'record' => ['parentId' => null, 'options' => [$option]],
         ];
 
-        yield 'media empty string' => [
-            'record' => ['media' => ''],
-            'expectedMedia' => [],
+        yield 'parentId empty string' => [
+            'record' => ['parentId' => '', 'options' => [$option]],
         ];
 
-        yield 'media string zero is a url' => [
-            'record' => ['media' => '0'],
-            'expectedMedia' => [$media('0')],
+        yield 'options absent' => [
+            'record' => ['parentId' => 'parent-id'],
         ];
 
-        yield 'media one url' => [
-            'record' => ['media' => 'https://example.com/a.png'],
-            'expectedMedia' => [$media('https://example.com/a.png')],
+        yield 'options null' => [
+            'record' => ['parentId' => 'parent-id', 'options' => null],
         ];
 
-        yield 'media several urls' => [
-            'record' => ['media' => 'https://example.com/a.png|https://example.com/b.png'],
-            'expectedMedia' => [$media('https://example.com/a.png'), $media('https://example.com/b.png')],
-        ];
-    }
-
-    #[DataProvider('nonStringMediaProvider')]
-    public function testDeserializeNonStringMediaYieldsError(mixed $media): void
-    {
-        $result = $this->deserialize(['media' => $media]);
-
-        static::assertEquals(ImportExportException::deserializationFailed('media', null, 'string'), $result['_error'] ?? null);
-    }
-
-    /**
-     * @return iterable<string, array{media: mixed}>
-     */
-    public static function nonStringMediaProvider(): iterable
-    {
-        yield 'media empty array' => ['media' => []];
-        yield 'media non-empty array' => ['media' => ['x']];
-        yield 'media integer zero' => ['media' => 0];
-        yield 'media integer' => ['media' => 5];
-        yield 'media float zero' => ['media' => 0.0];
-        yield 'media float' => ['media' => 1.5];
-        yield 'media false' => ['media' => false];
-        yield 'media true' => ['media' => true];
-        yield 'media object' => ['media' => new \stdClass()];
-    }
-
-    /**
-     * @param array<mixed> $productMedias
-     */
-    #[DataProvider('productMediaProvider')]
-    public function testSerializeMediaUrls(array $productMedias, mixed $cover, string $expected): void
-    {
-        $entity = ['media' => $productMedias];
-        if ($cover !== 'absent') {
-            $entity['cover'] = $cover;
-        }
-
-        $result = $this->serialize($entity);
-
-        static::assertSame($expected, $result['media']);
-    }
-
-    /**
-     * @return iterable<string, array{productMedias: array<mixed>, cover: mixed, expected: string}>
-     */
-    public static function productMediaProvider(): iterable
-    {
-        $first = ['media' => ['url' => 'first-url'], 'position' => 1];
-        $second = ['media' => ['url' => 'second-url'], 'position' => 2];
-
-        yield 'cover absent' => [
-            'productMedias' => [$first, $second],
-            'cover' => 'absent',
-            'expected' => 'first-url|second-url',
+        yield 'options empty array' => [
+            'record' => ['parentId' => 'parent-id', 'options' => []],
         ];
 
-        yield 'cover null' => [
-            'productMedias' => [$first, $second],
-            'cover' => null,
-            'expected' => 'first-url|second-url',
+        yield 'parentId empty array' => [
+            'record' => ['parentId' => [], 'options' => [$option]],
         ];
 
-        yield 'cover empty array' => [
-            'productMedias' => [$first, $second],
-            'cover' => [],
-            'expected' => 'first-url|second-url',
+        yield 'options empty string' => [
+            'record' => ['parentId' => 'parent-id', 'options' => ''],
         ];
 
-        yield 'cover empty string' => [
-            'productMedias' => [$first, $second],
-            'cover' => '',
-            'expected' => 'first-url|second-url',
+        yield 'options string zero' => [
+            'record' => ['parentId' => 'parent-id', 'options' => '0'],
         ];
 
-        yield 'cover array drops its url' => [
-            'productMedias' => [$first, $second],
-            'cover' => ['media' => ['url' => 'first-url']],
-            'expected' => 'second-url',
-        ];
-
-        yield 'cover entity drops its url' => [
-            'productMedias' => [$first, $second],
-            'cover' => (new ProductMediaEntity())->assign([
-                'media' => (new MediaEntity())->assign(['url' => 'second-url']),
-            ]),
-            'expected' => 'first-url',
-        ];
-
-        yield 'cover set without product medias' => [
-            'productMedias' => [],
-            'cover' => ['media' => ['url' => 'first-url']],
-            'expected' => '',
-        ];
-
-        yield 'product media without media key is skipped' => [
-            'productMedias' => [['position' => 0], $second],
-            'cover' => 'absent',
-            'expected' => 'second-url',
-        ];
-
-        yield 'product media with null media is skipped' => [
-            'productMedias' => [['media' => null, 'position' => 0], $second],
-            'cover' => 'absent',
-            'expected' => 'second-url',
-        ];
-
-        yield 'product media with empty media array and a cover is skipped' => [
-            'productMedias' => [['media' => [], 'position' => 0], $first],
-            'cover' => ['media' => ['url' => 'second-url']],
-            'expected' => 'first-url',
-        ];
-
-        yield 'product media with empty string media is skipped' => [
-            'productMedias' => [['media' => '', 'position' => 0], $second],
-            'cover' => 'absent',
-            'expected' => 'second-url',
-        ];
-
-        yield 'product media with string zero media is skipped' => [
-            'productMedias' => [['media' => '0', 'position' => 0], $second],
-            'cover' => 'absent',
-            'expected' => 'second-url',
-        ];
-
-        yield 'product media with non-empty string media is skipped' => [
-            'productMedias' => [['media' => 'abc', 'position' => 0], $second],
-            'cover' => 'absent',
-            'expected' => 'second-url',
-        ];
-
-        yield 'product media with integer media is skipped' => [
-            'productMedias' => [['media' => 5, 'position' => 0], $second],
-            'cover' => 'absent',
-            'expected' => 'second-url',
-        ];
-
-        yield 'product media with empty media array is skipped' => [
-            'productMedias' => [['media' => [], 'position' => 0], $second],
-            'cover' => 'absent',
-            'expected' => 'second-url',
-        ];
-
-        yield 'product media entity without media is skipped' => [
-            'productMedias' => [(new ProductMediaEntity())->assign(['media' => null, 'position' => 0]), $second],
-            'cover' => 'absent',
-            'expected' => 'second-url',
-        ];
-
-        yield 'product media entity with media is exported' => [
-            'productMedias' => [(new ProductMediaEntity())->assign([
-                'media' => (new MediaEntity())->assign(['url' => 'entity-url']),
-                'position' => 0,
-            ]), $second],
-            'cover' => 'absent',
-            'expected' => 'entity-url|second-url',
+        yield 'options non-empty string' => [
+            'record' => ['parentId' => 'parent-id', 'options' => 'abc'],
         ];
     }
 
@@ -410,6 +365,30 @@ class ProductSerializerTest extends TestCase
         ];
     }
 
+    #[DataProvider('nonStringMediaProvider')]
+    public function testDeserializeNonStringMediaYieldsError(mixed $media): void
+    {
+        $result = $this->deserialize(['media' => $media]);
+
+        static::assertEquals(ImportExportException::deserializationFailed('media', null, 'string'), $result['_error'] ?? null);
+    }
+
+    /**
+     * @return iterable<string, array{media: mixed}>
+     */
+    public static function nonStringMediaProvider(): iterable
+    {
+        yield 'media empty array' => ['media' => []];
+        yield 'media non-empty array' => ['media' => ['x']];
+        yield 'media integer zero' => ['media' => 0];
+        yield 'media integer' => ['media' => 5];
+        yield 'media float zero' => ['media' => 0.0];
+        yield 'media float' => ['media' => 1.5];
+        yield 'media false' => ['media' => false];
+        yield 'media true' => ['media' => true];
+        yield 'media object' => ['media' => new \stdClass()];
+    }
+
     /**
      * @param array<string, mixed> $entity
      *
@@ -441,11 +420,7 @@ class ProductSerializerTest extends TestCase
      */
     private function withErrorsAsExceptions(\Closure $callback): array
     {
-        set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
-            if ((error_reporting() & ~(\E_ERROR | \E_PARSE | \E_CORE_ERROR | \E_COMPILE_ERROR | \E_USER_ERROR | \E_RECOVERABLE_ERROR)) === 0) {
-                return false;
-            }
-
+        set_error_handler(static function (int $severity, string $message, string $file, int $line): never {
             throw new \ErrorException($message, 0, $severity, $file, $line);
         });
 

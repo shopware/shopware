@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\ImportExport\DataAbstractionLayer\Ser
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\AbstractFieldSerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\PrimaryKeyResolver;
@@ -34,6 +35,7 @@ class PrimaryKeyResolverTest extends TestCase
     /**
      * @param array<string, mixed> $record
      */
+    #[TestDox('The updated-by path $updateBy resolves the record id or leaves it unset')]
     #[DataProvider('translationPathProvider')]
     public function testResolvePrimaryKeyFromUpdatedByTranslationPath(
         string $updateBy,
@@ -47,10 +49,12 @@ class PrimaryKeyResolverTest extends TestCase
         $languageRepository->method('searchIds')->willReturn(self::idSearchResult($languageId));
         $manufacturerRepository = static::createStub(EntityRepository::class);
         $manufacturerRepository->method('searchIds')->willReturn(self::idSearchResult('found-id'));
+        $repositories = [
+            LanguageDefinition::ENTITY_NAME => $languageRepository,
+            ProductManufacturerDefinition::ENTITY_NAME => $manufacturerRepository,
+        ];
         $registry->method('getRepository')->willReturnCallback(
-            static fn (string $entityName): EntityRepository => $entityName === LanguageDefinition::ENTITY_NAME
-                ? $languageRepository
-                : $manufacturerRepository
+            static fn (string $entityName): EntityRepository => $repositories[$entityName]
         );
 
         $definition = (new StaticDefinitionInstanceRegistry(
@@ -120,6 +124,7 @@ class PrimaryKeyResolverTest extends TestCase
      * @param array<string, mixed> $record
      * @param array<string, mixed> $expected
      */
+    #[TestDox('An updated-by many-to-many value resolves to the primary key of the matching tag, and is kept when absent, null or empty')]
     #[DataProvider('manyToManyValueProvider')]
     public function testResolveManyToManyValueFromUpdatedBy(array $record, array $expected): void
     {
@@ -175,9 +180,14 @@ class PrimaryKeyResolverTest extends TestCase
 
     private static function idSearchResult(?string $id): IdSearchResult
     {
+        $data = [];
+        foreach ((array) $id as $rowId) {
+            $data[$rowId] = ['primaryKey' => $rowId, 'data' => []];
+        }
+
         return new IdSearchResult(
-            $id === null ? 0 : 1,
-            $id === null ? [] : [$id => ['primaryKey' => $id, 'data' => []]],
+            \count($data),
+            $data,
             new Criteria(),
             Context::createDefaultContext()
         );

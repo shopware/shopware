@@ -70,7 +70,10 @@ test(
 
         await test.step('Verify the copy has its own sections, blocks and slots and is listed.', async () => {
             const response = await AdminApiContext.post('search/cms-page', {
-                data: { ids: [cloneId], associations: { sections: { associations: { blocks: { associations: { slots: {} } } } } } },
+                data: {
+                    ids: [cloneId],
+                    associations: { sections: { associations: { blocks: { associations: { slots: {} } } } } },
+                },
             });
             expect(response.ok()).toBeTruthy();
             const [clone] = (await response.json()).data;
@@ -81,9 +84,7 @@ test(
             expect(clone.sections[0].blocks).toHaveLength(1);
             expect(clone.sections[0].blocks[0].slots).toHaveLength(1);
 
-            await ShopAdmin.expects(
-                AdminLayoutListing.listingGrid.getByText(clone.name, { exact: true }),
-            ).toBeVisible();
+            await ShopAdmin.expects(AdminLayoutListing.listingGrid.getByText(clone.name, { exact: true })).toBeVisible();
         });
     },
 );

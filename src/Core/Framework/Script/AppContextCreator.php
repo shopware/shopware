@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
-use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -18,9 +17,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class AppContextCreator
 {
     /**
-     * @var array<string, AdminApiSource>
+     * @var array<string, list<string>>
      */
-    private array $appSources = [];
+    private array $appPrivileges = [];
 
     public function __construct(private readonly Connection $connection)
     {
@@ -28,36 +27,74 @@ class AppContextCreator
 
     public function getAppContext(Hook $hook, Script $script): Context
     {
-        $scriptAppInformation = $script->getScriptAppInformation();
-        if (!$scriptAppInformation) {
-            return $hook->getContext();
-        }
-
-        return new Context(
-            $this->getAppContextSource($scriptAppInformation),
-            $hook->getContext()->getRuleIds(),
-            $hook->getContext()->getCurrencyId(),
-            $hook->getContext()->getLanguageIdChain(),
-            $hook->getContext()->getVersionId(),
-            $hook->getContext()->getCurrencyFactor(),
-            $hook->getContext()->considerInheritance(),
-            $hook->getContext()->getTaxState(),
-            $hook->getContext()->getRounding()
-        );
+        return ($this->createAppContextFactory($hook, $script))();
     }
 
-    private function getAppContextSource(ScriptAppInformation $scriptAppInformation): AdminApiSource
+    /**
+     * Returns a factory that builds a fresh app Context, with its own non-admin AdminApiSource, on every call.
+     * Facades must obtain a new context per operation so a script cannot escalate one shared source and reuse it.
+     *
+     * @return \Closure(): Context
+     */
+    public function createAppContextFactory(Hook $hook, Script $script): \Closure
     {
-        if (\array_key_exists($scriptAppInformation->getAppId(), $this->appSources)) {
-            return $this->appSources[$scriptAppInformation->getAppId()];
+        $scriptAppInformation = $script->getScriptAppInformation();
+        if (!$scriptAppInformation) {
+            $context = $hook->getContext();
+
+            return static fn (): Context => $context;
         }
 
-        $privileges = $this->fetchPrivileges($scriptAppInformation->getAppId());
-        $source = new AdminApiSource(null, $scriptAppInformation->getIntegrationId());
-        $source->setIsAdmin(false);
-        $source->setPermissions($privileges);
+        $hookContext = $hook->getContext();
+        $privileges = $this->getPrivileges($scriptAppInformation->getAppId());
+        $integrationId = $scriptAppInformation->getIntegrationId();
 
-        return $this->appSources[$scriptAppInformation->getAppId()] = $source;
+        // Snapshot the hook-derived context values once; only the source is rebuilt per operation.
+        $ruleIds = $hookContext->getRuleIds();
+        $currencyId = $hookContext->getCurrencyId();
+        $languageIdChain = $hookContext->getLanguageIdChain();
+        $versionId = $hookContext->getVersionId();
+        $currencyFactor = $hookContext->getCurrencyFactor();
+        $considerInheritance = $hookContext->considerInheritance();
+        $taxState = $hookContext->getTaxState();
+        $rounding = $hookContext->getRounding();
+
+        return static function () use (
+            $privileges,
+            $integrationId,
+            $ruleIds,
+            $currencyId,
+            $languageIdChain,
+            $versionId,
+            $currencyFactor,
+            $considerInheritance,
+            $taxState,
+            $rounding
+        ): Context {
+            $source = new AdminApiSource(null, $integrationId);
+            $source->setIsAdmin(false);
+            $source->setPermissions($privileges);
+
+            return new Context(
+                $source,
+                $ruleIds,
+                $currencyId,
+                $languageIdChain,
+                $versionId,
+                $currencyFactor,
+                $considerInheritance,
+                $taxState,
+                clone $rounding
+            );
+        };
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getPrivileges(string $appId): array
+    {
+        return $this->appPrivileges[$appId] ??= $this->fetchPrivileges($appId);
     }
 
     /**

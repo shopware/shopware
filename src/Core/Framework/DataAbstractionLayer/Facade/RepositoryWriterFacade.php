@@ -22,11 +22,14 @@ class RepositoryWriterFacade
 {
     /**
      * @internal
+     *
+     * @param \Closure(): Context $contextFactory builds a fresh app context (with its own source) per write,
+     *                                            so a script cannot mutate one shared context and reuse it
      */
     public function __construct(
         private readonly DefinitionInstanceRegistry $registry,
         private readonly SyncService $syncService,
-        private readonly Context $context
+        private readonly \Closure $contextFactory
     ) {
     }
 
@@ -46,7 +49,7 @@ class RepositoryWriterFacade
     {
         $repository = $this->registry->getRepository($entityName);
 
-        return $repository->upsert($payload, $this->context);
+        return $repository->upsert($payload, ($this->contextFactory)());
     }
 
     /**
@@ -63,7 +66,7 @@ class RepositoryWriterFacade
     {
         $repository = $this->registry->getRepository($entityName);
 
-        return $repository->delete($payload, $this->context);
+        return $repository->delete($payload, ($this->contextFactory)());
     }
 
     /**
@@ -85,6 +88,6 @@ class RepositoryWriterFacade
             $operations[] = new SyncOperation((string) $key, (string) $operation['entity'], (string) $operation['action'], $operation['payload']);
         }
 
-        return $this->syncService->sync($operations, $this->context, new SyncBehavior());
+        return $this->syncService->sync($operations, ($this->contextFactory)(), new SyncBehavior());
     }
 }

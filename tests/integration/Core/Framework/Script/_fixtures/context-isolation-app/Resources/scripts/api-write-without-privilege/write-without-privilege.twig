@@ -1,0 +1,9 @@
+{# Writes a tax entity without the tax:create privilege. #}
+{% do services.writer.upsert('tax', [{
+    'id': hook.request.taxId,
+    'name': hook.request.taxName,
+    'taxRate': 19
+}]) %}
+
+{% set response = services.response.json({ 'created': hook.request.taxId }) %}
+{% do hook.setResponse(response) %}

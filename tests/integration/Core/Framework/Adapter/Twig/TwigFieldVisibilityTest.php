@@ -58,7 +58,7 @@ class TwigFieldVisibilityTest extends TestCase
             static::getContainer()->get(DefinitionInstanceRegistry::class),
             static::getContainer()->get(RequestCriteriaBuilder::class),
             static::getContainer()->get(AclCriteriaValidator::class),
-            Context::createDefaultContext()
+            static fn (): Context => Context::createDefaultContext()
         )]);
 
         static::assertTrue(Uuid::isValid(trim($result)));

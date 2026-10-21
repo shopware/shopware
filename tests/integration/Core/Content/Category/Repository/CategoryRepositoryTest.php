@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
@@ -264,6 +265,96 @@ class CategoryRepositoryTest extends TestCase
         static::assertSame(str_repeat('a', 255), $entity->get($field));
     }
 
+    public function testUnknownTypeIsRejectedOnCreate(): void
+    {
+        $id = Uuid::randomHex();
+
+        $this->assertTypeIsRejected(static fn (EntityRepository $repository) => $repository->create([
+            ['id' => $id, 'name' => 'test', 'type' => 'remove'],
+        ], Context::createDefaultContext()));
+
+        static::assertFalse($this->categoryExists($id));
+    }
+
+    public function testUnknownTypeIsRejectedOnUpdate(): void
+    {
+        $id = Uuid::randomHex();
+        $this->repository->create([['id' => $id, 'name' => 'test']], Context::createDefaultContext());
+
+        $this->assertTypeIsRejected(static fn (EntityRepository $repository) => $repository->update([
+            ['id' => $id, 'type' => 'remove'],
+        ], Context::createDefaultContext()));
+
+        static::assertSame(CategoryDefinition::TYPE_PAGE, $this->fetchType($id));
+    }
+
+    public function testUnknownTypeIsRejectedOnAssociatedCategory(): void
+    {
+        $categoryId = Uuid::randomHex();
+        $productId = Uuid::randomHex();
+        $this->repository->create([['id' => $categoryId, 'name' => 'test']], Context::createDefaultContext());
+
+        try {
+            static::getContainer()->get('product.repository')->create([[
+                'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'name' => 'test',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 10, 'linked' => false]],
+                'tax' => ['name' => 'test', 'taxRate' => 19],
+                'categories' => [['id' => $categoryId, 'type' => 'remove']],
+            ]], Context::createDefaultContext());
+
+            static::fail('An unknown category type must be rejected');
+        } catch (WriteException $e) {
+            $errors = iterator_to_array($e->getErrors());
+            static::assertCount(1, $errors);
+            static::assertSame('/0/categories/0/category/type', $errors[0]['source']['pointer']);
+        }
+
+        static::assertSame(CategoryDefinition::TYPE_PAGE, $this->fetchType($categoryId));
+    }
+
+    #[DataProvider('knownTypeProvider')]
+    public function testKnownTypesAreAccepted(string $type): void
+    {
+        $id = Uuid::randomHex();
+
+        $this->repository->create([
+            ['id' => $id, 'name' => 'test', 'type' => $type, 'linkType' => CategoryDefinition::LINK_TYPE_EXTERNAL],
+        ], Context::createDefaultContext());
+
+        static::assertSame($type, $this->fetchType($id));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function knownTypeProvider(): iterable
+    {
+        yield 'page' => [CategoryDefinition::TYPE_PAGE];
+        yield 'link' => [CategoryDefinition::TYPE_LINK];
+        yield 'folder' => [CategoryDefinition::TYPE_FOLDER];
+    }
+
+    public function testCategoryWithStoredUnknownTypeCanStillBeUpdated(): void
+    {
+        $id = Uuid::randomHex();
+        $this->repository->create([['id' => $id, 'name' => 'test']], Context::createDefaultContext());
+        $this->connection->executeStatement(
+            'UPDATE category SET type = :type WHERE id = :id',
+            ['type' => 'remove', 'id' => Uuid::fromHexToBytes($id)],
+        );
+
+        $this->repository->update([['id' => $id, 'active' => false]], Context::createDefaultContext());
+
+        static::assertSame('remove', $this->fetchType($id));
+
+        $this->repository->update([['id' => $id, 'type' => CategoryDefinition::TYPE_FOLDER]], Context::createDefaultContext());
+
+        static::assertSame(CategoryDefinition::TYPE_FOLDER, $this->fetchType($id));
+    }
+
     /**
      * @return iterable<string, array{string}>
      */
@@ -272,5 +363,34 @@ class CategoryRepositoryTest extends TestCase
         yield 'meta title' => ['metaTitle'];
         yield 'meta description' => ['metaDescription'];
         yield 'keywords' => ['keywords'];
+    }
+
+    /**
+     * @param \Closure(EntityRepository<CategoryCollection>): mixed $write
+     */
+    private function assertTypeIsRejected(\Closure $write): void
+    {
+        try {
+            $write($this->repository);
+
+            static::fail('An unknown category type must be rejected');
+        } catch (WriteException $e) {
+            $errors = iterator_to_array($e->getErrors());
+            static::assertCount(1, $errors);
+            static::assertSame('/0/type', $errors[0]['source']['pointer']);
+        }
+    }
+
+    private function fetchType(string $id): string|false
+    {
+        return $this->connection->fetchOne(
+            'SELECT type FROM category WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($id)],
+        );
+    }
+
+    private function categoryExists(string $id): bool
+    {
+        return $this->fetchType($id) !== false;
     }
 }

@@ -65,6 +65,14 @@ Both rules tell the two servers apart by the tags in the compiled container, so 
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
 
+### Unknown category types are rejected
+
+Writing a `type` other than `page`, `link` or `folder` to a category is now rejected with a write validation error on the `type` field.
+Before, any value was stored.
+This applies to the Admin API, the Sync API, imports and every DAL write, including categories written inside another entity's payload, for example `{"categories": [{"id": "...", "type": "remove"}]}` on a product.
+Categories that already store another type keep it, and writes that do not send `type` still succeed.
+Integrations that send their own category types have to use one of the three types.
+
 ## Features
 
 ### Disable the Administration password recovery flow

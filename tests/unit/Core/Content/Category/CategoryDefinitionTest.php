@@ -9,6 +9,8 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -42,6 +44,20 @@ class CategoryDefinitionTest extends TestCase
         $field = $this->createDefinition()->getFields()->get('cmsPageIdSwitched');
 
         static::assertInstanceOf(BoolField::class, $field);
+    }
+
+    public function testTypeOnlyAcceptsTheKnownCategoryTypes(): void
+    {
+        $field = $this->createDefinition()->getFields()->get('type');
+        static::assertInstanceOf(StringField::class, $field);
+
+        $choice = $field->getFlag(Choice::class);
+        static::assertInstanceOf(Choice::class, $choice);
+        static::assertTrue($choice->isStrict());
+        static::assertSame(
+            [CategoryDefinition::TYPE_PAGE, CategoryDefinition::TYPE_LINK, CategoryDefinition::TYPE_FOLDER],
+            $choice->getChoices(),
+        );
     }
 
     private function createDefinition(): CategoryDefinition

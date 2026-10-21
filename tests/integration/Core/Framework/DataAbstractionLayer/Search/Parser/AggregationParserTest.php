@@ -131,7 +131,7 @@ class AggregationParserTest extends TestCase
     {
         yield 'line break' => ["invalid\r\nname"];
         yield 'null byte' => ["invalid\0name"];
-        yield 'single quote' => ["foo'foo"];
+        yield 'single quote' => ['foo\'foo'];
         yield 'double quote' => ['foo"foo'];
         yield 'double dash comment' => ['foo--foo'];
         yield 'backslash' => ['foo\\foo'];
@@ -399,7 +399,7 @@ class AggregationParserTest extends TestCase
         yield 'question mark' => ['foo?foo'];
         yield 'colon' => ['foo:foo'];
         yield 'control character' => ["foo\nfoo"];
-        yield 'single quote' => ["foo'foo"];
+        yield 'single quote' => ['foo\'foo'];
         yield 'double quote' => ['foo"foo'];
         yield 'double dash comment' => ['foo--foo'];
         yield 'block comment */' => ['foo*/foo'];

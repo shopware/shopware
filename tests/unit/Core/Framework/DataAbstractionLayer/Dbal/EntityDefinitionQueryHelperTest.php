@@ -158,7 +158,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
         yield 'question mark' => ['pro?duct'];
         yield 'colon' => ['pro:duct'];
         yield 'control character' => ["pro\nduct"];
-        yield 'single quote' => ["pro'duct"];
+        yield 'single quote' => ['pro\'duct'];
         yield 'double quote' => ['pro"duct'];
         yield 'double dash comment' => ['pro--duct'];
         yield 'backslash' => ['pro\\duct'];

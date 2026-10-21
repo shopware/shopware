@@ -1346,7 +1346,7 @@ class EntityAggregatorTest extends TestCase
     {
         yield 'question mark' => ['foo?foo'];
         yield 'control character' => ["foo\nfoo"];
-        yield 'single quote' => ["foo'foo"];
+        yield 'single quote' => ['foo\'foo'];
         yield 'double quote' => ['foo"foo'];
         yield 'double dash comment' => ['foo--foo'];
         yield 'backslash' => ['foo\\foo'];

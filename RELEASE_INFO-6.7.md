@@ -88,6 +88,18 @@ If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0
 
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
+### Unused runtime packages removed from the Administration
+
+The Administration no longer ships these packages:
+
+* `app-module-path`
+* `optional-chaining-codemod`
+* `path-browserify`
+* `uuid`
+* `vite-plugin-dynamic-import`
+
+If the Administration code of your extension imports one of them without declaring it, add it to the `package.json` of your extension.
+
 ## Hosting & Configuration
 
 ### Storefront readiness checks skip pages restricted by extensions

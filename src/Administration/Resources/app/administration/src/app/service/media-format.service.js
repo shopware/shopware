@@ -7,7 +7,6 @@
  * @type {string[]}
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const PLAYABLE_VIDEO_FORMATS = ['video/mp4', 'video/ogg', 'video/webm'];
 
 /**
@@ -15,7 +14,6 @@ export const PLAYABLE_VIDEO_FORMATS = ['video/mp4', 'video/ogg', 'video/webm'];
  * @type {string[]}
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const PLAYABLE_AUDIO_FORMATS = [
     'audio/mp3',
     'audio/mpeg',
@@ -28,7 +26,6 @@ export const PLAYABLE_AUDIO_FORMATS = [
  * @type {string[]}
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const PLAYABLE_MEDIA_FORMATS = [...PLAYABLE_VIDEO_FORMATS, ...PLAYABLE_AUDIO_FORMATS];
 
 /**

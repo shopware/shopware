@@ -63,7 +63,6 @@ export const object = {
 /**
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const debug = {
     warn: warn,
     error: error,
@@ -72,7 +71,6 @@ export const debug = {
 /**
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const format = {
     currency: currency,
     date: date,
@@ -107,7 +105,6 @@ export const string = {
 /**
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const types = {
     isObject: typesUtils.isObject,
     isPlainObject: typesUtils.isPlainObject,
@@ -135,7 +132,6 @@ export const fileReader = {
 /**
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const sort = {
     afterSort: sortUtils.afterSort,
 };
@@ -206,7 +202,6 @@ function createId<UUID extends string>(): UUID {
 /**
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function moveItem(entity: MutationObserver[], oldIndex: number, newIndex: number) {
     if (newIndex === null) {
         newIndex = entity.length;

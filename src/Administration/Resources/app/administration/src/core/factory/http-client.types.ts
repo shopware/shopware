@@ -9,13 +9,11 @@ type HttpClientValue = any;
 /**
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type HttpHeaders = Record<string, HttpClientValue>;
 
 /**
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface HttpRequestConfig<Data = HttpClientValue> {
     [key: string]: HttpClientValue;
     url?: string;
@@ -47,7 +45,6 @@ export interface HttpResponse<Data = HttpClientValue> {
 /**
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface HttpCancelToken {
     promise: Promise<unknown>;
     reason?: unknown;

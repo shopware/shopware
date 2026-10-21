@@ -55,7 +55,6 @@ export const login = () => {
 /**
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const ssoError = () => {
     const context = importSSOError();
 

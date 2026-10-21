@@ -7,7 +7,6 @@ import type { menuItemAdd } from '@shopware-ag/meteor-admin-sdk/es/ui/menu';
 /**
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type MenuItemEntry = Omit<menuItemAdd, 'responseType' | 'locationId' | 'displaySearchBar'> & {
     moduleId: string;
 };

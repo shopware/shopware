@@ -92,7 +92,6 @@ type ComponentInstanceWithSetupContext = ComponentInternalInstance & {
  * Use this instead of Vue's getCurrentInstance when you need access to setupContext.
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function getCurrentInstance(): ComponentInstanceWithSetupContext | null {
     return vueGetCurrentInstance() as ComponentInstanceWithSetupContext | null;
 }

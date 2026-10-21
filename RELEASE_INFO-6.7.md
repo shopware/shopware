@@ -76,6 +76,7 @@ Before the first run, generate the entity schema with `bin/console administratio
 Run the specs with the Administration's own Jest through `composer admin:test-extensions -- --only=MyPlugin`, or `bin/console administration:test-extensions -- --only=MyPlugin` in a Composer install, so the extension needs no Jest installation of its own.
 `admin:test-extensions` generates the component import map when it is missing;
 when you call Jest directly, generate it with `npm run unit-setup` in the Administration directory.
+An extension that runs the specs with its own Jest needs the same Jest major version as the Administration; the factory fails early with both versions otherwise.
 The factory is part of the experimental extension tooling, so the terms of [Opt-in TypeScript and ESLint configuration for Administration extensions](#opt-in-typescript-and-eslint-configuration-for-administration-extensions-experimental) apply to it as well.
 
 # 6.7.16.0

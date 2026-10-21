@@ -12,7 +12,7 @@
  * cannot drift apart.
  */
 
-import { existsSync, realpathSync } from 'node:fs';
+import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -197,6 +197,105 @@ function assertAcceptedOptions(options) {
     );
 }
 
+/** Matches a module of the `jest-config` package, which Jest uses to load the config file. */
+const JEST_CONFIG_MODULE = /^(.*[\\/]node_modules[\\/]jest-config)[\\/]build[\\/]/;
+
+/**
+ * Reads the `version` of the package at `packageRoot`, or `undefined` when it cannot be read.
+ *
+ * @example
+ * packageVersion('/extension/node_modules/jest-config'); // → '30.2.0'
+ *
+ * @param {string} packageRoot
+ * @returns {string | undefined}
+ */
+function packageVersion(packageRoot) {
+    try {
+        return JSON.parse(readFileSync(path.join(packageRoot, 'package.json'), 'utf8')).version;
+    } catch {
+        return undefined;
+    }
+}
+
+/**
+ * Finds the version of the Jest that is loading this config, from the `jest-config` package in the module cache.
+ * That package imports the config file, so it belongs to the Jest that runs the specs,
+ * even when a global `jest` bin hands over to the extension's local one.
+ * Returns `undefined` when no single `jest-config` is loaded, e.g. when a script calls the factory directly,
+ * so the version check is skipped instead of guessing.
+ *
+ * @example
+ * // inside `jest --config jest.config.mjs` with jest@30.2.0
+ * runningJestVersion(); // → '30.2.0'
+ *
+ * @returns {string | undefined}
+ */
+function runningJestVersion() {
+    const versions = new Set(
+        Object.keys(require.cache)
+            .map((file) => JEST_CONFIG_MODULE.exec(file)?.[1])
+            .filter((packageRoot) => packageRoot !== undefined)
+            .map(packageVersion),
+    );
+
+    if (versions.size !== 1) {
+        return undefined;
+    }
+
+    return [...versions][0];
+}
+
+/**
+ * Compares the major versions of the running Jest and the Administration's Jest,
+ * because the harness's test environment and transformers only work with the Jest major they are built for.
+ * Returns the error message on a mismatch, `undefined` otherwise.
+ *
+ * @example
+ * jestMajorMismatch('30.3.0', '30.2.0'); // → undefined
+ * jestMajorMismatch('29.7.0', '30.2.0'); // → 'This Jest config is loaded by Jest 29.7.0, but …'
+ *
+ * @param {string} runningVersion
+ * @param {string} administrationVersion
+ * @returns {string | undefined}
+ */
+function jestMajorMismatch(runningVersion, administrationVersion) {
+    const major = (version) => version.split('.')[0];
+    const requiredMajor = major(administrationVersion);
+
+    if (major(runningVersion) === requiredMajor) {
+        return undefined;
+    }
+
+    return (
+        `This Jest config is loaded by Jest ${runningVersion}, ` +
+        `but the Administration test harness in ${administrationRoot} is built for Jest ${administrationVersion}. ` +
+        `Install Jest ${requiredMajor} for your extension (\`npm install --save-dev jest@^${requiredMajor}\`), ` +
+        'or run the specs with `composer admin:test-extensions` ' +
+        "(`bin/console administration:test-extensions` in a Composer install), which uses the Administration's Jest."
+    );
+}
+
+/**
+ * Fails early when the config is loaded by a Jest whose major differs from the Administration's,
+ * instead of letting the specs die on test environment or transformer API mismatches.
+ *
+ * @example
+ * assertSameJestMajor(); // throws under jest@29 when the Administration runs jest@30
+ */
+function assertSameJestMajor() {
+    const runningVersion = runningJestVersion();
+
+    if (runningVersion === undefined) {
+        return;
+    }
+
+    const mismatch = jestMajorMismatch(runningVersion, require('jest/package.json').version);
+
+    if (mismatch) {
+        throw new Error(mismatch);
+    }
+}
+
 /**
  * Combines two pattern maps so that `preferred` is matched first and wins on
  * an identical key. Jest tries `moduleNameMapper` and `transform` patterns in
@@ -298,6 +397,7 @@ export function shopwareAdminJest(options = {}) {
     }
 
     assertAcceptedOptions(options);
+    assertSameJestMajor();
     assertGeneratedFilesExist();
 
     // The setup files read these from the environment; Jest workers inherit it.

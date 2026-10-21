@@ -205,7 +205,7 @@ class ImportExportTest extends TestCase
      * @param array<string, mixed> $expectedRow
      */
     #[DataProvider('userDefaultValueProvider')]
-    #[TestDox('A user default value replaces a missing, null, empty or zero-valued cell')]
+    #[TestDox('replaces a missing, null, empty or zero-valued cell with the user default value')]
     public function testImportAppliesUserDefaultValue(array $row, array $expectedRow): void
     {
         $mapping = new Mapping(key: 'customerNumber', mappedKey: 'customer_number', useDefaultValue: true, defaultValue: 'C-DEFAULT');
@@ -229,7 +229,7 @@ class ImportExportTest extends TestCase
      * @param array<string, mixed> $row
      */
     #[DataProvider('filledRequiredCellProvider')]
-    #[TestDox('A column required by the user accepts a filled cell')]
+    #[TestDox('accepts a filled cell in a column required by the user')]
     public function testImportAcceptsFilledRequiredCell(array $row): void
     {
         $mapping = new Mapping(key: 'customerNumber', mappedKey: 'customer_number', requiredByUser: true);
@@ -797,7 +797,7 @@ class ImportExportTest extends TestCase
      * @param array<string, mixed> $row
      */
     #[DataProvider('blankRequiredCellProvider')]
-    #[TestDox('A column required by the user rejects a missing, null, empty or zero-valued cell')]
+    #[TestDox('rejects a missing, null, empty or zero-valued cell in a column required by the user')]
     public function testImportRejectsBlankRequiredCell(array $row): void
     {
         $mapping = new Mapping(key: 'customerNumber', mappedKey: 'customer_number', requiredByUser: true);

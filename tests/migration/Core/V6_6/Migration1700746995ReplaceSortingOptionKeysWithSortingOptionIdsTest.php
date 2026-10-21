@@ -308,24 +308,11 @@ class Migration1700746995ReplaceSortingOptionKeysWithSortingOptionIdsTest extend
         static::assertSame(1, $availableSortings[2]);
     }
 
-    public function testMigrationKeepsDefaultSortingUrlKeyZero(): void
-    {
-        $this->insertSorting('0');
-        $target = $this->writeProductListingConfig([
-            'defaultSorting' => ['value' => '0', 'source' => 'static'],
-            'availableSortings' => ['value' => [], 'source' => 'static'],
-        ]);
-
-        $this->migration->update($this->connection);
-
-        static::assertSame(['value' => '0', 'source' => 'static'], $this->readProductListingConfig($target)['defaultSorting']);
-    }
-
     /**
      * @param array<string, mixed> $defaultSorting
      */
     #[DataProvider('defaultSortingWithoutUrlKeyProvider')]
-    #[TestDox('A default sorting without a url key stays unchanged and raises no warning')]
+    #[TestDox('keeps a default sorting without a url key unchanged and raises no warning')]
     public function testMigrationKeepsDefaultSortingWithoutUrlKey(array $defaultSorting): void
     {
         // sortings with the url keys '' and '0' make a falsy value that reaches the lookup visible
@@ -368,6 +355,19 @@ class Migration1700746995ReplaceSortingOptionKeysWithSortingOptionIdsTest extend
         yield 'a false value' => [['value' => false, 'source' => 'static']];
         yield 'an integer zero value' => [['value' => 0, 'source' => 'static']];
         yield 'an empty list value' => [['value' => [], 'source' => 'static']];
+    }
+
+    public function testMigrationKeepsDefaultSortingUrlKeyZero(): void
+    {
+        $this->insertSorting('0');
+        $target = $this->writeProductListingConfig([
+            'defaultSorting' => ['value' => '0', 'source' => 'static'],
+            'availableSortings' => ['value' => [], 'source' => 'static'],
+        ]);
+
+        $this->migration->update($this->connection);
+
+        static::assertSame(['value' => '0', 'source' => 'static'], $this->readProductListingConfig($target)['defaultSorting']);
     }
 
     private function insertSorting(string $urlKey): string

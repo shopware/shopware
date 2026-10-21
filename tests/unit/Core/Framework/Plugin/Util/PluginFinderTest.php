@@ -107,7 +107,7 @@ class PluginFinderTest extends TestCase
     /**
      * @param array<string, mixed> $extra
      */
-    #[TestDox('A composer plugin declaring a class and a label is discovered')]
+    #[TestDox('discovers a composer plugin declaring a class and a label')]
     #[DataProvider('acceptedExtrasProvider')]
     public function testLocalPluginWithUsableExtraIsFound(array $extra): void
     {
@@ -117,7 +117,7 @@ class PluginFinderTest extends TestCase
     /**
      * @param array<string, mixed> $extra
      */
-    #[TestDox('A composer plugin lacking a usable class or label is dropped')]
+    #[TestDox('drops a composer plugin lacking a usable class or label')]
     #[DataProvider('rejectedExtrasProvider')]
     public function testLocalPluginWithUnusableExtraIsRejected(array $extra): void
     {
@@ -127,7 +127,7 @@ class PluginFinderTest extends TestCase
     /**
      * @param array<string, mixed> $extra
      */
-    #[TestDox('A composer plugin lacking a usable class or label records an error')]
+    #[TestDox('records an error for a composer plugin lacking a usable class or label')]
     #[DataProvider('rejectedExtrasProvider')]
     public function testLocalPluginWithUnusableExtraReportsAnError(array $extra): void
     {
@@ -140,7 +140,7 @@ class PluginFinderTest extends TestCase
     /**
      * @param array<string, mixed> $extra
      */
-    #[TestDox('A composer plugin declaring a class and a label records no error')]
+    #[TestDox('records no error for a composer plugin declaring a class and a label')]
     #[DataProvider('acceptedExtrasProvider')]
     public function testLocalPluginWithUsableExtraReportsNoError(array $extra): void
     {

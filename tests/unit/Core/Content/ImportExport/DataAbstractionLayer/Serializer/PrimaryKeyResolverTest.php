@@ -35,7 +35,7 @@ class PrimaryKeyResolverTest extends TestCase
     /**
      * @param array<string, mixed> $record
      */
-    #[TestDox('The updated-by path $updateBy resolves the record id or leaves it unset')]
+    #[TestDox('resolves the record id for the updated-by path $updateBy or leaves it unset')]
     #[DataProvider('translationPathProvider')]
     public function testResolvePrimaryKeyFromUpdatedByTranslationPath(
         string $updateBy,
@@ -124,7 +124,7 @@ class PrimaryKeyResolverTest extends TestCase
      * @param array<string, mixed> $record
      * @param array<string, mixed> $expected
      */
-    #[TestDox('An updated-by many-to-many value resolves to the primary key of the matching tag, and is kept when absent, null or empty')]
+    #[TestDox('resolves an updated-by many-to-many value to the primary key of the matching tag and keeps it when absent, null or empty')]
     #[DataProvider('manyToManyValueProvider')]
     public function testResolveManyToManyValueFromUpdatedBy(array $record, array $expected): void
     {

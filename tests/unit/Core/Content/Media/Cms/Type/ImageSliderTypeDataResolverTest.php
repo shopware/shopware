@@ -153,7 +153,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
      * @param array<string, mixed> $itemOverrides
      * @param array{string|null, string|null, bool|null} $expected
      */
-    #[TestDox('A static slider item takes its link from the url only when the url is a non-empty string: $_dataName')]
+    #[TestDox('takes the link of a static slider item from the url only when the url is a non-empty string: $_dataName')]
     #[DataProvider('staticItemUrlProvider')]
     public function testEnrichStaticItemLinkDependsOnUrl(array $itemOverrides, array $expected): void
     {

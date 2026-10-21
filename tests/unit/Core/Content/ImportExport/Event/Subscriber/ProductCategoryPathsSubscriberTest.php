@@ -26,7 +26,7 @@ class ProductCategoryPathsSubscriberTest extends TestCase
      * @param array<string, mixed> $record
      * @param list<array{id: string}> $expectedCategories
      */
-    #[TestDox('Existing categories are kept and the resolved category is appended: $_dataName')]
+    #[TestDox('keeps existing categories and appends the resolved category: $_dataName')]
     #[DataProvider('existingCategoriesProvider')]
     public function testResolvedCategoriesAreMergedIntoExistingOnes(array $record, array $expectedCategories): void
     {
@@ -39,7 +39,7 @@ class ProductCategoryPathsSubscriberTest extends TestCase
      * @param array<string, mixed> $row
      * @param array<string, mixed> $expectedRecord
      */
-    #[TestDox('A category_paths cell is turned into a category assignment only when it holds a value: $_dataName')]
+    #[TestDox('turns a category_paths cell into a category assignment only when it holds a value: $_dataName')]
     #[DataProvider('categoryPathsCellProvider')]
     public function testCategoryPathsCell(array $row, array $expectedRecord): void
     {

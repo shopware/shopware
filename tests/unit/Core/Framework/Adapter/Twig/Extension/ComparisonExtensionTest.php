@@ -20,7 +20,7 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 class ComparisonExtensionTest extends TestCase
 {
     #[DataProvider('comparisonProvider')]
-    #[TestDox('Comparing with operator $operator returns $expected')]
+    #[TestDox('returns $expected for the operator $operator')]
     public function testCompare(bool $expected, string $operator, mixed $value, mixed $comparable = null): void
     {
         $extension = new ComparisonExtension();

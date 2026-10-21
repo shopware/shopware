@@ -68,7 +68,7 @@ class SystemSetupCommandTest extends TestCase
         parent::tearDown();
     }
 
-    #[TestDox('The composer home option is used unless it is falsy')]
+    #[TestDox('uses the composer home option unless it is falsy')]
     #[DataProvider('composerHomeOptionProvider')]
     public function testComposerHomeFromOption(mixed $option, string $expected): void
     {
@@ -102,7 +102,7 @@ class SystemSetupCommandTest extends TestCase
         );
     }
 
-    #[TestDox('The composer home environment variable is used unless it is falsy')]
+    #[TestDox('uses the composer home environment variable unless it is falsy')]
     #[DataProvider('composerHomeEnvironmentProvider')]
     public function testComposerHomeFromEnvironment(string $environment, string $expected): void
     {

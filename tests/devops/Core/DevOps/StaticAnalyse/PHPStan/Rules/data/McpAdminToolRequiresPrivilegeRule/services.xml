@@ -22,5 +22,11 @@
         <service id="Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool" class="Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool">
             <tag name="mcp.tool"/>
         </service>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\AdminToolWithAliasedRequires" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\AdminToolWithAliasedRequires">
+            <tag name="mcp.tool"/>
+        </service>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\AdminToolWithAliasedToolWithoutRequires" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\AdminToolWithAliasedToolWithoutRequires">
+            <tag name="mcp.tool"/>
+        </service>
     </services>
 </container>

@@ -48,14 +48,33 @@ describe('scripts/extensionTooling/test Jest options', () => {
     });
 
     it.each([
-        '--watch',
-        '--watchAll',
-        '--watchAll=true',
-    ])('refuses %s over more than one Jest config without running Jest', async (watchOption) => {
+        [['--watch']],
+        [['--watchAll']],
+        [['--watch=true']],
+        [['--watchAll=true']],
+        [['--no-watch', '--watch']],
+        [['--watch', '--no-watchAll']],
+    ])('refuses %j over more than one Jest config without running Jest', async (watchOptions) => {
         writeTwoJestConfigs(fixture.projectRoot);
 
-        await expect(fixture.run({ jestArgs: [watchOption] })).rejects.toThrow(CliUsageError);
+        await expect(fixture.run({ jestArgs: watchOptions })).rejects.toThrow(CliUsageError);
         expect(fixture.jestRuns).toEqual([]);
+    });
+
+    it.each([
+        [['--watch=false']],
+        [['--watchAll=false']],
+        [['--no-watch']],
+        [['--no-watchAll']],
+        [['--watch', '--watch=false']],
+        [['--watchman']],
+    ])('runs every Jest config for %j, which starts no watch mode', async (watchOptions) => {
+        writeTwoJestConfigs(fixture.projectRoot);
+
+        const result = await fixture.run({ jestArgs: watchOptions });
+
+        expect(fixture.jestRuns).toHaveLength(2);
+        expect(result.exitCode).toBe(0);
     });
 
     it('names the Jest configs when watch mode targets one extension that has several', async () => {

@@ -151,13 +151,29 @@ function createComponentImportsGenerator(administrationRoot: string): () => numb
 /**
  * Whether the Jest options start watch mode, which takes over the terminal and
  * never returns, so the configs after the first would never run.
+ * Like Jest's own parser, the last `--watch` or `--watchAll` occurrence wins,
+ * and `--no-<flag>` or a `false` value turns that flag off.
  *
  * @example
  * isWatchRun(['--watchAll=true']); // → true
+ * isWatchRun(['--no-watch', '--watch']); // → true
+ * isWatchRun(['--watch=false']); // → false
+ * isWatchRun(['--watch', '--no-watch']); // → false
  * isWatchRun(['--watchman']); // → false
  */
 function isWatchRun(jestArgs: string[]): boolean {
-    return jestArgs.some((arg) => /^--watch(All)?(=|$)/.test(arg));
+    const watchFlags = new Map<string, boolean>();
+
+    jestArgs.forEach((arg) => {
+        const match = /^--(?<negation>no-)?(?<flag>watch|watchAll)(?:=(?<value>.*))?$/.exec(arg);
+
+        if (match?.groups) {
+            const { negation, flag, value } = match.groups;
+            watchFlags.set(flag, !negation && value?.toLowerCase() !== 'false');
+        }
+    });
+
+    return [...watchFlags.values()].some(Boolean);
 }
 
 /**

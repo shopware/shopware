@@ -80,12 +80,7 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
                     grantedAt: '2025-07-08',
                 },
             })),
-            getServicesStatus: jest.fn(async () => ({
-                enabled: true,
-                enableServices: 'auto',
-                appEnv: 'prod',
-                pending: [],
-            })),
+            getAvailableServices: jest.fn(async () => []),
             acceptRevision: jest.fn(async () => ({
                 disabled: false,
                 permissionsConsent: {
@@ -104,6 +99,11 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
                 permissionsConsent: null,
             })),
         }));
+    });
+
+    beforeEach(() => {
+        Shopware.Context.app.config.services = { enabled: true, enableServices: 'auto' };
+        Shopware.Context.app.config.settings = { ...Shopware.Context.app.config.settings, appEnv: 'prod' };
     });
 
     async function mountPage() {
@@ -286,12 +286,9 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
 
     it('explains that ENABLE_SERVICES=auto keeps services off outside the prod environment', async () => {
         Shopware.Service('shopwareServicesService').getInstalledServices.mockImplementationOnce(async () => []);
-        Shopware.Service('shopwareServicesService').getServicesStatus.mockImplementationOnce(async () => ({
-            enabled: false,
-            enableServices: 'auto',
-            appEnv: 'dev',
-            pending: [],
-        }));
+        Shopware.Context.app.config.services = { enabled: false, enableServices: 'auto' };
+        Shopware.Context.app.config.settings.appEnv = 'dev';
+        const availableServicesCalls = Shopware.Service('shopwareServicesService').getAvailableServices.mock.calls.length;
 
         const page = await mountPage();
         await flushPromises();
@@ -305,16 +302,14 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
             'sw-settings-services.index.turned-off.option-prod',
         ]);
         expect(page.find('.sw-settings-services-index__installing-card').exists()).toBe(false);
+        expect(Shopware.Service('shopwareServicesService').getAvailableServices).toHaveBeenCalledTimes(
+            availableServicesCalls,
+        );
     });
 
     it('explains that ENABLE_SERVICES turns services off', async () => {
         Shopware.Service('shopwareServicesService').getInstalledServices.mockImplementationOnce(async () => []);
-        Shopware.Service('shopwareServicesService').getServicesStatus.mockImplementationOnce(async () => ({
-            enabled: false,
-            enableServices: 'false',
-            appEnv: 'prod',
-            pending: [],
-        }));
+        Shopware.Context.app.config.services = { enabled: false, enableServices: 'false' };
         Shopware.Service('shopwareServicesService').getServicesContext.mockImplementationOnce(async () => ({
             disabled: true,
             permissionsConsent: null,
@@ -350,19 +345,15 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
             requirements: ['service_consent'],
         };
 
-        function installationStatus(pending) {
-            return { enabled: true, enableServices: 'auto', appEnv: 'prod', pending };
-        }
-
         let defaultInstalledServices;
-        let defaultStatus;
+        let defaultAvailableServices;
 
         beforeEach(() => {
             jest.useFakeTimers();
 
             const shopwareServicesService = Shopware.Service('shopwareServicesService');
             defaultInstalledServices = shopwareServicesService.getInstalledServices.getMockImplementation();
-            defaultStatus = shopwareServicesService.getServicesStatus.getMockImplementation();
+            defaultAvailableServices = shopwareServicesService.getAvailableServices.getMockImplementation();
         });
 
         afterEach(() => {
@@ -370,7 +361,7 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
 
             const shopwareServicesService = Shopware.Service('shopwareServicesService');
             shopwareServicesService.getInstalledServices.mockImplementation(defaultInstalledServices);
-            shopwareServicesService.getServicesStatus.mockImplementation(defaultStatus);
+            shopwareServicesService.getAvailableServices.mockImplementation(defaultAvailableServices);
         });
 
         it('shows pending services and refreshes the list until they are installed', async () => {
@@ -381,11 +372,11 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
                     firstService,
                     secondService,
                 ]);
-            shopwareServicesService.getServicesStatus
-                .mockImplementationOnce(async () =>
-                    installationStatus([{ name: 'second-service-name', label: 'Second Service' }]),
-                )
-                .mockImplementationOnce(async () => installationStatus([]));
+            shopwareServicesService.getAvailableServices.mockImplementation(async () => [
+                { name: 'first-service-name', label: 'First Service' },
+                { name: 'second-service-name', label: 'Second Service' },
+            ]);
+            const availableServicesCalls = shopwareServicesService.getAvailableServices.mock.calls.length;
 
             const page = await mountPage();
             await flushPromises();
@@ -404,14 +395,15 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
             await flushPromises();
 
             expect(shopwareServicesService.getInstalledServices).toHaveBeenCalledTimes(callsAfterInstallation);
+            expect(shopwareServicesService.getAvailableServices).toHaveBeenCalledTimes(availableServicesCalls + 1);
         });
 
         it('stops refreshing and offers to check again when the installation takes long', async () => {
             const shopwareServicesService = Shopware.Service('shopwareServicesService');
             shopwareServicesService.getInstalledServices.mockImplementation(async () => []);
-            shopwareServicesService.getServicesStatus.mockImplementation(async () =>
-                installationStatus([{ name: 'first-service-name', label: 'First Service' }]),
-            );
+            shopwareServicesService.getAvailableServices.mockImplementation(async () => [
+                { name: 'first-service-name', label: 'First Service' },
+            ]);
 
             const page = await mountPage();
             await flushPromises();
@@ -434,7 +426,6 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
             expect(shopwareServicesService.getInstalledServices).toHaveBeenCalledTimes(callsWhenStalled);
 
             shopwareServicesService.getInstalledServices.mockImplementation(async () => [firstService]);
-            shopwareServicesService.getServicesStatus.mockImplementation(async () => installationStatus([]));
 
             await stalledBanner.getComponent(MtButton).trigger('click');
             await flushPromises();

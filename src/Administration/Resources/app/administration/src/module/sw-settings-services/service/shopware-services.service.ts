@@ -36,11 +36,9 @@ export type ServiceDescription = {
 /**
  * @private
  */
-export type ServicesStatus = {
-    enabled: boolean;
-    enableServices: string;
-    appEnv: string;
-    pending: Array<{ name: string; label: string }>;
+export type AvailableService = {
+    name: string;
+    label: string;
 };
 
 type ServiceConfigurationConfigValues = {
@@ -100,13 +98,13 @@ export default class ShopwareServicesService extends ApiService {
         };
     }
 
-    getServicesStatus(): Promise<ServicesStatus> {
+    getAvailableServices(): Promise<AvailableService[]> {
         return this.httpClient
-            .get('services/status', {
+            .get('services/available', {
                 headers: this.getBasicHeaders(),
             })
             .then((response) => {
-                return response.data as ServicesStatus;
+                return response.data as AvailableService[];
             });
     }
 

@@ -5,72 +5,43 @@
     "version": "v1"
   },
   "paths": {
-    "/services/status": {
+    "/services/available": {
       "get": {
         "tags": [
           "App System"
         ],
-        "summary": "Get the installation status of Shopware Services",
-        "description": "Returns whether this installation installs Shopware Services, the environment values that decide it, and the services of the service registry that are not installed yet. Requires the `system.plugin_maintain` permission.",
-        "operationId": "getServicesStatus",
+        "summary": "List the Shopware Services offered by the service registry",
+        "description": "Returns the services the service registry offers to this shop, whether they are installed or not. Requires the `system.plugin_maintain` permission.",
+        "operationId": "getAvailableServices",
         "responses": {
           "200": {
-            "description": "The installation status of Shopware Services.",
+            "description": "The services offered by the service registry.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "required": [
-                    "enabled",
-                    "enableServices",
-                    "appEnv",
-                    "pending"
-                  ],
-                  "properties": {
-                    "enabled": {
-                      "type": "boolean",
-                      "description": "Whether this installation installs Shopware Services."
-                    },
-                    "enableServices": {
-                      "type": "string",
-                      "description": "The configured value of the `ENABLE_SERVICES` environment variable. `auto` installs services only in the `prod` environment."
-                    },
-                    "appEnv": {
-                      "type": "string",
-                      "description": "The environment the shop runs in (`APP_ENV`)."
-                    },
-                    "pending": {
-                      "type": "array",
-                      "description": "Services of the service registry that are going to be installed but are not installed yet. Empty while services are disabled.",
-                      "items": {
-                        "type": "object",
-                        "required": [
-                          "name",
-                          "label"
-                        ],
-                        "properties": {
-                          "name": {
-                            "type": "string"
-                          },
-                          "label": {
-                            "type": "string"
-                          }
-                        }
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "name",
+                      "label"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "type": "string"
                       }
                     }
                   }
                 },
-                "example": {
-                  "enabled": true,
-                  "enableServices": "auto",
-                  "appEnv": "prod",
-                  "pending": [
-                    {
-                      "name": "SwagCopilot",
-                      "label": "Copilot"
-                    }
-                  ]
-                }
+                "example": [
+                  {
+                    "name": "SwagCopilot",
+                    "label": "Copilot"
+                  }
+                ]
               }
             }
           },

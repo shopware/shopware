@@ -216,6 +216,7 @@ class InfoController extends AbstractController
                 'enableStagingMode' => $this->params->get('shopware.staging.administration.show_banner') && $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG),
                 'disableExtensionManagement' => !$this->params->get('shopware.deployment.runtime_extension_management'),
                 'hideUpdateModule' => (bool) $this->params->get('shopware.auto_update.hide_module'),
+                'appEnv' => $this->params->get('kernel.environment'),
                 'minSearchTermLength' => $this->systemConfigService->getInt('core.search.minSearchTermLength') ?: 2,
             ],
             'inAppPurchases' => $this->inAppPurchase->all(),

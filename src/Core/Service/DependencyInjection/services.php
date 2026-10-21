@@ -42,6 +42,7 @@ use Shopware\Core\Service\ServiceRegistry\RegistryUrlProcessor;
 use Shopware\Core\Service\ServiceSourceResolver;
 use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\Service\ServiceWebhookPolicy;
+use Shopware\Core\Service\Subscriber\AdminInfoConfigSubscriber;
 use Shopware\Core\Service\Subscriber\ExtensionCompatibilitiesResolvedSubscriber;
 use Shopware\Core\Service\Subscriber\InstalledExtensionsListingLoadedSubscriber;
 use Shopware\Core\Service\Subscriber\LicenseProviderSubscriber;
@@ -76,6 +77,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ServiceLifecycle::class),
             service(LifecycleManager::class),
             service(RequirementsValidator::class),
+            service(Client::class),
         ]);
 
     $services->set(PermissionController::class)
@@ -203,6 +205,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(LifecycleManager::class),
             service('logger'),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(AdminInfoConfigSubscriber::class)
+        ->args([
+            service(LifecycleManager::class),
         ])
         ->tag('kernel.event_subscriber');
 

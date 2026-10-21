@@ -19,6 +19,7 @@ use Shopware\Core\Service\Message\UpdateServiceMessage;
 use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceLifecycle;
+use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -374,30 +375,20 @@ class ServiceControllerTest extends TestCase
         $controller->enableServices();
     }
 
-    public function testStatus(): void
+    public function testAvailableListsTheServicesOfTheRegistry(): void
     {
-        $context = Context::createDefaultContext(new AdminApiSource('AABB'));
-
-        $manager = static::createStub(LifecycleManager::class);
-        $manager->method('describeEnablement')->willReturn([
-            'enabled' => true,
-            'enableServices' => 'auto',
-            'appEnv' => 'prod',
-        ]);
-        $manager->method('pendingInstallation')->willReturn([
+        $registryClient = static::createStub(Client::class);
+        $registryClient->method('getAll')->willReturn([
             new ServiceEntry('SwagCopilot', 'Copilot', 'https://copilot.example.com', '/app-endpoint'),
+            new ServiceEntry('MyCoolService', 'My Cool Service', 'https://cool.example.com', '/app-endpoint'),
         ]);
 
-        $response = $this->createController(manager: $manager)->status($context);
+        $response = $this->createController(serviceRegistryClient: $registryClient)->available();
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame([
-            'enabled' => true,
-            'enableServices' => 'auto',
-            'appEnv' => 'prod',
-            'pending' => [
-                ['name' => 'SwagCopilot', 'label' => 'Copilot'],
-            ],
+            ['name' => 'SwagCopilot', 'label' => 'Copilot'],
+            ['name' => 'MyCoolService', 'label' => 'My Cool Service'],
         ], json_decode((string) $response->getContent(), true));
     }
 
@@ -473,6 +464,7 @@ class ServiceControllerTest extends TestCase
         ?ServiceLifecycle $serviceLifecycle = null,
         ?LifecycleManager $manager = null,
         ?RequirementsValidator $requirementsValidator = null,
+        ?Client $serviceRegistryClient = null,
     ): ServiceController {
         return new ServiceController(
             $serviceStorage ?? new ServiceStorage($this->appRepo),
@@ -480,6 +472,7 @@ class ServiceControllerTest extends TestCase
             $serviceLifecycle ?? static::createStub(ServiceLifecycle::class),
             $manager ?? static::createStub(LifecycleManager::class),
             $requirementsValidator ?? static::createStub(RequirementsValidator::class),
+            $serviceRegistryClient ?? static::createStub(Client::class),
         );
     }
 }

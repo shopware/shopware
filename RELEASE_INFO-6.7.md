@@ -55,14 +55,6 @@ A criteria that filters, sorts, queries or aggregates by a field the API does no
 
 ## Administration
 
-### Services page shows why services are not installed
-
-The Shopware Services settings page now says when the server keeps services turned off, with the configured `ENABLE_SERVICES` value.
-For `ENABLE_SERVICES=auto` it also shows the `APP_ENV` the shop runs in, because `auto` only installs services in `prod`, and lists the settings that turn them on.
-While services install, the page shows the ones still pending and refreshes the list until they are installed.
-After two minutes it stops refreshing and offers to check again.
-The page reads this from the new `GET /api/services/status` route, which requires the `system.plugin_maintain` permission.
-
 ### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag
 
 The new `ADMIN_VITE_8` feature flag builds the Administration and the Administration code of extensions with Vite 8.

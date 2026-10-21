@@ -190,23 +190,18 @@ describe('src/module/sw-settings-services/service/shopware-services-service.ts',
         expect(clientMock.history.post[0].url).toBe(`service/${action}/MyCoolService`);
     });
 
-    it('returns the services status', async () => {
+    it('returns the available services', async () => {
         const client = createHTTPClient();
         const clientMock = new MockAdapter(client);
         const loginService = createLoginService(client, Shopware.Context.api);
         const systemConfigService = new SystemConfigApiService(client, loginService);
         const shopwareServicesService = new ShopwareServicesService(client, loginService, systemConfigService);
 
-        const status = {
-            enabled: false,
-            enableServices: 'auto',
-            appEnv: 'dev',
-            pending: [],
-        };
+        const availableServices = [{ name: 'SwagCopilot', label: 'Copilot' }];
 
-        clientMock.onGet('services/status').reply(200, status);
+        clientMock.onGet('services/available').reply(200, availableServices);
 
-        expect(await shopwareServicesService.getServicesStatus()).toEqual(status);
+        expect(await shopwareServicesService.getAvailableServices()).toEqual(availableServices);
     });
 
     it('returns categorized permissions', async () => {

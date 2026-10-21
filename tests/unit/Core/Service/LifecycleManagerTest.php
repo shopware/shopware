@@ -232,54 +232,7 @@ class LifecycleManagerTest extends TestCase
         static::assertSame([
             'enabled' => false,
             'enableServices' => LifecycleManager::AUTO_ENABLED,
-            'appEnv' => 'dev',
         ], $manager->describeEnablement());
-    }
-
-    public function testPendingInstallationListsServicesTheInstallerHasNotInstalledYet(): void
-    {
-        $pending = [new ServiceEntry('SwagService1', 'Swag Service 1', 'https://example.com', '/app-endpoint')];
-
-        $installer = $this->createMock(AllServiceInstaller::class);
-        $installer->expects($this->once())
-            ->method('pending')
-            ->with($this->context)
-            ->willReturn($pending);
-        $this->serviceInstaller = $installer;
-
-        $manager = $this->createManager($this->createAppRepository());
-
-        static::assertSame($pending, $manager->pendingInstallation($this->context));
-    }
-
-    /**
-     * @param array<string, bool> $systemConfig
-     */
-    #[DataProvider('servicesNotInstalledProvider')]
-    public function testPendingInstallationIsEmptyWhenServicesAreNotInstalled(string $envEnabled, array $systemConfig): void
-    {
-        $this->systemConfigService = new StaticSystemConfigService($systemConfig);
-
-        $installer = $this->createMock(AllServiceInstaller::class);
-        $installer->expects($this->never())->method('pending');
-        $this->serviceInstaller = $installer;
-
-        $manager = $this->createManager($this->createAppRepository(), enabled: $envEnabled);
-
-        static::assertSame([], $manager->pendingInstallation($this->context));
-    }
-
-    public static function servicesNotInstalledProvider(): \Generator
-    {
-        yield 'turned off through ENABLE_SERVICES' => [
-            'false',
-            [],
-        ];
-
-        yield 'deactivated by the merchant' => [
-            'true',
-            [LifecycleManager::CONFIG_KEY_SERVICES_DISABLED => true],
-        ];
     }
 
     /**

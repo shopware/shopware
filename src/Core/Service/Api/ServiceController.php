@@ -16,6 +16,7 @@ use Shopware\Core\Service\Message\UpdateServiceMessage;
 use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceLifecycle;
+use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Shopware\Core\Service\ServiceStorage;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -37,6 +38,7 @@ class ServiceController
         private readonly ServiceLifecycle $serviceLifecycle,
         private readonly LifecycleManager $manager,
         private readonly RequirementsValidator $requirementsValidator,
+        private readonly Client $serviceRegistryClient,
     ) {
     }
 
@@ -163,23 +165,20 @@ class ServiceController
     }
 
     #[Route(
-        path: '/api/services/status',
-        name: 'api.services.status',
+        path: '/api/services/available',
+        name: 'api.services.available',
         defaults: [
             'auth_required' => true,
             PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain'],
         ],
         methods: [Request::METHOD_GET]
     )]
-    public function status(Context $context): JsonResponse
+    public function available(): JsonResponse
     {
-        return new JsonResponse([
-            ...$this->manager->describeEnablement(),
-            'pending' => array_map(static fn (ServiceEntry $entry) => [
-                'name' => $entry->name,
-                'label' => $entry->description,
-            ], $this->manager->pendingInstallation($context)),
-        ]);
+        return new JsonResponse(array_map(static fn (ServiceEntry $entry) => [
+            'name' => $entry->name,
+            'label' => $entry->description,
+        ], array_values($this->serviceRegistryClient->getAll())));
     }
 
     #[Route(

@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\DTO\Service;
 use Shopware\Core\Service\Permission\PermissionsService;
 use Shopware\Core\Service\ServiceRegistry\Client;
-use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -95,27 +94,14 @@ class LifecycleManager
     }
 
     /**
-     * @return array{enabled: bool, enableServices: string, appEnv: string}
+     * @return array{enabled: bool, enableServices: string}
      */
     public function describeEnablement(): array
     {
         return [
             'enabled' => $this->enabled(),
             'enableServices' => $this->enabled,
-            'appEnv' => $this->appEnv,
         ];
-    }
-
-    /**
-     * @return list<ServiceEntry> The registry services that are going to be installed but are not installed yet
-     */
-    public function pendingInstallation(Context $context): array
-    {
-        if (!$this->enabled() || $this->systemConfigService->getBool(self::CONFIG_KEY_SERVICES_DISABLED)) {
-            return [];
-        }
-
-        return $this->serviceInstaller->pending($context);
     }
 
     private function areDisabledFromEnv(): bool

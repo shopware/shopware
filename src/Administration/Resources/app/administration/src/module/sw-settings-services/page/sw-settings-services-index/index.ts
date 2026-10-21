@@ -3,7 +3,7 @@ import useSession from 'src/app/composables/use-session';
 import { useShopwareServicesStore } from '../../store/shopware-services.store';
 import template from './sw-settings-services-index.html.twig';
 import './sw-settings-services-index.scss';
-import type { ServiceDescription, ServicesStatus } from '../../service/shopware-services.service';
+import type { AvailableService, ServiceDescription } from '../../service/shopware-services.service';
 import extractError from '../../composables/extract-error';
 import {
     getServicesWithShopwareAccountRequirement,
@@ -19,7 +19,7 @@ import SwSettingsServicesServiceCard from '../../component/sw-settings-services-
 type SwSettingsPageData = {
     grantPermissionsCardBackground: string;
     services: ServiceDescription[];
-    status: ServicesStatus | null;
+    availableServices: AvailableService[];
     suspended: boolean;
     loadingError: string;
     installationPollingSince: number | null;
@@ -58,7 +58,7 @@ export default Shopware.Component.wrapComponentConfig({
                 '/administration/administration/static/img/services/grant-permissions-background.svg',
             ),
             services: [],
-            status: null,
+            availableServices: [],
             suspended: true,
             loadingError: '',
             installationPollingSince: null,
@@ -74,15 +74,25 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         servicesEnabled(): boolean {
-            return this.status?.enabled ?? true;
+            return Shopware.Context.app.config.services?.enabled ?? true;
+        },
+
+        enableServices(): string {
+            return Shopware.Context.app.config.services?.enableServices ?? '';
         },
 
         servicesAutoEnabled(): boolean {
-            return this.status?.enableServices === 'auto';
+            return this.enableServices === 'auto';
         },
 
-        pendingServices(): ServicesStatus['pending'] {
-            return this.status?.pending ?? [];
+        appEnv(): string {
+            return Shopware.Context.app.config.settings?.appEnv ?? '';
+        },
+
+        pendingServices(): AvailableService[] {
+            const installedNames = new Set(this.services.map((service) => service.name));
+
+            return this.availableServices.filter((service) => !installedNames.has(service.name));
         },
 
         installing(): boolean {
@@ -102,9 +112,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         Promise.all([
             this.reloadServices(),
-            shopwareServicesService.getServicesStatus().then((status) => {
-                this.status = status;
-            }),
+            this.loadAvailableServices(),
             shopwareServicesService.getServicesContext().then((servicesConsent) => {
                 shopwareServicesStore.config = servicesConsent;
             }),
@@ -218,14 +226,17 @@ export default Shopware.Component.wrapComponentConfig({
             }, INSTALLATION_POLL_INTERVAL);
         },
 
-        async refreshInstallationProgress() {
-            const shopwareServicesService = Shopware.Service('shopwareServicesService');
+        async loadAvailableServices() {
+            if (!this.servicesEnabled) {
+                return;
+            }
 
+            this.availableServices = await Shopware.Service('shopwareServicesService').getAvailableServices();
+        },
+
+        async refreshInstallationProgress() {
             try {
-                [this.services, this.status] = await Promise.all([
-                    shopwareServicesService.getInstalledServices(),
-                    shopwareServicesService.getServicesStatus(),
-                ]);
+                this.services = await Shopware.Service('shopwareServicesService').getInstalledServices();
                 this.loadingError = '';
             } catch (exception) {
                 this.loadingError = extractError(exception);

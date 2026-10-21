@@ -43,7 +43,7 @@ export function getCurrentInstance(): ComponentInstanceWithSetupContext | null {
 
 Fallow only reads `@public` from a `/** */` block.
 The `sw-deprecation-rules/private-feature-declarations` ESLint rule accepts `@public` like `@private`.
-Stores usually don't need it: extensions get them through `Shopware.Store.get()`, so the default export of a store file stays in the baseline unless an extension imports the file.
+Store default exports are ignored in `.fallowrc.json`, because stores register themselves and extensions get them through `Shopware.Store.get()`.
 
 ## Dependencies
 

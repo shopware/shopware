@@ -11,7 +11,9 @@
         "build/plugins.vite.ts",
         "build/vue-setup-transform/index.js",
         "src/app/assets/scss/mixins.scss",
-        "src/app/assets/scss/variables.scss"
+        "src/app/assets/scss/variables.scss",
+        "src/core/factory/state-deprecated.factory.js",
+        "src/core/helper/store-loader.helper.js"
     ],
     "framework": [
         {
@@ -58,7 +60,6 @@
     "ignoreFindings": ["build/vite-plugins/**/_fixtures/**"],
     "ignoreDependencies": [
         "shopware:*",
-        "src",
         "@jridgewell/remapping",
         "@tiptap/core",
         "@tiptap/extension-link",
@@ -76,11 +77,9 @@
         "**/entity-schema-definition",
         "**/component-imports"
     ],
-    "overrides": [
-        {
-            "files": ["src/core/factory/state-deprecated.factory.js", "src/core/helper/store-loader.helper.js"],
-            "rules": { "unused-files": "off" }
-        }
+    "ignoreExports": [
+        { "file": "src/**/*.store.ts", "exports": ["default"] },
+        { "file": "src/**/store.ts", "exports": ["default"] }
     ],
     "rules": {
         "unused-files": "error",
@@ -92,6 +91,11 @@
         "unresolved-imports": "error",
         "unlisted-dependencies": "error",
         "unused-class-members": "off",
+        "unused-store-members": "off",
+        "unprovided-injects": "off",
+        "unrendered-components": "off",
+        "unused-component-props": "off",
+        "unused-component-emits": "off",
         "duplicate-exports": "off",
         "test-only-dependencies": "off",
         "dev-dependencies-in-production": "off"

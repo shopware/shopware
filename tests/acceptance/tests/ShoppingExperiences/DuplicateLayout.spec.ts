@@ -1,4 +1,14 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
+import type { Page } from '@playwright/test';
+
+// The designer saves the whole layout after a duplicate, which renumbers the positions.
+function waitForPageSave(page: Page, layoutId: string) {
+    return page.waitForResponse(
+        (response) =>
+            new URL(response.url()).pathname.endsWith(`/api/cms-page/${layoutId}`) &&
+            response.request().method() === 'PATCH',
+    );
+}
 
 function textSection(id: string, blockId: string, position: number) {
     return {
@@ -29,8 +39,17 @@ test(
 
         await test.step('Duplicate the layout from its card in the listing.', async () => {
             await ShopAdmin.goesTo(AdminLayoutListing.url());
+            // Typing earlier reaches the search bar of the previously opened module, which runs a global search.
+            await ShopAdmin.expects(AdminLayoutListing.listingGrid).toBeVisible();
             const searchInput = ShopAdmin.page.locator('.sw-search-bar__input');
+            const filteredListResponse = ShopAdmin.page.waitForResponse(
+                (response) =>
+                    response.url().endsWith('/api/search/cms-page') &&
+                    (response.request().postData() ?? '').includes(layout.name) &&
+                    response.ok(),
+            );
             await searchInput.fill(layout.name);
+            await filteredListResponse;
             // The search bar dropdown would otherwise cover the layout cards.
             await searchInput.press('Escape');
 
@@ -89,31 +108,29 @@ test(
             await ShopAdmin.page.locator('.sw-cms-section').first().locator('.sw-cms-section__action').click();
 
             const cloneResponse = ShopAdmin.page.waitForResponse(`**/api/_action/clone/cms-section/${firstSectionId}`);
+            const pageSaveResponse = waitForPageSave(ShopAdmin.page, layout.id);
             await ShopAdmin.page.getByRole('button', { name: 'Duplicate' }).click();
 
             const response = await cloneResponse;
             expect(response.ok()).toBeTruthy();
             cloneId = (await response.json()).id;
+            expect((await pageSaveResponse).ok()).toBeTruthy();
         });
 
         await test.step('Verify the saved layout has the copy between both sections.', async () => {
-            await expect
-                .poll(async () => {
-                    const response = await AdminApiContext.post('search/cms-section', {
-                        data: {
-                            filter: [{ type: 'equals', field: 'pageId', value: layout.id }],
-                            sort: [{ field: 'position', order: 'ASC' }],
-                        },
-                    });
-                    expect(response.ok()).toBeTruthy();
+            const response = await AdminApiContext.post('search/cms-section', {
+                data: {
+                    filter: [{ type: 'equals', field: 'pageId', value: layout.id }],
+                    sort: [{ field: 'position', order: 'ASC' }],
+                },
+            });
+            expect(response.ok()).toBeTruthy();
 
-                    return (await response.json()).data.map(({ id, position }) => [id, position]);
-                })
-                .toEqual([
-                    [firstSectionId, 0],
-                    [cloneId, 1],
-                    [lastSectionId, 2],
-                ]);
+            expect((await response.json()).data.map(({ id, position }) => [id, position])).toEqual([
+                [firstSectionId, 0],
+                [cloneId, 1],
+                [lastSectionId, 2],
+            ]);
         });
     },
 );
@@ -140,31 +157,29 @@ test(
             await firstBlock.locator('.sw-cms-block__config-overlay').click();
 
             const cloneResponse = ShopAdmin.page.waitForResponse(`**/api/_action/clone/cms-block/${firstBlockId}`);
+            const pageSaveResponse = waitForPageSave(ShopAdmin.page, layout.id);
             await ShopAdmin.page.getByRole('button', { name: 'Duplicate' }).click();
 
             const response = await cloneResponse;
             expect(response.ok()).toBeTruthy();
             cloneId = (await response.json()).id;
+            expect((await pageSaveResponse).ok()).toBeTruthy();
         });
 
         await test.step('Verify the saved section has the copy between both blocks.', async () => {
-            await expect
-                .poll(async () => {
-                    const response = await AdminApiContext.post('search/cms-block', {
-                        data: {
-                            filter: [{ type: 'equals', field: 'sectionId', value: sectionId }],
-                            sort: [{ field: 'position', order: 'ASC' }],
-                        },
-                    });
-                    expect(response.ok()).toBeTruthy();
+            const response = await AdminApiContext.post('search/cms-block', {
+                data: {
+                    filter: [{ type: 'equals', field: 'sectionId', value: sectionId }],
+                    sort: [{ field: 'position', order: 'ASC' }],
+                },
+            });
+            expect(response.ok()).toBeTruthy();
 
-                    return (await response.json()).data.map(({ id, position }) => [id, position]);
-                })
-                .toEqual([
-                    [firstBlockId, 0],
-                    [cloneId, 1],
-                    [lastBlockId, 2],
-                ]);
+            expect((await response.json()).data.map(({ id, position }) => [id, position])).toEqual([
+                [firstBlockId, 0],
+                [cloneId, 1],
+                [lastBlockId, 2],
+            ]);
         });
     },
 );

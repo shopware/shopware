@@ -3,9 +3,10 @@
  *
  * Guards the Jest factory contract: every harness path it hands to Jest
  * exists, an extension's options extend the harness instead of replacing it,
- * an option outside the allowlist is rejected, and a missing harness fails
- * with the step that fixes it. The factory is an .mjs module Jest cannot
- * import directly, so a node subprocess builds each config and serializes it.
+ * an option outside the allowlist is rejected, and a missing harness or
+ * generated file fails with the step that fixes it. The factory is an .mjs
+ * module Jest cannot import directly, so a node subprocess builds each config
+ * and serializes it.
  */
 
 import { execFileSync } from 'child_process';
@@ -328,14 +329,39 @@ describe('extension-tooling jest factory', () => {
                 'The Composer package of shopware/administration excludes its test/ folder',
             );
         });
+    });
 
-        it('names the setup step when the component imports were never generated', () => {
+    describe('without the generated files', () => {
+        let projectRoot: string;
+        let copiedFactoryPath: string;
+
+        beforeEach(() => {
+            projectRoot = createTempProject('sw-tooling-jest-factory-');
+            copiedFactoryPath = path.join(projectRoot, 'administration', 'extension-tooling', 'jest.mjs');
+            writeFile(copiedFactoryPath, fs.readFileSync(factoryPath, 'utf8'));
             fs.mkdirSync(path.join(projectRoot, 'administration', 'test', '_setup'), { recursive: true });
+        });
 
-            const message = buildError({ rootDir: '/extension' }, copiedFactoryPath);
+        afterEach(() => {
+            cleanupTempProject(projectRoot);
+        });
 
-            expect(message).toContain('npm run unit-setup');
-            expect(message).toContain(path.join(projectRoot, 'administration'));
+        it('names the command for every missing file', () => {
+            const error = buildError({ rootDir: '/extension' }, copiedFactoryPath);
+
+            expect(error).toContain(
+                `component-imports.js: run \`npm run unit-setup\` in ${path.join(projectRoot, 'administration')}`,
+            );
+            expect(error).toContain('entity-schema.json: run `bin/console administration:generate-entity-schema-types`');
+        });
+
+        it('only names the files that are missing', () => {
+            writeFile(path.join(projectRoot, 'administration', 'test', '_mocks_', 'entity-schema.json'), '{}');
+
+            const error = buildError({ rootDir: '/extension' }, copiedFactoryPath);
+
+            expect(error).toContain('component-imports.js');
+            expect(error).not.toContain('entity-schema.json');
         });
     });
 });

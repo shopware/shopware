@@ -155,25 +155,25 @@ readonly class LoginConfigService
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
                     new Url(message: $invalidUrlMessage, requireTld: false),
-                    new Regex('/\w+(?!\/)$/', 'should not end with "/"'),
+                    new Regex(pattern: '#/$#D', message: 'should not end with "/"', match: false),
                 ],
                 'authorize_path' => [
                     new NotNull(null, $isNullMessage),
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
-                    new Regex('/^[\/].+$/', $invalidPath), // path should start with "/"
+                    new Regex('/^[\/].+$/D', $invalidPath), // path should start with "/"
                 ],
                 'token_path' => [
                     new NotNull(null, $isNullMessage),
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
-                    new Regex('/^[\/].+$/', $invalidPath), // path should start with "/"
+                    new Regex('/^[\/].+$/D', $invalidPath), // path should start with "/"
                 ],
                 'jwks_path' => [
                     new NotNull(null, $isNullMessage),
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
-                    new Regex('/^[\/].+$/', $invalidPath), // path should start with "/"
+                    new Regex('/^[\/].+$/D', $invalidPath), // path should start with "/"
                 ],
                 'scope' => [
                     new NotNull(null, $isNullMessage),

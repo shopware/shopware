@@ -104,6 +104,10 @@ They additionally react to domain changes:
 toggling the external storefront flag of a domain (or adding/removing domains) creates or removes the affected rows without re-saving the customer group.
 The storefront rows are untouched by this and keep being maintained by the Storefront bundle.
 
+### Overrides keep their own methods and props across component builds
+
+Repeated `Component.build()` calls no longer remove methods, props or other options that an override defines from components built earlier. Components with three or more overrides, such as the base of a `Component.extend()` that is mounted after other builds, failed with `this.<method> is not a function` or lost props before. No changes to extensions are required.
+
 ## API
 To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
 It bundles the Administration and its plugins, but not apps.
@@ -759,10 +763,6 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 `POST /store-api/checkout/cart/reorder/{orderId}` adds an order's products to the cart, and the `checkout.cart.collect-reorder-line-items` extension lets you add or drop items before they reach the cart
 
 ## Administration
-
-### Overrides keep their own methods and props across component builds
-
-Repeated `Component.build()` calls no longer remove methods, props or other options that an override defines from components built earlier. Components with three or more overrides, such as the base of a `Component.extend()` that is mounted after other builds, failed with `this.<method> is not a function` or lost props before. No changes to extensions are required.
 
 ### Import/export profile language tooltip deprecated
 

@@ -227,6 +227,72 @@ function watchUsageMessage(
     );
 }
 
+/** The Jest configs of the extensions a run covers, grouped per extension. */
+interface TestRunPlan {
+    configsByExtension: Array<{ project: ExtensionToolingProject; configs: string[] }>;
+    withoutConfig: string[];
+    vendorNotTested: string[];
+    configCount: number;
+}
+
+/**
+ * Decides which extensions of the selection run and which Jest configs they
+ * bring. Without a selection, vendor/ extensions stay out, as they are
+ * third-party code; a selection names its extensions on purpose.
+ *
+ * @example
+ * planTestRun('/shop', [zeroConfig, customAdmin], false);
+ * // → { configsByExtension: [{ project: zeroConfig, configs: [...] }], vendorNotTested: ['custom-admin'], … }
+ */
+function planTestRun(projectRoot: string, projects: ExtensionToolingProject[], namedOnPurpose: boolean): TestRunPlan {
+    const configsByExtension: TestRunPlan['configsByExtension'] = [];
+    const vendorNotTested: string[] = [];
+
+    for (const project of projects) {
+        const configs = findJestConfigs(projectRoot, project);
+
+        if (namedOnPurpose || !project.vendor) {
+            configsByExtension.push({ project, configs });
+        } else if (configs.length > 0) {
+            vendorNotTested.push(project.name);
+        }
+    }
+
+    return {
+        configsByExtension,
+        withoutConfig: configsByExtension.filter(({ configs }) => configs.length === 0).map(({ project }) => project.name),
+        vendorNotTested,
+        configCount: configsByExtension.reduce((count, { configs }) => count + configs.length, 0),
+    };
+}
+
+/**
+ * The fatal diagnostic of a selection, if any: an unknown name, or an extension
+ * named on purpose that has nothing to run, which is a mistake, not a pass.
+ *
+ * @example
+ * selectionDiagnostic({ projects: [suite] }, plan, true);
+ * // → 'No Jest config (jest.config.js, …) found for: Suite. Add one at the extension root …'
+ */
+function selectionDiagnostic(
+    selection: { fatalDiagnostic?: string },
+    plan: TestRunPlan,
+    namedOnPurpose: boolean,
+): string | undefined {
+    if (selection.fatalDiagnostic) {
+        return selection.fatalDiagnostic;
+    }
+
+    if (namedOnPurpose && plan.withoutConfig.length > 0) {
+        return (
+            `No Jest config (${JEST_CONFIG_FILE_NAMES.join(', ')}) found for: ${plan.withoutConfig.join(', ')}. ` +
+            'Add one at the extension root or beside its Administration folder.'
+        );
+    }
+
+    return undefined;
+}
+
 /**
  * Runs setup, then the Jest configs of the selected extensions one after another.
  *
@@ -238,75 +304,54 @@ export async function testExtensions(options: TestExtensionsOptions): Promise<Te
     const administrationRoot = path.resolve(options.administrationRoot);
     const runJest = options.runJest ?? createJestRunner(administrationRoot);
     const generateComponentImports = options.generateComponentImports ?? createComponentImportsGenerator(administrationRoot);
+    const jestArgs = options.jestArgs ?? [];
     const selected = normalizeSelection(options.only);
     const setupResult = setupExtensionTooling({ projectRoot, administrationRoot });
     const selection = filterSelectedProjects(setupResult.manifest.projects, selected);
-    const fatalDiagnostics = selection.fatalDiagnostic ? [selection.fatalDiagnostic] : [];
-    const candidates = selection.projects.map((project) => ({
-        project,
-        configs: findJestConfigs(projectRoot, project),
-    }));
-    // A selection names its extensions on purpose; without one, vendor/ extensions stay out.
-    const vendorNotTested =
-        selected.length > 0
-            ? []
-            : candidates
-                  .filter(({ project, configs }) => project.vendor && configs.length > 0)
-                  .map(({ project }) => project.name);
-    const configsByExtension = candidates.filter(({ project }) => selected.length > 0 || !project.vendor);
-    const withoutConfig = configsByExtension
-        .filter(({ configs }) => configs.length === 0)
-        .map(({ project }) => project.name);
-    const configCount = configsByExtension.reduce((count, { configs }) => count + configs.length, 0);
-    const jestArgs = options.jestArgs ?? [];
+    const namedOnPurpose = selected.length > 0;
+    const plan = planTestRun(projectRoot, selection.projects, namedOnPurpose);
 
-    // An extension named on purpose that has nothing to run is a mistake, not a pass.
-    if (selected.length > 0 && withoutConfig.length > 0) {
-        fatalDiagnostics.push(
-            `No Jest config (${JEST_CONFIG_FILE_NAMES.join(', ')}) found for: ${withoutConfig.join(', ')}. ` +
-                'Add one at the extension root or beside its Administration folder.',
-        );
+    const result = (runs: JestRun[], fatalDiagnostics: string[]): TestExtensionsResult => ({
+        runs,
+        withoutConfig: plan.withoutConfig,
+        vendorNotTested: plan.vendorNotTested,
+        setupWarnings: selectedSetupWarnings(setupResult.warnings, setupResult.manifest.projects, selected),
+        fatalDiagnostics,
+        exitCode: fatalDiagnostics.length > 0 || runs.some((run) => run.exitCode !== 0) ? 1 : 0,
+    });
+
+    const diagnostic = selectionDiagnostic(selection, plan, namedOnPurpose);
+
+    if (diagnostic) {
+        return result([], [diagnostic]);
     }
 
-    if (fatalDiagnostics.length === 0 && isWatchRun(jestArgs) && configCount !== 1) {
-        throw new CliUsageError(watchUsageMessage(projectRoot, configsByExtension, configCount));
+    if (isWatchRun(jestArgs) && plan.configCount !== 1) {
+        throw new CliUsageError(watchUsageMessage(projectRoot, plan.configsByExtension, plan.configCount));
     }
 
-    if (fatalDiagnostics.length === 0 && configCount === 0) {
-        fatalDiagnostics.push(nothingTestedDiagnostic(vendorNotTested));
+    if (plan.configCount === 0) {
+        return result([], [nothingTestedDiagnostic(plan.vendorNotTested)]);
+    }
+
+    // A Composer update replaces the Administration package and drops the generated map with it.
+    if (!fs.existsSync(path.join(administrationRoot, COMPONENT_IMPORTS_FILE)) && generateComponentImports() !== 0) {
+        return result([], [`Generating ${COMPONENT_IMPORTS_FILE} failed, see the output above.`]);
     }
 
     const runs: JestRun[] = [];
 
-    // A Composer update replaces the Administration package and drops the generated map with it.
-    if (
-        fatalDiagnostics.length === 0 &&
-        !fs.existsSync(path.join(administrationRoot, COMPONENT_IMPORTS_FILE)) &&
-        generateComponentImports() !== 0
-    ) {
-        fatalDiagnostics.push(`Generating ${COMPONENT_IMPORTS_FILE} failed, see the output above.`);
-    }
-
-    if (fatalDiagnostics.length === 0) {
-        for (const { project, configs } of configsByExtension) {
-            for (const config of configs) {
-                runs.push({
-                    extension: project.name,
-                    config: relativePosix(projectRoot, config),
-                    exitCode: await runJest(config, withPassWithNoTests(jestArgs, configCount)),
-                });
-            }
+    for (const { project, configs } of plan.configsByExtension) {
+        for (const config of configs) {
+            runs.push({
+                extension: project.name,
+                config: relativePosix(projectRoot, config),
+                exitCode: await runJest(config, withPassWithNoTests(jestArgs, plan.configCount)),
+            });
         }
     }
 
-    return {
-        runs,
-        withoutConfig,
-        vendorNotTested,
-        setupWarnings: selectedSetupWarnings(setupResult.warnings, setupResult.manifest.projects, selected),
-        fatalDiagnostics,
-        exitCode: fatalDiagnostics.length > 0 || runs.some((run) => run.exitCode !== 0) ? 1 : 0,
-    };
+    return result(runs, []);
 }
 
 /**

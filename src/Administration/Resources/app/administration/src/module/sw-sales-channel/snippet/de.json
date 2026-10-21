@@ -412,6 +412,7 @@
             },
             "productAssignmentModal": {
                 "title": "Produkte hinzufügen",
+                "buttonAddProducts": "Bis zu {productCount} Produkt hinzufügen | Bis zu {productCount} Produkte hinzufügen",
                 "singleProducts": "Produkt-Auswahl",
                 "singleProductsEmptyState": "Keine weiteren Produkte gefunden",
                 "categories": {

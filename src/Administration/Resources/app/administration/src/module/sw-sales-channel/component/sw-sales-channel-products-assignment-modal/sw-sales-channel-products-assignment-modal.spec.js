@@ -134,7 +134,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
             ],
         });
 
-        await wrapper.findByText('button', 'sw-sales-channel.detail.products.buttonAddProducts').trigger('click');
+        await wrapper.findByText('button', 'sw-sales-channel.detail.productAssignmentModal.buttonAddProducts').trigger('click');
 
         expect(wrapper.emitted('products-add')).toBeTruthy();
         expect(wrapper.emitted('products-add')[0]).toEqual([
@@ -164,7 +164,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
             categoryProducts: products,
         });
 
-        const assignButton = wrapper.findByText('button', 'sw-sales-channel.detail.products.buttonAddProducts');
+        const assignButton = wrapper.findByText('button', 'sw-sales-channel.detail.productAssignmentModal.buttonAddProducts');
         await assignButton.trigger('click');
 
         expect(wrapper.emitted('products-add')).toBeTruthy();
@@ -188,7 +188,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
 
         expect(wrapper.vm.productCount).toBe(1525);
 
-        await wrapper.findByText('button', 'sw-sales-channel.detail.products.buttonAddProducts').trigger('click');
+        await wrapper.findByText('button', 'sw-sales-channel.detail.productAssignmentModal.buttonAddProducts').trigger('click');
 
         expect(wrapper.emitted('products-add')[0]).toEqual([
             [{ id: '1' }],

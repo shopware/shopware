@@ -83,6 +83,7 @@ class AccountProfileController extends StorefrontController
             'page' => $page,
             'passwordFormViolation' => $request->attributes->get('passwordFormViolation'),
             'emailFormViolation' => $request->attributes->get('emailFormViolation'),
+            'profileFormData' => $request->attributes->get('profileFormData'),
         ]);
     }
 
@@ -99,7 +100,7 @@ class AccountProfileController extends StorefrontController
 
             $this->addFlash(self::SUCCESS, $this->trans('account.profileUpdateSuccess'));
         } catch (ConstraintViolationException $formViolations) {
-            return $this->forwardToRoute('frontend.account.profile.page', ['formViolations' => $formViolations]);
+            return $this->forwardToRoute('frontend.account.profile.page', ['formViolations' => $formViolations, 'profileFormData' => $data]);
         } catch (\Exception $exception) {
             $this->logger->error($exception->getMessage(), ['e' => $exception]);
             $this->addFlash(self::DANGER, $this->trans('error.message-default'));

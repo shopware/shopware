@@ -38,11 +38,11 @@ Tag an export with `@public` when an extension imports it, and Fallow skips it:
 /**
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function getCurrentInstance(): ComponentInstanceWithSetupContext | null {
 ```
 
 Fallow only reads `@public` from a `/** */` block.
+The `sw-deprecation-rules/private-feature-declarations` ESLint rule accepts `@public` like `@private`.
 Stores usually don't need it: extensions get them through `Shopware.Store.get()`, so the default export of a store file stays in the baseline unless an extension imports the file.
 
 ## Dependencies

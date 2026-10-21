@@ -5,7 +5,6 @@
 /**
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     warn,
     error,

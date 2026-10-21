@@ -9,7 +9,6 @@ export type InAppPurchaseRequest = Omit<iapCheckout, 'responseType'>;
 /**
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type InAppPurchaseCheckoutState =
     | {
           entry: null;

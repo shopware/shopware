@@ -8,7 +8,6 @@ import { reactive } from 'vue';
 /**
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type SidebarItemEntry = Omit<uiSidebarAdd, 'responseType'> & {
     baseUrl: string;
     active: boolean;

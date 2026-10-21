@@ -28,7 +28,6 @@ export default function createHTTPClient(context) {
  * @returns { CancelToken, isCancel, Cancel}
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const { CancelToken, isCancel, Cancel } = Axios;
 
 /**

@@ -285,7 +285,6 @@ export default class ExtensionStoreActionService extends ApiService {
  * @sw-package checkout
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type {
     ExtensionStoreActionService,
     ExtensionVariantType,

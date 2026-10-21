@@ -53,27 +53,6 @@ Extensions and integrations that read the product type of older order line items
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
 
-## Storefront
-
-### Storefront analytics send GA4 ecommerce events
-
-Storefront analytics now send ecommerce events in the format Google documents for GA4.
-Tracking setups have to adapt to these changes:
-
-* With a `GTM-` tracking ID, ecommerce events are pushed to the data layer as `{ event, ecommerce }`.
-  Google Tag Manager setups that read parameters from `eventModel` must use the `ecommerce` data layer variables instead.
-* Items use `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`, and numeric values are numbers instead of strings.
-  Amounts are rounded to cents.
-* The event `value` of cart, checkout and `purchase` events is the position price including promotion discounts, and the applied promotion codes are reported as `coupon`.
-  Discounts are no longer reported as items.
-* `login` and `sign_up` are reported again, and adding a product by its number on the cart page reports `add_to_cart`.
-  They stopped working with 6.6.10.0 and 6.7.11.0, when these forms changed.
-  `login` is now reported on the page after the login and only for a successful login, so a wrong password no longer counts as a login.
-  The same holds for `sign_up`, which a guest checkout no longer reports.
-  A guest who creates an account with "Create account" on the checkout finish page reports `sign_up` as well.
-
-The `.hidden-line-items-information` element is only rendered for a sales channel with active analytics.
-The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html) describes the full payload.
 ## Features
 
 ### Disable the Administration password recovery flow
@@ -137,6 +116,28 @@ Until 6.8, Shopware rewrites them when the flag is active and logs a warning for
 If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0.6 or newer, because older versions ignore negated patterns.
 
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
+
+## Storefront
+
+### Storefront analytics send GA4 ecommerce events
+
+Storefront analytics now send ecommerce events in the format Google documents for GA4.
+Tracking setups have to adapt to these changes:
+
+* With a `GTM-` tracking ID, ecommerce events are pushed to the data layer as `{ event, ecommerce }`.
+  Google Tag Manager setups that read parameters from `eventModel` must use the `ecommerce` data layer variables instead.
+* Items use `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`, and numeric values are numbers instead of strings.
+  Amounts are rounded to cents.
+* The event `value` of cart, checkout and `purchase` events is the position price including promotion discounts, and the applied promotion codes are reported as `coupon`.
+  Discounts are no longer reported as items.
+* `login` and `sign_up` are reported again, and adding a product by its number on the cart page reports `add_to_cart`.
+  They stopped working with 6.6.10.0 and 6.7.11.0, when these forms changed.
+  `login` is now reported on the page after the login and only for a successful login, so a wrong password no longer counts as a login.
+  The same holds for `sign_up`, which a guest checkout no longer reports.
+  A guest who creates an account with "Create account" on the checkout finish page reports `sign_up` as well.
+
+The `.hidden-line-items-information` element is only rendered for a sales channel with active analytics.
+The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html) describes the full payload.
 
 ## Hosting & Configuration
 

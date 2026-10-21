@@ -9,11 +9,12 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
     initializeExtensionDataLoader();
     let searchResult = { searchFoo: 'bar' };
     let getResult = { getFoo: 'bar' };
-    let saveResult = { saveFoo: 'bar' };
+    // save/saveAll/delete resolve with the raw request response, whose config carries the admin auth token
+    let saveResult = { saveFoo: 'bar', config: { headers: { Authorization: 'Bearer leaked-admin-token' } } };
     let cloneResult = { cloneFoo: 'bar' };
     let hasChangesResult = true;
-    let saveAllResult = { saveAllFoo: 'bar' };
-    let deleteResult = { deleteFoo: 'bar' };
+    let saveAllResult = { saveAllFoo: 'bar', config: { headers: { Authorization: 'Bearer leaked-admin-token' } } };
+    let deleteResult = { deleteFoo: 'bar', config: { headers: { Authorization: 'Bearer leaked-admin-token' } } };
     let createResult = { createFoo: 'bar' };
     const searchMockMethod = jest.fn((criteria, context) => {
         if (context.shouldFail) {
@@ -79,11 +80,11 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
         createMockMethod.mockClear();
         searchResult = { searchFoo: 'bar' };
         getResult = { getFoo: 'bar' };
-        saveResult = { saveFoo: 'bar' };
+        saveResult = { saveFoo: 'bar', config: { headers: { Authorization: 'Bearer leaked-admin-token' } } };
         cloneResult = { cloneFoo: 'bar' };
         hasChangesResult = true;
-        saveAllResult = { saveAllFoo: 'bar' };
-        deleteResult = { deleteFoo: 'bar' };
+        saveAllResult = { saveAllFoo: 'bar', config: { headers: { Authorization: 'Bearer leaked-admin-token' } } };
+        deleteResult = { deleteFoo: 'bar', config: { headers: { Authorization: 'Bearer leaked-admin-token' } } };
         createResult = { createFoo: 'bar' };
 
         // create mock extension
@@ -244,7 +245,8 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
                 languageId: 'my-awesome-language-id',
             }),
         );
-        expect(result).toEqual(saveResult);
+        // The repository response carries the admin auth token, so the handler must not return it
+        expect(result).toBeNull();
     });
 
     it('should handle repositoryClone', async () => {
@@ -312,7 +314,8 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
                 languageId: 'my-awesome-language-id',
             }),
         );
-        expect(result).toEqual(saveAllResult);
+        // The repository response carries the admin auth token, so the handler must not return it
+        expect(result).toBeNull();
     });
 
     it('should handle repositoryDelete', async () => {
@@ -331,7 +334,8 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
                 languageId: 'my-awesome-language-id',
             }),
         );
-        expect(result).toEqual(deleteResult);
+        // The repository response carries the admin auth token, so the handler must not return it
+        expect(result).toBeNull();
     });
 
     it('should handle repositoryCreate', async () => {

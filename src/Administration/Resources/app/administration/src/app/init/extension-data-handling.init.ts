@@ -124,7 +124,7 @@ export default function initializeExtensionDataLoader(): void {
         },
     );
 
-    Shopware.ExtensionAPI.handle('repositorySave', ({ entityName, entity, context }, additionalInformation) => {
+    Shopware.ExtensionAPI.handle('repositorySave', async ({ entityName, entity, context }, additionalInformation) => {
         const repository = getRepository(entityName, additionalInformation);
         if (!repository) {
             return rejectRepositoryCreation(entityName) as Promise<void>;
@@ -132,7 +132,9 @@ export default function initializeExtensionDataLoader(): void {
 
         const mergedContext = createContext(context);
 
-        return repository.save(entity, mergedContext) as Promise<void>;
+        // Await the save, but never return its result: the repository resolves with the raw request response,
+        // whose config carries the admin auth token. The extension only needs to know the save succeeded.
+        await repository.save(entity, mergedContext);
     });
 
     Shopware.ExtensionAPI.handle(
@@ -164,7 +166,7 @@ export default function initializeExtensionDataLoader(): void {
         return repository.hasChanges(entity);
     });
 
-    Shopware.ExtensionAPI.handle('repositorySaveAll', ({ entityName, entities, context }, additionalInformation) => {
+    Shopware.ExtensionAPI.handle('repositorySaveAll', async ({ entityName, entities, context }, additionalInformation) => {
         const repository = getRepository(entityName, additionalInformation);
         if (!repository) {
             return rejectRepositoryCreation(entityName) as Promise<void>;
@@ -172,10 +174,12 @@ export default function initializeExtensionDataLoader(): void {
 
         const mergedContext = createContext(context);
 
-        return repository.saveAll(entities as EntityCollection<typeof entityName>, mergedContext) as Promise<void>;
+        // Await the save, but never return its result: the repository resolves with the raw request response,
+        // whose config carries the admin auth token. The extension only needs to know the save succeeded.
+        await repository.saveAll(entities as EntityCollection<typeof entityName>, mergedContext);
     });
 
-    Shopware.ExtensionAPI.handle('repositoryDelete', ({ entityName, entityId, context }, additionalInformation) => {
+    Shopware.ExtensionAPI.handle('repositoryDelete', async ({ entityName, entityId, context }, additionalInformation) => {
         const repository = getRepository(entityName, additionalInformation);
         if (!repository) {
             return rejectRepositoryCreation(entityName) as Promise<void>;
@@ -183,7 +187,9 @@ export default function initializeExtensionDataLoader(): void {
 
         const mergedContext = createContext(context);
 
-        return repository.delete(entityId as EntityKey<typeof entityName>, mergedContext) as unknown as Promise<void>;
+        // Await the delete, but never return its result: the repository resolves with the raw request response,
+        // whose config carries the admin auth token. The extension only needs to know the delete succeeded.
+        await repository.delete(entityId as EntityKey<typeof entityName>, mergedContext);
     });
 
     Shopware.ExtensionAPI.handle('repositoryCreate', ({ entityName, entityId, context }, additionalInformation) => {

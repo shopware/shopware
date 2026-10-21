@@ -57,6 +57,9 @@ class EntityDefinitionQueryHelper
      */
     public static function isValidIdentifier(string $identifier): bool
     {
+        // `#` is intentionally absent: the pre-PHP-8.4 PDO emulated-prepare scanner does not treat it as a comment,
+        // and it's can't desync scanner (validated during testing). Also core relies on # as a delimiter in few places
+        // (see self::addTranslationSelect or EntityReader).
         foreach (['`', '?', ':', "'", '"', '\\', ';', '--', '/*', '*/'] as $forbidden) {
             if (str_contains($identifier, $forbidden)) {
                 return false;

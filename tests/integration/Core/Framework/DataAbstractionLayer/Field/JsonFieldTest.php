@@ -445,7 +445,6 @@ EOF;
         $repo = $this->getRepository();
 
         $criteria = new Criteria();
-        // mysql comments are forbidden
         $criteria->addFilter(new EqualsFilter('data.a*/b', 'bar'));
 
         $this->expectExceptionObject(DataAbstractionLayerException::invalidIdentifier('.a*/b'));

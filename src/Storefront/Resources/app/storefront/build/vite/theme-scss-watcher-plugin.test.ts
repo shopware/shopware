@@ -4,8 +4,18 @@ import os from 'node:os';
 import path from 'node:path';
 import { EventEmitter } from 'node:events';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import type * as SassEmbedded from 'sass-embedded';
 import type { ViteDevServer } from 'vite';
 import { themeScssWatcherPlugin } from './theme-scss-watcher-plugin';
+
+// The sync Sass API corrupts its protobuf stream on Node >= 24.22 (sync-child-process
+// ignores the byte offset of pooled stdout chunks), so the plugin must never use it.
+vi.mock('sass-embedded', async (importOriginal) => ({
+    ...await importOriginal<typeof SassEmbedded>(),
+    compileString: vi.fn(() => {
+        throw new Error('The sync Sass API must not be used by the theme SCSS watcher.');
+    }),
+}));
 
 type MiddlewareHandler = (req: { url?: string }, res: { setHeader: (name: string, value: string) => void; end: (body: string) => void; statusCode?: number }, next: () => void) => void;
 
@@ -48,6 +58,27 @@ function createMockServer(): ViteDevServer & {
     };
 }
 
+function createResponse() {
+    let resolveEnd: () => void = () => undefined;
+    const ended = new Promise<void>((resolve) => {
+        resolveEnd = resolve;
+    });
+
+    return {
+        statusCode: 200,
+        headers: {} as Record<string, string>,
+        body: '',
+        ended,
+        setHeader(name: string, value: string) {
+            this.headers[name] = value;
+        },
+        end(body: string) {
+            this.body = body;
+            resolveEnd();
+        },
+    };
+}
+
 function resolveHook<T extends (...args: never[]) => unknown>(
     hook: T | { handler: T } | undefined,
 ): T | undefined {
@@ -69,7 +100,7 @@ describe('themeScssWatcherPlugin', () => {
         fs.rmSync(fixtureRoot, { recursive: true, force: true });
     });
 
-    it('serves compiled css and reloads when theme-files.json changes', () => {
+    it('serves compiled css and reloads when theme-files.json changes', async () => {
         const projectRoot = path.join(fixtureRoot, 'project');
         const varRoot = path.join(projectRoot, 'var');
         const styleA = path.join(projectRoot, 'theme-a.scss');
@@ -95,24 +126,16 @@ describe('themeScssWatcherPlugin', () => {
         const middleware = server.__middlewares[0];
         expect(middleware).toBeDefined();
 
-        const response = {
-            statusCode: 200,
-            headers: {} as Record<string, string>,
-            body: '',
-            setHeader(name: string, value: string) {
-                this.headers[name] = value;
-            },
-            end(body: string) {
-                this.body = body;
-            },
-        };
+        const response = createResponse();
 
         middleware?.(
             { url: '/theme-scss/all.css' },
             response,
             () => undefined,
         );
+        await response.ended;
 
+        expect(response.statusCode).toBe(200);
         expect(response.headers['Content-Type']).toContain('text/css');
         expect(response.body).toContain('.a');
         expect(server.watcher.add).toHaveBeenCalledWith(themeFilesPath);
@@ -128,7 +151,37 @@ describe('themeScssWatcherPlugin', () => {
         server.watcher.emit('change', themeFilesPath);
 
         expect(server.watcher.add).toHaveBeenCalledWith(styleB);
-        expect(server.ws.send).toHaveBeenCalledWith({ type: 'full-reload' });
+        await vi.waitFor(() => {
+            expect(server.ws.send).toHaveBeenCalledWith({ type: 'full-reload' });
+        });
+    });
+
+    it('responds with a 500 and logs the error when the SCSS does not compile', async () => {
+        const projectRoot = path.join(fixtureRoot, 'broken-project');
+        const varRoot = path.join(projectRoot, 'var');
+        const brokenStyle = path.join(projectRoot, 'broken.scss');
+
+        fs.mkdirSync(varRoot, { recursive: true });
+        fs.writeFileSync(brokenStyle, '.a { color: $undefined-variable; }');
+        fs.writeFileSync(path.join(varRoot, 'theme-files.json'), JSON.stringify({
+            script: [],
+            style: [{ filepath: brokenStyle, extensions: [], resolveMapping: [], assetName: null }],
+            themeId: 'broken',
+            technicalName: 'Storefront',
+            domainUrl: 'https://example.test',
+        }));
+
+        const plugin = themeScssWatcherPlugin(projectRoot);
+        const server = createMockServer();
+        (resolveHook(plugin.configureServer) as ((...args: unknown[]) => unknown) | undefined)?.call({}, server);
+
+        const response = createResponse();
+        server.__middlewares[0]?.({ url: '/theme-scss/all.css' }, response, () => undefined);
+        await response.ended;
+
+        expect(response.statusCode).toBe(500);
+        expect(response.body).toContain('Undefined variable');
+        expect(server.config.logger.error).toHaveBeenCalledOnce();
     });
 
     it('warns and exits cleanly when theme-files.json is missing or malformed', () => {

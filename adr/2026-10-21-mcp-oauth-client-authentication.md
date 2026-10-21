@@ -5,18 +5,6 @@ area: framework
 tags: [framework, mcp, ai, oauth, admin-api, security]
 ---
 
-## Open decisions
-
-Four points still need a maintainer decision before this ADR is the contract for the follow-up issues.
-Each section below marks its point as **to decide** and explains it in context.
-
-| Decision | Recommendation | Trade-off |
-|---|---|---|
-| A later major accepts only MCP-bound user tokens on `/api/_mcp` ([section 1](#1-which-tokens-apimcp-accepts)) | No | Restricting forces every setup with a copied user token to log in again through OAuth. Keeping them means a plain Admin API token keeps reaching MCP, as it reaches the rest of the Admin API today. |
-| Core ships client entries for well-known MCP clients and accepts `http://localhost` redirects ([section 3](#3-client-registration)) | No entries; `localhost` only when a client in the default list needs it | Entries give those clients a setup without configuration, but core then vouches for third-party client ids and redirect URIs. `localhost` redirects are weaker than IP literals, which RFC 8252 recommends. |
-| Read-only consent becomes its own story ([section 4](#4-what-the-user-approves)) | Yes, after discovery and audience binding | It limits what an administrator's approval hands to an AI client. It costs a consent option and a scope check on every write tool. |
-| MCP-bound tokens get a shorter, separately configurable TTL ([section 8](#8-access-token-validity-after-refresh)) | No | A shorter TTL narrows the window in which an old access token stays valid after refresh. It adds refresh traffic and one more setting. |
-
 ## Context
 
 ### What MCP clients expect
@@ -151,8 +139,8 @@ A token without a resource is an Admin API token, and `/api/_mcp` is part of the
 Option B would break every setup that uses a copied user token today and gains nothing, because such a token already reaches the whole Admin API.
 The risk the specification addresses is the other direction: a token handed to an AI client reaching the rest of the shop.
 
-**To decide:** whether a later major restricts user tokens on `/api/_mcp` to MCP-bound tokens.
-Recommendation: no; keep C.
+OAuth is an additional way to reach `/api/_mcp`.
+No later major restricts the endpoint to MCP-bound tokens; access keys, integration tokens and user tokens keep working.
 
 ### 2. Binding a token to MCP
 
@@ -204,8 +192,17 @@ For CIMD clients the redirect URI must be listed in the fetched document.
 Only operators add clients, through configuration in `config/packages`.
 There is no Admin API or Administration UI for client registration.
 
-**To decide:** whether core ships entries for well-known MCP clients next to `shopware-cli`, and whether `http://localhost` redirect URIs are accepted besides IP literals (RFC 8252 recommends IP literals, some clients use `localhost`).
-Recommendation: ship no third-party entries; document a configuration example instead, and accept `localhost` only when a client in the default list needs it.
+Core ships no entries for third-party MCP clients; `shopware-cli` stays the only default.
+The documentation shows how an operator adds a client.
+
+`http://localhost` redirect URIs are not accepted:
+
+- A redirect URI matches only the URIs configured for the client id in the request; loopback any-port matching never applies across clients.
+- The port is the only free part, and only for a configured `127.0.0.1` or `[::1]` URI; scheme, host and path match exactly (RFC 8252 section 7.3).
+- `localhost` is a name, not an address.
+  It can resolve elsewhere through the hosts file or DNS, and a second local process can listen on it for the other address family, so RFC 8252 section 8.3 advises against it.
+- A loopback redirect does not prove which local program asked.
+  Any local program can send a public client id; PKCE binds the code to the program that started the flow, and the consent page names the client and the redirect host.
 
 ### 4. What the user approves
 
@@ -219,9 +216,9 @@ Decision: **A**, with consent text that says it plainly.
 An administrator's approval gives the client unrestricted MCP access, which audience binding limits to `/api/_mcp`.
 The consent page names the client, the redirect host and, for MCP tokens, that access is limited to the MCP endpoint.
 
-**To decide:** whether B follows as its own story.
-Recommendation: yes, after discovery and audience binding, because it is the smallest narrowing that helps administrators and maps onto `ScopePolicy` if Shopware ever adopts it.
-C needs storage and UI per token family and is not recommended now.
+B follows as its own story after discovery and audience binding.
+A read-only grant must not depend on tools honouring a `dryRun` argument, so it is enforced centrally: a read-only token reaches only tools whose `#[McpToolRequires]` privileges are all `:read` privileges.
+C needs storage and UI per token family and is not planned.
 
 ### 5. Rate-limit key
 
@@ -271,8 +268,7 @@ Rotation and reuse detection apply to refresh tokens.
 Revoking a client's access revokes its refresh token family; its last access token runs out within the TTL.
 A denylist would add a lookup to every Admin API request for a window of minutes.
 
-**To decide:** whether MCP-bound tokens get a shorter, separately configurable TTL.
-Recommendation: no; keep one TTL until there is a reason.
+MCP-bound tokens use the same `access_token_ttl` of ten minutes; there is no separate setting.
 
 ### 9. Reuse of the SDK 0.9 resource-server classes
 
@@ -329,7 +325,7 @@ These replace the proposed sub-issues of [#20866](https://github.com/shopware/sh
 5. **Consent text** for MCP clients, including the administrator notice and the MCP-only notice (4).
 6. **Client ID Metadata Documents** behind a flag, with SSRF review (3).
 7. **`shopware-mcp-evals`:** an OAuth login path next to integration keys.
-8. **Read-only consent**, if decided (4).
+8. **Read-only consent** on the consent page, enforced centrally by the privileges a tool declares (4).
 
 ### For extension developers
 

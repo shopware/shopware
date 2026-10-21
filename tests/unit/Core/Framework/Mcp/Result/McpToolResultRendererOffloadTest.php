@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultPointer;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultRenderer;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultStoredFormat;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -34,6 +35,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 #[Package('framework')]
 #[CoversClass(McpToolResultRenderer::class)]
+#[CoversClass(McpToolResultStoredFormat::class)]
 class McpToolResultRendererOffloadTest extends TestCase
 {
     private const URI = 'shopware://tool-result/token';
@@ -70,10 +72,15 @@ class McpToolResultRendererOffloadTest extends TestCase
     {
         $legacyText = $this->legacyText(110_000);
         $this->requestStack->push($this->adminRequest(sessionId: 'session-abc'));
+        $stored = null;
         $this->storage->expects($this->once())
             ->method('storeFor')
-            ->with('admin:integration-id:', $legacyText, 'session-abc')
-            ->willReturn($this->pointer());
+            ->with('admin:integration-id:', static::isString(), 'session-abc')
+            ->willReturnCallback(function (string $principal, string $content) use (&$stored): McpToolResultPointer {
+                $stored = $content;
+
+                return $this->pointer();
+            });
 
         $result = $this->renderer->render($this->parsed(110_000), $protocolVersion, $legacyText, new CallToolRequest('shopware-entity-search', ['entity' => 'product']));
 
@@ -82,7 +89,8 @@ class McpToolResultRendererOffloadTest extends TestCase
         static::assertNull($text['data']);
         static::assertSame(self::URI, $text['_meta']['resourceUri']);
         static::assertSame('2026-09-28T11:00:00+00:00', $text['_meta']['expiresAt']);
-        static::assertSame(\strlen($legacyText), $text['_meta']['responseSize']);
+        static::assertIsString($stored);
+        static::assertSame(\strlen($stored), $text['_meta']['responseSize']);
         static::assertStringContainsString('_meta.resourceUri', $text['_meta']['note']);
         static::assertSame(['tool' => 'shopware-entity-search', 'arguments' => ['entity' => 'product']], $text['_meta']['query']);
         static::assertNull($result->structuredContent);
@@ -114,6 +122,44 @@ class McpToolResultRendererOffloadTest extends TestCase
         static::assertStringContainsString('resource_link', $this->text($result->content[0]));
         static::assertSame([self::URI], $this->linkUris($result));
         static::assertSame('2026-09-28T11:00:00+00:00', $result->meta['shopware/expiresAt'] ?? null);
+    }
+
+    /**
+     * @return iterable<string, array{ProtocolVersion, string|null, string, McpToolResultStoredFormat}>
+     */
+    public static function storedFormatProvider(): iterable
+    {
+        $data = '{"blob":"' . str_repeat('x', 110_000) . '"}';
+        $legacyText = '{"success":true,"data":' . $data . ',"_meta":{"total":1}}';
+
+        yield '2024-11-05 stores the tool\'s legacy string' => [ProtocolVersion::V2024_11_05, $legacyText, $legacyText, McpToolResultStoredFormat::Legacy];
+        yield '2025-03-26 stores the tool\'s legacy string' => [ProtocolVersion::V2025_03_26, $legacyText, $legacyText, McpToolResultStoredFormat::Legacy];
+        yield '2025-03-26 stores the envelope rebuilt from a result object' => [ProtocolVersion::V2025_03_26, null, $legacyText, McpToolResultStoredFormat::Legacy];
+        yield '2025-06-18 stores the plain data' => [ProtocolVersion::V2025_06_18, $legacyText, $data, McpToolResultStoredFormat::Spec];
+        yield '2025-11-25 stores the plain data of a result object' => [ProtocolVersion::V2025_11_25, null, $data, McpToolResultStoredFormat::Spec];
+        yield '2026-07-28 stores the plain data' => [ProtocolVersion::V2026_07_28, $legacyText, $data, McpToolResultStoredFormat::Spec];
+    }
+
+    /**
+     * The format follows the protocol revision, not the `v6.8.0.0` flag: the legacy envelope only predates
+     * `structuredContent` and `resource_link`.
+     */
+    #[DataProvider('storedFormatProvider')]
+    public function testStoresTheFormatOfTheNegotiatedRevision(ProtocolVersion $protocolVersion, ?string $legacyText, string $expectedContent, McpToolResultStoredFormat $expectedFormat): void
+    {
+        $this->requestStack->push($this->adminRequest());
+        $this->storage->expects($this->once())
+            ->method('storeFor')
+            ->with('admin:integration-id:', $expectedContent, '', $expectedFormat->value)
+            ->willReturn($this->pointer());
+
+        $result = $this->renderer->render(
+            McpToolResult::success(['blob' => str_repeat('x', 110_000)], meta: ['total' => 1]),
+            $protocolVersion,
+            $legacyText,
+        );
+
+        static::assertSame(1, $this->linkedMeta($result)['total'] ?? null, 'the metadata of a stored result goes out with the link');
     }
 
     /**
@@ -158,10 +204,9 @@ class McpToolResultRendererOffloadTest extends TestCase
         $data = ['blob' => str_repeat('x', 110_000)];
         $this->storage->expects($this->once())
             ->method('storeFor')
-            ->with('store:' . $context->getSalesChannelId() . ':visitor-token', '{"success":true,"data":' . json_encode($data) . '}', '')
+            ->with('store:' . $context->getSalesChannelId() . ':visitor-token', json_encode($data), '', McpToolResultStoredFormat::Spec->value)
             ->willReturn($this->pointer());
 
-        // A tool that returns the result object has no legacy text; the stored form is the rebuilt envelope.
         $result = $this->renderer->render(McpToolResult::success($data), ProtocolVersion::V2025_11_25);
 
         static::assertSame([self::URI], $this->linkUris($result));
@@ -250,6 +295,27 @@ class McpToolResultRendererOffloadTest extends TestCase
             static fn (ResourceLink $link): string => $link->uri,
             array_filter($result->content, static fn (mixed $block): bool => $block instanceof ResourceLink),
         ));
+    }
+
+    /**
+     * The metadata of a linked result, from the legacy envelope or from the `{"_meta": …}` block of the 6.8
+     * format.
+     *
+     * @return array<string, mixed>
+     */
+    private function linkedMeta(CallToolResult $result): array
+    {
+        foreach ($result->content as $block) {
+            if (!$block instanceof TextContent) {
+                continue;
+            }
+            $decoded = json_decode((string) $block->text, true);
+            if (\is_array($decoded) && \is_array($decoded['_meta'] ?? null)) {
+                return $decoded['_meta'];
+            }
+        }
+
+        return [];
     }
 
     private function text(mixed $content): string

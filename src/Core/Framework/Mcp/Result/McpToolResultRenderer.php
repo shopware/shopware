@@ -30,7 +30,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
  *
  * It also decides about size: a successful result whose rendered form exceeds the limit of the
  * negotiated revision is stored for the calling principal and sent as a link, whichever tool or app
- * produced it.
+ * produced it. Clients since 2025-06-18 get the plain data stored, older ones the legacy envelope, see
+ * {@see McpToolResultStoredFormat}.
  */
 #[Package('framework')]
 class McpToolResultRenderer
@@ -83,10 +84,11 @@ class McpToolResultRenderer
             return $rendered;
         }
 
-        $content = $legacyText ?? $this->legacyEnvelope($result);
+        $format = $this->storedFormat($protocolVersion);
+        $content = $format === McpToolResultStoredFormat::Spec ? Json::encode($result->data) : ($legacyText ?? $this->legacyEnvelope($result));
         // The pointer is signed for the principal, so it works without an MCP session. The session id is
         // only recorded for the cleanup when a handshake session ends.
-        $pointer = $this->storage->storeFor($principal, $content, $request->headers->get('Mcp-Session-Id') ?? '');
+        $pointer = $this->storage->storeFor($principal, $content, $request->headers->get('Mcp-Session-Id') ?? '', $format->value);
 
         $this->logger->debug('MCP tool result stored as resource (oversized)', [
             'tool' => $call?->name,
@@ -133,6 +135,15 @@ class McpToolResultRenderer
         }
 
         return $size;
+    }
+
+    /**
+     * The legacy envelope was Shopware's convention before MCP had `structuredContent` and `resource_link`.
+     * Clients since 2025-06-18 read the stored data as it is and get its metadata with the link.
+     */
+    private function storedFormat(ProtocolVersion $protocolVersion): McpToolResultStoredFormat
+    {
+        return $protocolVersion->isAtLeast(ProtocolVersion::V2025_06_18) ? McpToolResultStoredFormat::Spec : McpToolResultStoredFormat::Legacy;
     }
 
     private function inlineLimit(ProtocolVersion $protocolVersion): int

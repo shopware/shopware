@@ -83,6 +83,8 @@ class SystemSetupCommandTest extends TestCase
     {
         yield 'empty string' => ['', true];
         yield 'zero string' => ['0', true];
+        yield 'boolean false' => [false, true];
+        yield 'boolean true' => [true, true];
         yield 'path' => ['/custom/composer', false];
         yield 'double zero string' => ['00', false];
         yield 'space' => [' ', false];

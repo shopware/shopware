@@ -47,11 +47,6 @@ The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physica
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
 
-### Product search and suggest extensions before the criteria are resolved
-
-`ProductSearchResolveCriteriaExtension` (`product-search-route.resolve-criteria`) and `ProductSuggestResolveCriteriaExtension` (`product-suggest-route.resolve-criteria`) wrap the whole product search and suggest, before the listing criteria are resolved from the request.
-
-To work on the resolved criteria instead, use `ProductSearchRouteExtension` and `ProductSuggestRouteExtension`, which run inside these extensions.
 ### Business customers need a VAT ID for countries that require one
 
 If the country of the active billing address has "VAT Reg.No. required" enabled, the cart of a business customer without a VAT ID now carries the blocking error `vat-id-missing`, and the order can't be placed.
@@ -60,6 +55,12 @@ Store API clients should show the error and let the customer add the VAT ID via 
 That route now validates `vatIds` against the country of the active billing address instead of the default one, the same country the cart checks.
 Headless clients find that address as `customer.activeBillingAddress` in `/store-api/context`.
 The Storefront profile page marks the VAT ID field as required based on the same country.
+
+### Product search and suggest extensions before the criteria are resolved
+
+`ProductSearchResolveCriteriaExtension` (`product-search-route.resolve-criteria`) and `ProductSuggestResolveCriteriaExtension` (`product-suggest-route.resolve-criteria`) wrap the whole product search and suggest, before the listing criteria are resolved from the request.
+
+To work on the resolved criteria instead, use `ProductSearchRouteExtension` and `ProductSuggestRouteExtension`, which run inside these extensions.
 
 ## API
 

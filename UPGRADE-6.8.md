@@ -428,8 +428,6 @@ Replace batches such as `executeStatement('UPDATE ...; DELETE ...')` with separa
 
 Migration execution, discovery, and bookkeeping used a dedicated connection to the primary database.
 Use the connection passed to `MigrationStep::update()` and `MigrationStep::updateDestructive()` for migration queries; these methods and installer schema imports continued to support multiple statements.
-Migration queries no longer shared the application connection's transaction, session variables, or temporary tables.
-Commit application changes needed by a migration before running it, and do not expect an application transaction rollback to undo migration changes.
 
 <details>
 

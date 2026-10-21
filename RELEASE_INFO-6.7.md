@@ -8,7 +8,6 @@ With `DISABLE_SQL_MULTI_STATEMENTS=1`, application database connections reject m
 This flag is also enabled by `V6_8_0_0=1` unless explicitly disabled.
 Execute statements separately in extensions.
 Migration execution, discovery, and bookkeeping now always use a separate primary connection, even while the flag is disabled.
-Migration queries no longer share application transactions, session variables, or temporary tables; commit any application changes they need before running migrations.
 The connections passed to migration `update()` and `updateDestructive()` methods and the installer explicitly allow multiple statements.
 
 # 6.7.16.0 (upcoming)

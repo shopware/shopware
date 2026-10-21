@@ -141,7 +141,7 @@ final readonly class AllowanceChargeView
     ): void {
         if (!\in_array(
             $lineItem->getType(),
-            [LineItem::PROMOTION_LINE_ITEM_TYPE, LineItem::CREDIT_LINE_ITEM_TYPE],
+            [LineItem::PROMOTION_LINE_ITEM_TYPE, LineItem::DISCOUNT_LINE_ITEM, LineItem::CREDIT_LINE_ITEM_TYPE],
             true,
         )) {
             return;

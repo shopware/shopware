@@ -30,7 +30,7 @@ class ToolResultCacheStorage
     public const DEFAULT_TTL_SECONDS = 86400;
 
     /**
-     * Every row holds more than 100 KB (`McpToolResponse::MAX_RESPONSE_SIZE`), so a batch stays around
+     * Every row holds about 100 KB or more (see `McpToolResultRenderer::MAX_INLINE_SIZE`), so a batch stays around
      * 10 MB of row data, well below transaction size limits such as Group Replication's.
      */
     private const CLEANUP_BATCH_SIZE = 100;

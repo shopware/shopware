@@ -47,9 +47,18 @@ class McpToolsetRegistry
     final public const FALLBACK_GROUP = 'other';
 
     /**
-     * Spelled out rather than "*" so it survives being pasted into clients that escape wildcards.
+     * Spelled out rather than "*" so it survives being pasted into clients that escape wildcards. A tool
+     * group with this name is resolved to {@see self::FALLBACK_GROUP} (see McpCapabilityCatalog).
      */
     final public const ALL_TOOLSETS = 'all';
+
+    /**
+     * The query parameter of the MCP connect URL that selects toolsets: `/api/_mcp?toolsets=order,media`
+     * and `/store-api/_mcp?toolsets=all`. The parameter exists since 6.7.15.0, this constant only since 6.7.16.0:
+     * code that also supports 6.7.15 detects the parameter with `\defined(McpToolsetRegistry::class . '::ALL_TOOLSETS')`
+     * and uses the literal `'toolsets'`.
+     */
+    final public const QUERY_PARAMETER = 'toolsets';
 
     /**
      * @internal
@@ -178,20 +187,7 @@ class McpToolsetRegistry
      */
     public function advertisedTools(array $enabledToolsets): array
     {
-        $tools = [];
-
-        foreach ($this->toolsets() as $toolset) {
-            if (!\in_array($toolset['name'], $enabledToolsets, true)) {
-                continue;
-            }
-
-            array_push($tools, ...$toolset['tools']);
-        }
-
-        $tools = array_values(array_unique($tools));
-        sort($tools);
-
-        return $tools;
+        return $this->advertisedToolsForNames($enabledToolsets);
     }
 
     private function humanizeToolsetName(string $name): string

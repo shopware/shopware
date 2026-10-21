@@ -45,7 +45,10 @@ export interface TestExtensionsOptions {
      * with a Jest config runs, except vendor/ extensions.
      */
     only?: string | string[];
-    /** Forwarded to every Jest run, e.g. `['--watch']` or a spec path pattern. */
+    /**
+     * Forwarded to every Jest run, e.g. a spec path pattern. `--watch` needs
+     * exactly one config; over several configs, `--passWithNoTests` is added.
+     */
     jestArgs?: string[];
     runJest?: JestRunner;
     /** Generates the component import map `wrapTestComponent` reads; returns the exit code. */
@@ -135,6 +138,38 @@ function createComponentImportsGenerator(administrationRoot: string): () => numb
 }
 
 /**
+ * Whether the Jest options start watch mode, which takes over the terminal and
+ * never returns, so the configs after the first would never run.
+ *
+ * @example
+ * isWatchRun(['--watchAll=true']); // → true
+ * isWatchRun(['--watchman']); // → false
+ */
+function isWatchRun(jestArgs: string[]): boolean {
+    return jestArgs.some((arg) => /^--watch(All)?(=|$)/.test(arg));
+}
+
+/**
+ * Adds `--passWithNoTests` when Jest options go to several configs: a spec path
+ * or name filter usually matches in one extension only, and the others must not
+ * fail the run for having no matching spec.
+ *
+ * @example
+ * withPassWithNoTests(['main.spec'], 2); // → ['main.spec', '--passWithNoTests']
+ * withPassWithNoTests(['main.spec'], 1); // → ['main.spec']
+ */
+function withPassWithNoTests(jestArgs: string[], configCount: number): string[] {
+    if (configCount < 2 || jestArgs.length === 0 || jestArgs.some((arg) => /^--passWithNoTests(=|$)/.test(arg))) {
+        return jestArgs;
+    }
+
+    return [
+        ...jestArgs,
+        '--passWithNoTests',
+    ];
+}
+
+/**
  * Explains a run without a single Jest config, so it fails instead of passing green.
  *
  * @example
@@ -150,6 +185,12 @@ function nothingTestedDiagnostic(vendorNotTested: string[]): string {
     ].join(' ');
 }
 
+/**
+ * Runs setup, then the Jest configs of the selected extensions one after another.
+ *
+ * @throws {CliUsageError} when the Jest options start watch mode and the run has
+ *   no or several Jest configs; nothing runs then.
+ */
 export async function testExtensions(options: TestExtensionsOptions): Promise<TestExtensionsResult> {
     const projectRoot = path.resolve(options.projectRoot);
     const administrationRoot = path.resolve(options.administrationRoot);
@@ -175,12 +216,20 @@ export async function testExtensions(options: TestExtensionsOptions): Promise<Te
         .filter(({ configs }) => configs.length === 0)
         .map(({ project }) => project.name);
     const configCount = configsByExtension.reduce((count, { configs }) => count + configs.length, 0);
+    const jestArgs = options.jestArgs ?? [];
 
     // An extension named on purpose that has nothing to run is a mistake, not a pass.
     if (selected.length > 0 && withoutConfig.length > 0) {
         fatalDiagnostics.push(
             `No Jest config (${JEST_CONFIG_FILE_NAMES.join(', ')}) found for: ${withoutConfig.join(', ')}. ` +
                 'Add one at the extension root or beside its Administration folder.',
+        );
+    }
+
+    if (fatalDiagnostics.length === 0 && isWatchRun(jestArgs) && configCount !== 1) {
+        throw new CliUsageError(
+            `Jest's watch mode needs exactly one Jest config, but this run has ${configCount}. ` +
+                'Name one extension via --only, e.g. -- --only=MyPlugin -- --watch.',
         );
     }
 
@@ -205,7 +254,7 @@ export async function testExtensions(options: TestExtensionsOptions): Promise<Te
                 runs.push({
                     extension: project.name,
                     config: relativePosix(projectRoot, config),
-                    exitCode: await runJest(config, options.jestArgs ?? []),
+                    exitCode: await runJest(config, withPassWithNoTests(jestArgs, configCount)),
                 });
             }
         }
@@ -268,13 +317,8 @@ const TEST_COMMAND: CommandSpec = {
 
 /** Runs the test command; returns the process exit code (0 passed, 1 failed, 2 usage error). */
 export async function runTestCli(argv: string[]): Promise<number> {
-    const separator = argv.indexOf('--');
-    const toolingArgs = separator === -1 ? argv : argv.slice(0, separator);
-    const jestArgs = separator === -1 ? [] : argv.slice(separator + 1);
-    let parsed;
-
     try {
-        parsed = parseCli(toolingArgs, TEST_COMMAND);
+        return await runTestCommand(argv);
     } catch (error) {
         if (error instanceof CliUsageError) {
             console.error(`${error.message}\n\n${renderHelp(TEST_COMMAND)}`);
@@ -284,6 +328,14 @@ export async function runTestCli(argv: string[]): Promise<number> {
 
         throw error;
     }
+}
+
+/** The test command; a wrong invocation throws a `CliUsageError`. */
+async function runTestCommand(argv: string[]): Promise<number> {
+    const separator = argv.indexOf('--');
+    const toolingArgs = separator === -1 ? argv : argv.slice(0, separator);
+    const jestArgs = separator === -1 ? [] : argv.slice(separator + 1);
+    const parsed = parseCli(toolingArgs, TEST_COMMAND);
 
     if (parsed.help) {
         console.log(renderHelp(TEST_COMMAND));
@@ -295,9 +347,7 @@ export async function runTestCli(argv: string[]): Promise<number> {
     const projectRoot = parsed.values['--project-root'] ?? process.env.PROJECT_ROOT;
 
     if (!projectRoot) {
-        console.error(`PROJECT_ROOT or --project-root is required.\n\n${renderHelp(TEST_COMMAND)}`);
-
-        return 2;
+        throw new CliUsageError('PROJECT_ROOT or --project-root is required.');
     }
 
     let only: string | string[] | undefined = parsed.values['--only'];

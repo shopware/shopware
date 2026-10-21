@@ -254,6 +254,9 @@ Elsewhere, and with `--all`, every such extension runs except the ones under `ve
 they are read-only, so they run only when the picker or `--only` selects them, by extension or bundle name.
 The report lists the vendor extensions it did not test.
 A run in which no Jest config ran exits 1, so a CI job cannot pass without running a spec.
+Jest's `--watch` and `--watchAll` need exactly one Jest config, so name one extension via `--only`; otherwise the command exits 2.
+When Jest options go to more than one Jest config, the command adds `--passWithNoTests`,
+so a spec path or name filter fails the run only on a failing spec, not on an extension without a matching spec.
 An extension that installs its own Jest can keep running it directly, as long as it has the same major version as the Administration's.
 
 The harness lives in the Administration's `test/` folder and works in a platform checkout and in a Composer install alike.

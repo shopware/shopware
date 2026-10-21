@@ -7,6 +7,7 @@ use Mcp\Capability\Registry\ReferenceHandlerInterface;
 use Mcp\Capability\Registry\ToolReference;
 use Mcp\Schema\Enum\ProtocolVersion;
 use Mcp\Schema\JsonRpc\Request;
+use Mcp\Schema\Request\CallToolRequest;
 use Mcp\Server\RequestContext;
 use Mcp\Server\Session\SessionInterface;
 use Shopware\Core\Framework\Log\Package;
@@ -43,12 +44,16 @@ class McpToolResultReferenceHandler implements ReferenceHandlerInterface
             return $result;
         }
 
+        // The call is echoed with a stored result, see McpToolResultRenderer.
+        $request = $arguments['_request'] ?? null;
+        $call = $request instanceof CallToolRequest ? $request : null;
+
         if ($result instanceof McpToolResult) {
-            return $this->renderer->render($result, $this->protocolVersion($arguments));
+            return $this->renderer->render($result, $this->protocolVersion($arguments), call: $call);
         }
 
         if (\is_string($result) && ($parsed = $this->parser->parse($result)) !== null) {
-            return $this->renderer->render($parsed, $this->protocolVersion($arguments), $result);
+            return $this->renderer->render($parsed, $this->protocolVersion($arguments), $result, $call);
         }
 
         return $result;

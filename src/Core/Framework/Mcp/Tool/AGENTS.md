@@ -132,15 +132,31 @@ Rules:
 - `data` holds the actual result (structure is tool-specific)
 - `_meta` is optional, used for pagination (`total`, `page`, `limit`), context (`salesChannelId`), and write metadata (`dryRun`)
 - `error` (string) and `code` only appear when `success` is false. Use a `McpToolError` constant for `code` (`missing_privilege`, `invalid_arguments`, `not_found`, `tool_error`), so clients can match on it instead of the message
-- Responses up to 100 KB are returned inline. Responses at or above 20 KB include `_meta.responseSize` so the LLM can see the cost of the current call and learn to use tighter `includes`/`limit` next time
-- Responses larger than 100 KB are stored in `mcp_tool_result_cache` and returned as a `shopware://tool-result/{pointer}` URI in `_meta.resourceUri`, with `_meta.expiresAt`. The renderer adds the same URI as a `resource_link` content block (protocol 2025-06-18 and later). The pointer is signed for the caller (Admin: integration and user; Store: sales channel and `sw-context-token`) and expires after an hour, so it works on a later request and without an MCP session, but only for the same caller. The full content is fetched via `resources/read` (`ToolResultResource` on the Admin API, `StoreApiToolResultResource` on the Store API). `_meta.query` echoes the originating tool name and arguments so the LLM can disambiguate which call produced which URI. Rows are wiped on session DELETE by `McpSessionCleanupSubscriber` when the call had a session. This applies to every tool extending `McpToolResponse`, including plugin and bundle tools (`McpToolResultCacheCompilerPass` wires the cache for them). `McpToolResultCacheCleanupTask` removes rows older than `shopware.mcp.tool_result_cache_ttl`. Without an authenticated caller (CLI/test), the response falls back to inline delivery
+- Responses at or above 20 KB include `_meta.responseSize` so the LLM can see the cost of the current call and learn to use tighter `includes`/`limit` next time.
+  `success()` doesn't decide whether a response is too large to send inline, the renderer does (see below)
 - A PHPStan rule (`McpToolResponseRule`) enforces that all `#[McpTool]` classes extend the abstract class
 
 ### What the client receives
 
 The envelope above is the text block. `McpToolResultReferenceHandler` wraps the SDK reference handler of both servers (`McpToolResultRendererCompilerPass`), parses the envelope into a `McpToolResult` and renders it with `McpToolResultRenderer` into a `CallToolResult`:
 - `structuredContent` holds `data`. On the handshake era it must be an object, so a list or scalar is wrapped as `{"result": ...}`. A failure becomes `{"error": {"code": ..., "message": ..., "details": ...}}` and sets `isError: true`. Clients that negotiated a protocol revision before 2025-06-18 get no `structuredContent`, because it doesn't exist there; they read the text block
-- `structuredContent` and the text copy are both sent, as the spec asks. Size is limited only by the 100 KB offload in `McpToolResponse::success()`. Moving that decision into the renderer is phase 2 of the result format ADR
+- `structuredContent` and the text copy are both sent, as the spec asks.
+  A result is never sent with one copy only to make it fit
+- **Large results.** The renderer measures the text blocks plus the encoded `structuredContent` of every successful result, from core, plugin, bundle and app tools and hand-built strings alike.
+  Above `McpToolResultRenderer::MAX_INLINE_SIZE` (200 KB, or `MAX_INLINE_SIZE_TEXT_ONLY`, 100 KB, before 2025-06-18, which has no `structuredContent`), so at about 100 KB of data on every revision, the result is stored in `mcp_tool_result_cache` with `ToolResultCacheStorage::storeFor()` and replaced by a link.
+  The stored content is the legacy envelope: the tool's string, or the envelope rebuilt from a `McpToolResult`.
+  Failures are never stored
+  - The link is a `shopware://tool-result/{pointer}` URI, sent as a `resource_link` content block (2025-06-18 and later).
+    Until 6.8.0 the text is the envelope `{"success": true, "data": null, "_meta": {...}}` with `resourceUri`, `expiresAt`, `responseSize`, `note` and `query`.
+    With `v6.8.0.0` the text is the note plus `{"_meta": …}`, which leaves out `resourceUri` when the `resource_link` is sent;
+    revisions before 2025-06-18 only read the text and keep it
+  - The pointer is signed for the caller (`McpToolResultPrincipal`; Admin: integration and user; Store: sales channel and `sw-context-token`) and expires after an hour.
+    So it works on a later request and without an MCP session, but only for the same caller.
+    The full content is fetched via `resources/read` (`ToolResultResource` on the Admin API, `StoreApiToolResultResource` on the Store API).
+    Without a principal (CLI, tests, a Store API call without `sw-context-token`) the result stays inline
+  - `_meta.query` echoes the tool name and arguments of the `tools/call` request, so the LLM can tell which call produced which URI
+  - Rows are wiped on session DELETE by `McpSessionCleanupSubscriber` when the call had a session.
+    `McpToolResultCacheCleanupTask` removes rows older than `shopware.mcp.tool_result_cache_ttl`
 - `_meta["shopware/generatedAt"]` is always set
 - With `v6.8.0.0` active, the envelope is replaced by separate text blocks: the data as plain JSON, then the summary, then `{"_meta": …}`. A failure sends its message, then `{"details": …}` and `{"_meta": …}` when there are any. The metadata also goes into the result `_meta` with a `shopware/` prefix. Keys next to the envelope fields, such as `dryRun`, count as metadata
 

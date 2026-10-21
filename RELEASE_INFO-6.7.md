@@ -47,6 +47,15 @@ The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physica
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
 
+### Large MCP results of every tool are stored and linked
+
+The MCP result renderer now decides whether a tool result is too large to return inline, for every tool on `/api/_mcp` and `/store-api/_mcp`.
+Results of app tools and of plugin tools that build their JSON string by hand, which were always returned inline, are now stored like the results of `McpToolResponse::success()` and sent as a `resource_link` with `_meta.resourceUri` in the text.
+The model reads them with `resources/read`.
+`McpToolResponse::success()` itself no longer stores anything and always returns the full data, so a tool called outside of an MCP request gets its complete result.
+The limit applies to the rendered result, the text plus `structuredContent`, and is set so that the offload point stays at about 100 KB of data.
+With the `v6.8.0.0` feature flag, `_meta.resourceUri` is left out of the text when the client receives the `resource_link`.
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request

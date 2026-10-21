@@ -8,13 +8,16 @@ use Mcp\Schema\Enum\ProtocolVersion;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Result\McpToolError;
 use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultLink;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultRenderer;
+use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Clock\MockClock;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -107,7 +110,7 @@ class McpToolResultRendererTest extends TestCase
 
     public function testKeepsBothCopiesOfALargeResult(): void
     {
-        // The spec asks for the data twice; large results are offloaded before rendering, not cut here.
+        // The spec asks for the data twice. A large result is stored as a whole, never sent with one copy only.
         $data = ['blob' => str_repeat('x', 60_000)];
 
         $result = $this->renderer()->render(McpToolResult::success($data), ProtocolVersion::latestHandshake());
@@ -234,7 +237,7 @@ class McpToolResultRendererTest extends TestCase
 
     private function renderer(): McpToolResultRenderer
     {
-        return new McpToolResultRenderer(new MockClock(self::NOW));
+        return new McpToolResultRenderer(new MockClock(self::NOW), static::createStub(ToolResultCacheStorage::class), new RequestStack(), new NullLogger());
     }
 
     private function text(mixed $content): string

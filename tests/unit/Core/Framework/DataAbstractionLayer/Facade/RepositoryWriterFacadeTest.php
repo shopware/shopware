@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacade;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\AppContextFactory;
@@ -26,10 +27,10 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 class RepositoryWriterFacadeTest extends TestCase
 {
     /**
-     * @param 'upsert'|'delete' $method
+     * @param \Closure(RepositoryWriterFacade): EntityWrittenContainerEvent $write
      */
     #[DataProvider('writeMethodProvider')]
-    public function testWriteUsesAFreshAppContextPerCall(string $method): void
+    public function testWriteUsesAFreshAppContextPerCall(\Closure $write): void
     {
         $integrationId = Uuid::randomHex();
         $hookContext = Context::createDefaultContext();
@@ -45,9 +46,9 @@ class RepositoryWriterFacadeTest extends TestCase
             AppContextFactory::forApp($hookContext, $integrationId, ['product:create']),
         );
 
-        $first = $facade->$method('product', [['id' => Uuid::randomHex()]])->getContext();
+        $first = $write($facade)->getContext();
         $first->setRuleIds([Uuid::randomHex()]);
-        $second = $facade->$method('product', [['id' => Uuid::randomHex()]])->getContext();
+        $second = $write($facade)->getContext();
 
         static::assertNotSame($first, $second);
         static::assertNotSame($hookContext, $first);
@@ -60,8 +61,8 @@ class RepositoryWriterFacadeTest extends TestCase
 
     public static function writeMethodProvider(): \Generator
     {
-        yield 'upsert' => ['upsert'];
-        yield 'delete' => ['delete'];
+        yield 'upsert' => [static fn (RepositoryWriterFacade $facade): EntityWrittenContainerEvent => $facade->upsert('product', [['id' => Uuid::randomHex()]])];
+        yield 'delete' => [static fn (RepositoryWriterFacade $facade): EntityWrittenContainerEvent => $facade->delete('product', [['id' => Uuid::randomHex()]])];
     }
 
     public function testSyncUsesAFreshAppContextPerCall(): void

@@ -30,12 +30,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class RepositoryFacadeTest extends TestCase
 {
     /**
-     * @param 'search'|'ids'|'aggregate' $facadeMethod
      * @param 'search'|'searchIds'|'aggregate' $repositoryMethod
-     * @param \Closure(Criteria, Context): (EntitySearchResult<ProductCollection>|IdSearchResult|AggregationResultCollection) $result
+     * @param \Closure(RepositoryFacade): object $read
+     * @param \Closure(Criteria, Context): object $result
      */
     #[DataProvider('readMethodProvider')]
-    public function testReadUsesAFreshAppContextPerCall(string $facadeMethod, string $repositoryMethod, \Closure $result): void
+    public function testReadUsesAFreshAppContextPerCall(string $repositoryMethod, \Closure $read, \Closure $result): void
     {
         $integrationId = Uuid::randomHex();
         $hookContext = Context::createDefaultContext();
@@ -75,9 +75,9 @@ class RepositoryFacadeTest extends TestCase
             AppContextFactory::forApp($hookContext, $integrationId, ['product:read']),
         );
 
-        $facade->$facadeMethod('product', []);
+        $read($facade);
         $readContexts[0]->setRuleIds([Uuid::randomHex()]);
-        $facade->$facadeMethod('product', []);
+        $read($facade);
 
         static::assertCount(2, $readContexts);
         static::assertSame($validatedContexts, $readContexts);
@@ -94,17 +94,17 @@ class RepositoryFacadeTest extends TestCase
     {
         yield 'search' => [
             'search',
-            'search',
+            static fn (RepositoryFacade $facade): EntitySearchResult => $facade->search('product', []),
             static fn (Criteria $criteria, Context $context): EntitySearchResult => new EntitySearchResult('product', 0, new ProductCollection(), null, $criteria, $context),
         ];
         yield 'ids' => [
-            'ids',
             'searchIds',
+            static fn (RepositoryFacade $facade): IdSearchResult => $facade->ids('product', []),
             static fn (Criteria $criteria, Context $context): IdSearchResult => new IdSearchResult(0, [], $criteria, $context),
         ];
         yield 'aggregate' => [
             'aggregate',
-            'aggregate',
+            static fn (RepositoryFacade $facade): AggregationResultCollection => $facade->aggregate('product', []),
             static fn (): AggregationResultCollection => new AggregationResultCollection(),
         ];
     }

@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parse } from 'yaml';
 
@@ -10,10 +10,15 @@ import Feature from 'src/core/feature';
 import getMajorFeatureFlags from '../_helper_/majorFeatureFlags';
 import normalizeFeatureFlag from '../_helper_/normalizeFeatureFlag';
 
-const featureConfigPath = resolve(
-    process.env.ADMIN_PATH,
-    '../../../../Core/Framework/Resources/config/packages/feature.yaml',
+// The Core bundle sits in `src/Core` in a platform checkout and in `vendor/shopware/core` in a Composer install.
+const featureConfigCandidates = ['Core', 'core'].map((coreFolder) =>
+    resolve(process.env.ADMIN_PATH, '../../../..', coreFolder, 'Framework/Resources/config/packages/feature.yaml'),
 );
+const featureConfigPath = featureConfigCandidates.find((candidate) => existsSync(candidate));
+
+if (!featureConfigPath) {
+    throw new Error(`Cannot find the feature flag config, looked at:\n${featureConfigCandidates.join('\n')}`);
+}
 
 const featureConfig = parse(readFileSync(featureConfigPath, 'utf8'));
 const { flags } = featureConfig.shopware.feature;

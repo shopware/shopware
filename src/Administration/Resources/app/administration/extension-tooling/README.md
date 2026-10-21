@@ -14,7 +14,7 @@ below).
 | `tsconfig.base.json` | Strict TypeScript preset for extension code (ESNext, Bundler resolution, `noEmit`). Resolves `vue`, `@vue/*`, and `src/*` into the installed Administration. |
 | `admin-types.d.ts` | The one type surface: imports the live `global.types.ts`, the generated `entity-schema-definition.d.ts`, `html-shim.d.ts`, and `shopware-virtual-modules.d.ts`. Injected into every extension program via `files`. |
 | `eslint.mjs` | Parameterized flat-config factory `shopwareAdminExtension(options)`. All plugins resolve from the Administration's `node_modules`. |
-| `jest.mjs` | Jest config factory `shopwareAdminJest(options)`: the Administration's test harness with every path resolved into the installed Administration. The Administration's own Jest config composes it too. Needs a platform checkout (see [Running specs with Jest](#running-specs-with-jest)). |
+| `jest.mjs` | Jest config factory `shopwareAdminJest(options)`: the Administration's test harness with every path resolved into the installed Administration. The Administration's own Jest config composes it too. |
 | `legacy-twig.mjs` | Lint preset for legacy `.html.twig` component templates (Twig-Vue processor). |
 | `host-modules.json` | Declares the bare modules the Administration host provides to extensions at runtime. v1: `vue` only — the Vite externals plugin replaces exactly the bare `vue` import. If a module is added there, it must be added here and to `tsconfig.base.json` `paths` in the same change. |
 
@@ -235,8 +235,7 @@ Run the specs with the Administration's Jest, so the runner matches the harness:
 node <administration>/node_modules/jest/bin/jest.js --config jest.config.mjs
 ```
 
-The harness lives in the Administration's `test/` folder, which the Composer package of `shopware/administration` does not include.
-Run extension specs in a platform checkout; in a Composer install the factory fails with a message that says so.
+The harness lives in the Administration's `test/` folder and works in a platform checkout and in a Composer install alike.
 It reads two files that every installation generates itself.
 Generate them before the first run and after every Shopware update:
 

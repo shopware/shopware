@@ -1,10 +1,10 @@
 /**
  * @sw-package framework
  *
- * Interactive extension selection for `admin:check-extensions`. The grammar —
- * numbers, comma lists, ranges, "all", "writable" — lives in the pure
- * `parseSelection`, separated from the readline I/O in `promptSelection`, so it
- * is unit-testable without a TTY.
+ * Interactive extension selection for `admin:check-extensions` and
+ * `admin:test-extensions`. The grammar — numbers, comma lists, ranges, "all",
+ * "writable" — lives in the pure `parseSelection`, separated from the readline
+ * I/O in `promptSelection`, so it is unit-testable without a TTY.
  */
 
 import readline from 'node:readline/promises';
@@ -86,11 +86,14 @@ function describe(project: ExtensionToolingProject): string {
 }
 
 /** Renders the numbered menu and resolves the user's choice, re-prompting on invalid input. */
-export async function promptSelection(projects: ExtensionToolingProject[]): Promise<{ names: string[] } | 'all' | 'cancel'> {
+export async function promptSelection(
+    projects: ExtensionToolingProject[],
+    title = 'Select extensions to check (vue-tsc + ESLint):',
+): Promise<{ names: string[] } | 'all' | 'cancel'> {
     const terminal = readline.createInterface({ input: process.stdin, output: process.stdout });
 
     try {
-        process.stdout.write(colors.bold('\nSelect extensions to check (vue-tsc + ESLint):\n\n'));
+        process.stdout.write(colors.bold(`\n${title}\n\n`));
 
         const numberWidth = String(projects.length).length;
 

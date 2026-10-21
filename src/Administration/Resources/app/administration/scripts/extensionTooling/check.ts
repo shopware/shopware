@@ -95,7 +95,7 @@ function selectedSetupWarnings(warnings: SetupWarning[], projects: ExtensionTool
 }
 
 /** Restricts the discovered projects to a --only selection; an unknown name is a fatal, run-blocking diagnostic. */
-function filterSelectedProjects(
+export function filterSelectedProjects(
     projects: ExtensionToolingProject[],
     selected: string[],
 ): { projects: ExtensionToolingProject[]; fatalDiagnostic?: string } {

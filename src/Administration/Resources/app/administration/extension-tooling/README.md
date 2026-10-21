@@ -38,6 +38,7 @@ You normally do not reference this folder manually.
 bin/console administration:setup-extension-tooling              # generate configs for all installed extensions
 bin/console administration:check-extensions -- --only=MyPlugin  # type-check + lint your plugin
 bin/console administration:check-extensions -- --all            # check every extension
+bin/console administration:test-extensions -- --only=MyPlugin   # run your plugin's specs (see Running specs with Jest)
 bin/console administration:generate-entity-schema-types         # (re)generate the entity-schema types
 ```
 
@@ -57,6 +58,8 @@ composer admin:check-extensions -- --all                        # check every ex
 composer admin:check-extensions -- --only=MyPlugin --fix        # apply ESLint autofixes
 composer admin:check-extensions -- --only=MyPlugin --update-baseline  # record current findings (see Baseline)
 composer admin:check-extensions -- --all --fail-on-skipped      # CI: fail if any writable extension is not checked
+composer admin:test-extensions -- --only=MyPlugin               # run your plugin's specs with the Administration's Jest
+composer admin:test-extensions -- --only=MyPlugin -- --watch    # Jest options go after a second --
 composer admin:setup-extension-tooling -- --help                # full option reference
 ```
 
@@ -229,22 +232,28 @@ export default shopwareAdminJest({
 The harness owns `testEnvironment` and `resolver`, so the factory rejects both.
 `it.activeFeatureFlags()` depends on the environment, and the resolver strips Vite query suffixes such as `?worker` from imports.
 
-Run the specs with the Administration's Jest, so the runner matches the harness:
+Run the specs with `test-extensions`, which uses the Administration's own Jest, so an extension needs no Jest installation of its own:
 
 ```bash
-node <administration>/node_modules/jest/bin/jest.js --config jest.config.mjs
+composer admin:test-extensions -- --only=MyPlugin                  # platform checkout
+bin/console administration:test-extensions -- --only=MyPlugin      # Composer install
+composer admin:test-extensions -- --only=MyPlugin -- --watch       # Jest options go after a second --
 ```
 
+It runs every `jest.config.{js,ts,mjs,cjs}` it finds at the extension root, beside an Administration folder, or beside the extension's own tsconfig or ESLint config.
+Without `--only` or `--all`, an interactive terminal offers a picker of the extensions that have a Jest config; elsewhere every such extension runs.
+An extension that installs its own Jest can keep running it directly, as long as it has the same major version as the Administration's.
+
 The harness lives in the Administration's `test/` folder and works in a platform checkout and in a Composer install alike.
-It reads two files that every installation generates itself.
-Generate them before the first run and after every Shopware update:
+It reads two files that every installation generates itself:
 
 ```bash
 bin/console administration:generate-entity-schema-types                 # test/_mocks_/entity-schema.json
 ( cd <administration> && npm run unit-setup )                            # test/_helper_/componentWrapper/component-imports.js
 ```
 
-When one is missing, the factory fails with the command that generates it.
+`test-extensions` generates the component import map itself when it is missing, for example after a Shopware update.
+When a file is still missing, the factory fails with the command that generates it.
 
 ## From JavaScript to TypeScript
 

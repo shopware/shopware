@@ -122,6 +122,12 @@ The e-mail, password and account deletion sections stay hidden for guests, and t
 The profile form keeps a `redirectTo` parameter, which the `vat-id-missing` error uses to send the customer back to the checkout after saving.
 Themes that override blocks of the personal data form in `page/account/profile/index.html.twig` should check that the content also suits guests.
 
+### Business customers keep company and VAT ID when saving the profile
+
+The profile page now shows company and VAT ID for business customers even when "Show selection between company and customer account" is disabled, and saving it keeps their account type.
+Before, saving the profile without that setting removed the company and the VAT IDs of business customers.
+Themes that override `component_address_personal_company_section`, `component_address_personal_company` or `component_address_personal_vat_id` in `component/address/address-personal.html.twig` should check that the content also suits this case.
+
 ## Hosting & Configuration
 
 ### Storefront readiness checks skip pages restricted by extensions

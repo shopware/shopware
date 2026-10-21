@@ -53,6 +53,18 @@ Extensions and integrations that read the product type of older order line items
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
 
+### Assign products to a sales channel by product group or category
+
+`POST /api/_action/sales-channel/{salesChannelId}/product-assignment` makes products visible in a sales channel.
+Products are given by `productIds`, by `productStreamIds` (dynamic product groups) or by `categoryIds`, and the matching products are resolved on the server.
+Products that are already visible in the sales channel are skipped, and the response reports the number of newly assigned products as `assigned`.
+The optional `visibility` (`10`, `20` or `30`, default `30`) is applied to every assigned product.
+The route requires the `product_visibility:create` and `product:read` privileges, plus `product_stream:read` when `productStreamIds` is given and `category:read` when `categoryIds` is given.
+
+```json
+{ "productStreamIds": ["0193b1c2d3e47f5a8b9c0d1e2f3a4b5c"], "categoryIds": [], "productIds": [] }
+```
+
 ## Features
 
 ### Disable the Administration password recovery flow
@@ -67,16 +79,6 @@ shopware:
     api:
         user_recovery:
             enabled: false
-### Assign products to a sales channel by product group or category
-
-`POST /api/_action/sales-channel/{salesChannelId}/product-assignment` makes products visible in a sales channel.
-Products are given by `productIds`, by `productStreamIds` (dynamic product groups) or by `categoryIds`, and the matching products are resolved on the server.
-Products that are already visible in the sales channel are skipped, and the response reports the number of newly assigned products as `assigned`.
-The optional `visibility` (`10`, `20` or `30`, default `30`) is applied to every assigned product.
-The route requires the `product_visibility:create` and `product:read` privileges, plus `product_stream:read` when `productStreamIds` is given and `category:read` when `categoryIds` is given.
-
-```json
-{ "productStreamIds": ["0193b1c2d3e47f5a8b9c0d1e2f3a4b5c"], "categoryIds": [], "productIds": [] }
 ```
 
 ## Administration
@@ -114,6 +116,12 @@ They additionally react to domain changes:
 toggling the external storefront flag of a domain (or adding/removing domains) creates or removes the affected rows without re-saving the customer group.
 The storefront rows are untouched by this and keep being maintained by the Storefront bundle.
 
+### Sales channel product assignment is no longer capped at 500 products
+
+Assigning products to a sales channel through the "Categories" or "Product group selection" tab of the product assignment modal now adds every matching product.
+Previously only the first 500 products were assigned, without any notice.
+The Administration sends the selected categories and product groups to the new product assignment route instead of loading the products itself, and shows the number of assigned products afterwards.
+
 ## API
 To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
 It bundles the Administration and its plugins, but not apps.
@@ -135,11 +143,6 @@ The `ProductDetailReadiness` and `ProductListingReadiness` system checks only pr
 Pages that extensions such as Dynamic Access restrict by rules no longer fail `bin/console system:check --context=pre_rollout`.
 If a sales channel has no visible page, the check reports `SKIPPED`.
 A sales channel whose domain cannot be resolved is now reported as its own failure, and the other sales channels are still checked.
-### Sales channel product assignment is no longer capped at 500 products
-
-Assigning products to a sales channel through the "Categories" or "Product group selection" tab of the product assignment modal now adds every matching product.
-Previously only the first 500 products were assigned, without any notice.
-The Administration sends the selected categories and product groups to the new product assignment route instead of loading the products itself, and shows the number of assigned products afterwards.
 
 # 6.7.16.0
 

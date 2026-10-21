@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -34,14 +33,42 @@ class SalesChannelProductAssignerTest extends TestCase
     private Context $context;
 
     /**
+     * @var StaticEntityRepository<ProductCollection>
+     */
+    private StaticEntityRepository $productRepository;
+
+    /**
      * @var StaticEntityRepository<ProductVisibilityCollection>
      */
     private StaticEntityRepository $visibilityRepository;
 
+    /**
+     * @var StaticEntityRepository<SalesChannelCollection>
+     */
+    private StaticEntityRepository $salesChannelRepository;
+
+    private SalesChannelProductAssigner $assigner;
+
     protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
+        $this->productRepository = StaticEntityRepository::of(ProductCollection::class, definition: new ProductDefinition());
         $this->visibilityRepository = StaticEntityRepository::of(ProductVisibilityCollection::class);
+        $this->salesChannelRepository = StaticEntityRepository::of(SalesChannelCollection::class);
+
+        $streamBuilder = static::createStub(AbstractProductStreamBuilder::class);
+        $streamBuilder->method('enrichCriteria')->willReturnCallback(
+            static function (Criteria $criteria): void {
+                $criteria->addFilter(new EqualsFilter('active', true));
+            }
+        );
+
+        $this->assigner = new SalesChannelProductAssigner(
+            $this->productRepository,
+            $this->visibilityRepository,
+            $this->salesChannelRepository,
+            $streamBuilder,
+        );
     }
 
     public function testAssignsEveryProductOnceAcrossAllSources(): void
@@ -57,15 +84,17 @@ class SalesChannelProductAssignerTest extends TestCase
             };
         };
 
-        $productRepository = $this->productRepository([
-            $remember([$ids[0], $ids[1]]), [],
-            $remember([$ids[1], $ids[2]]), [],
-            $remember([$ids[2], $ids[3]]), [],
-        ]);
+        $this->salesChannelRepository->addSearch([self::SALES_CHANNEL_ID]);
+        $this->productRepository->addSearch(
+            $remember([$ids[0], $ids[1]]),
+            [],
+            $remember([$ids[1], $ids[2]]),
+            [],
+            $remember([$ids[2], $ids[3]]),
+            [],
+        );
 
-        $assigner = $this->assigner($productRepository, $this->streamBuilderAdding(new EqualsFilter('active', true)));
-
-        $assigned = $assigner->assign(
+        $assigned = $this->assigner->assign(
             self::SALES_CHANNEL_ID,
             productIds: [$ids[0], $ids[1]],
             productStreamIds: ['stream-id'],
@@ -102,16 +131,12 @@ class SalesChannelProductAssignerTest extends TestCase
 
     public function testWritesVisibilitiesInChunksOfFiveHundred(): void
     {
-        $ids = $this->ids(1200);
+        $ids = $this->ids(501);
 
-        $productRepository = $this->productRepository([
-            \array_slice($ids, 0, 500),
-            \array_slice($ids, 500, 500),
-            \array_slice($ids, 1000),
-            [],
-        ]);
+        $this->salesChannelRepository->addSearch([self::SALES_CHANNEL_ID]);
+        $this->productRepository->addSearch(\array_slice($ids, 0, 500), \array_slice($ids, 500), []);
 
-        $assigned = $this->assigner($productRepository)->assign(
+        $assigned = $this->assigner->assign(
             self::SALES_CHANNEL_ID,
             productIds: $ids,
             productStreamIds: [],
@@ -120,11 +145,10 @@ class SalesChannelProductAssignerTest extends TestCase
             context: $this->context,
         );
 
-        static::assertSame(1200, $assigned);
-        static::assertCount(3, $this->visibilityRepository->creates);
+        static::assertSame(501, $assigned);
+        static::assertCount(2, $this->visibilityRepository->creates);
         static::assertCount(500, $this->visibilityRepository->creates[0]);
-        static::assertCount(500, $this->visibilityRepository->creates[1]);
-        static::assertCount(200, $this->visibilityRepository->creates[2]);
+        static::assertCount(1, $this->visibilityRepository->creates[1]);
         static::assertSame(
             ProductVisibilityDefinition::VISIBILITY_SEARCH,
             $this->visibilityRepository->getPayloads(StaticEntityRepository::CREATE)[0]['visibility'],
@@ -133,11 +157,12 @@ class SalesChannelProductAssignerTest extends TestCase
 
     public function testWritesNothingWhenNoProductIsLeftToAssign(): void
     {
-        $productRepository = $this->productRepository([[]]);
+        $this->salesChannelRepository->addSearch([self::SALES_CHANNEL_ID]);
+        $this->productRepository->addSearch([]);
 
-        $assigned = $this->assigner($productRepository)->assign(
+        $assigned = $this->assigner->assign(
             self::SALES_CHANNEL_ID,
-            productIds: [Uuid::randomHex()],
+            productIds: $this->ids(1),
             productStreamIds: [],
             categoryIds: [],
             visibility: ProductVisibilityDefinition::VISIBILITY_ALL,
@@ -150,14 +175,7 @@ class SalesChannelProductAssignerTest extends TestCase
 
     public function testDoesNotTouchTheDatabaseWithoutSources(): void
     {
-        $assigner = new SalesChannelProductAssigner(
-            $this->productRepository([]),
-            $this->visibilityRepository,
-            StaticEntityRepository::of(SalesChannelCollection::class),
-            $this->streamBuilderAdding(new EqualsFilter('active', true)),
-        );
-
-        $assigned = $assigner->assign(
+        $assigned = $this->assigner->assign(
             self::SALES_CHANNEL_ID,
             productIds: [],
             productStreamIds: [],
@@ -172,18 +190,13 @@ class SalesChannelProductAssignerTest extends TestCase
 
     public function testThrowsWhenTheSalesChannelDoesNotExist(): void
     {
-        $assigner = new SalesChannelProductAssigner(
-            $this->productRepository([]),
-            $this->visibilityRepository,
-            StaticEntityRepository::of(SalesChannelCollection::class, [[]]),
-            $this->streamBuilderAdding(new EqualsFilter('active', true)),
-        );
+        $this->salesChannelRepository->addSearch([]);
 
         $this->expectExceptionObject(SalesChannelException::salesChannelNotFound(self::SALES_CHANNEL_ID));
 
-        $assigner->assign(
+        $this->assigner->assign(
             self::SALES_CHANNEL_ID,
-            productIds: [Uuid::randomHex()],
+            productIds: $this->ids(1),
             productStreamIds: [],
             categoryIds: [],
             visibility: ProductVisibilityDefinition::VISIBILITY_ALL,
@@ -196,48 +209,6 @@ class SalesChannelProductAssignerTest extends TestCase
      */
     private function ids(int $count): array
     {
-        $ids = [];
-        for ($i = 0; $i < $count; ++$i) {
-            $ids[] = Uuid::randomHex();
-        }
-
-        return $ids;
-    }
-
-    /**
-     * @param array<mixed> $searches
-     *
-     * @return StaticEntityRepository<ProductCollection>
-     */
-    private function productRepository(array $searches): StaticEntityRepository
-    {
-        return StaticEntityRepository::of(ProductCollection::class, $searches, new ProductDefinition());
-    }
-
-    /**
-     * @param StaticEntityRepository<ProductCollection> $productRepository
-     */
-    private function assigner(
-        StaticEntityRepository $productRepository,
-        ?AbstractProductStreamBuilder $streamBuilder = null,
-    ): SalesChannelProductAssigner {
-        return new SalesChannelProductAssigner(
-            $productRepository,
-            $this->visibilityRepository,
-            StaticEntityRepository::of(SalesChannelCollection::class, [[self::SALES_CHANNEL_ID]]),
-            $streamBuilder ?? $this->streamBuilderAdding(new EqualsFilter('active', true)),
-        );
-    }
-
-    private function streamBuilderAdding(Filter $filter): AbstractProductStreamBuilder
-    {
-        $builder = $this->createMock(AbstractProductStreamBuilder::class);
-        $builder->method('enrichCriteria')->willReturnCallback(
-            static function (Criteria $criteria) use ($filter): void {
-                $criteria->addFilter($filter);
-            }
-        );
-
-        return $builder;
+        return array_map(static fn (int $i) => Uuid::fromStringToHex('product-' . $i), range(1, $count));
     }
 }

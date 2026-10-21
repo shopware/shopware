@@ -28,7 +28,9 @@ Reviewers read the code.
 - Your approach in one or two sentences
 
 Add a "#### Impact" sub-section only if the PR has one of these:
-- New or changed public API
+- New or changed public API: PHP code not marked @internal, events, Store API or Admin API routes,
+  entity definitions, Twig blocks, or Administration components
+- Changed behaviour of an existing feature that merchants or extensions rely on
 - Breaking change
 - Database migration or schema change
 - New or changed configuration
@@ -94,6 +96,8 @@ Content:
 - Add the "Impact" sub-section only when one of its listed changes applies.
   Say what exactly changes, for example which method, field, or table.
   Never write that something did not change, such as "no public API changed".
+- Before writing, check the diff for public API changes.
+  List each changed or added public symbol in the Impact sub-section.
 - For performance, state the cost per request or per item, for example "one extra query per line item".
   Add numbers only if you measured them.
   Do not speculate about possible slowdowns.

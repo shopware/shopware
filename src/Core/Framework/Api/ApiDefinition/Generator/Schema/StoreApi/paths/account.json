@@ -131,19 +131,18 @@
                                             {
                                                 "properties": {
                                                     "accountType": {
-                                                        "description": "Type of the customer account. Default value is 'private'.",
+                                                        "description": "Type of the customer account. If it is omitted, the customer keeps the current account type.",
                                                         "type": "string",
                                                         "enum": [
                                                             "private"
-                                                        ],
-                                                        "default": "private"
+                                                        ]
                                                     },
                                                     "company": {
-                                                        "description": "Not used for a private account, the value is cleared.",
+                                                        "description": "Cleared for a private account. If `accountType` is omitted for a business customer, the company is only changed when it is sent, and must not be empty then.",
                                                         "type": "string"
                                                     },
                                                     "vatIds": {
-                                                        "description": "Not used for a private account, the value is cleared.",
+                                                        "description": "Cleared for a private account. If `accountType` is omitted for a business customer, the VAT IDs are only changed when they are sent, and are validated as for `business` then.",
                                                         "type": "array",
                                                         "items": {
                                                             "type": "string"

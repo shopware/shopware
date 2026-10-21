@@ -689,6 +689,48 @@ class ChangeCustomerProfileRouteTest extends TestCase
         static::assertSame($updateSalutationId, $customer->getSalutationId());
     }
 
+    public function testBusinessCustomerKeepsCompanyAndVatIdsWhenAccountTypeIsOmitted(): void
+    {
+        $this->customerRepository->update([
+            ['id' => $this->customerId, 'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS, 'company' => 'Example Inc.', 'vatIds' => ['DE123456789']],
+        ], Context::createDefaultContext());
+
+        $this->browser->request('POST', '/store-api/account/change-profile', [
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Jane',
+            'lastName' => 'Doe',
+        ]);
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertTrue($response['success']);
+
+        $customer = $this->getCustomer();
+        static::assertSame('Jane', $customer->getFirstName());
+        static::assertSame(CustomerEntity::ACCOUNT_TYPE_BUSINESS, $customer->getAccountType());
+        static::assertSame('Example Inc.', $customer->getCompany());
+        static::assertSame(['DE123456789'], $customer->getVatIds());
+    }
+
+    public function testCompanySentWithoutAccountTypeIsValidatedForBusinessCustomers(): void
+    {
+        $this->customerRepository->update([
+            ['id' => $this->customerId, 'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS, 'company' => 'Example Inc.'],
+        ], Context::createDefaultContext());
+
+        $this->browser->request('POST', '/store-api/account/change-profile', [
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Jane',
+            'lastName' => 'Doe',
+            'company' => '',
+        ]);
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('errors', $response);
+        static::assertContains('/company', array_column(array_column($response['errors'], 'source'), 'pointer'));
+        static::assertSame('Example Inc.', $this->getCustomer()->getCompany());
+    }
+
     public function testChangeWithWrongAccountType(): void
     {
         $accountTypes = static::getContainer()->getParameter('customer.account_types');

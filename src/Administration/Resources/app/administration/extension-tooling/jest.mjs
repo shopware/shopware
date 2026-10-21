@@ -42,7 +42,17 @@ const fromAdministration = (...segments) => path.join(administrationRoot, ...seg
  */
 const fromNodeModules = (...segments) => fromAdministration('node_modules', ...segments);
 
-const componentImportsPath = fromAdministration('test', '_helper_', 'componentWrapper', 'component-imports.js');
+/** Files the harness reads that every installation generates itself, with the command that does it. */
+const GENERATED_FILES = [
+    {
+        path: fromAdministration('test', '_helper_', 'componentWrapper', 'component-imports.js'),
+        generate: `\`npm run unit-setup\` in ${administrationRoot}`,
+    },
+    {
+        path: fromAdministration('test', '_mocks_', 'entity-schema.json'),
+        generate: '`bin/console administration:generate-entity-schema-types`',
+    },
+];
 
 /**
  * Options merged into the harness instead of replacing it, so an extension can
@@ -142,11 +152,11 @@ function metaGlobFilesPattern() {
 }
 
 /**
- * Fails early with the step that fixes a missing harness, instead of letting
+ * Fails early when the Administration ships no Jest harness, instead of letting
  * the first spec die on an unresolved setup file.
  *
  * @example
- * assertHarnessAvailable(); // throws when test/_setup or component-imports.js is missing
+ * assertHarnessAvailable(); // throws when test/_setup is missing
  */
 function assertHarnessAvailable() {
     if (!existsSync(fromAdministration('test', '_setup'))) {
@@ -156,13 +166,24 @@ function assertHarnessAvailable() {
                 'so extension specs run against a platform checkout of Shopware.',
         );
     }
+}
 
-    if (!existsSync(componentImportsPath)) {
+/**
+ * Fails early with the command that generates a missing file, instead of
+ * letting the first spec die on an unresolved import.
+ *
+ * @example
+ * assertGeneratedFilesExist(); // throws, listing each missing file with the command that generates it
+ */
+function assertGeneratedFilesExist() {
+    const missing = GENERATED_FILES.filter((file) => !existsSync(file.path));
+
+    if (missing.length > 0) {
         throw new Error(
-            'Missing required test/_helper_/componentWrapper/component-imports.js ' +
-                `in the Administration at ${administrationRoot}. ` +
-                `Run \`npm run unit-setup\` in ${administrationRoot} before executing tests, ` +
-                'or use `composer run admin:unit`.',
+            [
+                'The Administration Jest harness is missing generated files:',
+                ...missing.map((file) => `- ${file.path}: run ${file.generate}`),
+            ].join('\n'),
         );
     }
 }
@@ -295,6 +316,7 @@ export function shopwareAdminJest(options = {}) {
 
     assertAcceptedOptions(options);
     assertHarnessAvailable();
+    assertGeneratedFilesExist();
 
     // The setup files read these from the environment; Jest workers inherit it.
     // Overrides an inherited ADMIN_PATH: the setup files must read the feature flags of the Administration

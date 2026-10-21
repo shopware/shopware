@@ -8,6 +8,8 @@ use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationRejectedException;
+use Shopware\Core\Framework\App\Exception\AppValidationException;
+use Shopware\Core\Framework\App\Exception\AppValidationRefusedException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeStrategyNotFoundException;
@@ -30,6 +32,7 @@ class AppException extends HttpException
 {
     public const CANNOT_DELETE_COMPOSER_MANAGED = 'FRAMEWORK__APP_CANNOT_DELETE_COMPOSER_MANAGED';
     public const NOT_COMPATIBLE = 'FRAMEWORK__APP_NOT_COMPATIBLE';
+    public const VALIDATION_FAILED = 'FRAMEWORK__APP_VALIDATION_FAILED';
     public const NOT_FOUND = 'FRAMEWORK__APP_NOT_FOUND';
     public const ALREADY_INSTALLED = 'FRAMEWORK__APP_ALREADY_INSTALLED';
     public const REGISTRATION_FAILED = 'FRAMEWORK__APP_REGISTRATION_FAILED';
@@ -100,6 +103,28 @@ class AppException extends HttpException
             self::NOT_COMPATIBLE,
             'App {{ name }} is not compatible with this Shopware version',
             ['name' => $pluginName]
+        );
+    }
+
+    /**
+     * @param list<Error> $errors
+     */
+    public static function validationFailed(string $appName, array $errors): AppValidationException
+    {
+        return new AppValidationException($appName, $errors);
+    }
+
+    /**
+     * The error decides how the refusal is reported, so a check that already had its own API error
+     * code keeps reporting under it.
+     */
+    public static function validationFailedFromError(Error $error): AppValidationRefusedException
+    {
+        return new AppValidationRefusedException(
+            Response::HTTP_BAD_REQUEST,
+            $error->getErrorCode(),
+            $error->getMessage(),
+            $error->getParameters()
         );
     }
 

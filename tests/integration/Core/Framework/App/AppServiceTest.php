@@ -284,8 +284,18 @@ class AppServiceTest extends TestCase
         $fails = $appService->doRefreshApps(new AppInstallParameters(), $this->context);
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertCount(9, $manifests); // 2 are not parsable (withRequirements still passes as requirements are not asserted in test env)
-        static::assertCount(7, $apps);
-        static::assertCount(2, $fails);
+
+        // notHookableWebhooks installs: a webhook on an event this version does not know is reported,
+        // not refused, so one manifest can target several Shopware versions
+        static::assertEqualsCanonicalizing(
+            ['invalidManifestName', 'invalidWebhooks', 'missingPermissions', 'private'],
+            array_map(
+                static fn (array $fail) => $fail['manifest']->getMetadata()->getName(),
+                $fails
+            )
+        );
+
+        static::assertCount(5, $apps);
     }
 
     private function assertDefaultActionButtons(): void

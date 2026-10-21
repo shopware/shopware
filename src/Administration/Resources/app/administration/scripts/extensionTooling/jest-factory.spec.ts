@@ -3,10 +3,10 @@
  *
  * Guards the Jest factory contract: every harness path it hands to Jest
  * exists, an extension's options extend the harness instead of replacing it,
- * an option outside the allowlist is rejected, and a missing generated file
- * fails with the command that generates it. The factory is an .mjs module
- * Jest cannot import directly, so a node subprocess builds each config and
- * serializes it.
+ * an option outside the allowlist is rejected, a missing generated file
+ * fails with the command that generates it, and a Jest of another major
+ * fails early. The factory is an .mjs module Jest cannot import directly,
+ * so a node subprocess builds each config and serializes it.
  */
 
 import { execFileSync } from 'child_process';
@@ -18,12 +18,26 @@ import { cleanupTempProject, createTempProject, realAdministrationRoot, writeFil
 
 const factoryPath = path.join(realAdministrationRoot, 'extension-tooling', 'jest.mjs');
 
+/** Where `buildConfig` takes the factory from and which CommonJS modules it loads before. */
+type BuildContext = {
+    factoryFile?: string;
+    loadedModules?: string[];
+};
+
 /**
  * Builds a config with the factory at `factoryFile` in a fresh node process,
  * so the factory's environment writes stay out of this test process.
+ * `loadedModules` are required first, which puts them into the module cache the way Jest's own modules are.
+ *
+ * @example
+ * buildConfig({ rootDir: '/extension' }, { loadedModules: ['/jest29/node_modules/jest-config/build/index.js'] });
  */
-function buildConfig(options: Record<string, unknown>, factoryFile = factoryPath): Config {
+function buildConfig(options: Record<string, unknown>, context: BuildContext = {}): Config {
+    const { factoryFile = factoryPath, loadedModules = [] } = context;
     const probeScript = [
+        "import { createRequire } from 'node:module';",
+        `const require = createRequire(${JSON.stringify(pathToFileURL(factoryFile).href)});`,
+        `${JSON.stringify(loadedModules)}.forEach((file) => require(file));`,
         `const { shopwareAdminJest } = await import(${JSON.stringify(pathToFileURL(factoryFile).href)});`,
         `process.stdout.write(JSON.stringify(shopwareAdminJest(${JSON.stringify(options)})));`,
     ].join('\n');
@@ -37,9 +51,9 @@ function buildConfig(options: Record<string, unknown>, factoryFile = factoryPath
 }
 
 /** Runs `buildConfig` and returns the error message it fails with. */
-function buildError(options: Record<string, unknown>, factoryFile = factoryPath): string {
+function buildError(options: Record<string, unknown>, context: BuildContext = {}): string {
     try {
-        buildConfig(options, factoryFile);
+        buildConfig(options, context);
     } catch (error) {
         return String((error as { stderr?: string }).stderr);
     }
@@ -250,6 +264,103 @@ describe('extension-tooling jest factory', () => {
         expect(message).toContain('Accepted options: rootDir, setupFiles,');
     });
 
+    describe('Jest major check', () => {
+        /** The version in the package.json of an Administration dependency. */
+        const installedVersion = (packageName: string) =>
+            (
+                JSON.parse(
+                    fs.readFileSync(path.join(realAdministrationRoot, 'node_modules', packageName, 'package.json'), 'utf8'),
+                ) as { version: string }
+            ).version;
+        const administrationJestVersion = installedVersion('jest');
+        const administrationMajor = Number(administrationJestVersion.split('.')[0]);
+        let projectRoot: string;
+
+        /**
+         * Installs a stand-in `jest-config` package of `version` below `installRoot`
+         * and returns the module Jest's CLI would load from it.
+         *
+         * @example
+         * fakeJestConfig('29.7.0'); // → '<projectRoot>/jest-29.7.0/node_modules/jest-config/build/index.js'
+         */
+        function fakeJestConfig(version: string): string {
+            const packageRoot = path.join(projectRoot, `jest-${version}`, 'node_modules', 'jest-config');
+            const entry = path.join(packageRoot, 'build', 'index.js');
+
+            writeFile(path.join(packageRoot, 'package.json'), JSON.stringify({ name: 'jest-config', version }));
+            writeFile(entry, 'module.exports = {};');
+
+            return entry;
+        }
+
+        beforeEach(() => {
+            projectRoot = createTempProject('sw-tooling-jest-major-');
+        });
+
+        afterEach(() => {
+            cleanupTempProject(projectRoot);
+        });
+
+        it('fails when a Jest of another major loads the config, naming both versions and both ways out', () => {
+            const runningVersion = `${administrationMajor - 1}.7.0`;
+
+            const message = buildError({ rootDir: '/extension' }, { loadedModules: [fakeJestConfig(runningVersion)] });
+
+            expect(message).toContain(
+                `This Jest config is loaded by Jest ${runningVersion}, ` +
+                    `but the Administration test harness in ${realAdministrationRoot} ` +
+                    `is built for Jest ${administrationJestVersion}.`,
+            );
+            expect(message).toContain(`npm install --save-dev jest@^${administrationMajor}`);
+            expect(message).toContain('`composer admin:test-extensions`');
+            expect(message).toContain("which uses the Administration's Jest.");
+        });
+
+        it('builds the config when a Jest of the same major loads it', () => {
+            const config = buildConfig(
+                { rootDir: '/extension' },
+                { loadedModules: [fakeJestConfig(`${administrationMajor}.99.0`)] },
+            );
+
+            expect(config).toEqual(defaults);
+        });
+
+        it('skips the check when no Jest loads the config, e.g. when a script calls the factory', () => {
+            expect(buildConfig({ rootDir: '/extension' }, { loadedModules: [] })).toEqual(defaults);
+        });
+
+        it('skips the check when several Jest versions are loaded and the running one is unclear', () => {
+            const config = buildConfig(
+                { rootDir: '/extension' },
+                {
+                    loadedModules: [
+                        fakeJestConfig(`${administrationMajor - 1}.7.0`),
+                        fakeJestConfig(`${administrationMajor}.99.0`),
+                    ],
+                },
+            );
+
+            expect(config).toEqual(defaults);
+        });
+
+        it('reads the running version from the jest-config package of a real Jest installation', () => {
+            const copiedFactoryPath = path.join(projectRoot, 'administration', 'extension-tooling', 'jest.mjs');
+            const realJestConfig = path.join(realAdministrationRoot, 'node_modules', 'jest-config', 'build', 'index.js');
+            writeFile(copiedFactoryPath, fs.readFileSync(factoryPath, 'utf8'));
+            writeFile(
+                path.join(projectRoot, 'administration', 'node_modules', 'jest', 'package.json'),
+                JSON.stringify({ name: 'jest', version: `${administrationMajor - 1}.0.0` }),
+            );
+
+            const message = buildError(
+                { rootDir: '/extension' },
+                { factoryFile: copiedFactoryPath, loadedModules: [realJestConfig] },
+            );
+
+            expect(message).toContain(`This Jest config is loaded by Jest ${installedVersion('jest-config')},`);
+        });
+    });
+
     describe('without the generated files', () => {
         let projectRoot: string;
         let copiedFactoryPath: string;
@@ -265,7 +376,7 @@ describe('extension-tooling jest factory', () => {
         });
 
         it('names the command for every missing file', () => {
-            const error = buildError({ rootDir: '/extension' }, copiedFactoryPath);
+            const error = buildError({ rootDir: '/extension' }, { factoryFile: copiedFactoryPath });
 
             expect(error).toContain(
                 `component-imports.js: run \`npm run unit-setup\` in ${path.join(projectRoot, 'administration')}`,
@@ -276,7 +387,7 @@ describe('extension-tooling jest factory', () => {
         it('only names the files that are missing', () => {
             writeFile(path.join(projectRoot, 'administration', 'test', '_mocks_', 'entity-schema.json'), '{}');
 
-            const error = buildError({ rootDir: '/extension' }, copiedFactoryPath);
+            const error = buildError({ rootDir: '/extension' }, { factoryFile: copiedFactoryPath });
 
             expect(error).toContain('component-imports.js');
             expect(error).not.toContain('entity-schema.json');

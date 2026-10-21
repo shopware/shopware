@@ -86,9 +86,30 @@ class PregDollarWithoutDRuleTest extends RuleTestCase
         ]);
     }
 
+    public function testReportsZRegardlessOfModifiersAndReadsInlineFlagsPerGroup(): void
+    {
+        $this->analyse([__DIR__ . '/data/PregDollarWithoutDRule/ReviewCases.php'], [
+            [$this->error('preg_match', '/^a\\Z/D'), 12],
+            [$this->error('preg_match', '/^a\\Z/m'), 13],
+            [$this->error('preg_match', ' /^a$/'), 15],
+            [$this->error('preg_match', '/\\(?m)a$/'), 18],
+            [$this->error('preg_match', '/(?:(?m)a)$/'), 19],
+            [$this->unresolved('preg_replace'), 33],
+            [$this->error('preg_match', '/^a$/'), 36],
+            [$this->unresolved('preg_match'), 43],
+            [$this->error('preg_match', '/^{…}$/'), 48],
+            [$this->unresolved('preg_match'), 56],
+        ]);
+    }
+
     public function testIgnoresNamespacesThatAreNotEnabled(): void
     {
         $this->analyse([__DIR__ . '/data/PregDollarWithoutDRule/OutsideEnabledNamespace.php'], []);
+    }
+
+    public function testIgnoresNamespacesThatOnlyShareANamePrefix(): void
+    {
+        $this->analyse([__DIR__ . '/data/PregDollarWithoutDRule/EnabledNamespacePrefix.php'], []);
     }
 
     protected function getRule(): Rule

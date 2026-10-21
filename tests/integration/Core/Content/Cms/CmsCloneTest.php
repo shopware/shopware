@@ -202,7 +202,8 @@ class CmsCloneTest extends TestCase
         static::assertNotSame($source['slot'], $slot->getId());
         static::assertSame('text', $slot->getType());
         static::assertSame('content', $slot->getSlot());
-        static::assertSame(self::SLOT_CONFIG, $slot->getConfig());
+        // MySQL normalizes the key order of JSON columns, MariaDB keeps the written order.
+        static::assertEquals(self::SLOT_CONFIG, $slot->getConfig());
     }
 
     /**

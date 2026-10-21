@@ -145,6 +145,7 @@ Storefront analytics now treat every element with a `data-product-information` a
 Products that extensions render in their own markup are reported as well.
 The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#products) describes the expected attribute.
 The product box now reports the price of a matching price rule or the first graduated price, the same price as the product detail page, instead of the default price.
+
 ## Hosting & Configuration
 
 ### Storefront readiness checks skip pages restricted by extensions

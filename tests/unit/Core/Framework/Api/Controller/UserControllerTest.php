@@ -128,6 +128,26 @@ class UserControllerTest extends TestCase
         $controller->deleteUser($userId, new Request(), $context, static::createStub(ResponseFactoryInterface::class));
     }
 
+    public function testDeleteUserAllowsDirectlyAuthenticatedUserToDeleteThemselves(): void
+    {
+        $userId = Uuid::randomHex();
+        $context = Context::createDefaultContext(new AdminApiSource($userId));
+        $request = new Request();
+        $userDefinition = new UserDefinition();
+        $userRepository = StaticEntityRepository::of(UserCollection::class, [], $userDefinition);
+        $responseFactory = $this->createMock(ResponseFactoryInterface::class);
+        $response = new Response();
+        $responseFactory->expects($this->once())
+            ->method('createRedirectResponse')
+            ->with($userDefinition, $userId, $request, $context)
+            ->willReturn($response);
+
+        $controller = $this->createController(userRepository: $userRepository, userDefinition: $userDefinition);
+
+        static::assertSame($response, $controller->deleteUser($userId, $request, $context, $responseFactory));
+        static::assertSame([['id' => $userId]], $userRepository->deletes[0]);
+    }
+
     public function testUpsertUserDeniesIntegrationSelfUpdateWithoutUserUpdatePrivilege(): void
     {
         static::expectExceptionObject(new PermissionDeniedException());

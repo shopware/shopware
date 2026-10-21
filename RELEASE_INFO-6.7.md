@@ -108,7 +108,7 @@ For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-
 ### `sw-app-user-id` only narrows permissions for non-app integrations
 
 For an Admin API request authenticated with a non-app integration access key, the `sw-app-user-id` header only narrows the resolved permissions to the intersection of the integration and the named user's privileges.
-The request keeps the integration as its identity, so `getUserId()` is `null` and writes are attributed to the integration rather than the user.
+The request keeps the integration as its identity, so `getUserId()` is `null` and `createdBy`/`updatedBy` are no longer set to the named user.
 Admin API routes that require a signed-in user therefore reject such a request; use a user access key, or the regular user endpoints, when a user identity is needed.
 For app integrations the header still resolves the named user, except that an inactive user is now treated like a user without the required app privilege.
 
@@ -116,7 +116,7 @@ For app integrations the header still resolves the named user, except that an in
 
 `GET`/`PATCH /api/_info/me`, `GET /api/_info/ping`, `POST /api/_action/user/logout`, `GET`/`POST`/`PATCH /api/_info/config-me` and `POST /api/oauth/authorize` now require a directly authenticated Administration user.
 A request authenticated as an integration, including an app integration naming a user, is rejected with a `403` and the error code `FRAMEWORK__API_EXPECTED_USER`.
-Deleting a user (`DELETE /api/user/{id}`) and creating or updating one (`POST`/`PATCH /api/user`) no longer treat an integration naming that user as a self-service change.
+Deleting a user (`DELETE /api/user/{id}`) and creating or updating one (`POST /api/user`, `PATCH /api/user/{id}`) no longer treat an integration naming that user as a self-service change.
 Integrations use the regular user endpoints with the matching privilege instead, for example `PATCH /api/user/{id}` with `user:update`.
 
 # 6.7.16.0

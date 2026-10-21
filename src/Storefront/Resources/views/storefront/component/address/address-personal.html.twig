@@ -92,7 +92,7 @@
         {% elseif not hideCustomerTypeSelect %}
             {# This case applies to custom registration forms with the "Company signup form" config enabled. #}
             {# The registration is always of type "commercial" then. #}
-            <input type="hidden" name="{{ accountTypeFieldName }}" value="{{ accountType ?? '' }}">
+            <input type="hidden" name="{{ accountTypeFieldName }}" value="{{ accountType }}">
         {% endif %}
     {% endblock %}
 
@@ -206,7 +206,7 @@
         </div>
     {% endblock %}
 
-    {% set isBusinessAccount = (accountType ?? null) == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %}
+    {% set isBusinessAccount = accountType == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %}
 
     {% if feature('v6.8.0.0') %}
         {% block component_address_personal_company_section %}

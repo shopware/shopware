@@ -43,11 +43,13 @@
                                             {% set onlyCompanyRegistration = context.currentCustomerGroup.translated.registrationOnlyCompanyRegistration ?? false %}
                                         {% endif %}
 
+                                        {% set personalData = profileFormData ?? context.customer %}
+
                                         {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                                             prefix: '',
                                             showBirthdayField: config('core.loginRegistration.showBirthdayField'),
-                                            data: context.customer,
-                                            accountType: context.customer.accountType,
+                                            data: personalData,
+                                            accountType: personalData.get('accountType'),
                                             onlyCompanyRegistration: onlyCompanyRegistration,
                                             showCompanyFields: true,
                                         } %}

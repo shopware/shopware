@@ -72,6 +72,65 @@ class UserRecoveryControllerTest extends TestCase
         ], $resetIfConfiguredCalls);
     }
 
+    public function testCreateUserRecoveryIsSilentNoOpWhenDisabled(): void
+    {
+        $userRecoveryService = $this->createMock(UserRecoveryService::class);
+        $userRecoveryService->expects($this->never())->method('generateUserRecovery');
+
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->never())->method('ensureAccepted');
+
+        $controller = new UserRecoveryController($userRecoveryService, $rateLimiter, false);
+
+        $request = new Request();
+        $request->request->set('email', 'admin@example.com');
+
+        $response = $controller->createUserRecovery($request, Context::createDefaultContext());
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testCheckUserRecoveryIsRejectedWhenDisabled(): void
+    {
+        $userRecoveryService = $this->createMock(UserRecoveryService::class);
+        $userRecoveryService->expects($this->never())->method('checkHash');
+
+        $controller = new UserRecoveryController(
+            $userRecoveryService,
+            static::createStub(RateLimiter::class),
+            false,
+        );
+
+        $request = new Request();
+        $request->query->set('hash', 'some-hash');
+
+        $response = $controller->checkUserRecovery($request, Context::createDefaultContext());
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+    }
+
+    public function testUpdateUserPasswordIsRejectedWhenDisabled(): void
+    {
+        $userRecoveryService = $this->createMock(UserRecoveryService::class);
+        $userRecoveryService->expects($this->never())->method('getUserByHash');
+        $userRecoveryService->expects($this->never())->method('updatePassword');
+
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->never())->method('reset');
+        $rateLimiter->expects($this->never())->method('resetIfConfigured');
+
+        $controller = new UserRecoveryController($userRecoveryService, $rateLimiter, false);
+
+        $request = new Request();
+        $request->request->set('hash', 'some-hash');
+        $request->request->set('password', 'newPassword123');
+        $request->request->set('passwordConfirm', 'newPassword123');
+
+        $response = $controller->updateUserPassword($request, Context::createDefaultContext());
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+    }
+
     public function testRateLimitersNotResetWhenPasswordsDontMatch(): void
     {
         $rateLimiter = $this->createMock(RateLimiter::class);

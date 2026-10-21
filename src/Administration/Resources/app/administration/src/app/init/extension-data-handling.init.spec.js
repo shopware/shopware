@@ -25,18 +25,19 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
             context,
         };
     });
-    const getMockMethod = jest.fn((criteria, context) => {
-        return {
+    // get and clone resolve asynchronously like the real repository
+    const getMockMethod = jest.fn((id, context) => {
+        return Promise.resolve({
             ...getResult,
             context,
-        };
+        });
     });
     const saveMockMethod = jest.fn(() => saveResult);
-    const cloneMockMethod = jest.fn((criteria, behaviour, context) => {
-        return {
+    const cloneMockMethod = jest.fn((id, behaviour, context) => {
+        return Promise.resolve({
             ...cloneResult,
             context,
-        };
+        });
     });
     const hasChangesMockMethod = jest.fn(() => hasChangesResult);
     const saveAllMockMethod = jest.fn(() => saveAllResult);
@@ -151,6 +152,76 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
                 languageId: 'my-awesome-language-id',
             },
         });
+    });
+
+    it('should filter nested contexts of the resolved repositoryGet result', async () => {
+        getMockMethod.mockImplementationOnce((id, context) => {
+            return Promise.resolve({
+                ...getResult,
+                categories: {
+                    context,
+                },
+            });
+        });
+
+        const result = await send('repositoryGet', {
+            entityName: 'product',
+            id: 'my-awesome-id',
+            context: {
+                languageId: 'my-awesome-language-id',
+            },
+        });
+
+        expect(result.categories.context).toEqual({
+            languageId: 'my-awesome-language-id',
+        });
+    });
+
+    it('should not pass a cacheKey supplied by the extension to the repository', async () => {
+        let searchContext;
+        searchMockMethod.mockImplementationOnce((criteria, context) => {
+            // copy the context, because filterContext mutates the returned result afterwards
+            searchContext = { ...context };
+
+            return Promise.resolve({
+                ...searchResult,
+                context,
+            });
+        });
+
+        await send('repositorySearch', {
+            entityName: 'product',
+            criteria: new Criteria(),
+            context: {
+                cacheKey: ['extension-cache-key'],
+                languageId: 'my-awesome-language-id',
+            },
+        });
+
+        expect(searchContext).not.toHaveProperty('cacheKey');
+        expect(searchContext.languageId).toBe('my-awesome-language-id');
+        expect(searchContext.authToken).toEqual(Shopware.Context.api.authToken);
+    });
+
+    it('should never return the auth token, even if the extension requests it', async () => {
+        searchMockMethod.mockImplementationOnce(() => {
+            return Promise.resolve({
+                ...searchResult,
+                context: { ...Shopware.Context.api },
+            });
+        });
+
+        const result = await send('repositorySearch', {
+            entityName: 'product',
+            criteria: new Criteria(),
+            context: {
+                authToken: true,
+                languageId: 'my-awesome-language-id',
+            },
+        });
+
+        expect(result.context).not.toHaveProperty('authToken');
+        expect(result.context).toHaveProperty('languageId');
     });
 
     it('should handle repositorySave', async () => {

@@ -165,6 +165,8 @@ class EntityDefinitionQueryHelperTest extends TestCase
         yield 'semicolon' => ['pro;duct'];
         yield 'block comment alias t/*' => ['t/*'];
         yield 'block comment close */' => ['a*/b'];
+        // malformed UTF-8 makes preg_match('/\p{Cc}/u') return false; the NUL must still be rejected
+        yield 'control character behind invalid byte' => ["a\xff\x00b"];
     }
 
     #[DataProvider('provideDisallowedIdentifiers')]
@@ -213,6 +215,8 @@ class EntityDefinitionQueryHelperTest extends TestCase
         yield 'rejects comment close */' => ['.a*/b', false];
         yield 'rejects comment open /*' => ['.a/*b', false];
         yield 'rejects control character' => [".a\nb", false];
+        // malformed UTF-8 makes preg_match('/\p{Cc}/u') return false; must fail safe to rejected
+        yield 'rejects control character behind invalid byte' => [".a\xff\x00b", false];
     }
 
     #[DataProvider('provideJsonPaths')]

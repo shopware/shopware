@@ -63,7 +63,7 @@ class EntityDefinitionQueryHelper
             }
         }
 
-        return preg_match('/\p{Cc}/u', $identifier) !== 1;
+        return preg_match('/\p{Cc}/u', $identifier) === 0;
     }
 
     /**
@@ -80,7 +80,7 @@ class EntityDefinitionQueryHelper
             }
         }
 
-        return preg_match('/\p{Cc}/u', $path) !== 1;
+        return preg_match('/\p{Cc}/u', $path) === 0;
     }
 
     /**

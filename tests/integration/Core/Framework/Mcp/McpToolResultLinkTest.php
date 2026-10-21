@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Mcp;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultStoredFormat;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -53,6 +54,34 @@ class McpToolResultLinkTest extends TestCase
         // The pointer does not depend on the MCP session: a new session of the same user reads it.
         $read = $this->rpc($browser, '/api/_mcp', $this->initialize($browser, '/api/_mcp'), 'resources/read', ['uri' => $link['uri']]);
 
+        // Since 2025-06-18 the stored result is the plain data; its metadata came with the link.
+        static::assertSame('application/json', $read['contents'][0]['mimeType']);
+        $stored = json_decode($read['contents'][0]['text'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsList($stored);
+        static::assertNotSame([], $stored);
+    }
+
+    public function testALargeAdminResultForAClientBefore20250618IsStoredAsTheLegacyEnvelope(): void
+    {
+        $browser = $this->getBrowser();
+        $sessionId = $this->initialize($browser, '/api/_mcp', '2025-03-26');
+
+        $result = $this->rpc($browser, '/api/_mcp', $sessionId, 'tools/call', [
+            'name' => 'shopware-entity-search',
+            'arguments' => ['entity' => 'country', 'criteria' => '{"associations":{"states":{}}}', 'limit' => 500],
+        ]);
+
+        // Without `resource_link` the pointer is only in the metadata of the text, in either text format.
+        $uri = null;
+        foreach ($result['content'] ?? [] as $block) {
+            $decoded = json_decode(\is_array($block) ? (string) ($block['text'] ?? '') : '', true);
+            $uri ??= \is_array($decoded) ? ($decoded['_meta']['resourceUri'] ?? null) : null;
+        }
+        static::assertIsString($uri, 'expected _meta.resourceUri in the text: ' . json_encode($result));
+
+        $read = $this->rpc($browser, '/api/_mcp', $this->initialize($browser, '/api/_mcp', '2025-03-26'), 'resources/read', ['uri' => $uri]);
+
+        static::assertSame('application/json', $read['contents'][0]['mimeType']);
         $stored = json_decode($read['contents'][0]['text'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertTrue($stored['success']);
         static::assertIsList($stored['data']);
@@ -74,10 +103,16 @@ class McpToolResultLinkTest extends TestCase
     {
         $browser = $this->createSalesChannelBrowser();
         $principal = 'store:' . $this->salesChannelIdOf($browser) . ':' . $browser->getServerParameter('HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN);
+        // Stored without a format, as before the format was recorded: still served as the legacy envelope.
         $pointer = static::getContainer()->get(ToolResultCacheStorage::class)->storeFor($principal, '{"success":true,"data":{"a":1}}');
 
         $read = $this->rpc($browser, '/store-api/_mcp', $this->initialize($browser, '/store-api/_mcp'), 'resources/read', ['uri' => $pointer->uri()]);
         static::assertSame('{"success":true,"data":{"a":1}}', $read['contents'][0]['text']);
+        static::assertSame('application/json', $read['contents'][0]['mimeType']);
+
+        $specPointer = static::getContainer()->get(ToolResultCacheStorage::class)->storeFor($principal, '{"a":1}', '', McpToolResultStoredFormat::Spec->value);
+        $read = $this->rpc($browser, '/store-api/_mcp', $this->initialize($browser, '/store-api/_mcp'), 'resources/read', ['uri' => $specPointer->uri()]);
+        static::assertSame([['text' => '{"a":1}', 'uri' => $specPointer->uri(), 'mimeType' => 'application/json']], $read['contents']);
 
         $otherVisitor = $this->createSalesChannelBrowser();
         $response = $this->rpcResponse($otherVisitor, '/store-api/_mcp', $this->initialize($otherVisitor, '/store-api/_mcp'), 'resources/read', ['uri' => $pointer->uri()]);
@@ -96,13 +131,13 @@ class McpToolResultLinkTest extends TestCase
         return $id;
     }
 
-    private function initialize(KernelBrowser $browser, string $path): string
+    private function initialize(KernelBrowser $browser, string $path, string $protocolVersion = '2025-06-18'): string
     {
         $browser->request('POST', $path, [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
             'jsonrpc' => '2.0',
             'method' => 'initialize',
             'params' => [
-                'protocolVersion' => '2025-06-18',
+                'protocolVersion' => $protocolVersion,
                 'capabilities' => new \stdClass(),
                 'clientInfo' => ['name' => 'mcp-result-link-test', 'version' => '1.0'],
             ],

@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Mcp\Result\McpToolResultParser;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultPointer;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultReferenceHandler;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultRenderer;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultStoredFormat;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\Clock\MockClock;
@@ -87,7 +88,7 @@ class McpToolResultReferenceHandlerTest extends TestCase
         $storage = $this->createMock(ToolResultCacheStorage::class);
         $storage->expects($this->once())
             ->method('storeFor')
-            ->with('admin:integration-id:', $handBuilt)
+            ->with('admin:integration-id:', '{"blob":"' . str_repeat('x', 110_000) . '"}', '', McpToolResultStoredFormat::Spec->value)
             ->willReturn(new McpToolResultPointer('token', new \DateTimeImmutable('2026-09-28T11:00:00+00:00')));
 
         $request = new Request();

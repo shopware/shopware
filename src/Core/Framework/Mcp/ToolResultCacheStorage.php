@@ -9,6 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultPointer;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultPointerSigner;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultStoredFormat;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -158,6 +159,9 @@ class ToolResultCacheStorage
     }
 
     /**
+     * The `mime_type` column also records the {@see McpToolResultStoredFormat}; the result carries the media
+     * type a client is sent.
+     *
      * @param array<string, mixed> $row
      *
      * @return array{content: string, mimeType: string}
@@ -166,7 +170,7 @@ class ToolResultCacheStorage
     {
         return [
             'content' => (string) $row['content'],
-            'mimeType' => (string) $row['mime_type'],
+            'mimeType' => McpToolResultStoredFormat::servedMimeType((string) $row['mime_type']),
         ];
     }
 }

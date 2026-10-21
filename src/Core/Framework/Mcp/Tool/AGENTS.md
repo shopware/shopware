@@ -144,7 +144,10 @@ The envelope above is the text block. `McpToolResultReferenceHandler` wraps the 
   A result is never sent with one copy only to make it fit
 - **Large results.** The renderer measures the text blocks plus the encoded `structuredContent` of every successful result, from core, plugin, bundle and app tools and hand-built strings alike.
   Above `McpToolResultRenderer::MAX_INLINE_SIZE` (200 KB, or `MAX_INLINE_SIZE_TEXT_ONLY`, 100 KB, before 2025-06-18, which has no `structuredContent`), so at about 100 KB of data on every revision, the result is stored in `mcp_tool_result_cache` with `ToolResultCacheStorage::storeFor()` and replaced by a link.
-  The stored content is the legacy envelope: the tool's string, or the envelope rebuilt from a `McpToolResult`.
+  The stored content follows the negotiated revision, not the `v6.8.0.0` flag (`McpToolResultStoredFormat`, kept in the `mime_type` column).
+  Since 2025-06-18 it is the plain data, whose metadata goes out with the link.
+  Before 2025-06-18 it is the legacy envelope: the tool's string, or the envelope rebuilt from a `McpToolResult`.
+  Rows with `application/json`, the column default, are the legacy envelope; `resources/read` serves both formats as `application/json`.
   Failures are never stored
   - The link is a `shopware://tool-result/{pointer}` URI, sent as a `resource_link` content block (2025-06-18 and later).
     Until 6.8.0 the text is the envelope `{"success": true, "data": null, "_meta": {...}}` with `resourceUri`, `expiresAt`, `responseSize`, `note` and `query`.

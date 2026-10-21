@@ -1,0 +1,103 @@
+{
+    "$schema": "./node_modules/fallow/schema.json",
+    "entry": [
+        "_jest.config.ts",
+        "eslint-rules/**/index.js",
+        "extension-tooling/*.mjs",
+        "lighthouse-auth.js",
+        "**/scripts/runNpmAudit.ts"
+    ],
+    "dynamicallyLoaded": [
+        "build/plugins.vite.ts",
+        "build/vue-setup-transform/index.js",
+        "src/app/assets/scss/mixins.scss",
+        "src/app/assets/scss/variables.scss",
+        "src/core/factory/state-deprecated.factory.js",
+        "src/core/helper/store-loader.helper.js"
+    ],
+    "framework": [
+        {
+            "name": "jest-config",
+            "enablers": ["jest"],
+            "entryPointRole": "test",
+            "entryPoints": [
+                "test/globalTeardown.js",
+                "test/_setup/*.{js,ts}",
+                "test/_mocks_/*.js",
+                "test/transformer/*.js",
+                "test/_helper_/jest-resolver.js",
+                "test/_helper_/failedSpecFileReporter.js",
+                "test/_helper_/virtual-shopware-modules/register-mocks.js"
+            ],
+            "toolingDependencies": [
+                "@swc/jest",
+                "babel-plugin-shopware-vite-meta-glob",
+                "jest-expect-message",
+                "jest-junit",
+                "jest-silent-reporter",
+                "lodash"
+            ]
+        },
+        {
+            "name": "eslint-import-resolvers",
+            "enablers": ["eslint"],
+            "toolingDependencies": ["eslint-import-resolver-typescript", "eslint-import-resolver-vite"]
+        },
+        {
+            "name": "postcss-config",
+            "detection": { "type": "fileExists", "pattern": ".postcssrc.js" },
+            "configPatterns": [".postcssrc.js"],
+            "toolingDependencies": ["autoprefixer"]
+        },
+        {
+            "name": "jsdoc-config",
+            "enablers": ["jsdoc"],
+            "configPatterns": ["jsdoc.config.js"],
+            "toolingDependencies": ["jsdoc", "docdash"]
+        }
+    ],
+    "ignorePatterns": ["!build/**", "scripts/codemods/sfc-migration/__fixtures__/**"],
+    "ignoreFindings": ["build/vite-plugins/**/_fixtures/**"],
+    "ignoreDependencies": [
+        "shopware:*",
+        "@jridgewell/remapping",
+        "@tiptap/core",
+        "@tiptap/extension-link",
+        "@tiptap/vue-3",
+        "@vue/runtime-core",
+        "eslint-plugin-vue",
+        "license-checker-rseidelsohn",
+        "source-map-js",
+        "vue-tsc",
+        "yaml"
+    ],
+    "ignoreUnresolvedImports": [
+        "~scss/**",
+        "**/_mocks_/entity-schema.json",
+        "**/entity-schema-definition",
+        "**/component-imports"
+    ],
+    "ignoreExports": [
+        { "file": "src/**/*.store.ts", "exports": ["default"] },
+        { "file": "src/**/store.ts", "exports": ["default"] }
+    ],
+    "rules": {
+        "unused-files": "error",
+        "unused-exports": "error",
+        "unused-types": "error",
+        "unused-dependencies": "error",
+        "unused-dev-dependencies": "error",
+        "unused-optional-dependencies": "error",
+        "unresolved-imports": "error",
+        "unlisted-dependencies": "error",
+        "unused-class-members": "off",
+        "unused-store-members": "off",
+        "unprovided-injects": "off",
+        "unrendered-components": "off",
+        "unused-component-props": "off",
+        "unused-component-emits": "off",
+        "duplicate-exports": "off",
+        "test-only-dependencies": "off",
+        "dev-dependencies-in-production": "off"
+    }
+}

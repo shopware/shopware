@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Webhook\Authorization\Ownership;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppEntity;
@@ -10,8 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
+use Shopware\Core\Test\Integration\Builder\Webhook\WebhookBuilder;
 use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 
 /**
@@ -35,7 +36,8 @@ class AppIntegrationChangeSubscriberTest extends TestCase
     public function testAWebhookOwnedByTheAppsIntegrationMovesToTheIntegrationThatReplacesIt(): void
     {
         $app = $this->appFixture->createAppFromData();
-        $webhookId = $this->createWebhookOwnedBy($app->getIntegrationId());
+        $webhookId = WebhookBuilder::ownedByIntegration($app->getIntegrationId())
+            ->insert(static::getContainer()->get(Connection::class));
 
         $newIntegrationId = $this->replaceIntegration($app);
         static::getContainer()->get('integration.repository')->delete([['id' => $app->getIntegrationId()]], Context::createDefaultContext());
@@ -46,7 +48,8 @@ class AppIntegrationChangeSubscriberTest extends TestCase
     public function testAWebhookMovesBackWhenTheAppSwitchesBackToItsPreviousIntegration(): void
     {
         $app = $this->appFixture->createAppFromData();
-        $webhookId = $this->createWebhookOwnedBy($app->getIntegrationId());
+        $webhookId = WebhookBuilder::ownedByIntegration($app->getIntegrationId())
+            ->insert(static::getContainer()->get(Connection::class));
         $newIntegrationId = $this->replaceIntegration($app);
         static::assertSame($newIntegrationId, $this->loadWebhook($webhookId)->getOwnerIntegrationId());
 
@@ -57,21 +60,6 @@ class AppIntegrationChangeSubscriberTest extends TestCase
         static::getContainer()->get('integration.repository')->delete([['id' => $newIntegrationId]], Context::createDefaultContext());
 
         static::assertSame($app->getIntegrationId(), $this->loadWebhook($webhookId)->getOwnerIntegrationId());
-    }
-
-    private function createWebhookOwnedBy(string $integrationId): string
-    {
-        $webhookId = Uuid::randomHex();
-
-        static::getContainer()->get('webhook.repository')->create([[
-            'id' => $webhookId,
-            'name' => 'My super webhook',
-            'eventName' => 'product.written',
-            'url' => 'http://localhost',
-            'ownerIntegrationId' => $integrationId,
-        ]], Context::createDefaultContext());
-
-        return $webhookId;
     }
 
     private function replaceIntegration(AppEntity $app): string

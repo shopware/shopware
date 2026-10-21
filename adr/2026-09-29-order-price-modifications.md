@@ -1,8 +1,8 @@
 ---
-title: Represent order-level price modifications outside of line items
+title: Represent order-level price modifications and settlements outside of line items
 date: 2026-09-29
 area: checkout
-tags: [checkout, cart, order, promotion, tax, voucher, plugin, after-sales]
+tags: [checkout, cart, order, promotion, tax, voucher, payment, plugin, after-sales]
 ---
 
 ## Context
@@ -15,8 +15,8 @@ That is correct for a *discount*, which lowers the value of what was supplied an
 It is wrong for a *means of payment*, which lowers only the amount still due while the tax base stays the same.
 The EU VAT Directive (2006/112/EC, as amended by Directive (EU) 2016/1065, in particular Articles 30a and 30b) distinguishes single-purpose and multi-purpose vouchers. For the Shopware calculation model, the architecture therefore needs to support:
 
-* A **single-purpose voucher** (SPV), whose tax treatment is determined at issuance and whose redemption may reduce the taxable amount represented by the order.
-* A **multi-purpose voucher** (MPV), for example a shop-wide gift card, whose redemption must be representable without reducing the taxable value of the supplied goods and services; it settles part of the amount due.
+* A **single-purpose voucher** (SPV), whose VAT is due on its issuance and every transfer (Art. 30b(1)); the later handing over of the goods is not an independent transaction. When it is redeemed, the part of the supply covered by the voucher has already been taxed and must not be taxed again in the order. The order's VAT is therefore reduced at the voucher's rate. This is calculated like a discount restricted to that rate, but it is not a discount: the value of the supply is unchanged, part of it was taxed earlier. A promotional voucher given away free of charge, by contrast, is a genuine discount.
+* A **multi-purpose voucher** (MPV), for example a shop-wide gift card, whose redemption must not reduce the taxable value of the supplied goods and services; it settles part of the amount due.
 
 For an MPV, a line item always produces a wrong tax result or a wrong net amount (cases 1 and 2 below).
 For an SPV, a line item is only partly right: with a single tax rate, the proportional reduction of case 1 gives the correct number, but a credit line item is not capped (case 3), and in a cart with mixed tax rates the reduction must be restricted to the voucher's rate instead of being distributed across all rates.
@@ -24,12 +24,12 @@ For an SPV, a line item is only partly right: with a single tax rate, the propor
 ### Reproducible cases on trunk
 
 All cases use a gross sales channel, one product at 119.00 EUR with 19 % tax and horizontal tax calculation.
-The correct result for an MPV of 50.00 EUR is: net 100.00, tax 19.00, amount due 69.00.
+The correct result for an MPV of 50.00 EUR is: net 100.00, tax 19.00, total 119.00, amount due 69.00.
 
 1. **Voucher redeemed as a Shopware promotion (absolute discount of 50.00 EUR).**
    `DiscountAbsoluteCalculator` distributes the discount proportionally across the affected tax rates through `AbsolutePriceCalculator`.
    Result: total 69.00, tax 11.02, net 57.98.
-   For the MPV treatment described above, the calculated VAT is 7.98 EUR below the VAT on the full supplied value. (For an SPV at 19 %, this result happens to be correct.)
+   For an MPV, the calculated VAT is 7.98 EUR below the VAT on the full supplied value. (For an SPV at 19 %, this result happens to be correct.)
    This is the only redemption path core offers, so an MPV implemented through promotions cannot preserve the full taxable value of the supplied goods today.
 
 2. **Voucher as a tax-free credit line item (empty `TaxRuleCollection`), the usual plugin workaround.**
@@ -55,232 +55,157 @@ Promotions cap their discount at the affected goods (`-min(abs($price), $totalOr
 ### Motivation
 
 The change was driven by EasyCoupon, a Shopware voucher extension by Net Inventors that issues and redeems both single-purpose and multi-purpose vouchers, and by the difficulty of mapping these voucher types correctly onto orders.
-The author of this ADR is one of the CEOs of Net Inventors and worked on the change as a developer.
-The problems below come from EasyCoupon support cases; the proposed extension points are designed to be usable by any voucher, gift card or fee extension, not only by EasyCoupon.
-
-The difficulties in detail:
-
-* Voucher types affect shipping costs and tax in fundamentally different ways.
-  Depending on the type, either the gross price including tax has to be reduced proportionally, or only the amount due may drop while tax is still calculated on the full, original value — for example a multi-purpose voucher that was already paid for, but whose VAT only becomes due on redemption.
-* The line-item representation cannot express this distinction.
-  In certain constellations it shows **negative tax amounts** in the order summary (case 3 above), which is confusing for merchants and customers and wrong from an accounting point of view.
-* There were many customer requests to take voucher redemptions out of the order's line-item structure, because a voucher is not a position of its own (product, shipping, etc.) but an adjustment of the total.
+The author of this ADR is one of the CEOs of Net Inventors.
+The problems come from EasyCoupon support cases; the proposed model is meant to be usable by any voucher, gift card or fee extension, not only by EasyCoupon.
 
 ## Options
 
 ### Option A: a tax-exempt marker on the existing promotion / credit line item
 
-*Availability: requires a core change. What extensions can do today is only the workaround of case 2.*
+Add a flag that makes `AmountCalculator` skip the line item's tax and exclude it from the net amount.
+The voucher stays a position in every document, cart response and ERP export, `netPrice` stops being derived from `totalPrice` for one kind of line item only, and every consumer that sums line items would have to learn the flag.
+It breaks `total = net + tax` in the same way as Option E.
 
-Add a flag, for example `payload.taxExempt` or a new `LineItem` state, that makes `AmountCalculator` skip the line item's tax and exclude it from the net amount.
+### Option B: price processors without persistence
 
-It cannot:
-
-* keep `positionPrice` and the positions table correct: the voucher still is a position, in every document, every Store API cart response and every ERP line item export;
-* stay local to `AmountCalculator`: `netPrice` would stop being derived from `totalPrice` for one kind of line item only, so every consumer that sums line items (`PriceCollection`, delivery/percentage calculators, document renderers, payment integrations sending item lists) would need to learn the flag, or silently disagree with the order total;
-* model an after-sales correction that is explicitly *not* a position;
-* give a plugin a supported point to apply its adjustment after all line items and shipping are known, which a tax-exempt reduction needs to cap itself against the remaining total.
-
-It is the smallest change, and it fixes case 2 for shops that are willing to change their voucher plugin. It does not fix case 1 unless promotions get the same flag, which would then have to be configured per promotion by the merchant.
-
-### Option B: `PriceProcessorInterface` alone, without a new entity
-
-*Availability: requires a core change. It is a subset of this proposal, without persistence.*
-
-Introduce the cart extension points (`PriceCollectorInterface`, `PriceProcessorInterface`, `PriceModifierResult` with `additionalCosts` and `taxExemptAdjustment`), but persist nothing beyond `order.price`.
-
-It fixes the cart calculation for cases 1–3, if the voucher is redeemed through a plugin instead of a promotion.
-It cannot:
-
-* survive `RecalculationService`: once an order is edited in the Administration, the adjustment has to be recomputed from plugin state that may have changed (voucher balance already consumed, plugin deactivated) — the order total silently changes or the voucher is applied twice;
-* explain the order: `order.price` would contain a total that is not `netPrice + tax`, and nothing in the order says why. Documents, the order detail page, ERP exports and payment integrations have no data to render or reconcile;
-* offer after-sales corrections by the merchant;
-* be audited: the amount, the tax treatment and the contributing plugin at the time of placement are not recorded anywhere.
-
-Storing the same data in an order extension or custom field would make it persistable, but untyped, not versioned with the order, not editable in the Administration and without a validation point.
+Introduce cart extension points for order-level adjustments, but persist nothing beyond `order.price`.
+It fixes the cart calculation, but cannot survive `RecalculationService`, cannot explain the order total to documents or integrations, and cannot be audited.
 
 ### Option C: the voucher as a partial payment (split payment)
 
-*Availability: requires a core change, larger than this proposal.*
-
-Redeem an MPV as its own `order_transaction` with a voucher payment method, next to the transaction of the customer's payment method.
+Redeem an MPV as its own `order_transaction`, next to the transaction of the customer's payment method.
 Legally this is the most accurate model, since an MPV is a means of payment.
-
-It cannot:
-
-* be done on the current payment model: an order has one active transaction, and payment handlers, the transaction state machine, refunds, the order state derived from the transaction, and documents all assume that;
-* express taxable adjustments (SPVs, merchant discounts, fees), which change the value of the supply and therefore belong to the price, not to the payment;
-* express after-sales reductions by the merchant.
-
-Multiple parallel transactions would be a larger architecture change than this proposal, affecting every payment integration, and would still need a price-side model for everything except MPVs.
+Orders can already hold several transactions, and `PaymentProcessor` pays the newest open one. The remaining gaps are limited: `TransactionProcessor` always creates one full-amount transaction, `SetPaymentOrderRoute` cancels the other transactions and recreates the full amount, and the e-invoice paid amount only considers the primary transaction.
+On its own, C does not cover taxable adjustments (SPVs, fees, merchant reductions), which change the value of the supply and belong to the price.
 
 ### Option D: existing extension mechanisms
 
-*Availability: possible today without any core change; this is the status quo. An extension can register its own `shopware.cart.processor`, decorate `Processor` or `AmountCalculator`, or overwrite `Cart::price` after the calculation through the existing `CheckoutCartRuleLoaderExtension`. Cases 2 and 3 are the result of these workarounds.*
+Registering a `shopware.cart.processor`, decorating `Processor` or `AmountCalculator`, or overwriting `Cart::price` afterwards. Cases 2 and 3 are the result of these workarounds; several extensions cannot contribute side by side, and nothing is recorded on the order.
 
-* **`shopware.cart.processor`** runs before the amount is calculated and can only change line items and deliveries. Anything it adds ends up as a line item or as shipping costs, so it cannot change only the amount due.
-* **An event or `Extension` after the amount calculation** (see [Transition to an Event-Based Extension System](./2024-06-18-extended-event-system.md)) could overwrite `Cart::price`. But several listeners would each replace the whole `CartPrice` without a typed result per contributor, without the running state a reduction needs to cap itself against what earlier contributors already deducted, and without any record of what was applied — so the order could neither display nor persist the individual adjustments, and nothing could be reapplied on recalculation.
+### Option E: one persisted modification entity for taxable and tax-exempt adjustments
 
-This proposal therefore uses tagged services with a typed result (`PriceModifierResult`), the same pattern `Processor` already uses for `shopware.cart.collector` and `shopware.cart.processor`.
-**Open for discussion:** the chain could additionally be published through `ExtensionDispatcher`, so that the whole modification step can be observed or replaced like other cart extension points.
+The original proposal of this ADR: a single `order_price_modification` entity whose `tax_rules` distinguishes tax-exempt (`NULL`), proportionally taxable (empty) and rate-restricted (non-empty) rows, applied inside `CartPrice`.
+It models an MPV as part of the price even though it is a means of payment, and pays for that by breaking `total = net + tax`. Almost every consequence of E follows from that single break: a dedicated document block, an OpenAPI caveat, required changes in headless frontends, mail templates that a migration cannot fix, and a changed meaning of `CartAmountRule`. It also needs a write lock and several calculation invariants only to keep the tax-exempt rows consistent.
 
-### Option E: a persisted `order_price_modification` entity plus the cart extension points (proposed)
+### Option F: taxable adjustments as additional costs, MPVs as settlements outside the price (decided)
 
-*Availability: requires a core change; this proposal.*
+Split the problem along the legal distinction:
 
-The full model described below.
-It is the largest change: a new entity on the order aggregate, three extension points, and a new component to be rendered wherever an order total is rendered.
-It cannot be introduced without integrations that reconstruct the order total from line items (see Consequences) having to read one more association.
+* **Taxable adjustments** (SPVs, fees, merchant reductions) stay part of the price, as additional costs next to shipping costs in `AmountCalculator`. They are not positions.
+* **MPVs** stay out of the price entirely and are recorded as **settlements** of the amount due: `amountDue = totalPrice - Σ settlements`.
+
+`CartPrice` keeps its meaning, `total = net + tax` holds everywhere, and the settlement side follows Option C.
 
 ## Decision
 
-We introduce **order price modifications** as the representation for order-level adjustments that must not be represented as products or deliveries (Option E).
-Existing promotions keep their current line-item representation; this ADR adds a second, opt-in representation and does not migrate promotions.
+We choose **Option F**.
+The settlement side and the code claim handler are decided. For the price side, the decision that taxable adjustments stay in the price is settled; whether they are represented as additional costs or as line items is still open (see "Additional costs or line items").
+Existing promotions keep their current line-item representation; this ADR adds new, opt-in representations and does not migrate promotions.
+As a consequence, this decision does not change case 1 for shops that keep redeeming MPVs as promotions. Case 1 is resolved only when an MPV is redeemed as a settlement instead of a promotion, either by a voucher extension or, later, by an option in the promotion system itself. Whether promotions should be able to act as settlements is out of scope of this ADR.
 
-`order_price_modification` represents an adjustment to the amount payable when Shopware cannot express the adjustment through its current transaction model. It therefore includes both genuine price adjustments and settlement adjustments. It is not intended to redefine a voucher as legally being a price adjustment.
+### Price side: order price modifications
 
-### Data model
+A **price modification** is a taxable, order-level adjustment that is neither a product nor a delivery.
 
-`order_price_modification` belongs to the order aggregate:
+* In the cart, modifications are transient `PriceModifier`s in `Cart::priceModifiers`. They are applied after all line items and deliveries are calculated, after every `shopware.cart.processor`.
+* They are passed to `AmountCalculator` as additional costs, exactly like `$shippingCosts`: they change `netPrice`, `calculatedTaxes` and `totalPrice`, and never `positionPrice`.
+* A modification is either distributed proportionally across all tax rates of the cart, or restricted to the listed tax rates (an SPV at one rate). A reduction is capped so that the amount it applies to cannot go below zero per affected tax rate; this prevents case 3. Surcharges are not capped. Distribution and rounding use the existing price calculators, as for promotions.
+* A modification states whether it is a discount or the redemption of an already taxed SPV. The calculation is the same, but documents and ERP exports can show the difference.
+* Percentage modifications store their percentage and target (goods and/or shipping); the definition is authoritative on recalculation.
+* On placement, modifications are persisted as `order_price_modification` rows on the order aggregate (versioned with the order), with `label`, `price`, `price_definition`, `tax_rules`, `position`, `type` (contributing extension, `NULL` for manual rows), `referenced_id`, `payload` and `custom_fields`.
+* After placement, the persisted rows are the source of the order's modifications on recalculation; price processors of extensions are not asked again for carts that originate from an order. Merchants can add, edit and delete rows in the Administration like other order data.
 
-| Field | Meaning |
-|---|---|
-| `id`, `version_id` | Versioned together with the order (draft order edits). |
-| `order_id`, `order_version_id` | Required. `ON DELETE CASCADE` with the order. |
-| `label`, `description` | Shown to customers and merchants. |
-| `price` | Signed gross amount. Negative reduces the total, positive surcharges it. |
-| `price_definition` | `absolute` or `percentage` (with `target`: goods and/or shipping). `NULL` for manual rows. For `percentage`, `price` is only the value at placement; `price_definition` is authoritative. |
-| `tax_rules` | `NULL`: **tax-exempt** (changes only the amount due). Empty collection: **taxable**, distributed proportionally across every tax rate of the base. Non-empty: taxable, restricted to the listed rates. |
-| `position` | Order of application within the same tax treatment. |
-| `type` | Technical name of the contributing extension. `NULL` means added manually. |
-| `referenced_id` | Stable identifier within `type`. |
-| `payload` | Opaque data of the contributing extension (for example the redeemed voucher code). Never read by core. |
-| `custom_fields` | As usual. |
+#### Additional costs or line items
 
-`tax_rules` is stored by a new, reusable `TaxRuleCollectionField`.
+Taxable adjustments could also stay line items, as today. Most of the technical gaps can be closed within the line-item model: a plugin line item type with its own processor can restrict a reduction to one tax rate and cap it like `DiscountAbsoluteCalculator`; processors with a priority below -5000 run after `DeliveryProcessor` and can cap against goods plus shipping, as `PromotionDeliveryProcessor` already does; and recalculation can keep the stored `price`, `priceDefinition` and `payload` by detecting `OrderConverter::ORIGINAL_ID`, as `PromotionCollector` does.
 
-In the cart, the same concept is a transient `PriceModifier` in `Cart::priceModifiers`. It is purely descriptive; the monetary effect is already contained in `Cart::price`.
-`CartTransformer` persists the cart's modifiers as `order_price_modification` rows on order placement.
+Additional costs are proposed instead because an order-level adjustment is not a position:
 
-### Calculation invariants
+* it would no longer appear in the positions table of documents, change `positionPrice`, or have to be mapped as an item by ERP exports;
+* a merchant reduction after placement would not need a fake position;
+* several extensions could contribute through one typed extension point instead of each implementing its own line item type, processor priority and recalculation handling.
 
-1. **Position.** Modifications are applied after all line items and all deliveries are calculated, in `Processor`, after every `shopware.cart.processor`.
-2. **Taxable before tax-exempt.** All taxable modifications are applied first, ordered by `position`, then all tax-exempt ones against what remains.
-3. **Taxable modifications** go through `AmountCalculator` as `additionalCosts`: they change `netPrice`, `calculatedTaxes` and `totalPrice` exactly like shipping costs do, and never change `positionPrice`.
-4. **Tax-exempt modifications** change only `totalPrice` and `rawTotal`. `netPrice`, `calculatedTaxes` and `taxRules` keep describing the full value of the goods and services. `rawTotal` includes them because it is the unrounded amount payable from which the rounded `totalPrice` is derived.
-   Consequently, `totalPrice = netPrice + calculatedTaxes + Σ tax-exempt modifications` (in the gross, net and tax-free states alike; in the tax-free state `calculatedTaxes` is zero).
-   This is the only situation in which `totalPrice ≠ netPrice + tax`, and the gap is always fully explained by persisted rows.
-5. **Caps.** A reduction is capped so that the amount it is applied to cannot go below zero — per target tax rate for a restricted taxable row, and against the remaining total for a tax-exempt row. When `Processor` has to cap the aggregate of tax-exempt reductions, it trims the listed modifiers (last first), so the listed modifiers always add up to what was actually deducted. Surcharges are not capped.
-6. **Rounding.** Taxable amounts are rounded by the existing price calculators. Tax-exempt amounts are rounded with `CashRounding` (item rounding per row, total rounding for the aggregate), since they bypass those calculators.
-7. **Single source of truth after placement.** As soon as a cart originates from an order (`OrderConverter::ORIGINAL_ID`), the persisted rows are reapplied by `OrderPriceModificationCollector`/`OrderPriceModificationProcessor`, and processors extending `AbstractOrderAwarePriceProcessor` stop contributing. A plugin seeds an order once, at placement; afterwards only the rows — including merchant edits — determine the total.
-8. **Percentage rows.** `price_definition` is authoritative. Percentage rows are recomputed on recalculation from their frozen `percentage` and `target` against the order's current goods and shipping; the persisted `price` stays the value at placement and is not updated.
+The line-item model has the advantage that line items plus shipping still add up to the total, so payment integrations that validate item sums need no change for taxable adjustments, and no new entity is required.
+This trade-off is **open for discussion**: if line items are preferred, the price side of this decision is reduced to documenting the patterns above for extensions, and only the settlement side and the code claim handler remain.
 
-### Write invariants: the lock
+### Payment side: settlements
 
-After placement, a row is either **system-contributed** (`type` is not `NULL`) or **manual** (`type` is `NULL`).
-`OrderPriceModificationTaxLockValidator` (`PreWriteValidationEvent`) enforces:
+A **settlement** is a means of payment that reduces the amount due without changing the price, typically an MPV.
 
-* `type` cannot be changed on an existing row (`CHECKOUT__ORDER_PRICE_MODIFICATION_TYPE_LOCKED`).
-* `tax_rules` cannot be changed on an existing system-contributed row (`CHECKOUT__ORDER_PRICE_MODIFICATION_TAX_LOCKED`), including switching between tax-exempt (`NULL`) and taxable. Values are compared semantically, so resending an unchanged value is allowed.
-* Everything else stays writable, and any row can be deleted. A replacement for a deleted system row has to be added as a new, visibly manual row.
-
-Why exactly these two fields:
-
-* **`tax_rules` is the tax decision.** For a system-contributed row it records a fact that was settled outside the order: an SPV was taxed at a specific rate when it was issued, an MPV was deliberately not taxed at issuance. Changing the treatment afterwards re-declares VAT for a transaction that already happened elsewhere, for example on the gift card sale, and would make the order disagree with the plugin's own records. No after-sales use case requires it.
-* **The amount is not a tax decision.** Changing `price`, `label`, `description` or `position` of a row is a legitimate after-sales operation (partial voucher reversal, correcting a fee), and the recalculation derives correct tax from it under the unchanged treatment. Locking the amount would force merchants to delete and re-add rows for routine corrections, which loses provenance instead of protecting it.
-* **`type` protects the lock itself.** It is what marks a row as system-contributed. If it were writable, one write clearing `type` would turn the row into a manual one, and a second write could change `tax_rules` unchecked.
-* **Deletion stays allowed**, because cancelling a voucher or waiving a fee must remain possible, and a deleted row cannot misstate anything. The audit trail is the order version history; the replacement row is distinguishable because its `type` is `NULL`. The lock does not prevent a merchant from deliberately correcting the accounting representation; it prevents a system-contributed fact from being silently rewritten while retaining its system provenance.
-* **Manual rows are not locked**, because the merchant who created them owns the tax decision and may have to correct it.
-* **`payload` and `referenced_id` are not locked**, because core never reads them; they belong to the contributing extension, which can validate them itself.
-
-The Administration additionally disables editing of system-contributed rows entirely; the validator is the guarantee for every other writer of the Admin API.
+* In the cart, settlements are a transient collection `Cart::settlements`, outside of `CartPrice`. The cart exposes `amountDue = totalPrice - Σ settlements`. Settlements are capped at the amount due; they never make it negative.
+* `amountDue` is a cart value only: the amount to be charged with the customer's payment method at placement. It is not persisted on the order. After placement, the amount still open follows from the order's transactions, as today; after a regular payment it is zero.
+* On placement, every settlement becomes its own `order_transaction` in a paid state, referencing the contributing extension. `TransactionProcessor` creates the transaction for the customer's payment method over `amountDue` instead of `totalPrice`.
+* `SetPaymentOrderRoute` and other code that replaces the open transaction must keep settlement transactions and recreate only the remaining amount due.
+* **Consistency at placement.** The contributing extension charges the voucher balance during order placement. If that fails, for example because a parallel order has already used the balance, order placement fails like for a product that is out of stock: neither the order nor a paid settlement transaction is written. Charging must be idempotent (for example keyed by the settlement transaction id), so that a retry cannot charge twice. Protecting the balance against concurrent redemptions is the responsibility of the extension; how core embeds the charge into placement is an implementation detail.
+* A voucher redeemed after placement is an additional settlement transaction; refunding a settlement to the voucher is the responsibility of the contributing extension.
+* A settlement transaction records the use of an already paid means of payment, not a new payment: no money is captured, and its paid state means the voucher has been charged. In accounting it offsets the voucher liability.
+* Cancelling the order refunds or cancels settlement transactions like other paid transactions; the contributing extension reacts to the transaction state change and restores the voucher balance. For a partial return, the merchant decides which transaction is refunded, as for orders with several transactions today. Changing the payment method affects only the transaction over the remaining amount.
 
 ### Extension points
 
-All three are registered as tagged services, the same pattern as `shopware.cart.collector` / `shopware.cart.processor`, so several extensions can contribute at the same time:
+All are tagged services, the same pattern as `shopware.cart.collector` / `shopware.cart.processor`, so several extensions can contribute at the same time:
 
-* `PriceCollectorInterface` (`shopware.cart.price_collector`, supports `priority`): loads the data a modification needs into `CartDataCollection`.
-* `PriceProcessorInterface` (`shopware.cart.price_processor`, supports `priority`): receives prices, shipping costs and everything earlier processors already contributed, and returns a `PriceModifierResult` with its own contribution only.
-* `CartCodeClaimHandlerInterface` (`shopware.cart.code_claim_handler`): lets an extension claim a code submitted to the promotion code field. Promotions participate through `PromotionCartCodeClaimHandler`. A code claimed by more than one handler fails with `CartException::ambiguousCodeClaim()` instead of silently picking one. Unclaimed codes behave as before.
-
-`AbstractOrderAwarePriceProcessor` implements invariant 7 for extensions.
+* `PriceCollectorInterface` (`shopware.cart.price_collector`): loads the data a modification or settlement needs.
+* `PriceProcessorInterface` (`shopware.cart.price_processor`, supports `priority`): processors run in descending priority. Each receives the calculated cart and everything earlier processors contributed, so it can cap its own contribution against what remains, and returns only its own price modifiers and settlements. Processors with the same priority run in a deterministic order (for example by service id), so the result does not depend on the order in which extensions were installed. Core does not resolve conflicts between extensions beyond this order; the caps keep the result consistent. The developer documentation lists the priorities used by core.
+* `CartCodeClaimHandlerInterface` (`shopware.cart.code_claim_handler`): lets an extension claim a code submitted to the promotion code field. Promotions participate through `PromotionCartCodeClaimHandler`. A code claimed by more than one handler fails with `CartException::ambiguousCodeClaim()`. Unclaimed codes behave as before. Claiming only decides which handler is responsible: a handler must not reserve or consume a code while claiming it; that happens when the order is placed. This extension point is independent of the price model and could be delivered on its own.
 
 ## Consequences
 
-### Order documents
+### Calculation, rules and APIs
 
-* Invoices and the other order documents list the modifications in the summary, next to net, tax and total (`document_sum_price_modifiers` block), because with a tax-exempt row net + tax no longer add up to the total. Without that block the document would look like a calculation error.
-* Credit notes refer to the credited line items only and do not show the order's modifications (the block is empty in `credit_note.html.twig`); a credit note does not re-grant a voucher.
-* **Open:** the ZUGFeRD / XRechnung builders do not map modifications yet. EN 16931 has the matching concepts — document-level allowances and charges (BG-20/BG-21) with a VAT category for taxable rows, and the paid amount (BT-113) for tax-exempt redemptions. Until this mapping exists, an e-invoice for an order with modifications must not be generated silently wrong; the document slice has to either map them or reject the document.
+* `total = net + tax` holds for every order. `CartPrice` and its OpenAPI schema keep their meaning.
+* `CartAmountRule` sees taxable modifications, like shipping costs, but not settlements: paying with a gift card does not change which rules match.
+* The Store API cart response gains `priceModifiers`, `settlements` and `amountDue`. Frontends that ignore them still show a consistent price, but the amount to pay is only correct if they render `amountDue`.
+* `order.priceModifications` is `ApiAware`; settlements are available through `order.transactions`.
 
-### Store API and headless frontends
+### Documents and e-invoices
 
-* `/store-api/checkout/cart` returns the new `priceModifiers` collection on the cart. For carts without modifications the response only gains an empty collection.
-* With a tax-exempt modification, `price.totalPrice` differs from `price.netPrice + calculatedTaxes`. Headless frontends that compute or validate the total from these fields must render the modifications. The OpenAPI schema has to document both.
-* `order.priceModifications` is `ApiAware` and available through the usual association loading on the Store API and Admin API order endpoints.
-* `CartLineItemController` answers an unknown code directly with `checkout.promotion-not-found` instead of adding a placeholder promotion line item and recalculating the cart. The message is unchanged.
+* Taxable modifications appear in the document summary next to shipping costs.
+* Settlements appear below the total as "Total / gift card / amount to pay".
+* For ZUGFeRD / XRechnung, taxable modifications map to document-level allowances and charges (BG-20/BG-21) with their VAT category, and settlements to the paid amount (BT-113). The paid amount has to consider all paid transactions, not only the primary one.
+* The redemption of an already taxed SPV is not necessarily the same as an allowance. Its mapping in ZUGFeRD / XRechnung must be validated separately, both for VAT law and against EN 16931, before the document slice is implemented.
 
-### Rules
+### Storefront and mails
 
-`Processor::process()` applies the modifications after all cart processors (line items, promotions, deliveries) and after the amount calculation, but before the cart validators and `TransactionProcessor`.
-`CartRuleLoader` evaluates rules against the fully processed cart and recalculates until the matching rules and `totalPrice` are stable.
-Rules therefore see the prices after all modifications:
+* Cart, checkout, finish page and account order pages show modifications in the summary and settlements with the amount to pay.
+* Default mail templates are extended accordingly. Customised templates keep showing a consistent total; they only miss the amount to pay until merchants add the new block, which the release notes describe.
 
-* `CartAmountRule` compares `price.totalPrice` and **is affected** by taxable and tax-exempt modifications.
-* `CartPositionPriceRule` (`positionPrice`) and `GoodsPriceRule` (goods line items) are not affected.
-* Shipping costs calculated by price use the delivery positions (`DeliveryCalculator::CALCULATION_BY_PRICE`) and are calculated before the modifications, so they are not affected.
-* The tax-free threshold for customers and countries (`CartRuleLoader::validateTaxFree()`) uses `positionPrice` and is not affected.
+### Payment integrations and ERP
 
-Example: a 100.00 EUR cart paid with an 80.00 EUR gift card has a cart amount of 20.00 EUR, so a rule "cart amount ≥ 50.00 EUR" no longer matches, which can switch off a payment method such as invoice or a promotion bound to that rule.
-Merchants who mean the value of the goods can use the goods or position price rules instead.
+* Nothing changes for orders without modifications or settlements.
+* Payment integrations that send an item list must send taxable modifications as discount or surcharge items and charge `amountDue`. Where the provider validates the item sum against the charged amount (for example PayPal, Klarna), settlements have to be sent in the provider's gift card or store credit field. A discount field is only a fallback, because providers may treat it as a price reduction with different tax and accounting effects. This is the main migration effort for integrations and has to be documented.
 
-### Mails, existing orders and after-sales
+### Editing after placement
 
-* **Mail templates** are stored in the database and are often edited by merchants, so a migration cannot update them. With a tax-exempt modification, an order confirmation mail that shows net, tax and total without the modifications looks like a calculation error. The storefront slice updates the default templates to list `order.priceModifications`, and its release notes tell merchants how to add the same block to customised templates.
-* **Existing orders** are not migrated. Credit and promotion line items in existing orders stay line items.
-* **Editing after payment.** `RecalculationService` does not update transactions (`setIncludeTransactions(false)`). When a merchant changes a modification on a paid order, `order.price` changes but the transaction amount does not, exactly as for every other order edit today. Refunds and additional captures stay manual.
-* **Admin order creation** shows the modifications of the cart read-only. Modifications can only be added, edited or deleted once the order exists. This is a known limitation, not a design constraint.
+* `RecalculationService` does not update transactions (`setIncludeTransactions(false)`). When a merchant changes a price modification on a paid order, `order.price` changes but the transactions do not, exactly as for every other order edit today. Refunds and additional captures stay manual.
+* Invoices already generated are not changed; a correction is documented by a credit note or a new invoice, as for other order edits.
+* Recalculation never changes settlement transactions. A change of the order price therefore never changes a redeemed voucher balance; if a merchant wants to give back part of a voucher, that is a refund of the settlement transaction.
+* ERP exports take the tax base from `netPrice` and `calculatedTaxes` and the settlement amounts from the order transactions.
 
-### ERP and payment integrations
+### Existing orders and extensions
 
-* Nothing changes for orders without modifications. Promotions stay line items, so existing shops keep producing the same data until an extension or a merchant adds a modification.
-* Integrations that reconstruct the order total from `lineItems` + `deliveries` must add `priceModifications`. This affects in particular payment integrations that transmit an item list which the provider validates against the amount (for example PayPal, Klarna): they have to send taxable modifications as discount/surcharge items and tax-exempt modifications as a reduction of the amount due (or a gift card / store credit field where the provider supports one).
-* ERP exports can take the tax base directly from `netPrice` and `calculatedTaxes`, which are now correct for vouchers; the amount due is `totalPrice`. The contributing extension and its own reference are available in `type`, `referenced_id` and `payload`.
-* `TransactionProcessor` already charges `order.price.totalPrice`, so the amount charged is correct without changes.
-
-### Existing extensions
-
-* Promotion plugins that only use the promotion system are not affected.
-* Extensions that decorate `CartLineItemController::addPromotion()`, or rely on a placeholder promotion line item being added for an unknown code, must move to `CartCodeClaimHandlerInterface`. `CartLineItemController` is `@internal`; its constructor changes.
-* An extension that claims a code which is also an active promotion code now gets an ambiguous-claim error instead of winning silently.
-* Extensions overriding `AmountCalculator::calculate()` have to forward the additional-costs input introduced by this change.
-
-### Compatibility promise
-
-* The entity, its fields and their meaning (including `tax_rules` `NULL` = tax-exempt and the lock) are public API from the first release on. Changing the meaning of a persisted field later would change historical orders, so it is only possible through a new field and a migration.
-* `PriceCollectorInterface`, `PriceProcessorInterface`, `CartCodeClaimHandlerInterface`, `PriceModifierResult`, `PriceModifier` and `AbstractOrderAwarePriceProcessor` are introduced as `@experimental` for one minor cycle after the first release, so that the first real integrations can still shape them. Net Inventors commits to adopting them in EasyCoupon during this phase and reporting back what needs to change before they become stable. After that they follow the regular backwards compatibility promise: interface methods do not change within a major version, and value objects only gain optional constructor arguments.
-* **Open for discussion:** `PriceProcessorInterface::process()` currently takes nine arguments. Bundling them into a value object before the interface becomes stable would let the contract grow without breaking implementers.
-* `OrderPriceModificationCollector`, `OrderPriceModificationProcessor` and `OrderPriceModificationTaxLockValidator` are `final` with `@internal` constructors; they are implementations, not extension points.
+* Existing orders are not migrated.
+* Extensions that decorate `CartLineItemController::addPromotion()` must move to `CartCodeClaimHandlerInterface`.
+* Extensions overriding `AmountCalculator::calculate()` have to forward the additional costs.
+* The new interfaces are introduced as `@experimental` for one minor cycle. Net Inventors adopts them in EasyCoupon during this phase and reports what needs to change before they become stable.
 
 ### Delivery
 
-The problem is live today: many merchants using EasyCoupon see negative tax amounts and wrong net amounts on their orders and documents (cases 2 and 3), and this proposal was written in response to their complaints.
-The implementation already exists as a complete, tested change ([#20955](https://github.com/shopware/shopware/pull/20955)).
+The implementation is owned by Shopware.
+The previous implementation of Option E ([#20955](https://github.com/shopware/shopware/pull/20955), closed) can serve as reference for persistence, recalculation and the code claim handler.
+Net Inventors contributes the reproducible cases above as acceptance tests, reviews the implementation from the perspective of a voucher extension, and adopts the new extension points in EasyCoupon.
 
-We therefore propose to deliver it as **one pull request** after this ADR is accepted, restructured so that it can be reviewed slice by slice:
+A possible split into independent deliveries:
 
-* one commit per slice below, each self-contained, with its own tests that fail without it and its own release notes;
-* the pull request is first aligned with the decisions of this ADR, so that feedback on the design is settled here once and does not have to be repeated per slice.
+1. Code claiming (`CartCodeClaimHandlerInterface`), independent of the rest.
+2. Settlements: cart collection, `amountDue`, settlement transactions, `TransactionProcessor` and `SetPaymentOrderRoute` changes.
+3. Price modifications: additional costs in `AmountCalculator`, entity, recalculation.
+4. Administration, storefront, mails and documents, including the e-invoice mapping.
 
-Splitting the same change into six sequential pull requests would add a rebase, CI and review round trip for every slice, although the slices only help merchants together: a persisted modification is not releasable without the lock, the display in documents, or the Administration to correct it.
-That would considerably delay the fix for an existing tax reporting problem without changing the design, and makes contributions of this size hard to sustain for an external contributor.
-Only as a last resort, if a single pull request could otherwise not be accepted, would a split along the largest boundaries be feasible as a compromise: core (slices 1–3), Administration (4), storefront and documents (5), code claiming (6).
+### Open for discussion
 
-Slices:
-
-1. Persisting a modification: entity, migration, `TaxRuleCollectionField`, `CartTransformer`.
-2. Applying it to the total: `PriceCollectorInterface`, `PriceProcessorInterface`, `AmountCalculator` `additionalCosts`, order recalculation.
-3. Protecting settled tax: the lock validator.
-4. Editing in the Administration: components, ACL, snippets.
-5. Showing it to the customer: storefront, cart restore, finish page, mail templates, documents (including the e-invoice decision above).
-6. Claiming codes: `CartCodeClaimHandlerInterface`, `PromotionCartCodeClaimHandler`.
+* Whether taxable adjustments are represented as additional costs (as proposed above) or stay line items with documented patterns for capping, rate restriction and recalculation (see "Additional costs or line items").
+* Whether settlements need their own payment method per contributing extension, or one generic "settlement" payment method with the extension referenced on the transaction.
+* The names `PriceCollectorInterface` and `PriceProcessorInterface` are preliminary; since both also serve settlements, a more neutral name may fit better.
+* Whether `PriceProcessorInterface::process()` should take a single value object instead of individual arguments before it becomes stable.
+* Whether the processor chain should additionally be published through `ExtensionDispatcher`.

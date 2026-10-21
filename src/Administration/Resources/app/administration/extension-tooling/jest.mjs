@@ -12,7 +12,7 @@
  * cannot drift apart.
  */
 
-import { existsSync } from 'node:fs';
+import { existsSync, realpathSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -20,31 +20,133 @@ import { fileURLToPath } from 'node:url';
 const administrationRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const require = createRequire(import.meta.url);
 
-/** @param {...string} segments */
+/**
+ * Resolves a path inside the installed Administration, so harness paths stay
+ * absolute and work from any extension `rootDir`.
+ *
+ * @example
+ * fromAdministration('test', '_setup'); // → <administration>/test/_setup
+ *
+ * @param {...string} segments
+ */
 const fromAdministration = (...segments) => path.join(administrationRoot, ...segments);
 
-/** @param {...string} segments */
+/**
+ * Resolves a package from the Administration's `node_modules`, which the
+ * harness depends on even when the extension does not install it.
+ *
+ * @example
+ * fromNodeModules('@vue', 'test-utils'); // → <administration>/node_modules/@vue/test-utils
+ *
+ * @param {...string} segments
+ */
 const fromNodeModules = (...segments) => fromAdministration('node_modules', ...segments);
 
 const componentImportsPath = fromAdministration('test', '_helper_', 'componentWrapper', 'component-imports.js');
 
 /**
- * Admin files that use `import.meta.glob`, which only the Babel plugin can
- * transform. Everything else goes through the faster SWC transform.
+ * Options merged into the harness instead of replacing it, so an extension can
+ * add to the setup files, mappings and transforms without dropping the host's.
  */
-const META_GLOB_FILES = `(${[
-    'module/index',
-    'core/service/api/index',
-    'app/mixin/index',
-    'app/decorator/index',
-    'app/plugin/index',
-    'app/directive/index',
-    'app/filter/index',
-].join('|')})\\.[jt]sx?$`;
+const MERGED_OPTIONS = [
+    'setupFiles',
+    'setupFilesAfterEnv',
+    'moduleNameMapper',
+    'transform',
+    'moduleDirectories',
+    'globals',
+    'testEnvironmentOptions',
+];
+
+/**
+ * Options an extension may set, each replacing the factory's default as a
+ * whole. Only listed options pass, so no Jest option can override the harness
+ * before someone has checked that it is safe to.
+ */
+const REPLACEABLE_OPTIONS = [
+    'bail',
+    'cache',
+    'cacheDirectory',
+    'clearMocks',
+    'collectCoverage',
+    'collectCoverageFrom',
+    'coverageDirectory',
+    'coveragePathIgnorePatterns',
+    'coverageProvider',
+    'coverageReporters',
+    'coverageThreshold',
+    'displayName',
+    'extensionsToTreatAsEsm',
+    'fakeTimers',
+    'globalSetup',
+    'globalTeardown',
+    'maxWorkers',
+    'modulePathIgnorePatterns',
+    'reporters',
+    'resetMocks',
+    'restoreMocks',
+    'roots',
+    'runner',
+    'snapshotFormat',
+    'snapshotSerializers',
+    'testMatch',
+    'testPathIgnorePatterns',
+    'testRegex',
+    'testTimeout',
+    'transformIgnorePatterns',
+    'verbose',
+    'watchPathIgnorePatterns',
+    'workerIdleMemoryLimit',
+];
+
+/** Every option `shopwareAdminJest` accepts; anything else throws. */
+const ACCEPTED_OPTIONS = new Set([
+    'rootDir',
+    ...MERGED_OPTIONS,
+    ...REPLACEABLE_OPTIONS,
+]);
+
+/**
+ * Escapes `text` for use as a literal inside a regular expression.
+ *
+ * @example
+ * escapeRegExp('/var/www/.claude'); // → '/var/www/\\.claude'
+ *
+ * @param {string} text
+ */
+const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * Matches the Administration files that use `import.meta.glob`, which only the
+ * Babel plugin can transform. Everything else, including an extension's own
+ * `src/module/index.ts`, goes through the faster SWC transform.
+ *
+ * @example
+ * new RegExp(metaGlobFilesPattern()).test(`${administrationRoot}/src/module/index.js`); // → true
+ * new RegExp(metaGlobFilesPattern()).test('/extension/src/module/index.ts'); // → false
+ */
+function metaGlobFilesPattern() {
+    // Jest matches transform patterns against real paths.
+    const sourceRoot = escapeRegExp(realpathSync(fromAdministration('src')));
+    const files = [
+        'module/index',
+        'core/service/api/index',
+        'app/mixin/index',
+        'app/decorator/index',
+        'app/plugin/index',
+        'app/directive/index',
+        'app/filter/index',
+    ];
+
+    return `^${sourceRoot}/(${files.join('|')})\\.[jt]sx?$`;
+}
 
 /**
  * Fails early with the step that fixes a missing harness, instead of letting
  * the first spec die on an unresolved setup file.
+ *
+ * @example
+ * assertHarnessAvailable(); // throws when test/_setup or component-imports.js is missing
  */
 function assertHarnessAvailable() {
     if (!existsSync(fromAdministration('test', '_setup'))) {
@@ -57,10 +159,38 @@ function assertHarnessAvailable() {
 
     if (!existsSync(componentImportsPath)) {
         throw new Error(
-            'Missing required /test/_helper_/componentWrapper/component-imports.js file to run tests. ' +
-                'Run `npm run unit-setup` before executing tests, or use `composer run admin:unit`.',
+            'Missing required test/_helper_/componentWrapper/component-imports.js ' +
+                `in the Administration at ${administrationRoot}. ` +
+                `Run \`npm run unit-setup\` in ${administrationRoot} before executing tests, ` +
+                'or use `composer run admin:unit`.',
         );
     }
+}
+
+/**
+ * Rejects every option outside the allowlist, so an extension cannot swap out
+ * a part of the harness, such as the test environment, without noticing.
+ *
+ * @example
+ * assertAcceptedOptions({ rootDir: '/extension', testTimeout: 20000 }); // passes
+ * assertAcceptedOptions({ rootDir: '/extension', testEnvironment: 'node' }); // throws, naming "testEnvironment"
+ *
+ * @param {Record<string, unknown>} options
+ */
+function assertAcceptedOptions(options) {
+    const rejected = Object.keys(options).filter((key) => !ACCEPTED_OPTIONS.has(key));
+
+    if (rejected.length === 0) {
+        return;
+    }
+
+    throw new Error(
+        `shopwareAdminJest does not accept the ${rejected.length === 1 ? 'option' : 'options'} ` +
+            `${rejected.map((key) => `"${key}"`).join(', ')}. ` +
+            'The harness owns testEnvironment and resolver, because it.activeFeatureFlags() and ' +
+            'the Vite import handling depend on them. ' +
+            `Accepted options: ${[...ACCEPTED_OPTIONS].join(', ')}.`,
+    );
 }
 
 /**
@@ -69,8 +199,8 @@ function assertHarnessAvailable() {
  * insertion order and uses the first match.
  *
  * @example
- * withPriority({ '^MyPlugin(.*)$': 'src$1' }, { '^src(.*)$': 'admin/src$1' });
- * // → { '^MyPlugin(.*)$': 'src$1', '^src(.*)$': 'admin/src$1' }
+ * withPriority({ '^MyPlugin/(.*)$': 'src/$1' }, { '^src/(.*)$': 'admin/src/$1' });
+ * // → { '^MyPlugin/(.*)$': 'src/$1', '^src/(.*)$': 'admin/src/$1' }
  *
  * @template T
  * @param {Record<string, T> | undefined} preferred
@@ -82,19 +212,53 @@ function withPriority(preferred = {}, fallback) {
 }
 
 /**
+ * The ESM-only packages in `node_modules` that the Administration needs transformed.
+ * An extension that transforms another package builds its pattern from this list plus its own,
+ * because Jest skips a file as soon as one ignore pattern matches it.
+ * Frozen, like `HOST_TRANSFORM_IGNORE_PATTERNS`.
+ *
+ * @example
+ * transformIgnorePatterns: [`/node_modules/(?!(${[...HOST_TRANSFORMED_PACKAGES, 'nanoid'].join('|')})/)`],
+ */
+export const HOST_TRANSFORMED_PACKAGES = Object.freeze([
+    '@shopware-ag/meteor-component-library',
+    '@shopware-ag/meteor-icon-kit',
+    'uuidv7',
+    'three',
+    'other',
+]);
+
+/**
+ * The Administration's default `transformIgnorePatterns`, built from `HOST_TRANSFORMED_PACKAGES`.
+ * An extension that replaces `transformIgnorePatterns` spreads it, so the host's packages stay transformed.
+ * Frozen, so one config cannot change the default of every config built after it.
+ *
+ * @example
+ * transformIgnorePatterns: [...HOST_TRANSFORM_IGNORE_PATTERNS, '<rootDir>/vendor/'],
+ */
+export const HOST_TRANSFORM_IGNORE_PATTERNS = Object.freeze([
+    `/node_modules/(?!(${HOST_TRANSFORMED_PACKAGES.join('|')})/)`,
+]);
+
+/**
  * Creates the Jest config for Administration specs.
  *
- * Accepts any Jest option. `rootDir` is required: the directory the extension's
- * specs and paths are relative to. Most options simply replace the default;
- * the ones that build up the harness are merged instead, so an extension
- * cannot drop it by accident:
+ * `rootDir` is required: the directory the extension's specs and paths are
+ * relative to. The options that build up the harness are merged, so an
+ * extension cannot drop it by accident:
  *
  * - `setupFiles`, `setupFilesAfterEnv`: run after the Administration's own,
  *   so `Shopware`, the feature flags and the virtual modules are ready.
  * - `moduleNameMapper`, `transform`, `moduleDirectories`: matched before the
  *   Administration's own, so an extension alias or dependency wins over the
  *   host's.
- * - `globals`: merged, the extension's values win.
+ * - `globals`, `testEnvironmentOptions`: merged, the extension's values win,
+ *   except `globals.adminPath` and `globals['vue-jest'].tsConfig`, which stay pinned to this Administration.
+ *
+ * The options in `REPLACEABLE_OPTIONS`, such as `testMatch`, `reporters` or
+ * `transformIgnorePatterns` (default: `HOST_TRANSFORM_IGNORE_PATTERNS`),
+ * replace the default. Any other option throws,
+ * including `testEnvironment` and `resolver`, which the harness owns.
  *
  * @example
  * // jest.config.mjs of an extension
@@ -117,7 +281,8 @@ export function shopwareAdminJest(options = {}) {
         transform,
         moduleDirectories = [],
         globals,
-        ...rest
+        testEnvironmentOptions,
+        ...replaced
     } = options;
 
     if (!rootDir) {
@@ -128,9 +293,12 @@ export function shopwareAdminJest(options = {}) {
         );
     }
 
+    assertAcceptedOptions(options);
     assertHarnessAvailable();
 
     // The setup files read these from the environment; Jest workers inherit it.
+    // Overrides an inherited ADMIN_PATH: the setup files must read the feature flags of the Administration
+    // whose harness runs.
     process.env.ADMIN_PATH = administrationRoot;
     process.env.TZ = process.env.TZ || 'UTC';
     // Tests run in Node/jsdom, so browser data freshness is irrelevant here. Without this, browserslist's
@@ -155,9 +323,12 @@ export function shopwareAdminJest(options = {}) {
                 'node',
                 'node-addons',
             ],
+            ...testEnvironmentOptions,
         },
 
-        ...rest,
+        transformIgnorePatterns: [...HOST_TRANSFORM_IGNORE_PATTERNS],
+
+        ...replaced,
 
         // Bare imports an extension does not install itself resolve from the Administration.
         moduleDirectories: [
@@ -168,9 +339,15 @@ export function shopwareAdminJest(options = {}) {
             ]),
         ],
 
+        // Pinned like ADMIN_PATH: setup-shopware.js must load the same Administration the ^src/ mapping resolves to.
+        // vue-jest otherwise reads the cwd tsconfig; the Administration's sets downlevelIteration for its forced ES5 target.
         globals: {
-            adminPath: administrationRoot,
             ...globals,
+            adminPath: administrationRoot,
+            'vue-jest': {
+                ...globals?.['vue-jest'],
+                tsConfig: fromAdministration('tsconfig.json'),
+            },
         },
 
         setupFiles: [
@@ -194,7 +371,7 @@ export function shopwareAdminJest(options = {}) {
         ],
 
         transform: withPriority(transform, {
-            [META_GLOB_FILES]: [
+            [metaGlobFilesPattern()]: [
                 require.resolve('babel-jest'),
                 {
                     presets: [
@@ -223,15 +400,12 @@ export function shopwareAdminJest(options = {}) {
             '^.+\\.vue$': fromAdministration('test', 'transformer', 'shopwareSetupVueTransformer.js'),
         }),
 
-        transformIgnorePatterns: [
-            '/node_modules/(?!(@shopware-ag/meteor-component-library|@shopware-ag/meteor-icon-kit|uuidv7|three|other)/)',
-        ],
-
-        // Pins every host package to the Administration's copy, so an extension spec and the
-        // Administration code it mounts share one Vue, one test-utils config and one component library.
+        // Pins Vue, @vue/test-utils, Pinia, vue-i18n, vue-router, lodash and the Meteor packages to the Administration's
+        // copy, so an extension spec and the Administration code it mounts share one instance of each,
+        // e.g. one active Pinia.
         moduleNameMapper: withPriority(moduleNameMapper, {
             '\\.(css|less|scss)$': fromAdministration('test', '_mocks_', 'styleMock.js'),
-            '^src(.*)$': `${fromAdministration('src')}$1`,
+            '^src/(.*)$': `${fromAdministration('src')}/$1`,
             '^@shopware-ag/admin-extension-sdk/es/(.*)': `${fromNodeModules('@shopware-ag/admin-extension-sdk/umd')}/$1`,
             '^@shopware-ag/meteor-admin-sdk/es/(.*)': `${fromNodeModules('@shopware-ag/meteor-admin-sdk/umd')}/$1`,
             '^@shopware-ag/meteor-component-library$': fromNodeModules(
@@ -241,6 +415,9 @@ export function shopwareAdminJest(options = {}) {
                 '@shopware-ag/meteor-component-library/dist/common',
             )}/$1`,
             '^@vue/test-utils$': fromNodeModules('@vue/test-utils'),
+            '^pinia$': fromNodeModules('pinia'),
+            '^vue-i18n$': fromNodeModules('vue-i18n'),
+            '^vue-router$': fromNodeModules('vue-router'),
             '^lodash-es$': fromNodeModules('lodash'),
             '^lodash-es/(.*)$': `${fromNodeModules('lodash')}/$1`,
             '^vue$': fromNodeModules('vue/dist/vue.cjs.js'),

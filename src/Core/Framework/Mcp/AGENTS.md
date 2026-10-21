@@ -115,6 +115,8 @@ The `=== null` null-checks on injected `mcp.*` dependencies in controllers/comma
 - Service IDs use FQCN; tags include `mcp.tool` for SDK discovery
 - Tools declare prerequisites with `#[McpToolDependsOn('other-tool-name')]` (repeatable) — the allowlist UI auto-expands these when a user enables a tool; `debug:mcp` shows them in the Dependencies column
 - Tools declare required ACL privileges with `#[McpToolRequires]` (repeatable) — **declarative only**; runtime enforcement still depends on `requirePrivilege()` calls and DAL ACL checks. The attribute is used by `debug:mcp` (Privileges column), the API (`/_action/mcp/tools`), and the Admin UI to help operators configure roles correctly
+- PHPStan checks both servers: `shopware.mcpAdminToolMissingRequires` reports an Admin API tool without `#[McpToolRequires]` (audited core exceptions in `McpAdminToolRequiresPrivilegeRule::TOOLS_WITHOUT_PRIVILEGES`), and `shopware.mcpStoreApiToolAdminAcl` reports a Store API tool with `#[McpToolRequires]` or a `requirePrivilege()` call.
+  Both read the server from the container tags (`McpToolScopeResolver`), so a tool the container does not know is skipped
 
 ### Tool metadata: `meta` vs dedicated attributes
 

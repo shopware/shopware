@@ -47,6 +47,18 @@ The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physica
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
 
+### PHPStan rules for MCP tool privileges
+
+Two new rules in the Shopware PHPStan rule set check the privileges of MCP tools from plugins and bundles:
+
+* `shopware.mcpAdminToolMissingRequires` reports an Admin API tool (`/api/_mcp`) without `#[McpToolRequires]` on its class.
+  Declare every ACL privilege the tool needs, so `bin/console debug:mcp` and the integration allowlist show it to operators.
+  Keep checking the privileges in the tool with `requirePrivilege()`, because the attribute does not enforce them.
+* `shopware.mcpStoreApiToolAdminAcl` reports a Store API tool (`shopware.store_api_mcp.tool`) that declares `#[McpToolRequires]` or calls `requirePrivilege()`.
+  Store API tools run in a sales channel context, where Admin ACL privileges do not apply.
+
+Both rules tell the two servers apart by the tags in the compiled container, so they only report tools when `parameters.symfony.containerXmlPath` points to a container that registers your tools.
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request

@@ -54,8 +54,8 @@ class McpToolsetRegistry
 
     /**
      * The query parameter of the MCP connect URL that selects toolsets: `/api/_mcp?toolsets=order,media`
-     * and `/store-api/_mcp?toolsets=all`. The parameter exists since 6.7.15.0, this constant only since 6.7.17.0:
-     * code that also supports 6.7.15 or 6.7.16 detects the parameter with `\defined(McpToolsetRegistry::class . '::ALL_TOOLSETS')`
+     * and `/store-api/_mcp?toolsets=all`. The parameter exists since 6.7.15.0, this constant only since 6.7.16.0:
+     * code that also supports 6.7.15 detects the parameter with `\defined(McpToolsetRegistry::class . '::ALL_TOOLSETS')`
      * and uses the literal `'toolsets'`.
      */
     final public const QUERY_PARAMETER = 'toolsets';

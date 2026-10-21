@@ -178,7 +178,7 @@
     {% endif %}
 
     {% set gtinProperty = null %}
-    {% if page.product.ean and page.product.ean matches '/^[0-9]+$/' %}
+    {% if page.product.ean and page.product.ean matches '/^[0-9]+$/D' %}
         {% set gtinProperty = 'gtin' %}
         {% if page.product.ean|length == 8 %}
             {% set gtinProperty = 'gtin8' %}

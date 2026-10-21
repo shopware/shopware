@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  */
 #[Package('framework')]
-class Migration1787220016AddOwnerToWebhook extends MigrationStep
+class Migration1787220016AddOwnerAndAclRoleIdsToWebhook extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
@@ -31,6 +31,8 @@ class Migration1787220016AddOwnerToWebhook extends MigrationStep
         if ($integrationColumnAdded) {
             $connection->executeStatement('ALTER TABLE `webhook` ADD CONSTRAINT `fk.webhook.owner_integration_id` FOREIGN KEY (`owner_integration_id`) REFERENCES `integration` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
         }
+
+        $this->addColumn($connection, 'webhook', 'acl_role_ids', 'JSON');
 
         $hasOwnerless = (bool) $connection->fetchOne(
             'SELECT 1 FROM `webhook` WHERE `app_id` IS NULL AND `owner_user_id` IS NULL AND `owner_integration_id` IS NULL LIMIT 1'
@@ -50,9 +52,11 @@ class Migration1787220016AddOwnerToWebhook extends MigrationStep
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
+        // the name prefix lets merchants find these webhooks again, e.g. to audit them
         $connection->executeStatement(
             'UPDATE `webhook`
-             SET `owner_integration_id` = :integrationId
+             SET `owner_integration_id` = :integrationId,
+                 `name` = LEFT(CONCAT(\'[Legacy] \', `name`), 255)
              WHERE `app_id` IS NULL
                AND `owner_user_id` IS NULL
                AND `owner_integration_id` IS NULL',

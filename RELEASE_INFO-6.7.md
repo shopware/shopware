@@ -158,6 +158,7 @@ The reorder form posts only the order, so the products are rendered into the for
 
 `add_shipping_info` and `add_payment_info` are now reported once per selected method of a checkout, instead of on every reload of the confirm page.
 A new customer reports `add_shipping_info` when registering in the checkout.
+
 ## Hosting & Configuration
 
 ### Storefront readiness checks skip pages restricted by extensions

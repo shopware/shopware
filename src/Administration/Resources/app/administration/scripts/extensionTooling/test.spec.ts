@@ -9,12 +9,13 @@
 
 import fs from 'fs';
 import path from 'path';
-import { runTestCli, testExtensions } from './test';
+import { renderTestReport, runTestCli, testExtensions } from './test';
 import type { TestExtensionsOptions } from './test';
 import { cleanupTempProject, writeFile } from './test-helpers';
 import { createSetupProject, writeDefaultFixtures } from './setup.spec/fixtures';
 
 const zeroConfigAdmin = 'custom/plugins/ZeroConfig/src/Resources/app/administration';
+const vendorAdmin = 'vendor/acme/custom-admin/src/Resources/app/administration';
 
 describe('scripts/extensionTooling/test', () => {
     let projectRoot: string;
@@ -64,8 +65,44 @@ describe('scripts/extensionTooling/test', () => {
             { configPath: 'custom/plugins/Suite/jest.config.js', jestArgs: ['--watch', 'main.spec'] },
             { configPath: `${zeroConfigAdmin}/jest.config.mjs`, jestArgs: ['--watch', 'main.spec'] },
         ]);
-        expect(result.withoutConfig).toEqual(['custom-admin']);
+        expect(result.withoutConfig).toEqual([]);
         expect(result.exitCode).toBe(0);
+    });
+
+    it('skips a vendor extension unless --only names it', async () => {
+        writeFile(path.join(projectRoot, zeroConfigAdmin, 'jest.config.mjs'), 'export default {};');
+        writeFile(path.join(projectRoot, vendorAdmin, 'jest.config.mjs'), 'export default {};');
+
+        const result = await run();
+
+        expect(jestRuns.map((jestRun) => jestRun.configPath)).toEqual([`${zeroConfigAdmin}/jest.config.mjs`]);
+        expect(result.vendorNotTested).toEqual(['custom-admin']);
+        expect(renderTestReport(result)).toContain('Vendor extensions not tested (name them via --only): custom-admin');
+        expect(result.exitCode).toBe(0);
+    });
+
+    it('runs a vendor extension named by its bundle name', async () => {
+        writeFile(path.join(projectRoot, vendorAdmin, 'jest.config.mjs'), 'export default {};');
+
+        const result = await run({ only: 'CustomAdmin' });
+
+        expect(jestRuns.map((jestRun) => jestRun.configPath)).toEqual([`${vendorAdmin}/jest.config.mjs`]);
+        expect(result.vendorNotTested).toEqual([]);
+        expect(result.exitCode).toBe(0);
+    });
+
+    it('fails when no Jest config runs, naming the vendor extensions it skipped', async () => {
+        writeFile(path.join(projectRoot, vendorAdmin, 'jest.config.mjs'), 'export default {};');
+        fs.rmSync(path.join(administrationRoot, 'test/_helper_/componentWrapper/component-imports.js'));
+
+        const result = await run();
+
+        expect(jestRuns).toEqual([]);
+        expect(generatorRuns).toBe(0);
+        expect(result.fatalDiagnostics).toEqual([
+            expect.stringMatching(/^Nothing was tested: .* Name a vendor extension via --only to test it: custom-admin\.$/),
+        ]);
+        expect(result.exitCode).toBe(1);
     });
 
     it('fails when a Jest run fails', async () => {

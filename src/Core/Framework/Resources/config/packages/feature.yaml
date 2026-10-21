@@ -32,6 +32,7 @@ shopware:
       - name: DISABLE_SQL_MULTI_STATEMENTS
         default: false
         major: v6.8.0.0
+        # The initial database connection is configured before database-backed feature toggles are loaded; use an environment override.
         toggleable: false
         description: "Restrict application database connections to single SQL statements. Migration and installer connections still allow multiple statements."
       - name: DOCUMENT_GENERATION_REWORK

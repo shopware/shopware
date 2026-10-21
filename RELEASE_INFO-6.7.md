@@ -10,7 +10,6 @@ Execute statements separately in extensions.
 Migration execution, discovery, and bookkeeping now always use a separate primary connection, even while the flag is disabled.
 The connections passed to migration `update()` and `updateDestructive()` methods and the installer explicitly allow multiple statements.
 
-# 6.7.16.0 (upcoming)
 ### Webhooks are authorized against their owner
 
 Webhooks created through the Admin API without an app now belong to the user or integration that created them, and only receive the events their owner is allowed to read. Nothing changes for webhooks an app registers in its manifest.

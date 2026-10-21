@@ -187,7 +187,7 @@ class MappingService extends AbstractMappingService
             return '';
         }
 
-        if (!empty($keyLookupTable[$mappedKey])) {
+        if (isset($keyLookupTable[$mappedKey])) {
             return $keyLookupTable[$mappedKey];
         }
 

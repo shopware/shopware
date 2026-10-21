@@ -16,7 +16,7 @@ import { once } from 'events';
 import fs from 'fs';
 import path from 'path';
 import type { StdioOptions } from 'child_process';
-import { filterSelectedProjects, normalizeSelection } from './check';
+import { filterSelectedProjects, normalizeSelection, selectedSetupWarnings } from './check';
 import { CliUsageError, parseCli, renderHelp } from './cli';
 import type { CommandSpec } from './cli';
 import { promptSelection } from './select';
@@ -68,6 +68,8 @@ export interface TestExtensionsResult {
     withoutConfig: string[];
     /** vendor/ extensions with a Jest config that did not run, because no `only` named them. */
     vendorNotTested: string[];
+    /** Setup warnings of the selected extensions and the project, e.g. a bridge that could not be written. */
+    setupWarnings: string[];
     fatalDiagnostics: string[];
     exitCode: number;
 }
@@ -100,8 +102,8 @@ export function findJestConfigs(projectRoot: string, project: ExtensionToolingPr
 }
 
 /**
- * Runs the Administration's Jest from the config's directory, so relative paths
- * in the config and Jest's own config lookup behave as if Jest ran there.
+ * Runs the Administration's Jest from the config's directory, so relative CLI paths
+ * (e.g. --outputFile) and process.cwd() inside the config resolve there.
  */
 export function createJestRunner(administrationRoot: string, stdio: StdioOptions = 'inherit'): JestRunner {
     const jestBin = path.join(administrationRoot, 'node_modules', 'jest', 'bin', 'jest.js');
@@ -129,12 +131,21 @@ export function createJestRunner(administrationRoot: string, stdio: StdioOptions
 
 /** Runs the Administration's `unit-setup` generator, which scans its `src/` from the Administration root. */
 function createComponentImportsGenerator(administrationRoot: string): () => number {
-    return () =>
-        spawnSync(
+    return () => {
+        const result = spawnSync(
             path.join(administrationRoot, 'node_modules', '.bin', 'ts-node'),
             ['--transpileOnly', 'scripts/componentImportResolver/generate.ts'],
             { cwd: administrationRoot, stdio: 'inherit' },
-        ).status ?? 1;
+        );
+
+        if (result.error) {
+            console.error(`Could not start ts-node: ${result.error.message}`);
+
+            return 1;
+        }
+
+        return result.status ?? 1;
+    };
 }
 
 /**
@@ -186,6 +197,37 @@ function nothingTestedDiagnostic(vendorNotTested: string[]): string {
 }
 
 /**
+ * Explains why watch mode cannot start. One extension with several Jest configs
+ * cannot be narrowed down via --only, so the message names its configs instead.
+ *
+ * @example
+ * watchUsageMessage('/shop', [{ project: zeroConfig, configs: [rootConfig, adminConfig] }], 2);
+ * // → 'ZeroConfig has 2 Jest configs: custom/plugins/ZeroConfig/jest.config.js, …'
+ */
+function watchUsageMessage(
+    projectRoot: string,
+    configsByExtension: Array<{ project: ExtensionToolingProject; configs: string[] }>,
+    configCount: number,
+): string {
+    const withConfigs = configsByExtension.filter(({ configs }) => configs.length > 0);
+
+    if (withConfigs.length === 1 && configCount > 1) {
+        const [{ project, configs }] = withConfigs;
+
+        return (
+            `${project.name} has ${configCount} Jest configs: ` +
+            `${configs.map((config) => relativePosix(projectRoot, config)).join(', ')}. ` +
+            "Jest's watch mode needs a single Jest config."
+        );
+    }
+
+    return (
+        `Jest's watch mode needs exactly one Jest config, but this run has ${configCount}. ` +
+        'Name one extension via --only, e.g. -- --only=MyPlugin -- --watch.'
+    );
+}
+
+/**
  * Runs setup, then the Jest configs of the selected extensions one after another.
  *
  * @throws {CliUsageError} when the Jest options start watch mode and the run has
@@ -227,10 +269,7 @@ export async function testExtensions(options: TestExtensionsOptions): Promise<Te
     }
 
     if (fatalDiagnostics.length === 0 && isWatchRun(jestArgs) && configCount !== 1) {
-        throw new CliUsageError(
-            `Jest's watch mode needs exactly one Jest config, but this run has ${configCount}. ` +
-                'Name one extension via --only, e.g. -- --only=MyPlugin -- --watch.',
-        );
+        throw new CliUsageError(watchUsageMessage(projectRoot, configsByExtension, configCount));
     }
 
     if (fatalDiagnostics.length === 0 && configCount === 0) {
@@ -264,15 +303,20 @@ export async function testExtensions(options: TestExtensionsOptions): Promise<Te
         runs,
         withoutConfig,
         vendorNotTested,
+        setupWarnings: selectedSetupWarnings(setupResult.warnings, setupResult.manifest.projects, selected),
         fatalDiagnostics,
         exitCode: fatalDiagnostics.length > 0 || runs.some((run) => run.exitCode !== 0) ? 1 : 0,
     };
 }
 
-/** One line per run, then the extensions that did not run and any fatal diagnostic. */
+/**
+ * The setup warnings first, as they may explain a failed run, then one line per
+ * run, the extensions that did not run and any fatal diagnostic.
+ */
 export function renderTestReport(result: TestExtensionsResult): string {
     return [
         '',
+        ...result.setupWarnings.map((warning) => `⚠ ${warning}`),
         ...result.runs.map((run) => `${run.exitCode === 0 ? '✓' : '✗'} ${run.extension} · ${run.config}`),
         ...(result.withoutConfig.length > 0 && result.fatalDiagnostics.length === 0
             ? [`No Jest config, not tested: ${result.withoutConfig.join(', ')}`]
@@ -353,27 +397,13 @@ async function runTestCommand(argv: string[]): Promise<number> {
     let only: string | string[] | undefined = parsed.values['--only'];
 
     if (only === undefined && !parsed.flags.has('--all') && process.stdin.isTTY && process.stdout.isTTY) {
-        const resolvedRoot = path.resolve(projectRoot);
-        const testable = discoverProjects(resolvedRoot, administrationRoot, pluginsConfigPath(resolvedRoot)).filter(
-            (project) => findJestConfigs(resolvedRoot, project).length > 0,
-        );
+        const picked = await pickExtensionsToTest(projectRoot, administrationRoot);
 
-        if (testable.length === 0) {
-            console.log(`No Administration extension has a Jest config (${JEST_CONFIG_FILE_NAMES.join(', ')}).`);
-
+        if (picked === undefined) {
             return 0;
         }
 
-        const choice = await promptSelection(testable, 'Select extensions to test (Jest):');
-
-        if (choice === 'cancel') {
-            console.log('Nothing selected.');
-
-            return 0;
-        }
-
-        // Name every listed extension, so "all" includes the vendor ones the picker showed.
-        only = choice === 'all' ? testable.map((project) => project.name) : choice.names;
+        only = picked;
     }
 
     const result = await testExtensions({ projectRoot, administrationRoot, only, jestArgs });
@@ -381,6 +411,52 @@ async function runTestCommand(argv: string[]): Promise<number> {
     console.log(renderTestReport(result));
 
     return result.exitCode;
+}
+
+/**
+ * Asks in the terminal which extensions to test, listing only those with a Jest
+ * config. Called when neither --only nor --all is given and a TTY is attached.
+ * Returns the chosen extension names, or undefined when there is nothing to run.
+ *
+ * @example
+ * await pickExtensionsToTest('/shop', '/shop/vendor/shopware/administration/Resources/app/administration');
+ * // → ['ZeroConfig', 'custom-admin'] when "all" is chosen
+ */
+async function pickExtensionsToTest(projectRoot: string, administrationRoot: string): Promise<string[] | undefined> {
+    const resolvedRoot = path.resolve(projectRoot);
+    const configCounts = new Map<ExtensionToolingProject, number>();
+
+    for (const project of discoverProjects(resolvedRoot, administrationRoot, pluginsConfigPath(resolvedRoot))) {
+        const configCount = findJestConfigs(resolvedRoot, project).length;
+
+        if (configCount > 0) {
+            configCounts.set(project, configCount);
+        }
+    }
+
+    const testable = [...configCounts.keys()];
+
+    if (testable.length === 0) {
+        console.log(`No Administration extension has a Jest config (${JEST_CONFIG_FILE_NAMES.join(', ')}).`);
+
+        return undefined;
+    }
+
+    const choice = await promptSelection(testable, 'Select extensions to test (Jest):', (project) => {
+        const configCount = configCounts.get(project) ?? 0;
+        const location = project.vendor ? 'vendor' : project.basePath;
+
+        return `${location} · ${configCount === 1 ? '1 Jest config' : `${configCount} Jest configs`}`;
+    });
+
+    if (choice === 'cancel') {
+        console.log('Nothing selected.');
+
+        return undefined;
+    }
+
+    // Name every listed extension, so "all" includes the vendor ones the picker showed.
+    return choice === 'all' ? testable.map((project) => project.name) : choice.names;
 }
 
 if (require.main === module) {

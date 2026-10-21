@@ -260,14 +260,16 @@ so a spec path or name filter fails the run only on a failing spec, not on an ex
 An extension that installs its own Jest can keep running it directly, as long as it has the same major version as the Administration's.
 
 The harness lives in the Administration's `test/` folder and works in a platform checkout and in a Composer install alike.
-It reads two files that every installation generates itself:
+It reads two files that every installation generates itself.
+Generate them before the first run and after every Shopware update:
 
 ```bash
 bin/console administration:generate-entity-schema-types                 # test/_mocks_/entity-schema.json
 ( cd <administration> && npm run unit-setup )                            # test/_helper_/componentWrapper/component-imports.js
 ```
 
-`test-extensions` generates the component import map itself when it is missing, for example after a Shopware update.
+`test-extensions` generates the component import map itself when it is missing;
+the entity schema and a stale import map still need the commands above.
 When a file is still missing, the factory fails with the command that generates it.
 
 ## From JavaScript to TypeScript

@@ -262,7 +262,7 @@
         "admin:lint:snippets:all": "Like admin:lint:snippets but ignores the allow list, listing every duplicate including the allowed ones.",
         "admin:setup-extension-tooling": "[EXPERIMENTAL] Generates TypeScript/ESLint configs for installed Administration extensions",
         "admin:setup-extension-tooling:check": "[EXPERIMENTAL] Read-only dry-run of admin:setup-extension-tooling (exit 1 on drift)",
-        "admin:test-extensions": "[EXPERIMENTAL] Runs the specs of Administration extensions with the Administration's Jest (-- --help for flags)",
+        "admin:test-extensions": "[EXPERIMENTAL] Runs the specs of Administration extensions with the Administration's Jest (interactive; -- --help for flags)",
         "admin:unit": "Launches the jest unit test-suite for the Admin",
         "admin:unit:major": "Launches the jest unit test-suite for the Admin with the upcoming major feature flag enabled",
         "admin:unit:watch": "Launches the interactive jest unit test-suite watcher for the Admin",
@@ -370,7 +370,10 @@
         "admin:lint:snippets:all": "@npm:admin run lint:snippets:all",
         "admin:setup-extension-tooling": "@npm:admin:bin npm run extension-tooling:setup --",
         "admin:setup-extension-tooling:check": "@npm:admin:bin npm run extension-tooling:setup -- --check",
-        "admin:test-extensions": "@npm:admin:bin npm run extension-tooling:test --",
+        "admin:test-extensions": [
+            "Composer\\Config::disableProcessTimeout",
+            "@npm:admin:bin npm run extension-tooling:test --"
+        ],
         "admin:unit": [
             "Composer\\Config::disableProcessTimeout",
             "@framework:schema:dump",

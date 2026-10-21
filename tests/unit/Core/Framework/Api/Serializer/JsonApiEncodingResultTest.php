@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Api\Serializer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncodingResult;
 use Shopware\Core\Framework\Api\Serializer\Record;
@@ -43,6 +44,71 @@ class JsonApiEncodingResultTest extends TestCase
         static::assertSame([['type' => 'category', 'id' => 'cat-1']], $merged->getRelationships()['categories']['data']);
         // New relationship should be added
         static::assertSame([['type' => 'tag', 'id' => 'tag-1']], $merged->getRelationships()['tags']['data']);
+    }
+
+    #[DataProvider('provideLinkMerges')]
+    public function testMergeCarriesOverLinksOfTheSecondRecord(?string $existing, string $incoming, ?string $expected): void
+    {
+        $result = new JsonApiEncodingResult('/api');
+
+        $first = new Record('entity-1', 'test_entity');
+        if ($existing !== null) {
+            $first->addLink('self', $existing);
+        }
+        $result->addIncluded($first);
+
+        $second = new Record('entity-1', 'test_entity');
+        $second->addLink('self', $incoming);
+        $result->addIncluded($second);
+
+        $merged = array_values($result->getIncluded())[0];
+
+        static::assertSame($expected === null ? [] : ['self' => $expected], $merged->getLinks());
+    }
+
+    /**
+     * @return iterable<string, array{string|null, string, string|null}>
+     */
+    public static function provideLinkMerges(): iterable
+    {
+        yield 'incoming link is added' => [null, '/api/entity/1', '/api/entity/1'];
+        yield 'incoming link replaces existing link' => ['/api/old', '/api/new', '/api/new'];
+        yield 'empty incoming link is not added' => [null, '', null];
+        yield 'empty incoming link keeps existing link' => ['/api/old', '', '/api/old'];
+        yield 'zero string incoming link is added' => [null, '0', '0'];
+    }
+
+    #[DataProvider('provideAttributeMerges')]
+    public function testMergeCarriesOverAttributesOfTheSecondRecord(mixed $incoming, mixed $expected): void
+    {
+        $result = new JsonApiEncodingResult('/api');
+
+        $first = new Record('entity-1', 'test_entity');
+        $first->setAttribute('value', 'existing');
+        $result->addIncluded($first);
+
+        $second = new Record('entity-1', 'test_entity');
+        $second->setAttribute('value', $incoming);
+        $result->addIncluded($second);
+
+        $merged = array_values($result->getIncluded())[0];
+
+        static::assertSame(['value' => $expected], $merged->getAttributes());
+    }
+
+    /**
+     * @return iterable<string, array{mixed, mixed}>
+     */
+    public static function provideAttributeMerges(): iterable
+    {
+        yield 'null incoming attribute keeps existing value' => [null, 'existing'];
+        yield 'empty array incoming attribute keeps existing value' => [[], 'existing'];
+        yield 'string incoming attribute replaces existing value' => ['incoming', 'incoming'];
+        yield 'zero string incoming attribute replaces existing value' => ['0', '0'];
+        yield 'zero integer incoming attribute replaces existing value' => [0, 0];
+        yield 'zero float incoming attribute replaces existing value' => [0.0, 0.0];
+        yield 'false incoming attribute replaces existing value' => [false, false];
+        yield 'empty string incoming attribute replaces existing value' => ['', ''];
     }
 
     public function testCircularReferenceHandling(): void

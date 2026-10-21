@@ -111,7 +111,7 @@ class WriteCommandQueue
                     $order[] = $command;
                     unset($commands[$definition][$index]);
 
-                    if (empty($commands[$definition])) {
+                    if ($commands[$definition] === []) {
                         unset($commands[$definition]);
                     }
                 }

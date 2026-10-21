@@ -157,7 +157,7 @@ class JsonApiEncodingResult implements \JsonSerializable
     protected function mergeRecords(Record $recordA, Record $recordB): void
     {
         foreach ($recordB->getAttributes() as $key => $value) {
-            if (!empty($value)) {
+            if ($value !== null && $value !== []) {
                 $recordA->setAttribute($key, $value);
             }
         }
@@ -177,7 +177,7 @@ class JsonApiEncodingResult implements \JsonSerializable
         }
 
         foreach ($recordB->getLinks() as $key => $value) {
-            if (!empty($value)) {
+            if ($value !== '') {
                 $recordA->addLink((string) $key, $value);
             }
         }

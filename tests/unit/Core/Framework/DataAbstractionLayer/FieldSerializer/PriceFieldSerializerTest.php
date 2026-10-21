@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
@@ -42,6 +43,8 @@ class PriceFieldSerializerTest extends TestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $validator = new RecursiveValidator(
             new ExecutionContextFactory(
                 static::createStub(TranslatorInterface::class)
@@ -423,6 +426,86 @@ class PriceFieldSerializerTest extends TestCase
         static::assertSame(10.0, $price->getRegulationPrice()->getGross());
 
         static::assertNull($price->getPercentage());
+    }
+
+    #[DataProvider('provideRowsWithoutUsableCurrencyId')]
+    public function testDecodeRowWithoutUsableCurrencyIdThrowsMissingFieldValue(mixed $row): void
+    {
+        $this->expectExceptionObject(DataAbstractionLayerException::missingFieldValue(new PriceField('test', 'test')));
+
+        set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
+            if ((error_reporting() & ~(\E_ERROR | \E_PARSE | \E_CORE_ERROR | \E_COMPILE_ERROR | \E_USER_ERROR | \E_RECOVERABLE_ERROR)) === 0) {
+                return false;
+            }
+
+            throw new \ErrorException($message, 0, $severity, $file, $line);
+        });
+
+        try {
+            $this->serializer->decode(new PriceField('test', 'test'), [$row]);
+        } finally {
+            restore_error_handler();
+        }
+    }
+
+    #[DataProvider('provideNonStringCurrencyIds')]
+    public function testDecodeRowWithNonStringCurrencyIdThrowsMissingFieldValue(mixed $currencyId): void
+    {
+        $this->expectExceptionObject(DataAbstractionLayerException::missingFieldValue(new PriceField('test', 'test')));
+
+        $this->serializer->decode(new PriceField('test', 'test'), [self::priceRow($currencyId)]);
+    }
+
+    public function testDecodeRowWithStringCurrencyIdBuildsPrice(): void
+    {
+        $decoded = $this->serializer->decode(new PriceField('test', 'test'), [self::priceRow(Defaults::CURRENCY)]);
+
+        static::assertInstanceOf(PriceCollection::class, $decoded);
+        static::assertSame(Defaults::CURRENCY, $decoded->get(Defaults::CURRENCY)?->getCurrencyId());
+    }
+
+    public function testDecodeRowWithZeroStringCurrencyIdBuildsPrice(): void
+    {
+        $decoded = $this->serializer->decode(new PriceField('test', 'test'), [self::priceRow('0')]);
+
+        static::assertInstanceOf(PriceCollection::class, $decoded);
+        static::assertSame('0', $decoded->get('0')?->getCurrencyId());
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function provideRowsWithoutUsableCurrencyId(): iterable
+    {
+        yield 'currencyId missing' => [['net' => 1.0, 'gross' => 1.0, 'linked' => true]];
+        yield 'currencyId null' => [self::priceRow(null)];
+        yield 'currencyId empty string' => [self::priceRow('')];
+        yield 'currencyId int zero' => [self::priceRow(0)];
+        yield 'currencyId float zero' => [self::priceRow(0.0)];
+        yield 'currencyId false' => [self::priceRow(false)];
+        yield 'currencyId empty array' => [self::priceRow([])];
+        yield 'row is a string' => ['not-a-row'];
+        yield 'row is an int' => [5];
+        yield 'row is null' => [null];
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function provideNonStringCurrencyIds(): iterable
+    {
+        yield 'int' => [5];
+        yield 'float' => [1.5];
+        yield 'true' => [true];
+        yield 'non-empty array' => [['x']];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function priceRow(mixed $currencyId): array
+    {
+        return ['currencyId' => $currencyId, 'net' => 1.0, 'gross' => 1.0, 'linked' => true];
     }
 
     private function encode(mixed $data, ?PriceField $field = null): ?string

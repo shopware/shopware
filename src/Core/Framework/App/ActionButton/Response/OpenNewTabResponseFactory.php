@@ -43,7 +43,7 @@ class OpenNewTabResponseFactory implements ActionButtonResponseFactoryInterface
      */
     private function validate(array $payload, string $actionId): void
     {
-        if (empty($payload['redirectUrl'])) {
+        if (!\is_string($payload['redirectUrl'] ?? null) || $payload['redirectUrl'] === '') {
             throw AppException::actionButtonProcessException($actionId, 'The app provided an invalid redirectUrl');
         }
     }

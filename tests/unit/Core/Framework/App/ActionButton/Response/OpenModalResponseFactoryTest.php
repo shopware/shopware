@@ -36,6 +36,8 @@ class OpenModalResponseFactoryTest extends TestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $this->signer = static::createStub(QuerySigner::class);
         $this->factory = new OpenModalResponseFactory($this->signer);
 
@@ -89,11 +91,97 @@ class OpenModalResponseFactoryTest extends TestCase
     {
         $this->expectExceptionObject(AppException::actionButtonProcessException($this->action->getActionId(), $message));
 
-        $this->factory->create(
+        $this->createWithErrorsAsExceptions($payload);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('provideRejectedIframeUrlPayloads')]
+    public function testRejectsIframeUrlThatIsNotANonEmptyString(array $payload): void
+    {
+        $this->expectExceptionObject(AppException::actionButtonProcessException($this->action->getActionId(), 'The app provided an invalid iframeUrl'));
+
+        $this->createWithErrorsAsExceptions($payload);
+    }
+
+    public function testAcceptsZeroStringIframeUrl(): void
+    {
+        $this->signer->method('signUri')->willReturn(new Uri('0?signed=1'));
+
+        $response = $this->factory->create(
             $this->action,
-            $payload,
+            ['iframeUrl' => '0', 'size' => 'medium', 'expand' => false],
             Context::createDefaultContext()
         );
+
+        static::assertSame('0?signed=1', $response->jsonSerialize()['iframeUrl']);
+    }
+
+    #[DataProvider('provideNonStringTruthyValues')]
+    public function testRejectsNonStringTruthyIframeUrlWithSecret(mixed $value): void
+    {
+        $this->expectExceptionObject(AppException::actionButtonProcessException($this->action->getActionId(), 'The app provided an invalid iframeUrl'));
+
+        $this->factory->create(
+            $this->action,
+            ['iframeUrl' => $value, 'size' => 'medium', 'expand' => false],
+            Context::createDefaultContext()
+        );
+    }
+
+    #[DataProvider('provideNonStringTruthyValues')]
+    public function testRejectsNonStringTruthyIframeUrlWithoutSecret(mixed $value): void
+    {
+        $this->action->getApp()->setAppSecret(null);
+
+        $this->expectExceptionObject(AppException::actionButtonProcessException($this->action->getActionId(), 'The app provided an invalid iframeUrl'));
+
+        $this->factory->create(
+            $this->action,
+            ['iframeUrl' => $value, 'size' => 'medium', 'expand' => false],
+            Context::createDefaultContext()
+        );
+    }
+
+    public function testKeepsIframeUrlUnsignedWithoutSecret(): void
+    {
+        $this->action->getApp()->setAppSecret(null);
+
+        $response = $this->factory->create(
+            $this->action,
+            ['iframeUrl' => 'http://iframe.url', 'size' => 'medium', 'expand' => false],
+            Context::createDefaultContext()
+        );
+
+        static::assertSame('http://iframe.url', $response->jsonSerialize()['iframeUrl']);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function provideRejectedIframeUrlPayloads(): iterable
+    {
+        $base = ['size' => 'medium', 'expand' => false];
+
+        yield 'missing' => [$base];
+        yield 'null' => [$base + ['iframeUrl' => null]];
+        yield 'empty string' => [$base + ['iframeUrl' => '']];
+        yield 'int zero' => [$base + ['iframeUrl' => 0]];
+        yield 'float zero' => [$base + ['iframeUrl' => 0.0]];
+        yield 'false' => [$base + ['iframeUrl' => false]];
+        yield 'empty array' => [$base + ['iframeUrl' => []]];
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function provideNonStringTruthyValues(): iterable
+    {
+        yield 'int' => [1];
+        yield 'float' => [1.5];
+        yield 'true' => [true];
+        yield 'non-empty array' => [['http://iframe.url']];
     }
 
     /**
@@ -136,5 +224,25 @@ class OpenModalResponseFactoryTest extends TestCase
                 'The app provided an invalid size',
             ],
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function createWithErrorsAsExceptions(array $payload): void
+    {
+        set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
+            if ((error_reporting() & ~(\E_ERROR | \E_PARSE | \E_CORE_ERROR | \E_COMPILE_ERROR | \E_USER_ERROR | \E_RECOVERABLE_ERROR)) === 0) {
+                return false;
+            }
+
+            throw new \ErrorException($message, 0, $severity, $file, $line);
+        });
+
+        try {
+            $this->factory->create($this->action, $payload, Context::createDefaultContext());
+        } finally {
+            restore_error_handler();
+        }
     }
 }

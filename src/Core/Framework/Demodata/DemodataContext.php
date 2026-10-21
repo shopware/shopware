@@ -44,7 +44,7 @@ class DemodataContext
      */
     public function getIds(string $entity): array
     {
-        if (!empty($this->entities[$entity])) {
+        if (($this->entities[$entity] ?? []) !== []) {
             return $this->entities[$entity];
         }
 

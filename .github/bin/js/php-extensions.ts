@@ -17,7 +17,11 @@ export function missingExtensions(loaded: readonly string[], required: readonly 
 }
 
 export function loadedExtensions(): string[] {
-    const output = execFileSync('php', ['-r', 'echo json_encode(get_loaded_extensions());'], { encoding: 'utf8' });
+    // startup warnings go to stdout on the CLI and would break the JSON
+    const output = execFileSync('php', ['-d', 'display_errors=stderr', '-r', 'echo json_encode(get_loaded_extensions());'], {
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+    });
 
     return JSON.parse(output) as string[];
 }

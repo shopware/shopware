@@ -31,8 +31,14 @@ The baseline is not a list of code that is safe to delete.
 
 ## Exports that extensions import
 
-Extensions import from `src/` and `@administration/`, and Fallow can't see those imports.
-Tag an export with `@public` when an extension imports it, and Fallow skips it:
+Extensions import from `src/` and `@administration/` or use the `Shopware` global, and Fallow can't see that.
+Tag an export with `@public` so Fallow skips it:
+
+- In a file that the `Shopware` global exposes as a whole, like `src/core/service/util.service.ts` behind `Shopware.Utils`,
+  every export that Fallow reports gets `@public`.
+- In other files, only exports that extensions import from `src/` get it.
+- An export with `@private` never gets `@public`.
+  If Fallow reports it, it stays in the baseline.
 
 ```ts
 /**

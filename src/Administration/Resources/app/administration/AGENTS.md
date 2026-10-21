@@ -53,7 +53,8 @@ Jest                # Testing framework
 - Do NOT introduce breaking changes to public APIs without prior discussion
 - Follow existing code style and patterns
 - Use the provided linting and formatting scripts (see below)
-- `npm run lint:fallow` reports unused files, exports and dependencies. Tag an export that an extension imports with `@public`, see `technical-docs/11-code-quality/02-unused-code.md`
+- `npm run lint:fallow` reports unused files, exports and dependencies.
+  Tag reported exports that extensions use with `@public`, see `technical-docs/11-code-quality/02-unused-code.md`
 
 ## Scripts
 Run the composer commands in the root of the repository. These commands are wrapper scripts around the NPM scripts.

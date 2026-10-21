@@ -5,10 +5,17 @@ area: framework
 tags: [framework, mcp, ai, oauth, admin-api, security]
 ---
 
-## Status
+## Open decisions
 
-Proposed.
-Points marked **to decide** need a maintainer decision; each carries a recommendation.
+Four points still need a maintainer decision before this ADR is the contract for the follow-up issues.
+Each section below marks its point as **to decide** and explains it in context.
+
+| Decision | Recommendation | Trade-off |
+|---|---|---|
+| A later major accepts only MCP-bound user tokens on `/api/_mcp` ([section 1](#1-which-tokens-apimcp-accepts)) | No | Restricting forces every setup with a copied user token to log in again through OAuth. Keeping them means a plain Admin API token keeps reaching MCP, as it reaches the rest of the Admin API today. |
+| Core ships client entries for well-known MCP clients and accepts `http://localhost` redirects ([section 3](#3-client-registration)) | No entries; `localhost` only when a client in the default list needs it | Entries give those clients a setup without configuration, but core then vouches for third-party client ids and redirect URIs. `localhost` redirects are weaker than IP literals, which RFC 8252 recommends. |
+| Read-only consent becomes its own story ([section 4](#4-what-the-user-approves)) | Yes, after discovery and audience binding | It limits what an administrator's approval hands to an AI client. It costs a consent option and a scope check on every write tool. |
+| MCP-bound tokens get a shorter, separately configurable TTL ([section 8](#8-access-token-validity-after-refresh)) | No | A shorter TTL narrows the window in which an old access token stays valid after refresh. It adds refresh traffic and one more setting. |
 
 ## Context
 

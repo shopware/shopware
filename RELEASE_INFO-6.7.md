@@ -111,6 +111,7 @@ For an Admin API request authenticated with a non-app integration access key, th
 The request keeps the integration as its identity, so `getUserId()` is `null` and `createdBy`/`updatedBy` are no longer set to the named user.
 Admin API routes that require a signed-in user therefore reject such a request; use a user access key, or the regular user endpoints, when a user identity is needed.
 For app integrations the header still resolves the named user, except that an inactive user is now treated like a user without the required app privilege.
+An inactive app resolves no permissions at all, also for a token issued before the app was deactivated.
 
 ### Self-service routes require a directly authenticated user
 

@@ -1265,8 +1265,9 @@ class ApiRequestContextResolverTest extends TestCase
             'secret_access_key' => TestDefaults::HASHED_PASSWORD,
             'label' => 'test integration',
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            'admin' => 0,
+            'admin' => 1,
         ]);
+        $this->addRoleToIntegration($integrationId, ['order:read']);
 
         $connection->insert('acl_role', [
             'id' => Uuid::fromHexToBytes($ids->create('app_acl_role')),
@@ -1306,6 +1307,7 @@ class ApiRequestContextResolverTest extends TestCase
         static::assertSame([], $source->getPermissions());
         static::assertFalse($source->isAllowed('product:read'));
         static::assertFalse($source->isAllowed('media:read'));
+        static::assertFalse($source->isAllowed('order:read'));
     }
 
     public function testInactiveAppDoesNotActAsNamedUser(): void
@@ -1325,8 +1327,9 @@ class ApiRequestContextResolverTest extends TestCase
             'secret_access_key' => TestDefaults::HASHED_PASSWORD,
             'label' => 'test integration',
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            'admin' => 0,
+            'admin' => 1,
         ]);
+        $this->addRoleToIntegration($integrationId, ['order:read']);
 
         $connection->insert('acl_role', [
             'id' => Uuid::fromHexToBytes($ids->create('app_acl_role')),
@@ -1364,8 +1367,10 @@ class ApiRequestContextResolverTest extends TestCase
         static::assertNull($source->getUserId());
         static::assertSame($integrationId, $source->getIntegrationId());
         static::assertFalse($source->isAdmin());
+        static::assertSame([], $source->getPermissions());
         static::assertFalse($source->isAllowed('product:read'));
         static::assertFalse($source->isAllowed('media:read'));
+        static::assertFalse($source->isAllowed('order:read'));
     }
 
     public function testAppWithoutUserIdHeader(): void

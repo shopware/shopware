@@ -266,8 +266,14 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         $source = new AdminApiSource($userId, $integrationId);
 
         // Use the permissions associated to that app, if the request is made by an integration associated to an app
-        $appPermissions = $this->fetchPermissionsIntegrationByApp($integrationId);
-        if ($appPermissions !== null) {
+        $app = $this->fetchAppByIntegrationId($integrationId);
+        if ($app !== null) {
+            if (!$app['active']) {
+                // An inactive app grants nothing, also to a token issued before the deactivation: no integration roles, no admin flag, no named user.
+                return new AdminApiSource(null, $integrationId);
+            }
+
+            $appPermissions = $app['privileges'];
             // If both userId and integrationId are provided (HEADER_APP_USER_ID case), intersect user permissions with app permissions
             if ($userId !== null && !$this->isAdmin($userId)) {
                 $appPermissions = array_intersect(
@@ -409,27 +415,29 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     }
 
     /**
-     * @return string[]|null
+     * @return array{active: bool, privileges: string[]}|null
      */
-    private function fetchPermissionsIntegrationByApp(?string $integrationId): ?array
+    private function fetchAppByIntegrationId(?string $integrationId): ?array
     {
         if (!$integrationId) {
             return null;
         }
 
-        $privileges = $this->connection->fetchOne('
-            SELECT `acl_role`.`privileges`
+        $app = $this->connection->fetchAssociative('
+            SELECT `app`.`active`, `acl_role`.`privileges`
             FROM `acl_role`
             INNER JOIN `app` ON `app`.`acl_role_id` = `acl_role`.`id`
             WHERE `app`.`integration_id` = :integrationId
-              AND `app`.`active` = 1
         ', ['integrationId' => Uuid::fromHexToBytes($integrationId)]);
 
-        if ($privileges === false) {
+        if ($app === false) {
             return null;
         }
 
-        return json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
+        return [
+            'active' => (bool) $app['active'],
+            'privileges' => json_decode((string) $app['privileges'], true, 512, \JSON_THROW_ON_ERROR),
+        ];
     }
 
     /**

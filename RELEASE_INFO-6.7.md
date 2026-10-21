@@ -774,6 +774,15 @@ The snippet key `sw-import-export.profile.addNewProfileTooltipLanguage` was depr
 
 The removal of the deprecated `sw-empty-state` component was moved from 6.8 to 6.9, so extensions using it keep working with 6.8. Development builds log a deprecation warning once per usage site, including the component path that renders it. Migrate to `mt-empty-state` before 6.9, see `UPGRADE-6.9.md`.
 
+The new ESLint rule `sw-deprecation-rules/no-sw-empty-state-usage` of the Administration extension tooling migrates most usages automatically:
+
+```bash
+bin/console administration:check-extensions -- --only=MyPlugin --fix
+```
+
+Usages with custom `icon` slot content, markup in the default slot, conditional `icon` or default slot templates or dynamic bindings are only reported and have to be migrated manually.
+Check the `TODO Codemod` comment the rule adds above each converted usage.
+
 ### Native setup components support defineModel()
 
 `defineModel()` was rejected at build time inside a Shopware `<script setup>` block, so a base component had to declare the prop and the `update:` emit of a `v-model` binding by hand. It is now supported in base components and behaves as in any Vue component — the prop, the emit, the modifiers object and `{ default }` are all Vue's own:

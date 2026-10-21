@@ -2,18 +2,21 @@
  * @sw-package framework
  *
  * End-to-end proof that an extension's specs run on the Administration's test
- * harness through the generated `.shopware/jest.mjs` bridge: the `shopware:*`
- * virtual modules resolve, the feature-flag baseline makes a deprecation
- * warn before its major and throw once the major is active, and the extension's
- * own TypeScript SFC and Twig template compile and mount.
+ * harness through the generated `.shopware/jest.mjs` bridge, in a platform
+ * checkout and in a Composer install: the `shopware:*` virtual modules
+ * resolve, the feature-flag baseline makes a deprecation warn before its
+ * major and throw once the major is active, and the extension's own
+ * TypeScript SFC and Twig template compile and mount.
  */
 
-import { spawnSync } from 'child_process';
+import { execFileSync, spawnSync } from 'child_process';
+import fs from 'fs';
 import path from 'path';
 import { setupExtensionTooling } from '../setup';
 import {
     cleanupTempProject,
     createTempProject,
+    createVendorAdmin,
     realAdministrationRoot,
     writeFile,
     writePluginsConfig,
@@ -21,7 +24,78 @@ import {
 
 const JEST_TIMEOUT = 180000;
 
-describe('extension tooling jest bridge (e2e)', () => {
+const realBundleRoot = path.resolve(realAdministrationRoot, '../../..');
+
+const generatedFiles = [
+    'test/_helper_/componentWrapper/component-imports.js',
+    'test/_mocks_/entity-schema.json',
+];
+
+/**
+ * Unpacks the Administration's `test/` folder from the committed bundle into
+ * `packageRoot`, exactly as `git archive` packs it for the Composer package.
+ * Files the package must not ship are absent, so the e2e catches a harness
+ * file that `.gitattributes` excludes by mistake.
+ */
+function extractPackagedTests(packageRoot: string): void {
+    const repositoryRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], {
+        cwd: realAdministrationRoot,
+        encoding: 'utf8',
+    }).trim();
+    const bundlePath = path.relative(repositoryRoot, realBundleRoot);
+
+    // The archive root is the bundle, so its .gitattributes applies the way the package split applies it.
+    const packagedTests = execFileSync(
+        'git',
+        [
+            'archive',
+            '--format=tar',
+            `HEAD:${bundlePath}`,
+            'Resources/app/administration/test',
+        ],
+        { cwd: repositoryRoot, maxBuffer: 64 * 1024 * 1024 },
+    );
+    execFileSync('tar', ['-x', '-C', packageRoot], { input: packagedTests });
+}
+
+/**
+ * Stands in for a Composer install: the shopware/administration package with
+ * its `test/` folder exactly as `git archive` packs it, the files every
+ * installation generates itself, and the Core bundle in lowercase
+ * `vendor/shopware/core`.
+ */
+function createComposerInstall(projectRoot: string): string {
+    const administrationRoot = createVendorAdmin(projectRoot, { entitySchema: 'none' });
+    extractPackagedTests(path.resolve(administrationRoot, '../../..'));
+
+    // The meta-glob transform matches the real path of src/, which per-entry symlinks would move out of it.
+    fs.rmSync(path.join(administrationRoot, 'src'), { recursive: true });
+    fs.symlinkSync(path.join(realAdministrationRoot, 'src'), path.join(administrationRoot, 'src'), 'dir');
+
+    // The harness reads these committed sources, which the package ships but createVendorAdmin does not copy.
+    fs.symlinkSync(path.join(realAdministrationRoot, 'build'), path.join(administrationRoot, 'build'), 'dir');
+    fs.copyFileSync(
+        path.join(realAdministrationRoot, 'shopware-modules.json'),
+        path.join(administrationRoot, 'shopware-modules.json'),
+    );
+    fs.copyFileSync(path.join(realAdministrationRoot, 'tsconfig.json'), path.join(administrationRoot, 'tsconfig.json'));
+
+    for (const generatedFile of generatedFiles) {
+        fs.copyFileSync(path.join(realAdministrationRoot, generatedFile), path.join(administrationRoot, generatedFile));
+    }
+
+    writeFile(
+        path.join(projectRoot, 'vendor/shopware/core/Framework/Resources/config/packages/feature.yaml'),
+        fs.readFileSync(path.join(realBundleRoot, '../Core/Framework/Resources/config/packages/feature.yaml'), 'utf8'),
+    );
+
+    return administrationRoot;
+}
+
+describe.each([
+    ['a platform checkout', () => realAdministrationRoot],
+    ['a Composer install', createComposerInstall],
+])('extension tooling jest bridge in %s (e2e)', (_layout, installAdministration) => {
     let projectRoot: string;
     let adminFolder: string;
 
@@ -97,8 +171,7 @@ describe('extension tooling jest bridge (e2e)', () => {
             },
         ]);
 
-        // The Composer package ships no test harness, so this bridges into the real platform Administration.
-        setupExtensionTooling({ projectRoot, administrationRoot: realAdministrationRoot });
+        setupExtensionTooling({ projectRoot, administrationRoot: installAdministration(projectRoot) });
     }, JEST_TIMEOUT);
 
     afterAll(() => {

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Facade;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -10,13 +11,16 @@ use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacade;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\AppContextFactory;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
@@ -25,7 +29,13 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 #[CoversClass(RepositoryFacade::class)]
 class RepositoryFacadeTest extends TestCase
 {
-    public function testIdsSearchesWithAFreshAppContextPerCall(): void
+    /**
+     * @param 'search'|'ids'|'aggregate' $facadeMethod
+     * @param 'search'|'searchIds'|'aggregate' $repositoryMethod
+     * @param \Closure(Criteria, Context): (EntitySearchResult<ProductCollection>|IdSearchResult|AggregationResultCollection) $result
+     */
+    #[DataProvider('readMethodProvider')]
+    public function testReadUsesAFreshAppContextPerCall(string $facadeMethod, string $repositoryMethod, \Closure $result): void
     {
         $integrationId = Uuid::randomHex();
         $hookContext = Context::createDefaultContext();
@@ -43,7 +53,17 @@ class RepositoryFacadeTest extends TestCase
                 return [];
             });
 
-        $repository = StaticEntityRepository::of(ProductCollection::class, [[Uuid::randomHex()], [Uuid::randomHex()]]);
+        /** @var list<Context> $readContexts */
+        $readContexts = [];
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->exactly(2))
+            ->method($repositoryMethod)
+            ->willReturnCallback(static function (Criteria $criteria, Context $context) use (&$readContexts, $result): object {
+                $readContexts[] = $context;
+
+                return $result($criteria, $context);
+            });
+
         $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('getRepository')->willReturn($repository);
         $registry->method('getByEntityName')->willReturn(new ProductDefinition());
@@ -55,19 +75,37 @@ class RepositoryFacadeTest extends TestCase
             AppContextFactory::forApp($hookContext, $integrationId, ['product:read']),
         );
 
-        $first = $facade->ids('product', [])->getContext();
-        $first->setRuleIds([Uuid::randomHex()]);
-        $second = $facade->ids('product', [])->getContext();
+        $facade->$facadeMethod('product', []);
+        $readContexts[0]->setRuleIds([Uuid::randomHex()]);
+        $facade->$facadeMethod('product', []);
 
-        static::assertCount(2, $validatedContexts);
-        static::assertSame($validatedContexts[0], $first);
-        static::assertSame($validatedContexts[1], $second);
-        static::assertNotSame($first, $second);
-        static::assertNotSame($hookContext, $first);
-        static::assertSame($ruleIds, $second->getRuleIds());
+        static::assertCount(2, $readContexts);
+        static::assertSame($validatedContexts, $readContexts);
+        static::assertNotSame($readContexts[0], $readContexts[1]);
+        static::assertNotSame($hookContext, $readContexts[0]);
+        static::assertSame($ruleIds, $readContexts[1]->getRuleIds());
 
-        $source = $second->getSource();
+        $source = $readContexts[1]->getSource();
         static::assertInstanceOf(AdminApiSource::class, $source);
         static::assertSame($integrationId, $source->getIntegrationId());
+    }
+
+    public static function readMethodProvider(): \Generator
+    {
+        yield 'search' => [
+            'search',
+            'search',
+            static fn (Criteria $criteria, Context $context): EntitySearchResult => new EntitySearchResult('product', 0, new ProductCollection(), null, $criteria, $context),
+        ];
+        yield 'ids' => [
+            'ids',
+            'searchIds',
+            static fn (Criteria $criteria, Context $context): IdSearchResult => new IdSearchResult(0, [], $criteria, $context),
+        ];
+        yield 'aggregate' => [
+            'aggregate',
+            'aggregate',
+            static fn (): AggregationResultCollection => new AggregationResultCollection(),
+        ];
     }
 }

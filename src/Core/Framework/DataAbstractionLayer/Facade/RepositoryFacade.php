@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\AppContextFactory;
 
 /**
  * The `repository` service allows you to query data, that is stored inside shopware.
@@ -26,15 +27,12 @@ class RepositoryFacade
 {
     /**
      * @internal
-     *
-     * @param \Closure(): Context $contextFactory builds a fresh app context (with its own source) per call,
-     *                                            so a script cannot mutate one shared context and reuse it
      */
     public function __construct(
         private readonly DefinitionInstanceRegistry $registry,
         private readonly RequestCriteriaBuilder $criteriaBuilder,
         private readonly AclCriteriaValidator $criteriaValidator,
-        private readonly \Closure $contextFactory
+        private readonly AppContextFactory $contextFactory
     ) {
     }
 
@@ -52,7 +50,7 @@ class RepositoryFacade
      */
     public function search(string $entityName, array $criteria): EntitySearchResult
     {
-        $context = ($this->contextFactory)();
+        $context = $this->contextFactory->create();
         $criteriaObject = $this->prepareCriteria($entityName, $criteria, $context);
 
         return $this->registry->getRepository($entityName)->search($criteriaObject, $context);
@@ -70,7 +68,7 @@ class RepositoryFacade
      */
     public function ids(string $entityName, array $criteria): IdSearchResult
     {
-        $context = ($this->contextFactory)();
+        $context = $this->contextFactory->create();
         $criteriaObject = $this->prepareCriteria($entityName, $criteria, $context);
 
         return $this->registry->getRepository($entityName)->searchIds($criteriaObject, $context);
@@ -88,7 +86,7 @@ class RepositoryFacade
      */
     public function aggregate(string $entityName, array $criteria): AggregationResultCollection
     {
-        $context = ($this->contextFactory)();
+        $context = $this->contextFactory->create();
         $criteriaObject = $this->prepareCriteria($entityName, $criteria, $context);
 
         return $this->registry->getRepository($entityName)->aggregate($criteriaObject, $context);

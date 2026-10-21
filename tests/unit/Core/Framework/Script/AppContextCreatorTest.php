@@ -65,8 +65,8 @@ class AppContextCreatorTest extends TestCase
 
         $factory = $appContextCreator->createAppContextFactory($hook, $script);
 
-        $first = $factory();
-        $second = $factory();
+        $first = $factory->create();
+        $second = $factory->create();
 
         static::assertNotSame($first, $second);
         static::assertNotSame($first->getSource(), $second->getSource());

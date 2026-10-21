@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Script;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
@@ -27,66 +26,24 @@ class AppContextCreator
 
     public function getAppContext(Hook $hook, Script $script): Context
     {
-        return ($this->createAppContextFactory($hook, $script))();
+        return $this->createAppContextFactory($hook, $script)->create();
     }
 
     /**
-     * Returns a factory that builds a fresh app Context, with its own non-admin AdminApiSource, on every call.
-     * Facades must obtain a new context per operation so a script cannot escalate one shared source and reuse it.
-     *
-     * @return \Closure(): Context
+     * Facades must obtain a new context per operation, so a script cannot change one shared context and reuse it.
      */
-    public function createAppContextFactory(Hook $hook, Script $script): \Closure
+    public function createAppContextFactory(Hook $hook, Script $script): AppContextFactory
     {
         $scriptAppInformation = $script->getScriptAppInformation();
         if (!$scriptAppInformation) {
-            $context = $hook->getContext();
-
-            return static fn (): Context => $context;
+            return AppContextFactory::forHookContext($hook->getContext());
         }
 
-        $hookContext = $hook->getContext();
-        $privileges = $this->getPrivileges($scriptAppInformation->getAppId());
-        $integrationId = $scriptAppInformation->getIntegrationId();
-
-        // Snapshot the hook-derived context values once; only the source is rebuilt per operation.
-        $ruleIds = $hookContext->getRuleIds();
-        $currencyId = $hookContext->getCurrencyId();
-        $languageIdChain = $hookContext->getLanguageIdChain();
-        $versionId = $hookContext->getVersionId();
-        $currencyFactor = $hookContext->getCurrencyFactor();
-        $considerInheritance = $hookContext->considerInheritance();
-        $taxState = $hookContext->getTaxState();
-        $rounding = $hookContext->getRounding();
-
-        return static function () use (
-            $privileges,
-            $integrationId,
-            $ruleIds,
-            $currencyId,
-            $languageIdChain,
-            $versionId,
-            $currencyFactor,
-            $considerInheritance,
-            $taxState,
-            $rounding
-        ): Context {
-            $source = new AdminApiSource(null, $integrationId);
-            $source->setIsAdmin(false);
-            $source->setPermissions($privileges);
-
-            return new Context(
-                $source,
-                $ruleIds,
-                $currencyId,
-                $languageIdChain,
-                $versionId,
-                $currencyFactor,
-                $considerInheritance,
-                $taxState,
-                clone $rounding
-            );
-        };
+        return AppContextFactory::forApp(
+            $hook->getContext(),
+            $scriptAppInformation->getIntegrationId(),
+            $this->getPrivileges($scriptAppInformation->getAppId())
+        );
     }
 
     /**

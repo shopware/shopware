@@ -9,6 +9,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { CliUsageError } from './cli';
 import { renderTestReport, runTestCli, testExtensions } from './test';
 import type { TestExtensionsOptions } from './test';
 import { cleanupTempProject, writeFile } from './test-helpers';
@@ -59,11 +60,17 @@ describe('scripts/extensionTooling/test', () => {
         writeFile(path.join(projectRoot, zeroConfigAdmin, 'jest.config.mjs'), 'export default {};');
         writeFile(path.join(projectRoot, 'custom/plugins/Suite/jest.config.js'), 'module.exports = {};');
 
-        const result = await run({ jestArgs: ['--watch', 'main.spec'] });
+        const result = await run({ jestArgs: ['--ci', 'main.spec'] });
 
         expect(jestRuns).toEqual([
-            { configPath: 'custom/plugins/Suite/jest.config.js', jestArgs: ['--watch', 'main.spec'] },
-            { configPath: `${zeroConfigAdmin}/jest.config.mjs`, jestArgs: ['--watch', 'main.spec'] },
+            {
+                configPath: 'custom/plugins/Suite/jest.config.js',
+                jestArgs: ['--ci', 'main.spec', '--passWithNoTests'],
+            },
+            {
+                configPath: `${zeroConfigAdmin}/jest.config.mjs`,
+                jestArgs: ['--ci', 'main.spec', '--passWithNoTests'],
+            },
         ]);
         expect(result.withoutConfig).toEqual([]);
         expect(result.exitCode).toBe(0);
@@ -133,6 +140,63 @@ describe('scripts/extensionTooling/test', () => {
         expect(jestRuns).toEqual([]);
         expect(result.fatalDiagnostics).toEqual([expect.stringContaining('--only names unknown extension(s): Renamed')]);
         expect(result.exitCode).toBe(1);
+    });
+
+    it.each([
+        { case: 'one Jest config', only: 'ZeroConfig', jestArgs: ['main.spec'], configs: 1 },
+        { case: 'no Jest options', only: undefined, jestArgs: [], configs: 2 },
+        {
+            case: 'the option already given',
+            only: undefined,
+            jestArgs: ['main.spec', '--passWithNoTests=true'],
+            configs: 2,
+        },
+    ])('forwards the Jest options unchanged for $case', async ({ only, jestArgs, configs }) => {
+        writeFile(path.join(projectRoot, zeroConfigAdmin, 'jest.config.mjs'), 'export default {};');
+        writeFile(path.join(projectRoot, 'custom/plugins/Suite/jest.config.js'), 'module.exports = {};');
+
+        await run({ only, jestArgs });
+
+        expect(jestRuns.map((jestRun) => jestRun.jestArgs)).toEqual(Array(configs).fill(jestArgs));
+    });
+
+    it('runs watch mode for a selection with exactly one Jest config', async () => {
+        writeFile(path.join(projectRoot, zeroConfigAdmin, 'jest.config.mjs'), 'export default {};');
+        writeFile(path.join(projectRoot, 'custom/plugins/Suite/jest.config.js'), 'module.exports = {};');
+
+        const result = await run({ only: 'ZeroConfig', jestArgs: ['--watch'] });
+
+        expect(jestRuns).toEqual([{ configPath: `${zeroConfigAdmin}/jest.config.mjs`, jestArgs: ['--watch'] }]);
+        expect(result.exitCode).toBe(0);
+    });
+
+    it.each([
+        '--watch',
+        '--watchAll',
+        '--watchAll=true',
+    ])('refuses %s over more than one Jest config without running Jest', async (watchOption) => {
+        writeFile(path.join(projectRoot, zeroConfigAdmin, 'jest.config.mjs'), 'export default {};');
+        writeFile(path.join(projectRoot, 'custom/plugins/Suite/jest.config.js'), 'module.exports = {};');
+
+        await expect(run({ jestArgs: [watchOption] })).rejects.toThrow(CliUsageError);
+        expect(jestRuns).toEqual([]);
+    });
+
+    it('exits with a usage error when watch mode has no single Jest config to run', async () => {
+        const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+        await expect(
+            runTestCli([
+                '--all',
+                '--project-root',
+                projectRoot,
+                '--administration-root',
+                administrationRoot,
+                '--',
+                '--watch',
+            ]),
+        ).resolves.toBe(2);
+        expect(consoleError).toHaveBeenCalledWith(expect.stringContaining('Name one extension via --only'));
     });
 
     it('generates the component import map only when it is missing', async () => {

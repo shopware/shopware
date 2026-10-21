@@ -11,6 +11,8 @@ The complete list of removed classes, entities, and Administration components is
 - The `document.renderer` and `document_type.renderer` service tags were removed. Register document types, data providers, and renderers via the `shopware.document_v2.type`, `shopware.document_v2.provider`, and `shopware.document_v2.renderer` tags instead, or use the app manifest `<documents>` block. See the [extension points guide](https://developer.shopware.com/docs/concepts/commerce/checkout-concept/document/extension-points.html).
 - The `document_type` and `document_type_translation` entities were removed including their DAL definitions and associations. Document types are code-registered strings. Read the type from `document.typeName` instead of the `documentType` association. Persisted references were backfilled into the `type_name` columns, and the `document_type_id` columns became nullable.
 
+Direct construction of `DocumentTypeDefinition`, `DocumentTypeTranslationDefinition`, and their entities and collections (including empty collections) already throws when `v6.9.0.0` is active. Remove these constructions and use the document v2 type registry instead.
+
 The class aliases and deprecated service aliases of the shared document classes were removed. These classes moved into `Shopware\Core\Checkout\DocumentV2` with 6.7.16.0 (see "Shared document classes moved to `DocumentV2`" in `UPGRADE-6.7.md`). References to a previous name, for example `Shopware\Core\Checkout\Document\DocumentEntity`, no longer resolve. Use the canonical names in imports, type declarations, static references, and service IDs.
 
 Twig template overrides were not affected: v2 renders the same `@Framework/documents/*.html.twig` templates.
@@ -85,6 +87,26 @@ Implement `Shopware\Core\Checkout\DocumentV2\Renderer\AbstractDocumentRenderer` 
 `Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument::getApiAlias()` returned `shopware_core_checkout_document_v2_struct_rendered_document` instead of `shopware_core_checkout_document_renderer_rendered_document`. Consumers that matched serialized data on the previous alias had to switch to the new one.
 
 # Administration
+
+## `sw-empty-state` removed
+
+The deprecated `sw-empty-state` component was removed. Use `mt-empty-state` instead:
+
+```html
+<!-- Before -->
+<sw-empty-state title="Short title" subline="Longer subline">
+    <template #actions>…</template>
+</sw-empty-state>
+
+<!-- After -->
+<mt-empty-state headline="Short title" description="Longer subline" icon="regular-products">
+    <template #button>…</template>
+</mt-empty-state>
+```
+
+`mt-empty-state` has no `icon` slot and no equivalent for the `absolute`, `emptyModule`, `autoHeight`, `showDescription` and `color` props. It also no longer falls back to the icon and description of the current module, so pass `icon` and `description` explicitly.
+
+It has no default slot either, and `description` renders plain text instead of HTML. It is left-aligned by default, set `centered` to keep the previous layout. Overrides of the `sw_empty_state_*` Twig blocks no longer apply.
 
 ## Legacy document components removed
 

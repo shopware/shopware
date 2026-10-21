@@ -4,7 +4,9 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
+import { reactive } from 'vue';
 import '../../mixin/sw-cms-state.mixin';
+import '../../mixin/sw-cms-element.mixin';
 
 const { Entity } = Shopware.Data;
 
@@ -67,7 +69,7 @@ async function createWrapper(props = {}, options = {}, route = categoryDetailCms
                                 {{ isInherited ? 'Remove' : 'Restore' }}
                             </button>
                         `,
-                        props: ['isInherited', 'disabled'],
+                        props: ['isInherited'],
                     },
                     'mt-icon': {
                         template: '<i class="mt-icon" :name="name"></i>',
@@ -102,23 +104,16 @@ async function createWrapper(props = {}, options = {}, route = categoryDetailCms
 describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
     let initialLanguageId;
     let initialLanguage;
-    let initialSystemLanguageId;
 
     beforeEach(() => {
         initialLanguageId = Shopware.Store.get('context').api.languageId;
         initialLanguage = Shopware.Store.get('context').api.language;
-        initialSystemLanguageId = Shopware.Store.get('context').api.systemLanguageId;
         Shopware.Store.get('swCategoryDetail').$reset();
-
-        // Inheritance only applies to non-default languages, so default the suite to a child language.
-        Shopware.Store.get('context').api.languageId = 'child-language-id';
-        Shopware.Store.get('context').api.language = { parentId: 'parent-language-id' };
     });
 
     afterEach(() => {
         Shopware.Store.get('context').api.languageId = initialLanguageId;
         Shopware.Store.get('context').api.language = initialLanguage;
-        Shopware.Store.get('context').api.systemLanguageId = initialSystemLanguageId;
     });
 
     describe('computed properties', () => {
@@ -232,27 +227,6 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
             const wrapper = await createWrapper();
 
             expect(wrapper.vm.isInherited).toBe(false);
-        });
-
-        it('should never inherit and disable the switch in the system default language', async () => {
-            Shopware.Store.get('swCategoryDetail').category = {
-                'test-slot-id': {
-                    testField: { value: 'child-value' },
-                },
-            };
-            // System default language: languageId equals systemLanguageId => root of the inheritance chain.
-            Shopware.Store.get('context').api.systemLanguageId = 'system-language-id';
-            Shopware.Store.get('context').api.languageId = 'system-language-id';
-            Shopware.Store.get('context').api.language = { parentId: null };
-
-            const wrapper = await createWrapper();
-
-            expect(wrapper.vm.isSystemDefaultLanguage).toBe(true);
-            expect(wrapper.vm.isInherited).toBe(false);
-
-            const inheritanceSwitch = wrapper.findComponent('.sw-inheritance-switch');
-            expect(inheritanceSwitch.props('disabled')).toBe(true);
-            expect(inheritanceSwitch.props('isInherited')).toBe(false);
         });
     });
 
@@ -828,6 +802,68 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
             await wrapper.find('.close-btn').trigger('click');
 
             expect(wrapper.vm.showModal).toBe(false);
+        });
+    });
+
+    describe('form synchronization', () => {
+        let wrapper;
+
+        afterEach(() => {
+            wrapper?.unmount();
+        });
+
+        it.each([true, false])('restores inheritance when the layout field exists: %s', async (hasBaseConfig) => {
+            const config = reactive({
+                testField: { value: 'overridden', source: 'static' },
+            });
+            const element = reactive(
+                new Entity('test-slot-id', 'cms_slot', {
+                    type: 'text',
+                    config,
+                    translated: {
+                        config: hasBaseConfig ? { testField: { value: 'base value', source: 'static' } } : {},
+                    },
+                }),
+            );
+            const categoryStore = Shopware.Store.get('swCategoryDetail');
+            categoryStore.category = new Entity('category-id', 'category', {
+                slotConfig: {
+                    [element.id]: {
+                        testField: { value: 'overridden', source: 'static' },
+                    },
+                },
+            });
+
+            wrapper = await createWrapper(
+                { element },
+                {
+                    slots: {
+                        default: {
+                            components: {
+                                'sw-cms-form-sync': await wrapTestComponent('sw-cms-form-sync', { sync: true }),
+                            },
+                            data() {
+                                return { element };
+                            },
+                            template: '<sw-cms-form-sync :element="element" />',
+                        },
+                    },
+                },
+            );
+
+            expect(wrapper.classes()).not.toContain('is--inherited');
+            await wrapper.find('.sw-inheritance-switch').trigger('click');
+            await wrapper.find('.confirm-btn').trigger('click');
+            await flushPromises();
+
+            expect(categoryStore.category.slotConfig).toBeNull();
+            expect(config.testField).toEqual({
+                value: hasBaseConfig ? 'base value' : null,
+                source: 'static',
+            });
+            expect(wrapper.classes()).toContain('is--inherited');
+            expect(wrapper.find('.sw-inheritance-switch').text()).toBe('Remove');
+            expect(wrapper.emitted('inheritance:restore')).toHaveLength(1);
         });
     });
 

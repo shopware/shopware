@@ -126,6 +126,7 @@ class DefinitionValidator
         'consent_log',
         'mcp_tool_result_cache',
         'mcp_toolset_session',
+        'mcp_list_version',
         'webhook_delivery',
         'webhook_stream',
     ];
@@ -256,13 +257,9 @@ class DefinitionValidator
             }
 
             // @phpstan-ignore variable.implicitArray (The `notices` were accidentally omitted during a refactor of the class, we should add them back later to the output)
+            $notices[$definitionClass] = $this->validateDataFieldNotPrefixedByEntityName($definition);
             $notices[$definitionClass] = array_merge_recursive(
-                $violations[$definitionClass],
-                $this->validateDataFieldNotPrefixedByEntityName($definition)
-            );
-
-            $notices[$definitionClass] = array_merge_recursive(
-                $violations[$definitionClass],
+                $notices[$definitionClass],
                 $this->checkParentDefinition($definition)
             );
 

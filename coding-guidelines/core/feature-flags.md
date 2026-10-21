@@ -2,7 +2,7 @@
 
 Feature flags enable the developer to create new code which is hidden behind the flag and merge it into the trunk branch, even when the code is not finalized.
 We use this functionality to merge breaks into the trunk early, without them already being switched active.
-To learn more about breaking changes and backward compatibility take a look to our [Backward Compatibility Guide](https://developer.shopware.com/docs/resources/guidelines/code/backward-compatibility.html)
+To learn more about breaking changes and backward compatibility, read [Backward compatibility](backward-compatibility.md).
 
 Related ADRs: [Feature flags for major versions](../../adr/2022-01-20-feature-flags-for-major-versions.md) and [Major feature flag inheritance](../../adr/2026-09-25-major-feature-flag-inheritance.md).
 
@@ -33,23 +33,24 @@ Omit `major` unless the flag is a sub-feature; in that case, set it to the paren
 ## Major CI
 
 `FEATURE_ALL=1` does not describe a release state: it also activates unrelated experimental features.
-Major CI sets the upcoming version flag directly (`V6_8_0_0=1`) in`integration-major.yml`, the major arm of `acceptance.yml`, and the migration suite in `php.yml`.
+Major CI sets the upcoming version flag directly (for example `V6_8_0_0=1`) in `integration-major.yml`, the major arm of `acceptance.yml`, and the migration suite in `php.yml`.
 Update these three workflow settings when the target major changes.
 The migration suite also sets its Composer root version to that major.
 Migration namespace selection follows the installed Composer version;
 the feature flag only controls flagged behavior.
 
-The unit suite is the exception: its bootstrap activates every registered flag regardless of`FEATURE_ALL`,
+The unit suite is the exception: its bootstrap activates every registered flag regardless of `FEATURE_ALL`,
 so a unit test always sees the newest major and has to pin itself explicitly — see [Using flags in tests](#using-flags-in-tests).
 
 ## Using flags in PHP
 
 The feature flag can be used in PHP to make specific code parts only executable when the flag is active.
 
-Version-shaped feature flag IDs use four parts, such as `v6.8.0.0`.
+Version-shaped feature flag IDs use four parts, for example `v6.8.0.0`.
 Pass that full ID to `Feature` methods.
-The three-part release label in `@deprecated tag:v6.8.0` is not a feature flag ID;
+The three-part release label, for example in `@deprecated tag:v6.8.0`, is not a feature flag ID;
 PHPStan rejects it in feature checks.
+The `version` of a `BCChange` attribute uses the same three-part label, for example `#[ClassMoved(version: 'v6.8.0', ...)]`.
 
 ### Using flags for services
 
@@ -74,6 +75,11 @@ The compiler pass removes listed aliases when the flag is active, and PHPStan ch
 Keep `->deprecate(...)` for Symfony's deprecation notice; its version argument is when the deprecation was introduced, not the removal version.
 
 ### Using flags in methods
+
+Constructors and factories on deprecated exception classes use `Feature::throwIfActive($majorFlag, $message)`: it stays silent before removal and throws when the flag is active, even inside `Feature::silent()`. 
+Error metadata methods remain callable so formatting does not mask the original failure. 
+Deprecated factory methods on retained domain exception classes use the ordinary `Feature::triggerDeprecationOrThrow()`; silence internal legacy calls with `Feature::silent()`. 
+Factories that remain available but change their return type use `ReturnTypeNarrowing`, not a method deprecation.
 
 Deprecated framework callbacks that are still called normally before removal use `Feature::throwIfActive($majorFlag, $message)` as their first statement.
 Unlike `triggerDeprecationOrThrow()`, it emits no notice while the flag is inactive and cannot be silenced once the flag is active.
@@ -258,13 +264,13 @@ class ProductTest
 }
 ```
 
-While two majors are in flight, pin a test to the older one by disabling the newer major:
-`#[DisabledFeatures(['v6.9.0.0'])]` asserts the 6.8 state, `#[DisabledFeatures(['v6.8.0.0', 'v6.9.0.0'])]` the state before either major.
+While two majors are in flight, pin a test to the older one by disabling the newer major.
+For example, with 6.8 and 6.9 in flight, `#[DisabledFeatures(['v6.9.0.0'])]` asserts the 6.8 state, `#[DisabledFeatures(['v6.8.0.0', 'v6.9.0.0'])]` the state before either major.
 
 In integration tests, the suite may run multiple times with different feature-flag states.
 Keep using `Feature::skipTestIfActive()` or `Feature::skipTestIfInActive()` when a scenario only makes sense for one state of a flag.
 This can also be used in the `setUp()` method.
-That is also how an integration test pins itself to a single major — `Feature::skipTestIfActive('v6.9.0.0', $this)` keeps it out of the 6.9 lane.
+That is also how an integration test pins itself to a single major; for example, `Feature::skipTestIfActive('v6.9.0.0', $this)` keeps it out of the 6.9 lane.
 
 ```php
 use Shopware\Core\Framework\Feature;
@@ -316,7 +322,7 @@ When you want to toggle different parts of the template you can use the flag in 
 
 ### Using flags in config.xml
 
-When you want to toggle config input fields in config.xml like [basicInformatation.xml](https://github.com/shopware/shopware/blob/trunk/src/Core/System/Resources/config/basicInformation.xml), you can add a `flag` element like this:
+When you want to toggle config input fields in config.xml like [basicInformation.xml](https://github.com/shopware/shopware/blob/trunk/src/Core/System/Resources/config/basicInformation.xml), you can add a `flag` element like this:
 
 ```xml
 <input-field type="bool" flag="v6.5.0.0">
@@ -359,7 +365,7 @@ Among other things, by adding your own flags, but also the use of the major feat
 
 ### Major feature flag
 
-As mentioned before, we use the major feature flags (`v6.5.0.0`, `v6.6.0.0`) to signal breaks within the code ahead of time.
+As mentioned before, we use the major feature flags (for example `v6.5.0.0`, `v6.6.0.0`) to signal breaks within the code ahead of time.
 This is an incredible help in the preparation of the next major release, as otherwise all breaks would have to be made within a short period of time.
 
 This procedure can also be applied to plugins, which also use this flag and internally query it to either prepare the plugin for the next major or to support multiple Shopware major versions with one plugin version.

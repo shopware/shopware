@@ -422,6 +422,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             FROM `acl_role`
             INNER JOIN `app` ON `app`.`acl_role_id` = `acl_role`.`id`
             WHERE `app`.`integration_id` = :integrationId
+              AND `app`.`active` = 1
         ', ['integrationId' => Uuid::fromHexToBytes($integrationId)]);
 
         if ($privileges === false) {

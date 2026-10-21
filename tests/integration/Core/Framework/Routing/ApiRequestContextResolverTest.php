@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRequestContextResolver;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\RequestContextResolverInterface;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
@@ -996,6 +997,8 @@ class ApiRequestContextResolverTest extends TestCase
 
         $source = $context->getSource();
 
+        // App integrations still act on behalf of the named user.
+        static::assertSame($user->getUserId(), $source->getUserId());
         static::assertFalse($source->isAdmin());
 
         static::assertTrue($source->isAllowed('product:read'));
@@ -1058,6 +1061,8 @@ class ApiRequestContextResolverTest extends TestCase
 
         $source = $context->getSource();
 
+        // App integrations still act on behalf of the named user.
+        static::assertSame($user->getUserId(), $source->getUserId());
         static::assertFalse($source->isAdmin());
 
         // Admin user should get all app permissions, not just intersection with user permissions
@@ -1185,12 +1190,66 @@ class ApiRequestContextResolverTest extends TestCase
         $request->headers->set(PlatformRequest::HEADER_APP_USER_ID, $user->getUserId());
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
 
-        try {
-            $this->resolver->resolve($request);
-            static::fail('Expected a missing-privilege error for an inactive user');
-        } catch (\Throwable $e) {
-            static::assertStringContainsString('app.TestApp', $e->getMessage());
-        }
+        $this->expectException(ShopwareHttpException::class);
+        $this->expectExceptionMessageMatches('/app\.TestApp/');
+
+        $this->resolver->resolve($request);
+    }
+
+    public function testAppCannotDelegateForInactiveNonAdminUserWithAppPrivilege(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $ids = new IdsCollection();
+
+        // a non-admin user who holds the app privilege but is deactivated
+        $user = $this->createUser([
+            'user-role' => ['app.TestApp', 'product:read'],
+        ], false);
+        $connection->executeStatement(
+            'UPDATE `user` SET active = 0 WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($user->getUserId())]
+        );
+
+        $integrationId = $ids->create('integration');
+        $integrationAccessKey = AccessKeyHelper::generateAccessKey('integration');
+        $connection->insert('integration', [
+            'id' => Uuid::fromHexToBytes($integrationId),
+            'access_key' => $integrationAccessKey,
+            'secret_access_key' => TestDefaults::HASHED_PASSWORD,
+            'label' => 'test integration',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'admin' => 0,
+        ]);
+
+        $connection->insert('acl_role', [
+            'id' => Uuid::fromHexToBytes($ids->create('app_acl_role')),
+            'name' => 'app role',
+            'privileges' => '["product:read"]',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $connection->insert('app', [
+            'id' => Uuid::fromHexToBytes($ids->create('app')),
+            'name' => 'TestApp',
+            'path' => 'test',
+            'active' => 1,
+            'configurable' => 0,
+            'version' => '1.0.0',
+            'integration_id' => Uuid::fromHexToBytes($integrationId),
+            'acl_role_id' => Uuid::fromHexToBytes($ids->get('app_acl_role')),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'test');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $integrationAccessKey);
+        $request->headers->set(PlatformRequest::HEADER_APP_USER_ID, $user->getUserId());
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
+
+        $this->expectException(ShopwareHttpException::class);
+        $this->expectExceptionMessageMatches('/app\.TestApp/');
+
+        $this->resolver->resolve($request);
     }
 
     public function testAppWithoutUserIdHeader(): void

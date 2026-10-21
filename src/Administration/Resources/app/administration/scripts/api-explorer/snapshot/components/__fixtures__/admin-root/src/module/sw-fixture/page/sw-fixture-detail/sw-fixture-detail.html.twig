@@ -1,0 +1,30 @@
+{# @deprecated tag:v6.8.0 - The wrapper block will be removed #}
+{% block sw_fixture_detail %}
+<div class="sw-fixture-detail">
+    {% block sw_fixture_detail_header %}
+        <h1>{{ heading }}</h1>
+        <slot name="header"></slot>
+    {% endblock %}
+
+    {# {% block sw_fixture_detail_commented %}{% endblock %} #}
+
+    <template v-if="isLoading">
+        {%- block sw_fixture_detail_content -%}
+            <sw-loader />
+        {%- endblock sw_fixture_detail_content -%}
+    </template>
+    <template v-else>
+        {% block sw_fixture_detail_content %}
+            {# @deprecated tag:v6.9.0 - Use the header slot instead #}
+            <div>
+                <slot></slot>
+                <slot :name="dynamicSlot"></slot>
+                <slot name="footer" />
+            </div>
+            <button @click="$emit('cancel')">Cancel</button>
+        {% endblock %}
+    </template>
+
+    {% raw %}{% block sw_fixture_detail_raw %}{% endblock %}{% endraw %}
+</div>
+{% endblock %}

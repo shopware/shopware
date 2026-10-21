@@ -1,0 +1,74 @@
+name: Admin API Explorer (comment)
+
+# Posts the summary of admin-api-explorer.yml on its pull request, creating one comment and
+# updating it on every later run. A fork's pull_request token cannot comment, so this runs
+# privileged via workflow_run, the same pattern as codeowner-fork-review-handler.yml.
+# workflow_run always runs this file and the checked-out script from the default branch, so
+# a pull request cannot change what happens here.
+#
+# The relayed artifact comes from a job the pull request controls, so it carries data, not
+# Markdown: the number must be plain and name the pull request whose head commit the run
+# built, comment-data.json must match its schema exactly, and the comment is rendered here
+# with every string from it in a code span. Links come from the event only, and nothing from
+# the artifact is executed. See .github/bin/js/admin-api-explorer.ts.
+#
+# Runs in shopware/shopware and the shopware-private mirror alike, with the workflow token.
+
+on:
+  workflow_run:
+    workflows: [Admin API Explorer]
+    types: [completed]
+
+permissions: {}
+
+# Serialised per pull request head, so two runs cannot both find no comment and each create one.
+concurrency:
+  group: admin-api-explorer-comment-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+jobs:
+  comment:
+    name: Comment the report summary
+    # Breaking changes conclude the run as failure; that summary is the one worth posting.
+    if: >-
+      github.event.workflow_run.event == 'pull_request' && (github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: read # list and download the triggering run's artifacts
+      contents: read # sparse checkout of the relay script
+      pull-requests: write # create or update the summary comment
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/bin/js
+
+      # A docs-only change skips the report, and a broken run never uploads the comment.
+      - id: artifact
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const { hasCommentArtifact } = await import('${{ github.workspace }}/.github/bin/js/admin-api-explorer.ts')
+            const found = await hasCommentArtifact({ github, context }, 'api-explorer-comment')
+            if (!found) {
+              core.notice('The run uploaded no api-explorer-comment artifact; nothing to post.')
+            }
+            core.setOutput('found', String(found))
+
+      - if: steps.artifact.outputs.found == 'true'
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: api-explorer-comment
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/relay
+
+      - if: steps.artifact.outputs.found == 'true'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          RELAY_DIR: ${{ runner.temp }}/relay
+        with:
+          script: |
+            const { relayComment } = await import('${{ github.workspace }}/.github/bin/js/admin-api-explorer.ts')
+            await relayComment({ github, core, context }, process.env.RELAY_DIR)

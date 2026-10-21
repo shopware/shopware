@@ -1,0 +1,190 @@
+name: Admin API Explorer
+
+# Compares the public API of the Administration (components, object nodes) between a pull
+# request and its base, and turns red when the pull request breaks it. The check is
+# informational: it is deliberately not a required status check, so a breaking change can
+# still be merged once it is intended. Whether a check is required is a repository setting
+# (branch protection / rulesets), not something this file controls; do not add it there.
+#
+# The full static report is the `api-explorer-report` artifact. The summary comment is
+# posted by admin-api-explorer-comment.yml via workflow_run, because the token of a fork's
+# pull request cannot write comments; this job only uploads the comment data
+# (`api-explorer-comment`) for it.
+#
+# Runs in shopware/shopware and the shopware-private mirror alike; it needs no octo-sts
+# identity and no secrets.
+
+on:
+  pull_request:
+    paths:
+      - src/Administration/Resources/app/administration/**
+      - .github/workflows/admin-api-explorer.yml
+      - .github/bin/js/admin-api-explorer.ts
+  workflow_dispatch:
+    inputs:
+      base:
+        description: Ref to compare the dispatched ref against
+        required: true
+        default: trunk
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: admin-api-explorer-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  markdown-only-changes:
+    permissions:
+      contents: read
+      pull-requests: read
+    runs-on: ubuntu-24.04
+    outputs:
+      docs_only: ${{ steps.check.outputs.docs_only }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - id: check
+        uses: ./.github/actions/markdown-only-changes
+
+  report:
+    name: Admin API breaking changes
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      NODE_VERSION: 'lts/*'
+      ADMIN_DIR: src/Administration/Resources/app/administration
+
+    steps:
+      # Same pattern as sw-impact.yml: the base is checked out first, so its objects stay in
+      # the repository when the pull request is checked out over it. The report reads the
+      # base through git (ls-tree / cat-file), so a shallow base commit is enough.
+      - name: Checkout base
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || inputs.base }}
+          persist-credentials: false
+
+      - name: Record base commit
+        run: echo "BASE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      # Without `ref` this is the pull request's merge commit (or the dispatched ref), which
+      # the report reads from the working tree.
+      - name: Checkout head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check that the base commit is still reachable
+        run: git rev-parse --verify "${BASE_SHA}^{commit}"
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            src/Administration/Resources/app/administration/package-lock.json
+            src/Administration/Resources/app/administration/build/vite-8/package-lock.json
+
+      - name: Install admin dependencies
+        run: npm --prefix "$ADMIN_DIR" ci
+
+      # Exit 3 means "breaking changes found, report written" and is turned red only after
+      # the report is verified and uploaded, by the last step. Any other non-zero exit is a
+      # broken run and fails here, so the two never look the same.
+      - name: Generate report
+        id: report
+        working-directory: ${{ env.ADMIN_DIR }}
+        env:
+          REPORT_DIR: ${{ runner.temp }}/api-explorer-report
+          REPORT_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: |
+          set -euo pipefail
+          status=0
+          npm run api-explorer:report -- \
+            --base "$BASE_SHA" \
+            --out-dir "$REPORT_DIR" \
+            --report-url "$REPORT_URL" \
+            --fail-on-breaking || status=$?
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          if [ "$status" -ne 0 ] && [ "$status" -ne 3 ]; then
+            echo "::error::The API explorer report failed with exit code $status (1 = runtime error, 2 = invalid arguments)"
+            exit "$status"
+          fi
+
+      # An exit code is not proof of a comparison: assert that both sides were extracted, that
+      # the report compared exactly the two commits checked out here, and that the summary
+      # agrees with the exit code.
+      - name: Verify the report
+        env:
+          REPORT_DIR: ${{ runner.temp }}/api-explorer-report
+          REPORT_STATUS: ${{ steps.report.outputs.status }}
+        run: |
+          set -euo pipefail
+          node .github/bin/js/admin-api-explorer.ts verify "$REPORT_DIR" "$REPORT_STATUS" "$BASE_SHA" "$(git rev-parse HEAD)"
+
+      - name: Write job summary
+        env:
+          REPORT_DIR: ${{ runner.temp }}/api-explorer-report
+          REPORT_STATUS: ${{ steps.report.outputs.status }}
+        run: |
+          set -euo pipefail
+          {
+            if [ "$REPORT_STATUS" = "3" ]; then
+              echo "> [!CAUTION]"
+              echo "> This pull request contains breaking changes to the Administration API. The check is not required; merge only if the break is intended and documented."
+              echo
+            fi
+            cat "$REPORT_DIR/comment.md"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # !cancelled() rather than always(), see coding-guidelines/core/ci-workflows.md: the
+      # report of a failed run is the most useful one to have. The verify step above is what
+      # fails a run without files, so a missing report only warns here.
+      - name: Upload report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: api-explorer-report
+          path: ${{ runner.temp }}/api-explorer-report
+          if-no-files-found: warn
+          retention-days: 14
+
+      # Read by admin-api-explorer-comment.yml. Data only, never Markdown: the comment is
+      # rendered there by trusted code from the default branch, after validating both files
+      # again. Only uploaded once the report passed verification.
+      - name: Prepare comment relay
+        if: github.event_name == 'pull_request'
+        env:
+          REPORT_DIR: ${{ runner.temp }}/api-explorer-report
+          RELAY_DIR: ${{ runner.temp }}/api-explorer-comment
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RELAY_DIR"
+          cp "$REPORT_DIR/comment-data.json" "$RELAY_DIR/comment-data.json"
+          echo "$PR_NUMBER" > "$RELAY_DIR/pr-number.txt"
+
+      - name: Upload comment relay
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: api-explorer-comment
+          path: ${{ runner.temp }}/api-explorer-comment
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Fail on breaking changes
+        if: steps.report.outputs.status == '3'
+        run: |
+          echo "::error::Breaking changes to the Administration API found. See the job summary and the api-explorer-report artifact."
+          exit 1

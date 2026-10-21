@@ -80,6 +80,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSeria
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ReferenceVersionFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\RemoteAddressFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StateMachineStateFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StrictChoiceResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TaxFreeConfigFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TimeZoneFieldSerializer;
@@ -638,6 +639,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('validator'),
             service(DefinitionInstanceRegistry::class),
+            service(StrictChoiceResolver::class),
         ])
         ->tag('shopware.field_serializer');
 
@@ -652,6 +654,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('validator'),
             service(DefinitionInstanceRegistry::class),
+            service(StrictChoiceResolver::class),
         ])
         ->tag('shopware.field_serializer');
 
@@ -756,8 +759,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('validator'),
             service(DefinitionInstanceRegistry::class),
             service(HtmlSanitizer::class),
+            service(StrictChoiceResolver::class),
         ])
         ->tag('shopware.field_serializer');
+
+    $services->set(StrictChoiceResolver::class)
+        ->args([
+            tagged_iterator('shopware.api.enum_provider'),
+        ]);
 
     $services->set(TranslatedFieldSerializer::class)
         ->tag('shopware.field_serializer');

@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice as ChoiceFlag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -16,6 +16,7 @@ use Symfony\Component\Validator\Constraints\Choice as ChoiceConstraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -23,6 +24,17 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('framework')]
 class IntFieldSerializer extends AbstractFieldSerializer
 {
+    /**
+     * @internal
+     */
+    public function __construct(
+        ValidatorInterface $validator,
+        DefinitionInstanceRegistry $definitionRegistry,
+        private readonly StrictChoiceResolver $strictChoiceResolver = new StrictChoiceResolver(),
+    ) {
+        parent::__construct($validator, $definitionRegistry);
+    }
+
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -34,6 +46,11 @@ class IntFieldSerializer extends AbstractFieldSerializer
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
+
+        $choices = $this->strictChoiceResolver->getStrictChoices($field, $parameters->getDefinition()->getEntityName());
+        if ($choices !== null && $data->getValue() !== null) {
+            $this->validate([new ChoiceConstraint(choices: $choices, strict: true)], $data, $parameters->getPath());
+        }
 
         yield $field->getStorageName() => $data->getValue();
     }
@@ -57,11 +74,6 @@ class IntFieldSerializer extends AbstractFieldSerializer
 
         if ($field->getMinValue() !== null || $field->getMaxValue() !== null) {
             $constraints[] = new Range(min: $field->getMinValue(), max: $field->getMaxValue());
-        }
-
-        $choice = $field->getFlag(ChoiceFlag::class);
-        if ($choice instanceof ChoiceFlag && $choice->isStrict() && $choice->getChoices() !== []) {
-            $constraints[] = new ChoiceConstraint(choices: $choice->getChoices(), strict: true);
         }
 
         return $constraints;

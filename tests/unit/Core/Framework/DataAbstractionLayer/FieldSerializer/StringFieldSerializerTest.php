@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StrictChoiceResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -104,6 +105,32 @@ class StringFieldSerializerTest extends TestCase
         ));
 
         iterator_to_array($this->serializer->encode($field, $existence, $kv, $this->createWriteParameterBag()));
+    }
+
+    public function testChoiceStrictAcceptsValueOfEnumProvider(): void
+    {
+        $serializer = $this->createSerializerWithEnumProvider(['custom']);
+        $field = (new StringField('test', 'test'))->addFlags(new Choice(['a', 'b'], strict: true));
+        $field->compile($this->definitionInstanceRegistry);
+
+        $encoded = iterator_to_array($serializer->encode($field, EntityExistence::createEmpty(), new KeyValuePair('test', 'custom', true), $this->createWriteParameterBag()));
+
+        static::assertSame(['test' => 'custom'], $encoded);
+    }
+
+    public function testChoiceStrictRejectsValueUnknownToEnumProvider(): void
+    {
+        $serializer = $this->createSerializerWithEnumProvider(['custom']);
+        $field = (new StringField('test', 'test'))->addFlags(new Choice(['a', 'b'], strict: true));
+        $field->compile($this->definitionInstanceRegistry);
+
+        static::expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation('Invalid choice.', 'Invalid choice.', [], null, '/test', 'remove'),
+            ])
+        ));
+
+        iterator_to_array($serializer->encode($field, EntityExistence::createEmpty(), new KeyValuePair('test', 'remove', true), $this->createWriteParameterBag()));
     }
 
     /**
@@ -287,6 +314,19 @@ class StringFieldSerializerTest extends TestCase
             WriteContext::createFromContext(Context::createDefaultContext()),
             '',
             new WriteCommandQueue()
+        );
+    }
+
+    /**
+     * @param list<string> $choices
+     */
+    private function createSerializerWithEnumProvider(array $choices): StringFieldSerializer
+    {
+        return new StringFieldSerializer(
+            $this->validator,
+            $this->definitionInstanceRegistry,
+            new HtmlSanitizer(cacheEnabled: false),
+            new StrictChoiceResolver([StrictChoiceResolverTest::createEnumProvider(ProductDefinition::ENTITY_NAME, 'test', $choices)])
         );
     }
 }

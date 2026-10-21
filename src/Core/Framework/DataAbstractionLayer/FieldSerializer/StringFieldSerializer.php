@@ -7,7 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice as ChoiceFlag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -35,7 +34,8 @@ class StringFieldSerializer extends AbstractFieldSerializer
     public function __construct(
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $definitionRegistry,
-        private readonly HtmlSanitizer $sanitizer
+        private readonly HtmlSanitizer $sanitizer,
+        private readonly StrictChoiceResolver $strictChoiceResolver = new StrictChoiceResolver(),
     ) {
         parent::__construct($validator, $definitionRegistry);
     }
@@ -64,6 +64,11 @@ class StringFieldSerializer extends AbstractFieldSerializer
         $data->setValue($this->sanitize($this->sanitizer, $data, $field, $existence));
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
+
+        $choices = $this->strictChoiceResolver->getStrictChoices($field, $parameters->getDefinition()->getEntityName());
+        if ($choices !== null && $data->getValue() !== null) {
+            $this->validate([new ChoiceConstraint(choices: $choices, strict: true)], $data, $parameters->getPath());
+        }
 
         yield $field->getStorageName() => $data->getValue() !== null ? (string) $data->getValue() : null;
     }
@@ -100,11 +105,6 @@ class StringFieldSerializer extends AbstractFieldSerializer
 
         if ($field->is(AllowEmptyString::class) && $field->is(Required::class)) {
             $constraints[] = new NotNull();
-        }
-
-        $choice = $field->getFlag(ChoiceFlag::class);
-        if ($choice instanceof ChoiceFlag && $choice->isStrict() && $choice->getChoices() !== []) {
-            $constraints[] = new ChoiceConstraint(choices: $choice->getChoices(), strict: true);
         }
 
         return $constraints;

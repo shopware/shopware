@@ -59,7 +59,26 @@ Writing a `type` other than `page`, `link` or `folder` to a category is now reje
 Before, any value was stored.
 This applies to the Admin API, the Sync API, imports and every DAL write, including categories written inside another entity's payload, for example `{"categories": [{"id": "...", "type": "remove"}]}` on a product.
 Categories that already store another type keep it, and writes that do not send `type` still succeed.
-Integrations that send their own category types have to use one of the three types.
+
+Extensions that use their own category types register them with an enum provider.
+Tag a service that implements `Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldEnumProviderInterface` with `shopware.api.enum_provider`, support the entity `category` and the field `type`, and return the additional types from `getChoices()`.
+The write validation accepts these types, and the generated API schema lists them.
+This works for every field with a strict `Choice` flag, for example `product_visibility.visibility`.
+
+```php
+class MyCategoryTypeProvider implements FieldEnumProviderInterface
+{
+    public function isSupported(string $entity, string $fieldName): bool
+    {
+        return $entity === CategoryDefinition::ENTITY_NAME && $fieldName === 'type';
+    }
+
+    public function getChoices(): array
+    {
+        return ['my_type'];
+    }
+}
+```
 
 ## Features
 

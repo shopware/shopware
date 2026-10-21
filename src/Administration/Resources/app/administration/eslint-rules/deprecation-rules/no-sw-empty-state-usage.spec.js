@@ -280,12 +280,12 @@ ruleTester.run('no-sw-empty-state-usage', rule, {
             output: `
 <template>
     ${TODO}
-    <mt-empty-state headline="Title" :icon="$route.meta.$module.icon" centered />
+    <mt-empty-state headline="Title" :icon="$route.meta.$module.icon" description="" centered />
 </template>`,
             errors: [{ message: MIGRATE_MESSAGE }],
         },
         {
-            name: 'drops the description for a disabled showDescription',
+            name: 'passes an empty description for a disabled showDescription',
             filename: 'test.html.twig',
             code: `
 <template>
@@ -294,7 +294,7 @@ ruleTester.run('no-sw-empty-state-usage', rule, {
             output: `
 <template>
     <!-- TODO Codemod: Converted from sw-empty-state - please check if everything works correctly. Removed props without replacement: color -->
-    <mt-empty-state :headline="title" icon="regular-products" centered />
+    <mt-empty-state :headline="title" icon="regular-products" description="" centered />
 </template>`,
             errors: [{ message: MIGRATE_MESSAGE }],
         },

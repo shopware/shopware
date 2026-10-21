@@ -479,7 +479,8 @@ function buildNewAttributes(sourceCode, analysis) {
     }
 
     if (showDescription === false) {
-        description = { kind: 'none' };
+        // The "description" prop of mt-empty-state is typed as required, an empty one renders the same as none
+        description = { kind: 'static', text: '' };
     } else if (showDescription !== true && description.kind !== 'none') {
         description = {
             kind: 'expr',
@@ -647,8 +648,7 @@ module.exports = {
                         ].filter(Boolean);
 
                         const remainingChildren = endTag ? node.children.filter((child) => {
-                            return !removedChildren.includes(child)
-                                && !(child.type === 'VText' && child.value.trim() === '');
+                            return !removedChildren.includes(child) && !isWhitespaceText(child);
                         }) : [];
 
                         const selfClosing = !!endTag

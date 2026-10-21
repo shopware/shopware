@@ -13,6 +13,7 @@ use Shopware\Tests\Unit\Core\Framework\App\Command\CreateAppCommandTest;
  * The files allowlisted for the unresolved identifier of PregDollarWithoutDRule are the calls the rule cannot read.
  * Every one of them needs an entry here: a probe that runs the real pattern against a sample with a trailing
  * newline, a pointer to the test holding that probe, or the reason no probe applies.
+ * Probes run here; for a pointer only the test method's existence is checked, and a reason is not checked at all.
  *
  * @internal
  */
@@ -58,6 +59,16 @@ class PregDollarWithoutDAllowlistTest extends TestCase
         sort($registered);
 
         static::assertSame($this->readAllowlistedPaths(), $registered);
+    }
+
+    public function testEveryEntryCarriesAProbeAPointerOrAReason(): void
+    {
+        foreach (self::REGISTRY as $file => $entry) {
+            static::assertTrue(
+                ($entry['probes'] ?? []) !== [] || isset($entry['coveredBy']) || trim($entry['reason'] ?? '') !== '',
+                \sprintf('%s needs a probe, a test pointer or a reason', $file)
+            );
+        }
     }
 
     #[DataProvider('probes')]

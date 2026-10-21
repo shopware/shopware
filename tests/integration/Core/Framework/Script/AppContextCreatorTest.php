@@ -125,6 +125,17 @@ class AppContextCreatorTest extends TestCase
         static::assertFalse($response['secondAdmin'], 'a later search must get a new, non-admin source');
     }
 
+    public function testChangedContextsDoNotReachTheAclService(): void
+    {
+        $browser = $this->getBrowserAuthenticatedWithIntegration($this->installFixtureApp()->getIntegrationId());
+
+        $response = $this->requestScript($browser, 'acl-after-changed-context', ['tagId' => Uuid::randomHex()]);
+
+        static::assertFalse($response['canBefore']);
+        static::assertFalse($response['canAfter'], 'acl must not see a change made to a returned context');
+        static::assertTrue($response['canGranted'], 'acl must still grant the app privileges');
+    }
+
     private function installFixtureApp(): AppEntity
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');

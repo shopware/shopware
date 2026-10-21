@@ -33,6 +33,8 @@ class MeasurementUnitsFieldSerializerTest extends TestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $validator = static::createStub(ValidatorInterface::class);
         $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
 
@@ -159,7 +161,7 @@ class MeasurementUnitsFieldSerializerTest extends TestCase
     {
         $field = new MeasurementUnitsField('data', 'data');
         $field->compile(static::createStub(DefinitionInstanceRegistry::class));
-        $actual = $this->serializer->decode($field, $input);
+        $actual = $this->decodeWithErrorsAsExceptions($field, $input);
 
         static::assertEquals($expected, $actual);
         static::assertSame($expected->getSystem(), $actual->getSystem());
@@ -289,5 +291,60 @@ class MeasurementUnitsFieldSerializerTest extends TestCase
         static::assertEquals($expected, $actual);
         static::assertSame('custom', $actual->getSystem());
         static::assertSame(['length' => 'cm', 'weight' => MeasurementUnits::DEFAULT_WEIGHT_UNIT], $actual->getUnits());
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, string>}>
+     */
+    public static function unitsValueProvider(): iterable
+    {
+        $defaults = [
+            'length' => MeasurementUnits::DEFAULT_LENGTH_UNIT,
+            'weight' => MeasurementUnits::DEFAULT_WEIGHT_UNIT,
+        ];
+
+        yield 'units key missing' => [Json::encode(['system' => 'custom']), $defaults];
+        yield 'units null' => [Json::encode(['units' => null]), $defaults];
+        yield 'units empty array' => [Json::encode(['units' => []]), $defaults];
+        yield 'units empty string' => [Json::encode(['units' => '']), $defaults];
+        yield 'units string zero' => [Json::encode(['units' => '0']), $defaults];
+        yield 'units integer zero' => [Json::encode(['units' => 0]), $defaults];
+        yield 'units false' => [Json::encode(['units' => false]), $defaults];
+        yield 'units partial map' => [Json::encode(['units' => ['length' => 'cm']]), ['length' => 'cm', 'weight' => MeasurementUnits::DEFAULT_WEIGHT_UNIT]];
+        yield 'units map with extra unit' => [Json::encode(['units' => ['volume' => 'l']]), $defaults + ['volume' => 'l']];
+        yield 'units non-empty string' => [Json::encode(['units' => 'metric']), $defaults];
+        yield 'units non-zero integer' => [Json::encode(['units' => 5]), $defaults];
+        yield 'units true' => [Json::encode(['units' => true]), $defaults];
+    }
+
+    /**
+     * @param array<string, string> $expected
+     */
+    #[DataProvider('unitsValueProvider')]
+    public function testDecodeUnitsValueClasses(string $json, array $expected): void
+    {
+        $field = new MeasurementUnitsField('data', 'data');
+        $field->compile(static::createStub(DefinitionInstanceRegistry::class));
+
+        $actual = $this->decodeWithErrorsAsExceptions($field, $json);
+
+        static::assertSame($expected, $actual->getUnits());
+    }
+
+    private function decodeWithErrorsAsExceptions(Field $field, ?string $value): MeasurementUnits
+    {
+        set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
+            if ((error_reporting() & ~(\E_ERROR | \E_PARSE | \E_CORE_ERROR | \E_COMPILE_ERROR | \E_USER_ERROR | \E_RECOVERABLE_ERROR)) === 0) {
+                return false;
+            }
+
+            throw new \ErrorException($message, 0, $severity, $file, $line);
+        });
+
+        try {
+            return $this->serializer->decode($field, $value);
+        } finally {
+            restore_error_handler();
+        }
     }
 }

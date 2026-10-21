@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\Cms\Type;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -13,6 +14,7 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageSliderStruct;
 use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\Cms\Type\ImageSliderTypeDataResolver;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
@@ -119,6 +121,81 @@ class ImageSliderTypeDataResolverTest extends TestCase
         $sliderItems = $data->getSliderItems();
         static::assertIsArray($sliderItems);
         static::assertCount(2, $sliderItems);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, array{string|null, string|null, bool|null}}>
+     */
+    public static function staticItemUrlProvider(): iterable
+    {
+        $withoutLink = [null, null, null];
+        $withLink = static fn (string $url): array => [$url, 'label', true];
+
+        yield 'url key missing' => [[], $withoutLink];
+        yield 'url null' => [['url' => null], $withoutLink];
+        yield 'url empty string' => [['url' => ''], $withoutLink];
+        yield 'url string zero' => [['url' => '0'], $withLink('0')];
+        yield 'url absolute' => [['url' => 'https://example.com'], $withLink('https://example.com')];
+        yield 'url relative' => [['url' => '/detail/1'], $withLink('/detail/1')];
+        yield 'url whitespace only' => [['url' => ' '], $withLink(' ')];
+        yield 'url integer zero' => [['url' => 0], $withoutLink];
+        yield 'url float zero' => [['url' => 0.0], $withoutLink];
+        yield 'url false' => [['url' => false], $withoutLink];
+        yield 'url empty array' => [['url' => []], $withoutLink];
+        yield 'url non-zero integer' => [['url' => 1], $withoutLink];
+        yield 'url non-zero float' => [['url' => 1.5], $withoutLink];
+        yield 'url true' => [['url' => true], $withoutLink];
+        yield 'url non-empty array' => [['url' => ['a']], $withoutLink];
+    }
+
+    /**
+     * @param array<string, mixed> $itemOverrides
+     * @param array{string|null, string|null, bool|null} $expected
+     */
+    #[DataProvider('staticItemUrlProvider')]
+    public function testEnrichStaticItemLinkDependsOnUrl(array $itemOverrides, array $expected): void
+    {
+        $resolver = new ImageSliderTypeDataResolver(static::createStub(AbstractDefaultMediaResolver::class));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('slot-id');
+        $slot->setType('image-slider');
+        $slot->setFieldConfig(new FieldConfigCollection([
+            new FieldConfig('sliderItems', FieldConfig::SOURCE_STATIC, [
+                array_merge(['mediaId' => 'media-1', 'ariaLabel' => 'label', 'newTab' => true], $itemOverrides),
+            ]),
+        ]));
+
+        $result = new ElementDataCollection();
+        $result->add('media_slot-id', new EntitySearchResult(
+            'media',
+            1,
+            new MediaCollection([$this->createMediaEntity('media-1')]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        ));
+
+        set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
+            if ((error_reporting() & ~(\E_ERROR | \E_PARSE | \E_CORE_ERROR | \E_COMPILE_ERROR | \E_USER_ERROR | \E_RECOVERABLE_ERROR)) === 0) {
+                return false;
+            }
+
+            throw new \ErrorException($message, 0, $severity, $file, $line);
+        });
+
+        try {
+            $resolver->enrich($slot, new ResolverContext(static::createStub(SalesChannelContext::class), new Request()), $result);
+        } finally {
+            restore_error_handler();
+        }
+
+        $data = $slot->getData();
+        static::assertInstanceOf(ImageSliderStruct::class, $data);
+        $items = $data->getSliderItems();
+        static::assertIsArray($items);
+        static::assertCount(1, $items);
+        static::assertSame($expected, [$items[0]->getUrl(), $items[0]->getAriaLabel(), $items[0]->getNewTab()]);
     }
 
     private function createEntityResolverContext(ProductMediaCollection $productMedia): EntityResolverContext

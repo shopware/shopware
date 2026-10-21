@@ -27,7 +27,7 @@ class CmsVersionMergeSubscriber implements EventSubscriberInterface
     {
         $writes = $event->writes;
 
-        if (empty($writes['delete']['cms_block'])) {
+        if (($writes['delete']['cms_block'] ?? []) === []) {
             return;
         }
 
@@ -35,7 +35,7 @@ class CmsVersionMergeSubscriber implements EventSubscriberInterface
 
         // Filter slots based on deleted blocks
         foreach (['insert', 'update'] as $operation) {
-            if (empty($writes[$operation]['cms_slot'])) {
+            if (!isset($writes[$operation]['cms_slot'])) {
                 continue;
             }
 
@@ -79,7 +79,7 @@ class CmsVersionMergeSubscriber implements EventSubscriberInterface
                 $blockId = $slot['blockId'] ?? null;
                 $blockVersionId = $slot['cmsBlockVersionId'] ?? null;
 
-                return empty($deletedBlocks[$blockId][$blockVersionId]);
+                return !isset($deletedBlocks[$blockId][$blockVersionId]);
             }
         ));
     }

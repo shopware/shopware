@@ -115,7 +115,8 @@ class SystemSetupCommand extends Command
             $env['DATABASE_SSL_DONT_VERIFY_SERVER_CERT'] = '1';
         }
 
-        if (empty($env['COMPOSER_HOME'])) {
+        // Composer treats a COMPOSER_HOME of "0" as unset, so "0" falls back like an empty value
+        if (!\is_string($env['COMPOSER_HOME']) || $env['COMPOSER_HOME'] === '' || $env['COMPOSER_HOME'] === '0') {
             $env['COMPOSER_HOME'] = $this->projectDir . '/var/cache/composer';
         }
 

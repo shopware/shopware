@@ -560,22 +560,10 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Core/Framework/Validation/DataValidator.php',
 ];
 $ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Installer/Controller/InstallerController.php',
-];
-$ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
     'identifier' => 'shopware.domainException',
     'count' => 1,
     'path' => __DIR__ . '/src/Core/Installer/InstallerKernel.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Maintenance/System/Command/SystemSetupCommand.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
@@ -672,12 +660,6 @@ $ignoreErrors[] = [
     'identifier' => 'shopware.domainException',
     'count' => 3,
     'path' => __DIR__ . '/src/Core/System/SystemConfig/Facade/SystemConfigFacade.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Test/Integration/Helper/MailEventListener.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Method Shopware\\Elasticsearch\\DependencyInjection\\ElasticsearchExtension::addConfig() has parameter $options with no value type specified in iterable type array.',

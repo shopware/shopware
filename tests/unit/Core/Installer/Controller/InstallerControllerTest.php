@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Installer\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Controller\InstallerController;
@@ -17,6 +18,50 @@ use Twig\Environment;
 #[CoversClass(InstallerController::class)]
 class InstallerControllerTest extends TestCase
 {
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    #[DataProvider('defaultLanguagesProvider')]
+    public function testSupportedLanguagesFallBackToSortedDefaults(array $parameters): void
+    {
+        static::assertSame(
+            ['de', 'en', 'en-US'],
+            array_keys($this->renderSupportedLanguages($parameters)),
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    #[DataProvider('customLanguagesProvider')]
+    public function testSupportedLanguagesArePassedThroughUnchanged(array $parameters): void
+    {
+        static::assertSame($parameters['supportedLanguages'], $this->renderSupportedLanguages($parameters));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function defaultLanguagesProvider(): iterable
+    {
+        yield 'missing' => [[]];
+        yield 'null' => [['supportedLanguages' => null]];
+        yield 'empty array' => [['supportedLanguages' => []]];
+        yield 'non-empty string' => [['supportedLanguages' => 'de']];
+        yield 'empty string' => [['supportedLanguages' => '']];
+        yield 'zero string' => [['supportedLanguages' => '0']];
+        yield 'zero int' => [['supportedLanguages' => 0]];
+        yield 'false' => [['supportedLanguages' => false]];
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function customLanguagesProvider(): iterable
+    {
+        yield 'non-empty array' => [['supportedLanguages' => ['fr' => ['id' => 'fr-FR', 'label' => 'Francais']]]];
+    }
+
     public function testExtendedStepsAddedToMenu(): void
     {
         $twig = $this->createMock(Environment::class);
@@ -99,7 +144,55 @@ class InstallerControllerTest extends TestCase
         $containerRequest->getSession()->set('extendSteps', true);
         $controller->setContainer($container);
 
-        $response = $controller->welcome();
+        $response = $this->runWithErrorsAsExceptions(static fn (): Response => $controller->welcome());
         static::assertSame('welcome page', $response->getContent());
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    private function renderSupportedLanguages(array $parameters): mixed
+    {
+        $rendered = null;
+        $twig = static::createStub(Environment::class);
+        $twig->method('render')->willReturnCallback(static function (string $view, array $params) use (&$rendered): string {
+            $rendered = $params['supportedLanguages'];
+
+            return 'page';
+        });
+
+        $controller = new class extends InstallerController {
+            /**
+             * @param array<string, mixed> $parameters
+             */
+            public function welcome(array $parameters): Response
+            {
+                return $this->renderInstaller('@Installer/installer/welcome.html.twig', $parameters);
+            }
+        };
+        $controller->setContainer(InstallerControllerFixture::getInstallerContainer($twig));
+        $this->runWithErrorsAsExceptions(static fn (): Response => $controller->welcome($parameters));
+
+        return $rendered;
+    }
+
+    /**
+     * @param \Closure(): Response $callback
+     */
+    private function runWithErrorsAsExceptions(\Closure $callback): Response
+    {
+        set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
+            if ((error_reporting() & ~(\E_ERROR | \E_PARSE | \E_CORE_ERROR | \E_COMPILE_ERROR | \E_USER_ERROR | \E_RECOVERABLE_ERROR)) === 0) {
+                return false;
+            }
+
+            throw new \ErrorException($message, 0, $severity, $file, $line);
+        });
+
+        try {
+            return $callback();
+        } finally {
+            restore_error_handler();
+        }
     }
 }

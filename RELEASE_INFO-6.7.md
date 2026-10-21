@@ -171,6 +171,7 @@ They are requested from the new HTTP cached route `frontend.analytics.product-ca
 The browser keeps the requested categories in the local storage under `swGaProductCategories`, so the cart, checkout and purchase events report them as well without requesting anything.
 
 The wishlist page holds the removal of a product back for at most one second, until `remove_from_wishlist` is sent.
+
 ## Hosting & Configuration
 
 ### Storefront readiness checks skip pages restricted by extensions

@@ -19,6 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\AccountProfileController;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader;
+use Shopware\Storefront\Page\Account\Profile\AccountProfilePage;
 use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader;
 use Shopware\Tests\Unit\Storefront\Controller\Stub\AccountProfileControllerStub;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,23 +32,61 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[CoversClass(AccountProfileController::class)]
 class AccountProfileControllerTest extends TestCase
 {
+    private AccountProfilePageLoader&Stub $profilePageLoader;
+
+    private AbstractChangeCustomerProfileRoute&Stub $changeCustomerProfileRoute;
+
     private ChangePasswordRoute&Stub $changePasswordRoute;
 
     private AccountProfileControllerStub $controller;
 
     protected function setUp(): void
     {
+        $this->profilePageLoader = static::createStub(AccountProfilePageLoader::class);
+        $this->changeCustomerProfileRoute = static::createStub(AbstractChangeCustomerProfileRoute::class);
         $this->changePasswordRoute = static::createStub(ChangePasswordRoute::class);
 
         $this->controller = new AccountProfileControllerStub(
             static::createStub(AccountOverviewPageLoader::class),
-            static::createStub(AccountProfilePageLoader::class),
-            static::createStub(AbstractChangeCustomerProfileRoute::class),
+            $this->profilePageLoader,
+            $this->changeCustomerProfileRoute,
             $this->changePasswordRoute,
             static::createStub(AbstractChangeEmailRoute::class),
             static::createStub(AbstractDeleteCustomerRoute::class),
             static::createStub(LoggerInterface::class),
         );
+    }
+
+    public function testProfileOverviewRendersSubmittedProfileData(): void
+    {
+        $this->profilePageLoader->method('load')->willReturn(new AccountProfilePage());
+        $submittedData = new RequestDataBag(['accountType' => 'business', 'company' => 'Shopware AG']);
+
+        $request = new Request();
+        $request->attributes->set('profileFormData', $submittedData);
+
+        $this->controller->profileOverview($request, static::createStub(SalesChannelContext::class));
+
+        static::assertSame('@Storefront/storefront/page/account/profile/index.html.twig', $this->controller->recorder()->renderStorefrontView);
+        static::assertSame($submittedData, $this->controller->recorder()->renderStorefrontParameters['profileFormData']);
+    }
+
+    public function testSaveProfileWithConstraintViolationForwardsSubmittedData(): void
+    {
+        $this->changeCustomerProfileRoute->method('change')->willThrowException(
+            new ConstraintViolationException(new ConstraintViolationList(), [])
+        );
+        $submittedData = new RequestDataBag(['accountType' => 'business', 'company' => 'Shopware AG', 'vatIds' => ['DE123']]);
+
+        $this->controller->saveProfile(
+            $submittedData,
+            static::createStub(SalesChannelContext::class),
+            new CustomerEntity()
+        );
+
+        static::assertSame('frontend.account.profile.page', $this->controller->recorder()->forwardToRoute);
+        static::assertInstanceOf(ConstraintViolationException::class, $this->controller->recorder()->forwardToRouteAttributes['formViolations']);
+        static::assertSame($submittedData, $this->controller->recorder()->forwardToRouteAttributes['profileFormData']);
     }
 
     public function testSavePasswordWithMissingPasswordParam(): void

@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Handler;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
@@ -18,12 +17,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
+use Shopware\Core\Test\Integration\Builder\Webhook\WebhookBuilder;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
@@ -219,8 +218,9 @@ class WebhookLifecycleHandlerTest extends TestCase
     public function testUninstallDeletesWebhooksTheAppCreatedThroughTheApi(): void
     {
         $app = $this->appFixture->createApp(ManifestFixture::empty());
-        $appWebhookId = $this->insertApiWebhook(ownerIntegrationId: $app->getIntegrationId());
-        $userWebhookId = $this->insertApiWebhook(ownerUserId: TestUser::createNewTestUser($this->connection)->getUserId());
+        $appWebhookId = WebhookBuilder::ownedByIntegration($app->getIntegrationId())->insert($this->connection);
+        $userWebhookId = WebhookBuilder::ownedByUser(TestUser::createNewTestUser($this->connection)->getUserId())
+            ->insert($this->connection);
 
         $this->handler->uninstall(new AppRemovalContext($app, Context::createDefaultContext()));
 
@@ -231,27 +231,11 @@ class WebhookLifecycleHandlerTest extends TestCase
     public function testDeleteDeletesWebhooksTheAppCreatedThroughTheApi(): void
     {
         $app = $this->appFixture->createApp(ManifestFixture::empty());
-        $appWebhookId = $this->insertApiWebhook(ownerIntegrationId: $app->getIntegrationId());
+        $appWebhookId = WebhookBuilder::ownedByIntegration($app->getIntegrationId())->insert($this->connection);
 
         $this->handler->delete(new AppRemovalContext($app, Context::createDefaultContext()));
 
         static::assertNull($this->findWebhook($appWebhookId));
-    }
-
-    private function insertApiWebhook(?string $ownerUserId = null, ?string $ownerIntegrationId = null): string
-    {
-        $id = Uuid::randomHex();
-        $this->connection->insert('webhook', [
-            'id' => Uuid::fromHexToBytes($id),
-            'name' => 'api-hook',
-            'event_name' => 'contact_form.send',
-            'url' => 'https://example.com/hook',
-            'owner_user_id' => $ownerUserId ? Uuid::fromHexToBytes($ownerUserId) : null,
-            'owner_integration_id' => $ownerIntegrationId ? Uuid::fromHexToBytes($ownerIntegrationId) : null,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
-
-        return $id;
     }
 
     private function findWebhook(string $webhookId): ?WebhookEntity

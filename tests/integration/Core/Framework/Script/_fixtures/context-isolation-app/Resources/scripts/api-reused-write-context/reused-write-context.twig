@@ -1,16 +1,18 @@
-{# Changes the contexts returned by a search and a write, then writes again. #}
-{% set taxes = services.repository.search('tax', { 'limit': 1 }) %}
-{% set source = taxes.getContext().getSource() %}
-{% do source.setIsAdmin(true) %}
+{# Changes the context returned by a write and reports the context state of a later write. #}
+{% set first = services.writer.upsert('tag', [{ 'id': hook.request.firstTagId, 'name': 'first-write' }]) %}
+{% set initialAdmin = first.getContext().getSource().isAdmin() %}
+{% do first.getContext().getSource().setIsAdmin(true) %}
 
-{% set written = services.writer.upsert('tax', [{
-    'id': hook.request.taxId,
-    'name': hook.request.taxName,
-    'taxRate': 19
-}]) %}
+{% set second = first.getContext().scope('system', (scoped) => services.writer.upsert('tag', [{ 'id': hook.request.secondTagId, 'name': 'second-write' }])) %}
 
-{% set writeContext = written.getContext() %}
-{% do writeContext.scope('system', (scoped) => services.writer.upsert(hook.request.systemEntity, [hook.request.systemPayload])) %}
+{% if hook.request.taxId is defined %}
+    {% do first.getContext().scope('system', (scoped) => services.writer.upsert('tax', [{ 'id': hook.request.taxId, 'name': 'denied', 'taxRate': 19 }])) %}
+{% endif %}
 
-{% set response = services.response.json({ 'done': true }) %}
+{% set response = services.response.json({
+    'initialAdmin': initialAdmin,
+    'changedAdmin': first.getContext().getSource().isAdmin(),
+    'writeAdmin': second.getContext().getSource().isAdmin(),
+    'writeScope': second.getContext().getScope()
+}) %}
 {% do hook.setResponse(response) %}

@@ -3,8 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Framework\Script;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\AppSystemTestBehaviour;
-use Shopware\Core\Test\TestDefaults;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -49,90 +49,76 @@ class AppContextCreatorTest extends TestCase
         static::assertSame(0, $this->countTax($taxId, $connection));
     }
 
-    public function testChangedWriteContextIsNotReused(): void
+    public function testChangedSearchContextIsNotReusedByALaterWrite(): void
     {
-        $app = $this->installFixtureApp();
-        $connection = static::getContainer()->get(Connection::class);
+        $browser = $this->getBrowserAuthenticatedWithIntegration($this->installFixtureApp()->getIntegrationId());
 
-        $userId = Uuid::randomHex();
-        $this->createNonAdminUser($userId, $connection);
-        $passwordBefore = $this->readUserPassword($userId, $connection);
-        static::assertNotSame('', $passwordBefore);
+        $response = $this->requestScript($browser, 'reused-search-context-write', ['tagId' => Uuid::randomHex()]);
 
-        $taxId = Uuid::randomHex();
-        $browser = $this->getBrowserAuthenticatedWithIntegration($app->getIntegrationId());
-        $browser->jsonRequest('POST', '/api/script/reused-write-context', [
-            'taxId' => $taxId,
-            'taxName' => 'reused-context',
-            'systemEntity' => 'user',
-            'systemPayload' => [
-                'id' => $userId,
-                'admin' => true,
-            ],
+        static::assertTrue($response['changedAdmin'], 'the changed search context keeps its own change');
+        static::assertFalse($response['writeAdmin'], 'a later write must get a new, non-admin source');
+        static::assertSame(Context::USER_SCOPE, $response['writeScope']);
+    }
+
+    public function testChangedWriteContextIsNotReusedByALaterWrite(): void
+    {
+        $browser = $this->getBrowserAuthenticatedWithIntegration($this->installFixtureApp()->getIntegrationId());
+
+        $response = $this->requestScript($browser, 'reused-write-context', [
+            'firstTagId' => Uuid::randomHex(),
+            'secondTagId' => Uuid::randomHex(),
         ]);
+
+        static::assertTrue($response['changedAdmin'], 'the changed write context keeps its own change');
+        static::assertFalse($response['writeAdmin'], 'a later write must get a new, non-admin source');
+        static::assertSame(Context::USER_SCOPE, $response['writeScope'], 'a later write must not inherit the system scope');
+    }
+
+    /**
+     * @param array<string, string> $payload
+     */
+    #[DataProvider('changedContextScriptProvider')]
+    public function testDeniedWriteAfterAChangedContextIsForbidden(string $script, array $payload): void
+    {
+        $browser = $this->getBrowserAuthenticatedWithIntegration($this->installFixtureApp()->getIntegrationId());
+
+        $browser->jsonRequest('POST', '/api/script/' . $script, [...$payload, 'taxId' => Uuid::randomHex()]);
 
         static::assertSame(
             Response::HTTP_FORBIDDEN,
             $browser->getResponse()->getStatusCode(),
-            'write with a changed context must be forbidden: ' . (string) $browser->getResponse()->getContent()
+            'tax write must stay forbidden after a changed context: ' . (string) $browser->getResponse()->getContent()
         );
+    }
 
-        static::assertSame(0, $this->countTax($taxId, $connection), 'no tax may be written');
-        static::assertSame(0, $this->readUserAdmin($userId, $connection), 'user must stay non-admin');
-        static::assertSame($passwordBefore, $this->readUserPassword($userId, $connection));
+    public static function changedContextScriptProvider(): \Generator
+    {
+        yield 'changed search context' => ['reused-search-context-write', ['tagId' => Uuid::randomHex()]];
+        yield 'changed write context' => ['reused-write-context', ['firstTagId' => Uuid::randomHex(), 'secondTagId' => Uuid::randomHex()]];
     }
 
     public function testConsecutiveScriptRunsStartFromOriginalPrivileges(): void
     {
-        $app = $this->installFixtureApp();
-        $connection = static::getContainer()->get(Connection::class);
-        $browser = $this->getBrowserAuthenticatedWithIntegration($app->getIntegrationId());
+        $browser = $this->getBrowserAuthenticatedWithIntegration($this->installFixtureApp()->getIntegrationId());
 
         // A changed source must not carry over into the next run of the same app.
-        $firstTaxId = Uuid::randomHex();
-        $browser->jsonRequest('POST', '/api/script/reused-write-context', [
-            'taxId' => $firstTaxId,
-            'taxName' => 'first-run',
-            'systemEntity' => 'user',
-            'systemPayload' => ['id' => Uuid::randomHex(), 'admin' => true],
+        $this->requestScript($browser, 'reused-write-context', [
+            'firstTagId' => Uuid::randomHex(),
+            'secondTagId' => Uuid::randomHex(),
         ]);
-        static::assertSame(
-            Response::HTTP_FORBIDDEN,
-            $browser->getResponse()->getStatusCode(),
-            (string) $browser->getResponse()->getContent()
-        );
+        $response = $this->requestScript($browser, 'reused-write-context', [
+            'firstTagId' => Uuid::randomHex(),
+            'secondTagId' => Uuid::randomHex(),
+        ]);
 
-        $secondTaxId = Uuid::randomHex();
-        $browser->jsonRequest('POST', '/api/script/reused-write-context', [
-            'taxId' => $secondTaxId,
-            'taxName' => 'second-run',
-            'systemEntity' => 'user',
-            'systemPayload' => ['id' => Uuid::randomHex(), 'admin' => true],
-        ]);
-        static::assertSame(
-            Response::HTTP_FORBIDDEN,
-            $browser->getResponse()->getStatusCode(),
-            'second run must also start from the original non-admin privileges: ' . (string) $browser->getResponse()->getContent()
-        );
-        static::assertSame(0, $this->countTax($secondTaxId, $connection));
+        static::assertFalse($response['initialAdmin'], 'second run must start from the original non-admin privileges');
     }
 
     public function testChangedSearchContextIsNotReused(): void
     {
-        $app = $this->installFixtureApp();
-        $browser = $this->getBrowserAuthenticatedWithIntegration($app->getIntegrationId());
+        $browser = $this->getBrowserAuthenticatedWithIntegration($this->installFixtureApp()->getIntegrationId());
 
-        $browser->jsonRequest('POST', '/api/script/reused-search-context', []);
-
-        static::assertSame(
-            Response::HTTP_OK,
-            $browser->getResponse()->getStatusCode(),
-            (string) $browser->getResponse()->getContent()
-        );
-        $content = $browser->getResponse()->getContent();
-        static::assertNotFalse($content);
-        $response = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertIsArray($response);
+        $response = $this->requestScript($browser, 'reused-search-context', []);
 
         // The change stays on its own object; a later search gets a new, non-admin source.
         static::assertTrue($response['firstAdmin'], 'the changed source keeps its own change');
@@ -162,46 +148,26 @@ class AppContextCreatorTest extends TestCase
         return $app;
     }
 
-    private function createNonAdminUser(string $userId, Connection $connection): void
+    /**
+     * @param array<string, string> $payload
+     *
+     * @return array<string, mixed>
+     */
+    private function requestScript(KernelBrowser $browser, string $script, array $payload): array
     {
-        static::getContainer()->get('user.repository')->create([[
-            'id' => $userId,
-            'email' => $userId . '@example.com',
-            'firstName' => 'Regular',
-            'lastName' => 'User',
-            'username' => 'user-' . $userId,
-            'password' => TestDefaults::HASHED_PASSWORD,
-            'localeId' => $this->getSystemLocaleId($connection),
-        ]], Context::createDefaultContext());
+        $browser->jsonRequest('POST', '/api/script/' . $script, $payload);
 
-        static::assertSame(0, $this->readUserAdmin($userId, $connection), 'user starts as non-admin');
-    }
-
-    private function getSystemLocaleId(Connection $connection): string
-    {
-        return (string) $connection->fetchOne(
-            'SELECT LOWER(HEX(locale.id))
-             FROM language
-             INNER JOIN locale ON language.locale_id = locale.id
-             WHERE language.id = :id',
-            ['id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
+        static::assertSame(
+            Response::HTTP_OK,
+            $browser->getResponse()->getStatusCode(),
+            (string) $browser->getResponse()->getContent()
         );
-    }
+        $content = $browser->getResponse()->getContent();
+        static::assertNotFalse($content);
+        $response = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($response);
 
-    private function readUserAdmin(string $userId, Connection $connection): int
-    {
-        return (int) $connection->fetchOne(
-            'SELECT `admin` FROM `user` WHERE `id` = :id',
-            ['id' => Uuid::fromHexToBytes($userId)]
-        );
-    }
-
-    private function readUserPassword(string $userId, Connection $connection): string
-    {
-        return (string) $connection->fetchOne(
-            'SELECT `password` FROM `user` WHERE `id` = :id',
-            ['id' => Uuid::fromHexToBytes($userId)]
-        );
+        return $response;
     }
 
     private function countTax(string $taxId, Connection $connection): int

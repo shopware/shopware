@@ -5,8 +5,8 @@
         <name>context-isolation-app</name>
         <label>Context Isolation Test App</label>
         <label lang="de-DE">Context Isolation Test App</label>
-        <description>App with read-only privileges for script context isolation tests</description>
-        <description lang="de-DE">App with read-only privileges for script context isolation tests</description>
+        <description>App with tag-create and read-only privileges for script context isolation tests</description>
+        <description lang="de-DE">App with tag-create and read-only privileges for script context isolation tests</description>
         <author>shopware AG</author>
         <copyright>(c) by shopware AG</copyright>
         <version>1.0.0</version>
@@ -15,5 +15,6 @@
     <permissions>
         <read>tax</read>
         <read>product</read>
+        <create>tag</create>
     </permissions>
 </manifest>

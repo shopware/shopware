@@ -15,12 +15,20 @@ use Mcp\Server\Session\InMemorySessionStore;
 use Mcp\Server\Session\Session;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultParser;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultPointer;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultReferenceHandler;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultRenderer;
+use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\Clock\MockClock;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -71,12 +79,39 @@ class McpToolResultReferenceHandlerTest extends TestCase
         static::assertSame([1, 2], $result->structuredContent, 'from 2026-07-28 on a list is sent unwrapped');
     }
 
-    private function handler(mixed $innerResult): McpToolResultReferenceHandler
+    public function testOffloadsAHandBuiltStringAndEchoesTheCall(): void
+    {
+        // App tools and tools that build their JSON by hand never went through McpToolResponse::success().
+        $handBuilt = '{"success":true,"data":{"blob":"' . str_repeat('x', 110_000) . '"}}';
+
+        $storage = $this->createMock(ToolResultCacheStorage::class);
+        $storage->expects($this->once())
+            ->method('storeFor')
+            ->with('admin:integration-id:', $handBuilt)
+            ->willReturn(new McpToolResultPointer('token', new \DateTimeImmutable('2026-09-28T11:00:00+00:00')));
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, new Context(new AdminApiSource(null, 'integration-id')));
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        $result = $this->handler($handBuilt, $storage, $requestStack)->handle($this->toolReference(), [
+            '_request' => new CallToolRequest('app-tool', ['entity' => 'product']),
+        ]);
+
+        static::assertInstanceOf(CallToolResult::class, $result);
+        static::assertNull($result->structuredContent, 'the data is behind the link');
+        static::assertSame(['tool' => 'app-tool', 'arguments' => ['entity' => 'product']], $result->meta['shopware/query'] ?? null);
+    }
+
+    private function handler(mixed $innerResult, ?ToolResultCacheStorage $storage = null, RequestStack $requestStack = new RequestStack()): McpToolResultReferenceHandler
     {
         $inner = static::createStub(ReferenceHandlerInterface::class);
         $inner->method('handle')->willReturn($innerResult);
 
-        return new McpToolResultReferenceHandler($inner, new McpToolResultRenderer(new MockClock()), new McpToolResultParser());
+        $renderer = new McpToolResultRenderer(new MockClock(), $storage ?? static::createStub(ToolResultCacheStorage::class), $requestStack, new NullLogger());
+
+        return new McpToolResultReferenceHandler($inner, $renderer, new McpToolResultParser());
     }
 
     private function toolReference(): ElementReference

@@ -241,7 +241,11 @@ composer admin:test-extensions -- --only=MyPlugin -- --watch       # Jest option
 ```
 
 It runs every `jest.config.{js,ts,mjs,cjs}` it finds at the extension root, beside an Administration folder, or beside the extension's own tsconfig or ESLint config.
-Without `--only` or `--all`, an interactive terminal offers a picker of the extensions that have a Jest config; elsewhere every such extension runs.
+Without `--only` or `--all`, an interactive terminal offers a picker of the extensions that have a Jest config, vendor-installed ones included.
+Elsewhere, and with `--all`, every such extension runs except the ones under `vendor/`:
+they are read-only, so they run only when the picker or `--only` selects them, by extension or bundle name.
+The report lists the vendor extensions it did not test.
+A run in which no Jest config ran exits 1, so a CI job cannot pass without running a spec.
 An extension that installs its own Jest can keep running it directly, as long as it has the same major version as the Administration's.
 
 The harness lives in the Administration's `test/` folder and works in a platform checkout and in a Composer install alike.

@@ -5,6 +5,10 @@
  * own Jest config with the Administration's Jest, so an extension needs no
  * Jest installation of its own. Setup runs first, so the `.shopware/jest.mjs`
  * bridge those configs import is current.
+ *
+ * vendor/ extensions are read-only third-party code, so their specs run only
+ * when the selection names them. A run that tests nothing fails, so CI cannot
+ * pass without running a spec.
  */
 
 import { spawn, spawnSync } from 'child_process';
@@ -36,7 +40,10 @@ export type JestRunner = (configPath: string, jestArgs: string[]) => Promise<num
 export interface TestExtensionsOptions {
     projectRoot: string;
     administrationRoot: string;
-    /** Extension or bundle names to test; every extension with a Jest config when empty or absent. */
+    /**
+     * Extension or bundle names to test. When empty or absent, every extension
+     * with a Jest config runs, except vendor/ extensions.
+     */
     only?: string | string[];
     /** Forwarded to every Jest run, e.g. `['--watch']` or a spec path pattern. */
     jestArgs?: string[];
@@ -56,6 +63,8 @@ export interface TestExtensionsResult {
     runs: JestRun[];
     /** Extensions of the selection that have no Jest config, so nothing ran for them. */
     withoutConfig: string[];
+    /** vendor/ extensions with a Jest config that did not run, because no `only` named them. */
+    vendorNotTested: string[];
     fatalDiagnostics: string[];
     exitCode: number;
 }
@@ -125,6 +134,22 @@ function createComponentImportsGenerator(administrationRoot: string): () => numb
         ).status ?? 1;
 }
 
+/**
+ * Explains a run without a single Jest config, so it fails instead of passing green.
+ *
+ * @example
+ * nothingTestedDiagnostic(['custom-admin']);
+ * // → 'Nothing was tested: … Name a vendor extension via --only to test it: custom-admin.'
+ */
+function nothingTestedDiagnostic(vendorNotTested: string[]): string {
+    return [
+        `Nothing was tested: no extension in this run has a Jest config (${JEST_CONFIG_FILE_NAMES.join(', ')}).`,
+        ...(vendorNotTested.length > 0
+            ? [`Name a vendor extension via --only to test it: ${vendorNotTested.join(', ')}.`]
+            : []),
+    ].join(' ');
+}
+
 export async function testExtensions(options: TestExtensionsOptions): Promise<TestExtensionsResult> {
     const projectRoot = path.resolve(options.projectRoot);
     const administrationRoot = path.resolve(options.administrationRoot);
@@ -134,13 +159,22 @@ export async function testExtensions(options: TestExtensionsOptions): Promise<Te
     const setupResult = setupExtensionTooling({ projectRoot, administrationRoot });
     const selection = filterSelectedProjects(setupResult.manifest.projects, selected);
     const fatalDiagnostics = selection.fatalDiagnostic ? [selection.fatalDiagnostic] : [];
-    const configsByExtension = selection.projects.map((project) => ({
+    const candidates = selection.projects.map((project) => ({
         project,
         configs: findJestConfigs(projectRoot, project),
     }));
+    // A selection names its extensions on purpose; without one, vendor/ extensions stay out.
+    const vendorNotTested =
+        selected.length > 0
+            ? []
+            : candidates
+                  .filter(({ project, configs }) => project.vendor && configs.length > 0)
+                  .map(({ project }) => project.name);
+    const configsByExtension = candidates.filter(({ project }) => selected.length > 0 || !project.vendor);
     const withoutConfig = configsByExtension
         .filter(({ configs }) => configs.length === 0)
         .map(({ project }) => project.name);
+    const configCount = configsByExtension.reduce((count, { configs }) => count + configs.length, 0);
 
     // An extension named on purpose that has nothing to run is a mistake, not a pass.
     if (selected.length > 0 && withoutConfig.length > 0) {
@@ -150,13 +184,19 @@ export async function testExtensions(options: TestExtensionsOptions): Promise<Te
         );
     }
 
+    if (fatalDiagnostics.length === 0 && configCount === 0) {
+        fatalDiagnostics.push(nothingTestedDiagnostic(vendorNotTested));
+    }
+
     const runs: JestRun[] = [];
 
-    if (fatalDiagnostics.length === 0 && configsByExtension.some(({ configs }) => configs.length > 0)) {
-        // A Composer update replaces the Administration package and drops the generated map with it.
-        if (!fs.existsSync(path.join(administrationRoot, COMPONENT_IMPORTS_FILE)) && generateComponentImports() !== 0) {
-            fatalDiagnostics.push(`Generating ${COMPONENT_IMPORTS_FILE} failed, see the output above.`);
-        }
+    // A Composer update replaces the Administration package and drops the generated map with it.
+    if (
+        fatalDiagnostics.length === 0 &&
+        !fs.existsSync(path.join(administrationRoot, COMPONENT_IMPORTS_FILE)) &&
+        generateComponentImports() !== 0
+    ) {
+        fatalDiagnostics.push(`Generating ${COMPONENT_IMPORTS_FILE} failed, see the output above.`);
     }
 
     if (fatalDiagnostics.length === 0) {
@@ -174,18 +214,22 @@ export async function testExtensions(options: TestExtensionsOptions): Promise<Te
     return {
         runs,
         withoutConfig,
+        vendorNotTested,
         fatalDiagnostics,
         exitCode: fatalDiagnostics.length > 0 || runs.some((run) => run.exitCode !== 0) ? 1 : 0,
     };
 }
 
-/** One line per run, then the extensions without a config and any fatal diagnostic. */
+/** One line per run, then the extensions that did not run and any fatal diagnostic. */
 export function renderTestReport(result: TestExtensionsResult): string {
     return [
         '',
         ...result.runs.map((run) => `${run.exitCode === 0 ? '✓' : '✗'} ${run.extension} · ${run.config}`),
         ...(result.withoutConfig.length > 0 && result.fatalDiagnostics.length === 0
             ? [`No Jest config, not tested: ${result.withoutConfig.join(', ')}`]
+            : []),
+        ...(result.vendorNotTested.length > 0 && result.fatalDiagnostics.length === 0
+            ? [`Vendor extensions not tested (name them via --only): ${result.vendorNotTested.join(', ')}`]
             : []),
         ...result.fatalDiagnostics.map((diagnostic) => `✗ ${diagnostic}`),
     ].join('\n');
@@ -201,9 +245,12 @@ const TEST_COMMAND: CommandSpec = {
             name: '--only',
             value: 'required',
             valueName: '<name[,name]>',
-            description: 'Test only the named extensions (skips the interactive picker).',
+            description: 'Test only the named extensions, vendor ones included (skips the interactive picker).',
         },
-        { name: '--all', description: 'Test every extension that has a Jest config (skips the interactive picker).' },
+        {
+            name: '--all',
+            description: 'Test every non-vendor extension that has a Jest config (skips the interactive picker).',
+        },
         {
             name: '--project-root',
             value: 'required',
@@ -275,7 +322,8 @@ export async function runTestCli(argv: string[]): Promise<number> {
             return 0;
         }
 
-        only = choice === 'all' ? undefined : choice.names;
+        // Name every listed extension, so "all" includes the vendor ones the picker showed.
+        only = choice === 'all' ? testable.map((project) => project.name) : choice.names;
     }
 
     const result = await testExtensions({ projectRoot, administrationRoot, only, jestArgs });

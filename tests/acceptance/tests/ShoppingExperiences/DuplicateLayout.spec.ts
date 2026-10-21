@@ -38,20 +38,17 @@ test(
         let cloneId: string;
 
         await test.step('Duplicate the layout from its card in the listing.', async () => {
-            await ShopAdmin.goesTo(AdminLayoutListing.url());
-            // Typing earlier reaches the search bar of the previously opened module, which runs a global search.
-            await ShopAdmin.expects(AdminLayoutListing.listingGrid).toBeVisible();
-            const searchInput = ShopAdmin.page.locator('.sw-search-bar__input');
-            const filteredListResponse = ShopAdmin.page.waitForResponse(
+            // With the Elasticsearch admin search, typing into the search bar only fills its dropdown and never filters
+            // the listing, so the term goes into the URL. The listing loads twice on open; the second load re-renders the cards.
+            let filteredListLoads = 0;
+            const secondFilteredListResponse = ShopAdmin.page.waitForResponse(
                 (response) =>
                     response.url().endsWith('/api/search/cms-page') &&
                     (response.request().postData() ?? '').includes(layout.name) &&
-                    response.ok(),
+                    ++filteredListLoads === 2,
             );
-            await searchInput.fill(layout.name);
-            await filteredListResponse;
-            // The search bar dropdown would otherwise cover the layout cards.
-            await searchInput.press('Escape');
+            await ShopAdmin.goesTo(`${AdminLayoutListing.url()}?term=${encodeURIComponent(layout.name)}`);
+            expect((await secondFilteredListResponse).ok()).toBeTruthy();
 
             const card = AdminLayoutListing.listingGrid
                 .locator('.sw-cms-list-item')

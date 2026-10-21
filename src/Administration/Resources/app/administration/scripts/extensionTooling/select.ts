@@ -77,7 +77,7 @@ export function parseSelection(input: string, projects: ExtensionToolingProject[
     return { names: [...indices].sort((left, right) => left - right).map((index) => projects[index - 1].name) };
 }
 
-function describe(project: ExtensionToolingProject): string {
+function describeForCheck(project: ExtensionToolingProject): string {
     const location = project.vendor ? 'vendor' : project.basePath;
     const configMode = projectHasOwnedConfig(project) ? 'custom config' : 'zero-config';
     const moduleCount = project.technicalNames.length;
@@ -85,10 +85,14 @@ function describe(project: ExtensionToolingProject): string {
     return `${location} · ${configMode} · ${moduleCount === 1 ? '1 module' : `${moduleCount} modules`}`;
 }
 
-/** Renders the numbered menu and resolves the user's choice, re-prompting on invalid input. */
+/**
+ * Renders the numbered menu and resolves the user's choice, re-prompting on invalid input.
+ * `describeProject` renders the hint after each name; it defaults to check's location · config mode · module count.
+ */
 export async function promptSelection(
     projects: ExtensionToolingProject[],
     title = 'Select extensions to check (vue-tsc + ESLint):',
+    describeProject: (project: ExtensionToolingProject) => string = describeForCheck,
 ): Promise<{ names: string[] } | 'all' | 'cancel'> {
     const terminal = readline.createInterface({ input: process.stdin, output: process.stdout });
 
@@ -100,7 +104,7 @@ export async function promptSelection(
         projects.forEach((project, index) => {
             const number = colors.cyan(`${String(index + 1).padStart(numberWidth, ' ')})`);
 
-            process.stdout.write(`  ${number} ${project.name.padEnd(28, ' ')} ${colors.dim(describe(project))}\n`);
+            process.stdout.write(`  ${number} ${project.name.padEnd(28, ' ')} ${colors.dim(describeProject(project))}\n`);
         });
 
         for (;;) {

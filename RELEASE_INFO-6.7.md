@@ -153,6 +153,7 @@ Cart, checkout and purchase events report them as `item_brand` and `item_categor
 
 The reorder of an order in the account now reports one `add_to_cart` with all products of the order, each with product number, name, price, quantity, brand and categories of the original order.
 The reorder form posts only the order, so the products are rendered into the form as `[data-analytics-line-item]` elements while analytics is active.
+
 ## Hosting & Configuration
 
 ### Storefront readiness checks skip pages restricted by extensions

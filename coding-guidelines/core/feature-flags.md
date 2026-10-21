@@ -349,6 +349,62 @@ data() {
  };
 ```
 
+### Runtime deprecations in storefront JavaScript
+
+Mark deprecated APIs with `@deprecated tag:v6.8.0` and name the replacement, or state that there is no replacement.
+Call `window.Feature.triggerDeprecationOrThrow('v6.8.0.0', message)` where the deprecated behavior is used, before executing that behavior.
+Before the removal flag is active, the helper preserves the old behavior and warns only when `window.debug` is enabled.
+With the removal flag active, it throws regardless of debug mode.
+Use the registered four-part flag name, even when the annotation uses the three-part release version.
+
+Conditional deprecations are supported.
+The guard does not have to be the first statement in the method:
+
+```js
+/** @deprecated tag:v6.8.0 - Use the replacement behavior. */
+oldMethod(options) {
+    const normalized = this.normalize(options);
+
+    if (normalized.legacy) {
+        window.Feature.triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'The legacy behavior of oldMethod() will be removed in v6.8.0.0. Use the replacement behavior.',
+        );
+
+        return this.runLegacy(normalized);
+    }
+
+    return this.runSupported(normalized);
+}
+```
+
+Guard methods and static helpers in their own body, deprecated plugin classes in `init()`, and deprecated property writes in the setter.
+Do not trigger deprecations during module evaluation: importing the module does not mean the deprecated API was used.
+For removed plugin options, use `this._deprecateOption(key, majorFlag, hint)`.
+A change to an option's default does not make every access to that option deprecated; select the default through the feature flag instead.
+Keep supported callers on the replacement path when the major flag is active, and verify both normal and major modes in tests.
+
+The Storefront ESLint rule `sw-core-rules/require-deprecation-guard` checks directly annotated functions, methods, getters and setters, and the own `init()` method of a class with a class-level deprecation.
+It requires a matching guard somewhere in that callable's body, including conditional branches and statements after other work.
+It does not prove execution order, reachability or which condition needs the guard.
+A guard in a nested function or callback does not guard the enclosing callable.
+Both `window.Feature` and a default import from `helper/feature.helper` are recognized.
+
+This initial rule skips explicitly `@private` callables, parameter-only annotations, fields, options, and class-level deprecations without an own `init()`.
+Annotate a deprecated parameter on its `@param` line rather than marking the still-supported method deprecated, following the existing analytics-event convention:
+
+```js
+/** @param {*} legacy @deprecated tag:v6.8.0 - The parameter will be removed. */
+supportedMethod(legacy) {
+    // The method itself remains supported.
+}
+```
+
+Those skipped cases still need review to choose the appropriate runtime strategy.
+For another static-only exception, use a narrow ESLint disable with an explanation rather than a dummy guard.
+There is no automatic fix because the replacement message and conditional behavior require judgment.
+Run the rule's regression tests with `npm run test:eslint-rules` in the Storefront app; `npm run lint:js` also runs them.
+
 ### Using flags in storefront templates
 
 ```

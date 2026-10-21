@@ -878,23 +878,21 @@ async function convertOverrides(
                 // if it exists iterate over the methods
                 // and hoist them if they don't exists in previous override
 
-                // ignore array based properties
-                if (Array.isArray(values)) {
+                // only hoist between plain objects, Vue merges arrays, functions and null through the extends chain.
+                // Hoisting object keys into an array (e.g. inject, props) would drop them.
+                if (!types.isPlainObject(values) || !types.isPlainObject(previous[prop])) {
                     return;
                 }
 
-                // check for methods in current property-object
-                if (typeof values === 'object') {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                    Object.entries(values).forEach(([methodName, methodFunction]) => {
-                        if (!previous[prop].hasOwnProperty(methodName)) {
-                            // move the function over
-                            previous[prop][methodName] = methodFunction;
-                            // @ts-expect-error
-                            delete overrideComp[prop][methodName];
-                        }
-                    });
-                }
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                Object.entries(values).forEach(([methodName, methodFunction]) => {
+                    if (!previous[prop].hasOwnProperty(methodName)) {
+                        // move the function over
+                        previous[prop][methodName] = methodFunction;
+                        // @ts-expect-error
+                        delete overrideComp[prop][methodName];
+                    }
+                });
             } else {
                 // move the property over
                 previous[prop] = values;

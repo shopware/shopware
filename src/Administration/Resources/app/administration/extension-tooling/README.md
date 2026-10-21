@@ -243,7 +243,8 @@ Run the specs with the Administration's Jest, so the runner matches the harness:
 node <administration>/node_modules/jest/bin/jest.js --config jest.config.mjs
 ```
 
-The harness reads two files that every installation generates itself.
+The harness lives in the Administration's `test/` folder and works in a platform checkout and in a Composer install alike.
+It reads two files that every installation generates itself.
 Generate them before the first run and after every Shopware update:
 
 ```bash

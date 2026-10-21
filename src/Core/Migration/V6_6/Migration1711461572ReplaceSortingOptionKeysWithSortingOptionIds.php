@@ -103,11 +103,14 @@ class Migration1711461572ReplaceSortingOptionKeysWithSortingOptionIds extends Mi
      */
     private function migrateDefaultSortingSlotConfig(array $sortingConfig, array $productSortings): array
     {
-        if (!\array_key_exists('defaultSorting', $sortingConfig) || !\array_key_exists('value', $sortingConfig['defaultSorting']) || empty($sortingConfig['defaultSorting']['value'])) {
+        $urlKey = $sortingConfig['defaultSorting']['value'] ?? null;
+
+        // the slot config is free JSON, so every falsy value means no default sorting
+        if (\in_array($urlKey, [null, false, 0, 0.0, '', '0', []], true)) {
             return $sortingConfig;
         }
 
-        $defaultSortingId = $productSortings[$sortingConfig['defaultSorting']['value']] ?? false;
+        $defaultSortingId = $productSortings[$urlKey] ?? false;
 
         if ($defaultSortingId === false) {
             return $sortingConfig;

@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Core\Content\ImportExport;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
@@ -18,7 +20,10 @@ use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRowEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionExportRecordEvent;
+use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
+use Shopware\Core\Content\ImportExport\Exception\RequiredByUserException;
 use Shopware\Core\Content\ImportExport\ImportExport;
+use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
 use Shopware\Core\Content\ImportExport\Processing\Reader\AbstractReader;
 use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
@@ -193,6 +198,55 @@ class ImportExportTest extends TestCase
         static::assertTrue($context->hasState(Context::SKIP_TRIGGER_FLOW));
         static::assertSame(3, $importExportBeforeImportRowEventCount);
         static::assertSame(3, $importExportBeforeImportRecordEventCount);
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     * @param array<string, mixed> $expectedRow
+     */
+    #[DataProvider('userDefaultValueProvider')]
+    #[TestDox('A user default value replaces a missing, null, empty or zero-valued cell')]
+    public function testImportAppliesUserDefaultValue(array $row, array $expectedRow): void
+    {
+        $mapping = new Mapping(key: 'customerNumber', mappedKey: 'customer_number', useDefaultValue: true, defaultValue: 'C-DEFAULT');
+
+        $pipedRow = null;
+        $pipe = static::createStub(AbstractPipe::class);
+        $pipe->method('out')->willReturnCallback(
+            static function (Config $config, array $row) use (&$pipedRow): array {
+                $pipedRow = $row;
+
+                return [];
+            }
+        );
+
+        $this->createRowImporter($row, $mapping, $pipe, new EventDispatcher())->import(Context::createDefaultContext());
+
+        static::assertSame($expectedRow, $pipedRow);
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    #[DataProvider('filledRequiredCellProvider')]
+    #[TestDox('A column required by the user accepts a filled cell')]
+    public function testImportAcceptsFilledRequiredCell(array $row): void
+    {
+        $mapping = new Mapping(key: 'customerNumber', mappedKey: 'customer_number', requiredByUser: true);
+
+        $eventDispatcher = new EventDispatcher();
+        $recordException = null;
+        $eventDispatcher->addListener(
+            ImportExportExceptionImportRecordEvent::class,
+            static function (ImportExportExceptionImportRecordEvent $event) use (&$recordException): void {
+                $recordException = $event->getException();
+                $event->removeException();
+            }
+        );
+
+        $this->createRowImporter($row, $mapping, $this->createRecordPipe(), $eventDispatcher)->import(Context::createDefaultContext());
+
+        static::assertNull($recordException);
     }
 
     public function testExportWithFinishedProgress(): void
@@ -737,5 +791,105 @@ class ImportExportTest extends TestCase
         );
 
         static::assertSame(1, $importExportBeforeExportRecordEventCount);
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    #[DataProvider('blankRequiredCellProvider')]
+    #[TestDox('A column required by the user rejects a missing, null, empty or zero-valued cell')]
+    public function testImportRejectsBlankRequiredCell(array $row): void
+    {
+        $mapping = new Mapping(key: 'customerNumber', mappedKey: 'customer_number', requiredByUser: true);
+
+        $eventDispatcher = new EventDispatcher();
+        $recordException = null;
+        $eventDispatcher->addListener(
+            ImportExportExceptionImportRecordEvent::class,
+            static function (ImportExportExceptionImportRecordEvent $event) use (&$recordException): void {
+                $recordException = $event->getException();
+                $event->removeException();
+            }
+        );
+
+        $this->createRowImporter($row, $mapping, $this->createRecordPipe(), $eventDispatcher)->import(Context::createDefaultContext());
+
+        static::assertInstanceOf(RequiredByUserException::class, $recordException);
+        static::assertSame('customer_number is set to required by the user but has no value', $recordException->getMessage());
+    }
+
+    public static function userDefaultValueProvider(): \Generator
+    {
+        yield 'a filled cell keeps its value' => [['customer_number' => 'C-1'], ['customer_number' => 'C-1']];
+        yield 'a cell holding 0 gets the default' => [['customer_number' => '0'], ['customer_number' => 'C-DEFAULT']];
+        yield 'a missing column gets the default' => [[], ['customer_number' => 'C-DEFAULT']];
+        yield 'a null cell gets the default' => [['customer_number' => null], ['customer_number' => 'C-DEFAULT']];
+        yield 'an empty cell gets the default' => [['customer_number' => ''], ['customer_number' => 'C-DEFAULT']];
+    }
+
+    public static function filledRequiredCellProvider(): \Generator
+    {
+        yield 'a cell with text' => [['customer_number' => 'C-1']];
+    }
+
+    public static function blankRequiredCellProvider(): \Generator
+    {
+        yield 'a missing column' => [[]];
+        yield 'a null cell' => [['customer_number' => null]];
+        yield 'an empty cell' => [['customer_number' => '']];
+        yield 'a cell holding 0' => [['customer_number' => '0']];
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function createRowImporter(array $row, Mapping $mapping, AbstractPipe $pipe, EventDispatcher $eventDispatcher): ImportExport
+    {
+        $reader = static::createStub(AbstractReader::class);
+        $reader->method('read')->willReturn([$row]);
+
+        $logEntity = new ImportExportLogEntity();
+        $logEntity->assign([
+            'id' => Uuid::randomHex(),
+            'activity' => ImportExportLogEntity::ACTIVITY_IMPORT,
+            'file' => (new ImportExportFileEntity())->assign([
+                'originalName' => 'customer.csv',
+                'expireDate' => new \DateTimeImmutable(),
+                'path' => 'foobar',
+                'size' => 1337,
+            ]),
+            'config' => ['mapping' => [$mapping]],
+        ]);
+        $logEntity->setState(Progress::STATE_PROGRESS);
+
+        $importExportService = static::createStub(ImportExportService::class);
+        $importExportService->method('findLog')->willReturn($logEntity);
+        $importExportService->method('getProgress')->willReturn(new Progress($logEntity->getId(), Progress::STATE_PROGRESS));
+
+        $importStrategyService = static::createStub(ImportStrategyService::class);
+        $importStrategyService->method('import')->willReturn(new ImportResult([], []));
+        $importStrategyService->method('commit')->willReturn(new ImportResult([], []));
+
+        return new ImportExport(
+            $importExportService,
+            $logEntity,
+            static::createStub(FilesystemOperator::class),
+            $eventDispatcher,
+            static::createStub(Connection::class),
+            new StaticEntityRepository([], new CustomerDefinition()),
+            $pipe,
+            $reader,
+            static::createStub(AbstractWriter::class),
+            static::createStub(FileService::class),
+            $importStrategyService
+        );
+    }
+
+    private function createRecordPipe(): AbstractPipe
+    {
+        $pipe = static::createStub(AbstractPipe::class);
+        $pipe->method('out')->willReturn(['customerNumber' => 'C-1']);
+
+        return $pipe;
     }
 }

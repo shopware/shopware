@@ -656,7 +656,7 @@ class ImportExport
                 continue;
             }
 
-            if (!\array_key_exists($csvKey, $row) || empty($row[$csvKey])) {
+            if (!\array_key_exists($csvKey, $row) || \in_array($row[$csvKey], [null, false, 0, 0.0, '', '0', []], true)) {
                 $row[$csvKey] = $mapping->getDefaultValue();
             }
         }
@@ -676,7 +676,7 @@ class ImportExport
                 continue;
             }
 
-            if (!\array_key_exists($csvKey, $row) || empty($row[$csvKey])) {
+            if (!\array_key_exists($csvKey, $row) || \in_array($row[$csvKey], [null, false, 0, 0.0, '', '0', []], true)) {
                 throw ImportExportException::requiredByUser($csvKey);
             }
         }

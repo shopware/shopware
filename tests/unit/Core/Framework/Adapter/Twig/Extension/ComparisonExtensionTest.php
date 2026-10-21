@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\Extension\ComparisonExtension;
@@ -19,6 +20,7 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 class ComparisonExtensionTest extends TestCase
 {
     #[DataProvider('comparisonProvider')]
+    #[TestDox('Comparing with operator $operator returns $expected')]
     public function testCompare(bool $expected, string $operator, mixed $value, mixed $comparable = null): void
     {
         $extension = new ComparisonExtension();
@@ -122,6 +124,14 @@ class ComparisonExtensionTest extends TestCase
         yield 'zero empty true' => [true, 'empty', 0];
         yield 'false empty true' => [true, 'empty', false];
         yield 'empty string empty true' => [true, 'empty', ''];
+        yield 'float zero empty true' => [true, 'empty', 0.0];
+        yield 'string zero empty true' => [true, 'empty', '0'];
+        yield 'empty array empty true' => [true, 'empty', []];
+        yield 'string float zero empty false' => [false, 'empty', '0.0'];
+        yield 'blank string empty false' => [false, 'empty', ' '];
+        yield 'array holding a falsy value empty false' => [false, 'empty', [0]];
+        yield 'countable object without elements empty false' => [false, 'empty', new \ArrayObject()];
+        yield 'object without properties empty false' => [false, 'empty', new \stdClass()];
         yield 'string empty false' => [false, 'empty', 'foo'];
         yield 'int empty false' => [false, 'empty', 1];
         yield 'bool empty false' => [false, 'empty', true];

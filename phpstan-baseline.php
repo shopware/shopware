@@ -8,12 +8,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Core/Content/Flow/Dispatching/Storer/ScalarValuesStorer.php',
 ];
 $ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 2,
-    'path' => __DIR__ . '/src/Core/Content/ImportExport/ImportExport.php',
-];
-$ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
     'identifier' => 'shopware.domainException',
     'count' => 1,
@@ -108,12 +102,6 @@ $ignoreErrors[] = [
     'identifier' => 'shopware.domainException',
     'count' => 1,
     'path' => __DIR__ . '/src/Core/DevOps/Environment/EnvironmentHelper.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/Adapter/Twig/Extension/ComparisonExtension.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
@@ -566,18 +554,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Core/Installer/InstallerKernel.php',
 ];
 $ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Migration/V6_6/Migration1700746995ReplaceSortingOptionKeysWithSortingOptionIds.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Migration/V6_6/Migration1711461572ReplaceSortingOptionKeysWithSortingOptionIds.php',
-];
-$ignoreErrors[] = [
     'rawMessage' => 'Method Shopware\\Core\\Profiling\\Integration\\Datadog::start() has parameter $tags with no value type specified in iterable type array.',
     'identifier' => 'missingType.iterableValue',
     'count' => 1,
@@ -648,12 +624,6 @@ $ignoreErrors[] = [
     'identifier' => 'shopware.domainException',
     'count' => 1,
     'path' => __DIR__ . '/src/Core/System/SalesChannel/SalesChannel/StoreApiInfoController.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/System/Snippet/Filter/EmptySnippetFilter.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',

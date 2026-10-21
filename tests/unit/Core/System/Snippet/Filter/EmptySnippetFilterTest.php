@@ -134,4 +134,24 @@ class EmptySnippetFilterTest extends TestCase
 
         static::assertSame($expected, $result);
     }
+
+    public function testFilterListsSnippetWithValueZero(): void
+    {
+        $snippet = [
+            'value' => '0',
+            'origin' => '0',
+            'resetTo' => '',
+            'translationKey' => 'cart.count',
+            'author' => '',
+            'id' => null,
+            'setId' => 'setId',
+            'hasFileValue' => true,
+        ];
+
+        $snippets = ['setId' => ['snippets' => ['cart.count' => $snippet]]];
+
+        $result = (new EmptySnippetFilter())->filter($snippets, true);
+
+        static::assertSame($snippets, $result);
+    }
 }

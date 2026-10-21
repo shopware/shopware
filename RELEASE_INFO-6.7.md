@@ -163,6 +163,7 @@ A new customer reports `add_shipping_info` when registering in the checkout.
 
 Storefront analytics now report the selected options of a variant as `item_variant`.
 `add_to_cart` on the product detail page reports the graduated price of the quantity the cart holds after the add.
+
 ## Hosting & Configuration
 
 ### Storefront readiness checks skip pages restricted by extensions

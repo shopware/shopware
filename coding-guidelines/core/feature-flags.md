@@ -390,16 +390,7 @@ It does not prove execution order, reachability or which condition needs the gua
 A guard in a nested function or callback does not guard the enclosing callable.
 Both `window.Feature` and a default import from `helper/feature.helper` are recognized.
 
-This initial rule skips explicitly `@private` callables, parameter-only annotations, fields, options, and class-level deprecations without an own `init()`.
-Annotate a deprecated parameter on its `@param` line rather than marking the still-supported method deprecated, following the existing analytics-event convention:
-
-```js
-/** @param {*} legacy @deprecated tag:v6.8.0 - The parameter will be removed. */
-supportedMethod(legacy) {
-    // The method itself remains supported.
-}
-```
-
+This initial rule skips explicitly `@private` callables, fields, options, and class-level deprecations without an own `init()`.
 Those skipped cases still need review to choose the appropriate runtime strategy.
 For another static-only exception, use a narrow ESLint disable with an explanation rather than a dummy guard.
 There is no automatic fix because the replacement message and conditional behavior require judgment.

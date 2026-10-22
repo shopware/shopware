@@ -354,6 +354,61 @@ class ProductConfiguratorLoaderTest extends TestCase
         }
     }
 
+    public function testLoadFromCombinationsUsesTheGivenResultWithoutAskingTheLoader(): void
+    {
+        $parentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+        $groupId = Uuid::randomHex();
+
+        $redId = Uuid::randomHex();
+        $blueId = Uuid::randomHex();
+
+        $context = Generator::generateSalesChannelContext();
+
+        $combinationLoader = static::createStub(AbstractAvailableCombinationLoader::class);
+        $combinationLoader->method('loadCombinations')->willThrowException(
+            new \LogicException('the supplied combinations have to be used')
+        );
+
+        $optionRepository = new StaticEntityRepository([
+            new PropertyGroupOptionCollection([
+                $this->buildOption($redId, 'red', $groupId, 'color', 1, settingPosition: 1),
+            ]),
+        ]);
+
+        $product = new SalesChannelProductEntity();
+        $product->setId($variantId);
+        $product->setParentId($parentId);
+        $product->setOptionIds([$redId]);
+
+        // blue is left out of the result, so the caller has narrowed what may be offered
+        $combinations = new AvailableCombinationResult();
+        $combinations->addCombination([$redId], true);
+
+        $groups = (new ProductConfiguratorLoader($combinationLoader, $optionRepository))
+            ->loadFromCombinations($product, $combinations, $context);
+
+        static::assertSame([$groupId], array_values($groups->getIds()));
+
+        $options = $groups->get($groupId)?->getOptions();
+        static::assertNotNull($options);
+        static::assertSame([$redId], array_values($options->getIds()));
+        static::assertNotContains($blueId, $options->getIds());
+    }
+
+    public function testLoadFromCombinationsReturnsNoGroupsForAProductWithoutAParent(): void
+    {
+        $product = new SalesChannelProductEntity();
+        $product->setId(Uuid::randomHex());
+
+        $groups = (new ProductConfiguratorLoader(
+            static::createStub(AbstractAvailableCombinationLoader::class),
+            new StaticEntityRepository([])
+        ))->loadFromCombinations($product, new AvailableCombinationResult(), Generator::generateSalesChannelContext());
+
+        static::assertCount(0, $groups);
+    }
+
     private function buildOption(
         string $optionId,
         string $optionName,

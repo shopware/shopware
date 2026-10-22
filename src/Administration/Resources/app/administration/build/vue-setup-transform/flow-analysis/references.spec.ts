@@ -2,14 +2,19 @@
  * @sw-package framework
  */
 
-import { collectExpressionReferences, collectExpressionWriteTargets } from './references';
+import { collectExpressionOccurrences, collectExpressionReferences, collectPatternOccurrences } from './references';
 
 function getReferences(expression: string, templateScope: string[] = []): string[] {
     return Array.from(collectExpressionReferences(expression, new Set(templateScope))).sort();
 }
 
-function getWriteTargets(expression: string, templateScope: string[] = []): string[] {
-    return Array.from(collectExpressionWriteTargets(expression, new Set(templateScope))).sort();
+/** Every occurrence as `name@start-end[:expansion]`, so a spec can pin the exact rewrite sites. */
+function getOccurrences(expression: string, templateScope: string[] = []): string[] {
+    return collectExpressionOccurrences(expression, new Set(templateScope)).map(
+        (occurrence) =>
+            `${occurrence.name}@${occurrence.start}-${occurrence.end}` +
+            (occurrence.expansion === 'plain' ? '' : `:${occurrence.expansion}`),
+    );
 }
 
 describe('build/vue-setup-transform/flow-analysis references', () => {
@@ -22,10 +27,7 @@ describe('build/vue-setup-transform/flow-analysis references', () => {
     });
 
     it('reads both the object and the key of a computed optional chain', () => {
-        expect(getReferences('source?.[dynamicKey]')).toEqual([
-            'dynamicKey',
-            'source',
-        ]);
+        expect(getReferences('source?.[dynamicKey]')).toEqual(['dynamicKey', 'source']);
     });
 
     it('looks through TS as-casts', () => {
@@ -33,9 +35,7 @@ describe('build/vue-setup-transform/flow-analysis references', () => {
     });
 
     it('lets callback parameters shadow outer names', () => {
-        expect(getReferences('items.map(({ info, label: localLabel }) => info + localLabel).join(",")')).toEqual([
-            'items',
-        ]);
+        expect(getReferences('items.map(({ info, label: localLabel }) => info + localLabel).join(",")')).toEqual(['items']);
     });
 
     it('does not let a named function-expression id suppress a same-named sibling read', () => {
@@ -49,10 +49,7 @@ describe('build/vue-setup-transform/flow-analysis references', () => {
     });
 
     it('reads default values inside callback parameters', () => {
-        expect(getReferences('items.map(({ label = fallbackLabel }) => label)')).toEqual([
-            'fallbackLabel',
-            'items',
-        ]);
+        expect(getReferences('items.map(({ label = fallbackLabel }) => label)')).toEqual(['fallbackLabel', 'items']);
     });
 
     it('lets earlier parameters shadow reads in later defaults', () => {
@@ -64,35 +61,21 @@ describe('build/vue-setup-transform/flow-analysis references', () => {
     });
 
     it('excludes template-scope names', () => {
-        expect(
-            getReferences('info + label', [
-                'info',
-            ]),
-        ).toEqual(['label']);
+        expect(getReferences('info + label', ['info'])).toEqual(['label']);
     });
 
     it('handles inline-handler statements, scoping local declarations', () => {
         // Not a single expression, so it parses as statements: `doubled` is declared locally and does
         // not read from setup, while `count` and `emit` do.
-        expect(getReferences('const doubled = count * 2; emit(doubled)')).toEqual([
-            'count',
-            'emit',
-        ]);
+        expect(getReferences('const doubled = count * 2; emit(doubled)')).toEqual(['count', 'emit']);
     });
 
     it('scopes block-statement declarations', () => {
-        expect(getReferences('if (visible) { const local = count; log(local) }')).toEqual([
-            'count',
-            'log',
-            'visible',
-        ]);
+        expect(getReferences('if (visible) { const local = count; log(local) }')).toEqual(['count', 'log', 'visible']);
     });
 
     it('scopes catch-clause parameters', () => {
-        expect(getReferences('try { risky() } catch (error) { report(error) }')).toEqual([
-            'report',
-            'risky',
-        ]);
+        expect(getReferences('try { risky() } catch (error) { report(error) }')).toEqual(['report', 'risky']);
     });
 
     it('scopes a named function expression and its parameters', () => {
@@ -100,37 +83,43 @@ describe('build/vue-setup-transform/flow-analysis references', () => {
         expect(getReferences('[1].map(function helper(value) { return value * factor; })')).toEqual(['factor']);
     });
 
-    describe('write targets', () => {
-        it('collects an assignment target', () => {
-            expect(getWriteTargets('count = count + 1')).toEqual(['count']);
+    describe('occurrences', () => {
+        it('reports the range of every read, in source order', () => {
+            expect(getOccurrences('count + count * factor')).toEqual(['count@0-5', 'count@8-13', 'factor@16-22']);
         });
 
-        it('collects an update-expression operand', () => {
-            expect(getWriteTargets('count++')).toEqual(['count']);
+        it('reports a write target like any other read, so a rewrite covers it', () => {
+            // `count++` has to be rewritten as much as `{{ count }}` does - it is the write that made the
+            // A write target is rewritten like any other read.
+            expect(getOccurrences('count++')).toEqual(['count@0-5']);
         });
 
-        it('collects nothing for a read-only expression', () => {
-            expect(getWriteTargets('count + 1')).toEqual([]);
+        it('marks a shorthand object property so the key survives the rewrite', () => {
+            expect(getOccurrences('({ info, label: caption })')).toEqual(['info@3-7:shorthand-property', 'caption@16-23']);
         });
 
-        it('collects several targets across statements', () => {
-            expect(getWriteTargets('first = 1; second++')).toEqual([
-                'first',
-                'second',
+        it('marks a defaulted shorthand assignment target so the key survives the rewrite', () => {
+            expect(getOccurrences('({ count = fallback } = source)')).toEqual([
+                'count@3-8:shorthand-property',
+                'fallback@11-19',
+                'source@24-30',
             ]);
         });
 
-        it('excludes template-scope names', () => {
-            expect(
-                getWriteTargets('local = 1', [
-                    'local',
-                ]),
-            ).toEqual([]);
+        it('reports no occurrence for a shadowed or template-scoped name', () => {
+            expect(getOccurrences('items.map((info) => info + label)', ['items'])).toEqual(['label@27-32']);
         });
 
-        it('does not treat a member write as a direct identifier write', () => {
-            // `count.value = 1` writes a property; `count` itself is only read (out of scope here).
-            expect(getWriteTargets('count.value = 1')).toEqual([]);
+        it('reports binding-pattern reads relative to the pattern text', () => {
+            expect(
+                collectPatternOccurrences('{ label = fallbackLabel, [key]: value }', new Set()).map(
+                    (occurrence) => `${occurrence.name}@${occurrence.start}-${occurrence.end}`,
+                ),
+            ).toEqual(['fallbackLabel@10-23', 'key@26-29']);
+        });
+
+        it('reports nothing for an unparseable binding pattern', () => {
+            expect(collectPatternOccurrences('{ not a pattern', new Set())).toEqual([]);
         });
     });
 });

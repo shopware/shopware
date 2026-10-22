@@ -15,10 +15,7 @@ const { debounce, get } = Shopware.Utils;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     emits: [
         'update:value',
@@ -28,10 +25,7 @@ export default {
         'search-term-change',
     ],
 
-    mixins: [
-        Mixin.getByName('remove-api-error'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('remove-api-error'), Mixin.getByName('notification')],
 
     props: {
         // null is a common value here, e.g. passed by the inheritance system.
@@ -54,10 +48,7 @@ export default {
             default: '',
         },
         labelProperty: {
-            type: [
-                String,
-                Array,
-            ],
+            type: [String, Array],
             required: false,
             default: 'name',
         },
@@ -108,18 +99,25 @@ export default {
             type: String,
             required: false,
             default: 'right',
-            validValues: [
-                'bottom',
-                'right',
-                'left',
-            ],
+            validValues: ['bottom', 'right', 'left'],
             validator(value) {
-                return [
-                    'bottom',
-                    'right',
-                    'left',
-                ].includes(value);
+                return ['bottom', 'right', 'left'].includes(value);
             },
+        },
+        descriptionProperty: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        descriptionFormatter: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        descriptionFormatterArgs: {
+            type: Array,
+            required: false,
+            default: () => [],
         },
         allowEntityCreation: {
             type: Boolean,
@@ -130,7 +128,7 @@ export default {
             type: String,
             required: false,
             default() {
-                return Shopware.Snippet.tc('global.sw-single-select.labelEntity');
+                return Shopware.Snippet.t('global.sw-single-select.labelEntity');
             },
         },
         advancedSelectionComponent: {
@@ -209,6 +207,16 @@ export default {
     },
 
     computed: {
+        descriptionFormatterFn() {
+            if (!this.descriptionFormatter) {
+                return null;
+            }
+
+            const formatter = Shopware.Filter.getByName(this.descriptionFormatter);
+
+            return typeof formatter === 'function' ? formatter : null;
+        },
+
         inputClasses() {
             return {
                 'is--expanded': this.isExpanded,
@@ -292,10 +300,7 @@ export default {
                     this.value,
                     { ...this.context, inheritance: true },
                     this.criteria,
-                    this.getCacheOptions([
-                        'selected',
-                        this.value,
-                    ]),
+                    this.getCacheOptions(['selected', this.value]),
                 )
                 .then((item) => {
                     if (!item && !this.disabled) {
@@ -402,10 +407,7 @@ export default {
                 .search(
                     this.criteria,
                     { ...this.context, inheritance: true },
-                    this.getCacheOptions([
-                        'search',
-                        this.criteria.parse(),
-                    ]),
+                    this.getCacheOptions(['search', this.criteria.parse()]),
                 )
                 .then((result) => {
                     this.displaySearch(result);
@@ -422,10 +424,7 @@ export default {
             }
 
             return {
-                cacheKey: [
-                    ...this.cacheKey,
-                    ...key,
-                ],
+                cacheKey: [...this.cacheKey, ...key],
                 ttl: this.cacheTtl,
             };
         },
@@ -439,10 +438,7 @@ export default {
 
             const criteria = new Criteria(1, this.resultLimit);
             criteria.addIncludes({
-                [this.entity]: [
-                    'id',
-                    'name',
-                ],
+                [this.entity]: ['id', 'name'],
             });
             criteria.addFilter(Criteria.equals('name', term));
 
@@ -473,6 +469,25 @@ export default {
                     });
                 }
             }
+        },
+
+        displayDescriptionProperty(item) {
+            if (!this.descriptionProperty) {
+                return '';
+            }
+
+            const value =
+                this.getKey(item, this.descriptionProperty) ?? this.getKey(item, `translated.${this.descriptionProperty}`);
+
+            if (value === null || value === undefined) {
+                return '';
+            }
+
+            if (!this.descriptionFormatterFn) {
+                return value;
+            }
+
+            return this.descriptionFormatterFn(value, ...this.descriptionFormatterArgs);
         },
 
         displayLabelProperty(item) {

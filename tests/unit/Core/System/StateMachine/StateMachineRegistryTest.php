@@ -52,7 +52,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 #[Package('checkout')]
 #[CoversClass(StateMachineRegistry::class)]
-#[CoversClass(StateMachineTransitionResult::class)]
 class StateMachineRegistryTest extends TestCase
 {
     private int $transactionalCalls = 0;
@@ -333,6 +332,9 @@ class StateMachineRegistryTest extends TestCase
         $fixture->entityRepository->expects($this->once())
             ->method('upsert')
             ->with([['id' => $transition->getEntityId(), 'stateId' => $coreDestination->getId()]], $context);
+
+        $fixture->historyRepository->expects($this->once())
+            ->method('create');
 
         $stateMachineStates = $fixture->registry->transition($transition, $context);
 

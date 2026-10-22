@@ -55,10 +55,7 @@ const contentTwig = [
 // parsed the interpolation, `vue/no-deprecated-filter` (and every other
 // mustache-scoped rule) would fire on Twig that was never linted before support
 // for `.twig` was added — including downstream/theme templates.
-const filterTwig = [
-    '<p>{{ theme.description | truncate(140) }}</p>',
-    '',
-].join('\n');
+const filterTwig = ['<p>{{ theme.description | truncate(140) }}</p>', ''].join('\n');
 
 const probeScript = `
 import { ESLint } from 'eslint';
@@ -89,18 +86,10 @@ describe('extension-tooling legacy Twig lint behaviour', () => {
     let result: Record<string, Array<string | null>>;
 
     beforeAll(() => {
-        const output = execFileSync(
-            process.execPath,
-            [
-                '--input-type=module',
-                '-e',
-                probeScript,
-            ],
-            {
-                cwd: path.resolve(__dirname, '../..'),
-                encoding: 'utf8',
-            },
-        );
+        const output = execFileSync(process.execPath, ['--input-type=module', '-e', probeScript], {
+            cwd: path.resolve(__dirname, '../..'),
+            encoding: 'utf8',
+        });
 
         result = JSON.parse(output) as Record<string, Array<string | null>>;
     });

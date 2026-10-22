@@ -64,13 +64,18 @@
                 {% block sw_search_bar_type %}
                 <span
                     class="sw-search-bar__type--v2"
-                    :class="{ 'is--module-colored': searchTypeColor }"
-                    :style="searchTypeColor ? { '--sw-search-bar-type-color': searchTypeColor } : null"
                     role="button"
                     tabindex="0"
                     @click="onOpenModuleFiltersDropDown"
                     @keydown.enter="onOpenModuleFiltersDropDown"
                 >
+                    <mt-icon
+                        v-if="searchTypeIcon"
+                        class="sw-search-bar__type-icon"
+                        :name="searchTypeIcon"
+                        :color="searchTypeColor || undefined"
+                        size="var(--scale-size-16)"
+                    />
                     {{ getLabelSearchType() }}
                     <mt-icon
                         name="solid-chevron-down-s"
@@ -184,6 +189,7 @@
                                 :index="index"
                                 :entity-icon-color="getEntityIconColor(entity.entity)"
                                 :entity-icon-name="getEntityIconName(entity.entity)"
+                                @click-search-result="onClickSearchResult"
                             />
 
                             {% block sw_search_bar_results_list_bar_item %}
@@ -432,6 +438,7 @@
                                 :index="index"
                                 :entity-icon-color="getEntityIconColor(item.entity)"
                                 :entity-icon-name="getEntityIconName(item.entity)"
+                                @click-search-result="onClickSearchResult"
                             />
                         </ul>
                         {% endblock %}

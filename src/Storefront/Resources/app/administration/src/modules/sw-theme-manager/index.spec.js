@@ -17,9 +17,7 @@ describe('sw-theme-manager module', () => {
 
         expect(module).toBeDefined();
         expect(module.manifest.navigation).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({ id: 'sw-theme-manager', path: 'sw.theme.manager.index' }),
-            ]),
+            expect.arrayContaining([expect.objectContaining({ id: 'sw-theme-manager', path: 'sw.theme.manager.index' })]),
         );
 
         const routes = module.routes;
@@ -53,9 +51,7 @@ describe('sw-theme-manager module', () => {
         const routeMiddleware = module.manifest.routeMiddleware;
         const currentRoute = {
             name: 'sw.sales.channel.detail',
-            children: [
-                { name: 'sw.sales.channel.detail.theme' },
-            ],
+            children: [{ name: 'sw.sales.channel.detail.theme' }],
         };
 
         routeMiddleware(jest.fn(), currentRoute);

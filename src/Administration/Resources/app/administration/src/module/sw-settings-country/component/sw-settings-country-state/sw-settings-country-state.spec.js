@@ -83,10 +83,7 @@ async function createWrapper(privileges = []) {
                     'sw-context-menu-item': true,
                     'sw-extension-component-section': true,
                     'sw-one-to-many-grid': {
-                        props: [
-                            'allowDelete',
-                            'collection',
-                        ],
+                        props: ['allowDelete', 'collection'],
                         template: `
                     <div class="sw-one-to-many-grid">
                     <template v-for="item in collection">
@@ -122,14 +119,14 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
     });
 
     it('should be able to create a new country state', async () => {
-        const wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        const wrapper = await createWrapper(['country.editor']);
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-settings-country-state__add-country-state-button');
+        const createButtonComponent = wrapper.findComponent('.sw-settings-country-state__add-country-state-button');
 
         expect(createButton.attributes().disabled).toBeFalsy();
+        expect(createButtonComponent.props('size')).toBe('small');
     });
 
     it('should not be able to create a new country state', async () => {
@@ -142,9 +139,7 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
     });
 
     it('should be able to edit a country state', async () => {
-        const wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        const wrapper = await createWrapper(['country.editor']);
 
         await wrapper.setProps({
             country: {
@@ -192,9 +187,7 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
     });
 
     it('should be able to delete a country state', async () => {
-        const wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        const wrapper = await createWrapper(['country.editor']);
         await wrapper.vm.$nextTick();
 
         await wrapper.setProps({

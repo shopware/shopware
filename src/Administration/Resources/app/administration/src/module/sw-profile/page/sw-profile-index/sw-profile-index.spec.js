@@ -16,7 +16,12 @@ async function createWrapper(
     isSso = { isSso: false },
     saveFunction = () => Promise.resolve({}),
     loginService = { loginByUsername: () => Promise.resolve({}), logout: () => {} },
-    { featureActive = false, routeName = 'sw.profile.index.general', routerPush = jest.fn() } = {},
+    {
+        featureActive = false,
+        routeName = 'sw.profile.index.general',
+        routerPush = jest.fn(),
+        changeset = [{ changes: { id: '1337' } }],
+    } = {},
 ) {
     return mount(await wrapTestComponent('sw-profile-index', { sync: true }), {
         global: {
@@ -44,17 +49,12 @@ async function createWrapper(
                 'sw-tabs': {
                     name: 'sw-tabs',
                     template: '<div class="sw-tabs"><slot /></div>',
-                    props: [
-                        'positionIdentifier',
-                    ],
+                    props: ['positionIdentifier'],
                 },
                 'sw-tabs-item': {
                     name: 'sw-tabs-item',
                     template: '<div class="sw-tabs-item"><slot /></div>',
-                    props: [
-                        'route',
-                        'title',
-                    ],
+                    props: ['route', 'title'],
                 },
                 'mt-tabs': {
                     name: 'mt-tabs',
@@ -115,7 +115,7 @@ async function createWrapper(
                                 }),
                             search: () => Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null, [], 0)),
                             getSyncChangeset: () => ({
-                                changeset: [{ changes: { id: '1337' } }],
+                                changeset,
                             }),
                             save: () => Promise.resolve(),
                         };
@@ -286,9 +286,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
     });
 
     it('should be able to save own user', async () => {
-        const wrapper = await createWrapper([
-            'user.update_profile',
-        ]);
+        const wrapper = await createWrapper(['user.update_profile']);
         await flushPromises();
 
         await wrapper.setData({
@@ -695,6 +693,38 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         wrapper.vm.saveUser({});
         await flushPromises();
 
+        expect(loginByUsername).not.toHaveBeenCalled();
+        expect(wrapper.vm.isSaveSuccessful).toBe(true);
+        expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it('should skip updateUser but still save theme when the user has no changes (non-user:editor path)', async () => {
+        const loginByUsername = jest.fn(() => Promise.resolve({}));
+        const loginService = { loginByUsername, logout: jest.fn() };
+        const updateUser = jest.fn(() => Promise.resolve({}));
+
+        const wrapper = await createWrapper([], { isSso: false }, updateUser, loginService, { changeset: [] });
+        await flushPromises();
+
+        await wrapper.setData({
+            newPassword: null,
+            user: {
+                id: '87923',
+                username: 'admin',
+                localeId: '1337',
+                email: 'foo@bar.baz',
+            },
+        });
+
+        wrapper.vm.updateCurrentUser = jest.fn(async () => {});
+        wrapper.vm.saveUserTheme = jest.fn(async () => {});
+
+        wrapper.vm.saveUser({});
+        await flushPromises();
+
+        expect(updateUser).not.toHaveBeenCalled();
+        expect(wrapper.vm.updateCurrentUser).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.saveUserTheme).toHaveBeenCalledTimes(1);
         expect(loginByUsername).not.toHaveBeenCalled();
         expect(wrapper.vm.isSaveSuccessful).toBe(true);
         expect(wrapper.vm.isLoading).toBe(false);

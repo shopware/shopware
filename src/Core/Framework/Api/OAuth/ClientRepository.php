@@ -9,6 +9,7 @@ use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
+use Shopware\Core\Framework\Api\OAuth\Client\PublicClientRegistry;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
@@ -32,12 +33,17 @@ class ClientRepository implements ClientRepositoryInterface
     public function __construct(
         private readonly Connection $connection,
         private readonly ClockInterface $clock,
+        private readonly PublicClientRegistry $publicClients,
     ) {
     }
 
     public function validateClient(string $clientIdentifier, ?string $clientSecret, ?string $grantType): bool
     {
         if (($grantType === 'password' || $grantType === 'refresh_token') && $clientIdentifier === 'administration') {
+            return true;
+        }
+
+        if (\in_array($grantType, PublicClientRegistry::GRANT_TYPES, true) && $this->publicClients->has($clientIdentifier)) {
             return true;
         }
 
@@ -74,6 +80,11 @@ class ClientRepository implements ClientRepositoryInterface
     {
         if ($clientIdentifier === 'administration') {
             return new ApiClient('administration', true, confidential: false);
+        }
+
+        $publicClient = $this->publicClients->get($clientIdentifier);
+        if ($publicClient !== null) {
+            return $publicClient;
         }
 
         $accessKey = $this->getByAccessKey($clientIdentifier);

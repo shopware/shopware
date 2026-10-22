@@ -15,10 +15,7 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    inject: [
-        'seoUrlTemplateService',
-        'repositoryFactory',
-    ],
+    inject: ['seoUrlTemplateService', 'repositoryFactory'],
 
     emits: ['sales-channel-changed'],
 
@@ -77,10 +74,7 @@ export default {
                 return true;
             }
 
-            const supported = [
-                Defaults.storefrontSalesChannelTypeId,
-                Defaults.apiSalesChannelTypeId,
-            ];
+            const supported = [Defaults.storefrontSalesChannelTypeId, Defaults.apiSalesChannelTypeId];
             if (!supported.includes(this.currentSalesChannel.typeId)) {
                 return false;
             }
@@ -187,22 +181,17 @@ export default {
         createVariableOptions(id, data) {
             const storeOptions = [];
 
-            Object.entries(data).forEach(
-                ([
-                    property,
-                    value,
-                ]) => {
-                    storeOptions.push({ name: `${property}` });
+            Object.entries(data).forEach(([property, value]) => {
+                storeOptions.push({ name: `${property}` });
 
-                    if (value instanceof Object) {
-                        Object.keys(value).forEach((innerProperty) => {
-                            storeOptions.push({
-                                name: `${property}.${innerProperty}`,
-                            });
+                if (value instanceof Object) {
+                    Object.keys(value).forEach((innerProperty) => {
+                        storeOptions.push({
+                            name: `${property}.${innerProperty}`,
                         });
-                    }
-                },
-            );
+                    });
+                }
+            });
 
             this.variableStores[id] = storeOptions;
         },

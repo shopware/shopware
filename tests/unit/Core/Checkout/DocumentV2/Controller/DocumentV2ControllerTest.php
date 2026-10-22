@@ -8,16 +8,15 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
-use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\Document\DocumentDefinition;
-use Shopware\Core\Checkout\Document\DocumentEntity;
-use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
 use Shopware\Core\Checkout\DocumentV2\App\AppDocumentTypeConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\Controller\DocumentV2Controller;
+use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentDefinition;
+use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
@@ -30,16 +29,22 @@ use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileNameBuilder;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentMediaGuard;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentReader;
+use Shopware\Core\Checkout\DocumentV2\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\Feature\AppFeature;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
@@ -50,11 +55,14 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Doctrine\FakeQueryBuilder;
+use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\DocumentConfigLoaderFactory;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentDataProvider;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentType;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -83,11 +91,21 @@ class DocumentV2ControllerTest extends TestCase
 
     private AppFeatureStorage $appFeatureStorage;
 
+    /**
+     * @var EntityRepository<MediaCollection>
+     */
+    private EntityRepository $mediaRepository;
+
     protected function setUp(): void
     {
         $this->documentRepository = new StaticEntityRepository([], new DocumentDefinition());
         $this->documentFileRepository = new StaticEntityRepository([], new DocumentFileDefinition());
         $this->documentTypeRepository = new StaticEntityRepository([], new DocumentTypeDefinition());
+
+        $this->mediaRepository = static::createStub(EntityRepository::class);
+        $this->mediaRepository->method('search')->willReturn(
+            $this->createMediaSearchResult($this->createMedia(null, private: false)),
+        );
 
         $storage = static::createStub(AppFeatureStorage::class);
         $storage->method('forActiveApps')->willReturn([]);
@@ -115,6 +133,8 @@ class DocumentV2ControllerTest extends TestCase
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
+            $this->mediaRepository,
+            $this->createDocumentMediaGuard(),
         );
 
         $response = $controller->availableTypes();
@@ -155,6 +175,8 @@ class DocumentV2ControllerTest extends TestCase
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
+            $this->mediaRepository,
+            $this->createDocumentMediaGuard(),
         );
 
         $response = $controller->availableTypes();
@@ -169,6 +191,7 @@ class DocumentV2ControllerTest extends TestCase
         $orderId = Uuid::randomHex();
 
         $document = new DocumentEntity();
+        $document->setDocumentNumber('1000');
 
         $rendererRegistry = new DocumentRendererRegistry([
             new StaticDocumentRenderer(DocumentFormat::HTML),
@@ -183,6 +206,8 @@ class DocumentV2ControllerTest extends TestCase
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
+            $this->mediaRepository,
+            $this->createDocumentMediaGuard(),
         );
 
         $response = $controller->create(
@@ -190,7 +215,6 @@ class DocumentV2ControllerTest extends TestCase
                 $orderId,
                 DocumentType::INVOICE,
                 [DocumentFormat::HTML],
-                '1000',
             ),
             Context::createDefaultContext(),
         );
@@ -200,6 +224,7 @@ class DocumentV2ControllerTest extends TestCase
             [
                 'deepLinkCode' => $document->getDeepLinkCode(),
                 'documentId' => $document->getId(),
+                'documentNumber' => '1000',
                 'formats' => [
                     DocumentFormat::HTML->value,
                 ],
@@ -225,6 +250,8 @@ class DocumentV2ControllerTest extends TestCase
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
+            $this->mediaRepository,
+            $this->createDocumentMediaGuard(),
         );
 
         $response = $controller->preview(
@@ -266,6 +293,8 @@ class DocumentV2ControllerTest extends TestCase
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
+            $this->mediaRepository,
+            $this->createDocumentMediaGuard(),
         );
 
         $response = $controller->upload(
@@ -313,6 +342,114 @@ class DocumentV2ControllerTest extends TestCase
         static::assertSame($mediaId, $this->documentFileRepository->creates[0][0]['mediaId']);
     }
 
+    public function testUploadRejectsPrivateReferencedMediaOutsideTheDocumentFolder(): void
+    {
+        $orderId = Uuid::randomHex();
+        $orderVersionId = Uuid::randomHex();
+
+        $rendererRegistry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::PDF),
+        ]);
+
+        $mediaRepository = static::createStub(EntityRepository::class);
+        $mediaRepository->method('search')->willReturn(
+            $this->createMediaSearchResult($this->createMedia(Uuid::randomHex(), private: true)),
+        );
+
+        $controller = new DocumentV2Controller(
+            $this->createGenerator($rendererRegistry, $orderId),
+            $this->createDocumentReader($rendererRegistry),
+            $this->createTypeRegistry(),
+            $this->createArchiveGenerator(static::createStub(MediaService::class)),
+            $this->documentRepository,
+            $this->createDocumentPersister(),
+            static::createStub(MediaService::class),
+            static::createStub(FileNameProvider::class),
+            $mediaRepository,
+            $this->createDocumentMediaGuard(),
+        );
+
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setIsAdmin(false);
+        $source->setPermissions(['document:create']);
+
+        static::expectExceptionObject(DocumentV2Exception::documentMediaNotAllowed('found-media'));
+
+        $controller->upload(
+            Request::create(
+                '/api/_action/order/document-v2/upload',
+                Request::METHOD_POST,
+                server: ['CONTENT_TYPE' => 'application/json'],
+                content: json_encode([
+                    'documentType' => DocumentType::INVOICE->value,
+                    'format' => DocumentFormat::PDF->value,
+                    'mediaId' => Uuid::randomHex(),
+                    'orderId' => $orderId,
+                    'orderVersionId' => $orderVersionId,
+                ], \JSON_THROW_ON_ERROR),
+            ),
+            Context::createDefaultContext($source),
+        );
+    }
+
+    public function testUploadRejectsNonExistentMediaId(): void
+    {
+        $orderId = Uuid::randomHex();
+        $orderVersionId = Uuid::randomHex();
+        $mediaId = Uuid::randomHex();
+
+        $rendererRegistry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::PDF),
+        ]);
+
+        $emptyMediaRepository = static::createStub(EntityRepository::class);
+        $emptyMediaRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                'media',
+                0,
+                new MediaCollection([]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext(),
+            ),
+        );
+
+        $controller = new DocumentV2Controller(
+            $this->createGenerator($rendererRegistry, $orderId),
+            $this->createDocumentReader($rendererRegistry),
+            $this->createTypeRegistry(),
+            $this->createArchiveGenerator(static::createStub(MediaService::class)),
+            $this->documentRepository,
+            $this->createDocumentPersister(),
+            static::createStub(MediaService::class),
+            static::createStub(FileNameProvider::class),
+            $emptyMediaRepository,
+            $this->createDocumentMediaGuard(),
+        );
+
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setIsAdmin(false);
+        $source->setPermissions(['document:create']);
+
+        static::expectExceptionObject(DocumentV2Exception::mediaNotFound($mediaId));
+
+        $controller->upload(
+            Request::create(
+                '/api/_action/order/document-v2/upload',
+                Request::METHOD_POST,
+                server: ['CONTENT_TYPE' => 'application/json'],
+                content: json_encode([
+                    'documentType' => DocumentType::INVOICE->value,
+                    'format' => DocumentFormat::PDF->value,
+                    'mediaId' => $mediaId,
+                    'orderId' => $orderId,
+                    'orderVersionId' => $orderVersionId,
+                ], \JSON_THROW_ON_ERROR),
+            ),
+            Context::createDefaultContext($source),
+        );
+    }
+
     public function testUploadResolvesTheAppProvidedSentinelForAnAppDocumentType(): void
     {
         $sentinelId = Uuid::randomHex();
@@ -340,6 +477,8 @@ class DocumentV2ControllerTest extends TestCase
             ),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
+            $this->mediaRepository,
+            $this->createDocumentMediaGuard(),
         );
 
         $response = $controller->upload(
@@ -381,6 +520,8 @@ class DocumentV2ControllerTest extends TestCase
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
+            $this->mediaRepository,
+            $this->createDocumentMediaGuard(),
         );
 
         static::expectExceptionObject(
@@ -454,6 +595,8 @@ class DocumentV2ControllerTest extends TestCase
             $this->createDocumentPersister(),
             $mediaService,
             $fileNameProvider,
+            $this->mediaRepository,
+            $this->createDocumentMediaGuard(),
         );
 
         $response = $controller->upload(
@@ -530,6 +673,8 @@ class DocumentV2ControllerTest extends TestCase
             $this->createDocumentPersister(),
             $mediaService,
             static::createStub(FileNameProvider::class),
+            $this->mediaRepository,
+            $this->createDocumentMediaGuard(),
         );
 
         $response = $controller->download(
@@ -582,6 +727,8 @@ class DocumentV2ControllerTest extends TestCase
             $this->createDocumentPersister(),
             $mediaService,
             static::createStub(FileNameProvider::class),
+            $this->mediaRepository,
+            $this->createDocumentMediaGuard(),
         );
 
         $response = $controller->download($documentId, DocumentFormat::PDF->value, Context::createDefaultContext());
@@ -631,6 +778,8 @@ class DocumentV2ControllerTest extends TestCase
             $this->createDocumentPersister(),
             $mediaService,
             static::createStub(FileNameProvider::class),
+            $this->mediaRepository,
+            $this->createDocumentMediaGuard(),
         );
 
         $response = $controller->download($documentId, 'custom', Context::createDefaultContext());
@@ -685,6 +834,8 @@ class DocumentV2ControllerTest extends TestCase
             $this->createDocumentPersister(),
             $mediaService,
             static::createStub(FileNameProvider::class),
+            $this->mediaRepository,
+            $this->createDocumentMediaGuard(),
         );
 
         $response = $controller->download($documentId, $format, Context::createDefaultContext());
@@ -769,6 +920,8 @@ class DocumentV2ControllerTest extends TestCase
             $this->createDocumentPersister(),
             $mediaService,
             static::createStub(FileNameProvider::class),
+            $this->mediaRepository,
+            $this->createDocumentMediaGuard(),
         );
 
         $response = $controller->downloadArchive(
@@ -811,6 +964,8 @@ class DocumentV2ControllerTest extends TestCase
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
+            $this->mediaRepository,
+            $this->createDocumentMediaGuard(),
         );
 
         $documentIds = [];
@@ -845,6 +1000,8 @@ class DocumentV2ControllerTest extends TestCase
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
+            $this->mediaRepository,
+            $this->createDocumentMediaGuard(),
         );
 
         static::expectExceptionObject(DocumentV2Exception::invalidRequestParameter('documentIds'));
@@ -875,6 +1032,8 @@ class DocumentV2ControllerTest extends TestCase
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
+            $this->mediaRepository,
+            $this->createDocumentMediaGuard(),
         );
 
         static::expectExceptionObject(DocumentV2Exception::documentArchiveUnavailable($documentIds));
@@ -915,6 +1074,8 @@ class DocumentV2ControllerTest extends TestCase
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
+            $this->mediaRepository,
+            $this->createDocumentMediaGuard(),
         );
 
         static::expectExceptionObject(
@@ -968,6 +1129,8 @@ class DocumentV2ControllerTest extends TestCase
             $this->createDocumentPersister(),
             $mediaService,
             static::createStub(FileNameProvider::class),
+            $this->mediaRepository,
+            $this->createDocumentMediaGuard(),
         );
 
         static::expectExceptionObject(DocumentV2Exception::documentFileExtensionUnavailable($documentId, $format));
@@ -998,6 +1161,8 @@ class DocumentV2ControllerTest extends TestCase
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
+            $this->mediaRepository,
+            $this->createDocumentMediaGuard(),
         );
 
         $this->expectExceptionObject(DocumentV2Exception::documentNotFound($documentId));
@@ -1005,6 +1170,39 @@ class DocumentV2ControllerTest extends TestCase
         $controller->download(
             $documentId,
             DocumentFormat::PDF->value,
+            Context::createDefaultContext(),
+        );
+    }
+
+    private function createDocumentMediaGuard(): DocumentMediaGuard
+    {
+        return new DocumentMediaGuard(StaticEntityRepository::of(MediaFolderCollection::class, [[]]));
+    }
+
+    private function createMedia(?string $mediaFolderId, bool $private): MediaEntity
+    {
+        $media = new MediaEntity();
+        $media->setId('found-media');
+        $media->setPrivate($private);
+
+        if ($mediaFolderId !== null) {
+            $media->setMediaFolderId($mediaFolderId);
+        }
+
+        return $media;
+    }
+
+    /**
+     * @return EntitySearchResult<MediaCollection>
+     */
+    private function createMediaSearchResult(MediaEntity $media): EntitySearchResult
+    {
+        return new EntitySearchResult(
+            'media',
+            1,
+            new MediaCollection([$media]),
+            null,
+            new Criteria(),
             Context::createDefaultContext(),
         );
     }
@@ -1090,6 +1288,7 @@ class DocumentV2ControllerTest extends TestCase
             $mediaService ?? static::createStub(MediaService::class),
             $rendererRegistry,
             new DocumentFileResolver(),
+            $this->createDocumentMediaGuard(),
         );
     }
 
@@ -1102,6 +1301,8 @@ class DocumentV2ControllerTest extends TestCase
                 new StaticDocumentRenderer(DocumentFormat::PDF),
                 new StaticDocumentRenderer(DocumentFormat::HTML),
             ]),
+            new DocumentFileNameBuilder(new MockClock()),
+            $this->createDocumentMediaGuard(),
         );
     }
 
@@ -1159,12 +1360,15 @@ class DocumentV2ControllerTest extends TestCase
         $connection = static::createStub(Connection::class);
         $connection->method('createQueryBuilder')->willReturn(new FakeQueryBuilder($connection, []));
 
+        $numberGenerator = static::createStub(NumberRangeValueGeneratorInterface::class);
+        $numberGenerator->method('getValue')->willReturn('1000');
+
         return new DocumentGenerator(
             new DocumentDataProviderRegistry([
                 new StaticDocumentDataProvider([DocumentType::INVOICE->value], DocumentMetaProvider::KEY),
             ]),
             $rendererRegistry,
-            new DocumentNumberGenerator(static::createStub(NumberRangeValueGeneratorInterface::class)),
+            new DocumentNumberGenerator($numberGenerator),
             new DocumentPersister(
                 $documentRepository,
                 $documentFileRepository,
@@ -1178,6 +1382,7 @@ class DocumentV2ControllerTest extends TestCase
             new ReferencedDocumentResolver(new ReferenceInvoiceLoader($connection), $connection),
             $orderRepository,
             static::createStub(ScriptExecutor::class),
+            DocumentConfigLoaderFactory::create($this->createTypeRegistry(), static::createStub(SystemConfigService::class)),
         );
     }
 }

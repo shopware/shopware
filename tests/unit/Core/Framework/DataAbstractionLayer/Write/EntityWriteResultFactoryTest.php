@@ -8,7 +8,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -272,6 +274,100 @@ class EntityWriteResultFactoryTest extends TestCase
             'id' => $ids->get('json-entity-1'),
             'payloadJson' => ['foo' => 'bar'],
         ], $result[TestJsonDefinition::ENTITY_NAME][0]->getPayload());
+    }
+
+    public function testResolveWriteSkipsNullParentForeignKey(): void
+    {
+        $registry = new StaticDefinitionInstanceRegistry(
+            [TestParentDefinition::class, TestSubDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+
+        $factory = new EntityWriteResultFactory(
+            $registry,
+            static::createStub(Connection::class)
+        );
+
+        $ids = new IdsCollection();
+        $rawData = [['id' => $ids->get('sub-1'), 'parentId' => null]];
+
+        $parents = $factory->resolveWrite($registry->get(TestSubDefinition::class), $rawData);
+        $results = $factory->addParentResults([], $parents);
+
+        static::assertSame([TestParentDefinition::ENTITY_NAME => []], $results);
+    }
+
+    public function testResolveWriteYieldsParentUpdateForSubEntityWithForeignKey(): void
+    {
+        $registry = new StaticDefinitionInstanceRegistry(
+            [TestParentDefinition::class, TestSubDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+
+        $factory = new EntityWriteResultFactory(
+            $registry,
+            static::createStub(Connection::class)
+        );
+
+        $ids = new IdsCollection();
+        $rawData = [['id' => $ids->get('sub-1'), 'parentId' => $ids->get('parent-1')]];
+
+        $parents = $factory->resolveWrite($registry->get(TestSubDefinition::class), $rawData);
+        $results = $factory->addParentResults([], $parents);
+
+        static::assertArrayHasKey(TestParentDefinition::ENTITY_NAME, $results);
+        static::assertCount(1, $results[TestParentDefinition::ENTITY_NAME]);
+        $parentResult = $results[TestParentDefinition::ENTITY_NAME][0];
+        static::assertSame($ids->get('parent-1'), $parentResult->getPrimaryKey());
+        static::assertSame(EntityWriteResult::OPERATION_UPDATE, $parentResult->getOperation());
+    }
+}
+
+/**
+ * @internal
+ */
+class TestParentDefinition extends EntityDefinition
+{
+    public const ENTITY_NAME = 'test_parent';
+
+    public function getEntityName(): string
+    {
+        return self::ENTITY_NAME;
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class TestSubDefinition extends EntityDefinition
+{
+    public const ENTITY_NAME = 'test_sub';
+
+    public function getEntityName(): string
+    {
+        return self::ENTITY_NAME;
+    }
+
+    protected function getParentDefinitionClass(): ?string
+    {
+        return TestParentDefinition::class;
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            new FkField('parent_id', 'parentId', TestParentDefinition::class),
+        ]);
     }
 }
 

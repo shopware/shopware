@@ -10,11 +10,9 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    emits: ['media-item-selection-remove'],
+    emits: ['media-item-selection-remove', 'media-item-selection-clear'],
 
-    mixins: [
-        Mixin.getByName('media-sidebar-modal-mixin'),
-    ],
+    mixins: [Mixin.getByName('media-sidebar-modal-mixin')],
 
     props: {
         items: {
@@ -88,6 +86,10 @@ export default {
     methods: {
         onRemoveItemFromSelection(event) {
             this.$emit('media-item-selection-remove', event);
+        },
+
+        onClearSelection() {
+            this.$emit('media-item-selection-clear');
         },
 
         matchesFileTypes(action, item) {

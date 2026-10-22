@@ -13,16 +13,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'contextStoreService',
-    ],
+    inject: ['repositoryFactory', 'contextStoreService'],
 
     emits: ['modal-close'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         customer: {

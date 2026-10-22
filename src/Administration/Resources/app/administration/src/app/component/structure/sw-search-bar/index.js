@@ -48,6 +48,7 @@ export default {
         'search',
         'active-item-index-select',
         'keyup-enter',
+        'click-search-result',
     ],
 
     shortcuts: {
@@ -211,6 +212,17 @@ export default {
         searchTypeColor() {
             return useModuleIconColors().enabled.value ? this.getEntityIconColor(this.currentSearchType) : null;
         },
+
+        // Solid variant of the module icon, none while searching in all types
+        searchTypeIcon() {
+            if (!this.currentSearchType) {
+                return null;
+            }
+
+            const icon = this.getSearchTypeManifest(this.currentSearchType)?.icon ?? 'regular-books';
+
+            return icon.startsWith('regular-') ? icon.replace('regular-', 'solid-') : icon;
+        },
     },
 
     watch: {
@@ -368,13 +380,13 @@ export default {
 
         onFocusInput() {
             this.isActive = true;
+            this.showModuleFiltersContainer = false;
 
             if (this.searchTerm === '#') {
                 this.showTypeContainer();
             }
 
             if (this.resultsSearchTrends?.length) {
-                this.showModuleFiltersContainer = false;
                 this.showResultsSearchTrends = true;
                 return;
             }
@@ -388,6 +400,11 @@ export default {
 
         onBlur() {
             this.isActive = false;
+        },
+
+        onClickSearchResult(entity, id, payload = {}) {
+            this.$emit('click-search-result', entity, id, payload);
+            this.closeSearchPanels();
         },
 
         showSearchBar() {
@@ -596,10 +613,7 @@ export default {
 
                     this.results = this.results.filter((result) => entity !== result.entity);
 
-                    this.results = [
-                        ...this.results,
-                        item,
-                    ];
+                    this.results = [...this.results, item];
                 }
             });
 
@@ -632,7 +646,7 @@ export default {
                     'sw-inheritance': true,
                 });
 
-                const data = response?.data[this.currentSearchType] ?? {
+                const data = response?.data?.[this.currentSearchType] ?? {
                     total: 0,
                     data: {},
                 };
@@ -677,10 +691,7 @@ export default {
             if (entityResults.total > 0) {
                 this.results = this.results.filter((result) => this.currentSearchType !== result.entity);
 
-                this.results = [
-                    ...this.results,
-                    entityResults,
-                ];
+                this.results = [...this.results, entityResults];
             }
 
             this.isLoading = false;
@@ -847,13 +858,22 @@ export default {
                 return this.entitySearchColor;
             }
 
+            return this.getSearchTypeManifest(entityName)?.color || '#5C738A';
+        },
+
+        getSearchTypeManifest(entityName) {
             const module = this.moduleFactory.getModuleByEntityName(entityName);
 
-            if (!module) {
-                return '#5C738A';
+            if (module) {
+                return module.manifest;
             }
 
-            return module.manifest.color || '#5C738A';
+            // List pages may pass an alias instead of their entity, so fall back to the current module
+            if (entityName && entityName === this.initialSearchType) {
+                return this.$route?.meta?.$module;
+            }
+
+            return undefined;
         },
 
         getTypeIconColor(entityName) {
@@ -889,11 +909,7 @@ export default {
             return this.repositoryFactory
                 .create('sales_channel_type')
                 .search(new Criteria(1, 100), Shopware.Context.api, {
-                    cacheKey: [
-                        'shared-data',
-                        'sales-channel-types',
-                        Shopware.Context.api.languageId ?? 'default',
-                    ],
+                    cacheKey: ['shared-data', 'sales-channel-types', Shopware.Context.api.languageId ?? 'default'],
                     ttl: 5 * 60 * 1000,
                 })
                 .then((salesChannelTypes) => {
@@ -1004,7 +1020,7 @@ export default {
                     {
                         name: 'sales-channel',
                         icon: saleChannelType?.iconName ?? 'regular-server',
-                        color: '#14D7A5',
+                        color: 'var(--sw-color-module-brand-default)',
                         entity: 'sales_channel',
                         label: saleChannelType?.translated.name,
                         route: {
@@ -1028,10 +1044,9 @@ export default {
         },
 
         loadSearchTrends() {
-            return Promise.all([
-                this.getFrequentlyUsedModules(),
-                this.getRecentlySearch(),
-            ]).then((response) => response.filter((item) => item?.total));
+            return Promise.all([this.getFrequentlyUsedModules(), this.getRecentlySearch()]).then((response) =>
+                response.filter((item) => item?.total),
+            );
         },
 
         async getFrequentlyUsedModules(checkNonExistentKeys = true) {
@@ -1102,10 +1117,7 @@ export default {
                             : new Criteria(1, 25);
                     }
 
-                    const ids = [
-                        item.id,
-                        ...queries[item.entity].ids,
-                    ];
+                    const ids = [item.id, ...queries[item.entity].ids];
                     queries[item.entity].setIds(ids);
                 });
 
@@ -1145,10 +1157,7 @@ export default {
         },
 
         getInfoModuleFrequentlyUsed(key) {
-            const [
-                moduleName,
-                routeName,
-            ] = key.split('@');
+            const [moduleName, routeName] = key.split('@');
             const module = this.moduleFactory.getModuleByKey('name', moduleName);
 
             if (!module) {

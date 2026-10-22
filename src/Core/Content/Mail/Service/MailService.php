@@ -12,6 +12,7 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailTemplateRenderContextEvent;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder;
 use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -84,6 +85,7 @@ class MailService extends AbstractMailService
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
         private readonly MailTemplateContentBuilder $mailTemplateContentBuilder,
         private readonly MailMetricsInstrumentor $mailMetrics,
+        private readonly AbstractTranslator $translator,
     ) {
     }
 
@@ -111,13 +113,32 @@ class MailService extends AbstractMailService
         \assert(\array_key_exists('contentPlain', $data) && \is_string($data['contentPlain']) && $data['contentPlain'] !== '');
         \assert(\array_key_exists('subject', $data) && \is_string($data['subject']) && $data['subject'] !== '');
 
-        $mail = $this->createMail($data, $templateData, $context);
+        $salesChannel = $this->getSalesChannel($data, $templateData, $context);
+        $injectTranslator = $salesChannel !== null && $this->translator->getSnippetSetId() === null;
+
+        try {
+            if ($injectTranslator) {
+                $this->translator->injectSettings(
+                    $salesChannel->getId(),
+                    $context->getLanguageId(),
+                    $this->languageLocaleProvider->getLocaleForLanguageId($context->getLanguageId()),
+                    $context
+                );
+            }
+
+            $mail = $this->createMail($data, $templateData, $context, $salesChannel);
+        } finally {
+            if ($injectTranslator) {
+                $this->translator->resetInjection();
+            }
+        }
+
         if ($mail === null) {
             return null;
         }
 
         if (trim($mail->getBody()->toString()) === '') {
-            $this->mailError('Mail body is null', $context, $templateData);
+            $this->mailError('Mail body is null', $context, $templateData, data: $data, mail: $mail);
 
             return null;
         }
@@ -130,6 +151,8 @@ class MailService extends AbstractMailService
                         context: $context,
                         templateData: $templateData,
                         level: Level::Warning,
+                        data: $data,
+                        mail: $mail,
                     );
 
                     continue;
@@ -154,6 +177,8 @@ class MailService extends AbstractMailService
                 templateData: $templateData,
                 template: (string) $mail->getHtmlBody(),
                 exception: $exception,
+                data: $data,
+                mail: $mail,
             );
 
             return null;
@@ -165,6 +190,9 @@ class MailService extends AbstractMailService
             ['text/html' => $mail->getHtmlBody(), 'text/plain' => $mail->getTextBody()],
             $context,
             $templateData['eventName'] ?? null,
+            $data,
+            $templateData,
+            $mail,
         ));
 
         return $mail;
@@ -200,11 +228,9 @@ class MailService extends AbstractMailService
      * @param ValidatedMailData $data
      * @param array<string, mixed> $templateData
      */
-    private function createMail(array &$data, array $templateData, Context $context): ?Email
+    private function createMail(array &$data, array $templateData, Context $context, ?SalesChannelEntity $salesChannel): ?Email
     {
-        $testMode = $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG) || ($data['testMode'] ?? false);
-
-        $salesChannel = $this->getSalesChannel($data, $templateData, $context);
+        $testMode = $this->isTestMode($data);
 
         $templateData['salesChannel'] = $salesChannel;
         $templateData['salesChannelId'] = $salesChannel?->getId();
@@ -222,6 +248,7 @@ class MailService extends AbstractMailService
                 ),
                 $context,
                 $templateData,
+                data: $data,
             );
         }
 
@@ -249,9 +276,10 @@ class MailService extends AbstractMailService
                     ),
                     $context,
                     $templateData,
-                    $data[$renderDataIndex],
+                    $data[$renderDataIndex] ?? null,
                     $e,
                     Level::Warning,
+                    $data,
                 );
 
                 return null;
@@ -270,6 +298,7 @@ class MailService extends AbstractMailService
                     $template,
                     $e,
                     Level::Warning,
+                    $data,
                 );
 
                 return null;
@@ -313,7 +342,16 @@ class MailService extends AbstractMailService
     }
 
     /**
+     * @param ValidatedMailData $data
+     */
+    private function isTestMode(array $data): bool
+    {
+        return $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG) || ($data['testMode'] ?? false);
+    }
+
+    /**
      * @param array<string, mixed> $templateData
+     * @param array<string, mixed>|null $data
      */
     private function mailError(
         string $errorMessage,
@@ -321,10 +359,12 @@ class MailService extends AbstractMailService
         array $templateData,
         ?string $template = null,
         ?\Throwable $exception = null,
-        Level $level = Level::Error
+        Level $level = Level::Error,
+        ?array $data = null,
+        ?Email $mail = null,
     ): void {
         $this->eventDispatcher->dispatch(
-            new MailErrorEvent($context, $level, $exception, $errorMessage, $template, $templateData)
+            new MailErrorEvent($context, $level, $exception, $errorMessage, $template, $templateData, $data, $mail)
         );
 
         $this->logger->log($level, $errorMessage, array_merge([

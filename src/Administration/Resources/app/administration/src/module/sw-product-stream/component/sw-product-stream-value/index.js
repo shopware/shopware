@@ -18,11 +18,7 @@ export default {
         'feature',
     ],
 
-    emits: [
-        'empty-change',
-        'type-change',
-        'boolean-change',
-    ],
+    emits: ['empty-change', 'type-change', 'boolean-change'],
 
     props: {
         condition: {
@@ -168,10 +164,7 @@ export default {
 
         productTypeOptions() {
             const providedTypes = this.productTypes?.value ?? this.productTypes;
-            const defaultTypes = [
-                'digital',
-                'physical',
-            ];
+            const defaultTypes = ['digital', 'physical'];
             const types = Array.isArray(providedTypes) && providedTypes.length > 0 ? providedTypes : defaultTypes;
 
             return types.map((type) => {
@@ -325,12 +318,7 @@ export default {
 
         stringValue: {
             get() {
-                if (
-                    [
-                        'int',
-                        'float',
-                    ].includes(this.fieldType)
-                ) {
+                if (['int', 'float'].includes(this.fieldType)) {
                     return Number.parseFloat(this.actualCondition.value);
                 }
                 if (typeof this.actualCondition.value !== 'string') {
@@ -396,17 +384,23 @@ export default {
         },
 
         customFieldCriteria() {
-            if (this.isProductEntity) {
-                return this.productCriteria;
-            }
-
-            const criteria = new Criteria(1, 25);
+            const criteria = this.isProductEntity ? Criteria.fromCriteria(this.productCriteria) : new Criteria(1, 25);
 
             if (typeof this.searchTerm === 'string' && this.searchTerm.length > 0) {
-                criteria.addQuery(Criteria.contains('name', this.searchTerm), 500);
+                this.customFieldLabelProperties.forEach((labelProperty) => {
+                    criteria.addQuery(Criteria.contains(labelProperty, this.searchTerm), 500);
+                });
             }
 
             return criteria;
+        },
+
+        customFieldLabelProperty() {
+            return this.fieldDefinition?.config?.labelProperty ?? 'name';
+        },
+
+        customFieldLabelProperties() {
+            return [].concat(this.customFieldLabelProperty);
         },
 
         visibilitiesLabelCallback() {
@@ -429,6 +423,12 @@ export default {
     },
 
     methods: {
+        getProductLabel(item) {
+            const name = item.translated?.name || item.name;
+
+            return item.productNumber ? `${item.productNumber} - ${name}` : name;
+        },
+
         onChangeType(type, parameters) {
             this.$emit('type-change', { type, parameters });
         },
@@ -560,6 +560,16 @@ export default {
             const customField = this.productCustomFields[strippedFieldName];
 
             return customField.config.entity;
+        },
+
+        getCustomFieldLabel(item) {
+            const labels = [];
+
+            this.customFieldLabelProperties.forEach((labelProperty) => {
+                labels.push(item.translated?.[labelProperty] || item[labelProperty]);
+            });
+
+            return labels.join(' ');
         },
     },
 };

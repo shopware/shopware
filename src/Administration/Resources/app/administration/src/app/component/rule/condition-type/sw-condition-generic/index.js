@@ -18,9 +18,7 @@ export default {
     template,
     inheritAttrs: false,
 
-    mixins: [
-        Mixin.getByName('generic-condition'),
-    ],
+    mixins: [Mixin.getByName('generic-condition')],
 
     data() {
         return {

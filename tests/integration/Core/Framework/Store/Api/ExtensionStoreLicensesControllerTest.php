@@ -21,7 +21,7 @@ class ExtensionStoreLicensesControllerTest extends TestCase
 
     public function testCancelSubscription(): void
     {
-        $provider = $this->createMock(ExtensionStoreLicensesService::class);
+        $provider = static::createStub(ExtensionStoreLicensesService::class);
         $provider->method('cancelSubscription');
 
         $controller = new ExtensionStoreLicensesController(
@@ -34,7 +34,7 @@ class ExtensionStoreLicensesControllerTest extends TestCase
 
     public function testRateLicensedExtension(): void
     {
-        $provider = $this->createMock(ExtensionStoreLicensesService::class);
+        $provider = static::createStub(ExtensionStoreLicensesService::class);
 
         $controller = new ExtensionStoreLicensesController(
             $provider

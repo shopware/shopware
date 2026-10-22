@@ -33,7 +33,11 @@ async function createWrapper() {
                 'sw-product-category-form': true,
                 'sw-product-deliverability-form': true,
                 'sw-product-deliverability-downloadable-form': true,
-                'sw-product-download-form': true,
+                'sw-product-download-form': {
+                    name: 'sw-product-download-form',
+                    props: ['required'],
+                    template: '<div class="sw-product-download-form-stub"></div>',
+                },
                 'sw-product-price-form': true,
                 'sw-product-basic-form': await wrapTestComponent('sw-product-basic-form', { sync: true }),
                 'sw-product-feature-set-form': true,
@@ -215,9 +219,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         Shopware.Store.get('swProductDetail').product = {
             ...Shopware.Store.get('swProductDetail').product,
-            states: [
-                'is-physical',
-            ],
+            states: ['is-physical'],
         };
 
         await flushPromises();
@@ -232,9 +234,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         Shopware.Store.get('swProductDetail').product = {
             ...Shopware.Store.get('swProductDetail').product,
-            states: [
-                'is-download',
-            ],
+            states: ['is-download'],
         };
 
         await flushPromises();
@@ -248,9 +248,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         Shopware.Store.get('swProductDetail').product = {
             ...Shopware.Store.get('swProductDetail').product,
-            states: [
-                'is-download',
-            ],
+            states: ['is-download'],
         };
 
         await flushPromises();
@@ -259,6 +257,83 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const cardTitle = cardElement.get('.mt-card__title');
 
         expect(cardTitle.text()).toBe('sw-product.detailBase.cardTitleDownloads');
+    });
+
+    it('shows the missing-download error when external assignment is turned off without a file', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.product.type = 'digital';
+        store.product.downloads = [];
+        store.isDownloadExternallyManaged = true;
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.onDownloadExternalManagementChange(false);
+
+        expect(store.isDownloadExternallyManaged).toBe(false);
+
+        const error = Shopware.Store.get('error').getApiError(Shopware.Store.get('swProductDetail').product, 'downloads');
+
+        expect(error.code).toBe('SW_PRODUCT_DOWNLOADS_EXTERNAL_MANAGEMENT_REQUIRED');
+        expect(error.detail).toBe('sw-product.detailBase.downloadsExternalManagementRequired');
+
+        wrapper.vm.onDownloadExternalManagementChange(true);
+
+        expect(
+            Shopware.Store.get('error').getApiError(Shopware.Store.get('swProductDetail').product, 'downloads'),
+        ).toBeNull();
+    });
+
+    it('keeps the external assignment choice when an existing product base view is reopened', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.product = {
+            ...store.product,
+            id: 'existing-product',
+            type: 'digital',
+            downloads: [],
+        };
+        store.isDownloadExternallyManaged = true;
+
+        const firstView = await createWrapper();
+        firstView.vm.onDownloadExternalManagementChange(false);
+        firstView.unmount();
+
+        const reopenedView = await createWrapper();
+
+        expect(reopenedView.vm.isDownloadExternallyManaged).toBe(false);
+    });
+
+    it('keeps external assignment on with uploaded files', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.product = {
+            ...store.product,
+            id: 'existing-product',
+            type: 'digital',
+            downloads: [{ id: 'download-id' }],
+        };
+        store.isDownloadExternallyManaged = true;
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.isDownloadExternallyManaged).toBe(true);
+    });
+
+    it('marks the upload as optional when external download management is on', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.product.type = 'digital';
+        store.product.states = ['is-download'];
+        store.isDownloadExternallyManaged = true;
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.getComponent({ name: 'sw-product-download-form' }).props('required')).toBe(false);
+
+        wrapper.vm.onDownloadExternalManagementChange(false);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.getComponent({ name: 'sw-product-download-form' }).props('required')).toBe(true);
     });
 
     it('should render media card title as mt-card title', async () => {
@@ -280,9 +355,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         Shopware.Store.get('swProductDetail').product = {
             ...Shopware.Store.get('swProductDetail').product,
-            states: [
-                'is-download',
-            ],
+            states: ['is-download'],
         };
 
         await wrapper.vm.$nextTick();
@@ -295,9 +368,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         Shopware.Store.get('swProductDetail').product = {
             ...Shopware.Store.get('swProductDetail').product,
-            states: [
-                'is-physical',
-            ],
+            states: ['is-physical'],
         };
     });
 
@@ -324,6 +395,17 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         expect(mediaModal.exists()).toBe(true);
         expect(mediaModal.attributes('entity-context')).toBe('product');
+    });
+
+    it('should accept images, videos and 3d models in the media modal', async () => {
+        const wrapper = await createWrapper();
+
+        const productMediaFrom = wrapper.findComponent('sw-product-media-form-stub');
+        await productMediaFrom.vm.$emit('media-open');
+
+        const mediaModal = wrapper.findComponent('sw-media-modal-v2-stub');
+
+        expect(mediaModal.attributes('file-accept')).toBe('image/*,video/*,model/gltf-binary');
     });
 
     it('should able to close media modal', async () => {
@@ -503,9 +585,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const wrapper = await createWrapper();
         const modeSettings = Shopware.Store.get('swProductDetail').modeSettings;
 
-        Shopware.Store.get('swProductDetail').modeSettings = [
-            ...modeSettings.filter((item) => item !== 'media'),
-        ];
+        Shopware.Store.get('swProductDetail').modeSettings = [...modeSettings.filter((item) => item !== 'media')];
 
         await wrapper.vm.$nextTick();
 
@@ -531,9 +611,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const wrapper = await createWrapper();
         const modeSettings = Shopware.Store.get('swProductDetail').modeSettings;
 
-        Shopware.Store.get('swProductDetail').modeSettings = [
-            ...modeSettings.filter((item) => item !== 'prices'),
-        ];
+        Shopware.Store.get('swProductDetail').modeSettings = [...modeSettings.filter((item) => item !== 'prices')];
 
         await wrapper.vm.$nextTick();
 
@@ -545,9 +623,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const wrapper = await createWrapper();
         const modeSettings = Shopware.Store.get('swProductDetail').modeSettings;
 
-        Shopware.Store.get('swProductDetail').modeSettings = [
-            ...modeSettings.filter((item) => item !== 'deliverability'),
-        ];
+        Shopware.Store.get('swProductDetail').modeSettings = [...modeSettings.filter((item) => item !== 'deliverability')];
 
         await wrapper.vm.$nextTick();
 

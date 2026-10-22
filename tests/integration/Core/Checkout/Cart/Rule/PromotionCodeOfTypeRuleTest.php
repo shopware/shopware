@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -30,7 +30,6 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('fundamentals@after-sales')]
 class PromotionCodeOfTypeRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
@@ -157,19 +156,19 @@ class PromotionCodeOfTypeRuleTest extends TestCase
         $lineItemCollection = new LineItemCollection();
         if ($typeOfPromotionCode !== null) {
             $lineItemCollection = new LineItemCollection([
-                $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE),
-                $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE)->setPayloadValue(
+                CartRuleFixture::createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE),
+                CartRuleFixture::createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE)->setPayloadValue(
                     'promotionCodeType',
                     $typeOfPromotionCode
                 ),
             ]);
         }
 
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -187,19 +186,19 @@ class PromotionCodeOfTypeRuleTest extends TestCase
         $lineItemCollection = new LineItemCollection();
         if ($typeOfPromotionCode !== null) {
             $lineItemCollection = new LineItemCollection([
-                $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE),
-                $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE)->setPayloadValue(
+                CartRuleFixture::createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE),
+                CartRuleFixture::createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE)->setPayloadValue(
                     'promotionCodeType',
                     $typeOfPromotionCode
                 ),
             ]);
         }
-        $containerLineItem = $this->createContainerLineItem($lineItemCollection);
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $containerLineItem = CartRuleFixture::createContainerLineItem($lineItemCollection);
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);

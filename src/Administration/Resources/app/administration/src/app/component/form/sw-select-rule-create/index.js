@@ -21,17 +21,9 @@ export default {
     template,
     inheritAttrs: false,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-        'ruleConditionDataProviderService',
-    ],
+    inject: ['repositoryFactory', 'feature', 'ruleConditionDataProviderService'],
 
-    emits: [
-        'save-rule',
-        'dismiss-rule',
-        'update:rules',
-    ],
+    emits: ['save-rule', 'dismiss-rule', 'update:rules'],
 
     props: {
         ruleId: {

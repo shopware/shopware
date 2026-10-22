@@ -199,17 +199,7 @@ describe('components/rule/condition-type/sw-condition-script', () => {
         entryTwo = new DOMWrapper(document.body).get('.sw-select-option--1');
         await entryTwo.trigger('click');
 
-        expect(wrapper.vm.condition.value.productIds).toEqual(
-            expect.arrayContaining([
-                'p.a',
-                'p.b',
-            ]),
-        );
-        expect(wrapper.vm.values.productIds).toEqual(
-            expect.arrayContaining([
-                'p.a',
-                'p.b',
-            ]),
-        );
+        expect(wrapper.vm.condition.value.productIds).toEqual(expect.arrayContaining(['p.a', 'p.b']));
+        expect(wrapper.vm.values.productIds).toEqual(expect.arrayContaining(['p.a', 'p.b']));
     });
 });

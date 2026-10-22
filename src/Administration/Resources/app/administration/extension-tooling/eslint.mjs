@@ -15,25 +15,11 @@ import swPluginRules from 'eslint-plugin-plugin-rules';
 import swCoreRules from 'eslint-plugin-sw-core-rules';
 import { legacyTwigConfig, defaultTwigFiles, resolveVueParser } from './legacy-twig.mjs';
 
-const javascriptFilePatterns = [
-    '**/*.js',
-    '**/*.mjs',
-    '**/*.cjs',
-];
-const typescriptFilePatterns = [
-    '**/*.ts',
-    '**/*.tsx',
-];
+const javascriptFilePatterns = ['**/*.js', '**/*.mjs', '**/*.cjs'];
+const typescriptFilePatterns = ['**/*.ts', '**/*.tsx'];
 const vueFilePatterns = ['**/*.vue'];
-const specFilePatterns = [
-    '**/*.spec.ts',
-    '**/*.spec.tsx',
-    '**/*.spec.js',
-];
-const templateFilePatterns = [
-    ...vueFilePatterns,
-    ...defaultTwigFiles,
-];
+const specFilePatterns = ['**/*.spec.ts', '**/*.spec.tsx', '**/*.spec.js'];
+const templateFilePatterns = [...vueFilePatterns, ...defaultTwigFiles];
 /** Extensions consume the Administration through the global Shopware object, never through its sources. */
 const NO_ADMIN_INTERNALS_RULE = [
     'error',
@@ -67,8 +53,11 @@ const vueParser = resolveVueParser();
  * - `legacyTwig`: lint `.html.twig` component templates through the Twig-Vue
  *   processor. Disable for SFC-only extensions.
  * - `internalApiSeverity`: umbrella severity for the API-boundary rules
- *   (usage of `@deprecated` members). Internal plugins that intentionally
+ *   (usage of `@deprecated` members, including the deprecated i18n
+ *   syntax). Internal plugins that intentionally
  *   consume internal APIs may lower this in their own config.
+ * - `vite8DeprecationSeverity`: severity of the rules for code that breaks
+ *   with Vite 8, the build tool of Shopware 6.8 (defaults to `warn`).
  * - `ignores`: additional global ignore patterns.
  *
  * Host options — the Administration's own config composes this factory too
@@ -94,6 +83,7 @@ export function shopwareAdminExtension(options = {}) {
         extensionRoots = [],
         legacyTwig = true,
         internalApiSeverity = 'error',
+        vite8DeprecationSeverity = 'warn',
         ignores = [],
         deprecatedApiSeverity = internalApiSeverity,
         templateDeprecationSeverity = internalApiSeverity,
@@ -182,11 +172,7 @@ export function shopwareAdminExtension(options = {}) {
             },
             rules: {
                 ...typedRules,
-                'vue/html-indent': [
-                    'error',
-                    4,
-                    { baseIndent: 1 },
-                ],
+                'vue/html-indent': ['error', 4, { baseIndent: 1 }],
             },
         },
         {
@@ -216,11 +202,7 @@ export function shopwareAdminExtension(options = {}) {
         },
         {
             name: 'shopware/admin-extension/runtime-contract',
-            files: scope([
-                ...javascriptFilePatterns,
-                ...typescriptFilePatterns,
-                ...vueFilePatterns,
-            ]),
+            files: scope([...javascriptFilePatterns, ...typescriptFilePatterns, ...vueFilePatterns]),
             languageOptions: {
                 ecmaVersion: 'latest',
                 sourceType: 'module',
@@ -239,12 +221,30 @@ export function shopwareAdminExtension(options = {}) {
         },
         {
             name: 'shopware/admin-extension/api-boundary',
-            files: scope([
-                ...typescriptFilePatterns,
-                ...vueFilePatterns,
-            ]),
+            files: scope([...typescriptFilePatterns, ...vueFilePatterns]),
             rules: {
                 '@typescript-eslint/no-deprecated': deprecatedApiSeverity,
+            },
+        },
+        {
+            name: 'shopware/admin-extension/i18n-deprecations',
+            files: scope([...javascriptFilePatterns, ...typescriptFilePatterns, ...templateFilePatterns]),
+            plugins: {
+                'sw-core-rules': swCoreRules,
+            },
+            rules: {
+                // Autofixes the deprecated `$tc()` / `Shopware.Snippet.tc()` calls and the vue-i18n 8 argument order.
+                'sw-core-rules/no-tc-translation': internalApiSeverity,
+            },
+        },
+        {
+            name: 'shopware/admin-extension/vite-8-deprecations',
+            files: scope([...javascriptFilePatterns, ...typescriptFilePatterns, ...vueFilePatterns]),
+            plugins: {
+                'sw-deprecation-rules': swDeprecationRules,
+            },
+            rules: {
+                'sw-deprecation-rules/no-import-meta-glob-extglob': vite8DeprecationSeverity,
             },
         },
         {
@@ -256,6 +256,7 @@ export function shopwareAdminExtension(options = {}) {
             rules: {
                 'sw-deprecation-rules/no-deprecated-components': templateDeprecationSeverity,
                 'sw-deprecation-rules/no-deprecated-component-usage': templateDeprecationSeverity,
+                'sw-deprecation-rules/no-sw-empty-state-usage': templateDeprecationSeverity,
             },
         },
         // typescript-eslint types `.vue` SFCs only partially — without the Vue

@@ -390,6 +390,11 @@
                     "type": "integer",
                     "minimum": 1,
                     "title": "Timeout in seconds for app webhook MCP tool calls."
+                },
+                "tool_result_cache_ttl": {
+                    "type": "integer",
+                    "minimum": 60,
+                    "title": "Seconds a stored oversized MCP tool result is kept before the cleanup task removes it. The task runs hourly, so a result can stay up to an hour longer."
                 }
             },
             "title": "MCP (Model Context Protocol)"
@@ -527,9 +532,23 @@
                 },
                 "rate_limiter": {
                     "$ref": "#/definitions/rate_limiter"
+                },
+                "user_recovery": {
+                    "$ref": "#/definitions/api_user_recovery"
                 }
             },
             "title": "API"
+        },
+        "api_user_recovery": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "default": true
+                }
+            },
+            "title": "Administration user password recovery"
         },
         "api_browser": {
             "type": "object",
@@ -643,6 +662,9 @@
             "additionalProperties": false,
             "properties": {
                 "enabled": {
+                    "type": "boolean"
+                },
+                "hide_module": {
                     "type": "boolean"
                 }
             },
@@ -1182,6 +1204,10 @@
                                             "stale_while_revalidate": { "type": "integer", "minimum": 0 },
                                             "stale_if_error": { "type": "integer", "minimum": 0 }
                                         }
+                                    },
+                                    "no_vary_search": {
+                                        "type": "string",
+                                        "title": "Verbatim value of the \"No-Vary-Search\" header, e.g. \"key-order\""
                                     }
                                 }
                             }
@@ -1484,6 +1510,16 @@
                 },
                 "url_upload_max_size": {
                     "type": "string"
+                },
+                "url_upload_timeout": {
+                    "type": "number",
+                    "minimum": 0,
+                    "title": "Maximum duration in seconds for fetching a media file from a URL. Set to 0 to disable the timeout."
+                },
+                "external_link_timeout": {
+                    "type": "number",
+                    "minimum": 0,
+                    "title": "Maximum duration in seconds for checking an external media link. Set to 0 to disable the timeout."
                 },
                 "remote_thumbnails": {
                     "type": "object",

@@ -4,7 +4,14 @@
 
 import { DOMWrapper, mount } from '@vue/test-utils';
 
-async function createWrapper(privileges = [], fieldType = null, conditionType = '', entity = '', render = false) {
+async function createWrapper(
+    privileges = [],
+    fieldType = null,
+    conditionType = '',
+    entity = '',
+    render = false,
+    conditionValue = undefined,
+) {
     let stubs = {
         'sw-container': {
             template: '<div class="sw-container"><slot></slot></div>',
@@ -15,7 +22,7 @@ async function createWrapper(privileges = [], fieldType = null, conditionType = 
         'sw-entity-multi-id-select': true,
         'sw-product-variant-info': true,
         'sw-select-result': true,
-        'sw-tagged-field': true,
+        'sw-multi-tag-select': true,
         'sw-inheritance-switch': true,
         'sw-loader': true,
         'sw-ai-copilot-badge': true,
@@ -35,6 +42,9 @@ async function createWrapper(privileges = [], fieldType = null, conditionType = 
             'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
             'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
             'sw-field-error': await wrapTestComponent('sw-field-error'),
+            'sw-multi-tag-select': await wrapTestComponent('sw-multi-tag-select'),
+            'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
+            'sw-label': await wrapTestComponent('sw-label'),
         };
     }
 
@@ -53,6 +63,7 @@ async function createWrapper(privileges = [], fieldType = null, conditionType = 
             },
             condition: {
                 type: conditionType,
+                value: conditionValue,
             },
         },
         global: {
@@ -98,10 +109,7 @@ async function createWrapper(privileges = [], fieldType = null, conditionType = 
                     },
                 },
 
-                productTypes: [
-                    'physical',
-                    'digital',
-                ],
+                productTypes: ['physical', 'digital'],
             },
             stubs,
         },
@@ -118,27 +126,16 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
     });
 
     it.each([
-        [
-            'boolean',
-            'equals',
-            'sw-single-select-stub',
-        ],
-        [
-            'empty',
-            'equals',
-            'sw-single-select-stub',
-        ],
+        ['boolean', 'equals', 'sw-single-select-stub'],
+        ['empty', 'equals', 'sw-single-select-stub'],
         [
             'uuid',
             'equals',
             'sw-entity-single-select-stub',
             'product',
         ],
-        [
-            'uuid',
-            'equals',
-            'sw-entity-single-select-stub',
-        ],
+        ['uuid', 'equals', 'sw-entity-single-select-stub'],
+        ['string', 'equalsAny', 'sw-multi-tag-select-stub'],
     ])('should have a disabled input with %s field type', async (fieldType, actualCondition, element, entity = '') => {
         const wrapper = await createWrapper(['product_stream.viewer'], fieldType, actualCondition, entity, false);
         await wrapper.setProps({ disabled: true });
@@ -412,5 +409,36 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
 
         const entitySingleSelect = wrapper.find('sw-entity-multi-id-select-stub');
         expect(entitySingleSelect.exists()).toBe(true);
+    });
+
+    it('should show the values of an equalsAny condition as tags', async () => {
+        const wrapper = await createWrapper(['product_stream.editor'], 'string', 'equalsAny', '', true, 'foo|bar');
+        await flushPromises();
+
+        const tags = wrapper.findAll('.sw-select-selection-list__item');
+        expect(tags.map((tag) => tag.text())).toEqual([
+            'foo',
+            'bar',
+        ]);
+    });
+
+    it('should add a value to an equalsAny condition', async () => {
+        const wrapper = await createWrapper(['product_stream.editor'], 'string', 'equalsAny', '', true, 'foo|bar');
+        await flushPromises();
+
+        const input = wrapper.get('.sw-select-selection-list__input');
+        await input.setValue('baz');
+        await input.trigger('keydown.enter');
+
+        expect(wrapper.props('condition').value).toBe('foo|bar|baz');
+    });
+
+    it('should remove a value from an equalsAny condition', async () => {
+        const wrapper = await createWrapper(['product_stream.editor'], 'string', 'equalsAny', '', true, 'foo|bar');
+        await flushPromises();
+
+        await wrapper.get('.sw-select-selection-list__item-holder--0 .sw-label__dismiss').trigger('click');
+
+        expect(wrapper.props('condition').value).toBe('bar');
     });
 });

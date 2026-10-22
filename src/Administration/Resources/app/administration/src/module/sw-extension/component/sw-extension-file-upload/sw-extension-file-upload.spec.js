@@ -199,9 +199,7 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
             Promise.reject({
                 response: {
                     data: {
-                        errors: [
-                            'Wrong file format',
-                        ],
+                        errors: ['Wrong file format'],
                     },
                 },
             }),

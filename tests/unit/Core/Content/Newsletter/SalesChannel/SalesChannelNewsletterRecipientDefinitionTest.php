@@ -24,6 +24,6 @@ class SalesChannelNewsletterRecipientDefinitionTest extends TestCase
 
         (new SalesChannelNewsletterRecipientDefinition())->processCriteria($criteria, $context);
 
-        static::assertEquals([new EqualsFilter('salesChannel.id', $context->getSalesChannelId())], $criteria->getFilters());
+        static::assertEquals([new EqualsFilter('salesChannelId', $context->getSalesChannelId())], $criteria->getFilters());
     }
 }

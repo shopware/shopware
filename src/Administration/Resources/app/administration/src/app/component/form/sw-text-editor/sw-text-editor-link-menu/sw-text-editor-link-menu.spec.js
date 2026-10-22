@@ -219,10 +219,7 @@ responses.addResponse({
 });
 
 describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
-    const DEPRECATED_LINK_TYPES = [
-        'detail',
-        'media',
-    ];
+    const DEPRECATED_LINK_TYPES = ['detail', 'media'];
 
     const expectLinkParsedCorrectly = async (link) => {
         const wrapper = await createWrapper(link.buttonConfig);
@@ -235,12 +232,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
         const inputField = wrapper.find(link.selector);
 
         // sw-entity-single-select only uses the input field for the search
-        if (
-            ![
-                'detail',
-                'media',
-            ].includes(link.type)
-        ) {
+        if (!['detail', 'media'].includes(link.type)) {
             expect(inputField.element.value).toBe(link.value);
         }
 

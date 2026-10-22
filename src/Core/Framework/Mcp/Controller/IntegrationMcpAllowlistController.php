@@ -18,7 +18,10 @@ use Symfony\Component\Routing\Attribute\Route;
  * @experimental stableVersion:v6.8.0
  *
  * Saves the per-integration MCP allowlist (tools, resources, prompts).
- * Requires the `integration_mcp.editor` admin ACL privilege.
+ *
+ * Requires `api_action_integration_mcp-allowlist` and `integration:update`. The entity privilege
+ * was already enforced by AclWriteValidator on the write; naming it on the route turns the DAL
+ * exception into a plain 403 and matches {@see UserMcpAllowlistController}.
  */
 #[Package('framework')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
@@ -39,7 +42,7 @@ class IntegrationMcpAllowlistController
         name: 'api.action.integration.mcp-allowlist',
         defaults: [
             'auth_required' => true,
-            PlatformRequest::ATTRIBUTE_ACL => ['api_action_integration_mcp-allowlist'],
+            PlatformRequest::ATTRIBUTE_ACL => ['api_action_integration_mcp-allowlist', 'integration:update'],
         ],
         methods: ['POST'],
     )]
@@ -66,7 +69,7 @@ class IntegrationMcpAllowlistController
             return new Response(null, Response::HTTP_BAD_REQUEST);
         }
 
-        if ($allowlist !== null && !$this->isValidAllowlist($allowlist)) {
+        if ($allowlist !== null && !McpAllowlist::isValidPayload($allowlist)) {
             return new Response(null, Response::HTTP_BAD_REQUEST);
         }
 
@@ -75,32 +78,5 @@ class IntegrationMcpAllowlistController
         ], $context);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
-    }
-
-    /**
-     * @param array<mixed> $allowlist
-     */
-    private function isValidAllowlist(array $allowlist): bool
-    {
-        $knownKeys = [McpAllowlist::TOOLS, McpAllowlist::RESOURCES, McpAllowlist::PROMPTS];
-
-        if (array_diff(array_keys($allowlist), $knownKeys) !== []) {
-            return false;
-        }
-
-        foreach ($knownKeys as $key) {
-            if (!\array_key_exists($key, $allowlist)) {
-                continue;
-            }
-            $value = $allowlist[$key];
-            if ($value !== null && !\is_array($value)) {
-                return false;
-            }
-            if (\is_array($value) && array_filter($value, static fn ($item) => !\is_string($item)) !== []) {
-                return false;
-            }
-        }
-
-        return true;
     }
 }

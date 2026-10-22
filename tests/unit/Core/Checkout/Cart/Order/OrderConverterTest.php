@@ -25,6 +25,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -105,17 +106,16 @@ class OrderConverterTest extends TestCase
     }
 
     /**
-     * @param class-string<\Throwable>|null $exceptionClass
+     * @param \Closure(OrderEntity): ShopwareHttpException|null $expectedException
      */
     #[DataProvider('assembleSalesChannelContextData')]
-    public function testAssembleSalesChannelContext(?string $exceptionClass, string $manipulateOrder = ''): void
+    public function testAssembleSalesChannelContext(?\Closure $expectedException, string $manipulateOrder = ''): void
     {
-        if ($exceptionClass !== null) {
-            $this->expectException($exceptionClass);
-        }
+        $orderEntity = $this->getOrder($manipulateOrder);
+        $expected = $expectedException === null ? null : $expectedException($orderEntity);
 
         $orderAddressRepositorySearchResult = [];
-        if ($exceptionClass !== AddressNotFoundException::class) {
+        if (!$expected instanceof AddressNotFoundException) {
             $orderAddressRepositorySearchResult = [$this->getOrderAddress()];
         }
 
@@ -138,32 +138,40 @@ class OrderConverterTest extends TestCase
                     $expectedOptions[SalesChannelContextService::SHIPPING_METHOD_ID] = 'order-delivery-shipping-method-id';
                 }
 
+                $billingAddress = $options[SalesChannelContextService::BILLING_ADDRESS] ?? null;
+                static::assertInstanceOf(CustomerAddressEntity::class, $billingAddress);
+                static::assertSame('order-address-id', $billingAddress->getId());
+                unset($options[SalesChannelContextService::BILLING_ADDRESS], $options[SalesChannelContextService::SHIPPING_ADDRESS]);
+
                 static::assertSame($expectedOptions, $options);
 
                 return $this->getSalesChannelContext(true);
             }
         );
 
-        $orderEntity = $this->getOrder($manipulateOrder);
+        if ($expected !== null) {
+            $this->expectExceptionObject($expected);
+        }
+
         $orderConverter->assembleSalesChannelContext($orderEntity, Context::createDefaultContext());
     }
 
     /**
-     * @return list<array{0: class-string<\Throwable>|null, 1?: string}>
+     * @return list<array{0: (\Closure(OrderEntity): ShopwareHttpException)|null, 1?: string}>
      */
     public static function assembleSalesChannelContextData(): array
     {
         return [
             [
-                OrderException::class,
+                static fn (OrderEntity $order): ShopwareHttpException => OrderException::missingAssociation('transactions'),
                 'order-no-transactions',
             ],
             [
-                OrderException::class,
+                static fn (OrderEntity $order): ShopwareHttpException => OrderException::missingAssociation('orderCustomer'),
                 'order-no-order-customer',
             ],
             [
-                AddressNotFoundException::class,
+                static fn (OrderEntity $order): ShopwareHttpException => CartException::addressNotFound($order->getBillingAddressId()),
             ],
             [
                 null,
@@ -244,7 +252,7 @@ class OrderConverterTest extends TestCase
 
         $result = $this->orderConverter->convertToOrder($cart, $this->getSalesChannelContext(true), $orderConversionContext);
 
-        static::assertEmpty($result['deliveries']);
+        static::assertCount(0, $result['deliveries']);
     }
 
     public function testConvertToOrderShouldNotContainDeliveriesWithNoAddressButHaveOriginalAddressId(): void
@@ -265,7 +273,7 @@ class OrderConverterTest extends TestCase
 
         $result = $this->orderConverter->convertToOrder($cart, $this->getSalesChannelContext(true), $orderConversionContext);
 
-        static::assertNotEmpty($result['deliveries']);
+        static::assertNotCount(0, $result['deliveries']);
     }
 
     public function testConvertToOrderWithDeliveries(): void
@@ -312,19 +320,17 @@ class OrderConverterTest extends TestCase
     }
 
     /**
-     * @param class-string<\Throwable> $exceptionClass
+     * @param \Closure(): ShopwareHttpException $expectedException
      */
     #[DataProvider('convertToOrderExceptionsData')]
-    public function testConvertToOrderExceptions(string $exceptionClass, bool $loginCustomer = true, bool $conversionIncludeCustomer = true): void
+    public function testConvertToOrderExceptions(\Closure $expectedException, bool $loginCustomer = true, bool $conversionIncludeCustomer = true): void
     {
-        if ($exceptionClass !== '') {
-            $this->expectException($exceptionClass);
-        }
+        $expected = $expectedException();
 
         $cart = $this->getCart();
         $cart->setDeliveries(
             $this->getDeliveryCollection(
-                $exceptionClass === OrderException::class
+                $expected instanceof OrderException
             )
         );
 
@@ -333,63 +339,32 @@ class OrderConverterTest extends TestCase
 
         $salesChannelContext = $this->getSalesChannelContext(
             $loginCustomer,
-            $exceptionClass === AddressNotFoundException::class
+            $expected instanceof AddressNotFoundException
         );
 
-        $result = $this->orderConverter->convertToOrder($cart, $salesChannelContext, $conversionContext);
+        $this->expectExceptionObject($expected);
 
-        // unset uncheckable ids
-        unset(
-            $result['id'],
-            $result['billingAddressId'],
-            $result['deepLinkCode'],
-            $result['orderDateTime'],
-            $result['stateId'],
-            $result['languageId'],
-        );
-        for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
-            unset($result['lineItems'][$i]['id']);
-        }
-
-        for ($i = 0; $i < (is_countable($result['deliveries']) ? \count($result['deliveries']) : 0); ++$i) {
-            unset(
-                $result['deliveries'][$i]['shippingOrderAddress']['id'],
-                $result['deliveries'][$i]['shippingDateEarliest'],
-                $result['deliveries'][$i]['shippingDateLatest'],
-            );
-        }
-
-        $expected = CartOrderConversionStub::getExpectedConvertToOrder();
-        unset($expected['addresses']);
-        $expected['shippingCosts']['unitPrice'] = 1;
-        $expected['shippingCosts']['totalPrice'] = 1;
-
-        $expectedJson = \json_encode($expected, \JSON_THROW_ON_ERROR);
-        static::assertIsString($expectedJson);
-        $actual = \json_encode($result, \JSON_THROW_ON_ERROR);
-        static::assertIsString($actual);
-        // As json to avoid classes
-        static::assertJsonStringEqualsJsonString($expectedJson, $actual);
+        $this->orderConverter->convertToOrder($cart, $salesChannelContext, $conversionContext);
     }
 
     /**
-     * @return list<array{0: class-string<ShopwareHttpException>, 1?: false, 2?: false}>
+     * @return list<array{0: \Closure(): ShopwareHttpException, 1?: false, 2?: false}>
      */
     public static function convertToOrderExceptionsData(): array
     {
         return [
             [
-                AddressNotFoundException::class,
+                static fn (): ShopwareHttpException => CartException::addressNotFound(''),
             ],
             [
-                OrderException::class,
+                static fn (): ShopwareHttpException => OrderException::deliveryWithoutAddress(),
             ],
             [
-                CartException::class,
+                static fn (): ShopwareHttpException => CartException::customerNotLoggedIn(),
                 false,
             ],
             [
-                CartException::class,
+                static fn (): ShopwareHttpException => CartException::customerNotLoggedIn(),
                 false,
                 false,
             ],
@@ -428,6 +403,45 @@ class OrderConverterTest extends TestCase
         }
 
         static::assertEquals(CartOrderConversionStub::getExpectedConvertToCart(), $result);
+    }
+
+    /**
+     * @param list<string> $expectedTransactionIds
+     */
+    #[DataProvider('primaryTransactionProvider')]
+    public function testConvertToCartPutsThePrimaryTransactionFirstWhenLoaded(string $primaryOrderTransactionId, array $expectedTransactionIds): void
+    {
+        $order = $this->getOrder();
+        $order->setPrimaryOrderTransactionId($primaryOrderTransactionId);
+
+        $cart = $this->orderConverter->convertToCart($order, Context::createDefaultContext());
+
+        static::assertSame(
+            $expectedTransactionIds,
+            array_values($cart->getTransactions()->map(
+                static fn (Transaction $transaction) => $transaction->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class)?->getId()
+            ))
+        );
+    }
+
+    public static function primaryTransactionProvider(): \Generator
+    {
+        yield 'the primary transaction moves to the front' => [
+            'primaryOrderTransactionId' => 'order-transaction-id',
+            'expectedTransactionIds' => ['order-transaction-id', 'order-transaction-cancelled-id', 'order-transaction-failed-id'],
+        ];
+
+        yield 'a primary transaction missing from the loaded transactions leaves their order as is' => [
+            'primaryOrderTransactionId' => 'not-loaded-transaction-id',
+            'expectedTransactionIds' => ['order-transaction-cancelled-id', 'order-transaction-id', 'order-transaction-failed-id'],
+        ];
+    }
+
+    public function testConvertToCartWithoutLoadedTransactions(): void
+    {
+        $cart = $this->orderConverter->convertToCart($this->getOrder('order-no-transactions'), Context::createDefaultContext());
+
+        static::assertCount(0, $cart->getTransactions());
     }
 
     #[DataProvider('convertToCartManipulatedOrderData')]
@@ -485,53 +499,37 @@ class OrderConverterTest extends TestCase
         ];
     }
 
+    /**
+     * @param \Closure(OrderEntity): OrderException $expectedException
+     */
     #[DataProvider('convertToCartExceptionsData')]
-    public function testConvertToCartExceptions(string $manipulateOrder): void
+    public function testConvertToCartExceptions(string $manipulateOrder, \Closure $expectedException): void
     {
-        $this->expectException(OrderException::class);
-
         $order = $this->getOrder($manipulateOrder);
 
-        $result = $this->orderConverter->convertToCart($order, Context::createDefaultContext());
-        $result = \json_encode($result, \JSON_THROW_ON_ERROR);
-        static::assertIsString($result);
-        $result = \json_decode($result, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertNotFalse($result);
+        $this->expectExceptionObject($expectedException($order));
 
-        // unset uncheckable ids
-        unset(
-            $result['extensions']['originalId'],
-            $result['token'],
-        );
-        for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
-            unset($result['lineItems'][$i]['extensions']['originalId']);
-        }
-
-        for ($i = 0; $i < (is_countable($result['deliveries']) ? \count($result['deliveries']) : 0); ++$i) {
-            unset($result['deliveries'][$i]['deliveryDate']);
-            for ($f = 0; $f < (is_countable($result['deliveries'][$i]['positions']) ? \count($result['deliveries'][$i]['positions']) : 0); ++$f) {
-                unset($result['deliveries'][$i]['positions'][$f]['deliveryDate']);
-            }
-        }
-
-        static::assertSame(CartOrderConversionStub::getExpectedConvertToCart(), $result);
+        $this->orderConverter->convertToCart($order, Context::createDefaultContext());
     }
 
     /**
-     * @return array<array<string>>
+     * @return \Generator<string, array{string, \Closure(OrderEntity): OrderException}>
      */
-    public static function convertToCartExceptionsData(): array
+    public static function convertToCartExceptionsData(): \Generator
     {
-        return [
-            [
-                'order-no-line-items',
-            ],
-            [
-                'order-no-deliveries',
-            ],
-            [
-                'order-no-order-number',
-            ],
+        yield 'order without line items' => [
+            'order-no-line-items',
+            static fn (OrderEntity $order): OrderException => OrderException::missingAssociation('lineItems'),
+        ];
+
+        yield 'order without deliveries' => [
+            'order-no-deliveries',
+            static fn (OrderEntity $order): OrderException => OrderException::missingAssociation('deliveries'),
+        ];
+
+        yield 'order without order number' => [
+            'order-no-order-number',
+            static fn (OrderEntity $order): OrderException => OrderException::missingOrderNumber($order->getId()),
         ];
     }
 
@@ -613,6 +611,11 @@ class OrderConverterTest extends TestCase
         $address->setId('order-address-id');
         $address->setUniqueIdentifier('order-address-id');
         $address->setHash('order-address-hash');
+        $address->setCountryId('country-id');
+        $address->setFirstName('first-name');
+        $address->setLastName('last-name');
+        $address->setStreet('street');
+        $address->setCity('city');
 
         $addresses = new OrderAddressCollection([$address]);
 
@@ -692,12 +695,107 @@ class OrderConverterTest extends TestCase
             function (string $randomId, string $salesChannelId, array $options): SalesChannelContext {
                 static::assertSame('billing-address-id', $options[SalesChannelContextService::BILLING_ADDRESS_ID] ?? null);
                 static::assertSame('shipping-address-id', $options[SalesChannelContextService::SHIPPING_ADDRESS_ID] ?? null);
+                static::assertInstanceOf(CustomerAddressEntity::class, $options[SalesChannelContextService::BILLING_ADDRESS] ?? null);
+                static::assertInstanceOf(CustomerAddressEntity::class, $options[SalesChannelContextService::SHIPPING_ADDRESS] ?? null);
 
                 return $this->getSalesChannelContext(true);
             }
         );
 
         $converter->assembleSalesChannelContext($order, Context::createDefaultContext());
+    }
+
+    public function testAssembleSalesChannelContextPassesOrderAddressesWhenNoCustomerAddressMatches(): void
+    {
+        $shippingAddress = $this->getCustomerAddress();
+        $shippingAddress->setId('shipping-address-id');
+        $shippingAddress->setHash('shipping-address-hash');
+
+        $customer = $this->getCustomer(true);
+        $customer->setAddresses(new CustomerAddressCollection([$shippingAddress]));
+
+        $orderBillingAddress = $this->getOrderAddress();
+        $orderBillingAddress->setId('order-billing-address-id');
+        $orderBillingAddress->setHash('order-billing-address-hash');
+
+        $orderShippingAddress = $this->getOrderAddress();
+        $orderShippingAddress->setId('order-shipping-address-id');
+        $orderShippingAddress->setHash('changed-shipping-address-hash');
+        $orderShippingAddress->setZipcode('48624');
+
+        $order = $this->getOrder();
+        $order->setBillingAddressId('order-billing-address-id');
+        $delivery = $order->getDeliveries()?->first();
+        static::assertNotNull($delivery);
+        $order->setPrimaryOrderDelivery($delivery);
+        $delivery->setShippingOrderAddressId('order-shipping-address-id');
+
+        $options = [];
+        $converter = $this->getOrderConverter(
+            [$customer],
+            [$orderShippingAddress, $orderBillingAddress],
+            function (string $randomId, string $salesChannelId, array $createOptions) use (&$options): SalesChannelContext {
+                $options = $createOptions;
+
+                return $this->getSalesChannelContext(true);
+            }
+        );
+
+        $converter->assembleSalesChannelContext($order, Context::createDefaultContext());
+
+        static::assertArrayNotHasKey(SalesChannelContextService::BILLING_ADDRESS_ID, $options);
+        static::assertArrayNotHasKey(SalesChannelContextService::SHIPPING_ADDRESS_ID, $options);
+
+        $billingAddress = $options[SalesChannelContextService::BILLING_ADDRESS] ?? null;
+        static::assertInstanceOf(CustomerAddressEntity::class, $billingAddress);
+        static::assertSame('order-billing-address-id', $billingAddress->getId());
+        static::assertSame('customer-id', $billingAddress->getCustomerId());
+
+        $injectedShippingAddress = $options[SalesChannelContextService::SHIPPING_ADDRESS] ?? null;
+        static::assertInstanceOf(CustomerAddressEntity::class, $injectedShippingAddress);
+        static::assertSame('order-shipping-address-id', $injectedShippingAddress->getId());
+        static::assertSame('customer-id', $injectedShippingAddress->getCustomerId());
+        static::assertSame('48624', $injectedShippingAddress->getZipcode());
+        static::assertSame('changed-shipping-address-hash', $injectedShippingAddress->getHash());
+        static::assertSame($orderShippingAddress->getCountry(), $injectedShippingAddress->getCountry());
+        static::assertSame($orderShippingAddress->getCountryState(), $injectedShippingAddress->getCountryState());
+    }
+
+    public function testAssembleSalesChannelContextKeepsOneIdForTheSameOrderBillingAndShippingAddress(): void
+    {
+        $customer = $this->getCustomer(true);
+        $customer->setAddresses(new CustomerAddressCollection());
+
+        $orderAddress = $this->getOrderAddress();
+        $orderAddress->setId('order-address-id');
+        $orderAddress->setHash('changed-address-hash');
+
+        $order = $this->getOrder();
+        $order->setBillingAddressId('order-address-id');
+        $delivery = $order->getDeliveries()?->first();
+        static::assertNotNull($delivery);
+        $order->setPrimaryOrderDelivery($delivery);
+        $delivery->setShippingOrderAddressId('order-address-id');
+
+        $options = [];
+        $converter = $this->getOrderConverter(
+            [$customer],
+            [$orderAddress],
+            function (string $randomId, string $salesChannelId, array $createOptions) use (&$options): SalesChannelContext {
+                $options = $createOptions;
+
+                return $this->getSalesChannelContext(true);
+            }
+        );
+
+        $converter->assembleSalesChannelContext($order, Context::createDefaultContext());
+
+        $billingAddress = $options[SalesChannelContextService::BILLING_ADDRESS] ?? null;
+        $shippingAddress = $options[SalesChannelContextService::SHIPPING_ADDRESS] ?? null;
+        static::assertInstanceOf(CustomerAddressEntity::class, $billingAddress);
+        static::assertInstanceOf(CustomerAddressEntity::class, $shippingAddress);
+        static::assertSame('order-address-id', $billingAddress->getId());
+        static::assertSame($billingAddress->getId(), $shippingAddress->getId());
     }
 
     private function getSalesChannelContext(bool $loginCustomer, bool $customerWithoutBillingAddress = false): SalesChannelContext
@@ -808,6 +906,7 @@ class OrderConverterTest extends TestCase
         $orderTransaction = new OrderTransactionEntity();
         $orderTransaction->setId('order-transaction-id');
         $orderTransaction->setPaymentMethodId('order-transaction-payment-method-id');
+        $orderTransaction->setAmount(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()));
         $stateMachineState = new StateMachineStateEntity();
         $stateMachineState->setId('state-machine-state-id');
         $stateMachineState->setTechnicalName('state-machine-state-technical-name');
@@ -816,6 +915,7 @@ class OrderConverterTest extends TestCase
         $orderTransactionCancelled = new OrderTransactionEntity();
         $orderTransactionCancelled->setId('order-transaction-cancelled-id');
         $orderTransactionCancelled->setPaymentMethodId('order-transaction-cancelled-payment-method-id');
+        $orderTransactionCancelled->setAmount(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()));
         $stateMachineStateCancelled = new StateMachineStateEntity();
         $stateMachineStateCancelled->setId('state-machine-cancelled-state-id');
         $stateMachineStateCancelled->setTechnicalName('cancelled');
@@ -824,6 +924,7 @@ class OrderConverterTest extends TestCase
         $orderTransactionFailed = new OrderTransactionEntity();
         $orderTransactionFailed->setId('order-transaction-failed-id');
         $orderTransactionFailed->setPaymentMethodId('order-transaction-failed-payment-method-id');
+        $orderTransactionFailed->setAmount(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()));
         $stateMachineStateFailed = new StateMachineStateEntity();
         $stateMachineStateFailed->setId('state-machine-failed-state-id');
         $stateMachineStateFailed->setTechnicalName('failed');
@@ -928,8 +1029,10 @@ class OrderConverterTest extends TestCase
         $productDownloadRepository->method('search')->willReturnCallback(static function (Criteria $criteria) use ($productDownload): EntitySearchResult {
             $filters = $criteria->getFilters();
             if (isset($filters[0]) && $filters[0] instanceof EqualsAnyFilter) {
-                $value = (new \ReflectionProperty(EqualsAnyFilter::class, 'value'))->getValue($filters[0]);
-                $productDownload->setProductId($value[0] ?? null);
+                $productId = $filters[0]->getValue()[0] ?? null;
+                if (\is_string($productId)) {
+                    $productDownload->setProductId($productId);
+                }
             }
 
             return new EntitySearchResult(

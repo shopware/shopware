@@ -6,12 +6,14 @@
 
 The legacy document generation implementation was removed together with the `DOCUMENT_GENERATION_REWORK` feature flag. Document generation v2 is now the only implementation. The full strategy is described in the [migration ADR](adr/2026-08-05-document-generation-v1-to-v2-migration-strategy.md).
 
-The complete list of removed classes, entities, and Administration components is in `UPGRADE-6.7.md` ("Document generation v1 deprecated for removal in Shopware 6.9", section 6.7.15.0). In addition:
+The complete list of removed classes, entities, and Administration components is in `UPGRADE-6.7.md` ("Document generation v1 marked for replacement", section 6.7.15.0). In addition:
 
 - The `document.renderer` and `document_type.renderer` service tags were removed. Register document types, data providers, and renderers via the `shopware.document_v2.type`, `shopware.document_v2.provider`, and `shopware.document_v2.renderer` tags instead, or use the app manifest `<documents>` block. See the [extension points guide](https://developer.shopware.com/docs/concepts/commerce/checkout-concept/document/extension-points.html).
 - The `document_type` and `document_type_translation` entities were removed including their DAL definitions and associations. Document types are code-registered strings. Read the type from `document.typeName` instead of the `documentType` association. Persisted references were backfilled into the `type_name` columns, and the `document_type_id` columns became nullable.
 
-Shared classes that survived the removal were relocated into the `Shopware\Core\Checkout\DocumentV2` namespace, keeping their class names (see the "Relocated classes" list in `UPGRADE-6.7.md`). Update your imports accordingly.
+Direct construction of `DocumentTypeDefinition`, `DocumentTypeTranslationDefinition`, and their entities and collections (including empty collections) already throws when `v6.9.0.0` is active. Remove these constructions and use the document v2 type registry instead.
+
+The class aliases and deprecated service aliases of the shared document classes were removed. These classes moved into `Shopware\Core\Checkout\DocumentV2` with 6.7.16.0 (see "Shared document classes moved to `DocumentV2`" in `UPGRADE-6.7.md`). References to a previous name, for example `Shopware\Core\Checkout\Document\DocumentEntity`, no longer resolve. Use the canonical names in imports, type declarations, static references, and service IDs.
 
 Twig template overrides were not affected: v2 renders the same `@Framework/documents/*.html.twig` templates.
 
@@ -80,7 +82,43 @@ The public properties of the returned DTO are available in the document template
 
 Implement `Shopware\Core\Checkout\DocumentV2\Renderer\AbstractDocumentRenderer` and register it with the `shopware.document_v2.renderer` tag. One renderer produces exactly one format and receives the shared, provider-prepared `RenderInput`.
 
+## Changed API alias of `RenderedDocument`
+
+`Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument::getApiAlias()` returned `shopware_core_checkout_document_v2_struct_rendered_document` instead of `shopware_core_checkout_document_renderer_rendered_document`. Consumers that matched serialized data on the previous alias had to switch to the new one.
+
 # Administration
+
+## `sw-empty-state` removed
+
+The deprecated `sw-empty-state` component was removed. Use `mt-empty-state` instead:
+
+```html
+<!-- Before -->
+<sw-empty-state title="Short title" subline="Longer subline">
+    <template #actions>…</template>
+</sw-empty-state>
+
+<!-- After -->
+<mt-empty-state headline="Short title" description="Longer subline" icon="regular-products">
+    <template #button>…</template>
+</mt-empty-state>
+```
+
+`mt-empty-state` has no `icon` slot and no equivalent for the `absolute`, `emptyModule`, `autoHeight`, `showDescription` and `color` props. It also no longer falls back to the icon and description of the current module, so pass `icon` and `description` explicitly.
+
+It has no default slot either, and `description` renders plain text instead of HTML. It is left-aligned by default, set `centered` to keep the previous layout. Overrides of the `sw_empty_state_*` Twig blocks no longer apply.
+
+The `sw-deprecation-rules/no-sw-empty-state-usage` ESLint rule of the Administration extension tooling migrates most usages automatically:
+
+```bash
+bin/console administration:check-extensions -- --only=MyPlugin --fix
+```
+
+It renames `title` to `headline` and `subline` to `description`, moves the `actions` slot to `button`, and turns plain text default slots and `icon` slots with a single `mt-icon` or `sw-icon` into props.
+If `icon` or `subline` is not set, it passes the module icon or description that `sw-empty-state` used as fallback.
+Usages with custom `icon` slot content, markup in the default slot, conditional `icon` or default slot templates or dynamic bindings are only reported and have to be migrated manually.
+Check the `TODO Codemod` comment the rule adds above each converted usage.
+It names removed props and bound values that no longer fall back to the module icon or description.
 
 ## Legacy document components removed
 
@@ -88,3 +126,41 @@ The legacy document services and components in the Administration were removed:
 
 - `DocumentApiService` (including `DocumentEvents`). Use the v2 Admin API routes (`/api/_action/order/document-v2/*`) instead.
 - The legacy document modals and their component registrations: `sw-order-document-settings-modal`, `sw-order-document-settings-invoice-modal`, `sw-order-document-settings-credit-note-modal`, `sw-order-document-settings-delivery-note-modal`, `sw-order-document-settings-storno-modal`, and `sw-order-select-document-type-modal`.
+
+# Storefront
+
+## Removed `category_url` and `category_linknewtab` Twig functions
+
+The `category_url` and `category_linknewtab` Twig functions have been removed.
+Use `category.seoUrl` instead of `category_url` and `category.shouldOpenInNewTab` instead of `category_linknewtab`.
+
+The `seoUrl` property is only available on `SalesChannelCategoryEntity`. If a template receives a plain `CategoryEntity`, update the data-loading code to load categories in the sales channel context and pass `SalesChannelCategoryEntity` instances to the template.
+
+```diff
+<a class="link"
+-   href="{{ category_url(item) }}"
++   href="{{ item.seoUrl }}"
+-   {% if category_linknewtab(item) %}target="_blank"{% endif %}
++   {% if item.shouldOpenInNewTab %}target="_blank"{% endif %}
+</a>
+## `$tc` and the vue-i18n 8 argument order removed
+
+The deprecated translation helpers `$tc()` and `Shopware.Snippet.tc()` were removed. Use `$t()` and `Shopware.Snippet.t()` instead, which handle pluralization natively.
+
+The vue-i18n 8 argument order `$t(key, plural, namedParameters)` is no longer converted. Pass the named parameters before the plural count:
+
+```js
+// Before
+this.$tc('sw-product.list.messageDelete', count, { name });
+
+// After
+this.$t('sw-product.list.messageDelete', { name }, count);
+```
+
+The vue-i18n 8 locale argument of `$tc(key, plural, locale)` is no option of `$t()`. Pass it as `$t(key, plural, { locale })`, or as `$t(key, namedParameters, { plural, locale })` together with named parameters.
+
+The ESLint rule `sw-core-rules/no-tc-translation` of the Administration extension tooling fixes these automatically in scripts, Vue templates, and bound attributes of Twig templates. `{{ }}` interpolations in `.html.twig` templates are not checked. Calls whose named parameters are no object literal or contain spread or computed keys, e.g. `$t(key, 1, params)` or `$t(key, 1, { ...params })`, are reported and have to be migrated manually:
+
+```bash
+bin/console administration:check-extensions -- --only=MyPlugin --fix
+```

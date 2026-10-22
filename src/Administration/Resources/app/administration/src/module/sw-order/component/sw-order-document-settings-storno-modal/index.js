@@ -9,10 +9,7 @@ import { DOCUMENT_TYPES } from '../../order.types';
 export default {
     template,
 
-    emits: [
-        'loading-document',
-        'loading-preview',
-    ],
+    emits: ['loading-document', 'loading-preview'],
 
     props: {
         order: {

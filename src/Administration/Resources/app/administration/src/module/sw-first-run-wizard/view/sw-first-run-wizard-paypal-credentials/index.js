@@ -7,10 +7,7 @@ import template from './sw-first-run-wizard-paypal-credentials.html.twig';
 export default {
     template,
 
-    emits: [
-        'frw-set-title',
-        'buttons-update',
-    ],
+    emits: ['frw-set-title', 'buttons-update'],
 
     computed: {
         buttonConfig() {

@@ -164,6 +164,9 @@ class RulePayloadSubscriberTest extends TestCase
 
     public function testLoadValidRulesFromDatabase(): void
     {
+        // the repository runs the real subscriber, the shared updater double is not involved
+        $this->updater->expects($this->never())->method(static::anything());
+
         $id = Uuid::randomHex();
         $this->connection->createQueryBuilder()
             ->insert('rule')
@@ -203,6 +206,8 @@ class RulePayloadSubscriberTest extends TestCase
 
     public function testLoadInvalidRulesFromDatabase(): void
     {
+        $this->updater->expects($this->never())->method(static::anything());
+
         $id = Uuid::randomHex();
         $this->connection->createQueryBuilder()
             ->insert('rule')

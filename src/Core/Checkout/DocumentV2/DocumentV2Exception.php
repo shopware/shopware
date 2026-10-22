@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,6 +26,10 @@ class DocumentV2Exception extends HttpException
     public const ORDER_NOT_FOUND = 'DOCUMENT_V2__ORDER_NOT_FOUND';
 
     public const DOCUMENT_NOT_FOUND = 'DOCUMENT_V2__DOCUMENT_NOT_FOUND';
+
+    public const MEDIA_NOT_FOUND = 'DOCUMENT_V2__MEDIA_NOT_FOUND';
+
+    public const DOCUMENT_MEDIA_NOT_ALLOWED = 'DOCUMENT_V2__DOCUMENT_MEDIA_NOT_ALLOWED';
 
     public const RENDERER_NOT_FOUND = 'DOCUMENT_V2__RENDERER_NOT_FOUND';
 
@@ -95,7 +100,7 @@ class DocumentV2Exception extends HttpException
     public const DOCUMENT_TYPE_SHADOWS_CORE_TYPE = 'DOCUMENT_V2__DOCUMENT_TYPE_SHADOWS_CORE_TYPE';
 
     /**
-     * @deprecated tag:v6.9.0 - reason:experimental-replacement - Remove with the `app_provided` sentinel once `document.document_type_id` is dropped.
+     * @deprecated tag:v6.9.0 - Remove with the `app_provided` sentinel once `document.document_type_id` is dropped.
      */
     public const DOCUMENT_TYPE_RESERVED_IDENTIFIER = 'DOCUMENT_V2__DOCUMENT_TYPE_RESERVED_IDENTIFIER';
 
@@ -158,6 +163,26 @@ class DocumentV2Exception extends HttpException
         );
     }
 
+    public static function mediaNotFound(string $mediaId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::MEDIA_NOT_FOUND,
+            'Media with id "{{ mediaId }}" not found.',
+            ['mediaId' => $mediaId],
+        );
+    }
+
+    public static function documentMediaNotAllowed(string $mediaId): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::DOCUMENT_MEDIA_NOT_ALLOWED,
+            'Media with id "{{ mediaId }}" is private and not a document media file.',
+            ['mediaId' => $mediaId],
+        );
+    }
+
     public static function rendererNotFound(string $format, ?string $documentType = null): self
     {
         $message = $documentType === null
@@ -213,10 +238,16 @@ class DocumentV2Exception extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.9.0 - reason:experimental-replacement - Remove with the `app_provided` sentinel once `document.document_type_id` is dropped.
+     * @deprecated tag:v6.9.0 - Remove with the `app_provided` sentinel once `document.document_type_id` is dropped.
      */
     public static function documentTypeReservedIdentifier(string $identifier): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            'documentTypeReservedIdentifier() is removed with the legacy document implementation',
+            silentUntil: 'v6.8.0.0',
+        );
+
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::DOCUMENT_TYPE_RESERVED_IDENTIFIER,

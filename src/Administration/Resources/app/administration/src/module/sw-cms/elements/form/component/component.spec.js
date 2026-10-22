@@ -33,10 +33,7 @@ async function createWrapper(formType = null) {
     });
 }
 
-const formTemplates = [
-    'form-contact',
-    'form-newsletter',
-];
+const formTemplates = ['form-contact', 'form-newsletter'];
 
 describe('module/sw-cms/elements/form/component', () => {
     beforeAll(async () => {

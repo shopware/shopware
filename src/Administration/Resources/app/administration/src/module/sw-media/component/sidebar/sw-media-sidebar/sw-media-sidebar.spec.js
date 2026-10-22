@@ -50,11 +50,7 @@ async function createWrapper(items, mediaRepositoryFunctions = {}) {
     });
 }
 
-const defaultNames = [
-    't-shirt.png',
-    'flask.jpg',
-    'router.glb',
-];
+const defaultNames = ['t-shirt.png', 'flask.jpg', 'router.glb'];
 const createItems = (itemNames = defaultNames) => {
     return itemNames.map((name) => {
         return {

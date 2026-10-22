@@ -21,6 +21,7 @@ export default {
         'acl',
         'mediaDefaultFolderService',
         'feature',
+        'customFieldDataProviderService',
     ],
 
     mixins: [
@@ -76,10 +77,12 @@ export default {
             return this.repositoryFactory.create('media');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria() {
             const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equals('relations.entityName', 'product_manufacturer'));
@@ -116,11 +119,7 @@ export default {
             };
         },
 
-        ...mapPropertyErrors('manufacturer', [
-            'description',
-            'link',
-            'name',
-        ]),
+        ...mapPropertyErrors('manufacturer', ['description', 'link', 'name']),
     },
 
     watch: {
@@ -153,12 +152,9 @@ export default {
         async loadEntityData() {
             this.isLoading = true;
 
-            const [
-                manufacturerResponse,
-                customFieldResponse,
-            ] = await Promise.allSettled([
+            const [manufacturerResponse, customFieldResponse] = await Promise.allSettled([
                 this.manufacturerRepository.get(this.manufacturerId),
-                this.customFieldSetRepository.search(this.customFieldSetCriteria),
+                this.customFieldDataProviderService.getCustomFieldSets('product_manufacturer', false, null),
                 this.getMediaDefaultFolderId(),
             ]);
 

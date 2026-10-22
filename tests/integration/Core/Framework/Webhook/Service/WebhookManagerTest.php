@@ -7,7 +7,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Defaults;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
+use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -37,7 +39,9 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
@@ -50,6 +54,7 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\App\GuzzleHistoryCollector;
+use Shopware\Core\Test\Integration\Builder\Webhook\WebhookBuilder;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\Messenger\Envelope;
@@ -64,7 +69,7 @@ class WebhookManagerTest extends TestCase
     use GuzzleTestClientBehaviour;
     use IntegrationTestBehaviour;
 
-    private MessageBusInterface&MockObject $bus;
+    private MessageBusInterface&Stub $bus;
 
     private GuzzleHistoryCollector $guzzleHistory;
 
@@ -73,6 +78,8 @@ class WebhookManagerTest extends TestCase
     private ShopIdProvider $shopIdProvider;
 
     private Connection $connection;
+
+    private string $adminId;
 
     /**
      * @var EntityRepository<AppCollection>
@@ -83,8 +90,13 @@ class WebhookManagerTest extends TestCase
     {
         $this->shopUrl = $_SERVER['APP_URL'];
         $this->shopIdProvider = static::getContainer()->get(ShopIdProvider::class);
-        $this->bus = $this->createMock(MessageBusInterface::class);
+        // tests that assert on the bus hand their own mock to getManager(), every other test only needs a stub
+        $this->bus = static::createStub(MessageBusInterface::class);
         $this->connection = static::getContainer()->get(Connection::class);
+
+        $adminId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM user WHERE username = :username', ['username' => 'admin']);
+        static::assertIsString($adminId);
+        $this->adminId = $adminId;
 
         $guzzleHistory = static::getContainer()->get(GuzzleHistoryCollector::class);
         static::assertInstanceOf(GuzzleHistoryCollector::class, $guzzleHistory);
@@ -119,6 +131,8 @@ class WebhookManagerTest extends TestCase
         );
 
         $this->getManager()->dispatch($event);
+
+        static::assertSame(0, $this->getRequestCount());
     }
 
     public function testDoesNotDispatchBusinessEventIfAppHasNoPermission(): void
@@ -138,11 +152,38 @@ class WebhookManagerTest extends TestCase
             'testToken'
         );
 
-        $client = new Client([
-            'handler' => new MockHandler([]),
-        ]);
+        $this->getManager()->dispatch($event);
 
-        $this->getManager($client)->dispatch($event);
+        static::assertSame(0, $this->getRequestCount());
+    }
+
+    public function testRevokedAppPrivilegesApplyToLaterDeliveries(): void
+    {
+        $appId = Uuid::randomHex();
+        $this->createApp(appId: $appId, aclRoleId: Uuid::randomHex(), permissions: ['customer' => ['read']]);
+
+        $this->appendNewResponse(new Response(200));
+        $this->appendNewResponse(new Response(200));
+
+        $customerId = Uuid::randomHex();
+        $this->createCustomer($customerId);
+
+        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->get($customerId);
+        static::assertInstanceOf(CustomerEntity::class, $customer);
+        $event = new CustomerLoginEvent(
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            $customer,
+            'testToken'
+        );
+
+        $manager = $this->getManager();
+        $manager->dispatch($event);
+        static::assertSame(1, $this->getRequestCount());
+
+        static::getContainer()->get(Privileges::class)->setPrivileges($appId, [], Context::createDefaultContext());
+
+        $manager->dispatch($event);
+        static::assertSame(1, $this->getRequestCount());
     }
 
     public function testDispatchesBusinessEventIfAppHasPermission(): void
@@ -176,14 +217,13 @@ class WebhookManagerTest extends TestCase
         $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame('Max', $data['data']['payload']['customer']['firstName']);
         static::assertSame('Mustermann', $data['data']['payload']['customer']['lastName']);
+        static::assertArrayNotHasKey('hash', $data['data']['payload']['customer']);
         static::assertArrayHasKey('timestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
         unset($data['timestamp'], $data['data']['payload']['customer'], $data['source']['eventId'], $data['source']['sequence']);
         static::assertSame([
             'data' => [
-                'payload' => [
-                    'contextToken' => 'testToken',
-                ],
+                'payload' => [],
                 'event' => CustomerLoginEvent::EVENT_NAME,
             ],
             'source' => [
@@ -199,9 +239,40 @@ class WebhookManagerTest extends TestCase
             $request->getHeaderLine('shopware-shop-signature')
         );
 
-        static::assertNotEmpty($request->getHeaderLine('sw-version'));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine('sw-version'));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+    }
+
+    public function testDispatchesMailSentWithoutTheContents(): void
+    {
+        $this->createApp(webhooks: [
+            [
+                'name' => 'hook1',
+                'event_name' => MailSentEvent::EVENT_NAME,
+                'url' => 'https://test.com',
+            ],
+        ]);
+
+        $this->appendNewResponse(new Response(200));
+
+        $event = new MailSentEvent(
+            'Your order',
+            ['max@example.com' => 'Max Mustermann'],
+            ['text/html' => '<p>Reset your password: https://shop.example/reset/token</p>'],
+            Context::createDefaultContext()
+        );
+
+        $this->getManager()->dispatch($event);
+
+        $request = $this->getLastRequest();
+        static::assertNotNull($request);
+
+        $data = json_decode($request->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame([
+            'subject' => 'Your order',
+            'recipients' => ['Max Mustermann'],
+        ], $data['data']['payload']);
     }
 
     public function testDoesNotDispatchBusinessEventIfShopIdFingerprintsHaveChanged(): void
@@ -236,7 +307,10 @@ class WebhookManagerTest extends TestCase
 
     public function testDispatchesBusinessEventToWebhookWithoutApp(): void
     {
-        $this->createWebhook('hook1', CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com');
+        WebhookBuilder::ownedByUser($this->adminId)
+            ->subscribe(CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com')
+            ->name('hook1')
+            ->insert($this->connection);
 
         $this->appendNewResponse(new Response(200));
 
@@ -274,10 +348,46 @@ class WebhookManagerTest extends TestCase
         static::assertFalse($request->hasHeader('shopware-shop-signature'));
     }
 
+    public function testAWebhookIsDeliveredWhenItsOwnerMayReadTheEvent(): void
+    {
+        $ownerId = TestUser::createNewTestUser($this->connection, ['product:read'])->getUserId();
+        WebhookBuilder::ownedByUser($ownerId)
+            ->subscribe(ProductEvents::PRODUCT_WRITTEN_EVENT, 'https://test.com')
+            ->name('hook1')
+            ->insert($this->connection);
+
+        $this->appendNewResponse(new Response(200));
+
+        $this->getManager()->dispatch($this->getEntityWrittenEvent(Uuid::randomHex()));
+
+        static::assertSame(1, $this->getRequestCount());
+    }
+
+    public function testAWebhookIsNotDeliveredWhenItsOwnerMayNotReadTheEvent(): void
+    {
+        $ownerId = TestUser::createNewTestUser($this->connection, ['customer:read'])->getUserId();
+        WebhookBuilder::ownedByUser($ownerId)
+            ->subscribe(ProductEvents::PRODUCT_WRITTEN_EVENT, 'https://test.com')
+            ->name('hook1')
+            ->insert($this->connection);
+
+        $this->appendNewResponse(new Response(200));
+
+        $this->getManager()->dispatch($this->getEntityWrittenEvent(Uuid::randomHex()));
+
+        static::assertSame(0, $this->getRequestCount());
+    }
+
     public function testDispatchedWebhooksDontWrapEventMultipleTimes(): void
     {
-        $this->createWebhook('hook1', CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com');
-        $this->createWebhook('hook2', CustomerBeforeLoginEvent::EVENT_NAME, 'https://test2.com');
+        WebhookBuilder::ownedByUser($this->adminId)
+            ->subscribe(CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com')
+            ->name('hook1')
+            ->insert($this->connection);
+        WebhookBuilder::ownedByUser($this->adminId)
+            ->subscribe(CustomerBeforeLoginEvent::EVENT_NAME, 'https://test2.com')
+            ->name('hook2')
+            ->insert($this->connection);
 
         $this->appendNewResponse(new Response(200));
         $this->appendNewResponse(new Response(200));
@@ -321,7 +431,10 @@ class WebhookManagerTest extends TestCase
 
     public function testDispatchesWrappedEntityWrittenEventToWebhookWithoutApp(): void
     {
-        $this->createWebhook('hook1', ProductEvents::PRODUCT_WRITTEN_EVENT, 'https://test.com');
+        WebhookBuilder::ownedByUser($this->adminId)
+            ->subscribe(ProductEvents::PRODUCT_WRITTEN_EVENT, 'https://test.com')
+            ->name('hook1')
+            ->insert($this->connection);
         $context = Context::createDefaultContext();
 
         $this->appendNewResponse(new Response(200));
@@ -431,7 +544,12 @@ class WebhookManagerTest extends TestCase
 
     public function testDoesntDispatchesWrappedBusinessEventToWebhook(): void
     {
-        $this->createWebhook('hook1', CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com');
+        WebhookBuilder::ownedByUser($this->adminId)
+            ->subscribe(CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com')
+            ->name('hook1')
+            ->insert($this->connection);
+
+        $this->appendNewResponse(new Response(200));
 
         $factory = static::getContainer()->get(FlowFactory::class);
         $event = $factory->create(new CustomerBeforeLoginEvent(
@@ -440,11 +558,33 @@ class WebhookManagerTest extends TestCase
         ));
         $event->setFlowState(new FlowState());
 
-        $client = new Client([
-            'handler' => new MockHandler([]),
-        ]);
+        $this->getManager()->dispatch($event);
 
-        $this->getManager($client)->dispatch($event);
+        static::assertSame(0, $this->getRequestCount());
+    }
+
+    public function testWebhookWithoutAnAppDoesNotReceiveAppEvents(): void
+    {
+        $appId = Uuid::randomHex();
+        $this->createApp(appId: $appId, webhooks: [
+            [
+                'name' => 'hook1',
+                'event_name' => AppDeletedEvent::NAME,
+                'url' => 'https://test.com',
+            ],
+        ]);
+        WebhookBuilder::ownedByUser($this->adminId)
+            ->subscribe(AppDeletedEvent::NAME, 'https://test2.com')
+            ->name('hook2')
+            ->insert($this->connection);
+
+        $this->appendNewResponse(new Response(200));
+        $this->appendNewResponse(new Response(200));
+
+        $this->getManager()->dispatch(new AppDeletedEvent($appId, Context::createDefaultContext()));
+
+        static::assertSame(1, $this->getRequestCount());
+        static::assertSame('test.com', $this->getLastRequest()?->getUri()->getHost());
     }
 
     public function testDispatchesAllAppLifecycleSynchronously(): void
@@ -465,10 +605,11 @@ class WebhookManagerTest extends TestCase
 
         // App lifecycle events must always use sync path, even with admin worker disabled.
         // The bus mock must never be called — sync path bypasses the message bus entirely.
-        $this->bus->expects($this->never())
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects($this->never())
             ->method('dispatch');
 
-        $this->getManager(adminWorkerEnabled: false)->dispatch($event);
+        $this->getManager(adminWorkerEnabled: false, bus: $bus)->dispatch($event);
 
         $request = $this->getLastRequest();
         static::assertNotNull($request);
@@ -500,9 +641,9 @@ class WebhookManagerTest extends TestCase
             $request->getHeaderLine('shopware-shop-signature')
         );
 
-        static::assertNotEmpty($request->getHeaderLine('sw-version'));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine('sw-version'));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testItDoesDispatchAppLifecycleEventForInactiveApp(): void
@@ -577,11 +718,12 @@ class WebhookManagerTest extends TestCase
             'handler' => new MockHandler([]),
         ]);
 
-        $this->bus
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus
             ->expects($this->never())
             ->method('dispatch');
 
-        $this->getManager($client)->dispatch($event);
+        $this->getManager($client, bus: $bus)->dispatch($event);
     }
 
     public function testItDoesNotDispatchGeneralEventsForDisabledApp(): void
@@ -704,9 +846,9 @@ class WebhookManagerTest extends TestCase
             $request->getHeaderLine('shopware-shop-signature')
         );
 
-        static::assertNotEmpty($request->getHeaderLine('sw-version'));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine('sw-version'));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testDispatchesEntityWrittenEventIfAppHasPermission(): void
@@ -825,9 +967,9 @@ class WebhookManagerTest extends TestCase
             $request->getHeaderLine('shopware-shop-signature')
         );
 
-        static::assertNotEmpty($request->getHeaderLine('sw-version'));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine('sw-version'));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testItDoesDispatchWebhookMessageQueueWithAppActive(): void
@@ -880,7 +1022,8 @@ class WebhookManagerTest extends TestCase
 
         $shopwareVersion = Kernel::SHOPWARE_FALLBACK_VERSION;
 
-        $this->bus->expects($this->once())
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects($this->once())
             ->method('dispatch')
             ->with(static::callback(static function (WebhookEventMessage $message) use ($payload, $appId, $webhookId, $shopwareVersion) {
                 $actualPayload = $message->getPayload();
@@ -898,15 +1041,17 @@ class WebhookManagerTest extends TestCase
             }))
             ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB')));
 
-        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client, $event): void {
-            $this->getManager($client, false)->dispatch($event);
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client, $event, $bus): void {
+            $this->getManager($client, false, bus: $bus)->dispatch($event);
         });
     }
 
     public function testItDoesDispatchWebhookMessageQueueWithoutApp(): void
     {
-        $webhookId = Uuid::randomHex();
-        $this->createWebhook('hook1', ProductEvents::PRODUCT_WRITTEN_EVENT, 'https://test.com', null, $webhookId);
+        $webhookId = WebhookBuilder::ownedByUser($this->adminId)
+            ->subscribe(ProductEvents::PRODUCT_WRITTEN_EVENT, 'https://test.com')
+            ->name('hook1')
+            ->insert($this->connection);
 
         $entityId = Uuid::randomHex();
         $event = $this->getEntityWrittenEvent($entityId);
@@ -934,7 +1079,8 @@ class WebhookManagerTest extends TestCase
 
         $webhookEventId = Uuid::randomHex();
         $shopwareVersion = Kernel::SHOPWARE_FALLBACK_VERSION;
-        $this->bus->expects($this->once())
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects($this->once())
             ->method('dispatch')
             ->with(static::callback(static function (WebhookEventMessage $message) use ($payload, $webhookId, $shopwareVersion) {
                 $actualPayload = $message->getPayload();
@@ -952,8 +1098,8 @@ class WebhookManagerTest extends TestCase
             }))
             ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, null, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB')));
 
-        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client, $event): void {
-            $this->getManager($client, false)->dispatch($event);
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client, $event, $bus): void {
+            $this->getManager($client, false, bus: $bus)->dispatch($event);
         });
     }
 
@@ -1002,7 +1148,8 @@ class WebhookManagerTest extends TestCase
             ],
         ];
 
-        $this->bus->expects($this->once())
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects($this->once())
             ->method('dispatch')
             ->with(static::callback(static function (WebhookEventMessage $message) use ($appId, $webhookId, $expectedPayload) {
                 static::assertSame($appId, $message->getAppId());
@@ -1022,15 +1169,17 @@ class WebhookManagerTest extends TestCase
                 return new Envelope($message);
             });
 
-        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client, $event): void {
-            $this->getManager($client, false)->dispatch($event);
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client, $event, $bus): void {
+            $this->getManager($client, false, bus: $bus)->dispatch($event);
         });
     }
 
     public function testAsyncDispatchWithoutAppUsesDefaultPartitionKey(): void
     {
-        $webhookId = Uuid::randomHex();
-        $this->createWebhook('hook1', ProductEvents::PRODUCT_WRITTEN_EVENT, 'https://test.com', null, $webhookId);
+        WebhookBuilder::ownedByUser($this->adminId)
+            ->subscribe(ProductEvents::PRODUCT_WRITTEN_EVENT, 'https://test.com')
+            ->name('hook1')
+            ->insert($this->connection);
 
         $entityId = Uuid::randomHex();
         $event = $this->getEntityWrittenEvent($entityId);
@@ -1039,7 +1188,8 @@ class WebhookManagerTest extends TestCase
             'handler' => new MockHandler([]),
         ]);
 
-        $this->bus->expects($this->once())
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects($this->once())
             ->method('dispatch')
             ->with(static::callback(static function (WebhookEventMessage $message) {
                 static::assertSame(WebhookEventMessage::DEFAULT_PARTITION_KEY, $message->getPartitionKey());
@@ -1050,8 +1200,8 @@ class WebhookManagerTest extends TestCase
                 return new Envelope($message);
             });
 
-        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client, $event): void {
-            $this->getManager($client, false)->dispatch($event);
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client, $event, $bus): void {
+            $this->getManager($client, false, bus: $bus)->dispatch($event);
         });
     }
 
@@ -1308,10 +1458,11 @@ class WebhookManagerTest extends TestCase
         );
 
         // Sync path (adminWorkerEnabled=true) must never dispatch to the message bus
-        $this->bus->expects($this->never())
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects($this->never())
             ->method('dispatch');
 
-        $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+        $this->getManager(adminWorkerEnabled: true, bus: $bus)->dispatch($event);
 
         $request = $this->getLastRequest();
         static::assertNotNull($request);
@@ -1450,8 +1601,10 @@ class WebhookManagerTest extends TestCase
 
     public function testSyncDispatchWithNonAppWebhookCreatesOutboxEntry(): void
     {
-        $webhookId = Uuid::randomHex();
-        $this->createWebhook('hook1', CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com', null, $webhookId);
+        WebhookBuilder::ownedByUser($this->adminId)
+            ->subscribe(CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com')
+            ->name('hook1')
+            ->insert($this->connection);
 
         $this->appendNewResponse(new Response(200));
 
@@ -1461,10 +1614,11 @@ class WebhookManagerTest extends TestCase
         );
 
         // Sync path should not use bus
-        $this->bus->expects($this->never())
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects($this->never())
             ->method('dispatch');
 
-        $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+        $this->getManager(adminWorkerEnabled: true, bus: $bus)->dispatch($event);
 
         $request = $this->getLastRequest();
         static::assertNotNull($request);
@@ -1481,20 +1635,6 @@ class WebhookManagerTest extends TestCase
         static::assertSame(CustomerBeforeLoginEvent::EVENT_NAME, $eventLog['event_name']);
         // Non-app webhook has no app_name
         static::assertNull($eventLog['app_name']);
-    }
-
-    private function createWebhook(string $name, string $eventName, string $url, ?string $appId = null, ?string $webhookId = null): void
-    {
-        $payload = array_filter([
-            'id' => $webhookId ? Uuid::fromHexToBytes($webhookId) : Uuid::randomBytes(),
-            'name' => $name,
-            'event_name' => $eventName,
-            'url' => $url,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            'app_id' => $appId ? Uuid::fromHexToBytes($appId) : null,
-        ]);
-
-        $this->connection->insert('webhook', $payload);
     }
 
     /**
@@ -1547,7 +1687,11 @@ class WebhookManagerTest extends TestCase
         ];
 
         foreach ($webhooks as $webhook) {
-            $this->createWebhook($webhook['name'], $webhook['event_name'], $webhook['url'], $app->getId(), $webhook['id'] ?? null);
+            WebhookBuilder::ofApp($app->getId())
+                ->id($webhook['id'] ?? Uuid::randomHex())
+                ->subscribe($webhook['event_name'], $webhook['url'])
+                ->name($webhook['name'])
+                ->insert($this->connection);
         }
 
         if ($permissions !== null && $appId !== null) {
@@ -1586,6 +1730,7 @@ class WebhookManagerTest extends TestCase
             'customerNumber' => '12345',
             'vatIds' => ['DE123456789'],
             'company' => 'Test',
+            'hash' => 'customer-confirmation-hash',
         ];
 
         static::getContainer()->get('customer.repository')
@@ -1595,7 +1740,9 @@ class WebhookManagerTest extends TestCase
     private function getManager(
         ?Client $client = null,
         bool $adminWorkerEnabled = true,
+        ?MessageBusInterface $bus = null,
     ): WebhookManager {
+        $bus ??= $this->bus;
         $guzzle = $client ?? static::getContainer()->get('shopware.webhook.guzzle');
 
         return new WebhookManager(
@@ -1604,12 +1751,13 @@ class WebhookManagerTest extends TestCase
             static::getContainer()->get(AppLocaleProvider::class),
             static::getContainer()->get(AppPayloadServiceHelper::class),
             new WebhookClient($guzzle, static::getContainer()->get(ClockInterface::class)),
-            $this->bus,
+            $bus,
             $this->shopUrl,
             Kernel::SHOPWARE_FALLBACK_VERSION,
             $adminWorkerEnabled,
             static::getContainer()->get(WebhookDeliveryService::class),
             static::getContainer()->get(WebhookOutboxStore::class),
+            static::getContainer()->get(PolicyRegistry::class),
         );
     }
 

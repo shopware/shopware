@@ -56,10 +56,7 @@ export default {
 
     props: {
         route: {
-            type: [
-                String,
-                Object,
-            ],
+            type: [String, Object],
             required: false,
             default: '',
         },
@@ -97,14 +94,14 @@ export default {
             type: String,
             required: false,
             default() {
-                return Shopware.Snippet.tc('global.sw-tabs-item.tooltipTabHasErrors');
+                return Shopware.Snippet.t('global.sw-tabs-item.tooltipTabHasErrors');
             },
         },
         warningTooltip: {
             type: String,
             required: false,
             default() {
-                return Shopware.Snippet.tc('global.sw-tabs-item.tooltipTabHasWarnings');
+                return Shopware.Snippet.t('global.sw-tabs-item.tooltipTabHasWarnings');
             },
         },
     },

@@ -5,6 +5,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import * as net from 'net';
+import colors from 'picocolors';
 
 function isPortFree(port: number): Promise<boolean | Error> {
     return new Promise((resolve) => {
@@ -129,99 +130,78 @@ export function loadExtensions(): ExtensionDefinition[] {
     };
 
     const apps = Object.entries(extensionDefinitions)
-        .filter(
-            ([
-                name,
-                definition,
-            ]) => {
-                const appEntryPath = path.resolve(
-                    process.env.PROJECT_ROOT as string,
-                    definition.basePath,
-                    definition.administration?.path ?? '',
-                    '../..',
-                    'meteor-app',
-                );
+        .filter(([name, definition]) => {
+            const appEntryPath = path.resolve(
+                process.env.PROJECT_ROOT as string,
+                definition.basePath,
+                definition.administration?.path ?? '',
+                '../..',
+                'meteor-app',
+            );
 
-                return definition.administration?.path && fs.existsSync(path.resolve(appEntryPath, 'index.html'));
-            },
-        )
-        .map(
-            ([
-                name,
-                definition,
-            ]) => {
-                const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-                const appEntryPath = path.resolve(
-                    process.env.PROJECT_ROOT as string,
-                    definition.basePath,
-                    // @ts-expect-error - We know it is defined at this point because of the filter above
-                    definition.administration.path,
-                    '../..',
-                    'meteor-app',
-                );
+            return definition.administration?.path && fs.existsSync(path.resolve(appEntryPath, 'index.html'));
+        })
+        .map(([name, definition]) => {
+            const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+            const appEntryPath = path.resolve(
+                process.env.PROJECT_ROOT as string,
+                definition.basePath,
+                // @ts-expect-error - We know it is defined at this point because of the filter above
+                definition.administration.path,
+                '../..',
+                'meteor-app',
+            );
 
-                return {
-                    name,
-                    isApp: true,
-                    isPlugin: false,
-                    basePath: path.resolve(process.env.PROJECT_ROOT as string, definition.basePath),
-                    path: appEntryPath,
-                    filePath: path.resolve(appEntryPath, 'index.html'),
-                    technicalName: technicalName,
-                    technicalFolderName: technicalName.replace(/(-)/g, '').toLowerCase(),
-                } as ExtensionDefinition;
-            },
-        );
+            return {
+                name,
+                isApp: true,
+                isPlugin: false,
+                basePath: path.resolve(process.env.PROJECT_ROOT as string, definition.basePath),
+                path: appEntryPath,
+                filePath: path.resolve(appEntryPath, 'index.html'),
+                technicalName: technicalName,
+                technicalFolderName: technicalName.replace(/(-)/g, '').toLowerCase(),
+            } as ExtensionDefinition;
+        });
 
     const plugins = Object.entries(extensionDefinitions)
         .filter(
-            ([
-                name,
-                definition,
-            ]) =>
+            ([name, definition]) =>
                 !!definition.administration &&
                 !!definition.administration.entryFilePath &&
                 !process.env.hasOwnProperty(`SKIP_${definition.technicalName.toUpperCase().replace(/-/g, '_')}`),
         )
-        .map(
-            ([
+        .map(([name, definition]) => {
+            const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+
+            return {
                 name,
-                definition,
-            ]) => {
-                const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+                isPlugin: true,
+                isApp: false,
+                technicalName: technicalName,
+                // There is an edge case where symfony removes the "bundle" suffix from the bundle name
+                // @see \Shopware\Core\Framework\Adapter\Asset\AssetService::getTargetDirectory
+                technicalFolderName: name
+                    .toLowerCase()
+                    .replace(/bundle$/, '')
+                    .replace(/(-)/g, ''),
+                basePath: path.resolve(process.env.PROJECT_ROOT as string, definition.basePath),
+                path: path.resolve(
+                    process.env.PROJECT_ROOT as string,
+                    definition.basePath,
+                    // @ts-expect-error - We know it is defined at this point because of the filter above
+                    definition.administration.path,
+                ),
+                filePath: path.resolve(
+                    process.env.PROJECT_ROOT as string,
+                    definition.basePath,
+                    // @ts-expect-error - We know it is defined at this point because of the filter above
+                    definition.administration.entryFilePath,
+                ),
+            } as ExtensionDefinition;
+        });
 
-                return {
-                    name,
-                    isPlugin: true,
-                    isApp: false,
-                    technicalName: technicalName,
-                    // There is an edge case where symfony removes the "bundle" suffix from the bundle name
-                    // @see \Shopware\Core\Framework\Plugin\Util\AssetService::getTargetDirectory
-                    technicalFolderName: name
-                        .toLowerCase()
-                        .replace(/bundle$/, '')
-                        .replace(/(-)/g, ''),
-                    basePath: path.resolve(process.env.PROJECT_ROOT as string, definition.basePath),
-                    path: path.resolve(
-                        process.env.PROJECT_ROOT as string,
-                        definition.basePath,
-                        // @ts-expect-error - We know it is defined at this point because of the filter above
-                        definition.administration.path,
-                    ),
-                    filePath: path.resolve(
-                        process.env.PROJECT_ROOT as string,
-                        definition.basePath,
-                        // @ts-expect-error - We know it is defined at this point because of the filter above
-                        definition.administration.entryFilePath,
-                    ),
-                } as ExtensionDefinition;
-            },
-        );
-
-    return [
-        ...plugins,
-        ...apps,
-    ].filter((extension) => {
+    return [...plugins, ...apps].filter((extension) => {
         return !process.env.hasOwnProperty('SKIP_' + extension.technicalName.toUpperCase().replace(/-/g, '_'));
     });
 }
@@ -295,10 +275,7 @@ export function getViteServerPorts(): Record<string, number> {
 
     const ports: Record<string, number> = {};
 
-    for (const [
-        key,
-        value,
-    ] of Object.entries(parsedData.extensions)) {
+    for (const [key, value] of Object.entries(parsedData.extensions)) {
         ports[key] = value.port;
     }
 
@@ -323,10 +300,7 @@ export function getMainViteServerConfig(): {
 
     const proxyConfig: Record<string, { target: string; changeOrigin: boolean; ws: true; rewriteWsOrigin: true }> = {};
 
-    for (const [
-        key,
-        value,
-    ] of Object.entries(parsedData.extensions)) {
+    for (const [key, value] of Object.entries(parsedData.extensions)) {
         proxyConfig[value.basePath] = {
             target: `http://localhost:${value.port}`,
             changeOrigin: true,
@@ -349,3 +323,102 @@ export const isInsideDockerContainer = (): boolean => {
     // Resolve root path
     return fs.existsSync('/.dockerenv');
 };
+
+/**
+ * @private
+ *
+ * Without both files the dev server serves plain HTTP, which TLS-terminating proxies like the one of shopware-cli expect.
+ */
+export function getDevServerHttpsConfig(env: NodeJS.ProcessEnv = process.env): { cert: string; key: string } | undefined {
+    const cert = env.SHOPWARE_ADMIN_HTTPS_CERTIFICATE_FILE;
+    const key = env.SHOPWARE_ADMIN_HTTPS_KEY_FILE;
+
+    if (!cert || !key) {
+        return undefined;
+    }
+
+    // The watcher runs in the Administration directory, but the variables usually come from the .env of the project.
+    // Vite uses a path it cannot read as the PEM content itself, which only fails later with a TLS error.
+    const root = env.PROJECT_ROOT ?? process.cwd();
+
+    return { cert: path.resolve(root, cert), key: path.resolve(root, key) };
+}
+
+/**
+ * @private
+ */
+export function readFeatureFlags(): Record<string, boolean> {
+    const flagsPath = path.resolve(process.env.PROJECT_ROOT as string, 'var/config_js_features.json');
+
+    if (!fs.existsSync(flagsPath)) {
+        return {};
+    }
+
+    return JSON.parse(fs.readFileSync(flagsPath, 'utf-8')) as Record<string, boolean>;
+}
+
+/**
+ * @private
+ */
+export type PluginDevJson = { metadata: 'shopware' } & Record<string, { js?: string; hmrSrc?: string; html?: string }>;
+
+/**
+ * @private
+ *
+ * Builds the content of the sw-plugin-dev.json, which tells the Administration where to load the extensions from.
+ */
+export function createPluginDevJson(extensions: ExtensionDefinition[], useBundledDev: boolean): PluginDevJson {
+    const pluginDevJson = { metadata: 'shopware' } as PluginDevJson;
+
+    extensions.forEach((extension) => {
+        const base = `/_internal_ext/${extension.technicalName}/`;
+        const entry: PluginDevJson[string] = {};
+
+        if (extension.isApp) {
+            entry.html = `${base}index.html`;
+        }
+
+        if (extension.isPlugin) {
+            // The bundled dev mode of Vite forces `assets/[name].js` as the name of the entry files.
+            entry.js = useBundledDev
+                ? `${base}assets/${extension.technicalName}.js`
+                : `${base}${path.basename(extension.filePath)}`;
+            entry.hmrSrc = useBundledDev ? `${base}bundledDevClient.mjs` : `${base}@vite/client`;
+        }
+
+        // A bundle with an Administration entry and a meteor-app comes as one plugin and one app definition
+        pluginDevJson[extension.technicalName] = { ...pluginDevJson[extension.technicalName], ...entry };
+    });
+
+    return pluginDevJson;
+}
+
+/**
+ * @private
+ *
+ * Runs the action for every extension and logs failures instead of stopping, so one broken
+ * extension neither stops the other extensions nor the watcher of the Administration.
+ * Returns whether the action failed for any extension.
+ */
+export async function runForEachExtension(
+    extensions: ExtensionDefinition[],
+    verb: string,
+    action: (extension: ExtensionDefinition) => Promise<void>,
+): Promise<boolean> {
+    let hasFailed = false;
+
+    for (const extension of extensions) {
+        try {
+            await action(extension);
+        } catch (error) {
+            hasFailed = true;
+            const message = error instanceof Error ? error.message : String(error);
+
+            console.error(
+                colors.red(`# Failed to ${verb} ${extension.isPlugin ? 'plugin' : 'app'} "${extension.name}": ${message}`),
+            );
+        }
+    }
+
+    return hasFailed;
+}

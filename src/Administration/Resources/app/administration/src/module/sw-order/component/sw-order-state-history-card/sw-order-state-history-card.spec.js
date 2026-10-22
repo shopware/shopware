@@ -6,9 +6,7 @@ import { mount } from '@vue/test-utils';
 async function createWrapper() {
     const orderProp = {
         transactions: [],
-        deliveries: [
-            {},
-        ],
+        deliveries: [{}],
     };
 
     orderProp.transactions.last = () => ({});

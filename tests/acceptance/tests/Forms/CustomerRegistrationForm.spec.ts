@@ -21,7 +21,7 @@ test.describe('Customer Registration Form', () => {
     });
 
     test(
-        'As a customer, the registration privacy notice matches the checkbox configuration.',
+        'As a customer, the registration privacy notice matches the checkbox and legal guarantee configuration.',
         {
             tag: [
                 '@Form',
@@ -32,23 +32,62 @@ test.describe('Customer Registration Form', () => {
         async ({ ShopCustomer, StorefrontAccountLogin, TestDataService }) => {
             const privacyNotice = StorefrontAccountLogin.page.locator('.register-form .privacy-notice');
             const dataProtectionCheckbox = privacyNotice.locator('input[name="acceptedDataProtection"]');
+            const privacyLabel = privacyNotice.locator('label[for="acceptedDataProtection"], .data-protection-information');
+            const legalGuaranteeNoticeParagraph = privacyNotice.locator('.legal-guarantee-notice');
+            const legalGuaranteeNoticeLink = privacyNotice.locator('[data-bs-target="#legalGuaranteeNoticeModal"]');
+            const legalGuaranteeNoticeModal = StorefrontAccountLogin.page.locator('#legalGuaranteeNoticeModal');
 
+            // Checkbox disabled, legal guarantee notice disabled: only the passive privacy notice is shown.
             await TestDataService.setSystemConfig({
                 'core.loginRegistration.requireDataProtectionCheckbox': false,
+                'core.cart.showLegalGuaranteeNotice': false,
             });
-            await ShopCustomer.goesTo(`${StorefrontAccountLogin.url()}?privacy-checkbox=disabled`);
+            await ShopCustomer.goesTo(`${StorefrontAccountLogin.url()}?privacy-checkbox=disabled&guarantee=disabled`);
 
             await ShopCustomer.expects(dataProtectionCheckbox).toHaveCount(0);
-            await ShopCustomer.expects(privacyNotice).toContainText(/Please note|Bitte beachten/i);
+            await ShopCustomer.expects(privacyLabel).toContainText(/Please note|Bitte beachten/i);
+            await ShopCustomer.expects(legalGuaranteeNoticeParagraph).toHaveCount(0);
+            await ShopCustomer.expects(legalGuaranteeNoticeLink).toHaveCount(0);
             await ShopCustomer.expects(StorefrontAccountLogin.registerButton).toContainText(/Register|Registrieren/i);
 
+            // Checkbox disabled, legal guarantee notice enabled: the notice is shown as its own paragraph.
+            await TestDataService.setSystemConfig({
+                'core.cart.showLegalGuaranteeNotice': true,
+            });
+            await ShopCustomer.goesTo(`${StorefrontAccountLogin.url()}?privacy-checkbox=disabled&guarantee=enabled`);
+
+            await ShopCustomer.expects(dataProtectionCheckbox).toHaveCount(0);
+            await ShopCustomer.expects(legalGuaranteeNoticeParagraph).toBeVisible();
+            await ShopCustomer.expects(legalGuaranteeNoticeLink).toBeVisible();
+
+            await legalGuaranteeNoticeLink.click();
+
+            await ShopCustomer.expects(legalGuaranteeNoticeModal).toBeVisible();
+            await ShopCustomer.expects(legalGuaranteeNoticeModal).toContainText(
+                /Your legal guarantee rights|Ihre gesetzlichen Gewährleistungsrechte/i,
+            );
+            await ShopCustomer.expects(legalGuaranteeNoticeModal.getByRole('link')).toBeVisible();
+
+            // Checkbox enabled, legal guarantee notice enabled: both the checkbox and the notice paragraph are shown.
             await TestDataService.setSystemConfig({
                 'core.loginRegistration.requireDataProtectionCheckbox': true,
             });
-            await ShopCustomer.goesTo(`${StorefrontAccountLogin.url()}?privacy-checkbox=enabled`);
+            await ShopCustomer.goesTo(`${StorefrontAccountLogin.url()}?privacy-checkbox=enabled&guarantee=enabled`);
 
             await ShopCustomer.expects(dataProtectionCheckbox).toBeVisible();
-            await ShopCustomer.expects(privacyNotice).not.toContainText(/Please note|Bitte beachten/i);
+            await ShopCustomer.expects(privacyLabel).not.toContainText(/Please note|Bitte beachten/i);
+            await ShopCustomer.expects(legalGuaranteeNoticeParagraph).toBeVisible();
+            await ShopCustomer.expects(legalGuaranteeNoticeLink).toBeVisible();
+
+            // Checkbox enabled, legal guarantee notice disabled: the checkbox stays, the notice paragraph disappears.
+            await TestDataService.setSystemConfig({
+                'core.cart.showLegalGuaranteeNotice': false,
+            });
+            await ShopCustomer.goesTo(`${StorefrontAccountLogin.url()}?privacy-checkbox=enabled&guarantee=disabled`);
+
+            await ShopCustomer.expects(dataProtectionCheckbox).toBeVisible();
+            await ShopCustomer.expects(legalGuaranteeNoticeParagraph).toHaveCount(0);
+            await ShopCustomer.expects(legalGuaranteeNoticeLink).toHaveCount(0);
         },
     );
 
@@ -82,7 +121,7 @@ test.describe('Customer Registration Form', () => {
                 '@Storefront',
             ],
         },
-        async ({ ShopCustomer, StorefrontAccountLogin, StorefrontAccount, IdProvider }) => {
+        async ({ ShopCustomer, StorefrontAccountLogin, StorefrontAccount, IdProvider, TestDataService }) => {
             const locale = getLocale();
             const addressData = getAddressDataFromLocale(locale);
 
@@ -114,6 +153,8 @@ test.describe('Customer Registration Form', () => {
             await StorefrontAccountLogin.registerButton.click();
 
             await StorefrontAccountLogin.page.waitForURL('**/account', { waitUntil: 'commit' });
+            const registeredCustomer = await TestDataService.getCustomerByEmail(customer.email);
+            TestDataService.addCreatedRecord('customer', registeredCustomer.id);
 
             await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
         },
@@ -128,7 +169,7 @@ test.describe('Customer Registration Form', () => {
                 '@Storefront',
             ],
         },
-        async ({ ShopCustomer, StorefrontAccountLogin, IdProvider }) => {
+        async ({ ShopCustomer, StorefrontAccountLogin, IdProvider, TestDataService }) => {
             const locale = getLocale();
             const addressData = getAddressDataFromLocale(locale);
 
@@ -164,6 +205,8 @@ test.describe('Customer Registration Form', () => {
             await StorefrontAccountLogin.registerButton.click();
 
             await StorefrontAccountLogin.page.waitForURL('**/account', { waitUntil: 'commit' });
+            const registeredCustomer = await TestDataService.getCustomerByEmail(customer.email);
+            TestDataService.addCreatedRecord('customer', registeredCustomer.id);
 
             await ShopCustomer.expects(StorefrontAccountLogin.page.getByText(customer.email, { exact: true })).toBeVisible();
         },

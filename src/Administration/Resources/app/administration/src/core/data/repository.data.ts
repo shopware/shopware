@@ -458,6 +458,10 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
      * Sends a delete request for the provided id.
      */
     delete(id: EntityKey<EntityName>, context = Shopware.Context.api): Promise<HttpResponse> {
+        if (!this.options.keepApiErrors) {
+            this.errorResolver.resetApiErrors();
+        }
+
         const headers = this.buildHeaders(context);
 
         const url = `${this.route}/${id}`;
@@ -508,6 +512,10 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
      * Sends a delete request for a set of ids
      */
     syncDeleted(ids: string[], context = Shopware.Context.api): Promise<void> {
+        if (!this.options.keepApiErrors) {
+            this.errorResolver.resetApiErrors();
+        }
+
         const headers = this.buildHeaders(context);
 
         headers['fail-on-error'] = true;
@@ -643,15 +651,7 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
         }
 
         const headers = Object.fromEntries(
-            Object.entries(this.buildHeaders(context)).map(
-                ([
-                    name,
-                    value,
-                ]) => [
-                    name,
-                    String(value),
-                ],
-            ),
+            Object.entries(this.buildHeaders(context)).map(([name, value]) => [name, String(value)]),
         );
         const url = `/_action/version/${versionId}/${this.entityName.replace(/_/g, '-')}/${entityId}`;
 

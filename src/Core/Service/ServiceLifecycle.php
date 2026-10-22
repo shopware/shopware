@@ -5,12 +5,14 @@ namespace Shopware\Core\Service;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
+use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -52,6 +54,7 @@ class ServiceLifecycle
         private readonly RequirementsValidator $requirementsValidator,
         private readonly Client $serviceRegistryClient,
         private readonly ServiceClientFactory $serviceClientFactory,
+        private readonly Privileges $privileges,
     ) {
     }
 
@@ -111,14 +114,18 @@ class ServiceLifecycle
     }
 
     /**
-     * Re-evaluate every installed service and uninstall any whose installation-gating requirements are
-     * no longer met (e.g. services were disabled as a unit).
+     * Repair installed state independently of registry availability or revision changes.
      */
     public function reevaluateInstalled(Context $context): void
     {
         foreach ($this->serviceStorage->findAll($context) as $service) {
-            if (!$this->requirementsValidator->isSatisfied($service->requirements, Gate::INSTALLATION)) {
-                $this->uninstall($service->name, $context);
+            try {
+                $this->reevaluate($service, $context);
+            } catch (\Throwable $exception) {
+                $this->logger->warning('Cannot reconcile service state', [
+                    'service' => $service->name,
+                    'exception' => $exception,
+                ]);
             }
         }
     }
@@ -183,6 +190,29 @@ class ServiceLifecycle
         return $this->appRepository->search($criteria, $context)->getEntities()->first()?->getId();
     }
 
+    private function reevaluate(ServiceDto $service, Context $context): void
+    {
+        if (!$this->requirementsValidator->isSatisfied($service->requirements, Gate::INSTALLATION)) {
+            $this->uninstall($service->name, $context);
+
+            return;
+        }
+
+        if ($this->requirementsValidator->isSatisfied($service->requirements, Gate::PRIVILEGES)) {
+            if ($service->requestedPrivileges !== []) {
+                $this->privileges->acceptAllForApps([$service->id], $context);
+            }
+        } elseif ($service->privileges !== []) {
+            $this->privileges->revokeAllForApps([$service->id], $context);
+        }
+
+        if (!$service->active && !$this->requirementsValidator->permitsStateChange($service->requirements)) {
+            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
+                $this->appManager->activate($service->app, $context);
+            });
+        }
+    }
+
     private function performInstall(ServiceEntry $entry, AppInfo $appInfo, Context $context): bool
     {
         $appId = $this->getAppIdForAppWithSameNameAsService($entry, $context);
@@ -219,10 +249,35 @@ class ServiceLifecycle
             $this->eventDispatcher->dispatch(new ServiceInstalledEvent($entry->name, $context));
 
             return true;
-        } catch (\Exception $e) {
+        } catch (AppAlreadyInstalledException $e) {
             $this->logger->warning(\sprintf('Cannot install service "%s" because of error: "%s"', $entry->name, $e->getMessage()));
 
             return false;
+        } catch (\Exception $e) {
+            $this->logger->warning(\sprintf('Cannot install service "%s" because of error: "%s"', $entry->name, $e->getMessage()));
+
+            $this->rollBackFailedInstall($entry->name, $context);
+
+            return false;
+        }
+    }
+
+    private function rollBackFailedInstall(string $serviceName, Context $context): void
+    {
+        try {
+            $service = $this->serviceStorage->findByName($serviceName, $context);
+
+            if (!$service || !$service->app->isActive()) {
+                return;
+            }
+
+            $this->uninstall($serviceName, $context);
+        } catch (\Exception $e) {
+            $this->logger->warning(\sprintf(
+                'Cannot roll back the failed installation of service "%s" because of error: "%s"',
+                $serviceName,
+                $e->getMessage()
+            ));
         }
     }
 

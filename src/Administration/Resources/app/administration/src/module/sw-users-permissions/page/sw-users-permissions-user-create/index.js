@@ -11,9 +11,7 @@ export default {
     template,
 
     computed: {
-        ...mapPropertyErrors('user', [
-            'password',
-        ]),
+        ...mapPropertyErrors('user', ['password']),
     },
 
     methods: {

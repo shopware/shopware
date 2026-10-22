@@ -110,11 +110,7 @@ async function createWrapper(privileges = [], integrations = null) {
 
                 'sw-entity-multi-select': true,
                 'sw-entity-listing': {
-                    props: [
-                        'items',
-                        'dataSource',
-                        'detailRoute',
-                    ],
+                    props: ['items', 'dataSource', 'detailRoute'],
                     template: `
                         <div>
                             <template v-for="item in (dataSource || items)" :key="item.id">
@@ -166,10 +162,7 @@ describe('module/sw-integration/page/sw-integration-list', () => {
     });
 
     it('should be able to create a integration', async () => {
-        const wrapper = await createWrapper([
-            'integration.creator',
-            'integration.editor',
-        ]);
+        const wrapper = await createWrapper(['integration.creator', 'integration.editor']);
 
         const createButton = wrapper.find('.sw-integration-list__add-integration-action');
         expect(createButton.attributes().disabled).toBeUndefined();
@@ -198,9 +191,7 @@ describe('module/sw-integration/page/sw-integration-list', () => {
     });
 
     it('should be able to edit a integration', async () => {
-        const wrapper = await createWrapper([
-            'integration.editor',
-        ]);
+        const wrapper = await createWrapper(['integration.editor']);
 
         const editMenuItem = wrapper.find('.sw_integration_list__edit-action');
         await editMenuItem.trigger('click');
@@ -229,9 +220,7 @@ describe('module/sw-integration/page/sw-integration-list', () => {
     });
 
     it('should be able to delete a integration', async () => {
-        const wrapper = await createWrapper([
-            'integration.deleter',
-        ]);
+        const wrapper = await createWrapper(['integration.deleter']);
 
         const deleteMenuItem = wrapper.find('.sw_integration_list__delete-action');
         await deleteMenuItem.trigger('click');
@@ -252,11 +241,7 @@ describe('module/sw-integration/page/sw-integration-list', () => {
     });
 
     it('should not be able add an integration with admin-role as a non-admin', async () => {
-        const wrapper = await createWrapper([
-            'integration.viewer',
-            'integration.editor',
-            'integration.deleter',
-        ]);
+        const wrapper = await createWrapper(['integration.viewer', 'integration.editor', 'integration.deleter']);
 
         const editMenuItem = wrapper.find('.sw_integration_list__edit-action');
         await editMenuItem.trigger('click');
@@ -267,13 +252,7 @@ describe('module/sw-integration/page/sw-integration-list', () => {
     });
 
     it('should disable edit and delete for app integrations', async () => {
-        const wrapper = await createWrapper(
-            [
-                'integration.editor',
-                'integration.deleter',
-            ],
-            [appIntegration],
-        );
+        const wrapper = await createWrapper(['integration.editor', 'integration.deleter'], [appIntegration]);
 
         const editMenuItem = wrapper.find('.sw_integration_list__edit-action');
         expect(editMenuItem.classes()).toContain('is--disabled');
@@ -290,10 +269,7 @@ describe('module/sw-integration/page/sw-integration-list', () => {
     });
 
     it('should not disable edit and delete for manual integrations', async () => {
-        const wrapper = await createWrapper([
-            'integration.editor',
-            'integration.deleter',
-        ]);
+        const wrapper = await createWrapper(['integration.editor', 'integration.deleter']);
 
         const editMenuItem = wrapper.find('.sw_integration_list__edit-action');
         expect(editMenuItem.classes()).not.toContain('is--disabled');

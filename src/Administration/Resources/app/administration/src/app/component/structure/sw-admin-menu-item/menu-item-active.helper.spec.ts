@@ -20,11 +20,7 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
             };
 
             expect(getActiveRouteNames(route)).toEqual(
-                new Set([
-                    'core',
-                    'sw.extension.my-extensions',
-                    'sw.extension.my-extensions.listing',
-                ]),
+                new Set(['core', 'sw.extension.my-extensions', 'sw.extension.my-extensions.listing']),
             );
         });
 
@@ -43,12 +39,7 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
                 ],
             };
 
-            expect(getActiveRouteNames(route)).toEqual(
-                new Set([
-                    'core',
-                    'sw.product.index',
-                ]),
-            );
+            expect(getActiveRouteNames(route)).toEqual(new Set(['core', 'sw.product.index']));
         });
 
         it('bridges sibling detail pages to their owning nav route via the parentPath chain (multi-hop)', () => {
@@ -80,12 +71,7 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
                 meta: { $module: { navigation: [{ path: 'sw.foo.index' }] } },
             };
 
-            expect(getActiveRouteNames(route)).toEqual(
-                new Set([
-                    'sw.foo.detail',
-                    'sw.foo.index',
-                ]),
-            );
+            expect(getActiveRouteNames(route)).toEqual(new Set(['sw.foo.detail', 'sw.foo.index']));
         });
 
         it('continues the parentPath walk from the module navigation entry', () => {
@@ -113,12 +99,7 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
                 },
             };
 
-            expect(getActiveRouteNames(route)).toEqual(
-                new Set([
-                    'sw.foo.detail',
-                    'sw.foo.overview',
-                ]),
-            );
+            expect(getActiveRouteNames(route)).toEqual(new Set(['sw.foo.detail', 'sw.foo.overview']));
         });
 
         it('does not guess for a core module contributing several menu entries', () => {
@@ -129,10 +110,7 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
                 meta: {
                     $module: {
                         type: 'core' as const,
-                        navigation: [
-                            { path: 'sw.extension.store' },
-                            { path: 'sw.extension.my-extensions' },
-                        ],
+                        navigation: [{ path: 'sw.extension.store' }, { path: 'sw.extension.my-extensions' }],
                     },
                 },
             };
@@ -147,21 +125,12 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
                 matched: [{ name: 'sw.foo.detail' }],
                 meta: {
                     $module: {
-                        navigation: [
-                            { path: 'sw.foo.index' },
-                            { path: 'sw.foo.reports' },
-                        ],
+                        navigation: [{ path: 'sw.foo.index' }, { path: 'sw.foo.reports' }],
                     },
                 },
             };
 
-            expect(getActiveRouteNames(route)).toEqual(
-                new Set([
-                    'sw.foo.detail',
-                    'sw.foo.index',
-                    'sw.foo.reports',
-                ]),
-            );
+            expect(getActiveRouteNames(route)).toEqual(new Set(['sw.foo.detail', 'sw.foo.index', 'sw.foo.reports']));
         });
 
         it('does not add sibling menu entries to a route the matched chain already anchors', () => {
@@ -171,10 +140,7 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
                 matched: [{ name: 'sw.product.reviews.pending' }],
                 meta: {
                     $module: {
-                        navigation: [
-                            { path: 'sw.product.reviews.index' },
-                            { path: 'sw.product.reviews.pending' },
-                        ],
+                        navigation: [{ path: 'sw.product.reviews.index' }, { path: 'sw.product.reviews.pending' }],
                     },
                 },
             };
@@ -203,12 +169,7 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
                 ],
             };
 
-            expect(getActiveRouteNames(route, router)).toEqual(
-                new Set([
-                    'a',
-                    'b',
-                ]),
-            );
+            expect(getActiveRouteNames(route, router)).toEqual(new Set(['a', 'b']));
         });
     });
 
@@ -245,10 +206,7 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
         it('lights a path-less parent when a descendant route is in the matched chain', () => {
             // The reported bug: a path-less parent above an ancestor of the deep route
             const route = {
-                matched: [
-                    { name: 'sw.extension.my-extensions' },
-                    { name: 'sw.extension.my-extensions.listing' },
-                ],
+                matched: [{ name: 'sw.extension.my-extensions' }, { name: 'sw.extension.my-extensions.listing' }],
                 params: {},
             };
             const extensions = {
@@ -302,10 +260,7 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
         it('lights a leaf reachable only through the parentPath bridge', () => {
             const route = {
                 name: 'sw.product.detail.base',
-                matched: [
-                    { name: 'sw.product.detail' },
-                    { name: 'sw.product.detail.base' },
-                ],
+                matched: [{ name: 'sw.product.detail' }, { name: 'sw.product.detail.base' }],
                 meta: { parentPath: 'sw.product.index' },
                 params: {},
             };

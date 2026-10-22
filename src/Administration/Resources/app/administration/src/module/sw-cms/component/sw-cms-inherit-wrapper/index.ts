@@ -27,7 +27,7 @@ const BASE_FIELD_FALLBACK = {
  * <sw-cms-inherit-wrapper
  *     :element="element"
  *     field="backgroundColor"
- *     :label="$tc('sw-cms.elements.image.labelBackgroundColor')"
+ *     :label="$t('sw-cms.elements.image.labelBackgroundColor')"
  * >
  *     <template #default={ isInherited }>
  *         <mt-colorpicker
@@ -44,14 +44,13 @@ const BASE_FIELD_FALLBACK = {
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
+
     inject: ['cmsService'],
-    mixins: [
-        Shopware.Mixin.getByName('cms-state'),
-    ],
-    emits: [
-        EVENTS.RESTORE,
-        EVENTS.REMOVE,
-    ],
+
+    mixins: [Shopware.Mixin.getByName('cms-state')],
+
+    emits: [EVENTS.RESTORE, EVENTS.REMOVE],
+
     props: {
         element: {
             type: Object as PropType<
@@ -63,21 +62,25 @@ export default Shopware.Component.wrapComponentConfig({
             >,
             required: true,
         },
+
         field: {
             type: String,
             required: true,
         },
+
         fieldPath: {
             type: String,
             default() {
                 return 'value';
             },
         },
+
         label: {
             type: String,
             required: false,
         },
     },
+
     data() {
         return {
             showModal: false,
@@ -87,51 +90,69 @@ export default Shopware.Component.wrapComponentConfig({
             originValue: unknown;
         };
     },
+
     computed: {
         cmsElements() {
             return this.cmsService.getCmsElementRegistry();
         },
+
         baseConfig() {
             return this.element.getOrigin().translated?.config;
         },
+
         childConfig() {
             return this.contentEntity?.slotConfig?.[this.element.id];
         },
+
         runtimeConfig() {
             return this.element.config;
         },
+
         supportsInheritance() {
             return !!this.contentEntity;
         },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed.
+         */
         isSystemDefaultLanguage() {
             return Shopware.Store.get('context').isSystemDefaultLanguage;
         },
+
         /**
          * Fields are inherited if the layout is used on a content page (product, category, landing page)
          * and the field is not overridden in the <entity>.slot_config
          */
         isInherited() {
-            return (
-                this.supportsInheritance && !this.isSystemDefaultLanguage && isUndefined(get(this.childConfig, this.field))
-            );
+            return this.supportsInheritance && isUndefined(get(this.childConfig, this.field));
         },
+
         fullPath() {
             return this.field.concat('.', this.fieldPath);
         },
+
         inheritedFieldConfig() {
             return get(this.inheritedSlotConfig?.[this.element.id], this.field);
         },
+
         fieldDefaultValue() {
             return get(this.cmsElements[this.element.type]?.defaultConfig, this.fullPath, BASE_FIELD_FALLBACK.value);
         },
     },
+
     methods: {
         async onInheritanceRestore() {
             this.showModal = false;
 
+            // Remove the local override so inheritedFieldConfig resolves the parent-language value.
+            unset(this.childConfig, this.field);
+
+            const inheritedField = this.inheritedFieldConfig ?? get(this.baseConfig, this.field, BASE_FIELD_FALLBACK);
+            set(this.runtimeConfig, this.field, cloneDeep(inheritedField));
+
             /**
-             * Run watchers before removing the slotConfig to ensure sw-cms-form-sync won't
-             * override the reset.
+             * Flush the runtime config watchers before removing any override recreated by
+             * sw-cms-form-sync, including fields missing from the saved layout config.
              */
             await this.$nextTick();
 
@@ -145,11 +166,9 @@ export default Shopware.Component.wrapComponentConfig({
                 set(this.contentEntity!, 'slotConfig', null);
             }
 
-            const inheritedField = this.inheritedFieldConfig ?? get(this.baseConfig, this.field, BASE_FIELD_FALLBACK);
-            set(this.runtimeConfig, this.field, cloneDeep(inheritedField));
-
             this.$emit(EVENTS.RESTORE);
         },
+
         onInheritanceRemove() {
             if (!this.contentEntity) {
                 return;

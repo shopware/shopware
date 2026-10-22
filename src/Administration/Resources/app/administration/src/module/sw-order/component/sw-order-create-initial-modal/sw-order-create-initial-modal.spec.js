@@ -56,9 +56,7 @@ async function createWrapper({ featureActive = false } = {}) {
         'sw-tabs-item': true,
         'mt-tabs': {
             name: 'mt-tabs',
-            emits: [
-                'new-item-active',
-            ],
+            emits: ['new-item-active'],
             props: {
                 defaultItem: {
                     type: String,
@@ -99,10 +97,7 @@ async function createWrapper({ featureActive = false } = {}) {
     );
 }
 
-const tabs = [
-    '.sw-order-create-initial-modal__tab-product',
-    '.sw-order-create-initial-modal__tab-options',
-];
+const tabs = ['.sw-order-create-initial-modal__tab-product', '.sw-order-create-initial-modal__tab-options'];
 
 describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
     beforeAll(() => {
@@ -373,15 +368,9 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         expect(wrapper.vm.promotionCodes).toEqual([]);
 
         const optionsView = wrapper.findComponent('sw-order-create-options-stub');
-        optionsView.vm.$emit('promotions-change', [
-            'DISCOUNT',
-            'XMAS',
-        ]);
+        optionsView.vm.$emit('promotions-change', ['DISCOUNT', 'XMAS']);
 
-        expect(wrapper.vm.promotionCodes).toEqual([
-            'DISCOUNT',
-            'XMAS',
-        ]);
+        expect(wrapper.vm.promotionCodes).toEqual(['DISCOUNT', 'XMAS']);
     });
 
     it('should able to get shipping cost change', async () => {
@@ -451,9 +440,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         Shopware.Store.get('swOrder').setContext({
             context: {
                 currencyId: 'euro',
-                languageIdChain: [
-                    'english',
-                ],
+                languageIdChain: ['english'],
             },
             shippingMethod: {
                 id: 'standard',

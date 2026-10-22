@@ -15,10 +15,7 @@ export default function createMediaDefaultFolderService() {
 
             return repository
                 .search(criteria, {
-                    cacheKey: [
-                        'media-default-folder',
-                        entityName,
-                    ],
+                    cacheKey: ['media-default-folder', entityName],
                 })
                 .then((data) => {
                     return data.first().folder.id;

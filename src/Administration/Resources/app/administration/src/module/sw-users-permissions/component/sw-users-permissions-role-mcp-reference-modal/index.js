@@ -9,9 +9,7 @@ import template from './sw-users-permissions-role-mcp-reference-modal.html.twig'
 export default {
     template,
 
-    inject: [
-        'mcpToolService',
-    ],
+    inject: ['mcpToolService'],
 
     props: {
         role: {
@@ -50,18 +48,8 @@ export default {
             ];
         },
 
-        anyIntegrationAllowsAllTools() {
-            return this.mcpIntegrations.some((integration) => {
-                const tools = integration.mcpAllowlist?.tools;
-                return tools === null || tools === undefined;
-            });
-        },
-
         allowlistedToolNames() {
-            if (this.anyIntegrationAllowsAllTools) {
-                return this.availableTools.map((tool) => tool.name);
-            }
-
+            // The server resolves a missing or null tool list to "no tools" (`McpAllowlist::restrictedFromJson()`).
             const names = new Set();
 
             this.mcpIntegrations.forEach((integration) => {
@@ -99,10 +87,7 @@ export default {
                 const map = {};
 
                 this.relevantTools.forEach((tool) => {
-                    [
-                        ...tool.staticPrivileges,
-                        ...tool.dynamicPrivileges,
-                    ].forEach((chip) => {
+                    [...tool.staticPrivileges, ...tool.dynamicPrivileges].forEach((chip) => {
                         const isDynamic = chip.startsWith('<');
                         const entity = isDynamic ? '<entity>' : chip.split(':')[0];
 
@@ -121,16 +106,11 @@ export default {
                 });
 
                 return Object.entries(map)
-                    .map(
-                        ([
-                            label,
-                            { chips },
-                        ]) => ({
-                            label,
-                            chips,
-                            hasMissingStatic: chips.some((c) => !c.isDynamic && !c.isGranted),
-                        }),
-                    )
+                    .map(([label, { chips }]) => ({
+                        label,
+                        chips,
+                        hasMissingStatic: chips.some((c) => !c.isDynamic && !c.isGranted),
+                    }))
                     .sort((a, b) => a.label.localeCompare(b.label));
             }
 
@@ -210,17 +190,8 @@ export default {
                 this.role.privileges.push(dotPriv);
             }
 
-            const [
-                entity,
-                rolePart,
-            ] = dotPriv.split('.');
-            if (
-                [
-                    'editor',
-                    'creator',
-                    'deleter',
-                ].includes(rolePart)
-            ) {
+            const [entity, rolePart] = dotPriv.split('.');
+            if (['editor', 'creator', 'deleter'].includes(rolePart)) {
                 const viewerPriv = `${entity}.viewer`;
                 if (!this.role.privileges.includes(viewerPriv)) {
                     this.role.privileges.push(viewerPriv);

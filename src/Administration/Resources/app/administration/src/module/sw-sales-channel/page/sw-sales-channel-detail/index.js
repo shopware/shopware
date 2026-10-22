@@ -22,9 +22,7 @@ const REQUIRED_BASE_FIELDS = [
     'navigationCategoryId',
 ];
 
-const REQUIRED_PRODUCT_EXPORT_FIELDS = [
-    'name',
-];
+const REQUIRED_PRODUCT_EXPORT_FIELDS = ['name'];
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -36,6 +34,7 @@ export default {
         'systemConfigApiService',
         'acl',
         'feature',
+        'customFieldDataProviderService',
     ],
 
     provide() {
@@ -45,10 +44,7 @@ export default {
         };
     },
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -167,9 +163,7 @@ export default {
                 };
             };
 
-            const tabs = [
-                createRouteTab('sw-sales-channel.detail.tabBase', 'sw.sales.channel.detail.base'),
-            ];
+            const tabs = [createRouteTab('sw-sales-channel.detail.tabBase', 'sw.sales.channel.detail.base')];
 
             if (this.isAgenticCommerce && !this.isLoading) {
                 tabs.push(
@@ -232,6 +226,7 @@ export default {
             return this.repositoryFactory.create('sales_channel_analytics');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
@@ -244,10 +239,7 @@ export default {
             const criteria = new Criteria(1, 25);
 
             return criteria.addFilter(
-                Criteria.equalsAny('typeId', [
-                    Defaults.storefrontSalesChannelTypeId,
-                    Defaults.apiSalesChannelTypeId,
-                ]),
+                Criteria.equalsAny('typeId', [Defaults.storefrontSalesChannelTypeId, Defaults.apiSalesChannelTypeId]),
             );
         },
 
@@ -449,12 +441,7 @@ export default {
         },
 
         loadCustomFieldSets() {
-            const criteria = new Criteria(1, 100);
-
-            criteria.addFilter(Criteria.equals('relations.entityName', 'sales_channel'));
-            criteria.getAssociation('customFields').addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
-
-            this.customFieldRepository.search(criteria, Context.api).then((searchResult) => {
+            this.customFieldDataProviderService.getCustomFieldSets('sales_channel', false, 100).then((searchResult) => {
                 this.customFieldSets = searchResult;
             });
         },
@@ -611,10 +598,7 @@ export default {
                     configEntry.isLoading = true;
 
                     try {
-                        const [
-                            config,
-                            values,
-                        ] = await Promise.all([
+                        const [config, values] = await Promise.all([
                             this.systemConfigApiService.getConfig(configEntry.systemConfigDomain),
                             this.systemConfigApiService.getValues(configEntry.systemConfigDomain, this.salesChannel.id),
                         ]);

@@ -13,12 +13,14 @@ use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\NotHookable;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @phpstan-import-type MailData from AbstractMailFactory
  */
 #[Package('after-sales')]
+#[NotHookable]
 class MailBeforeValidateEvent extends Event implements LogAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'mail.before.send';

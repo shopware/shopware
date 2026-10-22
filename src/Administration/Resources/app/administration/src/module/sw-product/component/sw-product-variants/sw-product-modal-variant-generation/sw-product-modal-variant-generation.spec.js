@@ -200,9 +200,7 @@ async function createWrapper({ featureActive = false } = {}) {
                     },
                     'sw-tabs-item': {
                         name: 'sw-tabs-item',
-                        emits: [
-                            'click',
-                        ],
+                        emits: ['click'],
                         props: {
                             active: {
                                 type: Boolean,
@@ -214,9 +212,7 @@ async function createWrapper({ featureActive = false } = {}) {
                     },
                     'mt-tabs': {
                         name: 'mt-tabs',
-                        emits: [
-                            'new-item-active',
-                        ],
+                        emits: ['new-item-active'],
                         props: {
                             defaultItem: {
                                 type: String,
@@ -382,10 +378,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         const wrapper = await createWrapper();
         await wrapper.setData({
             usageOfFiles: {
-                'example.jpg': [
-                    'test-id-1',
-                    'test-id-2',
-                ],
+                'example.jpg': ['test-id-1', 'test-id-2'],
             },
 
             idToIndex: {
@@ -720,9 +713,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         );
 
         expect(item).toStrictEqual({
-            downloads: [
-                { id: 'random-id', fileName: 'example', fileExtension: 'jpg' },
-            ],
+            downloads: [{ id: 'random-id', fileName: 'example', fileExtension: 'jpg' }],
         });
     });
 
@@ -772,6 +763,39 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         });
 
         expect(wrapper.get('.sw-product-variant-generation__generate-action').attributes('disabled')).toBeDefined();
+    });
+
+    it('generates a digital variant without a file when external download management is on', async () => {
+        const wrapper = await createWrapper();
+        const saveVariants = jest.fn().mockResolvedValue();
+
+        await wrapper.setData({
+            variantGenerationQueue: {
+                createQueue: [{ id: 'variant-id', type: 'digital', downloads: [], options: [] }],
+                deleteQueue: [],
+            },
+            allowDigitalVariantsWithoutDownloads: true,
+            isLoading: false,
+            showUploadModal: true,
+            variantsGenerator: {
+                ...wrapper.vm.variantsGenerator,
+                saveVariants,
+                saveVariantRestrictions: () => Promise.resolve(),
+                saveVariantListingConfig: () => Promise.resolve(),
+                saveConfiguratorSettings: () => Promise.resolve(),
+            },
+        });
+
+        expect(wrapper.get('.sw-product-variant-generation__generate-action').attributes('disabled')).toBeUndefined();
+
+        wrapper.vm.generateVariants();
+        await flushPromises();
+
+        expect(saveVariants).toHaveBeenCalledWith(
+            expect.objectContaining({
+                createQueue: [expect.objectContaining({ type: 'digital', downloads: [] })],
+            }),
+        );
     });
 
     it('should generate digital variants', async () => {
@@ -990,9 +1014,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         });
 
         const item = {
-            downloads: [
-                { id: 'random-id', fileName: 'example', fileExtension: 'jpg' },
-            ],
+            downloads: [{ id: 'random-id', fileName: 'example', fileExtension: 'jpg' }],
         };
 
         await wrapper.vm.successfulUpload(
@@ -1003,9 +1025,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         );
 
         expect(item).toStrictEqual({
-            downloads: [
-                { id: 'random-id', fileName: 'example', fileExtension: 'jpg' },
-            ],
+            downloads: [{ id: 'random-id', fileName: 'example', fileExtension: 'jpg' }],
         });
     });
 

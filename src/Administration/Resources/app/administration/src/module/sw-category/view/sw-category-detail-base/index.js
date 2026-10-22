@@ -10,14 +10,9 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Shopware.Mixin.getByName('placeholder'),
-    ],
+    mixins: [Shopware.Mixin.getByName('placeholder')],
 
     props: {
         isLoading: {
@@ -31,10 +26,7 @@ export default {
             return Shopware.Store.get('swCategoryDetail').customFieldSets ?? [];
         },
 
-        ...mapPropertyErrors('category', [
-            'name',
-            'type',
-        ]),
+        ...mapPropertyErrors('category', ['name', 'type']),
 
         categoryTypes() {
             return [
@@ -50,7 +42,7 @@ export default {
                 // @todo NEXT-22697 - Re-implement, when re-enabling cms-aware
                 // {
                 //     value: 'custom_entity',
-                //     label: this.$tc('sw-category.base.general.types.customEntity'),
+                //     label: this.$t('sw-category.base.general.types.customEntity'),
                 // },
                 {
                     value: 'link',
@@ -69,13 +61,7 @@ export default {
         },
 
         categoryTypeHelpText() {
-            if (
-                [
-                    'page',
-                    'folder',
-                    'link',
-                ].includes(this.category.type)
-            ) {
+            if (['page', 'folder', 'link'].includes(this.category.type)) {
                 return this.$t(`sw-category.base.general.types.helpText.${this.category.type}`);
             }
 

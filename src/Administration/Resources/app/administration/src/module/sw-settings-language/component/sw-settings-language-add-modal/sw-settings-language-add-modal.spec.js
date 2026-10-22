@@ -22,10 +22,7 @@ async function createWrapper(existingLanguages = []) {
     });
 
     const getMeta = jest.fn().mockResolvedValue({
-        builtInLocales: [
-            'de-DE',
-            'en-GB',
-        ],
+        builtInLocales: ['de-DE', 'en-GB'],
         communityTranslationsUrl: 'https://translate.shopware.com',
         documentationUrlSnippetKey: 'sw-settings-language.addModal.docsUrl',
         completenessThreshold: 90,
@@ -79,10 +76,7 @@ describe('module/sw-settings-language/component/sw-settings-language-add-modal',
             { locale: 'fr-FR', name: 'Français', lastUpdate: null, isPseudoLanguage: false },
         ];
 
-        expect(wrapper.vm.languageOptions.map((option) => option.label)).toEqual([
-            'Français (French, France)',
-            'Acholi',
-        ]);
+        expect(wrapper.vm.languageOptions.map((option) => option.label)).toEqual(['Français (French, France)', 'Acholi']);
         expect(localeNameSpy).toHaveBeenCalledWith('fr-FR');
         expect(localeNameSpy).not.toHaveBeenCalledWith('ach-UG');
 
@@ -118,11 +112,7 @@ describe('module/sw-settings-language/component/sw-settings-language-add-modal',
             { locale: 'zu-ZA', name: 'Zulu', lastUpdate: null, isPseudoLanguage: false },
         ];
 
-        expect(wrapper.vm.languageOptions.map((option) => option.value)).toEqual([
-            'fr-FR',
-            'zu-ZA',
-            'ach-UG',
-        ]);
+        expect(wrapper.vm.languageOptions.map((option) => option.value)).toEqual(['fr-FR', 'zu-ZA', 'ach-UG']);
     });
 
     it('installs the selected language and emits language-added', async () => {

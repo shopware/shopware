@@ -99,9 +99,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
     });
 
     it('should have edit fields enabled', async () => {
-        const wrapper = await createWrapper([
-            'shipping.editor',
-        ]);
+        const wrapper = await createWrapper(['shipping.editor']);
         await wrapper.setData({ total: 2 });
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
@@ -115,10 +113,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
     });
 
     it('should have delete fields enabled', async () => {
-        const wrapper = await createWrapper([
-            'shipping.editor',
-            'shipping.deleter',
-        ]);
+        const wrapper = await createWrapper(['shipping.editor', 'shipping.deleter']);
         await wrapper.setData({ total: 2 });
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
@@ -131,11 +126,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
     });
 
     it('should have creator fields enabled', async () => {
-        const wrapper = await createWrapper([
-            'shipping.editor',
-            'shipping.deleter',
-            'shipping.creator',
-        ]);
+        const wrapper = await createWrapper(['shipping.editor', 'shipping.deleter', 'shipping.creator']);
         await wrapper.setData({ total: 2 });
 
         const entityListing = wrapper.find('sw-entity-listing-stub');

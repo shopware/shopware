@@ -8,7 +8,6 @@ use Shopware\Core\Content\Seo\AbstractSeoResolver;
 use Shopware\Core\Content\Seo\EmptyPathInfoResolver;
 use Shopware\Core\Content\Seo\ResolvedSeoUrl;
 use Shopware\Core\Content\Seo\SeoUrlRequestContext;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -115,10 +114,6 @@ class EmptyPathInfoResolverTest extends TestCase
 
     public function testDeprecatedResolveThrowsWhenFeatureActive(): void
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            static::markTestSkipped('Feature v6.8.0.0 must be active to assert the throw behaviour.');
-        }
-
         $resolver = new EmptyPathInfoResolver(static::createStub(AbstractSeoResolver::class));
 
         $this->expectException(\Throwable::class);

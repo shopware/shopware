@@ -576,10 +576,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         });
         wrapper.vm.mediaRepository.sync = jest.fn().mockResolvedValue({});
 
-        await wrapper.vm.handleUpload([
-            new File([''], 'foo.jpg'),
-            new File([''], 'bar.gif'),
-        ]);
+        await wrapper.vm.handleUpload([new File([''], 'foo.jpg'), new File([''], 'bar.gif')]);
 
         expect(wrapper.vm.mediaRepository.sync).toHaveBeenCalled();
     });
@@ -601,10 +598,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     it('should show multiple preview in multi mode', async () => {
         wrapper = await createWrapper();
 
-        await wrapper.vm.handleUpload([
-            new File([''], 'foo.jpg'),
-            new File([''], 'bar.gif'),
-        ]);
+        await wrapper.vm.handleUpload([new File([''], 'foo.jpg'), new File([''], 'bar.gif')]);
 
         expect(Array.isArray(wrapper.vm.preview)).toBe(true);
     });
@@ -768,15 +762,9 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                 .mockReturnValueOnce({ id: 'media-2' });
             wrapper.vm.mediaRepository.sync = jest.fn().mockResolvedValue({});
 
-            await wrapper.vm.handleUpload([
-                new File([''], 'foo.jpg'),
-                new File([''], 'bar.gif'),
-            ]);
+            await wrapper.vm.handleUpload([new File([''], 'foo.jpg'), new File([''], 'bar.gif')]);
 
-            expect(Array.from(wrapper.vm.pendingUploadMediaIds)).toEqual([
-                'media-1',
-                'media-2',
-            ]);
+            expect(Array.from(wrapper.vm.pendingUploadMediaIds)).toEqual(['media-1', 'media-2']);
         });
 
         it('clears a media id from the pending set on finish but keeps it on fail', async () => {

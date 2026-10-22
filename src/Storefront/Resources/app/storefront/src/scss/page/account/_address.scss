@@ -22,6 +22,20 @@
 
 .address-manager-select-address {
     min-height: 200px;
+
+    .dropdown-menu {
+        width: max-content;
+        min-width: min(10rem, 100vw - 2rem);
+        max-width: calc(100vw - 2rem);
+    }
+
+    .dropdown-item {
+        white-space: normal;
+    }
+}
+
+.address-manager-list-search {
+    flex: 1 1 8rem;
 }
 
 .address-manager-modal-address-form .icon {

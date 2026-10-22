@@ -22,15 +22,9 @@ export default {
         };
     },
 
-    inject: [
-        'setSwPageSidebarOffset',
-        'removeSwPageSidebarOffset',
-    ],
+    inject: ['setSwPageSidebarOffset', 'removeSwPageSidebarOffset'],
 
-    emits: [
-        'item-click',
-        'item-register',
-    ],
+    emits: ['item-click', 'item-register'],
 
     props: {
         propagateWidth: {

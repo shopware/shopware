@@ -7,13 +7,25 @@ use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Media\File\TrustedUrlResolver;
+use Shopware\Core\Framework\Api\Acl\AclRoleLoader;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
+use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Http\AppSystemHttpMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Event\BusinessEventRegistry;
+use Shopware\Core\Framework\Webhook\Authorization\Ownership\AppIntegrationChangeSubscriber;
+use Shopware\Core\Framework\Webhook\Authorization\Ownership\RecordOwnerSubscriber;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\AppEventPolicy;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\NotHookablePolicy;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PrivilegePolicy;
+use Shopware\Core\Framework\Webhook\Authorization\RestrictWriteSubscriber;
+use Shopware\Core\Framework\Webhook\Authorization\Subscription\SubscriptionValidator;
+use Shopware\Core\Framework\Webhook\Authorization\WriteAuthorizer;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Command\WebhookDrainToAsyncCommand;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
@@ -67,6 +79,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(WebhookLoader::class)
         ->args([
             service(Connection::class),
+            service(AclRoleLoader::class),
         ]);
 
     $services->set('shopware.webhook.guzzle', Client::class)
@@ -75,6 +88,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             [
                 'timeout' => 20,
                 'connect_timeout' => 10,
+                'allow_redirects' => AuthMiddleware::ALLOW_REDIRECTS,
                 'handler' => inline_service(HandlerStack::class)
                     ->factory([HandlerStack::class, 'create'])
                     ->call('after', [
@@ -169,7 +183,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(MessageBusInterface::class),
             service('logger'),
         ])
-        ->tag('console.command');
+        ->tag('console.command')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(WebhookManager::class)
         ->lazy()
@@ -185,12 +200,32 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.admin_worker.enable_admin_worker'),
             service(WebhookDeliveryService::class),
             service(WebhookOutboxStore::class),
+            service(PolicyRegistry::class),
         ]);
 
     $services->set(WebhookCacheClearer::class)
         ->args([
             service(WebhookManager::class),
         ])
+        ->tag('kernel.event_subscriber')
+        ->tag('kernel.reset', ['method' => 'reset']);
+
+    $services->set(PolicyRegistry::class)
+        ->args([
+            tagged_iterator('shopware.webhook.policy'),
+            service('logger'),
+        ]);
+
+    $services->set(NotHookablePolicy::class)
+        ->args([service(BusinessEventRegistry::class)])
+        ->tag('shopware.webhook.policy');
+
+    $services->set(AppEventPolicy::class)
+        ->tag('shopware.webhook.policy');
+
+    $services->set(PrivilegePolicy::class)
+        ->args([service(AclRoleLoader::class)])
+        ->tag('shopware.webhook.policy')
         ->tag('kernel.event_subscriber')
         ->tag('kernel.reset', ['method' => 'reset']);
 
@@ -215,6 +250,32 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(WebhookDefinition::class)
         ->tag('shopware.entity.definition');
+
+    $services->set(RecordOwnerSubscriber::class)
+        ->tag('kernel.event_subscriber');
+
+    $services->set(AppIntegrationChangeSubscriber::class)
+        ->args([
+            service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(WriteAuthorizer::class)
+        ->args([
+            service(SubscriptionValidator::class),
+            service(WebhookLoader::class),
+            service(AclRoleLoader::class),
+        ]);
+
+    $services->set(SubscriptionValidator::class)
+        ->args([
+            service(HookableEventCollector::class),
+            service(PolicyRegistry::class),
+        ]);
+
+    $services->set(RestrictWriteSubscriber::class)
+        ->args([service(WriteAuthorizer::class)])
+        ->tag('kernel.event_subscriber');
 
     $services->set(WebhookEventLogDefinition::class)
         ->tag('shopware.entity.definition');

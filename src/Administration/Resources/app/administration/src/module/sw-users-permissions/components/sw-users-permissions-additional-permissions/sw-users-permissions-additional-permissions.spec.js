@@ -45,9 +45,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
                                         },
                                         plugin_maintain: {
                                             dependencies: [],
-                                            privileges: [
-                                                'system:plugin:maintain',
-                                            ],
+                                            privileges: ['system:plugin:maintain'],
                                         },
                                     },
                                 },
@@ -58,9 +56,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
                                     roles: {
                                         create_discounts: {
                                             dependencies: [],
-                                            privileges: [
-                                                'order:create:discount',
-                                            ],
+                                            privileges: ['order:create:discount'],
                                         },
                                     },
                                 },

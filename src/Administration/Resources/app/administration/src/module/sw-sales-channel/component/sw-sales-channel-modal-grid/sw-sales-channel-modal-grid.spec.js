@@ -70,10 +70,7 @@ async function createWrapper({ addChannelAction = createAddChannelAction(), prod
                 },
                 'mt-promo-badge': {
                     template: '<span class="mt-promo-badge" />',
-                    props: [
-                        'variant',
-                        'size',
-                    ],
+                    props: ['variant', 'size'],
                 },
                 'sw-loader': true,
                 'sw-extension-teaser-sales-channel': true,

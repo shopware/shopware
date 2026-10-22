@@ -19,10 +19,7 @@ export default {
         'feature',
     ],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     data() {
         return {
@@ -251,10 +248,7 @@ export default {
         },
 
         async loadTranslationMetadata() {
-            const [
-                listResponse,
-                metaResponse,
-            ] = await Promise.all([
+            const [listResponse, metaResponse] = await Promise.all([
                 this.translationService.getList().catch(() => null),
                 this.translationService.getMeta().catch(() => null),
             ]);
@@ -342,10 +336,7 @@ export default {
                 return;
             }
 
-            await Promise.all([
-                this.getList(),
-                this.loadTranslationMetadata(),
-            ]);
+            await Promise.all([this.getList(), this.loadTranslationMetadata()]);
         },
 
         async onUpdateAllSnippets() {
@@ -471,10 +462,7 @@ export default {
 
         invalidateLanguageCaches() {
             Shopware.Service('cacheService').invalidateCaches({
-                cacheKey: [
-                    'shared-data',
-                    'active-languages',
-                ],
+                cacheKey: ['shared-data', 'active-languages'],
             });
         },
 

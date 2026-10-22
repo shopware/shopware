@@ -13,9 +13,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     emits: ['update:value'],
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-    ],
+    mixins: [Mixin.getByName('sw-inline-snippet')],
 
     props: {
         pageType: {
@@ -71,11 +69,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         getTranslations() {
-            const translatableFields = [
-                'label',
-                'placeholder',
-                'helpText',
-            ];
+            const translatableFields = ['label', 'placeholder', 'helpText'];
 
             const translations: {
                 [key: string]:

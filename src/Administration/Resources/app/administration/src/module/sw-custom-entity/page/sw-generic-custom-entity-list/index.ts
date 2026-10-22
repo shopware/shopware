@@ -46,11 +46,7 @@ interface RouteParseOptions {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'customEntityDefinitionService',
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['customEntityDefinitionService', 'repositoryFactory', 'acl'],
 
     data() {
         return {

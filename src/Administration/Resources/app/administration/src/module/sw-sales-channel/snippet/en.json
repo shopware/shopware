@@ -30,7 +30,7 @@
                 "offline": "Offline"
             },
             "productsLabel": "Products",
-            "productsCount": "products | product | products"
+            "productsCount": "product | products"
         },
         "modal": {
             "title": "Add Sales Channel",
@@ -105,6 +105,7 @@
             "labelInputCurrency": "Currency",
             "labelInputLanguage": "Language",
             "labelInputSnippet": "Snippet",
+            "snippetSetGroupOther": "Other snippet sets",
             "labelIsExternalStorefront": "External storefront",
             "helpTextIsExternalStorefront": "SEO URLs are only generated for domains that point to an external storefront. Per language, only one external storefront can be set for a single sales channel.",
             "buttonDeleteDomain": "Delete domain",
@@ -151,7 +152,7 @@
             "columnDomainCurrency": "Currency",
             "columnDomainUnitSystem": "Unit system",
             "products": {
-                "titleEmptyState": "No more products found",
+                "titleEmptyState": "No products yet",
                 "titleEmptyStateTable": "No matching products found",
                 "buttonAddProducts": "Add {productCount} products | Add {productCount} product | Add {productCount} products",
                 "columnProductName": "Product name",
@@ -411,19 +412,20 @@
             "productAssignmentModal": {
                 "title": "Add products",
                 "singleProducts": "Product selection",
+                "singleProductsEmptyState": "No more products found",
                 "categories": {
                     "title": "Category selection",
                     "textInfo": "The assignments made here are not dynamic and represent only the current product status. Subsequent changes to the product composition of categories won't affect the assignment.",
                     "textSearch": "Search categories ...",
-                    "emptySearchResults": "No categories found."
+                    "emptySearchResults": "No categories found"
                 },
                 "dynamicProductGroups": {
                     "title": "Product group selection",
                     "infoText": "The assignments made here are not dynamic and represent only the current product status. Subsequent changes to the product composition of dynamic product groups won't affect the assignment.",
                     "columnName": "Name",
                     "searchFieldPlaceholder": "Search dynamic product groups...",
-                    "titleNoProductStreamsMatching": "No matching dynamic product groups found.",
-                    "titleNoProductStreamsAvailable": "No dynamic product groups available."
+                    "titleNoProductStreamsMatching": "No matching dynamic product groups found",
+                    "titleNoProductStreamsAvailable": "No dynamic product groups available"
                 }
             },
             "measurementSystem": {

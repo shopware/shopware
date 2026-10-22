@@ -26,11 +26,7 @@ async function createWrapper(documentV2ServiceOverrides = {}) {
                     getFileFormatSnippet: (format) => `sw-order.components.createDocumentModal.fileFormats.${format}`,
                     getAvailableDocumentTypes: jest.fn().mockResolvedValue({
                         invoice: {
-                            formats: [
-                                'zugferd_xml',
-                                'pdf',
-                                'html',
-                            ],
+                            formats: ['zugferd_xml', 'pdf', 'html'],
                         },
                     }),
                     ...documentV2ServiceOverrides,

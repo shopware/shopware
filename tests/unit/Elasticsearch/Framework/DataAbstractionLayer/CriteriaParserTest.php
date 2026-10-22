@@ -1356,7 +1356,8 @@ EOT,
 
         static::assertIsArray($script);
         static::assertArrayHasKey('source', $script);
-        static::assertNotEmpty($script['source']);
+        static::assertIsString($script['source']);
+        static::assertNotSame('', $script['source']);
     }
 
     /**

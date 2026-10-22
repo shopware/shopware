@@ -70,7 +70,8 @@ class StoreApiSeoResolver implements EventSubscriberInterface
 
         $request = $event->getRequest();
 
-        if (!$request->headers->has(PlatformRequest::HEADER_INCLUDE_SEO_URLS)) {
+        // an empty value counts as absent, like in the HTTP cache key
+        if ($request->headers->get(PlatformRequest::HEADER_INCLUDE_SEO_URLS, '') === '') {
             return;
         }
 

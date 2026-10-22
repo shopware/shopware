@@ -46,7 +46,7 @@ const routes = [
             $module: {
                 entity: 'product',
                 icon: 'default-symbol-products',
-                color: '#57D9A3',
+                color: 'var(--sw-color-module-green-default)',
                 title: 'sw-product.general.mainMenuItemGeneral',
                 name: 'product',
                 routes: { index: { name: 'sw.product.index' } },
@@ -63,7 +63,7 @@ const routes = [
             $module: {
                 entity: 'product',
                 icon: 'default-symbol-products',
-                color: '#57D9A3',
+                color: 'var(--sw-color-module-green-default)',
                 title: 'sw-product.general.mainMenuItemGeneral',
                 name: 'product',
                 routes: {
@@ -98,7 +98,7 @@ const routes = [
             $module: {
                 entity: 'product',
                 icon: 'default-symbol-products',
-                color: '#57D9A3',
+                color: 'var(--sw-color-module-green-default)',
                 title: 'sw-product.general.mainMenuItemGeneral',
                 name: 'product',
                 routes: {
@@ -140,10 +140,7 @@ async function createWrapper({ checkShopId = jest.fn(() => Promise.resolve()) } 
     const wrapper = mount(await wrapTestComponent('sw-desktop', { sync: true }), {
         attachTo: document.body,
         global: {
-            plugins: [
-                router,
-                shortcutPlugin,
-            ],
+            plugins: [router, shortcutPlugin],
             stubs: {
                 'sw-admin-menu': true,
                 'router-view': true,
@@ -221,7 +218,7 @@ describe('src/app/component/structure/sw-desktop', () => {
         expect(onUpdateSearchFrequently).toHaveBeenCalledTimes(1);
         expect(getModuleMetadata).toHaveBeenCalledTimes(1);
         expect(getModuleMetadata.mock.results[0].value).toEqual({
-            color: '#57D9A3',
+            color: 'var(--sw-color-module-green-default)',
             entity: 'product',
             icon: 'default-symbol-products',
             name: 'product',
@@ -244,7 +241,7 @@ describe('src/app/component/structure/sw-desktop', () => {
         expect(getModuleMetadata.mock.results[0].value).toEqual({
             name: 'product',
             icon: 'default-symbol-products',
-            color: '#57D9A3',
+            color: 'var(--sw-color-module-green-default)',
             entity: 'product',
             route: { name: 'sw.product.create' },
             action: true,

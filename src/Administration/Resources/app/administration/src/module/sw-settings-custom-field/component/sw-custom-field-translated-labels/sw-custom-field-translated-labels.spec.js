@@ -22,10 +22,7 @@ const intl = {
 };
 
 const defaultProps = {
-    locales: [
-        en,
-        de,
-    ],
+    locales: [en, de],
     config,
     propertyNames: {
         label1: 'label1',

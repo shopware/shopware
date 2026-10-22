@@ -140,6 +140,7 @@ use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Script\AppContextCreator;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
+use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\Language\LanguageLoader;
@@ -235,6 +236,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(Tokenizer::class)
         ->args([
+            service(HtmlSanitizer::class),
             param('shopware.dbal.token_minimum_length'),
             param('shopware.search.preserved_chars'),
         ]);
@@ -880,7 +882,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(SyncMetricsInstrumentor::class)
         ->args([
-            service(Meter::class),
+            service(Telemetry::class),
             service(EntityGroupResolver::class),
         ]);
 
@@ -916,7 +918,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(IndexerMetricsInstrumentor::class)
         ->args([
-            service(Meter::class),
+            service(Telemetry::class),
         ]);
 
     $services->set(EntityIndexingSubscriber::class)

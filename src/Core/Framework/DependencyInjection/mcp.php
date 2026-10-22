@@ -1,27 +1,20 @@
 <?php declare(strict_types=1);
 
 use Doctrine\DBAL\Connection;
-use Mcp\Capability\Registry;
-use Mcp\Server as McpServer;
-use Mcp\Server\Builder as McpServerBuilder;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
-use Shopware\Core\Framework\App\Aggregate\AppMcpPrompt\AppMcpPromptDefinition;
-use Shopware\Core\Framework\App\Aggregate\AppMcpPromptTranslation\AppMcpPromptTranslationDefinition;
-use Shopware\Core\Framework\App\Aggregate\AppMcpResource\AppMcpResourceDefinition;
-use Shopware\Core\Framework\App\Aggregate\AppMcpResourceTranslation\AppMcpResourceTranslationDefinition;
-use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolDefinition;
-use Shopware\Core\Framework\App\Aggregate\AppMcpToolTranslation\AppMcpToolTranslationDefinition;
-use Shopware\Core\Framework\App\Lifecycle\Handler\McpLifecycleHandler;
-use Shopware\Core\Framework\App\Lifecycle\Persister\McpPromptPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\McpResourcePersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\McpToolPersister;
+use Shopware\Core\Framework\App\AppSecretResolver;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
+use Shopware\Core\Framework\App\Mcp\Feature\McpPromptFeatureDefinition;
+use Shopware\Core\Framework\App\Mcp\Feature\McpResourceFeatureDefinition;
+use Shopware\Core\Framework\App\Mcp\Feature\McpToolFeatureDefinition;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolDiscoveryCompilerPass;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistListRequestHandler;
@@ -44,12 +37,13 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpResourceLoader;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
+use Shopware\Core\Framework\Mcp\McpRequestedToolsetResolver;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Shopware\Core\Framework\Mcp\Notification\AppMcpCapabilityDetector;
 use Shopware\Core\Framework\Mcp\Notification\AppMcpCapabilityLifecycleSubscriber;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
-use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
+use Shopware\Core\Framework\Mcp\Notification\McpListVersions;
 use Shopware\Core\Framework\Mcp\Prompt\ShopwareContextPrompt;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Resource\BusinessEventsResource;
@@ -61,6 +55,11 @@ use Shopware\Core\Framework\Mcp\Resource\LanguageListResource;
 use Shopware\Core\Framework\Mcp\Resource\SalesChannelListResource;
 use Shopware\Core\Framework\Mcp\Resource\StateMachineResource;
 use Shopware\Core\Framework\Mcp\Resource\ToolResultResource;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultParser;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultPointerSigner;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultRenderer;
+use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolResultCacheCleanupTask;
+use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolResultCacheCleanupTaskHandler;
 use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolsetSessionCleanupTask;
 use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolsetSessionCleanupTaskHandler;
 use Shopware\Core\Framework\Mcp\Session\McpSessionCleanupSubscriber;
@@ -71,7 +70,6 @@ use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityUpsertTool;
-use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 use Shopware\Core\Framework\Mcp\Tool\MediaUploadTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderStateTool;
 use Shopware\Core\Framework\Mcp\Tool\Search\ToolSearch;
@@ -82,46 +80,42 @@ use Shopware\Core\Framework\Mcp\Tool\ToolsetEnableTool;
 use Shopware\Core\Framework\Mcp\Tool\ToolsetsListTool;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
+use Shopware\Core\System\SalesChannel\Mcp\Resource\StoreApiToolResultResource;
 use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiContextTool;
 use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiToolSearchTool;
 use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiToolsetEnableTool;
 use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiToolsetsListTool;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\Cache\Psr16Cache;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
-use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
-    $services->set('shopware.mcp.discovery_cache', Psr16Cache::class)
-        ->args([service('cache.system')]);
+    // The bundle dropped the flat "mcp.pagination_limit" parameter when it gained multiple servers:
+    // the limit became a per-server builder value. Keep one Shopware-owned parameter as the single
+    // source of truth — McpServerBuilderCompilerPass applies it to every server builder, and the
+    // allowlist request handlers page with the same number.
+    $container->parameters()->set('shopware.mcp.pagination_limit', 50);
 
-    $services->set('shopware.mcp.session_registry_cache', Psr16Cache::class)
-        ->args([service('cache.system')]);
-
-    $services->set(McpSessionRegistry::class)
-        ->args([
-            service('shopware.mcp.session_registry_cache'),
-            'shopware.mcp.active_session_ids',
-            service('lock.factory'),
-        ]);
+    $services->set(McpListVersions::class)
+        ->args([service(Connection::class), service(ClockInterface::class)]);
 
     $services->set(McpListChangedNotifier::class)
         ->args([
-            service('mcp.session.store')->nullOnInvalid(),
-            service(McpSessionRegistry::class),
+            service('mcp.server.admin.session.store')->nullOnInvalid(),
+            service(McpListVersions::class),
             service('logger'),
         ])
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set(AppMcpCapabilityDetector::class)
-        ->args([service(Connection::class)]);
+        ->args([service(AppFeatureStorage::class)]);
 
     $services->set(AppMcpCapabilityLifecycleSubscriber::class)
         ->args([
@@ -147,15 +141,16 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(McpAllowlistListRequestHandler::class)
         ->args([
-            service('mcp.registry'),
+            service('mcp.server.admin.registry'),
             service(McpAllowlistProvider::class),
-            param('mcp.pagination_limit'),
+            param('shopware.mcp.pagination_limit'),
             param('shopware.mcp.advertised_tools'),
             service(McpToolsetRegistry::class)->nullOnInvalid(),
             service(McpToolsetSessionStorage::class)->nullOnInvalid(),
             service('request_stack'),
+            service(McpRequestedToolsetResolver::class),
         ])
-        ->tag('mcp.request_handler');
+        ->tag('mcp.admin.request_handler');
 
     $services->set(McpAuthenticationListener::class)
         ->args([
@@ -192,69 +187,33 @@ return static function (ContainerConfigurator $container): void {
     $services->set(McpServerController::class)
         ->public()
         ->args([
-            service('mcp.server')->nullOnInvalid(),
+            service('mcp.server.admin')->nullOnInvalid(),
             service(McpHttpTransportFactory::class),
             service(McpRateLimiter::class),
             service(McpSessionIdValidator::class),
             service(McpAllowlistProvider::class),
             service('logger'),
             service(McpAllowlistFilter::class),
-            service(McpSessionRegistry::class),
             service(McpListChangedNotifier::class),
         ])
         ->tag('controller.service_arguments')
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
-    $services->set('mcp.store_api.registry', Registry::class)
-        ->args([service('event_dispatcher'), service('logger')])
-        ->tag('monolog.logger', ['channel' => 'mcp']);
-
-    $services->set('mcp.store_api.server.builder', McpServerBuilder::class)
-        ->factory([McpServer::class, 'builder'])
-        ->call('setServerInfo', [
-            'Shopware Store API',
-            '1.0.0',
-            'Shopware Store API MCP server for sales-channel and customer-context operations.',
-        ])
-        ->call('setPaginationLimit', [param('mcp.pagination_limit')])
-        ->call('setInstructions', ['This MCP server exposes Store API capabilities. All operations run in the current sales-channel context and use Store API authentication headers. The advertised tool list is not the full catalogue: if no advertised tool matches the requested action, call shopware-tool-search first instead of assuming the action is unsupported, then use shopware-toolsets-list and shopware-toolset-enable to make a matched tool callable if your client cannot invoke it inline.'])
-        ->call('setEventDispatcher', [service('event_dispatcher')])
-        ->call('setRegistry', [service('mcp.store_api.registry')])
-        ->call('setSession', [service('mcp.session.store')->nullOnInvalid()])
-        ->call('addRequestHandlers', [tagged_iterator('mcp.store_api.request_handler')])
-        ->call('addNotificationHandlers', [tagged_iterator('mcp.store_api.notification_handler')])
-        ->call('setLogger', [service('logger')])
-        ->tag('monolog.logger', ['channel' => 'mcp']);
-
-    $services->set('mcp.store_api.server', McpServer::class)
-        ->factory([service('mcp.store_api.server.builder'), 'build']);
-
     // Store-api-scoped discovery stack: second instances of the scope-neutral discovery classes,
-    // pointed at the store-api registry/params and an isolated session registry (own cache) so
-    // enabling an admin toolset never notifies store-api sessions and vice versa.
-    $services->set('mcp.store_api.session_registry_cache', Psr16Cache::class)
-        ->args([service('cache.system')]);
-
-    // Distinct cache key from the Admin registry so the two endpoints' active-session populations
-    // stay isolated even though both wrap the cache.system pool.
-    $services->set('mcp.store_api.session_registry', McpSessionRegistry::class)
-        ->args([
-            service('mcp.store_api.session_registry_cache'),
-            'shopware.mcp.store_api.active_session_ids',
-            service('lock.factory'),
-        ]);
-
+    // pointed at the store-api registry and params, so enabling an admin toolset never notifies
+    // store-api sessions and vice versa. App capabilities only reach the Admin API server, so
+    // store-api lists change per session only (toolset enable) and need no shared list versions.
     $services->set('mcp.store_api.list_changed_notifier', McpListChangedNotifier::class)
         ->args([
-            service('mcp.session.store')->nullOnInvalid(),
-            service('mcp.store_api.session_registry'),
+            service('mcp.server.store_api.session.store')->nullOnInvalid(),
+            null,
             service('logger'),
         ])
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set('mcp.store_api.capability_catalog', McpCapabilityCatalog::class)
         ->args([
-            service('mcp.store_api.registry')->nullOnInvalid(),
+            service('mcp.server.store_api.registry')->nullOnInvalid(),
             service(AppMcpPrivilegeProvider::class),
             param('shopware.store_api_mcp.tool_dependencies'),
             param('shopware.store_api_mcp.tool_privileges'),
@@ -266,37 +225,36 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set('mcp.store_api.list_request_handler', McpAllowlistListRequestHandler::class)
         ->args([
-            service('mcp.store_api.registry'),
+            service('mcp.server.store_api.registry'),
             null,
-            param('mcp.pagination_limit'),
+            param('shopware.mcp.pagination_limit'),
             param('shopware.store_api_mcp.advertised_tools'),
             service('mcp.store_api.toolset_registry'),
             service(McpToolsetSessionStorage::class),
             service('request_stack'),
+            service(McpRequestedToolsetResolver::class),
         ])
         ->tag('mcp.store_api.request_handler');
 
     $services->set(StoreApiMcpServerController::class)
         ->public()
         ->args([
-            service('mcp.store_api.server')->nullOnInvalid(),
+            service('mcp.server.store_api')->nullOnInvalid(),
             service(McpHttpTransportFactory::class),
             service(McpRateLimiter::class),
             service(McpSessionIdValidator::class),
             service('logger'),
-            service('mcp.store_api.session_registry'),
             service('mcp.store_api.list_changed_notifier'),
         ])
         ->tag('controller.service_arguments')
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set(AppMcpPrivilegeProvider::class)
-        ->args([service(Connection::class), service('logger')])
-        ->tag('monolog.logger', ['channel' => 'mcp']);
+        ->args([service(AppFeatureStorage::class)]);
 
     $services->set(McpCapabilityCatalog::class)
         ->args([
-            service('mcp.registry')->nullOnInvalid(),
+            service('mcp.server.admin.registry')->nullOnInvalid(),
             service(AppMcpPrivilegeProvider::class),
             param('shopware.mcp.tool_dependencies'),
             param('shopware.mcp.tool_privileges'),
@@ -312,7 +270,7 @@ return static function (ContainerConfigurator $container): void {
     $services->set(McpToolListController::class)
         ->public()
         ->args([
-            service('mcp.server.builder')->nullOnInvalid(),
+            service('mcp.server.admin.builder')->nullOnInvalid(),
             service(McpCapabilityCatalog::class)->nullOnInvalid(),
         ])
         ->tag('controller.service_arguments');
@@ -329,18 +287,28 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(DebugMcpCommand::class)
         ->args([
-            service('mcp.server.builder')->nullOnInvalid(),
-            service('mcp.registry')->nullOnInvalid(),
+            service('mcp.server.admin.builder')->nullOnInvalid(),
+            service('mcp.server.admin.registry')->nullOnInvalid(),
             service(McpAllowlistProvider::class),
             service(McpCapabilityCatalog::class),
-            service('mcp.store_api.server.builder')->nullOnInvalid(),
-            service('mcp.store_api.registry')->nullOnInvalid(),
+            service('mcp.server.store_api.builder')->nullOnInvalid(),
+            service('mcp.server.store_api.registry')->nullOnInvalid(),
             service('mcp.store_api.capability_catalog')->nullOnInvalid(),
+            param('mcp.servers.unassigned'),
+            param(McpToolDiscoveryCompilerPass::DEMOTED_DISCOVERY_TOOLS_PARAMETER),
         ])
         ->tag('console.command');
 
+    $services->set(McpToolResultRenderer::class)
+        ->args([service(ClockInterface::class)]);
+
+    $services->set(McpToolResultParser::class);
+
+    $services->set(McpToolResultPointerSigner::class)
+        ->args([param('kernel.secret'), service(ClockInterface::class)]);
+
     $services->set(ToolResultCacheStorage::class)
-        ->args([service(Connection::class), service(ClockInterface::class)]);
+        ->args([service(Connection::class), service(ClockInterface::class), service(McpToolResultPointerSigner::class)]);
 
     $services->set(ToolSearch::class);
 
@@ -355,27 +323,39 @@ return static function (ContainerConfigurator $container): void {
             service('scheduled_task.repository'),
             service('logger'),
             service(McpToolsetSessionStorage::class),
-            service('mcp.session.store')->nullOnInvalid(),
+            service('mcp.server.admin.session.store')->nullOnInvalid(),
+            service('mcp.server.store_api.session.store')->nullOnInvalid(),
         ])
         ->tag('messenger.message_handler');
+
+    $services->set(McpToolResultCacheCleanupTask::class)
+        ->tag('shopware.scheduled.task');
+
+    // The monolog.logger tag puts both logger arguments on the mcp channel: the parent's exception
+    // logger and the one the handler reports the cleanup outcome on.
+    $services->set(McpToolResultCacheCleanupTaskHandler::class)
+        ->args([
+            service('scheduled_task.repository'),
+            service('logger'),
+            service(ToolResultCacheStorage::class),
+            service(ClockInterface::class),
+            service('logger'),
+            param('shopware.mcp.tool_result_cache_ttl'),
+        ])
+        ->tag('messenger.message_handler')
+        ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set(McpSessionCleanupSubscriber::class)
         ->args([
             service(ToolResultCacheStorage::class),
             service(McpToolsetSessionStorage::class),
-            service(McpSessionRegistry::class),
-            service('mcp.store_api.session_registry'),
         ])
         ->tag('kernel.event_subscriber');
-
-    $services->instanceof(McpToolResponse::class)
-        ->call('setToolResultCache', [service(ToolResultCacheStorage::class), service('request_stack'), service('logger')])
-        ->tag('monolog.logger', ['channel' => 'mcp']);
 
     // Tools
     $services->set(ToolSearchTool::class)
         ->args([
-            service('mcp.registry')->nullOnInvalid(),
+            service('mcp.server.admin.registry')->nullOnInvalid(),
             service(ToolSearch::class),
             service(McpAllowlistProvider::class),
         ])
@@ -467,7 +447,7 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(StoreApiToolSearchTool::class)
         ->args([
-            service('mcp.store_api.registry')->nullOnInvalid(),
+            service('mcp.server.store_api.registry')->nullOnInvalid(),
             service(ToolSearch::class),
             null,
         ])
@@ -478,6 +458,7 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.store_api.toolset_registry'),
             service(McpToolsetSessionStorage::class),
             service('request_stack'),
+            service(McpRequestedToolsetResolver::class),
         ])
         ->tag('shopware.store_api_mcp.tool');
 
@@ -489,11 +470,15 @@ return static function (ContainerConfigurator $container): void {
         ])
         ->tag('shopware.store_api_mcp.tool');
 
+    $services->set(McpRequestedToolsetResolver::class)
+        ->args([service('request_stack')]);
+
     $services->set(ToolsetsListTool::class)
         ->args([
             service(McpToolsetRegistry::class),
             service(McpToolsetSessionStorage::class),
             service('request_stack'),
+            service(McpRequestedToolsetResolver::class),
         ])
         ->tag('mcp.tool');
 
@@ -552,7 +537,11 @@ return static function (ContainerConfigurator $container): void {
         ->tag('mcp.resource');
 
     $services->set(ToolResultResource::class)
-        ->args([service(ToolResultCacheStorage::class)])
+        ->args([service(ToolResultCacheStorage::class), service('request_stack')])
+        ->tag('mcp.resource_template');
+
+    $services->set(StoreApiToolResultResource::class)
+        ->args([service(ToolResultCacheStorage::class), service('request_stack')])
         ->tag('mcp.resource_template');
 
     // App MCP Tool pipeline
@@ -566,13 +555,15 @@ return static function (ContainerConfigurator $container): void {
             service('kernel'),
             service('request_stack'),
             service('router'),
+            service(AppSecretResolver::class),
         ])
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set(AppMcpToolLoader::class)
         ->args([
-            service(Connection::class),
+            service(AppFeatureStorage::class),
             service(AppMcpCapabilityExecutor::class),
+            service(LanguageLocaleCodeProvider::class),
             service('logger'),
             param('shopware.mcp.allowed_tools'),
         ])
@@ -580,8 +571,9 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(AppMcpPromptLoader::class)
         ->args([
-            service(Connection::class),
+            service(AppFeatureStorage::class),
             service(AppMcpCapabilityExecutor::class),
+            service(LanguageLocaleCodeProvider::class),
             service('logger'),
         ])
         ->tag('mcp.loader')
@@ -589,48 +581,20 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(AppMcpResourceLoader::class)
         ->args([
-            service(Connection::class),
+            service(AppFeatureStorage::class),
             service(AppMcpCapabilityExecutor::class),
+            service(LanguageLocaleCodeProvider::class),
             service('logger'),
         ])
         ->tag('mcp.loader')
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
-    $services->set(McpToolPersister::class)
-        ->args([service('app_mcp_tool.repository')]);
+    $services->set(McpToolFeatureDefinition::class)
+        ->tag('shopware.app_feature.definition');
 
-    $services->set(McpPromptPersister::class)
-        ->args([service('app_mcp_prompt.repository')]);
+    $services->set(McpPromptFeatureDefinition::class)
+        ->tag('shopware.app_feature.definition');
 
-    $services->set(McpResourcePersister::class)
-        ->args([service('app_mcp_resource.repository')]);
-
-    $services->set(McpLifecycleHandler::class)
-        ->args([
-            service(McpToolPersister::class),
-            service(McpPromptPersister::class),
-            service(McpResourcePersister::class),
-            service(AppMcpCapabilityDetector::class),
-            service(McpListChangedNotifier::class),
-        ])
-        ->tag('shopware.app_lifecycle.handler', ['priority' => -1300]);
-
-    // DAL definitions
-    $services->set(AppMcpToolDefinition::class)
-        ->tag('shopware.entity.definition');
-
-    $services->set(AppMcpToolTranslationDefinition::class)
-        ->tag('shopware.entity.definition');
-
-    $services->set(AppMcpPromptDefinition::class)
-        ->tag('shopware.entity.definition');
-
-    $services->set(AppMcpPromptTranslationDefinition::class)
-        ->tag('shopware.entity.definition');
-
-    $services->set(AppMcpResourceDefinition::class)
-        ->tag('shopware.entity.definition');
-
-    $services->set(AppMcpResourceTranslationDefinition::class)
-        ->tag('shopware.entity.definition');
+    $services->set(McpResourceFeatureDefinition::class)
+        ->tag('shopware.app_feature.definition');
 };

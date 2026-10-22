@@ -4,8 +4,10 @@ namespace Shopware\Tests\Unit\Core\Checkout\Shipping\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Shipping\Extension\ShippingMethodRouteExtension;
 use Shopware\Core\Checkout\Shipping\Hook\ShippingMethodRouteHook;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
+use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRouteResponse;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
@@ -15,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Rule\RuleIdMatcher;
@@ -22,6 +25,7 @@ use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -38,6 +42,7 @@ class ShippingMethodRouteTest extends TestCase
             static::createStub(CacheTagCollector::class),
             static::createStub(ScriptExecutor::class),
             new RuleIdMatcher(),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $this->expectException(DecorationPatternException::class);
@@ -79,7 +84,8 @@ class ShippingMethodRouteTest extends TestCase
             $repo,
             static::createStub(CacheTagCollector::class),
             static::createStub(ScriptExecutor::class),
-            new RuleIdMatcher()
+            new RuleIdMatcher(),
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $response = $route->load($request, $context, $criteria);
@@ -137,7 +143,8 @@ class ShippingMethodRouteTest extends TestCase
             $repo,
             static::createStub(CacheTagCollector::class),
             $executor,
-            new RuleIdMatcher()
+            new RuleIdMatcher(),
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $response = $route->load($request, $context, $criteria);
@@ -178,7 +185,8 @@ class ShippingMethodRouteTest extends TestCase
             $repo,
             static::createStub(CacheTagCollector::class),
             static::createStub(ScriptExecutor::class),
-            new RuleIdMatcher()
+            new RuleIdMatcher(),
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $route->load($request, $context, $criteria);
@@ -219,7 +227,8 @@ class ShippingMethodRouteTest extends TestCase
             $repo,
             static::createStub(CacheTagCollector::class),
             static::createStub(ScriptExecutor::class),
-            new RuleIdMatcher()
+            new RuleIdMatcher(),
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $route->load($request, $context, $criteria);
@@ -232,5 +241,31 @@ class ShippingMethodRouteTest extends TestCase
         );
 
         static::assertSame([], $priceFilters);
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $request = new Request();
+        $context = Generator::generateSalesChannelContext();
+        $criteria = new Criteria();
+        $response = static::createStub(ShippingMethodRouteResponse::class);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('shipping-method-route.load.pre', static function (ShippingMethodRouteExtension $extension) use ($request, $context, $criteria, $response): void {
+            static::assertSame(['request' => $request, 'context' => $context, 'criteria' => $criteria], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new ShippingMethodRoute(
+            static::createStub(SalesChannelRepository::class),
+            static::createStub(CacheTagCollector::class),
+            static::createStub(ScriptExecutor::class),
+            static::createStub(RuleIdMatcher::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load($request, $context, $criteria));
     }
 }

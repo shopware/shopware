@@ -17,10 +17,7 @@ describe('src/app/service/criteria-helper.service.ts', () => {
 
     it('should add associations', () => {
         const result = createCriteriaFromArray({
-            associations: [
-                'test1',
-                'test2',
-            ],
+            associations: ['test1', 'test2'],
             filters: [],
             sortings: [],
         });
@@ -75,10 +72,7 @@ describe('src/app/service/criteria-helper.service.ts', () => {
             {
                 type: 'equalsAny',
                 field: 'test6',
-                value: [
-                    'test6',
-                    'test6',
-                ],
+                value: ['test6', 'test6'],
             },
             {
                 type: 'range',
@@ -135,26 +129,15 @@ describe('src/app/service/criteria-helper.service.ts', () => {
             .addFilter(Criteria.suffix('test3', 'test3'))
             .addFilter(Criteria.equals('test4', 'test4'))
             .addFilter(Criteria.equals('test5', 'test5'))
-            .addFilter(
-                Criteria.equalsAny('test6', [
-                    'test6',
-                    'test6',
-                ]),
-            )
+            .addFilter(Criteria.equalsAny('test6', ['test6', 'test6']))
             .addFilter(Criteria.range('test7', { lte: 'test7', lt: 'test7' }))
             .addFilter(
                 Criteria.multi('and', [
-                    Criteria.not('or', [
-                        Criteria.equals('test8', 'test8'),
-                    ]),
+                    Criteria.not('or', [Criteria.equals('test8', 'test8')]),
                     Criteria.equals('test9', 'test9'),
                 ]),
             )
-            .addFilter(
-                Criteria.not('and', [
-                    Criteria.equals('test10', 'test10'),
-                ]),
-            );
+            .addFilter(Criteria.not('and', [Criteria.equals('test10', 'test10')]));
 
         expect(criteria).toEqual(result);
     });

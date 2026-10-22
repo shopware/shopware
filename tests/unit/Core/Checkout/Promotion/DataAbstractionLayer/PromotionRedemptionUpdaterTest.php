@@ -308,9 +308,17 @@ class PromotionRedemptionUpdaterTest extends TestCase
             new EntityWriteResult('id', ['promotionId' => Uuid::randomHex(), 'type' => PromotionProcessor::LINE_ITEM_TYPE], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
             true,
         ];
-        yield 'updated promotion line item is ignored' => [
+        // The recount aggregates every row carrying a promotion_id regardless of its type, so the
+        // same rule has to decide what triggers it, or such a row inflates the count without ever
+        // being recounted away again.
+        yield 'created line item with promotion id but another type is counted' => [
+            new EntityWriteResult('id', ['promotionId' => Uuid::randomHex(), 'type' => 'some-type'], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
+            true,
+        ];
+        // An update payload carries only the fields the writer supplied, so the type is absent here.
+        yield 'updated line item with promotion id is counted' => [
             new EntityWriteResult('id', ['promotionId' => Uuid::randomHex()], 'order_line_item', EntityWriteResult::OPERATION_UPDATE),
-            false,
+            true,
         ];
     }
 

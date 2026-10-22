@@ -13,14 +13,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -45,10 +40,7 @@ export default {
 
         unitList() {
             if (this.newUnit) {
-                return [
-                    ...this.units,
-                    this.newUnit,
-                ];
+                return [...this.units, this.newUnit];
             }
 
             return this.units;

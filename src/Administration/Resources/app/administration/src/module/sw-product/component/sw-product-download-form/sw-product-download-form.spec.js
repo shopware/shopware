@@ -8,7 +8,7 @@ const originalRevokeObjectURL = window.URL.revokeObjectURL;
 /**
  * @sw-package inventory
  */
-async function createWrapper(hasError = false, mediaService = {}, configSettings = {}) {
+async function createWrapper(hasError = false, mediaService = {}, configSettings = {}, repositoryFactory = {}) {
     if (hasError) {
         Shopware.Store.get('error').addApiError({
             expression: 'product.product1Id.downloads',
@@ -33,7 +33,7 @@ async function createWrapper(hasError = false, mediaService = {}, configSettings
                 }),
             },
             provide: {
-                repositoryFactory: {},
+                repositoryFactory,
                 configService: {
                     getConfig() {
                         return Promise.resolve({
@@ -64,10 +64,7 @@ async function createWrapper(hasError = false, mediaService = {}, configSettings
                 'sw-product-image': await wrapTestComponent('sw-product-image'),
                 'sw-media-upload-v2': {
                     name: 'sw-media-upload-v2',
-                    props: [
-                        'extensionAccept',
-                        'extensionMimeTypesByExtension',
-                    ],
+                    props: ['extensionAccept', 'extensionMimeTypesByExtension'],
                     template: '<div class="sw-media-upload-v2"></div>',
                 },
                 'sw-media-preview-v2': true,
@@ -219,6 +216,41 @@ describe('module/sw-product/component/sw-product-download-form', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-product-download-form .sw-media-upload-v2').classes()).toContain('has--error');
+    });
+
+    it('turns off external download management after attaching an uploaded file', async () => {
+        const productDownloads = getFileCollection(files);
+        const product = {
+            id: 'product1Id',
+            downloads: productDownloads,
+        };
+        product.getEntityName = () => 'product';
+        Shopware.Store.get('swProductDetail').product = product;
+        Shopware.Store.get('swProductDetail').isDownloadExternallyManaged = true;
+
+        const wrapper = await createWrapper(
+            false,
+            {},
+            {},
+            {
+                create: (entity) => {
+                    if (entity === 'product_download') {
+                        return {
+                            create: () => ({}),
+                        };
+                    }
+
+                    return {
+                        get: () => Promise.resolve({ id: 'media2' }),
+                    };
+                },
+            },
+        );
+
+        await wrapper.vm.successfulUpload({ targetId: 'media2' });
+
+        expect(productDownloads).toHaveLength(2);
+        expect(Shopware.Store.get('swProductDetail').isDownloadExternallyManaged).toBe(false);
     });
 
     it('should download a private product media file via the media service', async () => {

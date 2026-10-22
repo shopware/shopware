@@ -96,17 +96,12 @@ async function createWrapper(options = {}) {
                 'mt-card': {
                     template:
                         '<div class="mt-card" :class="$attrs.class"><slot name="title"></slot><slot name="headerRight"></slot><slot name="action"></slot><slot></slot><slot name="grid"></slot></div>',
-                    props: [
-                        'positionIdentifier',
-                        'isLoading',
-                    ],
+                    props: ['positionIdentifier', 'isLoading'],
                 },
                 'mt-button': {
                     template:
                         '<button class="mt-button" v-bind="$attrs" :disabled="disabled" @click="$emit(\'click\')"><slot></slot></button>',
-                    emits: [
-                        'click',
-                    ],
+                    emits: ['click'],
                     props: [
                         'size',
                         'variant',
@@ -116,10 +111,7 @@ async function createWrapper(options = {}) {
                 },
                 'mt-icon': {
                     template: '<span class="mt-icon" :data-name="name"><slot></slot></span>',
-                    props: [
-                        'name',
-                        'size',
-                    ],
+                    props: ['name', 'size'],
                 },
                 'mt-textarea': {
                     template: `
@@ -141,13 +133,8 @@ async function createWrapper(options = {}) {
                 'sw-modal': {
                     template:
                         '<div class="sw-modal" :class="$attrs.class"><h2>{{ title }}</h2><slot></slot><slot name="modal-footer"></slot></div>',
-                    emits: [
-                        'modal-close',
-                    ],
-                    props: [
-                        'title',
-                        'variant',
-                    ],
+                    emits: ['modal-close'],
+                    props: ['title', 'variant'],
                 },
                 'sw-code-editor': {
                     template: `
@@ -158,9 +145,7 @@ async function createWrapper(options = {}) {
                                 @input="$emit('update:value', $event.target.value)"
                             ></textarea>
                         `,
-                    emits: [
-                        'update:value',
-                    ],
+                    emits: ['update:value'],
                     props: [
                         'value',
                         'name',
@@ -175,11 +160,7 @@ async function createWrapper(options = {}) {
                 'sw-label': {
                     template:
                         '<span class="sw-label" :data-appearance="appearance" :data-size="size" :data-variant="variant"><slot></slot></span>',
-                    props: [
-                        'appearance',
-                        'size',
-                        'variant',
-                    ],
+                    props: ['appearance', 'size', 'variant'],
                 },
                 'sw-data-grid': {
                     template: `
@@ -207,21 +188,12 @@ async function createWrapper(options = {}) {
                 'sw-context-menu-item': {
                     template:
                         '<button class="sw-context-menu-item" :disabled="disabled" @click="$emit(\'click\')"><slot></slot></button>',
-                    emits: [
-                        'click',
-                    ],
-                    props: [
-                        'disabled',
-                        'routerLink',
-                        'variant',
-                    ],
+                    emits: ['click'],
+                    props: ['disabled', 'routerLink', 'variant'],
                 },
                 'mt-empty-state': {
                     template: '<div class="mt-empty-state">{{ headline }}</div>',
-                    props: [
-                        'headline',
-                        'icon',
-                    ],
+                    props: ['headline', 'icon'],
                 },
             },
             provide: {
@@ -527,10 +499,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
 
     it('supports route params for files in subfolders', async () => {
         const { wrapper } = await createWrapper({
-            routeFileName: [
-                '.well-known',
-                'agents.json',
-            ],
+            routeFileName: ['.well-known', 'agents.json'],
         });
 
         expect(wrapper.vm.routeFileName).toBe('.well-known/agents.json');

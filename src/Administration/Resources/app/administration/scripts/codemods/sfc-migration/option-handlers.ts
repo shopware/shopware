@@ -54,6 +54,7 @@ import {
     type ComposableScaffold,
     composableCallbacks,
     findComposableDescriptor,
+    PUBLISHED_COMPOSABLES,
     scaffoldRunsUnread,
 } from './composables';
 
@@ -427,6 +428,15 @@ const OPTION_HANDLERS: Record<string, OptionHandler> = sourceKeyed<OptionHandler
                 continue;
             }
 
+            if (ctx.extensionTarget && !PUBLISHED_COMPOSABLES.has(descriptor.import.name)) {
+                report(
+                    ctx,
+                    'skip',
+                    `${descriptor.import.name}() replaces the '${mixinName}' mixin but is not published to extensions through shopware:composables`,
+                );
+                continue;
+            }
+
             if (!collected.mixins.includes(descriptor)) {
                 collected.mixins.push(descriptor);
             }
@@ -688,10 +698,7 @@ function instanceMemberText(ctx: Ctx, member: string, kind: MemberKind): string 
 function composableArguments(ctx: Ctx, descriptor: ComposableDescriptor): string[] {
     const args: string[] = [];
 
-    for (const [
-        callbackName,
-        event,
-    ] of Object.entries(descriptor.emits ?? {})) {
+    for (const [callbackName, event] of Object.entries(descriptor.emits ?? {})) {
         ctx.helpers.add('emit');
         // The payload travels through untouched, so the descriptor does not have to know the arity of
         // each event.
@@ -835,10 +842,7 @@ function resolveMixins(
             }
         }
 
-        for (const [
-            member,
-            spec,
-        ] of Object.entries(descriptor.members)) {
+        for (const [member, spec] of Object.entries(descriptor.members)) {
             // A leaf override would work under Vue's merge rules — the component's member simply wins —
             // but after the migration the composable binding and the component's own binding would
             // share one name, so the component keeps the Options API instead.
@@ -888,10 +892,7 @@ function resolveMixins(
     for (const descriptor of active) {
         const entries: ResolvedComposable['entries'] = [];
 
-        for (const [
-            member,
-            spec,
-        ] of Object.entries(descriptor.members)) {
+        for (const [member, spec] of Object.entries(descriptor.members)) {
             if (!readMembers.has(member)) {
                 continue;
             }

@@ -1,4 +1,4 @@
-import { Plugin } from 'vite';
+import type { Plugin } from 'vite';
 import path from 'path';
 
 /**
@@ -8,10 +8,7 @@ export default function stripAssetsFolderInCss(folderToStrip: string): Plugin {
     return {
         name: 'asset-css-postprocess-plugin',
         generateBundle(_, bundle) {
-            for (const [
-                fileName,
-                file,
-            ] of Object.entries(bundle)) {
+            for (const [fileName, file] of Object.entries(bundle)) {
                 if (fileName.endsWith('.css') && file.type === 'asset' && typeof file.source === 'string') {
                     const cssDir = path.dirname(fileName);
 

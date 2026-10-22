@@ -13,14 +13,9 @@ const { isEmpty } = Utils.types;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         productId: {
@@ -40,6 +35,10 @@ export default {
     computed: {
         product() {
             return Shopware.Store.get('swProductDetail').product;
+        },
+
+        isDownloadExternallyManaged() {
+            return Shopware.Store.get('swProductDetail').isDownloadExternallyManaged;
         },
 
         parentProduct() {
@@ -116,6 +115,34 @@ export default {
             });
         },
 
+        onDownloadExternalManagementChange(value) {
+            Shopware.Store.get('swProductDetail').isDownloadExternallyManaged = value;
+            const errorPath = `product.${this.product.id}.downloads`;
+
+            if (value) {
+                const error = Shopware.Store.get('error').getApiError(this.product, 'downloads');
+
+                if (error?.code === 'SW_PRODUCT_DOWNLOADS_EXTERNAL_MANAGEMENT_REQUIRED') {
+                    Shopware.Store.get('error').removeApiError(errorPath);
+                }
+                return;
+            }
+
+            if (this.productType === 'digital' && !this.product.downloads?.length) {
+                this.showRequiredDownloadsError();
+            }
+        },
+
+        showRequiredDownloadsError() {
+            Shopware.Store.get('error').addApiError({
+                expression: `product.${this.product.id}.downloads`,
+                error: new Shopware.Classes.ShopwareError({
+                    code: 'SW_PRODUCT_DOWNLOADS_EXTERNAL_MANAGEMENT_REQUIRED',
+                    detail: this.$t('sw-product.detailBase.downloadsExternalManagementRequired'),
+                }),
+            });
+        },
+
         showProductCard(key) {
             return Shopware.Store.get('swProductDetail').showProductCard(key);
         },
@@ -123,10 +150,7 @@ export default {
         getMediaDefaultFolderId() {
             return this.mediaDefaultFolderRepository
                 .search(this.mediaDefaultFolderCriteria, {
-                    cacheKey: [
-                        'media-default-folder',
-                        'product',
-                    ],
+                    cacheKey: ['media-default-folder', 'product'],
                 })
                 .then((mediaDefaultFolder) => {
                     const defaultFolder = mediaDefaultFolder.first();

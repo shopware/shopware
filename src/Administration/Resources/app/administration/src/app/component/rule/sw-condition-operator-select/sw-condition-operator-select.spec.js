@@ -52,9 +52,7 @@ describe('src/app/component/rule/sw-condition-operator-select', () => {
 
         await wrapper.vm.changeOperator('empty');
 
-        expect(wrapper.emitted('change')).toEqual([
-            [{ value: { operator: 'empty' } }],
-        ]);
+        expect(wrapper.emitted('change')).toEqual([[{ value: { operator: 'empty' } }]]);
     });
     it('preserves all condition properties when changed to a non-empty operator', async () => {
         const wrapper = await createWrapper({

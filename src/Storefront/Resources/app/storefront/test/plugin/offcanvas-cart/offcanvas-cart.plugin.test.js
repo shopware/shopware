@@ -26,7 +26,8 @@ describe('OffCanvasCartPlugin tests', () => {
                 <a class="cart-item-label" href="#">Weird product with huge quantity</a>
 
                 <form action="/checkout/line-item/change-quantity/uuid555">
-                    <input type="number" name="quantity" class="js-offcanvas-cart-change-quantity-number" min="1" max="150" step="1" value="1">
+                    <input type="number" name="quantity" class="js-offcanvas-cart-change-quantity-number" min="1" max="150" step="1" value="1" data-focus-id="quantity-uuid555">
+                    <button type="button" class="js-btn-plus" data-focus-id="quantity-up-uuid555">+</button>
                 </form>
             </div>
         </div>
@@ -156,6 +157,146 @@ describe('OffCanvasCartPlugin tests', () => {
 
         // Verify updated content after quantity change
         expect(document.querySelector('.offcanvas-body').textContent).toBe('Content after update');
+    });
+
+    test('restores the focus to the element focused when the delayed request fires', async () => {
+        plugin.options.autoFocus = true;
+
+        document.querySelector('.header-cart').dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
+        // Let the opened offcanvas take the initial focus before the user interacts.
+        jest.runOnlyPendingTimers();
+
+        const quantityInput = document.querySelector('.js-offcanvas-cart-change-quantity-number');
+        quantityInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+        // The user moves on to the `[+]` button while the request is still delayed.
+        document.querySelector('.js-btn-plus').focus();
+        await jest.advanceTimersByTime(800);
+        await new Promise(process.nextTick);
+
+        expect(window.focusHandler.saveFocusState).toHaveBeenCalledWith('offcanvas-cart', '[data-focus-id="quantity-up-uuid555"]');
+    });
+
+    test('applies removal and quantity mutations in order and renders the final cart', async () => {
+        document.querySelector('.header-cart').dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
+
+        const responses = [];
+        const serverCart = { a: 1, b: 1 };
+        global.fetch = jest.fn((url, init) => new Promise((resolve) => {
+            responses.push(() => {
+                if (url === '/remove-a') {
+                    delete serverCart.a;
+                } else {
+                    serverCart.b = Number(init.body.get('quantity'));
+                }
+
+                resolve({ text: () => Promise.resolve(`<div class="offcanvas-body">${JSON.stringify(serverCart)}</div>`) });
+            });
+        }));
+
+        const removeForm = document.querySelector('form');
+        removeForm.action = '/remove-a';
+        removeForm.classList.add('js-offcanvas-cart-remove-product');
+        plugin._registerRemoveProductTriggerEvents();
+        removeForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+
+        const input = document.querySelector('.js-offcanvas-cart-change-quantity-number');
+        input.value = '2';
+        input.dispatchEvent(new CustomEvent('change', {
+            bubbles: true,
+            detail: { submitImmediately: true },
+        }));
+        // Queued requests must retain the submitted value even if the old form changes.
+        input.value = '3';
+        await new Promise(process.nextTick);
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+
+        responses.shift()();
+        await new Promise(process.nextTick);
+        expect(document.querySelector('.offcanvas-body').textContent).toBe('{"b":1}');
+        expect(global.fetch).toHaveBeenCalledTimes(2);
+
+        responses.shift()();
+        await new Promise(process.nextTick);
+        expect(serverCart).toEqual({ b: 2 });
+        expect(document.querySelector('.offcanvas-body').textContent).toBe(JSON.stringify(serverCart));
+    });
+
+    test('continues with queued mutations after a failed request', async () => {
+        document.querySelector('.header-cart').dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
+
+        const error = new Error('Connection failed');
+        const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        global.fetch = jest.fn()
+            .mockRejectedValueOnce(error)
+            .mockResolvedValueOnce({ text: () => Promise.resolve('<div class="offcanvas-body">Recovered</div>') });
+        const forms = document.querySelectorAll('form');
+        plugin._fireRequest(forms[0], '.js-cart-item');
+        plugin._fireRequest(forms[1], '.js-cart-item');
+        await new Promise(process.nextTick);
+
+        expect(warn).toHaveBeenCalledWith('Unable to update the off-canvas cart.', error);
+        expect(global.fetch).toHaveBeenCalledTimes(2);
+        expect(document.querySelector('.offcanvas-body').textContent).toBe('Recovered');
+    });
+
+    test('waits for the shipping refresh before sending the next mutation', async () => {
+        document.querySelector('.header-cart').dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
+        document.body.insertAdjacentHTML('beforeend', `
+            <div class="offcanvas-summary">
+                <form action="/shipping"><select name="shippingMethodId"><option value="express">Express</option></select></form>
+            </div>`);
+
+        const responses = [];
+        global.fetch = jest.fn(() => new Promise(resolve => responses.push(resolve)));
+        plugin._onChangeShippingMethod({
+            preventDefault: jest.fn(),
+            target: document.querySelector('.offcanvas-summary select'),
+        });
+        plugin._fireRequest(document.querySelector('.js-cart-item form'), '.js-cart-item');
+        await new Promise(process.nextTick);
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+
+        responses.shift()({ text: () => Promise.resolve('') });
+        await new Promise(process.nextTick);
+        expect(global.fetch).toHaveBeenCalledTimes(2);
+        expect(global.fetch.mock.calls[1][0]).toBe('/checkout/offcanvas');
+
+        responses.shift()({ text: () => Promise.resolve('<div class="offcanvas-body">Shipping updated</div>') });
+        await new Promise(process.nextTick);
+        expect(global.fetch).toHaveBeenCalledTimes(3);
+        expect(global.fetch.mock.calls[2][1].method).toBe('POST');
+
+        responses.shift()({ text: () => Promise.resolve('<div class="offcanvas-body">Quantity updated</div>') });
+        await new Promise(process.nextTick);
+        expect(document.querySelector('.offcanvas-body').textContent).toBe('Quantity updated');
+    });
+
+    test('does not fire a request for a change the quantity selector withholds', async () => {
+        const el = document.querySelector('.header-cart');
+
+        // Open offcanvas cart with click
+        el.dispatchEvent(new Event('click', {
+            bubbles: true,
+        }));
+
+        await new Promise(process.nextTick);
+
+        const quantityInput = document.querySelector('.js-offcanvas-cart-change-quantity-number');
+
+        // The `QuantitySelectorPlugin` keeps `change` events on the input while the user is
+        // still picking a value, so they must not reach the listener of this plugin.
+        quantityInput.addEventListener('change', event => event.stopPropagation());
+        quantityInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+        await jest.advanceTimersByTime(800);
+        await new Promise(process.nextTick);
+
+        expect(fireRequestSpy).not.toHaveBeenCalled();
     });
 
     test('change product quantity should not send too many requests when spamming the number input', async () => {

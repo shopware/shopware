@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryException;
+use Shopware\Core\Content\Category\Extension\NavigationRouteExtension;
 use Shopware\Core\Content\Category\Service\DefaultCategoryLevelLoaderInterface;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\CategoryTreePathResolver;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -44,6 +46,7 @@ class NavigationRoute extends AbstractNavigationRoute
         private readonly CacheTagCollector $cacheTagCollector,
         private readonly CategoryTreePathResolver $categoryTreePathResolver,
         private readonly DefaultCategoryLevelLoaderInterface $categoryLevelLoader,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -72,6 +75,20 @@ class NavigationRoute extends AbstractNavigationRoute
         defaults: [PlatformRequest::ATTRIBUTE_ENTITY => CategoryDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
     )]
     public function load(
+        string $activeId,
+        string $rootId,
+        Request $request,
+        SalesChannelContext $context,
+        Criteria $criteria
+    ): NavigationRouteResponse {
+        return $this->extensions->publish(
+            name: NavigationRouteExtension::NAME,
+            extension: new NavigationRouteExtension($activeId, $rootId, $request, $context, $criteria),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(
         string $activeId,
         string $rootId,
         Request $request,

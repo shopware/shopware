@@ -13,18 +13,11 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'userRecoveryService',
-    ],
+    inject: ['userRecoveryService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
-    emits: [
-        'is-loading',
-        'is-not-loading',
-    ],
+    emits: ['is-loading', 'is-not-loading'],
 
     props: {
         hash: {
@@ -55,9 +48,7 @@ export default Component.wrapComponentConfig({
     },
 
     computed: {
-        ...mapPropertyErrors('user', [
-            'password',
-        ]),
+        ...mapPropertyErrors('user', ['password']),
     },
 
     watch: {

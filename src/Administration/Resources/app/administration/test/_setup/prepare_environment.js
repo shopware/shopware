@@ -8,6 +8,7 @@ import '@testing-library/jest-dom';
 
 import VirtualCallStackPlugin from 'src/app/plugin/virtual-call-stack.plugin';
 import MeteorSdkDataPlugin from 'src/app/plugin/meteor-sdk-data.plugin';
+import DeprecationPlugin from 'src/app/plugin/deprecation.plugin';
 import getBlockDataScope from 'src/app/component/structure/sw-block-override/sw-block/get-block-data-scope';
 import SwBlock from 'src/app/component/structure/sw-block-override/sw-block/index';
 import SwBlockParent from 'src/app/component/structure/sw-block-override/sw-block-parent/index';
@@ -22,13 +23,16 @@ import {
     MtColorpicker,
     MtDataTable,
     MtDatepicker,
+    MtDivider,
     MtDropdownMenuPortal,
     MtDropdownMenuRoot,
     MtDropdownMenuSub,
     MtDropdownMenuTrigger,
     MtEmailField,
     MtEmptyState,
+    MtHelpText,
     MtIcon,
+    MtInset,
     MtLink,
     MtLoader,
     MtNumberField,
@@ -40,6 +44,7 @@ import {
     MtProgressBar,
     MtSelect,
     MtSkeletonBar,
+    MtStatusDot,
     MtSwitch,
     MtTabs,
     MtText,
@@ -52,13 +57,14 @@ import {
 } from '@shopware-ag/meteor-component-library';
 import { createI18n } from 'vue-i18n';
 import aclService from './_mocks_/acl.service.mock';
-import feature from './_mocks_/feature.service.mock';
+import feature, { FeatureMock } from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
 import flushPromises from '../_helper_/flushPromises';
 import wrapTestComponent from '../_helper_/componentWrapper';
 import 'blob-polyfill';
 import {
     sendTimeoutExpired,
+    deprecationWarning,
     deprecatedTabComponent,
     deprecatedPopoverComponent,
     unresolvedComponentWarning,
@@ -172,7 +178,7 @@ const customFieldDataProviderService = {
 // Add services
 Shopware.Service().register('acl', () => aclService);
 Shopware.Service().register('feature', () => feature);
-Shopware.Feature = Shopware.Service('feature');
+Shopware.Feature = FeatureMock;
 Shopware.Service().register('repositoryFactory', () => repositoryFactory);
 Shopware.Service().register('customFieldDataProviderService', () => customFieldDataProviderService);
 
@@ -337,13 +343,16 @@ config.global.stubs = {
     'mt-colorpicker': MtColorpicker,
     'mt-data-table': MtDataTable,
     'mt-datepicker': MtDatepicker,
+    'mt-divider': MtDivider,
     'mt-dropdown-menu-portal': MtDropdownMenuPortal,
     'mt-dropdown-menu-root': MtDropdownMenuRoot,
     'mt-dropdown-menu-sub': MtDropdownMenuSub,
     'mt-dropdown-menu-trigger': MtDropdownMenuTrigger,
     'mt-email-field': MtEmailField,
     'mt-empty-state': MtEmptyState,
+    'mt-help-text': MtHelpText,
     'mt-icon': MtIcon,
+    'mt-inset': MtInset,
     'mt-link': MtLink,
     'mt-loader': MtLoader,
     'mt-number-field': MtNumberField,
@@ -355,6 +364,7 @@ config.global.stubs = {
     'mt-porgress-bar': MtProgressBar,
     'mt-select': MtSelect,
     'mt-skeleton-bar': MtSkeletonBar,
+    'mt-status-dot': MtStatusDot,
     'mt-switch': MtSwitch,
     'mt-tabs': MtTabs,
     'mt-text': MtText,
@@ -401,6 +411,7 @@ const BlockDataScopePlugin = {
 config.global.plugins = [
     VirtualCallStackPlugin,
     MeteorSdkDataPlugin,
+    DeprecationPlugin,
     BlockDataScopePlugin,
     i18n,
 ];
@@ -569,6 +580,7 @@ global.allowedErrors = [
     },
 
     sendTimeoutExpired,
+    deprecationWarning,
     deprecatedTabComponent,
     deprecatedPopoverComponent,
     // Vue 3 test stubs may have empty templates which triggers this warning

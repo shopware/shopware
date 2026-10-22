@@ -2,21 +2,20 @@
 
 namespace Shopware\Administration\Controller;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
-use League\OAuth2\Server\Exception\OAuthServerException;
 use Shopware\Administration\Events\PreResetExcludedSearchTermEvent;
 use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollectorInterface;
-use Shopware\Administration\Snippet\SnippetFinderInterface;
+use Shopware\Administration\Snippet\AdministrationSnippetService;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueCheck;
 use Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueChecker;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
-use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -26,6 +25,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -58,16 +58,13 @@ class AdministrationController extends AbstractController
      */
     public const CACHE_ID_ADMINISTRATION = 'administration';
 
-    private const UNAUTHENTICATED_SNIPPET_NAMESPACES = [
-        'sw-login',
-        'global',
-    ];
-
     private readonly bool $esAdministrationEnabled;
 
     private readonly bool $esStorefrontEnabled;
 
     private readonly bool $productStreamIndexingEnabled;
+
+    private readonly bool $hideUpdateModule;
 
     /**
      * @internal
@@ -80,7 +77,7 @@ class AdministrationController extends AbstractController
     public function __construct(
         private readonly TemplateFinderInterface $finder,
         private readonly FirstRunWizardService $firstRunWizardService,
-        private readonly SnippetFinderInterface $snippetFinder,
+        private readonly AdministrationSnippetService $snippetService,
         private readonly array $supportedApiVersions,
         private readonly KnownIpsCollectorInterface $knownIpsCollector,
         private readonly Connection $connection,
@@ -94,7 +91,6 @@ class AdministrationController extends AbstractController
         private readonly FilesystemOperator $fileSystem,
         private readonly string $serviceRegistryUrl,
         private readonly EntityRepository $languageRepository,
-        private readonly SymfonyBearerTokenValidator $tokenValidator,
         private readonly string $analyticsGatewayUrl,
         private readonly CustomerEmailUniqueChecker $customerEmailUniqueChecker,
         private readonly string $refreshTokenTtl = 'P1W',
@@ -109,6 +105,9 @@ class AdministrationController extends AbstractController
         $this->productStreamIndexingEnabled = $params->has('shopware.product_stream.indexing')
             ? $params->get('shopware.product_stream.indexing')
             : true;
+        $this->hideUpdateModule = $params->has('shopware.auto_update.hide_module')
+            ? (bool) $params->get('shopware.auto_update.hide_module')
+            : false;
     }
 
     #[Route(
@@ -141,6 +140,7 @@ class AdministrationController extends AbstractController
             'refreshTokenTtl' => $refreshTokenTtl * 1000,
             'serviceRegistryUrl' => $this->serviceRegistryUrl,
             'productStreamIndexingEnabled' => $this->productStreamIndexingEnabled,
+            'hideUpdateModule' => $this->hideUpdateModule,
             'analyticsGatewayUrl' => $this->analyticsGatewayUrl,
         ]);
 
@@ -167,18 +167,13 @@ class AdministrationController extends AbstractController
     )]
     public function snippets(Request $request): Response
     {
-        $snippets = [];
-        $locale = (string) $request->query->get('locale', 'en-GB');
-        $snippets[$locale] = $this->snippetFinder->findSnippets($locale);
+        $snippets = $this->snippetService->getSnippets($request);
 
-        if ($locale !== 'en-GB') {
-            $snippets['en-GB'] = $this->snippetFinder->findSnippets('en-GB');
-            $snippets = $this->filterByAuthentication($request, $snippets, 'en-GB');
-        }
+        $response = new JsonResponse($snippets);
+        $response->setEtag(Hasher::hash($snippets));
+        $response->isNotModified($request);
 
-        $snippets = $this->filterByAuthentication($request, $snippets, $locale);
-
-        return new JsonResponse($snippets);
+        return $response;
     }
 
     #[Route(
@@ -271,8 +266,9 @@ class AdministrationController extends AbstractController
             throw RoutingException::languageNotFound($context->getLanguageId());
         }
 
-        $deLanguageId = $this->fetchLanguageIdByName('de-DE', $this->connection);
-        $enLanguageId = $this->fetchLanguageIdByName('en-GB', $this->connection);
+        $languageIds = $this->fetchLanguageIdsByIsoCodes(['de-DE', 'en-GB'], $this->connection);
+        $deLanguageId = $languageIds['de-DE'] ?? null;
+        $enLanguageId = $languageIds['en-GB'] ?? null;
 
         switch ($context->getLanguageId()) {
             case $deLanguageId:
@@ -386,7 +382,7 @@ class AdministrationController extends AbstractController
 
         if ($flag === null) {
             return new JsonResponse(
-                ['preview' => strip_tags($html)]
+                ['preview' => $this->htmlSanitizer->stripTags($html)]
             );
         }
 
@@ -401,17 +397,24 @@ class AdministrationController extends AbstractController
         );
     }
 
-    private function fetchLanguageIdByName(string $isoCode, Connection $connection): ?string
+    /**
+     * @param list<string> $isoCodes
+     *
+     * @return array<string, string> language id (hex) indexed by iso code
+     */
+    private function fetchLanguageIdsByIsoCodes(array $isoCodes, Connection $connection): array
     {
-        $languageId = $connection->fetchOne(
+        /** @var array<string, string> $rows */
+        $rows = $connection->fetchAllKeyValue(
             '
-            SELECT `language`.id FROM `language`
+            SELECT `locale`.`code`, `language`.id FROM `language`
             INNER JOIN locale ON language.translation_code_id = locale.id
-            WHERE `code` = :code',
-            ['code' => $isoCode]
+            WHERE `code` IN (:codes)',
+            ['codes' => $isoCodes],
+            ['codes' => ArrayParameterType::STRING]
         );
 
-        return $languageId === false ? null : Uuid::fromBytesToHex($languageId);
+        return array_map(Uuid::fromBytesToHex(...), $rows);
     }
 
     private function getLatestApiVersion(): ?int
@@ -429,27 +432,5 @@ class AdministrationController extends AbstractController
         $criteria->addAssociation('boundSalesChannel');
 
         return $this->customerRepository->search($criteria, $context)->getEntities()->first();
-    }
-
-    /**
-     * @description Filters snippets based on authentication status. If the request is unauthenticated, only the bare minimum of translations is available.
-     *
-     * @param array<string, mixed> $snippets
-     *
-     * @return array<string, mixed>
-     */
-    private function filterByAuthentication(Request $request, array $snippets, string $locale): array
-    {
-        try {
-            $this->tokenValidator->validateAuthorization($request);
-        } catch (OAuthServerException) {
-            $snippets[$locale] = \array_filter(
-                $snippets[$locale],
-                static fn (string $key) => \in_array($key, self::UNAUTHENTICATED_SNIPPET_NAMESPACES, true),
-                \ARRAY_FILTER_USE_KEY
-            );
-        }
-
-        return $snippets;
     }
 }

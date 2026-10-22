@@ -36,21 +36,14 @@ describe('scripts/extensionTooling/setup discovery', () => {
         const result = setupExtensionTooling({ projectRoot, administrationRoot });
         const names = result.manifest.projects.map((project) => project.name);
 
-        expect(names).toEqual([
-            'Suite',
-            'ZeroConfig',
-            'custom-admin',
-        ]);
+        expect(names).toEqual(['Suite', 'ZeroConfig', 'custom-admin']);
 
         const suite = result.manifest.projects.find((project) => project.name === 'Suite');
         const zeroConfig = result.manifest.projects.find((project) => project.name === 'ZeroConfig');
         const vendorExtension = result.manifest.projects.find((project) => project.name === 'custom-admin');
 
         expect(suite).toMatchObject({
-            technicalNames: [
-                'SuiteA',
-                'SuiteB',
-            ],
+            technicalNames: ['SuiteA', 'SuiteB'],
             vendor: false,
         });
         // Auto-bridging scaffolded composing configs, so the manifest records
@@ -132,10 +125,7 @@ describe('scripts/extensionTooling/setup discovery', () => {
         expect(result.manifest.projects).toHaveLength(1);
         expect(result.manifest.projects[0].targets).toEqual([
             expect.objectContaining({
-                technicalNames: [
-                    'DuplicateRootA',
-                    'DuplicateRootB',
-                ],
+                technicalNames: ['DuplicateRootA', 'DuplicateRootB'],
             }),
         ]);
     });

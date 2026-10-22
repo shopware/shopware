@@ -64,9 +64,7 @@ describe('src/app/component/form/select/base/sw-select-result', () => {
             methods: {
                 emitSelectItemByKeyboard() {
                     this.$emit('item-select-by-keyboard', [0]);
-                    Shopware.Utils.EventBus.emit('item-select-by-keyboard', [
-                        0,
-                    ]);
+                    Shopware.Utils.EventBus.emit('item-select-by-keyboard', [0]);
                 },
             },
         };
@@ -95,6 +93,22 @@ describe('src/app/component/form/select/base/sw-select-result', () => {
 
     afterEach(() => {
         wrapper.unmount();
+    });
+
+    it('should only take over the active item when the mouse moves over it', async () => {
+        const setActiveItemIndex = jest.fn();
+        const result = mount(await wrapTestComponent('sw-select-result', { sync: true }), {
+            props: { index: 3, item: { id: 'item' } },
+            global: { provide: { setActiveItemIndex } },
+        });
+
+        await result.trigger('mouseenter');
+        expect(setActiveItemIndex).not.toHaveBeenCalled();
+
+        await result.trigger('mousemove');
+        expect(setActiveItemIndex).toHaveBeenCalledWith(3);
+
+        result.unmount();
     });
 
     it('should react on $parent.$parent event', async () => {

@@ -194,12 +194,7 @@ describe('components/sw-entity-advanced-selection-modal', () => {
         // assert proper event dispatch with correct data
         const selectionSubmitEvent = searchModal.emitted('selection-submit');
         expect(selectionSubmitEvent).toHaveLength(1);
-        expect(selectionSubmitEvent[0]).toEqual([
-            [
-                'one',
-                'two',
-            ],
-        ]);
+        expect(selectionSubmitEvent[0]).toEqual([['one', 'two']]);
         expect(searchModal.emitted('modal-close')).toHaveLength(1);
     });
 

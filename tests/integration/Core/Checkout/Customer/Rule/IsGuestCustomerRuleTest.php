@@ -72,7 +72,7 @@ class IsGuestCustomerRuleTest extends TestCase
 
     public function testThatFilledCompanyInformationMatchesToTrue(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $customer = new CustomerEntity();
         $customer->setGuest(true);
 
@@ -87,7 +87,7 @@ class IsGuestCustomerRuleTest extends TestCase
 
     public function testThatUnfilledCompanyInformationMatchesToFalse(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $customer = new CustomerEntity();
         $customer->setGuest(false);
 

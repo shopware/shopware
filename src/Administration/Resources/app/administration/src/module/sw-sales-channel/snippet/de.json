@@ -30,7 +30,7 @@
                 "offline": "Offline"
             },
             "productsLabel": "Produkte",
-            "productsCount": "Produkte | Produkt | Produkte"
+            "productsCount": "Produkt | Produkte"
         },
         "modal": {
             "title": "Verkaufskanal anlegen",
@@ -105,6 +105,7 @@
             "labelInputCurrency": "Währung",
             "labelInputLanguage": "Sprache",
             "labelInputSnippet": "Textbaustein-Set",
+            "snippetSetGroupOther": "Weitere Textbaustein-Sets",
             "labelIsExternalStorefront": "Externes Storefront",
             "helpTextIsExternalStorefront": "SEO-URLs werden nur für Domains generiert, die auf ein externes Storefront verweisen. Pro Sprache kann nur ein externes Storefront für einen einzelnen Verkaufskanal festgelegt werden.",
             "buttonDeleteDomain": "Domain löschen",
@@ -151,7 +152,7 @@
             "columnDomainCurrency": "Währung",
             "columnDomainUnitSystem": "Einheitensystem",
             "products": {
-                "titleEmptyState": "Keine weiteren Produkte gefunden",
+                "titleEmptyState": "Noch keine Produkte",
                 "titleEmptyStateTable": "Keine passenden Produkte gefunden",
                 "buttonAddProducts": "{productCount} Produkte hinzufügen | {productCount} Produkt hinzufügen | {productCount} Produkte hinzufügen",
                 "columnProductName": "Produktname",
@@ -411,19 +412,20 @@
             "productAssignmentModal": {
                 "title": "Produkte hinzufügen",
                 "singleProducts": "Produkt-Auswahl",
+                "singleProductsEmptyState": "Keine weiteren Produkte gefunden",
                 "categories": {
                     "title": "Kategorie-Auswahl",
                     "textInfo": "Die hier gemachten Zuweisungen sind nicht dynamisch und bilden nur den Produktstatus zum jetzigen Zeitpunkt ab. Nachfolgende Änderungen der Produktzusammensetzung in Kategorien beeinflussen die Zuweisung nicht.",
                     "textSearch": "Kategorien durchsuchen ...",
-                    "emptySearchResults": "Keine Kategorien gefunden."
+                    "emptySearchResults": "Keine Kategorien gefunden"
                 },
                 "dynamicProductGroups": {
                     "title": "Produktgruppen-Auswahl",
                     "infoText": "Die hier gemachten Zuweisungen sind nicht dynamisch und bilden nur den Produktstatus zum jetzigen Zeitpunkt ab. Nachfolgende Änderungen der Produktzusammensetzung von Dynamischen Produktgruppen beeinflussen diese Zuweisung nicht.",
                     "columnName": "Name",
                     "searchFieldPlaceholder": "Durchsuche alle dynamischen Produktgruppen ...",
-                    "titleNoProductStreamsMatching": "Keine passenden dynamischen Produktgruppen gefunden.",
-                    "titleNoProductStreamsAvailable": "Keine dynamische Produktgruppen verfügbar."
+                    "titleNoProductStreamsMatching": "Keine passenden dynamischen Produktgruppen gefunden",
+                    "titleNoProductStreamsAvailable": "Keine dynamischen Produktgruppen verfügbar"
                 }
             },
             "measurementSystem": {

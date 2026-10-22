@@ -37,7 +37,7 @@ class DoubleOptInGuestOrderEvent extends Event implements SalesChannelContextAwa
     {
         return (new EventDataCollection())
             ->add(CustomerAware::CUSTOMER, new EntityType(CustomerDefinition::class))
-            ->add(FlowMailVariables::CONFIRM_URL, new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add(FlowMailVariables::CONFIRM_URL, new ScalarValueType(ScalarValueType::TYPE_STRING), [EventDataCollection::HIDDEN_FROM_WEBHOOK => true]);
     }
 
     /**

@@ -46,14 +46,9 @@ function isIllegalUrlException(error) {
 export default {
     template: '<div style="display: none"></div>',
 
-    inject: [
-        'repositoryFactory',
-        'mediaService',
-    ],
+    inject: ['repositoryFactory', 'mediaService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         uploadTag: {
@@ -157,11 +152,11 @@ export default {
                 title: this.$root.$t('global.default.success'),
                 message: this.$root.$t(
                     payload.customMessage ?? 'global.sw-media-upload.notification.success.message',
-                    payload.successAmount,
                     {
                         count: payload.successAmount,
                         total: payload.totalAmount,
                     },
+                    payload.successAmount,
                 ),
                 growl: payload.successAmount + payload.failureAmount === payload.totalAmount,
             };

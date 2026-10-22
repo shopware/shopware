@@ -285,6 +285,53 @@ class PromotionRedemptionUpdaterTest extends TestCase
         static::assertNull($promotionAEvenLater->getOrdersPerCustomerCount());
     }
 
+    public function testLineItemOfAnotherTypeCountsTowardsRedemptions(): void
+    {
+        $this->createPromotionsAndOrder();
+
+        /** @var EntityRepository<PromotionCollection> $promotionRepository */
+        $promotionRepository = static::getContainer()->get('promotion.repository');
+        $promotionId = $this->ids->create('customLineItemPromotion');
+        $this->createPromotion($promotionId, $promotionId, $promotionRepository, $this->salesChannelContext);
+
+        $lineItemId = Uuid::randomHex();
+        static::getContainer()->get('order_line_item.repository')->create([[
+            'id' => $lineItemId,
+            'orderId' => $this->ids->get('order'),
+            'orderVersionId' => Defaults::LIVE_VERSION,
+            'identifier' => $lineItemId,
+            'type' => 'custom',
+            'quantity' => 1,
+            'position' => 1,
+            'label' => 'label',
+            'promotionId' => $promotionId,
+            'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+        ]], Context::createDefaultContext());
+
+        static::assertSame(1, $this->fetchPromotion($promotionId)->getOrderCount());
+
+        static::getContainer()
+            ->get('order_line_item.repository')
+            ->delete([['id' => $lineItemId]], Context::createDefaultContext());
+
+        static::assertSame(0, $this->fetchPromotion($promotionId)->getOrderCount());
+    }
+
+    private function fetchPromotion(string $promotionId): PromotionEntity
+    {
+        /** @var EntityRepository<PromotionCollection> $promotionRepository */
+        $promotionRepository = static::getContainer()->get('promotion.repository');
+
+        $promotion = $promotionRepository
+            ->search(new Criteria([$promotionId]), Context::createDefaultContext())
+            ->getEntities()
+            ->first();
+
+        static::assertInstanceOf(PromotionEntity::class, $promotion);
+
+        return $promotion;
+    }
+
     private function createPromotionsAndOrder(string $orderCode = 'test-FABPB-test'): void
     {
         /** @var EntityRepository<PromotionCollection> */
@@ -322,19 +369,19 @@ class PromotionRedemptionUpdaterTest extends TestCase
         static::assertCount(3, $promotions);
 
         $actualVoucherA = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherA') ? $promotions[0] : $promotions[1];
-        static::assertNotEmpty($actualVoucherA);
+        static::assertNotCount(0, $actualVoucherA);
         static::assertSame('1', $actualVoucherA['order_count']);
         $customerCount = json_decode((string) $actualVoucherA['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(1, $customerCount[$this->ids->get('customer')]);
 
         $actualVoucherD = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherD') ? $promotions[0] : $promotions[1];
-        static::assertNotEmpty($actualVoucherD);
+        static::assertNotCount(0, $actualVoucherD);
         static::assertSame('1', $actualVoucherD['order_count']);
         $customerCount = json_decode((string) $actualVoucherD['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(1, $customerCount[$this->ids->get('customer')]);
 
         $actualVoucherB = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherB') ? $promotions[0] : $promotions[1];
-        static::assertNotEmpty($actualVoucherB);
+        static::assertNotCount(0, $actualVoucherB);
         static::assertSame('1', $actualVoucherB['order_count']);
         $customerCount = json_decode((string) $actualVoucherB['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(1, $customerCount[$this->ids->get('customer')]);
@@ -347,19 +394,19 @@ class PromotionRedemptionUpdaterTest extends TestCase
         static::assertCount(3, $promotions);
 
         $actualVoucherA = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherA') ? $promotions[0] : $promotions[1];
-        static::assertNotEmpty($actualVoucherA);
+        static::assertNotCount(0, $actualVoucherA);
         static::assertSame('1', $actualVoucherA['order_count']);
         $customerCount = json_decode((string) $actualVoucherA['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(1, $customerCount[$this->ids->get('customer')]);
 
         $actualVoucherD = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherD') ? $promotions[0] : $promotions[1];
-        static::assertNotEmpty($actualVoucherD);
+        static::assertNotCount(0, $actualVoucherD);
         static::assertSame('1', $actualVoucherD['order_count']);
         $customerCount = json_decode((string) $actualVoucherD['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(1, $customerCount[$this->ids->get('customer')]);
 
         $actualVoucherB = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherB') ? $promotions[0] : $promotions[1];
-        static::assertNotEmpty($actualVoucherB);
+        static::assertNotCount(0, $actualVoucherB);
         // voucherB is used twice, it's mean group by works
         static::assertSame('1', $actualVoucherB['order_count']);
         $customerCount = json_decode((string) $actualVoucherB['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);

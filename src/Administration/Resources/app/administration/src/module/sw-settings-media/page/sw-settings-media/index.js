@@ -10,13 +10,9 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: [
-        'systemConfigApiService',
-    ],
+    inject: ['systemConfigApiService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {

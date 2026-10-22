@@ -30,6 +30,7 @@ done
 
 # Keep only the acceptance jobs (named "acceptance (...)") and sort them for
 # stable, readable output: non-major before major, then PHP/shard, Install last.
+# The optional major token distinguishes the major variant from the regular run.
 acceptance_jobs=$(jq -r '
     .[]
     | select(.name | contains("acceptance ("))
@@ -41,7 +42,7 @@ acceptance_jobs=$(jq -r '
         conclusion: $job.conclusion,
         sort: [
           ($parsed.name == "Install"),          # Install last
-          ($parsed.major == "major"),           # non-major first
+          ($parsed.major != null),              # non-major first
           ($parsed.php),                        # PHP version
           ($parsed.shard | tonumber),           # shard order
           ($parsed.currents == "false")         # currents=false last
@@ -67,4 +68,4 @@ while IFS=';' read -r job_id job_name job_conclusion; do
 done <<<"$acceptance_jobs"
 
 payload=$(jq --null-input --arg message "$(printf '%b' "$message")" '{"message": $message}')
-curl --silent --request POST --url "${SLACK_ATS_WORKFLOW_URL}" --header "Content-Type: application/json" --data "${payload}"
+curl --fail-with-body --silent --show-error --request POST --url "${SLACK_ATS_WORKFLOW_URL}" --header "Content-Type: application/json" --data "${payload}"

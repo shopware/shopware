@@ -48,7 +48,7 @@ final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
             new EqualsFilter('filters.type', 'since'),
         ]));
 
-        $streamIds = $this->productStreamRepository->searchIds($criteria, $context)->getIds();
+        $streamIds = $this->productStreamRepository->searchIds($criteria, $context)->getPrimaryKeyData();
         if ($streamIds === []) {
             return;
         }
@@ -56,11 +56,10 @@ final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
         // Touch the streams so cache invalidation subscribers (e.g. stream HTTP cache tags) fire.
         // ProductStreamUpdater::update() skips re-indexing when no filter property changed, so the
         // mapping update has to be triggered explicitly below.
-        $data = array_map(static fn (string $id) => ['id' => $id], $streamIds);
-        $this->productStreamRepository->update($data, $context);
+        $this->productStreamRepository->update($streamIds, $context);
 
         foreach ($streamIds as $streamId) {
-            $message = new ProductStreamMappingIndexingMessage($streamId);
+            $message = new ProductStreamMappingIndexingMessage($streamId['id']);
             $message->setIndexer(ProductStreamUpdater::INDEXER_NAME);
             $this->messageBus->dispatch($message);
         }

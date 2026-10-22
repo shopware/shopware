@@ -104,6 +104,9 @@ export interface ModuleManifest {
     };
     entity?: string;
     entityDisplayProperty?: string;
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Snippets are loaded from the `snippet` folders by the initial snippets request.
+     */
     snippets?: {
         [lang: string]: unknown;
     };
@@ -187,6 +190,13 @@ function registerModule(moduleId: string, module: ModuleManifest): false | Modul
             'Abort registration.',
         );
         return false;
+    }
+
+    if (hasOwnProperty(module, 'snippets')) {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_8_0_0',
+            `Module "${moduleId}": the "snippets" property is deprecated and will be removed in v6.8.0. Snippets are loaded from the "snippet" folders automatically.`,
+        );
     }
 
     if (!hasOwnProperty(module, 'display')) {
@@ -412,25 +422,20 @@ function createRouteComponentList(route: SwRouteConfig, moduleId: string, module
 
     const componentList: { [componentKey: string]: ComponentConfig } = {};
     const routeComponents = route.components ?? {};
-    Object.entries(routeComponents).forEach(
-        ([
-            componentKey,
-            component,
-        ]) => {
-            // Don't register a component without a name
-            if (!component) {
-                warn(
-                    'ModuleFactory',
-                    `The route definition of module "${moduleId}" is not valid.
+    Object.entries(routeComponents).forEach(([componentKey, component]) => {
+        // Don't register a component without a name
+        if (!component) {
+            warn(
+                'ModuleFactory',
+                `The route definition of module "${moduleId}" is not valid.
                     A route needs an assigned component name.`,
-                );
-                return;
-            }
+            );
+            return;
+        }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            componentList[componentKey] = component;
-        },
-    );
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        componentList[componentKey] = component;
+    });
 
     // @ts-expect-error
     route.components = componentList;
@@ -473,6 +478,8 @@ function getModuleByEntityName(entityName: string): ModuleDefinition | undefined
 
 /**
  * Returns a list of all module specific snippets
+ *
+ * @deprecated tag:v6.8.0 - Will be removed together with the module manifest `snippets` property.
  */
 function getModuleSnippets(): { [lang: string]: Snippets | undefined } {
     return Array.from(modules.values()).reduce<{

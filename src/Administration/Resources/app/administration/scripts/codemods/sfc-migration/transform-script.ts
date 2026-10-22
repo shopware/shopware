@@ -42,6 +42,7 @@ import {
     resolveMixins,
 } from './option-handlers';
 import { rewriteMemberFn, rewriteThis } from './rewrite-this';
+import { PUBLISHED_COMPOSABLES } from './composables';
 
 type ScriptResult = {
     script: string | null;
@@ -57,10 +58,7 @@ function todoBlock(entry: TodoEntry): string {
     ];
 
     if (entry.checks) {
-        return [
-            ...lines,
-            ...entry.checks.map((check) => `// - ${check}`),
-        ].join('\n');
+        return [...lines, ...entry.checks.map((check) => `// - ${check}`)].join('\n');
     }
 
     if (!entry.code) {
@@ -69,11 +67,7 @@ function todoBlock(entry: TodoEntry): string {
 
     const codeLines = entry.code.split('\n').map((line) => `// ${line}`);
 
-    return [
-        ...lines.slice(0, -1),
-        `${lines[lines.length - 1]} — original code:`,
-        ...codeLines,
-    ].join('\n');
+    return [...lines.slice(0, -1), `${lines[lines.length - 1]} — original code:`, ...codeLines].join('\n');
 }
 
 /**
@@ -112,12 +106,7 @@ function emitsArgument(ctx: Ctx, collected: Collected, mixinEvents: string[], us
         // that reaches here always parses.
         const declared = collected.emitsNode ? (emitsEventNames(collected.emitsNode) as string[]) : ctx.inferredEmits;
 
-        return eventList([
-            ...new Set([
-                ...declared,
-                ...mixinEvents,
-            ]),
-        ]);
+        return eventList([...new Set([...declared, ...mixinEvents])]);
     }
 
     if (collected.emitsNode) {
@@ -147,6 +136,22 @@ function propsArgument(ctx: Ctx, collected: Collected, usesProps: boolean): stri
 }
 
 /**
+ * The import lines of the composables replacing the mixins. The Administration and extensions import them
+ * the same way, from `shopware:composables`. Only an unpublished one, which resolveMixins refuses for an
+ * extension, falls back to its Administration file.
+ */
+function composableImports(composables: ResolvedComposable[]): string[] {
+    const imports = composables.map(({ descriptor }) => descriptor.import);
+    const published = imports.filter(({ name }) => PUBLISHED_COMPOSABLES.has(name)).map(({ name }) => name);
+    const unpublished = imports.filter(({ name }) => !PUBLISHED_COMPOSABLES.has(name));
+
+    return [
+        ...(published.length > 0 ? [`import { ${published.join(', ')} } from 'shopware:composables';`] : []),
+        ...unpublished.map(({ name, source }) => `import ${name} from '${source}';`),
+    ];
+}
+
+/**
  * The render phase: collected descriptors plus the rewritten MagicString become the `<script setup>`
  * body. Every `snip()` below reads text the rewrite pass already touched, so this must run last.
  */
@@ -173,9 +178,7 @@ function renderScript(
         ...(ctx.helpers.has('route') ? ['useRoute'] : []),
     ];
 
-    const mixinEvents = [
-        ...new Set(composables.flatMap(({ descriptor }) => Object.values(descriptor.emits ?? {}))),
-    ];
+    const mixinEvents = [...new Set(composables.flatMap(({ descriptor }) => Object.values(descriptor.emits ?? {})))];
     const emitsText = emitsArgument(ctx, collected, mixinEvents, usesEmit);
     const propsText = propsArgument(ctx, collected, usesProps);
 
@@ -185,7 +188,7 @@ function renderScript(
         vueImports.length > 0 ? `import { ${vueImports.join(', ')} } from 'vue';` : null,
         ctx.helpers.has('t') ? "import { useI18n } from 'vue-i18n';" : null,
         routerImports.length > 0 ? `import { ${routerImports.join(', ')} } from 'vue-router';` : null,
-        ...composables.map(({ descriptor }) => `import ${descriptor.import.name} from '${descriptor.import.source}';`),
+        ...composableImports(composables),
     ]
         .filter(Boolean)
         .join('\n');
@@ -204,10 +207,7 @@ function renderScript(
     const injectBlock = collected.injects.map((injectName) => `const ${injectName} = inject('${injectName}');`).join('\n');
     const composableBlock = composables
         .map(({ descriptor, entries, args, config }) => {
-            const callArgs = [
-                ...args,
-                ...config.map((entry) => `${entry.key}: ${snip(ctx, entry.valueNode)}`),
-            ];
+            const callArgs = [...args, ...config.map((entry) => `${entry.key}: ${snip(ctx, entry.valueNode)}`)];
             const call = `${descriptor.import.name}(${callArgs.length > 0 ? `{ ${callArgs.join(', ')} }` : ''});`;
             const destructured = entries
                 .map((entry) =>
@@ -291,6 +291,7 @@ function transformScript(
         templateImportRange: { start: number; end: number };
         templateIdentifiers: ReadonlySet<string>;
         templateComponentTags: ReadonlySet<string>;
+        extensionTarget?: boolean;
     },
 ): ScriptResult {
     const ctx: Ctx = {
@@ -306,6 +307,7 @@ function transformScript(
         helpers: new Set(),
         inferredEmits: [],
         reports: [],
+        extensionTarget: transformOptions.extensionTarget ?? false,
     };
 
     const reasonsOf = (kind: ReportKind): string[] =>
@@ -368,10 +370,7 @@ function transformScript(
     // A template resolves a component tag against setup bindings first, so a binding named after a
     // tag the template renders replaces that component with the binding's value. Props are included
     // because they become setup bindings too, and are where this shows up in practice.
-    for (const bindingName of [
-        ...setupBindingNames,
-        ...collected.propNames,
-    ]) {
+    for (const bindingName of [...setupBindingNames, ...collected.propNames]) {
         if (ctx.templateComponentTags.has(bindingName)) {
             report(ctx, 'skip', `binding '${bindingName}' shadows a component tag the template renders`);
         }

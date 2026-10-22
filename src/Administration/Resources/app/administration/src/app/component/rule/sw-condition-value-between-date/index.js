@@ -21,11 +21,7 @@ export default {
             type: String,
             required: false,
             default: 'date',
-            validator: (value) =>
-                [
-                    'date',
-                    'datetime',
-                ].includes(value),
+            validator: (value) => ['date', 'datetime'].includes(value),
         },
 
         disabled: {

@@ -10,10 +10,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'acl',
-        'repositoryFactory',
-    ],
+    inject: ['acl', 'repositoryFactory'],
 
     props: {
         discount: {
@@ -25,11 +22,7 @@ export default {
             type: String,
             required: true,
             validator(value) {
-                return [
-                    'basic',
-                    'buy-x-get-y',
-                    'shipping-discount',
-                ].includes(value);
+                return ['basic', 'buy-x-get-y', 'shipping-discount'].includes(value);
             },
         },
 
@@ -53,10 +46,7 @@ export default {
             type: String,
             required: false,
             validator(value) {
-                return [
-                    'ALL',
-                    'SELECT',
-                ].includes(value);
+                return ['ALL', 'SELECT'].includes(value);
             },
             default() {
                 return 'ALL';
@@ -75,10 +65,7 @@ export default {
 
     computed: {
         isPercentageType() {
-            return [
-                'percentage',
-                'free',
-            ].includes(this.discount.type);
+            return ['percentage', 'free'].includes(this.discount.type);
         },
 
         labelValue() {
@@ -86,11 +73,7 @@ export default {
         },
 
         showAdvancedPricesLink() {
-            return [
-                'absolute',
-                'fixed',
-                'fixed_unit',
-            ].includes(this.discount.type);
+            return ['absolute', 'fixed', 'fixed_unit'].includes(this.discount.type);
         },
 
         currencyPriceColumns() {

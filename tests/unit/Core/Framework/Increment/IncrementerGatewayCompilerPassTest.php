@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\ArrayIncrementer;
 use Shopware\Core\Framework\Increment\IncrementerGatewayCompilerPass;
+use Shopware\Core\Framework\Increment\IncrementException;
 use Shopware\Core\Framework\Increment\MySQLIncrementer;
 use Shopware\Core\Framework\Increment\RedisIncrementer;
 use Shopware\Core\Framework\Log\Package;
@@ -113,10 +114,8 @@ class IncrementerGatewayCompilerPassTest extends TestCase
 
     public function testInvalidCustomPoolGateway(): void
     {
-        static::expectException(\RuntimeException::class);
         $container = new ContainerBuilder();
-        $container->setParameter('shopware.increment', ['custom_pool' => []]);
-        $container->setParameter('shopware.increment.custom_pool.type', 'custom_type');
+        $container->setParameter('shopware.increment', ['custom_pool' => ['type' => 'custom_type']]);
 
         $customGateway = new class {
             public function getPool(): string
@@ -128,13 +127,12 @@ class IncrementerGatewayCompilerPassTest extends TestCase
         $container->setDefinition('shopware.increment.custom_pool.gateway.custom_type', new Definition($customGateway::class));
 
         $entityCompilerPass = new IncrementerGatewayCompilerPass();
-        $entityCompilerPass->process($container);
 
-        // custom_pool pool is registered
-        static::assertTrue($container->hasDefinition('shopware.increment.custom_pool.gateway.custom_type'));
-        $definition = $container->getDefinition('shopware.increment.custom_pool.gateway.custom_type');
-        static::assertSame($customGateway::class, $definition->getClass());
-        static::assertTrue($definition->hasTag('shopware.increment.gateway'));
+        static::expectExceptionObject(
+            IncrementException::wrongGatewayClass('shopware.increment.custom_pool.gateway.custom_type', AbstractIncrementer::class)
+        );
+
+        $entityCompilerPass->process($container);
     }
 
     public function testInvalidType(): void

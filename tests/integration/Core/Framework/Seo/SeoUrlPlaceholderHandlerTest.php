@@ -37,7 +37,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
     protected function setUp(): void
     {
         /** @var Router|MockObject $router */
-        $router = $this->createMock(Router::class);
+        $router = static::createStub(Router::class);
         $router->method('generate')
             ->willReturnCallback(static fn ($name, $params) => match ($name) {
                 ProductPageSeoUrlRoute::ROUTE_NAME => '/detail/' . ($params['productId'] ?? ''),

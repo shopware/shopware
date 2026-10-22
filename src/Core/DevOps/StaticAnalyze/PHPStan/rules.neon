@@ -2,6 +2,7 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpToolResponseRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpReservedToolGroupRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpAdminToolRequiresPrivilegeRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpStoreApiToolAdminAclRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ScheduledTaskTooLowIntervalRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleAreasFlagNotAllowedRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleConditionHasRuleConfigRule
@@ -69,12 +70,6 @@ rules:
 services:
     - # needs the analysis parser to read inherited fixture methods from abstract test-case ancestors
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoCreateMockWithoutExpectationsRule
-        arguments:
-            parser: @defaultAnalysisParser
-        tags:
-            - phpstan.rules.rule
-    - # needs the analysis parser to read the methods a Store API MCP tool inherits from a parent class or trait
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpStoreApiToolAdminAclRule
         arguments:
             parser: @defaultAnalysisParser
         tags:

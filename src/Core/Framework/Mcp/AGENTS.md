@@ -129,7 +129,8 @@ Store API tools declare neither ACL attribute nor call `requirePrivilege()`, bec
 PHPStan enforces this with two rules:
 
 - `shopware.mcpAdminToolMissingRequires` (`McpAdminToolRequiresPrivilegeRule`) reports an Admin API tool with neither attribute, or with both.
-- `shopware.mcpStoreApiToolAdminAcl` (`McpStoreApiToolAdminAclRule`) reports a Store API tool with `#[McpToolRequires]` or a `requirePrivilege()` call, including calls it inherits unchanged from a parent class or a trait.
+- `shopware.mcpStoreApiToolAdminAcl` (`McpStoreApiToolAdminAclRule`) reports a Store API tool with `#[McpToolRequires]` or a `requirePrivilege()` call in its own class.
+  Inherited calls are not followed. They are harmless, because `requirePrivilege()` always passes outside an Admin API context.
 
 Both read the server from the container tags (`McpToolScopeResolver`), one service definition at a time.
 A class registered on both servers gets both rules, so it can only use `#[McpToolRequiresNoPrivilege]`.

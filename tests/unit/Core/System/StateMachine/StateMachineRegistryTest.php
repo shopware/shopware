@@ -52,7 +52,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 #[Package('checkout')]
 #[CoversClass(StateMachineRegistry::class)]
-#[CoversClass(StateMachineTransitionResult::class)]
 class StateMachineRegistryTest extends TestCase
 {
     private int $transactionalCalls = 0;

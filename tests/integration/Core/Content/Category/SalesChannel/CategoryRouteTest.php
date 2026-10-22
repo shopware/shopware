@@ -14,10 +14,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Util\Base64;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Integration\Core\Content\Category\SalesChannel\fixtures\CategoryRouteInheritanceFixtures;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -103,6 +106,63 @@ class CategoryRouteTest extends TestCase
             static::assertSame(['name', 'tax', 'manufacturer', 'id', 'apiAlias'], array_keys($product));
             static::assertSame(['name', 'id', 'apiAlias'], array_keys($product['tax']));
         }
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    #[DataProvider('requestParameterProvider')]
+    public function testCompressedCriteriaIsReadLikeTheRequestBody(array $parameters): void
+    {
+        $this->createListingData();
+        $url = '/store-api/category/' . $this->ids->get('category');
+
+        $this->browser->request('POST', $url);
+        $withoutParameters = $this->decodeResponse();
+
+        $this->browser->request('POST', $url, $parameters);
+        $expected = $this->decodeResponse();
+        static::assertNotSame($withoutParameters, $expected, 'The parameters have to change the response');
+
+        $this->browser->request('GET', $url, ['_criteria' => self::compress($parameters)]);
+
+        static::assertSame($expected, $this->decodeResponse());
+    }
+
+    /**
+     * @return iterable<string, array{parameters: array<string, mixed>}>
+     */
+    public static function requestParameterProvider(): iterable
+    {
+        yield 'limit of the product listing' => [
+            'parameters' => ['limit' => 1],
+        ];
+
+        yield 'included fields of the response' => [
+            'parameters' => ['includes' => ['category' => ['id', 'name']]],
+        ];
+
+        yield 'excluded fields of the response' => [
+            'parameters' => ['excludes' => ['category' => ['cmsPage']]],
+        ];
+
+        yield 'slots of the CMS page, no slot has the given id' => [
+            'parameters' => ['slots' => '0198c5a1f2d97c3e9b4a6d5e7f801234'],
+        ];
+    }
+
+    public function testIncludesThatAreNotAnArrayAreRejected(): void
+    {
+        $this->createListingData();
+
+        $this->browser->request(
+            'GET',
+            '/store-api/category/' . $this->ids->get('category'),
+            ['includes' => '{"category":["id"]}']
+        );
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(SalesChannelException::INVALID_TYPE, $this->decodeResponse()['errors'][0]['code']);
     }
 
     public function testHome(): void
@@ -358,6 +418,28 @@ class CategoryRouteTest extends TestCase
             'languageId' => self::LANGUAGE_IDS['de'],
             'url' => $url . '/de',
         ]], $context);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function decodeResponse(): array
+    {
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+
+        return json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    private static function compress(array $parameters): string
+    {
+        $compressed = gzencode(json_encode($parameters, \JSON_THROW_ON_ERROR));
+        static::assertNotFalse($compressed, 'Gzip compressing failed');
+
+        return Base64::urlEncode($compressed);
     }
 
     private function assertError(string $categoryId): void

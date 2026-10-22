@@ -97,15 +97,10 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             $data->remove('accountType');
         }
 
-        $isBusinessAccount = $data->has('accountType')
-            ? $data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
-            : $customer->isBusinessAccount();
+        $keepsAccountType = !$data->has('accountType');
+        $accountType = $keepsAccountType ? $customer->getAccountType() : $data->get('accountType');
 
-        if ($isBusinessAccount) {
-            if (!$data->has('vatIds') && $customer->getVatIds() !== null) {
-                $data->set('vatIds', $customer->getVatIds());
-            }
-
+        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
             if ($this->companyAccountNameFields->areOptional($data, $customer, $context->getSalesChannelId())) {
                 $this->companyAccountNameFields->makeNamesOptional($validation, requireCompany: true);
                 $this->companyAccountNameFields->normalize($data, submittedOnly: true);
@@ -113,13 +108,13 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
                 if (!$data->has('company')) {
                     $data->set('company', $customer->getCompany() ?? '');
                 }
-            } elseif ($data->has('company') || $data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            } elseif (!$keepsAccountType || $data->has('company')) {
                 $data->set('company', $data->get('company') ?? '');
                 $validation->add('company', CompanyAccountNameFields::companyNotBlank());
             }
 
-            $billingAddress = $customer->getDefaultBillingAddress();
-            if ($billingAddress) {
+            $billingAddress = $customer->getActiveBillingAddress();
+            if ($billingAddress && (!$keepsAccountType || $data->has('vatIds'))) {
                 $this->addVatIdsValidation($validation, $billingAddress);
             }
         } else {
@@ -143,13 +138,15 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 
         $customerData = $data->only('firstName', 'lastName', 'salutationId', 'title', 'company', 'accountType');
 
-        $vatIds = $data->get('vatIds');
+        if (!$keepsAccountType || $data->has('vatIds')) {
+            $vatIds = $data->get('vatIds');
 
-        if ($vatIds instanceof DataBag) {
-            $vatIds = $vatIds->all();
+            if ($vatIds instanceof DataBag) {
+                $vatIds = $vatIds->all();
+            }
+
+            $customerData['vatIds'] = $vatIds;
         }
-
-        $customerData['vatIds'] = $vatIds;
 
         if ($birthday = $this->getBirthday($data)) {
             $customerData['birthday'] = $birthday;

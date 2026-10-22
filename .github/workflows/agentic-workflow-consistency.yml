@@ -64,14 +64,11 @@ jobs:
           node-version: '24'
           package-manager-cache: false
 
-      # Deterministic classification of real PR diffs (no LLM). Node runs the TypeScript
-      # directly (type stripping, no build step). The routing test fails on an empty
-      # fixture directory, so it cannot pass without evaluating cases. The grader library
-      # stays Bash because skillgrade mounts it into the eval workspaces.
-      - name: Check grader syntax
-        run: bash -n .agents/skills/sw-review/tests/_lib.sh
-
-      - name: Run classifier unit tests and routing cases
+      # Deterministic classification of real PR diffs and the eval graders (no LLM). Node
+      # runs the TypeScript directly (type stripping, no build step). The routing test fails
+      # on an empty fixture directory, so it cannot pass without evaluating cases. The grader
+      # test runs every eval grader once, so a grader that does not load fails here.
+      - name: Run classifier unit tests, routing cases and grader tests
         run: |
           set -euo pipefail
-          node --test .agents/skills/sw-review/scripts/*.test.ts .agents/skills/sw-review/tests/routing/*.test.ts
+          node --test .agents/skills/sw-review/scripts/*.test.ts .agents/skills/sw-review/tests/*.test.ts .agents/skills/sw-review/tests/routing/*.test.ts

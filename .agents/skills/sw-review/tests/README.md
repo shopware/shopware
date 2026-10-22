@@ -12,21 +12,22 @@ End-to-end evals for the `.agents/skills/sw-review` PR-review skill. Built on
 tests/
 ├── eval.yaml   # persona and guide task definitions
 ├── routing/    # deterministic classify.ts cases (routing.test.ts)
-├── _lib.sh     # shared check/emit helpers (mounted into every workspace)
-└── persona/<persona>/{catch,ignore}/{input.json, diff.patch, grader.sh}
+├── _lib.ts     # shared grader helpers (mounted into every workspace)
+├── _lib.test.ts  # unit tests of _lib.ts, runs every grader once
+├── guide/<guide>/<case>/{input.json, diff.patch, grader.ts}
+└── persona/<persona>/{catch,ignore}/{input.json, diff.patch, grader.ts}
 ```
 
 ## Prerequisites
 
 - Node 22.18+ (runs the TypeScript scripts directly; `npm i -g skillgrade` for the evals)
 - `zod` global (`npm i -g zod` — skillgrade has an unbundled peer dep)
-- `jq`
 - `claude` CLI on `$PATH` with an authenticated session
 
 ## Routing tests (no LLM, run on every change)
 
 ```bash
-node --test scripts/*.test.ts tests/routing/*.test.ts   # from the skill root
+node --test scripts/*.test.ts tests/*.test.ts tests/routing/*.test.ts   # from the skill root
 ```
 
 Each case under `tests/routing/<case>/` holds a real PR diff plus `expected.json`
@@ -34,6 +35,7 @@ Each case under `tests/routing/<case>/` holds a real PR diff plus `expected.json
 set). These run in seconds and prove that `scripts/classify.ts` routes the same
 way every time; `scripts/classify.test.ts` and `scripts/ci-profile.test.ts` are
 the unit tests of the scripts themselves.
+`tests/_lib.test.ts` covers the grader helpers and runs every grader once against an empty review, which an ignore case must pass and a catch case must fail.
 
 ## Running
 

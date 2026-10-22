@@ -216,7 +216,18 @@ class DebugMcpCommandTest extends TestCase
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
-        $tester->execute(['name' => 'my-tool']);
+
+        // A warning alone does not fail the test, so turn it into an exception: the guard was dropped twice
+        // by PHPStan updates while this test stayed green.
+        set_error_handler(static function (int $errno, string $errstr): never {
+            throw new \ErrorException($errstr, 0, $errno);
+        });
+
+        try {
+            $tester->execute(['name' => 'my-tool']);
+        } finally {
+            restore_error_handler();
+        }
 
         static::assertSame(0, $tester->getStatusCode());
 

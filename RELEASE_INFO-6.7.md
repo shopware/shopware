@@ -62,11 +62,14 @@ Tool results of `/api/_mcp` and `/store-api/_mcp` now take their format from the
   It is kept for these clients and is not removed in 6.8.0.
   `McpToolResponse::success()` and `::error()` stay; tools don't need to change.
 
-### Large MCP results of every tool are stored and linked
+### Large MCP results in the result envelope are stored and linked for every tool
 
-The MCP result renderer now decides whether a tool result is too large to return inline, for every tool on `/api/_mcp` and `/store-api/_mcp`.
-Results of app tools and of plugin tools that build their JSON string by hand, which were always returned inline, are now stored like the results of `McpToolResponse::success()` and sent as a `resource_link` (2025-06-18 and later) or with `_meta.resourceUri` in the envelope (before 2025-06-18).
-The model reads them with `resources/read`.
+The MCP result renderer now decides whether a tool result is too large to return inline, on `/api/_mcp` and `/store-api/_mcp`.
+It renders every result in the `{"success": …}` envelope, meaning a JSON string with a boolean `success`, no matter whether it comes from `McpToolResponse::success()`, an app tool, or a plugin tool that builds the string by hand.
+Such results, which were always returned inline unless they came from `McpToolResponse::success()`, are now stored when they are too large and sent as a `resource_link` (2025-06-18 and later) or with `_meta.resourceUri` in the envelope (before 2025-06-18).
+A tool result that is not in this envelope, such as plain text, is passed through unchanged and is never stored.
+On 2025-06-18 and later, results of a tool that declares an `outputSchema` are never stored, because a link carries no `structuredContent` that could match the schema; such a tool has to keep its results small itself.
+The model reads stored results with `resources/read`.
 `McpToolResponse::success()` itself no longer stores anything and always returns the full data, so a tool called outside of an MCP request gets its complete result.
 The limit applies to the rendered result, the text plus `structuredContent`, and is set so that the offload point stays at about 100 KB of data.
 The linked response keeps the tool's summary, its own links, and its metadata up to 10 KB; larger metadata values are named in `_meta.omittedMeta`.

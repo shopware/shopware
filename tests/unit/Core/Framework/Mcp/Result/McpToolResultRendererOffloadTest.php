@@ -256,6 +256,33 @@ class McpToolResultRendererOffloadTest extends TestCase
         static::assertSame([], $this->linkUris($result));
     }
 
+    /**
+     * A link has no `structuredContent`, which a client that validates it against the `outputSchema` rejects.
+     */
+    #[DataProvider('specRevisionProvider')]
+    public function testKeepsALargeResultOfAToolWithAnOutputSchemaInline(ProtocolVersion $protocolVersion): void
+    {
+        $this->requestStack->push($this->adminRequest());
+        $this->storage->expects($this->never())->method('storeFor');
+
+        $result = $this->renderer->render($this->parsed(250_000), $protocolVersion, $this->legacyText(250_000), hasOutputSchema: true);
+
+        static::assertSame(['blob' => str_repeat('x', 250_000)], $result->structuredContent);
+        static::assertSame([], $this->linkUris($result));
+    }
+
+    #[DataProvider('legacyRevisionProvider')]
+    public function testStoresALargeResultOfAToolWithAnOutputSchemaBefore20250618(ProtocolVersion $protocolVersion): void
+    {
+        $this->requestStack->push($this->adminRequest());
+        $this->storage->expects($this->once())->method('storeFor')->willReturn($this->pointer());
+
+        $result = $this->renderer->render($this->parsed(110_000), $protocolVersion, $this->legacyText(110_000), hasOutputSchema: true);
+
+        $text = json_decode($this->text($result->content[0]), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(self::URI, $text['_meta']['resourceUri']);
+    }
+
     public function testNeverStoresAFailure(): void
     {
         $this->requestStack->push($this->adminRequest());

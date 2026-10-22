@@ -58,6 +58,21 @@ class AppContextFactoryTest extends TestCase
         static::assertFalse($source->isAdmin());
     }
 
+    public function testChangedPermissionListDoesNotReachALaterContext(): void
+    {
+        $factory = AppContextFactory::forApp($this->createHookContext(), Uuid::randomHex(), ['product:read']);
+
+        $changedSource = $factory->create()->getSource();
+        static::assertInstanceOf(AdminApiSource::class, $changedSource);
+        $changedSource->setPermissions(['product:read', 'tax:create']);
+
+        $source = $factory->create()->getSource();
+
+        static::assertInstanceOf(AdminApiSource::class, $source);
+        static::assertSame(['product:read'], $source->getPermissions());
+        static::assertFalse($source->isAllowed('tax:create'));
+    }
+
     public function testAppContextGetsItsOwnRoundingConfig(): void
     {
         $hookContext = $this->createHookContext();

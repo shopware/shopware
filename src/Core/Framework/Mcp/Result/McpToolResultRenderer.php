@@ -31,8 +31,10 @@ use Symfony\Component\HttpFoundation\RequestStack;
  *   all these revisions can carry.
  *
  * It also decides about size: a successful result whose rendered form exceeds the limit of the
- * negotiated revision is stored for the calling principal and sent as a link, whichever tool or app
- * produced it.
+ * negotiated revision is stored for the calling principal and sent as a link. That covers every result
+ * that reaches the renderer, a {@see McpToolResult} or a string with the legacy envelope, see
+ * {@see McpToolResultReferenceHandler}. Since 2025-06-18 a tool with an `outputSchema` is never stored,
+ * because the link has no `structuredContent` that could conform to the schema.
  */
 #[Package('framework')]
 class McpToolResultRenderer
@@ -94,6 +96,13 @@ class McpToolResultRenderer
         $capabilities = McpToolResultCapabilities::forRevision($protocolVersion);
         $rendered = $this->renderInline($result, $capabilities, $legacyText, $hasOutputSchema);
         if ($result->isError()) {
+            return $rendered;
+        }
+
+        // A linked result has no `structuredContent`, which a client that validates it against the tool's
+        // `outputSchema` rejects. Such a tool keeps its result inline and bounds its size itself. Before
+        // 2025-06-18 there is no `structuredContent` to validate, so the result is stored as usual.
+        if ($hasOutputSchema && $capabilities->specFormat) {
             return $rendered;
         }
 

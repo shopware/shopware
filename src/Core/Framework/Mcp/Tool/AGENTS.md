@@ -173,7 +173,12 @@ The negotiated protocol revision picks the format, never a feature flag.
 - **Before 2025-06-18 (legacy envelope, deprecated):** the only text block is the tool's `{"success": …}` string as it returned it, or the envelope rebuilt from a `McpToolResult` (data, metadata, error message and code, but no summary or error details).
   These revisions have no `structuredContent` and no `resource_link`.
   The envelope is deprecated as a wire format and stays for these clients; it is not scheduled for removal
-- **Large results.** The renderer measures the text blocks plus the encoded `structuredContent` of every successful result, from core, plugin, bundle and app tools and hand-built strings alike.
+- **Large results.** The renderer measures the text blocks plus the encoded `structuredContent` of every successful result it renders.
+  That is a `McpToolResult`, or a string whose JSON has a boolean `success` (`McpToolResultParser`), from core, plugin, bundle and app tools alike, including a hand-built string in that envelope.
+  Anything else, such as plain text or JSON without a boolean `success`, passes through `McpToolResultReferenceHandler` unchanged and is never measured or stored.
+  Since 2025-06-18 a tool that declares an `outputSchema` is never stored either: the link has no `structuredContent`, so a client that validates it against the schema would reject the result.
+  Such a tool keeps its result inline at any size and has to bound it itself, for example with a `limit`.
+  Before 2025-06-18 there is no `structuredContent` to validate, so its results are stored like any other.
   Above `McpToolResultRenderer::MAX_INLINE_SIZE` (200 KB, or `MAX_INLINE_SIZE_TEXT_ONLY`, 100 KB, before 2025-06-18, which has no `structuredContent`), so at about 100 KB of data on every revision, the result is stored in `mcp_tool_result_cache` with `ToolResultCacheStorage::storeFor()` and replaced by a link.
   The stored content follows the negotiated revision (`McpToolResultStoredFormat`, kept in the `mime_type` column).
   Since 2025-06-18 it is the plain data, whose metadata goes out with the link.

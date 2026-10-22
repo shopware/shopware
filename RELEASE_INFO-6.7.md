@@ -69,6 +69,14 @@ With the `v6.8.0.0` feature flag, `_meta.resourceUri` is left out of the text wh
 For clients on protocol revision 2025-06-18 or later, `resources/read` of a stored result returns the plain data instead of the `{"success": true, "data": …}` envelope, with or without the feature flag.
 Its metadata, such as `total`, comes with the link in the tool result.
 Clients on 2024-11-05 and 2025-03-26 keep reading the envelope.
+### Business customers need a VAT ID for countries that require one
+
+If the country of the active billing address has "VAT Reg.No. required" enabled, the cart of a business customer without a VAT ID now carries the blocking error `vat-id-missing`, and the order can't be placed.
+This also covers customers who registered before the setting was enabled or who switched to a billing address in such a country later.
+Store API clients should show the error and let the customer add the VAT ID via `/store-api/account/change-profile`.
+That route now validates `vatIds` against the country of the active billing address instead of the default one, the same country the cart checks.
+Headless clients find that address as `customer.activeBillingAddress` in `/store-api/context`.
+The Storefront profile page marks the VAT ID field as required based on the same country.
 
 ## API
 
@@ -102,6 +110,12 @@ class MyCategoryTypeProvider implements FieldEnumProviderInterface
     }
 }
 ```
+### Profile updates without `accountType` keep the account type
+
+`/store-api/account/change-profile` now keeps the customer's current account type when the request doesn't contain `accountType`.
+For a business customer, `company` and `vatIds` are then only changed when the request contains them, and they are validated as for `business`.
+Before, such a request cleared both, while the customer stayed a business customer.
+Requests that send `accountType` behave as before.
 
 ## Features
 
@@ -166,6 +180,21 @@ Until 6.8, Shopware rewrites them when the flag is active and logs a warning for
 If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0.6 or newer, because older versions ignore negated patterns.
 
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
+
+## Storefront
+
+### Guests can open the profile page
+
+Guests can now open and save the profile page to correct their personal data, company and VAT ID, for example when the cart reports `vat-id-missing`.
+The e-mail, password and account deletion sections stay hidden for guests, and their routes still reject them.
+The profile form keeps a `redirectTo` parameter, which the `vat-id-missing` error uses to send the customer back to the checkout after saving.
+Themes that override blocks of the personal data form in `page/account/profile/index.html.twig` should check that the content also suits guests.
+
+### Business customers keep company and VAT ID when saving the profile
+
+The profile page now shows company and VAT ID for business customers even when "Show selection between company and customer account" is disabled, and saving it keeps their account type.
+Before, saving the profile without that setting removed the company and the VAT IDs of business customers.
+Themes that override `component_address_personal_company_section`, `component_address_personal_company` or `component_address_personal_vat_id` in `component/address/address-personal.html.twig` should check that the content also suits this case.
 
 ## Hosting & Configuration
 

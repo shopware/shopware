@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -429,7 +430,7 @@ class DocumentV2ControllerTest extends TestCase
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
 
         $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame(DocumentV2Exception::MISSING_PRIVILEGE, $payload['errors'][0]['code'] ?? null);
+        static::assertSame(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, $payload['errors'][0]['code'] ?? null);
     }
 
     public function testUploadAcceptsMediaFromTheDocumentFolder(): void

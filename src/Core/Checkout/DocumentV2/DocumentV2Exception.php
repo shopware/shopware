@@ -106,8 +106,6 @@ class DocumentV2Exception extends HttpException
      */
     public const DOCUMENT_TYPE_RESERVED_IDENTIFIER = 'DOCUMENT_V2__DOCUMENT_TYPE_RESERVED_IDENTIFIER';
 
-    public const MISSING_PRIVILEGE = 'DOCUMENT_V2__MISSING_PRIVILEGE';
-
     /**
      * @param list<string> $privileges
      */

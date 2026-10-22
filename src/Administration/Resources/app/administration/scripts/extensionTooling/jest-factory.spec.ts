@@ -113,29 +113,27 @@ describe('extension-tooling jest factory', () => {
         expect(harnessFiles.filter((file) => !file || !path.isAbsolute(file) || !fs.existsSync(file))).toEqual([]);
     });
 
-    it('resolves the presets and plugins of the meta-glob Babel transform into the installed Administration', () => {
-        const babelEntry = Object.values(defaults.transform ?? {}).find((entry) =>
-            transformerPath(entry).includes('babel-jest'),
+    it('sends every JS/TS file through the meta-glob-aware transformer, which picks Babel or SWC by content', () => {
+        const scriptRules = Object.entries(defaults.transform ?? {}).filter(([pattern]) =>
+            ['/admin/src/module/index.js', '/extension/src/module/index.ts'].some((file) => new RegExp(pattern).test(file)),
         );
-        const babelOptions = (Array.isArray(babelEntry) ? babelEntry[1] : {}) as {
-            presets?: unknown[];
-            plugins?: unknown[];
-        };
-        const babelFiles = [...(babelOptions.presets ?? []), ...(babelOptions.plugins ?? [])].map(transformerPath);
+
+        expect(scriptRules.map(([pattern, entry]) => [pattern, transformerPath(entry)])).toEqual([
+            ['^.+\\.[jt]sx?$', path.join(realAdministrationRoot, 'test', 'transformer', 'metaGlobAwareTransformer.js')],
+        ]);
+    });
+
+    it('resolves the presets and plugins of the meta-glob Babel transform into the installed Administration', () => {
+        const scriptEntry = defaults.transform?.['^.+\\.[jt]sx?$'];
+        const babelOptions = (
+            (Array.isArray(scriptEntry) ? scriptEntry[1] : {}) as {
+                babel?: { presets?: unknown[]; plugins?: unknown[] };
+            }
+        ).babel;
+        const babelFiles = [...(babelOptions?.presets ?? []), ...(babelOptions?.plugins ?? [])].map(transformerPath);
 
         expect(babelFiles).toHaveLength(3);
         expect(babelFiles.filter((file) => !path.isAbsolute(file) || !fs.existsSync(file))).toEqual([]);
-    });
-
-    it("sends only the Administration's own import.meta.glob files through the Babel transform", () => {
-        const babelPattern = Object.entries(defaults.transform ?? {}).find(([, entry]) =>
-            transformerPath(entry).includes('babel-jest'),
-        )?.[0];
-        const matchesBabel = (file: string) => new RegExp(String(babelPattern)).test(file);
-
-        expect(matchesBabel(path.join(fs.realpathSync(realAdministrationRoot), 'src/module/index.js'))).toBe(true);
-        expect(matchesBabel(path.join(fs.realpathSync(realAdministrationRoot), 'src/core/service/api/index.ts'))).toBe(true);
-        expect(matchesBabel('/extension/src/module/index.ts')).toBe(false);
     });
 
     it('maps src/ imports into the Administration and leaves packages whose name starts with "src" alone', () => {

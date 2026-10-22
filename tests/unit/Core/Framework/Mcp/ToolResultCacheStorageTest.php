@@ -20,7 +20,6 @@ use Symfony\Component\Clock\NativeClock;
  */
 #[Package('framework')]
 #[CoversClass(ToolResultCacheStorage::class)]
-#[CoversClass(McpToolResultStoredFormat::class)]
 class ToolResultCacheStorageTest extends TestCase
 {
     public function testStoreInsertsRowAndReturnsHexUuid(): void

@@ -4,9 +4,9 @@ namespace Shopware\Core\Framework\Mcp\Loader;
 
 use GuzzleHttp\Client;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Api\OAuth\OAuthResource;
 use Shopware\Core\Framework\App\AppSecretResolver;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
-use Shopware\Core\Framework\Api\OAuth\OAuthResource;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;

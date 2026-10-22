@@ -84,6 +84,38 @@ class FileSaverTest extends TestCase
         );
     }
 
+    #[DataProvider('activeContentTypes')]
+    public function testRejectsActiveContentWithForeignExtension(string $mimeType, string $contentType): void
+    {
+        $media = new MediaEntity();
+        $media->setId(Uuid::randomHex());
+        $media->setPrivate(false);
+        $this->mediaRepository->addSearch(new MediaCollection([$media]), new MediaCollection());
+
+        $this->expectExceptionObject(MediaException::invalidFile(\sprintf('The content type "%s" does not match the file extension "png"', $contentType)));
+
+        $this->fileSaver->persistFileToMedia(
+            new MediaFile('unused', $mimeType, 'png', 10),
+            'image',
+            $media->getId(),
+            Context::createDefaultContext()
+        );
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function activeContentTypes(): iterable
+    {
+        yield 'HTML' => ['text/html', 'text/html'];
+        yield 'HTML with charset' => ['TEXT/HTML; charset=UTF-8', 'text/html'];
+        yield 'XHTML' => ['application/xhtml+xml', 'application/xhtml+xml'];
+        yield 'SVG' => ['image/svg+xml', 'image/svg+xml'];
+        yield 'text XML' => ['text/xml', 'text/xml'];
+        yield 'application XML' => ['application/xml', 'application/xml'];
+        yield 'other XML subtype' => ['application/rss+xml', 'application/rss+xml'];
+    }
+
     #[DataProvider('duplicateFileNameProvider')]
     public function testDuplicatedMediaFileNameInFileSystem(bool $isPrivate): void
     {

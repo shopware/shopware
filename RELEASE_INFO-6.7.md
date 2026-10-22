@@ -62,6 +62,10 @@ With `shopware.media.remote_thumbnails.enable`, SVGs now have an empty `thumbnai
 Before, their `srcset` claimed widths that the returned original file did not have, so browsers rendered small SVG logos far too small.
 Media loaded without the `mediaType` field keep their thumbnail URLs, as the type can't be checked.
 
+### MCP tools can stream progress and elicitation again
+
+MCP tools that call `progress()`, `notify()`, `elicit()` or `elicitUrl()` on the SDK's `ClientGateway` now reach the client as a `text/event-stream` with its headers and frames.
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request

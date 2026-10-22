@@ -125,7 +125,7 @@ class LoginRouteTest extends TestCase
     {
         $email = Uuid::randomHex() . '@straße.de';
         $customerId = $this->createCustomer($email);
-        $storedEmail = $this->customerRepository->search(new Criteria([$customerId]), Context::createDefaultContext())->first()?->getEmail();
+        $storedEmail = $this->customerRepository->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->first()?->getEmail();
 
         static::assertStringEndsWith('@xn--strae-oqa.de', (string) $storedEmail);
 

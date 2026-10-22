@@ -150,7 +150,7 @@ class RegisterRouteTest extends TestCase
         $customer = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame('customer', $customer['apiAlias']);
         $customerId = $customer['id'];
-        $storedCustomer = $this->customerRepository->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+        $storedCustomer = $this->customerRepository->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->first();
         static::assertNotNull($storedCustomer);
         static::assertStringEndsWith('@xn--strae-oqa.de', $storedCustomer->getEmail());
 

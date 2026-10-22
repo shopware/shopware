@@ -296,15 +296,45 @@ class VersionManager
     }
 
     /**
-     * @param array<string, mixed> $overwrites
+     * @param array<array-key, mixed> $overwrites
      */
-    private function validateOverwriteWriteProtection(EntityDefinition $definition, array $overwrites, Context $context): void
+    private function validateOverwriteWriteProtection(EntityDefinition $definition, array $overwrites, Context $context, string $path = ''): void
     {
         foreach ($overwrites as $propertyName => $value) {
+            if (!\is_string($propertyName)) {
+                continue;
+            }
+
+            $fieldPath = $path . '/' . $propertyName;
+
+            if ($propertyName === 'extensions' && \is_array($value)) {
+                $this->validateOverwriteWriteProtection($definition, $value, $context, $fieldPath);
+
+                continue;
+            }
+
             $field = $definition->getFields()->get($propertyName);
             $writeProtection = $field?->getFlag(WriteProtected::class);
 
             if ($writeProtection === null || $writeProtection->isAllowed($context->getScope())) {
+                if (!$field instanceof AssociationField || !\is_array($value)) {
+                    continue;
+                }
+
+                $reference = $this->getCloneReferenceDefinition($field);
+
+                if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
+                    $this->validateOverwriteWriteProtection($reference, $value, $context, $fieldPath);
+
+                    continue;
+                }
+
+                foreach ($value as $index => $nested) {
+                    if (\is_array($nested)) {
+                        $this->validateOverwriteWriteProtection($reference, $nested, $context, $fieldPath . '/' . $index);
+                    }
+                }
+
                 continue;
             }
 
@@ -322,11 +352,11 @@ class VersionManager
                         $message,
                         [$context->getScope(), $allowedScopes],
                         $value,
-                        $propertyName,
+                        '',
                         $value
                     ),
                 ]),
-                '/' . $propertyName
+                $fieldPath
             );
         }
     }

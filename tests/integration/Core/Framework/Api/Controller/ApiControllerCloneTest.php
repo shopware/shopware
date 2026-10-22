@@ -6,7 +6,9 @@ namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -17,6 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 class ApiControllerCloneTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -113,6 +116,38 @@ class ApiControllerCloneTest extends TestCase
 
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+    }
+
+    public function testCloneDoesNotAllowOverwritingNestedMediaFileSize(): void
+    {
+        $browser = $this->getBrowser();
+        $connection = $browser->getContainer()->get(Connection::class);
+        $productId = Uuid::randomHex();
+        $browser->getContainer()->get('product.repository')->create([[
+            'id' => $productId,
+            'name' => 'Clone overwrite test',
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 10, 'linked' => false]],
+            'tax' => ['name' => 'Clone overwrite tax', 'taxRate' => 0],
+        ]], Context::createDefaultContext());
+
+        $productCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM product');
+        $mediaCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM media');
+        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
+            'overwrites' => [
+                'productNumber' => Uuid::randomHex(),
+                'media' => [['media' => ['fileSize' => 1]]],
+            ],
+        ]);
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('FRAMEWORK__WRITE_CONSTRAINT_VIOLATION', $data['errors'][0]['code']);
+        static::assertSame('/media/0/media/fileSize', $data['errors'][0]['source']['pointer']);
+        static::assertSame($productCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM product'));
+        static::assertSame($mediaCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM media'));
     }
 
     public function testCloneDoesNotAllowCloningUser(): void

@@ -277,8 +277,8 @@ The design is recorded in `adr/2026-10-21-mcp-oauth-client-authentication.md`.
   `SymfonyBearerTokenValidatorConsumerTest` lists every service using the validator and fails when one is added; review it for this rule.
 - The consent page forwards `resource` to `GET /api/oauth/authorize/info` and `POST /api/oauth/authorize`, and the info answer returns it so the page says that access is limited to the MCP endpoint.
   An Administration built before resource support drops it: the code is stored without resource and the token request fails with `invalid_target` and a hint to rebuild the Administration.
-- MCP sessions and rate-limit buckets are keyed on the principal (`user-<userId>`), so one user's access key and OAuth token share them.
-  This is intended.
+- A bound token authenticates its user like any other token of that user; MCP sessions and the rate limit treat it no differently.
+  Binding sessions to the principal and keying the rate limit on it are the subject of the related PRs https://github.com/shopware/shopware/pull/21860 and https://github.com/shopware/shopware/pull/21861.
 
 ### Adding an OAuth client
 

@@ -563,6 +563,7 @@ export default [
                 'enableFix',
             ],
             'sw-deprecation-rules/no-sw-tabs-usage': 'error',
+            'sw-deprecation-rules/no-sw-empty-state-usage': 'error',
             'vue/no-useless-template-attributes': 'error',
             'vue/no-lone-template': 'error',
 

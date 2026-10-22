@@ -29,8 +29,8 @@ ruleTester.run('no-vm-access', rule, {
             code: "await wrapper.findComponent('.sw-modal').vm.$emit('modal-close');",
         },
         {
-            name: 'allows simulating an event on the mounted component',
-            code: "wrapper.vm.$emit('update:value', 'new');",
+            name: 'allows simulating an event from a stored child component',
+            code: "const modal = wrapper.findComponent('.sw-modal'); await modal.vm.$emit('modal-close');",
         },
     ],
     invalid: [
@@ -47,6 +47,11 @@ ruleTester.run('no-vm-access', rule, {
         {
             name: 'reports waiting through the component instance',
             code: 'await wrapper.vm.$nextTick();',
+            errors: [{ message }],
+        },
+        {
+            name: 'reports emitting an event on the mounted component',
+            code: "wrapper.vm.$emit('update:value', 'new');",
             errors: [{ message }],
         },
         {

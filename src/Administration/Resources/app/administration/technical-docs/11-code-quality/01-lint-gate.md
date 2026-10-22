@@ -56,6 +56,7 @@ Reviewers of such a pull request check the diff of `eslint-suppressions.json`.
 | `sw-test-rules/no-vm-access` | `*.spec.js`, `*.spec.ts` | Specs assert what a component renders, emits or requests, not its internals through `wrapper.vm` |
 
 `sw-test-rules/no-vm-access` allows `.vm.$emit()`, which is how Vue Test Utils simulates an event from a child or stub.
+It still reports `wrapper.vm.$emit()`, because emitting on the mounted component skips its own code.
 Where a spec has no other way, an inline disable with a reason is allowed, for example `// eslint-disable-next-line sw-test-rules/no-vm-access -- <reason>`.
 
 ## Inline disables

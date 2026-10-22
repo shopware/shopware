@@ -10,7 +10,6 @@ use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassLike;
-use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\NodeFinder;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
@@ -105,16 +104,16 @@ class McpStoreApiToolAdminAclRule implements Rule
      * The inherited methods, as `Declaring::method`, that call requirePrivilege() and run for the tool
      * unchanged: declared in a parent class or a trait and not overridden on the way down.
      *
-     * A public or protected method is resolved against the tool, an override anywhere below its
-     * declaration replaces it. A private method is resolved against the class it lands in, the parent
-     * class or the class using the trait: a same-named method further down does not override it, the
-     * parent's own code keeps calling it.
+     * A declared method runs if one of the methods that run for the tool has its body, see
+     * runningMethodBodies(). Matching the body instead of the name also finds a trait method that lost
+     * an `insteadof` conflict but is still reachable under an `as` alias.
      *
      * @return list<string>
      */
     private function inheritedMethodsCallingRequirePrivilege(ClassReflection $tool): array
     {
         $methods = [];
+        $runningBodies = $this->runningMethodBodies($tool);
 
         foreach ([$tool, ...$tool->getParents()] as $owner) {
             $declarations = $owner === $tool ? [] : [$owner];
@@ -129,8 +128,7 @@ class McpStoreApiToolAdminAclRule implements Rule
                 }
 
                 foreach ($declarationNode->getMethods() as $method) {
-                    $resolvingClass = $method->isPrivate() ? $owner : $tool;
-                    if (!$this->resolvesTo($resolvingClass, $declaration, $method)) {
+                    if (!isset($runningBodies[$this->bodyKey($declaration->getFileName(), $method->getStartLine())])) {
                         continue;
                     }
 
@@ -164,19 +162,40 @@ class McpStoreApiToolAdminAclRule implements Rule
     }
 
     /**
-     * Whether calling the method on the class runs the given declaration and not another one.
+     * The bodies, by file and start line, of the methods that run for the tool, including trait methods
+     * imported under an `as` alias.
+     *
+     * A public or protected method is resolved against the tool, an override anywhere below its
+     * declaration replaces it. A private method is resolved against the class it lands in, the parent
+     * class or the class using the trait: a same-named method further down does not override it, the
+     * parent's own code keeps calling it. The visibility is the one the method has in that class, so an
+     * alias like `as private check` counts as private.
+     *
+     * @return array<string, true>
      */
-    private function resolvesTo(ClassReflection $class, ClassReflection $declaration, ClassMethod $method): bool
+    private function runningMethodBodies(ClassReflection $tool): array
     {
-        $native = $class->getNativeReflection();
-        $name = $method->name->toString();
-        if (!$native->hasMethod($name)) {
-            return false;
+        $bodies = [];
+        foreach ([$tool, ...$tool->getParents()] as $owner) {
+            foreach ($owner->getNativeReflection()->getMethods() as $method) {
+                if ($owner !== $tool && !$method->isPrivate()) {
+                    continue;
+                }
+
+                $fileName = $method->getFileName();
+                $startLine = $method->getStartLine();
+                if (\is_string($fileName) && \is_int($startLine)) {
+                    $bodies[$this->bodyKey($fileName, $startLine)] = true;
+                }
+            }
         }
 
-        $resolved = $native->getMethod($name);
+        return $bodies;
+    }
 
-        return $resolved->getFileName() === $declaration->getFileName() && $resolved->getStartLine() === $method->getStartLine();
+    private function bodyKey(?string $fileName, int $startLine): string
+    {
+        return $fileName . ':' . $startLine;
     }
 
     private function findClassNode(ClassReflection $declaration): ?ClassLike

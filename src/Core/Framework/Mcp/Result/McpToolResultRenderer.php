@@ -58,6 +58,28 @@ class McpToolResultRenderer
     public const MAX_LINKED_META_SIZE = 10_000;
 
     /**
+     * The most keys named in `omittedMeta`; `omittedMetaCount` has the total, so many small keys can't make
+     * the link large again.
+     */
+    public const MAX_OMITTED_META_KEYS = 50;
+
+    /**
+     * The longest key named in `omittedMeta`; a longer one is cut.
+     */
+    public const MAX_OMITTED_META_KEY_LENGTH = 100;
+
+    /**
+     * The most of the tool's own links sent with the link to a stored result. Links beyond it, or beyond
+     * {@see self::MAX_LINKED_LINKS_SIZE}, are left out and counted in `omittedLinkCount`.
+     */
+    public const MAX_LINKED_LINKS = 20;
+
+    /**
+     * The total size of the tool's own links sent with the link to a stored result.
+     */
+    public const MAX_LINKED_LINKS_SIZE = 10_000;
+
+    /**
      * The tool's own summary sent with the link to a stored result; a longer one is cut.
      */
     public const MAX_LINKED_SUMMARY_SIZE = 2_000;
@@ -179,8 +201,8 @@ class McpToolResultRenderer
     }
 
     /**
-     * The result that replaces a stored one, and its legacy text. The tool's summary and links are kept, and
-     * its metadata as far as it fits {@see self::MAX_LINKED_META_SIZE}. The legacy text is what
+     * The result that replaces a stored one, and its legacy text. The tool's summary is kept, and its links
+     * and metadata as far as they fit {@see self::MAX_LINKED_LINKS} and {@see self::MAX_LINKED_META_SIZE}. The legacy text is what
      * `McpToolResponse::success()` returned for a stored result before the renderer took over, so clients
      * before 2025-06-18 keep finding the pointer in `_meta.resourceUri`.
      *
@@ -195,6 +217,10 @@ class McpToolResultRenderer
                 : 'If you need the full data as-is, fetch it via resources/read using the URI in _meta.resourceUri.');
 
         $meta = $this->boundedMeta($result->meta);
+        $links = $this->boundedLinks($result->links);
+        if (\count($links) < \count($result->links)) {
+            $meta['omittedLinkCount'] = \count($result->links) - \count($links);
+        }
         $meta['responseSize'] = $storedSize;
         if ($call !== null && $call->name !== '') {
             $arguments = $call->arguments;
@@ -221,7 +247,7 @@ class McpToolResultRenderer
             meta: $capabilities->specFormat ? $meta : [...$meta, 'resourceUri' => $pointer->uri()],
             generatedAt: $result->generatedAt,
             expiresAt: $pointer->expiresAt,
-            links: [...$result->links, new McpToolResultLink($pointer->uri(), 'tool-result', $note, 'application/json', $storedSize)],
+            links: [...$links, new McpToolResultLink($pointer->uri(), 'tool-result', $note, 'application/json', $storedSize)],
         );
 
         return [$linked, Json::encode(['success' => true, 'data' => null, '_meta' => $legacyMeta])];
@@ -229,8 +255,9 @@ class McpToolResultRenderer
 
     /**
      * The tool's metadata in its order, as long as it fits {@see self::MAX_LINKED_META_SIZE}. A value that
-     * doesn't fit, such as a large `preview` of an app tool, is named in `omittedMeta`. Clients before
-     * 2025-06-18 find it in the stored envelope; since 2025-06-18 the stored resource is the plain data.
+     * doesn't fit, such as a large `preview` of an app tool, is named in `omittedMeta`, up to
+     * {@see self::MAX_OMITTED_META_KEYS} keys, and counted in `omittedMetaCount`. Clients before 2025-06-18
+     * find it in the stored envelope; since 2025-06-18 the stored resource is the plain data.
      *
      * @param array<string, mixed> $meta
      *
@@ -240,11 +267,15 @@ class McpToolResultRenderer
     {
         $bounded = [];
         $omitted = [];
+        $omittedCount = 0;
         $size = 0;
         foreach ($meta as $key => $value) {
             $entrySize = \strlen((string) $key) + \strlen(Json::encode($value));
             if ($size + $entrySize > self::MAX_LINKED_META_SIZE) {
-                $omitted[] = (string) $key;
+                if (++$omittedCount <= self::MAX_OMITTED_META_KEYS) {
+                    $key = (string) $key;
+                    $omitted[] = \strlen($key) > self::MAX_OMITTED_META_KEY_LENGTH ? mb_strcut($key, 0, self::MAX_OMITTED_META_KEY_LENGTH) . '…' : $key;
+                }
 
                 continue;
             }
@@ -254,6 +285,34 @@ class McpToolResultRenderer
 
         if ($omitted !== []) {
             $bounded['omittedMeta'] = $omitted;
+            $bounded['omittedMetaCount'] = $omittedCount;
+        }
+
+        return $bounded;
+    }
+
+    /**
+     * The tool's links in their order, as long as they fit {@see self::MAX_LINKED_LINKS} and
+     * {@see self::MAX_LINKED_LINKS_SIZE}. The link to the stored result is added after them and always kept.
+     *
+     * @param list<McpToolResultLink> $links
+     *
+     * @return list<McpToolResultLink>
+     */
+    private function boundedLinks(array $links): array
+    {
+        $bounded = [];
+        $size = 0;
+        foreach ($links as $link) {
+            if (\count($bounded) >= self::MAX_LINKED_LINKS) {
+                break;
+            }
+            $linkSize = \strlen($link->uri) + \strlen($link->name) + \strlen($link->description ?? '') + \strlen($link->mimeType ?? '');
+            if ($size + $linkSize > self::MAX_LINKED_LINKS_SIZE) {
+                continue;
+            }
+            $size += $linkSize;
+            $bounded[] = $link;
         }
 
         return $bounded;

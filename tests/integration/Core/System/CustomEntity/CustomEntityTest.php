@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\Schema\Schema;
 use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -83,7 +84,9 @@ class CustomEntityTest extends TestCase
     use KernelTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    private const CATEGORY_TYPE = 'custom-entity-unit-test';
+    private const CATEGORY_NAME = 'custom-entity-unit-test';
+
+    private const DELETE_CATEGORIES = 'DELETE category FROM category INNER JOIN category_translation ON category_translation.category_id = category.id WHERE category_translation.name = :name';
 
     /**
      * @var array<string, mixed>
@@ -121,7 +124,7 @@ class CustomEntityTest extends TestCase
         }
 
         // ensure that the dal extensions are removed before continue with next test
-        $categories = $container->get(Connection::class)->fetchAllAssociative('SELECT LOWER(HEX(id)), `type` FROM category WHERE `type` = :type', ['type' => self::CATEGORY_TYPE]);
+        $categories = $container->get(Connection::class)->fetchAllAssociative('SELECT LOWER(HEX(category_id)) FROM category_translation WHERE name = :name', ['name' => self::CATEGORY_NAME]);
         static::assertCount(0, $categories);
 
         $container->get(Connection::class)->executeStatement('DROP TABLE IF EXISTS `test_with_enum_column`');
@@ -402,7 +405,7 @@ class CustomEntityTest extends TestCase
 
         $blog = self::blog('blog-5', $ids);
         $blog['topSellerRestrict'] = (new ProductBuilder($ids, 'top-seller-restrict'))->price(100)->build();
-        $blog['linksRestrict'] = [['id' => $ids->get('category-restrict-delete'), 'name' => 'test', 'type' => self::CATEGORY_TYPE]];
+        $blog['linksRestrict'] = [['id' => $ids->get('category-restrict-delete'), 'name' => self::CATEGORY_NAME, 'type' => CategoryDefinition::TYPE_PAGE]];
 
         $blogRepository->create([$blog], Context::createDefaultContext());
 
@@ -1060,8 +1063,8 @@ class CustomEntityTest extends TestCase
                 ['title' => 'test', 'content' => 'test', 'email' => 'test@test.com'],
             ],
             'linksSetNull' => [
-                ['id' => $ids->get($key . '-c-set-null-1'), 'name' => 'test', 'type' => self::CATEGORY_TYPE],
-                ['id' => $ids->get($key . '-c-set-null-2'), 'name' => 'test', 'type' => self::CATEGORY_TYPE],
+                ['id' => $ids->get($key . '-c-set-null-1'), 'name' => self::CATEGORY_NAME, 'type' => CategoryDefinition::TYPE_PAGE],
+                ['id' => $ids->get($key . '-c-set-null-2'), 'name' => self::CATEGORY_NAME, 'type' => CategoryDefinition::TYPE_PAGE],
             ],
             'topSellerCascade' => (new ProductBuilder($ids, $key . '-top-seller-cascade'))->price(100)->build(),
             'topSellerSetNull' => (new ProductBuilder($ids, $key . '-top-seller-set-null'))->price(100)->build(),
@@ -1097,7 +1100,7 @@ class CustomEntityTest extends TestCase
 
     private static function cleanUp(ContainerInterface $container): void
     {
-        $container->get(Connection::class)->executeStatement('DELETE FROM category WHERE `type` = :type', ['type' => self::CATEGORY_TYPE]);
+        $container->get(Connection::class)->executeStatement(self::DELETE_CATEGORIES, ['name' => self::CATEGORY_NAME]);
 
         try {
             $container->get(Connection::class)->executeStatement('DELETE FROM custom_entity_blog');
@@ -1138,7 +1141,7 @@ class CustomEntityTest extends TestCase
             'Custom entity table should not exist after app uninstall'
         );
 
-        $connection->executeStatement('DELETE FROM category WHERE `type` = :type', ['type' => self::CATEGORY_TYPE]);
+        $connection->executeStatement(self::DELETE_CATEGORIES, ['name' => self::CATEGORY_NAME]);
         $connection->executeStatement('DELETE FROM product');
     }
 

@@ -150,7 +150,8 @@ class ProductCartProcessorTest extends TestCase
             $calculator,
             static::createStub(EntityCacheKeyGenerator::class),
             static::createStub(Connection::class),
-            new EventDispatcher()
+            new EventDispatcher(),
+            static::createStub(GaranLabelResolver::class),
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -220,7 +221,8 @@ class ProductCartProcessorTest extends TestCase
             $calculator,
             static::createStub(EntityCacheKeyGenerator::class),
             static::createStub(Connection::class),
-            new EventDispatcher()
+            new EventDispatcher(),
+            static::createStub(GaranLabelResolver::class),
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -269,7 +271,8 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
             static::createStub(Connection::class),
-            new EventDispatcher()
+            new EventDispatcher(),
+            static::createStub(GaranLabelResolver::class),
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -319,14 +322,6 @@ class ProductCartProcessorTest extends TestCase
         static::assertSame(GaranLabelFixtures::STORED_LABEL, $lineItem->getPayload()[GaranLabelResolver::PAYLOAD_KEY]);
     }
 
-    public function testPayloadKeepsTheGaranLabelInAProcessorBuiltWithoutResolver(): void
-    {
-        // e.g. the quote processor of SwagCommercial, its quote line items keep the label they were requested with
-        $lineItem = $this->collectGaranLabel(self::createGaranProduct(), new CartBehavior(), withResolver: false);
-
-        static::assertSame(GaranLabelFixtures::STORED_LABEL, $lineItem->getPayload()[GaranLabelResolver::PAYLOAD_KEY]);
-    }
-
     public function testProcess(): void
     {
         $calculator = $this->createMock(QuantityPriceCalculator::class);
@@ -353,7 +348,8 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
             static::createStub(Connection::class),
-            new EventDispatcher()
+            new EventDispatcher(),
+            static::createStub(GaranLabelResolver::class),
         );
 
         $originalCart = new Cart('test');
@@ -409,7 +405,8 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
             static::createStub(Connection::class),
-            new EventDispatcher()
+            new EventDispatcher(),
+            static::createStub(GaranLabelResolver::class),
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -461,7 +458,8 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
             static::createStub(Connection::class),
-            new EventDispatcher()
+            new EventDispatcher(),
+            static::createStub(GaranLabelResolver::class),
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -533,7 +531,7 @@ class ProductCartProcessorTest extends TestCase
     /**
      * Collects a cart whose line item stored {@see GaranLabelFixtures::STORED_LABEL} earlier
      */
-    private function collectGaranLabel(SalesChannelProductEntity $product, CartBehavior $behavior, bool $withResolver = true): LineItem
+    private function collectGaranLabel(SalesChannelProductEntity $product, CartBehavior $behavior): LineItem
     {
         $lineItem = new LineItem('A', 'product', 'A');
         $lineItem->setPayloadValue(GaranLabelResolver::PAYLOAD_KEY, GaranLabelFixtures::STORED_LABEL);
@@ -549,7 +547,7 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(EntityCacheKeyGenerator::class),
             static::createStub(Connection::class),
             new EventDispatcher(),
-            $withResolver ? GaranLabelFixtures::createResolver() : null,
+            GaranLabelFixtures::createResolver(),
         );
 
         $data = new CartDataCollection();
@@ -582,7 +580,8 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
             static::createStub(Connection::class),
-            $dispatcher
+            $dispatcher,
+            static::createStub(GaranLabelResolver::class),
         );
 
         $processor->collect(new CartDataCollection(), $cart, static::createStub(SalesChannelContext::class), new CartBehavior());

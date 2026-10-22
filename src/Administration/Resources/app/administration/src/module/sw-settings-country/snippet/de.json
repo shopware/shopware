@@ -43,6 +43,7 @@
       "helpTextCompanyTaxFree": "Damit B2B-Geschäfte steuerfrei abgewickelt werden können, müssen die jeweiligen Kundenaccounts über eine valide USt-ID verfügen.",
       "labelCheckVatIdFormat": "USt-ID-Format überprüfen",
       "helpTextCheckVatIdFormat": "Überprüft das Format der europäischen USt-ID.",
+      "helpTextCheckVatIdFormatNoPattern": "Für dieses Land ist kein USt-ID-Format bekannt, gegen das geprüft werden kann.",
       "labelForceStateInRegistration": "Land/Region ist Pflichtfeld",
       "labelDisplayStateInRegistration": "Land/Region anzeigen",
       "placeholderName": "Namen eingeben ...",

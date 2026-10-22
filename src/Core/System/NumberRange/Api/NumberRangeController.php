@@ -116,16 +116,14 @@ class NumberRangeController extends AbstractController
     public function patternCollisions(Request $request, Context $context): JsonResponse
     {
         $typeId = $request->query->getString('typeId');
-        $pattern = (string) $request->query->get('pattern');
-        $numberRangeId = $request->query->has('numberRangeId') ? (string) $request->query->get('numberRangeId') : null;
+        $pattern = $request->query->getString('pattern');
+        $numberRangeId = $request->query->has('numberRangeId') ? $request->query->getString('numberRangeId') : null;
 
         if ($typeId === '') {
             throw NumberRangeException::missingRequestParameter('typeId');
         } elseif (!Uuid::isValid($typeId)) {
             throw NumberRangeException::invalidRequestParameter('typeId');
-        }
-
-        if ($pattern === '') {
+        } elseif ($pattern === '') {
             throw NumberRangeException::missingRequestParameter('pattern');
         }
 
@@ -133,8 +131,8 @@ class NumberRangeController extends AbstractController
             throw NumberRangeException::invalidRequestParameter('numberRangeId');
         }
 
-        // Document numbers are unique per document type, so only document number ranges can collide.
         $criteria = new Criteria();
+        $criteria->setLimit(100);
         $criteria->addFilter(
             new EqualsFilter('typeId', $typeId),
             new EqualsFilter('pattern', $pattern),

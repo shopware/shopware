@@ -350,10 +350,14 @@ export default {
                 if (payload.code === 'DOCUMENT__NUMBER_ALREADY_EXISTS') {
                     const parameters = payload.meta?.parameters ?? {};
 
-                    // keep the server message when the payload cannot fill the snippet, instead of
-                    // showing a message with unresolved placeholders
                     if (parameters.number && parameters.documentType) {
-                        errorMessage = this.$t('sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS', parameters);
+                        errorMessage = this.$t('sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS', {
+                            number: parameters.number,
+                            documentType: this.documentV2Service.getDocumentTypeLabel(
+                                parameters.documentType,
+                                this.supportedDocumentTypes[parameters.documentType]?.label,
+                            ),
+                        });
                     }
                 }
 

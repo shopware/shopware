@@ -204,6 +204,7 @@ export default {
     watch: {
         'numberRange.pattern'() {
             this.getPreview();
+            this.collidingNumberRangeNames = [];
         },
         'numberRange.start'() {
             this.getPreview();
@@ -218,12 +219,14 @@ export default {
         async createdComponent() {
             this.isLoading = true;
 
-            if (this.$route.params.id && this.numberRange.isLoading !== true) {
-                this.numberRangeId = this.$route.params.id.toLowerCase();
-                await Promise.all([this.loadEntityData(), this.loadCustomFieldSets()]);
+            try {
+                if (this.$route.params.id && this.numberRange.isLoading !== true) {
+                    this.numberRangeId = this.$route.params.id.toLowerCase();
+                    await Promise.all([this.loadEntityData(), this.loadCustomFieldSets()]);
+                }
+            } finally {
+                this.isLoading = false;
             }
-
-            this.isLoading = false;
         },
 
         async loadEntityData() {
@@ -235,7 +238,12 @@ export default {
 
             this.getState();
             this.splitPattern();
-            await Promise.all([this.loadSalesChannels(), this.checkPatternCollision()]);
+            await Promise.all([
+                this.loadSalesChannels(),
+                this.checkPatternCollision().catch((error) => {
+                    Shopware.Utils.debug.error(error);
+                }),
+            ]);
         },
 
         loadCustomFieldSets() {

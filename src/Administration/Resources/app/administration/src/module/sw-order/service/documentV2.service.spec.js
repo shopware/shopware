@@ -273,6 +273,27 @@ describe('core/service/documentV2.service.ts', () => {
         snippetSpy.mockRestore();
     });
 
+    it('names the translated document type in the duplicate document number error', () => {
+        const $t = jest.fn((key, values) => `${key} ${JSON.stringify(values)}`);
+        const appSpy = jest.spyOn(Shopware.Application, 'getApplicationRoot').mockReturnValue({ $t });
+        const snippetSpy = jest.spyOn(Shopware, 'Snippet', 'get').mockReturnValue({
+            tc: () => 'Invoice',
+            te: () => true,
+        });
+
+        const documentV2Service = new DocumentV2Service();
+
+        expect(
+            documentV2Service.getErrorTranslation('DOCUMENT_V2__DOCUMENT_NUMBER_ALREADY_EXISTS', {
+                documentNumber: '1001',
+                documentType: DOCUMENT_TYPES.INVOICE,
+            }),
+        ).toBe('sw-order.documentCard.error.duplicateDocumentNumber {"documentNumber":"1001","documentType":"Invoice"}');
+
+        appSpy.mockRestore();
+        snippetSpy.mockRestore();
+    });
+
     it('should request the available document types only once and share the result', async () => {
         const getAvailableTypes = jest.fn().mockResolvedValue({
             documentTypes: { invoice: { formats: ['pdf'] } },

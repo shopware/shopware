@@ -47,6 +47,7 @@ async function createWrapper(patternCollisions = () => Promise.resolve({ collisi
                                     ...numberRange,
                                 }),
                             search: () => Promise.resolve([]),
+                            save: () => Promise.resolve(),
                         }),
                     },
                     customFieldDataProviderService: {
@@ -250,7 +251,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
         expect(numberRangeType.props('disabled')).toBe(true);
     });
 
-    it('should warn when the loaded pattern is already used by another number range of the same document type', async () => {
+    it('should warn about a colliding pattern on load and hide the warning while the pattern is edited', async () => {
         const patternCollisions = jest.fn(() =>
             Promise.resolve({ collisions: [{ id: 'other-id', name: 'Invoices (Shop B)' }] }),
         );
@@ -258,32 +259,19 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
         await flushPromises();
 
         expect(patternCollisions).toHaveBeenCalledWith('72ea130130404f67a426332f7a8c7277', 'INV{n}', 'id');
-        expect(wrapper.vm.collidingNumberRangeNames).toEqual(['Invoices (Shop B)']);
-        expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').exists()).toBe(true);
-    });
-
-    it('should not warn when no other number range uses the pattern', async () => {
-        const wrapper = await createWrapper(undefined, { pattern: 'INV{n}' });
-        await flushPromises();
-
-        expect(wrapper.vm.collidingNumberRangeNames).toEqual([]);
-        expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').exists()).toBe(false);
-    });
-
-    it('should not look for collisions while the pattern is being edited', async () => {
-        const patternCollisions = jest.fn(() => Promise.resolve({ collisions: [] }));
-        const wrapper = await createWrapper(patternCollisions, { pattern: 'INV{n}' });
-        await flushPromises();
-
-        patternCollisions.mockClear();
+        expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').text()).toContain(
+            'sw-settings-number-range.detail.patternCollisionWarning',
+        );
 
         await wrapper.setData({ numberRange: { id: 'id', typeId: 'type-id', pattern: 'INV-B-{n}' } });
         await flushPromises();
 
-        expect(patternCollisions).not.toHaveBeenCalled();
+        expect(patternCollisions).toHaveBeenCalledTimes(1);
+        expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').exists()).toBe(false);
     });
 
-    it('should look for collisions again when the number range is reloaded after saving', async () => {
+    it('should look for collisions again after saving', async () => {
+        global.activeAclRoles = ['number_ranges.editor'];
         const patternCollisions = jest
             .fn()
             .mockResolvedValueOnce({ collisions: [{ id: 'other-id', name: 'Invoices (Shop B)' }] })
@@ -293,20 +281,28 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
 
         expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').exists()).toBe(true);
 
-        await wrapper.vm.loadEntityData();
+        await wrapper.find('.sw-settings-number-range-detail__save-action').trigger('click');
         await flushPromises();
 
         expect(patternCollisions).toHaveBeenCalledTimes(2);
-        expect(wrapper.vm.collidingNumberRangeNames).toEqual([]);
         expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').exists()).toBe(false);
     });
 
-    it('should not look for collisions while the type or the pattern is still unset', async () => {
+    it('should not look for collisions while the pattern is still unset', async () => {
         const patternCollisions = jest.fn(() => Promise.resolve({ collisions: [] }));
-        const wrapper = await createWrapper(patternCollisions);
+        await createWrapper(patternCollisions);
         await flushPromises();
 
         expect(patternCollisions).not.toHaveBeenCalled();
-        expect(wrapper.vm.collidingNumberRangeNames).toEqual([]);
+    });
+
+    it('should finish loading without a warning when the collision check fails', async () => {
+        Shopware.Utils.debug.error = jest.fn();
+        const wrapper = await createWrapper(() => Promise.reject(new Error('Network error')), { pattern: 'INV{n}' });
+        await flushPromises();
+
+        expect(wrapper.find('sw-skeleton-stub').exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').exists()).toBe(false);
+        expect(Shopware.Utils.debug.error).toHaveBeenCalled();
     });
 });

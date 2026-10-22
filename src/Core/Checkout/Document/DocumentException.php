@@ -128,7 +128,7 @@ class DocumentException extends HttpException
             self::DOCUMENT_NUMBER_ALREADY_EXISTS,
             \sprintf('Document number %s has already been allocated.', $number),
             [
-                '$number' => $number,
+                'number' => $number,
             ],
         );
     }

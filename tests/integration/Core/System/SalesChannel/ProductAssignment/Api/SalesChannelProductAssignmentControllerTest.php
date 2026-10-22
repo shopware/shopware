@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\ProductAssignment\Api\SalesChannelProductAssignmentController;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
@@ -91,6 +93,24 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
 
         static::assertContains('/productIds', $pointers);
         static::assertContains('/visibility', $pointers);
+        static::assertSame(['STREAM-already-visible', 'already-visible'], array_keys($this->visibilitiesOfSalesChannel()));
+    }
+
+    public function testItRejectsMoreProductGroupsThanTheLimitAllows(): void
+    {
+        $streamIds = array_map(
+            static fn (): string => Uuid::randomHex(),
+            range(1, SalesChannelProductAssignmentController::MAX_PRODUCT_STREAM_IDS + 1),
+        );
+
+        $this->getBrowser()->jsonRequest('POST', $this->url(), ['productStreamIds' => $streamIds]);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $pointers = array_column($this->decodeResponse($this->getBrowser())['errors'], 'source');
+        $pointers = array_column($pointers, 'pointer');
+
+        static::assertSame(['/productStreamIds'], $pointers);
         static::assertSame(['STREAM-already-visible', 'already-visible'], array_keys($this->visibilitiesOfSalesChannel()));
     }
 

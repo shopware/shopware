@@ -471,6 +471,31 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         expect(assignMock).not.toHaveBeenCalled();
     });
 
+    it.each([
+        ['productIds', 1000, 'sw-sales-channel.detail.products.messageProductLimitExceeded'],
+        ['productStreamIds', 25, 'sw-sales-channel.detail.products.messageProductStreamLimitExceeded'],
+        ['categoryIds', 50, 'sw-sales-channel.detail.products.messageCategoryLimitExceeded'],
+    ])('should not call the assignment action when %s exceed their limit of %i', async (key, limit, message) => {
+        const { wrapper } = await createWrapper();
+        await flushPromises();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.setData({ showProductsModal: true });
+        await wrapper.vm.onAddProducts([], {
+            productIds: [],
+            productStreamIds: [],
+            categoryIds: [],
+            [key]: Array.from({ length: limit + 1 }, (_, index) => `${key}-${index}`),
+        });
+
+        expect(assignMock).not.toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({ message });
+        expect(wrapper.vm.showProductsModal).toBe(true);
+        expect(wrapper.vm.isAssignProductLoading).toBe(false);
+
+        wrapper.vm.createNotificationError.mockRestore();
+    });
+
     it('should show an error notification when the assignment action fails', async () => {
         const { wrapper } = await createWrapper();
         await flushPromises();

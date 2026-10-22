@@ -8,11 +8,13 @@ use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 
@@ -64,34 +66,45 @@ class SalesChannelProductAssigner
 
         $this->ensureSalesChannelExists($salesChannelId, $context);
 
-        $ids = [];
+        /**
+         * Queued indexing keeps the product indexer and its cache invalidation out of the request,
+         * otherwise every written page would be indexed inline.
+         */
+        $context = clone $context;
+        $context->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE);
+
+        $assigned = 0;
         foreach ($this->buildCriteria($productIds, $productStreamIds, $categoryIds, $context) as $criteria) {
             $criteria->addFilter(
                 new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('visibilities.salesChannelId', $salesChannelId)])
             );
             $criteria->setLimit(self::CHUNK_SIZE);
 
+            /**
+             * Each page is written before the next one is fetched, so memory stays bound to one page
+             * and products assigned by an earlier page or source drop out of the following searches.
+             */
             $iterator = new RepositoryIterator($this->productRepository, $context, $criteria);
             while ($page = $iterator->fetchIds()) {
-                foreach ($page as $id) {
-                    if (\is_string($id)) {
-                        $ids[$id] = true;
+                $visibilities = [];
+                foreach ($page as $productId) {
+                    if (\is_string($productId)) {
+                        $visibilities[] = [
+                            'id' => Uuid::fromStringToHex($productId . $salesChannelId),
+                            'productId' => $productId,
+                            'salesChannelId' => $salesChannelId,
+                            'visibility' => $visibility,
+                        ];
                     }
                 }
+
+                // Deterministic ids let a retry or double submit complete instead of failing on the unique product/sales channel key
+                $this->productVisibilityRepository->upsert($visibilities, $context);
+                $assigned += \count($visibilities);
             }
         }
 
-        $visibilities = array_map(static fn (string $productId) => [
-            'productId' => $productId,
-            'salesChannelId' => $salesChannelId,
-            'visibility' => $visibility,
-        ], array_keys($ids));
-
-        foreach (array_chunk($visibilities, self::CHUNK_SIZE) as $chunk) {
-            $this->productVisibilityRepository->create($chunk, $context);
-        }
-
-        return \count($ids);
+        return $assigned;
     }
 
     /**

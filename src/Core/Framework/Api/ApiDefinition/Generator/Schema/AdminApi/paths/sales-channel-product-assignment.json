@@ -67,6 +67,7 @@
                     "productIds": {
                         "description": "Identifiers of products to assign.",
                         "type": "array",
+                        "maxItems": 1000,
                         "items": {
                             "type": "string",
                             "pattern": "^[0-9a-f]{32}$"
@@ -75,6 +76,7 @@
                     "productStreamIds": {
                         "description": "Identifiers of dynamic product groups whose current products are assigned. The assignment is a snapshot, later changes to the group do not affect it.",
                         "type": "array",
+                        "maxItems": 25,
                         "items": {
                             "type": "string",
                             "pattern": "^[0-9a-f]{32}$"
@@ -83,6 +85,7 @@
                     "categoryIds": {
                         "description": "Identifiers of categories whose main products are assigned. The assignment is a snapshot, later changes to the category do not affect it.",
                         "type": "array",
+                        "maxItems": 50,
                         "items": {
                             "type": "string",
                             "pattern": "^[0-9a-f]{32}$"

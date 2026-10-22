@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\ProductAssignment\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -18,6 +19,7 @@ use Shopware\Core\System\SalesChannel\ProductAssignment\Api\SalesChannelProductA
 use Shopware\Core\System\SalesChannel\ProductAssignment\SalesChannelProductAssigner;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -155,5 +157,64 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
         $this->expectExceptionObject($exception);
 
         $this->controller->assign(self::SALES_CHANNEL_ID, new RequestDataBag($data), $this->context);
+    }
+
+    #[DataProvider('idListLimitProvider')]
+    public function testRejectsIdListsOverTheirLimit(string $key, int $limit): void
+    {
+        $this->validator->expects($this->never())->method('validate');
+        $this->assigner->expects($this->never())->method('assign');
+
+        try {
+            $this->controllerWithRealValidator()->assign(
+                self::SALES_CHANNEL_ID,
+                new RequestDataBag([$key => $this->randomIds($limit + 1)]),
+                $this->context,
+            );
+            static::fail(\sprintf('%d entries in %s should have been rejected', $limit + 1, $key));
+        } catch (ConstraintViolationException $exception) {
+            static::assertCount(1, $exception->getViolations('/' . $key));
+        }
+    }
+
+    #[DataProvider('idListLimitProvider')]
+    public function testAcceptsIdListsAtTheirLimit(string $key, int $limit): void
+    {
+        $this->validator->expects($this->never())->method('validate');
+        $this->assigner->expects($this->once())->method('assign')->willReturn($limit);
+
+        $response = $this->controllerWithRealValidator()->assign(
+            self::SALES_CHANNEL_ID,
+            new RequestDataBag([$key => $this->randomIds($limit)]),
+            $this->context,
+        );
+
+        static::assertSame(\sprintf('{"assigned":%d}', $limit), $response->getContent());
+    }
+
+    /**
+     * @return iterable<string, array{string, int}>
+     */
+    public static function idListLimitProvider(): iterable
+    {
+        yield 'explicit product ids get the highest limit' => ['productIds', SalesChannelProductAssignmentController::MAX_PRODUCT_IDS];
+        yield 'product groups are capped low because each one scans the catalog' => ['productStreamIds', SalesChannelProductAssignmentController::MAX_PRODUCT_STREAM_IDS];
+        yield 'categories are capped low because each one is resolved separately' => ['categoryIds', SalesChannelProductAssignmentController::MAX_CATEGORY_IDS];
+    }
+
+    private function controllerWithRealValidator(): SalesChannelProductAssignmentController
+    {
+        return new SalesChannelProductAssignmentController(
+            $this->assigner,
+            new DataValidator(Validation::createValidator()),
+        );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function randomIds(int $count): array
+    {
+        return array_map(static fn (): string => Uuid::randomHex(), range(1, $count));
     }
 }

@@ -115,13 +115,6 @@ Snippet files are named by language, not locale: `en.json` / `de.json` in the Ad
 Locale-specific names such as `en-GB.json` or `storefront.de-DE.json` are the legacy scheme;
 do not create them, and do not use them in tests, fixtures, or examples unless the test deliberately covers the legacy loader.
 
-Pluralized snippets use two forms, `singular | plural`, when the zero case reads the same as the plural case.
-Only add the explicit three-form `zero | singular | plural` variant when the zero case needs its own wording (for example "No products").
-
-```json
-"buttonAddProducts": "Add {count} product | Add {count} products"
-```
-
 ## File Linting
 
 **MANDATORY**: All code must be linted according to the following table.

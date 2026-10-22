@@ -8,6 +8,16 @@ import './sw-sales-channel-detail-products.scss';
 const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * Mirrors the limits of the product assignment action. Product groups and categories
+ * are resolved against the whole catalog on the server, so their lists stay short.
+ */
+const ASSIGNMENT_LIMITS = {
+    productIds: { max: 1000, message: 'sw-sales-channel.detail.products.messageProductLimitExceeded' },
+    productStreamIds: { max: 25, message: 'sw-sales-channel.detail.products.messageProductStreamLimitExceeded' },
+    categoryIds: { max: 50, message: 'sw-sales-channel.detail.products.messageCategoryLimitExceeded' },
+};
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -240,6 +250,15 @@ export default {
                 return Promise.reject();
             }
 
+            const exceeded = this.getExceededAssignmentLimit({ productIds, productStreamIds, categoryIds });
+            if (exceeded) {
+                this.createNotificationError({
+                    message: this.$t(exceeded.message, { limit: exceeded.max }),
+                });
+
+                return Promise.resolve();
+            }
+
             this.isAssignProductLoading = true;
 
             return this.salesChannelProductAssignmentApiService
@@ -264,6 +283,18 @@ export default {
                     this.showProductsModal = false;
                     this.isAssignProductLoading = false;
                 });
+        },
+
+        /**
+         * Returns the limit of the first id list that is too long for the assignment action,
+         * so the selection can be corrected in the still open modal instead of failing on the server.
+         */
+        getExceededAssignmentLimit(idLists) {
+            const key = Object.keys(ASSIGNMENT_LIMITS).find(
+                (listKey) => idLists[listKey].length > ASSIGNMENT_LIMITS[listKey].max,
+            );
+
+            return key ? ASSIGNMENT_LIMITS[key] : null;
         },
 
         saveProductVisibilities(data) {

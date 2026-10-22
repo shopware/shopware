@@ -49,14 +49,17 @@ class FloatFieldSerializer extends AbstractFieldSerializer
             $data->setValue((float) $data->getValue());
         }
 
-        $this->validateIfNeeded($field, $existence, $data, $parameters);
-
+        $constraints = $this->getCachedConstraints($field);
         $choices = $this->strictChoiceResolver->getStrictChoices($field, $parameters->getDefinition()->getEntityName());
-        if ($choices !== null && $data->getValue() !== null) {
-            $this->validate([new ChoiceConstraint(
+        if ($choices !== null) {
+            $constraints[] = new ChoiceConstraint(
                 choices: array_map(static fn (string|bool|int|float $value): float => (float) $value, $choices),
                 strict: true
-            )], $data, $parameters->getPath());
+            );
+        }
+
+        if ($this->requiresValidation($field, $existence, $data->getValue(), $parameters)) {
+            $this->validate($constraints, $data, $parameters->getPath());
         }
 
         if ($data->getValue() === null) {

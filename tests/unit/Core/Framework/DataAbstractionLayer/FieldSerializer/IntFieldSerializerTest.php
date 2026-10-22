@@ -20,8 +20,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Symfony\Component\Validator\Constraints\Choice as ChoiceConstraint;
+use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
 use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Context\ExecutionContextFactory;
 use Symfony\Component\Validator\Mapping\Factory\BlackHoleMetadataFactory;
@@ -99,6 +102,20 @@ class IntFieldSerializerTest extends TestCase
         ));
 
         iterator_to_array($this->serializer->encode($field, $existence, $kv, $this->createWriteParameterBag()));
+    }
+
+    public function testChoiceStrictViolationIsReportedTogetherWithRangeViolation(): void
+    {
+        $field = (new IntField('test', 'test', 0, 5))->addFlags(new Choice([1, 2], strict: true));
+        $field->compile($this->definitionInstanceRegistry);
+
+        try {
+            iterator_to_array($this->serializer->encode($field, EntityExistence::createEmpty(), new KeyValuePair('test', 10, true), $this->createWriteParameterBag()));
+            static::fail('A strict choice int field must reject values that are out of range and not a valid choice.');
+        } catch (WriteConstraintViolationException $exception) {
+            $codes = array_map(static fn (ConstraintViolationInterface $violation): ?string => $violation->getCode(), iterator_to_array($exception->getViolations()));
+            static::assertSame([Range::NOT_IN_RANGE_ERROR, ChoiceConstraint::NO_SUCH_CHOICE_ERROR], $codes);
+        }
     }
 
     public function testChoiceStrictAcceptsValueOfEnumProvider(): void

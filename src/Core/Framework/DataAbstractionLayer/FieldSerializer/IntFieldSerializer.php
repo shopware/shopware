@@ -45,11 +45,14 @@ class IntFieldSerializer extends AbstractFieldSerializer
             throw DataAbstractionLayerException::invalidSerializerField(IntField::class, $field);
         }
 
-        $this->validateIfNeeded($field, $existence, $data, $parameters);
-
+        $constraints = $this->getCachedConstraints($field);
         $choices = $this->strictChoiceResolver->getStrictChoices($field, $parameters->getDefinition()->getEntityName());
-        if ($choices !== null && $data->getValue() !== null) {
-            $this->validate([new ChoiceConstraint(choices: $choices, strict: true)], $data, $parameters->getPath());
+        if ($choices !== null) {
+            $constraints[] = new ChoiceConstraint(choices: $choices, strict: true);
+        }
+
+        if ($this->requiresValidation($field, $existence, $data->getValue(), $parameters)) {
+            $this->validate($constraints, $data, $parameters->getPath());
         }
 
         yield $field->getStorageName() => $data->getValue();

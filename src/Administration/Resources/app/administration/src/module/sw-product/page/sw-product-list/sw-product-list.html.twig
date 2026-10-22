@@ -51,6 +51,7 @@
                     showOnDisabledElements: true
                 }"
                 class="sw-product-list__add-physical-button"
+                data-analytics-id="sw_product.list.add_physical_product"
                 variant="primary"
                 :disabled="!acl.can('product.creator')"
                 size="default"
@@ -85,6 +86,7 @@
                         disabled: acl.can('product.creator'),
                         showOnDisabledElements: true
                     }"
+                    data-analytics-id="sw_product.list.add_digital_product"
                     :router-link="{ name: 'sw.product.create', query: { creationType: 'digital' } }"
                     :disabled="!acl.can('product.creator')"
                 >

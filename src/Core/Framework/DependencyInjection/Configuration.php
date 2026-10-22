@@ -234,6 +234,16 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('auth_required')
                     ->defaultTrue()
                 ->end()
+            ->end()
+            ->end()
+            ->arrayNode('user_recovery')
+                ->info('Administration user password recovery ("forgot password") flow. Disable it when passwords are managed externally, e.g. via SSO.')
+                ->addDefaultsIfNotSet()
+                ->children()
+                    ->booleanNode('enabled')
+                        ->defaultTrue()
+                    ->end()
+                ->end()
             ->end();
 
         return $rootNode;
@@ -664,7 +674,7 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('default')->defaultFalse()->end()
                         ->stringNode('major')->cannotBeEmpty()
                             ->validate()
-                                ->ifTrue(static fn (string $major): bool => !\preg_match('/^v\d+\.\d+\.0\.0$/', $major))
+                                ->ifTrue(static fn (string $major): bool => !\preg_match('/^v\d+\.\d+\.0\.0$/D', $major))
                                 ->thenInvalid('The parent major must be a canonical version flag such as "v6.8.0.0".')
                             ->end()
                         ->end()

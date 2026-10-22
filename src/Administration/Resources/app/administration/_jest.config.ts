@@ -77,7 +77,6 @@ const config: Config = shopwareAdminJest({
     restoreMocks: true,
 
     // Performance optimizations
-    // Skip node_modules transformation where possible (already handled by transformIgnorePatterns)
     // Cache transformed files aggressively
     cache: true,
     // Use native ESM where possible for faster execution

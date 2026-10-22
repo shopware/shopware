@@ -2,6 +2,8 @@
  * @sw-package framework
  */
 
+import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import { createTransformer } from './metaGlobAwareTransformer';
 
@@ -80,5 +82,79 @@ describe('test/transformer/metaGlobAwareTransformer', () => {
 
     it('lets Jest instrument the output of both delegates', () => {
         expect(transformer.canInstrument).toBe(false);
+    });
+
+    describe('in node_modules', () => {
+        let nodeModules: string;
+
+        /** Writes `files` into `node_modules/<name>` and returns the path of its `index.js`. */
+        function installPackage(name: string, files: Record<string, string>): string {
+            Object.entries(files).forEach(([file, content]) => {
+                fs.mkdirSync(path.dirname(path.join(nodeModules, name, file)), { recursive: true });
+                fs.writeFileSync(path.join(nodeModules, name, file), content);
+            });
+
+            return path.join(nodeModules, name, 'index.js');
+        }
+
+        beforeAll(() => {
+            nodeModules = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'sw-script-transformer-')), 'node_modules');
+        });
+
+        afterAll(() => {
+            fs.rmSync(path.dirname(nodeModules), { recursive: true, force: true });
+        });
+
+        it('converts a package of "type": "module" to CommonJS', () => {
+            const file = installPackage('esm-package', {
+                'package.json': '{ "type": "module" }',
+                'index.js': 'export default 1;',
+            });
+
+            expect(transformer.process('export default 1;', file, transformOptions()).code).toContain('exports');
+        });
+
+        it('converts an ES module of a package without "type", such as its "module" build', () => {
+            const source = "import foo from './foo';\nexport { foo };\n";
+            const file = installPackage('dual-package', { 'package.json': '{ "main": "index.js" }', 'index.js': source });
+
+            expect(transformer.process(source, file, transformOptions()).code).toContain('_interop_require_default');
+        });
+
+        it.each([
+            ['plain CommonJS', 'module.exports = 1;\n'],
+            [
+                'CommonJS with a dynamic import()',
+                "module.exports = () => import('./lazy');\n",
+            ],
+            [
+                'CommonJS with import and export statements inside a template literal',
+                'module.exports = `\nimport x from "x";\nexport { x };\n`;\n',
+            ],
+            ['an exports assignment', 'exports.foo = 1;\n'],
+        ])('passes %s through unchanged', (_name, source) => {
+            const file = installPackage('cjs-package', { 'package.json': '{}', 'index.js': source });
+
+            expect(transformer.process(source, file, transformOptions()).code).toBe(source);
+        });
+
+        it('passes a file of a "type": "commonjs" package through, even under a "type": "module" root', () => {
+            installPackage('mixed-package', { 'package.json': '{ "type": "module" }' });
+            const file = installPackage('mixed-package/cjs', {
+                'package.json': '{ "type": "commonjs" }',
+                'index.js': 'module.exports = 1;',
+            });
+
+            expect(transformer.process('module.exports = 1;', file, transformOptions()).code).toBe('module.exports = 1;');
+        });
+
+        it('keys a passed-through file apart from the same source transformed outside node_modules', () => {
+            const source = 'module.exports = 1;\n';
+            const file = installPackage('cache-package', { 'package.json': '{}', 'index.js': source });
+
+            expect(transformer.getCacheKey(source, file, transformOptions())).not.toBe(
+                transformer.getCacheKey(source, filename, transformOptions()),
+            );
+        });
     });
 });

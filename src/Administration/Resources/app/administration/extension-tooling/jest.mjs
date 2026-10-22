@@ -175,32 +175,6 @@ function withPriority(preferred = {}, fallback) {
 }
 
 /**
- * Node modules that need to be transformed to CommonJS first (Jest expects them to be CommonJS).
- *
- * @example
- * transformIgnorePatterns: [`/node_modules/(?!(${[...HOST_TRANSFORMED_PACKAGES, 'nanoid'].join('|')})/)`],
- */
-export const HOST_TRANSFORMED_PACKAGES = Object.freeze([
-    '@shopware-ag/meteor-component-library',
-    '@shopware-ag/meteor-icon-kit',
-    'uuidv7',
-    'three',
-    'other',
-]);
-
-/**
- * The Administration's default `transformIgnorePatterns`, built from `HOST_TRANSFORMED_PACKAGES`.
- * An extension that replaces `transformIgnorePatterns` spreads it, so the host's packages stay transformed.
- * Frozen, so one config cannot change the default of every config built after it.
- *
- * @example
- * transformIgnorePatterns: [...HOST_TRANSFORM_IGNORE_PATTERNS, '<rootDir>/vendor/'],
- */
-export const HOST_TRANSFORM_IGNORE_PATTERNS = Object.freeze([
-    `/node_modules/(?!(${HOST_TRANSFORMED_PACKAGES.join('|')})/)`,
-]);
-
-/**
  * Creates the Jest config for Administration specs.
  *
  * `rootDir` is required: the directory the extension's specs and paths are
@@ -216,8 +190,7 @@ export const HOST_TRANSFORM_IGNORE_PATTERNS = Object.freeze([
  *   except `globals.adminPath` and `globals['vue-jest'].tsConfig`, which stay pinned to this Administration.
  *
  * The options in `REPLACEABLE_OPTIONS`, such as `testMatch`, `reporters` or
- * `transformIgnorePatterns` (default: `HOST_TRANSFORM_IGNORE_PATTERNS`),
- * replace the default. Any other option throws,
+ * `transformIgnorePatterns` (default: none), replace the default. Any other option throws,
  * including `testEnvironment` and `resolver`, which the harness owns.
  *
  * @example
@@ -286,7 +259,8 @@ export function shopwareAdminJest(options = {}) {
             ...testEnvironmentOptions,
         },
 
-        transformIgnorePatterns: [...HOST_TRANSFORM_IGNORE_PATTERNS],
+        // Empty, because the JS/TS transformer passes CommonJS dependencies through and converts only ES modules.
+        transformIgnorePatterns: [],
 
         ...replaced,
 

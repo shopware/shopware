@@ -59,6 +59,11 @@ class FileSaverTest extends TestCase
 
     private FilesystemOperator&Stub $filesystemPublic;
 
+    /**
+     * @var resource|null
+     */
+    private $tempFile;
+
     protected function setUp(): void
     {
         $this->mediaRepository = new StaticEntityRepository([], new MediaDefinition());
@@ -239,6 +244,46 @@ class FileSaverTest extends TestCase
         static::assertSame('foo', $update[0]['fileName']);
 
         static::assertCount(0, $this->messageBus->getMessages());
+    }
+
+    public function testPersistFileToMediaWritesTitleAndAltWithTheFile(): void
+    {
+        $mediaId = $this->addMediaSearches();
+
+        $this->fileSaver->persistFileToMedia(
+            new MediaFile($this->createTempFilePath(), 'image/png', 'png', 0, null, 'Product photo', 'A red shirt'),
+            'foo',
+            $mediaId,
+            Context::createDefaultContext()
+        );
+
+        static::assertCount(1, $this->mediaRepository->updates);
+        static::assertCount(1, $this->mediaRepository->updates[0]);
+
+        $update = $this->mediaRepository->updates[0][0];
+        static::assertSame($mediaId, $update['id']);
+        static::assertSame('foo', $update['fileName']);
+        static::assertSame('Product photo', $update['title']);
+        static::assertSame('A red shirt', $update['alt']);
+    }
+
+    public function testPersistFileToMediaWithoutTitleAndAltKeepsTheMediaTexts(): void
+    {
+        $mediaId = $this->addMediaSearches();
+
+        $this->fileSaver->persistFileToMedia(
+            new MediaFile($this->createTempFilePath(), 'image/png', 'png', 0),
+            'foo',
+            $mediaId,
+            Context::createDefaultContext()
+        );
+
+        static::assertCount(1, $this->mediaRepository->updates);
+
+        $update = $this->mediaRepository->updates[0][0];
+        static::assertSame('foo', $update['fileName']);
+        static::assertArrayNotHasKey('title', $update);
+        static::assertArrayNotHasKey('alt', $update);
     }
 
     public function testRenameMediaWithMissingFile(): void
@@ -478,6 +523,28 @@ class FileSaverTest extends TestCase
         static::assertCount(1, $update);
         static::assertSame($mediaId, $update[0]['id']);
         static::assertSame('foobar', $update[0]['fileName']);
+    }
+
+    private function addMediaSearches(): string
+    {
+        $mediaId = Uuid::randomHex();
+        $media = new MediaEntity();
+        $media->setId($mediaId);
+        $media->setPrivate(false);
+        $media->setPath('');
+
+        $mediaCollection = new MediaCollection([$media]);
+        $this->mediaRepository->addSearch($mediaCollection, $mediaCollection, $mediaCollection);
+
+        return $mediaId;
+    }
+
+    private function createTempFilePath(): string
+    {
+        $this->tempFile = tmpfile();
+        static::assertIsResource($this->tempFile);
+
+        return stream_get_meta_data($this->tempFile)['uri'] ?? '';
     }
 
     private function createFileSaver(?FilesystemOperator $filesystemPublic = null, bool $remoteThumbnailsEnabled = false): FileSaver

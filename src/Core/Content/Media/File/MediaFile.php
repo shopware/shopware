@@ -12,7 +12,9 @@ class MediaFile
         private readonly string $mimeType,
         private readonly string $fileExtension,
         private readonly int $fileSize,
-        private readonly ?string $hash = null
+        private readonly ?string $hash = null,
+        private readonly ?string $title = null,
+        private readonly ?string $alt = null,
     ) {
     }
 
@@ -39,5 +41,15 @@ class MediaFile
     public function getHash(): ?string
     {
         return $this->hash;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function getAlt(): ?string
+    {
+        return $this->alt;
     }
 }

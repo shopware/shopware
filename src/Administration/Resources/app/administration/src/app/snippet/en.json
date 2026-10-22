@@ -1638,6 +1638,7 @@
         "detectedChanges": "The following changes were detected:",
         "success": "Shop identifier updated successfully.",
         "error": "Shop identifier update failed.",
+        "noStrategySelected": "Select an option first.",
         "oldValue": "Old value",
         "newValue": "New value",
         "remindMeLater": "Remind me later",

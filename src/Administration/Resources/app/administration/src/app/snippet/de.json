@@ -1638,6 +1638,7 @@
         "detectedChanges": "Die folgenden Änderungen wurden festgestellt:",
         "success": "Shop-ID erfolgreich aktualisiert.",
         "error": "Aktualisierung der Shop-ID fehlgeschlagen.",
+        "noStrategySelected": "Wähle zuerst eine Option aus.",
         "oldValue": "Alter Wert",
         "newValue": "Neuer Wert",
         "remindMeLater": "Später erinnern",

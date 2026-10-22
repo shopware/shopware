@@ -30,7 +30,7 @@
                 "offline": "Offline"
             },
             "productsLabel": "Produkte",
-            "productsCount": "Produkte | Produkt | Produkte"
+            "productsCount": "Produkt | Produkte"
         },
         "modal": {
             "title": "Verkaufskanal anlegen",
@@ -154,7 +154,7 @@
             "products": {
                 "titleEmptyState": "Noch keine Produkte",
                 "titleEmptyStateTable": "Keine passenden Produkte gefunden",
-                "buttonAddProducts": "{productCount} Produkte hinzufügen | {productCount} Produkt hinzufügen | {productCount} Produkte hinzufügen",
+                "buttonAddProducts": "{productCount} Produkt hinzufügen | {productCount} Produkte hinzufügen",
                 "columnProductName": "Produktname",
                 "columnActive": "Aktiv",
                 "columnProductNumber": "Produktnummer",

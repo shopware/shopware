@@ -5,8 +5,10 @@ namespace Shopware\Core\Framework\Mcp\Authentication;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Mcp\Schema\JsonRpc\Error;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -21,6 +23,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
  *
  * Without this, a 401 from a wrong access key causes some clients to fall back
  * to non-standard endpoints (e.g. POST /register), making the real error invisible.
+ *
+ * A 401 on the Admin API endpoint also carries `WWW-Authenticate` pointing to the protected resource
+ * metadata (RFC 9728), which is how MCP clients discover the OAuth authorization server.
  */
 #[Package('framework')]
 class McpExceptionListener implements EventSubscriberInterface
@@ -43,6 +48,13 @@ class McpExceptionListener implements EventSubscriberInterface
      * OAuth client registration attempt.
      */
     private const OAUTH_FALLBACK_PATH = '/register';
+
+    private const HEADER_SECRET_ACCESS_KEY = 'sw-secret-access-key';
+
+    public function __construct(
+        private readonly McpOAuthMetadata $oauthMetadata,
+    ) {
+    }
 
     public static function getSubscribedEvents(): array
     {
@@ -94,7 +106,33 @@ class McpExceptionListener implements EventSubscriberInterface
             message: $message,
         );
 
-        $event->setResponse(new JsonResponse($error->jsonSerialize(), $httpCode));
+        $response = new JsonResponse($error->jsonSerialize(), $httpCode);
+
+        if ($httpCode === Response::HTTP_UNAUTHORIZED && $event->getRequest()->attributes->get('_route') === self::MCP_ROUTE_NAME) {
+            $response->headers->set('WWW-Authenticate', $this->buildBearerChallenge($event->getRequest()));
+        }
+
+        $event->setResponse($response);
+    }
+
+    /**
+     * RFC 6750 section 3: a request without any credentials gets the challenge without an error code.
+     */
+    private function buildBearerChallenge(Request $request): string
+    {
+        $parameters = [];
+
+        $hasCredentials = $request->headers->has('Authorization')
+            || $request->headers->has(PlatformRequest::HEADER_ACCESS_KEY)
+            || $request->headers->has(self::HEADER_SECRET_ACCESS_KEY);
+
+        if ($hasCredentials) {
+            $parameters[] = 'error="invalid_token"';
+        }
+
+        $parameters[] = 'resource_metadata="' . $this->oauthMetadata->getProtectedResourceMetadataUrl($request) . '"';
+
+        return 'Bearer ' . implode(', ', $parameters);
     }
 
     private function toJsonRpcCode(int $httpCode): int

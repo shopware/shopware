@@ -68,12 +68,20 @@ readonly class SymfonyBearerTokenValidator
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, $claims->get('jti'));
         $aud = $claims->get('aud');
+        $resources = [];
 
         if (\is_array($aud)) {
-            $aud = array_shift($aud);
+            $resources = $aud;
+            $aud = array_shift($resources);
         }
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $aud);
+
+        // the client id is the first audience, a bound RFC 8707 resource follows it
+        $resource = $resources[0] ?? null;
+        if (\is_string($resource) && $resource !== '') {
+            $request->attributes->set(OAuthResource::REQUEST_ATTRIBUTE, $resource);
+        }
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_SCOPES, $claims->get('scopes'));
 
         $userId = $claims->get('sub');

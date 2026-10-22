@@ -10,6 +10,8 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Authentication\McpExceptionListener;
+use Shopware\Core\Framework\Mcp\Authentication\McpOAuthMetadata;
+use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -34,7 +36,7 @@ class McpExceptionListenerTest extends TestCase
     #[TestDox('returns OAuth error for POST /register fallback path')]
     public function testHandlesPostRegister(): void
     {
-        $listener = new McpExceptionListener();
+        $listener = $this->createListener();
         $event = $this->createExceptionEvent('/register', '', new \RuntimeException('some error'), method: 'POST');
 
         $listener->onException($event);
@@ -55,7 +57,7 @@ class McpExceptionListenerTest extends TestCase
     #[TestDox('returns OAuth error for POST /register regardless of accept header')]
     public function testHandlesPostRegisterWithoutJsonAccept(): void
     {
-        $listener = new McpExceptionListener();
+        $listener = $this->createListener();
         $event = $this->createExceptionEvent('/register', '', new \RuntimeException('some error'), method: 'POST');
 
         $listener->onException($event);
@@ -68,7 +70,7 @@ class McpExceptionListenerTest extends TestCase
     #[TestDox('ignores GET /register so storefront customer-register navigation is unaffected')]
     public function testIgnoresGetRegister(): void
     {
-        $listener = new McpExceptionListener();
+        $listener = $this->createListener();
         $event = $this->createExceptionEvent('/register', '', new \RuntimeException('some error'), method: 'GET');
 
         $listener->onException($event);
@@ -79,7 +81,7 @@ class McpExceptionListenerTest extends TestCase
     #[TestDox('ignores exceptions on non-MCP routes')]
     public function testIgnoresNonMcpRoute(): void
     {
-        $listener = new McpExceptionListener();
+        $listener = $this->createListener();
         $event = $this->createExceptionEvent('/some/path', 'api.some.other.route', new \RuntimeException('error'));
 
         $listener->onException($event);
@@ -90,7 +92,7 @@ class McpExceptionListenerTest extends TestCase
     #[TestDox('converts HTTP exception on MCP route to JSON-RPC error')]
     public function testConvertsHttpExceptionToJsonRpcError(): void
     {
-        $listener = new McpExceptionListener();
+        $listener = $this->createListener();
         $httpException = new class extends \RuntimeException {
             public function getStatusCode(): int
             {
@@ -116,7 +118,7 @@ class McpExceptionListenerTest extends TestCase
     #[TestDox('converts HTTP exception on Store API MCP route to JSON-RPC error')]
     public function testConvertsStoreApiHttpExceptionToJsonRpcError(): void
     {
-        $listener = new McpExceptionListener();
+        $listener = $this->createListener();
         $httpException = new class extends \RuntimeException {
             public function getStatusCode(): int
             {
@@ -137,12 +139,68 @@ class McpExceptionListenerTest extends TestCase
         static::assertJson($content);
         $body = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(McpExceptionListener::CODE_UNAUTHORIZED, $body['error']['code']);
+        static::assertFalse($response->headers->has('WWW-Authenticate'));
+    }
+
+    #[TestDox('points a 401 without credentials to the protected resource metadata')]
+    public function testUnauthorizedWithoutCredentialsCarriesResourceMetadata(): void
+    {
+        $event = $this->createExceptionEvent('/api/_mcp', 'api.mcp.endpoint', OAuthServerException::accessDenied('Missing "Authorization" header'));
+
+        $this->createListener()->onException($event);
+
+        static::assertSame(
+            'Bearer resource_metadata="http://shop.example/.well-known/oauth-protected-resource/api/_mcp"',
+            $event->getResponse()?->headers->get('WWW-Authenticate')
+        );
+    }
+
+    /**
+     * @param array<string, string> $headers
+     */
+    #[DataProvider('credentialHeaderProvider')]
+    #[TestDox('reports invalid credentials as invalid_token in the 401 challenge')]
+    public function testUnauthorizedWithCredentialsCarriesInvalidToken(array $headers): void
+    {
+        $event = $this->createExceptionEvent('/api/_mcp', 'api.mcp.endpoint', OAuthServerException::accessDenied('Access token could not be verified'), $headers);
+
+        $this->createListener()->onException($event);
+
+        static::assertSame(
+            'Bearer error="invalid_token", resource_metadata="http://shop.example/.well-known/oauth-protected-resource/api/_mcp"',
+            $event->getResponse()?->headers->get('WWW-Authenticate')
+        );
+    }
+
+    /**
+     * @return iterable<string, array{array<string, string>}>
+     */
+    public static function credentialHeaderProvider(): iterable
+    {
+        yield 'bearer token' => [['Authorization' => 'Bearer expired']];
+        yield 'access key headers' => [['sw-access-key' => 'SWIA', 'sw-secret-access-key' => 'secret']];
+    }
+
+    #[TestDox('sends no challenge with a 403 on the MCP route')]
+    public function testForbiddenCarriesNoChallenge(): void
+    {
+        $httpException = new class extends \RuntimeException {
+            public function getStatusCode(): int
+            {
+                return Response::HTTP_FORBIDDEN;
+            }
+        };
+        $event = $this->createExceptionEvent('/api/_mcp', 'api.mcp.endpoint', $httpException);
+
+        $this->createListener()->onException($event);
+
+        static::assertFalse($event->getResponse()?->headers->has('WWW-Authenticate'));
     }
 
     #[TestDox('converts OAuth exception on MCP route to 401 JSON-RPC error with the hint in the message')]
     public function testConvertsOAuthServerExceptionToUnauthorizedJsonRpcError(): void
     {
-        $listener = new McpExceptionListener();
+        $listener = $this->createListener();
         $oauthException = OAuthServerException::accessDenied('Missing "Authorization" header');
 
         $event = $this->createExceptionEvent('/api/_mcp', 'api.mcp.endpoint', $oauthException);
@@ -164,7 +222,7 @@ class McpExceptionListenerTest extends TestCase
     #[TestDox('converts OAuth exception without a hint to 401 JSON-RPC error with the plain message')]
     public function testConvertsOAuthServerExceptionWithoutHint(): void
     {
-        $listener = new McpExceptionListener();
+        $listener = $this->createListener();
         $oauthException = OAuthServerException::accessDenied();
 
         $event = $this->createExceptionEvent('/api/_mcp', 'api.mcp.endpoint', $oauthException);
@@ -186,7 +244,7 @@ class McpExceptionListenerTest extends TestCase
     #[TestDox('converts generic exception on MCP route to 500 JSON-RPC error')]
     public function testConvertsGenericExceptionToServerError(): void
     {
-        $listener = new McpExceptionListener();
+        $listener = $this->createListener();
         $event = $this->createExceptionEvent('/api/_mcp', 'api.mcp.endpoint', new \RuntimeException('Something went wrong'));
 
         $listener->onException($event);
@@ -221,7 +279,7 @@ class McpExceptionListenerTest extends TestCase
     #[TestDox('maps HTTP $httpCode to JSON-RPC code $expectedCode')]
     public function testJsonRpcCodeMapping(int $httpCode, int $expectedCode): void
     {
-        $listener = new McpExceptionListener();
+        $listener = $this->createListener();
 
         $httpException = new class($httpCode) extends \RuntimeException {
             public function __construct(private readonly int $statusCode)
@@ -244,6 +302,14 @@ class McpExceptionListenerTest extends TestCase
         static::assertNotNull($content);
         $body = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame($expectedCode, $body['error']['code']);
+    }
+
+    private function createListener(): McpExceptionListener
+    {
+        $allowedHosts = static::createStub(McpAllowedHostsProvider::class);
+        $allowedHosts->method('getAllowedHosts')->willReturn([]);
+
+        return new McpExceptionListener(new McpOAuthMetadata($allowedHosts, 'http://shop.example'));
     }
 
     /**

@@ -15,6 +15,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\OAuth\OAuthResource;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
@@ -81,6 +82,34 @@ class SymfonyBearerTokenValidatorTest extends TestCase
         static::assertSame(self::OAUTH_USER_ID, $request->attributes->get('oauth_access_token_id'));
         static::assertSame('test', $request->attributes->get('oauth_client_id'));
         static::assertSame([], $request->attributes->get('oauth_scopes'));
+        static::assertFalse($request->attributes->has(OAuthResource::REQUEST_ATTRIBUTE));
+    }
+
+    public function testResourceBoundTokenYieldsTheClientIdAndTheResource(): void
+    {
+        $config = $this->getJwtConfiguration();
+        $now = new \DateTimeImmutable();
+        $jwt = $config->builder()
+            ->permittedFor('shopware-cli', 'https://shop.example/api/_mcp')
+            ->identifiedBy('token-id')
+            ->issuedAt($now)
+            ->expiresAt($now->modify('+10 minutes'))
+            ->relatedTo('shopware-cli')
+            ->withClaim('scopes', ['write'])
+            ->getToken($config->signer(), $config->signingKey())
+            ->toString();
+
+        $request = new Request([], [], [], [], [], ['HTTP_authorization' => 'Bearer ' . $jwt]);
+
+        $validator = new SymfonyBearerTokenValidator(
+            static::createStub(AccessTokenRepositoryInterface::class),
+            static::createStub(Connection::class),
+            $config
+        );
+        $validator->validateAuthorization($request);
+
+        static::assertSame('shopware-cli', $request->attributes->get('oauth_client_id'));
+        static::assertSame('https://shop.example/api/_mcp', $request->attributes->get(OAuthResource::REQUEST_ATTRIBUTE));
     }
 
     public function testUserDeleted(): void

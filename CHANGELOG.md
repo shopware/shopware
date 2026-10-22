@@ -1,6 +1,10 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.30
+*  [#21364 - fix(core): pass null as DNS resolver of app system trusted URL resolver](https://github.com/shopware/shopware/issues/21364) ([@M-arcus](https://github.com/M-arcus))
+*  [21321 - Fix app system trusted URL resolver service definition](./changelog/release-6-6-10-30/2026-10-07-fix-app-system-trusted-url-resolver-service-definition.md)
+
 ## 6.6.10.29
 *  [#20294 - fix(framework): use native redirects for app system requests](https://github.com/shopware/shopware/issues/20294)
 *  [20681 - Fix storefront URL encoding of non-ASCII characters](./changelog/release-6-6-10-29/2026-09-28-fix-storefront-url-encoding-of-non-ascii-characters.md)

@@ -71,10 +71,13 @@ Access keys, integration tokens and all existing OAuth tokens keep working uncha
   Rewrite them in the web server to `/shop/.well-known/oauth-protected-resource/api/_mcp` and `/shop/.well-known/oauth-authorization-server/api`.
 * **Audience-bound tokens:** `/api/oauth/authorize` and `/api/oauth/token` accept the `resource` parameter (RFC 8707).
   The only accepted value is the shop's MCP endpoint; any other value is answered with `invalid_target`.
-  A token issued with `resource` is accepted on `/api/_mcp` only and gets `401` on every other Admin API route.
+  A token issued with `resource` is accepted on `/api/_mcp` only and gets `401` on every other Admin API route, including `/api/_info/system-health-check`.
   A refresh keeps the resource.
   The JWT keeps the client id as the first `aud` entry and lists the resource after it.
   Requests without `resource` behave as before.
+* **Consent page:** The Administration consent page forwards `resource` and says that access is limited to the MCP endpoint.
+  Rebuild the Administration when you build it yourself.
+  A build from before this change drops `resource`, and the token request of the MCP client then fails with `invalid_target`.
 * **Clients:** There is no dynamic client registration.
   To let an MCP client with a configurable client id log in, add it to `shopware.api.oauth_clients`:
 
@@ -85,10 +88,11 @@ Access keys, integration tokens and all existing OAuth tokens keep working uncha
               claude-code:
                   name: 'Claude Code'
                   redirect_uris:
-                      - 'http://127.0.0.1/callback'
+                      - 'http://localhost:53682/callback'
   ```
 
-  Loopback IP redirect URIs accept any port; `http://localhost` is not accepted.
+  Redirect URIs on `http://127.0.0.1` and `http://[::1]` accept any port; all others, including `http://localhost:<port>`, must match exactly.
+  Claude Code calls back on `http://localhost:<port>/callback`, so register a fixed port and add the server with `claude mcp add --transport http --client-id claude-code --callback-port 53682 shopware <shop URL>/api/_mcp`.
 
 ### Criteria on fields the API does not expose is a bad request
 

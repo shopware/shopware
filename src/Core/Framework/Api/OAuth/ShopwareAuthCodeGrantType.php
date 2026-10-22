@@ -65,7 +65,13 @@ class ShopwareAuthCodeGrantType extends AuthCodeGrant
         $this->resource = $this->getGrantedResource($request);
 
         $requested = $this->getRequestParameter(OAuthResource::PARAMETER, $request);
-        if (\is_string($requested) && ($this->resource === null || OAuthResource::normalize($requested) !== $this->resource)) {
+        if (\is_string($requested) && $this->resource === null) {
+            throw ApiException::oauthInvalidTarget(
+                'The authorization was granted without a resource. The consent page did not forward it, for example because the Administration was built before resource support and has to be rebuilt.'
+            );
+        }
+
+        if (\is_string($requested) && OAuthResource::normalize($requested) !== $this->resource) {
             $this->resource = null;
 
             throw ApiException::oauthInvalidTarget('The resource does not match the authorization request.');

@@ -252,7 +252,23 @@ class OAuthAuthorizeControllerTest extends TestCase
             'client' => ['id' => 'shopware-cli', 'name' => 'Shopware CLI'],
             'redirectUri' => 'http://127.0.0.1:54321/callback',
             'scopes' => ['write'],
+            'resource' => null,
         ], json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
+    }
+
+    public function testInfoReturnsTheBoundResource(): void
+    {
+        $authorizationRequest = new AuthorizationRequest();
+        $authorizationRequest->setClient(new ApiClient('shopware-cli', true, 'Shopware CLI', false));
+        $authorizationRequest->setRedirectUri('http://127.0.0.1:54321/callback');
+        $authorizationRequest->setScopes([new WriteScope()]);
+        $this->rateLimiter->expects($this->never())->method('ensureAccepted');
+        $this->authorizationServer->expects($this->once())->method('validateAuthorizationRequest')->willReturn($authorizationRequest);
+
+        $response = $this->controller->info(Request::create('/api/oauth/authorize/info', 'GET', [...self::QUERY, 'resource' => 'http://SHOP.example/api/_mcp/']));
+
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('http://shop.example/api/_mcp', $content['resource']);
     }
 
     public function testApproveRequiresAdminApiSource(): void

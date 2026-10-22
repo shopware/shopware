@@ -107,6 +107,22 @@ class McpOAuthResourceBindingTest extends TestCase
         static::assertSame(Response::HTTP_UNAUTHORIZED, $browser->getResponse()->getStatusCode());
     }
 
+    public function testMcpTokenIsRejectedByEndpointsThatValidateTokensThemselves(): void
+    {
+        $tokens = $this->exchangeCode($this->authorize(self::RESOURCE), self::RESOURCE);
+        static::assertArrayHasKey('access_token', $tokens, json_encode($tokens, \JSON_THROW_ON_ERROR));
+
+        $browser = $this->bearerBrowser($tokens['access_token']);
+        $browser->request('GET', '/api/_info/system-health-check');
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode(), (string) $response->getContent());
+
+        $browser->request('GET', '/api/_admin/snippets', ['locale' => 'en-GB']);
+        $snippets = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($snippets['en-GB'] ?? null);
+        static::assertSame([], array_diff(array_keys($snippets['en-GB']), ['sw-login', 'global']));
+    }
+
     public function testTokenWithoutResourceKeepsWorkingEverywhere(): void
     {
         $tokens = $this->exchangeCode($this->authorize(null), null);
@@ -159,7 +175,10 @@ class McpOAuthResourceBindingTest extends TestCase
     public function testTokenRequestMustNameTheResourceOfTheAuthorizationRequest(): void
     {
         $this->assertInvalidTarget($this->exchangeCode($this->authorize(self::RESOURCE), 'https://other.example/api/_mcp'));
-        $this->assertInvalidTarget($this->exchangeCode($this->authorize(null), self::RESOURCE));
+
+        $grantedWithoutResource = $this->exchangeCode($this->authorize(null), self::RESOURCE);
+        $this->assertInvalidTarget($grantedWithoutResource);
+        static::assertStringContainsString('granted without a resource', (string) ($grantedWithoutResource['errors'][0]['detail'] ?? ''));
     }
 
     public function testTokenRequestWithoutResourceStillGetsTheGrantedResource(): void

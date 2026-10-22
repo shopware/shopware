@@ -266,18 +266,27 @@ The design is recorded in `adr/2026-10-21-mcp-oauth-client-authentication.md`.
 ### Tokens bound to the MCP resource
 
 - `resource` (RFC 8707) is accepted on `GET`/`POST /api/oauth/authorize` and `POST /api/oauth/token`.
-  The only accepted value is this shop's MCP resource (`OAuthResource::normalize()` ignores case of scheme and host, default ports, a trailing slash and the query); anything else is `invalid_target`.
+  The only accepted value is this shop's MCP resource (`OAuthResource::normalize()` ignores case of scheme and host, default ports, a trailing slash and the query); a fragment or anything else is `invalid_target`.
   The token request must name the same resource as the authorization request, and a refresh keeps it.
+  A token request without `resource` still gets a token bound to the granted resource, as RFC 8707 allows.
 - The resource is stored in `oauth_auth_code.resource` and `refresh_token.resource`.
   The JWT keeps the client id as the first `aud` entry and lists the resource after it.
-- `ApiAuthenticationListener` rejects a bound token with `401` on every main request except `api.mcp.endpoint`, including `/api/oauth/authorize`.
-  Subrequests started by an MCP request stay allowed.
+- `SymfonyBearerTokenValidator` rejects a bound token with `401` unless the caller passes `acceptResourceBoundToken: true`.
+  Only `ApiAuthenticationListener` does, for `api.mcp.endpoint` and for subrequests started by an MCP request.
+  Services that validate bearer tokens themselves (system health check, Administration snippets) inherit the rejection.
+  `SymfonyBearerTokenValidatorConsumerTest` lists every service using the validator and fails when one is added; review it for this rule.
+- The consent page forwards `resource` to `GET /api/oauth/authorize/info` and `POST /api/oauth/authorize`, and the info answer returns it so the page says that access is limited to the MCP endpoint.
+  An Administration built before resource support drops it: the code is stored without resource and the token request fails with `invalid_target` and a hint to rebuild the Administration.
+- MCP sessions and rate-limit buckets are keyed on the principal (`user-<userId>`), so one user's access key and OAuth token share them.
+  This is intended.
 
 ### Adding an OAuth client
 
 There is no dynamic client registration.
-`shopware-cli` is the only default client, and `http://localhost` redirect URIs are never accepted; use loopback IP literals, which match any port.
-An operator adds a client for an MCP client with a configurable client id in `config/packages/shopware.yaml`:
+`shopware-cli` is the only default client.
+Redirect URIs on the loopback IP literals `http://127.0.0.1` and `http://[::1]` match any port; every other redirect URI, including `http://localhost:<port>`, must match exactly.
+An operator adds a client for an MCP client with a configurable client id in `config/packages/shopware.yaml`.
+Claude Code calls back on `http://localhost:<port>/callback`, so register a fixed port and pass it with `--callback-port`:
 
 ```yaml
 shopware:
@@ -286,8 +295,17 @@ shopware:
             claude-code:
                 name: 'Claude Code'
                 redirect_uris:
-                    - 'http://127.0.0.1/callback'
+                    - 'http://localhost:53682/callback'
 ```
+
+```shell
+claude mcp add --transport http --client-id claude-code --callback-port 53682 shopware https://shop.example/api/_mcp
+```
+
+Claude Code refuses plain `http` token endpoints on hosts other than `localhost`, `127.0.0.1` and `::1`, so a dev host such as `trunk.localhost` needs `https`.
+
+Known: the root `/.well-known/oauth-authorization-server` belongs to the UCP SDK (route `ucp_sdk_symfony_oauth_metadata`, `501` while identity linking is disabled).
+MCP clients use the path form `/.well-known/oauth-authorization-server/api` and are not affected.
 
 ## Security
 

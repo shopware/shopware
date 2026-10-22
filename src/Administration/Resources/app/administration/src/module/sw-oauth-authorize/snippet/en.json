@@ -9,6 +9,7 @@
       "loggedInAs": "Logged in as {username}",
       "permissionTitle": "This application gets your permissions",
       "permissionHint": "The application can access data and perform actions on your behalf with the same permissions as your user account. If you are an administrator, this includes full access to your store.",
+      "permissionHintResource": "The application can access data and perform actions on your behalf with the same permissions as your user account. Its access is limited to the MCP endpoint at {resource}.",
       "trustHint": "Only allow access if you trust this application and started this request yourself.",
       "redirectHint": "You will be redirected to {host}",
       "approve": "Allow access",

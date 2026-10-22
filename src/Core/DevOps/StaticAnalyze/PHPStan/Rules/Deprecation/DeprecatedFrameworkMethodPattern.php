@@ -21,6 +21,7 @@ use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Symfony\ServiceMap;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
@@ -34,7 +35,7 @@ use Twig\Extension\ExtensionInterface;
  * Discovery methods become inert in major mode, lifecycle methods remain callable, and other
  * methods on configured callback classes or services throw only once the removal flag is active.
  *
- * The owning rule filters method visibility, abstract methods, tests, and service constructors.
+ * The owning rule filters method visibility, abstract methods, tests, and service/DAL constructors.
  * This pattern inspects the method AST, not its text or arbitrary control flow; supported guards
  * must be the first statement. It does not verify service removal from the container.
  *
@@ -61,6 +62,7 @@ class DeprecatedFrameworkMethodPattern implements DeprecationPattern
             ExtensionInterface::class => ['getFilters' => [], 'getFunctions' => []],
             ResetInterface::class => ['reset' => true],
             Rule::class => ['getConfig' => null],
+            EntityDefinition::class => ['getEntityName' => true, 'getEntityClass' => true, 'getCollectionClass' => true, 'since' => true, 'defineFields' => true, 'getParentDefinitionClass' => true],
         ],
         private readonly array $throwOnlyClasses = [EventSubscriberInterface::class, ExceptionHandlerInterface::class, Rule::class],
         private readonly array $throwOnlyServiceTags = ['kernel.event_listener'],

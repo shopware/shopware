@@ -71,7 +71,7 @@ class AppContextCreatorTest extends TestCase
 
         static::assertTrue($response['changedAdmin'], 'the changed write context keeps its own change');
         static::assertFalse($response['writeAdmin'], 'a later write must get a new, non-admin source');
-        static::assertSame(Context::USER_SCOPE, $response['writeScope'], 'a later write must not inherit the system scope');
+        static::assertSame(Context::USER_SCOPE, $response['writeScope']);
     }
 
     /**

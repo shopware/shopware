@@ -3,10 +3,10 @@
 {% set initialAdmin = first.getContext().getSource().isAdmin() %}
 {% do first.getContext().getSource().setIsAdmin(true) %}
 
-{% set second = first.getContext().scope('system', (scoped) => services.writer.upsert('tag', [{ 'id': hook.request.secondTagId, 'name': 'second-write' }])) %}
+{% set second = services.writer.upsert('tag', [{ 'id': hook.request.secondTagId, 'name': 'second-write' }]) %}
 
 {% if hook.request.taxId is defined %}
-    {% do first.getContext().scope('system', (scoped) => services.writer.upsert('tax', [{ 'id': hook.request.taxId, 'name': 'denied', 'taxRate': 19 }])) %}
+    {% do services.writer.upsert('tax', [{ 'id': hook.request.taxId, 'name': 'denied', 'taxRate': 19 }]) %}
 {% endif %}
 
 {% set response = services.response.json({

@@ -12,6 +12,10 @@ use Shopware\Core\Framework\Log\Package;
  * authorization code grant with PKCE and the refresh token grant. Redirect URIs are matched exactly,
  * except for loopback URIs (`http://127.0.0.1`, `http://[::1]`) where any port is accepted (RFC 8252 §7.3).
  *
+ * Redirect URIs must use https. Plain http is accepted for `localhost` and the loopback IP literals only,
+ * because the authorization code would otherwise travel unencrypted (RFC 9700 §2.6).
+ * In the `dev` kernel environment every http redirect URI is accepted, so local development hosts keep working.
+ *
  * @internal
  */
 #[Package('framework')]
@@ -19,11 +23,17 @@ final class PublicClientRegistry
 {
     public const GRANT_TYPES = ['authorization_code', 'refresh_token'];
 
+    private const LOCAL_HOSTS = ['localhost', '127.0.0.1', '[::1]'];
+
+    private const DEV_ENVIRONMENT = 'dev';
+
     /**
      * @param array<string, array{name: string, redirect_uris: list<string>}> $clients
      */
-    public function __construct(private readonly array $clients)
-    {
+    public function __construct(
+        private readonly array $clients,
+        private readonly string $environment,
+    ) {
     }
 
     public function has(string $clientId): bool
@@ -55,7 +65,26 @@ final class PublicClientRegistry
             return false;
         }
 
-        return (new RedirectUriValidator(array_values($this->clients[$clientId]['redirect_uris'])))
-            ->validateRedirectUri($redirectUri);
+        return $this->isTransportAllowed($redirectUri)
+            && (new RedirectUriValidator(array_values($this->clients[$clientId]['redirect_uris'])))->validateRedirectUri($redirectUri);
+    }
+
+    /**
+     * Whether the redirect URI uses a transport the authorization code may be sent over.
+     */
+    public function isTransportAllowed(string $redirectUri): bool
+    {
+        $scheme = strtolower((string) parse_url($redirectUri, \PHP_URL_SCHEME));
+        if ($scheme === 'https') {
+            return true;
+        }
+
+        if ($scheme !== 'http') {
+            return false;
+        }
+
+        $host = strtolower((string) parse_url($redirectUri, \PHP_URL_HOST));
+
+        return $this->environment === self::DEV_ENVIRONMENT || \in_array($host, self::LOCAL_HOSTS, true);
     }
 }

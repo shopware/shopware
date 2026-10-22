@@ -7,10 +7,13 @@ use League\OAuth2\Server\Entities\AuthCodeEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
+use League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface;
+use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequestInterface;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\Api\OAuth\Client\PublicClientRegistry;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -20,6 +23,8 @@ use Shopware\Core\Framework\Log\Package;
  * It also binds tokens to the RFC 8707 resource of the authorization request: the resource is stored
  * next to the authorization code, must match a resource named in the token request, and ends up in the
  * access token and its refresh token.
+ *
+ * Redirect URIs must also use a transport {@see PublicClientRegistry::isTransportAllowed()} accepts.
  *
  * @internal
  */
@@ -31,6 +36,15 @@ class ShopwareAuthCodeGrantType extends AuthCodeGrant
     public const CODE_CHALLENGE_METHOD = 'S256';
 
     private ?string $resource = null;
+
+    public function __construct(
+        AuthCodeRepositoryInterface $authCodeRepository,
+        RefreshTokenRepositoryInterface $refreshTokenRepository,
+        \DateInterval $authCodeTTL,
+        private readonly PublicClientRegistry $publicClients,
+    ) {
+        parent::__construct($authCodeRepository, $refreshTokenRepository, $authCodeTTL);
+    }
 
     public function validateAuthorizationRequest(ServerRequestInterface $request): AuthorizationRequestInterface
     {
@@ -127,6 +141,10 @@ class ShopwareAuthCodeGrantType extends AuthCodeGrant
         } catch (OAuthServerException $exception) {
             // The library reports an invalid callback as a generic client authentication failure.
             throw ApiException::invalidOAuthRedirectUri($exception);
+        }
+
+        if (!$this->publicClients->isTransportAllowed($redirectUri)) {
+            throw ApiException::insecureOAuthRedirectUri();
         }
     }
 

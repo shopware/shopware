@@ -16,6 +16,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\EventListener\Authentication\ApiAuthenticationListener;
+use Shopware\Core\Framework\Api\OAuth\Client\PublicClientRegistry;
 use Shopware\Core\Framework\Api\OAuth\GrantTypeFactory;
 use Shopware\Core\Framework\Api\OAuth\OAuthResource;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
@@ -167,6 +168,7 @@ class ApiAuthenticationListenerTest extends TestCase
                 $userService,
                 $externalTokenService,
                 $clock,
+                new PublicClientRegistry([], 'prod'),
             ),
             new RouteScopeRegistry([new ApiRouteScope()]),
         );

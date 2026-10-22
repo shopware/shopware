@@ -384,7 +384,7 @@ class OAuthAuthorizeControllerTest extends TestCase
             $authorizationServer,
             new PsrHttpFactory($psr17Factory, $psr17Factory, $psr17Factory, $psr17Factory),
             $psr17Factory,
-            new PublicClientRegistry(['shopware-cli' => ['name' => 'Shopware CLI', 'redirect_uris' => ['http://127.0.0.1/callback']]]),
+            new PublicClientRegistry(['shopware-cli' => ['name' => 'Shopware CLI', 'redirect_uris' => ['http://127.0.0.1/callback']]], 'prod'),
             $rateLimiter,
             $router,
             new McpOAuthMetadata($allowedHosts, 'http://shop.example'),

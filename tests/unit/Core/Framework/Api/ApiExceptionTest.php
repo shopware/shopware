@@ -294,6 +294,15 @@ class ApiExceptionTest extends TestCase
         static::assertSame($previous, $exception->getPrevious());
     }
 
+    public function testInsecureOAuthRedirectUri(): void
+    {
+        $exception = ApiException::insecureOAuthRedirectUri();
+
+        static::assertSame(ApiException::API_OAUTH_INSECURE_REDIRECT_URI, $exception->getErrorCode());
+        static::assertSame(400, $exception->getStatusCode());
+        static::assertSame('Redirect URL must use https. Plain http is only allowed for localhost and loopback IP addresses.', $exception->getMessage());
+    }
+
     public function testSalesChannelInMaintenanceMode(): void
     {
         $exception = ApiException::salesChannelInMaintenanceMode();

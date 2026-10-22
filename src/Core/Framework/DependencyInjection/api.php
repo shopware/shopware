@@ -381,6 +381,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(PublicClientRegistry::class)
         ->args([
             param('shopware.api.oauth_clients'),
+            param('kernel.environment'),
         ]);
 
     $services->set(ClientRepository::class)
@@ -481,6 +482,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(UserService::class),
             service(ExternalTokenService::class),
             service(ClockInterface::class),
+            service(PublicClientRegistry::class),
             param('shopware.api.refresh_token_ttl'),
             param('shopware.api.auth_code_ttl'),
         ]);

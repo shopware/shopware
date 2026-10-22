@@ -7,6 +7,7 @@ use League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\OAuth\Client\PublicClientRegistry;
 use Shopware\Core\Framework\Api\OAuth\GrantTypeFactory;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\Api\OAuth\ShopwareAuthCodeGrantType;
@@ -56,6 +57,7 @@ class GrantTypeFactoryTest extends TestCase
             $userService,
             $externalTokenService,
             $clock,
+            new PublicClientRegistry([], 'prod'),
         );
 
         $grantTypes = $factory->createGrantTypes();

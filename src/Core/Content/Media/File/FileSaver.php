@@ -275,6 +275,14 @@ class FileSaver
             'uploadedAt' => $this->clock->now(),
         ];
 
+        if ($mediaFile->getTitle() !== null) {
+            $data['title'] = $mediaFile->getTitle();
+        }
+
+        if ($mediaFile->getAlt() !== null) {
+            $data['alt'] = $mediaFile->getAlt();
+        }
+
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data): void {
             $this->mediaRepository->update([$data], $context);
         });

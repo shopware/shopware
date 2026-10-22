@@ -62,6 +62,12 @@ With `shopware.media.remote_thumbnails.enable`, SVGs now have an empty `thumbnai
 Before, their `srcset` claimed widths that the returned original file did not have, so browsers rendered small SVG logos far too small.
 Media loaded without the `mediaType` field keep their thumbnail URLs, as the type can't be checked.
 
+### Media files can carry a title and an alt text
+
+`MediaFile` has the new optional constructor arguments `title` and `alt`, with the getters `getTitle()` and `getAlt()`.
+`FileSaver::persistFileToMedia()` writes them in the same update as the file data, so a separate media update for them is no longer needed.
+Without them, the title and alt text of the media stay unchanged.
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request

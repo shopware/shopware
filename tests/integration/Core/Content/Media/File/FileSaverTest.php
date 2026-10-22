@@ -15,6 +15,7 @@ use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaEvents;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
@@ -111,6 +112,45 @@ SVG;
 
         $path = $media->getPath();
         static::assertTrue($this->getPublicFilesystem()->has($path));
+    }
+
+    public function testPersistFileToMediaStoresTitleAndAltInTheSameWrite(): void
+    {
+        $tempFile = tempnam(sys_get_temp_dir(), '');
+        static::assertIsString($tempFile);
+        copy(self::TEST_IMAGE, $tempFile);
+
+        $fileSize = filesize($tempFile);
+        static::assertIsInt($fileSize);
+        $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize, null, 'Shopware logo', 'Blue Shopware logo');
+
+        $mediaId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $this->mediaRepository->create([['id' => $mediaId]], $context);
+
+        $mediaWrites = 0;
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
+            MediaEvents::MEDIA_WRITTEN_EVENT,
+            static function () use (&$mediaWrites): void {
+                ++$mediaWrites;
+            }
+        );
+
+        try {
+            $this->fileSaver->persistFileToMedia($mediaFile, 'test-file', $mediaId, $context);
+        } finally {
+            if (\is_file($tempFile)) {
+                unlink($tempFile);
+            }
+        }
+
+        static::assertSame(1, $mediaWrites);
+
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $context)->getEntities()->get($mediaId);
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertSame('test-file', $media->getFileName());
+        static::assertSame('Shopware logo', $media->getTitle());
+        static::assertSame('Blue Shopware logo', $media->getAlt());
     }
 
     public function testPersistSafeSvgToMedia(): void

@@ -25,7 +25,7 @@ class StrictChoiceResolverTest extends TestCase
         // ProductTypeRegistry is the tagged enum provider for product.type
         $field = (new StringField('type', 'type'))->addFlags(new Choice(['base'], strict: true));
 
-        $choices = $resolver->getStrictChoices($field, ProductDefinition::ENTITY_NAME);
+        $choices = $resolver->getStrictChoices($field, static::getContainer()->get(ProductDefinition::class));
 
         static::assertIsArray($choices);
         static::assertContains('base', $choices);

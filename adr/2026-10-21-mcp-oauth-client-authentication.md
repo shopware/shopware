@@ -164,6 +164,9 @@ Rules:
 - `GET` and `POST /api/oauth/authorize` and `POST /api/oauth/token` accept `resource`.
   The only resource value accepted is the MCP resource of this shop; any other value is answered with `invalid_target` (RFC 8707).
   The token request must name the same resource as the authorization request.
+- The resource is compared without its query and without a trailing slash, so `https://shop.example/api/_mcp?toolsets=all` names the same resource.
+  A resource with a fragment is rejected, as RFC 8707 requires.
+- A token request without `resource` after an authorization request with one still yields a token bound to that resource; RFC 8707 lets the authorization server apply the resource of the grant.
 - A refresh keeps the resource of the original grant.
 - The JWT keeps the client id as the first `aud` entry and adds the resource as a further entry.
   Readers taking `aud[0]` as client id keep working.

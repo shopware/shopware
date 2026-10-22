@@ -58,6 +58,38 @@ The Storefront profile page marks the VAT ID field as required based on the same
 
 ## API
 
+### MCP clients can log in with OAuth
+
+MCP clients can now discover how to log in to `/api/_mcp` and get a token that only works there.
+Access keys, integration tokens and all existing OAuth tokens keep working unchanged.
+
+* **Discovery:** A `401` from `/api/_mcp` now carries `WWW-Authenticate: Bearer resource_metadata="..."`, with `error="invalid_token"` when credentials were sent.
+  The protected resource metadata (RFC 9728) is served at `/.well-known/oauth-protected-resource/api/_mcp` and the authorization server metadata (RFC 8414) at `/.well-known/oauth-authorization-server/api`.
+  The issuer is `<shop URL>/api`, and the authorization response now contains `iss` (RFC 9207).
+  The URLs use the request host when it is an allowed MCP host, otherwise `APP_URL`.
+* **Installations in a subdirectory:** The well-known URIs sit at the host root, e.g. `/.well-known/oauth-protected-resource/shop/api/_mcp`.
+  Rewrite them in the web server to `/shop/.well-known/oauth-protected-resource/api/_mcp` and `/shop/.well-known/oauth-authorization-server/api`.
+* **Audience-bound tokens:** `/api/oauth/authorize` and `/api/oauth/token` accept the `resource` parameter (RFC 8707).
+  The only accepted value is the shop's MCP endpoint; any other value is answered with `invalid_target`.
+  A token issued with `resource` is accepted on `/api/_mcp` only and gets `401` on every other Admin API route.
+  A refresh keeps the resource.
+  The JWT keeps the client id as the first `aud` entry and lists the resource after it.
+  Requests without `resource` behave as before.
+* **Clients:** There is no dynamic client registration.
+  To let an MCP client with a configurable client id log in, add it to `shopware.api.oauth_clients`:
+
+  ```yaml
+  shopware:
+      api:
+          oauth_clients:
+              claude-code:
+                  name: 'Claude Code'
+                  redirect_uris:
+                      - 'http://127.0.0.1/callback'
+  ```
+
+  Loopback IP redirect URIs accept any port; `http://localhost` is not accepted.
+
 ### Criteria on fields the API does not expose is a bad request
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.

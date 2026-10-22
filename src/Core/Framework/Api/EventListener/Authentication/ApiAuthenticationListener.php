@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\Api\EventListener\Authentication;
 
 use League\OAuth2\Server\AuthorizationServer;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\OAuth\GrantTypeFactory;
+use Shopware\Core\Framework\Api\OAuth\OAuthResource;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiContextRouteScopeDependant;
@@ -23,6 +25,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class ApiAuthenticationListener implements EventSubscriberInterface
 {
     use RouteScopeCheckTrait;
+
+    private const MCP_ROUTE_NAME = 'api.mcp.endpoint';
 
     /**
      * @internal
@@ -77,11 +81,32 @@ class ApiAuthenticationListener implements EventSubscriberInterface
             return;
         }
 
-        $this->symfonyBearerTokenValidator->validateAuthorization($event->getRequest());
+        $this->symfonyBearerTokenValidator->validateAuthorization($request);
+
+        $this->rejectResourceBoundTokenOutsideItsResource($event);
     }
 
     protected function getScopeRegistry(): RouteScopeRegistry
     {
         return $this->routeScopeRegistry;
+    }
+
+    /**
+     * A token bound to the MCP resource (RFC 8707) is accepted on `/api/_mcp` only.
+     * Subrequests started by an MCP request (app script tools) inherit its authentication and stay allowed.
+     */
+    private function rejectResourceBoundTokenOutsideItsResource(ControllerEvent $event): void
+    {
+        $request = $event->getRequest();
+
+        if (!$event->isMainRequest() || !$request->attributes->has(OAuthResource::REQUEST_ATTRIBUTE)) {
+            return;
+        }
+
+        if ($request->attributes->get('_route') === self::MCP_ROUTE_NAME) {
+            return;
+        }
+
+        throw ApiException::oauthTokenNotValidForResource();
     }
 }

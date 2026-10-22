@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\OAuth;
 
+use Lcobucci\JWT\UnencryptedToken;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\AccessToken;
@@ -41,5 +42,34 @@ class AccessTokenTest extends TestCase
         $token->setExpiryDateTime(new \DateTimeImmutable());
 
         static::assertNotSame('', $token->toString());
+    }
+
+    public function testResourceIsAddedAsSecondAudience(): void
+    {
+        $config = JWTConfigurationFactory::createJWTConfiguration();
+        $token = new AccessToken(new ApiClient('shopware-cli', false, 'Shopware CLI'), [new WriteScope()], 'user-id');
+        $token->setPrivateKey(new FakeCryptKey($config));
+        $token->setIdentifier('token-id');
+        $token->setExpiryDateTime(new \DateTimeImmutable('+10 minutes'));
+
+        static::assertSame(['shopware-cli'], $this->parse($token->toString())->claims()->get('aud'));
+
+        $token->setResource('https://shop.example/api/_mcp');
+        static::assertSame('https://shop.example/api/_mcp', $token->getResource());
+
+        $claims = $this->parse($token->toString())->claims();
+        static::assertSame(['shopware-cli', 'https://shop.example/api/_mcp'], $claims->get('aud'));
+        static::assertSame('user-id', $claims->get('sub'));
+        static::assertSame('token-id', $claims->get('jti'));
+        static::assertSame(['write'], $claims->get('scopes'));
+    }
+
+    private function parse(string $jwt): UnencryptedToken
+    {
+        static::assertNotSame('', $jwt);
+        $token = JWTConfigurationFactory::createJWTConfiguration()->parser()->parse($jwt);
+        static::assertInstanceOf(UnencryptedToken::class, $token);
+
+        return $token;
     }
 }

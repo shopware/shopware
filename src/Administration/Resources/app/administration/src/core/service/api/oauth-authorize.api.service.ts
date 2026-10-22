@@ -19,6 +19,7 @@ export type OAuthAuthorizationParams = {
     code_challenge_method: string;
     state?: string;
     scope?: string;
+    resource?: string;
 };
 
 /**

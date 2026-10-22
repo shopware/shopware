@@ -166,6 +166,18 @@ describe('src/module/sw-oauth-authorize/page/index', () => {
         expect(navigateTo).toHaveBeenCalledWith('http://127.0.0.1:53421/callback?code=abc&state=xyz');
     });
 
+    it('should forward the resource the client asked for to the info and decision requests', async () => {
+        const query = { ...validQuery, resource: 'http://localhost/api/_mcp' };
+        const { wrapper, getInfo, decide } = await createWrapper({ query });
+        spyOnNavigateTo(wrapper);
+
+        await wrapper.get('.sw-oauth-authorize__approve').trigger('click');
+        await flushPromises();
+
+        expect(getInfo).toHaveBeenCalledWith(query);
+        expect(decide).toHaveBeenCalledWith(query, true);
+    });
+
     it('should submit the denial and navigate to the returned redirect uri', async () => {
         const denyUri = 'http://127.0.0.1:53421/callback?error=access_denied&state=xyz';
         const { wrapper, decide } = await createWrapper({

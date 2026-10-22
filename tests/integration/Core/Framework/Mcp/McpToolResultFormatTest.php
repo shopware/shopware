@@ -3,14 +3,13 @@
 namespace Shopware\Tests\Integration\Core\Framework\Mcp;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
- * A tool result reaches the client through the central renderer: `structuredContent` for the data,
- * `isError` for failures, and the text block clients and models already read.
+ * A tool result reaches the client through the central renderer, in the format of the negotiated
+ * protocol revision: the MCP format since 2025-06-18, the deprecated legacy envelope before.
  *
  * @internal
  */
@@ -20,51 +19,47 @@ class McpToolResultFormatTest extends TestCase
     use AdminApiTestBehaviour;
     use KernelTestBehaviour;
 
-    /**
-     * @deprecated tag:v6.8.0 - Tests the legacy envelope, will be removed
-     */
-    public function testASuccessfulCallCarriesStructuredContentAndKeepsTheLegacyText(): void
+    public function testAClientSince20250618GetsThePlainDataAndStructuredContent(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
-        $result = $this->callTool('shopware-toolsets-list', []);
+        $result = $this->callTool('shopware-toolsets-list', [], '2025-06-18');
 
         static::assertFalse($result['isError'] ?? false);
         static::assertIsArray($result['structuredContent'] ?? null);
         static::assertArrayHasKey('toolsets', $result['structuredContent']);
 
         $text = json_decode($result['content'][0]['text'], true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($text['success'], 'existing readers still get the legacy envelope');
-        static::assertEquals($text['data'], $result['structuredContent']);
+        static::assertArrayNotHasKey('success', $text, 'the legacy envelope is only sent to clients before 2025-06-18');
+        static::assertEquals($text, $result['structuredContent']);
         static::assertArrayHasKey('shopware/generatedAt', $result['_meta'] ?? []);
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - Tests the legacy envelope, will be removed
-     */
-    public function testAFailedCallIsReportedAsIsError(): void
+    public function testAClientBefore20250618GetsTheLegacyEnvelopeOnly(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
+        $result = $this->callTool('shopware-toolsets-list', [], '2025-03-26');
 
-        $result = $this->callTool('shopware-entity-schema', ['entity' => 'no_such_entity']);
+        static::assertArrayNotHasKey('structuredContent', $result);
+        static::assertCount(1, $result['content']);
+
+        $text = json_decode($result['content'][0]['text'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertTrue($text['success']);
+        static::assertArrayHasKey('toolsets', $text['data']);
+    }
+
+    public function testAFailedCallIsReportedAsIsErrorOnEveryRevision(): void
+    {
+        $result = $this->callTool('shopware-entity-schema', ['entity' => 'no_such_entity'], '2025-06-18');
 
         static::assertTrue($result['isError'] ?? false);
         static::assertSame('invalid_arguments', $result['structuredContent']['error']['code'] ?? null);
         static::assertStringContainsString('no_such_entity', $result['structuredContent']['error']['message']);
+        static::assertStringContainsString('no_such_entity', $result['content'][0]['text']);
 
-        $text = json_decode($result['content'][0]['text'], true, 512, \JSON_THROW_ON_ERROR);
+        $legacy = $this->callTool('shopware-entity-schema', ['entity' => 'no_such_entity'], '2025-03-26');
+
+        static::assertTrue($legacy['isError'] ?? false);
+        $text = json_decode($legacy['content'][0]['text'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertFalse($text['success']);
-    }
-
-    public function testTheFinalFormatSendsThePlainData(): void
-    {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
-
-        $result = $this->callTool('shopware-toolsets-list', []);
-
-        $text = json_decode($result['content'][0]['text'], true, 512, \JSON_THROW_ON_ERROR);
-        static::assertArrayNotHasKey('success', $text);
-        static::assertEquals($text, $result['structuredContent']);
+        static::assertSame('invalid_arguments', $text['code']);
     }
 
     /**
@@ -72,14 +67,14 @@ class McpToolResultFormatTest extends TestCase
      *
      * @return array<string, mixed>
      */
-    private function callTool(string $name, array $arguments): array
+    private function callTool(string $name, array $arguments, string $protocolVersion): array
     {
         $browser = $this->getBrowser();
         $browser->request('POST', '/api/_mcp', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
             'jsonrpc' => '2.0',
             'method' => 'initialize',
             'params' => [
-                'protocolVersion' => '2025-06-18',
+                'protocolVersion' => $protocolVersion,
                 'capabilities' => new \stdClass(),
                 'clientInfo' => ['name' => 'mcp-result-format-test', 'version' => '1.0'],
             ],

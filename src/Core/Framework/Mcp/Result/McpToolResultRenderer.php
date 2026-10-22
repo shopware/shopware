@@ -9,7 +9,6 @@ use Mcp\Schema\Request\CallToolRequest;
 use Mcp\Schema\Result\CallToolResult;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\Util\Json;
@@ -21,24 +20,24 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * @internal
  *
  * The one place that knows the MCP tool result format. It renders a {@see McpToolResult} as a
- * `CallToolResult`: `structuredContent` for the data, `isError` for failures, and a text block for
- * models, which many clients pass on instead of `structuredContent`.
+ * `CallToolResult` in the format of the negotiated protocol revision, see {@see McpToolResultCapabilities}:
  *
- * Until 6.8.0 the text block keeps the legacy `{"success": …}` string, so existing readers keep
- * working. With the `v6.8.0.0` feature flag the text carries the plain data (or the error message)
- * instead, followed by the summary and the metadata as blocks of their own.
+ * - Since 2025-06-18: `structuredContent` for the data, `isError` for failures, `resource_link` for stored
+ *   results, and text blocks for models, which many clients pass on instead of `structuredContent`: the
+ *   plain data (or the error message), then the summary and the metadata as blocks of their own.
+ * - Before 2025-06-18: the deprecated legacy `{"success": …}` envelope as the only text block, which is
+ *   all these revisions can carry.
  *
  * It also decides about size: a successful result whose rendered form exceeds the limit of the
  * negotiated revision is stored for the calling principal and sent as a link, whichever tool or app
- * produced it. Clients since 2025-06-18 get the plain data stored, older ones the legacy envelope, see
- * {@see McpToolResultStoredFormat}.
+ * produced it.
  */
 #[Package('framework')]
 class McpToolResultRenderer
 {
     /**
-     * The largest result sent inline, counted as the text blocks plus the encoded `structuredContent`.
-     * Since 2025-06-18 the data is sent twice, so this is about 100 KB of data, the limit that applied to
+     * The largest result sent inline since 2025-06-18, counted as the text blocks plus the encoded
+     * `structuredContent`. The data is sent twice, so this is about 100 KB of data, the limit that applied to
      * the tool's string before the renderer measured the rendered result.
      */
     public const MAX_INLINE_SIZE = 200_000;
@@ -47,6 +46,17 @@ class McpToolResultRenderer
      * Revisions before 2025-06-18 have no `structuredContent` and get the data once, in the text block.
      */
     public const MAX_INLINE_SIZE_TEXT_ONLY = 100_000;
+
+    /**
+     * The tool's own metadata sent with the link to a stored result. Values beyond it are left out and
+     * named in `omittedMeta`, so a link never carries the bulk that made the result too large.
+     */
+    public const MAX_LINKED_META_SIZE = 10_000;
+
+    /**
+     * The tool's own summary sent with the link to a stored result; a longer one is cut.
+     */
+    public const MAX_LINKED_SUMMARY_SIZE = 2_000;
 
     private const META_PREFIX = 'shopware/';
 
@@ -59,21 +69,21 @@ class McpToolResultRenderer
     }
 
     /**
-     * @param string|null $legacyText the string the tool returned, if it returned the legacy envelope;
-     *                                kept as is so existing readers see exactly what they saw before. Goes
-     *                                away with the legacy envelope in 6.8.0
+     * @param string|null $legacyText the string the tool returned, if it returned the legacy envelope; sent
+     *                                as is to clients before 2025-06-18, so they see exactly what they saw before
      * @param CallToolRequest|null $call the call that produced the result; a stored result echoes its tool
      *                                   name and arguments, so the model can tell which call a link belongs to
      */
     public function render(McpToolResult $result, ProtocolVersion $protocolVersion, ?string $legacyText = null, ?CallToolRequest $call = null): CallToolResult
     {
-        $rendered = $this->renderInline($result, $protocolVersion, $legacyText);
+        $capabilities = McpToolResultCapabilities::forRevision($protocolVersion);
+        $rendered = $this->renderInline($result, $capabilities, $legacyText);
         if ($result->isError()) {
             return $rendered;
         }
 
         $size = $this->renderedSize($rendered);
-        if ($size <= $this->inlineLimit($protocolVersion)) {
+        if ($size <= $capabilities->inlineLimit) {
             return $rendered;
         }
 
@@ -84,7 +94,7 @@ class McpToolResultRenderer
             return $rendered;
         }
 
-        $format = $this->storedFormat($protocolVersion);
+        $format = $capabilities->storedFormat;
         $content = $format === McpToolResultStoredFormat::Spec ? Json::encode($result->data) : ($legacyText ?? $this->legacyEnvelope($result));
         // The pointer is signed for the principal, so it works without an MCP session. The session id is
         // only recorded for the cleanup when a handshake session ends.
@@ -96,27 +106,34 @@ class McpToolResultRenderer
             'resourceUri' => $pointer->uri(),
         ]);
 
-        [$linked, $linkedLegacyText] = $this->linkedResult($result, $pointer, \strlen($content), $protocolVersion, $call);
+        [$linked, $linkedLegacyText] = $this->linkedResult($result, $pointer, \strlen($content), $capabilities, $call);
 
-        return $this->renderInline($linked, $protocolVersion, $linkedLegacyText);
+        return $this->renderInline($linked, $capabilities, $linkedLegacyText);
     }
 
-    private function renderInline(McpToolResult $result, ProtocolVersion $protocolVersion, ?string $legacyText): CallToolResult
+    private function renderInline(McpToolResult $result, McpToolResultCapabilities $capabilities, ?string $legacyText): CallToolResult
     {
-        $specOnly = Feature::isActive('v6.8.0.0');
-        if ($specOnly) {
-            $result = $this->withoutLinkedResourceUri($result, $protocolVersion);
+        if (!$capabilities->specFormat) {
+            return new CallToolResult(
+                [new TextContent($legacyText ?? $this->legacyEnvelope($result))],
+                isError: $result->isError(),
+                meta: $this->timestamps($result),
+            );
         }
-        $texts = $specOnly ? $this->specTexts($result) : [$legacyText ?? $this->legacyEnvelope($result)];
+
+        $meta = [];
+        foreach ($result->meta as $key => $value) {
+            $meta[self::META_PREFIX . $key] = $value;
+        }
 
         return new CallToolResult(
             [
-                ...array_map(static fn (string $text): TextContent => new TextContent($text), $texts),
-                ...$this->links($result, $protocolVersion),
+                ...array_map(static fn (string $text): TextContent => new TextContent($text), $this->specTexts($result)),
+                ...$this->links($result),
             ],
             isError: $result->isError(),
-            structuredContent: $this->structuredContent($result, $protocolVersion),
-            meta: $this->meta($result, $specOnly),
+            structuredContent: $this->structuredContent($result, $capabilities),
+            meta: [...$meta, ...$this->timestamps($result)],
         );
     }
 
@@ -138,86 +155,89 @@ class McpToolResultRenderer
     }
 
     /**
-     * The legacy envelope was Shopware's convention before MCP had `structuredContent` and `resource_link`.
-     * Clients since 2025-06-18 read the stored data as it is and get its metadata with the link.
-     */
-    private function storedFormat(ProtocolVersion $protocolVersion): McpToolResultStoredFormat
-    {
-        return $protocolVersion->isAtLeast(ProtocolVersion::V2025_06_18) ? McpToolResultStoredFormat::Spec : McpToolResultStoredFormat::Legacy;
-    }
-
-    private function inlineLimit(ProtocolVersion $protocolVersion): int
-    {
-        return $protocolVersion->isAtLeast(ProtocolVersion::V2025_06_18) ? self::MAX_INLINE_SIZE : self::MAX_INLINE_SIZE_TEXT_ONLY;
-    }
-
-    /**
-     * The result that replaces a stored one, and its legacy text. The legacy text is what
-     * `McpToolResponse::success()` returned for a stored result before the renderer took over, so existing
-     * readers keep finding the pointer in `_meta.resourceUri`. Goes away with the legacy envelope in 6.8.0.
+     * The result that replaces a stored one, and its legacy text. The tool's summary and links are kept, and
+     * its metadata as far as it fits {@see self::MAX_LINKED_META_SIZE}. The legacy text is what
+     * `McpToolResponse::success()` returned for a stored result before the renderer took over, so clients
+     * before 2025-06-18 keep finding the pointer in `_meta.resourceUri`.
      *
      * @return array{McpToolResult, string}
      */
-    private function linkedResult(McpToolResult $result, McpToolResultPointer $pointer, int $storedSize, ProtocolVersion $protocolVersion, ?CallToolRequest $call): array
+    private function linkedResult(McpToolResult $result, McpToolResultPointer $pointer, int $storedSize, McpToolResultCapabilities $capabilities, ?CallToolRequest $call): array
     {
-        // With the 6.8 format, a client that gets the `resource_link` doesn't get `_meta.resourceUri`.
-        $pointsToLink = Feature::isActive('v6.8.0.0') && $protocolVersion->isAtLeast(ProtocolVersion::V2025_06_18);
         $note = 'Response too large for inline delivery. '
             . 'Prefer re-running the tool with tighter "includes" or a lower "limit" to get a smaller inline result. '
-            . ($pointsToLink
+            . ($capabilities->specFormat
                 ? 'If you need the full data as-is, fetch it via resources/read using the URI of the resource_link.'
                 : 'If you need the full data as-is, fetch it via resources/read using the URI in _meta.resourceUri.');
 
-        $meta = [...$result->meta, 'resourceUri' => $pointer->uri(), 'responseSize' => $storedSize];
+        $meta = $this->boundedMeta($result->meta);
+        $meta['responseSize'] = $storedSize;
+        if ($call !== null && $call->name !== '') {
+            $arguments = $call->arguments;
+            $meta['query'] = \strlen(Json::encode($arguments)) <= self::MAX_LINKED_META_SIZE
+                ? ['tool' => $call->name, 'arguments' => $arguments]
+                : ['tool' => $call->name];
+        }
+
         $legacyMeta = [
-            ...$result->meta,
+            ...$meta,
             'resourceUri' => $pointer->uri(),
             'expiresAt' => $pointer->expiresAt->format(\DateTimeInterface::ATOM),
-            'responseSize' => $storedSize,
             'note' => $note,
         ];
 
-        if ($call !== null && $call->name !== '') {
-            $meta['query'] = $legacyMeta['query'] = ['tool' => $call->name, 'arguments' => $call->arguments];
+        $summary = $result->summary;
+        if ($summary !== null && \strlen($summary) > self::MAX_LINKED_SUMMARY_SIZE) {
+            $summary = mb_strcut($summary, 0, self::MAX_LINKED_SUMMARY_SIZE) . '…';
         }
 
         $linked = new McpToolResult(
-            summary: $note,
-            meta: $meta,
+            summary: $summary !== null && $summary !== '' ? $summary . "\n\n" . $note : $note,
+            // Since 2025-06-18 the `resource_link` carries the pointer; older revisions only read the text.
+            meta: $capabilities->specFormat ? $meta : [...$meta, 'resourceUri' => $pointer->uri()],
             generatedAt: $result->generatedAt,
             expiresAt: $pointer->expiresAt,
-            links: [new McpToolResultLink($pointer->uri(), 'tool-result', $note, 'application/json', $storedSize)],
+            links: [...$result->links, new McpToolResultLink($pointer->uri(), 'tool-result', $note, 'application/json', $storedSize)],
         );
 
         return [$linked, Json::encode(['success' => true, 'data' => null, '_meta' => $legacyMeta])];
     }
 
     /**
-     * Since 2025-06-18 the `resource_link` block carries the pointer, so the 6.8 format doesn't repeat it
-     * in the metadata. Older revisions only read the text and keep it there.
+     * The tool's metadata in its order, as long as it fits {@see self::MAX_LINKED_META_SIZE}. A value that
+     * doesn't fit, such as a large `preview` of an app tool, is named in `omittedMeta`. Clients before
+     * 2025-06-18 find it in the stored envelope; since 2025-06-18 the stored resource is the plain data.
+     *
+     * @param array<string, mixed> $meta
+     *
+     * @return array<string, mixed>
      */
-    private function withoutLinkedResourceUri(McpToolResult $result, ProtocolVersion $protocolVersion): McpToolResult
+    private function boundedMeta(array $meta): array
     {
-        $uri = $result->meta['resourceUri'] ?? null;
-        if (!\is_string($uri) || !$protocolVersion->isAtLeast(ProtocolVersion::V2025_06_18)) {
-            return $result;
-        }
+        $bounded = [];
+        $omitted = [];
+        $size = 0;
+        foreach ($meta as $key => $value) {
+            $entrySize = \strlen((string) $key) + \strlen(Json::encode($value));
+            if ($size + $entrySize > self::MAX_LINKED_META_SIZE) {
+                $omitted[] = (string) $key;
 
-        foreach ($result->links as $link) {
-            if ($link->uri === $uri) {
-                $meta = $result->meta;
-                unset($meta['resourceUri']);
-
-                return new McpToolResult($result->data, $result->summary, $result->error, $meta, $result->generatedAt, $result->expiresAt, $result->links);
+                continue;
             }
+            $size += $entrySize;
+            $bounded[$key] = $value;
         }
 
-        return $result;
+        if ($omitted !== []) {
+            $bounded['omittedMeta'] = $omitted;
+        }
+
+        return $bounded;
     }
 
     /**
-     * The legacy envelope that `McpToolResponse::success()` and `::error()` produce. Goes away with the
-     * legacy envelope in 6.8.0.
+     * The legacy envelope that `McpToolResponse::success()` and `::error()` produce. Deprecated, and kept
+     * for clients before 2025-06-18.
      */
     private function legacyEnvelope(McpToolResult $result): string
     {
@@ -236,13 +256,8 @@ class McpToolResultRenderer
     /**
      * @return list<ResourceLink>
      */
-    private function links(McpToolResult $result, ProtocolVersion $protocolVersion): array
+    private function links(McpToolResult $result): array
     {
-        // `resource_link` content blocks exist since 2025-06-18; older clients read the legacy text.
-        if (!$protocolVersion->isAtLeast(ProtocolVersion::V2025_06_18)) {
-            return [];
-        }
-
         return array_map(static fn (McpToolResultLink $link): ResourceLink => new ResourceLink(
             $link->uri,
             $link->name,
@@ -253,7 +268,7 @@ class McpToolResultRenderer
     }
 
     /**
-     * The text blocks of the spec-only format: the data as plain JSON first, then the summary, then
+     * The text blocks of the MCP format: the data as plain JSON first, then the summary, then
      * `{"_meta": …}`. A summary never replaces the data. A failure sends its message, then its details and
      * `{"_meta": …}`.
      *
@@ -289,13 +304,8 @@ class McpToolResultRenderer
         return $texts === [] ? [Json::encode(null)] : $texts;
     }
 
-    private function structuredContent(McpToolResult $result, ProtocolVersion $protocolVersion): mixed
+    private function structuredContent(McpToolResult $result, McpToolResultCapabilities $capabilities): mixed
     {
-        // `structuredContent` exists since 2025-06-18; older clients read the text block only.
-        if (!$protocolVersion->isAtLeast(ProtocolVersion::V2025_06_18)) {
-            return null;
-        }
-
         if ($result->error !== null) {
             return ['error' => array_filter([
                 'code' => $result->error->code,
@@ -308,8 +318,7 @@ class McpToolResultRenderer
             return null;
         }
 
-        // Before 2026-07-28 `structuredContent` has to be a JSON object; a list or a scalar is wrapped.
-        if ($protocolVersion->requiresObjectStructuredContent() && !$this->isJsonObject($result->data)) {
+        if ($capabilities->objectOnlyStructuredContent && !$this->isJsonObject($result->data)) {
             return ['result' => $result->data];
         }
 
@@ -319,17 +328,9 @@ class McpToolResultRenderer
     /**
      * @return array<string, mixed>
      */
-    private function meta(McpToolResult $result, bool $specOnly): array
+    private function timestamps(McpToolResult $result): array
     {
-        $meta = [];
-        if ($specOnly) {
-            // In the legacy text the metadata is already inside the envelope.
-            foreach ($result->meta as $key => $value) {
-                $meta[self::META_PREFIX . $key] = $value;
-            }
-        }
-
-        $meta[self::META_PREFIX . 'generatedAt'] = ($result->generatedAt ?? $this->clock->now())->format(\DateTimeInterface::ATOM);
+        $meta = [self::META_PREFIX . 'generatedAt' => ($result->generatedAt ?? $this->clock->now())->format(\DateTimeInterface::ATOM)];
         if ($result->expiresAt !== null) {
             $meta[self::META_PREFIX . 'expiresAt'] = $result->expiresAt->format(\DateTimeInterface::ATOM);
         }

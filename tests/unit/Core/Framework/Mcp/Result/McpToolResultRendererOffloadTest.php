@@ -16,12 +16,13 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Result\McpToolResult;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultLink;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultPointer;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultRenderer;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultStoredFormat;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,7 +36,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 #[Package('framework')]
 #[CoversClass(McpToolResultRenderer::class)]
-#[CoversClass(McpToolResultStoredFormat::class)]
 class McpToolResultRendererOffloadTest extends TestCase
 {
     private const URI = 'shopware://tool-result/token';
@@ -64,10 +64,15 @@ class McpToolResultRendererOffloadTest extends TestCase
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Tests the legacy envelope, will be removed
+     * @return iterable<string, array{ProtocolVersion}>
      */
-    #[DataProvider('protocolVersionProvider')]
-    #[DisabledFeatures(['v6.8.0.0'])]
+    public static function legacyRevisionProvider(): iterable
+    {
+        yield '2024-11-05' => [ProtocolVersion::V2024_11_05];
+        yield '2025-03-26' => [ProtocolVersion::V2025_03_26];
+    }
+
+    #[DataProvider('legacyRevisionProvider')]
     public function testStoresALargeResultAndKeepsThePointerInTheLegacyText(ProtocolVersion $protocolVersion): void
     {
         $legacyText = $this->legacyText(110_000);
@@ -94,11 +99,21 @@ class McpToolResultRendererOffloadTest extends TestCase
         static::assertStringContainsString('_meta.resourceUri', $text['_meta']['note']);
         static::assertSame(['tool' => 'shopware-entity-search', 'arguments' => ['entity' => 'product']], $text['_meta']['query']);
         static::assertNull($result->structuredContent);
-        static::assertSame($protocolVersion === ProtocolVersion::V2025_03_26 ? [] : [self::URI], $this->linkUris($result));
+        static::assertCount(1, $result->content, 'without `resource_link` the text is the only place the client finds the pointer');
     }
 
-    #[DataProvider('protocolVersionProvider')]
-    public function testSendsTheLinkInsteadOfTheResourceUriWithTheSpecFormat(ProtocolVersion $protocolVersion): void
+    /**
+     * @return iterable<string, array{ProtocolVersion}>
+     */
+    public static function specRevisionProvider(): iterable
+    {
+        yield '2025-06-18' => [ProtocolVersion::V2025_06_18];
+        yield '2025-11-25' => [ProtocolVersion::V2025_11_25];
+        yield '2026-07-28' => [ProtocolVersion::V2026_07_28];
+    }
+
+    #[DataProvider('specRevisionProvider')]
+    public function testSendsTheLinkInsteadOfTheResourceUriSince20250618(ProtocolVersion $protocolVersion): void
     {
         $this->requestStack->push($this->adminRequest());
         $this->storage->expects($this->once())->method('storeFor')->willReturn($this->pointer());
@@ -108,15 +123,7 @@ class McpToolResultRendererOffloadTest extends TestCase
         $meta = json_decode($this->text($result->content[1]), true, 512, \JSON_THROW_ON_ERROR)['_meta'];
         static::assertNull($result->structuredContent);
         static::assertArrayNotHasKey('query', $meta, 'without the call there is nothing to echo');
-        if ($protocolVersion === ProtocolVersion::V2025_03_26) {
-            // Without `resource_link` the text is the only place the client finds the pointer.
-            static::assertSame(self::URI, $meta['resourceUri']);
-            static::assertStringContainsString('_meta.resourceUri', $this->text($result->content[0]));
-            static::assertSame([], $this->linkUris($result));
-
-            return;
-        }
-
+        static::assertArrayNotHasKey('success', $meta);
         static::assertArrayNotHasKey('resourceUri', $meta);
         static::assertArrayNotHasKey('shopware/resourceUri', $result->meta ?? []);
         static::assertStringContainsString('resource_link', $this->text($result->content[0]));
@@ -141,8 +148,8 @@ class McpToolResultRendererOffloadTest extends TestCase
     }
 
     /**
-     * The format follows the protocol revision, not the `v6.8.0.0` flag: the legacy envelope only predates
-     * `structuredContent` and `resource_link`.
+     * The format follows the protocol revision: the legacy envelope only predates `structuredContent` and
+     * `resource_link`.
      */
     #[DataProvider('storedFormatProvider')]
     public function testStoresTheFormatOfTheNegotiatedRevision(ProtocolVersion $protocolVersion, ?string $legacyText, string $expectedContent, McpToolResultStoredFormat $expectedFormat): void
@@ -260,6 +267,69 @@ class McpToolResultRendererOffloadTest extends TestCase
         static::assertSame([], $this->linkUris($result));
     }
 
+    public function testKeepsTheSummaryAndTheLinksOfTheTool(): void
+    {
+        $this->requestStack->push($this->adminRequest());
+        $this->storage->expects($this->once())->method('storeFor')->willReturn($this->pointer());
+        $ownLink = new McpToolResultLink('shopware://media/abc', 'media', mimeType: 'image/png');
+
+        $result = $this->renderer->render(
+            new McpToolResult(['blob' => str_repeat('x', 110_000)], 'Exported 3 products', links: [$ownLink]),
+            ProtocolVersion::V2025_11_25,
+        );
+
+        static::assertStringStartsWith("Exported 3 products\n\nResponse too large", $this->text($result->content[0]));
+        static::assertSame(['shopware://media/abc', self::URI], $this->linkUris($result), 'the stored result is linked after the tool\'s own links');
+    }
+
+    public function testCutsALongSummaryOfAStoredResult(): void
+    {
+        $this->requestStack->push($this->adminRequest());
+        $this->storage->expects($this->once())->method('storeFor')->willReturn($this->pointer());
+
+        $result = $this->renderer->render(
+            new McpToolResult(['blob' => str_repeat('x', 110_000)], str_repeat('s', 50_000)),
+            ProtocolVersion::V2025_11_25,
+        );
+
+        static::assertStringStartsWith(str_repeat('s', McpToolResultRenderer::MAX_LINKED_SUMMARY_SIZE) . "…\n\nResponse too large", $this->text($result->content[0]));
+    }
+
+    /**
+     * @return iterable<string, array{ProtocolVersion}>
+     */
+    public static function everyRevisionProvider(): iterable
+    {
+        yield from self::legacyRevisionProvider();
+        yield from self::specRevisionProvider();
+    }
+
+    /**
+     * A large `preview` next to the envelope fields is metadata. Copied into the link, it would keep the
+     * response as large as the result it replaces.
+     */
+    #[DataProvider('everyRevisionProvider')]
+    public function testLeavesOversizedMetadataOutOfTheLinkedResponse(ProtocolVersion $protocolVersion): void
+    {
+        $this->requestStack->push($this->adminRequest());
+        $this->storage->expects($this->once())->method('storeFor')->willReturn($this->pointer());
+        $arguments = ['input' => str_repeat('a', 20_000)];
+
+        $result = $this->renderer->render(
+            McpToolResult::success(['id' => 'a'], ['dryRun' => true, 'preview' => str_repeat('p', 250_000), 'total' => 1]),
+            $protocolVersion,
+            call: new CallToolRequest('ucp-checkout', $arguments),
+        );
+
+        $meta = $this->linkedMeta($result);
+        static::assertTrue($meta['dryRun']);
+        static::assertSame(1, $meta['total'], 'metadata after an oversized value is still kept');
+        static::assertArrayNotHasKey('preview', $meta);
+        static::assertSame(['preview'], $meta['omittedMeta']);
+        static::assertSame(['tool' => 'ucp-checkout'], $meta['query'], 'large arguments are not echoed');
+        static::assertLessThan(McpToolResultRenderer::MAX_INLINE_SIZE_TEXT_ONLY, \strlen(Json::encode($result)));
+    }
+
     private function parsed(int $dataSize): McpToolResult
     {
         return McpToolResult::success(['blob' => str_repeat('x', $dataSize)]);
@@ -298,7 +368,7 @@ class McpToolResultRendererOffloadTest extends TestCase
     }
 
     /**
-     * The metadata of a linked result, from the legacy envelope or from the `{"_meta": …}` block of the 6.8
+     * The metadata of a linked result, from the legacy envelope or from the `{"_meta": …}` block of the MCP
      * format.
      *
      * @return array<string, mixed>

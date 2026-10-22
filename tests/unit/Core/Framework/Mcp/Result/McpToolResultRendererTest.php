@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultLink;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultRenderer;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -29,35 +28,67 @@ class McpToolResultRendererTest extends TestCase
     private const NOW = '2026-09-28T10:00:00+00:00';
 
     /**
-     * @deprecated tag:v6.8.0 - Tests the legacy envelope, will be removed
+     * @return iterable<string, array{ProtocolVersion}>
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testRendersSuccessWithTheLegacyTextAndStructuredData(): void
+    public static function legacyRevisionProvider(): iterable
     {
-        $legacy = '{"success":true,"data":{"id":"a"}}';
+        yield '2024-11-05' => [ProtocolVersion::V2024_11_05];
+        yield '2025-03-26' => [ProtocolVersion::V2025_03_26];
+    }
 
-        $result = $this->renderer()->render(McpToolResult::success(['id' => 'a']), ProtocolVersion::latestHandshake(), $legacy);
+    #[DataProvider('legacyRevisionProvider')]
+    public function testSendsTheToolsLegacyTextUnchangedBefore20250618(ProtocolVersion $protocolVersion): void
+    {
+        $legacy = '{"success":true,"data":{"id":"a"},"_meta":{"total":1}}';
+
+        $result = $this->renderer()->render(McpToolResult::success(['id' => 'a'], ['total' => 1], 'One product'), $protocolVersion, $legacy);
 
         static::assertFalse($result->isError);
-        static::assertSame(['id' => 'a'], $result->structuredContent);
+        static::assertNull($result->structuredContent);
+        static::assertCount(1, $result->content);
         static::assertSame($legacy, $this->text($result->content[0]), 'existing readers must see exactly the string the tool returned');
-        static::assertSame(['shopware/generatedAt' => self::NOW], $result->meta);
+        static::assertSame(['shopware/generatedAt' => self::NOW], $result->meta, 'the metadata is inside the envelope');
+    }
+
+    #[DataProvider('legacyRevisionProvider')]
+    public function testSendsAFailureAsTheLegacyEnvelopeBefore20250618(ProtocolVersion $protocolVersion): void
+    {
+        $result = $this->renderer()->render(McpToolResult::failure('Missing privilege: product:read', McpToolError::MISSING_PRIVILEGE), $protocolVersion);
+
+        static::assertTrue($result->isError, '`isError` exists on every revision');
+        static::assertNull($result->structuredContent);
+        static::assertSame('{"success":false,"error":"Missing privilege: product:read","code":"missing_privilege"}', $this->text($result->content[0]));
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Tests the legacy envelope, will be removed
+     * @return iterable<string, array{ProtocolVersion}>
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testRendersFailureAsIsErrorWithAStructuredErrorObject(): void
+    public static function specRevisionProvider(): iterable
     {
-        $result = $this->renderer()->render(
-            McpToolResult::failure('Missing privilege: product:read', McpToolError::MISSING_PRIVILEGE),
-            ProtocolVersion::latestHandshake(),
-        );
+        yield '2025-06-18' => [ProtocolVersion::V2025_06_18];
+        yield '2025-11-25' => [ProtocolVersion::V2025_11_25];
+        yield '2026-07-28' => [ProtocolVersion::V2026_07_28];
+    }
+
+    #[DataProvider('specRevisionProvider')]
+    public function testSendsTheMcpFormatInsteadOfTheLegacyTextSince20250618(ProtocolVersion $protocolVersion): void
+    {
+        $result = $this->renderer()->render(McpToolResult::success(['id' => 'a'], ['total' => 1]), $protocolVersion, '{"success":true,"data":{"id":"a"},"_meta":{"total":1}}');
+
+        static::assertSame(['id' => 'a'], $result->structuredContent);
+        static::assertSame('{"id":"a"}', $this->text($result->content[0]), 'the legacy text is not sent next to the data');
+        static::assertSame('{"_meta":{"total":1}}', $this->text($result->content[1]));
+        static::assertCount(2, $result->content);
+    }
+
+    #[DataProvider('specRevisionProvider')]
+    public function testRendersFailureAsIsErrorWithAStructuredErrorObject(ProtocolVersion $protocolVersion): void
+    {
+        $result = $this->renderer()->render(McpToolResult::failure('Missing privilege: product:read', McpToolError::MISSING_PRIVILEGE), $protocolVersion);
 
         static::assertTrue($result->isError);
         static::assertSame(['error' => ['code' => 'missing_privilege', 'message' => 'Missing privilege: product:read']], $result->structuredContent);
-        static::assertSame('{"success":false,"error":"Missing privilege: product:read","code":"missing_privilege"}', $this->text($result->content[0]));
+        static::assertSame('Missing privilege: product:read', $this->text($result->content[0]));
     }
 
     public function testKeepsErrorDetailsInTheStructuredErrorObject(): void
@@ -129,18 +160,14 @@ class McpToolResultRendererTest extends TestCase
         static::assertSame(['shopware/generatedAt' => '2026-09-01T08:00:00+00:00', 'shopware/expiresAt' => '2026-09-02T08:00:00+00:00'], $result->meta);
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - Tests the legacy envelope, will be removed
-     */
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testBuildsTheLegacyEnvelopeWithMetaWhenTheToolReturnedAnObject(): void
     {
-        $result = $this->renderer()->render(McpToolResult::success(['a' => 1], ['total' => 1]), ProtocolVersion::latestHandshake());
+        $result = $this->renderer()->render(McpToolResult::success(['a' => 1], ['total' => 1]), ProtocolVersion::V2025_03_26);
 
         static::assertSame('{"success":true,"data":{"a":1},"_meta":{"total":1}}', $this->text($result->content[0]));
     }
 
-    public function testSpecOnlyModeSendsPlainDataAndPrefixedMeta(): void
+    public function testMcpFormatSendsPlainDataAndPrefixedMeta(): void
     {
         $result = $this->renderer()->render(McpToolResult::success(['a' => 1], ['total' => 1]), ProtocolVersion::latestHandshake(), '{"success":true,"data":{"a":1}}');
 
@@ -150,7 +177,7 @@ class McpToolResultRendererTest extends TestCase
         static::assertSame(['shopware/total' => 1, 'shopware/generatedAt' => self::NOW], $result->meta);
     }
 
-    public function testSpecOnlyModeKeepsTheDataFirstAddsTheSummaryAndSendsErrorsAsTheirMessage(): void
+    public function testMcpFormatKeepsTheDataFirstAddsTheSummaryAndSendsErrorsAsTheirMessage(): void
     {
         $success = $this->renderer()->render(McpToolResult::success(['a' => 1], summary: 'One product'), ProtocolVersion::latestHandshake());
         static::assertSame('{"a":1}', $this->text($success->content[0]), 'the summary never replaces the data');
@@ -166,7 +193,7 @@ class McpToolResultRendererTest extends TestCase
         static::assertSame('{"details":{"violations":["quantity"]}}', $this->text($rejected->content[1]), 'the model needs the details to fix its call');
     }
 
-    public function testSpecOnlyModeSendsNoDataBlockForAResultWithoutData(): void
+    public function testMcpFormatSendsNoDataBlockForAResultWithoutData(): void
     {
         $result = $this->renderer()->render(new McpToolResult(summary: 'Stored as a resource.'), ProtocolVersion::latestHandshake());
 
@@ -174,17 +201,7 @@ class McpToolResultRendererTest extends TestCase
         static::assertCount(1, $result->content);
     }
 
-    public function testSendsNoStructuredContentBeforeTheRevisionThatIntroducedIt(): void
-    {
-        $success = $this->renderer()->render(McpToolResult::success(['a' => 1]), ProtocolVersion::V2025_03_26);
-        static::assertNull($success->structuredContent);
-
-        $failure = $this->renderer()->render(McpToolResult::failure('Not found', McpToolError::NOT_FOUND), ProtocolVersion::V2025_03_26);
-        static::assertNull($failure->structuredContent);
-        static::assertTrue($failure->isError, '`isError` exists on every revision');
-    }
-
-    public function testSpecOnlyModeSendsTheMetadataOfAFailure(): void
+    public function testMcpFormatSendsTheMetadataOfAFailure(): void
     {
         $result = $this->renderer()->render(new McpToolResult(error: new McpToolError('Rejected'), meta: ['dryRun' => true]), ProtocolVersion::latestHandshake());
 
@@ -192,14 +209,12 @@ class McpToolResultRendererTest extends TestCase
         static::assertSame('{"_meta":{"dryRun":true}}', $this->text($result->content[1]));
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testRendersALinkAsResourceLinkAfterTheText(): void
+    public function testRendersALinkAsResourceLinkAfterTheSummary(): void
     {
         $result = $this->renderer()->render($this->linkedResult(), ProtocolVersion::latestHandshake(), '{"success":true,"data":null}');
 
         static::assertCount(2, $result->content);
-        static::assertInstanceOf(TextContent::class, $result->content[0]);
-        static::assertSame('{"success":true,"data":null}', $result->content[0]->text);
+        static::assertSame('Too large to return inline.', $this->text($result->content[0]));
 
         $link = $result->content[1];
         static::assertInstanceOf(ResourceLink::class, $link);
@@ -215,15 +230,6 @@ class McpToolResultRendererTest extends TestCase
         $result = $this->renderer()->render($this->linkedResult(), ProtocolVersion::V2025_03_26);
 
         static::assertCount(1, $result->content);
-    }
-
-    public function testSpecOnlyModeSendsTheSummaryNextToTheLink(): void
-    {
-        $result = $this->renderer()->render($this->linkedResult(), ProtocolVersion::latestHandshake());
-
-        static::assertInstanceOf(TextContent::class, $result->content[0]);
-        static::assertSame('Too large to return inline.', $result->content[0]->text);
-        static::assertInstanceOf(ResourceLink::class, $result->content[1]);
     }
 
     private function linkedResult(): McpToolResult

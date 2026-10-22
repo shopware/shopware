@@ -47,15 +47,28 @@ The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physica
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
 
+### MCP tool results follow the negotiated protocol revision
+
+Tool results of `/api/_mcp` and `/store-api/_mcp` now take their format from the protocol revision the client negotiated, not from the `v6.8.0.0` feature flag.
+
+* **Clients on 2025-06-18 and later** get the MCP format: the first text block is the result data as plain JSON (or the error message), followed by the summary and the metadata (`{"_meta": …}`) as blocks of their own.
+  The text is no longer the `{"success": …}` envelope.
+  The data is also in `structuredContent`, a failure sets `isError: true` with a stable code in `structuredContent.error.code`, and the metadata is also in the result's `_meta` with the prefix `shopware/`.
+  Integrations that parse `success` out of `content[0].text` have to read `isError` and `structuredContent` instead, or negotiate an older revision.
+* **Clients on 2024-11-05 and 2025-03-26** keep the `{"success": …}` envelope as the only text block, unchanged.
+  This legacy envelope is deprecated as a wire format.
+  It is kept for these clients and is not removed in 6.8.0.
+  `McpToolResponse::success()` and `::error()` stay; tools don't need to change.
+
 ### Large MCP results of every tool are stored and linked
 
 The MCP result renderer now decides whether a tool result is too large to return inline, for every tool on `/api/_mcp` and `/store-api/_mcp`.
-Results of app tools and of plugin tools that build their JSON string by hand, which were always returned inline, are now stored like the results of `McpToolResponse::success()` and sent as a `resource_link` with `_meta.resourceUri` in the text.
+Results of app tools and of plugin tools that build their JSON string by hand, which were always returned inline, are now stored like the results of `McpToolResponse::success()` and sent as a `resource_link` (2025-06-18 and later) or with `_meta.resourceUri` in the envelope (before 2025-06-18).
 The model reads them with `resources/read`.
 `McpToolResponse::success()` itself no longer stores anything and always returns the full data, so a tool called outside of an MCP request gets its complete result.
 The limit applies to the rendered result, the text plus `structuredContent`, and is set so that the offload point stays at about 100 KB of data.
-With the `v6.8.0.0` feature flag, `_meta.resourceUri` is left out of the text when the client receives the `resource_link`.
-For clients on protocol revision 2025-06-18 or later, `resources/read` of a stored result returns the plain data instead of the `{"success": true, "data": …}` envelope, with or without the feature flag.
+The linked response keeps the tool's summary, its own links, and its metadata up to 10 KB; larger metadata values are named in `_meta.omittedMeta`.
+For clients on protocol revision 2025-06-18 or later, `resources/read` of a stored result returns the plain data instead of the `{"success": true, "data": …}` envelope.
 Its metadata, such as `total`, comes with the link in the tool result.
 Clients on 2024-11-05 and 2025-03-26 keep reading the envelope.
 

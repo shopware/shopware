@@ -138,32 +138,48 @@ Rules:
 
 ### What the client receives
 
-The envelope above is the text block. `McpToolResultReferenceHandler` wraps the SDK reference handler of both servers (`McpToolResultRendererCompilerPass`), parses the envelope into a `McpToolResult` and renders it with `McpToolResultRenderer` into a `CallToolResult`:
-- `structuredContent` holds `data`. On the handshake era it must be an object, so a list or scalar is wrapped as `{"result": ...}`. A failure becomes `{"error": {"code": ..., "message": ..., "details": ...}}` and sets `isError: true`. Clients that negotiated a protocol revision before 2025-06-18 get no `structuredContent`, because it doesn't exist there; they read the text block
-- `structuredContent` and the text copy are both sent, as the spec asks.
-  A result is never sent with one copy only to make it fit
+The envelope above is what the tool returns, not necessarily what the client gets.
+`McpToolResultReferenceHandler` wraps the SDK reference handler of both servers (`McpToolResultRendererCompilerPass`), parses the envelope into a `McpToolResult` and renders it with `McpToolResultRenderer` into a `CallToolResult`.
+The negotiated protocol revision picks the format, never a feature flag.
+`McpToolResultCapabilities::forRevision()` is the one place that maps a revision to what it supports (spec format, object-only `structuredContent`, inline limit, stored format); a new revision that changes the result format is one entry there.
+
+- **Since 2025-06-18 (MCP format):**
+  - `structuredContent` holds `data`.
+    Before 2026-07-28 it must be an object, so a list or scalar is wrapped as `{"result": ...}`.
+    A failure becomes `{"error": {"code": ..., "message": ..., "details": ...}}` and sets `isError: true`
+  - The text blocks are the data as plain JSON, then the summary, then `{"_meta": …}`.
+    A failure sends its message, then `{"details": …}` and `{"_meta": …}` when there are any.
+    The metadata also goes into the result `_meta` with a `shopware/` prefix.
+    Keys next to the envelope fields, such as `dryRun`, count as metadata
+  - `structuredContent` and the JSON text copy are both sent, as the spec asks.
+    Gemini CLI and Cursor pass only `content` to the model, while Claude Code, Codex and VS Code pass `structuredContent` instead of the text, so neither copy can be dropped.
+    A result is never sent with one copy only to make it fit
+- **Before 2025-06-18 (legacy envelope, deprecated):** the only text block is the tool's `{"success": …}` string as it returned it, or the envelope rebuilt from a `McpToolResult` (data, metadata, error message and code, but no summary or error details).
+  These revisions have no `structuredContent` and no `resource_link`.
+  The envelope is deprecated as a wire format and stays for these clients; it is not scheduled for removal
 - **Large results.** The renderer measures the text blocks plus the encoded `structuredContent` of every successful result, from core, plugin, bundle and app tools and hand-built strings alike.
   Above `McpToolResultRenderer::MAX_INLINE_SIZE` (200 KB, or `MAX_INLINE_SIZE_TEXT_ONLY`, 100 KB, before 2025-06-18, which has no `structuredContent`), so at about 100 KB of data on every revision, the result is stored in `mcp_tool_result_cache` with `ToolResultCacheStorage::storeFor()` and replaced by a link.
-  The stored content follows the negotiated revision, not the `v6.8.0.0` flag (`McpToolResultStoredFormat`, kept in the `mime_type` column).
+  The stored content follows the negotiated revision (`McpToolResultStoredFormat`, kept in the `mime_type` column).
   Since 2025-06-18 it is the plain data, whose metadata goes out with the link.
   Before 2025-06-18 it is the legacy envelope: the tool's string, or the envelope rebuilt from a `McpToolResult`.
   Rows with `application/json`, the column default, are the legacy envelope; `resources/read` serves both formats as `application/json`.
   Failures are never stored
-  - The link is a `shopware://tool-result/{pointer}` URI, sent as a `resource_link` content block (2025-06-18 and later).
-    Until 6.8.0 the text is the envelope `{"success": true, "data": null, "_meta": {...}}` with `resourceUri`, `expiresAt`, `responseSize`, `note` and `query`.
-    With `v6.8.0.0` the text is the note plus `{"_meta": …}`, which leaves out `resourceUri` when the `resource_link` is sent;
-    revisions before 2025-06-18 only read the text and keep it
+  - The link is a `shopware://tool-result/{pointer}` URI, sent as a `resource_link` content block (2025-06-18 and later) after the tool's own links.
+    Since 2025-06-18 the text is the tool's summary (cut at 2 KB) and the note, plus `{"_meta": …}` without `resourceUri`.
+    Before 2025-06-18 the text is the envelope `{"success": true, "data": null, "_meta": {...}}` with `resourceUri`, `expiresAt`, `responseSize`, `note` and `query`
+  - The linked response stays small: the tool's metadata is kept up to `MAX_LINKED_META_SIZE` (10 KB) in its order, and the keys that don't fit are named in `_meta.omittedMeta`.
+    Before 2025-06-18 the stored envelope still holds them; since 2025-06-18 the stored resource is the plain data only
   - The pointer is signed for the caller (`McpToolResultPrincipal`; Admin: integration and user; Store: sales channel and `sw-context-token`) and expires after an hour.
     So it works on a later request and without an MCP session, but only for the same caller.
     The full content is fetched via `resources/read` (`ToolResultResource` on the Admin API, `StoreApiToolResultResource` on the Store API).
     Without a principal (CLI, tests, a Store API call without `sw-context-token`) the result stays inline
-  - `_meta.query` echoes the tool name and arguments of the `tools/call` request, so the LLM can tell which call produced which URI
+  - `_meta.query` echoes the tool name and arguments of the `tools/call` request, so the LLM can tell which call produced which URI.
+    Arguments above 10 KB are left out of the echo
   - Rows are wiped on session DELETE by `McpSessionCleanupSubscriber` when the call had a session.
     `McpToolResultCacheCleanupTask` removes rows older than `shopware.mcp.tool_result_cache_ttl`
 - `_meta["shopware/generatedAt"]` is always set
-- With `v6.8.0.0` active, the envelope is replaced by separate text blocks: the data as plain JSON, then the summary, then `{"_meta": …}`. A failure sends its message, then `{"details": …}` and `{"_meta": …}` when there are any. The metadata also goes into the result `_meta` with a `shopware/` prefix. Keys next to the envelope fields, such as `dryRun`, count as metadata
 
-A tool may also return a `McpToolResult` directly; it is rendered the same way. Until 6.8.0, the text block of such a result is a rebuilt envelope, which carries the data, the metadata and the error message and code, but not a summary or error details. Tools that return a `CallToolResult` themselves bypass the renderer.
+A tool may also return a `McpToolResult` directly; it is rendered the same way. Tools that return a `CallToolResult` themselves bypass the renderer.
 
 ## Pagination with shopware-entity-search
 

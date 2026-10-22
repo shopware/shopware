@@ -37,8 +37,7 @@ class McpToolResultLinkTest extends TestCase
             'arguments' => ['entity' => 'country', 'criteria' => '{"associations":{"states":{}}}', 'limit' => 500],
         ]);
 
-        // The link follows the text blocks, whose number depends on the format: the legacy envelope is
-        // one block, the 6.8 format adds the summary and the metadata as blocks of their own.
+        // The link follows the text blocks: the note and the metadata.
         $content = $result['content'] ?? [];
         static::assertIsArray($content);
         $links = array_values(array_filter(
@@ -71,7 +70,7 @@ class McpToolResultLinkTest extends TestCase
             'arguments' => ['entity' => 'country', 'criteria' => '{"associations":{"states":{}}}', 'limit' => 500],
         ]);
 
-        // Without `resource_link` the pointer is only in the metadata of the text, in either text format.
+        // Without `resource_link` the pointer is only in the metadata of the legacy envelope.
         $uri = null;
         foreach ($result['content'] ?? [] as $block) {
             $decoded = json_decode(\is_array($block) ? (string) ($block['text'] ?? '') : '', true);

@@ -19,6 +19,11 @@ use Shopware\Core\Framework\Util\Json;
  * All tools must extend this class and use success() and error() to build
  * return values so AI clients receive a predictable JSON structure.
  *
+ * The `{"success": …}` string these helpers build is the tool's input to McpToolResultRenderer. Clients
+ * on protocol revision 2025-06-18 and later receive the MCP format instead (`structuredContent`,
+ * `isError`, the plain data as text). Only clients before 2025-06-18 still receive the string itself;
+ * the envelope is deprecated as a wire format and kept for them. The helpers stay.
+ *
  * Error handling for extension developers:
  * - Unhandled exceptions propagate to the MCP SDK's generic handler and produce
  *   a generic "Error while executing tool" message to the AI client.

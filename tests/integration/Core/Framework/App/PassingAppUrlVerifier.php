@@ -20,7 +20,7 @@ class PassingAppUrlVerifier extends AppUrlVerifier
 
     public function forceVerify(): VerificationState
     {
-        return new VerificationState((string) EnvironmentHelper::getVariable('APP_URL'), VerificationStatus::PASS, 1, new \DateTimeImmutable());
+        return new VerificationState((string) EnvironmentHelper::getVariable('APP_URL'), VerificationStatus::PASS, 1, new \DateTimeImmutable(), info: null, statusCode: null);
     }
 
     public function verifyForAdministration(): bool

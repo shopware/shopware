@@ -65,7 +65,7 @@ class ReinstallAppsStrategyTest extends TestCase
         $verifier = $this->createMock(AppUrlVerifier::class);
         $verifier->expects($this->once())
             ->method('forceVerify')
-            ->willReturn(new VerificationState('https://new.example.com', VerificationStatus::PASS, 1, new \DateTimeImmutable()));
+            ->willReturn(new VerificationState('https://new.example.com', VerificationStatus::PASS, 1, new \DateTimeImmutable(), info: null, statusCode: null));
 
         $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
 
@@ -98,7 +98,7 @@ class ReinstallAppsStrategyTest extends TestCase
             self::verifierReturning(VerificationStatus::HARD_FAIL, 'Unexpected response'),
         );
 
-        $this->expectExceptionObject(AppException::appUrlFailedVerification(new VerificationState('https://new.example.com', VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'Unexpected response')));
+        $this->expectExceptionObject(AppException::appUrlFailedVerification(new VerificationState('https://new.example.com', VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'Unexpected response', statusCode: null)));
 
         $strategy->resolve(Context::createDefaultContext());
     }
@@ -150,7 +150,7 @@ class ReinstallAppsStrategyTest extends TestCase
     private static function verifierReturning(VerificationStatus $status, ?string $info = null): AppUrlVerifier
     {
         $verifier = static::createStub(AppUrlVerifier::class);
-        $verifier->method('forceVerify')->willReturn(new VerificationState('https://new.example.com', $status, 1, new \DateTimeImmutable(), $info));
+        $verifier->method('forceVerify')->willReturn(new VerificationState('https://new.example.com', $status, 1, new \DateTimeImmutable(), $info, statusCode: null));
 
         return $verifier;
     }

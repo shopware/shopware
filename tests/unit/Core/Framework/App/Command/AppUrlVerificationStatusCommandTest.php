@@ -55,7 +55,8 @@ class AppUrlVerificationStatusCommandTest extends TestCase
             VerificationStatus::PASS,
             1,
             new \DateTimeImmutable('2025-01-01 12:00:00', new \DateTimeZone('UTC')),
-            null
+            null,
+            statusCode: null,
         );
 
         $this->verifier->method('getCurrentState')->willReturn($state);
@@ -85,7 +86,8 @@ class AppUrlVerificationStatusCommandTest extends TestCase
             VerificationStatus::SOFT_FAIL,
             2,
             new \DateTimeImmutable('2025-06-15 08:30:00', new \DateTimeZone('UTC')),
-            'transient error'
+            'transient error',
+            statusCode: null,
         );
 
         $this->verifier->method('getCurrentState')->willReturn($state);
@@ -112,7 +114,8 @@ class AppUrlVerificationStatusCommandTest extends TestCase
             VerificationStatus::HARD_FAIL,
             3,
             new \DateTimeImmutable('2025-09-01 17:45:00', new \DateTimeZone('UTC')),
-            'bad url'
+            'bad url',
+            statusCode: null,
         );
 
         $this->verifier->method('getCurrentState')->willReturn($state);

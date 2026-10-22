@@ -81,7 +81,8 @@ class AppUrlVerifierTest extends TestCase
         string $url,
         bool $expectedResult,
         VerificationStatus $expectedStatus,
-        ?string $expectedInfo
+        ?string $expectedInfo,
+        ?int $expectedStatusCode,
     ): void {
         $cache = new ArrayAdapter();
         $clock = new MockClock();
@@ -93,10 +94,11 @@ class AppUrlVerifierTest extends TestCase
 
         static::assertSame($expectedResult, $result);
         self::assertState(['status' => $expectedStatus, 'info' => $expectedInfo], $state);
+        static::assertSame($expectedStatusCode, $state?->statusCode);
     }
 
     /**
-     * @return iterable<string, array{MockResponse|callable, string, bool, VerificationStatus, string|null}>
+     * @return iterable<string, array{MockResponse|callable, string, bool, VerificationStatus, string|null, int|null}>
      */
     public static function verifyOutcomeProvider(): iterable
     {
@@ -106,6 +108,7 @@ class AppUrlVerifierTest extends TestCase
             true,
             VerificationStatus::PASS,
             null,
+            204,
         ];
 
         yield 'http 204 > PASS' => [
@@ -114,6 +117,7 @@ class AppUrlVerifierTest extends TestCase
             true,
             VerificationStatus::PASS,
             null,
+            204,
         ];
 
         yield '500 > SOFT_FAIL' => [
@@ -122,6 +126,7 @@ class AppUrlVerifierTest extends TestCase
             true,
             VerificationStatus::SOFT_FAIL,
             'Unexpected response from APP_URL verification endpoint: HTTP code: "500" body: "internal error"',
+            500,
         ];
 
         yield 'TransportException > SOFT_FAIL' => [
@@ -130,6 +135,7 @@ class AppUrlVerifierTest extends TestCase
             true,
             VerificationStatus::SOFT_FAIL,
             'Failed to connect to APP_URL: network down',
+            null,
         ];
 
         yield 'Generic exception > HARD_FAIL' => [
@@ -138,6 +144,7 @@ class AppUrlVerifierTest extends TestCase
             false,
             VerificationStatus::HARD_FAIL,
             'boom',
+            null,
         ];
 
         yield '429 > SOFT_FAIL' => [
@@ -146,6 +153,7 @@ class AppUrlVerifierTest extends TestCase
             true,
             VerificationStatus::SOFT_FAIL,
             'Unexpected response from APP_URL verification endpoint: HTTP code: "429" body: "too many requests"',
+            429,
         ];
 
         yield '404 > HARD_FAIL' => [
@@ -154,6 +162,7 @@ class AppUrlVerifierTest extends TestCase
             false,
             VerificationStatus::HARD_FAIL,
             'Unexpected response from APP_URL verification endpoint: HTTP code: "404" body: "not found"',
+            404,
         ];
 
         yield 'invalid URL > HARD_FAIL' => [
@@ -162,6 +171,7 @@ class AppUrlVerifierTest extends TestCase
             false,
             VerificationStatus::HARD_FAIL,
             'APP_URL is invalid: Invalid URL format.',
+            null,
         ];
 
         yield '200 (non-204) > HARD_FAIL' => [
@@ -170,6 +180,7 @@ class AppUrlVerifierTest extends TestCase
             false,
             VerificationStatus::HARD_FAIL,
             'Unexpected response from APP_URL verification endpoint: HTTP code: "200" body: "ok"',
+            200,
         ];
 
         yield '302 > HARD_FAIL' => [
@@ -178,6 +189,7 @@ class AppUrlVerifierTest extends TestCase
             false,
             VerificationStatus::HARD_FAIL,
             'Unexpected response from APP_URL verification endpoint: HTTP code: "302" body: ""',
+            302,
         ];
     }
 
@@ -335,7 +347,8 @@ class AppUrlVerifierTest extends TestCase
             VerificationStatus::SOFT_FAIL,
             10,
             $clock->now(),
-            'server error'
+            'server error',
+            statusCode: null,
         );
 
         $item = $cache->getItem(AppUrlVerifier::VERIFICATION_RESULT_CACHE_KEY);
@@ -377,7 +390,8 @@ class AppUrlVerifierTest extends TestCase
             VerificationStatus::SOFT_FAIL,
             2,
             $clock->now(),
-            'some error'
+            'some error',
+            statusCode: null,
         );
 
         $item = $cache->getItem(AppUrlVerifier::VERIFICATION_RESULT_CACHE_KEY);
@@ -420,7 +434,7 @@ class AppUrlVerifierTest extends TestCase
 
         $cache = new ArrayAdapter();
         $cache->save($cache->getItem(AppUrlVerifier::VERIFICATION_RESULT_CACHE_KEY)->set(
-            new VerificationState('https://example.com', VerificationStatus::PASS, 1, new \DateTimeImmutable())
+            new VerificationState('https://example.com', VerificationStatus::PASS, 1, new \DateTimeImmutable(), info: null, statusCode: null)
         ));
 
         $http = new MockHttpClient();
@@ -526,7 +540,8 @@ class AppUrlVerifierTest extends TestCase
             VerificationStatus::SOFT_FAIL,
             2,
             new \DateTimeImmutable('@1234567890'),
-            'server busy'
+            'server busy',
+            statusCode: null,
         );
 
         $item = $cache->getItem(AppUrlVerifier::VERIFICATION_RESULT_CACHE_KEY);

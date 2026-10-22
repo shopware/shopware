@@ -41,6 +41,8 @@ class AppUrlVerifyCommandTest extends TestCase
                 VerificationStatus::PASS,
                 1,
                 new \DateTimeImmutable('2025-01-01 12:00:00', new \DateTimeZone('UTC')),
+                info: null,
+                statusCode: null,
             ));
 
         $tester = new CommandTester(new AppUrlVerifyCommand($shopIdProvider, $verifier, new AppUrlVerificationPrinter()));
@@ -68,6 +70,7 @@ class AppUrlVerifyCommandTest extends TestCase
                 1,
                 new \DateTimeImmutable('2025-01-01 12:00:00', new \DateTimeZone('UTC')),
                 'Unexpected response from APP_URL verification endpoint: HTTP 404. not found',
+                statusCode: null,
             ));
 
         $tester = new CommandTester(new AppUrlVerifyCommand($shopIdProvider, $verifier, new AppUrlVerificationPrinter()));

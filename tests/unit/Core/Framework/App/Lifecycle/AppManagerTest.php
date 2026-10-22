@@ -195,7 +195,7 @@ class AppManagerTest extends TestCase
     public static function registrationFailures(): iterable
     {
         yield 'app rejects the registration' => [AppException::registrationFailed('test', 'registration failed')];
-        yield 'APP_URL fails verification' => [AppException::appUrlFailedVerification(new VerificationState('http://shop.test', VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'unreachable'))];
+        yield 'APP_URL fails verification' => [AppException::appUrlFailedVerification(new VerificationState('http://shop.test', VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'unreachable', statusCode: null))];
     }
 
     #[DataProvider('registrationFailures')]

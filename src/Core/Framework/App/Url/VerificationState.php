@@ -15,20 +15,14 @@ readonly class VerificationState
         public VerificationStatus $status,
         public int $numTries,
         public \DateTimeImmutable $at,
-        public ?string $info = null
+        public ?string $info,
+        public ?int $statusCode,
     ) {
     }
 
     public function is(VerificationStatus $status): bool
     {
         return $this->status === $status;
-    }
-
-    public function failureReason(): string
-    {
-        \assert(!$this->is(VerificationStatus::PASS) && $this->info !== null);
-
-        return $this->info;
     }
 
     public function isNotHardFail(): bool

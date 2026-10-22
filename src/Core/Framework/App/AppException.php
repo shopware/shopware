@@ -650,16 +650,25 @@ class AppException extends HttpException
             return new AppUrlFailedVerificationException(
                 Response::HTTP_SERVICE_UNAVAILABLE,
                 self::APP_URL_VERIFICATION_UNAVAILABLE,
-                'APP_URL "{{ appUrl }}" could not be verified right now, try again later: {{ reason }}',
-                ['appUrl' => $state->appUrl, 'reason' => $state->failureReason()]
+                'APP_URL "{{ appUrl }}" could not be reached. Try again later, or run bin/console app:url:verify for details.',
+                ['appUrl' => $state->appUrl]
+            );
+        }
+
+        if ($state->statusCode === null) {
+            return new AppUrlFailedVerificationException(
+                Response::HTTP_BAD_GATEWAY,
+                self::APP_URL_FAILED_VERIFICATION,
+                'APP_URL "{{ appUrl }}" could not be verified. Run bin/console app:url:verify for details.',
+                ['appUrl' => $state->appUrl]
             );
         }
 
         return new AppUrlFailedVerificationException(
             Response::HTTP_BAD_GATEWAY,
             self::APP_URL_FAILED_VERIFICATION,
-            'APP_URL "{{ appUrl }}" could not be verified: {{ reason }}. Check that APP_URL points to this installation and that requests to it are not blocked.',
-            ['appUrl' => $state->appUrl, 'reason' => $state->failureReason()]
+            'APP_URL "{{ appUrl }}" did not answer the verification request as expected (HTTP {{ statusCode }}). Check that APP_URL points to this installation and is not blocked.',
+            ['appUrl' => $state->appUrl, 'statusCode' => $state->statusCode]
         );
     }
 

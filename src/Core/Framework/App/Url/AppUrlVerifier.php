@@ -195,7 +195,7 @@ class AppUrlVerifier implements ResetInterface
 
     private function recordLockFailure(LockException $e): VerificationState
     {
-        return $this->record(new VerificationState($this->appUrl, VerificationStatus::SOFT_FAIL, 1, $this->clock->now(), 'Could not acquire the verification lock: ' . $e->getMessage()));
+        return $this->record(new VerificationState($this->appUrl, VerificationStatus::SOFT_FAIL, 1, $this->clock->now(), 'Could not acquire the verification lock: ' . $e->getMessage(), statusCode: null));
     }
 
     private function releaseLock(LockInterface $lock): void
@@ -208,9 +208,9 @@ class AppUrlVerifier implements ResetInterface
 
     private function performVerification(int $tries = 1): VerificationState
     {
-        [$status, $info] = $this->executeVerify();
+        [$status, $info, $statusCode] = $this->executeVerify();
 
-        return $this->record(new VerificationState($this->appUrl, $status, $tries, $this->clock->now(), $info));
+        return $this->record(new VerificationState($this->appUrl, $status, $tries, $this->clock->now(), $info, $statusCode));
     }
 
     private function record(VerificationState $state): VerificationState
@@ -242,14 +242,14 @@ class AppUrlVerifier implements ResetInterface
     }
 
     /**
-     * @return array{0: VerificationStatus, 1: string|null}
+     * @return array{0: VerificationStatus, 1: string|null, 2: int|null}
      */
     private function executeVerify(): array
     {
         try {
             $url = $this->buildVerificationUrl();
         } catch (AppException $e) {
-            return [VerificationStatus::HARD_FAIL, $e->getMessage()];
+            return [VerificationStatus::HARD_FAIL, $e->getMessage(), null];
         }
 
         $runId = bin2hex(random_bytes(8));
@@ -269,13 +269,13 @@ class AppUrlVerifier implements ResetInterface
             $status = $response->getStatusCode();
 
             if ($status === Response::HTTP_NO_CONTENT) {
-                return [VerificationStatus::PASS, null];
+                return [VerificationStatus::PASS, null, $status];
             }
 
             // Treat any unexpected non-204 success as hard fail
             $info = $this->extractInfo($response);
 
-            return [VerificationStatus::HARD_FAIL, $info];
+            return [VerificationStatus::HARD_FAIL, $info, $status];
         } catch (HttpExceptionInterface $e) {
             // 300-599
             $info = $this->extractInfo($e->getResponse());
@@ -285,15 +285,15 @@ class AppUrlVerifier implements ResetInterface
                 || $e->getResponse()->getStatusCode() === Response::HTTP_TOO_MANY_REQUESTS
             ) {
                 // Server errors and rate-limiting are often transient, soft fail
-                return [VerificationStatus::SOFT_FAIL, $info];
+                return [VerificationStatus::SOFT_FAIL, $info, $e->getResponse()->getStatusCode()];
             }
 
             // 3xx and 4xx are treated as hard fails
-            return [VerificationStatus::HARD_FAIL, $info];
+            return [VerificationStatus::HARD_FAIL, $info, $e->getResponse()->getStatusCode()];
         } catch (TransportExceptionInterface $e) {
-            return [VerificationStatus::SOFT_FAIL, 'Failed to connect to APP_URL: ' . $e->getMessage()];
+            return [VerificationStatus::SOFT_FAIL, 'Failed to connect to APP_URL: ' . $e->getMessage(), null];
         } catch (\Throwable $e) {
-            return [VerificationStatus::HARD_FAIL, $e->getMessage()];
+            return [VerificationStatus::HARD_FAIL, $e->getMessage(), null];
         } finally {
             $this->cache->deleteItem($cacheKey);
         }

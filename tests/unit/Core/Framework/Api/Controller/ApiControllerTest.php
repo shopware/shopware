@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\Api\Acl\AclVersionMergeValidator;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Controller\ApiController;
@@ -19,16 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -39,7 +29,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
@@ -175,7 +164,8 @@ class ApiControllerTest extends TestCase
             static::createStub(DecoderInterface::class),
             static::createStub(RequestCriteriaBuilder::class),
             static::createStub(EntityProtectionValidator::class),
-            static::createStub(AclCriteriaValidator::class)
+            static::createStub(AclCriteriaValidator::class),
+            static::createStub(AclVersionMergeValidator::class),
         );
 
         $controller->deleteVersion(Context::createDefaultContext(), 'parent-entity', $entityId, $versionId);
@@ -258,67 +248,30 @@ class ApiControllerTest extends TestCase
         $controller->deleteVersion($this->createAdminApiContext(['parent_entity:read', 'version:delete']), 'parent-entity', Uuid::randomHex(), Uuid::randomHex());
     }
 
-    public function testMergeVersionRequiresUpdatePrivilegeForTheEntity(): void
+    public function testMergeVersionWithMissingPrivilegesDoesNotMerge(): void
     {
+        $versionId = Uuid::randomHex();
+        $context = $this->createAdminApiContext([]);
+
         $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->expects($this->never())->method('merge');
 
-        $controller = $this->createMergeController($entityRepository, []);
+        $versionMergeValidator = $this->createMock(AclVersionMergeValidator::class);
+        $versionMergeValidator->expects($this->once())->method('getMissingPrivileges')
+            ->with($versionId, static::isInstanceOf(ParentDefinition::class), static::identicalTo($context))
+            ->willReturn(['parent_entity:update', 'child_entity:create']);
 
-        $this->expectExceptionObject(ApiException::missingPrivileges(['versioned_entity:update']));
+        $controller = $this->createMergeController($entityRepository, $versionMergeValidator);
 
-        $controller->mergeVersion($this->createAdminApiContext(['versioned_entity:read']), 'versioned-entity', Uuid::randomHex());
+        $this->expectExceptionObject(ApiException::missingPrivileges(['parent_entity:update', 'child_entity:create']));
+
+        $controller->mergeVersion($context, 'parent-entity', $versionId);
     }
 
-    public function testMergeVersionRequiresPrivilegesForAllRecordedChanges(): void
+    public function testMergeVersionWithoutMissingPrivilegesMergesInSystemScope(): void
     {
-        $entityRepository = $this->createMock(EntityRepository::class);
-        $entityRepository->expects($this->never())->method('merge');
+        $versionId = Uuid::randomHex();
 
-        $controller = $this->createMergeController($entityRepository, [
-            'versioned_entity' => ['clone', 'update'],
-            'versioned_child' => ['insert', 'delete'],
-            'versioned_grandchild' => ['insert', 'update'],
-            'parent_entity' => ['insert', 'update', 'delete'],
-            'child_entity' => ['clone'],
-            'unknown_entity' => ['update'],
-        ]);
-
-        $this->expectExceptionObject(ApiException::missingPrivileges(['parent_entity:create', 'parent_entity:delete']));
-
-        $controller->mergeVersion($this->createAdminApiContext(['versioned_entity:update', 'parent_entity:update']), 'versioned-entity', Uuid::randomHex());
-    }
-
-    public function testMergeVersionChecksTranslationsOfOtherEntitiesWithTheParentPrivilege(): void
-    {
-        $entityRepository = $this->createMock(EntityRepository::class);
-        $entityRepository->expects($this->never())->method('merge');
-
-        $controller = $this->createMergeController($entityRepository, ['parent_entity_translation' => ['update', 'insert']]);
-
-        $this->expectExceptionObject(ApiException::missingPrivileges(['parent_entity:create']));
-
-        $controller->mergeVersion($this->createAdminApiContext(['versioned_entity:update', 'parent_entity:update']), 'versioned-entity', Uuid::randomHex());
-    }
-
-    public function testMergeVersionReportsAllMissingPrivilegesAtOnce(): void
-    {
-        $entityRepository = $this->createMock(EntityRepository::class);
-        $entityRepository->expects($this->never())->method('merge');
-
-        $controller = $this->createMergeController($entityRepository, ['parent_entity' => ['update']]);
-
-        $this->expectExceptionObject(ApiException::missingPrivileges(['versioned_entity:update', 'parent_entity:update']));
-
-        $controller->mergeVersion($this->createAdminApiContext(['versioned_entity:read']), 'versioned-entity', Uuid::randomHex());
-    }
-
-    /**
-     * @param array<string, list<string>> $recordedChanges
-     */
-    #[DataProvider('mergeableVersionProvider')]
-    public function testMergeVersionWithAllPrivilegesMergesInSystemScope(string $entity, string $versionId, array $recordedChanges): void
-    {
         $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->expects($this->once())->method('merge')
             ->willReturnCallback(static function (string $mergedVersionId, Context $context) use ($versionId): void {
@@ -326,23 +279,14 @@ class ApiControllerTest extends TestCase
                 static::assertSame(Context::SYSTEM_SCOPE, $context->getScope());
             });
 
-        $controller = $this->createMergeController($entityRepository, $recordedChanges);
+        $versionMergeValidator = static::createStub(AclVersionMergeValidator::class);
+        $versionMergeValidator->method('getMissingPrivileges')->willReturn([]);
 
-        $response = $controller->mergeVersion($this->createAdminApiContext(['versioned_entity:update', 'parent_entity:update']), $entity, $versionId);
+        $controller = $this->createMergeController($entityRepository, $versionMergeValidator);
+
+        $response = $controller->mergeVersion($this->createAdminApiContext(['parent_entity:update']), 'parent-entity', $versionId);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-    }
-
-    /**
-     * @return iterable<string, array{string, string, array<string, list<string>>}>
-     */
-    public static function mergeableVersionProvider(): iterable
-    {
-        yield 'the user may write all recorded changes' => ['versioned-entity', Uuid::randomHex(), ['versioned_entity' => ['clone', 'update'], 'parent_entity' => ['update'], 'child_entity' => ['clone']]];
-        yield 'changes of child entities are covered by the merged entity' => ['versioned-entity', Uuid::randomHex(), ['versioned_child' => ['insert', 'delete'], 'versioned_grandchild' => ['update']]];
-        yield 'a version without changes is left to the merge, which rejects it' => ['versioned-entity', Uuid::randomHex(), []];
-        yield 'the live version is left to the merge, which rejects it' => ['versioned-entity', Defaults::LIVE_VERSION, ['child_entity' => ['update']]];
-        yield 'an entity without versions is left to the merge, which rejects it' => ['parent-entity', Uuid::randomHex(), ['child_entity' => ['update']]];
     }
 
     public function testCreateWithAnIdInThePathIsNotAllowed(): void
@@ -385,41 +329,19 @@ class ApiControllerTest extends TestCase
 
     /**
      * @param EntityRepository<EntityCollection<Entity>> $entityRepository
-     * @param array<string, list<string>> $recordedChanges actions the version recorded, by entity name
      */
-    private function createMergeController(EntityRepository $entityRepository, array $recordedChanges): ApiController
+    private function createMergeController(EntityRepository $entityRepository, AclVersionMergeValidator $versionMergeValidator): ApiController
     {
-        $buckets = [];
-        foreach ($recordedChanges as $entityName => $actions) {
-            $actionBuckets = array_map(static fn (string $action): Bucket => new Bucket($action, 1, null), $actions);
-            $buckets[] = new Bucket($entityName, \count($actions), new TermsResult('actions', $actionBuckets));
-        }
-
-        $commitDataRepository = static::createStub(EntityRepository::class);
-        $commitDataRepository->method('aggregate')->willReturn(new AggregationResultCollection([new TermsResult('entities', $buckets)]));
-
         $container = new ContainerBuilder();
-        $container->set('versioned_entity.repository', $entityRepository);
         $container->set('parent_entity.repository', $entityRepository);
-        $container->set(VersionCommitDataDefinition::ENTITY_NAME . '.repository', $commitDataRepository);
 
-        return $this->createControllerWithRegistry($container, [
-            VersionedEntityDefinition::class,
-            VersionedChildDefinition::class,
-            VersionedGrandchildDefinition::class,
-            ParentDefinition::class,
-            ParentTranslationDefinition::class,
-            ChildDefinition::class,
-            VersionDefinition::class,
-            VersionCommitDefinition::class,
-            VersionCommitDataDefinition::class,
-        ]);
+        return $this->createControllerWithRegistry($container, [ParentDefinition::class, ChildDefinition::class], $versionMergeValidator);
     }
 
     /**
      * @param list<class-string<EntityDefinition>> $definitions
      */
-    private function createControllerWithRegistry(ContainerBuilder $container, array $definitions): ApiController
+    private function createControllerWithRegistry(ContainerBuilder $container, array $definitions, ?AclVersionMergeValidator $versionMergeValidator = null): ApiController
     {
         $registry = new StaticDefinitionInstanceRegistry(
             $definitions,
@@ -433,7 +355,8 @@ class ApiControllerTest extends TestCase
             static::createStub(DecoderInterface::class),
             static::createStub(RequestCriteriaBuilder::class),
             static::createStub(EntityProtectionValidator::class),
-            static::createStub(AclCriteriaValidator::class)
+            static::createStub(AclCriteriaValidator::class),
+            $versionMergeValidator ?? static::createStub(AclVersionMergeValidator::class),
         );
     }
 
@@ -464,7 +387,8 @@ class ApiControllerTest extends TestCase
             static::createStub(DecoderInterface::class),
             $requestCriteriaBuilder,
             static::createStub(EntityProtectionValidator::class),
-            static::createStub(AclCriteriaValidator::class)
+            static::createStub(AclCriteriaValidator::class),
+            static::createStub(AclVersionMergeValidator::class),
         );
     }
 
@@ -504,93 +428,5 @@ class ApiControllerTest extends TestCase
         $container->set('child_entity.repository', $childRepo);
 
         return $container;
-    }
-}
-
-/**
- * @internal
- */
-class VersionedEntityDefinition extends EntityDefinition
-{
-    public function getEntityName(): string
-    {
-        return 'versioned_entity';
-    }
-
-    protected function defineFields(): FieldCollection
-    {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            new VersionField(),
-        ]);
-    }
-}
-
-/**
- * @internal
- */
-class VersionedChildDefinition extends EntityDefinition
-{
-    public function getEntityName(): string
-    {
-        return 'versioned_child';
-    }
-
-    protected function getParentDefinitionClass(): string
-    {
-        return VersionedEntityDefinition::class;
-    }
-
-    protected function defineFields(): FieldCollection
-    {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            new VersionField(),
-        ]);
-    }
-}
-
-/**
- * @internal
- */
-class VersionedGrandchildDefinition extends EntityDefinition
-{
-    public function getEntityName(): string
-    {
-        return 'versioned_grandchild';
-    }
-
-    protected function getParentDefinitionClass(): string
-    {
-        return VersionedChildDefinition::class;
-    }
-
-    protected function defineFields(): FieldCollection
-    {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            new VersionField(),
-        ]);
-    }
-}
-
-/**
- * @internal
- */
-class ParentTranslationDefinition extends EntityTranslationDefinition
-{
-    public function getEntityName(): string
-    {
-        return 'parent_entity_translation';
-    }
-
-    protected function getParentDefinitionClass(): string
-    {
-        return ParentDefinition::class;
-    }
-
-    protected function defineFields(): FieldCollection
-    {
-        return new FieldCollection([]);
     }
 }

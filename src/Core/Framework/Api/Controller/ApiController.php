@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\Api\Acl\AclVersionMergeValidator;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
@@ -30,16 +31,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Log\Package;
@@ -74,7 +72,8 @@ class ApiController extends AbstractController
         private readonly DecoderInterface $serializer,
         private readonly RequestCriteriaBuilder $criteriaBuilder,
         private readonly EntityProtectionValidator $entityProtectionValidator,
-        private readonly AclCriteriaValidator $criteriaValidator
+        private readonly AclCriteriaValidator $criteriaValidator,
+        private readonly AclVersionMergeValidator $versionMergeValidator,
     ) {
     }
 
@@ -174,7 +173,7 @@ class ApiController extends AbstractController
 
         $entityDefinition = $this->getEntityDefinition($entity);
 
-        $missing = $this->getMissingMergePrivileges($versionId, $entityDefinition, $context);
+        $missing = $this->versionMergeValidator->getMissingPrivileges($versionId, $entityDefinition, $context);
         if ($missing !== []) {
             throw ApiException::missingPrivileges($missing);
         }
@@ -480,77 +479,6 @@ class ApiController extends AbstractController
         }
 
         $repository->delete(array_map(static fn (string $id): array => ['id' => $id], $ids), $context);
-    }
-
-    /**
-     * The update privilege of the merged entity covers its own changes and the changes of its child entities.
-     * Changes of other entities need their own privileges.
-     *
-     * @return list<string>
-     */
-    private function getMissingMergePrivileges(string $versionId, EntityDefinition $definition, Context $context): array
-    {
-        $missing = [];
-
-        $entityPrivilege = $this->validateAclPermissions($context, $definition, AclRoleDefinition::PRIVILEGE_UPDATE);
-        if ($entityPrivilege !== null) {
-            $missing[$entityPrivilege] = $entityPrivilege;
-        }
-
-        if ($versionId === Defaults::LIVE_VERSION || !$definition->isVersionAware()) {
-            return array_values($missing);
-        }
-
-        // collect which entities the version changed and how, as the merge applies all of these changes
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('commit.versionId', $versionId));
-        $criteria->addAggregation(new TermsAggregation('entities', 'entityName', null, null, new TermsAggregation('actions', 'action')));
-
-        $entities = $this->definitionRegistry
-            ->getRepository(VersionCommitDataDefinition::ENTITY_NAME)
-            ->aggregate($criteria, $context)
-            ->get('entities');
-        \assert($entities instanceof TermsResult);
-
-        // the user needs the privilege for each change, as the merge writes them without ACL checks
-        foreach ($entities->getBuckets() as $entityBucket) {
-            $actions = $entityBucket->getResult();
-            \assert($actions instanceof TermsResult);
-
-            foreach ($actions->getKeys() as $action) {
-                $privilege = $this->getMissingMergePrivilege($context, $definition, (string) $entityBucket->getKey(), $action);
-                if ($privilege !== null) {
-                    $missing[$privilege] = $privilege;
-                }
-            }
-        }
-
-        return array_values($missing);
-    }
-
-    private function getMissingMergePrivilege(Context $context, EntityDefinition $mergedDefinition, string $entityName, string $action): ?string
-    {
-        $privilege = match ($action) {
-            'insert' => AclRoleDefinition::PRIVILEGE_CREATE,
-            'update' => AclRoleDefinition::PRIVILEGE_UPDATE,
-            'delete' => AclRoleDefinition::PRIVILEGE_DELETE,
-            default => null,
-        };
-
-        if ($privilege === null || !$this->definitionRegistry->has($entityName)) {
-            return null;
-        }
-
-        $definition = $this->definitionRegistry->getByEntityName($entityName);
-
-        // the merged entity, its translations and its child entities, e.g. order_delivery_position of order
-        for ($parent = $definition; $parent !== null; $parent = $parent->getParentDefinition()) {
-            if ($parent->getEntityName() === $mergedDefinition->getEntityName()) {
-                return null;
-            }
-        }
-
-        return $this->validateAclPermissions($context, $definition, $privilege);
     }
 
     /**

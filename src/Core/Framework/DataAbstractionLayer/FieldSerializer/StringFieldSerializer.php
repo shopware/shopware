@@ -59,16 +59,18 @@ class StringFieldSerializer extends AbstractFieldSerializer
             $data->setValue(null);
         }
 
-        $this->validateIfNeeded($field, $existence, $data, $parameters);
+        $constraints = $this->getCachedConstraints($field);
+        $choices = $this->strictChoiceResolver->getStrictChoices($field, $parameters->getDefinition()->getEntityName());
+        if ($choices !== null) {
+            $constraints[] = new ChoiceConstraint(choices: $choices, strict: true);
+        }
+
+        // Validate the submitted value as well, so strict choices reject values that only match after sanitizing.
+        $this->validateConstraintsIfNeeded($constraints, $field, $existence, $data, $parameters);
 
         $data->setValue($this->sanitize($this->sanitizer, $data, $field, $existence));
 
-        $this->validateIfNeeded($field, $existence, $data, $parameters);
-
-        $choices = $this->strictChoiceResolver->getStrictChoices($field, $parameters->getDefinition()->getEntityName());
-        if ($choices !== null && $data->getValue() !== null) {
-            $this->validate([new ChoiceConstraint(choices: $choices, strict: true)], $data, $parameters->getPath());
-        }
+        $this->validateConstraintsIfNeeded($constraints, $field, $existence, $data, $parameters);
 
         yield $field->getStorageName() => $data->getValue() !== null ? (string) $data->getValue() : null;
     }
@@ -108,5 +110,17 @@ class StringFieldSerializer extends AbstractFieldSerializer
         }
 
         return $constraints;
+    }
+
+    /**
+     * @param list<Constraint> $constraints
+     */
+    private function validateConstraintsIfNeeded(array $constraints, Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): void
+    {
+        if (!$this->requiresValidation($field, $existence, $data->getValue(), $parameters)) {
+            return;
+        }
+
+        $this->validate($constraints, $data, $parameters->getPath());
     }
 }

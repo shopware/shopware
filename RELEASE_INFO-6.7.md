@@ -2,6 +2,21 @@
 
 ## Critical Fixes
 
+### Store API enforces `ApiAware` for `includes`, `associations`, `fields` and entity aggregations
+
+Request-level `includes` no longer override the `ApiAware` protection of a field, including in Admin API entity aggregation responses.
+A Store API request that names a protected association in `associations` or `fields`, or an entity aggregation whose `definition` does not match the entity its `field` references, is rejected with `FRAMEWORK__ACCESSOR_NOT_ALLOWED`.
+Associations added server-side by routes or extensions remain supported.
+
+App scripts using `services.store` are subject to the same association checks.
+Remove protected associations such as `productReviews.customer` from store searches; app permissions do not grant access to these associations through `services.store`.
+
+Responses with the error code `FRAMEWORK__ACCESSOR_NOT_ALLOWED` now use HTTP status 400 instead of 500.
+
+Operators should treat customer, order and address data, password hashes and password recovery tokens as potentially exposed, including the possibility of administrator or customer account takeover.
+After updating, reset affected administrator and customer credentials, invalidate outstanding recovery links and active administrative sessions, and rotate the `deepLinkCode` of recent guest orders.
+Review unexpected password recovery requests and subsequent Admin API activity.
+
 ### Theme configuration updates reach all descendants
 
 Saving a base theme now updates inherited runtime configuration and recompiles assigned descendant themes at every inheritance level.

@@ -252,13 +252,17 @@ class RequestCriteriaBuilder
                     continue;
                 }
 
-                $field = $definition->getFields()->get($propertyName);
-
-                if (!$field instanceof AssociationField) {
+                if (!\is_string($propertyName)) {
                     throw FrameworkException::associationNotFound((string) $propertyName);
                 }
 
-                $this->validateAssociationIsApiAware($field, (string) $propertyName, $context);
+                $field = $definition->getFields()->get($propertyName);
+
+                if (!$field instanceof AssociationField) {
+                    throw FrameworkException::associationNotFound($propertyName);
+                }
+
+                $this->validateAssociationIsApiAware($field, $propertyName, $context);
 
                 $ref = $field->getReferenceDefinition();
                 if ($field instanceof ManyToManyAssociationField) {

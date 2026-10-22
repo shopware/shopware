@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -119,6 +120,50 @@ class LanguageRouteTest extends TestCase
         static::assertArrayHasKey('locale', $response['elements'][0]);
         static::assertIsArray($response['elements'][0]['locale']);
         static::assertArrayHasKey('id', $response['elements'][0]['locale']);
+    }
+
+    public function testUserRecoveryCannotBeExposedThroughLocale(): void
+    {
+        static::getContainer()->get('user.repository')->create([
+            [
+                'id' => $this->ids->get('admin'),
+                'username' => 'recovery-admin',
+                'email' => 'recovery-admin@example.com',
+                'firstName' => 'Recovery',
+                'lastName' => 'Admin',
+                'password' => 'shopware',
+                'localeId' => $this->ids->get('locale-1'),
+                'timeZone' => 'UTC',
+                'admin' => true,
+                'active' => true,
+                'recoveryUser' => ['hash' => $this->ids->get('recovery-hash')],
+            ],
+        ], Context::createDefaultContext());
+
+        $this->browser->request('POST', '/store-api/language', [
+            'ids' => [$this->ids->get('language')],
+            'associations' => [
+                'locale' => [
+                    'associations' => [
+                        'users' => [
+                            'associations' => ['recoveryUser' => []],
+                        ],
+                    ],
+                ],
+            ],
+            'includes' => [
+                'language' => ['id', 'locale'],
+                'locale' => ['code', 'users.x'],
+                'user' => ['username.x', 'password.x', 'recoveryUser.x'],
+                'user_recovery' => ['hash.x'],
+            ],
+        ]);
+
+        $response = $this->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+        static::assertArrayNotHasKey('elements', $response);
+        static::assertSame('FRAMEWORK__ACCESSOR_NOT_ALLOWED', $response['errors'][0]['code']);
     }
 
     private function createData(): void

@@ -4,9 +4,12 @@ namespace Shopware\Core\Framework\Webhook\Service;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Api\Acl\AclRoleLoader;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
+use Shopware\Core\Framework\Webhook\Authorization\Subscription\SubscriberType;
+use Shopware\Core\Framework\Webhook\Authorization\WebhookSubscription;
 use Shopware\Core\Framework\Webhook\Webhook;
 
 /**
@@ -19,38 +22,62 @@ use Shopware\Core\Framework\Webhook\Webhook;
 #[Package('framework')]
 class WebhookLoader
 {
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly AclRoleLoader $aclRoleLoader,
+    ) {
     }
 
     /**
-     * @param list<string> $roleIds
+     * @param list<string> $webhookIds
      *
-     * @return array<string, AclPrivilegeCollection>
+     * @return array<string, WebhookSubscription> keyed by webhook id, without webhooks that have neither an app nor an owner
      */
-    public function getPrivilegesForRoles(array $roleIds): array
+    public function getSubscriptions(array $webhookIds): array
     {
-        $roles = $this->connection->fetchAllAssociative(
-            <<<'SQL'
-                SELECT `id`, `privileges`
-                FROM `acl_role`
-                WHERE `id` IN (:aclRoleIds)
-            SQL,
-            ['aclRoleIds' => Uuid::fromHexToBytesList($roleIds)],
-            ['aclRoleIds' => ArrayParameterType::BINARY]
-        );
-
-        if (!$roles) {
+        if ($webhookIds === []) {
             return [];
         }
 
-        $privileges = [];
-        foreach ($roles as $privilege) {
-            $privileges[Uuid::fromBytesToHex($privilege['id'])]
-                = new AclPrivilegeCollection(json_decode((string) $privilege['privileges'], true, 512, \JSON_THROW_ON_ERROR));
+        $rows = $this->connection->fetchAllAssociative(
+            <<<'SQL'
+                SELECT
+                    LOWER(HEX(`id`)) as webhookId,
+                    LOWER(HEX(`app_id`)) as appId,
+                    LOWER(HEX(`owner_user_id`)) as ownerUserId,
+                    LOWER(HEX(`owner_integration_id`)) as ownerIntegrationId,
+                    `event_name` as eventName,
+                    `acl_role_ids` as aclRoleIds
+                FROM `webhook`
+                WHERE `id` IN (:webhookIds)
+            SQL,
+            ['webhookIds' => Uuid::fromHexToBytesList($webhookIds)],
+            ['webhookIds' => ArrayParameterType::BINARY]
+        );
+
+        $subscriptions = [];
+        foreach ($rows as $row) {
+            $ownerType = match (true) {
+                $row['appId'] !== null => SubscriberType::App,
+                $row['ownerIntegrationId'] !== null => SubscriberType::Integration,
+                $row['ownerUserId'] !== null => SubscriberType::User,
+                default => null,
+            };
+
+            if ($ownerType === null) {
+                continue;
+            }
+
+            $subscriptions[$row['webhookId']] = new WebhookSubscription(
+                $row['webhookId'],
+                $ownerType,
+                $row['appId'] ?? $row['ownerIntegrationId'] ?? $row['ownerUserId'],
+                $row['eventName'],
+                $row['aclRoleIds'] !== null ? Json::decodeToList($row['aclRoleIds']) : null,
+            );
         }
 
-        return $privileges;
+        return $subscriptions;
     }
 
     /**
@@ -71,30 +98,50 @@ class WebhookLoader
                 a.source_type AS appSourceType,
                 a.version AS appVersion,
                 a.app_secret AS appSecret,
-                LOWER(HEX(a.acl_role_id)) as appAclRoleId
+                LOWER(HEX(w.owner_user_id)) as ownerUserId,
+                LOWER(HEX(COALESCE(a.integration_id, w.owner_integration_id))) as ownerIntegrationId,
+                w.acl_role_ids as aclRoleIds
             FROM webhook w
             LEFT JOIN app a ON (a.id = w.app_id)
+            LEFT JOIN app owner_app ON (owner_app.integration_id = w.owner_integration_id)
             WHERE w.active = 1
+              AND COALESCE(a.integration_id, w.owner_integration_id, w.owner_user_id) IS NOT NULL
+              AND (owner_app.id IS NULL OR owner_app.active = 1)
         SQL;
 
-        $webhooks = $this->connection->fetchAllAssociative($sql);
+        $rows = $this->connection->fetchAllAssociative($sql);
+        $userRoles = $this->aclRoleLoader->getUserRoles(array_values(array_filter(array_column($rows, 'ownerUserId'))));
+        $integrationRoles = $this->aclRoleLoader->getIntegrationRoles(array_values(array_filter(array_column($rows, 'ownerIntegrationId'))));
 
-        return array_map(
-            static fn (array $webhook) => new Webhook(
-                $webhook['webhookId'],
-                $webhook['webhookName'],
-                $webhook['eventName'],
-                $webhook['webhookUrl'],
-                (bool) $webhook['onlyLiveVersion'],
-                $webhook['appId'],
-                $webhook['appName'],
-                $webhook['appSourceType'],
-                (bool) $webhook['appActive'],
-                $webhook['appVersion'],
-                $webhook['appSecret'],
-                $webhook['appAclRoleId']
-            ),
-            $webhooks
-        );
+        $webhooks = [];
+        foreach ($rows as $row) {
+            $roles = $row['ownerIntegrationId'] !== null
+                ? $integrationRoles[$row['ownerIntegrationId']] ?? null
+                : $userRoles[$row['ownerUserId']] ?? null;
+            if ($roles === null) {
+                continue;
+            }
+
+            if ($row['aclRoleIds'] !== null) {
+                $roles = $roles->intersect(Json::decodeToList($row['aclRoleIds']));
+            }
+
+            $webhooks[] = new Webhook(
+                $row['webhookId'],
+                $row['webhookName'],
+                $row['eventName'],
+                $row['webhookUrl'],
+                (bool) $row['onlyLiveVersion'],
+                $row['appId'],
+                $row['appName'],
+                $row['appSourceType'],
+                (bool) $row['appActive'],
+                $row['appVersion'],
+                $row['appSecret'],
+                roles: $roles,
+            );
+        }
+
+        return $webhooks;
     }
 }

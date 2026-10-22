@@ -1,10 +1,15 @@
-# 6.7.16.0 (upcoming)
+# 6.7.16.1
 
 ## Security Fixes
 
 ### Store API criteria field paths are resolved per path segment
 
-Field paths in Store API criteria (filters, sortings, and aggregations) are resolved per path segment. A path that uses `extensions` as a whole segment keeps working; a segment that only contains the text `extensions` is treated literally and rejected when it is not a real field. Integrations that use valid field paths are unaffected.
+Field paths in Store API criteria (filters, sortings, and aggregations) are resolved per path segment.
+A path that uses `extensions` as a whole segment keeps working;
+a segment that only contains the text `extensions` is treated literally and rejected when it is not a real field.
+Integrations that use valid field paths are unaffected.
+
+# 6.7.16.0 (upcoming)
 
 ## Critical Fixes
 
@@ -450,7 +455,7 @@ The product detail page links the terms below the GARAN label, in the new block 
 - Default metrics prefix was changed from `io.opentelemetry.contrib.php.shopware` to `shopware.platform`.
 - `http.server.request.duration` now shows client-facing latency without post-response processing.
 - `cart.calculation.duration` records failed calculations (added `result=success|failed` label).
-- `Telemetry::instrument()` now collects duration metrics also for failed callbacks. 
+- `Telemetry::instrument()` now collects duration metrics also for failed callbacks.
 - Added support for lazy labels calculation in `DurationMetric` and `ConfiguredMetric` (see instrumentors for usage examples).
 - New methods `Telemetry::isMetricEnabled()` / `Meter::isEnabled()` saying if a metric would be emitted, so expensive calculations may be skipped for disabled metrics.
 - Metrics are flushed after all other terminate tasks.

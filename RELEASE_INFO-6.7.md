@@ -84,6 +84,8 @@ Tool results of `/api/_mcp` and `/store-api/_mcp` now take their format from the
   The text is no longer the `{"success": …}` envelope.
   The data is also in `structuredContent`, a failure sets `isError: true` with a stable code in `structuredContent.error.code`, and the metadata is also in the result's `_meta` with the prefix `shopware/`.
   Integrations that parse `success` out of `content[0].text` have to read `isError` and `structuredContent` instead, or negotiate an older revision.
+  When a result has metadata for the model, such as `dryRun`, `total` or a summary, `structuredContent` carries it under the reserved key `_meta`: next to the keys of an object, or as `{"result": …, "_meta": …}` for a list or scalar, on 2026-07-28 too.
+  Tools that declare an `outputSchema` get exactly their data in `structuredContent`.
 * **Clients on 2024-11-05 and 2025-03-26** keep the `{"success": …}` envelope as the only text block, unchanged.
   This legacy envelope is deprecated as a wire format.
   It is kept for these clients and is not removed in 6.8.0.

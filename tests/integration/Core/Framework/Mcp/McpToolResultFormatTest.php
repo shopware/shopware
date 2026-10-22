@@ -29,8 +29,29 @@ class McpToolResultFormatTest extends TestCase
 
         $text = json_decode($result['content'][0]['text'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayNotHasKey('success', $text, 'the legacy envelope is only sent to clients before 2025-06-18');
-        static::assertEquals($text, $result['structuredContent']);
+        $structured = $result['structuredContent'];
+        $meta = $structured['_meta'] ?? null;
+        unset($structured['_meta']);
+        static::assertEquals($text, $structured);
+        static::assertEquals(json_decode($result['content'][1]['text'], true, 512, \JSON_THROW_ON_ERROR), ['_meta' => $meta], 'the metadata block and `structuredContent` carry the same metadata');
         static::assertArrayHasKey('shopware/generatedAt', $result['_meta'] ?? []);
+    }
+
+    public function testAClientSince20250618SeesADryRunInStructuredContent(): void
+    {
+        $arguments = ['entity' => 'tax', 'payload' => '{"name":"MCP dry run","taxRate":7}'];
+
+        $result = $this->callTool('shopware-entity-upsert', $arguments, '2025-06-18');
+
+        static::assertFalse($result['isError'] ?? false, json_encode($result, \JSON_THROW_ON_ERROR));
+        static::assertSame(['dryRun' => true], $result['structuredContent']['_meta'] ?? null);
+        static::assertSame('upsert', $result['structuredContent']['result'][0]['operation'] ?? null);
+
+        $legacy = $this->callTool('shopware-entity-upsert', $arguments, '2025-03-26');
+
+        static::assertArrayNotHasKey('structuredContent', $legacy);
+        $text = json_decode($legacy['content'][0]['text'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(['dryRun' => true], $text['_meta'] ?? null);
     }
 
     public function testAClientBefore20250618GetsTheLegacyEnvelopeOnly(): void

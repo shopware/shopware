@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Result;
 
+use Mcp\Capability\Discovery\SchemaValidator;
 use Mcp\Capability\Registry\ElementReference;
 use Mcp\Capability\Registry\PromptReference;
 use Mcp\Capability\Registry\ReferenceHandlerInterface;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\Mcp\Result\McpToolResultReferenceHandler;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultRenderer;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultStoredFormat;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,6 +46,32 @@ class McpToolResultReferenceHandlerTest extends TestCase
 
         static::assertInstanceOf(CallToolResult::class, $result);
         static::assertSame(['a' => 1], $result->structuredContent);
+    }
+
+    public function testSendsAToolWithAnOutputSchemaAResultThatValidates(): void
+    {
+        // mcp/sdk 0.9 validates `structuredContent` against the declared `outputSchema`.
+        $outputSchema = [
+            'type' => 'object',
+            'properties' => ['id' => ['type' => 'string']],
+            'required' => ['id'],
+            'additionalProperties' => false,
+        ];
+        $reference = new ToolReference(new Tool('t', null, ['type' => 'object', 'properties' => [], 'required' => null], null, null, outputSchema: $outputSchema), static fn (): string => '');
+
+        $result = $this->handler('{"success":true,"data":{"id":"a"},"_meta":{"dryRun":true,"total":1}}')->handle($reference, []);
+
+        static::assertInstanceOf(CallToolResult::class, $result);
+        static::assertSame('{"id":"a"}', Json::encode($result->structuredContent));
+        static::assertSame([], (new SchemaValidator())->validateAgainstJsonSchema(json_decode(Json::encode($result->structuredContent), false, 512, \JSON_THROW_ON_ERROR), $outputSchema), 'decoded as the SDK sends it');
+    }
+
+    public function testAddsTheMetadataForTheModelForAToolWithoutOutputSchema(): void
+    {
+        $result = $this->handler('{"success":true,"data":{"id":"a"},"_meta":{"dryRun":true}}')->handle($this->toolReference(), []);
+
+        static::assertInstanceOf(CallToolResult::class, $result);
+        static::assertSame('{"id":"a","_meta":{"dryRun":true}}', Json::encode($result->structuredContent));
     }
 
     public function testRendersTheLegacyEnvelopeAndKeepsItsText(): void

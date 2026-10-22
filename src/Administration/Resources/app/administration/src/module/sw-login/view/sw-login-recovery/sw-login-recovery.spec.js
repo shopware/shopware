@@ -59,6 +59,12 @@ describe('module/sw-login/recovery.spec.js', () => {
     let wrapper;
 
     beforeEach(async () => {
+        if (!Shopware.Service('loginService')) {
+            Shopware.Service().register('loginService', () => ({
+                getLoginTemplateConfig: jest.fn(),
+            }));
+        }
+
         if (!Shopware.Service('userRecoveryService')) {
             Shopware.Service().register('userRecoveryService', () => {
                 return {
@@ -86,6 +92,32 @@ describe('module/sw-login/recovery.spec.js', () => {
                 email: 'test@example.com',
             },
         });
+    });
+
+    it.each([
+        [false, [{ name: 'sw.login.index.login' }]],
+        [true, []],
+        [undefined, []],
+    ])('should guard recovery when passwordRecoveryEnabled is %s', async (passwordRecoveryEnabled, args) => {
+        Shopware.Service('loginService').getLoginTemplateConfig = jest.fn().mockResolvedValue({ passwordRecoveryEnabled });
+        const next = jest.fn();
+
+        wrapper.vm.$options.beforeRouteEnter({}, {}, next);
+        await flushPromises();
+
+        expect(next).toHaveBeenCalledTimes(1);
+        expect(next).toHaveBeenCalledWith(...args);
+    });
+
+    it('should allow recovery when the login configuration cannot be loaded', async () => {
+        Shopware.Service('loginService').getLoginTemplateConfig = jest.fn().mockRejectedValue(new Error('Network error'));
+        const next = jest.fn();
+
+        wrapper.vm.$options.beforeRouteEnter({}, {}, next);
+        await flushPromises();
+
+        expect(next).toHaveBeenCalledTimes(1);
+        expect(next).toHaveBeenCalledWith();
     });
 
     it('should show an inline warning instead of redirecting when the request is rate limited', async () => {

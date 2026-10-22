@@ -289,19 +289,21 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         if ($userId !== null && $integrationId !== null) {
-            // The named user ($userId) below only narrows the permissions and admin scope; the source identity stays the integration.
             $source = new AdminApiSource(null, $integrationId);
+            $isActiveUser = $this->isActiveUser($userId);
 
             if ($this->isAdminIntegration($integrationId)) {
-                $source->setPermissions($this->withDefaultUserPrivileges($this->fetchPermissions($userId)));
-                $source->setIsAdmin($this->isAdmin($userId));
+                $source->setPermissions($this->withDefaultUserPrivileges($isActiveUser ? $this->fetchPermissions($userId) : []));
+                $source->setIsAdmin($isActiveUser && $this->isAdmin($userId));
 
                 return $source;
             }
 
             $permissions = $this->fetchIntegrationPermissions($integrationId);
 
-            if (!$this->isAdmin($userId)) {
+            if (!$isActiveUser) {
+                $permissions = [];
+            } elseif (!$this->isAdmin($userId)) {
                 $permissions = array_intersect(
                     $permissions,
                     $this->fetchPermissions($userId)

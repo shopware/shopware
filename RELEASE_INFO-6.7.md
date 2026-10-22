@@ -110,6 +110,8 @@ For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-
 For an Admin API request authenticated with a non-app integration access key, the `sw-app-user-id` header only narrows the resolved permissions to the intersection of the integration and the named user's privileges.
 The request keeps the integration as its identity, so `getUserId()` is `null` and `createdBy`/`updatedBy` are no longer set to the named user.
 Admin API routes that require a signed-in user therefore reject such a request; use a user access key, or the regular user endpoints, when a user identity is needed.
+This also applies to routes beyond the list below, for example `POST /api/_proxy/generate-imitate-customer-token`.
+Naming an inactive or unknown user narrows the permissions to none.
 For app integrations the header still resolves the named user, except that an inactive user is now treated like a user without the required app privilege.
 An inactive app resolves no permissions at all, also for a token issued before the app was deactivated.
 

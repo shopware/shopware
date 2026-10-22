@@ -1089,6 +1089,65 @@ class ApiRequestContextResolverTest extends TestCase
         static::assertFalse($source->isAllowed('order:read'));
     }
 
+    public function testStandardIntegrationGrantsNothingForAnInactiveNamedUser(): void
+    {
+        $ids = new IdsCollection();
+
+        $admin = $this->createUser([], true);
+        $this->connection->executeStatement(
+            'UPDATE `user` SET active = 0 WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($admin->getUserId())]
+        );
+
+        $integrationId = $ids->create('integration');
+        $integrationAccessKey = $this->createIntegration($integrationId);
+        $this->addRoleToIntegration($integrationId, ['product:read', 'user_change_me']);
+
+        $request = $this->integrationRequest($integrationAccessKey, $admin->getUserId());
+
+        $this->resolver->resolve($request);
+
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
+        static::assertInstanceOf(AdminApiSource::class, $context->getSource());
+
+        $source = $context->getSource();
+
+        static::assertNull($source->getUserId());
+        static::assertFalse($source->isAdmin());
+        static::assertSame([], $source->getPermissions());
+        static::assertFalse($source->isAllowed('product:read'));
+    }
+
+    public function testAdminIntegrationDoesNotKeepAdminScopeForAnInactiveNamedAdmin(): void
+    {
+        $ids = new IdsCollection();
+
+        $admin = $this->createUser([], true);
+        $this->connection->executeStatement(
+            'UPDATE `user` SET active = 0 WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($admin->getUserId())]
+        );
+
+        $integrationId = $ids->create('integration');
+        $integrationAccessKey = $this->createIntegration($integrationId, admin: true);
+
+        $request = $this->integrationRequest($integrationAccessKey, $admin->getUserId());
+
+        $this->resolver->resolve($request);
+
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
+        static::assertInstanceOf(AdminApiSource::class, $context->getSource());
+
+        $source = $context->getSource();
+
+        static::assertNull($source->getUserId());
+        static::assertFalse($source->isAdmin());
+        static::assertFalse($source->isAllowed('product:read'));
+        static::assertTrue($source->isAllowed('language:read'));
+    }
+
     public function testAppCannotDelegateForInactiveAdminUser(): void
     {
         $ids = new IdsCollection();

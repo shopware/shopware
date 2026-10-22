@@ -36,33 +36,6 @@ function buildConfig(options: Record<string, unknown>, factoryFile = factoryPath
     ) as Config;
 }
 
-/**
- * Runs `statements` against the factory module, bound as `factory`, in a fresh node process
- * and returns the value of `resultExpression`.
- *
- * @example
- * evaluateInFactory('', 'factory.HOST_TRANSFORM_IGNORE_PATTERNS'); // → ['/node_modules/(?!(…)/)']
- */
-function evaluateInFactory(statements: string, resultExpression: string): unknown {
-    const probeScript = [
-        `const factory = await import(${JSON.stringify(pathToFileURL(factoryPath).href)});`,
-        statements,
-        `process.stdout.write(JSON.stringify(${resultExpression}));`,
-    ].join('\n');
-
-    return JSON.parse(
-        execFileSync(process.execPath, ['--input-type=module', '-e', probeScript], {
-            encoding: 'utf8',
-            stdio: ['ignore', 'pipe', 'pipe'],
-        }),
-    ) as unknown;
-}
-
-/** Reads the exported value `name` of the factory module in a fresh node process. */
-function readExport(name: string): unknown {
-    return evaluateInFactory('', `factory[${JSON.stringify(name)}]`);
-}
-
 /** Runs `buildConfig` and returns the error message it fails with. */
 function buildError(options: Record<string, unknown>, factoryFile = factoryPath): string {
     try {
@@ -251,39 +224,8 @@ describe('extension-tooling jest factory', () => {
         });
     });
 
-    it('defaults transformIgnorePatterns to the exported HOST_TRANSFORM_IGNORE_PATTERNS', () => {
-        expect(defaults.transformIgnorePatterns).toEqual(readExport('HOST_TRANSFORM_IGNORE_PATTERNS'));
-    });
-
-    it('builds HOST_TRANSFORM_IGNORE_PATTERNS from the exported HOST_TRANSFORMED_PACKAGES', () => {
-        const packages = readExport('HOST_TRANSFORMED_PACKAGES') as string[];
-
-        expect(packages).toContain('@shopware-ag/meteor-component-library');
-        expect(defaults.transformIgnorePatterns).toEqual([`/node_modules/(?!(${packages.join('|')})/)`]);
-    });
-
-    it('transforms an additional package with the pattern the README builds from HOST_TRANSFORMED_PACKAGES', () => {
-        const packages = readExport('HOST_TRANSFORMED_PACKAGES') as string[];
-        const ignored = new RegExp(`/node_modules/(?!(${[...packages, 'nanoid'].join('|')})/)`);
-
-        expect(ignored.test('/extension/node_modules/left-pad/index.js')).toBe(true);
-        expect(ignored.test('/extension/node_modules/nanoid/index.js')).toBe(false);
-        expect(packages.filter((name) => ignored.test(`/administration/node_modules/${name}/index.js`))).toEqual([]);
-    });
-
-    it.each([
-        ['HOST_TRANSFORM_IGNORE_PATTERNS', '/extension/'],
-        ['HOST_TRANSFORMED_PACKAGES', 'nanoid'],
-    ])('keeps the exported %s unchanged for later configs when an extension mutates it', (name, entry) => {
-        const result = evaluateInFactory(
-            [
-                'let mutationError = null;',
-                `try { factory.${name}.push(${JSON.stringify(entry)}); } catch (error) { mutationError = error.name; }`,
-            ].join('\n'),
-            "{ mutationError, patterns: factory.shopwareAdminJest({ rootDir: '/extension' }).transformIgnorePatterns }",
-        );
-
-        expect(result).toEqual({ mutationError: 'TypeError', patterns: defaults.transformIgnorePatterns });
+    it('leaves node_modules to the JS/TS transformer instead of ignoring packages by name', () => {
+        expect(defaults.transformIgnorePatterns).toEqual([]);
     });
 
     it('lets an allowlisted option replace the default', () => {

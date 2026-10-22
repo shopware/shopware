@@ -24,13 +24,10 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 #[Package('framework')]
 class LifecycleManager
 {
-    public const AUTO_ENABLED = 'auto';
-
     public const CONFIG_KEY_SERVICES_DISABLED = 'core.services.disabled';
 
     public function __construct(
-        private readonly string $enabled,
-        private readonly string $appEnv,
+        private readonly ServicesAvailability $availability,
         private readonly SystemConfigService $systemConfigService,
         private readonly ServiceStorage $serviceStorage,
         private readonly ServiceLifecycle $serviceLifecycle,
@@ -90,29 +87,12 @@ class LifecycleManager
 
     public function enabled(): bool
     {
-        return !$this->areDisabledFromEnv();
+        return $this->availability->available();
     }
 
-    /**
-     * @return array{enabled: bool, enableServices: string}
-     */
-    public function describeEnablement(): array
+    public function availability(): ServicesAvailability
     {
-        return [
-            'enabled' => $this->enabled(),
-            'enableServices' => $this->enabled,
-        ];
-    }
-
-    private function areDisabledFromEnv(): bool
-    {
-        if ($this->enabled === self::AUTO_ENABLED) {
-            $enabled = $this->appEnv === 'prod';
-        } else {
-            $enabled = filter_var($this->enabled, \FILTER_VALIDATE_BOOLEAN);
-        }
-
-        return !$enabled;
+        return $this->availability;
     }
 
     /**

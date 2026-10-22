@@ -143,7 +143,7 @@ class InfoControllerTest extends TestCase
             'inAppPurchases' => [],
             'services' => [
                 'enabled' => false,
-                'enableServices' => 'auto',
+                'setting' => 'auto',
             ],
         ];
 

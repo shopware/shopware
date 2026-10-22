@@ -172,12 +172,12 @@
                 "type": "boolean",
                 "description": "Whether Shopware Services are installed, as decided by `ENABLE_SERVICES`."
               },
-              "enableServices": {
+              "setting": {
                 "type": "string",
                 "description": "The configured value of `ENABLE_SERVICES`. `auto` installs services only when `APP_ENV` is `prod`."
               }
             },
-            "required": ["enabled", "enableServices"],
+            "required": ["enabled", "setting"],
             "additionalProperties": false
           },
           "inAppPurchases": {

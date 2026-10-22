@@ -77,12 +77,12 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.Context.app.config.services?.enabled ?? true;
         },
 
-        enableServices(): string {
-            return Shopware.Context.app.config.services?.enableServices ?? '';
+        servicesSetting(): string {
+            return Shopware.Context.app.config.services?.setting ?? '';
         },
 
         servicesAutoEnabled(): boolean {
-            return this.enableServices === 'auto';
+            return this.servicesSetting === 'auto';
         },
 
         appEnv(): string {

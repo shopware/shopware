@@ -102,7 +102,7 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
     });
 
     beforeEach(() => {
-        Shopware.Context.app.config.services = { enabled: true, enableServices: 'auto' };
+        Shopware.Context.app.config.services = { enabled: true, setting: 'auto' };
         Shopware.Context.app.config.settings = { ...Shopware.Context.app.config.settings, appEnv: 'prod' };
     });
 
@@ -286,7 +286,7 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
 
     it('explains that ENABLE_SERVICES=auto keeps services off outside the prod environment', async () => {
         Shopware.Service('shopwareServicesService').getInstalledServices.mockImplementationOnce(async () => []);
-        Shopware.Context.app.config.services = { enabled: false, enableServices: 'auto' };
+        Shopware.Context.app.config.services = { enabled: false, setting: 'auto' };
         Shopware.Context.app.config.settings.appEnv = 'dev';
         const availableServicesCalls = Shopware.Service('shopwareServicesService').getAvailableServices.mock.calls.length;
 
@@ -309,7 +309,7 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
 
     it('explains that ENABLE_SERVICES turns services off', async () => {
         Shopware.Service('shopwareServicesService').getInstalledServices.mockImplementationOnce(async () => []);
-        Shopware.Context.app.config.services = { enabled: false, enableServices: 'false' };
+        Shopware.Context.app.config.services = { enabled: false, setting: 'false' };
         Shopware.Service('shopwareServicesService').getServicesContext.mockImplementationOnce(async () => ({
             disabled: true,
             permissionsConsent: null,

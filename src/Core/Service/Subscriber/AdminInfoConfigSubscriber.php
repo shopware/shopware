@@ -26,6 +26,6 @@ readonly class AdminInfoConfigSubscriber implements EventSubscriberInterface
 
     public function addServicesConfig(AdminInfoConfigEvent $event): void
     {
-        $event->addConfig('services', $this->lifecycleManager->describeEnablement());
+        $event->addConfig('services', $this->lifecycleManager->availability());
     }
 }

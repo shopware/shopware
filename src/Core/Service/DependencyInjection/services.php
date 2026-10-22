@@ -39,6 +39,7 @@ use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceRegistry\PermissionLogger;
 use Shopware\Core\Service\ServiceRegistry\RegistryUrlProcessor;
+use Shopware\Core\Service\ServicesAvailability;
 use Shopware\Core\Service\ServiceSourceResolver;
 use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\Service\ServiceWebhookPolicy;
@@ -58,6 +59,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\inline_service;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
@@ -266,8 +268,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(LifecycleManager::class)
         ->args([
-            env('ENABLE_SERVICES'),
-            param('kernel.environment'),
+            inline_service(ServicesAvailability::class)->args([
+                env('ENABLE_SERVICES'),
+                param('kernel.environment'),
+            ]),
             service(SystemConfigService::class),
             service(ServiceStorage::class),
             service(ServiceLifecycle::class),

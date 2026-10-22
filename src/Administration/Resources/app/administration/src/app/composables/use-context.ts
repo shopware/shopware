@@ -43,7 +43,7 @@ export interface ContextState {
             };
             services?: {
                 enabled: boolean;
-                enableServices: string;
+                setting: string;
             };
             version: null | string;
             versionRevision: null | string;

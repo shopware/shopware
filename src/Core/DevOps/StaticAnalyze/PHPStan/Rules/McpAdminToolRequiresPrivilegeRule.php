@@ -48,7 +48,7 @@ class McpAdminToolRequiresPrivilegeRule implements Rule
     public function processNode(Node $node, Scope $scope): array
     {
         $class = $node->getOriginalNode();
-        if (!$class instanceof Class_ || $class->isAbstract() || !McpToolScopeResolver::isMcpTool($class)) {
+        if (!$class instanceof Class_ || $class->isAbstract() || !McpToolScopeResolver::isMcpTool($node->getClassReflection())) {
             return [];
         }
 

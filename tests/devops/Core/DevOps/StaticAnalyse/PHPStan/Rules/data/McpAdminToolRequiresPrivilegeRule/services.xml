@@ -41,5 +41,11 @@
             <tag name="mcp.tool"/>
             <tag name="shopware.store_api_mcp.tool"/>
         </service>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\AdminToolInheritingToolInvoke" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\AdminToolInheritingToolInvoke">
+            <tag name="mcp.tool"/>
+        </service>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\AdminToolUsingToolInvokeTrait" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\AdminToolUsingToolInvokeTrait">
+            <tag name="mcp.tool"/>
+        </service>
     </services>
 </container>

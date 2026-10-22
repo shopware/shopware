@@ -194,18 +194,6 @@ const baseRules = {
     ],
     'vue/prefer-import-from-vue': 'off',
     'vue/one-component-per-file': 'off',
-
-    // Lost with eslint-config-airbnb-base in the ESLint 9 update, restored with its options
-    'no-else-return': [
-        'error',
-        { allowElseIf: false },
-    ],
-    'no-useless-return': 'error',
-    'no-lonely-if': 'error',
-    'no-unneeded-ternary': [
-        'error',
-        { defaultAssignment: false },
-    ],
 };
 
 export default [
@@ -777,9 +765,6 @@ export default [
                 { caughtErrors: 'all', caughtErrorsIgnorePattern: '^_' },
             ],
             '@typescript-eslint/prefer-promise-reject-errors': 'warn',
-            '@typescript-eslint/no-unnecessary-boolean-literal-compare': 'error',
-            '@typescript-eslint/no-unnecessary-template-expression': 'error',
-            '@typescript-eslint/no-unnecessary-type-conversion': 'error',
             'sw-deprecation-rules/no-compat-conditions': ['error'],
             'sw-core-rules/enforce-async-component-registers': 'error',
             'sw-deprecation-rules/no-empty-listeners': [

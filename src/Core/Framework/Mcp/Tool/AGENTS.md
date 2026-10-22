@@ -185,6 +185,7 @@ The negotiated protocol revision picks the format, never a feature flag.
     Before 2025-06-18 the text is the envelope `{"success": true, "data": null, "_meta": {...}}` with `resourceUri`, `expiresAt`, `responseSize`, `note` and `query`
   - The linked response stays small: the tool's metadata is kept up to `MAX_LINKED_META_SIZE` (10 KB) in its order, and the keys that don't fit are named in `_meta.omittedMeta`.
     It names at most `MAX_OMITTED_META_KEYS` (50) keys, each cut at 100 bytes, and `_meta.omittedMetaCount` holds the total, so many small keys can't make the link large again.
+    The tool's own links are kept up to `MAX_LINKED_LINKS` (20) and `MAX_LINKED_LINKS_SIZE` (10 KB) in their order, the rest is counted in `_meta.omittedLinkCount`; the link to the stored result is always added after them.
     Before 2025-06-18 the stored envelope still holds them; since 2025-06-18 the stored resource is the plain data only
   - The pointer is signed for the caller (`McpToolResultPrincipal`; Admin: integration and user; Store: sales channel and `sw-context-token`) and expires after an hour.
     So it works on a later request and without an MCP session, but only for the same caller.

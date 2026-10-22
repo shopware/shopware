@@ -75,7 +75,6 @@ class ReinstallAppsStrategyTest extends TestCase
             $this->shopIdProvider,
             new NullLogger(),
             new PassingAppUrlVerifier(),
-            'https://test.new',
         );
 
         $reinstallAppsResolver->resolve($this->context);
@@ -100,7 +99,6 @@ class ReinstallAppsStrategyTest extends TestCase
             $this->shopIdProvider,
             new NullLogger(),
             new PassingAppUrlVerifier(),
-            'https://test.new',
         );
 
         $reinstallAppsResolver->resolve($this->context);
@@ -135,7 +133,6 @@ class ReinstallAppsStrategyTest extends TestCase
             $this->shopIdProvider,
             new NullLogger(),
             new PassingAppUrlVerifier(),
-            'https://test.new',
         );
 
         $this->expectExceptionObject(AppException::reinstallAppsFailed(['test']));

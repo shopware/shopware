@@ -66,7 +66,7 @@ class AppRegistrationServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->handshakeFactoryMock = $this->createMock(HandshakeFactory::class);
-        $this->appUrlVerification = new VerificationState(VerificationStatus::PASS, 1, new \DateTimeImmutable());
+        $this->appUrlVerification = new VerificationState('https://shopware.swag', VerificationStatus::PASS, 1, new \DateTimeImmutable());
         $this->appUrlVerifier = static::createStub(AppUrlVerifier::class);
         $this->appUrlVerifier->method('forceVerify')->willReturnCallback(fn (): VerificationState => $this->appUrlVerification);
 
@@ -596,11 +596,11 @@ class AppRegistrationServiceTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
 
-        $this->appUrlVerification = new VerificationState(VerificationStatus::SOFT_FAIL, 1, new \DateTimeImmutable(), 'Failed to connect to APP_URL: timeout');
+        $this->appUrlVerification = new VerificationState('https://shopware.swag', VerificationStatus::SOFT_FAIL, 1, new \DateTimeImmutable(), 'Failed to connect to APP_URL: timeout');
 
         $this->handshakeFactoryMock->expects($this->never())->method('create');
 
-        $this->expectExceptionObject(AppException::appUrlFailedVerification('https://shopware.swag', $this->appUrlVerification));
+        $this->expectExceptionObject(AppException::appUrlFailedVerification($this->appUrlVerification));
 
         $this->appRegistrationService
             ->reRegisterWithAppHeldSecret($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext(), 'app-held-secret');

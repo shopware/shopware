@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App;
 
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\App\Url\VerificationState;
 use Shopware\Core\Framework\App\Url\VerificationStatus;
@@ -17,12 +18,12 @@ class PassingAppUrlVerifier extends AppUrlVerifier
     {
     }
 
-    public function forceVerify(string $appUrl): VerificationState
+    public function forceVerify(): VerificationState
     {
-        return new VerificationState(VerificationStatus::PASS, 1, new \DateTimeImmutable());
+        return new VerificationState((string) EnvironmentHelper::getVariable('APP_URL'), VerificationStatus::PASS, 1, new \DateTimeImmutable());
     }
 
-    public function verifyForAdministration(string $appUrl): bool
+    public function verifyForAdministration(): bool
     {
         return true;
     }

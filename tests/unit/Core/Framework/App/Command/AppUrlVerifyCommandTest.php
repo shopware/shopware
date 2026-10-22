@@ -25,87 +25,58 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(AppUrlVerifyCommand::class)]
 class AppUrlVerifyCommandTest extends TestCase
 {
-    public function testVerifiesTheUrlStoredWithTheShopId(): void
+    public function testAPendingShopIdChangeIsReportedAndTheAppUrlIsStillVerified(): void
     {
-        $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
-
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $shopIdProvider->expects($this->exactly(2))
-            ->method('getShopId')
-            ->willReturn($shopId);
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
+        $shopIdProvider->method('getShopId')->willThrowException(AppException::shopIdChangeSuggested(
+            ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://old.example.com']),
+            new FingerprintComparisonResult([], [], 75),
+        ));
 
         $verifier = $this->createMock(AppUrlVerifier::class);
         $verifier->expects($this->once())
             ->method('forceVerify')
-            ->with('https://example.com')
             ->willReturn(new VerificationState(
+                'https://new.example.com',
                 VerificationStatus::PASS,
                 1,
                 new \DateTimeImmutable('2025-01-01 12:00:00', new \DateTimeZone('UTC')),
-                null,
             ));
 
-        $printer = new AppUrlVerificationPrinter($shopIdProvider);
-        $command = new AppUrlVerifyCommand($shopIdProvider, $verifier, $printer);
+        $tester = new CommandTester(new AppUrlVerifyCommand($shopIdProvider, $verifier, new AppUrlVerificationPrinter()));
 
-        $tester = new CommandTester($command);
-        $exitCode = $tester->execute([]);
+        static::assertSame(Command::SUCCESS, $tester->execute([]));
 
-        static::assertSame(Command::SUCCESS, $exitCode);
-    }
+        $display = $tester->getDisplay();
 
-    public function testFailsWhileAShopIdChangeIsPending(): void
-    {
-        $shopIdChange = AppException::shopIdChangeSuggested(
-            ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://old.example.com']),
-            new FingerprintComparisonResult([], [], 75),
-        );
-
-        $shopIdProvider = static::createStub(ShopIdProvider::class);
-        $shopIdProvider->method('getShopId')->willThrowException($shopIdChange);
-
-        $verifier = $this->createMock(AppUrlVerifier::class);
-        $verifier->expects($this->never())->method('forceVerify');
-
-        $command = new AppUrlVerifyCommand($shopIdProvider, $verifier, new AppUrlVerificationPrinter($shopIdProvider));
-
-        $this->expectExceptionObject($shopIdChange);
-
-        (new CommandTester($command))->execute([]);
+        static::assertStringContainsString('Shop ID change suggested. Run "bin/console app:shop-id:change"', $display);
+        static::assertStringContainsString('APP URL: https://new.example.com', $display);
+        static::assertStringContainsString('OK', $display);
     }
 
     public function testVerifyPrintsOutput(): void
     {
-        $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
-
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $shopIdProvider->expects($this->exactly(2))
-            ->method('getShopId')
-            ->willReturn($shopId);
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
+        $shopIdProvider->method('getShopId')->willReturn(ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']));
 
         $verifier = $this->createMock(AppUrlVerifier::class);
-        $state = new VerificationState(
-            VerificationStatus::HARD_FAIL,
-            1,
-            new \DateTimeImmutable('2025-01-01 12:00:00', new \DateTimeZone('UTC')),
-            'Unexpected response from APP_URL verification endpoint: HTTP 404. not found',
-        );
-
         $verifier->expects($this->once())
             ->method('forceVerify')
-            ->with('https://example.com')
-            ->willReturn($state);
+            ->willReturn(new VerificationState(
+                'https://example.com',
+                VerificationStatus::HARD_FAIL,
+                1,
+                new \DateTimeImmutable('2025-01-01 12:00:00', new \DateTimeZone('UTC')),
+                'Unexpected response from APP_URL verification endpoint: HTTP 404. not found',
+            ));
 
-        $printer = new AppUrlVerificationPrinter($shopIdProvider);
-        $command = new AppUrlVerifyCommand($shopIdProvider, $verifier, $printer);
+        $tester = new CommandTester(new AppUrlVerifyCommand($shopIdProvider, $verifier, new AppUrlVerificationPrinter()));
 
-        $tester = new CommandTester($command);
-        $exitCode = $tester->execute([]);
-
-        static::assertSame(Command::SUCCESS, $exitCode);
+        static::assertSame(Command::SUCCESS, $tester->execute([]));
 
         $display = $tester->getDisplay();
 
+        static::assertStringNotContainsString('Shop ID change suggested', $display);
         static::assertStringContainsString('App URL Verification Status', $display);
         static::assertStringContainsString('APP URL: https://example.com', $display);
         static::assertStringContainsString('Result', $display);

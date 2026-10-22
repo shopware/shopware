@@ -18,7 +18,7 @@ class VerificationStateTest extends TestCase
     public function testIsAndIsNotHardFail(): void
     {
         $now = new \DateTimeImmutable('2025-01-01T12:00:00Z');
-        $state = new VerificationState(VerificationStatus::SOFT_FAIL, 0, $now);
+        $state = new VerificationState('https://example.com', VerificationStatus::SOFT_FAIL, 0, $now);
 
         static::assertTrue($state->is(VerificationStatus::SOFT_FAIL));
         static::assertFalse($state->is(VerificationStatus::PASS));
@@ -27,7 +27,7 @@ class VerificationStateTest extends TestCase
 
     public function testAFailureReportsItsReason(): void
     {
-        $state = new VerificationState(VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'Unexpected response');
+        $state = new VerificationState('https://example.com', VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'Unexpected response');
 
         static::assertSame('Unexpected response', $state->failureReason());
     }
@@ -35,7 +35,7 @@ class VerificationStateTest extends TestCase
     public function testIsInBackoffTrueWhenNowBeforeAtPlusWait(): void
     {
         $at = new \DateTimeImmutable('2025-01-01T12:00:00Z');
-        $state = new VerificationState(VerificationStatus::SOFT_FAIL, 1, $at);
+        $state = new VerificationState('https://example.com', VerificationStatus::SOFT_FAIL, 1, $at);
 
         $now = new \DateTimeImmutable('2025-01-01T12:04:59Z');
         static::assertTrue($state->isInBackoff($now, 60 * 5));
@@ -44,7 +44,7 @@ class VerificationStateTest extends TestCase
     public function testIsInBackoffFalseAtBoundaryAndAfter(): void
     {
         $at = new \DateTimeImmutable('2025-01-01T12:00:00Z');
-        $state = new VerificationState(VerificationStatus::SOFT_FAIL, 1, $at);
+        $state = new VerificationState('https://example.com', VerificationStatus::SOFT_FAIL, 1, $at);
 
         $boundary = new \DateTimeImmutable('2025-01-01T12:05:00Z');
         static::assertFalse($state->isInBackoff($boundary, 300));

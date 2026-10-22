@@ -38,7 +38,6 @@ class ReinstallAppsStrategy implements ShopIdChangeStrategy
         private readonly ShopIdProvider $shopIdProvider,
         private readonly LoggerInterface $logger,
         private readonly AppUrlVerifier $appUrlVerifier,
-        private readonly string $shopUrl,
     ) {
     }
 
@@ -56,10 +55,10 @@ class ReinstallAppsStrategy implements ShopIdChangeStrategy
     {
         // Verify APP_URL before deleting the shop ID: the delete cannot be undone, and every
         // re-registration below would fail on the same check.
-        $state = $this->appUrlVerifier->forceVerify($this->shopUrl);
+        $state = $this->appUrlVerifier->forceVerify();
 
         if (!$state->is(VerificationStatus::PASS)) {
-            throw AppException::appUrlFailedVerification($this->shopUrl, $state);
+            throw AppException::appUrlFailedVerification($state);
         }
 
         $this->shopIdProvider->deleteShopId();

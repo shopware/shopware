@@ -38,7 +38,6 @@ class ReinstallAppsStrategyTest extends TestCase
             static::createStub(ShopIdProvider::class),
             new NullLogger(),
             static::createStub(AppUrlVerifier::class),
-            'https://new.example.com',
         );
 
         static::assertSame(ReinstallAppsStrategy::STRATEGY_NAME, $strategy->getName());
@@ -66,8 +65,7 @@ class ReinstallAppsStrategyTest extends TestCase
         $verifier = $this->createMock(AppUrlVerifier::class);
         $verifier->expects($this->once())
             ->method('forceVerify')
-            ->with('https://new.example.com')
-            ->willReturn(new VerificationState(VerificationStatus::PASS, 1, new \DateTimeImmutable()));
+            ->willReturn(new VerificationState('https://new.example.com', VerificationStatus::PASS, 1, new \DateTimeImmutable()));
 
         $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
 
@@ -77,7 +75,6 @@ class ReinstallAppsStrategyTest extends TestCase
             $shopIdProvider,
             new NullLogger(),
             $verifier,
-            'https://new.example.com',
         );
 
         $strategy->resolve($context);
@@ -99,10 +96,9 @@ class ReinstallAppsStrategyTest extends TestCase
             $shopIdProvider,
             new NullLogger(),
             self::verifierReturning(VerificationStatus::HARD_FAIL, 'Unexpected response'),
-            'https://new.example.com',
         );
 
-        $this->expectExceptionObject(AppException::appUrlFailedVerification('https://new.example.com', new VerificationState(VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'Unexpected response')));
+        $this->expectExceptionObject(AppException::appUrlFailedVerification(new VerificationState('https://new.example.com', VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'Unexpected response')));
 
         $strategy->resolve(Context::createDefaultContext());
     }
@@ -136,7 +132,6 @@ class ReinstallAppsStrategyTest extends TestCase
             $shopIdProvider,
             new Logger('test', [$logger]),
             self::verifierReturning(VerificationStatus::PASS),
-            'https://new.example.com',
         );
 
         $this->expectExceptionObject(AppException::reinstallAppsFailed(['app-one']));
@@ -155,7 +150,7 @@ class ReinstallAppsStrategyTest extends TestCase
     private static function verifierReturning(VerificationStatus $status, ?string $info = null): AppUrlVerifier
     {
         $verifier = static::createStub(AppUrlVerifier::class);
-        $verifier->method('forceVerify')->willReturn(new VerificationState($status, 1, new \DateTimeImmutable(), $info));
+        $verifier->method('forceVerify')->willReturn(new VerificationState('https://new.example.com', $status, 1, new \DateTimeImmutable(), $info));
 
         return $verifier;
     }

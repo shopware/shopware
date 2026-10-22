@@ -39,7 +39,6 @@ class MoveShopPermanentlyStrategy implements ShopIdChangeStrategy
         private readonly ShopIdProvider $shopIdProvider,
         private readonly LoggerInterface $logger,
         private readonly AppUrlVerifier $appUrlVerifier,
-        private readonly string $shopUrl,
     ) {
     }
 
@@ -64,10 +63,10 @@ class MoveShopPermanentlyStrategy implements ShopIdChangeStrategy
         } catch (ShopIdChangeSuggestedException $e) {
             // Verify APP_URL before storing it with the shop ID. Once stored, the change counts as
             // resolved, so a broken APP_URL would be accepted and every re-registration below would fail.
-            $state = $this->appUrlVerifier->forceVerify($this->shopUrl);
+            $state = $this->appUrlVerifier->forceVerify();
 
             if (!$state->is(VerificationStatus::PASS)) {
-                throw AppException::appUrlFailedVerification($this->shopUrl, $state);
+                throw AppException::appUrlFailedVerification($state);
             }
 
             $this->shopIdProvider->regenerateAndSetShopId($e->shopId->id);

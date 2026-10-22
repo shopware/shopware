@@ -43,6 +43,7 @@ class AppUrlVerifier implements ResetInterface
         private readonly LockFactory $lockFactory,
         private readonly LoggerInterface $logger,
         private readonly ClockInterface $clock,
+        private readonly string $appUrl,
         private readonly bool $appUrlCheckDisabled,
     ) {
     }
@@ -62,7 +63,7 @@ class AppUrlVerifier implements ResetInterface
      * Verify the shops APP_URL in any environment, ignoring the stored result of previous verification attempts.
      * A pass is reused until the service is reset.
      */
-    public function forceVerify(string $appUrl): VerificationState
+    public function forceVerify(): VerificationState
     {
         if ($this->pass !== null) {
             return $this->pass;
@@ -77,7 +78,7 @@ class AppUrlVerifier implements ResetInterface
         }
 
         try {
-            $state = $this->performVerification($appUrl);
+            $state = $this->performVerification();
         } finally {
             $this->releaseLock($lock);
         }
@@ -95,7 +96,7 @@ class AppUrlVerifier implements ResetInterface
      *
      * Note: for non-prod environments we skip the verification entirely
      */
-    public function verify(string $appUrl): bool
+    public function verify(): bool
     {
         if ($this->appEnv !== 'prod') {
             return true;
@@ -117,7 +118,7 @@ class AppUrlVerifier implements ResetInterface
 
             if ($state === null) {
                 // first attempt
-                $state = $this->performVerification($appUrl);
+                $state = $this->performVerification();
 
                 return $state->isNotHardFail();
             }
@@ -125,7 +126,7 @@ class AppUrlVerifier implements ResetInterface
             return match ($state->status) {
                 VerificationStatus::PASS => true,
                 VerificationStatus::HARD_FAIL => false,
-                VerificationStatus::SOFT_FAIL => $this->handleSoftFail($appUrl, $state),
+                VerificationStatus::SOFT_FAIL => $this->handleSoftFail($state),
             };
         } catch (\Exception) {
             // we should not blow up here on any account
@@ -135,13 +136,13 @@ class AppUrlVerifier implements ResetInterface
         }
     }
 
-    public function verifyForAdministration(string $appUrl): bool
+    public function verifyForAdministration(): bool
     {
         if ($this->appUrlCheckDisabled) {
             return true;
         }
 
-        return $this->verify($appUrl);
+        return $this->verify();
     }
 
     /**
@@ -171,7 +172,7 @@ class AppUrlVerifier implements ResetInterface
         $this->pass = null;
     }
 
-    private function handleSoftFail(string $appUrl, VerificationState $previousState): bool
+    private function handleSoftFail(VerificationState $previousState): bool
     {
         $wait = $this->backoffForTry($previousState->numTries);
         if ($previousState->isInBackoff($this->clock->now(), $wait)) {
@@ -179,7 +180,7 @@ class AppUrlVerifier implements ResetInterface
             return true;
         }
 
-        $state = $this->performVerification($appUrl, $previousState->numTries + 1);
+        $state = $this->performVerification($previousState->numTries + 1);
 
         return $state->isNotHardFail();
     }
@@ -194,7 +195,7 @@ class AppUrlVerifier implements ResetInterface
 
     private function recordLockFailure(LockException $e): VerificationState
     {
-        return $this->record(new VerificationState(VerificationStatus::SOFT_FAIL, 1, $this->clock->now(), 'Could not acquire the verification lock: ' . $e->getMessage()));
+        return $this->record(new VerificationState($this->appUrl, VerificationStatus::SOFT_FAIL, 1, $this->clock->now(), 'Could not acquire the verification lock: ' . $e->getMessage()));
     }
 
     private function releaseLock(LockInterface $lock): void
@@ -205,11 +206,11 @@ class AppUrlVerifier implements ResetInterface
         }
     }
 
-    private function performVerification(string $appUrl, int $tries = 1): VerificationState
+    private function performVerification(int $tries = 1): VerificationState
     {
-        [$status, $info] = $this->executeVerify($appUrl);
+        [$status, $info] = $this->executeVerify();
 
-        return $this->record(new VerificationState($status, $tries, $this->clock->now(), $info));
+        return $this->record(new VerificationState($this->appUrl, $status, $tries, $this->clock->now(), $info));
     }
 
     private function record(VerificationState $state): VerificationState
@@ -243,10 +244,10 @@ class AppUrlVerifier implements ResetInterface
     /**
      * @return array{0: VerificationStatus, 1: string|null}
      */
-    private function executeVerify(string $appUrl): array
+    private function executeVerify(): array
     {
         try {
-            $url = $this->buildVerificationUrl($appUrl);
+            $url = $this->buildVerificationUrl();
         } catch (AppException $e) {
             return [VerificationStatus::HARD_FAIL, $e->getMessage()];
         }
@@ -337,9 +338,9 @@ class AppUrlVerifier implements ResetInterface
         return $result;
     }
 
-    private function buildVerificationUrl(string $appUrl): string
+    private function buildVerificationUrl(): string
     {
-        $trimmed = rtrim($appUrl, '/');
+        $trimmed = rtrim($this->appUrl, '/');
 
         if (!filter_var($trimmed, \FILTER_VALIDATE_URL)) {
             throw AppException::invalidAppUrl('Invalid URL format.');

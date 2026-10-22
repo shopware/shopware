@@ -158,10 +158,10 @@ class AppRegistrationService
 
     private function verifyAppUrl(): void
     {
-        $state = $this->appUrlVerifier->forceVerify($this->shopUrl);
+        $state = $this->appUrlVerifier->forceVerify();
 
         if (!$state->is(VerificationStatus::PASS)) {
-            throw AppException::appUrlFailedVerification($this->shopUrl, $state);
+            throw AppException::appUrlFailedVerification($state);
         }
     }
 

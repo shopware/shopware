@@ -870,7 +870,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ShopIdProvider::class),
             service('logger'),
             service(AppUrlVerifier::class),
-            env('APP_URL'),
         ])
         ->tag('shopware.app_url_changed_resolver', ['priority' => -100]);
 
@@ -881,7 +880,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ShopIdProvider::class),
             service('logger'),
             service(AppUrlVerifier::class),
-            env('APP_URL'),
         ])
         ->tag('shopware.app_url_changed_resolver', ['priority' => 100]);
 
@@ -1090,14 +1088,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('lock.factory'),
             service('logger'),
             service(ClockInterface::class),
+            env('APP_URL'),
             env('APP_URL_CHECK_DISABLED')->bool(),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 
-    $services->set(AppUrlVerificationPrinter::class)
-        ->args([
-            service(ShopIdProvider::class),
-        ]);
+    $services->set(AppUrlVerificationPrinter::class);
 
     $services->set(AppUrlVerificationStatusCommand::class)
         ->args([

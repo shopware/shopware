@@ -75,7 +75,6 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             $this->shopIdProvider,
             new NullLogger(),
             new PassingAppUrlVerifier(),
-            'https://test.new',
         );
 
         $moveShopPermanentlyResolver->resolve($this->context);
@@ -100,7 +99,6 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             $this->shopIdProvider,
             new NullLogger(),
             new PassingAppUrlVerifier(),
-            'https://test.new',
         );
 
         $moveShopPermanentlyResolver->resolve($this->context);
@@ -140,7 +138,6 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             $this->shopIdProvider,
             new NullLogger(),
             new PassingAppUrlVerifier(),
-            'https://test.new',
         );
 
         $this->expectExceptionObject(AppException::shopMoveFailed(['test']));

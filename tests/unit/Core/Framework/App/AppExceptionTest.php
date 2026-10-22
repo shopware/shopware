@@ -266,8 +266,7 @@ class AppExceptionTest extends TestCase
     public function testAFailedAppUrlVerificationNamesTheResponse(): void
     {
         $e = AppException::appUrlFailedVerification(
-            'https://shop.test',
-            new VerificationState(VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'HTTP code: "403"'),
+            new VerificationState('https://shop.test', VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'HTTP code: "403"'),
         );
 
         static::assertSame(Response::HTTP_BAD_GATEWAY, $e->getStatusCode());
@@ -278,8 +277,7 @@ class AppExceptionTest extends TestCase
     public function testATemporarilyFailedAppUrlVerificationAsksToTryAgain(): void
     {
         $e = AppException::appUrlFailedVerification(
-            'https://shop.test',
-            new VerificationState(VerificationStatus::SOFT_FAIL, 1, new \DateTimeImmutable(), 'HTTP code: "429"'),
+            new VerificationState('https://shop.test', VerificationStatus::SOFT_FAIL, 1, new \DateTimeImmutable(), 'HTTP code: "429"'),
         );
 
         static::assertSame(Response::HTTP_SERVICE_UNAVAILABLE, $e->getStatusCode());

@@ -93,7 +93,7 @@ Access keys, integration tokens and all existing OAuth tokens keep working uncha
   ```
 
   Redirect URIs on `http://127.0.0.1` and `http://[::1]` accept any port; all others, including `http://localhost:<port>`, must match exactly.
-  Redirect URIs must now use `https`.
+  Redirect URIs must now use `https`, or a private-use scheme of a native app such as `cursor://`.
   Plain `http` is only accepted for `localhost`, `127.0.0.1` and `[::1]`, or for every host when the kernel runs in the `dev` environment.
   An authorization request to another `http` redirect URI is rejected with `FRAMEWORK__OAUTH_INSECURE_REDIRECT_URI`, so change registered `http` redirect URIs on other hosts to `https`.
   Claude Code calls back on `http://localhost:<port>/callback`, so register a fixed port and add the server with `claude mcp add --transport http --client-id claude-code --callback-port 53682 shopware <shop URL>/api/_mcp`.

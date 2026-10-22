@@ -290,8 +290,9 @@ The design is recorded in `adr/2026-10-21-mcp-oauth-client-authentication.md`.
 There is no dynamic client registration.
 `shopware-cli` is the only default client.
 Redirect URIs on the loopback IP literals `http://127.0.0.1` and `http://[::1]` match any port; every other redirect URI, including `http://localhost:<port>`, must match exactly.
-Redirect URIs must use `https`.
+Web redirect URIs must use `https`.
 Plain `http` is accepted for `localhost` and the loopback IP literals only, or for every host when the kernel runs in the `dev` environment.
+Private-use schemes of native apps (`cursor://`) stay allowed and match exactly.
 `PublicClientRegistry::isTransportAllowed()` holds the rule; `ShopwareAuthCodeGrantType` rejects other redirect URIs on authorize with `FRAMEWORK__OAUTH_INSECURE_REDIRECT_URI` (`400`, not sent to the redirect URI).
 The check runs on authorize and not on container build, because `oauth_clients` already shipped and a single bad entry must not break the whole Admin API.
 An operator adds a client for an MCP client with a configurable client id in `config/packages/shopware.yaml`.

@@ -12,9 +12,10 @@ use Shopware\Core\Framework\Log\Package;
  * authorization code grant with PKCE and the refresh token grant. Redirect URIs are matched exactly,
  * except for loopback URIs (`http://127.0.0.1`, `http://[::1]`) where any port is accepted (RFC 8252 §7.3).
  *
- * Redirect URIs must use https. Plain http is accepted for `localhost` and the loopback IP literals only,
- * because the authorization code would otherwise travel unencrypted (RFC 9700 §2.6).
+ * Plain http redirect URIs are accepted for `localhost` and the loopback IP literals only, because the
+ * authorization code would otherwise travel unencrypted; every other web redirect URI must use https.
  * In the `dev` kernel environment every http redirect URI is accepted, so local development hosts keep working.
+ * Private-use schemes of native apps (`cursor://`, RFC 8252 §7.1) stay allowed; they only ever match exactly.
  *
  * @internal
  */
@@ -75,12 +76,12 @@ final class PublicClientRegistry
     public function isTransportAllowed(string $redirectUri): bool
     {
         $scheme = strtolower((string) parse_url($redirectUri, \PHP_URL_SCHEME));
-        if ($scheme === 'https') {
-            return true;
+        if ($scheme === '') {
+            return false;
         }
 
         if ($scheme !== 'http') {
-            return false;
+            return true;
         }
 
         $host = strtolower((string) parse_url($redirectUri, \PHP_URL_HOST));

@@ -93,7 +93,7 @@ class PublicClientRegistryTest extends TestCase
         yield 'registered localhost uri with its port is allowed' => ['local-app', 'http://localhost:8080/callback', true];
         yield 'registered localhost uri with another port is rejected' => ['local-app', 'http://localhost:9090/callback', false];
         yield 'registered plain http uri on a public host is rejected' => ['insecure-app', 'http://insecure.example/callback', false];
-        yield 'registered custom scheme uri is rejected' => ['insecure-app', 'com.example.app:/callback', false];
+        yield 'registered private-use scheme uri is allowed' => ['insecure-app', 'com.example.app:/callback', true];
     }
 
     #[DataProvider('transportProvider')]
@@ -119,8 +119,9 @@ class PublicClientRegistryTest extends TestCase
         yield 'http on a localhost lookalike is rejected' => ['prod', 'http://localhost.example/callback', false];
         yield 'http on a public host is rejected in the test environment' => ['test', 'http://my-app.example/callback', false];
         yield 'http on a public host is allowed in the dev environment' => ['dev', 'http://shop.test/callback', true];
-        yield 'custom scheme is rejected' => ['prod', 'com.example.app:/callback', false];
-        yield 'custom scheme is rejected in the dev environment' => ['dev', 'com.example.app:/callback', false];
+        yield 'http in upper case on a public host is rejected' => ['prod', 'HTTP://my-app.example/callback', false];
+        yield 'private-use scheme of a native app is allowed' => ['prod', 'cursor://anysphere.cursor-retrieval/oauth/callback', true];
+        yield 'reverse domain private-use scheme is allowed' => ['prod', 'com.example.app:/callback', true];
         yield 'uri without scheme is rejected' => ['prod', '//my-app.example/callback', false];
     }
 }

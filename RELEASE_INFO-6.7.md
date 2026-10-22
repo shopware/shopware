@@ -15,6 +15,12 @@ The Apache `.htaccess.dist` template now sends `script-src 'none'; object-src 'n
 Application-rendered HTML and bundled HTML applications retain their existing behavior.
 Ensure your deployed `.htaccess` contains the updated Shopware section; installations without the Shopware update markers must merge it manually.
 Custom static documents must work without scripts, embedded documents, base URL overrides or form submissions; images and styles remain permitted.
+### Content Security Policy for Storefront documents
+
+Storefront document responses now send a `Content-Security-Policy` header that blocks scripts, embedded documents, base URL changes and form submissions. Custom HTML document templates must work without these capabilities; styles and images remain permitted. Admin API and Store API responses retain their existing CSP.
+
+The Storefront document policy can be overridden through the container parameter `shopware.security.private_media_csp` in `config/services.yaml`.
+
 ### HTML files are no longer accepted as public media
 
 `html` was removed from the default `shopware.filesystem.allowed_extensions`. Public media is served from the shop's own domain, so an uploaded HTML file ran its scripts in the same origin as the Administration and could read the session of an administrator who opened it.

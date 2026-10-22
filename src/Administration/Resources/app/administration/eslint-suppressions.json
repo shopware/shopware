@@ -1,1 +1,5840 @@
-{}
+{
+  "src/app/component/app/sw-app-action-button/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/app/sw-app-actions/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/app/sw-app-topbar-button/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/app/sw-app-wrong-app-url-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-avatar/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-button-deprecated/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-button-group/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-button-process/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-button/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-card-deprecated/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-card-filter/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-card-section/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-chart-card/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-chart/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-chart/locales.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-circle-icon/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-collapse/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-container/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-description-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-empty-state/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-help-text/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-highlight-text/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-icon-deprecated/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-icon/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-inheritance-switch/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-label/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-price-preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-product-image/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-product-variant-info/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-property-search/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-radio-panel/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-rating-stars/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-simple-search-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-sorting-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-tabs-deprecated/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-tabs-item/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-user-card/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/base/sw-version/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/context-menu/sw-context-button/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/context-menu/sw-context-menu-divider/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/context-menu/sw-context-menu-item/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/context-menu/sw-context-menu/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/data-grid/sw-data-grid-column-boolean/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/data-grid/sw-data-grid-column-position/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/data-grid/sw-data-grid-inline-edit/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/data-grid/sw-data-grid-settings/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/data-grid/sw-data-grid-skeleton/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/data-grid/sw-data-grid/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/entity/sw-bulk-edit-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/entity/sw-category-tree-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/entity/sw-entity-listing/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/entity/sw-many-to-many-assignment-card/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/entity/sw-one-to-many-grid/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/entity/sw-product-stream-grid-preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/filter/sw-base-filter/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/filter/sw-boolean-filter/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/filter/sw-date-filter/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/filter/sw-existence-filter/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/filter/sw-filter-panel/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/filter/sw-multi-select-filter/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/filter/sw-number-filter/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/filter/sw-range-filter/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/filter/sw-sidebar-filter-panel/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/field-base/sw-base-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/field-base/sw-block-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/field-base/sw-contextual-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/field-base/sw-field-error/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/select/base/sw-grouped-single-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/select/base/sw-multi-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/select/base/sw-multi-tag-ip-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/select/base/sw-multi-tag-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/select/base/sw-select-base/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/select/base/sw-select-result-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/select/base/sw-select-result/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/select/base/sw-select-selection-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/select/base/sw-single-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-product/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-rule/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/select/entity/sw-entity-advanced-selection-modal-grid/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/select/entity/sw-entity-advanced-selection-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/select/entity/sw-entity-many-to-many-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/select/entity/sw-entity-multi-id-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/select/entity/sw-entity-multi-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/select/entity/sw-entity-single-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/select/entity/sw-entity-tag-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-boolean-radio-group/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-checkbox-field-deprecated/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-code-editor/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-colorpicker-deprecated/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-compact-colorpicker/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-confirm-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-custom-field-set-renderer/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-datepicker-deprecated/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-email-field-deprecated/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-field-copyable/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-file-input/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-form-field-renderer/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-gtc-checkbox/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-list-price-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-maintain-currencies-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-number-field-deprecated/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-password-field-deprecated/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-price-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-purchase-price-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-radio-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-select-field-deprecated/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-select-number-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-select-option/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-select-rule-create/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-snippet-field-edit-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-snippet-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-switch-field-deprecated/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-switch-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-tagged-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-text-editor/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-text-editor/sw-text-editor-table-toolbar/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-text-editor/sw-text-editor-toolbar-button/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-text-editor/sw-text-editor-toolbar-table-button/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-text-editor/sw-text-editor-toolbar/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-text-field-deprecated/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-textarea-field-deprecated/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-url-field-deprecated/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/grid/sw-grid-column/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/grid/sw-grid-row/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/grid/sw-grid/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/grid/sw-pagination/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-image-slider/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-add-thumbnail-form/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-base-item/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-compact-upload-v2/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-entity-mapper/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-folder-content/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-folder-item/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-list-selection-item-v2/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-list-selection-v2/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-media-item/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-modal-delete/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-modal-folder-dissolve/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-modal-folder-settings/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-modal-move/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-modal-replace/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-preview-v2/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-replace/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-upload-v2/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-url-form/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-sidebar-media-item/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/meteor/sw-meteor-card/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/meteor/sw-meteor-single-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/modal/sw-confirm-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/modal/sw-image-preview-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/modal/sw-search-preferences-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-billing-zip-code/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-customer-custom-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-date-range/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-generic-line-item/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-generic/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-goods-count/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-goods-price/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-is-always-valid/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-line-item-custom-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-line-item-goods-total/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-line-item-in-category/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-line-item-property/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-line-item-purchase-price/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-line-item-with-quantity/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-line-item/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-not-found/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-order-custom-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-script/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-shipping-zip-code/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-time-range/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/sw-arrow-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/sw-condition-all-line-items-container/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/sw-condition-and-container/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/sw-condition-base-line-item/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/sw-condition-base/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/sw-condition-field-errors/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/sw-condition-is-net-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/sw-condition-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/sw-condition-operator-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/sw-condition-or-container/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/sw-condition-tree-node/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/sw-condition-tree/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/sw-condition-type-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/sw-condition-unit-menu/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/sw-condition-value-between-date/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/sw-rule-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/sidebar/sw-sidebar-collapse/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/sidebar/sw-sidebar-item/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/sidebar/sw-sidebar-navigation-item/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/sidebar/sw-sidebar/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-admin-menu-item/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-admin-menu/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-card-view/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-desktop/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-discard-changes-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-error/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-hidden-iframes/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-inheritance-warning/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-language-info/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-language-switch/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-page/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-sales-channel-config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-sales-channel-switch/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-search-bar-item/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-search-bar/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-search-more-results/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/tree/sw-tree-input-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/tree/sw-tree-item/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/tree/sw-tree/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-color-badge/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-duplicated-media-v2/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-error-boundary/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-external-link/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-ignore-class/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-inherit-wrapper/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-internal-link/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-license-violation/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-loader-deprecated/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-loader/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-notification-center-item/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-notification-center/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-notifications/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-overlay/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-popover-deprecated/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-progress-bar/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-shortcut-overview-item/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-shortcut-overview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-status/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-step-display/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-step-item/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-text-preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-upload-listener/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-verify-user-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-vnode-renderer/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/wizard/sw-wizard-dot-navigation/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/wizard/sw-wizard-page/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/component/wizard/sw-wizard/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/decorator/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/init/login.init.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/discard-detail-page-changes.mixin.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/form-field.mixin.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/generic-condition.mixin.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/listing.mixin.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/notification-translation.mixin.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/notification.mixin.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/placeholder.mixin.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/position.mixin.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/remove-api-error.mixin.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/rule-between-operator.mixin.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/rule-container.mixin.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/salutation.mixin.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/sw-inline-snippet.mixin.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/translate-with-fallback.mixin.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/user-settings.mixin.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/validation.mixin.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/app/plugin/device-helper.plugin.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/plugin/meta-info.plugin.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/plugin/sanitize.plugin.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/plugin/shortcut.plugin.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/route/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/service/app-acl.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/service/app-cms.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/service/criteria-helper.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/service/custom-field.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/service/filter.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/service/language-auto-fetching.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/service/license-violations.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/service/locale-helper.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/service/locale-to-language.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/service/media-default-folder.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/service/media-format.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/service/menu.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/service/product-stream-condition.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/service/recently-search.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/service/search-preferences.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/service/search-ranking.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/service/search-type.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/service/shortcut.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/app/state/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/data/changeset-generator.data.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/data/entity-factory.data.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/data/error-codes/login.error-codes.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/data/error-resolver.data.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/data/filter-factory.data.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/data/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/factory/api-context.factory.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/factory/api-service.factory.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/factory/app-context.factory.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/factory/cache-adapter.factory.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/factory/classes-factory.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/factory/entity-definition.factory.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/factory/http.factory.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/factory/plugin-boot.factory.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/factory/router.factory.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/factory/shortcut.factory.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/factory/state-deprecated.factory.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/factory/template.factory.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/helper/device.helper.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/helper/flattree.helper.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/helper/middleware.helper.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/helper/retry.helper.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/helper/sanitizer.helper.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/helper/store-loader.helper.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/helper/upload-task.helper.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/acl.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/app-action-button.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/app-cms-blocks.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/business-events.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/cache.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/calculate-price.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/customer-group-registration.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/customer-validation.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/document.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/excludedSearchTerm.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/first-run-wizard.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/flow-actions.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/guest-customer-convert.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/import-export.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/integration.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/known-ips.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/language-plugin.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/mail.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/mcp-tool.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/media-folder.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/media-presigned-upload.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/media.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/notifications.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/number-range.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/order-document.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/order.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/product-export.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/product-stream-preview.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/promotion-sync.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/recommendations.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/rule-conditions-config.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/sales-channel.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/search.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/seo-url-template.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/seo-url.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/snippet-set.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/sso-invitation.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/state-machine.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/sync.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/system-config.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/tag.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/translation.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/user-activity.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/user-input-sanitize.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/user-validation.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/user.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/customer-group-registration-listener.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/shopware-updates-listener.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/service/validation.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/worker/admin-notification-worker.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/worker/admin-worker.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/worker/admin-worker.shared-worker.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/worker/admin-worker.worker.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/core/worker/worker-notification-listener.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-description/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-form/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-renderer/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-change-type/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-document-generation-failed-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-form-field-renderer/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-delete-documents/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-download-documents/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-cancellation-invoice/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-credit-note/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-delivery-note/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-invoice/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-confirm/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-error/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/init/services.init.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/page/sw-bulk-edit-customer/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/page/sw-bulk-edit-order/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/page/sw-bulk-edit-product/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/service/bulk-edit.api.factory.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/service/handler/bulk-edit-base.handler.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/service/handler/bulk-edit-customer.handler.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/service/handler/bulk-edit-order.handler.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/service/handler/bulk-edit-product.handler.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-category-detail-menu/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-category-entry-point-card/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-category-entry-point-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-category-entry-point-overwrite-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-category-layout-card/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-category-link-settings/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-category-sales-channel-multi-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-category-seo-form/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-category-tree/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-category-view/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-landing-page-tree/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-landing-page-view/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/default-search-configuration.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/page/sw-category-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/view/sw-category-detail-base/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/view/sw-category-detail-cms/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/view/sw-category-detail-products/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/view/sw-category-detail-seo/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/view/sw-landing-page-detail-base/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/view/sw-landing-page-detail-cms/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/commerce/category-heading/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/commerce/category-heading/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/commerce/cross-selling/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/commerce/cross-selling/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/commerce/gallery-buybox/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/commerce/gallery-buybox/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/commerce/product-description-reviews/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/commerce/product-description-reviews/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/commerce/product-heading/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/commerce/product-heading/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/commerce/product-listing/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/commerce/product-listing/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/commerce/product-slider/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/commerce/product-slider/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/commerce/product-three-column/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/commerce/product-three-column/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/form/form/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/form/form/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image-bubble-row/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image-bubble-row/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image-cover/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image-cover/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image-four-column/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image-four-column/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image-gallery/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image-gallery/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image-highlight-row/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image-highlight-row/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image-simple-grid/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image-simple-grid/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image-slider/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image-slider/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image-three-column/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image-three-column/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image-three-cover/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image-three-cover/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image-two-column/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image-two-column/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/image/image/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/sidebar/category-navigation/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/sidebar/category-navigation/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/sidebar/sidebar-filter/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/sidebar/sidebar-filter/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text-image/center-text/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text-image/center-text/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text-image/image-text-bubble/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text-image/image-text-bubble/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text-image/image-text-cover/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text-image/image-text-cover/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text-image/image-text-gallery/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text-image/image-text-gallery/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text-image/image-text-row/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text-image/image-text-row/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text-image/image-text/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text-image/image-text/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text-image/text-on-image/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text-image/text-on-image/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text/text-hero/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text/text-hero/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text/text-teaser-section/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text/text-teaser-section/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text/text-teaser/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text/text-teaser/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text/text-three-column/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text/text-three-column/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text/text-two-column/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text/text-two-column/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text/text/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/text/text/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/video/vimeo-video/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/video/vimeo-video/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/video/youtube-video/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/blocks/video/youtube-video/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-layout-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-product-assignment/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/buy-box/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/buy-box/config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/buy-box/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/category-name/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/category-name/config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/cross-selling/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/cross-selling/config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/cross-selling/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/form/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/form/component/templates/form-contact/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/form/component/templates/form-newsletter/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/form/component/templates/form-revocation-request/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/form/config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/form/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/html/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/html/config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/image-gallery/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/image-gallery/config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/image-gallery/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/image-slider/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/image-slider/config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/image-slider/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/image/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/image/config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/image/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/manufacturer-logo/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/manufacturer-logo/config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/manufacturer-logo/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-box/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-box/config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-box/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-description-reviews/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-description-reviews/config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-description-reviews/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-listing/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-delete-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-sorting-grid/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-listing/config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-listing/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-name/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-name/config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-name/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-slider/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-slider/config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-slider/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/sidebar-category-navigation/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/sidebar-category-navigation/config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/sidebar-category-navigation/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/sidebar-filter/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/sidebar-filter/config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/sidebar-filter/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/text/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/text/config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/text/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/vimeo-video/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/vimeo-video/config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/vimeo-video/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/youtube-video/component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/youtube-video/config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/youtube-video/preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/mixin/sw-cms-element.mixin.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/mixin/sw-cms-state.mixin.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/page/sw-cms-create/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/page/sw-cms-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/page/sw-cms-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/service/cmsDataResolver.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/test-utils/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/component/sw-customer-address-form-options/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/component/sw-customer-address-form/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/component/sw-customer-base-form/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/component/sw-customer-base-info/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/component/sw-customer-card/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/component/sw-customer-convert-guest-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/component/sw-customer-default-addresses/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/component/sw-customer-imitate-customer-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/constant/sw-customer.constant.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/default-search-configuration.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/page/sw-customer-create/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/page/sw-customer-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/page/sw-customer-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/view/sw-customer-detail-addresses/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/view/sw-customer-detail-base/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/view/sw-customer-detail-order/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-dashboard/page/sw-dashboard-index/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-export-channel-tracking/extension/sw-customer-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-export-channel-tracking/extension/sw-order-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-export-channel-tracking/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-export-channel-tracking/mixin/export-channel-filter.mixin.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    },
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension-sdk/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension-sdk/page/sw-extension-sdk-module/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-extension-adding-failed/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-extension-adding-success/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-extension-bulk-actions-bar/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-extension-bulk-deactivation-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-extension-bulk-uninstall-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-extension-card-base/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-extension-card-bought/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-extension-deactivation-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-extension-domains-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-extension-file-upload/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-extension-my-extensions-listing-controls/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-extension-permissions-details-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-extension-permissions-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-extension-privacy-policy-extensions-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-extension-removal-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-extension-uninstall-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-ratings/sw-extension-rating-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-ratings/sw-extension-rating-stars/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summary/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-ratings/sw-extension-review-creation-inputs/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-ratings/sw-extension-review-creation/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-ratings/sw-extension-review-reply/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-ratings/sw-extension-review/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-ratings/sw-extension-select-rating/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-self-maintained-extension-card/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/mixin/sw-extension-error.mixin.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    },
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/page/sw-extension-my-extensions-index/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/page/sw-extension-my-extensions-listing/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/page/sw-extension-my-extensions-recommendation/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/page/sw-extension-store-landing-page/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/service/extension-error.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/page/index/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-data-import/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-defaults/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-finish/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-base/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-local/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-selection/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-base/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-credentials/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-info/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-account/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-base/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-domain/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-store/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/modals/sw-flow-affiliate-and-campaign-code-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/modals/sw-flow-app-action-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/modals/sw-flow-change-customer-group-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/modals/sw-flow-change-customer-status-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/modals/sw-flow-create-mail-template-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/modals/sw-flow-event-change-confirm-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/modals/sw-flow-generate-document-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/modals/sw-flow-grant-download-access-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/modals/sw-flow-leave-page-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/modals/sw-flow-mail-send-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/modals/sw-flow-rule-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/modals/sw-flow-set-entity-custom-field-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/modals/sw-flow-set-order-state-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/modals/sw-flow-tag-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/sw-flow-sequence-action-error/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/sw-flow-sequence-action/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/sw-flow-sequence-condition/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/sw-flow-sequence-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/sw-flow-sequence-selector/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/sw-flow-sequence/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/sw-flow-trigger/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/constant/flow.constant.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/default-search-configuration.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/page/sw-flow-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/view/detail/sw-flow-detail-flow/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/view/detail/sw-flow-detail-general/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/view/listing/sw-flow-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-csv-page/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-general-page/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-mapping-page/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/sw-import-export-activity-log-info-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/sw-import-export-activity-result-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/sw-import-export-activity/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/sw-import-export-edit-profile-field-indicators/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/sw-import-export-edit-profile-general/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/sw-import-export-edit-profile-import-settings/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/sw-import-export-edit-profile-modal-identifiers/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/sw-import-export-edit-profile-modal-mapping/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/sw-import-export-edit-profile-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/sw-import-export-entity-path-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/sw-import-export-exporter/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/sw-import-export-importer/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/sw-import-export-progress/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/page/sw-import-export/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/service/importExportProfileMapping.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/service/importExportUpdateByMapping.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/service/mocks/mappings.mock.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/view/sw-import-export-view-export/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/view/sw-import-export-view-import/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/view/sw-import-export-view-profiles/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-integration/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-integration/component/sw-integration-mcp-allowlist/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-integration/component/sw-integration-mcp-allowlist/mcp-allowlist.utils.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-integration/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-integration/page/sw-integration-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-landing-page/default-search-configuration.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-landing-page/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-login/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-mail-template/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-mail-template/component/sw-mail-header-footer-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-mail-template/component/sw-mail-template-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-mail-template/component/sw-mail-template-preview-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-mail-template/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-mail-template/page/sw-mail-header-footer-create/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-mail-template/page/sw-mail-header-footer-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-mail-template/page/sw-mail-template-create/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-mail-template/page/sw-mail-template-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-mail-template/page/sw-mail-template-index/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-mail-template/view/sw-mail-template-view-header-footer/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-mail-template/view/sw-mail-template-view-templates/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-manufacturer/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-manufacturer/default-search-configuration.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-manufacturer/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-manufacturer/page/sw-manufacturer-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-manufacturer/page/sw-manufacturer-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sidebar/sw-media-folder-info/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sidebar/sw-media-quickinfo-metadata-item/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sidebar/sw-media-quickinfo-multiple/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sidebar/sw-media-quickinfo-usage/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sidebar/sw-media-quickinfo/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sidebar/sw-media-sidebar/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sidebar/sw-media-tag/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sw-media-breadcrumbs/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sw-media-collapse/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sw-media-display-options/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sw-media-grid/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sw-media-library/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sw-media-modal-v2/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sw-media-save-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/default-search-configuration.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/mixin/media-grid-listener.mixin.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    },
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/mixin/media-sidebar-modal.mixin.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    },
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/mixin/video-cover.mixin.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    },
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/page/sw-media-index/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-newsletter-recipient/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-newsletter-recipient/default-search-configuration.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-newsletter-recipient/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-address-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-address-selection/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-create-address-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-create-details-body/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-create-details-footer/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-create-details-header/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-create-invalid-promotion-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-create-promotion-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-customer-comment/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-delivery-metadata/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-details-state-card/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-document-card/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-document-settings-credit-note-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-document-settings-delivery-note-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-document-settings-invoice-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-document-settings-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-document-settings-storno-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-general-info/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-inline-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-leave-page-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-line-items-grid-sales-channel/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-line-items-grid/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-nested-line-items-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-nested-line-items-row/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-new-customer-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-product-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-promotion-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-promotion-tag-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-save-changes-beforehand-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-saveable-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-select-document-type-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-send-document-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-state-change-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-state-history-card-entry/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-state-history-card/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-state-select-v2/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-user-card/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/default-search-configuration.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/mixin/cart-notification.mixin.ts": {
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/page/sw-order-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/page/sw-order-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/view/sw-order-create-base/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/view/sw-order-create-initial/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/view/sw-order-detail-details/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/view/sw-order-detail-documents/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/view/sw-order-detail-general/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-privilege-error/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-privilege-error/page/sw-privilege-error/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product-stream/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product-stream/component/sw-product-stream-field-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product-stream/component/sw-product-stream-filter/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product-stream/component/sw-product-stream-filter/type-provider.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product-stream/component/sw-product-stream-modal-preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product-stream/component/sw-product-stream-value/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product-stream/default-search-configuration.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product-stream/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product-stream/page/sw-product-stream-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product-stream/page/sw-product-stream-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-add-properties-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-basic-form/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-category-form/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-clone-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-cross-selling-assignment/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-cross-selling-form/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-deliverability-downloadable-form/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-deliverability-form/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-download-form/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-feature-set-form/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-guarantee-form/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-layout-assignment/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-measurement-form/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-media-form/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-packaging-form/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-price-form/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-properties/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-seo-form/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-settings-form/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-settings-mode/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variant-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-restriction-selection/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-prices/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-restrictions/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-selection/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-price-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-listing/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-media/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-overview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-visibility-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-visibility-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/default-search-configuration.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/helper/sw-products-variants-generator.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/page/sw-product-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/page/sw-product-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/view/sw-product-detail-base/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/view/sw-product-detail-context-prices/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/view/sw-product-detail-cross-selling/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/view/sw-product-detail-layout/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/view/sw-product-detail-reviews/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/view/sw-product-detail-seo/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/view/sw-product-detail-specifications/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/view/sw-product-detail-variants/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-profile/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-profile/extension/sw-admin-menu/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-profile/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-profile/page/sw-profile-index/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-profile/view/sw-profile-index-general/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-profile/view/sw-profile-index-search-preferences/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-discount-type/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-rule-selection/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-trigger/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-description/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-discount-selection/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-generate-codes-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-individual-codes-behavior/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/sw-promotion-discount-component/handler.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/sw-promotion-discount-component/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/sw-promotion-v2-sales-channel-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/default-search-configuration.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/helper/promotion.helper.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/init/services.init.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/page/sw-promotion-v2-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/page/sw-promotion-v2-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/service/promotion-code.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/view/sw-promotion-detail-discounts/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/view/sw-promotion-v2-conditions/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/view/sw-promotion-v2-detail-base/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-property/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-property/component/sw-property-detail-base/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-property/component/sw-property-option-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-property/component/sw-property-option-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-property/default-search-configuration.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-property/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-property/page/sw-property-create/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-property/page/sw-property-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-property/page/sw-property-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-review/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-review/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-review/page/sw-review-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-review/page/sw-review-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/agentic-product-export-templates/google/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/agentic-product-export-templates/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/agentic-product-export-templates/open-ai/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/structure/sw-admin-menu-extension/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-agentic-commerce-tracking-config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-defaults-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-detail-domains/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-measurement/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-modal-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-modal-grid/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-product-assignment-categories/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-dynamic-product-groups/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-single-products/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/default-search-configuration.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/page/sw-sales-channel-create/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/page/sw-sales-channel-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/product-export-templates/billiger-de/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/product-export-templates/google-product-search-de/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/product-export-templates/idealo/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/product-export-templates/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/service/domain-link.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/service/export-template.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/service/sales-channel-file.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-create-base/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-commerce-integration/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-analytics/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-base/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison-preview/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-product-export-insights/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-products/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-basic-information/component/sw-settings-captcha-select-v2/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-basic-information/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-basic-information/page/sw-settings-basic-information/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-basic-information/service/captcha.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-cache/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-cache/component/sw-settings-cache-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-cache/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-cache/page/sw-settings-cache-index/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-cart/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-cart/page/sw-settings-cart/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-country/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-country/component/sw-country-state-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-country/component/sw-settings-country-currency-dependent-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-country/component/sw-settings-country-currency-hamburger-menu/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-country/component/sw-settings-country-general/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-country/component/sw-settings-country-state/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-country/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-country/page/sw-settings-country-create/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-country/page/sw-settings-country-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-country/page/sw-settings-country-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-currency/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-currency/component/sw-settings-currency-country-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-currency/component/sw-settings-price-rounding/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-currency/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-currency/page/sw-settings-currency-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-currency/page/sw-settings-currency-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-set-detail-base/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-translated-labels/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-type-base/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-type-checkbox/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-type-colorpicker/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-type-date/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-type-entity/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-type-number/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-type-select/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-type-text-editor/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-type-text/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-create/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-customer-group/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-customer-group/default-search-configuration.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-customer-group/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-customer-group/page/sw-settings-customer-group-create/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-customer-group/page/sw-settings-customer-group-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-customer-group/page/sw-settings-customer-group-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-delivery-times/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-delivery-times/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-create/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-document/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-document/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-document/page/sw-settings-document-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-document/page/sw-settings-document-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-language/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-language/component/sw-settings-language-add-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-language/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-language/page/sw-settings-language-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-language/page/sw-settings-language-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-listing/component/sw-settings-listing-default-sales-channel/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-listing/component/sw-settings-listing-delete-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-listing/component/sw-settings-listing-option-criteria-grid/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-listing/component/sw-settings-listing-option-general-info/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-listing/component/sw-settings-listing-visibility-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-listing/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-listing/page/sw-settings-listing-option-base/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-listing/page/sw-settings-listing-option-create/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-listing/page/sw-settings-listing/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-logging/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-logging/component/sw-settings-logging-entry-info/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-logging/component/sw-settings-logging-mail-sent-info/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-logging/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-logging/page/sw-settings-logging-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-login-registration/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-login-registration/page/sw-settings-login-registration/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-mailer/component/sw-settings-mailer-smtp/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-mailer/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-mailer/page/sw-settings-mailer/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-measurement/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-measurement/component/sw-settings-measurement-default-units/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-measurement/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-measurement/page/sw-settings-measurement/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-media/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-media/page/sw-settings-media/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-newsletter/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-newsletter/page/sw-settings-newsletter/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-number-range/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-number-range/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-number-range/page/sw-settings-number-range-create/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-number-range/page/sw-settings-number-range-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-number-range/page/sw-settings-number-range-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-payment/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-payment/component/sw-payment-card/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-payment/component/sw-plugin-box/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-payment/component/sw-settings-payment-sorting-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-payment/default-search-configuration.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-payment/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-payment/page/sw-settings-payment-create/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-payment/page/sw-settings-payment-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-product-feature-sets/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-product-feature-sets/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-product-feature-sets/service/feature-grid-translation.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-listing/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/component/sw-settings-rule-assignment-listing/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/component/sw-settings-rule-category-tree/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/component/sw-settings-rule-tree-item/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/component/sw-settings-rule-tree/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/constant/sw-settings-rule.constant.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/default-search-configuration.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/page/sw-settings-rule-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/page/sw-settings-rule-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/service/rule-assignment-configuration.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/view/sw-settings-rule-detail-base/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-salutation/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-salutation/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-salutation/page/sw-settings-salutation-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-salutation/page/sw-settings-salutation-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/component/sw-settings-search-example-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/component/sw-settings-search-excluded-search-terms/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/component/sw-settings-search-live-search-keyword/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/component/sw-settings-search-live-search/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/component/sw-settings-search-search-behaviour/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/component/sw-settings-search-search-index/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/component/sw-settings-search-searchable-content-customfields/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/component/sw-settings-search-searchable-content-general/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/component/sw-settings-search-searchable-content/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/init/services.init.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/page/sw-settings-search/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/service/livesearch.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/service/productIndex.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/view/sw-settings-search-view-general/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/view/sw-settings-search-view-live-search/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-seo/component/sw-seo-main-category/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-seo/component/sw-seo-url-template-card/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-seo/component/sw-seo-url/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-seo/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-seo/page/sw-settings-seo/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-shipping/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-shipping/component/sw-price-rule-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-shipping/component/sw-settings-shipping-tax-cost/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-shipping/default-search-configuration.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-shipping/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-shipping/page/sw-settings-shipping-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-shipping/page/sw-settings-shipping-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-shopware-updates/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-sitemap/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-sitemap/page/sw-settings-sitemap/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-snippet/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-filter-switch/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-sidebar/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-snippet/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-snippet/page/sw-settings-snippet-create/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-snippet/page/sw-settings-snippet-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-snippet/page/sw-settings-snippet-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-snippet/page/sw-settings-snippet-set-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-state-machine/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-state-machine/component/sw-settings-state-machine-state-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-state-machine/component/sw-settings-state-machine-state-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-state-machine/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-state-machine/page/sw-settings-state-machine-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-state-machine/page/sw-settings-state-machine-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-store/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-store/page/sw-settings-store/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tag/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tag/component/sw-settings-tag-detail-assignments/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tag/component/sw-settings-tag-detail-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tag/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tag/page/sw-settings-tag-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/component/sw-settings-tax-rule-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states-cell/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code-cell/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code-range-cell/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code-range/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/component/sw-tax-rule-card/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/page/sw-settings-tax-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/page/sw-settings-tax-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-units/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-units/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-units/page/sw-settings-units-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings/component/sw-settings-item/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings/component/sw-system-config-media-upload/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings/component/sw-system-config/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings/mixin/sw-settings-list.mixin.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    },
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sso-error/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sso-error/page/index/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/component/sw-users-permissions-role-mcp-reference-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/components/sw-user-sso-access-key-create-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/components/sw-user-sso-invitation-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/components/sw-user-sso-status-label/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/components/sw-users-permissions-additional-permissions/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/components/sw-users-permissions-configuration/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/components/sw-users-permissions-detailed-additional-permissions/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/components/sw-users-permissions-detailed-permissions-grid/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/components/sw-users-permissions-role-listing/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/components/sw-users-permissions-user-listing/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/page/sw-sso-users-permission-user-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/page/sw-users-permissions-role-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/page/sw-users-permissions-user-create/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/page/sw-users-permissions-user-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/page/sw-users-permissions/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/view/sw-users-permissions-role-view-detailed/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/view/sw-users-permissions-role-view-general/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  }
+}

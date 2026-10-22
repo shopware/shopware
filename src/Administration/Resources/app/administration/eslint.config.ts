@@ -80,7 +80,10 @@ const testFiles = [
 ];
 
 // Inline disables are blocked for these rules, so eslint-suppressions.json is the only way around them
-const rulesWithoutInlineDisable: string[] = [];
+const rulesWithoutInlineDisable: string[] = [
+    'filename-rules/not-match',
+    'sw-core-rules/no-new-mixins',
+];
 
 /**
  * Shared rule policy applied to normal source files and TypeScript-specific overrides.
@@ -754,6 +757,28 @@ export default [
                 'error',
                 { max: 1000 },
             ],
+        },
+    },
+
+    // New source code is TypeScript, shared logic goes into composables
+    {
+        files: ['src/**/*.js'],
+        ignores: testFiles,
+        rules: {
+            'filename-rules/not-match': [
+                'error',
+                /\.js$/,
+            ],
+        },
+    },
+    {
+        files: [
+            'src/**/*.js',
+            'src/**/*.ts',
+        ],
+        ignores: testFiles,
+        rules: {
+            'sw-core-rules/no-new-mixins': 'error',
         },
     },
 

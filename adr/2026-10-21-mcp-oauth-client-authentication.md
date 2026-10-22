@@ -96,7 +96,9 @@ For a shop whose Admin API is served at `https://shop.example/api`:
 | MCP resource (canonical URI) | `https://shop.example/api/_mcp` |
 | Protected resource metadata | `https://shop.example/.well-known/oauth-protected-resource/api/_mcp` |
 
-The base URL is the scheme and host of the Admin API request, accepted only when `McpAllowedHostsProvider` allows the host, otherwise `APP_URL`.
+The base URL is the scheme, host and base path of the Admin API request, accepted only when `McpAllowedHostsProvider` allows the host, otherwise `APP_URL`.
+For an installation in a subdirectory the base path is part of every URL: issuer `https://shop.example/shop/api`, resource `https://shop.example/shop/api/_mcp`.
+The well-known URIs insert their suffix before that path, as RFC 8414 and RFC 9728 define (`https://shop.example/.well-known/oauth-protected-resource/shop/api/_mcp`).
 
 ```
 GET /api/_mcp                                    (no token)
@@ -135,7 +137,9 @@ Decision: **C**.
 | Authorization code token without `resource` (e.g. `shopware-cli`) | yes | yes |
 | Authorization code token with the MCP resource | yes | **no** |
 
-A token without a resource is an Admin API token, and `/api/_mcp` is part of the Admin API, so accepting it matches the audience rule.
+A token without a resource is an Admin API token, and `/api/_mcp` is part of the Admin API.
+Accepting it is a deliberate compatibility exception to the specification's audience rule: OAuth is an additional way to reach `/api/_mcp`, and the existing ways keep working.
+The audience rule applies in full to tokens issued with the MCP resource.
 Option B would break every setup that uses a copied user token today and gains nothing, because such a token already reaches the whole Admin API.
 The risk the specification addresses is the other direction: a token handed to an AI client reaching the rest of the shop.
 

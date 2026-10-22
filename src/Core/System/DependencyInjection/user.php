@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\DependencyInjection;
 
+use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition;
@@ -11,6 +12,7 @@ use Shopware\Core\System\User\Api\UserRecoveryController;
 use Shopware\Core\System\User\Api\UserValidationController;
 use Shopware\Core\System\User\Recovery\UserRecoveryService;
 use Shopware\Core\System\User\Service\UserValidationService;
+use Shopware\Core\System\User\Subscriber\AdminUserWriteValidator;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
@@ -65,4 +67,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->call('setContainer', [
             service('service_container'),
         ]);
+
+    $services->set(AdminUserWriteValidator::class)
+        ->args([
+            service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber');
 };

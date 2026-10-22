@@ -66,6 +66,15 @@ class McpStoreApiToolAdminAclRuleTest extends RuleTestCase
         ]]);
     }
 
+    public function testStoreApiToolInheritingFromBaseSharingItsShortNameInTheFileFails(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpStoreApiToolAdminAclRule/StoreApiToolInheritingFromSharedNameBase.php'], [[
+            $this->inheritedMessage('StoreApiToolInheritingFromSharedNameBase', 'SharedNameToolBase::__invoke'),
+            7,
+            self::TIP,
+        ]]);
+    }
+
     public function testStoreApiToolOverridingTheInheritedMethodPasses(): void
     {
         $this->analyse([__DIR__ . '/data/McpStoreApiToolAdminAclRule/StoreApiToolOverridingInheritedInvoke.php'], []);

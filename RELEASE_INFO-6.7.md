@@ -62,6 +62,12 @@ With `shopware.media.remote_thumbnails.enable`, SVGs now have an empty `thumbnai
 Before, their `srcset` claimed widths that the returned original file did not have, so browsers rendered small SVG logos far too small.
 Media loaded without the `mediaType` field keep their thumbnail URLs, as the type can't be checked.
 
+### Units have a standard unit code
+
+The `unit` entity has a new optional field `uneceCode` for the unit's UN/ECE Recommendation 20 or 21 code, for example `H87` for piece, `KGM` for kilogram or `XBX` for box. The field is not translated and is available in the Admin API and the Store API.
+
+Only codes from these lists are saved, and they are case-sensitive. Any other value fails the write with the error code `UNIT__INVALID_UNECE_CODE` on `/uneceCode`. An empty value is stored as `null`.
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request
@@ -74,6 +80,10 @@ A criteria that filters, sorts, queries or aggregates by a field the API does no
 For a business customer, `company` and `vatIds` are then only changed when the request contains them, and they are validated as for `business`.
 Before, such a request cleared both, while the customer stayed a business customer.
 Requests that send `accountType` behave as before.
+
+### Admin API lists the unit codes
+
+The new route `GET /api/_action/unit/unece-codes` returns every code that can be saved as `uneceCode` on a unit, as a list of `{"code": "KGM", "name": "kilogram"}` objects. The names are in English. The route needs the `unit:read` permission.
 
 ## Features
 
@@ -682,11 +692,6 @@ The data context hash of the cart products only covers the sales channel context
 The cart reloads product data only when this hash changes, so extensions whose product data or prices depend on other state get stale cart data.
 Listeners can add parts to this event to include additional state in the hash for every state outside the sales channel context to force a reload of product data when that state changes.
 
-### Units have a standard unit code
-
-The `unit` entity has a new optional field `uneceCode` for the unit's UN/ECE Recommendation 20 or 21 code, for example `H87` for piece, `KGM` for kilogram or `XBX` for box. The field is not translated and is available in the Admin API and the Store API.
-
-Only codes from these lists are saved, and they are case-sensitive. Any other value fails the write with the error code `UNIT__INVALID_UNECE_CODE` on `/uneceCode`. An empty value is stored as `null`.
 ### Apps without permissions can't declare required privileges for MCP tools
 
 An app's MCP tool may only list `<required-privileges>` in `mcp.xml` that the app declares in the `<permissions>` of its manifest, because the tool's script runs with the app's integration role. Apps without a `<permissions>` block skipped this check, although they have no privileges at all. They are now checked like every other app, so such an app fails to install or update with the message naming the missing permission. Add the permissions to the manifest, or remove the required privileges from the tool.
@@ -810,9 +815,6 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 
 `/store-api/payment-method`, `/store-api/shipping-method` and `/store-api/checkout/gateway` accept an optional `orderId` (query or body). Combined with `onlyAvailable`, they evaluate availability for that order instead of the session: the order's currency, language, customer, addresses and stored rule IDs, without re-evaluating rules. The order must be loadable through `/store-api/order` for the logged-in customer or guest; unknown and foreign orders both answer `CHECKOUT__ORDER_ORDER_NOT_FOUND`. These responses are not cacheable. `POST /store-api/order/payment` validates on the same basis.
 
-### Admin API lists the unit codes
-
-The new route `GET /api/_action/unit/unece-codes` returns every code that can be saved as `uneceCode` on a unit, as a list of `{"code": "KGM", "name": "kilogram"}` objects. The names are in English. The route needs the `unit:read` permission.
 ### New Store API route to add the products of an order to the cart
 
 `POST /store-api/checkout/cart/reorder/{orderId}` adds an order's products to the cart, and the `checkout.cart.collect-reorder-line-items` extension lets you add or drop items before they reach the cart

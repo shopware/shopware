@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderRestorer;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountNewsletterRecipientRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\CustomerGroupRegistrationSettingsRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\CustomerRecoveryIsExpiredRoute;
@@ -582,6 +583,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AddressValidationFactory::class),
             service(DataValidator::class),
             service(Translator::class),
+            service(CompanyAccountNameFields::class),
         ]);
 
     $services->set(CheckoutCartPageLoader::class)

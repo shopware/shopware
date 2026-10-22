@@ -62,6 +62,19 @@ With `shopware.media.remote_thumbnails.enable`, SVGs now have an empty `thumbnai
 Before, their `srcset` claimed widths that the returned original file did not have, so browsers rendered small SVG logos far too small.
 Media loaded without the `mediaType` field keep their thumbnail URLs, as the type can't be checked.
 
+### Company accounts can register without a contact person
+
+`Settings > Login & Registration` gains `showNameFieldsForCompanyAccounts` and `nameFieldsRequiredForCompanyAccounts`. They decide per sales channel whether a commercial customer has to name a contact person. Both default to on, so nothing changes until a shop turns one off.
+
+The `firstName` and `lastName` fields of `customer`, `customer_address`, `order_customer` and `order_address` carry the `AllowEmptyString` flag.
+
+`customer` and `order_customer` gain a runtime field `displayName`. It holds the person name, or the company when there is no contact person. `CustomerEntity::getDisplayName()` and `OrderCustomerEntity::getDisplayName()` return it once the entity is loaded. Read the name through it instead of joining `firstName` and `lastName`:
+
+```twig
+{{ customer.displayName }}
+{{ order.orderCustomer.displayName }}
+```
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request

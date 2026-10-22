@@ -11,11 +11,12 @@ const customer = {
     vatIds: ['9f8f091c-db81-4ef3-862c-9c554a34cdc4'],
 };
 
-async function createWrapper() {
+async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('sw-customer-card', { sync: true }), {
         props: {
             customer: {},
             title: '',
+            ...props,
         },
         global: {
             provide: {
@@ -99,5 +100,23 @@ describe('module/sw-customer/page/sw-customer-card', () => {
         });
 
         expect(wrapper.find('[label="sw-customer.card.labelVatId"]').exists()).toBeFalsy();
+    });
+
+    it('should keep the contact person required for a private account', async () => {
+        const wrapper = await createWrapper({ customer: { accountType: 'private' }, companyNamesRequired: false });
+
+        expect(wrapper.vm.contactPersonRequired).toBe(true);
+    });
+
+    it('should make the contact person optional for a company account when the settings allow it', async () => {
+        const wrapper = await createWrapper({ customer: { accountType: 'business' }, companyNamesRequired: false });
+
+        expect(wrapper.vm.contactPersonRequired).toBe(false);
+    });
+
+    it('should keep the contact person required for a company account by default', async () => {
+        const wrapper = await createWrapper({ customer: { accountType: 'business' } });
+
+        expect(wrapper.vm.contactPersonRequired).toBe(true);
     });
 });

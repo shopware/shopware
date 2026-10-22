@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Extension\ChangeCustomerProfileRouteExtension;
 use Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute;
@@ -24,6 +25,7 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -91,6 +93,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
             $validationFactory,
             static::createStub(StoreApiCustomFieldMapper::class),
             static::createStub(EntityRepository::class),
+            new CompanyAccountNameFields(static::createStub(SystemConfigService::class)),
             new ExtensionDispatcher(new EventDispatcher()),
         );
 
@@ -145,6 +148,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
             $validationFactory,
             static::createStub(StoreApiCustomFieldMapper::class),
             static::createStub(EntityRepository::class),
+            new CompanyAccountNameFields(static::createStub(SystemConfigService::class)),
             new ExtensionDispatcher(new EventDispatcher()),
         );
 
@@ -184,6 +188,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
             static::createStub(CustomerValidationFactory::class),
             $storeApiCustomFieldMapper,
             static::createStub(EntityRepository::class),
+            new CompanyAccountNameFields(static::createStub(SystemConfigService::class)),
             new ExtensionDispatcher(new EventDispatcher()),
         );
 
@@ -219,6 +224,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
             static::createStub(CustomerValidationFactory::class),
             static::createStub(StoreApiCustomFieldMapper::class),
             static::createStub(EntityRepository::class),
+            new CompanyAccountNameFields(static::createStub(SystemConfigService::class)),
             new ExtensionDispatcher(new EventDispatcher()),
         );
 
@@ -259,7 +265,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
         static::assertArrayNotHasKey('accountType', $written);
         static::assertSame('New Company', $written['company']);
         static::assertSame(['DE987654321'], $written['vatIds']);
-        static::assertContainsEquals(new NotBlank(), $validation->getProperty('company'));
+        static::assertContainsEquals(CompanyAccountNameFields::companyNotBlank(), $validation->getProperty('company'));
         static::assertContainsEquals(new NotBlank(), $validation->getProperty('vatIds'));
     }
 
@@ -311,6 +317,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
             static::createStub(CustomerValidationFactory::class),
             static::createStub(StoreApiCustomFieldMapper::class),
             $salutationRepository,
+            new CompanyAccountNameFields(static::createStub(SystemConfigService::class)),
             new ExtensionDispatcher(new EventDispatcher())
         );
 
@@ -350,6 +357,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
             static::createStub(CustomerValidationFactory::class),
             static::createStub(StoreApiCustomFieldMapper::class),
             static::createStub(EntityRepository::class),
+            new CompanyAccountNameFields(static::createStub(SystemConfigService::class)),
             new ExtensionDispatcher($dispatcher),
         );
 
@@ -385,6 +393,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
             $validationFactory,
             static::createStub(StoreApiCustomFieldMapper::class),
             static::createStub(EntityRepository::class),
+            new CompanyAccountNameFields(static::createStub(SystemConfigService::class)),
             new ExtensionDispatcher(new EventDispatcher()),
         );
 

@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerConfirmRegisterUrlEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
@@ -128,6 +129,77 @@ class RegisterRouteTest extends TestCase
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
         static::assertNotSame('', $contextToken);
+    }
+
+    public function testUnicodeEmailRegistrationAllowsLoginAndPasswordRecovery(): void
+    {
+        $email = Uuid::randomHex() . '@straße.de';
+        $registrationData = $this->getRegistrationData();
+        $registrationData['email'] = $email;
+
+        $this->browser->request(
+            'POST',
+            '/store-api/account/register',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode($registrationData, \JSON_THROW_ON_ERROR)
+        );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        $customer = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('customer', $customer['apiAlias']);
+        $customerId = $customer['id'];
+        $storedCustomer = $this->customerRepository->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+        static::assertNotNull($storedCustomer);
+        static::assertStringEndsWith('@xn--strae-oqa.de', $storedCustomer->getEmail());
+
+        $registrationToken = $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertIsString($registrationToken);
+        static::assertNotSame('', $registrationToken);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $registrationToken);
+        $this->browser->request('POST', '/store-api/account/logout');
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $this->browser->request(
+            'POST',
+            '/store-api/account/login',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['email' => $email, 'password' => '12345678'], \JSON_THROW_ON_ERROR)
+        );
+
+        $loginResponse = $this->browser->getResponse();
+        static::assertSame(200, $loginResponse->getStatusCode());
+        $loginToken = $loginResponse->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertIsString($loginToken);
+        static::assertNotSame('', $loginToken);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $loginToken);
+        $this->browser->request('GET', '/store-api/account/customer');
+        $authenticatedCustomer = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame($customerId, $authenticatedCustomer['id']);
+
+        $caughtEvent = null;
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
+            CustomerAccountRecoverRequestEvent::EVENT_NAME,
+            static function (CustomerAccountRecoverRequestEvent $event) use (&$caughtEvent): void {
+                $caughtEvent = $event;
+            }
+        );
+
+        $this->browser->request(
+            'POST',
+            '/store-api/account/recovery-password',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['email' => $email, 'storefrontUrl' => 'http://localhost'], \JSON_THROW_ON_ERROR)
+        );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertInstanceOf(CustomerAccountRecoverRequestEvent::class, $caughtEvent);
+        static::assertSame($customerId, $caughtEvent->getCustomerRecovery()->getCustomerId());
     }
 
     public function testRegisterEventWithCustomerRules(): void

@@ -210,10 +210,10 @@ class FirstRunWizardService
         $licenseDomains = $this->frwClient->getLicenseDomains($context);
 
         $currentLicenseDomain = $this->configService->getString(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN);
-        $currentLicenseDomain = $currentLicenseDomain ? idn_to_utf8($currentLicenseDomain) : null;
+        $currentLicenseDomain = $currentLicenseDomain ? idn_to_utf8($currentLicenseDomain, \IDNA_NONTRANSITIONAL_TO_UNICODE, \INTL_IDNA_VARIANT_UTS46) : null;
 
         $domains = array_map(static function ($data) use ($currentLicenseDomain) {
-            $domain = idn_to_utf8($data['domain']);
+            $domain = idn_to_utf8($data['domain'], \IDNA_NONTRANSITIONAL_TO_UNICODE, \INTL_IDNA_VARIANT_UTS46);
 
             return (new LicenseDomainStruct())->assign([
                 'domain' => $domain,

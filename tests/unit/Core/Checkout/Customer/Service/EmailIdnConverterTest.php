@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Symfony\Polyfill\Intl\Idn\Idn;
 
 /**
  * @internal
@@ -32,6 +33,53 @@ class EmailIdnConverterTest extends TestCase
         static::assertSame($asciiMail, $encodeResult);
     }
 
+    public function testEncodeAndDecodePreserveIdnaDeviationCharacters(): void
+    {
+        $emails = [
+            'customer@straße.de',
+            'customer@οδός.gr',
+            'customer@نامه‌ای.ir',
+            'customer@क्‍ष.example',
+        ];
+
+        foreach ($emails as $email) {
+            $encoded = EmailIdnConverter::encode($email);
+
+            static::assertNotSame($email, $encoded);
+            static::assertSame($email, EmailIdnConverter::decode($encoded));
+        }
+    }
+
+    public function testEncodeKeepsSharpSAndAsciiSAsDifferentDomains(): void
+    {
+        static::assertSame('customer@xn--strae-oqa.de', EmailIdnConverter::encode('customer@straße.de'));
+        static::assertSame('customer@strasse.de', EmailIdnConverter::encode('customer@strasse.de'));
+        static::assertSame('täst@xn--strae-oqa.de', EmailIdnConverter::encode('täst@straße.de'));
+    }
+
+    public function testFailedConversionLeavesTheOriginalAddressForValidation(): void
+    {
+        static::assertFalse(idn_to_ascii('täst..de', \IDNA_NONTRANSITIONAL_TO_ASCII, \INTL_IDNA_VARIANT_UTS46));
+        static::assertSame('customer@täst..de', EmailIdnConverter::encode('customer@täst..de'));
+    }
+
+    public function testExplicitOptionsMatchSymfonyPolyfill(): void
+    {
+        foreach (['straße.de', 'οδός.gr', 'نامه‌ای.ir', 'क्‍ष.example', 'example.com'] as $domain) {
+            $ascii = idn_to_ascii($domain, \IDNA_NONTRANSITIONAL_TO_ASCII, \INTL_IDNA_VARIANT_UTS46);
+            static::assertIsString($ascii);
+
+            static::assertSame(
+                Idn::idn_to_ascii($domain, \IDNA_NONTRANSITIONAL_TO_ASCII, \INTL_IDNA_VARIANT_UTS46),
+                $ascii
+            );
+            static::assertSame(
+                Idn::idn_to_utf8($ascii, \IDNA_NONTRANSITIONAL_TO_UNICODE, \INTL_IDNA_VARIANT_UTS46),
+                idn_to_utf8($ascii, \IDNA_NONTRANSITIONAL_TO_UNICODE, \INTL_IDNA_VARIANT_UTS46)
+            );
+        }
+    }
+
     public function testEncodeInDataBagWithoutEmail(): void
     {
         $dataBag = new DataBag();
@@ -39,6 +87,15 @@ class EmailIdnConverterTest extends TestCase
         EmailIdnConverter::encodeDataBag($dataBag);
 
         static::assertEquals(new DataBag(), $dataBag);
+    }
+
+    public function testDecodeInDataBag(): void
+    {
+        $dataBag = new DataBag(['email' => 'customer@xn--strae-oqa.de']);
+
+        EmailIdnConverter::decodeDataBag($dataBag);
+
+        static::assertSame('customer@straße.de', $dataBag->get('email'));
     }
 
     #[DataProvider('getEmailListProvider')]

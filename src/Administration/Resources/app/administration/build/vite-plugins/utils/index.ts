@@ -5,6 +5,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import * as net from 'net';
+import colors from 'picocolors';
 
 function isPortFree(port: number): Promise<boolean | Error> {
     return new Promise((resolve) => {
@@ -322,3 +323,102 @@ export const isInsideDockerContainer = (): boolean => {
     // Resolve root path
     return fs.existsSync('/.dockerenv');
 };
+
+/**
+ * @private
+ *
+ * Without both files the dev server serves plain HTTP, which TLS-terminating proxies like the one of shopware-cli expect.
+ */
+export function getDevServerHttpsConfig(env: NodeJS.ProcessEnv = process.env): { cert: string; key: string } | undefined {
+    const cert = env.SHOPWARE_ADMIN_HTTPS_CERTIFICATE_FILE;
+    const key = env.SHOPWARE_ADMIN_HTTPS_KEY_FILE;
+
+    if (!cert || !key) {
+        return undefined;
+    }
+
+    // The watcher runs in the Administration directory, but the variables usually come from the .env of the project.
+    // Vite uses a path it cannot read as the PEM content itself, which only fails later with a TLS error.
+    const root = env.PROJECT_ROOT ?? process.cwd();
+
+    return { cert: path.resolve(root, cert), key: path.resolve(root, key) };
+}
+
+/**
+ * @private
+ */
+export function readFeatureFlags(): Record<string, boolean> {
+    const flagsPath = path.resolve(process.env.PROJECT_ROOT as string, 'var/config_js_features.json');
+
+    if (!fs.existsSync(flagsPath)) {
+        return {};
+    }
+
+    return JSON.parse(fs.readFileSync(flagsPath, 'utf-8')) as Record<string, boolean>;
+}
+
+/**
+ * @private
+ */
+export type PluginDevJson = { metadata: 'shopware' } & Record<string, { js?: string; hmrSrc?: string; html?: string }>;
+
+/**
+ * @private
+ *
+ * Builds the content of the sw-plugin-dev.json, which tells the Administration where to load the extensions from.
+ */
+export function createPluginDevJson(extensions: ExtensionDefinition[], useBundledDev: boolean): PluginDevJson {
+    const pluginDevJson = { metadata: 'shopware' } as PluginDevJson;
+
+    extensions.forEach((extension) => {
+        const base = `/_internal_ext/${extension.technicalName}/`;
+        const entry: PluginDevJson[string] = {};
+
+        if (extension.isApp) {
+            entry.html = `${base}index.html`;
+        }
+
+        if (extension.isPlugin) {
+            // The bundled dev mode of Vite forces `assets/[name].js` as the name of the entry files.
+            entry.js = useBundledDev
+                ? `${base}assets/${extension.technicalName}.js`
+                : `${base}${path.basename(extension.filePath)}`;
+            entry.hmrSrc = useBundledDev ? `${base}bundledDevClient.mjs` : `${base}@vite/client`;
+        }
+
+        // A bundle with an Administration entry and a meteor-app comes as one plugin and one app definition
+        pluginDevJson[extension.technicalName] = { ...pluginDevJson[extension.technicalName], ...entry };
+    });
+
+    return pluginDevJson;
+}
+
+/**
+ * @private
+ *
+ * Runs the action for every extension and logs failures instead of stopping, so one broken
+ * extension neither stops the other extensions nor the watcher of the Administration.
+ * Returns whether the action failed for any extension.
+ */
+export async function runForEachExtension(
+    extensions: ExtensionDefinition[],
+    verb: string,
+    action: (extension: ExtensionDefinition) => Promise<void>,
+): Promise<boolean> {
+    let hasFailed = false;
+
+    for (const extension of extensions) {
+        try {
+            await action(extension);
+        } catch (error) {
+            hasFailed = true;
+            const message = error instanceof Error ? error.message : String(error);
+
+            console.error(
+                colors.red(`# Failed to ${verb} ${extension.isPlugin ? 'plugin' : 'app'} "${extension.name}": ${message}`),
+            );
+        }
+    }
+
+    return hasFailed;
+}

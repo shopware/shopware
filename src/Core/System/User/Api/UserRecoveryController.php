@@ -22,13 +22,19 @@ class UserRecoveryController extends AbstractController
      */
     public function __construct(
         private readonly UserRecoveryService $userRecoveryService,
-        private readonly RateLimiter $rateLimiter
+        private readonly RateLimiter $rateLimiter,
+        private readonly bool $userRecoveryEnabled = true
     ) {
     }
 
     #[Route(path: '/api/_action/user/user-recovery', defaults: ['auth_required' => false], name: 'api.action.user.user-recovery', methods: ['POST'])]
     public function createUserRecovery(Request $request, Context $context): Response
     {
+        if (!$this->userRecoveryEnabled) {
+            // Silently do nothing to avoid revealing that the flow is disabled or whether the email exists.
+            return new Response();
+        }
+
         $email = (string) $request->request->get('email');
 
         $this->rateLimiter->ensureAccepted(
@@ -44,6 +50,10 @@ class UserRecoveryController extends AbstractController
     #[Route(path: '/api/_action/user/user-recovery/hash', defaults: ['auth_required' => false], name: 'api.action.user.user-recovery.hash', methods: ['GET'])]
     public function checkUserRecovery(Request $request, Context $context): Response
     {
+        if (!$this->userRecoveryEnabled) {
+            return $this->getErrorResponse();
+        }
+
         $hash = (string) $request->query->get('hash');
 
         if ($hash !== '' && $this->userRecoveryService->checkHash($hash, $context)) {
@@ -56,6 +66,10 @@ class UserRecoveryController extends AbstractController
     #[Route(path: '/api/_action/user/user-recovery/password', defaults: ['auth_required' => false], name: 'api.action.user.user-recovery.password', methods: ['PATCH'])]
     public function updateUserPassword(#[\SensitiveParameter] Request $request, Context $context): Response
     {
+        if (!$this->userRecoveryEnabled) {
+            return $this->getErrorResponse();
+        }
+
         $hash = (string) $request->request->get('hash');
         $password = (string) $request->request->get('password');
         $passwordConfirm = (string) $request->request->get('passwordConfirm');

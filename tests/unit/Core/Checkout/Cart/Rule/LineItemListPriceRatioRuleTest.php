@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -256,10 +257,35 @@ class LineItemListPriceRatioRuleTest extends TestCase
             'expected' => true,
         ];
 
-        yield 'match / operator lower than equals / null value' => [
+        yield 'no match / operator lower than equals / item without list price has no ratio' => [
             'operator' => Rule::OPERATOR_LTE,
             'ruleRatio' => 0,
             'price' => 7,
+            'listPrice' => null,
+            'expected' => false,
+        ];
+
+        // items without list price
+        yield 'no match / operator lower than / item without list price is not reduced' => [
+            'operator' => Rule::OPERATOR_LT,
+            'ruleRatio' => 1,
+            'price' => 100,
+            'listPrice' => null,
+            'expected' => false,
+        ];
+
+        yield 'no match / operator equals / item without list price has no zero ratio' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleRatio' => 0,
+            'price' => 100,
+            'listPrice' => null,
+            'expected' => false,
+        ];
+
+        yield 'match / operator not equals / item without list price' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'ruleRatio' => 0.5,
+            'price' => 100,
             'listPrice' => null,
             'expected' => true,
         ];
@@ -606,6 +632,26 @@ class LineItemListPriceRatioRuleTest extends TestCase
             'expected' => false,
         ];
 
+        yield 'no match / operator lower than / items without list price are not reduced' => [
+            'operator' => Rule::OPERATOR_LT,
+            'ruleRatio' => 1,
+            'priceItem1' => 100,
+            'listPriceItem1' => null,
+            'priceItem2' => 50,
+            'listPriceItem2' => null,
+            'expected' => false,
+        ];
+
+        yield 'match / operator lower than / reduced item next to item without list price' => [
+            'operator' => Rule::OPERATOR_LT,
+            'ruleRatio' => 1,
+            'priceItem1' => 100,
+            'listPriceItem1' => null,
+            'priceItem2' => 50,
+            'listPriceItem2' => 100,
+            'expected' => true,
+        ];
+
         // OPERATOR_EMPTY
         yield 'match / operator empty / is empty' => [
             'operator' => Rule::OPERATOR_EMPTY,
@@ -717,8 +763,8 @@ class LineItemListPriceRatioRuleTest extends TestCase
         static::assertFalse($match);
     }
 
-    #[DataProvider('lineItemTypeProvider')]
-    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
+    public function testLineItemWithoutPriceIsEvaluated(string $type, bool $lineItemScope): void
     {
         $rule = new LineItemListPriceRatioRule(Rule::OPERATOR_NEQ, 0.5);
 
@@ -729,18 +775,7 @@ class LineItemListPriceRatioRuleTest extends TestCase
             ? new LineItemScope($lineItem, $context)
             : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
 
-        static::assertSame($expected, $rule->match($scope));
-    }
-
-    /**
-     * @return \Generator<string, array{non-empty-string, bool, bool}>
-     */
-    public static function lineItemTypeProvider(): \Generator
-    {
-        yield 'product via line item scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, true, true];
-        yield 'product via cart scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, false, true];
-        yield 'custom via line item scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, true, false];
-        yield 'custom via cart scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, false, false];
+        static::assertTrue($rule->match($scope));
     }
 
     private function createLineItemWithListPrice(float $price, ?float $listPriceAmount): LineItem

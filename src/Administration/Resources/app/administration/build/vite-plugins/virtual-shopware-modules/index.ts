@@ -7,6 +7,7 @@ import path from 'node:path';
 import type { Plugin } from 'vite';
 import {
     allSpecifiers,
+    branchGuard,
     defaultExpression,
     exportNames,
     memberExpression,
@@ -63,7 +64,8 @@ export { allSpecifiers, exportNames };
  * registers every mixin it owns before the lookup below runs.
  *
  * An extension bundle cannot import Administration source, so it reads the global the host assigned.
- * Extension code always runs after boot, and the guard says so if that ever stops being true.
+ * Extension code always runs after boot, and the guard says so if that ever stops being true. A prebuilt
+ * bundle can also run on an older Administration, so a branch added later is checked as well.
  */
 function preamble(parsed: ParsedSpecifier, consumer: Consumer): string[] {
     if (consumer === 'host') {
@@ -82,6 +84,7 @@ function preamble(parsed: ParsedSpecifier, consumer: Consumer): string[] {
         'if (!shopware) {',
         `    throw new Error(${JSON.stringify(tooEarly)});`,
         '}',
+        ...branchGuard(parsed),
     ];
 }
 

@@ -6,9 +6,11 @@
  */
 
 import path from 'node:path';
+import vm from 'node:vm';
 import {
     MODULE_FAMILIES,
     allSpecifiers,
+    branchGuard,
     defaultExpression,
     exportNames,
     memberExpression,
@@ -54,6 +56,7 @@ function createProbeGlobal(): VirtualModuleGlobal {
     return {
         Utils: branchOf('shopware:utils', 'Utils') as unknown as VirtualModuleGlobal['Utils'],
         Data: branchOf('shopware:data', 'Data') as unknown as VirtualModuleGlobal['Data'],
+        Composables: branchOf('shopware:composables', 'Composables') as unknown as VirtualModuleGlobal['Composables'],
         Mixin: { getByName: (key) => `Mixin:${key}` },
         Store: { get: (id) => `Store:${id}` },
     };
@@ -89,6 +92,7 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
         it('splits a bare import of any known family', () => {
             expect(parseSpecifier('shopware:utils')).toEqual({ family: 'shopware:utils' });
             expect(parseSpecifier('shopware:data')).toEqual({ family: 'shopware:data' });
+            expect(parseSpecifier('shopware:composables')).toEqual({ family: 'shopware:composables' });
             expect(parseSpecifier('shopware:mixins')).toEqual({ family: 'shopware:mixins' });
             expect(parseSpecifier('shopware:stores')).toEqual({ family: 'shopware:stores' });
         });
@@ -107,6 +111,7 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
         it.each([
             'shopware:utils',
             'shopware:data',
+            'shopware:composables',
         ])('serves %s, because it publishes root exports', (family) => {
             expect(registry[family].exports.length).toBeGreaterThan(0);
             expect(exportNames(registry, parseSpecifier(family)!)).toEqual(registry[family].exports);
@@ -165,6 +170,10 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
                 'shopware:data',
                 () => Shopware.Data,
             ],
+            [
+                'shopware:composables',
+                () => Shopware.Composables,
+            ],
         ])('%s publishes exactly the keys of its branch', (family, branch) => {
             expect(registry[family].exports.sort()).toEqual(Object.keys(branch()).sort());
             expect(Object.keys(registry[family].subpaths).sort()).toEqual(Object.keys(branch()).sort());
@@ -193,6 +202,34 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
             ];
 
             expect(registryEntries.every((members) => members.length === 0)).toBe(true);
+        });
+    });
+
+    describe('branchGuard', () => {
+        const runGuard = (family: string, shopware: Record<string, unknown>): void => {
+            vm.runInNewContext(branchGuard({ family }).join('\n'), { shopware });
+        };
+
+        it('names the required and the installed version when an older Administration lacks the branch', () => {
+            const shopware = { Utils: {}, Context: { app: { config: { version: '6.7.15.0' } } } };
+
+            expect(() => runGuard('shopware:composables', shopware)).toThrow(
+                '"shopware:composables" requires Shopware 6.7.16.0 or later, but the installed version is 6.7.15.0. ' +
+                    'Require shopware/administration >=6.7.16.0 in the composer.json of the extension.',
+            );
+        });
+
+        it('passes when the Administration has the branch', () => {
+            expect(() => runGuard('shopware:composables', { Composables: {} })).not.toThrow();
+        });
+
+        it.each([
+            'shopware:utils',
+            'shopware:data',
+            'shopware:mixins',
+            'shopware:stores',
+        ])('adds nothing for %s, which every Administration with shopware:* modules has', (family) => {
+            expect(branchGuard({ family })).toEqual([]);
         });
     });
 

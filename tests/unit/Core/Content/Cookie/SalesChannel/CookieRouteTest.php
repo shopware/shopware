@@ -25,7 +25,6 @@ use Symfony\Component\HttpFoundation\Request;
  */
 #[Package('discovery')]
 #[CoversClass(CookieRoute::class)]
-#[CoversClass(CookieRouteResponse::class)]
 class CookieRouteTest extends TestCase
 {
     public function testItThrowsDecorationPatternException(): void
@@ -56,7 +55,7 @@ class CookieRouteTest extends TestCase
         // Verify basic functionality
         static::assertSame($expectedCookieGroups, $response1->getCookieGroups());
         static::assertIsString($response1->getHash());
-        static::assertNotEmpty($response1->getHash());
+        static::assertNotSame('', $response1->getHash());
 
         // Verify hash consistency for same configuration
         static::assertSame($response1->getHash(), $response2->getHash());

@@ -10,13 +10,15 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheKey;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
+use Shopware\Core\Framework\Adapter\Cache\Message\RefreshHttpCacheMessage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
+use Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Message\RefreshHttpCacheMessageTest;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
-use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -35,17 +37,8 @@ class CacheStoreTest extends TestCase
     {
         $request = new Request();
 
-        $cache = $this->createMock(TagAwareAdapter::class);
-
-        $cache->expects($this->once())->method('hasItem')->willReturn(false);
-
-        $item = new CacheItem();
-
-        $cache->expects($this->once())->method('getItem')->willReturn($item);
-
-        $cache->expects($this->once())->method('save')->with($item);
-
         $clock = new MockClock('2025-06-13 12:00:00');
+        $cache = new TagAwareAdapter(new ArrayAdapter(clock: $clock));
 
         $store = new CacheStore(
             $cache,
@@ -60,13 +53,15 @@ class CacheStoreTest extends TestCase
             $clock
         );
 
-        $store->lock($request);
+        static::assertTrue($store->lock($request));
+        static::assertTrue($store->isLocked($request));
+        static::assertIsString($store->lock($request), 'A held lock must not be acquired twice');
 
-        static::assertTrue($item->get());
+        $clock->sleep(2);
+        static::assertTrue($store->isLocked($request));
 
-        $value = (new \ReflectionProperty(CacheItem::class, 'expiry'))->getValue($item);
-
-        static::assertSame((float) ($clock->now()->getTimestamp() + 3), $value);
+        $clock->sleep(1);
+        static::assertFalse($store->isLocked($request), 'The lock must expire three seconds after it was acquired');
     }
 
     #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]
@@ -270,8 +265,8 @@ class CacheStoreTest extends TestCase
         $response->headers->set('date', date('Y-m-d H:i:s'));
         $response->setSharedMaxAge(7200);
 
-        $arrayAdapter = new ArrayAdapter();
-        $cache = new TagAwareAdapter($arrayAdapter);
+        $clock = new MockClock('2099-06-13 12:00:00');
+        $cache = new TagAwareAdapter(new ArrayAdapter(clock: $clock));
 
         $stateValidator = $this->createMock(CacheStateValidator::class);
         $stateValidator->expects($this->never())->method('isValid');
@@ -281,8 +276,6 @@ class CacheStoreTest extends TestCase
 
         $maintenanceResolver = $this->createMock(MaintenanceModeResolver::class);
         $maintenanceResolver->expects($this->once())->method('isMaintenanceRequest')->willReturn(false);
-
-        $clock = new MockClock('2099-06-13 12:00:00');
 
         $store = new CacheStore(
             $cache,
@@ -305,13 +298,14 @@ class CacheStoreTest extends TestCase
         $cacheItem = $cache->getItem($key);
         static::assertTrue($cacheItem->isHit());
 
-        $expiry = \Closure::bind(function (string $key): float {
-            return $this->expiries[$key];
-        }, $arrayAdapter, $arrayAdapter)($key);
-        static::assertSame((float) ($clock->now()->getTimestamp() + 7200), $expiry);
-
         $cacheData = CacheCompressor::uncompress($cacheItem);
         static::assertInstanceOf(Response::class, $cacheData);
+
+        $clock->sleep(7199);
+        static::assertTrue($cache->hasItem($key));
+
+        $clock->sleep(1);
+        static::assertFalse($cache->hasItem($key), 'The entry must expire after the shared max age');
     }
 
     #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]
@@ -365,9 +359,18 @@ class CacheStoreTest extends TestCase
         static::assertCount(1, $bus->getMessages());
     }
 
+    /**
+     * Only checks that the refresh message is built from the request. What it keeps and drops is covered here:
+     *
+     * @see RefreshHttpCacheMessageTest
+     */
     public function testLookupWithSoftPurgeAndStaleCache(): void
     {
-        $request = new Request();
+        $leakedValue = 'leaked-environment-value';
+        $request = new Request(
+            cookies: [PlatformRequest::FALLBACK_SESSION_NAME => $leakedValue],
+            server: ['HTTP_HOST' => 'shop.example', 'REQUEST_URI' => '/detail/1', 'DATABASE_URL' => $leakedValue],
+        );
         $response = new Response();
         $response->headers->set('date', date('Y-m-d H:i:s', time() - 3600)); // 1 hour ago
 
@@ -412,7 +415,13 @@ class CacheStoreTest extends TestCase
 
         static::assertInstanceOf(Response::class, $result);
 
-        static::assertCount(1, $bus->getMessages());
+        $messages = $bus->getMessages();
+        static::assertCount(1, $messages);
+
+        $message = $messages[0]->getMessage();
+        static::assertInstanceOf(RefreshHttpCacheMessage::class, $message);
+        static::assertSame(['HTTP_HOST' => 'shop.example', 'REQUEST_URI' => '/detail/1'], $message->server);
+        static::assertStringNotContainsString($leakedValue, serialize($message));
     }
 
     #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]

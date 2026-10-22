@@ -40,7 +40,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         );
 
         static::assertSame(MoveShopPermanentlyStrategy::STRATEGY_NAME, $strategy->getName());
-        static::assertNotEmpty($strategy->getDescription());
+        static::assertNotSame('', $strategy->getDescription());
     }
 
     public function testNoResolutionNeededWhenShopIdIsNotSuggestedToChange(): void

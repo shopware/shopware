@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
@@ -185,7 +186,8 @@ class ConsumeMessagesControllerTest extends TestCase
 
         return new MessageQueueStatsSubscriber(
             new IncrementGatewayRegistry([$incrementer]),
-            new StatsService(static::createStub(AbstractStatsRepository::class), false, new NativeClock())
+            new StatsService(static::createStub(AbstractStatsRepository::class), false, new NativeClock()),
+            new NullLogger()
         );
     }
 }

@@ -238,6 +238,48 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
         });
     });
 
+    describe('a target above the Administration source', () => {
+        const name = 'sw-mixin-cms-element-scaffold';
+        let tmpDir: string;
+        const sfcPath = (dir: string, component: string) => path.join(tmpDir, dir, component, `${component}.vue`);
+
+        beforeAll(() => {
+            tmpDir = makeRoot('sfc-migration-mixed-');
+            fs.cpSync(path.join(FIXTURES, name), path.join(tmpDir, `admin/src/${name}`), { recursive: true });
+            registerAll(path.join(tmpDir, 'admin/src'), name);
+
+            // The same component under another name, because a name registered twice is skipped.
+            const index = fs
+                .readFileSync(path.join(FIXTURES, name, 'index.js'), 'utf8')
+                .replace(`${name}.html`, `${name}-copy.html`);
+            writeFile(tmpDir, `plugin/${name}-copy/index.js`, index);
+            fs.copyFileSync(
+                path.join(FIXTURES, name, `${name}.html.twig`),
+                path.join(tmpDir, `plugin/${name}-copy/${name}-copy.html.twig`),
+            );
+            registerAll(path.join(tmpDir, 'plugin'), `${name}-copy`);
+        });
+
+        afterAll(() => {
+            fs.rmSync(tmpDir, { recursive: true, force: true });
+        });
+
+        it('migrates each component outside the Administration source as an extension', async () => {
+            const result = await runMigration(tmpDir, { write: true, adminSrc: path.join(tmpDir, 'admin/src') });
+
+            // useCmsElementDeprecated is not published, so only the Administration can import it.
+            expect(reportOf(result, name)?.outcome).toBe('partial');
+            expect(fs.readFileSync(sfcPath('admin/src', name), 'utf8')).toContain(
+                "import useCmsElementDeprecated from 'src/app/composables/use-cms-element-deprecated';",
+            );
+            expect(reportOf(result, `${name}-copy`)?.outcome).toBe('skipped');
+            expect(reportOf(result, `${name}-copy`)?.reasons).toContain(
+                "useCmsElementDeprecated() replaces the 'cms-element' mixin but is not published to extensions through shopware:composables",
+            );
+            expect(fs.existsSync(sfcPath('plugin', `${name}-copy`))).toBe(false);
+        });
+    });
+
     describe('a real fixture tree written with --write', () => {
         let tmpDir: string;
         let result: MigrationResult;

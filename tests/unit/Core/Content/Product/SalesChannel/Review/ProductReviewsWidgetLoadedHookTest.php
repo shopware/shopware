@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
+use Shopware\Core\Content\Product\SalesChannel\Garan\AbstractGaranLabelRoute;
 use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\AbstractProductPurchaseLimitRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader;
@@ -50,6 +51,7 @@ class ProductReviewsWidgetLoadedHookTest extends TestCase
             static::createStub(SeoUrlPlaceholderHandlerInterface::class),
             $this->productReviewLoaderMock,
             static::createStub(AbstractProductPurchaseLimitRoute::class),
+            static::createStub(AbstractGaranLabelRoute::class),
         );
     }
 
@@ -92,9 +94,9 @@ class ProductReviewsWidgetLoadedHookTest extends TestCase
             static::createStub(SalesChannelContext::class)
         );
 
-        static::assertInstanceOf(ProductReviewsWidgetLoadedHook::class, $this->controller->calledHook);
+        static::assertInstanceOf(ProductReviewsWidgetLoadedHook::class, $this->controller->recorder()->calledHook);
 
-        $productReviewsWidgetLoadedHook = $this->controller->calledHook;
+        $productReviewsWidgetLoadedHook = $this->controller->recorder()->calledHook;
 
         static::assertSame($reviewResult, $productReviewsWidgetLoadedHook->getReviews());
     }

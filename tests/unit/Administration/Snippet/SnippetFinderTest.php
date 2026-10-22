@@ -47,9 +47,9 @@ use Symfony\Component\Filesystem\Path;
 #[CoversClass(SnippetFinder::class)]
 class SnippetFinderTest extends TestCase
 {
-    use SnippetFileTrait;
-
     private Filesystem $filesystem;
+
+    private Filesystem $privateFilesystem;
 
     /**
      * @var StaticEntityRepository<LanguageCollection>
@@ -69,6 +69,7 @@ class SnippetFinderTest extends TestCase
     protected function setUp(): void
     {
         $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
+        $this->privateFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $this->languageRepository = new StaticEntityRepository([], new LanguageDefinition());
         $this->localeRepository = new StaticEntityRepository([], new LocaleDefinition());
         $this->snippetSetRepository = new StaticEntityRepository([], new SnippetDefinition());
@@ -102,7 +103,7 @@ class SnippetFinderTest extends TestCase
             connection: $this->getConnectionMock([])
         );
 
-        static::assertEmpty($snippetFinder->findSnippets('fr-FR'));
+        static::assertCount(0, $snippetFinder->findSnippets('fr-FR'));
     }
 
     public function testDefaultSnippetFileLoading(): void
@@ -254,28 +255,8 @@ class SnippetFinderTest extends TestCase
         $plugins = array_map($getBundleMockByPath, $pluginPaths);
         $activePlugins = array_map($getBundleMockByPath, $activePluginPaths);
 
-        $adminBundle = static::createStub(Administration::class);
-
-        $adminBundleFileName = (new \ReflectionClass(Administration::class))->getFileName();
-        static::assertNotFalse($adminBundleFileName);
-
-        $adminBundle
-            ->method('getPath')
-            ->willReturn(\dirname($adminBundleFileName));
-
-        $property = new \ReflectionProperty(Administration::class, 'name');
-        $property->setValue($adminBundle, 'Administration');
-
-        $storefrontBundle = static::createStub(Storefront::class);
-        $storefrontBundleFileName = (new \ReflectionClass(Storefront::class))->getFileName();
-        static::assertNotFalse($storefrontBundleFileName);
-
-        $storefrontBundle
-            ->method('getPath')
-            ->willReturn(\dirname($storefrontBundleFileName));
-
-        $property = new \ReflectionProperty(Storefront::class, 'name');
-        $property->setValue($storefrontBundle, 'Storefront');
+        $adminBundle = new Administration();
+        $storefrontBundle = new Storefront();
 
         $bundles = [
             ...array_map($getBundleMockByPath, $bundlePaths),
@@ -321,7 +302,7 @@ class SnippetFinderTest extends TestCase
         );
         $loader = $this->getTranslationLoader($config);
 
-        $this->createSnippetFixtures($this->filesystem, $loader);
+        SnippetFixture::createSnippetFixtures($this->filesystem, $loader);
 
         $snippetFinder = $this->getSnippetFinder(
             connection: $this->getConnectionMock([]),
@@ -345,7 +326,7 @@ class SnippetFinderTest extends TestCase
             ['de-DE'],
         );
         $loader = $this->getTranslationLoader($config);
-        $this->createSnippetFixtures($this->filesystem, $loader);
+        SnippetFixture::createSnippetFixtures($this->filesystem, $loader);
 
         $pluginPath = __DIR__ . '/_fixtures/activePlugin';
         $snippetFinder = $this->getSnippetFinder(
@@ -375,7 +356,7 @@ class SnippetFinderTest extends TestCase
             ['de-DE'],
         );
         $loader = $this->getTranslationLoader($config);
-        $this->createSnippetFixtures($this->filesystem, $loader);
+        SnippetFixture::createSnippetFixtures($this->filesystem, $loader);
 
         $invalidFilePath = Path::join($loader->getLocalePath('es-ES'), 'Platform', 'administration.json');
         $this->filesystem->write($invalidFilePath, '{');
@@ -415,7 +396,7 @@ class SnippetFinderTest extends TestCase
             ['de-DE'],
         );
         $loader = $this->getTranslationLoader($config);
-        $this->createSnippetFixtures($this->filesystem, $loader);
+        SnippetFixture::createSnippetFixtures($this->filesystem, $loader);
 
         $emptyFilePath = Path::join($loader->getLocalePath('es-ES'), 'Platform', 'administration.json');
         $this->filesystem->write($emptyFilePath, '');
@@ -452,7 +433,7 @@ class SnippetFinderTest extends TestCase
             ['de-DE'],
         );
         $loader = $this->getTranslationLoader($config);
-        $this->createSnippetFixtures($this->filesystem, $loader);
+        SnippetFixture::createSnippetFixtures($this->filesystem, $loader);
 
         $invalidFilePath = Path::join($loader->getLocalePath('es-ES'), 'Platform', 'administration.json');
         $this->filesystem->write($invalidFilePath, '{');
@@ -480,7 +461,7 @@ class SnippetFinderTest extends TestCase
             ['es-ES'],
         );
         $loader = $this->getTranslationLoader($config);
-        $this->createSnippetFixtures($this->filesystem, $loader);
+        SnippetFixture::createSnippetFixtures($this->filesystem, $loader);
 
         $pluginPath = __DIR__ . '/_fixtures/activePlugin';
         $snippetFinder = $this->getSnippetFinder(
@@ -490,7 +471,73 @@ class SnippetFinderTest extends TestCase
         );
 
         $snippets = $snippetFinder->findSnippets('es-ES');
-        static::assertEmpty($snippets);
+        static::assertCount(0, $snippets);
+    }
+
+    public function testGeneratedSnippetsAreLoadedFromThePrivateFilesystem(): void
+    {
+        $this->privateFilesystem->write(
+            'snippets/administration/SwagTheme/jp.json',
+            '{"sw-theme": {"SwagTheme": {"default": {"label": "Generated"}}}}',
+        );
+
+        $snippets = $this->getSnippetFinder()->findSnippets('jp-JP');
+
+        static::assertSame(['SwagTheme' => ['default' => ['label' => 'Generated']]], $snippets['sw-theme']);
+    }
+
+    public function testGeneratedSnippetsLoseAgainstEveryShippedSnippetFile(): void
+    {
+        $this->privateFilesystem->write(
+            'snippets/administration/SwagTheme/jp.json',
+            '{"activePlugin": "generated", "generatedOnly": "yes"}',
+        );
+
+        $snippetFinder = $this->getSnippetFinder(
+            $this->getKernelMock(pluginPaths: ['activePlugin'], activePluginPaths: ['activePlugin']),
+        );
+
+        $snippets = $snippetFinder->findSnippets('jp-JP');
+
+        static::assertSame('successfully loaded', $snippets['activePlugin']);
+        static::assertSame('yes', $snippets['generatedOnly']);
+    }
+
+    public function testLocaleSpecificGeneratedFileOverridesTheLanguageFile(): void
+    {
+        $this->privateFilesystem->write('snippets/administration/SwagTheme/jp.json', '{"label": "language", "onlyInLanguage": "kept"}');
+        $this->privateFilesystem->write('snippets/administration/SwagTheme/jp-JP.json', '{"label": "locale"}');
+
+        $snippets = $this->getSnippetFinder()->findSnippets('jp-JP');
+
+        static::assertSame('locale', $snippets['label']);
+        static::assertSame('kept', $snippets['onlyInLanguage']);
+    }
+
+    public function testInvalidGeneratedSnippetFileIsSkippedAndLogged(): void
+    {
+        $this->privateFilesystem->write('snippets/administration/Broken/jp.json', '{');
+        $this->privateFilesystem->write('snippets/administration/Intact/jp.json', '{"intact": "yes"}');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with(static::stringContains('snippets/administration/Broken/jp.json'));
+
+        $snippets = $this->getSnippetFinder(logger: $logger)->findSnippets('jp-JP');
+
+        static::assertSame('yes', $snippets['intact']);
+    }
+
+    public function testInvalidGeneratedSnippetFileThrowsInDebugMode(): void
+    {
+        $this->privateFilesystem->write('snippets/administration/Broken/jp.json', '{');
+
+        $snippetFinder = $this->getSnippetFinder(debug: true);
+
+        $this->expectExceptionObject(SnippetException::invalidSnippetFile('snippets/administration/Broken/jp.json', new \JsonException('Syntax error')));
+
+        $snippetFinder->findSnippets('jp-JP');
     }
 
     /**
@@ -554,6 +601,7 @@ class SnippetFinderTest extends TestCase
             $kernelMock,
             $connectionMock,
             $this->filesystem,
+            $this->privateFilesystem,
             $config,
             $translationLoader,
             $sanitizer,

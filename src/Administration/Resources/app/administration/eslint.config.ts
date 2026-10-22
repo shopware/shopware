@@ -754,6 +754,7 @@ export default [
                 'error',
                 { max: 1000 },
             ],
+            'sw-test-rules/no-vm-access': 'error',
         },
     },
 

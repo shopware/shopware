@@ -101,12 +101,6 @@ async function createWrapper(props = {}, listeners = {}) {
 }
 
 describe('src/app/component/modal/sw-image-preview-modal', () => {
-    it('should render the component correctly', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should navigate image slider correctly when clicking on thumbnail item', async () => {
         const wrapper = await createWrapper();
         const thumbnailItems = wrapper.findAll(

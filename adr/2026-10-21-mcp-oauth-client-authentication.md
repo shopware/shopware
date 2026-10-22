@@ -240,7 +240,15 @@ An administrator's approval gives the client unrestricted MCP access, which audi
 The consent page names the client, the redirect host and, for MCP tokens, that access is limited to the MCP endpoint.
 
 B follows as its own story after discovery and audience binding.
-A read-only grant must not depend on tools honouring a `dryRun` argument, so it is enforced centrally: a read-only token reaches only tools whose `#[McpToolRequires]` privileges are all `:read` privileges.
+A read-only grant must not depend on tools honouring a `dryRun` argument, so it is enforced centrally.
+A read-only token reaches a tool only when the tool is classified as safe to read:
+
+- its declared privileges are not empty and all of them are `:read` privileges, or
+- it is marked as needing no privilege, `#[McpToolRequiresNoPrivilege]` for PHP tools and an explicit equivalent for app tools, defined in that story.
+
+A tool that declares nothing is refused, because an empty privilege list cannot tell a harmless tool from a write tool.
+Unannotated plugin tools and app tools without `requiredPrivileges` are such tools today.
+
 C needs storage and UI per token family and is not planned.
 
 ### 5. Rate-limit key

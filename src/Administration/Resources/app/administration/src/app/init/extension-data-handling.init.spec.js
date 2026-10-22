@@ -189,6 +189,22 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
         expect(forwardedCriteria.hasAssociation('categories')).toBe(true);
     });
 
+    it('should drop a cacheKey from a deserialized criteria', async () => {
+        await send('repositoryGet', {
+            entityName: 'product',
+            id: 'my-awesome-id',
+            criteria: {
+                __type__: '__Criteria__',
+                data: { ...new Criteria().getCriteriaData(), cacheKey: ['extension-cache-key'] },
+            },
+            context: {},
+        });
+
+        const forwardedCriteria = getMockMethod.mock.calls[0][2];
+        expect(forwardedCriteria).toBeInstanceOf(Criteria);
+        expect(forwardedCriteria).not.toHaveProperty('cacheKey');
+    });
+
     it('should filter nested contexts of the resolved repositoryGet result', async () => {
         getMockMethod.mockImplementationOnce((id, context) => {
             return Promise.resolve({

@@ -86,6 +86,11 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         );
     }
 
+    protected function getScopeRegistry(): RouteScopeRegistry
+    {
+        return $this->routeScopeRegistry;
+    }
+
     /**
      * A token bound to the MCP resource (RFC 8707) is accepted on `/api/_mcp` only.
      * A subrequest accepts it only when the MCP endpoint started it and marked it, see {@see OAuthResource::SUBREQUEST_ATTRIBUTE}.
@@ -102,10 +107,5 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         $resource = $request->attributes->get(OAuthResource::SUBREQUEST_ATTRIBUTE);
 
         return \is_string($resource) && $resource !== '';
-    }
-
-    protected function getScopeRegistry(): RouteScopeRegistry
-    {
-        return $this->routeScopeRegistry;
     }
 }

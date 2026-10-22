@@ -16,6 +16,11 @@ use Symfony\Component\HttpFoundation\Request;
  * The well-known URLs insert the well-known segment between host and path, so for an installation
  * in a subdirectory they sit outside Shopware and need a web server redirect.
  *
+ * MCP clients may add a query to the endpoint URL, for example `?toolsets=`. RFC 9728 §3.1 keeps that query in
+ * the well-known URL, and §3.3 makes the client reject a document whose `resource` differs from the URL it used.
+ * The metadata URL in the challenge and the `resource` of the document therefore carry the query of the request
+ * unchanged. Matching a requested resource ({@see self::matchResource()}) and the token audience still ignore it.
+ *
  * Replace the document building with the `mcp/sdk` `ProtectedResourceMetadata` class once the SDK is upgraded (#21832).
  *
  * @internal
@@ -47,9 +52,12 @@ class McpOAuthMetadata
         return $this->getBaseUrl($request) . self::RESOURCE_PATH;
     }
 
+    /**
+     * For a request to the MCP endpoint: the metadata URL with the request's query, as RFC 9728 §3.1 builds it.
+     */
     public function getProtectedResourceMetadataUrl(Request $request): string
     {
-        return $this->insertWellKnown($this->getResource($request), self::PROTECTED_RESOURCE_PREFIX);
+        return $this->insertWellKnown($this->getResource($request), self::PROTECTED_RESOURCE_PREFIX) . $this->getRawQuery($request);
     }
 
     public function getAuthorizationServerMetadataUrl(Request $request): string
@@ -68,12 +76,15 @@ class McpOAuthMetadata
     }
 
     /**
+     * For a request to the metadata URL: the `resource` keeps the request's query, so it is identical to the
+     * MCP endpoint URL the client derived the metadata URL from (RFC 9728 §3.3).
+     *
      * @return array{resource: string, authorization_servers: list<string>, bearer_methods_supported: list<string>}
      */
     public function buildProtectedResourceMetadata(Request $request): array
     {
         return [
-            'resource' => $this->getResource($request),
+            'resource' => $this->getResource($request) . $this->getRawQuery($request),
             'authorization_servers' => [$this->getIssuer($request)],
             'bearer_methods_supported' => ['header'],
         ];
@@ -107,6 +118,16 @@ class McpOAuthMetadata
         }
 
         return rtrim($this->appUrl, '/');
+    }
+
+    /**
+     * The query exactly as sent, because {@see Request::getQueryString()} sorts and re-encodes it.
+     */
+    private function getRawQuery(Request $request): string
+    {
+        $query = $request->server->get('QUERY_STRING');
+
+        return \is_string($query) && $query !== '' ? '?' . $query : '';
     }
 
     private function insertWellKnown(string $url, string $wellKnownPrefix): string

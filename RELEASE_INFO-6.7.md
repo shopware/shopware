@@ -67,6 +67,7 @@ Access keys, integration tokens and all existing OAuth tokens keep working uncha
   The protected resource metadata (RFC 9728) is served at `/.well-known/oauth-protected-resource/api/_mcp` and the authorization server metadata (RFC 8414) at `/.well-known/oauth-authorization-server/api`.
   The issuer is `<shop URL>/api`, and the authorization response now contains `iss` (RFC 9207).
   The URLs use the request host when it is an allowed MCP host, otherwise `APP_URL`.
+  When the MCP URL has a query, e.g. `/api/_mcp?toolsets=orders`, the metadata URL and the `resource` of the metadata keep it unchanged, as RFC 9728 requires; the token audience ignores it.
 * **Installations in a subdirectory:** The well-known URIs sit at the host root, e.g. `/.well-known/oauth-protected-resource/shop/api/_mcp`.
   Rewrite them in the web server to `/shop/.well-known/oauth-protected-resource/api/_mcp` and `/shop/.well-known/oauth-authorization-server/api`.
 * **Audience-bound tokens:** `/api/oauth/authorize` and `/api/oauth/token` accept the `resource` parameter (RFC 8707).

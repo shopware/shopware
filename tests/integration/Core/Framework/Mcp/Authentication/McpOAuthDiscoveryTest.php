@@ -82,6 +82,26 @@ class McpOAuthDiscoveryTest extends TestCase
         static::assertSame(McpExceptionListener::CODE_UNAUTHORIZED, $body['error']['code']);
     }
 
+    /**
+     * RFC 9728 §3.3: the client rejects the document unless `resource` is identical to the URL it requested, query included.
+     */
+    public function testDiscoveryFromAnMcpUrlWithQueryReturnsThatUrlAsResource(): void
+    {
+        $browser = $this->getBrowser(false);
+        $browser->request('POST', '/api/_mcp?toolsets=orders', [], [], ['CONTENT_TYPE' => 'application/json'], '{"jsonrpc":"2.0","method":"initialize","id":1}');
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
+        static::assertSame(
+            'Bearer resource_metadata="http://localhost/.well-known/oauth-protected-resource/api/_mcp?toolsets=orders"',
+            $response->headers->get('WWW-Authenticate')
+        );
+
+        $document = $this->fetchJson('/.well-known/oauth-protected-resource/api/_mcp?toolsets=orders');
+
+        static::assertSame('http://localhost/api/_mcp?toolsets=orders', $document['resource']);
+    }
+
     public function testInvalidTokenOnTheMcpEndpointIsReportedAsInvalidToken(): void
     {
         $browser = $this->getBrowser(false);

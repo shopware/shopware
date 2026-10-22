@@ -248,6 +248,9 @@ The design is recorded in `adr/2026-10-21-mcp-oauth-client-authentication.md`.
 - An unauthenticated or rejected request to `/api/_mcp` gets `401` with the JSON-RPC `-32001` body and `WWW-Authenticate: Bearer resource_metadata="<base>/.well-known/oauth-protected-resource/api/_mcp"`.
   When credentials were sent, the header adds `error="invalid_token"`.
   `McpExceptionListener` sets it on the Admin API route `api.mcp.endpoint` only.
+- A query on the MCP URL (`?toolsets=`) is kept as sent: the challenge URL is `.../.well-known/oauth-protected-resource/api/_mcp?<query>` (RFC 9728 §3.1), and the metadata answers with `resource` `<base>/api/_mcp?<query>`.
+  RFC 9728 §3.3 makes clients reject a `resource` that differs from the URL they used.
+  The audience check (`OAuthResource::normalize()`) keeps ignoring the query, so the same token works with and without toolsets.
 - `McpOAuthMetadataController` serves the protected resource metadata (RFC 9728) at `/.well-known/oauth-protected-resource/api/_mcp` and the authorization server metadata (RFC 8414) at `/.well-known/oauth-authorization-server/api`.
   The issuer is `<base>/api`; the authorization response carries `iss` (RFC 9207).
 - `McpOAuthMetadata` builds the URLs and documents.

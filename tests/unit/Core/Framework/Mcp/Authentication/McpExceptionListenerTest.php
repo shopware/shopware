@@ -155,6 +155,20 @@ class McpExceptionListenerTest extends TestCase
         );
     }
 
+    #[TestDox('keeps the query of the MCP request in the resource metadata URL and escapes it for the quoted string')]
+    public function testUnauthorizedChallengeKeepsTheQueryOfTheRequest(): void
+    {
+        $event = $this->createExceptionEvent('/api/_mcp', 'api.mcp.endpoint', OAuthServerException::accessDenied('Missing "Authorization" header'));
+        $event->getRequest()->server->set('QUERY_STRING', 'toolsets=orders&x="y\\');
+
+        $this->createListener()->onException($event);
+
+        static::assertSame(
+            'Bearer resource_metadata="http://shop.example/.well-known/oauth-protected-resource/api/_mcp?toolsets=orders&x=\\"y\\\\"',
+            $event->getResponse()?->headers->get('WWW-Authenticate')
+        );
+    }
+
     /**
      * @param array<string, string> $headers
      */

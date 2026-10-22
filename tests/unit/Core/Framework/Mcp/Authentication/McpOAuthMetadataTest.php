@@ -101,6 +101,43 @@ class McpOAuthMetadataTest extends TestCase
         static::assertTrue($authorizationServer['authorization_response_iss_parameter_supported']);
     }
 
+    public function testMetadataUrlKeepsTheQueryOfTheMcpRequestAsSent(): void
+    {
+        $metadata = $this->createMetadata(['shop.example'], 'https://fallback.example');
+        $request = Request::create('https://shop.example/api/_mcp');
+        $request->server->set('QUERY_STRING', 'toolsets=orders,catalog&b=1&a=2');
+
+        static::assertSame(
+            'https://shop.example/.well-known/oauth-protected-resource/api/_mcp?toolsets=orders,catalog&b=1&a=2',
+            $metadata->getProtectedResourceMetadataUrl($request)
+        );
+        static::assertSame('https://shop.example/api/_mcp', $metadata->getResource($request));
+    }
+
+    public function testMetadataDocumentEchoesTheQueryInTheResource(): void
+    {
+        $metadata = $this->createMetadata(['shop.example'], 'https://fallback.example');
+        $request = Request::create('https://shop.example/.well-known/oauth-protected-resource/api/_mcp');
+        $request->server->set('QUERY_STRING', 'toolsets=orders,catalog&b=1&a=2');
+
+        $document = $metadata->buildProtectedResourceMetadata($request);
+
+        static::assertSame('https://shop.example/api/_mcp?toolsets=orders,catalog&b=1&a=2', $document['resource']);
+        static::assertSame(['https://shop.example/api'], $document['authorization_servers']);
+        static::assertSame(
+            'https://shop.example/api/_mcp',
+            $metadata->matchResource(Request::create('https://shop.example/api/oauth/authorize'), $document['resource'])
+        );
+    }
+
+    public function testEmptyQueryAddsNoQuestionMark(): void
+    {
+        $metadata = $this->createMetadata(['shop.example'], 'https://fallback.example');
+        $request = Request::create('https://shop.example/.well-known/oauth-protected-resource/api/_mcp?');
+
+        static::assertSame('https://shop.example/api/_mcp', $metadata->buildProtectedResourceMetadata($request)['resource']);
+    }
+
     #[DataProvider('resourceProvider')]
     public function testMatchResourceAcceptsOnlyTheMcpResourceOfThisShop(string $requested, ?string $expected): void
     {

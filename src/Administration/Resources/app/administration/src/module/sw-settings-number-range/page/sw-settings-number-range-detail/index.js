@@ -17,6 +17,7 @@ export default {
 
     inject: [
         'numberRangeService',
+        'documentV2ApiService',
         'repositoryFactory',
         'acl',
         'customFieldDataProviderService',
@@ -294,7 +295,7 @@ export default {
                 return Promise.resolve();
             }
 
-            return this.numberRangeService.patternCollisions(typeId, pattern, id).then(({ collisions }) => {
+            return this.documentV2ApiService.getNumberRangePatternCollisions(typeId, pattern, id).then(({ collisions }) => {
                 this.collidingNumberRangeNames = collisions.map((collision) => collision.name);
             });
         },

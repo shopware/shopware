@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
@@ -51,9 +52,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\NumberRange\NumberRangeCollection;
+use Shopware\Core\System\NumberRange\NumberRangeEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -135,6 +141,7 @@ class DocumentV2ControllerTest extends TestCase
             static::createStub(FileNameProvider::class),
             $this->mediaRepository,
             $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
         );
 
         $response = $controller->availableTypes();
@@ -177,6 +184,7 @@ class DocumentV2ControllerTest extends TestCase
             static::createStub(FileNameProvider::class),
             $this->mediaRepository,
             $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
         );
 
         $response = $controller->availableTypes();
@@ -208,6 +216,7 @@ class DocumentV2ControllerTest extends TestCase
             static::createStub(FileNameProvider::class),
             $this->mediaRepository,
             $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
         );
 
         $response = $controller->create(
@@ -252,6 +261,7 @@ class DocumentV2ControllerTest extends TestCase
             static::createStub(FileNameProvider::class),
             $this->mediaRepository,
             $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
         );
 
         $response = $controller->preview(
@@ -295,6 +305,7 @@ class DocumentV2ControllerTest extends TestCase
             static::createStub(FileNameProvider::class),
             $this->mediaRepository,
             $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
         );
 
         $response = $controller->upload(
@@ -367,6 +378,7 @@ class DocumentV2ControllerTest extends TestCase
             static::createStub(FileNameProvider::class),
             $mediaRepository,
             $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
         );
 
         $source = new AdminApiSource(Uuid::randomHex());
@@ -425,6 +437,7 @@ class DocumentV2ControllerTest extends TestCase
             static::createStub(FileNameProvider::class),
             $emptyMediaRepository,
             $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
         );
 
         $source = new AdminApiSource(Uuid::randomHex());
@@ -479,6 +492,7 @@ class DocumentV2ControllerTest extends TestCase
             static::createStub(FileNameProvider::class),
             $this->mediaRepository,
             $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
         );
 
         $response = $controller->upload(
@@ -522,6 +536,7 @@ class DocumentV2ControllerTest extends TestCase
             static::createStub(FileNameProvider::class),
             $this->mediaRepository,
             $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
         );
 
         static::expectExceptionObject(
@@ -597,6 +612,7 @@ class DocumentV2ControllerTest extends TestCase
             $fileNameProvider,
             $this->mediaRepository,
             $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
         );
 
         $response = $controller->upload(
@@ -675,6 +691,7 @@ class DocumentV2ControllerTest extends TestCase
             static::createStub(FileNameProvider::class),
             $this->mediaRepository,
             $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
         );
 
         $response = $controller->download(
@@ -729,6 +746,7 @@ class DocumentV2ControllerTest extends TestCase
             static::createStub(FileNameProvider::class),
             $this->mediaRepository,
             $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
         );
 
         $response = $controller->download($documentId, DocumentFormat::PDF->value, Context::createDefaultContext());
@@ -780,6 +798,7 @@ class DocumentV2ControllerTest extends TestCase
             static::createStub(FileNameProvider::class),
             $this->mediaRepository,
             $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
         );
 
         $response = $controller->download($documentId, 'custom', Context::createDefaultContext());
@@ -836,6 +855,7 @@ class DocumentV2ControllerTest extends TestCase
             static::createStub(FileNameProvider::class),
             $this->mediaRepository,
             $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
         );
 
         $response = $controller->download($documentId, $format, Context::createDefaultContext());
@@ -922,6 +942,7 @@ class DocumentV2ControllerTest extends TestCase
             static::createStub(FileNameProvider::class),
             $this->mediaRepository,
             $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
         );
 
         $response = $controller->downloadArchive(
@@ -966,6 +987,7 @@ class DocumentV2ControllerTest extends TestCase
             static::createStub(FileNameProvider::class),
             $this->mediaRepository,
             $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
         );
 
         $documentIds = [];
@@ -1002,6 +1024,7 @@ class DocumentV2ControllerTest extends TestCase
             static::createStub(FileNameProvider::class),
             $this->mediaRepository,
             $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
         );
 
         static::expectExceptionObject(DocumentV2Exception::invalidRequestParameter('documentIds'));
@@ -1034,6 +1057,7 @@ class DocumentV2ControllerTest extends TestCase
             static::createStub(FileNameProvider::class),
             $this->mediaRepository,
             $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
         );
 
         static::expectExceptionObject(DocumentV2Exception::documentArchiveUnavailable($documentIds));
@@ -1076,6 +1100,7 @@ class DocumentV2ControllerTest extends TestCase
             static::createStub(FileNameProvider::class),
             $this->mediaRepository,
             $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
         );
 
         static::expectExceptionObject(
@@ -1131,6 +1156,7 @@ class DocumentV2ControllerTest extends TestCase
             static::createStub(FileNameProvider::class),
             $this->mediaRepository,
             $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
         );
 
         static::expectExceptionObject(DocumentV2Exception::documentFileExtensionUnavailable($documentId, $format));
@@ -1163,6 +1189,7 @@ class DocumentV2ControllerTest extends TestCase
             static::createStub(FileNameProvider::class),
             $this->mediaRepository,
             $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
         );
 
         $this->expectExceptionObject(DocumentV2Exception::documentNotFound($documentId));
@@ -1171,6 +1198,89 @@ class DocumentV2ControllerTest extends TestCase
             $documentId,
             DocumentFormat::PDF->value,
             Context::createDefaultContext(),
+        );
+    }
+
+    public function testNumberRangePatternCollisionsSearchesOtherDocumentNumberRangesOfTheSameType(): void
+    {
+        $numberRangeTypeId = Uuid::randomHex();
+        $numberRangeId = Uuid::randomHex();
+
+        $collidingNumberRange = new NumberRangeEntity();
+        $collidingNumberRange->setId(Uuid::randomHex());
+        $collidingNumberRange->setName('Invoices shop B');
+        $collidingNumberRange->addTranslated('name', 'Invoices shop B');
+
+        $capturedCriteria = null;
+        $numberRangeRepository = new StaticEntityRepository([
+            static function (Criteria $criteria) use (&$capturedCriteria, $collidingNumberRange): NumberRangeCollection {
+                $capturedCriteria = $criteria;
+
+                return new NumberRangeCollection([$collidingNumberRange]);
+            },
+        ]);
+
+        $response = $this->createNumberRangeCollisionController($numberRangeRepository)->numberRangePatternCollisions(
+            new Request(['numberRangeTypeId' => $numberRangeTypeId, 'pattern' => 'INV-{n}', 'numberRangeId' => $numberRangeId]),
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame(
+            ['collisions' => [['id' => $collidingNumberRange->getId(), 'name' => 'Invoices shop B']]],
+            json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR),
+        );
+
+        static::assertInstanceOf(Criteria::class, $capturedCriteria);
+        static::assertEquals([
+            new EqualsFilter('typeId', $numberRangeTypeId),
+            new EqualsFilter('pattern', 'INV-{n}'),
+            new PrefixFilter('type.technicalName', DocumentNumberGenerator::NUMBER_RANGE_DOCUMENT_TYPE_PREFIX),
+            new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('id', $numberRangeId)]),
+        ], $capturedCriteria->getFilters());
+    }
+
+    /**
+     * @param array<string, string> $query
+     */
+    #[DataProvider('invalidNumberRangePatternCollisionsQueryProvider')]
+    public function testNumberRangePatternCollisionsRejectsInvalidQuery(array $query, string $parameter): void
+    {
+        $this->expectExceptionObject(DocumentV2Exception::invalidRequestParameter($parameter));
+
+        $this->createNumberRangeCollisionController(new StaticEntityRepository([]))->numberRangePatternCollisions(
+            new Request($query),
+            Context::createDefaultContext(),
+        );
+    }
+
+    /**
+     * @return iterable<string, array{0: array<string, string>, 1: string}>
+     */
+    public static function invalidNumberRangePatternCollisionsQueryProvider(): iterable
+    {
+        yield 'missing number range type id' => [['pattern' => '{n}'], 'numberRangeTypeId'];
+        yield 'invalid number range type id' => [['numberRangeTypeId' => 'invoice', 'pattern' => '{n}'], 'numberRangeTypeId'];
+        yield 'missing pattern' => [['numberRangeTypeId' => Uuid::randomHex()], 'pattern'];
+        yield 'invalid number range id' => [['numberRangeTypeId' => Uuid::randomHex(), 'pattern' => '{n}', 'numberRangeId' => 'x'], 'numberRangeId'];
+    }
+
+    /**
+     * @param StaticEntityRepository<NumberRangeCollection> $numberRangeRepository
+     */
+    private function createNumberRangeCollisionController(StaticEntityRepository $numberRangeRepository): DocumentV2Controller
+    {
+        return new DocumentV2Controller(
+            $this->createGenerator(new DocumentRendererRegistry([]), Uuid::randomHex()),
+            $this->createDocumentReader(new DocumentRendererRegistry([])),
+            $this->createTypeRegistry(),
+            $this->createArchiveGenerator(static::createStub(MediaService::class)),
+            $this->documentRepository,
+            $this->createDocumentPersister(),
+            static::createStub(MediaService::class),
+            static::createStub(FileNameProvider::class),
+            $this->mediaRepository,
+            $this->createDocumentMediaGuard(),
+            $numberRangeRepository,
         );
     }
 

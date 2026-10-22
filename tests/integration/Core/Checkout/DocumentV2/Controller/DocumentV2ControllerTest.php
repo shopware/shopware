@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\DocumentV2\Controller;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator as LegacyDocumentGenerator;
@@ -612,6 +613,86 @@ class DocumentV2ControllerTest extends TestCase
         static::assertSame($content, $response->getContent());
     }
 
+    public function testNumberRangePatternCollisionsListsOtherNumberRangesOfTheSameDocumentType(): void
+    {
+        $numberRangeTypeId = $this->getNumberRangeTypeId('document_invoice');
+        $firstId = $this->createNumberRange($numberRangeTypeId, 'Invoices shop A', 'COLLIDE-{n}');
+        $secondId = $this->createNumberRange($numberRangeTypeId, 'Invoices shop B', 'COLLIDE-{n}');
+        $this->createNumberRange($numberRangeTypeId, 'Invoices shop C', 'DISTINCT-{n}');
+
+        $collisions = $this->requestNumberRangePatternCollisions([
+            'numberRangeTypeId' => $numberRangeTypeId,
+            'pattern' => 'COLLIDE-{n}',
+            'numberRangeId' => $firstId,
+        ]);
+
+        static::assertSame([['id' => $secondId, 'name' => 'Invoices shop B']], $collisions);
+    }
+
+    public function testNumberRangePatternCollisionsWithoutNumberRangeIdIncludesEveryMatch(): void
+    {
+        $numberRangeTypeId = $this->getNumberRangeTypeId('document_invoice');
+        $firstId = $this->createNumberRange($numberRangeTypeId, 'Invoices shop A', 'NEW-{n}');
+        $secondId = $this->createNumberRange($numberRangeTypeId, 'Invoices shop B', 'NEW-{n}');
+
+        $collisions = $this->requestNumberRangePatternCollisions([
+            'numberRangeTypeId' => $numberRangeTypeId,
+            'pattern' => 'NEW-{n}',
+        ]);
+
+        $ids = array_column($collisions, 'id');
+        sort($ids);
+        $expected = [$firstId, $secondId];
+        sort($expected);
+
+        static::assertSame($expected, $ids);
+    }
+
+    public function testNumberRangePatternCollisionsIgnoresOtherDocumentTypes(): void
+    {
+        $invoiceNumberRangeTypeId = $this->getNumberRangeTypeId('document_invoice');
+        $creditNoteNumberRangeTypeId = $this->getNumberRangeTypeId('document_credit_note');
+        $invoiceId = $this->createNumberRange($invoiceNumberRangeTypeId, 'Invoices', 'SHARED-{n}');
+        $this->createNumberRange($creditNoteNumberRangeTypeId, 'Credit notes', 'SHARED-{n}');
+
+        $collisions = $this->requestNumberRangePatternCollisions([
+            'numberRangeTypeId' => $invoiceNumberRangeTypeId,
+            'pattern' => 'SHARED-{n}',
+            'numberRangeId' => $invoiceId,
+        ]);
+
+        static::assertSame([], $collisions);
+    }
+
+    public function testNumberRangePatternCollisionsIgnoresNonDocumentNumberRangeTypes(): void
+    {
+        $numberRangeTypeId = $this->getNumberRangeTypeId('customer');
+        $firstId = $this->createNumberRange($numberRangeTypeId, 'Customers shop A', 'CUST-{n}');
+        $this->createNumberRange($numberRangeTypeId, 'Customers shop B', 'CUST-{n}');
+
+        $collisions = $this->requestNumberRangePatternCollisions([
+            'numberRangeTypeId' => $numberRangeTypeId,
+            'pattern' => 'CUST-{n}',
+            'numberRangeId' => $firstId,
+        ]);
+
+        static::assertSame([], $collisions);
+    }
+
+    public function testNumberRangePatternCollisionsRequiresTypeIdAndPattern(): void
+    {
+        $browser = $this->getBrowser();
+
+        $browser->jsonRequest('GET', '/api/_action/order/document-v2/number-range-pattern-collisions?pattern=' . rawurlencode('{n}'));
+        static::assertSame(400, $browser->getResponse()->getStatusCode());
+
+        $browser->jsonRequest('GET', '/api/_action/order/document-v2/number-range-pattern-collisions?numberRangeTypeId=' . $this->getNumberRangeTypeId('document_invoice'));
+        static::assertSame(400, $browser->getResponse()->getStatusCode());
+
+        $browser->jsonRequest('GET', '/api/_action/order/document-v2/number-range-pattern-collisions?numberRangeTypeId=not-a-uuid&pattern=' . rawurlencode('{n}'));
+        static::assertSame(400, $browser->getResponse()->getStatusCode());
+    }
+
     private function assertMediaNotAllowed(Response $response): void
     {
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
@@ -720,5 +801,53 @@ class DocumentV2ControllerTest extends TestCase
         $criteria = (new Criteria())->addFilter(new EqualsFilter('documentId', $documentId));
 
         return $this->documentFileRepository->search($criteria, $this->context)->getEntities();
+    }
+
+    /**
+     * @param array<string, string> $query
+     *
+     * @return list<array{id: string, name: string}>
+     */
+    private function requestNumberRangePatternCollisions(array $query): array
+    {
+        $browser = $this->getBrowser();
+        $browser->jsonRequest('GET', '/api/_action/order/document-v2/number-range-pattern-collisions?' . http_build_query($query));
+
+        $response = $browser->getResponse();
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
+
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($content);
+        static::assertArrayHasKey('collisions', $content);
+
+        return $content['collisions'];
+    }
+
+    private function createNumberRange(string $numberRangeTypeId, string $name, string $pattern): string
+    {
+        $id = Uuid::randomHex();
+
+        static::getContainer()->get('number_range.repository')->create([[
+            'id' => $id,
+            'typeId' => $numberRangeTypeId,
+            'name' => $name,
+            'pattern' => $pattern,
+            'start' => 1,
+            'global' => false,
+        ]], $this->context);
+
+        return $id;
+    }
+
+    private function getNumberRangeTypeId(string $technicalName): string
+    {
+        $numberRangeTypeId = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT LOWER(HEX(`id`)) FROM `number_range_type` WHERE `technical_name` = :technicalName',
+            ['technicalName' => $technicalName]
+        );
+
+        static::assertIsString($numberRangeTypeId);
+
+        return $numberRangeTypeId;
     }
 }

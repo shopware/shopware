@@ -277,7 +277,7 @@ describe('core/service/documentV2.service.ts', () => {
         const $t = jest.fn((key, values) => `${key} ${JSON.stringify(values)}`);
         const appSpy = jest.spyOn(Shopware.Application, 'getApplicationRoot').mockReturnValue({ $t });
         const snippetSpy = jest.spyOn(Shopware, 'Snippet', 'get').mockReturnValue({
-            tc: () => 'Invoice',
+            t: () => 'Invoice',
             te: () => true,
         });
 

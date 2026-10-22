@@ -2,20 +2,12 @@
 
 namespace Shopware\Core\System\NumberRange\Api;
 
-use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\NumberRange\NumberRangeCollection;
-use Shopware\Core\System\NumberRange\NumberRangeException;
 use Shopware\Core\System\NumberRange\ValueGenerator\AbstractNumberRangeValueGenerator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -29,12 +21,9 @@ class NumberRangeController extends AbstractController
 {
     /**
      * @internal
-     *
-     * @param EntityRepository<NumberRangeCollection> $numberRangeRepository
      */
     public function __construct(
-        private readonly AbstractNumberRangeValueGenerator $valueGenerator,
-        private readonly EntityRepository $numberRangeRepository,
+        private readonly AbstractNumberRangeValueGenerator $valueGenerator
     ) {
     }
 
@@ -104,55 +93,5 @@ class NumberRangeController extends AbstractController
         return new JsonResponse([
             'number' => $generatedNumber,
         ]);
-    }
-
-    #[Cache(mustRevalidate: true)]
-    #[Route(
-        path: '/api/_action/number-range/pattern-collisions',
-        name: 'api.action.number-range.pattern-collisions',
-        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['number_range:read']],
-        methods: ['GET']
-    )]
-    public function patternCollisions(Request $request, Context $context): JsonResponse
-    {
-        $typeId = $request->query->getString('typeId');
-        $pattern = $request->query->getString('pattern');
-        $numberRangeId = $request->query->has('numberRangeId') ? $request->query->getString('numberRangeId') : null;
-
-        if ($typeId === '') {
-            throw NumberRangeException::missingRequestParameter('typeId');
-        } elseif (!Uuid::isValid($typeId)) {
-            throw NumberRangeException::invalidRequestParameter('typeId');
-        } elseif ($pattern === '') {
-            throw NumberRangeException::missingRequestParameter('pattern');
-        }
-
-        if ($numberRangeId !== null && !Uuid::isValid($numberRangeId)) {
-            throw NumberRangeException::invalidRequestParameter('numberRangeId');
-        }
-
-        $criteria = new Criteria();
-        $criteria->setLimit(100);
-        $criteria->addFilter(
-            new EqualsFilter('typeId', $typeId),
-            new EqualsFilter('pattern', $pattern),
-            new PrefixFilter('type.technicalName', DocumentNumberGenerator::NUMBER_RANGE_DOCUMENT_TYPE_PREFIX),
-        );
-
-        if ($numberRangeId !== null) {
-            $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('id', $numberRangeId)]));
-        }
-
-        $numberRanges = $this->numberRangeRepository->search($criteria, $context)->getEntities();
-
-        $collisions = [];
-        foreach ($numberRanges as $numberRange) {
-            $collisions[] = [
-                'id' => $numberRange->getId(),
-                'name' => $numberRange->getTranslation('name') ?? $numberRange->getName(),
-            ];
-        }
-
-        return new JsonResponse(['collisions' => $collisions]);
     }
 }

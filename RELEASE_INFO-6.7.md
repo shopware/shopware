@@ -81,11 +81,11 @@ For a business customer, `company` and `vatIds` are then only changed when the r
 Before, such a request cleared both, while the customer stayed a business customer.
 Requests that send `accountType` behave as before.
 
-### Check a number range pattern for collisions
+### Check a document number range pattern for collisions
 
-The new route `GET /api/_action/number-range/pattern-collisions?typeId=…&pattern=…&numberRangeId=…` returns the other number ranges of the same document type that use the given pattern, as `{"collisions": [{"id": "…", "name": "…"}]}`.
+The new experimental route `GET /api/_action/order/document-v2/number-range-pattern-collisions?numberRangeTypeId=…&pattern=…&numberRangeId=…` returns the number ranges of the given document number range type that use the given pattern, as `{"collisions": [{"id": "…", "name": "…"}]}`.
 Such ranges, for example two `document_invoice` ranges assigned to different sales channels, generate the same document numbers and document generation fails once they meet.
-`numberRangeId` is optional and excludes the number range being edited.
+`numberRangeId` is optional and leaves that number range out of the result, for example to check an existing number range against all others.
 Non-document number range types never collide and return an empty list.
 The route requires the `number_range:read` privilege.
 

@@ -7,7 +7,6 @@ async function createWrapper(
     numberRangeService = {
         previewPattern: jest.fn(() => Promise.resolve({ number: 1337 })),
         previewPatternByNumberRangeId: jest.fn(() => Promise.resolve({ number: 1337 })),
-        patternCollisions: jest.fn(() => Promise.resolve({ collisions: [] })),
     },
     repositories = {},
 ) {
@@ -57,6 +56,9 @@ async function createWrapper(
                 },
                 provide: {
                     numberRangeService,
+                    documentV2ApiService: {
+                        getNumberRangePatternCollisions: () => Promise.resolve({ collisions: [] }),
+                    },
                     repositoryFactory: {
                         create: (entityName) => {
                             if (entityName === 'number_range') {

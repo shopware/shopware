@@ -164,6 +164,7 @@ let getDocumentV2Mock;
 let getDocumentLegacyMock;
 let getDocumentArchiveV2Mock;
 let getDocumentPreviewV2Mock;
+let documentServiceListener;
 
 async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.details', additionalStubs = {}) {
     documentSearchMock = jest.fn().mockResolvedValue(getCollection('document_type', documentTypeFixture));
@@ -232,7 +233,9 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
             },
             provide: {
                 documentService: {
-                    setListener: () => ({}),
+                    setListener: (listener) => {
+                        documentServiceListener = listener;
+                    },
                     getDocument: (...args) => getDocumentLegacyMock(...args),
                     createDocument: (...args) => createDocumentMock(...args),
                 },
@@ -369,10 +372,11 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             .spyOn(config.global.mocks, '$t')
             .mockImplementation((key, values) => (values ? `${key} ${JSON.stringify(values)}` : key));
 
-        wrapper = await createWrapper();
-        wrapper.vm.createNotificationError = jest.fn();
+        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
 
-        await wrapper.vm.convertStoreEventToVueEvent({
+        wrapper = await createWrapper();
+
+        documentServiceListener({
             action: 'create-document-fail',
             payload: {
                 code: 'DOCUMENT__NUMBER_ALREADY_EXISTS',
@@ -381,9 +385,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             },
         });
 
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({ message: expected });
+        expect(notificationSpy).toHaveBeenCalledWith(expect.objectContaining({ variant: 'error', message: expected }));
 
         translate.mockRestore();
+        notificationSpy.mockRestore();
     });
 
     it('should save document when the event return finished', async () => {

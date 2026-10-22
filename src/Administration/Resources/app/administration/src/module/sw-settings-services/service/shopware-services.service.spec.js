@@ -197,7 +197,7 @@ describe('src/module/sw-settings-services/service/shopware-services-service.ts',
         const systemConfigService = new SystemConfigApiService(client, loginService);
         const shopwareServicesService = new ShopwareServicesService(client, loginService, systemConfigService);
 
-        const availableServices = [{ name: 'SwagCopilot', label: 'Copilot' }];
+        const availableServices = [{ name: 'SwagCopilot' }];
 
         clientMock.onGet('services/available').reply(200, availableServices);
 

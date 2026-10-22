@@ -23,23 +23,19 @@
                   "items": {
                     "type": "object",
                     "required": [
-                      "name",
-                      "label"
+                      "name"
                     ],
                     "properties": {
                       "name": {
-                        "type": "string"
-                      },
-                      "label": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Technical name of the service, matches the `name` of installed services."
                       }
                     }
                   }
                 },
                 "example": [
                   {
-                    "name": "SwagCopilot",
-                    "label": "Copilot"
+                    "name": "SwagCopilot"
                   }
                 ]
               }

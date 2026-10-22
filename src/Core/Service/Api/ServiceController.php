@@ -177,7 +177,6 @@ class ServiceController
     {
         return new JsonResponse(array_map(static fn (ServiceEntry $entry) => [
             'name' => $entry->name,
-            'label' => $entry->description,
         ], array_values($this->serviceRegistryClient->getAll())));
     }
 

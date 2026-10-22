@@ -95,6 +95,10 @@ export default Shopware.Component.wrapComponentConfig({
             return this.availableServices.filter((service) => !installedNames.has(service.name));
         },
 
+        installedServicesCount(): number {
+            return this.availableServices.length - this.pendingServices.length;
+        },
+
         installing(): boolean {
             if (!this.servicesEnabled || this.config?.disabled) {
                 return false;

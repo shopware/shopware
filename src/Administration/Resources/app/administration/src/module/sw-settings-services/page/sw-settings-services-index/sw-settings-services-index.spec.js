@@ -301,6 +301,7 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
             'sw-settings-services.index.turned-off.option-enable',
             'sw-settings-services.index.turned-off.option-prod',
         ]);
+        expect(page.find('.sw-settings-services__listing-section h3').exists()).toBe(false);
         expect(page.find('.sw-settings-services-index__installing-card').exists()).toBe(false);
         expect(Shopware.Service('shopwareServicesService').getAvailableServices).toHaveBeenCalledTimes(
             availableServicesCalls,
@@ -373,8 +374,8 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
                     secondService,
                 ]);
             shopwareServicesService.getAvailableServices.mockImplementation(async () => [
-                { name: 'first-service-name', label: 'First Service' },
-                { name: 'second-service-name', label: 'Second Service' },
+                { name: 'first-service-name' },
+                { name: 'second-service-name' },
             ]);
             const availableServicesCalls = shopwareServicesService.getAvailableServices.mock.calls.length;
 
@@ -382,13 +383,16 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
             await flushPromises();
 
             expect(page.findAll('sw-settings-services-service-card-stub')).toHaveLength(1);
-            expect(page.get('.sw-settings-services-index__pending-service').text()).toContain('Second Service');
+            expect(page.vm.installedServicesCount).toBe(1);
+            expect(page.get('.sw-settings-services-index__installing-card-progress').text()).toBe(
+                'sw-settings-services.index.installing-services-progress',
+            );
 
             jest.advanceTimersByTime(10_000);
             await flushPromises();
 
             expect(page.findAll('sw-settings-services-service-card-stub')).toHaveLength(2);
-            expect(page.find('.sw-settings-services-index__pending-service').exists()).toBe(false);
+            expect(page.find('.sw-settings-services-index__installing-card').exists()).toBe(false);
 
             const callsAfterInstallation = shopwareServicesService.getInstalledServices.mock.calls.length;
             jest.advanceTimersByTime(60_000);
@@ -402,7 +406,7 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
             const shopwareServicesService = Shopware.Service('shopwareServicesService');
             shopwareServicesService.getInstalledServices.mockImplementation(async () => []);
             shopwareServicesService.getAvailableServices.mockImplementation(async () => [
-                { name: 'first-service-name', label: 'First Service' },
+                { name: 'first-service-name' },
             ]);
 
             const page = await mountPage();

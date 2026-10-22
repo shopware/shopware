@@ -387,8 +387,8 @@ class ServiceControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame([
-            ['name' => 'SwagCopilot', 'label' => 'Copilot'],
-            ['name' => 'MyCoolService', 'label' => 'My Cool Service'],
+            ['name' => 'SwagCopilot'],
+            ['name' => 'MyCoolService'],
         ], json_decode((string) $response->getContent(), true));
     }
 

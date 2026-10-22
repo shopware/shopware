@@ -21,8 +21,16 @@
         margin-block: var(--scale-size-24);
     }
 
+    .sw-settings-services-index__services-turned-off-banner {
+        max-width: 960px;
+        margin: 0 auto var(--scale-size-24);
+
+        p {
+            margin-bottom: var(--scale-size-8);
+        }
+    }
+
     .sw-settings-services-index__services-deactivated-banner,
-    .sw-settings-services-index__services-turned-off-banner,
     .sw-settings-services-index__installation-stalled-banner {
         max-width: 960px;
 
@@ -37,33 +45,12 @@
 
     .sw-settings-services-index__debug-options {
         margin-bottom: var(--scale-size-8);
-        padding-left: var(--scale-size-20);
-    }
+        padding-left: var(--scale-size-24);
+        list-style-type: disc;
 
-    .sw-settings-services-index__pending-service {
-        display: flex;
-        align-items: center;
-        gap: var(--scale-size-16);
-        padding: var(--scale-size-24);
-        border: 1px dashed var(--color-border-secondary-default);
-        border-radius: var(--border-radius-card);
-        background-color: var(--color-elevation-surface-sunken);
-
-        h4 {
-            margin-bottom: var(--scale-size-6);
+        li {
+            margin-bottom: var(--scale-size-4);
         }
-
-        p {
-            color: var(--color-text-secondary-default);
-            font-size: var(--font-size-xs);
-        }
-    }
-
-    .sw-settings-services-index__pending-service-loader {
-        position: relative;
-        flex-shrink: 0;
-        width: var(--scale-size-24);
-        height: var(--scale-size-24);
     }
 
     .sw-settings-services-index__installing-card {
@@ -76,6 +63,7 @@
         border: 1px solid var(--color-border-secondary-default);
         border-radius: var(--border-radius-card);
         background-color: var(--color-elevation-surface-sunken);
+        margin-bottom: var(--scale-size-24);
         text-align: center;
         font-size: var(--font-size-s);
     }
@@ -86,6 +74,7 @@
 
     .sw-settings-services-index__installing-card-loader {
         position: relative;
+        width: var(--scale-size-32);
         height: var(--scale-size-32);
     }
 

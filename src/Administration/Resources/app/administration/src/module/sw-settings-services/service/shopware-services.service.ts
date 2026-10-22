@@ -38,7 +38,6 @@ export type ServiceDescription = {
  */
 export type AvailableService = {
     name: string;
-    label: string;
 };
 
 type ServiceConfigurationConfigValues = {

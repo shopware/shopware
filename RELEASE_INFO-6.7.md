@@ -71,7 +71,6 @@ export default shopwareAdminJestConfig({
 ```
 
 `composer admin:setup-extension-tooling` (or `bin/console administration:setup-extension-tooling` in a Composer install) generates the `.shopware/jest.mjs` bridge for every extension.
-The harness is part of a platform checkout only, because the Composer package of `shopware/administration` does not include the Administration's `test/` folder.
 Before the first run, generate the entity schema with `bin/console administration:generate-entity-schema-types` and the component import map with `npm run unit-setup` in the Administration directory.
 The factory is part of the experimental extension tooling, so the terms of [Opt-in TypeScript and ESLint configuration for Administration extensions](#opt-in-typescript-and-eslint-configuration-for-administration-extensions-experimental) apply to it as well.
 

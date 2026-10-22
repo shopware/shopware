@@ -3,10 +3,10 @@
  *
  * Guards the Jest factory contract: every harness path it hands to Jest
  * exists, an extension's options extend the harness instead of replacing it,
- * an option outside the allowlist is rejected, and a missing harness or
- * generated file fails with the step that fixes it. The factory is an .mjs
- * module Jest cannot import directly, so a node subprocess builds each config
- * and serializes it.
+ * an option outside the allowlist is rejected, and a missing generated file
+ * fails with the command that generates it. The factory is an .mjs module
+ * Jest cannot import directly, so a node subprocess builds each config and
+ * serializes it.
  */
 
 import { execFileSync } from 'child_process';
@@ -310,27 +310,6 @@ describe('extension-tooling jest factory', () => {
         expect(message).toContain('Accepted options: rootDir, setupFiles,');
     });
 
-    describe('without a usable harness', () => {
-        let projectRoot: string;
-        let copiedFactoryPath: string;
-
-        beforeEach(() => {
-            projectRoot = createTempProject('sw-tooling-jest-factory-');
-            copiedFactoryPath = path.join(projectRoot, 'administration', 'extension-tooling', 'jest.mjs');
-            writeFile(copiedFactoryPath, fs.readFileSync(factoryPath, 'utf8'));
-        });
-
-        afterEach(() => {
-            cleanupTempProject(projectRoot);
-        });
-
-        it('explains that the Composer package ships no harness', () => {
-            expect(buildError({ rootDir: '/extension' }, copiedFactoryPath)).toContain(
-                'The Composer package of shopware/administration excludes its test/ folder',
-            );
-        });
-    });
-
     describe('without the generated files', () => {
         let projectRoot: string;
         let copiedFactoryPath: string;
@@ -339,7 +318,6 @@ describe('extension-tooling jest factory', () => {
             projectRoot = createTempProject('sw-tooling-jest-factory-');
             copiedFactoryPath = path.join(projectRoot, 'administration', 'extension-tooling', 'jest.mjs');
             writeFile(copiedFactoryPath, fs.readFileSync(factoryPath, 'utf8'));
-            fs.mkdirSync(path.join(projectRoot, 'administration', 'test', '_setup'), { recursive: true });
         });
 
         afterEach(() => {

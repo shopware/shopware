@@ -154,6 +154,17 @@ The negotiated protocol revision picks the format, never a feature flag.
   - `structuredContent` and the JSON text copy are both sent, as the spec asks.
     Gemini CLI and Cursor pass only `content` to the model, while Claude Code, Codex and VS Code pass `structuredContent` instead of the text, so neither copy can be dropped.
     A result is never sent with one copy only to make it fit
+  - `structuredContent` also carries what the model needs from the metadata, because Claude Code, Codex and VS Code never show it the `{"_meta": …}` text block.
+    The reserved key `_meta` (`McpToolResultRenderer::STRUCTURED_META_KEY`) holds the tool's metadata without `responseSize` and `resourceUri`, plus `summary` when the tool gives one.
+    An object stays where it is and gains the key; anything else is wrapped as `{"result": …, "_meta": …}`, on 2026-07-28 too.
+    Without such metadata, `structuredContent` is the data as described above.
+    The key is left out for a tool that declares an `outputSchema` (the schema describes the data, and mcp/sdk 0.9 validates against it), for data that has a `_meta` key of its own, for failures, and for linked results, which have no `structuredContent`.
+    A dry-run write on 2025-06-18:
+
+    ```json
+    {"result": [{"entity": "tax", "ids": ["0190..."], "operation": "upsert"}], "_meta": {"dryRun": true}}
+    ```
+
 - **Before 2025-06-18 (legacy envelope, deprecated):** the only text block is the tool's `{"success": …}` string as it returned it, or the envelope rebuilt from a `McpToolResult` (data, metadata, error message and code, but no summary or error details).
   These revisions have no `structuredContent` and no `resource_link`.
   The envelope is deprecated as a wire format and stays for these clients; it is not scheduled for removal

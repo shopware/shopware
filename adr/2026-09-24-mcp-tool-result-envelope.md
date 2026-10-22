@@ -124,6 +124,15 @@ There is no feature flag and no date at which the legacy format is removed.
    A summary, if the tool gives one, goes into an additional text block, never in place of the JSON.
    The metadata follows as a text block of its own (`{"_meta": …}`), next to the result's `_meta`: much of it is written for the model (`dryRun`, `total`, the `usage` hint of tool search), and most clients don't pass `_meta` on to it.
    A result without data, such as one stored behind a link, sends no data block.
+   Clients that pass only `structuredContent` never show the model that text block, so `structuredContent` carries the same metadata under the reserved key `_meta`, without client bookkeeping (`responseSize`, `resourceUri`) and with `summary` when the tool gives one.
+   An object gains the key next to its own keys; a list or scalar is wrapped as `{"result": …, "_meta": …}`, on 2026-07-28 too.
+   A result without such metadata keeps `structuredContent` as described above, and so do failures, linked results (no `structuredContent`), data with a `_meta` key of its own, and tools with an `outputSchema` (see *Output schemas*).
+   A dry-run write:
+
+   ```json
+   {"result": [{"entity": "tax", "ids": ["0190..."], "operation": "upsert"}], "_meta": {"dryRun": true}}
+   ```
+
 2. **Legacy envelope (before 2025-06-18), deprecated.** These revisions have neither `structuredContent` nor `resource_link`, so the only text block is the `{"success": …}` string, and the pointer to a stored result is `_meta.resourceUri` inside it.
    The format is deprecated: release notes say so, and new clients are expected to negotiate 2025-06-18 or later.
    It is kept for the clients that still need it, and every client gets only the format it expects.
@@ -146,6 +155,10 @@ Large results are kept in check by the size limit and `resource_link`, not by dr
 ### Output schemas
 
 Tools may declare an `outputSchema` for their result data. We add them first to tools with a stable, documented result. It isn't mandatory for every tool in the first step. The mapper makes sure a schema-described result is only sent in a shape the negotiated protocol era allows. This is covered by tests on both eras.
+
+The schema describes the data, so the `structuredContent` of a tool with an `outputSchema` is exactly its data, without the reserved `_meta` key for the model.
+`mcp/sdk` 0.9 validates `structuredContent` against the schema, and a strict schema (`additionalProperties: false`) would reject the extra key.
+Such a tool makes the metadata the model needs part of its data and its schema.
 
 ### Static analysis
 

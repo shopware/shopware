@@ -48,12 +48,14 @@ class McpToolResultReferenceHandler implements ReferenceHandlerInterface
         $request = $arguments['_request'] ?? null;
         $call = $request instanceof CallToolRequest ? $request : null;
 
+        $hasOutputSchema = $reference->tool->outputSchema !== null;
+
         if ($result instanceof McpToolResult) {
-            return $this->renderer->render($result, $this->protocolVersion($arguments), call: $call);
+            return $this->renderer->render($result, $this->protocolVersion($arguments), call: $call, hasOutputSchema: $hasOutputSchema);
         }
 
         if (\is_string($result) && ($parsed = $this->parser->parse($result)) !== null) {
-            return $this->renderer->render($parsed, $this->protocolVersion($arguments), $result, $call);
+            return $this->renderer->render($parsed, $this->protocolVersion($arguments), $result, $call, $hasOutputSchema);
         }
 
         return $result;

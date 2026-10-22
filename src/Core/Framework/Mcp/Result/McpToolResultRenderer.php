@@ -24,7 +24,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
  *
  * - Since 2025-06-18: `structuredContent` for the data, `isError` for failures, `resource_link` for stored
  *   results, and text blocks for models, which many clients pass on instead of `structuredContent`: the
- *   plain data (or the error message), then the summary and the metadata as blocks of their own.
+ *   plain data (or the error message), then the summary and the metadata as blocks of their own. Other
+ *   clients pass only `structuredContent` to the model, so it carries the metadata a model needs as well,
+ *   under {@see self::STRUCTURED_META_KEY}.
  * - Before 2025-06-18: the deprecated legacy `{"success": …}` envelope as the only text block, which is
  *   all these revisions can carry.
  *
@@ -58,6 +60,17 @@ class McpToolResultRenderer
      */
     public const MAX_LINKED_SUMMARY_SIZE = 2_000;
 
+    /**
+     * The reserved key in `structuredContent` that carries the metadata and the summary for the model, next
+     * to the keys of the data, or next to `result` when the data isn't a JSON object.
+     */
+    public const STRUCTURED_META_KEY = '_meta';
+
+    /**
+     * Metadata that is bookkeeping for the client, not information for the model.
+     */
+    private const INTERNAL_META_KEYS = ['responseSize', 'resourceUri'];
+
     private const META_PREFIX = 'shopware/';
 
     public function __construct(
@@ -73,11 +86,13 @@ class McpToolResultRenderer
      *                                as is to clients before 2025-06-18, so they see exactly what they saw before
      * @param CallToolRequest|null $call the call that produced the result; a stored result echoes its tool
      *                                   name and arguments, so the model can tell which call a link belongs to
+     * @param bool $hasOutputSchema the tool declares an `outputSchema`; its `structuredContent` is then exactly
+     *                              the data the schema describes, without the metadata for the model
      */
-    public function render(McpToolResult $result, ProtocolVersion $protocolVersion, ?string $legacyText = null, ?CallToolRequest $call = null): CallToolResult
+    public function render(McpToolResult $result, ProtocolVersion $protocolVersion, ?string $legacyText = null, ?CallToolRequest $call = null, bool $hasOutputSchema = false): CallToolResult
     {
         $capabilities = McpToolResultCapabilities::forRevision($protocolVersion);
-        $rendered = $this->renderInline($result, $capabilities, $legacyText);
+        $rendered = $this->renderInline($result, $capabilities, $legacyText, $hasOutputSchema);
         if ($result->isError()) {
             return $rendered;
         }
@@ -108,10 +123,10 @@ class McpToolResultRenderer
 
         [$linked, $linkedLegacyText] = $this->linkedResult($result, $pointer, \strlen($content), $capabilities, $call);
 
-        return $this->renderInline($linked, $capabilities, $linkedLegacyText);
+        return $this->renderInline($linked, $capabilities, $linkedLegacyText, $hasOutputSchema);
     }
 
-    private function renderInline(McpToolResult $result, McpToolResultCapabilities $capabilities, ?string $legacyText): CallToolResult
+    private function renderInline(McpToolResult $result, McpToolResultCapabilities $capabilities, ?string $legacyText, bool $hasOutputSchema): CallToolResult
     {
         if (!$capabilities->specFormat) {
             return new CallToolResult(
@@ -132,7 +147,7 @@ class McpToolResultRenderer
                 ...$this->links($result),
             ],
             isError: $result->isError(),
-            structuredContent: $this->structuredContent($result, $capabilities),
+            structuredContent: $this->structuredContent($result, $capabilities, $hasOutputSchema),
             meta: [...$meta, ...$this->timestamps($result)],
         );
     }
@@ -304,7 +319,12 @@ class McpToolResultRenderer
         return $texts === [] ? [Json::encode(null)] : $texts;
     }
 
-    private function structuredContent(McpToolResult $result, McpToolResultCapabilities $capabilities): mixed
+    /**
+     * The data, wrapped as `{"result": …}` where the revision needs an object. With metadata or a summary for
+     * the model, it is always an object that adds them under {@see self::STRUCTURED_META_KEY}, see
+     * {@see self::modelMeta()}.
+     */
+    private function structuredContent(McpToolResult $result, McpToolResultCapabilities $capabilities, bool $hasOutputSchema): mixed
     {
         if ($result->error !== null) {
             return ['error' => array_filter([
@@ -318,11 +338,43 @@ class McpToolResultRenderer
             return null;
         }
 
-        if ($capabilities->objectOnlyStructuredContent && !$this->isJsonObject($result->data)) {
+        $modelMeta = $hasOutputSchema ? [] : $this->modelMeta($result);
+        $isObject = $this->isJsonObject($result->data);
+
+        if ($modelMeta !== [] && !($isObject && $this->hasKey($result->data, self::STRUCTURED_META_KEY))) {
+            // A union keeps numeric keys of the data, which a spread would renumber.
+            return $isObject
+                ? (array) $result->data + [self::STRUCTURED_META_KEY => $modelMeta]
+                : ['result' => $result->data, self::STRUCTURED_META_KEY => $modelMeta];
+        }
+
+        if ($capabilities->objectOnlyStructuredContent && !$isObject) {
             return ['result' => $result->data];
         }
 
         return $result->data;
+    }
+
+    /**
+     * What the model has to know about the data and can't tell from it, such as `dryRun`, `total` and the
+     * paging, or the `usage` hint of tool search: the tool's metadata without the client's bookkeeping,
+     * and the summary.
+     *
+     * @return array<string, mixed>
+     */
+    private function modelMeta(McpToolResult $result): array
+    {
+        $meta = array_diff_key($result->meta, array_flip(self::INTERNAL_META_KEYS));
+        if ($result->summary !== null && $result->summary !== '' && !\array_key_exists('summary', $meta)) {
+            $meta['summary'] = $result->summary;
+        }
+
+        return $meta;
+    }
+
+    private function hasKey(mixed $data, string $key): bool
+    {
+        return \is_array($data) ? \array_key_exists($key, $data) : ($data instanceof \stdClass && property_exists($data, $key));
     }
 
     /**

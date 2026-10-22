@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultLink;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultRenderer;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
+use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -75,10 +76,80 @@ class McpToolResultRendererTest extends TestCase
     {
         $result = $this->renderer()->render(McpToolResult::success(['id' => 'a'], ['total' => 1]), $protocolVersion, '{"success":true,"data":{"id":"a"},"_meta":{"total":1}}');
 
-        static::assertSame(['id' => 'a'], $result->structuredContent);
+        static::assertSame(['id' => 'a', '_meta' => ['total' => 1]], $result->structuredContent);
         static::assertSame('{"id":"a"}', $this->text($result->content[0]), 'the legacy text is not sent next to the data');
         static::assertSame('{"_meta":{"total":1}}', $this->text($result->content[1]));
         static::assertCount(2, $result->content);
+    }
+
+    #[DataProvider('specRevisionProvider')]
+    public function testCarriesTheMetadataForTheModelInStructuredContentSince20250618(ProtocolVersion $protocolVersion): void
+    {
+        // Some clients pass only `structuredContent` to the model. Without the metadata it would take a dry run for a committed write.
+        $written = [['entity' => 'tax', 'ids' => ['a'], 'operation' => 'upsert']];
+
+        $result = $this->renderer()->render(McpToolResult::success($written, ['dryRun' => true, 'responseSize' => 80]), $protocolVersion);
+
+        static::assertSame(['result' => $written, '_meta' => ['dryRun' => true]], $result->structuredContent, 'client bookkeeping such as `responseSize` is left out');
+        static::assertSame(Json::encode($written), $this->text($result->content[0]), 'the text copy for clients that read only text stays');
+        static::assertSame('{"_meta":{"dryRun":true,"responseSize":80}}', $this->text($result->content[1]));
+    }
+
+    #[DataProvider('legacyRevisionProvider')]
+    public function testSendsNoStructuredContentForTheMetadataBefore20250618(ProtocolVersion $protocolVersion): void
+    {
+        $result = $this->renderer()->render(McpToolResult::success([['id' => 'a']], ['dryRun' => true]), $protocolVersion);
+
+        static::assertNull($result->structuredContent);
+        static::assertSame('{"success":true,"data":[{"id":"a"}],"_meta":{"dryRun":true}}', $this->text($result->content[0]));
+    }
+
+    #[DataProvider('specRevisionProvider')]
+    public function testAddsTheSummaryToTheMetadataInStructuredContent(ProtocolVersion $protocolVersion): void
+    {
+        $result = $this->renderer()->render(McpToolResult::success(['a' => 1], summary: 'One product'), $protocolVersion);
+
+        static::assertSame(['a' => 1, '_meta' => ['summary' => 'One product']], $result->structuredContent);
+    }
+
+    public function testKeepsNumericKeysOfTheDataNextToTheMetadata(): void
+    {
+        $result = $this->renderer()->render(McpToolResult::success([5 => 'a'], ['total' => 1]), ProtocolVersion::latestHandshake());
+
+        static::assertSame([5 => 'a', '_meta' => ['total' => 1]], $result->structuredContent);
+    }
+
+    public function testAddsTheMetadataToAJsonObject(): void
+    {
+        $data = new \stdClass();
+        $data->id = 'a';
+
+        $result = $this->renderer()->render(McpToolResult::success($data, ['total' => 1]), ProtocolVersion::V2026_07_28);
+
+        static::assertSame(['id' => 'a', '_meta' => ['total' => 1]], $result->structuredContent);
+    }
+
+    public function testLeavesDataAloneThatHasAMetaKeyOfItsOwn(): void
+    {
+        $result = $this->renderer()->render(McpToolResult::success(['_meta' => 'own'], ['total' => 1]), ProtocolVersion::latestHandshake());
+
+        static::assertSame(['_meta' => 'own'], $result->structuredContent);
+    }
+
+    public function testSendsOnlyTheDataWithoutMetadataForTheModel(): void
+    {
+        $result = $this->renderer()->render(McpToolResult::success([1, 2], ['responseSize' => 5]), ProtocolVersion::V2026_07_28);
+
+        static::assertSame([1, 2], $result->structuredContent);
+    }
+
+    #[DataProvider('specRevisionProvider')]
+    public function testSendsExactlyTheDataOfAToolWithAnOutputSchema(ProtocolVersion $protocolVersion): void
+    {
+        $result = $this->renderer()->render(McpToolResult::success(['id' => 'a'], ['dryRun' => true], 'Done'), $protocolVersion, hasOutputSchema: true);
+
+        static::assertSame(['id' => 'a'], $result->structuredContent, 'the schema describes the data, not the metadata');
+        static::assertSame('{"_meta":{"dryRun":true}}', $this->text($result->content[2]));
     }
 
     #[DataProvider('specRevisionProvider')]

@@ -272,7 +272,9 @@ The design is recorded in `adr/2026-10-21-mcp-oauth-client-authentication.md`.
 - The resource is stored in `oauth_auth_code.resource` and `refresh_token.resource`.
   The JWT keeps the client id as the first `aud` entry and lists the resource after it.
 - `SymfonyBearerTokenValidator` rejects a bound token with `401` unless the caller passes `acceptResourceBoundToken: true`.
-  Only `ApiAuthenticationListener` does, for `api.mcp.endpoint` and for subrequests started by an MCP request.
+  Only `ApiAuthenticationListener` does, for the main request to `api.mcp.endpoint` and for subrequests carrying `OAuthResource::SUBREQUEST_ATTRIBUTE`.
+  `AppMcpCapabilityExecutor` sets that attribute on the app script subrequests of a request authenticated with a bound token.
+  Any other subrequest rejects the token, because ESI fragments copy the parent's `Authorization` header.
   Services that validate bearer tokens themselves (system health check, Administration snippets) inherit the rejection.
   `SymfonyBearerTokenValidatorConsumerTest` lists every service using the validator and fails when one is added; review it for this rule.
 - The consent page forwards `resource` to `GET /api/oauth/authorize/info` and `POST /api/oauth/authorize`, and the info answer returns it so the page says that access is limited to the MCP endpoint.

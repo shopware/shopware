@@ -20,6 +20,13 @@ final class OAuthResource
 
     public const REQUEST_ATTRIBUTE = 'sw-oauth-resource';
 
+    /**
+     * Set by the resource endpoint on the subrequests it starts itself (MCP app script tools), carrying the
+     * resource of its own token. Only a subrequest with this attribute accepts a token bound to a resource.
+     * A request attribute cannot be set from outside, unlike the copied `Authorization` header of an ESI subrequest.
+     */
+    public const SUBREQUEST_ATTRIBUTE = 'sw-oauth-subrequest-resource';
+
     public const ERROR_INVALID_TARGET = 'invalid_target';
 
     // outside the range of the error codes league/oauth2-server assigns

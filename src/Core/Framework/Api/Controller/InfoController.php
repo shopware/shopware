@@ -198,6 +198,8 @@ class InfoController extends AbstractController
         // the allowed extensions (see MediaFileExtensionListProvider::normalizeExtensions()).
         $privateMimeTypesByExtension = $this->mediaFileExtensionListProvider->getMimeTypesByExtension(true, $context);
 
+        $appUrlReachable = $this->appUrlVerifier->verifyForAdministration();
+
         $config = [
             'version' => $this->getShopwareVersion(),
             'shopId' => $this->getShopId(),
@@ -209,7 +211,8 @@ class InfoController extends AbstractController
                 'enableUrlFeature' => $this->params->get('shopware.media.enable_url_upload_feature'),
                 'presignedUploadSupported' => $this->presignedMediaUploadService !== null
                     && $this->presignedMediaUploadService->isAvailable(),
-                'appUrlReachable' => $this->appUrlVerifier->verifyForAdministration(),
+                'appUrlReachable' => $appUrlReachable,
+                'appUrlStatusCode' => $appUrlReachable ? null : $this->appUrlVerifier->getCurrentState()?->statusCode,
                 'appsRequireAppUrl' => $this->activeAppsLoader->hasRegisteredApps(),
                 'firstMigrationDate' => $this->migrationInfo->getFirstMigrationDate(),
                 'private_allowed_extensions' => array_keys($privateMimeTypesByExtension),

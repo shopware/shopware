@@ -1672,10 +1672,15 @@
         }
       },
       "sw-app-wrong-app-url-modal": {
-        "title": "Fehlerhaft konfigurierte APP_URL",
-        "explanationHeader": "Fehler bei der Verbindung mit deinen Erweiterungen.",
-        "explanation": "Erweiterungen können keine Verbindung zu deinem Shop aufbauen, aufgrund einer Fehlkonfiguration in deinem System.",
-        "textDetails": "Technische Details: Die Konfiguration der APP_URL ist fehlerhaft.",
+        "title": "Verifizierung der APP_URL fehlgeschlagen",
+        "explanation": "Shopware konnte nicht bestätigen, dass die APP_URL diesen Shop erreicht. Apps funktionieren daher möglicherweise nicht.",
+        "labelReason": "Grund",
+        "reasonStatusCode": "Die APP_URL hat die Verifizierungsanfrage mit HTTP {statusCode} beantwortet.",
+        "reasonUnknown": "Führe den Befehl unten aus, um Details zu sehen.",
+        "checkIntro": "Prüfe, ob:",
+        "checkPointsToShop": "die APP_URL auf diesen Shop zeigt",
+        "checkNotBlocked": "Anfragen an /api/app-system/shop/verify nicht blockiert werden (Firewall, HTTP-Authentifizierung, IP-Allowlist)",
+        "checkAgain": "Wenn du das Problem behebst, ohne die APP_URL zu ändern, führe diesen Befehl aus, um diese Warnung zu entfernen:",
         "labelLearnMoreButton": "Erfahre mehr",
         "linkToDocsArticle": "https://docs.shopware.com/de/shopware-6-de/tutorials-und-faq/hinweise-zur-app-url"
       }

@@ -40,6 +40,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute;
 use Shopware\Core\Checkout\Order\Subscriber\OrderCustomerDisplayNameSubscriber;
 use Shopware\Core\Checkout\Order\Subscriber\OrderSalutationSubscriber;
+use Shopware\Core\Checkout\Order\Subscriber\OrderTransactionVersionMergeSubscriber;
 use Shopware\Core\Checkout\Order\Telemetry\OrderMetricsSubscriber;
 use Shopware\Core\Checkout\Order\Validation\OrderValidationFactory;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
@@ -245,6 +246,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('kernel.event_subscriber');
 
     $services->set(OrderCustomerDisplayNameSubscriber::class)
+        ->tag('kernel.event_subscriber');
+
+    $services->set(OrderTransactionVersionMergeSubscriber::class)
+        ->args([
+            service('order_transaction.repository'),
+        ])
         ->tag('kernel.event_subscriber');
 
     // Telemetry: order placed metrics

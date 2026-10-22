@@ -226,9 +226,31 @@ parameters:
             message: "#Offset 'source' might not exist on array{status: string, code: #"
             path: tests
 
-        - # @deprecated tag:v6.8.0 - Should be fixed, once the parent class changes
-            message: '#Parameter .* expects Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*>, Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*> given#'
-            identifier: argument.type
-        -
-            message: '#Method .* should return Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*> but returns Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*>#'
-            identifier: return.type
+        # PregDollarWithoutDRule: calls whose pattern is not visible at the call. Each entry names where the pattern
+        # comes from, `count` keeps a new unresolved call in the same file from being absorbed. Keep `identifier`
+        # before `path`, PregDollarWithoutDAllowlistTest reads the paths in that order and requires a registry entry
+        # with a probe, a test pointer or a reason for each of them.
+        - # the validator closure receives the pattern as a parameter, the literals at the call sites carry D
+            identifier: shopware.pregDollarWithoutD.unresolved
+            path: src/Core/Framework/App/Command/CreateAppCommand.php
+            count: 1
+        - # the pattern comes from the AnnotationTagVersionSchema enum, whose format carries D
+            identifier: shopware.pregDollarWithoutD.unresolved
+            path: src/Core/DevOps/Test/AnnotationTagTester.php
+            count: 2
+        - # the pattern is written by the template author
+            identifier: shopware.pregDollarWithoutD.unresolved
+            path: src/Core/Framework/Adapter/Twig/Extension/PcreExtension.php
+            count: 2
+        - # the patterns come from the staging configuration
+            identifier: shopware.pregDollarWithoutD.unresolved
+            path: src/Core/Maintenance/Staging/Handler/StagingSalesChannelHandler.php
+            count: 2
+        - # the patterns are built per message placeholder and are not anchored
+            identifier: shopware.pregDollarWithoutD.unresolved
+            path: src/Core/Framework/ShopwareHttpException.php
+            count: 1
+        - # the patterns are built from a template that carries D and match filesystem paths
+            identifier: shopware.pregDollarWithoutD.unresolved
+            path: src/Core/System/Snippet/Files/SnippetFileLoader.php
+            count: 1

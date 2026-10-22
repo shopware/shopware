@@ -122,7 +122,9 @@ export default {
                     .getAssociation('deliveries')
                     .addAssociation('stateMachineState')
                     .addAssociation('shippingOrderAddress')
-                    .addAssociation('shippingMethod');
+                    .addAssociation('shippingMethod')
+                    .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'))
+                    .addSorting(Criteria.sort('id', 'ASC'));
             }
 
             return criteria;

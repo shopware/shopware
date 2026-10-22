@@ -130,7 +130,9 @@ class McpExceptionListener implements EventSubscriberInterface
             $parameters[] = 'error="invalid_token"';
         }
 
-        $parameters[] = 'resource_metadata="' . $this->oauthMetadata->getProtectedResourceMetadataUrl($request) . '"';
+        // the URL keeps the request's query, so escape it for the quoted-string (RFC 9110 §5.6.4)
+        $metadataUrl = addcslashes($this->oauthMetadata->getProtectedResourceMetadataUrl($request), '"\\');
+        $parameters[] = 'resource_metadata="' . $metadataUrl . '"';
 
         return 'Bearer ' . implode(', ', $parameters);
     }

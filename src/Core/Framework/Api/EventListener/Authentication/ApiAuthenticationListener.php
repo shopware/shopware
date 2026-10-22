@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\EventListener\Authentication;
 
 use League\OAuth2\Server\AuthorizationServer;
 use Shopware\Core\Framework\Api\OAuth\GrantTypeFactory;
+use Shopware\Core\Framework\Api\OAuth\OAuthResource;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiContextRouteScopeDependant;
@@ -79,12 +80,28 @@ class ApiAuthenticationListener implements EventSubscriberInterface
             return;
         }
 
-        // A token bound to the MCP resource (RFC 8707) is accepted on `/api/_mcp` only.
-        // Subrequests started by an MCP request (app script tools) inherit its authentication and stay allowed.
         $this->symfonyBearerTokenValidator->validateAuthorization(
             $request,
-            acceptResourceBoundToken: !$event->isMainRequest() || $request->attributes->get('_route') === self::MCP_ROUTE_NAME,
+            acceptResourceBoundToken: $this->acceptsResourceBoundToken($event),
         );
+    }
+
+    /**
+     * A token bound to the MCP resource (RFC 8707) is accepted on `/api/_mcp` only.
+     * A subrequest accepts it only when the MCP endpoint started it and marked it, see {@see OAuthResource::SUBREQUEST_ATTRIBUTE}.
+     * Other subrequests, for example ESI fragments that copy the parent's `Authorization` header, reject it.
+     */
+    private function acceptsResourceBoundToken(ControllerEvent $event): bool
+    {
+        $request = $event->getRequest();
+
+        if ($event->isMainRequest()) {
+            return $request->attributes->get('_route') === self::MCP_ROUTE_NAME;
+        }
+
+        $resource = $request->attributes->get(OAuthResource::SUBREQUEST_ATTRIBUTE);
+
+        return \is_string($resource) && $resource !== '';
     }
 
     protected function getScopeRegistry(): RouteScopeRegistry

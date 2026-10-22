@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppSecretResolver;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
+use Shopware\Core\Framework\Api\OAuth\OAuthResource;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
@@ -133,6 +134,12 @@ class AppMcpCapabilityExecutor
             $body = Json::encode(['arguments' => $arguments]);
             $subRequest = Request::create($url, 'POST', [], [], [], $server, $body);
             $subRequest->attributes->add($route);
+
+            // lets the subrequest accept the MCP-bound token of the parent, see ApiAuthenticationListener
+            $resource = $parent->attributes->get(OAuthResource::REQUEST_ATTRIBUTE);
+            if (\is_string($resource) && $resource !== '') {
+                $subRequest->attributes->set(OAuthResource::SUBREQUEST_ATTRIBUTE, $resource);
+            }
 
             if ($parent->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_PRE_AUTHENTICATED, false)) {
                 $subRequest->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, $parent->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID));

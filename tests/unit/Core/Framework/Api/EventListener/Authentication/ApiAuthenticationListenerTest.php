@@ -16,6 +16,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\EventListener\Authentication\ApiAuthenticationListener;
+use Shopware\Core\Framework\Api\OAuth\Client\PublicClientRegistry;
 use Shopware\Core\Framework\Api\OAuth\GrantTypeFactory;
 use Shopware\Core\Framework\Api\OAuth\OAuthResource;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
@@ -89,13 +90,41 @@ class ApiAuthenticationListenerTest extends TestCase
         yield 'app script' => ['api.script_endpoint'];
     }
 
-    public function testSubrequestOfAnMcpRequestKeepsTheMcpBoundToken(): void
+    public function testSubrequestMarkedByTheMcpEndpointKeepsTheMcpBoundToken(): void
     {
         $request = $this->createRequest('api.script_endpoint', [self::RESOURCE]);
+        $request->attributes->set(OAuthResource::SUBREQUEST_ATTRIBUTE, self::RESOURCE);
 
         $this->createListener()->validateRequest($this->createEvent($request, HttpKernelInterface::SUB_REQUEST));
 
         static::assertSame(self::RESOURCE, $request->attributes->get(OAuthResource::REQUEST_ATTRIBUTE));
+    }
+
+    /**
+     * An ESI fragment copies the Authorization header of its parent request, so a subrequest must not accept the token on its own.
+     */
+    #[DataProvider('otherRouteProvider')]
+    public function testUnmarkedSubrequestRejectsTheMcpBoundToken(string $route): void
+    {
+        $request = $this->createRequest($route, [self::RESOURCE]);
+
+        try {
+            $this->createListener()->validateRequest($this->createEvent($request, HttpKernelInterface::SUB_REQUEST));
+            static::fail('The MCP bound token was accepted on an unmarked subrequest to ' . $route);
+        } catch (OAuthServerException $exception) {
+            static::assertSame('invalid_token', $exception->getErrorType());
+            static::assertSame(401, $exception->getHttpStatusCode());
+        }
+    }
+
+    public function testSubrequestToTheMcpRouteWithoutMarkerRejectsTheMcpBoundToken(): void
+    {
+        $request = $this->createRequest('api.mcp.endpoint', [self::RESOURCE]);
+        $request->attributes->set(OAuthResource::SUBREQUEST_ATTRIBUTE, '');
+
+        $this->expectException(OAuthServerException::class);
+
+        $this->createListener()->validateRequest($this->createEvent($request, HttpKernelInterface::SUB_REQUEST));
     }
 
     public function testTokenWithoutResourceIsAcceptedEverywhere(): void
@@ -167,6 +196,7 @@ class ApiAuthenticationListenerTest extends TestCase
                 $userService,
                 $externalTokenService,
                 $clock,
+                new PublicClientRegistry([], 'prod'),
             ),
             new RouteScopeRegistry([new ApiRouteScope()]),
         );

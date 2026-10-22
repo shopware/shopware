@@ -267,6 +267,9 @@ The design is recorded in `adr/2026-10-21-mcp-oauth-client-authentication.md`.
 - An unauthenticated or rejected request to `/api/_mcp` gets `401` with the JSON-RPC `-32001` body and `WWW-Authenticate: Bearer resource_metadata="<base>/.well-known/oauth-protected-resource/api/_mcp"`.
   When credentials were sent, the header adds `error="invalid_token"`.
   `McpExceptionListener` sets it on the Admin API route `api.mcp.endpoint` only.
+- A query on the MCP URL (`?toolsets=`) is kept as sent: the challenge URL is `.../.well-known/oauth-protected-resource/api/_mcp?<query>` (RFC 9728 §3.1), and the metadata answers with `resource` `<base>/api/_mcp?<query>`.
+  RFC 9728 §3.3 makes clients reject a `resource` that differs from the URL they used.
+  The audience check (`OAuthResource::normalize()`) keeps ignoring the query, so the same token works with and without toolsets.
 - `McpOAuthMetadataController` serves the protected resource metadata (RFC 9728) at `/.well-known/oauth-protected-resource/api/_mcp` and the authorization server metadata (RFC 8414) at `/.well-known/oauth-authorization-server/api`.
   The issuer is `<base>/api`; the authorization response carries `iss` (RFC 9207).
 - `McpOAuthMetadata` builds the URLs and documents.
@@ -291,19 +294,26 @@ The design is recorded in `adr/2026-10-21-mcp-oauth-client-authentication.md`.
 - The resource is stored in `oauth_auth_code.resource` and `refresh_token.resource`.
   The JWT keeps the client id as the first `aud` entry and lists the resource after it.
 - `SymfonyBearerTokenValidator` rejects a bound token with `401` unless the caller passes `acceptResourceBoundToken: true`.
-  Only `ApiAuthenticationListener` does, for `api.mcp.endpoint` and for subrequests started by an MCP request.
+  Only `ApiAuthenticationListener` does, for the main request to `api.mcp.endpoint` and for subrequests carrying `OAuthResource::SUBREQUEST_ATTRIBUTE`.
+  `AppMcpCapabilityExecutor` sets that attribute on the app script subrequests of a request authenticated with a bound token.
+  Any other subrequest rejects the token, because ESI fragments copy the parent's `Authorization` header.
   Services that validate bearer tokens themselves (system health check, Administration snippets) inherit the rejection.
   `SymfonyBearerTokenValidatorConsumerTest` lists every service using the validator and fails when one is added; review it for this rule.
 - The consent page forwards `resource` to `GET /api/oauth/authorize/info` and `POST /api/oauth/authorize`, and the info answer returns it so the page says that access is limited to the MCP endpoint.
   An Administration built before resource support drops it: the code is stored without resource and the token request fails with `invalid_target` and a hint to rebuild the Administration.
-- MCP sessions and rate-limit buckets are keyed on the principal (`user-<userId>`), so one user's access key and OAuth token share them.
-  This is intended.
+- A bound token authenticates its user like any other token of that user; MCP sessions and the rate limit treat it no differently.
+  Binding sessions to the principal and keying the rate limit on it are the subject of the related PRs https://github.com/shopware/shopware/pull/21860 and https://github.com/shopware/shopware/pull/21861.
 
 ### Adding an OAuth client
 
 There is no dynamic client registration.
 `shopware-cli` is the only default client.
 Redirect URIs on the loopback IP literals `http://127.0.0.1` and `http://[::1]` match any port; every other redirect URI, including `http://localhost:<port>`, must match exactly.
+Web redirect URIs must use `https`.
+Plain `http` is accepted for `localhost` and the loopback IP literals only, or for every host when the kernel runs in the `dev` environment.
+Private-use schemes of native apps (`cursor://`) stay allowed and match exactly.
+`PublicClientRegistry::isTransportAllowed()` holds the rule; `ShopwareAuthCodeGrantType` rejects other redirect URIs on authorize with `FRAMEWORK__OAUTH_INSECURE_REDIRECT_URI` (`400`, not sent to the redirect URI).
+The check runs on authorize and not on container build, because `oauth_clients` already shipped and a single bad entry must not break the whole Admin API.
 An operator adds a client for an MCP client with a configurable client id in `config/packages/shopware.yaml`.
 Claude Code calls back on `http://localhost:<port>/callback`, so register a fixed port and pass it with `--callback-port`:
 

@@ -115,9 +115,6 @@ export default function initializeExtensionDataLoader(): void {
 
         const mergedContext = createContext(context);
 
-        // Only accept a real Criteria instance. A plain object the extension passes as `criteria`
-        // could carry a `cacheKey`, which `repository.get` would treat as cache options and run the
-        // read through the shared admin cache with the admin context instead of the app context.
         const safeCriteria = criteria instanceof Shopware.Data.Criteria ? criteria : new Shopware.Data.Criteria();
 
         // The context has to be filtered on the resolved entity, not on the pending promise

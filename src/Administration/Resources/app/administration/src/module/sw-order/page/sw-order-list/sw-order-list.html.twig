@@ -174,10 +174,10 @@
                         v-if="item.orderCustomer && item.orderCustomer.customerId"
                         :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }"
                     >
-                        {{ item.orderCustomer.lastName }}, {{ item.orderCustomer.firstName }}
+                        {{ orderCustomerName(item.orderCustomer) }}
                     </router-link>
                     <template v-else-if="item.orderCustomer">
-                        {{ item.orderCustomer.lastName }}, {{ item.orderCustomer.firstName }}
+                        {{ orderCustomerName(item.orderCustomer) }}
                     </template>
                 </template>
                 {% endblock %}
@@ -406,7 +406,7 @@
                                 target="_blank"
                                 rel="noreferrer noopener"
                             >
-                                {{ item.orderCustomer.lastName }}, {{ item.orderCustomer.firstName }}
+                                {{ orderCustomerName(item.orderCustomer) }}
                             </router-link>
                         </template>
                         {% endblock %}

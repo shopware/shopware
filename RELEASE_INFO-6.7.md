@@ -75,6 +75,8 @@ The `firstName` and `lastName` fields of `customer`, `customer_address`, `order_
 {{ order.orderCustomer.displayName }}
 ```
 
+The shipped customer and order mail templates, the mail recipient names, the Storefront account pages, the document buyer name and the Administration lists use the display name now. Two migrations rewrite the shipped mail templates a shop has not edited. A template of your own that greets by name needs the same change.
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request

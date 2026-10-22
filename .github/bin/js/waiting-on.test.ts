@@ -92,6 +92,25 @@ test('changes requested but answered is ours again, though the decision still sa
     assert.equal(verdict.since, '2026-05-28T00:00:00Z');
 });
 
+test('changes requested, answered, and answered back is the author again', () => {
+    // Regression: this is #20934. Changes were requested on 2026-09-28, the author answered
+    // the next day, and on 2026-10-14 a maintainer asked for one more change in the same
+    // thread. The decision still reads CHANGES_REQUESTED and the first answer must not pin
+    // the verdict on us.
+    const verdict = classify({
+        reviewDecision: 'CHANGES_REQUESTED',
+        reviewCount: 3,
+        approvals: 2,
+        lastChangesRequestedAt: '2026-09-28T12:08:10Z',
+        lastAuthorActivityAt: '2026-10-13T08:42:02Z',
+        lastMaintainerActivityAt: '2026-10-14T07:41:56Z',
+    });
+
+    assert.equal(verdict.waitingOn, 'author');
+    assert.equal(verdict.reason, 'author-turn');
+    assert.equal(verdict.since, '2026-10-14T07:41:56Z');
+});
+
 test('an approved pull request that conflicts needs the author', () => {
     // Regression: this is #18502, approved twice on 2026-07-22 and asked for a conflict fix.
     const verdict = classify({

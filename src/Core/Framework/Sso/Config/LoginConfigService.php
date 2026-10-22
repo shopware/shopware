@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\Sso\Config;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\TrustedOriginUrlGenerator;
 use Shopware\Core\Framework\Sso\SsoException;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -70,7 +70,7 @@ readonly class LoginConfigService
 
         return new TemplateData(
             $loginConfig->useDefault ?? true,
-            $loginConfig ? $this->router->generate('oauth.sso.auth', ['rdm' => $random], UrlGeneratorInterface::ABSOLUTE_URL) : null,
+            $loginConfig ? TrustedOriginUrlGenerator::generate($this->router, 'oauth.sso.auth', ['rdm' => $random]) : null,
         );
     }
 
@@ -81,7 +81,7 @@ readonly class LoginConfigService
             throw SsoException::loginConfigurationNotFound();
         }
 
-        $state = $this->router->generate('api.oauth.sso.code', ['rdm' => $random], UrlGeneratorInterface::ABSOLUTE_URL);
+        $state = TrustedOriginUrlGenerator::generate($this->router, 'api.oauth.sso.code', ['rdm' => $random]);
 
         $params = [
             'client_id' => $loginConfig->clientId,

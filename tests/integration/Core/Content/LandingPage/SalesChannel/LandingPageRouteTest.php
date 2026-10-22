@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\LandingPage\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsPageCollection;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Util\Base64;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -79,6 +81,43 @@ class LandingPageRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertSame($this->ids->get('landing-page'), $response['id']);
         static::assertArrayHasKey('cmsPage', $response);
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    #[DataProvider('requestParameterProvider')]
+    public function testCompressedCriteriaIsReadLikeTheRequestBody(array $parameters): void
+    {
+        $url = '/store-api/landing-page/' . $this->ids->get('landing-page');
+
+        $this->browser->request('POST', $url);
+        $withoutParameters = $this->decodeResponse();
+
+        $this->browser->request('POST', $url, $parameters);
+        $expected = $this->decodeResponse();
+        static::assertNotSame($withoutParameters, $expected, 'The parameters have to change the response');
+
+        $compressed = gzencode(json_encode($parameters, \JSON_THROW_ON_ERROR));
+        static::assertNotFalse($compressed, 'Gzip compressing failed');
+
+        $this->browser->request('GET', $url, ['_criteria' => Base64::urlEncode($compressed)]);
+
+        static::assertSame($expected, $this->decodeResponse());
+    }
+
+    /**
+     * @return iterable<string, array{parameters: array<string, mixed>}>
+     */
+    public static function requestParameterProvider(): iterable
+    {
+        yield 'included fields of the response' => [
+            'parameters' => ['includes' => ['landing_page' => ['id', 'name']]],
+        ];
+
+        yield 'slots of the CMS page, no slot has the given id' => [
+            'parameters' => ['slots' => '0198c5a1f2d97c3e9b4a6d5e7f801234'],
+        ];
     }
 
     public function testLoadLandingPageCmsSlotConfigFromParentLanguageOverride(): void
@@ -228,6 +267,17 @@ class LandingPageRouteTest extends TestCase
                 ],
             ],
         ], $context);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function decodeResponse(): array
+    {
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+
+        return json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
     }
 
     private function createLanguages(): void

@@ -17,6 +17,7 @@ use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\System\SalesChannel\GenericStoreApiResponse;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -173,6 +174,50 @@ class StoreApiResponseListenerTest extends TestCase
         );
 
         $listener = new StoreApiResponseListener($encoder, new EventDispatcher(), $this->seoUrlPlaceholderHandler, $this->mediaUrlPlaceholderHandler);
+        $listener->encodeResponse($event);
+    }
+
+    public function testEncodeResponseUsesFieldsFromRequestWithoutResolvedCriteria(): void
+    {
+        $request = new Request(['includes' => ['category' => ['id']]]);
+
+        $encoder = $this->createMock(StructEncoder::class);
+        $encoder->expects($this->once())
+            ->method('encode')
+            ->willReturnCallback(static function (Struct $struct, ResponseFields $fields): array {
+                static::assertTrue($fields->isAllowed('category', 'id'));
+                static::assertFalse($fields->isAllowed('category', 'name'));
+
+                return ['encoded' => 'data'];
+            });
+
+        $event = new ResponseEvent(
+            static::createStub(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            new GenericStoreApiResponse(200, new ArrayStruct())
+        );
+
+        $listener = new StoreApiResponseListener($encoder, new EventDispatcher(), $this->seoUrlPlaceholderHandler, $this->mediaUrlPlaceholderHandler);
+        $listener->encodeResponse($event);
+    }
+
+    public function testEncodeResponseRejectsIncludesThatAreNotAnArray(): void
+    {
+        $encoder = $this->createMock(StructEncoder::class);
+        $encoder->expects($this->never())->method('encode');
+
+        $event = new ResponseEvent(
+            static::createStub(HttpKernelInterface::class),
+            new Request(['includes' => '{"category":["id"]}']),
+            HttpKernelInterface::MAIN_REQUEST,
+            new GenericStoreApiResponse(200, new ArrayStruct())
+        );
+
+        $listener = new StoreApiResponseListener($encoder, new EventDispatcher(), $this->seoUrlPlaceholderHandler, $this->mediaUrlPlaceholderHandler);
+
+        $this->expectExceptionObject(SalesChannelException::invalidType('The includes must be of the type array, string given'));
+
         $listener->encodeResponse($event);
     }
 }

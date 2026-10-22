@@ -271,6 +271,64 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.cloning).toBe(true);
     });
 
+    it('requires a download for digital products when external download management is off', async () => {
+        Shopware.Store.get('swProductDetail').product = { type: 'digital' };
+        Shopware.Store.get('swProductDetail').parentProduct = {};
+        Shopware.Store.get('swProductDetail').isDownloadExternallyManaged = false;
+
+        const errors = wrapper.vm.customValidate([], { downloads: [] });
+
+        expect(errors).toHaveLength(1);
+        expect(errors[0]).toMatchObject({
+            code: 'SW_PRODUCT_DOWNLOADS_EXTERNAL_MANAGEMENT_REQUIRED',
+            source: { pointer: '/0/downloads' },
+            detail: 'sw-product.detailBase.downloadsExternalManagementRequired',
+        });
+    });
+
+    it('allows a digital product without downloads when external download management is on', async () => {
+        Shopware.Store.get('swProductDetail').product = { type: 'digital' };
+        Shopware.Store.get('swProductDetail').parentProduct = {};
+        Shopware.Store.get('swProductDetail').isDownloadExternallyManaged = true;
+
+        const errors = wrapper.vm.customValidate([], { downloads: [] });
+
+        expect(errors).toHaveLength(0);
+    });
+
+    it('resets external download management when creating a product', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.isDownloadExternallyManaged = true;
+
+        wrapper.unmount();
+        wrapper = await createWrapper(undefined, undefined, null, { routeName: 'sw.product.create.base' });
+        await flushPromises();
+
+        expect(store.isDownloadExternallyManaged).toBe(false);
+    });
+
+    it.each([
+        { downloads: [], expected: true },
+        { downloads: [{ id: 'download-id' }], expected: false },
+    ])('sets external assignment to $expected when loading an existing product', async ({ downloads, expected }) => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.isDownloadExternallyManaged = !expected;
+
+        wrapper.unmount();
+        wrapper = await createWrapper(undefined, () =>
+            Promise.resolve({
+                id: 'product-id',
+                type: 'digital',
+                downloads,
+                purchasePrices: [{ currencyId: 'currency-id', gross: 1, net: 1 }],
+                variation: [],
+            }),
+        );
+        await flushPromises();
+
+        expect(store.isDownloadExternallyManaged).toBe(expected);
+    });
+
     it('should flag the product as loading before awaiting the measurement units', async () => {
         await wrapper.unmount();
         wrapper = null;
@@ -672,6 +730,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         }
 
         Shopware.Store.get('swProductDetail').creationType = 'digital';
+        Shopware.Store.get('swProductDetail').isDownloadExternallyManaged = false;
 
         wrapper.vm.saveProduct = jest.fn(() => {
             return Promise.resolve();
@@ -681,6 +740,23 @@ describe('module/sw-product/page/sw-product-detail', () => {
         // save shouldn't finish successfully (nothing should be sent to the server - no saveProduct call)
         expect(wrapper.vm.saveProduct.mock.calls).toHaveLength(0);
         await flushPromises();
+    });
+
+    it('saves a new digital product without downloads when external download management is on', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.product = {
+            isNew: () => true,
+            downloads: [],
+            prices: [],
+            price: [],
+        };
+        store.creationType = 'digital';
+        store.isDownloadExternallyManaged = true;
+        wrapper.vm.saveProduct = jest.fn().mockResolvedValue('success');
+
+        await wrapper.vm.onSave();
+
+        expect(wrapper.vm.saveProduct).toHaveBeenCalledTimes(1);
     });
 
     it('should initialize with default units when no preferences exist', async () => {

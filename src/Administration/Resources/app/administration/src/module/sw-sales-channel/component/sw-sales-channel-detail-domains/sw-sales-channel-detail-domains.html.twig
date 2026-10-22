@@ -48,7 +48,20 @@
             <template
                 #column-url="{ item }"
             >
-                {{ unicodeUriFilter(item.url) }}
+                <template v-if="disableEdit">
+                    {{ unicodeUriFilter(item.url) }}
+                </template>
+
+                <a
+                    v-else
+                    class="sw-sales-channel-detail-domains__domain-url-link"
+                    role="button"
+                    tabindex="0"
+                    @click="onClickEditDomain(item)"
+                    @keydown.enter="onClickEditDomain(item)"
+                >
+                    {{ unicodeUriFilter(item.url) }}
+                </a>
             </template>
             {% endblock %}
 
@@ -137,8 +150,8 @@
 
             {% block sw_sales_channel_detail_domains_input_language %}
             <sw-single-select
-                v-model:value="currentDomain.languageId"
                 class="sw-sales-channel-detail-domains__domain-language-select"
+                :value="currentDomain.languageId"
                 :options="salesChannel.languages"
                 label-property="name"
                 value-property="id"
@@ -169,14 +182,16 @@
             {% endblock %}
 
             {% block sw_sales_channel_detail_domains_input_snippet_set %}
-            <sw-entity-single-select
-                v-model:value="currentDomain.snippetSetId"
-                entity="snippet_set"
-                :criteria="snippetSetCriteria"
+            <sw-grouped-single-select
+                class="sw-sales-channel-detail-domains__domain-snippet-set-select"
+                :value="currentDomain.snippetSetId"
+                :options="snippetSetOptions"
+                :groups="snippetSetGroups"
+                :search-function="snippetSetSearchFunction"
                 :label="$t('sw-sales-channel.detail.labelInputSnippet')"
                 required
                 show-clearable-button
-                @option-select="onOptionSelect"
+                @update:value="onSnippetSetSelect"
             />
             {% endblock %}
         </sw-container>

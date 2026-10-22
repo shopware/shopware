@@ -28,7 +28,6 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
@@ -66,7 +65,6 @@ class RecalculationService
         protected EntityRepository $orderDeliveryRepository,
         protected Processor $processor,
         private readonly CartRuleLoader $cartRuleLoader,
-        private readonly PromotionItemBuilder $promotionItemBuilder,
         private readonly LineItemFactoryRegistry $lineItemFactory,
     ) {
     }
@@ -189,7 +187,10 @@ class RecalculationService
         $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
         $cart = $this->orderConverter->convertToCart($order, $context);
 
-        $promotionLineItem = $this->promotionItemBuilder->buildPlaceholderItem($code);
+        $promotionLineItem = $this->lineItemFactory->create([
+            'type' => LineItem::PROMOTION_LINE_ITEM_TYPE,
+            'referencedId' => $code,
+        ], $salesChannelContext);
 
         $cart->add($promotionLineItem);
         $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext, $order);

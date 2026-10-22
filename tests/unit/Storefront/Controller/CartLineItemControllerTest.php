@@ -55,8 +55,6 @@ class CartLineItemControllerTest extends TestCase
 
     private ContainerInterface&Stub $container;
 
-    private PromotionItemBuilder&Stub $promotionItemBuilderMock;
-
     private AbstractProductListRoute&Stub $productListRouteMock;
 
     private ProductLineItemFactory&Stub $productLineItemFactoryMock;
@@ -65,7 +63,6 @@ class CartLineItemControllerTest extends TestCase
     {
         $this->lineItemRegistryMock = static::createStub(LineItemFactoryRegistry::class);
         $this->cartService = static::createStub(CartService::class);
-        $this->promotionItemBuilderMock = static::createStub(PromotionItemBuilder::class);
         $this->productListRouteMock = static::createStub(AbstractProductListRoute::class);
         $this->productLineItemFactoryMock = static::createStub(ProductLineItemFactory::class);
 
@@ -557,7 +554,11 @@ class CartLineItemControllerTest extends TestCase
         $item->setLabel($code);
         $cart->addErrors(new PromotionCartAddedInformationError($item));
 
-        $this->promotionItemBuilderMock->method('buildPlaceholderItem')->willReturn($item);
+        $lineItemRegistry = $this->createMock(LineItemFactoryRegistry::class);
+        $lineItemRegistry->expects($this->once())
+            ->method('create')
+            ->with(['type' => LineItem::PROMOTION_LINE_ITEM_TYPE, 'referencedId' => $code], $context)
+            ->willReturn($item);
 
         $cartService = $this->createMock(CartService::class);
         $cartService->expects($this->once())
@@ -567,7 +568,7 @@ class CartLineItemControllerTest extends TestCase
 
         $this->translatorCallback();
 
-        $controller = $this->getController(cartService: $cartService);
+        $controller = $this->getController(cartService: $cartService, lineItemRegistry: $lineItemRegistry);
         $controller->addPromotion($cart, $request, $context);
     }
 
@@ -583,7 +584,7 @@ class CartLineItemControllerTest extends TestCase
         $item->setLabel($code);
         $cart->addErrors(new GenericCartError('d', 's', [], 0, false, true, false));
 
-        $this->promotionItemBuilderMock->method('buildPlaceholderItem')->willReturn($item);
+        $this->lineItemRegistryMock->method('create')->willReturn($item);
 
         $cartService = $this->createMock(CartService::class);
         $cartService->expects($this->once())
@@ -605,10 +606,6 @@ class CartLineItemControllerTest extends TestCase
         $request = new Request([], ['code' => $code]);
         $cart = new Cart(Uuid::randomHex());
         $context = static::createStub(SalesChannelContext::class);
-        $uniqueKey = PromotionItemBuilder::PLACEHOLDER_PREFIX . $code;
-        $item = new LineItem($uniqueKey, PromotionProcessor::LINE_ITEM_TYPE);
-
-        $this->promotionItemBuilderMock->method('buildPlaceholderItem')->willReturn($item);
 
         $cartService = $this->createMock(CartService::class);
         $cartService->expects($this->never())
@@ -888,7 +885,6 @@ class CartLineItemControllerTest extends TestCase
     ): CartLineItemController {
         $controller = new CartLineItemController(
             $cartService ?? $this->cartService,
-            $this->promotionItemBuilderMock,
             $productLineItemFactory ?? $this->productLineItemFactoryMock,
             static::createStub(HtmlSanitizer::class),
             $productListRoute ?? $this->productListRouteMock,

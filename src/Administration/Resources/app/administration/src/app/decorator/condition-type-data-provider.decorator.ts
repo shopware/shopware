@@ -851,72 +851,78 @@ export const CONDITIONS: ConditionDefinition[] = [
  *
  * @private
  */
-export const AWARENESS_CONFIGURATIONS = (service: RuleConditionService): AwarenessConfigurationDefinition[] => [
-    {
-        name: 'personaPromotions',
-        config: {
-            notEquals: ['cartCartAmount', 'cartShippingCost', ...service.getRestrictionsByGroup(GROUPS.ORDER)],
-            equalsAny: ['alwaysValid', ...service.getRestrictionsByGroup(GROUPS.CUSTOMER)],
-            snippet: 'sw-restricted-rules.restrictedAssignment.personaPromotions',
+export const AWARENESS_CONFIGURATIONS = (service: RuleConditionService): AwarenessConfigurationDefinition[] => {
+    const orderRestrictions = service
+        .getRestrictionsByGroup(GROUPS.ORDER)
+        .filter((type) => service.getByType(type).scopes.indexOf(SCOPES.CHECKOUT) === -1);
+
+    return [
+        {
+            name: 'personaPromotions',
+            config: {
+                notEquals: ['cartCartAmount', 'cartShippingCost', ...orderRestrictions],
+                equalsAny: ['alwaysValid', ...service.getRestrictionsByGroup(GROUPS.CUSTOMER)],
+                snippet: 'sw-restricted-rules.restrictedAssignment.personaPromotions',
+            },
         },
-    },
-    {
-        name: 'orderPromotions',
-        config: {
-            notEquals: ['cartCartAmount', 'cartShippingCost', ...service.getRestrictionsByGroup(GROUPS.ORDER)],
-            snippet: 'sw-restricted-rules.restrictedAssignment.orderPromotions',
+        {
+            name: 'orderPromotions',
+            config: {
+                notEquals: ['cartCartAmount', 'cartShippingCost', ...orderRestrictions],
+                snippet: 'sw-restricted-rules.restrictedAssignment.orderPromotions',
+            },
         },
-    },
-    {
-        name: 'cartPromotions',
-        config: {
-            notEquals: ['cartCartAmount', 'cartShippingCost', ...service.getRestrictionsByGroup(GROUPS.ORDER)],
-            snippet: 'sw-restricted-rules.restrictedAssignment.cartPromotions',
+        {
+            name: 'cartPromotions',
+            config: {
+                notEquals: ['cartCartAmount', 'cartShippingCost', ...orderRestrictions],
+                snippet: 'sw-restricted-rules.restrictedAssignment.cartPromotions',
+            },
         },
-    },
-    {
-        name: 'promotionSetGroups',
-        config: {
-            notEquals: ['cartCartAmount', 'cartShippingCost', ...service.getRestrictionsByGroup(GROUPS.ORDER)],
-            snippet: 'sw-restricted-rules.restrictedAssignment.promotionSetGroups',
+        {
+            name: 'promotionSetGroups',
+            config: {
+                notEquals: ['cartCartAmount', 'cartShippingCost', ...orderRestrictions],
+                snippet: 'sw-restricted-rules.restrictedAssignment.promotionSetGroups',
+            },
         },
-    },
-    {
-        name: 'promotionDiscounts',
-        config: {
-            notEquals: ['cartCartAmount', 'cartShippingCost', ...service.getRestrictionsByGroup(GROUPS.ORDER)],
-            snippet: 'sw-restricted-rules.restrictedAssignment.promotionDiscounts',
+        {
+            name: 'promotionDiscounts',
+            config: {
+                notEquals: ['cartCartAmount', 'cartShippingCost', ...orderRestrictions],
+                snippet: 'sw-restricted-rules.restrictedAssignment.promotionDiscounts',
+            },
         },
-    },
-    {
-        name: 'shippingMethodPriceCalculations',
-        config: {
-            notEquals: ['cartCartAmount', 'cartShippingCost', ...service.getRestrictionsByGroup(GROUPS.ORDER)],
-            snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPriceCalculations',
+        {
+            name: 'shippingMethodPriceCalculations',
+            config: {
+                notEquals: ['cartCartAmount', 'cartShippingCost', ...orderRestrictions],
+                snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPriceCalculations',
+            },
         },
-    },
-    {
-        name: 'shippingMethodPrices',
-        config: {
-            notEquals: ['cartCartAmount', 'cartShippingCost', ...service.getRestrictionsByGroup(GROUPS.ORDER)],
-            snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPrices',
+        {
+            name: 'shippingMethodPrices',
+            config: {
+                notEquals: ['cartCartAmount', 'cartShippingCost', ...orderRestrictions],
+                snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPrices',
+            },
         },
-    },
-    {
-        name: 'paymentMethods',
-        config: {
-            notEquals: [...service.getRestrictionsByGroup(GROUPS.ORDER)],
-            snippet: 'sw-restricted-rules.restrictedAssignment.paymentMethods',
+        {
+            name: 'paymentMethods',
+            config: {
+                notEquals: [...orderRestrictions],
+                snippet: 'sw-restricted-rules.restrictedAssignment.paymentMethods',
+            },
         },
-    },
-    {
-        name: 'shippingMethods',
-        config: {
-            notEquals: [...service.getRestrictionsByGroup(GROUPS.ORDER)],
-            snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethods',
+        {
+            name: 'shippingMethods',
+            config: {
+                notEquals: [...orderRestrictions],
+                snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethods',
+            },
         },
-    },
-];
+    ];
+};
 
 /**
  * @private

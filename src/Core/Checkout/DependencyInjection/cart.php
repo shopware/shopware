@@ -103,7 +103,6 @@ use Shopware\Core\Checkout\Order\OrderAddressService;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Product\Cart\ProductFeatureBuilder;
@@ -588,7 +587,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('order_delivery.repository'),
             service(Processor::class),
             service(CartRuleLoader::class),
-            service(PromotionItemBuilder::class),
             service(LineItemFactoryRegistry::class),
         ]);
 

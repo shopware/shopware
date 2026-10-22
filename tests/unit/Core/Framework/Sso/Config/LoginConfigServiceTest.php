@@ -9,6 +9,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\Config\LoginConfig;
 use Shopware\Core\Framework\Sso\Config\LoginConfigService;
 use Shopware\Core\Framework\Sso\SsoException;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Loader\ClosureLoader;
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\RouteCollection;
+use Symfony\Component\Routing\Router;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -18,6 +25,18 @@ use Symfony\Component\Routing\RouterInterface;
 #[CoversClass(LoginConfigService::class)]
 class LoginConfigServiceTest extends TestCase
 {
+    use EnvTestBehaviour;
+
+    protected function setUp(): void
+    {
+        Request::setTrustedHosts(['shop.example.com']);
+    }
+
+    protected function tearDown(): void
+    {
+        Request::setTrustedHosts([]);
+    }
+
     public function testGetConfigWithEmptyRawConfig(): void
     {
         $config = $this->createLoginConfigService([])->getConfig();
@@ -339,6 +358,32 @@ class LoginConfigServiceTest extends TestCase
         ];
     }
 
+    public function testUrlsAreBuiltFromAppUrlWhenNoTrustedHostsAreConfigured(): void
+    {
+        Request::setTrustedHosts([]);
+        $this->setEnvVars(['APP_URL' => 'https://shop.example.com/shop/']);
+
+        $router = $this->createRouter(new RequestContext('', 'GET', 'other.example'));
+        $configService = new LoginConfigService(self::createConfig([]), $router); // @phpstan-ignore argument.type
+
+        static::assertSame('https://shop.example.com/shop/api/oauth/sso/auth?rdm=randomString', $configService->createTemplateData('randomString')->url);
+
+        $state = $this->getQueryParamsAsArray($configService->createRedirectUrl('randomString'))['state'];
+        static::assertSame('https://shop.example.com/shop/api/oauth/sso/code?rdm=randomString', $state);
+
+        static::assertSame('other.example', $router->getContext()->getHost());
+    }
+
+    public function testUrlsAreBuiltFromRequestHostWhenTrustedHostsAreConfigured(): void
+    {
+        $router = $this->createRouter(new RequestContext('', 'GET', 'shop.example.com', 'https'));
+        $configService = new LoginConfigService(self::createConfig([]), $router); // @phpstan-ignore argument.type
+
+        $this->setEnvVars(['APP_URL' => 'not-a-url']);
+
+        static::assertSame('https://shop.example.com/api/oauth/sso/auth?rdm=randomString', $configService->createTemplateData('randomString')->url);
+    }
+
     /**
      * @param array<string, string|bool> $rawConfig
      */
@@ -351,6 +396,15 @@ class LoginConfigServiceTest extends TestCase
 
         // @phpstan-ignore argument.type (The LoginConfigService parameter1 expects a specific array which we were unable to provide for testing purposes)
         return new LoginConfigService($rawConfig, $router);
+    }
+
+    private function createRouter(RequestContext $context): Router
+    {
+        $routes = new RouteCollection();
+        $routes->add('oauth.sso.auth', new Route('/api/oauth/sso/auth'));
+        $routes->add('api.oauth.sso.code', new Route('/api/oauth/sso/code'));
+
+        return new Router(new ClosureLoader(), static fn () => $routes, [], $context);
     }
 
     /**

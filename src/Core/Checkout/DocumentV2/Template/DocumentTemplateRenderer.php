@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Twig\Environment;
 
 /**
  * Renders a document Twig template under the order's locale, translator and sales-channel context.
@@ -29,7 +30,7 @@ final readonly class DocumentTemplateRenderer
 {
     public function __construct(
         private TemplateFinder $templateFinder,
-        private TwigEnvironment $twig,
+        private Environment $twig,
         private AbstractTranslator $translator,
         private AbstractSalesChannelContextFactory $contextFactory,
         private EventDispatcherInterface $eventDispatcher,
@@ -81,12 +82,17 @@ final readonly class DocumentTemplateRenderer
 
         try {
             $this->templateFinder->reset();
+            $template = $this->templateFinder->find($view);
 
-            return $this->twig->renderWithTimezoneOverride(
-                $this->templateFinder->find($view),
-                $parameters,
-                $salesChannelContext->getSalesChannel()->getBusinessTimeZone(),
-            );
+            if ($this->twig instanceof TwigEnvironment) {
+                return $this->twig->renderWithTimezoneOverride(
+                    $template,
+                    $parameters,
+                    $salesChannelContext->getSalesChannel()->getBusinessTimeZone(),
+                );
+            }
+
+            return $this->twig->render($template, $parameters);
         } catch (\Throwable $exception) {
             throw DocumentV2Exception::templateRenderFailed($view, $exception);
         } finally {

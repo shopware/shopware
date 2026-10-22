@@ -17,7 +17,9 @@ Follow the general feature-flag rules in [core feature flags](../core/feature-fl
 - Guard a deprecated public API at runtime where it is consumed, see [Runtime guards](#runtime-guards).
 - Document the migration path when deprecating public Administration extension points.
 - Do not introduce new internal callers of deprecated APIs; move core/Admin code to the replacement.
-- When removing a flag, remove the legacy branch, flag configuration, obsolete tests, and stale documentation in the same change.
+- At the major, remove the flag checks, the legacy branch, obsolete tests, and stale documentation in the same change.
+  The major flag itself stays registered in `feature.yaml` (default on, not toggleable), because plugins use it as a version switch.
+  Every other flag is removed from `feature.yaml` once it is enabled.
 
 ### Runtime guards
 

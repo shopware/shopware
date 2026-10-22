@@ -73,6 +73,23 @@ final class AppFixture
         return $repository;
     }
 
+    public static function createManifest(string $name = 'testApp'): Manifest
+    {
+        return Manifest::createFromXml(<<<XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <meta>
+                    <name>{$name}</name>
+                    <label>{$name}</label>
+                    <author>shopware AG</author>
+                    <copyright>(c) by shopware AG</copyright>
+                    <version>1.0.0</version>
+                    <license>MIT</license>
+                </meta>
+            </manifest>
+            XML);
+    }
+
     public static function createInstallContext(
         AppEntity $app,
         Manifest $manifest,

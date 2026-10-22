@@ -16,6 +16,8 @@ use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
+use Shopware\Core\Framework\App\Url\VerificationState;
+use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Feature;
@@ -76,6 +78,7 @@ class AppException extends HttpException
     final public const SHOP_ID_CHANGE_STRATEGY_NOT_FOUND = 'FRAMEWORK__APP_SHOP_ID_CHANGE_STRATEGY_NOT_FOUND';
     final public const APP_URL_INVALID = 'FRAMEWORK__APP_URL_INVALID';
     final public const APP_URL_FAILED_VERIFICATION = 'FRAMEWORK__APP_URL_FAILED_VERIFICATION';
+    final public const APP_URL_VERIFICATION_UNAVAILABLE = 'FRAMEWORK__APP_URL_VERIFICATION_UNAVAILABLE';
     final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
     final public const APP_REQUIREMENTS_NOT_MET = 'FRAMEWORK__APP_REQUIREMENTS_NOT_MET';
     final public const RE_REGISTRATION_FAILED = 'FRAMEWORK__APP_RE_REGISTRATION_FAILED';
@@ -641,13 +644,22 @@ class AppException extends HttpException
         );
     }
 
-    public static function appUrlFailedVerification(string $appUrl, string $reason): self
+    public static function appUrlFailedVerification(string $appUrl, VerificationState $state): self
     {
+        if ($state->is(VerificationStatus::SOFT_FAIL)) {
+            return new AppUrlFailedVerificationException(
+                Response::HTTP_SERVICE_UNAVAILABLE,
+                self::APP_URL_VERIFICATION_UNAVAILABLE,
+                'APP_URL "{{ appUrl }}" could not be verified right now, try again later: {{ reason }}',
+                ['appUrl' => $appUrl, 'reason' => $state->failureReason()]
+            );
+        }
+
         return new AppUrlFailedVerificationException(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
+            Response::HTTP_BAD_GATEWAY,
             self::APP_URL_FAILED_VERIFICATION,
-            'APP_URL "{{ appUrl }}" is incorrect or does not reach this installation ({{ reason }})',
-            ['appUrl' => $appUrl, 'reason' => $reason]
+            'APP_URL "{{ appUrl }}" could not be verified: {{ reason }}. Check that APP_URL points to this installation and that requests to it are not blocked.',
+            ['appUrl' => $appUrl, 'reason' => $state->failureReason()]
         );
     }
 

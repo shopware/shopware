@@ -29,6 +29,8 @@ use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Source\SourceResolver;
+use Shopware\Core\Framework\App\Url\VerificationState;
+use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
@@ -193,7 +195,7 @@ class AppManagerTest extends TestCase
     public static function registrationFailures(): iterable
     {
         yield 'app rejects the registration' => [AppException::registrationFailed('test', 'registration failed')];
-        yield 'APP_URL fails verification' => [AppException::appUrlFailedVerification('http://shop.test', 'unreachable')];
+        yield 'APP_URL fails verification' => [AppException::appUrlFailedVerification('http://shop.test', new VerificationState(VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'unreachable'))];
     }
 
     #[DataProvider('registrationFailures')]

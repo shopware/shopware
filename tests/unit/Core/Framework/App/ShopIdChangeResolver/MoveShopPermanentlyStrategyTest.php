@@ -139,7 +139,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             'https://new.example.com',
         );
 
-        $this->expectExceptionObject(AppException::appUrlFailedVerification('https://new.example.com', 'Unexpected response'));
+        $this->expectExceptionObject(AppException::appUrlFailedVerification('https://new.example.com', new VerificationState(VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'Unexpected response')));
 
         $strategy->resolve(Context::createDefaultContext());
     }

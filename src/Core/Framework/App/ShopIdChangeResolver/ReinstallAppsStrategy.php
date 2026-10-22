@@ -59,7 +59,7 @@ class ReinstallAppsStrategy implements ShopIdChangeStrategy
         $state = $this->appUrlVerifier->forceVerify($this->shopUrl);
 
         if (!$state->is(VerificationStatus::PASS)) {
-            throw AppException::appUrlFailedVerification($this->shopUrl, $state->failureReason());
+            throw AppException::appUrlFailedVerification($this->shopUrl, $state);
         }
 
         $this->shopIdProvider->deleteShopId();

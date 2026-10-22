@@ -12,6 +12,8 @@ use Shopware\Core\Framework\App\Exception\AppRegistrationRejectedException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
+use Shopware\Core\Framework\App\Url\VerificationState;
+use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
 use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Log\Package;
@@ -259,6 +261,30 @@ class AppExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
         static::assertSame('FRAMEWORK__APP_URL_INVALID', $e->getErrorCode());
         static::assertSame('APP_URL is invalid: invalid-url', $e->getMessage());
+    }
+
+    public function testAFailedAppUrlVerificationNamesTheResponse(): void
+    {
+        $e = AppException::appUrlFailedVerification(
+            'https://shop.test',
+            new VerificationState(VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'HTTP code: "403"'),
+        );
+
+        static::assertSame(Response::HTTP_BAD_GATEWAY, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_URL_FAILED_VERIFICATION', $e->getErrorCode());
+        static::assertSame('APP_URL "https://shop.test" could not be verified: HTTP code: "403". Check that APP_URL points to this installation and that requests to it are not blocked.', $e->getMessage());
+    }
+
+    public function testATemporarilyFailedAppUrlVerificationAsksToTryAgain(): void
+    {
+        $e = AppException::appUrlFailedVerification(
+            'https://shop.test',
+            new VerificationState(VerificationStatus::SOFT_FAIL, 1, new \DateTimeImmutable(), 'HTTP code: "429"'),
+        );
+
+        static::assertSame(Response::HTTP_SERVICE_UNAVAILABLE, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_URL_VERIFICATION_UNAVAILABLE', $e->getErrorCode());
+        static::assertSame('APP_URL "https://shop.test" could not be verified right now, try again later: HTTP code: "429"', $e->getMessage());
     }
 
     public function testRequirementsNotMet(): void

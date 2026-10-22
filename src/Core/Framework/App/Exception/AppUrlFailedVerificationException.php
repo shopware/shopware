@@ -11,8 +11,4 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AppUrlFailedVerificationException extends AppException
 {
-    public function getErrorCode(): string
-    {
-        return AppException::APP_URL_FAILED_VERIFICATION;
-    }
 }

@@ -58,6 +58,17 @@ class McpToolResultRenderer
     public const MAX_LINKED_META_SIZE = 10_000;
 
     /**
+     * The most keys named in `omittedMeta`; `omittedMetaCount` has the total, so many small keys can't make
+     * the link large again.
+     */
+    public const MAX_OMITTED_META_KEYS = 50;
+
+    /**
+     * The longest key named in `omittedMeta`; a longer one is cut.
+     */
+    public const MAX_OMITTED_META_KEY_LENGTH = 100;
+
+    /**
      * The tool's own summary sent with the link to a stored result; a longer one is cut.
      */
     public const MAX_LINKED_SUMMARY_SIZE = 2_000;
@@ -229,8 +240,9 @@ class McpToolResultRenderer
 
     /**
      * The tool's metadata in its order, as long as it fits {@see self::MAX_LINKED_META_SIZE}. A value that
-     * doesn't fit, such as a large `preview` of an app tool, is named in `omittedMeta`. Clients before
-     * 2025-06-18 find it in the stored envelope; since 2025-06-18 the stored resource is the plain data.
+     * doesn't fit, such as a large `preview` of an app tool, is named in `omittedMeta`, up to
+     * {@see self::MAX_OMITTED_META_KEYS} keys, and counted in `omittedMetaCount`. Clients before 2025-06-18
+     * find it in the stored envelope; since 2025-06-18 the stored resource is the plain data.
      *
      * @param array<string, mixed> $meta
      *
@@ -240,11 +252,15 @@ class McpToolResultRenderer
     {
         $bounded = [];
         $omitted = [];
+        $omittedCount = 0;
         $size = 0;
         foreach ($meta as $key => $value) {
             $entrySize = \strlen((string) $key) + \strlen(Json::encode($value));
             if ($size + $entrySize > self::MAX_LINKED_META_SIZE) {
-                $omitted[] = (string) $key;
+                if (++$omittedCount <= self::MAX_OMITTED_META_KEYS) {
+                    $key = (string) $key;
+                    $omitted[] = \strlen($key) > self::MAX_OMITTED_META_KEY_LENGTH ? mb_strcut($key, 0, self::MAX_OMITTED_META_KEY_LENGTH) . '…' : $key;
+                }
 
                 continue;
             }
@@ -254,6 +270,7 @@ class McpToolResultRenderer
 
         if ($omitted !== []) {
             $bounded['omittedMeta'] = $omitted;
+            $bounded['omittedMetaCount'] = $omittedCount;
         }
 
         return $bounded;

@@ -353,8 +353,51 @@ class McpToolResultRendererOffloadTest extends TestCase
         static::assertSame(1, $meta['total'], 'metadata after an oversized value is still kept');
         static::assertArrayNotHasKey('preview', $meta);
         static::assertSame(['preview'], $meta['omittedMeta']);
+        static::assertSame(1, $meta['omittedMetaCount']);
         static::assertSame(['tool' => 'ucp-checkout'], $meta['query'], 'large arguments are not echoed');
         static::assertLessThan(McpToolResultRenderer::MAX_INLINE_SIZE_TEXT_ONLY, \strlen(Json::encode($result)));
+    }
+
+    /**
+     * Tens of thousands of small keys from an app or plugin. Naming every key that doesn't fit would make
+     * the link as large as the result it replaces.
+     */
+    #[DataProvider('everyRevisionProvider')]
+    public function testCapsTheNamesOfManyOmittedMetadataKeys(ProtocolVersion $protocolVersion): void
+    {
+        $this->requestStack->push($this->adminRequest());
+        $this->storage->expects($this->once())->method('storeFor')->willReturn($this->pointer());
+        $meta = [];
+        for ($i = 0; $i < 30_000; ++$i) {
+            $meta['key' . $i] = $i;
+        }
+
+        $result = $this->renderer->render(McpToolResult::success(['id' => 'a'], $meta), $protocolVersion);
+
+        $linkedMeta = $this->linkedMeta($result);
+        static::assertIsArray($linkedMeta['omittedMeta']);
+        static::assertCount(McpToolResultRenderer::MAX_OMITTED_META_KEYS, $linkedMeta['omittedMeta']);
+        static::assertIsInt($linkedMeta['omittedMetaCount']);
+        $kept = \count($meta) - $linkedMeta['omittedMetaCount'];
+        static::assertGreaterThan(0, $kept);
+        static::assertSame(\array_slice(array_keys($meta), $kept, McpToolResultRenderer::MAX_OMITTED_META_KEYS), $linkedMeta['omittedMeta']);
+        static::assertLessThan(McpToolResultRenderer::MAX_INLINE_SIZE_TEXT_ONLY, \strlen(Json::encode($result)));
+    }
+
+    public function testCutsAnOverlongOmittedMetadataKey(): void
+    {
+        $this->requestStack->push($this->adminRequest());
+        $this->storage->expects($this->once())->method('storeFor')->willReturn($this->pointer());
+        $longKey = str_repeat('k', 500);
+
+        $result = $this->renderer->render(
+            McpToolResult::success(['id' => 'a'], [$longKey => str_repeat('v', 250_000)]),
+            ProtocolVersion::V2025_11_25,
+        );
+
+        $linkedMeta = $this->linkedMeta($result);
+        static::assertSame([str_repeat('k', McpToolResultRenderer::MAX_OMITTED_META_KEY_LENGTH) . '…'], $linkedMeta['omittedMeta']);
+        static::assertSame(1, $linkedMeta['omittedMetaCount']);
     }
 
     private function parsed(int $dataSize): McpToolResult

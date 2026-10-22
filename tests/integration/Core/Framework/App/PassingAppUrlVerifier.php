@@ -21,4 +21,9 @@ class PassingAppUrlVerifier extends AppUrlVerifier
     {
         return new VerificationState(VerificationStatus::PASS, 1, new \DateTimeImmutable());
     }
+
+    public function verifyForAdministration(string $appUrl): bool
+    {
+        return true;
+    }
 }

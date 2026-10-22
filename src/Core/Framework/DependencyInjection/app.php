@@ -188,7 +188,8 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_it
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->parameters()
-        ->set('shopware.app_dir', '%kernel.project_dir%/custom/apps');
+        ->set('shopware.app_dir', '%kernel.project_dir%/custom/apps')
+        ->set('env(APP_URL_CHECK_DISABLED)', 'false');
 
     $services = $containerConfigurator->services();
 
@@ -1089,6 +1090,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('lock.factory'),
             service('logger'),
             service(ClockInterface::class),
+            env('APP_URL_CHECK_DISABLED')->bool(),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 

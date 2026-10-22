@@ -43,6 +43,7 @@ class AppUrlVerifier implements ResetInterface
         private readonly LockFactory $lockFactory,
         private readonly LoggerInterface $logger,
         private readonly ClockInterface $clock,
+        private readonly bool $appUrlCheckDisabled,
     ) {
     }
 
@@ -132,6 +133,15 @@ class AppUrlVerifier implements ResetInterface
         } finally {
             $this->releaseLock($lock);
         }
+    }
+
+    public function verifyForAdministration(string $appUrl): bool
+    {
+        if ($this->appUrlCheckDisabled) {
+            return true;
+        }
+
+        return $this->verify($appUrl);
     }
 
     /**

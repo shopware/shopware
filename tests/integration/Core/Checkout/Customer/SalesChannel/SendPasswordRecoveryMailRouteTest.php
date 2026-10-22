@@ -79,7 +79,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $email = $localPart . '@straße.de';
         $customerId = $this->createCustomer($email);
         $this->createCustomer($localPart . '@strasse.de');
-        $storedEmail = $this->customerRepository->search(new Criteria([$customerId]), Context::createDefaultContext())->first()?->getEmail();
+        $storedEmail = $this->customerRepository->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->first()?->getEmail();
         static::assertStringEndsWith('@xn--strae-oqa.de', (string) $storedEmail);
 
         $caughtEvent = null;

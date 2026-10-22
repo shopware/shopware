@@ -22,5 +22,31 @@
             <tag name="mcp.tool"/>
             <tag name="shopware.store_api_mcp.tool"/>
         </service>
+        <service id="swag.admin_mcp.shipping_info" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\DualScopeToolWithRequires">
+            <tag name="mcp.tool"/>
+        </service>
+        <service id="swag.store_api_mcp.shipping_info" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\DualScopeToolWithRequires">
+            <tag name="mcp.tool"/>
+            <tag name="shopware.store_api_mcp.tool"/>
+        </service>
+        <service id="swag.admin_mcp.store_hours" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\DualScopeToolWithNoPrivilege">
+            <tag name="mcp.tool"/>
+        </service>
+        <service id="swag.store_api_mcp.store_hours" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\DualScopeToolWithNoPrivilege">
+            <tag name="mcp.tool"/>
+            <tag name="shopware.store_api_mcp.tool"/>
+        </service>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\StoreApiToolInheritingRequirePrivilege" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\StoreApiToolInheritingRequirePrivilege">
+            <tag name="mcp.tool"/>
+            <tag name="shopware.store_api_mcp.tool"/>
+        </service>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\StoreApiToolOverridingInheritedInvoke" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\StoreApiToolOverridingInheritedInvoke">
+            <tag name="mcp.tool"/>
+            <tag name="shopware.store_api_mcp.tool"/>
+        </service>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\StoreApiToolUsingPrivilegeTrait" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\StoreApiToolUsingPrivilegeTrait">
+            <tag name="mcp.tool"/>
+            <tag name="shopware.store_api_mcp.tool"/>
+        </service>
     </services>
 </container>

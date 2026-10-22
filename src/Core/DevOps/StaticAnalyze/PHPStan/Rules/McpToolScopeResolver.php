@@ -15,9 +15,10 @@ use Shopware\Core\Framework\Log\Package;
  * The tag is the only thing the runtime uses to scope a tool: a Store API tool carries
  * `shopware.store_api_mcp.tool` next to the SDK tag `mcp.tool`, an Admin API tool only the SDK tag
  * (or `shopware.mcp.tool`). Nothing in the class itself is reliable: Store API tools may extend an
- * Admin API tool, need not extend McpToolResponse, and live in any namespace. A class the container
- * does not know, for example a test double or a project without a configured container, is
- * reported as unknown, and the MCP privilege rules skip it.
+ * Admin API tool, need not extend McpToolResponse, and live in any namespace. Each service definition
+ * is scoped on its own, so a class registered under an Admin API and a Store API service id gets both
+ * scopes. A class the container does not know, for example a test double or a project without a
+ * configured container, gets none, and the MCP privilege rules skip it.
  *
  * @internal
  */
@@ -28,8 +29,6 @@ final class McpToolScopeResolver
 
     public const STORE_API = 'store-api';
 
-    public const UNKNOWN = 'unknown';
-
     private const MCP_TOOL_ATTRIBUTE = 'Mcp\Capability\Attribute\McpTool';
 
     private const STORE_API_TOOL_TAG = 'shopware.store_api_mcp.tool';
@@ -37,32 +36,22 @@ final class McpToolScopeResolver
     private const ADMIN_API_TOOL_TAGS = ['mcp.tool', 'shopware.mcp.tool'];
 
     /**
-     * @var array<string, array<string, true>>|null class => tag => true
+     * @var array<string, array<self::ADMIN_API|self::STORE_API, true>>|null class => scope => true
      */
-    private ?array $tagsByClass = null;
+    private ?array $scopesByClass = null;
 
     public function __construct(private readonly ServiceMap $serviceMap)
     {
     }
 
     /**
-     * @return self::ADMIN_API|self::STORE_API|self::UNKNOWN
+     * Whether any service definition of the class registers it on the given server.
+     *
+     * @param self::ADMIN_API|self::STORE_API $scope
      */
-    public function resolve(string $className): string
+    public function hasScope(string $className, string $scope): bool
     {
-        $tags = $this->tagsByClass()[$className] ?? [];
-
-        if (isset($tags[self::STORE_API_TOOL_TAG])) {
-            return self::STORE_API;
-        }
-
-        foreach (self::ADMIN_API_TOOL_TAGS as $tag) {
-            if (isset($tags[$tag])) {
-                return self::ADMIN_API;
-            }
-        }
-
-        return self::UNKNOWN;
+        return isset($this->scopesByClass()[$className][$scope]);
     }
 
     /**
@@ -98,29 +87,40 @@ final class McpToolScopeResolver
 
     /**
      * Keyed by class rather than service id: a tool may be registered under an id that is not its
-     * class name, and every definition of the class counts.
+     * class name, and every definition of the class counts. A definition with the Store API tag is a
+     * Store API tool even though it also carries the SDK tag `mcp.tool`.
      *
-     * @return array<string, array<string, true>>
+     * @return array<string, array<self::ADMIN_API|self::STORE_API, true>>
      */
-    private function tagsByClass(): array
+    private function scopesByClass(): array
     {
-        if ($this->tagsByClass !== null) {
-            return $this->tagsByClass;
+        if ($this->scopesByClass !== null) {
+            return $this->scopesByClass;
         }
 
-        $this->tagsByClass = [];
+        $this->scopesByClass = [];
         foreach ($this->serviceMap->getServices() as $service) {
             if ($service->getAlias() !== null) {
                 continue;
             }
 
-            $class = ltrim($service->getClass() ?? $service->getId(), '\\');
+            $tags = [];
             foreach ($service->getTags() as $tag) {
                 /** @phpstan-ignore phpstanApi.method (ServiceTag is returned by the public ServiceDefinition API, but this accessor is not marked API) */
-                $this->tagsByClass[$class][$tag->getName()] = true;
+                $tags[$tag->getName()] = true;
+            }
+
+            $scope = match (true) {
+                isset($tags[self::STORE_API_TOOL_TAG]) => self::STORE_API,
+                array_intersect_key($tags, array_flip(self::ADMIN_API_TOOL_TAGS)) !== [] => self::ADMIN_API,
+                default => null,
+            };
+
+            if ($scope !== null) {
+                $this->scopesByClass[ltrim($service->getClass() ?? $service->getId(), '\\')][$scope] = true;
             }
         }
 
-        return $this->tagsByClass;
+        return $this->scopesByClass;
     }
 }

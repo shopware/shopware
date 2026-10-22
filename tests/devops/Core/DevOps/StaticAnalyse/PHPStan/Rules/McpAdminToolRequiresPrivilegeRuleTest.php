@@ -18,7 +18,7 @@ class McpAdminToolRequiresPrivilegeRuleTest extends RuleTestCase
 {
     private const FIXTURE_NAMESPACE = 'Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\\';
 
-    private const TIP = 'The attribute is informational. Keep enforcing the privileges with requirePrivilege() and the DAL.';
+    private const TIP = 'Both attributes are informational. Keep enforcing the privileges with requirePrivilege() and the DAL.';
 
     public function testAdminToolWithoutRequiresFails(): void
     {
@@ -68,7 +68,27 @@ class McpAdminToolRequiresPrivilegeRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/data/McpAdminToolRequiresPrivilegeRule/UnregisteredToolWithoutRequires.php'], []);
     }
 
-    public function testAuditedCoreToolWithoutPrivilegesPasses(): void
+    public function testAdminToolWithNoPrivilegeOptOutPasses(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpAdminToolRequiresPrivilegeRule/AdminToolWithNoPrivilege.php'], []);
+    }
+
+    public function testAdminToolWithRequiresAndNoPrivilegeOptOutFails(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpAdminToolRequiresPrivilegeRule/AdminToolWithRequiresAndNoPrivilege.php'], [[
+            'Admin API MCP tool ' . self::FIXTURE_NAMESPACE . 'AdminToolWithRequiresAndNoPrivilege must not declare both #[McpToolRequires] and #[McpToolRequiresNoPrivilege]. Keep the one that is true.',
+            11,
+        ]]);
+    }
+
+    public function testToolRegisteredOnBothServersIsCheckedAsAdminApiTool(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpAdminToolRequiresPrivilegeRule/DualScopeToolWithoutRequires.php'], [
+            [$this->message('DualScopeToolWithoutRequires'), 7, self::TIP],
+        ]);
+    }
+
+    public function testCoreToolWithNoPrivilegeOptOutPasses(): void
     {
         $this->analyse([__DIR__ . '/../../../../../../../src/Core/Framework/Mcp/Tool/EntitySchemaTool.php'], []);
     }
@@ -85,7 +105,7 @@ class McpAdminToolRequiresPrivilegeRuleTest extends RuleTestCase
     private function message(string $class): string
     {
         return \sprintf(
-            'Admin API MCP tool %s%s must declare the ACL privileges it needs with #[McpToolRequires] on the class. Operators and the integration allowlist read them from there.',
+            'Admin API MCP tool %s%s must declare the ACL privileges it needs with #[McpToolRequires] on the class, or #[McpToolRequiresNoPrivilege] if it needs none. Operators and the integration allowlist read them from there.',
             self::FIXTURE_NAMESPACE,
             $class,
         );

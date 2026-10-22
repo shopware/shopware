@@ -107,22 +107,24 @@ export default function initializeExtensionDataLoader(): void {
         },
     );
 
-    Shopware.ExtensionAPI.handle(
-        'repositoryGet',
-        async ({ entityName, id, criteria = new Shopware.Data.Criteria(), context }, additionalInformation) => {
-            const repository = getRepository(entityName, additionalInformation);
-            if (!repository) {
-                return rejectRepositoryCreation(entityName) as Promise<null>;
-            }
+    Shopware.ExtensionAPI.handle('repositoryGet', async ({ entityName, id, criteria, context }, additionalInformation) => {
+        const repository = getRepository(entityName, additionalInformation);
+        if (!repository) {
+            return rejectRepositoryCreation(entityName) as Promise<null>;
+        }
 
-            const mergedContext = createContext(context);
+        const mergedContext = createContext(context);
 
-            // The context has to be filtered on the resolved entity, not on the pending promise
-            const result: unknown = await repository.get(id as EntityKey<typeof entityName>, mergedContext, criteria);
-            filterContext(result, context);
-            return result;
-        },
-    );
+        // Only accept a real Criteria instance. A plain object the extension passes as `criteria`
+        // could carry a `cacheKey`, which `repository.get` would treat as cache options and run the
+        // read through the shared admin cache with the admin context instead of the app context.
+        const safeCriteria = criteria instanceof Shopware.Data.Criteria ? criteria : new Shopware.Data.Criteria();
+
+        // The context has to be filtered on the resolved entity, not on the pending promise
+        const result: unknown = await repository.get(id as EntityKey<typeof entityName>, mergedContext, safeCriteria);
+        filterContext(result, context);
+        return result;
+    });
 
     Shopware.ExtensionAPI.handle('repositorySave', async ({ entityName, entity, context }, additionalInformation) => {
         const repository = getRepository(entityName, additionalInformation);

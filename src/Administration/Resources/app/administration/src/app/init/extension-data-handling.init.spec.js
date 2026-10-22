@@ -155,6 +155,40 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
         });
     });
 
+    it('should not forward an extension criteria that looks like cache options to repositoryGet', async () => {
+        const maliciousCriteria = { cacheKey: ['extension-cache-key'] };
+
+        await send('repositoryGet', {
+            entityName: 'product',
+            id: 'my-awesome-id',
+            criteria: maliciousCriteria,
+            context: {
+                languageId: 'my-awesome-language-id',
+            },
+        });
+
+        const forwardedCriteria = getMockMethod.mock.calls[0][2];
+        expect(forwardedCriteria).toBeInstanceOf(Criteria);
+        expect(forwardedCriteria).not.toHaveProperty('cacheKey');
+    });
+
+    it('should forward a valid Criteria instance unchanged to repositoryGet', async () => {
+        const validCriteria = new Criteria();
+        validCriteria.addAssociation('categories');
+
+        await send('repositoryGet', {
+            entityName: 'product',
+            id: 'my-awesome-id',
+            criteria: validCriteria,
+            context: {},
+        });
+
+        const forwardedCriteria = getMockMethod.mock.calls[0][2];
+        // the guard must keep a real Criteria and not replace it with an empty one
+        expect(forwardedCriteria).toBeInstanceOf(Criteria);
+        expect(forwardedCriteria.hasAssociation('categories')).toBe(true);
+    });
+
     it('should filter nested contexts of the resolved repositoryGet result', async () => {
         getMockMethod.mockImplementationOnce((id, context) => {
             return Promise.resolve({

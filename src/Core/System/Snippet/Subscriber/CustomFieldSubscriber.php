@@ -51,7 +51,7 @@ class CustomFieldSubscriber implements EventSubscriberInterface
         foreach ($event->getResults()->only(EntityWriteResult::OPERATION_INSERT)->withPayloadProperties('config') as $writeResult) {
             $label = $writeResult->getPayload()['config']['label'] ?? null;
 
-            if (!isset($label) || $label === '' || $label === []) {
+            if ($label === null || $label === '' || $label === []) {
                 continue;
             }
 

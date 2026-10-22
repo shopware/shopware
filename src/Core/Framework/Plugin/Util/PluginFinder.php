@@ -97,7 +97,7 @@ class PluginFinder
     {
         return isset($package->getExtra()[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER])
             && $package->getExtra()[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER] !== ''
-            && isset($package->getExtra()['label'])
+            && ($package->getExtra()['label'] ?? null) !== null
             && $package->getExtra()['label'] !== ''
             && $package->getExtra()['label'] !== [];
     }

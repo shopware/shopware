@@ -40,7 +40,7 @@ class MailEventListener
 
     public function sent(string $type): bool
     {
-        return isset($this->events[$type]);
+        return ($this->events[$type] ?? null) !== null;
     }
 
     /**

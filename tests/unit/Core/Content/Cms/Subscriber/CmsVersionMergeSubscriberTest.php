@@ -226,6 +226,23 @@ class CmsVersionMergeSubscriberTest extends TestCase
             ],
         ];
 
+        yield 'Slots with block but without version reference are kept' => [
+            'writes' => [
+                'insert' => ['cms_slot' => [
+                    ['id' => $slotId1, 'blockId' => $blockId1],
+                ]],
+                'delete' => ['cms_block' => [['id' => $blockId1, 'versionId' => $versionId1]]],
+                'update' => [],
+            ],
+            'expectedWrites' => [
+                'insert' => ['cms_slot' => [
+                    ['id' => $slotId1, 'blockId' => $blockId1],
+                ]],
+                'delete' => ['cms_block' => [['id' => $blockId1, 'versionId' => $versionId1]]],
+                'update' => [],
+            ],
+        ];
+
         yield 'Deleted blocks without usable ids remove nothing' => [
             'writes' => [
                 'insert' => ['cms_slot' => [

@@ -101,6 +101,14 @@ class PromotionIndividualCodeSerializerTest extends TestCase
             'expectedId' => null,
         ];
 
+        yield 'promotion name null, name lookup not applied' => [
+            'record' => ['promotion' => ['translations' => ['DEFAULT' => ['name' => null]]]],
+            'promotionIds' => ['id-by-name'],
+            'codeIds' => [],
+            'expectedPromotionId' => null,
+            'expectedId' => null,
+        ];
+
         yield 'promotion id given, name lookup not applied' => [
             'record' => ['promotion' => ['id' => 'given-id'] + $name],
             'promotionIds' => ['id-by-name'],
@@ -203,6 +211,14 @@ class PromotionIndividualCodeSerializerTest extends TestCase
             'codeIds' => ['id-by-code'],
             'expectedPromotionId' => 'given-id',
             'expectedId' => 'id-by-code',
+        ];
+
+        yield 'code null, code lookup not applied' => [
+            'record' => ['code' => null, 'promotion' => ['id' => 'given-id']],
+            'promotionIds' => [],
+            'codeIds' => ['id-by-code'],
+            'expectedPromotionId' => 'given-id',
+            'expectedId' => null,
         ];
 
         yield 'code id given, code lookup not applied' => [

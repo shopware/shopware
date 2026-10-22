@@ -55,7 +55,7 @@ class PromotionIndividualCodeSerializer extends EntitySerializer implements Rese
         $context = Context::createDefaultContext();
 
         // set promotion id from promotion name if possible
-        if (($deserialized['promotion']['id'] ?? '') === '' && isset($entity['promotion']['translations']['DEFAULT']['name'])) {
+        if (($deserialized['promotion']['id'] ?? '') === '' && ($entity['promotion']['translations']['DEFAULT']['name'] ?? null) !== null) {
             $promoId = $this->getPromoIdFromName($entity['promotion']['translations']['DEFAULT']['name'], $context);
 
             if ($promoId) {
@@ -64,7 +64,7 @@ class PromotionIndividualCodeSerializer extends EntitySerializer implements Rese
         }
 
         // set promotion id to prevent failures
-        if (($deserialized['promotion']['id'] ?? '') === '' && isset($deserialized['promotionId'])) {
+        if (($deserialized['promotion']['id'] ?? '') === '' && ($deserialized['promotionId'] ?? null) !== null) {
             $deserialized['promotion']['id'] = $deserialized['promotionId'];
         }
 
@@ -83,7 +83,7 @@ class PromotionIndividualCodeSerializer extends EntitySerializer implements Rese
         }
 
         // set promotionIndividualCode id from code if possible (for existing codes)
-        if (($deserialized['id'] ?? '') === '' && isset($deserialized['promotion']['id']) && isset($entity['code'])) {
+        if (($deserialized['id'] ?? '') === '' && ($deserialized['promotion']['id'] ?? null) !== null && ($entity['code'] ?? null) !== null) {
             $id = $this->getPromoCodeId($entity['code'], $context);
 
             if ($id) {

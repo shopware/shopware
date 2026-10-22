@@ -3,13 +3,8 @@
  *
  * @experimental stableVersion:v6.8.0 feature:ADMIN_EXTENSION_TOOLING
  *
- * Portable Jest config factory for Administration extensions. It carries the
- * Administration's test harness — the feature-flag environment, the
- * `shopware:*` virtual modules, the global `Shopware` setup and the transforms —
- * with every path resolved into the installed Administration, so an extension
- * spec runs against the same harness as the Administration's own specs. The
- * Administration's own Jest config composes this factory too, so the two
- * cannot drift apart.
+ * Shared jest config that is used by the admin and extensions.
+ * New capabilities added in admin are automatically available in extensions as well.
  */
 
 import { existsSync, realpathSync } from 'node:fs';
@@ -69,9 +64,8 @@ const MERGED_OPTIONS = [
 ];
 
 /**
- * Options an extension may set, each replacing the factory's default as a
- * whole. Only listed options pass, so no Jest option can override the harness
- * before someone has checked that it is safe to.
+ * Allow list of jest config keys that an extension may replace with its own value.
+ * This prevents silent config merge failures.
  */
 const REPLACEABLE_OPTIONS = [
     'bail',
@@ -127,9 +121,8 @@ const ACCEPTED_OPTIONS = new Set([
 const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /**
- * Matches the Administration files that use `import.meta.glob`, which only the
- * Babel plugin can transform. Everything else, including an extension's own
- * `src/module/index.ts`, goes through the faster SWC transform.
+ * List of files that use `import.meta.glob`. For these files the babel transform gets enabled.
+ * The rest skips the babel transform (because it's faster).
  *
  * @example
  * new RegExp(metaGlobFilesPattern()).test(`${administrationRoot}/src/module/index.js`); // → true
@@ -216,10 +209,7 @@ function withPriority(preferred = {}, fallback) {
 }
 
 /**
- * The ESM-only packages in `node_modules` that the Administration needs transformed.
- * An extension that transforms another package builds its pattern from this list plus its own,
- * because Jest skips a file as soon as one ignore pattern matches it.
- * Frozen, like `HOST_TRANSFORM_IGNORE_PATTERNS`.
+ * Node modules that need to be transformed to CommonJS first (Jest expects them to be CommonJS).
  *
  * @example
  * transformIgnorePatterns: [`/node_modules/(?!(${[...HOST_TRANSFORMED_PACKAGES, 'nanoid'].join('|')})/)`],

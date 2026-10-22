@@ -89,6 +89,7 @@ jobs:
         run: |
           node .github/bin/js/check-baseline-growth.ts --base "$BASE_SHA" \
             --config src/Administration/Resources/app/administration/eslint.config.ts \
+            --config src/Administration/Resources/app/administration/extension-tooling/eslint.mjs \
             src/Administration/Resources/app/administration/eslint-suppressions.json \
             src/Storefront/Resources/app/administration/eslint-suppressions.json
 

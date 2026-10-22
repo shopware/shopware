@@ -115,8 +115,25 @@ The `=== null` null-checks on injected `mcp.*` dependencies in controllers/comma
 - Service IDs use FQCN; tags include `mcp.tool` for SDK discovery
 - Tools declare prerequisites with `#[McpToolDependsOn('other-tool-name')]` (repeatable) — the allowlist UI auto-expands these when a user enables a tool; `debug:mcp` shows them in the Dependencies column
 - Tools declare required ACL privileges with `#[McpToolRequires]` (repeatable) — **declarative only**; runtime enforcement still depends on `requirePrivilege()` calls and DAL ACL checks. The attribute is used by `debug:mcp` (Privileges column), the API (`/_action/mcp/tools`), and the Admin UI to help operators configure roles correctly
-- PHPStan checks both servers: `shopware.mcpAdminToolMissingRequires` reports an Admin API tool without `#[McpToolRequires]` (audited core exceptions in `McpAdminToolRequiresPrivilegeRule::TOOLS_WITHOUT_PRIVILEGES`), and `shopware.mcpStoreApiToolAdminAcl` reports a Store API tool with `#[McpToolRequires]` or a `requirePrivilege()` call.
-  Both read the server from the container tags (`McpToolScopeResolver`), so a tool the container does not know is skipped
+- Privileges are declared, see "Declaring privileges" below
+
+### Declaring privileges
+
+Every Admin API tool declares exactly one of two attributes on its class.
+`#[McpToolRequires]` lists the ACL privileges it needs.
+`#[McpToolRequiresNoPrivilege(reason: '...')]` is the explicit opt-out for a tool that reads no shop data, such as `shopware-entity-schema` and the three discovery meta-tools.
+Both are informational and grant nothing: the opt-out is not shown in `debug:mcp` or the capabilities API, a tool with it simply has no privileges listed, and the DAL still checks the ACL of every repository call.
+
+Store API tools declare neither ACL attribute nor call `requirePrivilege()`, because Admin ACL privileges do not exist in a sales channel context.
+
+PHPStan enforces this with two rules:
+
+- `shopware.mcpAdminToolMissingRequires` (`McpAdminToolRequiresPrivilegeRule`) reports an Admin API tool with neither attribute, or with both.
+- `shopware.mcpStoreApiToolAdminAcl` (`McpStoreApiToolAdminAclRule`) reports a Store API tool with `#[McpToolRequires]` or a `requirePrivilege()` call, including calls it inherits unchanged from a parent class or a trait.
+
+Both read the server from the container tags (`McpToolScopeResolver`), one service definition at a time.
+A class registered on both servers gets both rules, so it can only use `#[McpToolRequiresNoPrivilege]`.
+A class the container does not know is skipped.
 
 ### Tool metadata: `meta` vs dedicated attributes
 

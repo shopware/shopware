@@ -28,5 +28,18 @@
         <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\AdminToolWithAliasedToolWithoutRequires" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\AdminToolWithAliasedToolWithoutRequires">
             <tag name="mcp.tool"/>
         </service>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\AdminToolWithNoPrivilege" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\AdminToolWithNoPrivilege">
+            <tag name="mcp.tool"/>
+        </service>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\AdminToolWithRequiresAndNoPrivilege" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\AdminToolWithRequiresAndNoPrivilege">
+            <tag name="mcp.tool"/>
+        </service>
+        <service id="swag.admin_mcp.shipping_info" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\DualScopeToolWithoutRequires">
+            <tag name="mcp.tool"/>
+        </service>
+        <service id="swag.store_api_mcp.shipping_info" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpAdminToolRequiresPrivilegeRule\DualScopeToolWithoutRequires">
+            <tag name="mcp.tool"/>
+            <tag name="shopware.store_api_mcp.tool"/>
+        </service>
     </services>
 </container>

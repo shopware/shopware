@@ -51,10 +51,11 @@ Extensions and integrations that read the product type of older order line items
 
 Two new rules in the Shopware PHPStan rule set check the privileges of MCP tools from plugins and bundles:
 
-* `shopware.mcpAdminToolMissingRequires` reports an Admin API tool (`/api/_mcp`) without `#[McpToolRequires]` on its class.
-  Declare every ACL privilege the tool needs, so `bin/console debug:mcp` and the integration allowlist show it to operators.
-  Keep checking the privileges in the tool with `requirePrivilege()`, because the attribute does not enforce them.
-* `shopware.mcpStoreApiToolAdminAcl` reports a Store API tool (`shopware.store_api_mcp.tool`) that declares `#[McpToolRequires]` or calls `requirePrivilege()`.
+* `shopware.mcpAdminToolMissingRequires` reports an Admin API tool (`/api/_mcp`) that declares neither `#[McpToolRequires]` nor the new `#[McpToolRequiresNoPrivilege]` on its class, or both of them.
+  Declare every ACL privilege the tool needs with `#[McpToolRequires]`, so `bin/console debug:mcp` and the integration allowlist show it to operators.
+  Only for a tool that reads no shop data, declare `#[McpToolRequiresNoPrivilege(reason: '...')]` instead.
+  Both attributes are informational: keep checking the privileges in the tool with `requirePrivilege()`, and the DAL keeps checking the ACL of every repository call.
+* `shopware.mcpStoreApiToolAdminAcl` reports a Store API tool (`shopware.store_api_mcp.tool`) that declares `#[McpToolRequires]` or calls `requirePrivilege()`, also in a method it inherits from a parent class or a trait.
   Store API tools run in a sales channel context, where Admin ACL privileges do not apply.
 
 Both rules tell the two servers apart by the tags in the compiled container, so they only report tools when `parameters.symfony.containerXmlPath` points to a container that registers your tools.
@@ -77,6 +78,7 @@ Store API clients should show the error and let the customer add the VAT ID via 
 That route now validates `vatIds` against the country of the active billing address instead of the default one, the same country the cart checks.
 Headless clients find that address as `customer.activeBillingAddress` in `/store-api/context`.
 The Storefront profile page marks the VAT ID field as required based on the same country.
+A tool class registered on both servers is checked by both rules, so it can only declare `#[McpToolRequiresNoPrivilege]`.
 
 ## API
 

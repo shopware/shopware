@@ -114,6 +114,10 @@ class EntityReadTool extends McpToolResponse { ... }
 | `shopware-entity-upsert` | `<entity>:create`, `<entity>:update` (dynamic) |
 | `shopware-entity-delete` | `<entity>:delete` (dynamic) |
 | `shopware-theme-config` (Storefront) | `theme:read`, `theme:update` |
+| `shopware-entity-schema` | none, `#[McpToolRequiresNoPrivilege]` (reads entity definitions only) |
+| `shopware-tool-search` | none, `#[McpToolRequiresNoPrivilege]` (discovery meta-tool) |
+| `shopware-toolsets-list` | none, `#[McpToolRequiresNoPrivilege]` (discovery meta-tool) |
+| `shopware-toolset-enable` | none, `#[McpToolRequiresNoPrivilege]` (discovery meta-tool) |
 
 ## Response format convention
 All tools must extend the `McpToolResponse` abstract class. It provides two helpers:

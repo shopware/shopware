@@ -46,6 +46,20 @@ class McpAdminToolRequiresPrivilegeRuleTest extends RuleTestCase
         ]);
     }
 
+    public function testToolInheritingAttributedInvokeFromAbstractBaseFails(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpAdminToolRequiresPrivilegeRule/AdminToolInheritingToolInvoke.php'], [
+            [$this->message('AdminToolInheritingToolInvoke'), 5, self::TIP],
+        ]);
+    }
+
+    public function testToolUsingTraitWithAttributedInvokeFails(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpAdminToolRequiresPrivilegeRule/AdminToolUsingToolInvokeTrait.php'], [
+            [$this->message('AdminToolUsingToolInvokeTrait'), 5, self::TIP],
+        ]);
+    }
+
     public function testToolRegisteredUnderAnotherServiceIdFails(): void
     {
         $this->analyse([__DIR__ . '/data/McpAdminToolRequiresPrivilegeRule/AdminToolRegisteredUnderServiceId.php'], [

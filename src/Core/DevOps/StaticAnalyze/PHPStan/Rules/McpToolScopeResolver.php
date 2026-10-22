@@ -4,7 +4,7 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
 use PhpParser\Node\Attribute;
 use PhpParser\Node\AttributeGroup;
-use PhpParser\Node\Stmt\Class_;
+use PHPStan\Reflection\ClassReflection;
 use PHPStan\Symfony\ServiceMap;
 use Shopware\Core\Framework\Log\Package;
 
@@ -56,14 +56,18 @@ final class McpToolScopeResolver
 
     /**
      * Whether the class declares `#[McpTool]`, on the class or on `__invoke()`, the two places the
-     * SDK discoverer reads it from.
+     * SDK discoverer reads it from. Resolved through reflection like McpToolAttributeReader does at
+     * runtime, so an `__invoke()` inherited from a parent class or a trait counts as well.
      */
-    public static function isMcpTool(Class_ $class): bool
+    public static function isMcpTool(ClassReflection $class): bool
     {
-        $invoke = $class->getMethod('__invoke');
+        $native = $class->getNativeReflection();
+        if ($native->getAttributes(self::MCP_TOOL_ATTRIBUTE) !== []) {
+            return true;
+        }
 
-        return self::attributesOf($class->attrGroups, self::MCP_TOOL_ATTRIBUTE) !== []
-            || ($invoke !== null && self::attributesOf($invoke->attrGroups, self::MCP_TOOL_ATTRIBUTE) !== []);
+        return $native->hasMethod('__invoke')
+            && $native->getMethod('__invoke')->getAttributes(self::MCP_TOOL_ATTRIBUTE) !== [];
     }
 
     /**

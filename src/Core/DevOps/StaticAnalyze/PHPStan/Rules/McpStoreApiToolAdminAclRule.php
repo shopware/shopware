@@ -10,6 +10,7 @@ use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassLike;
+use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\NodeFinder;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
@@ -65,7 +66,7 @@ class McpStoreApiToolAdminAclRule implements Rule
     public function processNode(Node $node, Scope $scope): array
     {
         $class = $node->getOriginalNode();
-        if (!$class instanceof Class_ || $class->isAbstract() || !McpToolScopeResolver::isMcpTool($class)) {
+        if (!$class instanceof Class_ || $class->isAbstract() || !McpToolScopeResolver::isMcpTool($node->getClassReflection())) {
             return [];
         }
 
@@ -104,42 +105,78 @@ class McpStoreApiToolAdminAclRule implements Rule
      * The inherited methods, as `Declaring::method`, that call requirePrivilege() and run for the tool
      * unchanged: declared in a parent class or a trait and not overridden on the way down.
      *
+     * A public or protected method is resolved against the tool, an override anywhere below its
+     * declaration replaces it. A private method is resolved against the class it lands in, the parent
+     * class or the class using the trait: a same-named method further down does not override it, the
+     * parent's own code keeps calling it.
+     *
      * @return list<string>
      */
     private function inheritedMethodsCallingRequirePrivilege(ClassReflection $tool): array
     {
-        $nativeTool = $tool->getNativeReflection();
         $methods = [];
 
-        $declarations = [];
-        foreach ([...array_values($tool->getTraits(true)), ...$tool->getParents()] as $declaration) {
-            $declarations[$declaration->getName()] = $declaration;
-        }
-
-        foreach ($declarations as $declaration) {
-            $declarationNode = $this->findClassNode($declaration);
-            if ($declarationNode === null) {
-                continue;
+        foreach ([$tool, ...$tool->getParents()] as $owner) {
+            $declarations = $owner === $tool ? [] : [$owner];
+            foreach ($this->traitsUsedBy($owner) as $trait) {
+                $declarations[] = $trait;
             }
 
-            foreach ($declarationNode->getMethods() as $method) {
-                $name = $method->name->toString();
-                if (!$nativeTool->hasMethod($name)) {
+            foreach ($declarations as $declaration) {
+                $declarationNode = $this->findClassNode($declaration);
+                if ($declarationNode === null) {
                     continue;
                 }
 
-                $resolved = $nativeTool->getMethod($name);
-                if ($resolved->getFileName() !== $declaration->getFileName() || $resolved->getStartLine() !== $method->getStartLine()) {
-                    continue;
-                }
+                foreach ($declarationNode->getMethods() as $method) {
+                    $resolvingClass = $method->isPrivate() ? $owner : $tool;
+                    if (!$this->resolvesTo($resolvingClass, $declaration, $method)) {
+                        continue;
+                    }
 
-                if ($this->requirePrivilegeCalls($method->stmts ?? []) !== []) {
-                    $methods[] = $declaration->getName() . '::' . $name;
+                    if ($this->requirePrivilegeCalls($method->stmts ?? []) !== []) {
+                        $methods[$declaration->getName() . '::' . $method->name->toString()] = true;
+                    }
                 }
             }
         }
 
-        return $methods;
+        return array_keys($methods);
+    }
+
+    /**
+     * The traits the class uses itself, including traits used by those traits, but not the traits of
+     * its parents.
+     *
+     * @return list<ClassReflection>
+     */
+    private function traitsUsedBy(ClassReflection $class): array
+    {
+        $traits = [];
+        foreach ($class->getTraits() as $trait) {
+            $traits[] = $trait;
+            foreach ($this->traitsUsedBy($trait) as $nestedTrait) {
+                $traits[] = $nestedTrait;
+            }
+        }
+
+        return $traits;
+    }
+
+    /**
+     * Whether calling the method on the class runs the given declaration and not another one.
+     */
+    private function resolvesTo(ClassReflection $class, ClassReflection $declaration, ClassMethod $method): bool
+    {
+        $native = $class->getNativeReflection();
+        $name = $method->name->toString();
+        if (!$native->hasMethod($name)) {
+            return false;
+        }
+
+        $resolved = $native->getMethod($name);
+
+        return $resolved->getFileName() === $declaration->getFileName() && $resolved->getStartLine() === $method->getStartLine();
     }
 
     private function findClassNode(ClassReflection $declaration): ?ClassLike

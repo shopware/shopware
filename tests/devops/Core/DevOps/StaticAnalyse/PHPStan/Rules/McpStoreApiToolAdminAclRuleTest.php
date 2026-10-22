@@ -80,6 +80,15 @@ class McpStoreApiToolAdminAclRuleTest extends RuleTestCase
         ]]);
     }
 
+    public function testStoreApiToolShadowingInheritedPrivateHelperFails(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpStoreApiToolAdminAclRule/StoreApiToolShadowingPrivateCheck.php'], [[
+            $this->inheritedMessage('StoreApiToolShadowingPrivateCheck', 'AdminOrderToolWithPrivateCheckBase::checkOrderPrivilege'),
+            8,
+            self::TIP,
+        ]]);
+    }
+
     public function testToolRegisteredOnBothServersIsCheckedAsStoreApiTool(): void
     {
         $this->analyse([__DIR__ . '/data/McpStoreApiToolAdminAclRule/DualScopeToolWithRequires.php'], [[

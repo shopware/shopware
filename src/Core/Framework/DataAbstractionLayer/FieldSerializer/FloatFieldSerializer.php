@@ -50,7 +50,7 @@ class FloatFieldSerializer extends AbstractFieldSerializer
         }
 
         $constraints = $this->getCachedConstraints($field);
-        $choices = $this->strictChoiceResolver->getStrictChoices($field, $parameters->getDefinition()->getEntityName());
+        $choices = $this->strictChoiceResolver->getStrictChoices($field, $parameters->getDefinition());
         if ($choices !== null) {
             $constraints[] = new ChoiceConstraint(
                 choices: array_map(static fn (string|bool|int|float $value): float => (float) $value, $choices),

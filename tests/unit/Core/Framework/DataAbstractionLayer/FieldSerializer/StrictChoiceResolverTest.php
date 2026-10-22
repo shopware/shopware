@@ -5,6 +5,9 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerialize
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldEnumProviderInterface;
@@ -30,7 +33,24 @@ class StrictChoiceResolverTest extends TestCase
 
         $field = (new StringField('type', 'type'))->addFlags(new Choice(['page', 'link'], strict: true));
 
-        static::assertSame(['page', 'link', 'custom'], $resolver->getStrictChoices($field, 'category'));
+        static::assertSame(['page', 'link', 'custom'], $resolver->getStrictChoices($field, new CategoryDefinition()));
+    }
+
+    public function testAsksEnumProvidersForTheParentEntityOfATranslationDefinition(): void
+    {
+        $resolver = new StrictChoiceResolver([
+            self::createEnumProvider(CategoryDefinition::ENTITY_NAME, 'name', ['from-parent']),
+            self::createEnumProvider(CategoryTranslationDefinition::ENTITY_NAME, 'name', ['from-translation']),
+        ]);
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('getByClassOrEntityName')->willReturn(new CategoryDefinition());
+        $translationDefinition = new CategoryTranslationDefinition();
+        $translationDefinition->compile($registry);
+
+        $field = (new StringField('name', 'name'))->addFlags(new Choice(['fixed'], strict: true));
+
+        static::assertSame(['fixed', 'from-parent'], $resolver->getStrictChoices($field, $translationDefinition));
     }
 
     public function testReturnsNullForNonStrictChoices(): void
@@ -39,14 +59,14 @@ class StrictChoiceResolverTest extends TestCase
 
         $field = (new StringField('type', 'type'))->addFlags(new Choice(['page', 'link']));
 
-        static::assertNull($resolver->getStrictChoices($field, 'category'));
+        static::assertNull($resolver->getStrictChoices($field, new CategoryDefinition()));
     }
 
     public function testReturnsNullWithoutChoiceFlag(): void
     {
         $resolver = new StrictChoiceResolver([self::createEnumProvider('category', 'type', ['custom'])]);
 
-        static::assertNull($resolver->getStrictChoices(new StringField('type', 'type'), 'category'));
+        static::assertNull($resolver->getStrictChoices(new StringField('type', 'type'), new CategoryDefinition()));
     }
 
     /**

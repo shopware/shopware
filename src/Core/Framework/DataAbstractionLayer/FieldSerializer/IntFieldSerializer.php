@@ -46,7 +46,7 @@ class IntFieldSerializer extends AbstractFieldSerializer
         }
 
         $constraints = $this->getCachedConstraints($field);
-        $choices = $this->strictChoiceResolver->getStrictChoices($field, $parameters->getDefinition()->getEntityName());
+        $choices = $this->strictChoiceResolver->getStrictChoices($field, $parameters->getDefinition());
         if ($choices !== null) {
             $constraints[] = new ChoiceConstraint(choices: $choices, strict: true);
         }

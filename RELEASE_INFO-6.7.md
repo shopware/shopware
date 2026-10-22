@@ -64,6 +64,7 @@ Extensions that use their own category types register them with an enum provider
 Tag a service that implements `Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldEnumProviderInterface` with `shopware.api.enum_provider`, support the entity `category` and the field `type`, and return the additional types from `getChoices()`.
 The write validation accepts these types, and the generated API schema lists them.
 This works for every field with a strict `Choice` flag, for example `product_visibility.visibility`.
+For a translated field, the provider is asked for the parent entity, for example `category` and not `category_translation`, the same as for the API schema.
 
 ```php
 class MyCategoryTypeProvider implements FieldEnumProviderInterface

@@ -176,3 +176,18 @@ public function getEnumValues(): array
 ```
 
 When combining arrays from multiple sources, normalize back to list shape with `array_values(...)` after operations like `array_merge(...)` or `array_unique(...)`.
+
+## Writing PHPStan rules that check runtime behaviour
+
+A rule that checks what a class does at runtime must look at the code PHP actually runs, not only at the class's own syntax tree.
+`Class_::getMethod()` and a `NodeFinder` on the class node only see methods the class declares itself.
+They miss methods inherited from a parent class or a trait, so a check in an abstract base class passes unnoticed.
+
+- Find attributes and methods through `ClassReflection::getNativeReflection()`, which resolves inherited methods the same way the runtime does.
+- To inspect the body of an inherited method, walk `ClassReflection::getParents()` and `getTraits()` and parse the declaring class.
+- Resolve a public or protected method against the analysed class, because an override replaces it.
+  Resolve a private method against the class that declares it, because a private method is never overridden.
+- When the same class can be registered as several services, check each service definition on its own instead of merging their tags.
+- Add a fixture for each case: an abstract base class, a trait, and a same-named private method in the child.
+
+The MCP tool rules (`McpToolScopeResolver`, `McpStoreApiToolAdminAclRule`) follow this approach.

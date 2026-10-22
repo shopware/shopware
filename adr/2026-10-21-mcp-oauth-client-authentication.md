@@ -193,7 +193,7 @@ Decision: **A now, B as an opt-in later, never C.**
   `POST /register` keeps answering `invalid_client`.
 
 Redirect URI rules for static clients stay as they are: loopback IP literals with any port, everything else exact, no wildcards.
-Non-loopback redirect URIs must use https; private-use schemes (`cursor://`) are allowed only as an exact match.
+Redirect URIs that are neither loopback nor `localhost` must use https; private-use schemes (`cursor://`) are allowed only as an exact match.
 For CIMD clients the redirect URI must be listed in the fetched document.
 
 Only operators add clients, through configuration in `config/packages`.
@@ -202,12 +202,15 @@ There is no Admin API or Administration UI for client registration.
 Core ships no entries for third-party MCP clients; `shopware-cli` stays the only default.
 The documentation shows how an operator adds a client.
 
-`http://localhost` redirect URIs are not accepted:
+Redirect URIs on the local machine:
 
 - A redirect URI matches only the URIs configured for the client id in the request; loopback any-port matching never applies across clients.
 - The port is the only free part, and only for a configured `127.0.0.1` or `[::1]` URI; scheme, host and path match exactly (RFC 8252 section 7.3).
+- `http://localhost` is accepted only as an exact match, port included, for a URI the operator configured for that client.
+  There is no any-port rule for `localhost`.
+  Claude Code calls back on `http://localhost:<port>/callback`, so an operator registers a fixed port, for example `http://localhost:53682/callback`, and the user adds the server with `--callback-port 53682`.
 - `localhost` is a name, not an address.
-  It can resolve elsewhere through the hosts file or DNS, and a second local process can listen on it for the other address family, so RFC 8252 section 8.3 advises against it.
+  It can resolve elsewhere through the hosts file or DNS, and a second local process can listen on it for the other address family, so RFC 8252 section 8.3 advises against it; the exact match keeps it limited to a port the operator chose.
 - A loopback redirect does not prove which local program asked.
   Any local program can send a public client id; PKCE binds the code to the program that started the flow, and the consent page names the client and the redirect host.
 

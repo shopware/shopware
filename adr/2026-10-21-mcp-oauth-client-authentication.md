@@ -100,6 +100,12 @@ The base URL is the scheme, host and base path of the Admin API request, accepte
 For an installation in a subdirectory the base path is part of every URL: issuer `https://shop.example/shop/api`, resource `https://shop.example/shop/api/_mcp`.
 The well-known URIs insert their suffix before that path, as RFC 8414 and RFC 9728 define (`https://shop.example/.well-known/oauth-protected-resource/shop/api/_mcp`).
 
+MCP clients may add a query to the endpoint URL, for example `https://shop.example/api/_mcp?toolsets=orders`.
+RFC 9728 section 3.1 keeps that query after the well-known path, and section 3.3 requires the client to drop metadata whose `resource` is not identical to the URL it requested.
+So the `resource_metadata` URL in the challenge carries the query of the MCP request as sent (`.../.well-known/oauth-protected-resource/api/_mcp?toolsets=orders`), and the metadata answers with that query in `resource` (`https://shop.example/api/_mcp?toolsets=orders`).
+Matching a requested resource and the token audience ignore the query (see 2), so one token works with and without toolsets.
+The MCP TypeScript SDK, which Claude Code uses, compares only origin and path; strict RFC 9728 clients compare the whole URL, and both succeed.
+
 ```
 GET /api/_mcp                                    (no token)
 401  WWW-Authenticate: Bearer resource_metadata="https://shop.example/.well-known/oauth-protected-resource/api/_mcp"
@@ -165,6 +171,7 @@ Rules:
   The only resource value accepted is the MCP resource of this shop; any other value is answered with `invalid_target` (RFC 8707).
   The token request must name the same resource as the authorization request.
 - The resource is compared without its query and without a trailing slash, so `https://shop.example/api/_mcp?toolsets=all` names the same resource.
+  Only the discovery answers keep the query, see "Names and URLs".
   A resource with a fragment is rejected, as RFC 8707 requires.
 - A token request without `resource` after an authorization request with one still yields a token bound to that resource; RFC 8707 lets the authorization server apply the resource of the grant.
 - A refresh keeps the resource of the original grant.
@@ -172,7 +179,8 @@ Rules:
   Readers taking `aud[0]` as client id keep working.
 - `ApiAuthenticationListener` rejects a token carrying the MCP resource on every route except `api.mcp.endpoint`, with `401 invalid_token`.
   This includes `POST /api/oauth/authorize`, so an MCP token can never approve another client.
-- Subrequests started by an `/api/_mcp` main request (app script tools on `/api/script/{path}`) are exempt; the check applies to main requests only.
+- Subrequests started by an `/api/_mcp` main request (app script tools on `/api/script/{path}`) accept the token only because the MCP request marks them with a request attribute.
+  Other subrequests reject it: ESI fragments copy the parent's `Authorization` header, so "is a subrequest" alone would let an MCP token reach any route.
 - Clients without `resource` keep getting a plain Admin API token (`shopware-cli`).
 
 ### 3. Client registration
@@ -194,6 +202,11 @@ Decision: **A now, B as an opt-in later, never C.**
 
 Redirect URI rules for static clients stay as they are: loopback IP literals with any port, everything else exact, no wildcards.
 Redirect URIs that are neither loopback nor `localhost` must use https; private-use schemes (`cursor://`) are allowed only as an exact match.
+Plain http is accepted for `localhost` and the loopback IP literals `127.0.0.1` and `[::1]` only.
+The exception is the `dev` kernel environment (`kernel.environment` is `dev`): there every http redirect URI is accepted, so development hosts such as `http://shop.test` are not blocked.
+The `test` and `prod` environments enforce the rule.
+The check runs on every authorization request, not when the configuration is loaded: `oauth_clients` shipped with 6.7.15.0, and one insecure entry must not stop the whole Admin API from booting.
+An insecure redirect URI is answered with `400 FRAMEWORK__OAUTH_INSECURE_REDIRECT_URI` and, like an unregistered one, never receives the error (RFC 6749 section 4.1.2.1).
 For CIMD clients the redirect URI must be listed in the fetched document.
 
 Only operators add clients, through configuration in `config/packages`.
@@ -320,6 +333,7 @@ No `scope` parameter is sent while Shopware defines no MCP scopes.
 - Integrations with access keys or `client_credentials` tokens are unaffected.
 - Copied user tokens and `shopware-cli` tokens keep working on `/api/_mcp` and everywhere else.
 - Only tokens issued with the MCP resource are new, and only they are restricted.
+- A configured `http` redirect URI on a host other than `localhost` or a loopback IP literal stops working outside the `dev` environment and has to move to https.
 - Sessions without a stored principal are rejected once session binding ships; MCP clients re-initialize on `404`.
 - The rate-limit bucket of bearer clients changes from token to principal; clients that relied on a fresh bucket per token get throttled sooner.
 

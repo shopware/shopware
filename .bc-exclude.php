@@ -83,6 +83,11 @@ return [
         preg_quote('REMOVED: Property Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule#$isNet was removed', '/'),
         preg_quote('CHANGED: The return type of Shopware\Core\Framework\Rule\Rule#getConfig() changed from Shopware\Core\Framework\Rule\RuleConfig|null to Shopware\Core\Framework\Rule\RuleConfig', '/'),
 
+        // Rule::getConfig() already permits null. These deprecated implementations keep returning
+        // RuleConfig in 6.7 and only return null when their removal flag v6.8.0.0 is active.
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Cart\Rule\LineItemStockRule#getConfig() changed from Shopware\Core\Framework\Rule\RuleConfig to ', '/') . '(?:the non-covariant )?' . preg_quote('Shopware\Core\Framework\Rule\RuleConfig|null', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Cart\Rule\LineItemProductStatesRule#getConfig() changed from Shopware\Core\Framework\Rule\RuleConfig to ', '/') . '(?:the non-covariant )?' . preg_quote('Shopware\Core\Framework\Rule\RuleConfig|null', '/'),
+
         // DefinitionValidator is @final; optional parameter added with default [], existing callers are unaffected
         preg_quote('ADDED: Parameter toleratedNonStandardForeignKeys was added to Method validate() of class Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator', '/'),
 
@@ -100,6 +105,16 @@ return [
         // MCP_STORE_API. The constant lived on the non-experimental RateLimiter class so it
         // was not auto-skipped, but it is part of the still-experimental MCP surface.
         preg_quote('REMOVED: Constant Shopware\Core\Framework\RateLimiter\RateLimiter::MCP was removed', '/'),
+
+        // Experimental app MCP DAL aggregates were replaced by the generic app feature storage.
+        // Their accessors lived on stable parent entities, so the BC checker does not infer the
+        // experimental status from the removed aggregate types.
+        preg_quote('REMOVED: Property Shopware\Core\Framework\App\AppEntity#$mcp', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\App\AppEntity#getMcp', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\App\AppEntity#setMcp', '/'),
+        preg_quote('REMOVED: Property Shopware\Core\System\Language\LanguageEntity#$appMcp', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\System\Language\LanguageEntity#getAppMcp', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\System\Language\LanguageEntity#setAppMcp', '/'),
 
         // EntitySearchResult::merge() takes EntityCollection (not self) so it accepts any collection, not just other search results.
         'CHANGED: The parameter \$collection of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection#merge\(\) changed from self to (?:a non-contravariant )?Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection',

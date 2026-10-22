@@ -56,6 +56,21 @@ shopware:
         major: v6.8.0.0
         toggleable: true
         description: "Experimental! Enable new caching, includes following breaking changes: Only include rule ids which are relevant for different content in the HTTP cache context key; Remove cache states and cache pages for logged in customers or when the cart is filled by default; Enable caching for Store-API."
+      - name: MEDIA_URL_PATH_ENCODING
+        default: false
+        major: v6.8.0.0
+        toggleable: true
+        description: "Encode media URL path segments when generating media URLs, without additional encoding in document logos, product exports, import/export, or Storefront templates."
+      - name: PROPORTIONAL_CART_TAXES
+        default: false
+        major: v6.8.0.0
+        toggleable: true
+        description: "Scale existing calculated taxes for percentage prices and split line-item quantities instead of recalculating them."
+      - name: DELETE_CART_AFTER_ORDER_CREATION
+        default: false
+        major: v6.8.0.0
+        toggleable: true
+        description: "Delete the persisted cart immediately after the order is created, before order-placed events are dispatched."
       - name: DEFERRED_CART_ERRORS
         default: false
         major: v6.8.0.0
@@ -96,6 +111,11 @@ shopware:
         major: v6.8.0.0
         toggleable: true
         description: "Experimental! Enable outbox-owned retry scheduling for webhooks instead of Messenger retries."
+      # No `major: v6.8.0.0` yet: setup-shopware caches only the admin node_modules, so major CI lanes would miss build/vite-8/node_modules
+      - name: ADMIN_VITE_8
+        default: false
+        toggleable: true
+        description: "Experimental! Build the Administration and the Administration code of extensions with Vite 8. Requires Node.js ^20.19.0 || >=22.12.0. Will become the default with 6.8."
       - name: ADMIN_EXTENSION_TOOLING
         default: false
         toggleable: true

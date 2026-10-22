@@ -818,6 +818,7 @@
         "lineItemTotalPriceRule": "Positionssumme (Menge × Preis)",
         "lineItemWithQuantityRule": "Position mit Menge",
         "lineItemPerItemQuantityRule": "Menge pro Position",
+        "orderDaysSincePlacedRule": "Zeit seit Bestelldatum",
         "orderTagRule": "Bestellung mit Tag",
         "orderTrackingCodeRule": "Sendungsnummer",
         "orderDeliveryStatusRule": "Lieferstatus",
@@ -1116,6 +1117,7 @@
       "theme": "Theme | Themes",
       "unit": "Maßeinheit | Maßeinheiten",
       "user": "Benutzer",
+      "webhook": "Webhook | Webhooks",
       "landing_page": "Landingpage | Landingpages",
       "delivery_time": "Lieferzeit | Lieferzeiten",
       "import_export_profile": "Import/Export-Profil | Import/Export-Profile",
@@ -1379,6 +1381,10 @@
     "general": {
       "messagePlaceholder": "Es ist ein Fehler aufgetreten. Die Seite konnte nicht geladen werden."
     }
+  },
+  "sw-not-found": {
+    "title": "Seite nicht gefunden",
+    "description": "Die gesuchte Seite konnte nicht gefunden werden. Möglicherweise wurde sie verschoben oder existiert nicht mehr."
   },
   "sw-property-search": {
     "placeholderSearch": "Ausprägungen durchsuchen ...",

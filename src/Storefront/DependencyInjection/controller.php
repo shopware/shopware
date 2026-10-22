@@ -5,6 +5,7 @@ namespace Shopware\Storefront\DependencyInjection;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartReorderRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddWishlistProductRoute;
@@ -34,7 +35,6 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRoute;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\Cms\SalesChannel\CmsRoute;
@@ -224,11 +224,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CartLineItemController::class)
         ->args([
             service(CartService::class),
-            service(PromotionItemBuilder::class),
             service(ProductLineItemFactory::class),
             service(HtmlSanitizer::class),
             service(ProductListRoute::class),
             service(LineItemFactoryRegistry::class),
+            service(CartReorderRoute::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

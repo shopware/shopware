@@ -1374,6 +1374,66 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         ]);
     });
 
+    it('should load the documents of the new order when the order changes', async () => {
+        wrapper = await createWrapper();
+
+        const otherOrderDocument = { ...documentFixture, id: 'other-order-document', orderId: 'other-order' };
+        documentSearchMock.mockClear();
+        documentSearchMock.mockResolvedValue(getCollection('document', [otherOrderDocument]));
+
+        await wrapper.setProps({
+            order: { ...orderFixture, id: 'other-order' },
+        });
+        await flushPromises();
+
+        expect(documentSearchMock).toHaveBeenCalledTimes(1);
+        expect(documentSearchMock.mock.calls[0][0].filters).toEqual([
+            { type: 'equals', field: 'order.id', value: 'other-order' },
+        ]);
+        expect(wrapper.vm.documents).toHaveLength(1);
+        expect(wrapper.vm.documents.first().id).toBe('other-order-document');
+    });
+
+    it('should ignore documents of the previous order that arrive after the order changed', async () => {
+        wrapper = await createWrapper();
+
+        const previousOrderDocument = { ...documentFixture, id: 'previous-order-document' };
+        const otherOrderDocument = { ...documentFixture, id: 'other-order-document', orderId: 'other-order' };
+        let resolvePreviousOrderSearch;
+        documentSearchMock.mockReset();
+        documentSearchMock
+            .mockReturnValueOnce(
+                new Promise((resolve) => {
+                    resolvePreviousOrderSearch = resolve;
+                }),
+            )
+            .mockResolvedValueOnce(getCollection('document', [otherOrderDocument]));
+
+        wrapper.vm.getList();
+        await wrapper.setProps({
+            order: { ...orderFixture, id: 'other-order' },
+        });
+        await flushPromises();
+
+        resolvePreviousOrderSearch(getCollection('document', [previousOrderDocument]));
+        await flushPromises();
+
+        expect(wrapper.vm.documents).toHaveLength(1);
+        expect(wrapper.vm.documents.first().id).toBe('other-order-document');
+    });
+
+    it('should not reload the documents when the order is updated without changing its id', async () => {
+        wrapper = await createWrapper();
+        documentSearchMock.mockClear();
+
+        await wrapper.setProps({
+            order: { ...orderFixture, orderNumber: '10001' },
+        });
+        await flushPromises();
+
+        expect(documentSearchMock).not.toHaveBeenCalled();
+    });
+
     it('should label a document with the translated document type when the current language has no name', async () => {
         const wrapper = await createWrapper();
 

@@ -240,7 +240,7 @@ export default class DocumentV2Service {
         }
 
         // @ts-expect-error
-        return (Shopware.Snippet?.tc(translationKey) as string | undefined) ?? technicalName;
+        return (Shopware.Snippet?.t(translationKey) as string | undefined) ?? technicalName;
     }
 
     public getErrorTranslation(errorCode: string, errorParams: { [key: string]: unknown }): string | null {

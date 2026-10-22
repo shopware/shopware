@@ -23,7 +23,6 @@ use Symfony\Component\Lock\Store\InMemoryStore;
  */
 #[Package('checkout')]
 #[CoversClass(StateMachineLocker::class)]
-#[CoversClass(StateMachineTransitionResult::class)]
 class StateMachineLockerTest extends TestCase
 {
     private LockFactory $lockFactory;

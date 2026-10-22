@@ -106,7 +106,7 @@ class OAuthAuthorizeController extends AbstractController
         $authorizationRequest = $this->authorizationServer->validateAuthorizationRequest(
             $this->createAuthorizationRequest($request->query->all())
         );
-        $this->resolveResource($request, $request->query->all());
+        $resource = $this->resolveResource($request, $request->query->all());
 
         $client = $authorizationRequest->getClient();
 
@@ -120,6 +120,7 @@ class OAuthAuthorizeController extends AbstractController
                 static fn ($scope) => $scope->getIdentifier(),
                 $authorizationRequest->getScopes()
             )),
+            'resource' => $resource,
         ]);
     }
 

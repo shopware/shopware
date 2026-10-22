@@ -87,6 +87,10 @@ export default Component.wrapComponentConfig({
             return this.info?.client.name ?? '';
         },
 
+        resource(): string {
+            return this.info?.resource ?? '';
+        },
+
         redirectHost(): string {
             if (!this.info?.redirectUri) {
                 return '';

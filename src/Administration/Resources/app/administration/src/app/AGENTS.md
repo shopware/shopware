@@ -83,8 +83,10 @@ export default Shopware.Component.wrapComponentConfig({
       }
 
       await this.productRepository.save(this.product, Shopware.Context.api);
+      useNotification().createNotificationSuccess({
+        message: this.$t('sw-product.detail.messageSaveSuccess', { name: this.product.name }),
+      });
       this.product = await this.productRepository.get(this.productId, Shopware.Context.api);
-      useNotification().createNotificationSuccess({ message: this.$t('sw-product.detail.messageSaveSuccess') });
     },
   },
 });

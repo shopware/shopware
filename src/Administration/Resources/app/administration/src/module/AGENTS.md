@@ -197,10 +197,12 @@ export default Shopware.Component.wrapComponentConfig({
 
       await this.productRepository.save(this.product, Shopware.Context.api);
 
+      useNotification().createNotificationSuccess({
+        message: this.$t('sw-product.detail.messageSaveSuccess', { name: this.product.name }),
+      });
+
       // ✅ CRITICAL: Reload to sync origin for change tracking
       await this.loadProduct();
-
-      useNotification().createNotificationSuccess({ message: this.$t('sw-product.detail.messageSaveSuccess') });
     },
   },
 });

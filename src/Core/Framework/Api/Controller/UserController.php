@@ -183,7 +183,7 @@ class UserController extends AbstractController
 
         $source = $context->getSource();
 
-        $isSelf = $source instanceof AdminApiSource && $source->isDirectUser() && $source->getUserId() === $userId;
+        $isSelf = $source instanceof AdminApiSource && $source->isSelf($userId);
 
         if ((!$source instanceof AdminApiSource)
             || (!$source->isAllowed('user:update') && !$isSelf)
@@ -245,7 +245,7 @@ class UserController extends AbstractController
             throw new PermissionDeniedException();
         }
 
-        $isSelfUpdate = $source->isDirectUser() && $source->getUserId() === $data['id'];
+        $isSelfUpdate = $source->isSelf($data['id']);
         $canUpdateUsers = $source->isAllowed('user:update');
 
         if (!$canUpdateUsers && !$isSelfUpdate) {

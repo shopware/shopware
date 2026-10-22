@@ -38,4 +38,13 @@ class AdminApiSourceTest extends TestCase
         static::assertFalse((new AdminApiSource(null))->isDirectUser());
         static::assertFalse((new AdminApiSource(''))->isDirectUser());
     }
+
+    public function testOnlyTheDirectUserItselfIsSelf(): void
+    {
+        static::assertTrue((new AdminApiSource('user-id'))->isSelf('user-id'));
+
+        static::assertFalse((new AdminApiSource('user-id'))->isSelf('other-user-id'));
+        static::assertFalse((new AdminApiSource('user-id', 'integration-id'))->isSelf('user-id'));
+        static::assertFalse((new AdminApiSource(null))->isSelf('user-id'));
+    }
 }

@@ -63,6 +63,14 @@ class AdminApiSource implements ContextSource, \JsonSerializable
         return $this->userId !== null && $this->userId !== '' && $this->integrationId === null;
     }
 
+    /**
+     * Whether the request is authenticated directly as the given user.
+     */
+    public function isSelf(string $userId): bool
+    {
+        return $this->isDirectUser() && $this->userId === $userId;
+    }
+
     public function setIsAdmin(bool $isAdmin): void
     {
         $this->isAdmin = $isAdmin;

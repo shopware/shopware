@@ -64,10 +64,11 @@ class UserController extends AbstractController
             throw ApiException::invalidAdminSource($source::class);
         }
 
-        $userId = $source->getUserId();
-        if (!$userId || $source->getIntegrationId() !== null) {
+        if (!$source->isDirectUser()) {
             throw ApiException::userNotLoggedIn();
         }
+
+        $userId = $source->getUserId();
         $criteria = new Criteria([$userId]);
         $criteria->addAssociations(['aclRoles', 'avatarMedia']);
 
@@ -95,10 +96,11 @@ class UserController extends AbstractController
             throw ApiException::invalidAdminSource($source::class);
         }
 
-        $userId = $source->getUserId();
-        if (!$userId || $source->getIntegrationId() !== null) {
+        if (!$source->isDirectUser()) {
             throw ApiException::userNotLoggedIn();
         }
+
+        $userId = $source->getUserId();
 
         $allowedChanges = ['firstName', 'lastName', 'username', 'localeId', 'email', 'avatarMedia', 'avatarId', 'password', 'timeZone'];
 
@@ -129,10 +131,11 @@ class UserController extends AbstractController
             throw ApiException::invalidAdminSource($source::class);
         }
 
-        $userId = $source->getUserId();
-        if (!$userId || $source->getIntegrationId() !== null) {
+        if (!$source->isDirectUser()) {
             throw ApiException::userNotLoggedIn();
         }
+
+        $userId = $source->getUserId();
         $result = $this->userRepository->searchIds(new Criteria([$userId]), $context);
 
         if ($result->getTotal() === 0) {
@@ -154,10 +157,11 @@ class UserController extends AbstractController
             throw ApiException::invalidAdminSource($source::class);
         }
 
-        $userId = $source->getUserId();
-        if (!$userId || $source->getIntegrationId() !== null) {
+        if (!$source->isDirectUser()) {
             throw ApiException::userNotLoggedIn();
         }
+
+        $userId = $source->getUserId();
 
         $this->ssoService->revokeUserTokens($userId);
 
@@ -179,7 +183,7 @@ class UserController extends AbstractController
 
         $source = $context->getSource();
 
-        $isSelf = $source instanceof AdminApiSource && $source->getIntegrationId() === null && $source->getUserId() === $userId;
+        $isSelf = $source instanceof AdminApiSource && $source->isDirectUser() && $source->getUserId() === $userId;
 
         if ((!$source instanceof AdminApiSource)
             || (!$source->isAllowed('user:update') && !$isSelf)
@@ -241,7 +245,7 @@ class UserController extends AbstractController
             throw new PermissionDeniedException();
         }
 
-        $isSelfUpdate = $source->getIntegrationId() === null && $source->getUserId() === $data['id'];
+        $isSelfUpdate = $source->isDirectUser() && $source->getUserId() === $data['id'];
         $canUpdateUsers = $source->isAllowed('user:update');
 
         if (!$canUpdateUsers && !$isSelfUpdate) {

@@ -67,11 +67,6 @@ class UserControllerTest extends TestCase
         $controller->logout($context);
     }
 
-    /**
-     * Security regression (GHSA-g8r6-cxw8-f75w): the self-service identity routes must reject an
-     * integration that names a user through the `sw-app-user-id` header (an AdminApiSource that
-     * carries both a user id and an integration id), even though a user id is present.
-     */
     public function testMeThrowsWhenAuthenticatedAsIntegrationNamingUser(): void
     {
         static::expectExceptionObject(ApiException::userNotLoggedIn());
@@ -113,10 +108,6 @@ class UserControllerTest extends TestCase
         $controller->logout($context);
     }
 
-    /**
-     * Security regression (GHSA-g8r6-cxw8-f75w): an integration naming a user is not that user, so
-     * it cannot use the "self" shortcut that waives `user:update` on delete/upsert.
-     */
     public function testDeleteUserDeniesIntegrationActingAsSelf(): void
     {
         static::expectExceptionObject(new PermissionDeniedException());

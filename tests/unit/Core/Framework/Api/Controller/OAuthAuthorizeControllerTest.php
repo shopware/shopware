@@ -214,11 +214,6 @@ class OAuthAuthorizeControllerTest extends TestCase
         );
     }
 
-    /**
-     * Security regression (GHSA-g8r6-cxw8-f75w): an integration naming a user through the
-     * `sw-app-user-id` header (a source with both a user id and an integration id) must not be able
-     * to approve the OAuth consent and mint an authorization code for that user.
-     */
     public function testApproveRejectsIntegrationActingAsUser(): void
     {
         $this->rateLimiter->expects($this->never())->method('ensureAccepted');

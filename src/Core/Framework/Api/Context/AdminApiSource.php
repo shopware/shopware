@@ -52,6 +52,17 @@ class AdminApiSource implements ContextSource, \JsonSerializable
         return $this->integrationId;
     }
 
+    /**
+     * Whether the request is authenticated directly as this user. False for any integration,
+     * including one acting for the user named in the `sw-app-user-id` header.
+     *
+     * @phpstan-assert-if-true non-empty-string $this->getUserId()
+     */
+    public function isDirectUser(): bool
+    {
+        return $this->userId !== null && $this->userId !== '' && $this->integrationId === null;
+    }
+
     public function setIsAdmin(bool $isAdmin): void
     {
         $this->isAdmin = $isAdmin;

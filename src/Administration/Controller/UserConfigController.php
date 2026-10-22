@@ -92,12 +92,11 @@ class UserConfigController extends AbstractController
             throw ApiException::invalidAdminSource($source::class);
         }
 
-        $userId = $source->getUserId();
-        if (!$userId || $source->getIntegrationId() !== null) {
+        if (!$source->isDirectUser()) {
             throw ApiException::userNotLoggedIn();
         }
 
-        return $userId;
+        return $source->getUserId();
     }
 
     /**

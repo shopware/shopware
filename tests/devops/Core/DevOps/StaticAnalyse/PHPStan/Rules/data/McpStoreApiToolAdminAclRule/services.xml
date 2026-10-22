@@ -40,6 +40,10 @@
             <tag name="mcp.tool"/>
             <tag name="shopware.store_api_mcp.tool"/>
         </service>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\StoreApiToolInheritingFromSharedNameBase" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\StoreApiToolInheritingFromSharedNameBase">
+            <tag name="mcp.tool"/>
+            <tag name="shopware.store_api_mcp.tool"/>
+        </service>
         <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\StoreApiToolOverridingInheritedInvoke" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\StoreApiToolOverridingInheritedInvoke">
             <tag name="mcp.tool"/>
             <tag name="shopware.store_api_mcp.tool"/>

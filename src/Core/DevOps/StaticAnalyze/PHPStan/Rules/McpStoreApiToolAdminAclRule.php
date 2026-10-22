@@ -186,9 +186,10 @@ class McpStoreApiToolAdminAclRule implements Rule
             return null;
         }
 
-        $shortName = $declaration->getNativeReflection()->getShortName();
+        // Matched by the fully qualified name: one file can declare same-named classes in several namespaces.
+        $name = $declaration->getName();
         foreach ((new NodeFinder())->findInstanceOf($this->parser->parseFile($file), ClassLike::class) as $classLike) {
-            if ($classLike->name?->toString() === $shortName) {
+            if ($classLike->namespacedName?->toString() === $name) {
                 return $classLike;
             }
         }

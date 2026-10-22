@@ -314,4 +314,13 @@ class DataAbstractionLayerExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame('FRAMEWORK__INVALID_COMPRESSED_CRITERIA_PARAMETER', $e->getErrorCode());
     }
+
+    public function testRepositoryIteratorMissingAutoIncrement(): void
+    {
+        $e = DataAbstractionLayerException::repositoryIteratorMissingAutoIncrement();
+
+        static::assertSame('Expected the id search result to contain the autoIncrement value of the last id.', $e->getMessage());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::REPOSITORY_ITERATOR_MISSING_AUTO_INCREMENT, $e->getErrorCode());
+    }
 }

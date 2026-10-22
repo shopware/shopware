@@ -7,7 +7,7 @@
  * New capabilities added in admin are automatically available in extensions as well.
  */
 
-import { existsSync, realpathSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -109,40 +109,6 @@ const ACCEPTED_OPTIONS = new Set([
     ...MERGED_OPTIONS,
     ...REPLACEABLE_OPTIONS,
 ]);
-
-/**
- * Escapes `text` for use as a literal inside a regular expression.
- *
- * @example
- * escapeRegExp('/var/www/.claude'); // → '/var/www/\\.claude'
- *
- * @param {string} text
- */
-const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-/**
- * List of files that use `import.meta.glob`. For these files the babel transform gets enabled.
- * The rest skips the babel transform (because it's faster).
- *
- * @example
- * new RegExp(metaGlobFilesPattern()).test(`${administrationRoot}/src/module/index.js`); // → true
- * new RegExp(metaGlobFilesPattern()).test('/extension/src/module/index.ts'); // → false
- */
-function metaGlobFilesPattern() {
-    // Jest matches transform patterns against real paths.
-    const sourceRoot = escapeRegExp(realpathSync(fromAdministration('src')));
-    const files = [
-        'module/index',
-        'core/service/api/index',
-        'app/mixin/index',
-        'app/decorator/index',
-        'app/plugin/index',
-        'app/directive/index',
-        'app/filter/index',
-    ];
-
-    return `^${sourceRoot}/(${files.join('|')})\\.[jt]sx?$`;
-}
 
 /**
  * Fails early with the command that generates a missing file, instead of
@@ -365,27 +331,27 @@ export function shopwareAdminJest(options = {}) {
         ],
 
         transform: withPriority(transform, {
-            [metaGlobFilesPattern()]: [
-                require.resolve('babel-jest'),
-                {
-                    presets: [
-                        require.resolve('@babel/preset-typescript'),
-                        [
-                            require.resolve('@babel/preset-env'),
-                            { targets: { node: 'current' } },
-                        ],
-                    ],
-                    plugins: [
-                        require.resolve('babel-plugin-shopware-vite-meta-glob'),
-                    ],
-                },
-            ],
+            // Babel for files that use `import.meta.glob`, which only its meta-glob plugin rewrites; SWC for the rest.
             '^.+\\.[jt]sx?$': [
-                require.resolve('@swc/jest'),
+                fromAdministration('test', 'transformer', 'metaGlobAwareTransformer.js'),
                 {
-                    jsc: {
-                        parser: { syntax: 'typescript', decorators: true },
-                        target: 'es2021',
+                    babel: {
+                        presets: [
+                            require.resolve('@babel/preset-typescript'),
+                            [
+                                require.resolve('@babel/preset-env'),
+                                { targets: { node: 'current' } },
+                            ],
+                        ],
+                        plugins: [
+                            require.resolve('babel-plugin-shopware-vite-meta-glob'),
+                        ],
+                    },
+                    swc: {
+                        jsc: {
+                            parser: { syntax: 'typescript', decorators: true },
+                            target: 'es2021',
+                        },
                     },
                 },
             ],

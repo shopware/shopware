@@ -55,7 +55,7 @@ class CompileThemeMessage implements AsyncMessageInterface
     /**
      * Whether to notify the user once compiled. Only the last message of a batch does, so the user is notified once.
      */
-    public function shouldNotifyOnCompletion(): bool
+    public function isNotifyOnCompletion(): bool
     {
         return $this->notifyOnCompletion;
     }

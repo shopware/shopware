@@ -777,20 +777,20 @@ class ThemeServiceTest extends TestCase
 
         static::assertSame(
             [[$themeId, false], [$dependentThemeId, true]],
-            array_map(static fn (CompileThemeMessage $message) => [$message->getThemeId(), $message->shouldNotifyOnCompletion()], $messages)
+            array_map(static fn (CompileThemeMessage $message) => [$message->getThemeId(), $message->isNotifyOnCompletion()], $messages)
         );
 
         $messages = [];
         $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
 
         static::assertCount(1, $messages);
-        static::assertTrue($messages[0]->shouldNotifyOnCompletion());
+        static::assertTrue($messages[0]->isNotifyOnCompletion());
 
         $messages = [];
         $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context, null, true, false);
 
         static::assertCount(1, $messages);
-        static::assertFalse($messages[0]->shouldNotifyOnCompletion());
+        static::assertFalse($messages[0]->isNotifyOnCompletion());
     }
 
     public function testUpdateTheme(): void

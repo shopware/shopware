@@ -27,6 +27,6 @@ class CompileThemeMessageTest extends TestCase
         static::assertSame(TestDefaults::SALES_CHANNEL, $message->getSalesChannelId());
         static::assertTrue($message->isWithAssets());
         static::assertSame($context, $message->getContext());
-        static::assertTrue($message->shouldNotifyOnCompletion());
+        static::assertTrue($message->isNotifyOnCompletion());
     }
 }

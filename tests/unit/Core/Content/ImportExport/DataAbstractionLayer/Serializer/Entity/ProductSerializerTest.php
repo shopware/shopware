@@ -13,18 +13,19 @@ use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -447,10 +448,12 @@ class ProductSerializerTest extends TestCase
         $registry->method('getFieldSerializer')->willReturn($fieldSerializer);
         $registry->method('getEntity')->willReturn($mediaSerializer);
 
-        $repository = static::createStub(EntityRepository::class);
-        $repository->method('searchIds')->willReturn(new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()));
-
-        $serializer = new ProductSerializer($repository, $repository, $repository, $repository);
+        $serializer = new ProductSerializer(
+            StaticEntityRepository::of(ProductVisibilityCollection::class, [[]]),
+            StaticEntityRepository::of(SalesChannelCollection::class, [[]]),
+            StaticEntityRepository::of(ProductMediaCollection::class, [[]]),
+            StaticEntityRepository::of(ProductConfiguratorSettingCollection::class, [[]])
+        );
         $serializer->setRegistry($registry);
 
         return $serializer;

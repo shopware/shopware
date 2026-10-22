@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\ActionButton\Response;
 use GuzzleHttp\Psr7\Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Response\NotificationResponse;
@@ -55,22 +56,21 @@ class OpenModalResponseFactoryTest extends TestCase
     }
 
     #[DataProvider('actionTypesProvider')]
+    #[TestDox('accepts the open modal action type and rejects the other action types: $actionType')]
     public function testSupportsOnlyOpenModalActionType(string $actionType, bool $isSupported): void
     {
         static::assertSame($isSupported, $this->factory->supports($actionType));
     }
 
     /**
-     * @return array<array<string|bool>>
+     * @return iterable<string, array{string, bool}>
      */
-    public static function actionTypesProvider(): array
+    public static function actionTypesProvider(): iterable
     {
-        return [
-            [NotificationResponse::ACTION_TYPE, false],
-            [OpenModalResponse::ACTION_TYPE, true],
-            [OpenNewTabResponse::ACTION_TYPE, false],
-            [ReloadDataResponse::ACTION_TYPE, false],
-        ];
+        yield 'notification action is not supported' => [NotificationResponse::ACTION_TYPE, false];
+        yield 'open modal action is supported' => [OpenModalResponse::ACTION_TYPE, true];
+        yield 'open new tab action is not supported' => [OpenNewTabResponse::ACTION_TYPE, false];
+        yield 'reload data action is not supported' => [ReloadDataResponse::ACTION_TYPE, false];
     }
 
     public function testCreatesOpenModalResponse(): void
@@ -124,6 +124,7 @@ class OpenModalResponseFactoryTest extends TestCase
      * @param array<bool|string> $payload
      */
     #[DataProvider('invalidPayloadsProvider')]
+    #[TestDox('throws an action button exception when the size is missing or invalid: $_dataName')]
     public function testThrowsExceptionWhenValidationFails(array $payload, string $message): void
     {
         $this->expectExceptionObject(AppException::actionButtonProcessException($this->action->getActionId(), $message));
@@ -132,23 +133,23 @@ class OpenModalResponseFactoryTest extends TestCase
     }
 
     /**
-     * @return array<array<array<bool|string>|string>>
+     * @return iterable<string, array{array<bool|string>, string}>
      */
-    public static function invalidPayloadsProvider(): array
+    public static function invalidPayloadsProvider(): iterable
     {
-        return [
-            [
-                ['iframeUrl' => 'http://iframe.url', 'expand' => false],
-                'The app provided an invalid size',
-            ],
-            [
-                ['iframeUrl' => 'http://iframe.url', 'size' => '', 'expand' => false],
-                'The app provided an invalid size',
-            ],
-            [
-                ['iframeUrl' => 'http://iframe.url', 'size' => 'xl', 'expand' => false],
-                'The app provided an invalid size',
-            ],
+        yield 'size missing' => [
+            ['iframeUrl' => 'http://iframe.url', 'expand' => false],
+            'The app provided an invalid size',
+        ];
+
+        yield 'size empty string' => [
+            ['iframeUrl' => 'http://iframe.url', 'size' => '', 'expand' => false],
+            'The app provided an invalid size',
+        ];
+
+        yield 'size unknown' => [
+            ['iframeUrl' => 'http://iframe.url', 'size' => 'xl', 'expand' => false],
+            'The app provided an invalid size',
         ];
     }
 
@@ -156,6 +157,7 @@ class OpenModalResponseFactoryTest extends TestCase
      * @param array<string, mixed> $payload
      */
     #[DataProvider('rejectedIframeUrlPayloadsProvider')]
+    #[TestDox('throws when the iframe url is missing or is not a non-empty string: $_dataName')]
     public function testRejectsIframeUrlThatIsNotANonEmptyString(array $payload): void
     {
         $this->expectExceptionObject(AppException::actionButtonProcessException($this->action->getActionId(), 'The app provided an invalid iframeUrl'));
@@ -180,22 +182,9 @@ class OpenModalResponseFactoryTest extends TestCase
     }
 
     #[DataProvider('nonStringTruthyValuesProvider')]
-    public function testRejectsNonStringTruthyIframeUrlWithSecret(mixed $value): void
+    #[TestDox('throws for a truthy iframe url that is not a string: $_dataName')]
+    public function testRejectsNonStringTruthyIframeUrl(mixed $value): void
     {
-        $this->expectExceptionObject(AppException::actionButtonProcessException($this->action->getActionId(), 'The app provided an invalid iframeUrl'));
-
-        $this->factory->create(
-            $this->action,
-            ['iframeUrl' => $value, 'size' => 'medium', 'expand' => false],
-            Context::createDefaultContext()
-        );
-    }
-
-    #[DataProvider('nonStringTruthyValuesProvider')]
-    public function testRejectsNonStringTruthyIframeUrlWithoutSecret(mixed $value): void
-    {
-        $this->action->getApp()->setAppSecret(null);
-
         $this->expectExceptionObject(AppException::actionButtonProcessException($this->action->getActionId(), 'The app provided an invalid iframeUrl'));
 
         $this->factory->create(

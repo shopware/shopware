@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\Serializer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncodingResult;
 use Shopware\Core\Framework\Api\Serializer\Record;
@@ -52,6 +53,7 @@ class JsonApiEncodingResultTest extends TestCase
      * @param array<string, string> $expected
      */
     #[DataProvider('linkMergesProvider')]
+    #[TestDox('carries the link of the second record over to the merged record: $_dataName')]
     public function testMergeCarriesOverLinksOfTheSecondRecord(array $firstLinks, array $secondLinks, array $expected): void
     {
         $result = new JsonApiEncodingResult('/api');
@@ -96,6 +98,7 @@ class JsonApiEncodingResultTest extends TestCase
      * @param array<string, mixed> $expected
      */
     #[DataProvider('attributeMergesProvider')]
+    #[TestDox('carries the attributes of the second record over to the merged record: $_dataName')]
     public function testMergeCarriesOverAttributesOfTheSecondRecord(array $firstAttributes, array $secondAttributes, array $expected): void
     {
         $result = new JsonApiEncodingResult('/api');

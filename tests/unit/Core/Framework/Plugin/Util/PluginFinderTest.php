@@ -29,7 +29,10 @@ class PluginFinderTest extends TestCase
     {
         parent::setUp();
 
-        $this->pluginDir = sys_get_temp_dir() . '/' . uniqid('plugin-finder-', true);
+        $tempDir = realpath(sys_get_temp_dir());
+        static::assertIsString($tempDir);
+
+        $this->pluginDir = $tempDir . '/' . uniqid('plugin-finder-', true);
         (new Filesystem())->mkdir($this->pluginDir . '/LabelTest');
     }
 
@@ -107,8 +110,8 @@ class PluginFinderTest extends TestCase
     /**
      * @param array<string, mixed> $extra
      */
-    #[TestDox('discovers a composer plugin declaring a class and a label')]
     #[DataProvider('acceptedExtrasProvider')]
+    #[TestDox('discovers a composer plugin declaring a class and a label')]
     public function testLocalPluginWithUsableExtraIsFound(array $extra): void
     {
         static::assertArrayHasKey('Swag\LabelTest', $this->findLocalPlugins($extra));
@@ -117,8 +120,8 @@ class PluginFinderTest extends TestCase
     /**
      * @param array<string, mixed> $extra
      */
-    #[TestDox('drops a composer plugin lacking a usable class or label')]
     #[DataProvider('rejectedExtrasProvider')]
+    #[TestDox('drops a composer plugin lacking a usable class or label')]
     public function testLocalPluginWithUnusableExtraIsRejected(array $extra): void
     {
         static::assertArrayNotHasKey('Swag\LabelTest', $this->findLocalPlugins($extra));
@@ -127,21 +130,25 @@ class PluginFinderTest extends TestCase
     /**
      * @param array<string, mixed> $extra
      */
-    #[TestDox('records an error for a composer plugin lacking a usable class or label')]
     #[DataProvider('rejectedExtrasProvider')]
+    #[TestDox('records an error for a composer plugin lacking a usable class or label')]
     public function testLocalPluginWithUnusableExtraReportsAnError(array $extra): void
     {
         $errors = new ExceptionCollection();
         $this->findLocalPlugins($extra, $errors);
 
         static::assertCount(1, $errors);
+
+        $error = $errors->first();
+        static::assertInstanceOf(PluginComposerJsonInvalidException::class, $error);
+        static::assertSame($this->pluginDir . '/LabelTest/composer.json', $error->getParameters()['composerJsonPath']);
     }
 
     /**
      * @param array<string, mixed> $extra
      */
-    #[TestDox('records no error for a composer plugin declaring a class and a label')]
     #[DataProvider('acceptedExtrasProvider')]
+    #[TestDox('records no error for a composer plugin declaring a class and a label')]
     public function testLocalPluginWithUsableExtraReportsNoError(array $extra): void
     {
         $errors = new ExceptionCollection();

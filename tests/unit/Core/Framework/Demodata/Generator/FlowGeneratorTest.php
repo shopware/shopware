@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Demodata\Generator;
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Flow\Api\FlowActionCollectorResponse;
@@ -29,6 +30,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[CoversClass(FlowGenerator::class)]
 class FlowGeneratorTest extends TestCase
 {
+    #[TestDox('serves cached rule ids until the list runs out and then fetches a fresh list')]
     public function testRuleIdsAreCachedWhileNonEmptyAndFetchedAgainOnceExhausted(): void
     {
         $ruleFetches = 0;

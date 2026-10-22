@@ -26,8 +26,8 @@ class ProductCategoryPathsSubscriberTest extends TestCase
      * @param array<string, mixed> $record
      * @param list<array{id: string}> $expectedCategories
      */
-    #[TestDox('keeps existing categories and appends the resolved category: $_dataName')]
     #[DataProvider('existingCategoriesProvider')]
+    #[TestDox('keeps existing categories and appends the resolved category: $_dataName')]
     public function testResolvedCategoriesAreMergedIntoExistingOnes(array $record, array $expectedCategories): void
     {
         $result = $this->importRecord($record, ['category_paths' => 'Existing']);
@@ -39,9 +39,9 @@ class ProductCategoryPathsSubscriberTest extends TestCase
      * @param array<string, mixed> $row
      * @param array<string, mixed> $expectedRecord
      */
-    #[TestDox('turns a category_paths cell into a category assignment only when it holds a value: $_dataName')]
     #[DataProvider('categoryPathsCellProvider')]
-    public function testCategoryPathsCell(array $row, array $expectedRecord): void
+    #[TestDox('turns a category_paths cell into a category assignment only when it holds a value: $_dataName')]
+    public function testConvertsCategoryPathsCellToCategoryAssignment(array $row, array $expectedRecord): void
     {
         static::assertSame($expectedRecord, $this->importRecord([], $row));
     }

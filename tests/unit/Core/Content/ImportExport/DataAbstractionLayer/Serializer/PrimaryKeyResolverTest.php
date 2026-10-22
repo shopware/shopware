@@ -35,8 +35,8 @@ class PrimaryKeyResolverTest extends TestCase
     /**
      * @param array<string, mixed> $record
      */
-    #[TestDox('resolves the record id for the updated-by path $updateBy or leaves it unset')]
     #[DataProvider('translationPathProvider')]
+    #[TestDox('resolves the record id for the updated-by path $updateBy or leaves it unset')]
     public function testResolvePrimaryKeyFromUpdatedByTranslationPath(
         string $updateBy,
         array $record,
@@ -124,8 +124,8 @@ class PrimaryKeyResolverTest extends TestCase
      * @param array<string, mixed> $record
      * @param array<string, mixed> $expected
      */
-    #[TestDox('resolves an updated-by many-to-many value to the primary key of the matching tag and keeps it when absent, null or empty')]
     #[DataProvider('manyToManyValueProvider')]
+    #[TestDox('resolves an updated-by many-to-many value to the primary key of the matching tag and keeps it when absent, null or empty')]
     public function testResolveManyToManyValueFromUpdatedBy(array $record, array $expected): void
     {
         $tagRepository = static::createStub(EntityRepository::class);

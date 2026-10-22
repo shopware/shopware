@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\ActionButton\Response;
 use GuzzleHttp\Psr7\Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Response\NotificationResponse;
@@ -32,14 +31,11 @@ class OpenNewTabResponseFactoryTest extends TestCase
 
     private AppAction $action;
 
-    private QuerySigner&Stub $signer;
-
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->signer = static::createStub(QuerySigner::class);
-        $this->factory = new OpenNewTabResponseFactory($this->signer);
+        $this->factory = new OpenNewTabResponseFactory(static::createStub(QuerySigner::class));
 
         $app = new AppEntity();
         $app->setName('TestApp');
@@ -65,16 +61,14 @@ class OpenNewTabResponseFactoryTest extends TestCase
     }
 
     /**
-     * @return array<array<string|bool>>
+     * @return iterable<string, array{string, bool}>
      */
-    public static function actionTypesProvider(): array
+    public static function actionTypesProvider(): iterable
     {
-        return [
-            [NotificationResponse::ACTION_TYPE, false],
-            [OpenModalResponse::ACTION_TYPE, false],
-            [OpenNewTabResponse::ACTION_TYPE, true],
-            [ReloadDataResponse::ACTION_TYPE, false],
-        ];
+        yield 'notification action is not supported' => [NotificationResponse::ACTION_TYPE, false];
+        yield 'open modal action is not supported' => [OpenModalResponse::ACTION_TYPE, false];
+        yield 'open new tab action is supported' => [OpenNewTabResponse::ACTION_TYPE, true];
+        yield 'reload data action is not supported' => [ReloadDataResponse::ACTION_TYPE, false];
     }
 
     public function testCreatesOpenNewTabResponse(): void
@@ -120,9 +114,11 @@ class OpenNewTabResponseFactoryTest extends TestCase
 
     public function testAcceptsZeroStringRedirectUrl(): void
     {
-        $this->signer->method('signUri')->willReturn(new Uri('0?signed=1'));
+        $signer = static::createStub(QuerySigner::class);
+        $signer->method('signUri')->willReturn(new Uri('0?signed=1'));
+        $factory = new OpenNewTabResponseFactory($signer);
 
-        $response = $this->factory->create(
+        $response = $factory->create(
             $this->action,
             ['redirectUrl' => '0'],
             Context::createDefaultContext()

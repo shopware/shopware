@@ -234,17 +234,8 @@ class ImportExportTest extends TestCase
     {
         $mapping = new Mapping(key: 'customerNumber', mappedKey: 'customer_number', requiredByUser: true);
 
-        $eventDispatcher = new EventDispatcher();
         $recordException = null;
-        $eventDispatcher->addListener(
-            ImportExportExceptionImportRecordEvent::class,
-            static function (ImportExportExceptionImportRecordEvent $event) use (&$recordException): void {
-                $recordException = $event->getException();
-                $event->removeException();
-            }
-        );
-
-        $this->createRowImporter($row, $mapping, $this->createRecordPipe(), $eventDispatcher)->import(Context::createDefaultContext());
+        $this->importAndCaptureRecordException($row, $mapping, $recordException);
 
         static::assertNull($recordException);
     }
@@ -802,17 +793,8 @@ class ImportExportTest extends TestCase
     {
         $mapping = new Mapping(key: 'customerNumber', mappedKey: 'customer_number', requiredByUser: true);
 
-        $eventDispatcher = new EventDispatcher();
         $recordException = null;
-        $eventDispatcher->addListener(
-            ImportExportExceptionImportRecordEvent::class,
-            static function (ImportExportExceptionImportRecordEvent $event) use (&$recordException): void {
-                $recordException = $event->getException();
-                $event->removeException();
-            }
-        );
-
-        $this->createRowImporter($row, $mapping, $this->createRecordPipe(), $eventDispatcher)->import(Context::createDefaultContext());
+        $this->importAndCaptureRecordException($row, $mapping, $recordException);
 
         static::assertInstanceOf(RequiredByUserException::class, $recordException);
         static::assertSame('customer_number is set to required by the user but has no value', $recordException->getMessage());
@@ -891,5 +873,25 @@ class ImportExportTest extends TestCase
         $pipe->method('out')->willReturn(['customerNumber' => 'C-1']);
 
         return $pipe;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     * @param \Throwable|null $recordException captures the exception the import raised
+     */
+    private function importAndCaptureRecordException(array $row, Mapping $mapping, ?\Throwable &$recordException): void
+    {
+        $recordException = null;
+
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(
+            ImportExportExceptionImportRecordEvent::class,
+            static function (ImportExportExceptionImportRecordEvent $event) use (&$recordException): void {
+                $recordException = $event->getException();
+                $event->removeException();
+            }
+        );
+
+        $this->createRowImporter($row, $mapping, $this->createRecordPipe(), $eventDispatcher)->import(Context::createDefaultContext());
     }
 }

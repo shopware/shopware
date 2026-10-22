@@ -68,8 +68,8 @@ class SystemSetupCommandTest extends TestCase
         parent::tearDown();
     }
 
-    #[TestDox('uses the composer home option unless it is falsy')]
     #[DataProvider('composerHomeOptionProvider')]
+    #[TestDox('uses the composer home option unless it is falsy')]
     public function testComposerHomeFromOption(mixed $option, string $expected): void
     {
         static::assertSame(
@@ -102,8 +102,8 @@ class SystemSetupCommandTest extends TestCase
         );
     }
 
-    #[TestDox('uses the composer home environment variable unless it is falsy')]
     #[DataProvider('composerHomeEnvironmentProvider')]
+    #[TestDox('uses the composer home environment variable unless it is falsy')]
     public function testComposerHomeFromEnvironment(string $environment, string $expected): void
     {
         $_SERVER['COMPOSER_HOME'] = $environment;

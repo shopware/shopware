@@ -153,8 +153,8 @@ class ImageSliderTypeDataResolverTest extends TestCase
      * @param array<string, mixed> $itemOverrides
      * @param array{string|null, string|null, bool|null} $expected
      */
-    #[TestDox('takes the link of a static slider item from the url only when the url is a non-empty string: $_dataName')]
     #[DataProvider('staticItemUrlProvider')]
+    #[TestDox('takes the link of a static slider item from the url only when the url is a non-empty string: $_dataName')]
     public function testEnrichStaticItemLinkDependsOnUrl(array $itemOverrides, array $expected): void
     {
         $resolver = new ImageSliderTypeDataResolver(static::createStub(AbstractDefaultMediaResolver::class));

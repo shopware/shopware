@@ -376,7 +376,6 @@ class OrderSerializerTest extends TestCase
             'id' => 'transaction-1',
             'amount' => new CalculatedPrice(42, 42, new CalculatedTaxCollection(), new TaxRuleCollection()),
             'stateMachineState' => $state,
-            'stateId' => null,
         ]);
 
         $result = $this->serializeOrder(self::createOrderEntity([
@@ -689,7 +688,6 @@ class OrderSerializerTest extends TestCase
                 new TaxRuleCollection(),
             ),
             'stateMachineState' => new StateMachineStateEntity(),
-            'stateId' => null,
         ]);
 
         $transaction2 = (new OrderTransactionEntity())->assign([
@@ -701,7 +699,6 @@ class OrderSerializerTest extends TestCase
                 new TaxRuleCollection(),
             ),
             'stateMachineState' => null,
-            'stateId' => null,
         ]);
 
         return new OrderTransactionCollection([$transaction1, $transaction2]);

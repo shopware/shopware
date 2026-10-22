@@ -47,7 +47,7 @@ class AccessTokenTest extends TestCase
     public function testResourceIsAddedAsSecondAudience(): void
     {
         $config = JWTConfigurationFactory::createJWTConfiguration();
-        $token = new AccessToken(new ApiClient('shopware-cli', false, 'Shopware CLI'), [new WriteScope()], 'user-id');
+        $token = new AccessToken(new ApiClient('shopware-cli', false, 'Shopware CLI', false), [new WriteScope()], 'user-id');
         $token->setPrivateKey(new FakeCryptKey($config));
         $token->setIdentifier('token-id');
         $token->setExpiryDateTime(new \DateTimeImmutable('+10 minutes'));

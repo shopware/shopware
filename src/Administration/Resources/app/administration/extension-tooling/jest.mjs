@@ -152,23 +152,6 @@ function metaGlobFilesPattern() {
 }
 
 /**
- * Fails early when the Administration ships no Jest harness, instead of letting
- * the first spec die on an unresolved setup file.
- *
- * @example
- * assertHarnessAvailable(); // throws when test/_setup is missing
- */
-function assertHarnessAvailable() {
-    if (!existsSync(fromAdministration('test', '_setup'))) {
-        throw new Error(
-            `The Administration at ${administrationRoot} ships no Jest harness. ` +
-                'The Composer package of shopware/administration excludes its test/ folder, ' +
-                'so extension specs run against a platform checkout of Shopware.',
-        );
-    }
-}
-
-/**
  * Fails early with the command that generates a missing file, instead of
  * letting the first spec die on an unresolved import.
  *
@@ -315,7 +298,6 @@ export function shopwareAdminJest(options = {}) {
     }
 
     assertAcceptedOptions(options);
-    assertHarnessAvailable();
     assertGeneratedFilesExist();
 
     // The setup files read these from the environment; Jest workers inherit it.

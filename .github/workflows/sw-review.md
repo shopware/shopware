@@ -125,7 +125,6 @@ tools:
     - "git fetch"
     - "git rev-parse"
     - "git merge-base"
-    - "mkdir"
 
 safe-outputs:
   messages:

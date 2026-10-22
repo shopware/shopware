@@ -89,6 +89,29 @@ class McpStoreApiToolAdminAclRuleTest extends RuleTestCase
         ]]);
     }
 
+    public function testStoreApiToolAliasingExcludedTraitMethodThatCallsRequirePrivilegeFails(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpStoreApiToolAdminAclRule/StoreApiToolAliasingPrivilegeTraitMethod.php'], [[
+            $this->inheritedMessage('StoreApiToolAliasingPrivilegeTraitMethod', 'ChecksOrderAccessWithAcl::check'),
+            9,
+            self::TIP,
+        ]]);
+    }
+
+    public function testStoreApiToolAliasingExcludedTraitMethodAsPrivateFails(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpStoreApiToolAdminAclRule/StoreApiToolAliasingPrivilegeTraitMethodAsPrivate.php'], [[
+            $this->inheritedMessage('StoreApiToolAliasingPrivilegeTraitMethodAsPrivate', 'ChecksOrderAccessWithAcl::check'),
+            9,
+            self::TIP,
+        ]]);
+    }
+
+    public function testStoreApiToolExcludingTraitMethodThatCallsRequirePrivilegePasses(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpStoreApiToolAdminAclRule/StoreApiToolExcludingPrivilegeTraitMethod.php'], []);
+    }
+
     public function testStoreApiToolShadowingInheritedPrivateHelperFails(): void
     {
         $this->analyse([__DIR__ . '/data/McpStoreApiToolAdminAclRule/StoreApiToolShadowingPrivateCheck.php'], [[

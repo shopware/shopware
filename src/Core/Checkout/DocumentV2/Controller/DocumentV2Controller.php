@@ -157,6 +157,8 @@ final class DocumentV2Controller extends AbstractController
         $documentNumber = $payload->getString('documentNumber');
 
         if ($mediaId === '') {
+            // Media is written under system scope because the route-level document:create
+            // ACL check already authorizes the caller to create document media.
             $mediaId = $context->scope(
                 Context::SYSTEM_SCOPE,
                 function (Context $scopedContext) use ($request, $payload): string {
@@ -177,6 +179,8 @@ final class DocumentV2Controller extends AbstractController
                     );
                 },
             );
+        } elseif (!$context->isAllowed('media:read')) {
+            throw DocumentV2Exception::missingPrivileges(['media:read']);
         }
 
         $document = $this->documentPersister->persistUploaded(

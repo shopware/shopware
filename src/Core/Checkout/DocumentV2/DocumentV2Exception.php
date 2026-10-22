@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Checkout\DocumentV2;
 
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -99,6 +101,16 @@ class DocumentV2Exception extends HttpException
      * @deprecated tag:v6.9.0 - Remove with the `app_provided` sentinel once `document.document_type_id` is dropped.
      */
     public const DOCUMENT_TYPE_RESERVED_IDENTIFIER = 'DOCUMENT_V2__DOCUMENT_TYPE_RESERVED_IDENTIFIER';
+
+    public const MISSING_PRIVILEGE = 'DOCUMENT_V2__MISSING_PRIVILEGE';
+
+    /**
+     * @param list<string> $privileges
+     */
+    public static function missingPrivileges(array $privileges): ShopwareHttpException
+    {
+        return new MissingPrivilegeException($privileges);
+    }
 
     public static function unknownRenderData(string $key, string $expectedClass): self
     {

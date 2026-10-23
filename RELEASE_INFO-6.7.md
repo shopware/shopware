@@ -189,6 +189,9 @@ If neither is set, the plugin marks the top level item that contains the current
 `window.activeNavigationId` and `window.activeNavigationPathIdList` are now set in the new block `layout_head_javascript_navigation` in `layout/meta.html.twig`, rendered before `layout_head_javascript_router`.
 Themes that replace `layout_head_javascript_router` without `parent()` no longer lose them.
 
+The `pathIdList` key of `navbarOptions` in `layout/navbar/navbar.html.twig` stays deprecated and is removed with 6.8, because the ESI-cached navbar holds the path of another page.
+Use `shopware.navigation.pathIdList` or `window.activeNavigationPathIdList` instead.
+
 ## Hosting & Configuration
 
 ### Storefront readiness checks skip pages restricted by extensions

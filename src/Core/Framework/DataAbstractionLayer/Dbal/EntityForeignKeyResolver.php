@@ -64,6 +64,8 @@ class EntityForeignKeyResolver implements ResetInterface
      *      ]
      *  ]
      *
+     * Entities with a composite primary key, like the mapping entity of a many-to-many association, are listed with all their key properties.
+     *
      * @param array<string>|array<array<string, string>> $ids
      *
      * @throws \RuntimeException
@@ -299,11 +301,13 @@ class EntityForeignKeyResolver implements ResetInterface
             return true;
         });
 
+        $properties = [];
         foreach ($primaryKeys as $field) {
             if (!$field instanceof StorageAware) {
                 continue;
             }
             $storageName = $field->getStorageName();
+            $properties[] = $field->getPropertyName();
 
             $vars = [
                 '#root#' => EntityDefinitionQueryHelper::escape($alias),
@@ -356,11 +360,19 @@ class EntityForeignKeyResolver implements ResetInterface
                     $association->getReferenceDefinition()->getEntityName(),
                     $root,
                     $affected,
-                    $property
+                    [$property]
                 );
             }
 
             $affected = array_column($affected, $property);
+        } elseif ($class === RestrictDelete::class) {
+            // mapping and translation entities have a composite primary key, they restrict with all key properties
+            $this->buildRestrictDeleteMetaData(
+                $association->getReferenceDefinition()->getEntityName(),
+                $root,
+                $affected,
+                $properties
+            );
         }
 
         // prevent circular reference for many to many
@@ -393,15 +405,16 @@ class EntityForeignKeyResolver implements ResetInterface
 
     /**
      * @param list<array<string, string>> $affected
+     * @param list<string> $properties primary key properties of the restricting entity
      */
     private function buildRestrictDeleteMetaData(
         string $entityName,
         EntityDefinition $root,
         array $affected,
-        string $property,
+        array $properties,
     ): void {
         foreach ($affected as $row) {
-            $params = [$property => $row[$property]];
+            $params = array_intersect_key($row, array_flip($properties));
 
             $rootParams = $root->getRestrictDeleteMetaFields()->map(
                 static fn (Field $field) => $field instanceof IdField

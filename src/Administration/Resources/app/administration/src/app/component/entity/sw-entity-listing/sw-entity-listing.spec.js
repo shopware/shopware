@@ -5,28 +5,15 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
+import { allowDeprecation, deprecations } from 'test/_helper_/deprecations';
 
-async function createWrapper(propsData = {}, options = {}) {
-    // mock entity functions
-    const items = [
-        { name: 'Apple' },
-        { name: 'Shopware' },
-        { name: 'Google' },
-        { name: 'Microsoft' },
-    ];
-    items.total = 4;
-    items.criteria = {
-        page: null,
-        limit: null,
-    };
+const itemsDeprecation = 'The prop "items" of the component';
 
-    // Suppress console warnings by default unless explicitly testing them
-    const consoleWarnSpy = options.suppressWarnings !== false ? jest.spyOn(console, 'warn').mockImplementation() : null;
-
-    const wrapper = mount(await wrapTestComponent('sw-entity-listing', { sync: true }), {
+async function createWrapper(propsData = {}) {
+    return mount(await wrapTestComponent('sw-entity-listing', { sync: true }), {
         props: {
             columns: [{ property: 'name', label: 'Name' }],
-            items: new EntityCollection(null, null, null, new Criteria(1, 25), [
+            dataSource: new EntityCollection(null, null, null, new Criteria(1, 25), [
                 { id: 'id1', name: 'item1' },
                 { id: 'id2', name: 'item2' },
             ]),
@@ -57,15 +44,13 @@ async function createWrapper(propsData = {}, options = {}) {
             },
         },
     });
-
-    if (consoleWarnSpy) {
-        consoleWarnSpy.mockRestore();
-    }
-
-    return wrapper;
 }
 
 describe('src/app/component/entity/sw-entity-listing', () => {
+    beforeEach(() => {
+        allowDeprecation(itemsDeprecation);
+    });
+
     it('should enable the context menu edit item', async () => {
         const wrapper = await createWrapper();
 
@@ -121,7 +106,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
     it('should have context menu with edit entry', async () => {
         const wrapper = await createWrapper({
             allowEdit: true,
-            items: new EntityCollection(null, null, null, new Criteria(1, 25), [
+            dataSource: new EntityCollection(null, null, null, new Criteria(1, 25), [
                 { id: 'id1', name: 'item1' },
                 { id: 'id2', name: 'item2' },
                 { id: 'id3', name: 'item3' },
@@ -138,7 +123,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         const wrapper = await createWrapper({
             allowEdit: false,
             allowView: true,
-            items: new EntityCollection(null, null, null, new Criteria(1, 25), [
+            dataSource: new EntityCollection(null, null, null, new Criteria(1, 25), [
                 { id: 'id1', name: 'item1' },
                 { id: 'id2', name: 'item2' },
                 { id: 'id3', name: 'item3' },
@@ -155,7 +140,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         const wrapper = await createWrapper({
             allowEdit: false,
             allowView: false,
-            items: new EntityCollection(null, null, null, new Criteria(1, 25), [
+            dataSource: new EntityCollection(null, null, null, new Criteria(1, 25), [
                 { id: 'id1', name: 'item1' },
                 { id: 'id2', name: 'item2' },
                 { id: 'id3', name: 'item3' },
@@ -186,7 +171,10 @@ describe('src/app/component/entity/sw-entity-listing', () => {
     });
 
     it('should able to apply result when items prop has been changed', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper({
+            dataSource: undefined,
+            items: new EntityCollection(null, null, null, new Criteria(1, 25), [{ id: 'id1', name: 'item1' }]),
+        });
         wrapper.vm.applyResult = jest.fn();
         await wrapper.setProps({
             items: new EntityCollection(null, null, null, new Criteria(1, 25), [
@@ -224,7 +212,6 @@ describe('src/app/component/entity/sw-entity-listing', () => {
 
         const wrapper = await createWrapper({
             dataSource,
-            items: null,
         });
 
         // Check that internalDataSource returns the correct data
@@ -234,23 +221,14 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         expect(wrapper.vm.records).toHaveLength(2);
     });
 
-    it('should show deprecation warning when items prop is used', async () => {
-        const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    it('should render the records of a passed items prop and report the prop as deprecated', async () => {
+        const wrapper = await createWrapper({
+            items: new EntityCollection(null, null, null, new Criteria(1, 25), [{ id: 'id1', name: 'item1' }]),
+            dataSource: null,
+        });
 
-        await createWrapper(
-            {
-                items: new EntityCollection(null, null, null, new Criteria(1, 25), [{ id: 'id1', name: 'item1' }]),
-                dataSource: null,
-            },
-            { suppressWarnings: false },
-        );
-
-        expect(consoleWarnSpy).toHaveBeenCalledWith(
-            expect.stringContaining('[Deprecation] sw-entity-listing: The "items" prop is deprecated'),
-            expect.anything(),
-        );
-
-        consoleWarnSpy.mockRestore();
+        expect(deprecations).toHaveTriggered(itemsDeprecation);
+        expect(wrapper.vm.records).toHaveLength(1);
     });
 
     it('should prefer dataSource over items when both are provided', async () => {
@@ -274,30 +252,17 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         expect(wrapper.vm.records).toHaveLength(2);
     });
 
-    it('should not show deprecation warning when dataSource is used', async () => {
-        const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    it('should not report the items prop as deprecated when only dataSource is passed', async () => {
+        await createWrapper({
+            dataSource: new EntityCollection(null, null, null, new Criteria(1, 25), [{ id: 'id1', name: 'item1' }]),
+        });
 
-        await createWrapper(
-            {
-                dataSource: new EntityCollection(null, null, null, new Criteria(1, 25), [{ id: 'id1', name: 'item1' }]),
-                items: null,
-            },
-            { suppressWarnings: false },
-        );
-
-        // Check that no deprecation warning for items prop was shown
-        const deprecationCalls = consoleWarnSpy.mock.calls.filter(
-            (call) => call[0] && call[0].includes('[Deprecation] sw-entity-listing'),
-        );
-        expect(deprecationCalls).toHaveLength(0);
-
-        consoleWarnSpy.mockRestore();
+        expect(deprecations).not.toHaveTriggered(itemsDeprecation);
     });
 
     it('should apply result when dataSource prop has been changed', async () => {
         const wrapper = await createWrapper({
             dataSource: new EntityCollection(null, null, null, new Criteria(1, 25), [{ id: 'id1', name: 'item1' }]),
-            items: null,
         });
 
         wrapper.vm.applyResult = jest.fn();
@@ -322,7 +287,6 @@ describe('src/app/component/entity/sw-entity-listing', () => {
 
         const wrapper = await createWrapper({
             dataSource,
-            items: null,
             repository: {
                 search: jest.fn(() => Promise.resolve(mockSearchResult)),
                 delete: jest.fn(() => Promise.resolve()),

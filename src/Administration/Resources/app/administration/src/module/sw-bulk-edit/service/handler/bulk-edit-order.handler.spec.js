@@ -3,6 +3,7 @@
  */
 import BulkEditApiFactory from 'src/module/sw-bulk-edit/service/bulk-edit.api.factory';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import swBulkEditState from 'src/module/sw-bulk-edit/state/sw-bulk-edit.state';
 
 function getBulkEditOrderHandler(orders) {
     const handler = new BulkEditApiFactory().getHandler('order');
@@ -32,6 +33,9 @@ function createOrder(primaryOrderDeliveryId, deliveryIds) {
 }
 
 describe('module/sw-bulk-edit/service/handler/bulk-edit-order.handler', () => {
+    beforeAll(() => {
+        Shopware.State.registerModule('swBulkEdit', swBulkEditState);
+    });
     it('should sort deliveries like the order list and the order detail page', () => {
         const handler = getBulkEditOrderHandler([]);
 
@@ -42,7 +46,12 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-order.handler', () => {
     });
 
     it('should transition the primary order delivery', async () => {
-        const handler = getBulkEditOrderHandler([createOrder('primary-delivery', ['other-delivery', 'primary-delivery'])]);
+        const handler = getBulkEditOrderHandler([
+            createOrder('primary-delivery', [
+                'other-delivery',
+                'primary-delivery',
+            ]),
+        ]);
 
         await handler.bulkEditStatus(['order-id'], [{ field: 'orderDeliveries', value: 'ship' }]);
 
@@ -56,7 +65,12 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-order.handler', () => {
     });
 
     it('should transition the first delivery when the order has no primary order delivery', async () => {
-        const handler = getBulkEditOrderHandler([createOrder(null, ['first-delivery', 'second-delivery'])]);
+        const handler = getBulkEditOrderHandler([
+            createOrder(null, [
+                'first-delivery',
+                'second-delivery',
+            ]),
+        ]);
 
         await handler.bulkEditStatus(['order-id'], [{ field: 'orderDeliveries', value: 'ship' }]);
 

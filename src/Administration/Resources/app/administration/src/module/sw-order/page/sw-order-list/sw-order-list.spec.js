@@ -385,15 +385,12 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         wrapper = await createWrapper();
         const criteria = wrapper.vm.orderCriteria;
 
-        expect(criteria.getAssociation('primaryOrderDelivery').hasAssociation('stateMachineState')).toBe(true);
-        expect(criteria.getAssociation('primaryOrderDelivery').hasAssociation('shippingOrderAddress')).toBe(true);
-        expect(criteria.getAssociation('primaryOrderTransaction').hasAssociation('stateMachineState')).toBe(true);
+        expect(criteria.hasAssociation('stateMachineState')).toBe(true);
+        expect(criteria.getAssociation('deliveries').hasAssociation('stateMachineState')).toBe(true);
+        expect(criteria.getAssociation('transactions').hasAssociation('stateMachineState')).toBe(true);
     });
 
-    /**
-     * @deprecated tag:v6.8.0 - test will be removed when the 6.7 fallback is dropped
-     */
-    it.deprecated('v6.8.0.0')('should sort deliveries like the order detail page', async () => {
+    it('should sort deliveries like the order detail page', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
         const criteria = wrapper.vm.orderCriteria;
@@ -402,18 +399,6 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             expect.objectContaining({ field: 'shippingCosts.unitPrice', order: 'DESC' }),
             expect.objectContaining({ field: 'id', order: 'ASC' }),
         ]);
-    });
-
-    it.activeFeatureFlags(['v6.8.0.0'])('should only load primary order associations', async () => {
-        global.activeAclRoles = [];
-        wrapper = await createWrapper();
-        const criteria = wrapper.vm.orderCriteria;
-
-        expect(criteria.hasAssociation('primaryOrderDelivery')).toBe(true);
-        expect(criteria.hasAssociation('primaryOrderTransaction')).toBe(true);
-        expect(criteria.hasAssociation('deliveries')).toBe(false);
-        expect(criteria.hasAssociation('transactions')).toBe(false);
-        expect(criteria.hasAssociation('addresses')).toBe(false);
     });
 
     it('should contain a computed property, called: listFilterOptions', async () => {

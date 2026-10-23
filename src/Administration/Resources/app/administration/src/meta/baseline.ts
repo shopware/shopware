@@ -188,7 +188,6 @@ const missingTests = [
     'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-description/index.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-form-field-renderer/index.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-confirm/index.js',
-    'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-error/index.js',
     'src/module/sw-bulk-edit/index.js',
     'src/module/sw-bulk-edit/init/services.init.js',
     'src/module/sw-bulk-edit/service/handler/bulk-edit-base.handler.js',

@@ -126,6 +126,10 @@ They additionally react to domain changes:
 toggling the external storefront flag of a domain (or adding/removing domains) creates or removes the affected rows without re-saving the customer group.
 The storefront rows are untouched by this and keep being maintained by the Storefront bundle.
 
+### Bulk order status handler results
+
+`bulkEditStatus()` waits for every selected status field and loads at most 100 order IDs per request, with at most five orders transitioning concurrently. Successful responses are returned in ID-batch order, repository-result order within each batch, then selected status-field order. Failures identify the order and status field and distinguish unavailable orders, loading failures, and transition failures; failed HTTP transitions are not automatically replayed.
+
 ## API
 To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
 It bundles the Administration and its plugins, but not apps.

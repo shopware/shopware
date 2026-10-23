@@ -40,24 +40,7 @@ class IntraEuTaxResolver
             return true;
         }
 
-        $vatIds = array_filter($vatIds ?? []);
-        if ($vatIds === []
-            || $this->vatIdPatternProvider->isDomesticSupply($deliveryCountry->getIso(), $salesChannelId)
-            || $this->vatIdPatternProvider->isSellerCountryVatId($vatIds, $salesChannelId)
-        ) {
-            return false;
-        }
-
-        $vatPattern = $deliveryCountry->getVatIdPattern();
-        if ($vatPattern !== null && $vatPattern !== '' && $deliveryCountry->getCheckVatIdPattern()) {
-            foreach ($vatIds as $vatId) {
-                if (!$this->vatIdPatternProvider->acceptsVatId($vatId, $vatPattern, true, $salesChannelId)) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
+        return $this->hasIntraCommunityVatId($vatIds, $deliveryCountry, $salesChannelId);
     }
 
     /**
@@ -92,7 +75,7 @@ class IntraEuTaxResolver
         }
 
         $vatIds = $order->getOrderCustomer()?->getVatIds();
-        if (!$this->isExempt($accountType, $vatIds, $country, $order->getSalesChannelId())) {
+        if (!$this->hasIntraCommunityVatId($vatIds, $country, $order->getSalesChannelId())) {
             return false;
         }
 
@@ -108,6 +91,31 @@ class IntraEuTaxResolver
             new NotBlank(),
             new CustomerVatIdentification(countryId: $country->getId(), salesChannelId: $order->getSalesChannelId()),
         ])->count() === 0;
+    }
+
+    /**
+     * @param array<string>|null $vatIds
+     */
+    private function hasIntraCommunityVatId(?array $vatIds, CountryEntity $deliveryCountry, string $salesChannelId): bool
+    {
+        $vatIds = array_filter($vatIds ?? []);
+        if ($vatIds === []
+            || $this->vatIdPatternProvider->isDomesticSupply($deliveryCountry->getIso(), $salesChannelId)
+            || $this->vatIdPatternProvider->isSellerCountryVatId($vatIds, $salesChannelId)
+        ) {
+            return false;
+        }
+
+        $vatPattern = $deliveryCountry->getVatIdPattern();
+        if ($vatPattern !== null && $vatPattern !== '' && $deliveryCountry->getCheckVatIdPattern()) {
+            foreach ($vatIds as $vatId) {
+                if (!$this->vatIdPatternProvider->acceptsVatId($vatId, $vatPattern, true, $salesChannelId)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     private function appliesTo(?string $accountType, CountryEntity $deliveryCountry): bool

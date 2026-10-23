@@ -437,10 +437,14 @@ class IntraEuTaxRuleTest extends TestCase
     /**
      * @param list<string> $vatIds
      */
-    #[DataProvider('multipleVatIdsStartingWithSellerVatIdProvider')]
-    public function testFirstSellerVatIdKeepsSellerTaxRule(array $vatIds): void
+    #[DataProvider('multipleVatIdsContainingSellerVatIdProvider')]
+    public function testAnySellerVatIdKeepsSellerTaxRule(array $vatIds, bool $checkVatIdPattern): void
     {
         static::getContainer()->get(SystemConfigService::class)->set('core.basicInformation.sellerCountryId', $this->countryIds['DE']);
+        static::getContainer()->get('country.repository')->update([[
+            'id' => $this->countryIds['FR'],
+            'checkVatIdPattern' => $checkVatIdPattern,
+        ]], Context::createDefaultContext());
         $this->customerRepository->update([[
             'id' => $this->customerId,
             'vatIds' => $vatIds,
@@ -450,15 +454,26 @@ class IntraEuTaxRuleTest extends TestCase
 
         static::assertSame(CartPrice::TAX_STATE_GROSS, $context->getTaxState());
         static::assertSame(19.0, $context->buildTaxRules($this->taxId)->first()?->getTaxRate());
+        static::assertSame($vatIds, $context->getCustomer()?->getVatIds());
+        static::assertSame($this->countryIds['FR'], $context->getShippingLocation()->getCountry()->getId());
+        static::assertSame($this->shippingStateId, $context->getShippingLocation()->getState()?->getId());
+        static::assertSame('75001', $context->getShippingLocation()->getAddress()?->getZipcode());
     }
 
     /**
-     * @return iterable<string, array{list<string>}>
+     * @return iterable<string, array{list<string>, bool}>
      */
-    public static function multipleVatIdsStartingWithSellerVatIdProvider(): iterable
+    public static function multipleVatIdsContainingSellerVatIdProvider(): iterable
     {
-        yield 'seller VAT ID precedes another member state' => [['DE123456789', 'NL123456789B01']];
-        yield 'empty entries do not supersede the first seller VAT ID' => [['', 'DE123456789', 'NL123456789B01']];
+        yield 'seller VAT ID precedes another member state' => [['DE123456789', 'NL123456789B01'], true];
+        yield 'another member state precedes seller VAT ID' => [['NL123456789B01', 'DE123456789'], true];
+        yield 'seller VAT ID precedes delivery country VAT ID' => [['DE123456789', 'FRAB123456789'], true];
+        yield 'delivery country VAT ID precedes seller VAT ID' => [['FRAB123456789', 'DE123456789'], true];
+        yield 'empty entries do not hide the seller VAT ID' => [['', 'DE123456789', 'NL123456789B01'], true];
+        yield 'invalid entries do not hide the seller VAT ID' => [['INVALID', 'DE123456789'], true];
+        yield 'unchecked seller VAT ID precedes another member state' => [['DE123456789', 'NL123456789B01'], false];
+        yield 'unchecked foreign VAT ID does not hide the seller VAT ID' => [['NL123456789B01', 'DE123456789'], false];
+        yield 'unchecked delivery country VAT ID does not hide the seller VAT ID' => [['FRAB123456789', 'DE123456789'], false];
     }
 
     private function createContext(): SalesChannelContext

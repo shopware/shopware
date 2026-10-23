@@ -150,6 +150,93 @@ class IntraCommunityVatExemptionTest extends TestCase
         static::assertSame(2, substr_count($invoice, '<td class="align-right">0 %</td>'));
     }
 
+    public function testDisablingCompanyTaxAfterPurchaseKeepsTheNoteOnEveryDocument(): void
+    {
+        $cart = $this->generateDemoCartWithTaxes([19]);
+        static::assertSame(CartPrice::TAX_STATE_FREE, $cart->getPrice()->getTaxStatus());
+
+        $orderId = $this->persistCart($cart);
+        $invoiceId = $this->generateInvoice($orderId);
+        $this->addCreditItemToOrder($orderId);
+
+        static::getContainer()->get('country.repository')->update([[
+            'id' => $this->salesChannelContext->getShippingLocation()->getCountry()->getId(),
+            'companyTax' => [
+                'enabled' => false,
+                'amount' => 0,
+                'currencyId' => $this->context->getCurrencyId(),
+            ],
+        ]], $this->context);
+        static::getContainer()->get(VatIdPatternProvider::class)->reset();
+
+        static::assertSame(CartPrice::TAX_STATE_FREE, $this->getOrderTaxStatus($orderId));
+        static::assertTrue($this->getV2InvoiceNote($orderId));
+        static::assertStringContainsString(
+            self::INTRA_COMMUNITY_NOTE,
+            $this->render(static::getContainer()->get(InvoiceRenderer::class), $orderId)
+        );
+        static::assertStringContainsString(
+            self::INTRA_COMMUNITY_NOTE,
+            $this->render(static::getContainer()->get(StornoRenderer::class), $orderId, $invoiceId)
+        );
+        static::assertStringContainsString(
+            self::INTRA_COMMUNITY_NOTE,
+            $this->render(static::getContainer()->get(CreditNoteRenderer::class), $orderId, $invoiceId)
+        );
+    }
+
+    #[DataProvider('taxedOrderStates')]
+    public function testEnablingCompanyTaxAfterPurchaseKeepsTheNoteOffEveryTaxedDocument(string $taxState): void
+    {
+        static::getContainer()->get('customer_group.repository')->update([[
+            'id' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'displayGross' => $taxState === CartPrice::TAX_STATE_GROSS,
+        ]], $this->context);
+        $countryId = $this->salesChannelContext->getShippingLocation()->getCountry()->getId();
+        static::getContainer()->get('country.repository')->update([[
+            'id' => $countryId,
+            'companyTax' => [
+                'enabled' => false,
+                'amount' => 0,
+                'currencyId' => $this->context->getCurrencyId(),
+            ],
+        ]], $this->context);
+        $this->salesChannelContext = $this->createSalesChannelContext();
+
+        $cart = $this->generateDemoCartWithTaxes([19]);
+        static::assertSame($taxState, $cart->getPrice()->getTaxStatus());
+        static::assertGreaterThan(0.0, $cart->getPrice()->getCalculatedTaxes()->getAmount());
+
+        $orderId = $this->persistCart($cart);
+        $invoiceId = $this->generateInvoice($orderId);
+        $this->addCreditItemToOrder($orderId);
+
+        static::getContainer()->get('country.repository')->update([[
+            'id' => $countryId,
+            'companyTax' => [
+                'enabled' => true,
+                'amount' => 0,
+                'currencyId' => $this->context->getCurrencyId(),
+            ],
+        ]], $this->context);
+        static::getContainer()->get(VatIdPatternProvider::class)->reset();
+
+        static::assertSame($taxState, $this->getOrderTaxStatus($orderId));
+        static::assertFalse($this->getV2InvoiceNote($orderId));
+        static::assertStringNotContainsString(
+            self::INTRA_COMMUNITY_NOTE,
+            $this->render(static::getContainer()->get(InvoiceRenderer::class), $orderId)
+        );
+        static::assertStringNotContainsString(
+            self::INTRA_COMMUNITY_NOTE,
+            $this->render(static::getContainer()->get(StornoRenderer::class), $orderId, $invoiceId)
+        );
+        static::assertStringNotContainsString(
+            self::INTRA_COMMUNITY_NOTE,
+            $this->render(static::getContainer()->get(CreditNoteRenderer::class), $orderId, $invoiceId)
+        );
+    }
+
     #[DataProvider('taxedOrderStates')]
     public function testAnOrderBelowTheExemptionMinimumKeepsTheNoteOffEveryDocument(string $taxState): void
     {
@@ -196,8 +283,8 @@ class IntraCommunityVatExemptionTest extends TestCase
 
     public static function taxedOrderStates(): iterable
     {
-        yield 'net order below the exemption minimum' => [CartPrice::TAX_STATE_NET];
-        yield 'gross order below the exemption minimum' => [CartPrice::TAX_STATE_GROSS];
+        yield 'net order' => [CartPrice::TAX_STATE_NET];
+        yield 'gross order' => [CartPrice::TAX_STATE_GROSS];
     }
 
     public function testAVatIdOfNoMemberStateKeepsTheOrderTaxedAndTheNoteOff(): void

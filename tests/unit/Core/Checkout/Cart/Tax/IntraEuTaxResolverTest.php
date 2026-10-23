@@ -121,7 +121,7 @@ class IntraEuTaxResolverTest extends TestCase
      * @param list<string> $vatIds
      */
     #[DataProvider('vatIdsProvider')]
-    public function testVatEligibilityAndFirstCountrySelection(array $vatIds, bool $exempt, string $taxCountryId): void
+    public function testVatEligibilityAndTaxCountrySelection(array $vatIds, bool $exempt, string $taxCountryId): void
     {
         $country = $this->country(self::FR_ID);
 
@@ -139,9 +139,36 @@ class IntraEuTaxResolverTest extends TestCase
         yield 'invalid VAT remains taxable at destination' => [['INVALID'], false, self::FR_ID];
         yield 'VAT matching the delivery country is exempt' => [['FR12345678901'], true, self::FR_ID];
         yield 'seller VAT before a foreign VAT selects origin' => [[self::SELLER_VAT, self::FOREIGN_VAT], false, self::DE_ID];
-        yield 'foreign VAT before seller VAT preserves the first country' => [[self::FOREIGN_VAT, self::SELLER_VAT], false, self::FR_ID];
+        yield 'foreign VAT before seller VAT selects origin' => [[self::FOREIGN_VAT, self::SELLER_VAT], false, self::DE_ID];
         yield 'empty entry before seller VAT is ignored' => [['', self::SELLER_VAT], false, self::DE_ID];
-        yield 'invalid first VAT is not replaced by a later seller VAT' => [['INVALID', self::SELLER_VAT], false, self::FR_ID];
+        yield 'invalid VAT before seller VAT selects origin' => [['INVALID', self::SELLER_VAT], false, self::DE_ID];
+        yield 'multiple foreign VAT IDs remain exempt' => [[self::FOREIGN_VAT, 'FR12345678901'], true, self::FR_ID];
+        yield 'reversed foreign VAT IDs remain exempt' => [['FR12345678901', self::FOREIGN_VAT], true, self::FR_ID];
+        yield 'invalid seller VAT does not select origin' => [['DEINVALID', self::FOREIGN_VAT], false, self::FR_ID];
+    }
+
+    /**
+     * @param list<string> $vatIds
+     */
+    #[DataProvider('mixedSellerVatIdsProvider')]
+    public function testSellerVatInAnyPositionKeepsUncheckedDeliveriesTaxable(array $vatIds): void
+    {
+        $country = $this->country(self::FR_ID);
+        $country->setCheckVatIdPattern(false);
+
+        static::assertFalse($this->resolver->isExempt(CustomerEntity::ACCOUNT_TYPE_BUSINESS, $vatIds, $country, self::CHANNEL_ID));
+        static::assertSame(self::DE_ID, $this->resolver->getTaxCountryId(CustomerEntity::ACCOUNT_TYPE_BUSINESS, $vatIds, $country, self::CHANNEL_ID));
+    }
+
+    /**
+     * @return iterable<string, array{list<string>}>
+     */
+    public static function mixedSellerVatIdsProvider(): iterable
+    {
+        yield 'seller VAT before foreign VAT' => [[self::SELLER_VAT, self::FOREIGN_VAT]];
+        yield 'foreign VAT before seller VAT' => [[self::FOREIGN_VAT, self::SELLER_VAT]];
+        yield 'invalid VAT before seller VAT' => [['INVALID', self::SELLER_VAT]];
+        yield 'empty VAT before seller VAT' => [['', self::SELLER_VAT]];
     }
 
     #[DataProvider('accountTypeProvider')]
@@ -217,6 +244,18 @@ class IntraEuTaxResolverTest extends TestCase
         $order = $this->order($country, [self::FOREIGN_VAT], $taxState);
 
         static::assertSame($expected, $this->resolver->isIntraCommunityDelivery($order));
+    }
+
+    public function testDisablingB2bExemptionDoesNotChangeASavedTaxFreeOrder(): void
+    {
+        $country = $this->country(self::FR_ID);
+        $order = $this->order($country, [self::FOREIGN_VAT]);
+        static::assertTrue($this->resolver->isIntraCommunityDelivery($order));
+
+        $country->setCompanyTax(new TaxFreeConfig(false));
+
+        static::assertFalse($this->resolver->isExempt(CustomerEntity::ACCOUNT_TYPE_BUSINESS, [self::FOREIGN_VAT], $country, self::CHANNEL_ID));
+        static::assertTrue($this->resolver->isIntraCommunityDelivery($order));
     }
 
     /**

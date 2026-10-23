@@ -101,7 +101,7 @@ class VatIdPatternProviderTest extends TestCase
             ['iso' => 'NL', 'id' => self::NL_ID, 'vatIdPattern' => 'NL\d{9}B\d{2}'],
         ]);
 
-        // A second entry can only come from the API and must not silently win over the first
+        // The stored VAT country describes the first entry, independently of the tax decision
         static::assertSame(self::NL_ID, $provider->getCountryIdForVatIds(['NL123456789B01', 'BE0123456789']));
     }
 
@@ -523,7 +523,7 @@ class VatIdPatternProviderTest extends TestCase
      * @param list<string>|null $vatIds
      */
     #[DataProvider('sellerCountryVatIdProvider')]
-    public function testSellerCountryVatIdUsesTheFirstNonemptyEntry(?array $vatIds, bool $expected): void
+    public function testSellerCountryVatIdMatchesAnyValidEntry(?array $vatIds, bool $expected): void
     {
         $provider = $this->createProviderSellingFrom(self::DE_ID);
 
@@ -541,10 +541,25 @@ class VatIdPatternProviderTest extends TestCase
         yield 'empty VAT IDs cannot match a seller country' => [[], false];
         yield 'empty entries cannot match a seller country' => [[''], false];
         yield 'an invalid seller VAT ID does not match' => [['DEINVALID'], false];
-        yield 'a seller VAT ID before a foreign one determines the country' => [['DE123456789', 'NL123456789B01'], true];
-        yield 'a foreign VAT ID before a seller one determines the country' => [['NL123456789B01', 'DE123456789'], false];
+        yield 'a seller VAT ID before a foreign one matches' => [['DE123456789', 'NL123456789B01'], true];
+        yield 'a foreign VAT ID before a seller one still matches' => [['NL123456789B01', 'DE123456789'], true];
         yield 'empty entries before a seller VAT ID are skipped' => [['', 'DE123456789'], true];
-        yield 'an invalid first entry is not replaced by a later seller VAT ID' => [['INVALID', 'DE123456789'], false];
+        yield 'an invalid entry before a seller VAT ID does not hide it' => [['INVALID', 'DE123456789'], true];
+        yield 'an invalid entry after a seller VAT ID does not hide it' => [['DE123456789', 'INVALID'], true];
+        yield 'two foreign VAT IDs do not match' => [['NL123456789B01', 'BE0123456789'], false];
+        yield 'reversing two foreign VAT IDs still does not match' => [['BE0123456789', 'NL123456789B01'], false];
+        yield 'an invalid seller VAT ID after a foreign VAT ID does not match' => [['NL123456789B01', 'DEINVALID'], false];
+        yield 'a repeated seller VAT ID still matches' => [['DE123456789', 'DE123456789'], true];
+    }
+
+    public function testSellerCountryMatchDoesNotChangeTheStoredFirstVatCountry(): void
+    {
+        $provider = $this->createProviderSellingFrom(self::DE_ID);
+        $vatIds = ['NL123456789B01', 'DE123456789'];
+
+        static::assertSame(self::NL_ID, $provider->getCountryIdForVatIds($vatIds));
+        static::assertTrue($provider->isSellerCountryVatId($vatIds, Uuid::randomHex()));
+        static::assertSame(self::NL_ID, $provider->getCountryIdForVatIds($vatIds));
     }
 
     public function testSellerCountryVatIdUsesTheConfiguredSellerInsteadOfTheSalesChannelDefault(): void

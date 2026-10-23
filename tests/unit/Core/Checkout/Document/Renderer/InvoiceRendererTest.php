@@ -342,19 +342,20 @@ class InvoiceRendererTest extends TestCase
             'expectedResult' => false,
         ];
 
-        yield 'will return false because country setting "CompanyTaxFree" is not activated' => [
+        yield 'saved tax-free order keeps the note after company tax is disabled' => [
             'orderSettings' => [
                 'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
                 'isCountryCompanyTaxFree' => false,
                 'setOrderDelivery' => true,
                 'setShippingCountry' => true,
                 'setEuCountry' => true,
+                'taxStatus' => CartPrice::TAX_STATE_FREE,
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => true,
                 'fileTypes' => ['pdf', 'html'],
             ],
-            'expectedResult' => false,
+            'expectedResult' => true,
         ];
 
         yield 'will return false because customer address is not part of "Member countries"' => [

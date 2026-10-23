@@ -178,9 +178,14 @@ class VatIdPatternProvider implements ResetInterface
      */
     public function isSellerCountryVatId(?array $vatIds, string $salesChannelId): bool
     {
-        $vatIdCountryId = $this->getCountryIdForVatIds($vatIds);
+        foreach ($vatIds ?? [] as $vatId) {
+            $vatIdCountryId = $this->getCountryIdForVatIds([$vatId]);
+            if ($vatIdCountryId !== null && $vatIdCountryId === $this->getSellerCountryId($salesChannelId)) {
+                return true;
+            }
+        }
 
-        return $vatIdCountryId !== null && $vatIdCountryId === $this->getSellerCountryId($salesChannelId);
+        return false;
     }
 
     /**

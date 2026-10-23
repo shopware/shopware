@@ -28,6 +28,8 @@ class VatIdPatternProviderTest extends TestCase
 {
     private const BE_ID = '0199f1c4b0d3736a9f3d0f2c5a1b0be0';
 
+    private const DE_ID = '0199f1c4b0d3736a9f3d0f2c5a1b0de0';
+
     private const NL_ID = '0199f1c4b0d3736a9f3d0f2c5a1b0140';
 
     private const GR_ID = '0199f1c4b0d3736a9f3d0f2c5a1b0947';
@@ -499,6 +501,64 @@ class VatIdPatternProviderTest extends TestCase
         static::assertSame('', $this->createProvider([])->getSellerCountryId(''));
     }
 
+    /**
+     * @param list<string>|null $vatIds
+     */
+    #[DataProvider('sellerCountryVatIdProvider')]
+    public function testSellerCountryVatIdUsesTheFirstNonemptyEntry(?array $vatIds, bool $expected): void
+    {
+        $provider = $this->createProviderSellingFrom(self::DE_ID);
+
+        static::assertSame($expected, $provider->isSellerCountryVatId($vatIds, Uuid::randomHex()));
+    }
+
+    /**
+     * @return iterable<string, array{list<string>|null, bool}>
+     */
+    public static function sellerCountryVatIdProvider(): iterable
+    {
+        yield 'seller VAT ID matches the seller country' => [['DE123456789'], true];
+        yield 'foreign VAT ID does not match the seller country' => [['NL123456789B01'], false];
+        yield 'null VAT IDs cannot match a seller country' => [null, false];
+        yield 'empty VAT IDs cannot match a seller country' => [[], false];
+        yield 'empty entries cannot match a seller country' => [[''], false];
+        yield 'an invalid seller VAT ID does not match' => [['DEINVALID'], false];
+        yield 'a seller VAT ID before a foreign one determines the country' => [['DE123456789', 'NL123456789B01'], true];
+        yield 'a foreign VAT ID before a seller one determines the country' => [['NL123456789B01', 'DE123456789'], false];
+        yield 'empty entries before a seller VAT ID are skipped' => [['', 'DE123456789'], true];
+        yield 'an invalid first entry is not replaced by a later seller VAT ID' => [['INVALID', 'DE123456789'], false];
+    }
+
+    public function testSellerCountryVatIdUsesTheConfiguredSellerInsteadOfTheSalesChannelDefault(): void
+    {
+        $provider = $this->createProviderSellingFrom(self::DE_ID, salesChannelCountryId: self::NL_ID);
+
+        static::assertTrue($provider->isSellerCountryVatId(['DE123456789'], Uuid::randomHex()));
+        static::assertFalse($provider->isSellerCountryVatId(['NL123456789B01'], Uuid::randomHex()));
+    }
+
+    public function testSellerCountryVatIdFallsBackToTheSalesChannelDefault(): void
+    {
+        $provider = $this->createProviderSellingFrom('', salesChannelCountryId: self::DE_ID);
+
+        static::assertTrue($provider->isSellerCountryVatId(['DE123456789'], Uuid::randomHex()));
+        static::assertFalse($provider->isSellerCountryVatId(['NL123456789B01'], Uuid::randomHex()));
+    }
+
+    public function testSellerCountryVatIdDoesNotMatchWithoutAKnownSellerCountry(): void
+    {
+        $provider = $this->createProviderSellingFrom('');
+
+        static::assertFalse($provider->isSellerCountryVatId(['DE123456789'], Uuid::randomHex()));
+    }
+
+    public function testSellerCountryVatIdDoesNotMatchWithoutASalesChannel(): void
+    {
+        $provider = $this->createProviderSellingFrom(self::DE_ID);
+
+        static::assertFalse($provider->isSellerCountryVatId(['DE123456789'], ''));
+    }
+
     public function testNoMemberStateCountsWhileNoSellerCountryIsConfiguredAndTheSalesChannelSellsFromOutsideTheEu(): void
     {
         // Without a member state a domestic supply is indistinguishable from an intra-community one,
@@ -623,6 +683,7 @@ class VatIdPatternProviderTest extends TestCase
         $repository = $this->createCountryRepository(
             [
                 ['iso' => 'BE', 'id' => self::BE_ID, 'vatIdPattern' => 'BE\\d{10}'],
+                ['iso' => 'DE', 'id' => self::DE_ID, 'vatIdPattern' => 'DE\\d{9}'],
                 ['iso' => 'NL', 'id' => self::NL_ID, 'vatIdPattern' => 'NL\\d{9}B\\d{2}'],
             ],
             salesChannelCountryId: $salesChannelCountryId,

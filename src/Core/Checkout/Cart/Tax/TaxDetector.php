@@ -80,8 +80,7 @@ class TaxDetector extends AbstractTaxDetector
             return false;
         }
 
-        $vatIdCountryId = $this->vatIdPatternProvider->getCountryIdForVatIds($vatIds);
-        if ($vatIdCountryId !== null && $vatIdCountryId === $this->vatIdPatternProvider->getSellerCountryId($context->getSalesChannelId())) {
+        if ($this->vatIdPatternProvider->isSellerCountryVatId($vatIds, $context->getSalesChannelId())) {
             return false;
         }
 

@@ -174,6 +174,16 @@ class VatIdPatternProvider implements ResetInterface
     }
 
     /**
+     * @param array<mixed>|null $vatIds
+     */
+    public function isSellerCountryVatId(?array $vatIds, string $salesChannelId): bool
+    {
+        $vatIdCountryId = $this->getCountryIdForVatIds($vatIds);
+
+        return $vatIdCountryId !== null && $vatIdCountryId === $this->getSellerCountryId($salesChannelId);
+    }
+
+    /**
      * @return array{isEu: bool, checkPattern: bool, pattern: string|null}|null null if the country does not exist
      */
     public function getCountrySettings(string $countryId): ?array

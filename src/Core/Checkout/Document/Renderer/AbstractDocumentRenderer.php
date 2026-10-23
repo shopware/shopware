@@ -105,9 +105,7 @@ abstract class AbstractDocumentRenderer
             return true;
         }
 
-        $vatIdCountryId = $vatIdPatternProvider->getCountryIdForVatIds($order->getOrderCustomer()?->getVatIds());
-
-        return $vatIdCountryId !== null && $vatIdCountryId === $vatIdPatternProvider->getSellerCountryId($order->getSalesChannelId());
+        return $vatIdPatternProvider->isSellerCountryVatId($order->getOrderCustomer()?->getVatIds(), $order->getSalesChannelId());
     }
 
     protected function isValidVat(OrderEntity $order, ValidatorInterface $validator): bool

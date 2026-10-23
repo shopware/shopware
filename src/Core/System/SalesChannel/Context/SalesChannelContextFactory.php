@@ -169,15 +169,16 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             return $shippingLocation;
         }
 
-        $vatIdCountryId = $this->vatIdPatternProvider->getCountryIdForVatIds($customer->getVatIds());
-        if ($vatIdCountryId === null
-            || $vatIdCountryId === $shippingLocation->getCountry()->getId()
-            || $vatIdCountryId !== $this->vatIdPatternProvider->getSellerCountryId($context->getSalesChannelId())
-        ) {
+        if (!$this->vatIdPatternProvider->isSellerCountryVatId($customer->getVatIds(), $context->getSalesChannelId())) {
             return $shippingLocation;
         }
 
-        $criteria = new Criteria([$vatIdCountryId]);
+        $sellerCountryId = $this->vatIdPatternProvider->getSellerCountryId($context->getSalesChannelId());
+        if ($sellerCountryId === $shippingLocation->getCountry()->getId()) {
+            return $shippingLocation;
+        }
+
+        $criteria = new Criteria([$sellerCountryId]);
         $criteria->setTitle('context-factory::tax-country');
         $sellerCountry = $this->countryRepository->search($criteria, $context->getContext())->getEntities()->first();
 

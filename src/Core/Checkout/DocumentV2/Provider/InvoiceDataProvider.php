@@ -213,8 +213,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
         }
 
         $vatIds = $order->getOrderCustomer()?->getVatIds();
-        $vatIdCountryId = $this->vatIdPatternProvider->getCountryIdForVatIds($vatIds);
-        if ($vatIdCountryId !== null && $vatIdCountryId === $this->vatIdPatternProvider->getSellerCountryId($order->getSalesChannelId())) {
+        if ($this->vatIdPatternProvider->isSellerCountryVatId($vatIds, $order->getSalesChannelId())) {
             return false;
         }
 

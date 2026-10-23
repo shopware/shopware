@@ -4,9 +4,12 @@ namespace Shopware\Tests\Integration\Core\System\SalesChannel\Context;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -18,6 +21,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -247,6 +251,78 @@ class IntraEuTaxRuleTest extends TestCase
         static::assertSame(CartPrice::TAX_STATE_GROSS, $context->getTaxState());
         static::assertSame(19.0, $context->buildTaxRules($this->taxId)->first()?->getTaxRate());
         static::assertSame($this->countryIds['FR'], $context->getShippingLocation()->getCountry()->getId());
+    }
+
+    #[DataProvider('taxableCustomerGroupProvider')]
+    public function testSelfSuppliedSellerVatIdKeepsDestinationTaxWhenCompanyTaxFreeIsDisabled(bool $displayGross, string $taxState, float $price): void
+    {
+        $container = static::getContainer();
+        $container->get(SystemConfigService::class)->set('core.basicInformation.sellerCountryId', $this->countryIds['DE']);
+        $container->get('country.repository')->update([
+            [
+                'id' => $this->countryIds['FR'],
+                'companyTax' => ['enabled' => false, 'currencyId' => Defaults::CURRENCY, 'amount' => 0],
+            ],
+            [
+                'id' => $this->countryIds['NL'],
+                'checkVatIdPattern' => true,
+                'vatIdPattern' => 'NL\d{9}B\d{2}',
+            ],
+        ], Context::createDefaultContext());
+
+        $customerGroupId = Uuid::randomHex();
+        $container->get('customer_group.repository')->create([[
+            'id' => $customerGroupId,
+            'name' => 'Taxable business customer',
+            'displayGross' => $displayGross,
+        ]], Context::createDefaultContext());
+        $this->customerRepository->update([[
+            'id' => $this->customerId,
+            'groupId' => $customerGroupId,
+        ]], Context::createDefaultContext());
+
+        $context = $this->createContext();
+        $customer = $context->getCustomer();
+        static::assertNotNull($customer);
+        $response = $container->get(ChangeCustomerProfileRoute::class)->change(new RequestDataBag([
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'company' => 'Self-declared business',
+            'vatIds' => ['DE123456789'],
+        ]), $context, $customer);
+        static::assertTrue($response->getObject()->get('success'));
+
+        $context = $this->createContext();
+        $updatedCustomer = $context->getCustomer();
+        static::assertNotNull($updatedCustomer);
+
+        static::assertSame(['DE123456789'], $updatedCustomer->getVatIds());
+        static::assertSame($this->countryIds['DE'], $updatedCustomer->getVatIdCountryId());
+        static::assertFalse($context->getShippingLocation()->getCountry()->getCompanyTax()->getEnabled());
+        static::assertSame($taxState, $context->getTaxState());
+        static::assertSame($this->countryIds['FR'], $context->getShippingLocation()->getCountry()->getId());
+        static::assertSame($this->shippingAddressId, $context->getShippingLocation()->getAddress()?->getId());
+        static::assertSame(20.0, $context->buildTaxRules($this->taxId)->first()?->getTaxRate());
+
+        $calculatedPrice = $container->get(QuantityPriceCalculator::class)->calculate(
+            new QuantityPriceDefinition($price, $context->buildTaxRules($this->taxId)),
+            $context
+        );
+
+        $calculatedTax = $calculatedPrice->getCalculatedTaxes()->first();
+        static::assertNotNull($calculatedTax);
+        static::assertSame(20.0, $calculatedTax->getTaxRate());
+        static::assertSame(20.0, $calculatedTax->getTax());
+    }
+
+    /**
+     * @return iterable<string, array{bool, string, float}>
+     */
+    public static function taxableCustomerGroupProvider(): iterable
+    {
+        yield 'gross customer keeps destination VAT' => [true, CartPrice::TAX_STATE_GROSS, 120.0];
+        yield 'net customer keeps destination VAT' => [false, CartPrice::TAX_STATE_NET, 100.0];
     }
 
     public function testDomesticDeliveryWithVatIdOfAnotherMemberStateUsesSellerTaxRule(): void

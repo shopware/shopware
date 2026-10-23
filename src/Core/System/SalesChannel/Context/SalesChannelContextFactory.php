@@ -161,7 +161,11 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
     private function getTaxLocation(BaseSalesChannelContext $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): ShippingLocation
     {
-        if ($customer === null || $customer->getAccountType() !== CustomerEntity::ACCOUNT_TYPE_BUSINESS || !$shippingLocation->getCountry()->getIsEu()) {
+        if ($customer === null
+            || $customer->getAccountType() !== CustomerEntity::ACCOUNT_TYPE_BUSINESS
+            || !$shippingLocation->getCountry()->getIsEu()
+            || !$shippingLocation->getCountry()->getCompanyTax()->getEnabled()
+        ) {
             return $shippingLocation;
         }
 

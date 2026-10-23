@@ -88,7 +88,7 @@ const mockResults = {
     },
 };
 
-async function createWrapper() {
+async function createWrapper(salesChannelList = salesChannels) {
     return mount(
         await wrapTestComponent('sw-settings-search-live-search', {
             sync: true,
@@ -160,8 +160,9 @@ async function createWrapper() {
                             }
 
                             return {
-                                search: () => {
-                                    return Promise.resolve(salesChannels);
+                                // like the API, only return as many sales channels as the criteria asks for
+                                search: (criteria) => {
+                                    return Promise.resolve(salesChannelList.slice(0, criteria.limit ?? undefined));
                                 },
                             };
                         },
@@ -206,6 +207,19 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
 
     it('should render the sales channel select', async () => {
         expect(wrapper.find('.sw-settings-search-live-search__sales-channel-select').exists()).toBeTruthy();
+    });
+
+    it('should offer every sales channel in the select, also beyond the first 25', async () => {
+        wrapper.unmount();
+
+        const manySalesChannels = Array.from({ length: 30 }, (_, index) => ({
+            id: `sales-channel-${index}`,
+            name: `Sales channel ${index}`,
+        }));
+        wrapper = await createWrapper(manySalesChannels);
+        await flushPromises();
+
+        expect(wrapper.vm.salesChannels).toHaveLength(30);
     });
 
     it('should show the search box disabled on no sales channel selected', async () => {

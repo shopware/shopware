@@ -214,7 +214,7 @@ export default {
         },
 
         async findAlreadyAssignedSalesChannels() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, null);
             const salesChannelIds = [];
 
             this.mailHeaderFooter.salesChannels.forEach((salesChannel) => {

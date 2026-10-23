@@ -93,19 +93,28 @@ async function createWrapper({ defaultTemplates = ALL_DEFAULTS, salesChannelTemp
         sync: jest.fn().mockResolvedValue(),
     };
 
+    const salesChannels = [
+        { id: STOREFRONT_SALES_CHANNEL_ID, typeId: STOREFRONT_TYPE_ID, domains: [] },
+        // a headless channel needs a domain flagged as external storefront to support SEO URLs
+        { id: HEADLESS_SALES_CHANNEL_ID, typeId: HEADLESS_TYPE_ID, domains: [{ isExternalStorefront: true }] },
+        {
+            id: HEADLESS_NO_DOMAIN_SALES_CHANNEL_ID,
+            typeId: HEADLESS_TYPE_ID,
+            domains: [{ isExternalStorefront: false }],
+        },
+        { id: PRODUCT_COMPARISON_SALES_CHANNEL_ID, typeId: PRODUCT_COMPARISON_TYPE_ID, domains: [] },
+        { id: AGENTIC_COMMERCE_SALES_CHANNEL_ID, typeId: AGENTIC_COMMERCE_TYPE_ID, domains: [] },
+    ];
+
     const salesChannelRepository = {
-        search: jest.fn().mockResolvedValue([
-            { id: STOREFRONT_SALES_CHANNEL_ID, typeId: STOREFRONT_TYPE_ID, domains: [] },
-            // a headless channel needs a domain flagged as external storefront to support SEO URLs
-            { id: HEADLESS_SALES_CHANNEL_ID, typeId: HEADLESS_TYPE_ID, domains: [{ isExternalStorefront: true }] },
-            {
-                id: HEADLESS_NO_DOMAIN_SALES_CHANNEL_ID,
-                typeId: HEADLESS_TYPE_ID,
-                domains: [{ isExternalStorefront: false }],
-            },
-            { id: PRODUCT_COMPARISON_SALES_CHANNEL_ID, typeId: PRODUCT_COMPARISON_TYPE_ID, domains: [] },
-            { id: AGENTIC_COMMERCE_SALES_CHANNEL_ID, typeId: AGENTIC_COMMERCE_TYPE_ID, domains: [] },
-        ]),
+        search: jest.fn(({ ids }) => {
+            const result = new EntityCollection('/sales-channel', 'sales_channel', Shopware.Context.api);
+            salesChannels
+                .filter(({ id }) => ids.length === 0 || ids.includes(id))
+                .forEach((salesChannel) => result.add(salesChannel));
+
+            return Promise.resolve(result);
+        }),
     };
 
     const wrapper = mount(await wrapTestComponent('sw-seo-url-template-card', { sync: true }), {
@@ -331,6 +340,18 @@ describe('src/module/sw-settings-seo/component/sw-seo-url-template-card', () => 
         await wrapper.vm.onSalesChannelChanged(STOREFRONT_SALES_CHANNEL_ID);
         await flushPromises();
         expect(wrapper.emitted('sales-channel-changed').at(-1)).toEqual([false]);
+    });
+
+    it('should load a selected sales channel that is not part of the initially loaded sales channels', async () => {
+        const { wrapper } = await createWrapper();
+        // with many sales channels, the initially loaded page does not contain every sales channel
+        wrapper.vm.salesChannels = wrapper.vm.salesChannels.filter(({ id }) => id === STOREFRONT_SALES_CHANNEL_ID);
+
+        await wrapper.vm.onSalesChannelChanged(HEADLESS_NO_DOMAIN_SALES_CHANNEL_ID);
+        await flushPromises();
+
+        expect(wrapper.emitted('sales-channel-changed').at(-1)).toEqual([true]);
+        expect(wrapper.vm.salesChannelSupportsSeoUrlTemplates).toBe(false);
     });
 
     it('should keep the storefront default order and reuse a store-api template already saved for the channel', async () => {

@@ -71,8 +71,19 @@ async function createWrapper() {
             provide: {
                 repositoryFactory: {
                     create: (entity) => ({
-                        search: () =>
-                            Promise.resolve(entity === 'sales_channel' ? createEntityCollection(SALES_CHANNELS) : []),
+                        search: (criteria) => {
+                            if (entity !== 'sales_channel') {
+                                return Promise.resolve([]);
+                            }
+
+                            const { ids } = criteria;
+
+                            return Promise.resolve(
+                                createEntityCollection(
+                                    ids.length ? SALES_CHANNELS.filter(({ id }) => ids.includes(id)) : SALES_CHANNELS,
+                                ),
+                            );
+                        },
                         create: () => ({}),
                         schema: { entity: {} },
                     }),
@@ -318,5 +329,17 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
         expect(wrapper.vm.headlessExternalStorefrontUrl).toBeNull();
         expect(wrapper.vm.seoUrlHelptext).toBeNull();
         expect(wrapper.vm.allowInput).toBe(true);
+    });
+
+    it('loads a selected sales channel that is not part of the initially loaded sales channels', async () => {
+        await flushPromises();
+        // with many sales channels, the initially loaded page does not contain every sales channel
+        setSalesChannels([SALES_CHANNELS[0]]);
+
+        wrapper.vm.onSalesChannelChanged(PRODUCT_COMPARISON_SALES_CHANNEL_ID);
+        await flushPromises();
+
+        expect(wrapper.vm.currentSalesChannel?.id).toBe(PRODUCT_COMPARISON_SALES_CHANNEL_ID);
+        expect(wrapper.vm.isUnsupportedSalesChannel).toBe(true);
     });
 });

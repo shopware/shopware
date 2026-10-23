@@ -116,7 +116,7 @@ class MockRepositoryFactory {
 const searchSpy = jest.fn(() => Promise.resolve(mockApiCall('newsletter_recipient')));
 
 async function createWrapper(options = {}) {
-    const { useSearchSpy = false } = options;
+    const { useSearchSpy = false, salesChannels = null } = options;
 
     const repositoryFactory = useSearchSpy
         ? {
@@ -125,7 +125,16 @@ async function createWrapper(options = {}) {
               })),
           }
         : {
-              create: (type) => new MockRepositoryFactory(type),
+              create: (type) => {
+                  if (type === 'sales_channel' && salesChannels) {
+                      // like the API, only return as many sales channels as the criteria asks for
+                      return {
+                          search: (criteria) => Promise.resolve(salesChannels.slice(0, criteria.limit ?? undefined)),
+                      };
+                  }
+
+                  return new MockRepositoryFactory(type);
+              },
           };
 
     return mount(await wrapTestComponent('sw-newsletter-recipient-list', { sync: true }), {
@@ -202,6 +211,18 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list',
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.$options.shortcuts.OF).toBe('openFilterSidebar');
+    });
+
+    it('should offer every sales channel in the filter, also beyond the first 100', async () => {
+        const salesChannels = Array.from({ length: 120 }, (_, index) => ({
+            id: `sales-channel-${index}`,
+            name: `Sales channel ${index}`,
+        }));
+
+        const wrapper = await createWrapper({ salesChannels });
+        await flushPromises();
+
+        expect(wrapper.vm.salesChannelFilters).toHaveLength(120);
     });
 
     it('should open the filter sidebar via the open-filters shortcut', async () => {

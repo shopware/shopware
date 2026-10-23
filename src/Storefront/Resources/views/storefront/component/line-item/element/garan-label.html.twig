@@ -13,7 +13,7 @@
             {% endset %}
         {% endif %}
     {% elseif displayMode !== 'order' %}
-        {# cart line items that did not store the label, like the ones of SwagCommercial's quotes #}
+        {# cart line items calculated before they stored the label #}
         {% set garanLabel = productId|sw_garan_label_nested(context.context) %}
     {% endif %}
 

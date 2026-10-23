@@ -60,7 +60,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         private readonly AbstractProductPriceCalculator $priceCalculator,
         private readonly EntityCacheKeyGenerator $generator,
         private readonly Connection $connection,
-        private readonly ?GaranLabelResolver $garanLabelResolver = null
+        private readonly GaranLabelResolver $garanLabelResolver
     ) {
     }
 
@@ -392,9 +392,8 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'stock' => $product->getStock(),
         ];
 
-        // an edited order keeps the GARAN label it was placed with, see GaranLabelOrderSubscriber,
-        // which also stores it for processors built without the resolver, like the one of SwagCommercial's quotes
-        if ($this->garanLabelResolver !== null && !$behavior->hasPermission(self::SKIP_PRODUCT_RECALCULATION)) {
+        // an edited order keeps the GARAN label it was placed with, see GaranLabelOrderSubscriber
+        if (!$behavior->hasPermission(self::SKIP_PRODUCT_RECALCULATION)) {
             $payload[GaranLabelResolver::PAYLOAD_KEY] = $this->garanLabelResolver->resolveSnapshot($product);
         }
 

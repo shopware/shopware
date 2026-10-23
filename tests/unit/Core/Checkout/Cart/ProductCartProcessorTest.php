@@ -138,7 +138,8 @@ class ProductCartProcessorTest extends TestCase
             $this->createMock(ProductFeatureBuilder::class),
             $calculator,
             $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(Connection::class)
+            $this->createMock(Connection::class),
+            $this->createMock(GaranLabelResolver::class)
         );
 
         $context = $this->createMock(SalesChannelContext::class);
@@ -206,7 +207,8 @@ class ProductCartProcessorTest extends TestCase
             $this->createMock(ProductFeatureBuilder::class),
             $calculator,
             $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(Connection::class)
+            $this->createMock(Connection::class),
+            $this->createMock(GaranLabelResolver::class)
         );
 
         $context = $this->createMock(SalesChannelContext::class);
@@ -253,7 +255,8 @@ class ProductCartProcessorTest extends TestCase
             $this->createMock(ProductFeatureBuilder::class),
             $this->createMock(ProductPriceCalculator::class),
             $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(Connection::class)
+            $this->createMock(Connection::class),
+            $this->createMock(GaranLabelResolver::class)
         );
 
         $context = $this->createMock(SalesChannelContext::class);
@@ -288,7 +291,7 @@ class ProductCartProcessorTest extends TestCase
         $product = self::createGaranProduct();
         $product->setGuaranteeConfirmed($guaranteeConfirmed);
 
-        $lineItem = $this->collectGaranLabel($product, new CartBehavior(), GaranLabelFixtures::createResolver());
+        $lineItem = $this->collectGaranLabel($product, new CartBehavior());
 
         static::assertSame($expected, $lineItem->getPayload()[GaranLabelResolver::PAYLOAD_KEY]);
     }
@@ -298,16 +301,7 @@ class ProductCartProcessorTest extends TestCase
         $lineItem = $this->collectGaranLabel(
             self::createGaranProduct(),
             new CartBehavior([ProductCartProcessor::SKIP_PRODUCT_RECALCULATION => true]),
-            GaranLabelFixtures::createResolver(),
         );
-
-        static::assertSame(GaranLabelFixtures::STORED_LABEL, $lineItem->getPayload()[GaranLabelResolver::PAYLOAD_KEY]);
-    }
-
-    public function testPayloadKeepsTheGaranLabelWithoutResolver(): void
-    {
-        // SwagCommercial's quote processor is built without the resolver, GaranLabelOrderSubscriber stores the label
-        $lineItem = $this->collectGaranLabel(self::createGaranProduct(), new CartBehavior(), null);
 
         static::assertSame(GaranLabelFixtures::STORED_LABEL, $lineItem->getPayload()[GaranLabelResolver::PAYLOAD_KEY]);
     }
@@ -337,7 +331,8 @@ class ProductCartProcessorTest extends TestCase
             $this->createMock(ProductFeatureBuilder::class),
             $this->createMock(ProductPriceCalculator::class),
             $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(Connection::class)
+            $this->createMock(Connection::class),
+            $this->createMock(GaranLabelResolver::class)
         );
 
         $originalCart = new Cart('test');
@@ -387,7 +382,8 @@ class ProductCartProcessorTest extends TestCase
             $this->createMock(ProductFeatureBuilder::class),
             $this->createMock(ProductPriceCalculator::class),
             $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(Connection::class)
+            $this->createMock(Connection::class),
+            $this->createMock(GaranLabelResolver::class)
         );
 
         $context = $this->createMock(SalesChannelContext::class);
@@ -438,7 +434,8 @@ class ProductCartProcessorTest extends TestCase
             $this->createMock(ProductFeatureBuilder::class),
             $this->createMock(ProductPriceCalculator::class),
             $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(Connection::class)
+            $this->createMock(Connection::class),
+            $this->createMock(GaranLabelResolver::class)
         );
 
         $context = $this->createMock(SalesChannelContext::class);
@@ -486,7 +483,7 @@ class ProductCartProcessorTest extends TestCase
     /**
      * Collects a cart whose line item stored {@see GaranLabelFixtures::STORED_LABEL} earlier
      */
-    private function collectGaranLabel(SalesChannelProductEntity $product, CartBehavior $behavior, ?GaranLabelResolver $resolver): LineItem
+    private function collectGaranLabel(SalesChannelProductEntity $product, CartBehavior $behavior): LineItem
     {
         $lineItem = new LineItem('A', 'product', 'A');
         $lineItem->setPayloadValue(GaranLabelResolver::PAYLOAD_KEY, GaranLabelFixtures::STORED_LABEL);
@@ -501,7 +498,7 @@ class ProductCartProcessorTest extends TestCase
             $this->createMock(ProductPriceCalculator::class),
             $this->createMock(EntityCacheKeyGenerator::class),
             $this->createMock(Connection::class),
-            $resolver
+            GaranLabelFixtures::createResolver()
         );
 
         $data = new CartDataCollection();

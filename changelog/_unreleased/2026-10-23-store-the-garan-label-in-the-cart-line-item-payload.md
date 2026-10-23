@@ -3,7 +3,7 @@ title: Store the GARAN label in the cart line item payload
 issue: 21600
 ---
 # Core
-* Changed `Shopware\Core\Content\Product\Cart\ProductCartProcessor` to store the GARAN label values of the product in `payload.garanLabel` of cart line items. Editing an order keeps the stored values. The new optional constructor argument `GaranLabelResolver $garanLabelResolver` is passed by the core service; processors built without it leave the label to `GaranLabelOrderSubscriber`.
+* Changed `Shopware\Core\Content\Product\Cart\ProductCartProcessor` to store the GARAN label values of the product in `payload.garanLabel` of cart line items. Editing an order keeps the stored values. Added the constructor argument `GaranLabelResolver $garanLabelResolver`.
 * Changed `Shopware\Core\Content\Product\Cart\ProductGateway` to load the `manufacturer` association, which the GARAN label needs.
 * Changed `Shopware\Core\Content\Product\Garan\GaranLabelOrderSubscriber` to keep the label a line item already stores, and to store only the label of line items without one. Line items of deleted products store `null`.
 * Added `Shopware\Core\Content\Product\Garan\GaranLabelResolver::PAYLOAD_KEY`.

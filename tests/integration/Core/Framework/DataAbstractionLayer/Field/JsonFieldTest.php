@@ -423,6 +423,19 @@ EOF;
         static::assertEquals($insertTime->format(Defaults::STORAGE_DATE_FORMAT), $decoded['child']['childDate']);
     }
 
+    public function testJsonPathWithCommentMarkerIsRejected(): void
+    {
+        $repo = $this->getRepository();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('data.a*/b', 'bar'));
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character not allowed in identifier');
+
+        $repo->search($this->registerDefinition(JsonDefinition::class), $criteria, Context::createDefaultContext());
+    }
+
     public function testNestedJsonFilter(): void
     {
         $context = $this->createWriteContext();

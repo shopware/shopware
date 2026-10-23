@@ -43,6 +43,10 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
             return EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
         }
 
+        if (!EntityDefinitionQueryHelper::isValidJsonPath($jsonPath)) {
+            throw new \InvalidArgumentException('Backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character not allowed in identifier');
+        }
+
         // enquote hyphenated json keys in path
         if (str_contains($jsonPath, '-')) {
             $jsonPathParts = explode('.', $jsonPath);

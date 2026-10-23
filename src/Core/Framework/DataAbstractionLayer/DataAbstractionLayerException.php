@@ -557,7 +557,7 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_AGGREGATION_NAME,
-            'Invalid aggregation name "{{ name }}", cannot contain question marks und colon.',
+            'Invalid aggregation name "{{ name }}". It must not contain a backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character.',
             ['name' => $name]
         );
     }

@@ -9,6 +9,7 @@ Shopware.Component.register('sw-settings-storefront-index', () => import('./page
 
 /**
  * @deprecated tag:v6.8.0 - Will be removed without replacement.
+ * @deprecationGuard static-only - The registered component carries the guard itself.
  */
 Shopware.Component.register(
     'sw-settings-storefront-configuration',

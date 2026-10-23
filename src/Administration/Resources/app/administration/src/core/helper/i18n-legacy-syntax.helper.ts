@@ -51,6 +51,7 @@ function isLegacyPluralCall(args: unknown[]): boolean {
  * so calls in the vue-i18n 8 order are swapped to `t(key, named, plural)`.
  *
  * @deprecated tag:v6.9.0 - Support for the vue-i18n 8 argument order will be removed.
+ * @deprecationGuard static-only - Runs for every translation and reports the legacy order itself, once it detects it.
  */
 function normalizeLegacyArguments(instance: ComponentInstance, args: unknown[], apiName: string): unknown[] {
     if (!isLegacyPluralCall(args)) {

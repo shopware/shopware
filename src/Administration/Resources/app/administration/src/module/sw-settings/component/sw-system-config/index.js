@@ -225,9 +225,11 @@ export default {
 
         async readConfig() {
             // @deprecated tag:v6.8.0 - The getSchemaForDomain method call will be replaced with this.systemConfigApiService.getSchema(this.domain).
+            // @deprecationGuard static-only - Marks a call core replaces in the major, not a member callers use.
             const schema = await this.getSchemaForDomain();
 
             // @deprecated tag:v6.8.0 - The assignConfigIds method call will be removed without replacement.
+            // @deprecationGuard static-only - Marks a call core removes in the major, not a member callers use.
             this.assignConfigIds(schema);
 
             this.schema = schema;
@@ -247,6 +249,8 @@ export default {
 
         /**
          * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         * @deprecationGuard static-only - Part of core's sync between `schema` and the deprecated `config`
+         * data, which runs for every instance, so a guard would report core's own use.
          *
          * The modern schema endpoint is the preferred source of truth, but a decorated or overwritten
          * legacy `getConfig` method is still used by extensions. If that method is custom, merge the
@@ -273,6 +277,8 @@ export default {
 
         /**
          * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         * @deprecationGuard static-only - Part of core's sync between `schema` and the deprecated `config`
+         * data, which runs for every instance, so a guard would report core's own use.
          *
          * Tags cards and elements with an unofficial, internal id (`__configId`). It survives immutable
          * updates (e.g. `card.map((c) => ({ ...c, title }))`) because object spread copies it along with
@@ -618,6 +624,8 @@ export default {
 
         /**
          * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         * @deprecationGuard static-only - Part of core's sync between `schema` and the deprecated `config`
+         * data, which runs for every instance, so a guard would report core's own use.
          */
         schemaToConfig(schema) {
             return (schema ?? []).flatMap((tab) => tab?.cards ?? []);
@@ -625,6 +633,8 @@ export default {
 
         /**
          * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         * @deprecationGuard static-only - Part of core's sync between `schema` and the deprecated `config`
+         * data, which runs for every instance, so a guard would report core's own use.
          *
          * Finds the tab a card most likely belongs to by counting, per previous tab, how many of the
          * card's elements were already present there. Element names are the actual system config keys,
@@ -659,6 +669,8 @@ export default {
 
         /**
          * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         * @deprecationGuard static-only - Part of core's sync between `schema` and the deprecated `config`
+         * data, which runs for every instance, so a guard would report core's own use.
          *
          * Keeps existing tabs instead of collapsing everything into a single tab. Cards are primarily matched
          * back to their original tab via the internal `__configId` (see assignConfigIds), which is reliable

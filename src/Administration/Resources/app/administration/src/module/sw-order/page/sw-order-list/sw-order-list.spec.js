@@ -4,6 +4,7 @@ import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 /**
  * @sw-package checkout
@@ -163,6 +164,14 @@ Shopware.Service().register('filterService', () => {
 });
 
 describe('src/module/sw-order/page/sw-order-list', () => {
+    beforeEach(() => {
+        allowDeprecation('sw-order-list.filterSelectCriteria is deprecated');
+        allowDeprecation('sw-order-list.getDelivery() is deprecated');
+        allowDeprecation('sw-order-list.transaction() is deprecated');
+        allowDeprecation('sw-order-list.getTransactionState() is deprecated');
+        allowDeprecation('sw-order-list.updateCriteria() is deprecated');
+    });
+
     let wrapper;
 
     it('should have an disabled add button', async () => {
@@ -656,8 +665,15 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             ]),
         };
 
+        // Where the test itself activates the major, the guard logs the baselined deprecations instead of recording them.
+        const error = jest.spyOn(console, 'error').mockImplementation(() => {});
+
         expect(wrapper.vm.getDelivery(order)).toBeNull();
         expect(wrapper.vm.transaction(order)).toBeNull();
+        error.mock.calls.forEach(([label, message]) => {
+            expect(label).toBe('[Deprecation]');
+            expect(message).toMatch(/^sw-order-list\.(getDelivery|transaction)\(\) is deprecated/);
+        });
     });
 
     /**

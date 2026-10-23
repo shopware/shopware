@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 describe('module/sw-product/component/sw-product-settings-mode', () => {
     async function createWrapper() {
@@ -63,6 +64,7 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
     let wrapper;
 
     beforeEach(async () => {
+        allowDeprecation('The component "sw-product-settings-mode" is deprecated');
         wrapper = await createWrapper();
         await flushPromises();
     });

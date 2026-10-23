@@ -77,7 +77,7 @@ import type { LegacyConditionCaseOptions } from '../../component/structure/sw-bl
 import useSystem from '../../composables/use-system';
 import useSession from '../../composables/use-session';
 
-const { Component, State, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { legacyIf, legacyElseIf, legacyElse } = useLegacyConditionContext();
 
 /**
@@ -154,7 +154,7 @@ export default class VueAdapter extends ViewAdapter {
         this.initPlugins();
         this.initDirectives();
 
-        const vuexRoot = State._store;
+        const vuexRoot = Shopware._state._store;
         const i18n = this.initLocales();
 
         // add router to View
@@ -264,6 +264,7 @@ export default class VueAdapter extends ViewAdapter {
         this.app.config.globalProperties.$t = createTranslate(i18n.global.t);
         /**
          * @deprecated tag:v6.9.0 - Will be removed, use $t instead.
+         * @deprecationGuard static-only - A value assignment; the `createDeprecatedTc` wrapper reports every call itself.
          */
         this.app.config.globalProperties.$tc = createDeprecatedTc(i18n.global.t, '$tc', '$t');
 
@@ -489,6 +490,11 @@ export default class VueAdapter extends ViewAdapter {
      * @deprecated tag:v6.8.0 - Will be removed. Module snippets are loaded by the initial snippets request.
      */
     initModuleLocales() {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_8_0_0',
+            'VueAdapter.initModuleLocales() is deprecated and will be removed. Module snippets are loaded by the initial snippets request.',
+        );
+
         // Extend default snippets with module specific snippets
         const moduleSnippets = this.applicationFactory.module.getModuleSnippets();
 

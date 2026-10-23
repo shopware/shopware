@@ -8,6 +8,7 @@ import 'src/app/component/utils/sw-loader';
 import 'src/app/component/base/sw-button';
 import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 async function createWrapper(options = {}) {
     const { privileges = [], featureActive = false } = Array.isArray(options) ? { privileges: options } : options;
@@ -259,6 +260,11 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
             store.creationStates = 'is-physical';
         }
         store.creationType = 'physical';
+    });
+
+    beforeEach(() => {
+        allowDeprecation('sw-product-detail-variants.currentProductStates is deprecated');
+        allowDeprecation('sw-product-detail-variants.loadConfigSettingGroups() is deprecated');
     });
 
     it('should render the fallback tabs branch while the major feature flag is inactive', async () => {

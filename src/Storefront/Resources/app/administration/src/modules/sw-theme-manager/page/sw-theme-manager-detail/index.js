@@ -138,6 +138,11 @@ export default {
          * @deprecated tag:v6.8.0 - This method will be removed.
          */
         hasMoreThanOneTab() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-theme-manager-detail.hasMoreThanOneTab is deprecated and will be removed.',
+            );
+
             return Object.values(this.structuredThemeFields.tabs).length > 1;
         },
 
@@ -286,6 +291,11 @@ export default {
          * @deprecated tag:v6.8.0 - This method will be removed.
          */
         openMediaSidebar() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-theme-manager-detail.openMediaSidebar() is deprecated and will be removed.',
+            );
+
             this.$refs.mediaSidebarItem.openContent();
         },
 
@@ -323,6 +333,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         restoreMediaInheritance(currentValue) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-theme-manager-detail.restoreMediaInheritance() is deprecated and will be removed without replacement.',
+            );
+
             return currentValue;
         },
 
@@ -723,7 +738,10 @@ export default {
 
             if (['sw-single-select', 'sw-multi-select'].includes(config.custom?.componentName)) {
                 config.custom.options.forEach((option) => {
-                    /** @deprecated tag:v6.8.0 - Theme config labels will be removed entirely, use `this.$t` instead */
+                    /**
+                     * @deprecated tag:v6.8.0 - Theme config labels will be removed entirely, use `this.$t` instead
+                     * @deprecationGuard static-only - Marks an internal branch; `getSnippet` reports a used fallback label itself.
+                     */
                     option.label = this.getSnippet(option.labelSnippetKey, option.label);
                 });
             }
@@ -825,7 +843,11 @@ export default {
 
             const locale = Shopware.Store.get('session').currentLocale;
 
-            /** @deprecated tag:v6.8.0 - Theme config helpTexts will be removed, so this case will be obsolete */
+            /**
+             * @deprecated tag:v6.8.0 - Theme config helpTexts will be removed, so this case will be obsolete
+             * @deprecationGuard static-only - Marks an internal branch, not a member callers can migrate away from;
+             * guarding the enclosing method would report every caller.
+             */
             if (typeof helpText === 'object' && helpText?.[locale]) {
                 return helpText[locale];
             }
@@ -835,6 +857,7 @@ export default {
 
         /**
          * @deprecated tag:v6.8.0 - Parameter `fallback` will be removed
+         * @deprecationGuard static-only - Marks a parameter, not the method; `getSnippet` reports a used fallback itself.
          */
         getTabLabel(key, fallback = '') {
             const snippet = this.getSnippet(key, fallback);

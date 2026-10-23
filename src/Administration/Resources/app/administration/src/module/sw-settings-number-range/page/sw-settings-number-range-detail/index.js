@@ -132,6 +132,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed, use selectedSalesChannelsCollection instead
          */
         selectedNumberRangeSalesChannels() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-number-range-detail.selectedNumberRangeSalesChannels is deprecated and will be removed, use selectedSalesChannelsCollection instead.',
+            );
+
             if (!this.numberRange.numberRangeSalesChannels) {
                 return [];
             }
@@ -293,6 +298,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed, use buildSelectedSalesChannelsCollection instead
          */
         loadSalesChannels() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-number-range-detail.loadSalesChannels() is deprecated and will be removed, use buildSelectedSalesChannelsCollection instead.',
+            );
+
             this.buildSelectedSalesChannelsCollection();
         },
 

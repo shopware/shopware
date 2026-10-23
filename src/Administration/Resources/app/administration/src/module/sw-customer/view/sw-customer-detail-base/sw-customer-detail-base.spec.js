@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 /**
  * @sw-package checkout
@@ -101,6 +102,7 @@ describe('module/sw-customer/view/sw-customer-detail-base.spec.js', () => {
     let wrapper;
 
     beforeEach(async () => {
+        allowDeprecation('sw-customer-detail-base.customFieldSetRepository is deprecated');
         getCustomFieldSets.mockClear();
         createRepository.mockClear();
         wrapper = await createWrapper();

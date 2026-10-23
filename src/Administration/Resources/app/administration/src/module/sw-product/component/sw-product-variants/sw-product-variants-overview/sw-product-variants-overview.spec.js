@@ -5,6 +5,7 @@
  */
 import { mount } from '@vue/test-utils';
 import Criteria from 'src/core/data/criteria.data';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 let repositoryFactoryMock;
 let repositoryFactoryCreateMock;
@@ -157,6 +158,7 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
 
 describe('src/module/sw-product/component/sw-product-variants/sw-product-variants-overview', () => {
     beforeEach(() => {
+        allowDeprecation('The prop "productStates" of the component "sw-product-variants-overview" is deprecated');
         global.activeAclRoles = [];
 
         const mockMediaEntity = {

@@ -119,6 +119,7 @@ interface ContextSwitchParameters {
 
 /**
  * @deprecated tag:v6.9.0 - Removed with document generation v1. Use `DOCUMENT_TYPES` from `service/documentV2.service.ts` instead.
+ * @deprecationGuard static-only - A value export, so reading it has no call boundary to guard.
  */
 const DOCUMENT_TYPES = {
     INVOICE: 'invoice',
@@ -135,6 +136,7 @@ const DOCUMENT_TYPES = {
 
 /**
  * @deprecated tag:v6.9.0 - Removed with document generation v1. Use `DOCUMENT_TYPES` from `service/documentV2.service.ts` instead.
+ * @deprecationGuard static-only - A value export, so reading it has no call boundary to guard.
  */
 const ZUGFERD_DOCUMENT_TYPES = [
     DOCUMENT_TYPES.ZUGFERD_INVOICE,

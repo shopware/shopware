@@ -7,6 +7,7 @@ import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { createPinia, setActivePinia } from 'pinia';
 import { DOCUMENT_TYPES } from '../../service/documentV2.service';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 function getCollection(entity, collection) {
     return new EntityCollection(
@@ -332,6 +333,12 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         });
 
         setActivePinia(createPinia());
+    });
+
+    beforeEach(() => {
+        allowDeprecation('sw-order-document-card.convertStoreEventToVueEvent() is deprecated');
+        allowDeprecation('sw-order-document-card.createDocument() is deprecated');
+        allowDeprecation('sw-order-document-card.openDocument() is deprecated');
     });
 
     afterEach(() => {

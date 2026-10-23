@@ -215,6 +215,11 @@ Cart, checkout and purchase events report them as `item_brand` and `item_categor
 The reorder of an order in the account now reports one `add_to_cart` with the products it added, priced with the current prices and the currency of the cart it returns.
 The reorder form posts only the order, so product number, quantity, brand and categories of the ordered products are rendered into the form as `[data-analytics-line-item]` elements while analytics is active.
 
+### Storefront analytics report each checkout step once
+
+`add_shipping_info` and `add_payment_info` are now reported once per selected method of a checkout, instead of on every reload of the confirm page.
+A new customer reports `add_shipping_info` when registering in the checkout.
+
 ## Hosting & Configuration
 
 ### Storefront readiness checks skip pages restricted by extensions

@@ -131,19 +131,21 @@ export default Component.wrapComponentConfig({
     },
 
     methods: {
-        onCloseModal(): void {
+        async onCloseModal(): Promise<void> {
             if (!this.customer || !this.cart.token) {
                 this.$emit('modal-close');
                 return;
             }
 
-            void this.cancelCart()
-                .catch(() => {
-                    // The modal closes even when the cart could not be cancelled
-                })
-                .then(() => {
-                    this.$emit('modal-close');
+            try {
+                await this.cancelCart();
+            } catch {
+                this.createNotificationError({
+                    message: this.$t('sw-order.initialModal.messageCancelCartError'),
                 });
+            }
+
+            this.$emit('modal-close');
         },
 
         async onPreviewOrder(): Promise<void> {

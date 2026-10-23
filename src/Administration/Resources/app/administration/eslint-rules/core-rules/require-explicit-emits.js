@@ -51,9 +51,20 @@ module.exports = {
         function getComponentAndEmitsNodes(objectNode) {
             if (isComponentDefinition(objectNode)) {
                 componentNode = objectNode;
-                emitsNode = objectNode.properties.find(property => property.key?.name === 'emits')?.value;
+                emitsNode = unwrapTypeExpression(
+                    objectNode.properties.find(property => property.key?.name === 'emits')?.value,
+                );
                 declaredEmits = getDeclaredEmits(emitsNode);
             }
+        }
+
+        // `emits: [...] as const` and `emits: {...} satisfies X` in TypeScript components
+        function unwrapTypeExpression(node) {
+            if (node?.type === 'TSAsExpression' || node?.type === 'TSSatisfiesExpression') {
+                return unwrapTypeExpression(node.expression);
+            }
+
+            return node;
         }
 
         // Returns null when the declared events can't be read statically, e.g. for a spread or a variable

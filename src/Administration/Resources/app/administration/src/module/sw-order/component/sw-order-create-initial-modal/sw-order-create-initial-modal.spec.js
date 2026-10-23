@@ -306,15 +306,22 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         expect(spyCancelCart).toHaveBeenCalled();
     });
 
-    it('should emit modal-close when the modal is closed and cancelling the cart fails', async () => {
+    it('should show an error and emit modal-close when cancelling the cart fails', async () => {
         Shopware.Store.get('swOrder').setCustomer({ id: '1234', salesChannelId: 'sales-channel-id' });
         Shopware.Store.get('swOrder').setCartToken(cartToken);
         jest.spyOn(Shopware.Service('cartStoreService'), 'cancelCart').mockRejectedValueOnce(new Error('cancel failed'));
+        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
 
         const wrapper = await createWrapper();
-        wrapper.getComponent(stubs['sw-modal']).vm.$emit('modal-close');
+        await wrapper.find('.sw-order-create-initial-modal__button-cancel').trigger('click');
         await flushPromises();
 
+        expect(notificationSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                variant: 'error',
+                message: 'sw-order.initialModal.messageCancelCartError',
+            }),
+        );
         expect(wrapper.emitted('modal-close')).toHaveLength(1);
     });
 

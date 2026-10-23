@@ -1,6 +1,10 @@
 const RulerTester = require('eslint').RuleTester;
 const rule = require('./require-explicit-emits');
 
+const typeScriptLanguageOptions = {
+    parser: require('@typescript-eslint/parser'),
+};
+
 const tester = new RulerTester({
     languageOptions: {
         ecmaVersion: 2015,
@@ -69,6 +73,26 @@ tester.run('require-explicit-emits', rule, {
                     }
                 }
             }
+            `,
+        },
+        {
+            name: 'TypeScript component that declares its emits with `as const`',
+            filename: 'test.ts',
+            languageOptions: typeScriptLanguageOptions,
+            code: `
+            export default Component.wrapComponentConfig({
+                emits: ['save'] as const,
+
+                data(): { isLoading: boolean } {
+                    return { isLoading: false };
+                },
+
+                methods: {
+                    onSave(): void {
+                        this.$emit('save');
+                    },
+                },
+            });
             `,
         },
     ],
@@ -327,6 +351,78 @@ emits: ['my-awesome-event'],
             `,
             errors: [{
                 message: 'Event(s) \'my-awesome-event\' not defined in the emits option.',
+            }],
+        },
+        {
+            name: 'TypeScript component without `emits` field',
+            filename: 'test.ts',
+            languageOptions: typeScriptLanguageOptions,
+            code: `
+                export default Component.wrapComponentConfig({
+                    inject: ['feature'],
+
+                    data(): { isLoading: boolean } {
+                        return { isLoading: false };
+                    },
+
+                    methods: {
+                        onSave(payload: string): void {
+                            this.$emit('save', payload as string);
+                        },
+                    },
+                });
+            `,
+            output: `
+                export default Component.wrapComponentConfig({
+                    inject: ['feature'],
+
+emits: ['save'],
+
+                    data(): { isLoading: boolean } {
+                        return { isLoading: false };
+                    },
+
+                    methods: {
+                        onSave(payload: string): void {
+                            this.$emit('save', payload as string);
+                        },
+                    },
+                });
+            `,
+            errors: [{
+                message: 'Event(s) \'save\' not defined in the emits option.',
+            }],
+        },
+        {
+            name: 'TypeScript component with `as const` emits missing an event',
+            filename: 'test.ts',
+            languageOptions: typeScriptLanguageOptions,
+            code: `
+                export default Component.wrapComponentConfig({
+                    emits: ['save'] as const,
+
+                    methods: {
+                        onCancel(): void {
+                            this.$emit('save');
+                            this.$emit('cancel');
+                        },
+                    },
+                });
+            `,
+            output: `
+                export default Component.wrapComponentConfig({
+                    emits: ['save', 'cancel'] as const,
+
+                    methods: {
+                        onCancel(): void {
+                            this.$emit('save');
+                            this.$emit('cancel');
+                        },
+                    },
+                });
+            `,
+            errors: [{
+                message: 'Event(s) \'cancel\' not defined in the emits option.',
             }],
         },
     ],

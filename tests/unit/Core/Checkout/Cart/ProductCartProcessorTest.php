@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -25,6 +26,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Product\Cart\ProductFeatureBuilder;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
+use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -33,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Checkout\EmptyPrice;
+use Shopware\Tests\Unit\Core\Content\Product\Garan\_fixtures\GaranLabelFixtures;
 
 /**
  * @internal
@@ -266,6 +269,49 @@ class ProductCartProcessorTest extends TestCase
         static::assertSame('baz', $field['foo']);
     }
 
+    /**
+     * @return \Generator<string, array{bool, array<string, int|string>|null}>
+     */
+    public static function garanLabelProvider(): \Generator
+    {
+        yield 'a product with a GARAN label stores its values' => [true, GaranLabelFixtures::PRODUCT_LABEL];
+
+        yield 'a product without a GARAN label stores null, so the storefront does not look it up' => [false, null];
+    }
+
+    /**
+     * @param array<string, int|string>|null $expected
+     */
+    #[DataProvider('garanLabelProvider')]
+    public function testPayloadReplacesTheGaranLabelWithTheOneOfTheProduct(bool $guaranteeConfirmed, ?array $expected): void
+    {
+        $product = self::createGaranProduct();
+        $product->setGuaranteeConfirmed($guaranteeConfirmed);
+
+        $lineItem = $this->collectGaranLabel($product, new CartBehavior(), GaranLabelFixtures::createResolver());
+
+        static::assertSame($expected, $lineItem->getPayload()[GaranLabelResolver::PAYLOAD_KEY]);
+    }
+
+    public function testPayloadKeepsTheGaranLabelAnEditedOrderWasPlacedWith(): void
+    {
+        $lineItem = $this->collectGaranLabel(
+            self::createGaranProduct(),
+            new CartBehavior([ProductCartProcessor::SKIP_PRODUCT_RECALCULATION => true]),
+            GaranLabelFixtures::createResolver(),
+        );
+
+        static::assertSame(GaranLabelFixtures::STORED_LABEL, $lineItem->getPayload()[GaranLabelResolver::PAYLOAD_KEY]);
+    }
+
+    public function testPayloadKeepsTheGaranLabelWithoutResolver(): void
+    {
+        // SwagCommercial's quote processor is built without the resolver, GaranLabelOrderSubscriber stores the label
+        $lineItem = $this->collectGaranLabel(self::createGaranProduct(), new CartBehavior(), null);
+
+        static::assertSame(GaranLabelFixtures::STORED_LABEL, $lineItem->getPayload()[GaranLabelResolver::PAYLOAD_KEY]);
+    }
+
     public function testProcess(): void
     {
         $calculator = $this->createMock(QuantityPriceCalculator::class);
@@ -420,5 +466,49 @@ class ProductCartProcessorTest extends TestCase
         static::assertSame(0.5, $refPriceDef->getPurchaseUnit());
         static::assertSame(1.0, $refPriceDef->getReferenceUnit());
         static::assertSame('kg', $refPriceDef->getUnitName());
+    }
+
+    private static function createGaranProduct(): SalesChannelProductEntity
+    {
+        $product = (new SalesChannelProductEntity())->assign([
+            'id' => 'A',
+            'calculatedPrice' => new EmptyPrice(),
+            'calculatedPrices' => new PriceCollection(),
+            'calculatedMaxPurchase' => 1,
+            'productNumber' => 'A',
+            'stock' => 1,
+        ]);
+        GaranLabelFixtures::assignLabel($product);
+
+        return $product;
+    }
+
+    /**
+     * Collects a cart whose line item stored {@see GaranLabelFixtures::STORED_LABEL} earlier
+     */
+    private function collectGaranLabel(SalesChannelProductEntity $product, CartBehavior $behavior, ?GaranLabelResolver $resolver): LineItem
+    {
+        $lineItem = new LineItem('A', 'product', 'A');
+        $lineItem->setPayloadValue(GaranLabelResolver::PAYLOAD_KEY, GaranLabelFixtures::STORED_LABEL);
+
+        $cart = new Cart('test');
+        $cart->setLineItems(new LineItemCollection([$lineItem]));
+
+        $processor = new ProductCartProcessor(
+            $this->createMock(ProductGateway::class),
+            $this->createMock(QuantityPriceCalculator::class),
+            $this->createMock(ProductFeatureBuilder::class),
+            $this->createMock(ProductPriceCalculator::class),
+            $this->createMock(EntityCacheKeyGenerator::class),
+            $this->createMock(Connection::class),
+            $resolver
+        );
+
+        $data = new CartDataCollection();
+        $data->set('product-A', $product);
+
+        $processor->collect($data, $cart, $this->createMock(SalesChannelContext::class), $behavior);
+
+        return $lineItem;
     }
 }

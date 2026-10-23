@@ -227,7 +227,12 @@ class EntityForeignKeyResolver implements ResetInterface
     private static function mergeAffected(array $result, array $affected): array
     {
         foreach ($affected as $entity => $keys) {
-            $result[$entity] = array_values(array_unique([...$result[$entity] ?? [], ...$keys], \SORT_REGULAR));
+            $unique = [];
+            foreach ([...$result[$entity] ?? [], ...$keys] as $key) {
+                $unique[\is_array($key) ? serialize($key) : 's:' . $key] ??= $key;
+            }
+
+            $result[$entity] = array_values($unique);
         }
 
         return $result;

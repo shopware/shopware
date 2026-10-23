@@ -63,7 +63,9 @@ Extensions and integrations that read the product type of older order line items
 
 ### Deleting a tree reports every level as deleted
 
-Deleting an entity whose cascade reaches the same entity on several levels, for example a category with nested child categories, now reports every removed row as deleted. Before, the levels between the root and the deepest level were deleted without a delete result, so no `EntityDeletedEvent`, no `*.deleted` webhook and no entry in the `deleted` part of the sync response was created for them. Webhook and app consumers now receive these additional deletes.
+Deleting an entity whose cascade reaches the same entity on several levels, for example a category with nested child categories, now reports every removed row as deleted.
+Before, the levels between the root and the deepest level were deleted without a delete result, so no `EntityDeletedEvent`, no `*.deleted` webhook and no entry in the `deleted` part of the sync response was created for them.
+Webhook and app consumers now receive these additional deletes.
 
 ### Business customers need a VAT ID for countries that require one
 

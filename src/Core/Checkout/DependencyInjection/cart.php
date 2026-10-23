@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\Address\AddressValidator;
+use Shopware\Core\Checkout\Cart\Address\VatIdValidator;
 use Shopware\Core\Checkout\Cart\CachedRuleLoader;
 use Shopware\Core\Checkout\Cart\Calculator;
 use Shopware\Core\Checkout\Cart\CartCalculator;
@@ -108,6 +109,7 @@ use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Product\Cart\ProductFeatureBuilder;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Content\Product\Cart\ProductLineItemValidator;
+use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
@@ -279,6 +281,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.rate_limiter'),
             service(CartLocker::class),
             service(ExtensionDispatcher::class),
+            service('request_stack'),
         ]);
 
     $services->set(CartReorderRoute::class)
@@ -513,6 +516,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.cart.validator')
         ->tag('kernel.reset', ['method' => 'reset']);
 
+    $services->set(VatIdValidator::class)
+        ->tag('shopware.cart.validator');
+
     $services->set(Validator::class)
         ->args([
             tagged_iterator('shopware.cart.validator'),
@@ -540,6 +546,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(EntityCacheKeyGenerator::class),
             service(Connection::class),
             service('event_dispatcher'),
+            service(GaranLabelResolver::class),
         ])
         ->tag('shopware.cart.processor', ['priority' => 5000])
         ->tag('shopware.cart.collector', ['priority' => 5000]);

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -41,6 +42,8 @@ class EntityScoreBuilderTest extends TestCase
 
     private EntityDefinition $onlyDateFieldDefinition;
 
+    private EntityDefinition $circularEntryDefinition;
+
     private Context $context;
 
     protected function setUp(): void
@@ -48,6 +51,7 @@ class EntityScoreBuilderTest extends TestCase
         $this->testDefinition = $this->registerDefinition(ScoreBuilderTestDefinition::class, NestedDefinition::class);
         $this->testDefinitionTranslated = $this->registerDefinition(OnlyTranslatedFieldDefinition::class);
         $this->onlyDateFieldDefinition = $this->registerDefinition(OnlyDateFieldDefinition::class);
+        $this->circularEntryDefinition = $this->registerDefinition(CircularEntryDefinition::class, CircularAuthorDefinition::class);
         $this->context = Context::createDefaultContext();
     }
 
@@ -126,6 +130,27 @@ class EntityScoreBuilderTest extends TestCase
                 new ScoreQuery(new ContainsFilter('test.description', 'term'), 100),
                 new ScoreQuery(new EqualsFilter('test.nested.name', 'term'), 50),
                 new ScoreQuery(new ContainsFilter('test.nested.name', 'term'), 25),
+            ],
+            $queries
+        );
+    }
+
+    public function testCircularAssociationsAreNotFollowedBackToADefinitionOnThePath(): void
+    {
+        $builder = new EntityScoreQueryBuilder();
+
+        $pattern = new SearchPattern(new SearchTerm('term', 1));
+
+        $queries = $builder->buildScoreQueries($pattern, $this->circularEntryDefinition, 'entry', $this->context);
+
+        static::assertEquals(
+            [
+                new ScoreQuery(new EqualsFilter('entry.title', 'term'), 100),
+                new ScoreQuery(new ContainsFilter('entry.title', 'term'), 50),
+                new ScoreQuery(new EqualsFilter('entry.author.name', 'term'), 50),
+                new ScoreQuery(new ContainsFilter('entry.author.name', 'term'), 25),
+                new ScoreQuery(new EqualsFilter('entry.editor.name', 'term'), 50),
+                new ScoreQuery(new ContainsFilter('entry.editor.name', 'term'), 25),
             ],
             $queries
         );
@@ -422,6 +447,55 @@ class ShouldNotTokenizeFieldDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new EmailField('email', 'email'))->addFlags(new SearchRanking(100, false)),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class CircularEntryDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'score_circular_entry';
+    }
+
+    public function since(): string
+    {
+        return '6.0.0.0';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new StringField('title', 'title'))->addFlags(new ApiAware(), new SearchRanking(100)),
+            (new ManyToOneAssociationField('author', 'author_id', CircularAuthorDefinition::class, 'id', true))->addFlags(new ApiAware(), new SearchRanking(0.5)),
+            (new ManyToOneAssociationField('editor', 'editor_id', CircularAuthorDefinition::class, 'id', true))->addFlags(new ApiAware(), new SearchRanking(0.5)),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class CircularAuthorDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'score_circular_author';
+    }
+
+    public function since(): string
+    {
+        return '6.0.0.0';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new StringField('name', 'name'))->addFlags(new ApiAware(), new SearchRanking(100)),
+            (new OneToManyAssociationField('entries', CircularEntryDefinition::class, 'author_id'))->addFlags(new ApiAware(), new SearchRanking(0.5)),
         ]);
     }
 }

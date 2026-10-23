@@ -5,7 +5,7 @@
     "components": {
         "schemas": {
             "ProductDocument": {
-                "description": "Added since version: 6.7.14.0",
+                "description": "Added since version: 6.7.17.0",
                 "required": [
                     "id",
                     "productId",

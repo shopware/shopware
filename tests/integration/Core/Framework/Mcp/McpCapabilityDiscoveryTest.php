@@ -105,6 +105,38 @@ class McpCapabilityDiscoveryTest extends TestCase
         );
     }
 
+    public function testInitializeDeclaresListChangedForEveryList(): void
+    {
+        $browser = $this->getBrowser();
+        $browser->request(
+            'POST',
+            '/api/_mcp',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'jsonrpc' => '2.0',
+                'method' => 'initialize',
+                'params' => [
+                    'protocolVersion' => '2025-06-18',
+                    'capabilities' => new \stdClass(),
+                    'clientInfo' => ['name' => 'mcp-discovery-test', 'version' => '1.0'],
+                ],
+                'id' => 1,
+            ], \JSON_THROW_ON_ERROR),
+        );
+
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($response);
+
+        // The server queues notifications/*/list_changed on this era, so clients must be told to expect them.
+        $capabilities = $response['result']['capabilities'] ?? null;
+        static::assertIsArray($capabilities);
+        static::assertTrue($capabilities['tools']['listChanged'] ?? null);
+        static::assertTrue($capabilities['resources']['listChanged'] ?? null);
+        static::assertTrue($capabilities['prompts']['listChanged'] ?? null);
+    }
+
     public function testModernEraRequestIsRefused(): void
     {
         $browser = $this->getBrowser();

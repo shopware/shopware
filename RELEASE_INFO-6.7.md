@@ -47,6 +47,24 @@ The new `bin/console sales-channel:file:enable [ids...] [--all]` command switche
 It only creates missing files, so a file switched off in the Administration stays off, and a second run changes nothing.
 The command always exits with `0`, which makes it suitable for install hooks in `.shopware-project.yml`.
 
+### Order placement no longer rebuilds the per-customer redemption counter
+
+Placing an order or deleting a promotion line item updates only the entries of the affected customers in `promotion.orders_per_customer_count`, so its cost no longer grows with the number of customers who redeemed the promotion before.
+`promotion.order_count` now also counts orders whose customer was deleted.
+The cart checks `maxRedemptionsPerCustomer` against the customer's orders and no longer reads `orders_per_customer_count`, which is still maintained.
+Saving a promotion no longer recounts its redemptions; `bin/console dal:refresh:index --only=promotion.indexer` rebuilds them.
+
+### Deprecated the per-customer redemption counter of promotions
+
+The per-customer redemption counter of promotions is deprecated and will be removed with Shopware 6.8:
+
+- DAL and Admin API: the promotion field `ordersPerCustomerCount` and its column `promotion.orders_per_customer_count`.
+- `Shopware\Core\Checkout\Promotion\PromotionEntity`: `getOrdersPerCustomerCount()`, `setOrdersPerCustomerCount()` and `isOrderCountPerCustomerCountValid()`.
+
+To find out how often a customer redeemed a promotion, count the customer's orders that contain a line item of the promotion, for example with the filters `orderCustomer.customerId` and `lineItems.promotionId` on the `order` repository.
+Set `PROMOTION_REDEMPTION_OPTIMIZATION=1` to switch to the 6.8 behavior already: the counter is no longer written and `ordersPerCustomerCount` is removed from the promotion entity.
+When `V6_8_0_0=1`, the flag activates unless explicitly disabled.
+
 ### Product line items carry the GARAN label they were shown with
 
 Cart and order product line items now store their GARAN label values in `payload.garanLabel`; editing an order keeps them as is.
@@ -54,6 +72,7 @@ A migration adds them to order line items created since the update that introduc
 Order line items without `payload.garanLabel` show no GARAN label, so write it with `guaranteeMonths`, `brand` and `modelIdentifier` if you create orders through the Admin API or the Sync API.
 Headless frontends can read the payload instead of calling `/store-api/product/{productId}/garan-label`.
 The `sw_garan_label_nested` Twig filter is deprecated.
+
 ### Order line items of older orders get their product type
 
 This release fills `payload.productType` for every product and custom order line item that does not have it yet, based on the line item's deprecated `states`.

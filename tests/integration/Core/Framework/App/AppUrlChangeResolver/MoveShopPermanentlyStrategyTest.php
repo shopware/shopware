@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Tests\Integration\Core\Framework\App\PassingAppUrlVerifier;
 
 /**
  * @internal
@@ -72,7 +73,8 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             static::getContainer()->get('app.repository'),
             $appManager,
             $this->shopIdProvider,
-            new NullLogger()
+            new NullLogger(),
+            new PassingAppUrlVerifier(),
         );
 
         $moveShopPermanentlyResolver->resolve($this->context);
@@ -95,7 +97,8 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             static::getContainer()->get('app.repository'),
             $appManager,
             $this->shopIdProvider,
-            new NullLogger()
+            new NullLogger(),
+            new PassingAppUrlVerifier(),
         );
 
         $moveShopPermanentlyResolver->resolve($this->context);
@@ -133,7 +136,8 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             $appRepository,
             $appManager,
             $this->shopIdProvider,
-            new NullLogger()
+            new NullLogger(),
+            new PassingAppUrlVerifier(),
         );
 
         $this->expectExceptionObject(AppException::shopMoveFailed(['test']));

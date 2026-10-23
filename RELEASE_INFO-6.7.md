@@ -2,6 +2,13 @@
 
 ## Core
 
+### Promotion code rate limiting
+
+Promotion code submissions through the Store API and Storefront now share a separate rate limit.
+Promotion codes use a separate allowance from the per-item `cart_add_line_item` limit, so submitting a different code does not start a new allowance.
+Configure the backoff policy through `shopware.api.rate_limiter.promotion_code`.
+Store API clients receive HTTP 429 when throttled, while Storefront shoppers receive a message with the waiting time.
+
 ### Webhooks are authorized against their owner
 
 Webhooks created through the Admin API without an app now belong to the user or integration that created them, and only receive the events their owner is allowed to read. Nothing changes for webhooks an app registers in its manifest.
@@ -40,6 +47,13 @@ The new `bin/console sales-channel:file:enable [ids...] [--all]` command switche
 It only creates missing files, so a file switched off in the Administration stays off, and a second run changes nothing.
 The command always exits with `0`, which makes it suitable for install hooks in `.shopware-project.yml`.
 
+### Product line items carry the GARAN label they were shown with
+
+Cart and order product line items now store their GARAN label values in `payload.garanLabel`; editing an order keeps them as is.
+A migration adds them to order line items created since the update that introduced GARAN labels, if their product has one.
+Order line items without `payload.garanLabel` show no GARAN label, so write it with `guaranteeMonths`, `brand` and `modelIdentifier` if you create orders through the Admin API or the Sync API.
+Headless frontends can read the payload instead of calling `/store-api/product/{productId}/garan-label`.
+The `sw_garan_label_nested` Twig filter is deprecated.
 ### Order line items of older orders get their product type
 
 This release fills `payload.productType` for every product and custom order line item that does not have it yet, based on the line item's deprecated `states`.
@@ -47,11 +61,39 @@ The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physica
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
 
+### Business customers need a VAT ID for countries that require one
+
+If the country of the active billing address has "VAT Reg.No. required" enabled, the cart of a business customer without a VAT ID now carries the blocking error `vat-id-missing`, and the order can't be placed.
+This also covers customers who registered before the setting was enabled or who switched to a billing address in such a country later.
+Store API clients should show the error and let the customer add the VAT ID via `/store-api/account/change-profile`.
+That route now validates `vatIds` against the country of the active billing address instead of the default one, the same country the cart checks.
+Headless clients find that address as `customer.activeBillingAddress` in `/store-api/context`.
+The Storefront profile page marks the VAT ID field as required based on the same country.
+
+### Remote thumbnails skip SVGs
+
+With `shopware.media.remote_thumbnails.enable`, SVGs now have an empty `thumbnails` collection, as in local mode.
+Before, their `srcset` claimed widths that the returned original file did not have, so browsers rendered small SVG logos far too small.
+Media loaded without the `mediaType` field keep their thumbnail URLs, as the type can't be checked.
+
+### Tax-free detection of new sales channel contexts matches the cart
+
+New sales channel contexts now decide tax-free delivery like the cart (`TaxDetector::isNetDelivery()`):
+commercial customers only get "Tax-free (B2B)", all other customers only "Tax-free (B2C)".
+Cart and order taxes stay the same, but Rule Builder conditions like "Cart amount" can match differently than before for customers who only met the other setting.
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
+
+### Profile updates without `accountType` keep the account type
+
+`/store-api/account/change-profile` now keeps the customer's current account type when the request doesn't contain `accountType`.
+For a business customer, `company` and `vatIds` are then only changed when the request contains them, and they are validated as for `business`.
+Before, such a request cleared both, while the customer stayed a business customer.
+Requests that send `accountType` behave as before.
 
 ## Features
 
@@ -104,6 +146,12 @@ They additionally react to domain changes:
 toggling the external storefront flag of a domain (or adding/removing domains) creates or removes the affected rows without re-saving the customer group.
 The storefront rows are untouched by this and keep being maintained by the Storefront bundle.
 
+### Known core deprecations log an error in next-major mode
+
+Core usages that are not migrated yet are listed in `src/Administration/Resources/app/administration/src/meta/deprecation-baseline.json`.
+In next-major mode, a deprecation with a listed message logs a console error instead of throwing, so the Administration stays usable.
+Any other deprecation still throws.
+
 ## API
 To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
 It bundles the Administration and its plugins, but not apps.
@@ -145,6 +193,18 @@ Storefront analytics now treat every element with a `data-product-information` a
 Products that extensions render in their own markup are reported as well.
 The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#products) describes the expected attribute.
 The product box now reports the price of a matching price rule or the first graduated price, the same price as the product detail page, instead of the default price.
+### Guests can open the profile page
+
+Guests can now open and save the profile page to correct their personal data, company and VAT ID, for example when the cart reports `vat-id-missing`.
+The e-mail, password and account deletion sections stay hidden for guests, and their routes still reject them.
+The profile form keeps a `redirectTo` parameter, which the `vat-id-missing` error uses to send the customer back to the checkout after saving.
+Themes that override blocks of the personal data form in `page/account/profile/index.html.twig` should check that the content also suits guests.
+
+### Business customers keep company and VAT ID when saving the profile
+
+The profile page now shows company and VAT ID for business customers even when "Show selection between company and customer account" is disabled, and saving it keeps their account type.
+Before, saving the profile without that setting removed the company and the VAT IDs of business customers.
+Themes that override `component_address_personal_company_section`, `component_address_personal_company` or `component_address_personal_vat_id` in `component/address/address-personal.html.twig` should check that the content also suits this case.
 
 ### Storefront analytics report brand and category of products added from a product box
 
@@ -172,6 +232,11 @@ The `ProductDetailReadiness` and `ProductListingReadiness` system checks only pr
 Pages that extensions such as Dynamic Access restrict by rules no longer fail `bin/console system:check --context=pre_rollout`.
 If a sales channel has no visible page, the check reports `SKIPPED`.
 A sales channel whose domain cannot be resolved is now reported as its own failure, and the other sales channels are still checked.
+### App registration requires a verified `APP_URL`
+
+Shopware now verifies that `APP_URL` reaches this installation before it registers the shop with an app server, including the Shopware service registry. This applies in every environment and to every app server. The shop must be able to reach itself under `APP_URL`, including `/api/app-system/shop/verify` when it sits behind HTTP authentication or an IP allowlist. If the verification fails, the app installation, update or secret rotation is aborted with the reason. The error code `FRAMEWORK__APP_URL_FAILED_VERIFICATION` (HTTP 502) means the verification request did not reach this installation; `FRAMEWORK__APP_URL_VERIFICATION_UNAVAILABLE` (HTTP 503) means it failed temporarily, for example on a timeout or rate limit, and can be retried. The shop ID change strategies `move-shop-permanently` and `reinstall-apps` verify the new `APP_URL` first, and leave the shop ID unchanged when it fails. Run `bin/console app:url:verify` to check the configuration.
+
+The verification stores its token in the `cache.app_url_verification` cache pool, which uses `cache.app` by default. With several app servers, this pool must be shared between them, for example on Redis.
 
 # 6.7.16.0
 
@@ -820,6 +885,15 @@ The snippet key `sw-import-export.profile.addNewProfileTooltipLanguage` was depr
 ### `sw-empty-state` stays available until 6.9
 
 The removal of the deprecated `sw-empty-state` component was moved from 6.8 to 6.9, so extensions using it keep working with 6.8. Development builds log a deprecation warning once per usage site, including the component path that renders it. Migrate to `mt-empty-state` before 6.9, see `UPGRADE-6.9.md`.
+
+The new ESLint rule `sw-deprecation-rules/no-sw-empty-state-usage` of the Administration extension tooling migrates most usages automatically:
+
+```bash
+bin/console administration:check-extensions -- --only=MyPlugin --fix
+```
+
+Usages with custom `icon` slot content, markup in the default slot, conditional `icon` or default slot templates or dynamic bindings are only reported and have to be migrated manually.
+Check the `TODO Codemod` comment the rule adds above each converted usage.
 
 ### Native setup components support defineModel()
 

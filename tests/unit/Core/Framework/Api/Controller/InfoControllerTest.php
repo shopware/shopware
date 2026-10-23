@@ -131,6 +131,8 @@ class InfoControllerTest extends TestCase
         static::assertSame(2, $settings['minSearchTermLength']);
         static::assertArrayHasKey('hideUpdateModule', $settings);
         static::assertFalse($settings['hideUpdateModule']);
+        static::assertArrayHasKey('appEnv', $settings);
+        static::assertSame('prod', $settings['appEnv']);
 
         static::assertArrayHasKey('inAppPurchases', $data);
         $inAppPurchases = $data['inAppPurchases'];
@@ -346,6 +348,7 @@ class InfoControllerTest extends TestCase
             'shopware.staging.administration.show_banner' => false,
             'shopware.deployment.runtime_extension_management' => true,
             'shopware.auto_update.hide_module' => $hideUpdateModule,
+            'kernel.environment' => 'prod',
         ]);
 
         return new InfoController(

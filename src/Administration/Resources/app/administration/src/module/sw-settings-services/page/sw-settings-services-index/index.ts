@@ -3,7 +3,7 @@ import useSession from 'src/app/composables/use-session';
 import { useShopwareServicesStore } from '../../store/shopware-services.store';
 import template from './sw-settings-services-index.html.twig';
 import './sw-settings-services-index.scss';
-import type { ServiceDescription } from '../../service/shopware-services.service';
+import type { AvailableService, ServiceDescription } from '../../service/shopware-services.service';
 import extractError from '../../composables/extract-error';
 import {
     getServicesWithShopwareAccountRequirement,
@@ -19,9 +19,17 @@ import SwSettingsServicesServiceCard from '../../component/sw-settings-services-
 type SwSettingsPageData = {
     grantPermissionsCardBackground: string;
     services: ServiceDescription[];
+    availableServices: AvailableService[];
     suspended: boolean;
     loadingError: string;
+    installationPollingSince: number | null;
+    installationPollTimeout: number | undefined;
+    installationStalled: boolean;
 };
+
+const INSTALLATION_POLL_INTERVAL = 10_000;
+
+const INSTALLATION_POLL_DURATION = 120_000;
 
 /**
  * @sw-package framework
@@ -50,8 +58,12 @@ export default Shopware.Component.wrapComponentConfig({
                 '/administration/administration/static/img/services/grant-permissions-background.svg',
             ),
             services: [],
+            availableServices: [],
             suspended: true,
             loadingError: '',
+            installationPollingSince: null,
+            installationPollTimeout: undefined,
+            installationStalled: false,
         };
     },
 
@@ -59,6 +71,40 @@ export default Shopware.Component.wrapComponentConfig({
         ...mapState(useShopwareServicesStore, ['config', 'currentRevision', 'consentGiven']),
         servicesWithAccountRequirement(): ServiceWithShopwareAccountRequirement[] {
             return getServicesWithShopwareAccountRequirement(this.services);
+        },
+
+        servicesEnabled(): boolean {
+            return Shopware.Context.app.config.services?.enabled ?? true;
+        },
+
+        servicesSetting(): string {
+            return Shopware.Context.app.config.services?.setting ?? '';
+        },
+
+        servicesAutoEnabled(): boolean {
+            return this.servicesSetting === 'auto';
+        },
+
+        appEnv(): string {
+            return Shopware.Context.app.config.settings?.appEnv ?? '';
+        },
+
+        pendingServices(): AvailableService[] {
+            const installedNames = new Set(this.services.map((service) => service.name));
+
+            return this.availableServices.filter((service) => !installedNames.has(service.name));
+        },
+
+        installedServicesCount(): number {
+            return this.availableServices.length - this.pendingServices.length;
+        },
+
+        installing(): boolean {
+            if (!this.servicesEnabled || this.config?.disabled) {
+                return false;
+            }
+
+            return this.services.length === 0 || this.pendingServices.length > 0;
         },
     },
 
@@ -70,6 +116,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         Promise.all([
             this.reloadServices(),
+            this.loadAvailableServices(),
             shopwareServicesService.getServicesContext().then((servicesConsent) => {
                 shopwareServicesStore.config = servicesConsent;
             }),
@@ -81,6 +128,7 @@ export default Shopware.Component.wrapComponentConfig({
         ])
             .then(() => {
                 this.suspended = false;
+                this.startInstallationPolling();
             })
             .catch((exception) => {
                 const errorMessage = extractError(exception);
@@ -91,6 +139,10 @@ export default Shopware.Component.wrapComponentConfig({
                     message: errorMessage,
                 });
             });
+    },
+
+    beforeUnmount() {
+        this.stopInstallationPolling();
     },
 
     methods: {
@@ -106,6 +158,8 @@ export default Shopware.Component.wrapComponentConfig({
                     variant: 'positive',
                     message: this.$t('sw-settings-services.index.services-scheduled'),
                 });
+
+                await this.checkInstallationProgress();
             } catch (exceptionResponse) {
                 Shopware.Store.get('notification').createNotification({
                     title: this.$t('global.default.error'),
@@ -132,6 +186,64 @@ export default Shopware.Component.wrapComponentConfig({
                 });
 
                 this.services = [];
+            }
+        },
+
+        async checkInstallationProgress() {
+            await this.refreshInstallationProgress();
+            this.startInstallationPolling();
+        },
+
+        startInstallationPolling() {
+            this.installationStalled = false;
+            this.installationPollingSince = Date.now();
+            this.scheduleInstallationPoll();
+        },
+
+        stopInstallationPolling() {
+            window.clearTimeout(this.installationPollTimeout);
+            this.installationPollingSince = null;
+        },
+
+        scheduleInstallationPoll() {
+            window.clearTimeout(this.installationPollTimeout);
+
+            if (this.installationPollingSince === null) {
+                return;
+            }
+
+            if (!this.installing) {
+                this.stopInstallationPolling();
+
+                return;
+            }
+
+            if (Date.now() - this.installationPollingSince >= INSTALLATION_POLL_DURATION) {
+                this.stopInstallationPolling();
+                this.installationStalled = true;
+
+                return;
+            }
+
+            this.installationPollTimeout = window.setTimeout(() => {
+                void this.refreshInstallationProgress().then(() => this.scheduleInstallationPoll());
+            }, INSTALLATION_POLL_INTERVAL);
+        },
+
+        async loadAvailableServices() {
+            if (!this.servicesEnabled) {
+                return;
+            }
+
+            this.availableServices = await Shopware.Service('shopwareServicesService').getAvailableServices();
+        },
+
+        async refreshInstallationProgress() {
+            try {
+                this.services = await Shopware.Service('shopwareServicesService').getInstalledServices();
+                this.loadingError = '';
+            } catch (exception) {
+                this.loadingError = extractError(exception);
             }
         },
     },

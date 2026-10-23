@@ -58,7 +58,8 @@ class ProductDocumentDownloadRoute extends AbstractProductDocumentDownloadRoute
     {
         $criteria = new Criteria();
 
-        $criteria->getAssociation('productDocuments')->addAssociation('media');
+        // the file of each document is resolved after loading, see ProductDocumentMediaSubscriber
+        $criteria->addAssociation('productDocuments');
 
         return $criteria;
     }

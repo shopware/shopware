@@ -8,20 +8,26 @@ use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -39,8 +45,10 @@ class ProductDocumentDefinitionTest extends TestCase
         $registry = new StaticDefinitionInstanceRegistry(
             [
                 ProductDocumentDefinition::class,
+                ProductDocumentTranslationDefinition::class,
                 ProductDefinition::class,
                 MediaDefinition::class,
+                LanguageDefinition::class,
                 VersionDefinition::class,
             ],
             static::createStub(ValidatorInterface::class),
@@ -119,19 +127,40 @@ class ProductDocumentDefinitionTest extends TestCase
         static::assertSame('productDocuments', $reverseInherited->getReversedPropertyName());
     }
 
-    public function testMediaReferenceIsRequired(): void
+    public function testNameFileAndCustomFieldsAreTranslated(): void
     {
         $fields = $this->definition->getFields();
 
-        $mediaId = $fields->get('mediaId');
-        static::assertInstanceOf(FkField::class, $mediaId);
-        static::assertSame('media_id', $mediaId->getStorageName());
-        static::assertTrue($mediaId->is(Required::class));
-        static::assertTrue($mediaId->is(ApiAware::class));
+        foreach (['name', 'mediaId', 'customFields'] as $propertyName) {
+            $field = $fields->get($propertyName);
+            static::assertInstanceOf(TranslatedField::class, $field, $propertyName);
+            static::assertTrue($field->is(ApiAware::class), $propertyName);
+        }
+    }
 
-        $media = $fields->get('media');
-        static::assertInstanceOf(ManyToOneAssociationField::class, $media);
+    public function testFileIsNotStoredOnTheDocumentItself(): void
+    {
+        static::assertNull($this->definition->getFields()->getByStorageName('media_id'));
+    }
+
+    public function testTranslationsAreRequired(): void
+    {
+        $translations = $this->definition->getFields()->get('translations');
+
+        static::assertInstanceOf(TranslationsAssociationField::class, $translations);
+        static::assertSame(ProductDocumentTranslationDefinition::class, $translations->getReferenceClass());
+        static::assertSame('product_document_id', $translations->getReferenceField());
+        static::assertTrue($translations->is(Required::class));
+        static::assertTrue($translations->is(ApiAware::class));
+    }
+
+    public function testMediaIsResolvedAtRuntime(): void
+    {
+        $media = $this->definition->getFields()->get('media');
+
+        static::assertInstanceOf(OneToOneAssociationField::class, $media);
         static::assertSame(MediaDefinition::class, $media->getReferenceClass());
+        static::assertTrue($media->is(Runtime::class));
         static::assertTrue($media->is(ApiAware::class));
     }
 

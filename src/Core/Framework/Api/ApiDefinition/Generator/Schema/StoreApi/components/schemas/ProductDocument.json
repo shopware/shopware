@@ -9,6 +9,7 @@
                 "required": [
                     "id",
                     "productId",
+                    "name",
                     "mediaId"
                 ],
                 "properties": {
@@ -29,15 +30,22 @@
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
                     },
-                    "mediaId": {
-                        "description": "Unique identity of the media.",
-                        "type": "string",
-                        "pattern": "^[0-9a-f]{32}$"
-                    },
                     "position": {
                         "description": "The order in which the product documents are displayed.",
                         "type": "integer",
                         "format": "int64"
+                    },
+                    "name": {
+                        "description": "Display name of the document.",
+                        "type": "string"
+                    },
+                    "mediaId": {
+                        "description": "Unique identity of the file of the document, falling back to the default language.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "customFields": {
+                        "type": "object"
                     },
                     "createdAt": {
                         "type": "string",
@@ -49,11 +57,15 @@
                         "format": "date-time",
                         "readOnly": true
                     },
+                    "translated": {
+                        "type": "object"
+                    },
                     "product": {
                         "$ref": "#/components/schemas/Product"
                     },
                     "media": {
-                        "$ref": "#/components/schemas/Media"
+                        "$ref": "#/components/schemas/Media",
+                        "description": "File of the document in the current language, falling back to the default language."
                     }
                 },
                 "type": "object"

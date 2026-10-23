@@ -21,7 +21,7 @@ use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\MediaType\SpatialMediaTypeInterface;
 use Shopware\Core\Content\Media\MediaType\SpatialObjectType;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
@@ -150,7 +150,7 @@ class MediaEntity extends Entity
      */
     protected ?EntityCollection $appShippingMethods = null;
 
-    protected ?ProductDocumentCollection $productDocuments = null;
+    protected ?ProductDocumentTranslationCollection $productDocumentTranslations = null;
 
     protected ?ProductDownloadCollection $productDownloads = null;
 
@@ -659,14 +659,14 @@ class MediaEntity extends Entity
         $this->appShippingMethods = $appShippingMethods;
     }
 
-    public function getProductDocuments(): ?ProductDocumentCollection
+    public function getProductDocumentTranslations(): ?ProductDocumentTranslationCollection
     {
-        return $this->productDocuments;
+        return $this->productDocumentTranslations;
     }
 
-    public function setProductDocuments(ProductDocumentCollection $productDocuments): void
+    public function setProductDocumentTranslations(ProductDocumentTranslationCollection $productDocumentTranslations): void
     {
-        $this->productDocuments = $productDocuments;
+        $this->productDocumentTranslations = $productDocumentTranslations;
     }
 
     public function getProductDownloads(): ?ProductDownloadCollection

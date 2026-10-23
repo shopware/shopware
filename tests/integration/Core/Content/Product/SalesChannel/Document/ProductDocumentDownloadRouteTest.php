@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
@@ -55,6 +56,7 @@ class ProductDocumentDownloadRouteTest extends TestCase
 
         $this->createVisibleProduct($productId, [[
             'id' => $documentId,
+            'name' => 'Manual',
             'mediaId' => $mediaId,
             'position' => 1,
         ]]);
@@ -78,6 +80,7 @@ class ProductDocumentDownloadRouteTest extends TestCase
 
         $this->createVisibleProduct($productId, [[
             'id' => $documentId,
+            'name' => 'Manual',
             'mediaId' => $mediaId,
             'position' => 1,
         ]]);
@@ -115,6 +118,7 @@ class ProductDocumentDownloadRouteTest extends TestCase
             ],
             'productDocuments' => [[
                 'id' => $documentId,
+                'name' => 'Manual',
                 'mediaId' => $mediaId,
                 'position' => 1,
             ]],
@@ -137,8 +141,50 @@ class ProductDocumentDownloadRouteTest extends TestCase
         static::assertContains($response->getStatusCode(), [Response::HTTP_OK, Response::HTTP_FOUND, Response::HTTP_SEE_OTHER, Response::HTTP_TEMPORARY_REDIRECT]);
     }
 
+    public function testDownloadServesTheFileOfTheRequestLanguage(): void
+    {
+        $productId = Uuid::randomHex();
+        $documentId = Uuid::randomHex();
+        $germanLanguageId = $this->getDeDeLanguageId();
+        $englishFile = $this->createProductDocumentMedia('manual');
+        $germanFile = $this->createProductDocumentMedia('handbuch');
+
+        $this->createVisibleProduct($productId, [[
+            'id' => $documentId,
+            'position' => 1,
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => ['name' => 'Manual', 'mediaId' => $englishFile],
+                $germanLanguageId => ['name' => 'Handbuch', 'mediaId' => $germanFile],
+            ],
+        ]]);
+
+        $german = $this->route->load($productId, $documentId, new Request(), $this->createSalesChannelContext($germanLanguageId));
+        $english = $this->route->load($productId, $documentId, new Request(), $this->createSalesChannelContext());
+
+        static::assertStringContainsString('handbuch-', (string) $german->headers->get('Content-Disposition'));
+        static::assertStringContainsString('manual-', (string) $english->headers->get('Content-Disposition'));
+    }
+
+    public function testDownloadFallsBackToTheDefaultLanguageFile(): void
+    {
+        $productId = Uuid::randomHex();
+        $documentId = Uuid::randomHex();
+        $englishFile = $this->createProductDocumentMedia('datasheet');
+
+        $this->createVisibleProduct($productId, [[
+            'id' => $documentId,
+            'name' => 'Datasheet',
+            'mediaId' => $englishFile,
+            'position' => 1,
+        ]]);
+
+        $response = $this->route->load($productId, $documentId, new Request(), $this->createSalesChannelContext($this->getDeDeLanguageId()));
+
+        static::assertStringContainsString('datasheet-', (string) $response->headers->get('Content-Disposition'));
+    }
+
     /**
-     * @param list<array{id: string, mediaId: string, position: int}> $productDocuments
+     * @param list<array<string, mixed>> $productDocuments
      */
     private function createVisibleProduct(string $productId, array $productDocuments = []): void
     {
@@ -164,13 +210,13 @@ class ProductDocumentDownloadRouteTest extends TestCase
         $this->productRepository->create([$product], $this->context);
     }
 
-    private function createProductDocumentMedia(): string
+    private function createProductDocumentMedia(string $fileNamePrefix = 'product-document'): string
     {
         return $this->mediaService->saveFile(
             "sku,manual\nproduct,document\n",
             'csv',
             'text/csv',
-            'product-document-' . Uuid::randomHex(),
+            $fileNamePrefix . '-' . Uuid::randomHex(),
             $this->context,
             'product_document',
             null,
@@ -178,10 +224,21 @@ class ProductDocumentDownloadRouteTest extends TestCase
         );
     }
 
-    private function createSalesChannelContext(): SalesChannelContext
+    private function createSalesChannelContext(?string $languageId = null): SalesChannelContext
     {
+        $options = [];
+
+        if ($languageId !== null) {
+            static::getContainer()->get('sales_channel.repository')->update([[
+                'id' => TestDefaults::SALES_CHANNEL,
+                'languages' => [['id' => $languageId]],
+            ]], $this->context);
+
+            $options[SalesChannelContextService::LANGUAGE_ID] = $languageId;
+        }
+
         return static::getContainer()
             ->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, $options);
     }
 }

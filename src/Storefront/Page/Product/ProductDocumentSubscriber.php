@@ -25,7 +25,6 @@ class ProductDocumentSubscriber implements EventSubscriberInterface
     public function addProductDocuments(ProductPageCriteriaEvent $event): void
     {
         $criteria = $event->getCriteria()->getAssociation('productDocuments');
-        $criteria->addAssociation('media');
         $criteria->addSorting(
             new FieldSorting('position'),
             new FieldSorting('createdAt'),

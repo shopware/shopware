@@ -68,6 +68,7 @@ class ProductDocumentDownloadRouteHttpTest extends TestCase
 
         $this->createVisibleProduct($productId, [[
             'id' => $documentId,
+            'name' => 'Manual',
             'mediaId' => $this->createProductDocumentMedia(),
             'position' => 1,
         ]]);
@@ -100,6 +101,7 @@ class ProductDocumentDownloadRouteHttpTest extends TestCase
 
         $this->createVisibleProduct($productId, [[
             'id' => $documentId,
+            'name' => 'Manual',
             'mediaId' => $this->createProductDocumentMedia(),
             'position' => 1,
         ]], false);
@@ -117,6 +119,7 @@ class ProductDocumentDownloadRouteHttpTest extends TestCase
 
         $this->createVisibleProduct($productId, [[
             'id' => $documentId,
+            'name' => 'Manual',
             'mediaId' => $this->createProductDocumentMedia(),
             'position' => 1,
         ]]);
@@ -151,6 +154,7 @@ class ProductDocumentDownloadRouteHttpTest extends TestCase
             ],
             'productDocuments' => [[
                 'id' => $documentId,
+                'name' => 'Manual',
                 'mediaId' => $this->createProductDocumentMedia(),
                 'position' => 1,
             ]],
@@ -170,7 +174,7 @@ class ProductDocumentDownloadRouteHttpTest extends TestCase
     }
 
     /**
-     * @param list<array{id: string, mediaId: string, position: int}> $productDocuments
+     * @param list<array{id: string, name: string, mediaId: string, position: int}> $productDocuments
      */
     private function createVisibleProduct(string $productId, array $productDocuments = [], bool $active = true): void
     {

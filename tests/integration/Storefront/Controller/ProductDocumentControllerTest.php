@@ -54,6 +54,7 @@ class ProductDocumentControllerTest extends TestCase
 
         $this->createVisibleProduct($productId, [[
             'id' => $documentId,
+            'name' => 'Manual',
             'mediaId' => $this->createProductDocumentMedia(),
             'position' => 1,
         ]]);
@@ -76,7 +77,7 @@ class ProductDocumentControllerTest extends TestCase
     }
 
     /**
-     * @param list<array{id: string, mediaId: string, position: int}> $productDocuments
+     * @param list<array{id: string, name: string, mediaId: string, position: int}> $productDocuments
      */
     private function createVisibleProduct(string $productId, array $productDocuments = []): void
     {

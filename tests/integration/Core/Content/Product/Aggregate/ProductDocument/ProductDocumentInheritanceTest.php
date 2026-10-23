@@ -57,11 +57,13 @@ class ProductDocumentInheritanceTest extends TestCase
         $this->createProductWithVariant($parentId, $variantId, [
             [
                 'id' => $firstParentDocumentId,
+                'name' => 'Manual',
                 'mediaId' => $firstMediaId,
                 'position' => 20,
             ],
             [
                 'id' => $secondParentDocumentId,
+                'name' => 'Manual',
                 'mediaId' => $secondMediaId,
                 'position' => 10,
             ],
@@ -90,11 +92,13 @@ class ProductDocumentInheritanceTest extends TestCase
             $variantId,
             [[
                 'id' => $parentDocumentId,
+                'name' => 'Manual',
                 'mediaId' => $parentMediaId,
                 'position' => 1,
             ]],
             [[
                 'id' => $variantDocumentId,
+                'name' => 'Manual',
                 'mediaId' => $variantMediaId,
                 'position' => 1,
             ]],
@@ -117,6 +121,7 @@ class ProductDocumentInheritanceTest extends TestCase
         $this->createMedia($parentMediaId);
         $this->createProductWithVariant($parentId, $variantId, [[
             'id' => $parentDocumentId,
+            'name' => 'Manual',
             'mediaId' => $parentMediaId,
             'position' => 1,
         ]]);
@@ -129,8 +134,8 @@ class ProductDocumentInheritanceTest extends TestCase
     }
 
     /**
-     * @param list<array{id: string, mediaId: string, position: int}> $parentDocuments
-     * @param list<array{id: string, mediaId: string, position: int}> $variantDocuments
+     * @param list<array{id: string, name: string, mediaId: string, position: int}> $parentDocuments
+     * @param list<array{id: string, name: string, mediaId: string, position: int}> $variantDocuments
      */
     private function createProductWithVariant(
         string $parentId,

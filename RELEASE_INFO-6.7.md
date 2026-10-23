@@ -86,16 +86,28 @@ Requests that send `accountType` behave as before.
 
 ### Product documents
 
-Products can now carry downloadable documents such as datasheets, manuals, or certificates. A new `product_document` entity links a product to a media file, with an optional `position` for ordering. The association `product.productDocuments` is inherited: a variant without its own documents automatically exposes the documents of its parent product.
+Products can now carry downloadable documents such as datasheets, manuals, or certificates.
+A new `product_document` entity belongs to a product and has a `position` for ordering.
+Its display name and its file are maintained per language in the new `product_document_translation` entity (`name`, `mediaId`, `customFields`), so one document can have, for example, an English and a German file.
+Reads fall back through the language chain to the default language, so a document without a file in the active language shows the file of the default language.
+The resolved file is available as the runtime association `media` of the document, filled after loading; it does not need to be requested as an association.
+The association `product.productDocuments` is inherited: a variant without its own documents exposes the documents of its parent product, and its own documents replace the parent's list.
 
-Documents are stored in the new default media folder "Product documents". Media in this folder can be private; private product-document media is still readable in sales channel scope — analogous to product download files — so shops can offer documents without exposing them through the public media index.
+Files are uploaded into the new default media folder "Product documents", whose configuration is private.
+A file becomes private only when its media is created with `private: true`; private files get no URL and are only served by the download routes below.
+Private files in this folder are readable in media searches outside system scope, like product download files.
 
 For headless storefronts and integrations:
 
-- Store API: `GET /store-api/product/{productId}/document/{documentId}/download` streams a document. The route enforces the sales channel visibility and active state of the product and returns `PRODUCT__DOCUMENT_NOT_FOUND` (HTTP 404) when the document does not belong to the requested product. No customer login is required. Like the product detail route, a parent product id is resolved to the displayed variant, whose own documents replace the inherited ones — build download URLs from the `productId` and `documentId` of the same product detail response instead of combining ids from different sources.
-- Admin API: the `product_document` entity is manageable through the generic entity CRUD endpoints.
+- Store API: `GET /store-api/product/{productId}/document/{documentId}/download` streams the file of the request's language.
+  The route enforces the sales channel visibility and active state of the product and returns `PRODUCT__DOCUMENT_NOT_FOUND` (HTTP 404) when the document does not belong to the requested product.
+  No customer login is required.
+  Like the product detail route, a parent product id is resolved to the displayed variant, whose own documents replace the inherited ones, so build download URLs from the `productId` and `documentId` of the same product detail response.
+- Admin API: `product_document` and its translations are manageable through the generic entity CRUD endpoints.
+  A migration grants roles with the product viewer permission `product_document:read` and `product_document_translation:read`, and roles with the product editor permission `product_document:create`, `product_document:update` and `product_document:delete`.
 
-For themes and Storefront plugins, the product detail page now loads `page.product.productDocuments` (including the media association, sorted by `position`), so templates can render download links pointing to the new route `frontend.product.document.download` (`GET /product/{productId}/document/{documentId}/download`). The default theme does not render the documents yet.
+For themes and Storefront plugins, the product detail page now loads `page.product.productDocuments` sorted by `position`, each with its translated `name` and its resolved `media`, so templates can render download links pointing to the new route `frontend.product.document.download` (`GET /product/{productId}/document/{documentId}/download`).
+The default theme does not render the documents yet.
 
 Plugins can decorate `Shopware\Core\Content\Product\SalesChannel\Document\AbstractProductDocumentDownloadRoute` to customize the download behaviour.
 

@@ -76,7 +76,8 @@ class ProductDocumentDownloadRouteTest extends TestCase
                     static::assertTrue($criteria->hasAssociation('productDocuments'));
 
                     $productDocumentsCriteria = $criteria->getAssociation('productDocuments');
-                    static::assertTrue($productDocumentsCriteria->hasAssociation('media'));
+                    // the file is a runtime association, filled after loading for the request's language
+                    static::assertFalse($productDocumentsCriteria->hasAssociation('media'));
 
                     // the route looks the document up by id, no sorting needed
                     static::assertSame([], $productDocumentsCriteria->getSorting());

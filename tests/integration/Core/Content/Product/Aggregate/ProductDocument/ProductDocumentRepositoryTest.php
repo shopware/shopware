@@ -3,18 +3,19 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\Aggregate\ProductDocument;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaCollection;
-use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -55,7 +56,7 @@ class ProductDocumentRepositoryTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testProductDocumentsCanBeWrittenAndLoadedWithMedia(): void
+    public function testDocumentIsWrittenWithNameAndFileAndLoadsItsFileWithoutAskingForIt(): void
     {
         $productId = Uuid::randomHex();
         $mediaId = Uuid::randomHex();
@@ -65,56 +66,72 @@ class ProductDocumentRepositoryTest extends TestCase
         $this->createProduct($productId, [
             'productDocuments' => [[
                 'id' => $documentId,
+                'name' => 'Datasheet',
                 'mediaId' => $mediaId,
                 'position' => 5,
             ]],
         ]);
 
         $criteria = new Criteria([$productId]);
-        $criteria->addAssociation('productDocuments.media');
+        $criteria->addAssociation('productDocuments');
 
-        $product = $this->productRepository->search($criteria, $this->context)->getEntities()->get($productId);
-        static::assertInstanceOf(ProductEntity::class, $product);
+        $productDocument = $this->loadDocument($productId, $documentId, $criteria, $this->context);
 
-        $productDocuments = $product->getProductDocuments();
-        static::assertInstanceOf(ProductDocumentCollection::class, $productDocuments);
-        static::assertCount(1, $productDocuments);
-
-        $productDocument = $productDocuments->get($documentId);
-        static::assertNotNull($productDocument);
         static::assertSame($productId, $productDocument->getProductId());
         static::assertSame(Defaults::LIVE_VERSION, $productDocument->getProductVersionId());
-        static::assertSame($mediaId, $productDocument->getMediaId());
         static::assertSame(5, $productDocument->getPosition());
-        static::assertInstanceOf(MediaEntity::class, $productDocument->getMedia());
+        static::assertSame('Datasheet', $productDocument->getTranslation('name'));
+        static::assertSame($mediaId, $productDocument->getTranslation('mediaId'));
+        static::assertSame($mediaId, $productDocument->getMedia()?->getId());
     }
 
-    public function testDuplicateProductDocumentMediaAssignmentsAreRejected(): void
+    public function testNameAndFileAreMaintainedPerLanguageAndFallBackToTheDefaultLanguage(): void
     {
         $productId = Uuid::randomHex();
-        $mediaId = Uuid::randomHex();
+        $englishManual = Uuid::randomHex();
+        $germanManual = Uuid::randomHex();
+        $englishDatasheet = Uuid::randomHex();
+        $manualId = Uuid::randomHex();
+        $datasheetId = Uuid::randomHex();
+        $germanLanguageId = $this->getDeDeLanguageId();
 
-        $this->createMedia($mediaId);
+        $this->createMedia($englishManual, $germanManual, $englishDatasheet);
         $this->createProduct($productId, [
-            'productDocuments' => [[
-                'id' => Uuid::randomHex(),
-                'mediaId' => $mediaId,
-                'position' => 1,
-            ]],
+            'productDocuments' => [
+                [
+                    'id' => $manualId,
+                    'position' => 1,
+                    'translations' => [
+                        Defaults::LANGUAGE_SYSTEM => ['name' => 'Manual', 'mediaId' => $englishManual],
+                        $germanLanguageId => ['name' => 'Handbuch', 'mediaId' => $germanManual],
+                    ],
+                ],
+                [
+                    'id' => $datasheetId,
+                    'position' => 2,
+                    'translations' => [
+                        Defaults::LANGUAGE_SYSTEM => ['name' => 'Datasheet', 'mediaId' => $englishDatasheet],
+                    ],
+                ],
+            ],
         ]);
 
-        static::expectException(UniqueConstraintViolationException::class);
+        $germanContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$germanLanguageId, Defaults::LANGUAGE_SYSTEM]);
 
-        $this->productDocumentRepository->create([[
-            'id' => Uuid::randomHex(),
-            'productId' => $productId,
-            'productVersionId' => Defaults::LIVE_VERSION,
-            'mediaId' => $mediaId,
-            'position' => 2,
-        ]], $this->context);
+        $manual = $this->loadDocument($productId, $manualId, $this->criteria($productId), $germanContext);
+        static::assertSame('Handbuch', $manual->getTranslation('name'));
+        static::assertSame($germanManual, $manual->getMedia()?->getId());
+
+        $datasheet = $this->loadDocument($productId, $datasheetId, $this->criteria($productId), $germanContext);
+        static::assertSame('Datasheet', $datasheet->getTranslation('name'), 'German falls back to the default language name');
+        static::assertSame($englishDatasheet, $datasheet->getMedia()?->getId(), 'German falls back to the default language file');
+
+        $englishManualDocument = $this->loadDocument($productId, $manualId, $this->criteria($productId), $this->context);
+        static::assertSame('Manual', $englishManualDocument->getTranslation('name'));
+        static::assertSame($englishManual, $englishManualDocument->getMedia()?->getId());
     }
 
-    public function testProductDeleteCascadesProductDocuments(): void
+    public function testRequestingTheRuntimeMediaAssociationStillResolvesTheFile(): void
     {
         $productId = Uuid::randomHex();
         $mediaId = Uuid::randomHex();
@@ -122,44 +139,94 @@ class ProductDocumentRepositoryTest extends TestCase
 
         $this->createMedia($mediaId);
         $this->createProduct($productId, [
-            'productDocuments' => [[
-                'id' => $documentId,
-                'mediaId' => $mediaId,
-                'position' => 1,
-            ]],
+            'productDocuments' => [['id' => $documentId, 'name' => 'Manual', 'mediaId' => $mediaId]],
         ]);
 
-        static::assertSame(1, $this->countProductDocuments($documentId));
+        $criteria = new Criteria([$productId]);
+        $criteria->addAssociation('productDocuments.media');
 
-        $this->connection->executeStatement('
-            DELETE FROM `product`
-            WHERE `id` = :id
-              AND `version_id` = :versionId
-        ', [
-            'id' => Uuid::fromHexToBytes($productId),
-            'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-        ]);
-
-        static::assertSame(0, $this->countProductDocuments($documentId));
+        static::assertSame($mediaId, $this->loadDocument($productId, $documentId, $criteria, $this->context)->getMedia()?->getId());
     }
 
-    public function testReferencedMediaDeleteIsRestricted(): void
+    public function testDocumentNeedsANameAndFileInTheDefaultLanguage(): void
     {
         $productId = Uuid::randomHex();
         $mediaId = Uuid::randomHex();
 
         $this->createMedia($mediaId);
+        $this->createProduct($productId);
+
+        static::expectException(WriteException::class);
+
+        $this->productDocumentRepository->create([[
+            'id' => Uuid::randomHex(),
+            'productId' => $productId,
+            'productVersionId' => Defaults::LIVE_VERSION,
+            'translations' => [
+                $this->getDeDeLanguageId() => ['name' => 'Handbuch', 'mediaId' => $mediaId],
+            ],
+        ]], $this->context);
+    }
+
+    public function testProductDeleteCascadesDocumentsAndTheirTranslations(): void
+    {
+        $productId = Uuid::randomHex();
+        $mediaId = Uuid::randomHex();
+        $documentId = Uuid::randomHex();
+
+        $this->createMedia($mediaId);
+        $this->createProduct($productId, [
+            'productDocuments' => [['id' => $documentId, 'name' => 'Manual', 'mediaId' => $mediaId]],
+        ]);
+
+        static::assertSame(1, $this->countRows('product_document', 'id', $documentId));
+        static::assertSame(1, $this->countRows('product_document_translation', 'product_document_id', $documentId));
+
+        $this->productRepository->delete([['id' => $productId]], $this->context);
+
+        static::assertSame(0, $this->countRows('product_document', 'id', $documentId));
+        static::assertSame(0, $this->countRows('product_document_translation', 'product_document_id', $documentId));
+    }
+
+    public function testFileOfAnyLanguageCannotBeDeletedWhileLinked(): void
+    {
+        $productId = Uuid::randomHex();
+        $englishFile = Uuid::randomHex();
+        $germanFile = Uuid::randomHex();
+
+        $this->createMedia($englishFile, $germanFile);
         $this->createProduct($productId, [
             'productDocuments' => [[
                 'id' => Uuid::randomHex(),
-                'mediaId' => $mediaId,
-                'position' => 1,
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => ['name' => 'Manual', 'mediaId' => $englishFile],
+                    $this->getDeDeLanguageId() => ['name' => 'Handbuch', 'mediaId' => $germanFile],
+                ],
             ]],
         ]);
 
         static::expectException(RestrictDeleteViolationException::class);
 
-        $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
+        $this->mediaRepository->delete([['id' => $germanFile]], $this->context);
+    }
+
+    private function criteria(string $productId): Criteria
+    {
+        $criteria = new Criteria([$productId]);
+        $criteria->addAssociation('productDocuments');
+
+        return $criteria;
+    }
+
+    private function loadDocument(string $productId, string $documentId, Criteria $criteria, Context $context): ProductDocumentEntity
+    {
+        $product = $this->productRepository->search($criteria, $context)->getEntities()->get($productId);
+        static::assertInstanceOf(ProductEntity::class, $product);
+
+        $productDocument = $product->getProductDocuments()?->get($documentId);
+        static::assertInstanceOf(ProductDocumentEntity::class, $productDocument);
+
+        return $productDocument;
     }
 
     /**
@@ -181,22 +248,22 @@ class ProductDocumentRepositoryTest extends TestCase
         ], $this->context);
     }
 
-    private function createMedia(string $mediaId): void
+    private function createMedia(string ...$mediaIds): void
     {
-        $this->mediaRepository->create([[
+        $this->mediaRepository->create(array_map(static fn (string $mediaId): array => [
             'id' => $mediaId,
             'private' => true,
-            'fileName' => 'manual-' . $mediaId,
+            'fileName' => 'document-' . $mediaId,
             'fileExtension' => 'pdf',
             'mimeType' => 'application/pdf',
-        ]], $this->context);
+        ], $mediaIds), $this->context);
     }
 
-    private function countProductDocuments(string $documentId): int
+    private function countRows(string $table, string $column, string $id): int
     {
         return (int) $this->connection->fetchOne(
-            'SELECT COUNT(*) FROM `product_document` WHERE `id` = :id',
-            ['id' => Uuid::fromHexToBytes($documentId)],
+            \sprintf('SELECT COUNT(*) FROM `%s` WHERE `%s` = :id', $table, $column),
+            ['id' => Uuid::fromHexToBytes($id)],
         );
     }
 }

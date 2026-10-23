@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
@@ -28,6 +29,7 @@ class MediaDefinitionTest extends TestCase
             [
                 MediaDefinition::class,
                 ProductDocumentDefinition::class,
+                ProductDocumentTranslationDefinition::class,
             ],
             static::createStub(ValidatorInterface::class),
             static::createStub(EntityWriteGatewayInterface::class),
@@ -39,19 +41,19 @@ class MediaDefinitionTest extends TestCase
         $this->definition = $definition;
     }
 
-    public function testProductDocumentsAssociationIsWiredToProductDocumentDefinition(): void
+    public function testProductDocumentFilesAreReferencedFromTheirTranslations(): void
     {
-        $field = $this->definition->getFields()->get('productDocuments');
+        $field = $this->definition->getFields()->get('productDocumentTranslations');
 
         static::assertInstanceOf(OneToManyAssociationField::class, $field);
-        static::assertSame(ProductDocumentDefinition::class, $field->getReferenceClass());
+        static::assertSame(ProductDocumentTranslationDefinition::class, $field->getReferenceClass());
         static::assertSame('media_id', $field->getReferenceField());
         static::assertSame('id', $field->getLocalField());
     }
 
-    public function testReferencedProductDocumentsRestrictMediaDeletion(): void
+    public function testReferencedProductDocumentFilesRestrictMediaDeletion(): void
     {
-        $field = $this->definition->getFields()->get('productDocuments');
+        $field = $this->definition->getFields()->get('productDocumentTranslations');
 
         static::assertInstanceOf(OneToManyAssociationField::class, $field);
         static::assertTrue($field->is(RestrictDelete::class));

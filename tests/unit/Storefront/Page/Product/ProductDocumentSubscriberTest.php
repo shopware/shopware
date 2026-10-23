@@ -39,7 +39,8 @@ class ProductDocumentSubscriberTest extends TestCase
         static::assertTrue($criteria->hasAssociation('productDocuments'));
 
         $productDocumentsCriteria = $criteria->getAssociation('productDocuments');
-        static::assertTrue($productDocumentsCriteria->hasAssociation('media'));
+        // the file is a runtime association, filled after loading for the page's language
+        static::assertFalse($productDocumentsCriteria->hasAssociation('media'));
 
         $sorting = $productDocumentsCriteria->getSorting();
         static::assertSame(

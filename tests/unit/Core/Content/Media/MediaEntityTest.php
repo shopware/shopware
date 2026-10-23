@@ -10,7 +10,7 @@ use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\MediaType\SpatialMediaTypeInterface;
 use Shopware\Core\Content\Media\MediaType\SpatialObjectType;
-use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -110,13 +110,13 @@ class MediaEntityTest extends TestCase
         static::assertFalse($data['hasFile']);
     }
 
-    public function testProductDocumentsAccessors(): void
+    public function testProductDocumentTranslationsAccessors(): void
     {
-        $productDocuments = new ProductDocumentCollection();
+        $productDocumentTranslations = new ProductDocumentTranslationCollection();
 
         $media = new MediaEntity();
-        $media->setProductDocuments($productDocuments);
+        $media->setProductDocumentTranslations($productDocumentTranslations);
 
-        static::assertSame($productDocuments, $media->getProductDocuments());
+        static::assertSame($productDocumentTranslations, $media->getProductDocumentTranslations());
     }
 }

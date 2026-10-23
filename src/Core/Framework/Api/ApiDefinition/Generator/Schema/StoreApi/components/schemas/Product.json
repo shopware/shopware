@@ -434,6 +434,13 @@
                             "$ref": "#/components/schemas/ProductDownload"
                         }
                     },
+                    "productDocuments": {
+                        "description": "Documents associated with the product.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProductDocument"
+                        }
+                    },
                     "parent": {
                         "$ref": "#/components/schemas/Product",
                         "description": "Unique identity of the product."

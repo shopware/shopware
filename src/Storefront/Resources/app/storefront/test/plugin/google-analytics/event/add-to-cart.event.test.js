@@ -1,5 +1,4 @@
 import NativeEventEmitter from 'src/helper/emitter.helper';
-import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
 import AddToCartEvent from 'src/plugin/google-analytics/events/add-to-cart.event';
 
 /**
@@ -17,10 +16,12 @@ function createMockPluginInstance() {
 describe('plugin/google-analytics/events/add-to-cart.event', () => {
     let addToCartInstances = [];
     let listingInstances = [];
+    let offCanvasCartInstances = [];
 
     beforeEach(() => {
         addToCartInstances = [];
         listingInstances = [];
+        offCanvasCartInstances = [];
 
         window.gtag = jest.fn();
         window.currencyIsoCode = 'EUR';
@@ -32,6 +33,9 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
             }
             if (name === 'Listing') {
                 return listingInstances;
+            }
+            if (name === 'OffCanvasCart') {
+                return offCanvasCartInstances;
             }
             throw new Error(`Plugin ${name} not found`);
         });
@@ -394,55 +398,124 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         }));
     });
 
-    test('reports every line item of the reorder of an order', () => {
+    // the order of the account: a shirt for 19.99 twice and a cap for 5 three times
+    function submitReorder() {
         const addToCartInstance = createMockPluginInstance();
         addToCartInstance.el = document.createElement('form');
-        addToCartInstance.el.setAttribute('data-analytics-currency', 'USD');
         addToCartInstance.el.innerHTML = `
-            <span data-analytics-line-item data-id="product-1" data-sku="SW-1" data-name="Shirt" data-price="19.99" data-quantity="2"
+            <span data-analytics-line-item data-id="product-1" data-sku="SW-1" data-quantity="2"
                   data-brand="Brand" data-category-1="Clothing" data-category-2="Shirts"></span>
-            <span data-analytics-line-item data-id="product-2" data-sku="SW-2" data-name="Cap" data-price="5" data-quantity="3" data-brand=""></span>
+            <span data-analytics-line-item data-id="product-2" data-sku="SW-2" data-quantity="3" data-brand=""></span>
         `;
         addToCartInstance.$emitter = new NativeEventEmitter(addToCartInstance.el);
         addToCartInstances.push(addToCartInstance);
 
-        new AddToCartEvent().execute();
+        const offCanvasCart = createMockPluginInstance();
+        offCanvasCartInstances.push(offCanvasCart);
+
+        const event = new AddToCartEvent();
+        event.execute();
 
         // the reorder form posts only the redirect, the route resolves the products of the order
         const formData = new FormData();
         formData.append('redirectTo', 'frontend.cart.offcanvas');
-
         addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
 
+        return { event, form: addToCartInstance, offCanvasCart, formData };
+    }
+
+    // the cart the server returns after the reorder, priced with the current prices and the cart currency
+    function returnedCart({ success = true, lineItems = null } = {}) {
+        return `
+            ${success ? '<div class="alert alert-success">2 products added</div>' : '<div class="alert alert-danger">Error</div>'}
+            <div class="d-none hidden-line-items-information" data-currency="USD">
+                ${lineItems ?? `
+                    <span class="hidden-line-item" data-id="product-1" data-sku="SW-1" data-name="Shirt" data-quantity="3" data-price="25"></span>
+                    <span class="hidden-line-item" data-id="product-2" data-sku="SW-2" data-name="Cap" data-quantity="3" data-price="6.5" data-brand="Caps Inc"></span>
+                    <span class="hidden-line-item" data-id="product-3" data-sku="SW-3" data-name="Socks" data-quantity="1" data-price="4"></span>
+                `}
+            </div>
+        `;
+    }
+
+    test('reports the reorder from the off-canvas cart the server returns', () => {
+        const { offCanvasCart, formData } = submitReorder();
+
+        expect(window.gtag).not.toHaveBeenCalled();
+
+        offCanvasCart.$emitter.publish('offCanvasOpened', { response: returnedCart() });
+
+        // price and currency are the current ones of the cart, the quantity is the one the reorder added
         expect(window.gtag).toHaveBeenCalledTimes(1);
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', {
             'currency': 'USD',
-            'value': 54.98,
+            'value': 69.5,
             'items': [
-                { item_id: 'SW-1', item_name: 'Shirt', quantity: 2, price: 19.99, item_brand: 'Brand', item_category: 'Clothing', item_category2: 'Shirts' },
-                { item_id: 'SW-2', item_name: 'Cap', quantity: 3, price: 5 },
+                { item_id: 'SW-1', item_name: 'Shirt', quantity: 2, price: 25, item_brand: 'Brand', item_category: 'Clothing', item_category2: 'Shirts' },
+                { item_id: 'SW-2', item_name: 'Cap', quantity: 3, price: 6.5, item_brand: 'Caps Inc' },
             ],
         });
         expect([...formData.keys()].some(key => key.includes('[payload]'))).toBe(false);
     });
 
-    test('reports a reordered line item without product number, price and quantity in the shop currency', () => {
-        const currencySpy = jest.spyOn(ProductPageHelper, 'getCurrency').mockReturnValue('EUR');
-        const addToCartInstance = createMockPluginInstance();
-        addToCartInstance.el = document.createElement('form');
-        addToCartInstance.el.innerHTML = '<span data-analytics-line-item data-id="product-1" data-name="Gift card"></span>';
-        addToCartInstance.$emitter = new NativeEventEmitter(addToCartInstance.el);
-        addToCartInstances.push(addToCartInstance);
+    test('reports only the products of the order the returned cart holds', () => {
+        const { offCanvasCart } = submitReorder();
 
-        new AddToCartEvent().execute();
-        addToCartInstance.$emitter.publish('beforeFormSubmit', new FormData());
-
-        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', {
-            'currency': 'EUR',
-            'value': 0,
-            'items': [{ item_id: 'product-1', item_name: 'Gift card' }],
+        offCanvasCart.$emitter.publish('offCanvasOpened', {
+            response: returnedCart({
+                lineItems: '<span class="hidden-line-item" data-id="product-2" data-sku="SW-2" data-name="Cap" data-price="6.5"></span>',
+            }),
         });
 
-        currencySpy.mockRestore();
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', expect.objectContaining({
+            'value': 19.5,
+            'items': [expect.objectContaining({ item_id: 'SW-2', quantity: 3 })],
+        }));
+    });
+
+    // the server shows the success alert only if it added every product, the cart can hold them from before
+    test('reports nothing when the off-canvas cart shows no success', () => {
+        const { offCanvasCart } = submitReorder();
+
+        offCanvasCart.$emitter.publish('offCanvasOpened', { response: returnedCart({ success: false }) });
+
+        expect(window.gtag).not.toHaveBeenCalled();
+    });
+
+    test('reports the reorder once, a later opened off-canvas cart reports nothing', () => {
+        const { offCanvasCart } = submitReorder();
+
+        offCanvasCart.$emitter.publish('offCanvasOpened', { response: returnedCart() });
+        offCanvasCart.$emitter.publish('offCanvasOpened', { response: returnedCart() });
+
+        expect(window.gtag).toHaveBeenCalledTimes(1);
+    });
+
+    test('requests the cart once for a shop that does not open the off-canvas cart', async () => {
+        window.router = { 'frontend.cart.offcanvas': '/checkout/offcanvas' };
+        global.fetch = jest.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(returnedCart({ success: false })) });
+        const { form, offCanvasCart } = submitReorder();
+
+        form.$emitter.publish('addToCartWithoutOffcanvas');
+        await new Promise(resolve => setTimeout(resolve, 0));
+        offCanvasCart.$emitter.publish('offCanvasOpened', { response: returnedCart() });
+
+        // the flash message went with the response to the add, the requested cart has none
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(global.fetch).toHaveBeenCalledWith('/checkout/offcanvas', expect.any(Object));
+        expect(window.gtag).toHaveBeenCalledTimes(1);
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', expect.objectContaining({ 'currency': 'USD', 'value': 69.5 }));
+
+        delete window.router;
+        delete global.fetch;
+    });
+
+    test('reports nothing when tracking is disabled before the cart returns', () => {
+        const { event, offCanvasCart } = submitReorder();
+
+        event.disable();
+        offCanvasCart.$emitter.publish('offCanvasOpened', { response: returnedCart() });
+
+        expect(window.gtag).not.toHaveBeenCalled();
     });
 });

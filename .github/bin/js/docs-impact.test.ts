@@ -54,7 +54,7 @@ function fakeGitHub(options: {
             if (method === github.rest.issues.listComments) {
                 return options.comments ?? [];
             }
-            return [{ filename: 'src/a.php' }];
+            return [{ filename: 'src/a.php', patch: '@@ -1 +1 @@' }];
         },
     };
 
@@ -174,7 +174,7 @@ test('resolvePullRequestNumber returns null for a direct push', async () => {
     assert.equal(await resolvePullRequestNumber({ github, context: pushContext() }), null);
 });
 
-test('collectAgentInput writes metadata, files and diff', async () => {
+test('collectAgentInput writes metadata, files without patches, and the diff', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'docs-impact-'));
     const { github } = fakeGitHub();
     const { core } = fakeCore();
@@ -198,7 +198,7 @@ test('collectAgentInput writes a null pull request for a direct push', async () 
     assert.equal(existsSync(join(dir, 'pr.diff')), false);
 });
 
-test('collectAgentInput skips a diff the API refuses as too large', async () => {
+test('collectAgentInput keeps the per-file patches when the API refuses the diff as too large', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'docs-impact-'));
     const { github } = fakeGitHub({ diffStatus: 406 });
     const { core, messages } = fakeCore();
@@ -206,6 +206,7 @@ test('collectAgentInput skips a diff the API refuses as too large', async () => 
     await collectAgentInput({ github, context: pushContext({ pr_number: '7' }), core }, dir);
 
     assert.equal(existsSync(join(dir, 'pr.diff')), false);
+    assert.deepEqual(JSON.parse(readFileSync(join(dir, 'pr.json'), 'utf8')).files, [{ filename: 'src/a.php', patch: '@@ -1 +1 @@' }]);
     assert.ok(messages.some((m) => m.startsWith('warning:')));
 });
 

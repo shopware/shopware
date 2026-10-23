@@ -141,18 +141,27 @@ export async function collectAgentInput({ github, context, core }: { github: Git
 
     const params = { ...context.repo, pull_number: number };
     const { data: pr } = await github.rest.pulls.get(params);
-    const files = await github.paginate(github.rest.pulls.listFiles, { ...params, per_page: 100 });
-    writeFileSync(`${dir}/pr.json`, JSON.stringify({ pr, files }, null, 2));
+    const files = await github.paginate<{ patch?: string }>(github.rest.pulls.listFiles, { ...params, per_page: 100 });
 
+    let diff: string | null = null;
     try {
-        const { data: diff } = await github.rest.pulls.get({ ...params, mediaType: { format: 'diff' } });
-        writeFileSync(`${dir}/pr.diff`, String(diff));
+        const { data } = await github.rest.pulls.get({ ...params, mediaType: { format: 'diff' } });
+        diff = String(data);
     } catch (error) {
         if ((error as { status?: number }).status !== 406) {
             throw error;
         }
-        core.warning(`The diff of #${number} is too large for the API; the agent gets the file list only`);
+        core.warning(`The diff of #${number} is too large for the API; the agent gets the per-file patches instead`);
     }
+
+    if (diff === null) {
+        writeFileSync(`${dir}/pr.json`, JSON.stringify({ pr, files }, null, 2));
+        return;
+    }
+
+    const filesWithoutPatch = files.map(({ patch: _patch, ...file }) => file);
+    writeFileSync(`${dir}/pr.json`, JSON.stringify({ pr, files: filesWithoutPatch }, null, 2));
+    writeFileSync(`${dir}/pr.diff`, diff);
 }
 
 export function notifyItems(agentOutput: { items?: AgentOutputItem[] }): AgentOutputItem[] {

@@ -228,7 +228,6 @@ Jest's `--watch` and `--watchAll` need exactly one Jest config, so name one exte
 When Jest options go to more than one Jest config, the command adds `--passWithNoTests`,
 so a spec path or name filter fails the run only on a failing spec, not on an extension without a matching spec.
 An extension that installs its own Jest can keep running it directly, as long as it has the same major version as the Administration's.
-The factory checks this when it builds the config, and fails with both versions on a different major instead of letting the specs fail on harness API mismatches.
 
 The harness lives in the Administration's `test/` folder and works in a platform checkout and in a Composer install alike.
 It reads two files that every installation generates itself.

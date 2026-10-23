@@ -193,7 +193,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         Shopware.Store.get('swOrder').setCustomer({
             id: '1234',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(mtTabs.props('items')).toEqual([
             {
@@ -227,7 +227,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         expect(wrapper.find('sw-order-create-options-stub').isVisible()).toBeFalsy();
 
         mtTabs.vm.$emit('new-item-active', 'products');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('products');
         expect(wrapper.find('sw-order-customer-grid-stub').isVisible()).toBeFalsy();
@@ -235,7 +235,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         expect(wrapper.find('sw-order-create-options-stub').isVisible()).toBeFalsy();
 
         mtTabs.vm.$emit('new-item-active', 'options');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('options');
         expect(wrapper.find('sw-order-customer-grid-stub').isVisible()).toBeFalsy();
@@ -458,7 +458,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.context).toEqual({
             currencyId: 'euro',

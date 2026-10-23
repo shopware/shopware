@@ -7,12 +7,14 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -356,6 +358,109 @@ class ProductListingRouteTest extends TestCase
         static::assertSame('product_listing', $response['apiAlias']);
         static::assertArrayNotHasKey('elements', $response);
         static::assertArrayHasKey('total', $response);
+    }
+
+    public function testLoadsNestedProductsForManualAssignments(): void
+    {
+        [$parentCategoryId, $childCategoryId, $productId] = $this->createNestedManualAssignmentData();
+
+        static::assertSame([$productId], $this->loadListingIds($parentCategoryId));
+        static::assertSame([$productId], $this->loadListingIds($childCategoryId));
+    }
+
+    public function testLoadsNestedProductsForMixedAssignments(): void
+    {
+        [$parentCategoryId, $manualChildCategoryId, $streamChildCategoryId, $manualProductId, $streamProductId] = $this->createNestedMixedAssignmentData();
+
+        $parentIds = $this->loadListingIds($parentCategoryId);
+
+        static::assertEqualsCanonicalizing([$manualProductId, $streamProductId], $parentIds);
+        static::assertSame([$manualProductId], $this->loadListingIds($manualChildCategoryId));
+        static::assertSame([$streamProductId], $this->loadListingIds($streamChildCategoryId));
+    }
+
+    public function testStreamParentIncludesManualChildProducts(): void
+    {
+        [$parentCategoryId, $manualChildCategoryId, $manualProductId, $streamProductId] = $this->createStreamParentWithManualChildData(true);
+
+        $parentIds = $this->loadListingIds($parentCategoryId);
+
+        // a stream parent must surface its own stream products AND products manually assigned in its subtree
+        static::assertEqualsCanonicalizing([$manualProductId, $streamProductId], $parentIds);
+        static::assertSame([$manualProductId], $this->loadListingIds($manualChildCategoryId));
+    }
+
+    public function testStreamParentWithoutStreamMatchStillIncludesManualChildProducts(): void
+    {
+        [$parentCategoryId, $manualChildCategoryId, $manualProductId] = $this->createStreamParentWithManualChildData(false);
+
+        // even when the parent's own stream matches nothing, descendant products must still appear
+        static::assertSame([$manualProductId], $this->loadListingIds($parentCategoryId));
+        static::assertSame([$manualProductId], $this->loadListingIds($manualChildCategoryId));
+    }
+
+    public function testOnlyTheRequestedCategoryGroupDecidesWhetherVariantsAreShownSingly(): void
+    {
+        $ids = new IdsCollection();
+        $this->productRepository->create([
+            (new ProductBuilder($ids, 'shirt'))
+                ->price(15)
+                ->visibility($this->ids->get('sales-channel'))
+                ->configuratorSetting('red', 'color')
+                ->configuratorSetting('green', 'color')
+                ->variant((new ProductBuilder($ids, 'shirt.red'))->option('red', 'color')->build())
+                ->variant((new ProductBuilder($ids, 'shirt.green'))->option('green', 'color')->build())
+                ->build(),
+        ], Context::createDefaultContext());
+
+        // a group that shows the matching variants as single products
+        $streamId = $this->createProductStream(
+            [['type' => 'equals', 'field' => 'parentId', 'value' => $ids->get('shirt')]],
+            displayAsGroup: false,
+        );
+
+        $parentCategoryId = Uuid::randomHex();
+        $streamCategoryId = Uuid::randomHex();
+        $this->categoryRepository->create([
+            ['id' => $parentCategoryId, 'name' => 'parent-category'],
+            [
+                'id' => $streamCategoryId,
+                'name' => 'stream-category',
+                'parentId' => $parentCategoryId,
+                'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                'productStreamId' => $streamId,
+            ],
+        ], Context::createDefaultContext());
+
+        static::assertEqualsCanonicalizing([$ids->get('shirt.red'), $ids->get('shirt.green')], $this->loadListingIds($streamCategoryId));
+        // the parent lists the same variants through the subcategory's group, but grouped like any other listing
+        static::assertCount(1, $this->loadListingIds($parentCategoryId));
+    }
+
+    public function testUnusableGroupsOfSubcategoriesDoNotBreakTheParentListing(): void
+    {
+        [$parentCategoryId, , $productId] = $this->createNestedManualAssignmentData();
+
+        $this->categoryRepository->create([
+            [
+                'name' => 'draft-without-conditions',
+                'parentId' => $parentCategoryId,
+                'active' => false,
+                'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                // saved without conditions: stored as invalid, without a compiled filter
+                'productStreamId' => $this->createProductStream([]),
+            ],
+            [
+                'name' => 'draft-with-empty-condition',
+                'parentId' => $parentCategoryId,
+                'active' => false,
+                'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                // "Product" "is equal to any of" without a product: compiles to an empty filter
+                'productStreamId' => $this->createProductStream([['type' => 'equalsAny', 'field' => 'id', 'value' => null]]),
+            ],
+        ], Context::createDefaultContext());
+
+        static::assertSame([$productId], $this->loadListingIds($parentCategoryId));
     }
 
     /**
@@ -953,5 +1058,135 @@ class ProductListingRouteTest extends TestCase
         }
 
         $this->productRepository->update($products, Context::createDefaultContext());
+    }
+
+    /**
+     * @return array{0: string, 1: string, 2: string}
+     */
+    private function createNestedManualAssignmentData(): array
+    {
+        $parentCategoryId = Uuid::randomHex();
+        $childCategoryId = Uuid::randomHex();
+
+        $this->categoryRepository->create([
+            ['id' => $parentCategoryId, 'name' => 'parent-category'],
+            ['id' => $childCategoryId, 'name' => 'child-category', 'parentId' => $parentCategoryId],
+        ], Context::createDefaultContext());
+
+        return [$parentCategoryId, $childCategoryId, $this->createProduct([$childCategoryId])];
+    }
+
+    /**
+     * @return array{0: string, 1: string, 2: string, 3: string, 4: string}
+     */
+    private function createNestedMixedAssignmentData(): array
+    {
+        $parentCategoryId = Uuid::randomHex();
+        $manualChildCategoryId = Uuid::randomHex();
+        $streamChildCategoryId = Uuid::randomHex();
+        $streamProductNumber = 'stream-product-' . Uuid::randomHex();
+
+        $this->categoryRepository->create([
+            ['id' => $parentCategoryId, 'name' => 'parent-category'],
+            ['id' => $manualChildCategoryId, 'name' => 'manual-child-category', 'parentId' => $parentCategoryId],
+            [
+                'id' => $streamChildCategoryId,
+                'name' => 'stream-child-category',
+                'parentId' => $parentCategoryId,
+                'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                'productStreamId' => $this->createProductStream([['type' => 'equals', 'field' => 'productNumber', 'value' => $streamProductNumber]]),
+            ],
+        ], Context::createDefaultContext());
+
+        return [
+            $parentCategoryId,
+            $manualChildCategoryId,
+            $streamChildCategoryId,
+            $this->createProduct([$manualChildCategoryId]),
+            $this->createProduct(productNumber: $streamProductNumber),
+        ];
+    }
+
+    /**
+     * @return array{0: string, 1: string, 2: string, 3: string|null}
+     */
+    private function createStreamParentWithManualChildData(bool $withMatchingStreamProduct): array
+    {
+        $parentCategoryId = Uuid::randomHex();
+        $manualChildCategoryId = Uuid::randomHex();
+        $streamProductNumber = 'stream-product-' . Uuid::randomHex();
+
+        $this->categoryRepository->create([
+            [
+                'id' => $parentCategoryId,
+                'name' => 'stream-parent-category',
+                'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                'productStreamId' => $this->createProductStream([['type' => 'equals', 'field' => 'productNumber', 'value' => $streamProductNumber]]),
+            ],
+            ['id' => $manualChildCategoryId, 'name' => 'manual-child-category', 'parentId' => $parentCategoryId],
+        ], Context::createDefaultContext());
+
+        return [
+            $parentCategoryId,
+            $manualChildCategoryId,
+            $this->createProduct([$manualChildCategoryId]),
+            $withMatchingStreamProduct ? $this->createProduct(productNumber: $streamProductNumber) : null,
+        ];
+    }
+
+    /**
+     * @param list<string> $categoryIds
+     */
+    private function createProduct(array $categoryIds = [], ?string $productNumber = null): string
+    {
+        $productId = Uuid::randomHex();
+
+        $this->productRepository->create([[
+            'id' => $productId,
+            'name' => 'product',
+            'productNumber' => $productNumber ?? $productId,
+            'stock' => 10,
+            'active' => true,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'categories' => array_map(static fn (string $categoryId): array => ['id' => $categoryId], $categoryIds),
+            'visibilities' => [
+                ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
+        ]], Context::createDefaultContext());
+
+        return $productId;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $filters
+     */
+    private function createProductStream(array $filters, bool $displayAsGroup = true): string
+    {
+        $streamId = Uuid::randomHex();
+
+        static::getContainer()->get('product_stream.repository')->create([[
+            'id' => $streamId,
+            'name' => 'stream',
+            'displayAsGroup' => $displayAsGroup,
+            'filters' => $filters,
+        ]], Context::createDefaultContext());
+
+        return $streamId;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function loadListingIds(string $categoryId): array
+    {
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), $this->ids->get('sales-channel'));
+
+        $listing = static::getContainer()->get(ProductListingRoute::class)
+            ->load($categoryId, new Request(), $context, new Criteria())
+            ->getResult();
+
+        return array_values($listing->getEntities()->getIds());
     }
 }

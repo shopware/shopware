@@ -1,5 +1,6 @@
 import EventAwareAnalyticsEvent from 'src/plugin/google-analytics/event-aware-analytics-event';
 import SessionStorage from 'src/helper/storage/session-storage.helper';
+import NavigationHelper from 'src/plugin/google-analytics/navigation.helper';
 
 const PENDING_LOGIN_KEY = 'swGaPendingLogin';
 
@@ -55,9 +56,9 @@ export default class LoginEvent extends EventAwareAnalyticsEvent
 
         SessionStorage.removeItem(PENDING_LOGIN_KEY);
 
-        // A failed login renders the login form again with its fields marked as invalid. A password
-        // that no longer meets the password policies forwards to the password recovery instead.
-        if (!this.active || document.querySelector('.login-form .is-invalid, .account-recover-password-form')) {
+        // Only a successful login redirects. Wrong credentials, a throttled login or a password that
+        // no longer meets the password policies render the login form or the recovery without one.
+        if (!this.active || !NavigationHelper.isRedirected()) {
             return;
         }
 

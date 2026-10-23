@@ -193,6 +193,7 @@ Storefront analytics now treat every element with a `data-product-information` a
 Products that extensions render in their own markup are reported as well.
 The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#products) describes the expected attribute.
 The product box now reports the price of a matching price rule or the first graduated price, the same price as the product detail page, instead of the default price.
+
 ### Guests can open the profile page
 
 Guests can now open and save the profile page to correct their personal data, company and VAT ID, for example when the cart reports `vat-id-missing`.

@@ -49,6 +49,10 @@ Pass a registered major flag and a version like `v6.8.0.0`. Anything else could 
 
 `@private` symbols and identifiers starting with `_` are no public contract and need no guard. See the [ADR](../../adr/2026-08-10-administration-javascript-deprecation-guards.md).
 
+For now, only core's own Jest run fails on deprecations.
+In the Jest run of an extension that reuses core's test setup, the deprecation recorder stays silent, while the running Administration warns as before.
+See the [ADR](../../adr/2026-10-23-fail-on-administration-deprecations-only-in-core-tests.md).
+
 ### Deprecation baseline
 
 Jest lets known usages of deprecated APIs pass when they are listed in the deprecation baseline.

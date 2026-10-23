@@ -82,3 +82,5 @@ Extension developers receive actionable warnings while upgrading and a clear fai
 The rule adds deliberate classification work: reachability through a Vue component does not by itself make a member public, and every public data-field transition must decide whether a computed compatibility facade is worth its remaining limitations.
 
 Private implementation work becomes simpler: private and underscore-prefixed members are not burdened with a public compatibility shim. This relies on `@private` being applied to the actual declaration and on supported extension points being documented/registered as public rather than inferred from technical access.
+
+Until core's own usages are migrated, only core's own Jest run fails on deprecations, see [2026-10-23 - Fail on Administration deprecations only in core's own tests](2026-10-23-fail-on-administration-deprecations-only-in-core-tests.md).

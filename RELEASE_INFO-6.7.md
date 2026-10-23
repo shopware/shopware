@@ -146,6 +146,11 @@ They additionally react to domain changes:
 toggling the external storefront flag of a domain (or adding/removing domains) creates or removes the affected rows without re-saving the customer group.
 The storefront rows are untouched by this and keep being maintained by the Storefront bundle.
 
+### Extension Jest runs no longer fail on Administration deprecations
+
+Extensions whose Jest run reuses Shopware's Administration test setup no longer fail on deprecations until core's own usages are migrated.
+The running Administration still warns about deprecations as before.
+
 ### Known core deprecations log an error in next-major mode
 
 Core usages that are not migrated yet are listed in `src/Administration/Resources/app/administration/src/meta/deprecation-baseline.json`.

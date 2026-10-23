@@ -62,6 +62,12 @@ With `shopware.media.remote_thumbnails.enable`, SVGs now have an empty `thumbnai
 Before, their `srcset` claimed widths that the returned original file did not have, so browsers rendered small SVG logos far too small.
 Media loaded without the `mediaType` field keep their thumbnail URLs, as the type can't be checked.
 
+### Units have a standard unit code
+
+The `unit` entity has a new optional field `uneceCode` for the unit's UN/ECE Recommendation 20 or 21 code, for example `H87` for piece, `KGM` for kilogram or `XBX` for box. The field is not translated and is available in the Admin API and the Store API.
+
+Only codes from these lists are saved, and they are case-sensitive. Any other value fails the write with the error code `UNIT__INVALID_UNECE_CODE` on `/uneceCode`. An empty value is stored as `null`.
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request

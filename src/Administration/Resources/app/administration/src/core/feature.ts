@@ -53,6 +53,18 @@ export default class Feature {
     }
 
     /**
+     * Whether `triggerDeprecationOrThrow` reports a deprecation for `majorFlag` as regular instead of as a typo:
+     * the flag is registered, or an upcoming major the backend does not register yet.
+     *
+     * @private
+     * @example
+     * Feature.isKnownMajor('V6_9_0_0'); // true, upcoming
+     */
+    static isKnownMajor(majorFlag: string): boolean {
+        return this.isRegistered(majorFlag) || UNREGISTERED_UPCOMING_MAJORS.includes(majorFlag.toUpperCase());
+    }
+
+    /**
      * Guards a deprecated API where it is used, like the PHP `Feature::triggerDeprecationOrThrow()`:
      * warns while `majorFlag` is inactive, throws once it is active. An unregistered flag can never
      * become active, so it logs an error instead, unless it is an upcoming major the backend does not register yet.
@@ -72,7 +84,7 @@ export default class Feature {
 
         this.reportedDeprecations.add(message);
 
-        if (this.isRegistered(majorFlag) || UNREGISTERED_UPCOMING_MAJORS.includes(majorFlag.toUpperCase())) {
+        if (this.isKnownMajor(majorFlag)) {
             warn('Deprecation', message);
         } else {
             error(

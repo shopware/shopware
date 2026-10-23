@@ -5,6 +5,7 @@
 import Feature from 'src/core/feature';
 import FeatureService from 'src/app/service/feature.service';
 import normalizeFeatureFlag from '../../_helper_/normalizeFeatureFlag';
+import { recordDeprecation, shouldHandleDeprecationsThroughMock } from '../../_helper_/deprecations';
 
 global.activeFeatureFlags = global.activeFeatureFlags ?? [];
 
@@ -19,5 +20,35 @@ export class FeatureMock extends Feature {
         return global.activeFeatureFlags.some((featureFlag) => normalizeFeatureFlag(featureFlag) === normalizedFlagName);
     }
 }
+
+const productionTriggerDeprecationOrThrow = Feature.triggerDeprecationOrThrow;
+
+/**
+ * Mocks the real `triggerDeprecationOrThrow` and silences deprecations if they are explicitly asserted or allowed
+ */
+function triggerDeprecationOrThrow(majorFlag, message) {
+    // `FeatureMock` knows the flags of `it.activeFeatureFlags()`, a directly imported `Feature` only those a spec
+    // sets with `Feature.init()`: the major counts as active when either does.
+    const feature = FeatureMock.isActive(majorFlag) ? FeatureMock : this;
+
+    if (shouldHandleDeprecationsThroughMock(majorFlag, feature.isActive(majorFlag), this.isKnownMajor(majorFlag))) {
+        recordDeprecation(message);
+        return;
+    }
+
+    productionTriggerDeprecationOrThrow.call(feature, majorFlag, message);
+}
+
+Feature.triggerDeprecationOrThrow = triggerDeprecationOrThrow;
+
+// `jest.resetModules()` keeps module mocks, so a copy of `src/core/feature` loaded after it gets the override and
+// the run's flags too.
+jest.doMock('src/core/feature', () => {
+    const featureModule = jest.requireActual('src/core/feature');
+    featureModule.default.init(Feature.getAll());
+    featureModule.default.triggerDeprecationOrThrow = triggerDeprecationOrThrow;
+
+    return featureModule;
+});
 
 export default new FeatureService(FeatureMock);

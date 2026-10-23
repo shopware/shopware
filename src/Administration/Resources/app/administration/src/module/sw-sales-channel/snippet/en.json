@@ -30,7 +30,7 @@
                 "offline": "Offline"
             },
             "productsLabel": "Products",
-            "productsCount": "products | product | products"
+            "productsCount": "product | products"
         },
         "modal": {
             "title": "Add Sales Channel",

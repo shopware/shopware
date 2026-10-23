@@ -149,6 +149,25 @@ describe('module/sw-settings-message-stats/page/sw-settings-message-stats', () =
         wrapper.unmount();
     });
 
+    it('should render the refresh button in the empty state button slot', async () => {
+        const wrapper = await createWrapper({
+            getStatsMock: jest.fn().mockResolvedValue(mockEmptyStats),
+        });
+
+        await flushPromises();
+
+        const refreshButton = wrapper.find('.mt-empty-state .mt-empty-state__button .mt-button--primary');
+        expect(refreshButton.exists()).toBe(true);
+        expect(refreshButton.text()).toBe('$t_sw-settings-message-stats.general.refreshButton');
+
+        await refreshButton.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.messageStatsService.getStats).toHaveBeenCalledTimes(2);
+
+        wrapper.unmount();
+    });
+
     it('should refresh data when refresh button is clicked', async () => {
         const wrapper = await createWrapper({
             getStatsMock: jest.fn().mockResolvedValue(mockStats),

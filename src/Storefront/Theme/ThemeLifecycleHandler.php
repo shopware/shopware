@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
@@ -130,11 +131,12 @@ class ThemeLifecycleHandler
             return;
         }
 
-        if ($this->themeService->getThemeDependencyMapping($themeId)->count() === 0) {
+        $mappings = $this->themeService->getThemeDependencyMapping($themeId);
+        if ($mappings->count() === 0) {
             return;
         }
 
-        $this->throwAssignmentException($themeId);
+        $this->throwAssignmentException($themeId, $mappings);
     }
 
     private function changeThemeActive(ThemeDependencies $themeData, bool $active, Context $context): void
@@ -203,39 +205,46 @@ class ThemeLifecycleHandler
         return $themes;
     }
 
-    private function throwAssignmentException(string $themeId): void
+    private function throwAssignmentException(string $themeId, ThemeSalesChannelCollection $mappings): void
     {
         $salesChannels = [];
         $themeSalesChannel = [];
-        $themeName = $themeId;
 
         try {
-            /** @var list<array{themeName: string, dthemeName?: string, id: string, dependentId?: string, saleschannelId?: string, saleschannelName?: string, dsaleschannelName?: string, dsaleschannelId?: string}> $themeData */
-            $themeData = $this->connection->fetchAllAssociative(
-                'SELECT theme.name as themeName, childTheme.name as dthemeName, LOWER(HEX(theme.id)) as id,
-                LOWER(HEX(childTheme.id)) as dependentId, LOWER(HEX(tsc.sales_channel_id)) as saleschannelId,
-                sc.name as saleschannelName, dsc.name as dsaleschannelName,
-                LOWER(HEX(dtsc.sales_channel_id)) as dsaleschannelId
-                FROM theme
-                LEFT JOIN theme as childTheme ON childTheme.parent_theme_id = theme.id
-                LEFT JOIN theme_sales_channel as tsc ON theme.id = tsc.theme_id
-                LEFT JOIN sales_channel_translation as sc ON tsc.sales_channel_id = sc.sales_channel_id AND sc.language_id = :langId
-                LEFT JOIN theme_sales_channel as dtsc ON childTheme.id = dtsc.theme_id
-                LEFT JOIN sales_channel_translation as dsc ON dtsc.sales_channel_id = dsc.sales_channel_id AND dsc.language_id = :langId
-                WHERE theme.id = :id',
-                ['id' => Uuid::fromHexToBytes($themeId), 'langId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
+            $themeIds = [$themeId];
+            $salesChannelIds = [];
+            foreach ($mappings as $mapping) {
+                $themeIds[] = $mapping->getThemeId();
+                $salesChannelIds[] = $mapping->getSalesChannelId();
+            }
+
+            /** @var array<string, string> $themeNames */
+            $themeNames = $this->connection->fetchAllKeyValue(
+                'SELECT LOWER(HEX(id)), name FROM theme WHERE id IN (:themeIds)',
+                ['themeIds' => Uuid::fromHexToBytesList(array_unique($themeIds))],
+                ['themeIds' => ArrayParameterType::BINARY],
+            );
+            $salesChannels = $this->connection->fetchAllKeyValue(
+                'SELECT LOWER(HEX(sales_channel_id)), name FROM sales_channel_translation
+                 WHERE sales_channel_id IN (:salesChannelIds) AND language_id = :langId',
+                [
+                    'salesChannelIds' => Uuid::fromHexToBytesList(array_unique($salesChannelIds)),
+                    'langId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                ],
+                ['salesChannelIds' => ArrayParameterType::BINARY],
             );
 
+            $themeName = $themeNames[$themeId] ?? $themeId;
             $childThemeSalesChannel = [];
-            foreach ($themeData as $data) {
-                $themeName = $data['themeName'];
-                if (isset($data['id'], $data['saleschannelId']) && $data['id'] === $themeId) {
-                    $themeSalesChannel[$data['themeName']][] = $data['saleschannelId'];
-                    $salesChannels[$data['saleschannelId']] = $data['saleschannelName'] ?? '';
-                }
-                if (isset($data['dsaleschannelId'], $data['dthemeName'])) {
-                    $childThemeSalesChannel[$data['dthemeName']][] = $data['dsaleschannelId'];
-                    $salesChannels[$data['dsaleschannelId']] = $data['dsaleschannelName'] ?? '';
+            // Describe exactly the recursive assignments that blocked the lifecycle operation.
+            foreach ($mappings as $mapping) {
+                $mappedThemeName = $themeNames[$mapping->getThemeId()] ?? $mapping->getThemeId();
+                $salesChannelId = $mapping->getSalesChannelId();
+                $salesChannels[$salesChannelId] ??= '';
+                if ($mapping->getThemeId() === $themeId) {
+                    $themeSalesChannel[$mappedThemeName][] = $salesChannelId;
+                } else {
+                    $childThemeSalesChannel[$mappedThemeName][] = $salesChannelId;
                 }
             }
         } catch (\Throwable $e) {

@@ -30,7 +30,7 @@
                 "offline": "Offline"
             },
             "productsLabel": "Products",
-            "productsCount": "products | product | products"
+            "productsCount": "product | products"
         },
         "modal": {
             "title": "Add Sales Channel",
@@ -105,6 +105,7 @@
             "labelInputCurrency": "Currency",
             "labelInputLanguage": "Language",
             "labelInputSnippet": "Snippet",
+            "snippetSetGroupOther": "Other snippet sets",
             "labelIsExternalStorefront": "External storefront",
             "helpTextIsExternalStorefront": "SEO URLs are only generated for domains that point to an external storefront. Per language, only one external storefront can be set for a single sales channel.",
             "buttonDeleteDomain": "Delete domain",

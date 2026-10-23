@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\Address\AddressValidator;
+use Shopware\Core\Checkout\Cart\Address\VatIdValidator;
 use Shopware\Core\Checkout\Cart\CachedRuleLoader;
 use Shopware\Core\Checkout\Cart\Calculator;
 use Shopware\Core\Checkout\Cart\CartCalculator;
@@ -74,6 +75,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartItemRemoveRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartItemUpdateRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartReorderRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\SalesChannel\ProductShippingCostRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\ShippingCostRoute;
@@ -99,14 +101,15 @@ use Shopware\Core\Checkout\Gateway\Command\Handler\RemoveShippingMethodCommandHa
 use Shopware\Core\Checkout\Gateway\Command\Registry\CheckoutGatewayCommandRegistry;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute;
 use Shopware\Core\Checkout\Order\OrderAddressService;
+use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Product\Cart\ProductFeatureBuilder;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Content\Product\Cart\ProductLineItemValidator;
+use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
@@ -119,7 +122,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
-use Shopware\Core\Framework\Telemetry\Metrics\Meter;
+use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
@@ -221,7 +224,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Telemetry: cart calculation metrics collaborator
     $services->set(CartMetricsInstrumentor::class)
         ->args([
-            service(Meter::class),
+            service(Telemetry::class),
             service(SalesChannelTypeResolver::class),
         ]);
 
@@ -279,6 +282,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CartLocker::class),
             service(ExtensionDispatcher::class),
             service('request_stack'),
+        ]);
+
+    $services->set(CartReorderRoute::class)
+        ->public()
+        ->args([
+            service(OrderRoute::class),
+            service(CartItemAddRoute::class),
+            service(LineItemFactoryRegistry::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CartOrderRoute::class)
@@ -504,6 +516,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.cart.validator')
         ->tag('kernel.reset', ['method' => 'reset']);
 
+    $services->set(VatIdValidator::class)
+        ->tag('shopware.cart.validator');
+
     $services->set(Validator::class)
         ->args([
             tagged_iterator('shopware.cart.validator'),
@@ -531,6 +546,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(EntityCacheKeyGenerator::class),
             service(Connection::class),
             service('event_dispatcher'),
+            service(GaranLabelResolver::class),
         ])
         ->tag('shopware.cart.processor', ['priority' => 5000])
         ->tag('shopware.cart.collector', ['priority' => 5000]);
@@ -578,7 +594,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('order_delivery.repository'),
             service(Processor::class),
             service(CartRuleLoader::class),
-            service(PromotionItemBuilder::class),
             service(LineItemFactoryRegistry::class),
         ]);
 

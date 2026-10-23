@@ -100,7 +100,23 @@ export default {
                     label: 'sw-settings-customer-group.list.columnDisplayGross',
                     inlineEdit: 'boolean',
                 },
+                {
+                    property: 'priceBasis',
+                    label: 'sw-settings-customer-group.list.columnPriceBasis',
+                    sortable: false,
+                },
+                {
+                    property: 'registrationActive',
+                    label: 'sw-settings-customer-group.list.columnRegistrationActive',
+                    visible: false,
+                },
             ];
+        },
+
+        getPriceBasisLabel(customerGroup) {
+            return customerGroup.priceBasis === 'gross'
+                ? this.$t('sw-settings-customer-group.detail.priceBasis.grossLabel')
+                : this.$t('sw-settings-customer-group.detail.priceBasis.netLabel');
         },
 
         customerGroupCriteriaWithFilter(idsOfSelectedCustomerGroups) {

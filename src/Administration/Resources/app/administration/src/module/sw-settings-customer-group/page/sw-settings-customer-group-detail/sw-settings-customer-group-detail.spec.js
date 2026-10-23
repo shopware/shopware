@@ -13,6 +13,7 @@ const customerGroupRepository = {
             id: '',
             name: '',
             displayGross: false,
+            priceBasis: 'net',
             isNew: () => true,
         };
     },
@@ -22,6 +23,7 @@ const customerGroupRepository = {
             id: '1',
             name: 'Net price customer group',
             displayGross: false,
+            priceBasis: 'net',
             registrationActive: true,
             registrationTitle: 'Foobar',
             registrationSalesChannels: new EntityCollection(
@@ -95,7 +97,7 @@ async function createWrapper(privileges = []) {
                     'sw-container': {
                         template: '<div><slot></slot></div>',
                     },
-                    'sw-boolean-radio-group': true,
+                    'sw-radio-field': await wrapTestComponent('sw-radio-field'),
                     'sw-text-field': {
                         props: [
                             'label',
@@ -194,10 +196,6 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
                 selector: '.sw-settings-customer-group-detail__name',
             },
             {
-                name: 'gross radio group',
-                selector: 'sw-boolean-radio-group-stub',
-            },
-            {
                 name: 'registration form switch',
                 selector: '.sw-settings-customer-group-detail__registration-form-switch',
             },
@@ -261,10 +259,6 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
                 selector: '.sw-settings-customer-group-detail__name',
             },
             {
-                name: 'gross radio group',
-                selector: 'sw-boolean-radio-group-stub',
-            },
-            {
                 name: 'registration form switch',
                 selector: '.sw-settings-customer-group-detail__registration-form-switch',
             },
@@ -299,6 +293,128 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
                 message: 'CTRL + S',
                 appearance: 'light',
             });
+        });
+    });
+
+    describe('tax display and price basis', () => {
+        let wrapper;
+
+        beforeEach(async () => {
+            wrapper = await createWrapper(['customer_groups.editor']);
+            await flushPromises();
+        });
+
+        it('should render both radio groups with a description per option', async () => {
+            const taxDisplay = wrapper.find('.sw-settings-customer-group-detail__tax-display');
+            const priceBasis = wrapper.find('.sw-settings-customer-group-detail__price-basis');
+
+            expect(taxDisplay.find('.sw-field__label label').text()).toBe(
+                'sw-settings-customer-group.detail.taxDisplay.label',
+            );
+            expect(taxDisplay.findAll('.sw-field__radio-option-label span').map((option) => option.text())).toEqual([
+                'sw-settings-customer-group.detail.taxDisplay.grossLabel',
+                'sw-settings-customer-group.detail.taxDisplay.netLabel',
+            ]);
+            expect(
+                taxDisplay.findAll('.sw-field__radio-option-description').map((description) => description.text()),
+            ).toEqual([
+                'sw-settings-customer-group.detail.taxDisplay.grossDescription',
+                'sw-settings-customer-group.detail.taxDisplay.netDescription',
+            ]);
+
+            expect(priceBasis.find('.sw-field__label label').text()).toBe(
+                'sw-settings-customer-group.detail.priceBasis.label',
+            );
+            expect(priceBasis.findAll('.sw-field__radio-option-label span').map((option) => option.text())).toEqual([
+                'sw-settings-customer-group.detail.priceBasis.grossLabel',
+                'sw-settings-customer-group.detail.priceBasis.netLabel',
+            ]);
+            expect(
+                priceBasis.findAll('.sw-field__radio-option-description').map((description) => description.text()),
+            ).toEqual([
+                'sw-settings-customer-group.detail.priceBasis.grossDescription',
+                'sw-settings-customer-group.detail.priceBasis.netDescription',
+            ]);
+        });
+
+        it('should render a section title above the signup form switch', async () => {
+            expect(wrapper.find('.sw-settings-customer-group-detail__registration-form-title').text()).toBe(
+                'sw-settings-customer-group.detail.registrationFormTitle',
+            );
+        });
+
+        it.each([
+            [
+                false,
+                'net',
+                'net',
+                'net',
+            ],
+            [
+                true,
+                'gross',
+                'gross',
+                'gross',
+            ],
+            [
+                false,
+                'gross',
+                'net',
+                'gross',
+            ],
+            [
+                true,
+                'net',
+                'gross',
+                'net',
+            ],
+        ])(
+            'should check the stored values for displayGross %s and price basis %s',
+            async (displayGross, priceBasis, checkedTaxDisplay, checkedPriceBasis) => {
+                wrapper.vm.customerGroup.displayGross = displayGross;
+                wrapper.vm.customerGroup.priceBasis = priceBasis;
+                await flushPromises();
+
+                expect(
+                    wrapper
+                        .find('.sw-settings-customer-group-detail__tax-display')
+                        .find('.sw-field__radio-option-checked .sw-field__radio-option-label span')
+                        .text(),
+                ).toBe(`sw-settings-customer-group.detail.taxDisplay.${checkedTaxDisplay}Label`);
+                expect(
+                    wrapper
+                        .find('.sw-settings-customer-group-detail__price-basis')
+                        .find('.sw-field__radio-option-checked .sw-field__radio-option-label span')
+                        .text(),
+                ).toBe(`sw-settings-customer-group.detail.priceBasis.${checkedPriceBasis}Label`);
+            },
+        );
+
+        it('should write the tax display without touching the basis', async () => {
+            await wrapper.findAll('input[name="sw-field--customerGroup-displayGross"]').at(0).setValue();
+            await flushPromises();
+
+            expect(wrapper.vm.customerGroup.displayGross).toBe(true);
+            expect(wrapper.vm.customerGroup.priceBasis).toBe('net');
+        });
+
+        it('should write the basis without touching the tax display', async () => {
+            await wrapper.findAll('input[name="sw-field--customerGroup-priceBasis"]').at(0).setValue();
+            await flushPromises();
+
+            expect(wrapper.vm.customerGroup.priceBasis).toBe('gross');
+            expect(wrapper.vm.customerGroup.displayGross).toBe(false);
+        });
+
+        it('should only be editable with edit permission', async () => {
+            expect(wrapper.find('.sw-settings-customer-group-detail__tax-display').classes()).not.toContain('is--disabled');
+            expect(wrapper.find('.sw-settings-customer-group-detail__price-basis').classes()).not.toContain('is--disabled');
+
+            wrapper = await createWrapper();
+            await flushPromises();
+
+            expect(wrapper.find('.sw-settings-customer-group-detail__tax-display').classes()).toContain('is--disabled');
+            expect(wrapper.find('.sw-settings-customer-group-detail__price-basis').classes()).toContain('is--disabled');
         });
     });
 

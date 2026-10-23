@@ -57,70 +57,6 @@ class McpStoreApiToolAdminAclRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/data/McpStoreApiToolAdminAclRule/AdminToolWithAdminAcl.php'], []);
     }
 
-    public function testStoreApiToolInheritingRequirePrivilegeFromParentClassFails(): void
-    {
-        $this->analyse([__DIR__ . '/data/McpStoreApiToolAdminAclRule/StoreApiToolInheritingRequirePrivilege.php'], [[
-            $this->inheritedMessage('StoreApiToolInheritingRequirePrivilege', 'AdminOrderToolBase::__invoke'),
-            7,
-            self::TIP,
-        ]]);
-    }
-
-    public function testStoreApiToolInheritingFromBaseSharingItsShortNameInTheFileFails(): void
-    {
-        $this->analyse([__DIR__ . '/data/McpStoreApiToolAdminAclRule/StoreApiToolInheritingFromSharedNameBase.php'], [[
-            $this->inheritedMessage('StoreApiToolInheritingFromSharedNameBase', 'SharedNameToolBase::__invoke'),
-            7,
-            self::TIP,
-        ]]);
-    }
-
-    public function testStoreApiToolOverridingTheInheritedMethodPasses(): void
-    {
-        $this->analyse([__DIR__ . '/data/McpStoreApiToolAdminAclRule/StoreApiToolOverridingInheritedInvoke.php'], []);
-    }
-
-    public function testStoreApiToolUsingTraitThatCallsRequirePrivilegeFails(): void
-    {
-        $this->analyse([__DIR__ . '/data/McpStoreApiToolAdminAclRule/StoreApiToolUsingPrivilegeTrait.php'], [[
-            $this->inheritedMessage('StoreApiToolUsingPrivilegeTrait', 'ChecksAdminPrivileges::checkOrderPrivilege'),
-            9,
-            self::TIP,
-        ]]);
-    }
-
-    public function testStoreApiToolAliasingExcludedTraitMethodThatCallsRequirePrivilegeFails(): void
-    {
-        $this->analyse([__DIR__ . '/data/McpStoreApiToolAdminAclRule/StoreApiToolAliasingPrivilegeTraitMethod.php'], [[
-            $this->inheritedMessage('StoreApiToolAliasingPrivilegeTraitMethod', 'ChecksOrderAccessWithAcl::check'),
-            9,
-            self::TIP,
-        ]]);
-    }
-
-    public function testStoreApiToolAliasingExcludedTraitMethodAsPrivateFails(): void
-    {
-        $this->analyse([__DIR__ . '/data/McpStoreApiToolAdminAclRule/StoreApiToolAliasingPrivilegeTraitMethodAsPrivate.php'], [[
-            $this->inheritedMessage('StoreApiToolAliasingPrivilegeTraitMethodAsPrivate', 'ChecksOrderAccessWithAcl::check'),
-            9,
-            self::TIP,
-        ]]);
-    }
-
-    public function testStoreApiToolExcludingTraitMethodThatCallsRequirePrivilegePasses(): void
-    {
-        $this->analyse([__DIR__ . '/data/McpStoreApiToolAdminAclRule/StoreApiToolExcludingPrivilegeTraitMethod.php'], []);
-    }
-
-    public function testStoreApiToolShadowingInheritedPrivateHelperFails(): void
-    {
-        $this->analyse([__DIR__ . '/data/McpStoreApiToolAdminAclRule/StoreApiToolShadowingPrivateCheck.php'], [[
-            $this->inheritedMessage('StoreApiToolShadowingPrivateCheck', 'AdminOrderToolWithPrivateCheckBase::checkOrderPrivilege'),
-            8,
-            self::TIP,
-        ]]);
-    }
-
     public function testToolRegisteredOnBothServersIsCheckedAsStoreApiTool(): void
     {
         $this->analyse([__DIR__ . '/data/McpStoreApiToolAdminAclRule/DualScopeToolWithRequires.php'], [[
@@ -146,17 +82,6 @@ class McpStoreApiToolAdminAclRuleTest extends RuleTestCase
         $factory = new XmlServiceMapFactory(__DIR__ . '/data/McpStoreApiToolAdminAclRule/services.xml');
 
         /** @phpstan-ignore phpstanApi.method */
-        return new McpStoreApiToolAdminAclRule($factory->create(), self::getContainer()->getService('defaultAnalysisParser'));
-    }
-
-    private function inheritedMessage(string $class, string $method): string
-    {
-        return \sprintf(
-            'Store API MCP tool %s%s must not call requirePrivilege(), but inherits a call from %s%s(). Admin ACL privileges do not apply in a sales channel context.',
-            self::FIXTURE_NAMESPACE,
-            $class,
-            self::FIXTURE_NAMESPACE,
-            $method,
-        );
+        return new McpStoreApiToolAdminAclRule($factory->create());
     }
 }

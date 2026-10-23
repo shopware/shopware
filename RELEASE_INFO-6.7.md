@@ -78,7 +78,7 @@ The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physica
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
 
-### PHPStan rules for MCP tool privileges
+### Opt-out attribute for MCP tools without privileges
 
 Two new rules in the Shopware PHPStan rule set check the privileges of MCP tools from plugins and bundles:
 
@@ -128,6 +128,9 @@ That route now validates `vatIds` against the country of the active billing addr
 Headless clients find that address as `customer.activeBillingAddress` in `/store-api/context`.
 The Storefront profile page marks the VAT ID field as required based on the same country.
 A tool class registered on both servers is checked by both rules, so it can only declare `#[McpToolRequiresNoPrivilege]`.
+An Admin API MCP tool that reads no shop data can now declare `#[McpToolRequiresNoPrivilege(reason: '...')]` instead of `#[McpToolRequires]`.
+The new PHPStan rule `shopware.mcpAdminToolMissingRequires` reports an Admin API tool that declares neither attribute,
+and `shopware.mcpStoreApiToolAdminAcl` reports a Store API tool that uses Admin ACL privileges.
 
 ### Remote thumbnails skip SVGs
 

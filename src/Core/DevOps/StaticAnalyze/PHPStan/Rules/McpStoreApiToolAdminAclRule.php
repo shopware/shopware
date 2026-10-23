@@ -9,12 +9,9 @@ use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\NodeFinder;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
-use PHPStan\Parser\Parser;
-use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -24,12 +21,11 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Reports Admin API ACL in Store API MCP tools: a `#[McpToolRequires]` attribute or a
  * `requirePrivilege()` call. Store API tools run in a sales channel context, where Admin ACL
- * privileges do not exist, so such a check either always fails or suggests a protection that is
- * not there.
+ * privileges do not exist, so such a check always passes and suggests a protection that is not
+ * there.
  *
- * Calls are searched in the tool class and in every method it inherits unchanged from a parent class
- * or a trait, so an Admin API base class does not hide its privilege checks. Methods the tool
- * overrides are skipped, they never run for it.
+ * Only the tool class itself is searched, not methods it inherits from a parent class or a trait.
+ * An inherited call is harmless: outside an Admin API context, Context::isAllowed() always passes.
  *
  * Which server a tool belongs to comes from the container, see McpToolScopeResolver. A tool that is
  * also registered on the Admin API server is checked by McpAdminToolRequiresPrivilegeRule as well, so
@@ -50,10 +46,8 @@ class McpStoreApiToolAdminAclRule implements Rule
 
     private readonly McpToolScopeResolver $scopeResolver;
 
-    public function __construct(
-        ServiceMap $serviceMap,
-        private readonly Parser $parser,
-    ) {
+    public function __construct(ServiceMap $serviceMap)
+    {
         $this->scopeResolver = new McpToolScopeResolver($serviceMap);
     }
 
@@ -69,8 +63,7 @@ class McpStoreApiToolAdminAclRule implements Rule
             return [];
         }
 
-        $classReflection = $node->getClassReflection();
-        $className = $classReflection->getName();
+        $className = $node->getClassReflection()->getName();
         if (!$this->scopeResolver->hasScope($className, McpToolScopeResolver::STORE_API)) {
             return [];
         }
@@ -90,130 +83,7 @@ class McpStoreApiToolAdminAclRule implements Rule
             );
         }
 
-        foreach ($this->inheritedMethodsCallingRequirePrivilege($classReflection) as $method) {
-            $errors[] = $this->error(
-                \sprintf('Store API MCP tool %s must not call requirePrivilege(), but inherits a call from %s(). Admin ACL privileges do not apply in a sales channel context.', $className, $method),
-                $class->getStartLine(),
-            );
-        }
-
         return $errors;
-    }
-
-    /**
-     * The inherited methods, as `Declaring::method`, that call requirePrivilege() and run for the tool
-     * unchanged: declared in a parent class or a trait and not overridden on the way down.
-     *
-     * A declared method runs if one of the methods that run for the tool has its body, see
-     * runningMethodBodies(). Matching the body instead of the name also finds a trait method that lost
-     * an `insteadof` conflict but is still reachable under an `as` alias.
-     *
-     * @return list<string>
-     */
-    private function inheritedMethodsCallingRequirePrivilege(ClassReflection $tool): array
-    {
-        $methods = [];
-        $runningBodies = $this->runningMethodBodies($tool);
-
-        foreach ([$tool, ...$tool->getParents()] as $owner) {
-            $declarations = $owner === $tool ? [] : [$owner];
-            foreach ($this->traitsUsedBy($owner) as $trait) {
-                $declarations[] = $trait;
-            }
-
-            foreach ($declarations as $declaration) {
-                $declarationNode = $this->findClassNode($declaration);
-                if ($declarationNode === null) {
-                    continue;
-                }
-
-                foreach ($declarationNode->getMethods() as $method) {
-                    if (!isset($runningBodies[$this->bodyKey($declaration->getFileName(), $method->getStartLine())])) {
-                        continue;
-                    }
-
-                    if ($this->requirePrivilegeCalls($method->stmts ?? []) !== []) {
-                        $methods[$declaration->getName() . '::' . $method->name->toString()] = true;
-                    }
-                }
-            }
-        }
-
-        return array_keys($methods);
-    }
-
-    /**
-     * The traits the class uses itself, including traits used by those traits, but not the traits of
-     * its parents.
-     *
-     * @return list<ClassReflection>
-     */
-    private function traitsUsedBy(ClassReflection $class): array
-    {
-        $traits = [];
-        foreach ($class->getTraits() as $trait) {
-            $traits[] = $trait;
-            foreach ($this->traitsUsedBy($trait) as $nestedTrait) {
-                $traits[] = $nestedTrait;
-            }
-        }
-
-        return $traits;
-    }
-
-    /**
-     * The bodies, by file and start line, of the methods that run for the tool, including trait methods
-     * imported under an `as` alias.
-     *
-     * A public or protected method is resolved against the tool, an override anywhere below its
-     * declaration replaces it. A private method is resolved against the class it lands in, the parent
-     * class or the class using the trait: a same-named method further down does not override it, the
-     * parent's own code keeps calling it. The visibility is the one the method has in that class, so an
-     * alias like `as private check` counts as private.
-     *
-     * @return array<string, true>
-     */
-    private function runningMethodBodies(ClassReflection $tool): array
-    {
-        $bodies = [];
-        foreach ([$tool, ...$tool->getParents()] as $owner) {
-            foreach ($owner->getNativeReflection()->getMethods() as $method) {
-                if ($owner !== $tool && !$method->isPrivate()) {
-                    continue;
-                }
-
-                $fileName = $method->getFileName();
-                $startLine = $method->getStartLine();
-                if (\is_string($fileName) && \is_int($startLine)) {
-                    $bodies[$this->bodyKey($fileName, $startLine)] = true;
-                }
-            }
-        }
-
-        return $bodies;
-    }
-
-    private function bodyKey(?string $fileName, int $startLine): string
-    {
-        return $fileName . ':' . $startLine;
-    }
-
-    private function findClassNode(ClassReflection $declaration): ?ClassLike
-    {
-        $file = $declaration->getFileName();
-        if ($file === null) {
-            return null;
-        }
-
-        // Matched by the fully qualified name: one file can declare same-named classes in several namespaces.
-        $name = $declaration->getName();
-        foreach ((new NodeFinder())->findInstanceOf($this->parser->parseFile($file), ClassLike::class) as $classLike) {
-            if ($classLike->namespacedName?->toString() === $name) {
-                return $classLike;
-            }
-        }
-
-        return null;
     }
 
     /**

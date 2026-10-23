@@ -105,24 +105,27 @@ For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-
 
 ## Security Fixes
 
-### `sw-app-user-id` only narrows permissions for non-app integrations
+### Integrations no longer act as the user named in `sw-app-user-id`
 
-For an Admin API request authenticated with a non-app integration access key, the `sw-app-user-id` header only narrows the resolved permissions to the intersection of the integration and the named user's privileges.
-The request keeps the integration as its identity, so `getUserId()` is `null` and `createdBy`/`updatedBy` are no longer set to the named user.
-Admin API routes that require a signed-in user therefore reject such a request; use a user access key, or the regular user endpoints, when a user identity is needed.
-This also applies to routes beyond the list below, for example `POST /api/_proxy/generate-imitate-customer-token`.
-Naming an inactive or unknown user narrows the permissions to none.
-For app integrations the header still resolves the named user, except that an inactive user is now treated like a user without the required app privilege.
-An inactive app resolves no permissions at all, also for a token issued before the app was deactivated.
+A standard integration that sends the `sw-app-user-id` header keeps its own identity.
+The header only narrows its permissions to those of the named user, and writes are attributed to the integration.
+Naming an inactive or unknown user narrows the permissions to none, and an inactive app resolves no permissions at all.
+An app integration still acts for the named user, except that an inactive user is now treated like a user without the required app privilege.
 
-### Self-service routes require a directly authenticated user
+The following routes reject every integration, including an app that names a user, with a `403` and the error code `FRAMEWORK__API_EXPECTED_USER`:
 
-`GET`/`PATCH /api/_info/me`, `GET /api/_info/ping`, `POST /api/_action/user/logout`, `GET`/`POST`/`PATCH /api/_info/config-me` and `POST /api/oauth/authorize` now require a directly authenticated Administration user.
-A request authenticated as an integration, including an app integration naming a user, is rejected with a `403` and the error code `FRAMEWORK__API_EXPECTED_USER`.
-Deleting a user (`DELETE /api/user/{id}`) and creating or updating one (`POST /api/user`, `PATCH /api/user/{id}`) no longer treat an integration naming that user as a self-service change.
-Integrations use the regular user endpoints with the matching privilege instead, for example `PATCH /api/user/{id}` with `user:update`.
+- `GET`/`PATCH /api/_info/me`
+- `GET /api/_info/ping`
+- `POST /api/_action/user/logout`
+- `GET`/`POST`/`PATCH /api/_info/config-me`
+- `POST /api/oauth/authorize`
 
-# 6.7.16.0
+Other routes that require a user id answer the same `403`, for example `POST /api/_proxy/generate-imitate-customer-token`.
+`DELETE /api/user/{id}` and `POST /api/user`, `PATCH /api/user/{id}` no longer treat an integration naming that user as a self-service change.
+To read a user, use `GET /api/user/{id}` with `user:read`.
+To change a user, use `PATCH /api/user/{id}` with `user:update`.
+
+# 6.7.16.0 (upcoming)
 
 ## Critical Fixes
 

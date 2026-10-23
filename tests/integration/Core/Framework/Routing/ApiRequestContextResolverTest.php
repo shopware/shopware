@@ -743,7 +743,7 @@ class ApiRequestContextResolverTest extends TestCase
         static::assertFalse($source->isAllowed('order:read'));
     }
 
-    public function testStandardIntegrationCannotImpersonateAdminViaUserIdHeader(): void
+    public function testStandardIntegrationNamingAdminKeepsIntegrationIdentity(): void
     {
         $ids = new IdsCollection();
 

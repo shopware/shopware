@@ -220,6 +220,11 @@ The reorder form posts only the order, so product number, quantity, brand and ca
 `add_shipping_info` and `add_payment_info` are now reported once per selected method of a checkout, instead of on every reload of the confirm page.
 A new customer reports `add_shipping_info` when registering in the checkout.
 
+### Storefront analytics report item variants and graduated prices
+
+Storefront analytics now report the selected options of a variant as `item_variant`.
+`add_to_cart` on the product detail page reports the graduated price of the quantity the cart holds after the add.
+
 ## Hosting & Configuration
 
 ### Storefront readiness checks skip pages restricted by extensions

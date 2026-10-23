@@ -69,7 +69,7 @@ export default {
 
         fetchSalesChannels() {
             const salesChannelIds = this.config.map((config) => config.id);
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, null);
 
             criteria.addFilter(Criteria.equalsAny('id', salesChannelIds));
 

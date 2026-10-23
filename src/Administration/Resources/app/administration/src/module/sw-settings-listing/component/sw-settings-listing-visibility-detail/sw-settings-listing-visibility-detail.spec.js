@@ -37,8 +37,11 @@ async function createWrapper(props = defaultProps) {
                 provide: {
                     repositoryFactory: {
                         create: () => ({
-                            search: () => {
-                                return Promise.resolve(createEntityCollection([...props.salesChannels]));
+                            // like the API, only return as many sales channels as the criteria asks for
+                            search: (criteria) => {
+                                return Promise.resolve(
+                                    createEntityCollection(props.salesChannels.slice(0, criteria.limit ?? undefined)),
+                                );
                             },
                         }),
                     },
@@ -113,5 +116,22 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-visibilit
         expect(nameElement.exists()).toBe(true);
         expect(nameElement.text().endsWith('...')).toBe(true);
         expect(nameElement.attributes()['tooltip-mock-message']).toBe(name);
+    });
+
+    it('should show the name of every configured sales channel, also beyond the first 25', async () => {
+        const salesChannels = Array.from({ length: 30 }, (_, index) => ({
+            id: `sales-channel-${index}`,
+            name: `Sales channel ${index}`,
+        }));
+
+        const wrapper = await createWrapper({
+            salesChannels,
+            config: salesChannels.map(({ id }) => ({ id, visibility: 30 })),
+        });
+        await flushPromises();
+
+        const config = await wrapper.vm.fetchSalesChannels();
+
+        expect(config.map(({ name }) => name)).toEqual(salesChannels.map(({ name }) => name));
     });
 });

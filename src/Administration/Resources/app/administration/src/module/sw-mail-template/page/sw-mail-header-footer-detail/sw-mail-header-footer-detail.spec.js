@@ -139,4 +139,25 @@ describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
             appearance: 'light',
         });
     });
+
+    it('should find every selected sales channel that already uses another header and footer, also beyond 25', async () => {
+        wrapper = await createWrapper(['mail_templates.editor']);
+        await flushPromises();
+
+        const salesChannels = Array.from({ length: 30 }, (_, index) => ({
+            id: `sales-channel-${index}`,
+            name: `Sales channel ${index}`,
+            mailHeaderFooterId: 'another-header-footer',
+        }));
+        wrapper.vm.mailHeaderFooter = { ...mailHeaderFooterMock, salesChannels };
+
+        // like the API, only return as many sales channels as the criteria asks for
+        jest.spyOn(wrapper.vm.salesChannelRepository, 'search').mockImplementation((criteria) =>
+            Promise.resolve(salesChannels.slice(0, criteria.limit ?? undefined)),
+        );
+
+        await wrapper.vm.findAlreadyAssignedSalesChannels();
+
+        expect(wrapper.vm.alreadyAssignedSalesChannels).toHaveLength(30);
+    });
 });

@@ -115,7 +115,7 @@ export default {
             try {
                 const [languages, salesChannels, tags] = await Promise.all([
                     this.repositoryFactory.create('language').search(criteria, Shopware.Context.api),
-                    this.salesChannelRepository.search(criteria),
+                    this.salesChannelRepository.search(new Criteria(1, null)),
                     this.tagRepository.search(criteria),
                 ]);
 

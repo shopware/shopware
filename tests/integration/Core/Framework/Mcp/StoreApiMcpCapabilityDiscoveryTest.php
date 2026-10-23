@@ -113,6 +113,27 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
         );
     }
 
+    public function testStoreApiInitializeDeclaresToolsListChanged(): void
+    {
+        $browser = $this->createSalesChannelBrowser();
+        $browser->request('POST', '/store-api/_mcp', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+            'jsonrpc' => '2.0',
+            'method' => 'initialize',
+            'params' => [
+                'protocolVersion' => '2025-06-18',
+                'capabilities' => new \stdClass(),
+                'clientInfo' => ['name' => 'store-api-mcp-discovery-test', 'version' => '1.0'],
+            ],
+            'id' => 1,
+        ], \JSON_THROW_ON_ERROR));
+
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($response);
+
+        // shopware-toolset-enable queues notifications/tools/list_changed on this era.
+        static::assertTrue($response['result']['capabilities']['tools']['listChanged'] ?? null);
+    }
+
     public function testStoreApiToolResultsGoThroughTheResultRenderer(): void
     {
         $browser = $this->createSalesChannelBrowser();

@@ -1,0 +1,195 @@
+diff --git a/src/Core/System/DependencyInjection/user.php b/src/Core/System/DependencyInjection/user.php
+index 8e44e86..0f24183 100644
+--- a/src/Core/System/DependencyInjection/user.php
++++ b/src/Core/System/DependencyInjection/user.php
+@@ -2,6 +2,7 @@
+ 
+ namespace Shopware\Core\System\DependencyInjection;
+ 
++use Doctrine\DBAL\Connection;
+ use Psr\Clock\ClockInterface;
+ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+ use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition;
+@@ -9,6 +10,8 @@ use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition;
+ use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
+ use Shopware\Core\System\User\Api\UserRecoveryController;
+ use Shopware\Core\System\User\Api\UserValidationController;
++use Shopware\Core\System\User\Recovery\CleanupUserRecoveryTask;
++use Shopware\Core\System\User\Recovery\CleanupUserRecoveryTaskHandler;
+ use Shopware\Core\System\User\Recovery\UserRecoveryService;
+ use Shopware\Core\System\User\Service\UserValidationService;
+ use Shopware\Core\System\User\UserDefinition;
+@@ -42,6 +45,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
+             service(ClockInterface::class),
+         ]);
+ 
++    $services->set(CleanupUserRecoveryTask::class)
++        ->tag('shopware.scheduled.task');
++
++    $services->set(CleanupUserRecoveryTaskHandler::class)
++        ->args([
++            service('scheduled_task.repository'),
++            service('logger'),
++            service(Connection::class),
++            service(ClockInterface::class),
++        ])
++        ->tag('messenger.message_handler');
++
+     $services->set(UserRecoveryController::class)
+         ->public()
+         ->args([
+diff --git a/src/Core/System/User/Recovery/CleanupUserRecoveryTask.php b/src/Core/System/User/Recovery/CleanupUserRecoveryTask.php
+new file mode 100644
+index 0000000..22bb2f5
+--- /dev/null
++++ b/src/Core/System/User/Recovery/CleanupUserRecoveryTask.php
+@@ -0,0 +1,25 @@
++<?php declare(strict_types=1);
++
++namespace Shopware\Core\System\User\Recovery;
++
++use Shopware\Core\Framework\Log\Package;
++use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
++
++#[Package('fundamentals@framework')]
++class CleanupUserRecoveryTask extends ScheduledTask
++{
++    public static function getTaskName(): string
++    {
++        return 'user.cleanup_user_recovery';
++    }
++
++    public static function getDefaultInterval(): int
++    {
++        return self::DAILY;
++    }
++
++    public static function shouldRescheduleOnFailure(): bool
++    {
++        return true;
++    }
++}
+diff --git a/src/Core/System/User/Recovery/CleanupUserRecoveryTaskHandler.php b/src/Core/System/User/Recovery/CleanupUserRecoveryTaskHandler.php
+new file mode 100644
+index 0000000..ac3074b
+--- /dev/null
++++ b/src/Core/System/User/Recovery/CleanupUserRecoveryTaskHandler.php
+@@ -0,0 +1,60 @@
++<?php declare(strict_types=1);
++
++namespace Shopware\Core\System\User\Recovery;
++
++use Doctrine\DBAL\Connection;
++use Doctrine\DBAL\ParameterType;
++use Psr\Clock\ClockInterface;
++use Psr\Log\LoggerInterface;
++use Shopware\Core\Defaults;
++use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
++use Shopware\Core\Framework\Log\Package;
++use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
++use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
++use Symfony\Component\Messenger\Attribute\AsMessageHandler;
++
++/**
++ * Removes Administration password recovery entries that can no longer be used.
++ * UserRecoveryService::checkHash() accepts a hash for two hours; entries are kept for 48 hours,
++ * the same window as the customer recovery cleanup.
++ *
++ * @internal
++ */
++#[Package('fundamentals@framework')]
++#[AsMessageHandler(handles: CleanupUserRecoveryTask::class)]
++final class CleanupUserRecoveryTaskHandler extends ScheduledTaskHandler
++{
++    private const BATCH_SIZE = 1000;
++
++    /**
++     * @internal
++     *
++     * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
++     */
++    public function __construct(
++        EntityRepository $scheduledTaskRepository,
++        LoggerInterface $logger,
++        private readonly Connection $connection,
++        private readonly ClockInterface $clock,
++    ) {
++        parent::__construct($scheduledTaskRepository, $logger);
++    }
++
++    public function run(): void
++    {
++        $threshold = $this->clock->now()->modify('-48 hour');
++
++        do {
++            $result = $this->connection->executeStatement(
++                'DELETE FROM user_recovery WHERE created_at <= :timestamp LIMIT :limit',
++                [
++                    'timestamp' => $threshold->format(Defaults::STORAGE_DATE_TIME_FORMAT),
++                    'limit' => self::BATCH_SIZE,
++                ],
++                [
++                    'limit' => ParameterType::INTEGER,
++                ]
++            );
++        } while ($result >= self::BATCH_SIZE);
++    }
++}
+diff --git a/tests/unit/Core/System/User/Recovery/CleanupUserRecoveryTaskHandlerTest.php b/tests/unit/Core/System/User/Recovery/CleanupUserRecoveryTaskHandlerTest.php
+new file mode 100644
+index 0000000..2296b51
+--- /dev/null
++++ b/tests/unit/Core/System/User/Recovery/CleanupUserRecoveryTaskHandlerTest.php
+@@ -0,0 +1,52 @@
++<?php declare(strict_types=1);
++
++namespace Shopware\Tests\Unit\Core\System\User\Recovery;
++
++use Doctrine\DBAL\Connection;
++use Doctrine\DBAL\ParameterType;
++use PHPUnit\Framework\Attributes\CoversClass;
++use PHPUnit\Framework\TestCase;
++use Psr\Log\NullLogger;
++use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
++use Shopware\Core\Framework\Log\Package;
++use Shopware\Core\System\User\Recovery\CleanupUserRecoveryTask;
++use Shopware\Core\System\User\Recovery\CleanupUserRecoveryTaskHandler;
++use Symfony\Component\Clock\MockClock;
++
++/**
++ * @internal
++ */
++#[Package('fundamentals@framework')]
++#[CoversClass(CleanupUserRecoveryTaskHandler::class)]
++#[CoversClass(CleanupUserRecoveryTask::class)]
++class CleanupUserRecoveryTaskHandlerTest extends TestCase
++{
++    public function testDeletesEntriesOlderThan48HoursInBatches(): void
++    {
++        $connection = $this->createMock(Connection::class);
++        $connection->expects($this->exactly(3))
++            ->method('executeStatement')
++            ->with(
++                'DELETE FROM user_recovery WHERE created_at <= :timestamp LIMIT :limit',
++                ['timestamp' => '2026-10-07 12:00:00.000', 'limit' => 1000],
++                ['limit' => ParameterType::INTEGER]
++            )
++            ->willReturnOnConsecutiveCalls(1000, 1000, 3);
++
++        $handler = new CleanupUserRecoveryTaskHandler(
++            static::createStub(EntityRepository::class),
++            new NullLogger(),
++            $connection,
++            new MockClock('2026-10-09 12:00:00'),
++        );
++
++        $handler->run();
++    }
++
++    public function testTaskRunsDailyAndReschedulesOnFailure(): void
++    {
++        static::assertSame('user.cleanup_user_recovery', CleanupUserRecoveryTask::getTaskName());
++        static::assertSame(CleanupUserRecoveryTask::DAILY, CleanupUserRecoveryTask::getDefaultInterval());
++        static::assertTrue(CleanupUserRecoveryTask::shouldRescheduleOnFailure());
++    }
++}

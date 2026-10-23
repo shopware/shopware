@@ -46,6 +46,7 @@ use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Shopware\Core\Framework\Mcp\Notification\AppMcpCapabilityDetector;
 use Shopware\Core\Framework\Mcp\Notification\AppMcpCapabilityLifecycleSubscriber;
+use Shopware\Core\Framework\Mcp\Notification\McpHandshakeListChangedSubscriber;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
 use Shopware\Core\Framework\Mcp\Notification\McpListVersions;
 use Shopware\Core\Framework\Mcp\Prompt\ShopwareContextPrompt;
@@ -127,6 +128,9 @@ return static function (ContainerConfigurator $container): void {
             service(AppMcpCapabilityDetector::class),
             service(McpListChangedNotifier::class),
         ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(McpHandshakeListChangedSubscriber::class)
         ->tag('kernel.event_subscriber');
 
     $services->set(McpContextProvider::class)

@@ -11,7 +11,6 @@ use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
 use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsEntity;
@@ -69,12 +68,14 @@ class AnalyticsControllerTest extends TestCase
         static::assertSame('[]', $response->getContent());
     }
 
-    public function testLetsOtherErrorsThrough(): void
+    public function testLetsAMissingProductThrough(): void
     {
-        $route = static::createStub(AbstractBreadcrumbRoute::class);
-        $route->method('load')->willThrowException(BreadcrumbException::productNotFound(Uuid::randomHex()));
+        $error = BreadcrumbException::productNotFound(Uuid::randomHex());
 
-        $this->expectException(ShopwareHttpException::class);
+        $route = static::createStub(AbstractBreadcrumbRoute::class);
+        $route->method('load')->willThrowException($error);
+
+        $this->expectExceptionObject($error);
 
         $this->controller($route)->productCategories(new Request(['productId' => Uuid::randomHex()]), $this->contextWithAnalytics());
     }

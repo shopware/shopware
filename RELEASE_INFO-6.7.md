@@ -131,12 +131,12 @@ Tracking setups have to adapt to these changes:
 * The event `value` of cart, checkout and `purchase` events is the position price including promotion discounts, and the applied promotion codes are reported as `coupon`.
   Discounts are no longer reported as items.
 * `login` and `sign_up` are reported again, and adding a product by its number on the cart page reports `add_to_cart`.
-  They stopped working with 6.6.10.0 and 6.7.11.0, when these forms changed.
   `login` is now reported on the page after the login and only for a successful login, so a wrong password no longer counts as a login.
   The same holds for `sign_up`, which a guest checkout no longer reports.
   A guest who creates an account with "Create account" on the checkout finish page reports `sign_up` as well.
 
 The `.hidden-line-items-information` element is only rendered for a sales channel with active analytics.
+Its block `component_hidden_line_item_information` is only rendered for product line items, and `LineItemHelper.getLineItems()` returns items with the GA4 keys `item_id`, `item_name` and `item_brand`.
 The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html) describes the full payload.
 
 ### Storefront analytics recognize product elements of extensions
@@ -168,7 +168,7 @@ Storefront analytics now report the selected options of a variant as `item_varia
 
 For a product the page breadcrumb does not describe, such as on the homepage or the wishlist, or in a product slider of a category page, `add_to_cart` and the wishlist events now report the categories of the product.
 They are requested from the new HTTP cached route `frontend.analytics.product-categories`, which returns a 404 for a sales channel without active analytics.
-The browser keeps the requested categories in the local storage under `swGaProductCategories`, so the cart, checkout and purchase events report them as well without requesting anything.
+The cart, checkout and purchase events report these categories as well, without requesting them again.
 
 The wishlist page holds the removal of a product back for at most one second, until `remove_from_wishlist` is sent.
 

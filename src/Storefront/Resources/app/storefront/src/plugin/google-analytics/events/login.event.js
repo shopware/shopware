@@ -49,6 +49,9 @@ export default class LoginEvent extends EventAwareAnalyticsEvent
         SessionStorage.setItem(PENDING_LOGIN_KEY, '1');
     }
 
+    /**
+     * @private
+     */
     _reportPendingLogin() {
         if (!SessionStorage.getItem(PENDING_LOGIN_KEY)) {
             return;

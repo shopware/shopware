@@ -146,6 +146,17 @@ class VatIdPatternProvider implements ResetInterface
         return $deliveryCountryIso === $this->getSellerState($salesChannelId);
     }
 
+    public function getSellerCountryId(string $salesChannelId): string
+    {
+        if ($salesChannelId === '') {
+            return '';
+        }
+
+        $countryId = $this->systemConfigService->getString(self::SELLER_COUNTRY_CONFIG_KEY, $salesChannelId);
+
+        return strtolower($countryId !== '' ? $countryId : $this->getSalesChannelCountryId($salesChannelId));
+    }
+
     /**
      * @param array<mixed>|null $vatIds
      */
@@ -230,13 +241,7 @@ class VatIdPatternProvider implements ResetInterface
             return null;
         }
 
-        $countryId = $this->systemConfigService->getString(self::SELLER_COUNTRY_CONFIG_KEY, $salesChannelId);
-
-        if ($countryId === '') {
-            $countryId = $this->getSalesChannelCountryId($salesChannelId);
-        }
-
-        $iso = array_search(strtolower($countryId), $this->getEuCountryIds(), true);
+        $iso = array_search($this->getSellerCountryId($salesChannelId), $this->getEuCountryIds(), true);
 
         return $iso === false ? null : $iso;
     }

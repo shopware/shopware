@@ -391,6 +391,16 @@ class InvoiceDataProviderTest extends TestCase
         static::assertFalse($this->resolveIntraCommunityDelivery(['NL123456789B01', 'INVALID']));
     }
 
+    public function testASellerVatIdDropsTheIntraCommunityNoteWithoutPatternValidation(): void
+    {
+        static::assertFalse($this->resolveIntraCommunityDelivery(['DE123456789'], checkVatIdPattern: false));
+    }
+
+    public function testAForeignVatIdKeepsTheIntraCommunityNoteWithoutPatternValidation(): void
+    {
+        static::assertTrue($this->resolveIntraCommunityDelivery(['NL123456789B01'], checkVatIdPattern: false));
+    }
+
     /**
      * @param array<string, mixed> $config
      */
@@ -440,11 +450,11 @@ class InvoiceDataProviderTest extends TestCase
     /**
      * @param list<string> $vatIds
      */
-    private function resolveIntraCommunityDelivery(array $vatIds, ?string $deliveryCountryIso = null): bool
+    private function resolveIntraCommunityDelivery(array $vatIds, ?string $deliveryCountryIso = null, bool $checkVatIdPattern = true): bool
     {
         $order = self::createOrder(
             accountType: CustomerEntity::ACCOUNT_TYPE_BUSINESS,
-            country: self::createCountry(companyTaxEnabled: true, isEu: true, iso: $deliveryCountryIso),
+            country: self::createCountry(companyTaxEnabled: true, isEu: true, checkVatIdPattern: $checkVatIdPattern, iso: $deliveryCountryIso),
             vatIds: $vatIds,
         );
 

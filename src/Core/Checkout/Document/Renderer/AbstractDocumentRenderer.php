@@ -101,7 +101,13 @@ abstract class AbstractDocumentRenderer
 
         $country = $orderDelivery?->getShippingOrderAddress()?->getCountry();
 
-        return $vatIdPatternProvider->isDomesticSupply($country?->getIso(), $order->getSalesChannelId());
+        if ($vatIdPatternProvider->isDomesticSupply($country?->getIso(), $order->getSalesChannelId())) {
+            return true;
+        }
+
+        $vatIdCountryId = $vatIdPatternProvider->getCountryIdForVatIds($order->getOrderCustomer()?->getVatIds());
+
+        return $vatIdCountryId !== null && $vatIdCountryId === $vatIdPatternProvider->getSellerCountryId($order->getSalesChannelId());
     }
 
     protected function isValidVat(OrderEntity $order, ValidatorInterface $validator): bool

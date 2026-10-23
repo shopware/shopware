@@ -220,6 +220,46 @@ class IntraCommunityVatExemptionTest extends TestCase
         static::assertStringNotContainsString('NL987654321B02', $invoice);
     }
 
+    public function testSellerVatIdWithoutPatternValidationKeepsTheNoteOffEveryDocument(): void
+    {
+        $this->sellFrom('NL');
+        static::getContainer()->get('country.repository')->update([[
+            'id' => $this->salesChannelContext->getShippingLocation()->getCountry()->getId(),
+            'checkVatIdPattern' => false,
+        ]], $this->context);
+        static::getContainer()->get(VatIdPatternProvider::class)->reset();
+        $this->salesChannelContext = $this->createSalesChannelContext();
+
+        $cart = $this->generateDemoCartWithTaxes([19]);
+        static::assertNotSame(CartPrice::TAX_STATE_FREE, $cart->getPrice()->getTaxStatus());
+        $orderId = $this->persistCart($cart);
+        $invoiceId = $this->generateInvoice($orderId);
+
+        static::assertStringNotContainsString(
+            self::INTRA_COMMUNITY_NOTE,
+            $this->render(static::getContainer()->get(InvoiceRenderer::class), $orderId)
+        );
+        static::assertStringNotContainsString(
+            self::INTRA_COMMUNITY_NOTE,
+            $this->render(static::getContainer()->get(StornoRenderer::class), $orderId, $invoiceId)
+        );
+
+        $this->addCreditItemToOrder($orderId);
+
+        static::assertStringNotContainsString(
+            self::INTRA_COMMUNITY_NOTE,
+            $this->render(static::getContainer()->get(CreditNoteRenderer::class), $orderId, $invoiceId)
+        );
+
+        $this->setVatIds(['BE0123456789']);
+
+        static::assertStringNotContainsString(
+            self::INTRA_COMMUNITY_NOTE,
+            $this->render(static::getContainer()->get(InvoiceRenderer::class), $orderId),
+            'The note must follow the order VAT ID after the customer changes their VAT ID.'
+        );
+    }
+
     private function sellFrom(?string $iso): void
     {
         $countryId = null;

@@ -480,6 +480,25 @@ class VatIdPatternProviderTest extends TestCase
         static::assertFalse($provider->isIntraCommunityVatId('NL123456789B01', Uuid::randomHex()));
     }
 
+    public function testSellerCountryIdUsesTheConfiguredCountry(): void
+    {
+        $provider = $this->createProviderSellingFrom(self::NL_ID, salesChannelCountryId: self::BE_ID);
+
+        static::assertSame(self::NL_ID, $provider->getSellerCountryId(Uuid::randomHex()));
+    }
+
+    public function testSellerCountryIdFallsBackToTheSalesChannelCountry(): void
+    {
+        $provider = $this->createProviderSellingFrom('', salesChannelCountryId: self::BE_ID);
+
+        static::assertSame(self::BE_ID, $provider->getSellerCountryId(Uuid::randomHex()));
+    }
+
+    public function testSellerCountryIdIsEmptyWithoutASalesChannel(): void
+    {
+        static::assertSame('', $this->createProvider([])->getSellerCountryId(''));
+    }
+
     public function testNoMemberStateCountsWhileNoSellerCountryIsConfiguredAndTheSalesChannelSellsFromOutsideTheEu(): void
     {
         // Without a member state a domestic supply is indistinguishable from an intra-community one,

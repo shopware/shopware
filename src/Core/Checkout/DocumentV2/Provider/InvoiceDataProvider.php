@@ -212,11 +212,15 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             return false;
         }
 
+        $vatIds = $order->getOrderCustomer()?->getVatIds();
+        $vatIdCountryId = $this->vatIdPatternProvider->getCountryIdForVatIds($vatIds);
+        if ($vatIdCountryId !== null && $vatIdCountryId === $this->vatIdPatternProvider->getSellerCountryId($order->getSalesChannelId())) {
+            return false;
+        }
+
         if ($country->getCheckVatIdPattern() === false) {
             return true;
         }
-
-        $vatIds = $order->getOrderCustomer()?->getVatIds();
 
         if (!\is_array($vatIds)) {
             return false;

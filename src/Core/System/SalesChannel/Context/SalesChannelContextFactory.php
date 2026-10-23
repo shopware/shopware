@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingCollection;
 use Shopware\Core\System\SalesChannel\BaseSalesChannelContext;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextPermissionsChangedEvent;
@@ -43,6 +45,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
      * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository
      * @param iterable<TaxRuleTypeFilterInterface> $taxRuleTypeFilter
      * @param EntityRepository<CurrencyCountryRoundingCollection> $currencyCountryRepository
+     * @param EntityRepository<CountryCollection> $countryRepository
      */
     public function __construct(
         private readonly EntityRepository $customerRepository,
@@ -54,6 +57,8 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly EntityRepository $currencyCountryRepository,
         private readonly AbstractBaseSalesChannelContextFactory $baseSalesChannelContextFactory,
+        private readonly VatIdPatternProvider $vatIdPatternProvider,
+        private readonly EntityRepository $countryRepository,
     ) {
     }
 
@@ -93,8 +98,8 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $customerGroup = $base->getCurrentCustomerGroup();
         }
 
-        // loads tax rules based on active customer and delivery address
-        $taxRules = $this->getTaxRules($base, $customer, $shippingLocation);
+        $taxLocation = $this->getTaxLocation($base, $customer, $shippingLocation);
+        $taxRules = $this->getTaxRules($base, $customer, $taxLocation);
 
         // detect active payment method, first check if checkout defined other payment method, otherwise validate if customer logged in, at least use shop default
         $payment = $this->getPaymentMethod($options, $base, $customer);
@@ -152,6 +157,28 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $salesChannelContext->setTaxState($this->taxDetector->getTaxState($salesChannelContext));
 
         return $salesChannelContext;
+    }
+
+    private function getTaxLocation(BaseSalesChannelContext $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): ShippingLocation
+    {
+        if ($customer === null || $customer->getAccountType() !== CustomerEntity::ACCOUNT_TYPE_BUSINESS || !$shippingLocation->getCountry()->getIsEu()) {
+            return $shippingLocation;
+        }
+
+        $vatIdCountryId = $this->vatIdPatternProvider->getCountryIdForVatIds($customer->getVatIds());
+        if ($vatIdCountryId === null
+            || $vatIdCountryId === $shippingLocation->getCountry()->getId()
+            || $vatIdCountryId !== $this->vatIdPatternProvider->getSellerCountryId($context->getSalesChannelId())
+        ) {
+            return $shippingLocation;
+        }
+
+        $criteria = new Criteria([$vatIdCountryId]);
+        $criteria->setTitle('context-factory::tax-country');
+        $sellerCountry = $this->countryRepository->search($criteria, $context->getContext())->getEntities()->first();
+
+        // Origin VAT must not change delivery or cash rounding
+        return $sellerCountry === null ? $shippingLocation : ShippingLocation::createFromCountry($sellerCountry);
     }
 
     private function getTaxRules(BaseSalesChannelContext $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): TaxCollection

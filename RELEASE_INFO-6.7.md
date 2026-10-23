@@ -51,7 +51,6 @@ Otherwise, the following applies right after the update:
 
 - A VAT ID of any other EU member state is exempt, one of the shop's own member state is not.
 - A delivery within the shop's own member state is never exempt. *Tax-free (B2C)* is unaffected.
-- Known limitation: a customer with a VAT ID of the shop's own member state is charged the delivery country's rate instead of the shop's when the delivery leaves that state, as tax rules are resolved from the delivery country.
 - Digital products follow the same rules as goods. The separate EU rules for them are not implemented yet.
 
 Invoices, cancellation invoices and credit notes print the intra-community delivery note for exactly the orders the cart exempts.

@@ -6,13 +6,28 @@ import template from './sw-sales-channel-detail-products.html.twig';
 import './sw-sales-channel-detail-products.scss';
 
 const { Mixin, Context } = Shopware;
-const { EntityCollection, Criteria } = Shopware.Data;
+const { Criteria } = Shopware.Data;
+
+/**
+ * Mirrors the limits of the product assignment action. Product groups and categories
+ * are resolved against the whole catalog on the server, so their lists stay short.
+ */
+const ASSIGNMENT_LIMITS = {
+    productIds: { max: 1000, message: 'sw-sales-channel.detail.products.messageProductLimitExceeded' },
+    productStreamIds: { max: 25, message: 'sw-sales-channel.detail.products.messageProductStreamLimitExceeded' },
+    categoryIds: { max: 50, message: 'sw-sales-channel.detail.products.messageCategoryLimitExceeded' },
+};
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['repositoryFactory', 'feature', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+        'acl',
+        'salesChannelProductAssignmentApiService',
+    ],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -227,49 +242,59 @@ export default {
             this.showProductsModal = true;
         },
 
-        onAddProducts(products) {
-            if (products.length <= 0) {
+        onAddProducts(products, selection = null) {
+            const { productIds = products.map(({ id }) => id), productStreamIds = [], categoryIds = [] } = selection ?? {};
+
+            if (productIds.length + productStreamIds.length + categoryIds.length <= 0) {
                 this.showProductsModal = false;
                 return Promise.reject();
             }
 
-            const visibilities = new EntityCollection(
-                this.productVisibilityRepository.route,
-                this.productVisibilityRepository.entityName,
-                Context.api,
-            );
-
-            products.forEach((el) => {
-                if (this.products?.has(el.id)) {
-                    return;
-                }
-
-                const visibility = this.productVisibilityRepository.create(Context.api);
-                Object.assign(visibility, {
-                    visibility: 30,
-                    productId: el.id,
-                    salesChannelId: this.salesChannel.id,
-                    salesChannel: this.salesChannel,
+            const exceeded = this.getExceededAssignmentLimit({ productIds, productStreamIds, categoryIds });
+            if (exceeded) {
+                this.createNotificationError({
+                    message: this.$t(exceeded.message, { limit: exceeded.max }),
                 });
 
-                visibilities.add(visibility);
-            });
+                return Promise.resolve();
+            }
 
             this.isAssignProductLoading = true;
 
-            return this.saveProductVisibilities(visibilities)
-                .then(() => {
-                    this.getProducts();
+            return this.salesChannelProductAssignmentApiService
+                .assign(this.salesChannel.id, { productIds, productStreamIds, categoryIds })
+                .then((assigned) => {
+                    this.createNotificationSuccess({
+                        message: this.$t(
+                            'sw-sales-channel.detail.products.messageProductsAssigned',
+                            { count: assigned },
+                            assigned,
+                        ),
+                    });
+
+                    return this.getProducts();
                 })
                 .catch((error) => {
                     this.createNotificationError({
-                        message: error,
+                        message: error.message,
                     });
                 })
                 .finally(() => {
                     this.showProductsModal = false;
                     this.isAssignProductLoading = false;
                 });
+        },
+
+        /**
+         * Returns the limit of the first id list that is too long for the assignment action,
+         * so the selection can be corrected in the still open modal instead of failing on the server.
+         */
+        getExceededAssignmentLimit(idLists) {
+            const key = Object.keys(ASSIGNMENT_LIMITS).find(
+                (listKey) => idLists[listKey].length > ASSIGNMENT_LIMITS[listKey].max,
+            );
+
+            return key ? ASSIGNMENT_LIMITS[key] : null;
         },
 
         saveProductVisibilities(data) {

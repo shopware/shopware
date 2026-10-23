@@ -5,10 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Rule\Container;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Rule\SimpleRule;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
+use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Core\Test\Stub\Rule\FalseRule;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
 
@@ -19,6 +22,16 @@ use Shopware\Core\Test\Stub\Rule\TrueRule;
 #[CoversClass(Container::class)]
 class ContainerTest extends TestCase
 {
+    public function testUnavailableChildrenAreExcludedWithoutChangingSerializedData(): void
+    {
+        $original = new AndRule([new SimpleRule(), new TrueRule()]);
+        $serialized = str_replace(SimpleRule::class, 'Shopware\Core\Framework\Rule\AbsentRule', serialize($original));
+        $container = Serialization::assertUnserializedInstanceOf(AndRule::class, $serialized);
+
+        static::assertEquals([new TrueRule()], $container->getRules());
+        static::assertSame($serialized, serialize($container));
+    }
+
     public function testICanAddRulesAfterwards(): void
     {
         $rule = self::createContainer([new TrueRule()]);

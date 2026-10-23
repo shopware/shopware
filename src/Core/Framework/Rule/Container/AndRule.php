@@ -15,7 +15,7 @@ class AndRule extends Container
 
     public function match(RuleScope $scope): bool
     {
-        foreach ($this->rules as $rule) {
+        foreach ($this->getRules() as $rule) {
             if (!$rule->match($scope)) {
                 return false;
             }

@@ -58,7 +58,7 @@ class MatchAllLineItemsRule extends Container
 
         $context = $scope->getSalesChannelContext();
 
-        foreach ($this->rules as $rule) {
+        foreach ($this->getRules() as $rule) {
             $matched = 0;
 
             foreach ($flatItems as $lineItem) {

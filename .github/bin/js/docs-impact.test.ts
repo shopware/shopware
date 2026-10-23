@@ -7,6 +7,7 @@ import {
     COMMENT_MARKER,
     buildComment,
     collectAgentInput,
+    isDryRun,
     neutraliseMentions,
     parseAudiences,
     postComment,
@@ -40,7 +41,19 @@ function fakeGitHub(options: {
                         }
                         return { data: 'diff --git a/x b/x' };
                     }
-                    return { data: { number: params.pull_number, title: 'Title' } };
+                    return {
+                        data: {
+                            number: params.pull_number,
+                            title: 'Title',
+                            body: null,
+                            html_url: 'https://github.com/shopware/shopware/pull/7',
+                            user: { login: 'alice', avatar_url: 'x' },
+                            labels: [{ name: 'domain/inventory', color: 'fff' }],
+                            merged_at: '2026-10-01T00:00:00Z',
+                            base: { ref: 'trunk', repo: { full_name: 'shopware/shopware' } },
+                            head: { ref: 'feature', repo: { full_name: 'alice/shopware' } },
+                        },
+                    };
                 },
                 listFiles: Symbol('listFiles'),
             },
@@ -54,7 +67,7 @@ function fakeGitHub(options: {
             if (method === github.rest.issues.listComments) {
                 return options.comments ?? [];
             }
-            return [{ filename: 'src/a.php', patch: '@@ -1 +1 @@' }];
+            return [{ filename: 'src/a.php', status: 'modified', additions: 1, deletions: 1, blob_url: 'x', sha: 'y', patch: '@@ -1 +1 @@' }];
         },
     };
 
@@ -73,7 +86,7 @@ function fakeCore() {
     };
 }
 
-const pushContext = (inputs?: { pr_number?: string }) => ({
+const pushContext = (inputs?: { pr_number?: string; dry_run?: string | boolean }) => ({
     repo: { owner: 'shopware', repo: 'shopware' },
     sha: 'abc123',
     eventName: inputs ? 'workflow_dispatch' : 'push',
@@ -182,8 +195,17 @@ test('collectAgentInput writes metadata, files without patches, and the diff', a
     await collectAgentInput({ github, context: pushContext({ pr_number: '7' }), core }, dir);
 
     const input = JSON.parse(readFileSync(join(dir, 'pr.json'), 'utf8'));
-    assert.equal(input.pr.number, 7);
-    assert.deepEqual(input.files, [{ filename: 'src/a.php' }]);
+    assert.deepEqual(input.pr, {
+        number: 7,
+        title: 'Title',
+        url: 'https://github.com/shopware/shopware/pull/7',
+        author: 'alice',
+        labels: ['domain/inventory'],
+        merged_at: '2026-10-01T00:00:00Z',
+        base: 'trunk',
+        body: '',
+    });
+    assert.deepEqual(input.files, [{ filename: 'src/a.php', status: 'modified', additions: 1, deletions: 1 }]);
     assert.equal(readFileSync(join(dir, 'pr.diff'), 'utf8'), 'diff --git a/x b/x');
 });
 
@@ -206,7 +228,9 @@ test('collectAgentInput keeps the per-file patches when the API refuses the diff
     await collectAgentInput({ github, context: pushContext({ pr_number: '7' }), core }, dir);
 
     assert.equal(existsSync(join(dir, 'pr.diff')), false);
-    assert.deepEqual(JSON.parse(readFileSync(join(dir, 'pr.json'), 'utf8')).files, [{ filename: 'src/a.php', patch: '@@ -1 +1 @@' }]);
+    assert.deepEqual(JSON.parse(readFileSync(join(dir, 'pr.json'), 'utf8')).files, [
+        { filename: 'src/a.php', status: 'modified', additions: 1, deletions: 1, patch: '@@ -1 +1 @@' },
+    ]);
     assert.ok(messages.some((m) => m.startsWith('warning:')));
 });
 
@@ -286,4 +310,28 @@ test('postComment fails when the commit has no merged pull request', async () =>
         postComment({ github, context: pushContext(), core }, { items: [{ type: 'notify_docs_teams', audiences: 'developer', summary: 'x' }] }),
         /no merged pull request/,
     );
+});
+
+test('isDryRun accepts the boolean and string forms of the dispatch input', () => {
+    assert.equal(isDryRun(pushContext({ pr_number: '9', dry_run: true })), true);
+    assert.equal(isDryRun(pushContext({ pr_number: '9', dry_run: 'true' })), true);
+    assert.equal(isDryRun(pushContext({ pr_number: '9', dry_run: 'false' })), false);
+    assert.equal(isDryRun(pushContext()), false);
+});
+
+test('postComment in a dry run writes the comment to the step summary only', async () => {
+    const { github, calls } = fakeGitHub({ comments: [{ id: 6, body: `${COMMENT_MARKER}\nold` }] });
+    const { core } = fakeCore();
+    const written: string[] = [];
+    const summary = { addRaw: (text: string) => ({ write: async () => written.push(text) }) };
+
+    await postComment(
+        { github, context: pushContext({ pr_number: '9', dry_run: true }), core: { ...core, summary } },
+        { items: [{ type: 'notify_docs_teams', audiences: 'developer', summary: 'New event' }] },
+    );
+
+    assert.equal(calls.some((c) => ['createComment', 'updateComment'].includes(c.method)), false);
+    assert.equal(written.length, 1);
+    assert.ok(written[0].includes('Dry run: comment for #9'));
+    assert.ok(written[0].includes('@shopware/po-docs'));
 });

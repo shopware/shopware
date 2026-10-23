@@ -69,6 +69,11 @@ on:
         description: "Merged pull request number to check"
         required: true
         type: number
+      dry_run:
+        description: "Write the comment to the run summary instead of posting it"
+        required: false
+        default: true
+        type: boolean
   # Trunk merges are pushed by the merge queue; the default role check rejects bots.
   bots: ["github-merge-queue[bot]"]
   reaction: none

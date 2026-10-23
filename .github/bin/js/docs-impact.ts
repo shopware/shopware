@@ -49,13 +49,14 @@ type Core = {
     info(message: string): void;
     warning(message: string): void;
     setFailed(message: string): void;
+    summary?: { addRaw(text: string, addEOL?: boolean): { write(): Promise<unknown> } };
 };
 
 type Context = {
     repo: Repo;
     sha: string;
     eventName: string;
-    payload: { inputs?: { pr_number?: string | number } };
+    payload: { inputs?: { pr_number?: string | number; dry_run?: string | boolean } };
 };
 
 type AgentOutputItem = {
@@ -103,6 +104,12 @@ export function buildComment(audiences: Audience[], summary: string): string {
     ].join('\n');
 }
 
+export function isDryRun(context: Context): boolean {
+    const raw = context.payload.inputs?.dry_run;
+
+    return raw === true || raw === 'true';
+}
+
 export function requestedPullRequestNumber(context: Context): number | null {
     const raw = context.payload.inputs?.pr_number;
     if (raw === undefined || raw === '') {
@@ -131,6 +138,38 @@ export async function resolvePullRequestNumber({ github, context }: { github: Gi
     return data.find((pr) => pr.merged_at !== null && pr.base.ref === 'trunk')?.number ?? null;
 }
 
+type PullRequest = {
+    number: number;
+    title: string;
+    body: string | null;
+    html_url: string;
+    user: { login: string } | null;
+    labels: Array<{ name: string }>;
+    merged_at: string | null;
+    base: { ref: string };
+};
+
+type PullRequestFile = {
+    filename: string;
+    status: string;
+    additions: number;
+    deletions: number;
+    patch?: string;
+};
+
+export function summarisePullRequest(pr: PullRequest) {
+    return {
+        number: pr.number,
+        title: pr.title,
+        url: pr.html_url,
+        author: pr.user?.login ?? null,
+        labels: pr.labels.map((label) => label.name),
+        merged_at: pr.merged_at,
+        base: pr.base.ref,
+        body: pr.body ?? '',
+    };
+}
+
 export async function collectAgentInput({ github, context, core }: { github: GitHub; context: Context; core: Core }, dir: string): Promise<void> {
     const number = await resolvePullRequestNumber({ github, context });
     if (number === null) {
@@ -140,13 +179,16 @@ export async function collectAgentInput({ github, context, core }: { github: Git
     }
 
     const params = { ...context.repo, pull_number: number };
-    const { data: pr } = await github.rest.pulls.get(params);
-    const files = await github.paginate<{ patch?: string }>(github.rest.pulls.listFiles, { ...params, per_page: 100 });
+    const { data } = await github.rest.pulls.get(params);
+    const pr = summarisePullRequest(data as PullRequest);
+    const files = (await github.paginate<PullRequestFile>(github.rest.pulls.listFiles, { ...params, per_page: 100 })).map(
+        ({ filename, status, additions, deletions, patch }) => ({ filename, status, additions, deletions, patch }),
+    );
 
     let diff: string | null = null;
     try {
-        const { data } = await github.rest.pulls.get({ ...params, mediaType: { format: 'diff' } });
-        diff = String(data);
+        const { data: raw } = await github.rest.pulls.get({ ...params, mediaType: { format: 'diff' } });
+        diff = String(raw);
     } catch (error) {
         if ((error as { status?: number }).status !== 406) {
             throw error;
@@ -192,6 +234,12 @@ export async function postComment(
     }
 
     const body = buildComment(parseAudiences(item.audiences ?? ''), item.summary);
+    if (isDryRun(context)) {
+        core.info(`Dry run: not commenting on #${number}`);
+        await core.summary?.addRaw(`## Dry run: comment for #${number}\n\n${body}`, true).write();
+        return;
+    }
+
     const comments = await github.paginate<{ id: number; body?: string }>(github.rest.issues.listComments, {
         ...context.repo,
         issue_number: number,

@@ -65,7 +65,9 @@ Call exactly one of:
 - `noop`, with one sentence on why no documentation is needed.
 - `notify_docs_teams` with:
   - `audiences`: `end-user`, `developer`, or `end-user,developer`.
-  - `summary`: Markdown, at most about 15 lines. Per audience, a `**End-user docs**` or
-    `**Developer docs**` heading with short bullets: what changed, as a reader of the docs
-    would notice it, and which page to add or adjust. No code walkthrough, no restating
-    the PR description, no mentions of people or teams.
+  - `summary`: Markdown. Per audience, a `**End-user docs**` or `**Developer docs**`
+    heading with at most four bullets of one or two sentences each: what changed, as a
+    reader of the docs would notice it, and which page to add or adjust. No code
+    walkthrough, no restating the PR description, no mentions of people or teams.
+  - Never mention your tools, searches or their failures in the summary. When you could
+    not confirm a page, name the most likely page and write "check" next to it.

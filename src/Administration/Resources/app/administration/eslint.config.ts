@@ -230,6 +230,12 @@ export default [
         ],
     },
 
+    {
+        linterOptions: {
+            reportUnusedDisableDirectives: 'error',
+        },
+    },
+
     { ...js.configs.recommended, ignores: ['**/*.json'] },
 
     // The shared extension factory supplies the typed-lint bootstrap

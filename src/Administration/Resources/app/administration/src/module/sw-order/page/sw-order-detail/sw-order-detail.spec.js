@@ -255,6 +255,16 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(criteria.getAssociation('transactions').hasAssociation('stateMachineState')).toBe(true);
     });
 
+    it('should sort deliveries by shipping costs with a stable tiebreaker', async () => {
+        wrapper = await createWrapper();
+        const criteria = wrapper.vm.orderCriteria;
+
+        expect(criteria.getAssociation('deliveries').sortings).toEqual([
+            expect.objectContaining({ field: 'shippingCosts.unitPrice', order: 'DESC' }),
+            expect.objectContaining({ field: 'id', order: 'ASC' }),
+        ]);
+    });
+
     it('should convert product line items that are missing', async () => {
         const lineItemWithExistingProduct = {
             id: 'lineItemId',

@@ -123,7 +123,8 @@ export default {
                 .addAssociation('stateMachineState')
                 .addAssociation('shippingOrderAddress')
                 .addAssociation('shippingMethod')
-                .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
+                .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'))
+                .addSorting(Criteria.sort('id', 'ASC'));
 
             return criteria;
         },

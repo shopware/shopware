@@ -1,0 +1,164 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Write\Validation;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\RowLoader;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+
+/**
+ * @internal
+ */
+#[Package('framework')]
+#[CoversClass(WriteOutcome::class)]
+class WriteOutcomeTest extends TestCase
+{
+    private EntityDefinition $productDefinition;
+
+    /**
+     * @var array<string, string>
+     */
+    private array $productPrimaryKey;
+
+    protected function setUp(): void
+    {
+        $registry = new StaticDefinitionInstanceRegistry(
+            [ProductDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+
+        $this->productDefinition = $registry->getByEntityName('product');
+        $this->productPrimaryKey = ['id' => Uuid::randomBytes(), 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)];
+    }
+
+    public function testTheWritesOfARecordAreMergedInOrder(): void
+    {
+        $rows = (new WriteOutcome(static::createStub(RowLoader::class)))->rows([
+            $this->insertProduct(['product_number' => 'p1', 'stock' => 1], '/insert'),
+            $this->updateProduct(['stock' => 2], '/update'),
+        ], ['stock']);
+
+        static::assertCount(1, $rows);
+        static::assertTrue($rows[0]->isNew);
+        static::assertSame('/insert', $rows[0]->path);
+        static::assertSame(['p1', 2], [$rows[0]->get('product_number'), $rows[0]->get('stock')]);
+    }
+
+    public function testALaterUpdateDoesNotHideAnEarlierOne(): void
+    {
+        $rowLoader = static::createStub(RowLoader::class);
+        $rowLoader->method('load')->willReturn([[...$this->productPrimaryKey, 'stock' => '1']]);
+
+        $rows = (new WriteOutcome($rowLoader))->rows([
+            $this->updateProduct(['stock' => 2], '/first'),
+            $this->updateProduct(['product_number' => 'renamed'], '/second'),
+        ], ['stock']);
+
+        static::assertCount(1, $rows);
+        static::assertSame('/first', $rows[0]->path);
+        static::assertSame(2, $rows[0]->get('stock'));
+    }
+
+    public function testAColumnThePayloadDoesNotSetComesFromTheDatabase(): void
+    {
+        $rowLoader = $this->createMock(RowLoader::class);
+        $rowLoader->expects($this->once())
+            ->method('load')
+            ->with('product', [$this->productPrimaryKey], ['id', 'version_id', 'stock', 'active'])
+            ->willReturn([[...$this->productPrimaryKey, 'stock' => '1', 'active' => '1']]);
+
+        $row = (new WriteOutcome($rowLoader))->rows([$this->updateProduct(['stock' => 2])], ['stock', 'active'])[0];
+
+        static::assertFalse($row->isNew);
+        static::assertSame([2, '1'], [$row->get('stock'), $row->get('active')]);
+    }
+
+    public function testTheRowsOfAllRecordsAreLoadedInOneQuery(): void
+    {
+        $otherPrimaryKey = ['id' => Uuid::randomBytes(), 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)];
+
+        $rowLoader = $this->createMock(RowLoader::class);
+        $rowLoader->expects($this->once())
+            ->method('load')
+            ->willReturn([
+                [...$otherPrimaryKey, 'active' => '0'],
+                [...$this->productPrimaryKey, 'active' => '1'],
+            ]);
+
+        $rows = (new WriteOutcome($rowLoader))->rows([
+            $this->updateProduct(['stock' => 2]),
+            new UpdateCommand($this->productDefinition, ['stock' => 3], $otherPrimaryKey, static::createStub(EntityExistence::class), ''),
+        ], ['stock', 'active']);
+
+        static::assertSame(['1', '0'], [$rows[0]->get('active'), $rows[1]->get('active')]);
+    }
+
+    public function testANewRecordHasNoValuesFromTheDatabase(): void
+    {
+        $rowLoader = $this->createMock(RowLoader::class);
+        $rowLoader->expects($this->never())->method('load');
+
+        $row = (new WriteOutcome($rowLoader))->rows([$this->insertProduct(['stock' => 1])], ['active'])[0];
+
+        static::assertNull($row->get('active'));
+    }
+
+    public function testAnUpdateThatSetsNoneOfTheColumnsIsLeftOut(): void
+    {
+        $rowLoader = $this->createMock(RowLoader::class);
+        $rowLoader->expects($this->never())->method('load');
+
+        static::assertSame([], (new WriteOutcome($rowLoader))->rows([$this->updateProduct(['product_number' => 'renamed'])], ['stock']));
+    }
+
+    public function testARecordWhoseLastWriteIsADeleteIsLeftOut(): void
+    {
+        $rows = (new WriteOutcome(static::createStub(RowLoader::class)))->rows([
+            $this->updateProduct(['stock' => 2]),
+            new DeleteCommand($this->productDefinition, $this->productPrimaryKey, static::createStub(EntityExistence::class)),
+        ], ['stock']);
+
+        static::assertSame([], $rows);
+    }
+
+    public function testARecordInsertedAfterADeleteIsNew(): void
+    {
+        $row = (new WriteOutcome(static::createStub(RowLoader::class)))->rows([
+            new DeleteCommand($this->productDefinition, $this->productPrimaryKey, static::createStub(EntityExistence::class)),
+            $this->insertProduct(['stock' => 1]),
+        ], ['active'])[0];
+
+        static::assertTrue($row->isNew);
+        static::assertNull($row->get('active'));
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function insertProduct(array $payload, string $path = ''): InsertCommand
+    {
+        return new InsertCommand($this->productDefinition, $payload, $this->productPrimaryKey, static::createStub(EntityExistence::class), $path);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function updateProduct(array $payload, string $path = ''): UpdateCommand
+    {
+        return new UpdateCommand($this->productDefinition, $payload, $this->productPrimaryKey, static::createStub(EntityExistence::class), $path);
+    }
+}

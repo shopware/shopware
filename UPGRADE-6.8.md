@@ -2772,12 +2772,6 @@ The following variables were removed:
 * CSS classes `is-ctl-*` and `is-act-*`
 * JavaScript window properties `window.controllerName` and `window.actionName`
 
-## Removal of `pathIdList` option in NavbarPlugin
-
-The `pathIdList` option in `NavbarPlugin` and the corresponding key in the `navbarOptions` template variable in `navbar.html.twig` were removed.
-
-Use the `window.activeNavigationPathIdList` global variable instead, which is set in `meta.html.twig`.
-
 ## Refactor of providing cookies
 
 The `\Shopware\Storefront\Framework\Cookie\CookieProviderInterface` and all its implementations were removed.

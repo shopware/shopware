@@ -180,6 +180,15 @@ The profile page now shows company and VAT ID for business customers even when "
 Before, saving the profile without that setting removed the company and the VAT IDs of business customers.
 Themes that override `component_address_personal_company_section`, `component_address_personal_company` or `component_address_personal_vat_id` in `component/address/address-personal.html.twig` should check that the content also suits this case.
 
+### `pathIdList` option in NavbarPlugin stays
+
+The `pathIdList` option of `NavbarPlugin` is no longer deprecated and stays in 6.8.
+`window.activeNavigationPathIdList` still takes precedence.
+If neither is set, the plugin marks the top level item that contains the current page as active.
+
+`window.activeNavigationId` and `window.activeNavigationPathIdList` are now set in the new block `layout_head_javascript_navigation` in `layout/meta.html.twig`, rendered before `layout_head_javascript_router`.
+Themes that replace `layout_head_javascript_router` without `parent()` no longer lose them.
+
 ## Hosting & Configuration
 
 ### Storefront readiness checks skip pages restricted by extensions

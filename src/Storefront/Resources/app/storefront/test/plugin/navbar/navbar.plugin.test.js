@@ -291,6 +291,116 @@ describe('NavbarPlugin', () => {
         expect(topLevelLink.classList.contains('active')).toBe(true);
     });
 
+    describe('active path resolution', () => {
+        /**
+         * Builds a navbar with one top level item, whose dropdown contains the given flyout category.
+         */
+        function createNavbar(topLevelId, flyoutId) {
+            const navbar = document.createElement('nav');
+            navbar.innerHTML = `
+                <ul>
+                    <li class="nav-item nav-item-${topLevelId} dropdown">
+                        <a class="nav-link nav-item-${topLevelId}-link main-navigation-link dropdown-toggle" href="#">Top</a>
+                        <div class="dropdown-menu">
+                            <a class="nav-item nav-item-${flyoutId} nav-link nav-item-${flyoutId}-link navigation-flyout-link" href="#">Flyout</a>
+                        </div>
+                    </li>
+                </ul>
+            `;
+
+            return navbar;
+        }
+
+        function createPlugin(navbar, options = {}) {
+            const plugin = new NavbarPlugin(navbar, options, false);
+            plugin._topLevelLinks = navbar.querySelectorAll('.main-navigation-link');
+
+            return plugin;
+        }
+
+        afterEach(() => {
+            delete window.activeNavigationId;
+            delete window.activeNavigationPathIdList;
+        });
+
+        test('window.activeNavigationPathIdList wins over the pathIdList option', () => {
+            const navbar = createNavbar('top', 'flyout');
+            const otherLink = document.createElement('a');
+            otherLink.classList.add('nav-item-other-link');
+            navbar.appendChild(otherLink);
+
+            window.activeNavigationId = 'flyout';
+            window.activeNavigationPathIdList = ['top'];
+
+            createPlugin(navbar, { pathIdList: ['other'] })._setCurrentPage();
+
+            expect(navbar.querySelector('.nav-item-top-link').classList.contains('active')).toBe(true);
+            expect(otherLink.classList.contains('active')).toBe(false);
+        });
+
+        test('an empty window.activeNavigationPathIdList disables the fallbacks', () => {
+            const navbar = createNavbar('top', 'flyout');
+
+            window.activeNavigationId = 'flyout';
+            window.activeNavigationPathIdList = [];
+
+            createPlugin(navbar, { pathIdList: ['top'] })._setCurrentPage();
+
+            expect(navbar.querySelector('.nav-item-top-link').classList.contains('active')).toBe(false);
+        });
+
+        test('the top level link containing the current page is derived from the DOM without any path list', () => {
+            const navbar = createNavbar('top', 'flyout');
+
+            window.activeNavigationId = 'flyout';
+
+            createPlugin(navbar)._setCurrentPage();
+
+            const flyoutLink = navbar.querySelector('.nav-item-flyout-link');
+            const topLevelLink = navbar.querySelector('.nav-item-top-link');
+
+            expect(flyoutLink.classList.contains('active')).toBe(true);
+            expect(flyoutLink.getAttribute('aria-current')).toBe('page');
+            expect(topLevelLink.classList.contains('active')).toBe(true);
+            expect(topLevelLink.getAttribute('aria-current')).toBeNull();
+        });
+
+        test('nothing is marked active when the current page is not part of the navbar', () => {
+            const navbar = createNavbar('top', 'flyout');
+
+            window.activeNavigationId = 'deep-category';
+
+            createPlugin(navbar)._setCurrentPage();
+
+            expect(navbar.querySelectorAll('.active')).toHaveLength(0);
+        });
+
+        test('a pathIdList option that is not an array does not throw', () => {
+            const navbar = createNavbar('top', 'flyout');
+
+            window.activeNavigationId = 'flyout';
+
+            const plugin = createPlugin(navbar, { pathIdList: 'top' });
+
+            expect(() => plugin._setCurrentPage()).not.toThrow();
+            expect(navbar.querySelector('.nav-item-top-link').classList.contains('active')).toBe(true);
+        });
+
+        test('the pathIdList option keeps its default for plugins extending NavbarPlugin', () => {
+            class CustomNavbarPlugin extends NavbarPlugin {
+                _setCurrentPage() {
+                    this.options.pathIdList.forEach(() => {});
+                }
+            }
+
+            const navbar = createNavbar('top', 'flyout');
+            const plugin = new CustomNavbarPlugin(navbar, {}, false);
+
+            expect(plugin.options.pathIdList).toEqual([]);
+            expect(() => plugin._setCurrentPage()).not.toThrow();
+        });
+    });
+
     test('_restoreFocusAfterBtnClose should focus related dropdown top level link', () => {
         window.focusHandler = new FocusHandler();
 

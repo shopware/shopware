@@ -3,6 +3,7 @@
  * @private
  */
 import deprecationBaseline from 'src/meta/deprecation-baseline.json';
+import { deprecationBaselineKey } from 'src/core/feature';
 import { isBaselineUpdateRun } from './isBaselineUpdateRun';
 import { isMajorRun, loadFeatureConfig } from './majorFeatureFlags';
 import { recordUsedBaselineEntry as recordUsedEntry } from './usedBaselineEntries';
@@ -33,18 +34,6 @@ const featureConfig = loadFeatureConfig();
 // A JSON copy, not `structuredClone`: plugin Jest setups load this file without the jsdom polyfill for it.
 const checkedInBaseline = JSON.stringify(deprecationBaseline);
 let baseline = JSON.parse(checkedInBaseline) as Record<string, BaselinedUsages>;
-
-/**
- * The key of a deprecation in the baseline: the message without the component path the deprecation plugin
- * appends (`Used in: …`), so one key covers every place the deprecated API is used.
- *
- * @private
- * @example
- * deprecationBaselineKey('The component "sw-x" is deprecated.\nUsed in: sw-page > sw-x'); // 'The component "sw-x" is deprecated.'
- */
-export function deprecationBaselineKey(message: string): string {
-    return message.split('\nUsed in: ')[0];
-}
 
 /**
  * The run this Jest worker belongs to, from the feature flags its environment activates.

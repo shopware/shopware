@@ -52,6 +52,7 @@ Pass a registered major flag and a version like `v6.8.0.0`. Anything else could 
 ### Deprecation baseline
 
 Jest lets known usages of deprecated APIs pass when they are listed in the deprecation baseline.
+In the running Administration, a deprecation whose message is listed in the baseline logs a console error instead of throwing once the major flag is active.
 To update it, run both commands:
 
 ```bash

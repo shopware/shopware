@@ -45,6 +45,26 @@ class WebhookApiTest extends TestCase
         static::assertSame(204, $response->getStatusCode(), \print_r($response->getContent(), true));
     }
 
+    public function testTheSecretIsWritableButNeverReturned(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $this->getBrowser()->jsonRequest('POST', '/api/webhook/', [
+            'id' => $webhookId,
+            'name' => 'My super webhook',
+            'eventName' => 'product.written',
+            'url' => 'http://localhost',
+            'secret' => 'webhook-secret',
+        ]);
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $this->getBrowser()->jsonRequest('GET', '/api/webhook/' . $webhookId);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertStringNotContainsString('webhook-secret', (string) $response->getContent());
+        static::assertSame('webhook-secret', $this->loadWebhook($webhookId)->getSecret());
+    }
+
     public function testAWebhookCannotBeCreatedForAnApp(): void
     {
         $this->getBrowser()->jsonRequest('POST', '/api/webhook/', [

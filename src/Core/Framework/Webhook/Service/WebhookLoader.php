@@ -81,6 +81,24 @@ class WebhookLoader
     }
 
     /**
+     * @param list<string> $integrationIds
+     *
+     * @return list<string> the given integration ids that belong to an app
+     */
+    public function getAppIntegrationIds(array $integrationIds): array
+    {
+        if ($integrationIds === []) {
+            return [];
+        }
+
+        return $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(`integration_id`)) FROM `app` WHERE `integration_id` IN (:integrationIds)',
+            ['integrationIds' => Uuid::fromHexToBytesList($integrationIds)],
+            ['integrationIds' => ArrayParameterType::BINARY]
+        );
+    }
+
+    /**
      * @return list<Webhook>
      */
     public function getWebhooks(): array
@@ -102,11 +120,9 @@ class WebhookLoader
                 LOWER(HEX(COALESCE(a.integration_id, w.owner_integration_id))) as ownerIntegrationId,
                 w.acl_role_ids as aclRoleIds
             FROM webhook w
-            LEFT JOIN app a ON (a.id = w.app_id)
-            LEFT JOIN app owner_app ON (owner_app.integration_id = w.owner_integration_id)
+            LEFT JOIN app a ON (a.id = w.app_id OR a.integration_id = w.owner_integration_id)
             WHERE w.active = 1
               AND COALESCE(a.integration_id, w.owner_integration_id, w.owner_user_id) IS NOT NULL
-              AND (owner_app.id IS NULL OR owner_app.active = 1)
         SQL;
 
         $rows = $this->connection->fetchAllAssociative($sql);

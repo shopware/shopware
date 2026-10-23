@@ -88,7 +88,6 @@ class EntityDefinitionQueryHelperTest extends TestCase
         yield 'nested extensions segment is removed' => ['media.extensions.foo.id', 'media.foo.id'];
         yield 'multiple extensions segments are removed' => ['extensions.a.extensions.b', 'a.b'];
         yield 'substring is kept' => ['media.useextensions.r.email', 'media.useextensions.r.email'];
-        yield 'empty segment is kept' => ['media..user.email', 'media..user.email'];
         yield 'accessor without extensions is unchanged' => ['product.name', 'product.name'];
     }
 

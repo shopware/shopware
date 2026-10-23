@@ -148,4 +148,22 @@ describe('sw-app-shop-id-change-modal', () => {
         expect(changeShopIdMock.mock.calls[0][0].name).toMatch(strategies[1].name);
         expect(wrapper.vm._reloadPage).toHaveBeenCalled();
     });
+
+    it('shows why the shop identifier change failed', async () => {
+        wrapper.vm.shopIdChangeService.changeShopId.mockRejectedValueOnce({
+            response: {
+                data: {
+                    errors: [{ detail: 'APP_URL "https://shop.test" could not be verified right now, try again later' }],
+                },
+            },
+        });
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.get('.mt-button--primary').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'APP_URL "https://shop.test" could not be verified right now, try again later',
+        });
+    });
 });

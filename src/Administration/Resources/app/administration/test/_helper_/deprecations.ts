@@ -7,6 +7,7 @@ import type { DeprecationOptions } from 'src/core/feature';
 import { getDefaultActiveFeatureFlags } from './defaultActiveFeatureFlags';
 import normalizeFeatureFlag from './normalizeFeatureFlag';
 import { location, ownFrames, usageSite } from './deprecationUsageSite';
+import { isBaselined } from './deprecationBaseline';
 
 /**
  * What an assertion or allowance matches a deprecation message against: a string matches part of it, a RegExp
@@ -190,14 +191,14 @@ export function recordDeprecation(message: string, blame?: DeprecationOptions['_
 
 /**
  * Whether a recorded deprecation fails the test
- * It fails the test if it was neither explicitly asserted nor allowed by `allowDeprecation(...)`
+ * It fails the test if it was neither explicitly asserted nor allowed by `allowDeprecation(...)` nor baselined
  *
  * @private
  * @example
  * deprecations.entries.filter((entry) => failsTheTest(entry, deprecations.allowed));
  */
 export function failsTheTest(entry: RecordedDeprecation, allowed: readonly Expected[]): boolean {
-    return !entry.asserted && !allowed.some((expected) => matches(expected, entry.message));
+    return !entry.asserted && !allowed.some((expected) => matches(expected, entry.message)) && !isBaselined(entry);
 }
 
 /**

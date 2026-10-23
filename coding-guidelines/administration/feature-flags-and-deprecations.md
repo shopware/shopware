@@ -48,3 +48,7 @@ Component.register('sw-example', {
 Pass a registered major flag and a version like `v6.8.0.0`. Anything else could never throw, so it logs a console error instead.
 
 `@private` symbols and identifiers starting with `_` are no public contract and need no guard. See the [ADR](../../adr/2026-08-10-administration-javascript-deprecation-guards.md).
+
+### Deprecation baseline
+
+`src/Administration/Resources/app/administration/src/meta/deprecation-baseline.json` lists the known core usages of deprecated APIs that are not migrated yet, so Jest lets them pass without an assertion.

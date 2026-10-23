@@ -10,6 +10,7 @@ use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\MediaType\SpatialMediaTypeInterface;
 use Shopware\Core\Content\Media\MediaType\SpatialObjectType;
+use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -107,5 +108,15 @@ class MediaEntityTest extends TestCase
         static::assertArrayNotHasKey('mediaTypeRaw', $data);
         static::assertArrayNotHasKey('metaDataRaw', $data);
         static::assertFalse($data['hasFile']);
+    }
+
+    public function testProductDocumentTranslationsAccessors(): void
+    {
+        $productDocumentTranslations = new ProductDocumentTranslationCollection();
+
+        $media = new MediaEntity();
+        $media->setProductDocumentTranslations($productDocumentTranslations);
+
+        static::assertSame($productDocumentTranslations, $media->getProductDocumentTranslations());
     }
 }

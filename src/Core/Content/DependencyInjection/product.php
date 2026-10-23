@@ -11,6 +11,7 @@ use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
 use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
 use Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementUnitBuilder;
 use Shopware\Core\Content\MeasurementSystem\Unit\MeasurementUnitConverter;
+use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
 use Shopware\Core\Content\Product\AbstractIsNewDetector;
 use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
@@ -23,6 +24,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCustomFieldSet\ProductCustomFieldSetDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationDefinition;
@@ -93,6 +96,7 @@ use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingR
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentDownloadRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Garan\AbstractGaranLabelRoute;
 use Shopware\Core\Content\Product\SalesChannel\Garan\GaranLabelRoute;
@@ -138,6 +142,7 @@ use Shopware\Core\Content\Product\Stock\OrderStockSubscriber;
 use Shopware\Core\Content\Product\Stock\StockStorage;
 use Shopware\Core\Content\Product\Subscriber\CustomFieldSearchableSubscriber;
 use Shopware\Core\Content\Product\Subscriber\ProductDescriptionTeaserSubscriber;
+use Shopware\Core\Content\Product\Subscriber\ProductDocumentMediaSubscriber;
 use Shopware\Core\Content\Product\Subscriber\ProductSubscriber;
 use Shopware\Core\Content\Product\Subscriber\RepairDigitalProductStatesSubscriber;
 use Shopware\Core\Content\Product\Util\VariantCombinationLoader;
@@ -225,6 +230,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.entity.definition');
 
     $services->set(ProductMediaDefinition::class)
+        ->tag('shopware.entity.definition');
+
+    $services->set(ProductDocumentDefinition::class)
+        ->tag('shopware.entity.definition');
+
+    $services->set(ProductDocumentTranslationDefinition::class)
         ->tag('shopware.entity.definition');
 
     $services->set(ProductDownloadDefinition::class)
@@ -375,6 +386,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ProductDescriptionTeaserSubscriber::class)
         ->args([
             service(ProductDescriptionTeaserBuilder::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(ProductDocumentMediaSubscriber::class)
+        ->args([
+            service('media.repository'),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -767,6 +784,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('sales_channel.product.repository'),
             service(AbstractProductMaxPurchaseCalculator::class),
+            service(ExtensionDispatcher::class),
+        ]);
+
+    $services->set(ProductDocumentDownloadRoute::class)
+        ->public()
+        ->args([
+            service(ProductDetailRoute::class),
+            service(DownloadResponseGenerator::class),
             service(ExtensionDispatcher::class),
         ]);
 

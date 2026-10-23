@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -29,6 +30,8 @@ use Shopware\Core\System\Country\CountryDefinition;
 class MediaVisibilityRestrictionSubscriberTest extends TestCase
 {
     private const PRODUCT_DOWNLOAD_MEDIA_FOLDER_ID = '018f1f0e0dc0719badc0ffee00000000';
+
+    private const PRODUCT_DOCUMENT_MEDIA_FOLDER_ID = '018f1f0e0dc0719badc0ffee00000002';
 
     public function testGetSubscribedEvents(): void
     {
@@ -177,27 +180,27 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
         $publicMediaRestriction = $mediaRestriction->getQueries()[0];
         self::assertEqualsFilter($publicMediaRestriction, 'private', false);
 
-        $privateProductDownloadMediaRestriction = $mediaRestriction->getQueries()[1];
-        static::assertInstanceOf(MultiFilter::class, $privateProductDownloadMediaRestriction);
-        static::assertSame(MultiFilter::CONNECTION_AND, $privateProductDownloadMediaRestriction->getOperator());
-        static::assertCount(2, $privateProductDownloadMediaRestriction->getQueries());
-        self::assertEqualsFilter($privateProductDownloadMediaRestriction->getQueries()[0], 'private', true);
-        self::assertEqualsFilter(
-            $privateProductDownloadMediaRestriction->getQueries()[1],
+        $privateAllowedMediaRestriction = $mediaRestriction->getQueries()[1];
+        static::assertInstanceOf(MultiFilter::class, $privateAllowedMediaRestriction);
+        static::assertSame(MultiFilter::CONNECTION_AND, $privateAllowedMediaRestriction->getOperator());
+        static::assertCount(2, $privateAllowedMediaRestriction->getQueries());
+        self::assertEqualsFilter($privateAllowedMediaRestriction->getQueries()[0], 'private', true);
+        self::assertEqualsAnyFilter(
+            $privateAllowedMediaRestriction->getQueries()[1],
             'mediaFolderId',
-            self::PRODUCT_DOWNLOAD_MEDIA_FOLDER_ID
+            [self::PRODUCT_DOWNLOAD_MEDIA_FOLDER_ID, self::PRODUCT_DOCUMENT_MEDIA_FOLDER_ID]
         );
     }
 
-    public function testResetClearsMemoizedProductDownloadMediaFolderId(): void
+    public function testResetClearsMemoizedPrivateAllowedMediaFolderIds(): void
     {
         $connection = $this->createMock(Connection::class);
         $connection
             ->expects($this->exactly(2))
-            ->method('fetchOne')
+            ->method('fetchFirstColumn')
             ->willReturnOnConsecutiveCalls(
-                self::PRODUCT_DOWNLOAD_MEDIA_FOLDER_ID,
-                '018f1f0e0dc0719badc0ffee00000001'
+                [self::PRODUCT_DOWNLOAD_MEDIA_FOLDER_ID],
+                ['018f1f0e0dc0719badc0ffee00000001']
             );
 
         $subscriber = new MediaVisibilityRestrictionSubscriber($connection);
@@ -218,14 +221,59 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
         );
         $subscriber->securePrivateFolders($secondEvent);
 
-        self::assertPrivateProductDownloadMediaFolderId(
+        self::assertPrivateAllowedMediaFolderIds(
             $firstEvent->getCriteria()->getFilters()[0],
-            self::PRODUCT_DOWNLOAD_MEDIA_FOLDER_ID
+            [self::PRODUCT_DOWNLOAD_MEDIA_FOLDER_ID]
         );
-        self::assertPrivateProductDownloadMediaFolderId(
+        self::assertPrivateAllowedMediaFolderIds(
             $secondEvent->getCriteria()->getFilters()[0],
-            '018f1f0e0dc0719badc0ffee00000001'
+            ['018f1f0e0dc0719badc0ffee00000001']
         );
+    }
+
+    public function testPrivateProductDownloadAndProductDocumentDefaultFoldersAreVisible(): void
+    {
+        $event = new EntitySearchedEvent(
+            new Criteria(),
+            new MediaDefinition(),
+            Context::createDefaultContext(new AdminApiSource(null))
+        );
+
+        $subscriber = $this->createSubscriber();
+        $subscriber->securePrivateFolders($event);
+
+        $filters = $event->getCriteria()->getFilters();
+        static::assertCount(1, $filters);
+
+        self::assertPrivateAllowedMediaFolderIds(
+            $filters[0],
+            [self::PRODUCT_DOWNLOAD_MEDIA_FOLDER_ID, self::PRODUCT_DOCUMENT_MEDIA_FOLDER_ID]
+        );
+    }
+
+    public function testPrivateMediaIsFullyRestrictedWhenNoAllowedFoldersExist(): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection
+            ->method('fetchFirstColumn')
+            ->willReturn([]);
+
+        $event = new EntitySearchedEvent(
+            new Criteria(),
+            new MediaDefinition(),
+            Context::createDefaultContext(new AdminApiSource(null))
+        );
+
+        $subscriber = new MediaVisibilityRestrictionSubscriber($connection);
+        $subscriber->securePrivateFolders($event);
+
+        $filters = $event->getCriteria()->getFilters();
+        static::assertCount(1, $filters);
+
+        $mediaRestriction = $filters[0];
+        static::assertInstanceOf(MultiFilter::class, $mediaRestriction);
+        static::assertCount(1, $mediaRestriction->getQueries());
+        self::assertEqualsFilter($mediaRestriction->getQueries()[0], 'private', false);
     }
 
     public function testSecurePrivateFoldersDifferentDefinitionDoesNotGetModified(): void
@@ -317,24 +365,30 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
         static::assertCount(2, $filterAggregation->getFilter());
     }
 
-    private function createSubscriber(string $productDownloadMediaFolderId = self::PRODUCT_DOWNLOAD_MEDIA_FOLDER_ID): MediaVisibilityRestrictionSubscriber
+    /**
+     * @param list<string>|null $privateAllowedMediaFolderIds
+     */
+    private function createSubscriber(?array $privateAllowedMediaFolderIds = null): MediaVisibilityRestrictionSubscriber
     {
         $connection = static::createStub(Connection::class);
         $connection
-            ->method('fetchOne')
-            ->willReturn($productDownloadMediaFolderId);
+            ->method('fetchFirstColumn')
+            ->willReturn($privateAllowedMediaFolderIds ?? [self::PRODUCT_DOWNLOAD_MEDIA_FOLDER_ID, self::PRODUCT_DOCUMENT_MEDIA_FOLDER_ID]);
 
         return new MediaVisibilityRestrictionSubscriber($connection);
     }
 
-    private static function assertPrivateProductDownloadMediaFolderId(mixed $filter, string $mediaFolderId): void
+    /**
+     * @param list<string> $mediaFolderIds
+     */
+    private static function assertPrivateAllowedMediaFolderIds(mixed $filter, array $mediaFolderIds): void
     {
         static::assertInstanceOf(MultiFilter::class, $filter);
         static::assertCount(2, $filter->getQueries());
 
-        $privateProductDownloadMediaRestriction = $filter->getQueries()[1];
-        static::assertInstanceOf(MultiFilter::class, $privateProductDownloadMediaRestriction);
-        self::assertEqualsFilter($privateProductDownloadMediaRestriction->getQueries()[1], 'mediaFolderId', $mediaFolderId);
+        $privateAllowedMediaRestriction = $filter->getQueries()[1];
+        static::assertInstanceOf(MultiFilter::class, $privateAllowedMediaRestriction);
+        self::assertEqualsAnyFilter($privateAllowedMediaRestriction->getQueries()[1], 'mediaFolderId', $mediaFolderIds);
     }
 
     private static function assertEqualsFilter(mixed $filter, string $field, string|bool|null $value): void
@@ -342,5 +396,15 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
         static::assertInstanceOf(EqualsFilter::class, $filter);
         static::assertSame($field, $filter->getField());
         static::assertSame($value, $filter->getValue());
+    }
+
+    /**
+     * @param list<string> $values
+     */
+    private static function assertEqualsAnyFilter(mixed $filter, string $field, array $values): void
+    {
+        static::assertInstanceOf(EqualsAnyFilter::class, $filter);
+        static::assertSame($field, $filter->getField());
+        static::assertSame($values, $filter->getValue());
     }
 }

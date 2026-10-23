@@ -44,6 +44,7 @@ use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentDownloadRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Garan\GaranLabelRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
@@ -87,6 +88,7 @@ use Shopware\Storefront\Controller\MaintenanceController;
 use Shopware\Storefront\Controller\NavigationController;
 use Shopware\Storefront\Controller\NewsletterController;
 use Shopware\Storefront\Controller\ProductController;
+use Shopware\Storefront\Controller\ProductDocumentController;
 use Shopware\Storefront\Controller\RegisterController;
 use Shopware\Storefront\Controller\RobotsController;
 use Shopware\Storefront\Controller\ScriptController;
@@ -339,6 +341,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductReviewLoader::class),
             service(ProductPurchaseLimitRoute::class),
             service(GaranLabelRoute::class),
+        ])
+        ->call('setContainer', [service('service_container')]);
+
+    $services->set(ProductDocumentController::class)
+        ->args([
+            service(ProductDocumentDownloadRoute::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

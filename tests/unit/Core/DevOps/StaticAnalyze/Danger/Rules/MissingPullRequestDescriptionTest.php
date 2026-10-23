@@ -50,16 +50,16 @@ class MissingPullRequestDescriptionTest extends TestCase
 comment that is long enough on its own but is not authored text -->', 'has no description'];
         yield 'too short' => ['Fix typo.', 'too short (9 of at least 50 characters)'];
         yield 'too short spread over template sections' => [
-            str_replace('### 1. Why is this change necessary?', "### 1. Why is this change necessary?\nBug.", self::template()),
+            str_replace('### 1. What and why?', "### 1. What and why?\nBug.", self::template()),
             'too short (4 of at least 50 characters)',
         ];
         yield 'exactly the minimum length' => [str_repeat('a', MissingPullRequestDescription::MIN_LENGTH), null];
         yield 'filled template' => [
             str_replace(
-                ['### 1. Why is this change necessary?', '### 2. What does this change do, exactly?'],
+                ['### 1. What and why?', '### 2. How?'],
                 [
-                    "### 1. Why is this change necessary?\nThe cart total was wrong for bundles.",
-                    "### 2. What does this change do, exactly?\nIt sums the bundle items before applying the discount.",
+                    "### 1. What and why?\nThe cart total was wrong for bundles.",
+                    "### 2. How?\nIt sums the bundle items before applying the discount.",
                 ],
                 self::template()
             ),

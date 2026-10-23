@@ -497,7 +497,9 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
     // the cart the server returns after the reorder, priced with the current prices and the cart currency
     function returnedCart({ success = true, lineItems = null } = {}) {
         return `
-            ${success ? '<div class="alert alert-success">2 products added</div>' : '<div class="alert alert-danger">Error</div>'}
+            ${success
+        ? '<div class="flashbags" data-flash-types="info success"><div class="theme-alert">2 products added</div></div>'
+        : '<div class="flashbags" data-flash-types="danger"><div class="alert alert-success">Error</div></div>'}
             <div class="d-none hidden-line-items-information" data-currency="USD">
                 ${lineItems ?? `
                     <span class="hidden-line-item" data-id="product-1" data-sku="SW-1" data-name="Shirt" data-quantity="3" data-price="25"></span>

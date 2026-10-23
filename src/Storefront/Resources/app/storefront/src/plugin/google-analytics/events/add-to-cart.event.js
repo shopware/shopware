@@ -199,14 +199,14 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
     /**
      * @param {Map<string, HTMLElement>} ordered the products of the order by product ID
      * @param {string} html the cart the server returned after the reorder
-     * @param {boolean} requireSuccess the off-canvas cart shows a success alert only if every product was added
+     * @param {boolean} requireSuccess the off-canvas cart shows a success message only if every product was added
      * @private
      */
     _pushReorder(ordered, html, requireSuccess) {
         const cart = new DOMParser().parseFromString(html || '', 'text/html');
         const information = cart.querySelector('.hidden-line-items-information');
 
-        if (!information || (requireSuccess && !cart.querySelector('.alert-success'))) {
+        if (!information || (requireSuccess && !cart.querySelector('[data-flash-types~="success"]'))) {
             return;
         }
 

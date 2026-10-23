@@ -81,6 +81,10 @@ For a business customer, `company` and `vatIds` are then only changed when the r
 Before, such a request cleared both, while the customer stayed a business customer.
 Requests that send `accountType` behave as before.
 
+### Admin API lists the unit codes
+
+The new route `GET /api/_action/unit/unece-codes` returns every code that can be saved as `uneceCode` on a unit, as a list of `{"code": "KGM", "name": "kilogram"}` objects. The names are in English. The route needs the `unit:read` permission.
+
 ## Features
 
 ### Disable the Administration password recovery flow

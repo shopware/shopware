@@ -42,8 +42,18 @@ async function createWrapper(privileges = []) {
                     $t() {
                         return 'trans';
                     },
+                    $te(key) {
+                        return key === 'sw-settings-units.uneceCodes.KGM';
+                    },
                 },
                 provide: {
+                    unitUneceCodeService: {
+                        getUneceCodes: () =>
+                            Promise.resolve([
+                                { code: 'KGM', name: 'kilogram' },
+                                { code: 'XBX', name: 'box' },
+                            ]),
+                    },
                     repositoryFactory: {
                         create: () => repositoryFactoryMock,
                     },
@@ -226,6 +236,30 @@ describe('module/sw-settings-units/page/sw-settings-units-list', () => {
                 property: 'shortCode',
                 label: 'sw-settings-units.grid.columnShortCode',
             },
+            {
+                property: 'uneceCode',
+                label: 'sw-settings-units.grid.columnUneceCode',
+            },
         ]);
+    });
+
+    it('should show the translated name next to a common unit code', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.getUneceCodeLabel('KGM')).toBe('KGM - trans');
+    });
+
+    it('should fall back to the English name when no translated name exists', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.getUneceCodeLabel('XBX')).toBe('XBX - box');
+    });
+
+    it('should show only the unit code when the code is unknown', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.getUneceCodeLabel('ZZZ')).toBe('ZZZ');
     });
 });

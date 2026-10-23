@@ -53,6 +53,24 @@ class StrictChoiceResolverTest extends TestCase
         static::assertSame(['fixed', 'from-parent'], $resolver->getStrictChoices($field, $translationDefinition));
     }
 
+    public function testReturnsProviderChoicesWhenTheFlagListsNoValues(): void
+    {
+        $resolver = new StrictChoiceResolver([self::createEnumProvider('category', 'type', ['custom'])]);
+
+        $field = (new StringField('type', 'type'))->addFlags(new Choice([], strict: true));
+
+        static::assertSame(['custom'], $resolver->getStrictChoices($field, new CategoryDefinition()));
+    }
+
+    public function testReturnsNullWhenNeitherFlagNorProviderListsValues(): void
+    {
+        $resolver = new StrictChoiceResolver([self::createEnumProvider('product', 'type', ['other-entity'])]);
+
+        $field = (new StringField('type', 'type'))->addFlags(new Choice([], strict: true));
+
+        static::assertNull($resolver->getStrictChoices($field, new CategoryDefinition()));
+    }
+
     public function testReturnsNullForNonStrictChoices(): void
     {
         $resolver = new StrictChoiceResolver([self::createEnumProvider('category', 'type', ['custom'])]);

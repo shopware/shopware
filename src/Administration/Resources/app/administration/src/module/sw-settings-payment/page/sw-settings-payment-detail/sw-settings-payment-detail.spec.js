@@ -1,10 +1,24 @@
 import { mount } from '@vue/test-utils';
+import { reactive } from 'vue';
 
 /**
  * @sw-package checkout
  */
 
-async function createWrapper(privileges = [], paymentMethod = {}) {
+async function createWrapper(
+    privileges = [],
+    paymentMethod = {},
+    route = {
+        query: {
+            page: 1,
+            limit: 25,
+        },
+        params: {
+            id: '12312',
+        },
+    },
+    search = null,
+) {
     return mount(
         await wrapTestComponent('sw-settings-payment-detail', {
             sync: true,
@@ -13,15 +27,7 @@ async function createWrapper(privileges = [], paymentMethod = {}) {
             global: {
                 renderStubDefaultSlot: true,
                 mocks: {
-                    $route: {
-                        query: {
-                            page: 1,
-                            limit: 25,
-                        },
-                        params: {
-                            id: '12312',
-                        },
-                    },
+                    $route: route,
                 },
                 provide: {
                     repositoryFactory: {
@@ -43,18 +49,20 @@ async function createWrapper(privileges = [], paymentMethod = {}) {
                                     pluginId: '12321-a',
                                     ...paymentMethod,
                                 }),
-                            search: () =>
-                                Promise.resolve({
-                                    first: () =>
-                                        Promise.resolve({
-                                            id: '1a2b3c',
-                                            name: 'Test settings-payment',
-                                            entity: 'settings-payment',
-                                            pluginId: '12321-a',
-                                            getEntityName: () => 'payment-method',
-                                            ...paymentMethod,
-                                        }),
-                                }),
+                            search:
+                                search ??
+                                (() =>
+                                    Promise.resolve({
+                                        first: () =>
+                                            Promise.resolve({
+                                                id: '1a2b3c',
+                                                name: 'Test settings-payment',
+                                                entity: 'settings-payment',
+                                                pluginId: '12321-a',
+                                                getEntityName: () => 'payment-method',
+                                                ...paymentMethod,
+                                            }),
+                                    })),
                         }),
                     },
                     acl: {
@@ -197,5 +205,54 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
         const technicalInput = wrapper.find('.sw-settings-payment-detail__field-technical-name');
 
         expect(technicalInput.attributes('disabled')).toBeUndefined();
+    });
+
+    it('should load the new payment method when the route id changes', async () => {
+        const route = reactive({ query: {}, params: { id: 'first-id' } });
+        const search = jest.fn((criteria) =>
+            Promise.resolve({
+                first: () =>
+                    Promise.resolve({
+                        id: criteria.ids[0],
+                        name: 'Test settings-payment',
+                        getEntityName: () => 'payment-method',
+                    }),
+            }),
+        );
+        const wrapper = await createWrapper([], {}, route, search);
+        await flushPromises();
+
+        expect(wrapper.vm.paymentMethod.id).toBe('first-id');
+
+        route.params.id = 'second-id';
+        await flushPromises();
+
+        expect(search).toHaveBeenCalledTimes(2);
+        expect(wrapper.vm.paymentMethod.id).toBe('second-id');
+    });
+
+    it('should drop the media of the previous payment method when the new one has none', async () => {
+        const route = reactive({ query: {}, params: { id: 'first-id' } });
+        const search = jest.fn((criteria) =>
+            Promise.resolve({
+                first: () =>
+                    Promise.resolve({
+                        id: criteria.ids[0],
+                        name: 'Test settings-payment',
+                        mediaId: null,
+                        getEntityName: () => 'payment-method',
+                    }),
+            }),
+        );
+        const wrapper = await createWrapper([], {}, route, search);
+        await flushPromises();
+
+        await wrapper.setData({ mediaItem: { id: 'first-media' } });
+
+        route.params.id = 'second-id';
+        await flushPromises();
+
+        expect(wrapper.vm.paymentMethod.id).toBe('second-id');
+        expect(wrapper.vm.mediaItem).toBeNull();
     });
 });

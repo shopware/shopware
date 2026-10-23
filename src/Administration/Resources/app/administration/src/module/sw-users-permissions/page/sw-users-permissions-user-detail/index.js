@@ -243,6 +243,15 @@ export default {
         languageId() {
             this.createdComponent();
         },
+
+        '$route.params.id'() {
+            this.mediaItem = null;
+            this.isEmailAlreadyInUse = false;
+            this.isUsernameUsed = false;
+            this.userThemeSelection = null;
+            this.userModuleIconColorsSelection = null;
+            this.createdComponent();
+        },
     },
 
     created() {

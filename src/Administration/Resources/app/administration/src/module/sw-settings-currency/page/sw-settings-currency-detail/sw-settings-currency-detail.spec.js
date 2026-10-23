@@ -4,7 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], { repository = null, props = {} } = {}) {
     const currencyRepository = {
         create: () => {
             return {
@@ -28,7 +28,7 @@ async function createWrapper(privileges = []) {
                 renderStubDefaultSlot: true,
                 provide: {
                     repositoryFactory: {
-                        create: () => currencyRepository,
+                        create: () => repository ?? currencyRepository,
                     },
                     acl: {
                         can: (identifier) => {
@@ -78,8 +78,25 @@ async function createWrapper(privileges = []) {
                     },
                 },
             },
+            props,
         },
     );
+}
+
+function createSwitchableCurrencyRepository() {
+    return {
+        create: () => ({ id: 'newCurrencyId', name: 'New currency', isNew: () => true }),
+        save: jest.fn(() => Promise.resolve()),
+        get: jest.fn((id) =>
+            Promise.resolve({
+                id,
+                name: `Currency ${id}`,
+                countryRoundings: { entity: 'currency_country_rounding', source: `/currency/${id}/country-roundings` },
+                isNew: () => false,
+            }),
+        ),
+        search: () => Promise.resolve([]),
+    };
 }
 
 describe('module/sw-settings-currency/page/sw-settings-currency-detail', () => {
@@ -128,5 +145,60 @@ describe('module/sw-settings-currency/page/sw-settings-currency-detail', () => {
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'sw-settings-currency.detail.notificationIsoCodeAlreadyExists',
         });
+    });
+
+    it('should load the new currency when the currencyId changes', async () => {
+        const repository = createSwitchableCurrencyRepository();
+        const wrapper = await createWrapper(['currencies.editor'], {
+            repository,
+            props: { currencyId: 'firstCurrencyId' },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.currency.id).toBe('firstCurrencyId');
+
+        await wrapper.setProps({ currencyId: 'secondCurrencyId' });
+        await flushPromises();
+
+        expect(repository.get).toHaveBeenLastCalledWith('secondCurrencyId');
+        expect(wrapper.vm.currency.id).toBe('secondCurrencyId');
+    });
+
+    it('should drop the country roundings and their search of the previous currency when creating a new one', async () => {
+        const repository = createSwitchableCurrencyRepository();
+        const wrapper = await createWrapper(['currencies.editor', 'currencies.creator'], {
+            repository,
+            props: { currencyId: 'firstCurrencyId' },
+        });
+        await flushPromises();
+
+        await wrapper.setData({ currencyCountryRoundings: [{ id: 'first-rounding' }], searchTerm: 'old term' });
+
+        await wrapper.setProps({ currencyId: null });
+        await flushPromises();
+
+        expect(wrapper.vm.currency.id).toBe('newCurrencyId');
+        expect(wrapper.vm.currencyCountryRoundings).toBeNull();
+        expect(wrapper.vm.searchTerm).toBe('');
+    });
+
+    it('should load a newly created currency only once after the redirect to its detail route', async () => {
+        const repository = createSwitchableCurrencyRepository();
+        const wrapper = await createWrapper(['currencies.creator'], { repository });
+        await flushPromises();
+
+        await wrapper.vm.onSave();
+        await flushPromises();
+
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.settings.currency.detail',
+            params: { id: 'newCurrencyId' },
+        });
+
+        await wrapper.setProps({ currencyId: 'newCurrencyId' });
+        await flushPromises();
+
+        expect(repository.get).toHaveBeenCalledTimes(1);
+        expect(repository.get).toHaveBeenCalledWith('newCurrencyId');
     });
 });

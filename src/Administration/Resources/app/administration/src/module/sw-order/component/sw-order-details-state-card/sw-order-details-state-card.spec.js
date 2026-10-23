@@ -61,7 +61,7 @@ const lastStateChangeByAdminUser = {
     createdAt: new Date(),
 };
 
-async function createWrapper(lastStateChange = lastStateChangeByAdminUser) {
+async function createWrapper(lastStateChange = lastStateChangeByAdminUser, provide = {}) {
     return mount(await wrapTestComponent('sw-order-details-state-card', { sync: true }), {
         props: {
             order: orderMock,
@@ -106,6 +106,7 @@ async function createWrapper(lastStateChange = lastStateChangeByAdminUser) {
                     },
                 },
                 swOrderDetailAskAndSaveEdits: () => Promise.resolve(true),
+                ...provide,
             },
             stubs: {
                 'sw-order-state-select-v2': await wrapTestComponent('sw-order-state-select-v2', { sync: true }),
@@ -182,5 +183,45 @@ describe('src/module/sw-order/component/sw-order-details-state-card', () => {
         expect(wrapper.get('.sw-order-detail-state-card__state-history-text').text()).toBe(
             'sw-order.stateCard.labelSystemUser',
         );
+    });
+
+    it('should reload the transitions and the last change when the entity changes', async () => {
+        const getState = jest.fn(() => ({ data: { transitions: [] } }));
+        const historySearch = jest.fn((criteria) => {
+            const referencedId = criteria.filters.find((filter) => filter.field === 'referencedId').value;
+
+            return Promise.resolve({
+                first: () =>
+                    referencedId === 'transaction-2'
+                        ? { user: { firstName: 'Jane', lastName: 'Roe' }, createdAt: new Date() }
+                        : lastStateChangeByAdminUser,
+            });
+        });
+
+        const wrapper = await createWrapper(lastStateChangeByAdminUser, {
+            stateMachineService: { getState },
+            repositoryFactory: {
+                create: (entity) => ({
+                    search:
+                        entity === 'state_machine_history'
+                            ? historySearch
+                            : () => Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null, [], 0)),
+                }),
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.get('.sw-order-detail-state-card__state-history-text').text()).toBe('John Doe');
+
+        await wrapper.setProps({
+            entity: {
+                ...orderMock.transactions.last(),
+                id: 'transaction-2',
+            },
+        });
+        await flushPromises();
+
+        expect(getState).toHaveBeenLastCalledWith('order_transaction', 'transaction-2');
+        expect(wrapper.get('.sw-order-detail-state-card__state-history-text').text()).toBe('Jane Roe');
     });
 });

@@ -168,4 +168,30 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-conditions', () =
         expect(repositorySearch.mock.calls[0][0].limit).toBe(26);
         expect(wrapper.vm.excludedPromotions).toHaveLength(26);
     });
+
+    it('should load the exclusions of the new promotion when the promotion is replaced while the view stays mounted', async () => {
+        const repositorySearch = jest.fn((criteria) => {
+            const ids = criteria.filters.find((filter) => filter.field === 'id').value.split('|');
+
+            return Promise.resolve(createPromotionCollection(ids.map((id) => ({ id }))));
+        });
+        const wrapper = await createWrapper({ repositorySearch });
+        await flushPromises();
+
+        expect(Array.from(wrapper.vm.excludedPromotions.getIds())).toEqual([
+            'd671d6d3efc74d2a8b977e3be3cd69c7',
+        ]);
+
+        await wrapper.setProps({
+            promotion: createPromotion({
+                id: 'secondPromotionId',
+                exclusionIds: ['8b3f1c2d9e4a4f6b8c7d5e3a1b2c4d6e'],
+            }),
+        });
+        await flushPromises();
+
+        expect(Array.from(wrapper.vm.excludedPromotions.getIds())).toEqual([
+            '8b3f1c2d9e4a4f6b8c7d5e3a1b2c4d6e',
+        ]);
+    });
 });

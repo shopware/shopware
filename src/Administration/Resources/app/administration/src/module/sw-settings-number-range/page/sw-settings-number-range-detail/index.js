@@ -203,6 +203,19 @@ export default {
         'numberRange.start'() {
             this.getPreview();
         },
+        async '$route.params.id'() {
+            // splitting the pattern of the next number range only sets the values that its pattern needs
+            this.advanced = false;
+            this.simplePossible = true;
+            this.prefix = '';
+            this.suffix = '';
+            this.preview = '';
+
+            await this.createdComponent();
+
+            // the preview depends on the number range, also when the next one has the same pattern and start
+            this.getPreview();
+        },
     },
 
     created() {

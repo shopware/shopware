@@ -917,4 +917,74 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             translate.mockRestore();
         },
     );
+
+    it('should load the new document config when the documentConfigId changes', async () => {
+        const wrapper = await createWrapper({
+            props: { documentConfigId: 'documentConfigWithDocumentType' },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.documentConfig.id).toBe('documentConfigWithDocumentType');
+
+        await wrapper.setProps({ documentConfigId: 'documentConfigWithDocumentFileTypes' });
+        await flushPromises();
+
+        expect(wrapper.vm.documentConfig.id).toBe('documentConfigWithDocumentFileTypes');
+        expect(wrapper.vm.documentConfig.config.fileTypes).toEqual(['pdf', 'html']);
+    });
+
+    it('should drop the sales channel and due date state of the previous config when creating a new one', async () => {
+        const wrapper = await createWrapper({
+            props: { documentConfigId: 'documentConfigWithDocumentType' },
+        });
+        await flushPromises();
+
+        await wrapper.setData({
+            paymentDueDateIsValid: false,
+            isShowDisplayNoteDelivery: true,
+            isShowDivergentDeliveryAddress: true,
+            documentConfigSalesChannels: ['previous-sales-channel-id'],
+            alreadyAssignedSalesChannelIdsToType: ['previous-sales-channel-id'],
+            documentConfigSalesChannelOptionsCollection: [{ salesChannelId: 'previous-sales-channel-id' }],
+        });
+
+        await wrapper.setProps({ documentConfigId: null });
+        await flushPromises();
+
+        expect(wrapper.vm.paymentDueDateIsValid).toBe(true);
+        expect(wrapper.vm.isShowDisplayNoteDelivery).toBe(false);
+        expect(wrapper.vm.isShowDivergentDeliveryAddress).toBe(false);
+        expect(wrapper.vm.documentConfigSalesChannels).toEqual([]);
+        expect(wrapper.vm.alreadyAssignedSalesChannelIdsToType).toEqual([]);
+        expect(wrapper.vm.documentConfigSalesChannelOptionsCollection).toEqual([]);
+    });
+
+    it('should load the document config only once when saving a new config replaces the route', async () => {
+        const createSpy = jest.spyOn(documentBaseConfigRepositoryMock, 'create').mockReturnValueOnce({
+            id: 'newDocumentConfigId',
+            isNew: () => true,
+        });
+        const getSpy = jest.spyOn(documentBaseConfigRepositoryMock, 'get');
+
+        const wrapper = await createWrapper({}, ['document.editor']);
+        await flushPromises();
+        getSpy.mockClear();
+
+        jest.spyOn(wrapper.vm.$router, 'replace').mockImplementationOnce(async ({ params }) => {
+            await wrapper.setProps({ documentConfigId: params.id });
+        });
+
+        await wrapper.vm.onSave();
+        await flushPromises();
+
+        expect(wrapper.vm.$router.replace).toHaveBeenCalledWith({
+            name: 'sw.settings.document.detail',
+            params: { id: 'newDocumentConfigId' },
+        });
+        expect(getSpy).toHaveBeenCalledTimes(1);
+        expect(getSpy).toHaveBeenCalledWith('newDocumentConfigId', expect.anything(), expect.anything());
+
+        createSpy.mockRestore();
+        getSpy.mockRestore();
+    });
 });

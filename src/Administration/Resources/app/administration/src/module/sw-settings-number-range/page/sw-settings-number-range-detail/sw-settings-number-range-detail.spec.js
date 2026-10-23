@@ -2,8 +2,9 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
+import { reactive } from 'vue';
 
-async function createWrapper() {
+async function createWrapper(route = { params: { id: 'id' } }, get = null) {
     return mount(
         await wrapTestComponent('sw-settings-number-range-detail', {
             sync: true,
@@ -12,11 +13,7 @@ async function createWrapper() {
             global: {
                 renderStubDefaultSlot: true,
                 mocks: {
-                    $route: {
-                        params: {
-                            id: 'id',
-                        },
-                    },
+                    $route: route,
                 },
                 provide: {
                     numberRangeService: {
@@ -26,24 +23,26 @@ async function createWrapper() {
                     repositoryFactory: {
                         create: () => ({
                             create: () => {},
-                            get: () =>
-                                Promise.resolve({
-                                    description: null,
-                                    global: true,
-                                    id: 'id',
-                                    name: 'Delivery notes',
-                                    translated: {
-                                        customFields: [],
+                            get:
+                                get ??
+                                (() =>
+                                    Promise.resolve({
                                         description: null,
+                                        global: true,
+                                        id: 'id',
                                         name: 'Delivery notes',
-                                    },
-                                    translations: [],
-                                    type: {
-                                        typeName: 'Delivery notes',
-                                        technicalName: 'document_delivery_note',
-                                    },
-                                    typeId: '72ea130130404f67a426332f7a8c7277',
-                                }),
+                                        translated: {
+                                            customFields: [],
+                                            description: null,
+                                            name: 'Delivery notes',
+                                        },
+                                        translations: [],
+                                        type: {
+                                            typeName: 'Delivery notes',
+                                            technicalName: 'document_delivery_note',
+                                        },
+                                        typeId: '72ea130130404f67a426332f7a8c7277',
+                                    })),
                             search: () => Promise.resolve([]),
                         }),
                     },
@@ -243,5 +242,58 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
 
         const numberRangeType = wrapper.findComponent('#numberRangeTypes');
         expect(numberRangeType.props('disabled')).toBe(true);
+    });
+
+    it('should load the new number range when the route id changes', async () => {
+        const route = reactive({ params: { id: 'first-id' } });
+        const get = jest.fn((id) =>
+            Promise.resolve({
+                id,
+                name: id,
+                pattern: '{n}',
+                global: false,
+                type: { global: false },
+                translated: { name: id },
+            }),
+        );
+        const wrapper = await createWrapper(route, get);
+        await flushPromises();
+
+        expect(wrapper.vm.numberRange.id).toBe('first-id');
+
+        route.params.id = 'second-id';
+        await flushPromises();
+
+        expect(get).toHaveBeenCalledTimes(2);
+        expect(wrapper.vm.numberRange.id).toBe('second-id');
+    });
+
+    it('should drop the pattern parts of the previous number range when the route id changes', async () => {
+        const route = reactive({ params: { id: 'first-id' } });
+        const patterns = { 'first-id': '{date}{n}', 'second-id': '' };
+        const get = jest.fn((id) =>
+            Promise.resolve({
+                id,
+                name: id,
+                pattern: patterns[id],
+                global: false,
+                type: { global: false },
+                translated: { name: id },
+            }),
+        );
+        const wrapper = await createWrapper(route, get);
+        await flushPromises();
+
+        expect(wrapper.vm.advanced).toBe(true);
+        await wrapper.setData({ prefix: 'OLD-', suffix: '-OLD' });
+
+        route.params.id = 'second-id';
+        await flushPromises();
+
+        expect(wrapper.vm.numberRange.id).toBe('second-id');
+        expect(wrapper.vm.advanced).toBe(false);
+        expect(wrapper.vm.simplePossible).toBe(true);
+        expect(wrapper.vm.prefix).toBe('');
+        expect(wrapper.vm.suffix).toBe('');
     });
 });

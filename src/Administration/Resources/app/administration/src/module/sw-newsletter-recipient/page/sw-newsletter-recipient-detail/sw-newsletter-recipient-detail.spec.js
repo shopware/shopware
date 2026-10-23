@@ -2,6 +2,7 @@
  * @sw-package after-sales
  */
 import { mount } from '@vue/test-utils';
+import { reactive } from 'vue';
 
 const recipientMock = [
     {
@@ -26,7 +27,7 @@ const recipientMock = [
     },
 ];
 
-async function createWrapper() {
+async function createWrapper(route = { params: { id: '92618290af63445b973cc1021d60e3f5' } }, search = null) {
     return mount(
         await wrapTestComponent('sw-newsletter-recipient-detail', {
             sync: true,
@@ -72,7 +73,7 @@ async function createWrapper() {
                     stateStyleDataProviderService: {},
                     repositoryFactory: {
                         create: () => ({
-                            search: () => Promise.resolve({ first: () => recipientMock[0] }),
+                            search: search ?? (() => Promise.resolve({ first: () => recipientMock[0] })),
                             save: () => Promise.resolve(),
                         }),
                     },
@@ -81,9 +82,7 @@ async function createWrapper() {
                     },
                 },
                 mocks: {
-                    $route: {
-                        params: { id: '92618290af63445b973cc1021d60e3f5' },
-                    },
+                    $route: route,
                 },
             },
             props: {
@@ -136,5 +135,25 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail
 
         await saveButton.trigger('click');
         expect(saveButton.attributes('is-loading')).toBe('true');
+    });
+
+    it('should load the new recipient when the route id changes', async () => {
+        global.activeAclRoles = ['newsletter_recipient.editor'];
+        const route = reactive({ params: { id: 'first-id' } });
+        const search = jest.fn((criteria) => {
+            const id = criteria.filters.find((filter) => filter.field === 'id').value;
+
+            return Promise.resolve({ first: () => ({ ...recipientMock[0], id }) });
+        });
+        const wrapper = await createWrapper(route, search);
+        await flushPromises();
+
+        expect(wrapper.vm.newsletterRecipient.id).toBe('first-id');
+
+        route.params.id = 'second-id';
+        await flushPromises();
+
+        expect(search).toHaveBeenCalledTimes(2);
+        expect(wrapper.vm.newsletterRecipient.id).toBe('second-id');
     });
 });

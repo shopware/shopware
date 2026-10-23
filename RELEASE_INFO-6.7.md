@@ -27,39 +27,37 @@ WHERE (account_type = 'private' AND (company <> '' OR JSON_LENGTH(vat_ids) > 0))
 
 ## Core
 
-### Webhooks without an app are now authorized against their owner
+### Webhooks are authorized against their owner
 
-Webhooks created through the Admin API without an app (`POST /api/webhook` without `app_id`) are now authorized against the ACL privileges of the user or integration that created them. An admin owner receives every event it subscribes to, and a non-admin owner only receives events it is allowed to read.
+Webhooks created through the Admin API without an app now belong to the user or integration that created them, and only receive the events their owner is allowed to read. Nothing changes for webhooks an app registers in its manifest.
 
-The owner is recorded from the session and cannot be set through the API. Deleting the owning user or integration also deletes its app-less webhooks: a webhook has no meaning once the owner whose privileges authorize it is gone. App webhooks go through the same check: their owner is the app's integration, so they are authorized against the app's role as before.
+* **Owner:** The owner is recorded from the session and cannot be set through the API. An admin owner receives every event it subscribes to; a non-admin owner only receives events it has the read privilege for. A user or integration that still owns webhooks can't be deleted (`409`, `FRAMEWORK__DELETE_RESTRICTED`): delete its webhooks first.
+* **Existing webhooks:** Existing webhooks without an app have no recorded creator, so the update creates an admin integration labelled "Legacy webhooks", assigns them to it and prefixes their names with `[Legacy] `. They keep receiving every event they subscribe to. Audit them after updating and recreate any that should run with narrower privileges as the user or integration they belong to. The "Legacy webhooks" integration can only be deleted after its webhooks. To find them, search by the name prefix through the Admin API:
 
-Existing app-less webhooks have no recorded creator, so the update creates an admin integration labelled "Legacy webhooks" and assigns them to it. They keep receiving every event they subscribe to. Audit these webhooks after updating: recreate any that should run with narrower privileges as the user or integration it belongs to. Deleting the "Legacy webhooks" integration also deletes the webhooks assigned to it.
+  ```http
+  POST /api/search/webhook
+  { "filter": [{ "type": "prefix", "field": "name", "value": "[Legacy] " }] }
+  ```
 
-### Webhooks belonging to an app can no longer be changed through the API
+  or in the database:
 
-Webhooks that belong to an app (`app_id` is set) are managed through the app's manifest. Requests that update or delete them through the Admin API or Sync API are rejected with a `400` and `FRAMEWORK__APP_WEBHOOK_NOT_MODIFIABLE`, whatever privileges the caller holds. Apps continue to add, change and remove their own webhooks through their manifest when they are installed or updated.
+  ```sql
+  SELECT LOWER(HEX(w.id)) AS id, w.name, w.event_name, w.url
+  FROM webhook w
+  JOIN integration i ON i.id = w.owner_integration_id
+  WHERE i.label = 'Legacy webhooks';
+  ```
+* **Webhooks an app created through the API:** They belong to the app's integration, so they are no longer delivered while the app is inactive, and they are deleted when the app is uninstalled.
+* **Subscriptions are validated:** `POST /api/webhook` and `PATCH /api/webhook/{id}` now check the event a webhook subscribes to, the same check webhooks in app manifests already get. Requests are rejected with a `400` and `FRAMEWORK__WEBHOOK_EVENT_NOT_PERMITTED` when webhooks cannot receive the event, or `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` when the owner lacks a privilege the event requires. A non-admin owner needs the read privilege of the event in addition to `webhook:create`, e.g. `product:read` for `product.written`. Previously any event name was accepted and the webhook simply never fired.
+* **Only the owner may change a webhook:** A webhook without an app can only be updated or deleted through the API by its owner or an administrator. Anyone else gets a `400` and `FRAMEWORK__WEBHOOK_NOT_OWNED`, regardless of their `webhook:update` and `webhook:delete` privileges.
+* **App webhooks are managed by their manifest:** Webhooks with an `app_id` can no longer be updated or deleted through the Admin API or Sync API (`400`, `FRAMEWORK__APP_WEBHOOK_NOT_MODIFIABLE`). The only exception: an administrator may change their `active` flag, e.g. to switch a webhook back on after it was switched off for failing deliveries. Webhooks can also no longer be cloned through `POST /api/_action/clone/webhook/{id}` (`403`, `FRAMEWORK__CLONE_PROTECTED`).
+* **Limiting a webhook to some of its owner's roles:** A webhook without an app accepts an optional `aclRoleIds` list. It then only receives events whose required permissions are covered by these roles. Leave it out to use all of the owner's roles.
 
-Webhooks can also no longer be cloned through `POST /api/_action/clone/webhook/{id}`: the request is rejected with a `403` and `FRAMEWORK__CLONE_PROTECTED`. A clone kept the original's app, so it could deliver an app's events to another url.
+  ```json
+  { "name": "Product sync", "eventName": "product.written", "url": "https://example.com", "aclRoleIds": ["0193b1c2d3e47f5a8b9c0d1e2f3a4b5c"] }
+  ```
 
-### Webhooks without an app can only be changed by their owner
-
-A webhook without an app can only be updated or deleted through the API by the user or integration that created it. Requests from anyone else are rejected with a `400` and `FRAMEWORK__WEBHOOK_NOT_OWNED`, regardless of the `webhook:update` and `webhook:delete` privileges they hold. Administrators are not restricted.
-
-### Webhooks created through the API are validated against the event they subscribe to
-
-`POST /api/webhook` and `PATCH /api/webhook/{id}` now check the event a webhook subscribes to, as an app manifest already was. Requests are rejected with a `400` and `FRAMEWORK__WEBHOOK_EVENT_NOT_PERMITTED` when webhooks cannot receive the event, or `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` when the webhook's owner lacks a privilege the event requires. Previously any event name was accepted and the webhook simply never fired.
-
-A non-admin user or integration now needs the read privilege of every event it subscribes to in addition to `webhook:create`; a webhook on `product.written` requires `product:read`. Administrators are not restricted, unless the webhook is limited to some of their roles.
-
-### Webhooks created through the API can be limited to some of their owner's ACL roles
-
-A webhook without an app accepts an optional `aclRoleIds` list. It then only receives events those roles allow, even when its owner holds more roles; leave it unset to keep inheriting every role of the owner. For an administrator owner, the listed roles are used as they are.
-
-```json
-{ "name": "Product sync", "eventName": "product.written", "url": "https://example.com", "aclRoleIds": ["0193b1c2d3e47f5a8b9c0d1e2f3a4b5c"] }
-```
-
-The list must not be empty or contain empty entries, and the listed roles must be held by the owner, unless the owner is an administrator; otherwise the write is rejected with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `aclRoleIds`. The subscribed event must be covered by the privileges of the listed roles, otherwise `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` is returned, also when an administrator changes somebody else's webhook.
+  The list must not be empty or contain empty entries, every role must exist, and every role must be held by the owner unless the owner is an administrator. Otherwise the write is rejected with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `aclRoleIds`. If the event is not covered by the listed roles, `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` is returned, also when an administrator changes somebody else's webhook.
 
 ### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
 
@@ -67,11 +65,134 @@ The new `bin/console sales-channel:file:enable [ids...] [--all]` command switche
 It only creates missing files, so a file switched off in the Administration stays off, and a second run changes nothing.
 The command always exits with `0`, which makes it suitable for install hooks in `.shopware-project.yml`.
 
+### Order line items of older orders get their product type
+
+This release fills `payload.productType` for every product and custom order line item that does not have it yet, based on the line item's deprecated `states`.
+The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physical line items, so most line items of older orders had no product type.
+Values that are already set are kept.
+Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
+
+### Business customers need a VAT ID for countries that require one
+
+If the country of the active billing address has "VAT Reg.No. required" enabled, the cart of a business customer without a VAT ID now carries the blocking error `vat-id-missing`, and the order can't be placed.
+This also covers customers who registered before the setting was enabled or who switched to a billing address in such a country later.
+Store API clients should show the error and let the customer add the VAT ID via `/store-api/account/change-profile`.
+That route now validates `vatIds` against the country of the active billing address instead of the default one, the same country the cart checks.
+Headless clients find that address as `customer.activeBillingAddress` in `/store-api/context`.
+The Storefront profile page marks the VAT ID field as required based on the same country.
+
+### Remote thumbnails skip SVGs
+
+With `shopware.media.remote_thumbnails.enable`, SVGs now have an empty `thumbnails` collection, as in local mode.
+Before, their `srcset` claimed widths that the returned original file did not have, so browsers rendered small SVG logos far too small.
+Media loaded without the `mediaType` field keep their thumbnail URLs, as the type can't be checked.
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
+
+### Profile updates without `accountType` keep the account type
+
+`/store-api/account/change-profile` now keeps the customer's current account type when the request doesn't contain `accountType`.
+For a business customer, `company` and `vatIds` are then only changed when the request contains them, and they are validated as for `business`.
+Before, such a request cleared both, while the customer stayed a business customer.
+Requests that send `accountType` behave as before.
+
+## Features
+
+### Disable the Administration password recovery flow
+
+The Administration "forgot password" flow can now be disabled in `shopware.yaml`, for example when user passwords are managed externally via SSO.
+When disabled, no recovery mail is sent, existing recovery hashes can no longer be used to set a new password, and the Administration login page hides the "forgot password" link.
+The flow stays enabled by default.
+The state is exposed as `passwordRecoveryEnabled` in the response of `GET /api/oauth/sso/config`, so custom login pages can hide their recovery link the same way.
+
+```yaml
+shopware:
+    api:
+        user_recovery:
+            enabled: false
+```
+
+## Administration
+
+### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag
+
+The new `ADMIN_VITE_8` feature flag builds the Administration and the Administration code of extensions with Vite 8.
+Vite 8 becomes the default with Shopware 6.8, so you can use the flag to test your extensions now:
+
+```bash
+ADMIN_VITE_8=1 composer watch:admin
+ADMIN_VITE_8=1 composer build:js:admin
+```
+
+With the flag, building the Administration requires Node.js `^20.19.0 || >=22.12.0`.
+The `postinstall` script of the Administration installs Vite 8 into `build/vite-8`.
+If your CI restores the Administration dependencies from a cache without running that script, also run `npm ci` in `build/vite-8`.
+
+With the flag, the watcher serves all files over HTTP/2.
+Browsers only use HTTP/2 over HTTPS, so put HTTPS in front of the watcher:
+
+* Run `shopware-cli project proxy up` and open `https://admin-watch.<project>.shopware.local`.
+* Or set `SHOPWARE_ADMIN_HTTPS_CERTIFICATE_FILE` and `SHOPWARE_ADMIN_HTTPS_KEY_FILE` to a certificate and its key, for example created with [mkcert](https://github.com/FiloSottile/mkcert).
+  Relative paths are resolved from the project root.
+
+### Customer group registration SEO URLs for headless sales channels
+
+Customer groups with an activated registration form now also get SEO URLs for headless (API type) registration sales channels, for every language that has a domain flagged as external storefront (see "SEO URLs for headless sales channels" in 6.7.14.0).
+The rows are written with the route name `store-api.customer-group-registration.config` (the Store API route a headless frontend calls to render the registration form) — separate from the storefront's `frontend.account.customer-group-registration.page` — and can be resolved by headless frontends via `GET /store-api/seo-url`.
+Headless sales channels without an external storefront domain keep getting no rows;
+storefront sales channels are unaffected.
+
+The headless rows are maintained by the Core (`CustomerGroupRegistrationSeoUrlSubscriber`), so they are also written in headless installations without the Storefront bundle.
+They additionally react to domain changes:
+toggling the external storefront flag of a domain (or adding/removing domains) creates or removes the affected rows without re-saving the customer group.
+The storefront rows are untouched by this and keep being maintained by the Storefront bundle.
+
+### Known core deprecations log an error in next-major mode
+
+Core usages that are not migrated yet are listed in `src/Administration/Resources/app/administration/src/meta/deprecation-baseline.json`.
+In next-major mode, a deprecation with a listed message logs a console error instead of throwing, so the Administration stays usable.
+Any other deprecation still throws.
+
+## API
+To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
+It bundles the Administration and its plugins, but not apps.
+Changes to plugin files reload the page instead of using HMR.
+
+Vite 8 does not match extglob patterns like `!(*.spec)` in `import.meta.glob`.
+Replace them with negated patterns like `['./**/*.{j,t}s', '!./**/*.spec.{j,t}s']`.
+`composer admin:check-extensions` warns about them, and `composer run admin:code-mods -- --fix -v 6.8 -p YourPlugin` rewrites them.
+Until 6.8, Shopware rewrites them when the flag is active and logs a warning for each one.
+If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0.6 or newer, because older versions ignore negated patterns.
+
+For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
+
+## Storefront
+
+### Guests can open the profile page
+
+Guests can now open and save the profile page to correct their personal data, company and VAT ID, for example when the cart reports `vat-id-missing`.
+The e-mail, password and account deletion sections stay hidden for guests, and their routes still reject them.
+The profile form keeps a `redirectTo` parameter, which the `vat-id-missing` error uses to send the customer back to the checkout after saving.
+Themes that override blocks of the personal data form in `page/account/profile/index.html.twig` should check that the content also suits guests.
+
+### Business customers keep company and VAT ID when saving the profile
+
+The profile page now shows company and VAT ID for business customers even when "Show selection between company and customer account" is disabled, and saving it keeps their account type.
+Before, saving the profile without that setting removed the company and the VAT IDs of business customers.
+Themes that override `component_address_personal_company_section`, `component_address_personal_company` or `component_address_personal_vat_id` in `component/address/address-personal.html.twig` should check that the content also suits this case.
+
+## Hosting & Configuration
+
+### Storefront readiness checks skip pages restricted by extensions
+
+The `ProductDetailReadiness` and `ProductListingReadiness` system checks only probe product and listing pages an anonymous visitor can see.
+Pages that extensions such as Dynamic Access restrict by rules no longer fail `bin/console system:check --context=pre_rollout`.
+If a sales channel has no visible page, the check reports `SKIPPED`.
+A sales channel whose domain cannot be resolved is now reported as its own failure, and the other sales channels are still checked.
 
 # 6.7.16.0
 
@@ -612,6 +733,12 @@ $lineItem = $lineItemFactoryRegistry->create([
 ], $salesChannelContext);
 ```
 
+### Public constant for the MCP connect-URL toolset selection
+
+`McpToolsetRegistry::QUERY_PARAMETER` now names the `toolsets` query parameter that selects toolsets in the MCP connect URL, on `/api/_mcp` and `/store-api/_mcp`. The parameter exists since 6.7.15.0, the constant since 6.7.16.0. Code that also supports 6.7.15 detects the parameter with `\defined(McpToolsetRegistry::class . '::ALL_TOOLSETS')` and uses the literal `'toolsets'`. Do not probe the internal `McpRequestedToolsetResolver` class, which can be renamed without notice.
+
+`shopware-toolsets-list` now reports the toolsets selected in the connect URL as enabled. A tool group named `all` now belongs to the `other` toolset, because `?toolsets=all` selects every toolset. `McpToolsetRegistry::advertisedTools()` resolves `all` the same way as `advertisedToolsForNames()`.
+
 ## API
 
 ### MCP tool results carry `structuredContent` and `isError`
@@ -714,6 +841,15 @@ The snippet key `sw-import-export.profile.addNewProfileTooltipLanguage` was depr
 ### `sw-empty-state` stays available until 6.9
 
 The removal of the deprecated `sw-empty-state` component was moved from 6.8 to 6.9, so extensions using it keep working with 6.8. Development builds log a deprecation warning once per usage site, including the component path that renders it. Migrate to `mt-empty-state` before 6.9, see `UPGRADE-6.9.md`.
+
+The new ESLint rule `sw-deprecation-rules/no-sw-empty-state-usage` of the Administration extension tooling migrates most usages automatically:
+
+```bash
+bin/console administration:check-extensions -- --only=MyPlugin --fix
+```
+
+Usages with custom `icon` slot content, markup in the default slot, conditional `icon` or default slot templates or dynamic bindings are only reported and have to be migrated manually.
+Check the `TODO Codemod` comment the rule adds above each converted usage.
 
 ### Native setup components support defineModel()
 

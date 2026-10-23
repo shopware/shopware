@@ -65,7 +65,7 @@ function filterContext(result: any, customContext: any) {
     if (typeof result === 'object') {
         for (const key in result) {
             if (key === 'context') {
-                // delete everything inside context except properties of customContext, never expose the auth token
+                // delete everything inside context except the properties of customContext
                 for (const contextKey in result[key]) {
                     if (contextKey === 'authToken' || !customContext || !customContext[contextKey]) {
                         delete result[key][contextKey];
@@ -131,8 +131,8 @@ export default function initializeExtensionDataLoader(): void {
 
         const mergedContext = createContext(context);
 
-        // Await the save, but never return its result: the repository resolves with the raw request response,
-        // whose config carries the admin auth token. The extension only needs to know the save succeeded.
+        // Await the save, but do not return its result: the extension only needs to know it succeeded,
+        // not the raw request response.
         await repository.save(entity, mergedContext);
     });
 
@@ -173,8 +173,8 @@ export default function initializeExtensionDataLoader(): void {
 
         const mergedContext = createContext(context);
 
-        // Await the save, but never return its result: the repository resolves with the raw request response,
-        // whose config carries the admin auth token. The extension only needs to know the save succeeded.
+        // Await the save, but do not return its result: the extension only needs to know it succeeded,
+        // not the raw request response.
         await repository.saveAll(entities as EntityCollection<typeof entityName>, mergedContext);
     });
 
@@ -186,8 +186,8 @@ export default function initializeExtensionDataLoader(): void {
 
         const mergedContext = createContext(context);
 
-        // Await the delete, but never return its result: the repository resolves with the raw request response,
-        // whose config carries the admin auth token. The extension only needs to know the delete succeeded.
+        // Await the delete, but do not return its result: the extension only needs to know it succeeded,
+        // not the raw request response.
         await repository.delete(entityId as EntityKey<typeof entityName>, mergedContext);
     });
 

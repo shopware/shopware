@@ -9,12 +9,12 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
     initializeExtensionDataLoader();
     let searchResult = { searchFoo: 'bar' };
     let getResult = { getFoo: 'bar' };
-    // save/saveAll/delete resolve with the raw request response, whose config carries the admin auth token
-    let saveResult = { saveFoo: 'bar', config: { headers: { Authorization: 'Bearer leaked-admin-token' } } };
+    // save/saveAll/delete resolve with the raw request response, including its request config headers
+    let saveResult = { saveFoo: 'bar', config: { headers: { Authorization: 'Bearer admin-token' } } };
     let cloneResult = { cloneFoo: 'bar' };
     let hasChangesResult = true;
-    let saveAllResult = { saveAllFoo: 'bar', config: { headers: { Authorization: 'Bearer leaked-admin-token' } } };
-    let deleteResult = { deleteFoo: 'bar', config: { headers: { Authorization: 'Bearer leaked-admin-token' } } };
+    let saveAllResult = { saveAllFoo: 'bar', config: { headers: { Authorization: 'Bearer admin-token' } } };
+    let deleteResult = { deleteFoo: 'bar', config: { headers: { Authorization: 'Bearer admin-token' } } };
     let createResult = { createFoo: 'bar' };
     const searchMockMethod = jest.fn((criteria, context) => {
         if (context.shouldFail) {
@@ -80,11 +80,11 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
         createMockMethod.mockClear();
         searchResult = { searchFoo: 'bar' };
         getResult = { getFoo: 'bar' };
-        saveResult = { saveFoo: 'bar', config: { headers: { Authorization: 'Bearer leaked-admin-token' } } };
+        saveResult = { saveFoo: 'bar', config: { headers: { Authorization: 'Bearer admin-token' } } };
         cloneResult = { cloneFoo: 'bar' };
         hasChangesResult = true;
-        saveAllResult = { saveAllFoo: 'bar', config: { headers: { Authorization: 'Bearer leaked-admin-token' } } };
-        deleteResult = { deleteFoo: 'bar', config: { headers: { Authorization: 'Bearer leaked-admin-token' } } };
+        saveAllResult = { saveAllFoo: 'bar', config: { headers: { Authorization: 'Bearer admin-token' } } };
+        deleteResult = { deleteFoo: 'bar', config: { headers: { Authorization: 'Bearer admin-token' } } };
         createResult = { createFoo: 'bar' };
 
         // create mock extension
@@ -156,12 +156,12 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
     });
 
     it('should not forward an extension criteria that looks like cache options to repositoryGet', async () => {
-        const maliciousCriteria = { cacheKey: ['extension-cache-key'] };
+        const cacheOptionsLikeCriteria = { cacheKey: ['extension-cache-key'] };
 
         await send('repositoryGet', {
             entityName: 'product',
             id: 'my-awesome-id',
-            criteria: maliciousCriteria,
+            criteria: cacheOptionsLikeCriteria,
             context: {
                 languageId: 'my-awesome-language-id',
             },
@@ -295,7 +295,7 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
                 languageId: 'my-awesome-language-id',
             }),
         );
-        // The repository response carries the admin auth token, so the handler must not return it
+        // The handler must not return the raw repository response to the extension
         expect(result).toBeNull();
     });
 
@@ -364,7 +364,7 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
                 languageId: 'my-awesome-language-id',
             }),
         );
-        // The repository response carries the admin auth token, so the handler must not return it
+        // The handler must not return the raw repository response to the extension
         expect(result).toBeNull();
     });
 
@@ -384,7 +384,7 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
                 languageId: 'my-awesome-language-id',
             }),
         );
-        // The repository response carries the admin auth token, so the handler must not return it
+        // The handler must not return the raw repository response to the extension
         expect(result).toBeNull();
     });
 

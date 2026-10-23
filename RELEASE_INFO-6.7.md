@@ -135,6 +135,11 @@ If you override the template of one of these components and render your own fiel
 ```html
 <mt-text-field v-bind="$attrs" @update:model-value="$emit('update:modelValue', $event)" />
 ```
+### Known core deprecations log an error in next-major mode
+
+Core usages that are not migrated yet are listed in `src/Administration/Resources/app/administration/src/meta/deprecation-baseline.json`.
+In next-major mode, a deprecation with a listed message logs a console error instead of throwing, so the Administration stays usable.
+Any other deprecation still throws.
 
 ## API
 To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.

@@ -72,8 +72,26 @@ on:
   # Trunk merges are pushed by the merge queue; the default role check rejects bots.
   bots: ["github-merge-queue[bot]"]
   reaction: none
+  steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+        sparse-checkout: .github/bin/js
+    - id: commit_type
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+      env:
+        COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+      with:
+        script: |
+          const { shouldCheck } = await import('${{ github.workspace }}/.github/bin/js/docs-impact.ts')
+          core.setOutput('check', String(shouldCheck(context.eventName, process.env.COMMIT_MESSAGE ?? '')))
 
-if: github.repository == 'shopware/shopware'
+jobs:
+  pre-activation:
+    outputs:
+      check: ${{ steps.commit_type.outputs.check }}
+
+if: github.repository == 'shopware/shopware' && needs.pre_activation.outputs.check == 'true'
 
 run-name: "Shopware Docs Impact ${{ github.event.inputs.pr_number && format('#{0}', github.event.inputs.pr_number) || github.sha }}"
 

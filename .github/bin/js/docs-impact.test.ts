@@ -11,6 +11,7 @@ import {
     parseAudiences,
     postComment,
     resolvePullRequestNumber,
+    shouldCheck,
 } from './docs-impact.ts';
 
 type Call = { method: string; params: Record<string, unknown> };
@@ -77,6 +78,37 @@ const pushContext = (inputs?: { pr_number?: string }) => ({
     sha: 'abc123',
     eventName: inputs ? 'workflow_dispatch' : 'push',
     payload: inputs ? { inputs } : {},
+});
+
+test('shouldCheck skips test, ci, chore, docs and refactor merges', () => {
+    for (const message of [
+        'test: cover the cart (#1)',
+        'ci(acceptance): shard by suite (#2)',
+        'chore: bump deps (#3)',
+        'docs(admin): fix typo (#4)',
+        'refactor(core): extract helper (#5)\n\nbody',
+    ]) {
+        assert.equal(shouldCheck('push', message), false, message);
+    }
+});
+
+test('shouldCheck keeps fix, feat, perf, breaking and untyped merges', () => {
+    for (const message of [
+        'fix: restore price (#1)',
+        'feat(storefront): add title (#2)',
+        'perf(checkout): load cart once (#3)',
+        'refactor(core)!: rename event (#4)',
+        'chore!: drop PHP 8.2 (#5)',
+        'Revert "test: cover the cart" (#6)',
+        'testing: something (#7)',
+        '',
+    ]) {
+        assert.equal(shouldCheck('push', message), true, message);
+    }
+});
+
+test('shouldCheck always runs a manual dispatch', () => {
+    assert.equal(shouldCheck('workflow_dispatch', 'chore: bump deps'), true);
 });
 
 test('parseAudiences accepts known audiences and dedupes', () => {

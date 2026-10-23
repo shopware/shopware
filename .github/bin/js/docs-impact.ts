@@ -11,6 +11,16 @@ export const COMMENT_MARKER = '<!-- sw-docs-impact -->';
 
 const MAX_SUMMARY_LENGTH = 20000;
 
+const SKIPPED_COMMIT_TYPES = /^(test|ci|chore|docs|refactor)(\([^)]*\))?:/;
+
+export function shouldCheck(eventName: string, commitMessage: string): boolean {
+    if (eventName !== 'push') {
+        return true;
+    }
+
+    return !SKIPPED_COMMIT_TYPES.test(commitMessage.trimStart());
+}
+
 type Repo = { owner: string; repo: string };
 
 type GitHub = {

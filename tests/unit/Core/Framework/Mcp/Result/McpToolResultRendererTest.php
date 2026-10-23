@@ -210,6 +210,20 @@ class McpToolResultRendererTest extends TestCase
         static::assertNull($result->structuredContent);
     }
 
+    public function testSendsTheMetadataOfAResultWithoutData(): void
+    {
+        $result = $this->renderer()->render(new McpToolResult(meta: ['dryRun' => true], summary: 'Nothing written.'), ProtocolVersion::latestHandshake());
+
+        static::assertSame(['result' => null, '_meta' => ['dryRun' => true, 'summary' => 'Nothing written.']], $result->structuredContent);
+    }
+
+    public function testSendsNoStructuredContentForALinkedResult(): void
+    {
+        $result = $this->renderer()->render($this->linkedResult(), ProtocolVersion::latestHandshake(), '{"success":true,"data":null}');
+
+        static::assertNull($result->structuredContent);
+    }
+
     public function testKeepsBothCopiesOfALargeResult(): void
     {
         // The spec asks for the data twice. A large result is stored as a whole, never sent with one copy only.

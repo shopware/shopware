@@ -158,6 +158,7 @@ The negotiated protocol revision picks the format, never a feature flag.
     The reserved key `_meta` (`McpToolResultRenderer::STRUCTURED_META_KEY`) holds the tool's metadata without `responseSize` and `resourceUri`, plus `summary` when the tool gives one.
     An object stays where it is and gains the key; anything else is wrapped as `{"result": …, "_meta": …}`, on 2026-07-28 too.
     Without such metadata, `structuredContent` is the data as described above.
+    A result without data but with such metadata, for example a dry run that has nothing to show, sends `{"result": null, "_meta": …}`; without either, it sends no `structuredContent`.
     The key is left out for a tool that declares an `outputSchema` (the schema describes the data, and mcp/sdk 0.9 validates against it), for data that has a `_meta` key of its own, for failures, and for linked results, which have no `structuredContent`.
     A dry-run write on 2025-06-18:
 

@@ -95,6 +95,11 @@ class McpToolResultRenderer
      */
     private const INTERNAL_META_KEYS = ['responseSize', 'resourceUri'];
 
+    /**
+     * The name of the link to a stored result, see {@see self::linkedResult()}.
+     */
+    private const STORED_RESULT_LINK = 'tool-result';
+
     private const META_PREFIX = 'shopware/';
 
     public function __construct(
@@ -247,7 +252,7 @@ class McpToolResultRenderer
             meta: $capabilities->specFormat ? $meta : [...$meta, 'resourceUri' => $pointer->uri()],
             generatedAt: $result->generatedAt,
             expiresAt: $pointer->expiresAt,
-            links: [...$links, new McpToolResultLink($pointer->uri(), 'tool-result', $note, 'application/json', $storedSize)],
+            links: [...$links, new McpToolResultLink($pointer->uri(), self::STORED_RESULT_LINK, $note, 'application/json', $storedSize)],
         );
 
         return [$linked, Json::encode(['success' => true, 'data' => null, '_meta' => $legacyMeta])];
@@ -402,11 +407,16 @@ class McpToolResultRenderer
             ], static fn (mixed $value): bool => $value !== [])];
         }
 
-        if ($result->data === null) {
+        // A linked result has no `structuredContent`: its data is the stored resource.
+        if ($result->data === null && $this->isLinkedResult($result)) {
             return null;
         }
 
         $modelMeta = $hasOutputSchema ? [] : $this->modelMeta($result);
+        // Without data, only the metadata is left for a client that shows the model `structuredContent` alone.
+        if ($result->data === null && $modelMeta === []) {
+            return null;
+        }
         $isObject = $this->isJsonObject($result->data);
 
         if ($modelMeta !== [] && !($isObject && $this->hasKey($result->data, self::STRUCTURED_META_KEY))) {
@@ -421,6 +431,17 @@ class McpToolResultRenderer
         }
 
         return $result->data;
+    }
+
+    private function isLinkedResult(McpToolResult $result): bool
+    {
+        foreach ($result->links as $link) {
+            if ($link->name === self::STORED_RESULT_LINK) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

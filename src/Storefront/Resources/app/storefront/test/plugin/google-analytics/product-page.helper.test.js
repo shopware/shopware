@@ -219,6 +219,22 @@ describe('plugin/google-analytics/product-page.helper', () => {
             expect(ProductCategoryHelper.get('product-1')).toEqual({ item_category: 'Clothing', item_category2: 'Shirts' });
         });
 
+        test('keeps nothing when the tracking consent is revoked while the path is requested', async () => {
+            window.activeRoute = 'frontend.home.page';
+            window.localStorage.clear();
+            let active = true;
+            global.fetch = jest.fn(() => {
+                active = false;
+
+                return Promise.resolve({ ok: true, json: () => Promise.resolve(['Clothing', 'Shirts']) });
+            });
+
+            await ProductPageHelper.resolveCategories('product-1', null, () => active);
+
+            expect(ProductCategoryHelper.get('product-1')).toEqual({});
+            expect(window.localStorage.getItem('swGaProductCategories')).toBeNull();
+        });
+
         test('requests the path of a product element on a detail page', async () => {
             window.activeRoute = 'frontend.detail.page';
             document.body.innerHTML = `

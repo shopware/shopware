@@ -42,7 +42,7 @@ export default class AddToWishlistEvent extends EventAwareAnalyticsEvent
         }
 
         if (!categories || Object.keys(categories).length === 0) {
-            categories = await ProductPageHelper.resolveCategories(productId);
+            categories = await ProductPageHelper.resolveCategories(productId, null, () => this.active);
         }
 
         // the shopper can revoke the tracking consent while the categories are requested

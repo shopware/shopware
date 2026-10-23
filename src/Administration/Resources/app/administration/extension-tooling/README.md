@@ -249,7 +249,6 @@ Which Jest runs a config depends on the config:
 - A config with neither runs on the Administration's Jest.
 
 An extension that installs its own Jest can keep running it directly, as long as it has the same major version as the Administration's.
-The factory checks this when it builds the config, and fails with both versions on a different major instead of letting the specs fail on harness API mismatches.
 
 The harness lives in the Administration's `test/` folder and works in a platform checkout and in a Composer install alike.
 It reads two files that every installation generates itself.

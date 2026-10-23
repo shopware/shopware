@@ -9,6 +9,7 @@ async function createWrapper(
         previewPatternByNumberRangeId: jest.fn(() => Promise.resolve({ number: 1337 })),
     },
     repositories = {},
+    getNumberRangePatternCollisions = () => Promise.resolve({ collisions: [] }),
 ) {
     const createNumberRange = (id = 'id') => ({
         description: null,
@@ -57,7 +58,7 @@ async function createWrapper(
                 provide: {
                     numberRangeService,
                     documentV2ApiService: {
-                        getNumberRangePatternCollisions: () => Promise.resolve({ collisions: [] }),
+                        getNumberRangePatternCollisions,
                     },
                     repositoryFactory: {
                         create: (entityName) => {
@@ -226,12 +227,19 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-crea
             search: jest.fn(() => Promise.resolve({ total: 1 })),
         };
 
-        const wrapper = await createWrapper(undefined, { numberRangeRepository });
+        const getNumberRangePatternCollisions = jest.fn(() =>
+            Promise.resolve({ collisions: [{ id: 'other-id', name: 'Invoices (Shop B)' }] }),
+        );
+
+        const wrapper = await createWrapper(undefined, { numberRangeRepository }, getNumberRangePatternCollisions);
         await flushPromises();
 
         await wrapper.vm.onSave();
+        await flushPromises();
 
         expect(numberRangeRepository.save).toHaveBeenCalledWith(expect.objectContaining({ id: '1a' }));
         expect(numberRangeRepository.get).toHaveBeenCalledWith('1a', Shopware.Context.api, wrapper.vm.numberRangeCriteria);
+        expect(getNumberRangePatternCollisions).not.toHaveBeenCalled();
+        expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').exists()).toBe(false);
     });
 });

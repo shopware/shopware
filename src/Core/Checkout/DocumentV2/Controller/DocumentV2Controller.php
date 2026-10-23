@@ -267,7 +267,7 @@ final class DocumentV2Controller extends AbstractController
     {
         $numberRangeTypeId = $request->query->getString('numberRangeTypeId');
         $pattern = $request->query->getString('pattern');
-        $numberRangeId = $request->query->has('numberRangeId') ? $request->query->getString('numberRangeId') : null;
+        $numberRangeId = $request->query->getString('numberRangeId') ?: null;
 
         if (!Uuid::isValid($numberRangeTypeId)) {
             throw DocumentV2Exception::invalidRequestParameter('numberRangeTypeId');

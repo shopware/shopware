@@ -1201,10 +1201,10 @@ class DocumentV2ControllerTest extends TestCase
         );
     }
 
-    public function testNumberRangePatternCollisionsSearchesOtherDocumentNumberRangesOfTheSameType(): void
+    #[DataProvider('numberRangePatternCollisionsExclusionProvider')]
+    public function testNumberRangePatternCollisionsSearchesDocumentNumberRangesOfTheSameType(?string $numberRangeId, bool $excludesNumberRange): void
     {
         $numberRangeTypeId = Uuid::randomHex();
-        $numberRangeId = Uuid::randomHex();
 
         $collidingNumberRange = new NumberRangeEntity();
         $collidingNumberRange->setId(Uuid::randomHex());
@@ -1221,7 +1221,10 @@ class DocumentV2ControllerTest extends TestCase
         ]);
 
         $response = $this->createNumberRangeCollisionController($numberRangeRepository)->numberRangePatternCollisions(
-            new Request(['numberRangeTypeId' => $numberRangeTypeId, 'pattern' => 'INV-{n}', 'numberRangeId' => $numberRangeId]),
+            new Request(array_filter(
+                ['numberRangeTypeId' => $numberRangeTypeId, 'pattern' => 'INV-{n}', 'numberRangeId' => $numberRangeId],
+                static fn (?string $value): bool => $value !== null,
+            )),
             Context::createDefaultContext(),
         );
 
@@ -1230,13 +1233,28 @@ class DocumentV2ControllerTest extends TestCase
             json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR),
         );
 
-        static::assertInstanceOf(Criteria::class, $capturedCriteria);
-        static::assertEquals([
+        $expectedFilters = [
             new EqualsFilter('typeId', $numberRangeTypeId),
             new EqualsFilter('pattern', 'INV-{n}'),
             new PrefixFilter('type.technicalName', DocumentNumberGenerator::NUMBER_RANGE_DOCUMENT_TYPE_PREFIX),
-            new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('id', $numberRangeId)]),
-        ], $capturedCriteria->getFilters());
+        ];
+
+        if ($excludesNumberRange) {
+            $expectedFilters[] = new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('id', $numberRangeId)]);
+        }
+
+        static::assertInstanceOf(Criteria::class, $capturedCriteria);
+        static::assertEquals($expectedFilters, $capturedCriteria->getFilters());
+    }
+
+    /**
+     * @return iterable<string, array{0: ?string, 1: bool}>
+     */
+    public static function numberRangePatternCollisionsExclusionProvider(): iterable
+    {
+        yield 'excludes the given number range' => [Uuid::randomHex(), true];
+        yield 'without number range id' => [null, false];
+        yield 'with empty number range id' => ['', false];
     }
 
     /**

@@ -250,23 +250,24 @@ describe('documentV2ApiService', () => {
         expect(JSON.parse(clientMock.history.post[0].data)).toEqual({ documentIds });
     });
 
-    it.each([
-        {
-            numberRangeId: 'number-range-id',
-            params: { numberRangeTypeId: 'number-range-type-id', pattern: 'INV-{n}', numberRangeId: 'number-range-id' },
-        },
-        {
-            numberRangeId: undefined,
-            params: { numberRangeTypeId: 'number-range-type-id', pattern: 'INV-{n}' },
-        },
-    ])('loads the number range pattern collisions with $params', async ({ numberRangeId, params }) => {
+    it('loads the number range pattern collisions', async () => {
         const { documentV2ApiService, clientMock } = createDocumentV2ApiService();
         const response = { collisions: [{ id: 'other-id', name: 'Invoices shop B' }] };
 
-        clientMock.onGet('/_action/order/document-v2/number-range-pattern-collisions', { params }).reply(200, response);
+        clientMock.onGet('/_action/order/document-v2/number-range-pattern-collisions').reply(200, response);
 
-        await expect(
-            documentV2ApiService.getNumberRangePatternCollisions('number-range-type-id', 'INV-{n}', numberRangeId),
-        ).resolves.toEqual(response);
+        const collisions = await documentV2ApiService.getNumberRangePatternCollisions(
+            'number-range-type-id',
+            'INV-{n}',
+            'number-range-id',
+        );
+
+        expect(clientMock.history.get[0].url).toBe('/_action/order/document-v2/number-range-pattern-collisions');
+        expect(clientMock.history.get[0].params).toEqual({
+            numberRangeTypeId: 'number-range-type-id',
+            pattern: 'INV-{n}',
+            numberRangeId: 'number-range-id',
+        });
+        expect(collisions).toEqual(response);
     });
 });

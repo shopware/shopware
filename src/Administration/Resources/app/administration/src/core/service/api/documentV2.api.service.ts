@@ -226,7 +226,7 @@ export default class DocumentV2ApiService extends ApiService {
     ): Promise<NumberRangePatternCollisionsResponse> {
         return this.httpClient
             .get<NumberRangePatternCollisionsResponse>('/_action/order/document-v2/number-range-pattern-collisions', {
-                params: numberRangeId ? { numberRangeTypeId, pattern, numberRangeId } : { numberRangeTypeId, pattern },
+                params: { numberRangeTypeId, pattern, numberRangeId },
                 headers: this.getBasicHeaders(),
             })
             .then((response) => ApiService.handleResponse<NumberRangePatternCollisionsResponse>(response));

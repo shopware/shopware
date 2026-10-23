@@ -1,0 +1,191 @@
+import { writeFileSync } from 'node:fs';
+
+export const AUDIENCE_TEAMS = {
+    'end-user': '@shopware/pp-enduser-docs',
+    developer: '@shopware/po-docs',
+} as const;
+
+export type Audience = keyof typeof AUDIENCE_TEAMS;
+
+export const COMMENT_MARKER = '<!-- sw-docs-impact -->';
+
+const MAX_SUMMARY_LENGTH = 20000;
+
+type Repo = { owner: string; repo: string };
+
+type GitHub = {
+    rest: {
+        repos: {
+            listPullRequestsAssociatedWithCommit(params: Repo & { commit_sha: string }): Promise<{
+                data: Array<{ number: number; merged_at: string | null; base: { ref: string } }>;
+            }>;
+        };
+        pulls: {
+            get(params: Repo & { pull_number: number; mediaType?: { format: string } }): Promise<{ data: unknown }>;
+            listFiles(params: Repo & { pull_number: number; per_page: number }): Promise<{ data: unknown }>;
+        };
+        issues: {
+            listComments(params: Repo & { issue_number: number; per_page: number }): Promise<{
+                data: Array<{ id: number; body?: string }>;
+            }>;
+            createComment(params: Repo & { issue_number: number; body: string }): Promise<unknown>;
+            updateComment(params: Repo & { comment_id: number; body: string }): Promise<unknown>;
+        };
+    };
+    paginate<T>(method: unknown, params: object): Promise<T[]>;
+};
+
+type Core = {
+    info(message: string): void;
+    warning(message: string): void;
+    setFailed(message: string): void;
+};
+
+type Context = {
+    repo: Repo;
+    sha: string;
+    eventName: string;
+    payload: { inputs?: { pr_number?: string | number } };
+};
+
+type AgentOutputItem = {
+    type: string;
+    audiences?: string;
+    summary?: string;
+};
+
+export function parseAudiences(raw: string): Audience[] {
+    const audiences = raw
+        .split(',')
+        .map((audience) => audience.trim())
+        .filter((audience) => audience !== '');
+
+    const unknown = audiences.filter((audience) => !(audience in AUDIENCE_TEAMS));
+    if (unknown.length > 0) {
+        throw new Error(`Unknown audience(s): ${unknown.join(', ')}. Allowed: ${Object.keys(AUDIENCE_TEAMS).join(', ')}`);
+    }
+    if (audiences.length === 0) {
+        throw new Error('No audience given');
+    }
+
+    return [...new Set(audiences)] as Audience[];
+}
+
+export function neutraliseMentions(text: string): string {
+    return text.replace(/(^|[^\w`])@([A-Za-z0-9][\w-]*(?:\/[\w.-]+)?)/g, '$1`@$2`');
+}
+
+export function buildComment(audiences: Audience[], summary: string): string {
+    let body = neutraliseMentions(summary.trim());
+    if (body.length > MAX_SUMMARY_LENGTH) {
+        body = `${body.slice(0, MAX_SUMMARY_LENGTH)}\n\n_(truncated)_`;
+    }
+
+    const teams = audiences.map((audience) => AUDIENCE_TEAMS[audience]).join(' ');
+
+    return [
+        COMMENT_MARKER,
+        '### Documentation impact',
+        '',
+        `${teams}: this change likely needs a documentation update.`,
+        '',
+        body,
+    ].join('\n');
+}
+
+export function requestedPullRequestNumber(context: Context): number | null {
+    const raw = context.payload.inputs?.pr_number;
+    if (raw === undefined || raw === '') {
+        return null;
+    }
+
+    const number = Number(raw);
+    if (!Number.isInteger(number) || number <= 0) {
+        throw new Error(`Invalid pr_number input: ${raw}`);
+    }
+
+    return number;
+}
+
+export async function resolvePullRequestNumber({ github, context }: { github: GitHub; context: Context }): Promise<number | null> {
+    const requested = requestedPullRequestNumber(context);
+    if (requested !== null) {
+        return requested;
+    }
+
+    const { data } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+        ...context.repo,
+        commit_sha: context.sha,
+    });
+
+    return data.find((pr) => pr.merged_at !== null && pr.base.ref === 'trunk')?.number ?? null;
+}
+
+export async function collectAgentInput({ github, context, core }: { github: GitHub; context: Context; core: Core }, dir: string): Promise<void> {
+    const number = await resolvePullRequestNumber({ github, context });
+    if (number === null) {
+        core.info(`No merged pull request into trunk is associated with ${context.sha}`);
+        writeFileSync(`${dir}/pr.json`, JSON.stringify({ pr: null }));
+        return;
+    }
+
+    const params = { ...context.repo, pull_number: number };
+    const { data: pr } = await github.rest.pulls.get(params);
+    const files = await github.paginate(github.rest.pulls.listFiles, { ...params, per_page: 100 });
+    writeFileSync(`${dir}/pr.json`, JSON.stringify({ pr, files }, null, 2));
+
+    try {
+        const { data: diff } = await github.rest.pulls.get({ ...params, mediaType: { format: 'diff' } });
+        writeFileSync(`${dir}/pr.diff`, String(diff));
+    } catch (error) {
+        if ((error as { status?: number }).status !== 406) {
+            throw error;
+        }
+        core.warning(`The diff of #${number} is too large for the API; the agent gets the file list only`);
+    }
+}
+
+export function notifyItems(agentOutput: { items?: AgentOutputItem[] }): AgentOutputItem[] {
+    return (agentOutput.items ?? []).filter((item) => item.type === 'notify_docs_teams');
+}
+
+export async function postComment(
+    { github, context, core }: { github: GitHub; context: Context; core: Core },
+    agentOutput: { items?: AgentOutputItem[] },
+): Promise<void> {
+    const items = notifyItems(agentOutput);
+    if (items.length === 0) {
+        core.info('The agent reported no documentation impact');
+        return;
+    }
+    if (items.length > 1) {
+        throw new Error(`Expected at most one notify_docs_teams item, got ${items.length}`);
+    }
+
+    const [item] = items;
+    if (!item.summary?.trim()) {
+        throw new Error('notify_docs_teams item has an empty summary');
+    }
+
+    const number = await resolvePullRequestNumber({ github, context });
+    if (number === null) {
+        throw new Error(`The agent asked to notify, but no merged pull request is associated with ${context.sha}`);
+    }
+
+    const body = buildComment(parseAudiences(item.audiences ?? ''), item.summary);
+    const comments = await github.paginate<{ id: number; body?: string }>(github.rest.issues.listComments, {
+        ...context.repo,
+        issue_number: number,
+        per_page: 100,
+    });
+    const existing = comments.find((comment) => comment.body?.startsWith(COMMENT_MARKER));
+
+    if (existing) {
+        await github.rest.issues.updateComment({ ...context.repo, comment_id: existing.id, body });
+        core.info(`Updated documentation-impact comment ${existing.id} on #${number}`);
+        return;
+    }
+
+    await github.rest.issues.createComment({ ...context.repo, issue_number: number, body });
+    core.info(`Posted documentation-impact comment on #${number}`);
+}

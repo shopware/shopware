@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
@@ -24,6 +25,7 @@ use Shopware\Core\PlatformRequest;
 class McpIntegrationDelegationTest extends TestCase
 {
     use AdminApiTestBehaviour;
+    use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
     public function testTheInitializeMetaNamesOnlyTheIntegrationWhenDelegating(): void
@@ -58,9 +60,11 @@ class McpIntegrationDelegationTest extends TestCase
             'arguments' => ['entity' => 'currency', 'limit' => 1],
         ]);
 
-        $text = $response['result']['content'][0]['text'] ?? '';
-        static::assertIsString($text);
-        static::assertStringContainsString('"success":true', $text, json_encode($response, \JSON_THROW_ON_ERROR));
+        static::assertArrayNotHasKey('error', $response, json_encode($response, \JSON_THROW_ON_ERROR));
+        $result = $response['result'] ?? null;
+        static::assertIsArray($result);
+        static::assertFalse($result['isError'] ?? false, json_encode($result, \JSON_THROW_ON_ERROR));
+        static::assertNotEmpty($result['content'] ?? []);
     }
 
     public function testADelegatedToolCallIsRejectedWhenTheNamedUserDoesNotAllowTheTool(): void

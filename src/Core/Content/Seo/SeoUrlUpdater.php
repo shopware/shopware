@@ -45,6 +45,28 @@ class SeoUrlUpdater
      */
     public function update(string $routeName, array $ids): void
     {
+        $this->doUpdate($routeName, $ids, false, null);
+    }
+
+    /**
+     * Regenerates the SEO URLs only for the sales channels that use the given template,
+     * so changing one template does not regenerate every sales channel.
+     *
+     * @internal
+     *
+     * @param list<string> $ids
+     * @param string|null $templateSalesChannelId the sales channel of the changed template, `null` for the default template
+     */
+    public function updateForTemplate(string $routeName, array $ids, ?string $templateSalesChannelId): void
+    {
+        $this->doUpdate($routeName, $ids, true, $templateSalesChannelId);
+    }
+
+    /**
+     * @param list<string> $ids
+     */
+    private function doUpdate(string $routeName, array $ids, bool $onlyChangedTemplate, ?string $templateSalesChannelId): void
+    {
         if ($routeName === '') {
             return;
         }
@@ -52,7 +74,7 @@ class SeoUrlUpdater
         $route = $this->seoUrlRouteRegistry->findByRouteName($routeName);
 
         if ($route !== null) {
-            $templates = $this->loadUrlTemplate($routeName, false);
+            $templates = $this->loadUrlTemplate($routeName, false, $onlyChangedTemplate, $templateSalesChannelId);
             if ($templates !== []) {
                 $this->generateAndPersist($route, $routeName, $templates, $ids);
             }
@@ -66,7 +88,7 @@ class SeoUrlUpdater
             throw SeoException::seoUrlRouteNotFound($routeName);
         }
 
-        $templates = $this->loadUrlTemplate($routeName, true);
+        $templates = $this->loadUrlTemplate($routeName, true, $onlyChangedTemplate, $templateSalesChannelId);
         if ($templates === []) {
             return;
         }
@@ -133,7 +155,7 @@ class SeoUrlUpdater
      *
      * @return list<array{salesChannelId: string, languageId: string, template: string}>
      */
-    private function loadUrlTemplate(string $routeName, bool $isHeadless): array
+    private function loadUrlTemplate(string $routeName, bool $isHeadless, bool $onlyChangedTemplate, ?string $templateSalesChannelId): array
     {
         $query = 'SELECT DISTINCT
                LOWER(HEX(sales_channel.id)) as salesChannelId,
@@ -172,9 +194,14 @@ class SeoUrlUpdater
 
         $result = [];
         foreach ($domains as $domain) {
-            $template = $salesChannelTemplates[$domain['salesChannelId']] ?? $default;
+            $ownTemplate = $salesChannelTemplates[$domain['salesChannelId']] ?? null;
+            $template = $ownTemplate ?? $default;
 
             if ($template === null) {
+                continue;
+            }
+
+            if ($onlyChangedTemplate && ($ownTemplate === null ? null : $domain['salesChannelId']) !== $templateSalesChannelId) {
                 continue;
             }
 

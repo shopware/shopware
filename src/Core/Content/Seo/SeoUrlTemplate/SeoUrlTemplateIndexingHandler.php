@@ -78,8 +78,20 @@ final class SeoUrlTemplateIndexingHandler
         // rest of the chain; regeneration is idempotent, so a retry only repeats a pass.
         if (\count($hexIds) === self::ITERATE_BATCH_SIZE) {
             $this->messageBus->dispatch(
-                new SeoUrlTemplateIndexingMessage($routeName, $entityName, $iterator->getOffset())
+                new SeoUrlTemplateIndexingMessage(
+                    $routeName,
+                    $entityName,
+                    $iterator->getOffset(),
+                    $message->onlyChangedTemplate,
+                    $message->templateSalesChannelId,
+                )
             );
+        }
+
+        if ($message->onlyChangedTemplate) {
+            $this->seoUrlUpdater->updateForTemplate($routeName, $hexIds, $message->templateSalesChannelId);
+
+            return;
         }
 
         $this->seoUrlUpdater->update($routeName, $hexIds);

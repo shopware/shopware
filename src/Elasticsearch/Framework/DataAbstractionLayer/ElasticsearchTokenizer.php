@@ -36,7 +36,7 @@ final class ElasticsearchTokenizer implements TokenizerInterface
 
         // Only strips brackets at the start or end of each word, e.g. `(cap` -> `cap`
         $tokens = array_map(
-            static fn (string $token): string => preg_replace('/^[()\[\]{}<>\\\\]+|[()\[\]{}<>\\\\]+$/u', '', $token) ?? $token,
+            static fn (string $token): string => preg_replace('/^[()\[\]{}<>\\\\]+|[()\[\]{}<>\\\\]+$/uD', '', $token) ?? $token,
             $tokens,
         );
 

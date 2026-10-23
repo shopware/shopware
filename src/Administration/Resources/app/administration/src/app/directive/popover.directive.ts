@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint-disable @typescript-eslint/consistent-type-imports, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, inclusive-language/use-inclusive-words -- untyped legacy directive, kept as it is */
 
 import { VNode } from 'vue';
 import { ComponentPublicInstance } from 'vue';

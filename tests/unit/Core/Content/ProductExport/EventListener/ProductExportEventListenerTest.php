@@ -82,6 +82,46 @@ class ProductExportEventListenerTest extends TestCase
         $listener->afterWrite($event);
     }
 
+    public function testAfterWriteHandlesEveryWrittenExportWithOneUpdateAndOneSearch(): void
+    {
+        $context = Context::createDefaultContext();
+        $firstId = Uuid::randomHex();
+        $secondId = Uuid::randomHex();
+
+        $exports = new ProductExportCollection();
+        foreach ([$firstId => 'first.csv', $secondId => 'second.csv'] as $id => $fileName) {
+            $entity = new ProductExportEntity();
+            $entity->setId($id);
+            $entity->setUniqueIdentifier($id);
+            $entity->setFileName($fileName);
+            $exports->add($entity);
+        }
+
+        $productExportRepository = $this->createMock(EntityRepository::class);
+        $productExportRepository
+            ->expects($this->once())
+            ->method('update')
+            ->with(static::callback(static fn (array $payload): bool => array_column($payload, 'id') === [$firstId, $secondId]), $context);
+
+        $productExportRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturn(new EntitySearchResult('product_export', 2, $exports, null, new Criteria([$firstId, $secondId]), $context));
+
+        $fileHandler = static::createStub(ProductExportFileHandlerInterface::class);
+        $fileHandler->method('getFilePath')->willReturnOnConsecutiveCalls('/export/first.csv', '/export/second.csv');
+
+        $fs = static::createStub(FilesystemOperator::class);
+        $fs->method('fileExists')->willReturn(false);
+
+        $listener = new ProductExportEventListener($productExportRepository, $fileHandler, $fs);
+
+        $listener->afterWrite(new EntityWrittenEvent('product_export', [
+            new EntityWriteResult(['id' => $firstId], ['interval' => 300], 'product_export', EntityWriteResult::OPERATION_UPDATE),
+            new EntityWriteResult(['id' => $secondId], ['interval' => 600], 'product_export', EntityWriteResult::OPERATION_UPDATE),
+        ], $context));
+    }
+
     /**
      * @param array<string, mixed> $payload
      */

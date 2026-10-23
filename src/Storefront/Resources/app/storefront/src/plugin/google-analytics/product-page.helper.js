@@ -1,4 +1,5 @@
 import Feature from 'src/helper/feature.helper';
+import ProductCategoryHelper from 'src/plugin/google-analytics/product-category.helper';
 
 /**
  * Helper for extracting product data from DOM on product pages (detail, listing, wishlist)
@@ -12,6 +13,14 @@ import Feature from 'src/helper/feature.helper';
  */
 export default class ProductPageHelper {
     static PRODUCT_ELEMENT_SELECTOR = '[data-product-information]';
+
+    static LISTING_SELECTOR = '.cms-element-product-listing-wrapper';
+
+    /**
+     * `add_to_cart` waits for the requested categories, so a slow request reports it without them
+     * instead of holding it back until the shopper may have left the page.
+     */
+    static CATEGORY_REQUEST_TIMEOUT = 1000;
 
     /**
      * Gets product data from available sources (detail page or product card)
@@ -241,20 +250,102 @@ export default class ProductPageHelper {
     }
 
     /**
-     * The breadcrumb categories for a product, if the breadcrumb is about it. On the product
-     * detail page the breadcrumb is the path of the page product, so a product element there, such
-     * as cross selling, reports none rather than the path of another product.
+     * The breadcrumb categories for a product, if the breadcrumb is about it, see `isDescribedByBreadcrumb()`.
      *
      * @param {string} productId
      * @param {HTMLElement|null} element the element the interaction started from, if any
      * @returns {Object}
      */
     static getCategoriesFor(productId, element = null) {
-        if (window.activeRoute === 'frontend.detail.page' && ProductPageHelper.getProductCard(productId, element)) {
+        return ProductPageHelper.isDescribedByBreadcrumb(productId, element) ? ProductPageHelper.getCategories() : {};
+    }
+
+    /**
+     * Whether the page breadcrumb is the category path of a product. It is for the product of a
+     * detail page and for the products of the listing on a category page. A product element
+     * anywhere else, such as a slider on a category page or cross selling on a detail page, can
+     * show a product of any category.
+     *
+     * @param {string} productId
+     * @param {HTMLElement|null} element the element the interaction started from, if any
+     * @returns {boolean}
+     */
+    static isDescribedByBreadcrumb(productId, element = null) {
+        const productElement = ProductPageHelper.getProductCard(productId, element);
+
+        if (window.activeRoute === 'frontend.detail.page') {
+            return !productElement;
+        }
+
+        return ProductPageHelper.isInPageListing(productElement);
+    }
+
+    /**
+     * Whether a product element belongs to the product listing of the page. On a category page
+     * the listing shows the products of that category.
+     *
+     * @param {HTMLElement|null} productElement
+     * @returns {boolean}
+     */
+    static isInPageListing(productElement) {
+        return window.activeRoute !== 'frontend.detail.page'
+            && !!productElement?.closest(ProductPageHelper.LISTING_SELECTOR);
+    }
+
+    /**
+     * The GA4 category properties of a product, requested from the storefront when the page does
+     * not describe them.
+     *
+     * The page breadcrumb is used where it is about the product: the product of a detail page, or a
+     * product of a category listing. Anywhere else, such as the homepage, a landing page, the
+     * wishlist, a slider or a product element on a detail page, the path is requested from the storefront,
+     * which resolves it through the Store API breadcrumb route. Product elements do not carry it,
+     * because loading the categories of every product would slow down each render for an event that
+     * only fires on a click. A failed or slow request reports no categories.
+     *
+     * @param {string} productId
+     * @param {HTMLElement|null} element the element the interaction started from, if any
+     * @param {function(): boolean} isActive whether tracking is still active once the response arrives
+     * @returns {Promise<Object>}
+     */
+    static async resolveCategories(productId, element = null, isActive = () => true) {
+        const categories = ProductPageHelper.getCategoriesFor(productId, element);
+        if (Object.keys(categories).length > 0) {
+            return categories;
+        }
+
+        const url = window.router?.['frontend.analytics.product-categories'];
+        if (!url || !productId) {
             return {};
         }
 
-        return ProductPageHelper.getCategories();
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), ProductPageHelper.CATEGORY_REQUEST_TIMEOUT);
+
+        try {
+            const response = await fetch(`${url}?productId=${encodeURIComponent(productId)}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                signal: controller.signal,
+            });
+
+            if (!response.ok) {
+                return {};
+            }
+
+            const resolved = ProductPageHelper.mapCategories(await response.json());
+
+            // The line item of the product carries no categories, so the cart and checkout read them from here.
+            // A shopper who revoked the tracking consent while the request ran gets nothing stored.
+            if (isActive()) {
+                ProductCategoryHelper.remember(productId, resolved);
+            }
+
+            return resolved;
+        } catch {
+            return {};
+        } finally {
+            clearTimeout(timeout);
+        }
     }
 
     /**
@@ -262,9 +353,22 @@ export default class ProductPageHelper {
      * @returns {Object}
      */
     static getCategories() {
+        return ProductPageHelper.mapCategories(ProductPageHelper.getCategoryNames());
+    }
+
+    /**
+     * Maps a category path, ordered from the top level down, to the GA4 category properties
+     * @param {string[]|undefined} names
+     * @returns {Object}
+     */
+    static mapCategories(names) {
         const categories = {};
 
-        ProductPageHelper.getCategoryNames().forEach((name, index) => {
+        if (!Array.isArray(names)) {
+            return categories;
+        }
+
+        names.slice(0, 5).forEach((name, index) => {
             const key = index === 0 ? 'item_category' : `item_category${index + 1}`;
             categories[key] = name;
         });

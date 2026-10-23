@@ -282,6 +282,41 @@ class WebhookDispatchEndToEndTest extends TestCase
 
     /**
      * Steps:
+     * 1. Register a webhook without an app, with a secret.
+     * 2. Dispatch the event so the message is queued.
+     * 3. Delete the webhook before the worker delivers.
+     * 4. Run the worker.
+     *
+     * Expected:
+     * - Nothing is sent: there is no secret left to sign the delivery with.
+     * - The event is marked failed and its delivery row is removed.
+     */
+    #[DataProvider('flagStates')]
+    public function testQueuedDeliveryOfADeletedWebhookWithoutAppIsNotSent(bool $flagActive): void
+    {
+        $webhookId = Uuid::randomHex();
+        $this->createBareWebhook($webhookId, 'bare-webhook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/bare');
+        $this->connection->update('webhook', ['secret' => 'webhook-secret'], ['id' => Uuid::fromHexToBytes($webhookId)]);
+
+        $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
+        $event = $this->createCustomerBeforeLoginEvent();
+
+        $this->withFlag($flagActive, function () use ($manager, $event, $webhookId): void {
+            $manager->dispatch($event);
+            $this->connection->delete('webhook', ['id' => Uuid::fromHexToBytes($webhookId)]);
+            $this->runWorker();
+        });
+
+        static::assertSame(0, $this->getRequestCount());
+        static::assertSame(
+            [WebhookEventLogDefinition::STATUS_FAILED],
+            $this->connection->fetchFirstColumn('SELECT delivery_status FROM webhook_event_log WHERE webhook_name = :name', ['name' => 'bare-webhook'])
+        );
+        static::assertSame(0, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM webhook_delivery'));
+    }
+
+    /**
+     * Steps:
      * 1. Register a webhook with error_count = 7.
      * 2. Dispatch the event.
      * 3. Mid-HTTP, simulate a stalled worker: trigger resetRunningForPartition + markRunning

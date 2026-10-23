@@ -64,6 +64,14 @@ class WebhookExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
 
+    public function testWebhookDeleted(): void
+    {
+        $e = WebhookException::webhookDeleted('webhookId');
+        static::assertSame('Webhook "webhookId" was deleted.', $e->getMessage());
+        static::assertSame('FRAMEWORK__WEBHOOK_DELETED', $e->getErrorCode());
+        static::assertSame(Response::HTTP_NOT_FOUND, $e->getStatusCode());
+    }
+
     public function testWebhookNotOwned(): void
     {
         $e = WebhookException::webhookNotOwned('webhookId');

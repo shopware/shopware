@@ -7,6 +7,7 @@ use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\WebhookException;
 
 /**
  * Picks the secret an outgoing webhook is signed with, at the moment it is sent.
@@ -16,7 +17,8 @@ use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
  * secret at send time keeps the signature valid for the receiving app.
  *
  * A webhook without an app is signed with its own secret, if one is set. It is also read at send
- * time, so it is never stored in the queued message.
+ * time, so it is never stored in the queued message. Once such a webhook is deleted, its queued
+ * deliveries are not sent: there is nothing left to sign them with.
  *
  * @internal
  */
@@ -29,6 +31,9 @@ class WebhookSigningSecretResolver
     ) {
     }
 
+    /**
+     * @throws WebhookException when the message has no app and its webhook was deleted
+     */
     public function resolve(WebhookEventMessage $message): ?string
     {
         $appId = $message->getAppId();
@@ -58,6 +63,10 @@ class WebhookSigningSecretResolver
             'SELECT `secret` FROM `webhook` WHERE `id` = :id',
             ['id' => Uuid::fromHexToBytes($webhookId)]
         );
+
+        if ($secret === false) {
+            throw WebhookException::webhookDeleted($webhookId);
+        }
 
         return \is_string($secret) ? $this->emptyToNull($secret) : null;
     }

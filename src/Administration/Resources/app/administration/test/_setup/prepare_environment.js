@@ -6,7 +6,6 @@ import { config, enableAutoUnmount } from '@vue/test-utils';
 
 import '@testing-library/jest-dom';
 
-import VirtualCallStackPlugin from 'src/app/plugin/virtual-call-stack.plugin';
 import MeteorSdkDataPlugin from 'src/app/plugin/meteor-sdk-data.plugin';
 import DeprecationPlugin from 'src/app/plugin/deprecation.plugin';
 import getBlockDataScope from 'src/app/component/structure/sw-block-override/sw-block/get-block-data-scope';
@@ -381,7 +380,6 @@ const BlockDataScopePlugin = {
 
 // Add global plugins
 config.global.plugins = [
-    VirtualCallStackPlugin,
     MeteorSdkDataPlugin,
     DeprecationPlugin,
     BlockDataScopePlugin,

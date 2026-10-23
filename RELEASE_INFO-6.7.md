@@ -152,6 +152,15 @@ Core usages that are not migrated yet are listed in `src/Administration/Resource
 In next-major mode, a deprecation with a listed message logs a console error instead of throwing, so the Administration stays usable.
 Any other deprecation still throws.
 
+### `$super` calls the next override that defines the method
+
+`this.$super('name')` in a component override now calls the next override or component below it that defines `name`, however many overrides in between leave it out.
+Overlapping async calls of the same method each run through their own chain, and a mixin of an override can call `$super` as well.
+Building a component no longer changes the configs passed to `Component.register()`, `Component.extend()` or `Component.override()`.
+
+Inside a method or computed property that calls `$super`, `this` is a proxy of the component instance.
+Use `this.$.proxy` to store the instance or to compare it with another reference.
+
 ## API
 To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
 It bundles the Administration and its plugins, but not apps.

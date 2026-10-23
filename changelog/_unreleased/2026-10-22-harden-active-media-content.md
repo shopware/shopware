@@ -6,7 +6,7 @@ issue: https://github.com/shopware/shopware-private/issues/513
 # API
 
 * Removed `html` from the default public media extension allowlist. Private HTML remains supported. Existing public HTML files remain accessible and should be reviewed.
-* Rejected uploads with HTML, XHTML, SVG or XML content types that do not match their file extension. Passive MIME mismatches remain accepted.
+* Changed media upload validation to reject HTML, XHTML, SVG or XML content types that do not match their file extension. Passive MIME mismatches remain accepted.
 
 ___
 

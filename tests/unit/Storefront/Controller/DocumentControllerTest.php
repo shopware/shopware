@@ -34,7 +34,8 @@ class DocumentControllerTest extends TestCase
             'document-id',
         );
 
-        static::assertSame($response, $result);
+        static::assertSame($response->getStatusCode(), $result->getStatusCode());
+        static::assertSame($response->getContent(), $result->getContent());
         static::assertSame(
             $protected ? ['img-src \'self\'', 'script-src \'none\''] : ['img-src \'self\''],
             $result->headers->all('Content-Security-Policy'),

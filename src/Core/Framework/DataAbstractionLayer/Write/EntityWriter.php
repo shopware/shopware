@@ -236,6 +236,10 @@ class EntityWriter implements EntityWriterInterface
 
                 $primary = EntityHydrator::encodePrimaryKey($affectedDefinition, $key, $writeContext->getContext());
 
+                if ($this->isDeletedInQueue($queue, $affectedDefinition, $primary)) {
+                    continue;
+                }
+
                 $existence = new EntityExistence($affectedDefinition->getEntityName(), $primary, true, false, false, []);
 
                 $command = new UpdateCommand($affectedDefinition, [], $primary, $existence, '');
@@ -318,6 +322,10 @@ class EntityWriter implements EntityWriterInterface
 
                 $primary = EntityHydrator::encodePrimaryKey($affectedDefinition, ['id' => $key], $writeContext->getContext());
 
+                if ($this->isDeletedInQueue($queue, $affectedDefinition, $primary)) {
+                    continue;
+                }
+
                 $existence = new EntityExistence($affectedDefinition->getEntityName(), $primary, true, false, false, []);
 
                 if ($definition->isVersionAware()) {
@@ -336,6 +344,20 @@ class EntityWriter implements EntityWriterInterface
                 );
             }
         }
+    }
+
+    /**
+     * @param array<string, string> $primaryKey
+     */
+    private function isDeletedInQueue(WriteCommandQueue $queue, EntityDefinition $definition, array $primaryKey): bool
+    {
+        foreach ($queue->getCommandsForEntity($definition, $primaryKey) as $command) {
+            if ($command instanceof DeleteCommand) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

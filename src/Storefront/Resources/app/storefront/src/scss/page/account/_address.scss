@@ -63,6 +63,11 @@
 
     .address-manager-select-address {
         min-height: 210px;
+        min-width: 0;
+
+        .address {
+            overflow-wrap: anywhere;
+        }
 
         .dropdown-menu {
             width: max-content;

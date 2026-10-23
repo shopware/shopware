@@ -31,14 +31,16 @@ sequenceDiagram
     S-->>C: results from the request plus the session state
     S-->>C: notifications/tools/list_changed pushed to the session
     C->>S: DELETE (Mcp-Session-Id)
-    S-->>C: 204, session state discarded
+    S-->>C: 200, session state discarded
 ```
 
 **Stateless era** (revision 2026-07-28 and later).
 
 - There is no `initialize` and no session id. A client that wants to know what the server supports calls `server/discover`.
 - Instead, every request carries everything the server needs to know about the client in its `_meta` field: the protocol version, the client capabilities and, for example, the log level the client wants for this request.
-- The client never sends `DELETE`. Disconnecting is purely local on the client side. A server that still receives a `DELETE` answers `405`.
+- The client never sends `DELETE`. Disconnecting is purely local on the client side.
+  Only a server that serves the stateless era alone answers a `DELETE` with `405`.
+  Shopware serves both eras, so it handles a `DELETE` as the handshake revisions describe: it ends the session, or answers `400` when the request carries no session id.
 - Every request can be handled by a fresh server instance. Nothing a request writes into per-connection memory is visible to the next request.
 - Notifications that the server wants to push (for example "the tool list changed") no longer go to a session. The client opens a stream with `subscriptions/listen` and the server publishes to it.
 
@@ -54,8 +56,8 @@ sequenceDiagram
     C->>S: subscriptions/listen (opens a stream)
     S-->>C: tools/list_changed published to the stream
     Note over C: disconnect is local, no DELETE is sent
-    C->>S: DELETE from a client that still sends one
-    S-->>C: 405
+    C->>S: DELETE without Mcp-Session-Id
+    S-->>C: 400, handled as a handshake request
 ```
 
 The `mcp/sdk` 0.8 used by Shopware serves both eras from the same URL. The client decides which one it speaks, and the server answers in the same era. Shopware currently switches the stateless era off for both endpoints (`/api/_mcp` and `/store-api/_mcp`) with `Builder::withoutModernEra()` in `McpServerBuilderCompilerPass` (the SDK and the MCP Inspector call the stateless era "modern"). As soon as that switch is removed, every client on the stateless era gets the stateless behaviour described above.

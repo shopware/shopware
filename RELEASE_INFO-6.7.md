@@ -182,6 +182,11 @@ Themes that override `component_address_personal_company_section`, `component_ad
 
 ## Hosting & Configuration
 
+### Readiness checks isolate their virtual requests
+
+Pre-rollout system checks now reset services between virtual Administration and Storefront requests, including redirects and failed requests.
+This prevents theme and Twig context from leaking between probes and failed probes from leaving a PHP session open for the next check.
+
 ### Storefront readiness checks skip pages restricted by extensions
 
 The `ProductDetailReadiness` and `ProductListingReadiness` system checks only probe product and listing pages an anonymous visitor can see.

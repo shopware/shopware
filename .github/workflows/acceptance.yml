@@ -315,10 +315,9 @@ jobs:
           working-directory: new-shopware/tests/acceptance
 
       - name: Install Playwright Browsers
-        uses: shopware/github-actions/npm-ci-retry@main
+        uses: ./new-shopware/.github/actions/playwright-install
         with:
           working-directory: new-shopware/tests/acceptance
-          command: sudo apt-get update --allow-releaseinfo-change && npx playwright install --with-deps chromium
       - name: Run update tests with reporting
         if: ${{ inputs.currents && 'true' || '' }}
         working-directory: new-shopware/tests/acceptance

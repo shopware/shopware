@@ -82,6 +82,20 @@ New sales channel contexts now decide tax-free delivery like the cart (`TaxDetec
 commercial customers only get "Tax-free (B2B)", all other customers only "Tax-free (B2C)".
 Cart and order taxes stay the same, but Rule Builder conditions like "Cart amount" can match differently than before for customers who only met the other setting.
 
+### MCP servers run on `mcp/sdk` 0.9 and `symfony/mcp-bundle` 0.15
+
+Shopware now requires `mcp/sdk` 0.9 and `symfony/mcp-bundle` 0.15.
+Plugins and bundles that register MCP tools are affected in these points:
+
+* A tool that declares an `outputSchema` has its `structuredContent` validated against it.
+  A result that does not match is sent as an error result with `isError: true`.
+  Return `new \stdClass()` for an empty object, since `[]` is sent as an array.
+* A tool whose `inputSchema` has a `properties` member that is not an object, or a `required` member that is not a list, is rejected when it is registered.
+* `#[CompletionProvider]` no longer takes `providerClass`; pass the class to `provider` instead.
+
+The SDK classes for an OAuth proxy, client registration and OIDC discovery were removed, see the [mcp/sdk 0.9.0 changelog](https://github.com/modelcontextprotocol/php-sdk/blob/v0.9.0/CHANGELOG.md).
+The MCP endpoints still accept browser clients from any origin on one of the shop's hosts, for example the MCP Inspector on `http://localhost:6274`.
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request

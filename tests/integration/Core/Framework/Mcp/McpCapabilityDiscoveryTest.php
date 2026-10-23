@@ -105,6 +105,35 @@ class McpCapabilityDiscoveryTest extends TestCase
         );
     }
 
+    public function testModernEraRequestIsRefused(): void
+    {
+        $browser = $this->getBrowser();
+        $browser->request(
+            'POST',
+            '/api/_mcp',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json', 'HTTP_MCP_PROTOCOL_VERSION' => '2026-07-28'],
+            json_encode([
+                'jsonrpc' => '2.0',
+                'method' => 'server/discover',
+                'params' => ['_meta' => ['io.modelcontextprotocol/protocolVersion' => '2026-07-28']],
+                'id' => 1,
+            ], \JSON_THROW_ON_ERROR),
+        );
+
+        $response = $browser->getResponse();
+        static::assertSame(400, $response->getStatusCode(), (string) $response->getContent());
+
+        $error = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($error);
+        static::assertArrayNotHasKey('result', $error);
+        $supported = $error['error']['data']['supported'] ?? null;
+        static::assertIsArray($supported);
+        static::assertContains('2025-06-18', $supported);
+        static::assertNotContains('2026-07-28', $supported, 'the stateless era must stay off');
+    }
+
     public function testFreshSessionAdvertisesOnlyDiscoveryTools(): void
     {
         $browser = $this->getBrowser();

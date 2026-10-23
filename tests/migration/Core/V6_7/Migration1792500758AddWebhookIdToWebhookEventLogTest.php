@@ -31,8 +31,11 @@ class Migration1792500758AddWebhookIdToWebhookEventLogTest extends TestCase
         static::assertSame(1792500758, (new Migration1792500758AddWebhookIdToWebhookEventLog())->getCreationTimestamp());
     }
 
-    public function testMigrationAddsTheColumn(): void
+    public function testMigrationAddsTheColumnWithAnIndexAndAForeignKey(): void
     {
+        if (TableHelper::foreignKeyExists($this->connection, 'webhook_event_log', 'fk.webhook_event_log.webhook_id')) {
+            $this->connection->executeStatement('ALTER TABLE `webhook_event_log` DROP FOREIGN KEY `fk.webhook_event_log.webhook_id`');
+        }
         if (TableHelper::columnExists($this->connection, 'webhook_event_log', 'webhook_id')) {
             $this->connection->executeStatement('ALTER TABLE `webhook_event_log` DROP COLUMN `webhook_id`');
         }
@@ -42,5 +45,7 @@ class Migration1792500758AddWebhookIdToWebhookEventLogTest extends TestCase
         $migration->update($this->connection);
 
         static::assertTrue(TableHelper::columnExists($this->connection, 'webhook_event_log', 'webhook_id'));
+        static::assertTrue(TableHelper::indexExists($this->connection, 'webhook_event_log', 'idx.webhook_event_log.webhook_id'));
+        static::assertTrue(TableHelper::foreignKeyExists($this->connection, 'webhook_event_log', 'fk.webhook_event_log.webhook_id'));
     }
 }

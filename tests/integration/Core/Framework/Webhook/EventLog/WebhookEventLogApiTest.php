@@ -79,11 +79,30 @@ class WebhookEventLogApiTest extends TestCase
 
     public function testTheLogOfADeletedWebhookIsOnlyReadByAnAdmin(): void
     {
-        $logId = $this->createLog(Uuid::randomHex());
+        $user = TestUser::createNewTestUser($this->connection, ['webhook_event_log:read']);
+        $webhookId = WebhookBuilder::ownedByUser($user->getUserId())->insert($this->connection);
+        $logId = $this->createLog($webhookId);
+
+        $this->connection->delete('webhook', ['id' => Uuid::fromHexToBytes($webhookId)]);
 
         static::assertContains($logId, $this->searchLogIds());
 
-        TestUser::createNewTestUser($this->connection, ['webhook_event_log:read'])->authorizeBrowser($this->getBrowser());
+        $user->authorizeBrowser($this->getBrowser());
+
+        static::assertSame([], $this->searchLogIds());
+    }
+
+    public function testAWebhookRecreatedWithTheIdOfADeletedOneDoesNotReadItsLog(): void
+    {
+        $webhookId = WebhookBuilder::ownedByUser(TestUser::createNewTestUser($this->connection)->getUserId())->insert($this->connection);
+        $this->createLog($webhookId);
+
+        $this->connection->delete('webhook', ['id' => Uuid::fromHexToBytes($webhookId)]);
+
+        $user = TestUser::createNewTestUser($this->connection, ['webhook_event_log:read']);
+        WebhookBuilder::ownedByUser($user->getUserId())->id($webhookId)->insert($this->connection);
+
+        $user->authorizeBrowser($this->getBrowser());
 
         static::assertSame([], $this->searchLogIds());
     }

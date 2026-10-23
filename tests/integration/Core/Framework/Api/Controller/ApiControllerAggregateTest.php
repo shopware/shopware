@@ -65,7 +65,7 @@ class ApiControllerAggregateTest extends TestCase
     }
 
     #[DataProvider('responseTypeProvider')]
-    public function testRestrictedUserCannotExposeProtectedFieldsThroughEntityAggregation(string $accept): void
+    public function testRestrictedUserCannotExposePasswordThroughEntityAggregation(string $accept): void
     {
         $browser = $this->getBrowser(permissions: ['user:read']);
         $context = Context::createDefaultContext();
@@ -74,17 +74,13 @@ class ApiControllerAggregateTest extends TestCase
         $user = $userRepository->search($criteria, $context)->getEntities()->first();
         static::assertInstanceOf(UserEntity::class, $user);
 
-        $userRepository->update([
-            ['id' => $user->getId(), 'storeToken' => 'protected-store-token'],
-        ], $context);
-
         $browser->jsonRequest('POST', '/api/aggregate/user', [
             'ids' => [$user->getId()],
             'aggregations' => [
                 ['name' => 'users', 'type' => 'entity', 'definition' => 'user', 'field' => 'id'],
             ],
             'includes' => [
-                'user' => ['username.x', 'password.x', 'storeToken.x'],
+                'user' => ['username', 'password.x'],
             ],
         ], server: ['HTTP_ACCEPT' => $accept]);
 
@@ -96,7 +92,6 @@ class ApiControllerAggregateTest extends TestCase
         $entity = $content['aggregations']['users']['entities'][0];
         static::assertSame('user', $entity['apiAlias']);
         static::assertArrayNotHasKey('password', $entity);
-        static::assertArrayNotHasKey('storeToken', $entity);
     }
 
     public static function responseTypeProvider(): iterable

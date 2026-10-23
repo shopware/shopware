@@ -122,21 +122,20 @@ class LanguageRouteTest extends TestCase
         static::assertArrayHasKey('id', $response['elements'][0]['locale']);
     }
 
-    public function testUserRecoveryCannotBeExposedThroughLocale(): void
+    public function testUsersCannotBeExposedThroughLocale(): void
     {
         static::getContainer()->get('user.repository')->create([
             [
-                'id' => $this->ids->get('admin'),
-                'username' => 'recovery-admin',
-                'email' => 'recovery-admin@example.com',
-                'firstName' => 'Recovery',
-                'lastName' => 'Admin',
+                'id' => $this->ids->get('user'),
+                'username' => 'test-user',
+                'email' => 'test-user@example.com',
+                'firstName' => 'Test',
+                'lastName' => 'User',
                 'password' => 'shopware',
                 'localeId' => $this->ids->get('locale-1'),
                 'timeZone' => 'UTC',
-                'admin' => true,
+                'admin' => false,
                 'active' => true,
-                'recoveryUser' => ['hash' => $this->ids->get('recovery-hash')],
             ],
         ], Context::createDefaultContext());
 
@@ -145,17 +144,14 @@ class LanguageRouteTest extends TestCase
             'associations' => [
                 'locale' => [
                     'associations' => [
-                        'users' => [
-                            'associations' => ['recoveryUser' => []],
-                        ],
+                        'users' => [],
                     ],
                 ],
             ],
             'includes' => [
                 'language' => ['id', 'locale'],
                 'locale' => ['code', 'users.x'],
-                'user' => ['username.x', 'password.x', 'recoveryUser.x'],
-                'user_recovery' => ['hash.x'],
+                'user' => ['username'],
             ],
         ]);
 

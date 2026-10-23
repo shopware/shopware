@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiCriteriaAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
@@ -53,15 +52,7 @@ class ApiCriteriaValidator
                     continue;
                 }
 
-                $flag = $field->getFlag(ApiAware::class);
-
-                if ($flag === null) {
-                    throw DataAbstractionLayerException::accessorNotAllowedInApiScope($accessor);
-                }
-
-                if (!$flag->isSourceAllowed($context->getSource()::class)) {
-                    throw DataAbstractionLayerException::accessorNotAllowedInApiScope($accessor);
-                }
+                EntityDefinitionQueryHelper::validateFieldIsApiAware($field, $accessor, $context);
 
                 $runtime = $field->getFlag(Runtime::class);
 
@@ -71,6 +62,7 @@ class ApiCriteriaValidator
             }
         }
 
+        // Field-path permissions above apply to every source; only target-definition matching is Store API specific.
         $source = $context->getSource();
         if ($source instanceof AdminApiSource || $source instanceof SystemSource) {
             return;

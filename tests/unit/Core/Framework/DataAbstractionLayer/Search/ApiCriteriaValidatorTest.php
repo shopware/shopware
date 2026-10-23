@@ -15,8 +15,11 @@ use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Context\ShopApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ApiProtectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\RuntimeFieldInCriteriaException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\AvgAggregation;
@@ -73,6 +76,35 @@ class ApiCriteriaValidatorTest extends TestCase
         } else {
             static::assertInstanceOf($expectedException, $e);
         }
+    }
+
+    /**
+     * @return iterable<string, array{Context}>
+     */
+    public static function privilegedContextProvider(): iterable
+    {
+        yield 'Admin API' => [new Context(new AdminApiSource('test'))];
+        yield 'System' => [Context::createDefaultContext()];
+    }
+
+    #[DataProvider('privilegedContextProvider')]
+    public function testAggregationFieldsAreValidatedForPrivilegedSources(Context $context): void
+    {
+        $registry = new StaticDefinitionInstanceRegistry(
+            [ProductManufacturerDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+        $definition = $registry->getByEntityName('product_manufacturer');
+        $field = $definition->getField('id');
+        static::assertInstanceOf(Field::class, $field);
+        $field->removeFlag(ApiAware::class);
+
+        $criteria = (new Criteria())->addAggregation(new EntityAggregation('manufacturers', 'id', 'product_manufacturer'));
+
+        $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope('id'));
+
+        (new ApiCriteriaValidator($registry))->validate('product_manufacturer', $criteria, $context);
     }
 
     public static function criteriaProvider(): \Generator
@@ -193,6 +225,12 @@ class ApiCriteriaValidatorTest extends TestCase
         yield 'Allow entity aggregation loading another entity in admin api' => [
             (new Criteria())->addAggregation(new EntityAggregation('customers', 'manufacturerId', 'customer')),
             $admin,
+            null,
+        ];
+
+        yield 'Allow entity aggregation loading another entity in system scope' => [
+            (new Criteria())->addAggregation(new EntityAggregation('manufacturers', 'id', 'product_manufacturer')),
+            $system,
             null,
         ];
 

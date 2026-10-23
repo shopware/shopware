@@ -12,8 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryExcep
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\QueryLimitExceededException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiCriteriaAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\InvalidCriteriaIdsException;
@@ -262,7 +260,7 @@ class RequestCriteriaBuilder
                     throw FrameworkException::associationNotFound($propertyName);
                 }
 
-                $this->validateAssociationIsApiAware($field, $propertyName, $context);
+                EntityDefinitionQueryHelper::validateFieldIsApiAware($field, $propertyName, $context);
 
                 $ref = $field->getReferenceDefinition();
                 if ($field instanceof ManyToManyAssociationField) {
@@ -281,7 +279,7 @@ class RequestCriteriaBuilder
 
         if (isset($payload['fields'])) {
             foreach ($payload['fields'] as $accessor) {
-                $this->validateFieldsAccessorIsApiAware($definition, (string) $accessor, $context);
+                EntityDefinitionQueryHelper::validateFieldsAccessorIsApiAware($definition, (string) $accessor, $context);
             }
 
             $criteria->addFields($payload['fields']);
@@ -554,40 +552,6 @@ class RequestCriteriaBuilder
             $criteria->addSorting(...$sorting);
         } catch (InvalidSortQueryException $ex) {
             $searchException->add($ex, $ex->getParameters()['path']);
-        }
-    }
-
-    /**
-     * Partial loading (`fields`) turns every association in an accessor path into a loaded association at read time,
-     * so the paths are held to the same rule as the `associations` parameter.
-     */
-    private function validateFieldsAccessorIsApiAware(EntityDefinition $definition, string $accessor, Context $context): void
-    {
-        foreach (EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $accessor) as $field) {
-            if ($field instanceof AssociationField) {
-                $this->validateAssociationIsApiAware($field, $field->getPropertyName(), $context);
-            }
-        }
-    }
-
-    /**
-     * Request supplied associations are loaded by the DAL without any ownership scoping, so an association that is not
-     * exposed for the request's api source must be rejected before the criteria is executed, the same way the
-     * ApiCriteriaValidator rejects filters and sortings on such fields. Associations which are added server-side after
-     * parsing (e.g. in routes or plugins) are intentionally not affected.
-     *
-     * Every field is ApiAware for the Admin API by default (see Field::__construct), so Admin API requests are only
-     * affected by explicitly restricted fields.
-     */
-    private function validateAssociationIsApiAware(AssociationField $field, string $propertyName, Context $context): void
-    {
-        if ($field->getFlag(ApiCriteriaAware::class)) {
-            return;
-        }
-
-        $flag = $field->getFlag(ApiAware::class);
-        if ($flag === null || !$flag->isSourceAllowed($context->getSource()::class)) {
-            throw DataAbstractionLayerException::accessorNotAllowedInApiScope($propertyName);
         }
     }
 

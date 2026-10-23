@@ -12,10 +12,15 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiCriteriaAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
@@ -166,6 +171,63 @@ class EntityDefinitionQueryHelperTest extends TestCase
         $this->expectExceptionObject(DataAbstractionLayerException::invalidIdentifier($identifier));
 
         EntityDefinitionQueryHelper::escape($identifier);
+    }
+
+    public function testFieldRestrictedToAdminApiIsRejectedForStoreApi(): void
+    {
+        $field = new StringField('name', 'name');
+
+        $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope('reference.name'));
+
+        EntityDefinitionQueryHelper::validateFieldIsApiAware($field, 'reference.name', new Context(new SalesChannelApiSource('test')));
+    }
+
+    public function testExplicitlyProtectedFieldIsRejectedInSystemScope(): void
+    {
+        $field = (new StringField('name', 'name'))->removeFlag(ApiAware::class);
+
+        $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope('name'));
+
+        EntityDefinitionQueryHelper::validateFieldIsApiAware($field, 'name', Context::createDefaultContext());
+    }
+
+    public function testCriteriaAwareFieldCanBeUsedWithoutApiAware(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $field = (new StringField('name', 'name'))->removeFlag(ApiAware::class)->addFlags(new ApiCriteriaAware());
+
+        EntityDefinitionQueryHelper::validateFieldIsApiAware($field, 'name', new Context(new SalesChannelApiSource('test')));
+    }
+
+    public function testAdminApiCanUseItsExposedFields(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        EntityDefinitionQueryHelper::validateFieldIsApiAware(new StringField('name', 'name'), 'name', new Context(new AdminApiSource('test')));
+    }
+
+    public function testPartialFieldSelectionRejectsProtectedAssociation(): void
+    {
+        $definition = $this->getRegistry()->getByEntityName('product');
+        $field = $definition->getField('manufacturer');
+        static::assertInstanceOf(Field::class, $field);
+        $field->removeFlag(ApiAware::class);
+
+        $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope('manufacturer'));
+
+        EntityDefinitionQueryHelper::validateFieldsAccessorIsApiAware($definition, 'manufacturer.name', new Context(new SalesChannelApiSource('test')));
+    }
+
+    public function testPartialFieldSelectionLeavesScalarVisibilityToEncoder(): void
+    {
+        $registry = $this->getRegistry();
+        $definition = $registry->getByEntityName('product');
+        $field = $registry->getByEntityName('product_manufacturer')->getField('link');
+        static::assertInstanceOf(Field::class, $field);
+        $field->removeFlag(ApiAware::class);
+
+        EntityDefinitionQueryHelper::validateFieldsAccessorIsApiAware($definition, 'manufacturer.link', new Context(new SalesChannelApiSource('test')));
     }
 
     private function getRegistry(): DefinitionInstanceRegistry

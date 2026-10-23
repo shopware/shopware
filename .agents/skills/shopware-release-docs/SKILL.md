@@ -39,6 +39,13 @@ State the change and its impact.
 Add one sentence on why only when it tells developers how urgent the change is, for example a bug, a security or a performance problem.
 Leave out the internals of how it works and the history of the problem.
 
+## Security Release Notes
+
+State the security impact and necessary compatibility changes in general terms.
+Omit exploit payloads, sensitive field or association examples, and credential or recovery chains.
+Keep required response-status and error-code guidance, and use the coordinated security advisory for detailed impact and remediation.
+Do not infer compromise or prescribe broad credential resets or token rotations without confirmed security guidance.
+
 ## Formatting
 
 - Put a blank line before and after every heading, and between paragraphs.

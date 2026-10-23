@@ -1,21 +1,19 @@
-# 6.7.16.0 (upcoming)
+# 6.7.16.1 (upcoming)
 
 ## Critical Fixes
 
-### Store API enforces `ApiAware` for `includes`, `associations`, `fields` and entity aggregations
+### Improved API access protection
 
-Request-level `includes` no longer override the `ApiAware` protection of a field, including in Admin API entity aggregation responses.
-A Store API request that names a protected association in `associations` or `fields`, or an entity aggregation whose `definition` does not match the entity its `field` references, is rejected with `FRAMEWORK__ACCESSOR_NOT_ALLOWED`.
-Associations added server-side by routes or extensions remain supported.
+Fixed an API access-control vulnerability that could expose protected data.
+API responses and Store API searches now consistently respect field visibility restrictions.
+Validation errors with code `FRAMEWORK__ACCESSOR_NOT_ALLOWED` now use HTTP status 400 instead of 500.
 
-App scripts using `services.store` are subject to the same association checks.
-Remove protected associations such as `productReviews.customer` from store searches; app permissions do not grant access to these associations through `services.store`.
+Extensions and app scripts using `services.store` can only request associated entities exposed through the Store API.
+App permissions do not grant additional access to protected associations through `services.store`.
 
-Responses with the error code `FRAMEWORK__ACCESSOR_NOT_ALLOWED` now use HTTP status 400 instead of 500.
+# 6.7.16.0 (upcoming)
 
-Operators should treat customer, order and address data, password hashes and password recovery tokens as potentially exposed, including the possibility of administrator or customer account takeover.
-After updating, reset affected administrator and customer credentials, invalidate outstanding recovery links and active administrative sessions, and rotate the `deepLinkCode` of recent guest orders.
-Review unexpected password recovery requests and subsequent Admin API activity.
+## Critical Fixes
 
 ### Theme configuration updates reach all descendants
 

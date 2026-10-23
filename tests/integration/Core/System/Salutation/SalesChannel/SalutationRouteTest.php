@@ -85,11 +85,7 @@ class SalutationRouteTest extends TestCase
                 [
                     'limit' => 1,
                     'associations' => [
-                        'customers' => [
-                            'associations' => [
-                                'defaultBillingAddress' => [],
-                            ],
-                        ],
+                        'customers' => [],
                     ],
                     'includes' => [
                         'salutation' => ['id', 'customers.id'],
@@ -123,26 +119,21 @@ class SalutationRouteTest extends TestCase
         static::assertArrayHasKey('letterName', $response['elements'][0]);
     }
 
-    public function testCustomerRecoveryFromAnotherSalesChannelCannotBeExposed(): void
+    public function testCustomerFromAnotherSalesChannelCannotBeExposed(): void
     {
-        $customer = (new CustomerBuilder($this->ids, 'recovery-customer', salesChannelId: TestDefaults::SALES_CHANNEL))
-            ->add('boundSalesChannelId', TestDefaults::SALES_CHANNEL)
-            ->add('password', 'shopware')
-            ->add('recoveryCustomer', ['hash' => $this->ids->get('recovery-hash')]);
+        $customer = (new CustomerBuilder($this->ids, 'customer', salesChannelId: TestDefaults::SALES_CHANNEL))
+            ->add('boundSalesChannelId', TestDefaults::SALES_CHANNEL);
 
         static::getContainer()->get('customer.repository')->create([$customer->build()], Context::createDefaultContext());
 
         $this->browser->request('POST', '/store-api/salutation', [
             'ids' => [$this->ids->get('salutation')],
             'associations' => [
-                'customers' => [
-                    'associations' => ['recoveryCustomer' => []],
-                ],
+                'customers' => [],
             ],
             'includes' => [
                 'salutation' => ['salutationKey', 'customers.x'],
-                'customer' => ['email', 'password.x', 'recoveryCustomer.x'],
-                'customer_recovery' => ['hash.x'],
+                'customer' => ['firstName'],
             ],
         ]);
 

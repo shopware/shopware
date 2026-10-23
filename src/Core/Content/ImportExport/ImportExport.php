@@ -118,56 +118,62 @@ class ImportExport
             $this->connection->beginTransaction();
         }
 
-        foreach ($this->reader->read($config, $resource, $offset) as $row) {
-            $event = new ImportExportBeforeImportRowEvent($row, $config, $context);
-            $this->eventDispatcher->dispatch($event);
-            $row = $event->getRow();
+        foreach ($this->readWindows($config, $resource, $offset, $processed) as $window) {
+            // let the pipe resolve for the whole window what it would otherwise look up per record
+            $this->pipe->warmUp($config, $window);
 
-            // empty csv lines were already skipped by the reader.
-            // defaults are added to the raw csv row
-            $this->addUserDefaults($row, $config);
+            foreach ($window as $row) {
+                $event = new ImportExportBeforeImportRowEvent($row, $config, $context);
+                $this->eventDispatcher->dispatch($event);
+                $row = $event->getRow();
 
-            $record = [];
-            foreach ($this->pipe->out($config, $row) as $key => $value) {
-                $record[$key] = $value;
-            }
+                // empty csv lines were already skipped by the reader.
+                // defaults are added to the raw csv row
+                $this->addUserDefaults($row, $config);
 
-            if ($record === []) {
-                continue;
-            }
-
-            try {
-                if (isset($record['_error']) && $record['_error'] instanceof \Throwable) {
-                    throw $record['_error'];
+                $record = [];
+                foreach ($this->pipe->out($config, $row) as $key => $value) {
+                    $record[$key] = $value;
                 }
 
-                // ensure that the raw csv row has all the fields, which are marked as required by the user.
-                $this->ensureUserRequiredFields($row, $config);
-
-                $record = $this->ensurePrimaryKeys($record);
-
-                $event = new ImportExportBeforeImportRecordEvent($record, $row, $config, $context);
-                $this->eventDispatcher->dispatch($event);
-
-                $record = $event->getRecord();
-
-                $importResult = $this->importStrategyService->import($record, $row, $config, $progress, $context);
-
-                $results = array_merge($results, $importResult->results);
-                $failedRecords = array_merge($failedRecords, $importResult->failedRecords);
-            } catch (\Throwable $exception) {
-                $event = new ImportExportExceptionImportRecordEvent($exception, $record, $row, $config, $context);
-                $this->eventDispatcher->dispatch($event);
-
-                $importException = $event->getException();
-
-                if ($importException) {
-                    $record['_error'] = mb_convert_encoding($importException->getMessage(), 'UTF-8', 'UTF-8');
-                    $failedRecords[] = $record;
+                if ($record === []) {
+                    continue;
                 }
+
+                try {
+                    if (isset($record['_error']) && $record['_error'] instanceof \Throwable) {
+                        throw $record['_error'];
+                    }
+
+                    // ensure that the raw csv row has all the fields, which are marked as required by the user.
+                    $this->ensureUserRequiredFields($row, $config);
+
+                    $record = $this->ensurePrimaryKeys($record);
+
+                    $event = new ImportExportBeforeImportRecordEvent($record, $row, $config, $context);
+                    $this->eventDispatcher->dispatch($event);
+
+                    $record = $event->getRecord();
+
+                    $importResult = $this->importStrategyService->import($record, $row, $config, $progress, $context);
+
+                    $results = array_merge($results, $importResult->results);
+                    $failedRecords = array_merge($failedRecords, $importResult->failedRecords);
+                } catch (\Throwable $exception) {
+                    $event = new ImportExportExceptionImportRecordEvent($exception, $record, $row, $config, $context);
+                    $this->eventDispatcher->dispatch($event);
+
+                    $importException = $event->getException();
+
+                    if ($importException) {
+                        $record['_error'] = mb_convert_encoding($importException->getMessage(), 'UTF-8', 'UTF-8');
+                        $failedRecords[] = $record;
+                    }
+                }
+
+                ++$processed;
             }
 
-            ++$processed;
             if ($this->importLimit > 0 && $processed >= $this->importLimit) {
                 break;
             }
@@ -645,6 +651,56 @@ class ImportExport
     /**
      * @param array<string, mixed> $row
      */
+    /**
+     * Reads the rows of an import in windows, so the pipe can resolve per window instead of per record.
+     *
+     * A window never holds more rows than the import may still process, so the import limit is always reached at the
+     * end of a window. Without that, rows of a partly processed window would be counted as read and the next run of
+     * the import would continue behind them.
+     *
+     * @param resource $resource
+     *
+     * @return \Generator<list<array<string, mixed>>>
+     */
+    private function readWindows(Config $config, $resource, int $offset, int &$processed): \Generator
+    {
+        $window = [];
+        $size = $this->windowSize($processed);
+
+        foreach ($this->reader->read($config, $resource, $offset) as $row) {
+            $window[] = $row;
+
+            if (\count($window) < $size) {
+                continue;
+            }
+
+            yield $window;
+
+            $window = [];
+            $size = $this->windowSize($processed);
+
+            if ($size < 1) {
+                return;
+            }
+        }
+
+        if ($window !== []) {
+            yield $window;
+        }
+    }
+
+    private function windowSize(int $processed): int
+    {
+        if ($this->importLimit < 1) {
+            return 250;
+        }
+
+        return max(0, $this->importLimit - $processed);
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
     private function addUserDefaults(array &$row, Config $config): void
     {
         $mappings = $config->getMapping()->getElements();
@@ -656,7 +712,7 @@ class ImportExport
                 continue;
             }
 
-            if (!\array_key_exists($csvKey, $row) || empty($row[$csvKey])) {
+            if (($row[$csvKey] ?? '') === '') {
                 $row[$csvKey] = $mapping->getDefaultValue();
             }
         }
@@ -676,7 +732,7 @@ class ImportExport
                 continue;
             }
 
-            if (!\array_key_exists($csvKey, $row) || empty($row[$csvKey])) {
+            if (($row[$csvKey] ?? '') === '') {
                 throw ImportExportException::requiredByUser($csvKey);
             }
         }

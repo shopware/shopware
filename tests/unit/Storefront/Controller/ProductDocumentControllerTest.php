@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\SalesChannel\Document\AbstractProductDocumentDownloadRoute;
+use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentDownloadRoute;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\ProductDocumentController;
@@ -24,7 +24,7 @@ class ProductDocumentControllerTest extends TestCase
         $context = static::createStub(SalesChannelContext::class);
         $response = new Response('download');
 
-        $route = $this->createMock(AbstractProductDocumentDownloadRoute::class);
+        $route = $this->createMock(ProductDocumentDownloadRoute::class);
         $route
             ->expects($this->once())
             ->method('load')

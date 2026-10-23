@@ -792,6 +792,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ProductDetailRoute::class),
             service(DownloadResponseGenerator::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ProductReviewLoader::class)

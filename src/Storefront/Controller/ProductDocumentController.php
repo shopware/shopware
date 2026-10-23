@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Content\Product\SalesChannel\Document\AbstractProductDocumentDownloadRoute;
+use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentDownloadRoute;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -21,7 +21,7 @@ class ProductDocumentController extends StorefrontController
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractProductDocumentDownloadRoute $productDocumentDownloadRoute)
+    public function __construct(private readonly ProductDocumentDownloadRoute $productDocumentDownloadRoute)
     {
     }
 

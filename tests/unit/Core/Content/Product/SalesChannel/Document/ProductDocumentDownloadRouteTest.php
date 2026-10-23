@@ -8,15 +8,17 @@ use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentEntity;
+use Shopware\Core\Content\Product\Extension\ProductDocumentDownloadRouteExtension;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentDownloadRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -27,18 +29,6 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(ProductDocumentDownloadRoute::class)]
 class ProductDocumentDownloadRouteTest extends TestCase
 {
-    public function testGetDecoratedThrowsException(): void
-    {
-        $route = new ProductDocumentDownloadRoute(
-            static::createStub(AbstractProductDetailRoute::class),
-            static::createStub(DownloadResponseGenerator::class),
-        );
-
-        static::expectExceptionObject(new DecorationPatternException(ProductDocumentDownloadRoute::class));
-
-        $route->getDecorated();
-    }
-
     public function testLoadReturnsDownloadResponse(): void
     {
         $productId = 'product-id';
@@ -95,7 +85,7 @@ class ProductDocumentDownloadRouteTest extends TestCase
             ->with($media, $context)
             ->willReturn($response);
 
-        $route = new ProductDocumentDownloadRoute($productDetailRoute, $downloadResponseGenerator);
+        $route = new ProductDocumentDownloadRoute($productDetailRoute, $downloadResponseGenerator, new ExtensionDispatcher(new EventDispatcher()));
 
         static::assertSame($response, $route->load($productId, $documentId, $request, $context));
     }
@@ -107,6 +97,7 @@ class ProductDocumentDownloadRouteTest extends TestCase
         $route = new ProductDocumentDownloadRoute(
             $this->createProductDetailRoute(new SalesChannelProductEntity()),
             $this->createDownloadResponseGeneratorExpectingNoDownload(),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         static::expectExceptionObject(ProductException::productDocumentNotFound($documentId));
@@ -125,6 +116,7 @@ class ProductDocumentDownloadRouteTest extends TestCase
         $route = new ProductDocumentDownloadRoute(
             $this->createProductDetailRoute($product),
             $this->createDownloadResponseGeneratorExpectingNoDownload(),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         static::expectExceptionObject(ProductException::productDocumentNotFound($documentId));
@@ -143,11 +135,41 @@ class ProductDocumentDownloadRouteTest extends TestCase
         $route = new ProductDocumentDownloadRoute(
             $this->createProductDetailRoute($product),
             $this->createDownloadResponseGeneratorExpectingNoDownload(),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         static::expectExceptionObject(ProductException::productDocumentNotFound($documentId));
 
         $route->load('product-id', $documentId, new Request(), static::createStub(SalesChannelContext::class));
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $request = new Request();
+        $context = static::createStub(SalesChannelContext::class);
+        $response = new Response('replaced download');
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(ProductDocumentDownloadRouteExtension::onPre(), static function (ProductDocumentDownloadRouteExtension $extension) use ($request, $context, $response): void {
+            static::assertSame(
+                ['productId' => 'product-id', 'documentId' => 'document-id', 'request' => $request, 'context' => $context],
+                $extension->getParams()
+            );
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $productDetailRoute = $this->createMock(AbstractProductDetailRoute::class);
+        $productDetailRoute->expects($this->never())->method('load');
+
+        $route = new ProductDocumentDownloadRoute(
+            $productDetailRoute,
+            $this->createDownloadResponseGeneratorExpectingNoDownload(),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load('product-id', 'document-id', $request, $context));
     }
 
     private function createProductDetailRoute(SalesChannelProductEntity $product): AbstractProductDetailRoute

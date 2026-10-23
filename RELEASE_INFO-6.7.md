@@ -109,7 +109,8 @@ For headless storefronts and integrations:
 For themes and Storefront plugins, the product detail page now loads `page.product.productDocuments` sorted by `position`, each with its translated `name` and its resolved `media`, so templates can render download links pointing to the new route `frontend.product.document.download` (`GET /product/{productId}/document/{documentId}/download`).
 The default theme does not render the documents yet.
 
-Plugins can decorate `Shopware\Core\Content\Product\SalesChannel\Document\AbstractProductDocumentDownloadRoute` to customize the download behaviour.
+Plugins can customize the download through the extension event of the Store API route, `Shopware\Core\Content\Product\Extension\ProductDocumentDownloadRouteExtension` (`product-document-download-route.load`), which carries `productId`, `documentId`, `request` and `context`.
+The route has no abstract route class to decorate.
 
 ### Disable the Administration password recovery flow
 

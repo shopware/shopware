@@ -91,7 +91,7 @@ describe('plugin/google-analytics/analytics-event', () => {
     });
 
     // a sum of prices such as 0.1 + 0.2 is 0.30000000000000004
-    test('rounds amounts to cents', () => {
+    test('drops the floating point noise of amounts', () => {
         new AnalyticsEvent().pushEvent('view_item_list', {
             value: 0.1 + 0.2,
             items: [{ item_id: 'product-1', price: 961.3899999999999, discount: '2.50', quantity: '2', index: 3 }],
@@ -100,6 +100,21 @@ describe('plugin/google-analytics/analytics-event', () => {
         expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', {
             value: 0.3,
             items: [{ item_id: 'product-1', price: 961.39, discount: 2.5, quantity: 2, index: 3 }],
+        });
+    });
+
+    // currencies such as KWD round to three decimals, and shipping can cost less than a cent
+    test('keeps the decimals of the currency', () => {
+        new AnalyticsEvent().pushEvent('purchase', {
+            value: '1.234',
+            shipping: '0.005',
+            items: [{ item_id: 'product-1', price: '1.234', quantity: '1' }],
+        });
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'purchase', {
+            value: 1.234,
+            shipping: 0.005,
+            items: [{ item_id: 'product-1', price: 1.234, quantity: 1 }],
         });
     });
 

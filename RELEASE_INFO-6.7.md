@@ -126,6 +126,15 @@ They additionally react to domain changes:
 toggling the external storefront flag of a domain (or adding/removing domains) creates or removes the affected rows without re-saving the customer group.
 The storefront rows are untouched by this and keep being maintained by the Storefront bundle.
 
+### More Administration components declare their emitted events
+
+About 30 Administration components now list the events they emit in `emits`, for example `sw-datepicker`, `sw-password-field`, `sw-url-field`, `sw-textarea-field` and `sw-string-filter`.
+Listeners for these events are no longer part of the component's `$attrs`, so they fire once per event instead of twice.
+If you override the template of one of these components and render your own field with `v-bind="$attrs"`, forward `update:modelValue` explicitly:
+
+```html
+<mt-text-field v-bind="$attrs" @update:model-value="$emit('update:modelValue', $event)" />
+```
 ### Known core deprecations log an error in next-major mode
 
 Core usages that are not migrated yet are listed in `src/Administration/Resources/app/administration/src/meta/deprecation-baseline.json`.

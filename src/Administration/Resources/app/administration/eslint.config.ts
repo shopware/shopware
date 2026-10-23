@@ -394,7 +394,6 @@ export default [
             },
         },
         rules: {
-            'sw-core-rules/require-explicit-emits': 'error',
             'sw-core-rules/enforce-async-component-registers': 'error',
             'vue/require-prop-types': 'error',
             'vue/require-default-prop': 'error',
@@ -461,6 +460,21 @@ export default [
                 'enableFix',
             ],
             'sw-deprecation-rules/no-vue-options-api': 'off',
+        },
+    },
+
+    // Emits of JS and TS components
+    {
+        files: [
+            '**/*.js',
+            '**/*.ts',
+        ],
+        ignores: [
+            '**/*.spec.js',
+            '**/*.spec.ts',
+        ],
+        rules: {
+            'sw-core-rules/require-explicit-emits': 'error',
         },
     },
 

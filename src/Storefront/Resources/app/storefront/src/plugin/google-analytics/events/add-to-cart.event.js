@@ -100,7 +100,7 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
         }
 
         // the page does not describe the categories of the product, so they are requested
-        return ProductPageHelper.resolveCategories(productId, formElement).then(resolved => {
+        return ProductPageHelper.resolveCategories(productId, formElement, () => this.active).then(resolved => {
             // the shopper can revoke the tracking consent while the categories are requested
             if (this.active) {
                 this._push(parameters, resolved);

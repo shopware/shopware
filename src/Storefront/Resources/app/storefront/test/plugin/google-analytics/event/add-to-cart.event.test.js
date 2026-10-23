@@ -540,6 +540,7 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
 
     test('does not fire when the consent is revoked while the categories are requested', async () => {
         window.activeRoute = 'frontend.home.page';
+        window.localStorage.clear();
         window.router = { 'frontend.analytics.product-categories': '/widgets/analytics/product-categories' };
         document.body.innerHTML = `
             <div class="card product-box" data-product-information='{"id":"product-1","name":"Shirt","sku":"SW1","price":10}'>
@@ -568,6 +569,8 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
 
         expect(global.fetch).toHaveBeenCalled();
         expect(window.gtag).not.toHaveBeenCalled();
+        // nothing of the response is kept for the cart either
+        expect(window.localStorage.getItem('swGaProductCategories')).toBeNull();
 
         delete window.activeRoute;
         delete window.router;

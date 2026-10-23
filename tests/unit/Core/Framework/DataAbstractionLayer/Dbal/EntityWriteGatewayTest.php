@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\RowLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Immutable;
@@ -96,12 +97,15 @@ class EntityWriteGatewayTest extends TestCase
 
     private function createGateway(): EntityWriteGateway
     {
+        $connection = new FakeConnection([]);
+
         return new EntityWriteGateway(
             100,
-            new FakeConnection([]),
+            $connection,
             $this->dispatcher,
             static::createStub(ExceptionHandlerRegistry::class),
-            static::createStub(DefinitionInstanceRegistry::class)
+            static::createStub(DefinitionInstanceRegistry::class),
+            new RowLoader($connection),
         );
     }
 

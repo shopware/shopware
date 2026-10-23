@@ -82,6 +82,23 @@ New sales channel contexts now decide tax-free delivery like the cart (`TaxDetec
 commercial customers only get "Tax-free (B2B)", all other customers only "Tax-free (B2C)".
 Cart and order taxes stay the same, but Rule Builder conditions like "Cart amount" can match differently than before for customers who only met the other setting.
 
+### Pre-write validators can read each record as it will be after the write
+
+The new `WriteOutcome` service turns the write commands of one entity into one `OutcomeRow` per record, with all its inserts and updates of the write merged in order.
+A validator that only looks at the last command of a record misses earlier writes to it, for example an earlier operation of the same Sync request.
+`get()` returns the value of a column from the write's payload, else from the database, and `hasField()` tells whether the payload sets it.
+Values are in storage format, keyed by column name.
+A record whose last write is a delete is not returned; `PreWriteValidationEvent::getDeletedPrimaryKeys()` lists the deletes.
+`rows()` only returns records that are new or whose payload sets one of the given columns, and loads the database values of those columns in one query.
+
+```php
+$commands = $event->getCommandsForEntity('customer');
+
+foreach ($this->writeOutcome->rows($commands, ['email', 'guest']) as $customer) {
+    $this->validateEmail($customer->get('email'), $customer->path);
+}
+```
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request

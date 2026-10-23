@@ -126,6 +126,7 @@ return static function (ContainerConfigurator $container): void {
         ->tag('kernel.event_subscriber');
 
     $services->set(McpHandshakeListChangedSubscriber::class)
+        ->args([service('request_stack')])
         ->tag('kernel.event_subscriber');
 
     $services->set(McpContextProvider::class)

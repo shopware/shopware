@@ -9,6 +9,7 @@ use Mcp\Schema\Result\InitializeResult;
 use Mcp\Schema\ServerCapabilities;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -20,11 +21,24 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * well, through the session's outgoing queue ({@see McpListChangedNotifier}), and clients only act on
  * a notification the server declared.
  *
+ * Only the answers of the two Shopware endpoints are changed. Another MCP server configured through the
+ * bundle, for example by a plugin, has no such queue and keeps the SDK's answer.
+ *
  * @internal
  */
 #[Package('framework')]
 final class McpHandshakeListChangedSubscriber implements EventSubscriberInterface
 {
+    /**
+     * The routes of {@see \Shopware\Core\Framework\Mcp\Controller\McpServerController} and
+     * {@see \Shopware\Core\Framework\Mcp\Controller\StoreApiMcpServerController}.
+     */
+    private const SHOPWARE_MCP_ROUTES = ['api.mcp.endpoint', 'store-api.mcp.endpoint'];
+
+    public function __construct(private readonly RequestStack $requestStack)
+    {
+    }
+
     public static function getSubscribedEvents(): array
     {
         return [ResponseEvent::class => 'onResponse'];
@@ -33,6 +47,11 @@ final class McpHandshakeListChangedSubscriber implements EventSubscriberInterfac
     public function onResponse(ResponseEvent $event): void
     {
         if (!$event->getRequest() instanceof InitializeRequest) {
+            return;
+        }
+
+        $route = $this->requestStack->getCurrentRequest()?->attributes->get('_route');
+        if (!\in_array($route, self::SHOPWARE_MCP_ROUTES, true)) {
             return;
         }
 

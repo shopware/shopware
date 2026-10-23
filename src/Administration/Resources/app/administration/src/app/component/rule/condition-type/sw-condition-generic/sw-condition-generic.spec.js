@@ -120,9 +120,7 @@ async function createWrapper(condition = {}, component = 'sw-condition-generic')
                 'mt-floating-ui': {
                     template: '<div><slot /></div>',
                 },
-                'sw-tagged-field': {
-                    template: '<div class="sw-tagged-field"></div>',
-                },
+                'sw-multi-tag-select': await wrapTestComponent('sw-multi-tag-select'),
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
                 'sw-product-variant-info': true,
@@ -280,13 +278,58 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         expect(wrapper.vm.condition.value.testValues).toEqual(expect.arrayContaining(['some_value', 'some_other_value']));
     });
 
-    it('should render condition with tagged field', async () => {
+    it('should render condition with tagged field as multi tag select', async () => {
         const wrapper = await createWrapper({
             type: 'customerCustomerNumber',
         });
         await flushPromises();
 
-        expect(wrapper.get('.sw-tagged-field')).toBeDefined();
+        expect(wrapper.find('.sw-multi-tag-select').exists()).toBe(true);
+    });
+
+    it('should render the values of a tagged field as tags', async () => {
+        const wrapper = await createWrapper({
+            type: 'customerCustomerNumber',
+            value: {
+                operator: '=',
+                numbers: [
+                    '10001',
+                    '10002',
+                ],
+            },
+        });
+        await flushPromises();
+
+        const tags = wrapper.findAll('.sw-multi-tag-select .sw-select-selection-list__item-holder');
+
+        expect(tags).toHaveLength(2);
+        expect(tags[0].text()).toBe('10001');
+        expect(tags[1].text()).toBe('10002');
+    });
+
+    it('should render a tagged field without tags when the condition has no value', async () => {
+        const wrapper = await createWrapper({
+            type: 'customerCustomerNumber',
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-multi-tag-select').exists()).toBe(true);
+        expect(wrapper.findAll('.sw-multi-tag-select .sw-select-selection-list__item-holder')).toHaveLength(0);
+    });
+
+    it('should add an entered value of a tagged field to the condition', async () => {
+        const condition = {
+            type: 'customerCustomerNumber',
+        };
+        const wrapper = await createWrapper(condition);
+        await flushPromises();
+
+        const input = wrapper.get('.sw-multi-tag-select .sw-select-selection-list__input');
+        await input.setValue('10001');
+        await input.trigger('keydown', { key: 'Enter' });
+        await flushPromises();
+
+        expect(condition.value.numbers).toEqual(['10001']);
     });
 
     it('should render condition with custom operators', async () => {

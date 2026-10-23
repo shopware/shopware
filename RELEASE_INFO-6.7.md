@@ -126,6 +126,14 @@ They additionally react to domain changes:
 toggling the external storefront flag of a domain (or adding/removing domains) creates or removes the affected rows without re-saving the customer group.
 The storefront rows are untouched by this and keep being maintained by the Storefront bundle.
 
+### Rule Builder: free-text list conditions use `sw-multi-tag-select`
+
+Rule conditions with the field type `tagged` (`RuleConfig::taggedField()`) and the zip code conditions for billing and shipping addresses now render `sw-multi-tag-select` instead of `sw-tagged-field`, as dynamic product groups already do.
+Multi-select values in the Rule Builder now wrap and the condition row grows with them instead of scrolling horizontally.
+A value that was typed but not confirmed with Enter is now added when the field loses focus.
+A component set via `componentName` in the field config of `RuleConfig::taggedField()` is kept.
+If your extension overrides the Twig blocks `sw_condition_billing_zip_code_field_zip_codes` or `sw_condition_shipping_zip_code_field_zip_codes`, or styles `.sw-tagged-field` in these conditions, check your customization.
+
 ## API
 To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
 It bundles the Administration and its plugins, but not apps.

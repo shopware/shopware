@@ -1,9 +1,9 @@
 {% block sw_select_result_list %}
 <div class="sw-select-result-list">
-    <sw-popover
+    <mt-floating-ui
+        :is-opened="true"
         class="sw-select-result-list-popover"
-        :popover-class="popoverClass"
-        :z-index="1100"
+        :class="popoverClass"
         :match-reference-width="popoverResizeWidth"
     >
         <div
@@ -42,6 +42,6 @@
                 {% endblock %}
             </div>
         </div>
-    </sw-popover>
+    </mt-floating-ui>
 </div>
 {% endblock %}

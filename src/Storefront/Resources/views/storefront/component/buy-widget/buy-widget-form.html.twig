@@ -36,7 +36,7 @@
                 <div class="row g-2 buy-widget-container">
                     {% block buy_widget_buy_quantity_container %}
                         {% if showQuantitySelect %}
-                            <fieldset class="col-4 d-flex justify-content-end">
+                            <fieldset class="col-4 d-flex justify-content-end buy-widget-quantity">
                                 {% block buy_widget_buy_quantity_input_group %}
                                     {% block buy_widget_buy_quantity_input_group_legend %}
                                         <legend class="form-label visually-hidden">
@@ -165,7 +165,7 @@
                     {% endblock %}
 
                     {% block buy_widget_buy_button_container %}
-                        <div class="{% if showQuantitySelect %}col-8{% else %}col-12{% endif %}">
+                        <div class="{% if showQuantitySelect %}col-8{% else %}col-12{% endif %} buy-widget-buy-button">
                             {% block buy_widget_buy_button %}
                                 <div class="d-grid">
                                     <button class="btn btn-primary btn-buy"

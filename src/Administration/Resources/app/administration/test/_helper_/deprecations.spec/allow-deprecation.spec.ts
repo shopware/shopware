@@ -6,6 +6,7 @@ import { allowDeprecation } from '../deprecations';
 import oldFunction from '../_fixtures/deprecations/oldFunction';
 import {
     failureOfEndDeprecationLog,
+    ignoreBaselineUpdateRun,
     messageThrownBy,
     oldFunctionMessage,
     startNextTest,
@@ -16,6 +17,8 @@ const outsideTestMessage =
     'allowDeprecation() only works inside a test or its beforeEach: the setup resets it before every test.';
 
 describe('test/_helper_/deprecations - allowDeprecation', () => {
+    beforeEach(ignoreBaselineUpdateRun);
+
     it('lets a matching deprecation pass without an assertion', () => {
         allowDeprecation('oldFunction()');
 

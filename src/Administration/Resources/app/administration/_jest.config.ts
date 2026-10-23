@@ -73,6 +73,8 @@ const config: Config = {
     globals: {
         adminPath: process.env.ADMIN_PATH,
         projectRoot: process.env.PROJECT_ROOT,
+        // Extensions run Jest with their own config, so the deprecation recorder stays silent there, see `isPlatformDeprecationRun()`
+        __shopwarePlatformDeprecationRun: true,
     },
 
     globalTeardown: '<rootDir>test/globalTeardown.js',

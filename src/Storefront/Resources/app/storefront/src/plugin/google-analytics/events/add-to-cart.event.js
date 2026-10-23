@@ -37,7 +37,7 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
         // the reorder in the account posts only the order, its products are rendered into the form for analytics
         const lineItemElements = formElement.querySelectorAll('[data-analytics-line-item]');
         if (lineItemElements.length > 0) {
-            this._pushLineItems(formElement, lineItemElements);
+            this._awaitReorder(formElement, lineItemElements);
             return;
         }
 
@@ -126,32 +126,87 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
     }
 
     /**
-     * Reports all line items of a form that adds several of them, such as the reorder of an order.
-     * Their data comes from the order, so prices and currency are those of the original order.
+     * The reorder adds the products of an order on the server, which prices them with the current
+     * prices and the currency of the cart. So `add_to_cart` is reported from the cart the server
+     * returns: the off-canvas cart, or, if the shop does not open it, the cart requested once after
+     * the add. Product number, brand and categories come from the order, because the reorder creates
+     * new line items without them.
      *
-     * @param {FormData} formData
      * @param {HTMLElement} formElement
      * @param {NodeList} lineItemElements
      * @private
      */
-    _pushLineItems(formElement, lineItemElements) {
-        const items = [...lineItemElements].map(element => {
-            const id = element.getAttribute('data-id');
+    _awaitReorder(formElement, lineItemElements) {
+        const ordered = new Map([...lineItemElements].map(element => [element.getAttribute('data-id'), element]));
+        let reported = false;
 
-            return {
-                'item_id': element.getAttribute('data-sku') || id,
-                'item_name': element.getAttribute('data-name'),
-                'quantity': element.getAttribute('data-quantity'),
-                'price': element.getAttribute('data-price'),
-                'item_brand': element.getAttribute('data-brand'),
-                ...LineItemHelper.getCategoriesFromElement(element),
-            };
-        });
+        const report = (html, requireSuccess) => {
+            if (reported || !this.active) {
+                return;
+            }
+
+            reported = true;
+            this._pushReorder(ordered, html, requireSuccess);
+        };
+
+        window.PluginManager.getPluginInstances('OffCanvasCart')?.[0]?.$emitter.subscribe(
+            'offCanvasOpened',
+            event => report(event.detail?.response, true),
+            { once: true },
+        );
+
+        formElement.addEventListener('addToCartWithoutOffcanvas', () => {
+            const url = window.router?.['frontend.cart.offcanvas'];
+            if (!url) {
+                return;
+            }
+
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(response => (response.ok ? response.text() : ''))
+                .then(html => report(html, false))
+                .catch(() => {});
+        }, { once: true });
+    }
+
+    /**
+     * @param {Map<string, HTMLElement>} ordered the products of the order by product ID
+     * @param {string} html the cart the server returned after the reorder
+     * @param {boolean} requireSuccess the off-canvas cart shows a success alert only if every product was added
+     * @private
+     */
+    _pushReorder(ordered, html, requireSuccess) {
+        const cart = new DOMParser().parseFromString(html || '', 'text/html');
+        const information = cart.querySelector('.hidden-line-items-information');
+
+        if (!information || (requireSuccess && !cart.querySelector('.alert-success'))) {
+            return;
+        }
+
+        const items = [...information.querySelectorAll('.hidden-line-item')]
+            .filter(element => ordered.has(element.getAttribute('data-id')))
+            .map(element => {
+                const orderItem = ordered.get(element.getAttribute('data-id'));
+                const categories = LineItemHelper.getCategoriesFromElement(orderItem);
+
+                return {
+                    'item_id': orderItem.getAttribute('data-sku') || element.getAttribute('data-sku'),
+                    'item_name': element.getAttribute('data-name'),
+                    // the cart can hold more of the product than the reorder added
+                    'quantity': orderItem.getAttribute('data-quantity'),
+                    'price': element.getAttribute('data-price'),
+                    'item_brand': orderItem.getAttribute('data-brand') || element.getAttribute('data-brand'),
+                    ...(Object.keys(categories).length > 0 ? categories : LineItemHelper.getCategoriesFromElement(element)),
+                };
+            });
+
+        if (items.length === 0) {
+            return;
+        }
 
         const value = items.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1), 0);
 
         this.pushEvent('add_to_cart', {
-            'currency': formElement.getAttribute('data-analytics-currency') || ProductPageHelper.getCurrency(),
+            'currency': information.getAttribute('data-currency'),
             'value': value,
             'items': items,
         });

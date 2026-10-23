@@ -113,7 +113,6 @@
                                                       id="orderDetailForm-{{ order.Id }}"
                                                       method="post"
                                                       class="order-table-header-context-menu-content-form"
-                                                      {% if storefrontAnalytics and storefrontAnalytics.isActive() %}data-analytics-currency="{{ order.currency.isoCode }}"{% endif %}
                                                       data-add-to-cart="true">
                                                     {% block page_account_order_item_context_menu_reorder_form_redirect %}
                                                         <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas">
@@ -127,7 +126,7 @@
                                                         {% endfor %}
                                                     {% endblock %}
 
-                                                    {# the reorder route adds the products of the order on the server, so `add_to_cart` reads them from here #}
+                                                    {# `add_to_cart` reads price and currency from the cart the reorder returns, and product number, brand and categories from here #}
                                                     {% if storefrontAnalytics and storefrontAnalytics.isActive() %}
                                                         {% for lineItem in order.lineItems ?? [] %}
                                                             {% if lineItem.type == PRODUCT_LINE_ITEM_TYPE and lineItem.referencedId and (lineItem.extensions.productAvailability.visible ?? true) %}
@@ -140,8 +139,6 @@
                                                                           data-analytics-line-item
                                                                           data-id="{{ lineItem.referencedId }}"
                                                                           data-sku="{{ lineItem.payload.productNumber ?? lineItem.referencedId }}"
-                                                                          data-name="{{ lineItem.label }}"
-                                                                          data-price="{{ lineItem.unitPrice }}"
                                                                           data-quantity="{{ lineItem.quantity }}"
                                                                           data-brand="{{ lineItem.payload.manufacturerName|default('') }}"
                                                                           {{ categoryAttributes|raw }}></span>

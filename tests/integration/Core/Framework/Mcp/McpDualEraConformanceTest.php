@@ -38,15 +38,9 @@ use Symfony\Component\HttpFoundation\Response;
  * Runs the same scenarios over both MCP protocol eras on both endpoints, and asserts the behaviour agreed
  * in adr/2026-09-24-mcp-stateless-era-degradation-policy.md.
  *
- * Production pins both servers to the handshake era (`McpServerBuilderCompilerPass::pinHandshakeEra()`),
- * so this test boots a kernel of its own, builds a server with both legs from the same builder and swaps it
- * into both controllers of that kernel. The shared test kernel stays untouched.
- * Lifting the production pin is #19969; once it lands, the fixture can go and the same scenarios run
- * against the real container.
- *
- * A scenario the stateless leg does not satisfy yet calls {@see self::knownStatelessGap()} right before
- * the ADR assertion that would fail. Everything before that call is asserted, so a regression on the
- * already working part still fails. Remove the call together with the fix.
+ * Both servers stay on the handshake era unless `shopware.mcp.protocol_era` says `auto`, which the shared
+ * test kernel does not. This test therefore boots a kernel of its own, builds a server with both legs from
+ * the same builder and swaps it into both controllers of that kernel. The shared test kernel stays untouched.
  *
  * @internal
  */
@@ -235,7 +229,6 @@ class McpDualEraConformanceTest extends TestCase
         static::assertTrue($result['isError'] ?? false, 'enabling a toolset without a session must be an error: ' . json_encode($result));
         static::assertNotContains($tool, $client->toolNames());
 
-        $this->knownStatelessGap('the error names the missing session, not "?toolsets="');
         static::assertStringContainsString('?toolsets=', McpEraClient::text($result));
     }
 
@@ -395,15 +388,6 @@ class McpDualEraConformanceTest extends TestCase
         \assert(self::$dualEraKernel !== null);
 
         return $this->createSalesChannelBrowser(self::$dualEraKernel);
-    }
-
-    /**
-     * Marks a stateless-era scenario whose ADR behaviour is not implemented yet. Serving that era, and
-     * closing these gaps, is #19969.
-     */
-    private function knownStatelessGap(string $gap): void
-    {
-        static::markTestIncomplete('Stateless era not conformant yet (#19969): ' . $gap);
     }
 }
 

@@ -38,7 +38,11 @@ class ToolsetEnableTool extends McpToolResponse
         $request = $this->requestStack->getCurrentRequest();
         $sessionId = $request?->headers->get('Mcp-Session-Id') ?? '';
         if ($sessionId === '') {
-            return $this->error('Cannot enable an MCP toolset without an active MCP session.');
+            // The stateless era (2026-07-28) has no session to keep the toolset in.
+            return $this->error(\sprintf(
+                'Cannot enable an MCP toolset on a connection without an MCP session, such as one on protocol revision 2026-07-28. Reconnect to the MCP endpoint URL with the toolset in the query instead, for example "?toolsets=%s".',
+                $toolset,
+            ));
         }
 
         $this->sessionStorage->enable($sessionId, $toolset);

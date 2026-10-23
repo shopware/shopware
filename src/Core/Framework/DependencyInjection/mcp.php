@@ -14,6 +14,7 @@ use Shopware\Core\Framework\App\Mcp\Feature\McpResourceFeatureDefinition;
 use Shopware\Core\Framework\App\Mcp\Feature\McpToolFeatureDefinition;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpServerBuilderCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolDiscoveryCompilerPass;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
@@ -112,6 +113,7 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.server.admin.session.store')->nullOnInvalid(),
             service(McpListVersions::class),
             service('logger'),
+            service(McpServerBuilderCompilerPass::ADMIN_NOTIFICATION_BUS)->nullOnInvalid(),
         ])
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
@@ -300,6 +302,7 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.store_api.capability_catalog')->nullOnInvalid(),
             param('mcp.servers.unassigned'),
             param(McpToolDiscoveryCompilerPass::DEMOTED_DISCOVERY_TOOLS_PARAMETER),
+            param(McpServerBuilderCompilerPass::PROTOCOL_ERA_PARAMETER),
         ])
         ->tag('console.command');
 

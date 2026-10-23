@@ -96,6 +96,33 @@ Plugins and bundles that register MCP tools are affected in these points:
 The SDK classes for an OAuth proxy, client registration and OIDC discovery were removed, see the [mcp/sdk 0.9.0 changelog](https://github.com/modelcontextprotocol/php-sdk/blob/v0.9.0/CHANGELOG.md).
 The MCP endpoints still accept browser clients from any origin on one of the shop's hosts, for example the MCP Inspector on `http://localhost:6274`.
 
+### MCP endpoints can serve the stateless 2026-07-28 protocol revision
+
+Both MCP endpoints can now serve the stateless 2026-07-28 revision next to the handshake revisions, from the same URL.
+It is off by default.
+Switch it on per endpoint:
+
+```yaml
+shopware:
+    mcp:
+        protocol_era:
+            admin: auto
+            store_api: auto
+```
+
+`legacy`, the default, serves the handshake revisions up to 2025-11-25 only.
+With `auto`, the client picks the revision, and clients on the handshake revisions are not affected.
+`bin/console debug:mcp` shows the era of each endpoint.
+
+On the stateless revision there is no MCP session:
+
+* Choose toolsets in the endpoint URL, for example `/api/_mcp?toolsets=order,media`.
+  `shopware-toolset-enable` answers with an error that points to `?toolsets=`.
+* List changes on the Admin API endpoint, for example after an app install, reach clients through `subscriptions/listen`.
+  The notifications go through `cache.app`, so setups with several hosts need a shared `cache.app`, for example Redis.
+* Each open `subscriptions/listen` stream occupies a PHP worker for up to 30 seconds before the client reconnects.
+  Account for it in `pm.max_children`.
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request

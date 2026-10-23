@@ -106,6 +106,8 @@ export default class AnalyticsEvent
 
     /**
      * Amounts summed up in the browser carry floating point noise, such as `961.3899999999999`.
+     * Twelve significant digits drop the noise and keep every decimal a currency rounds to,
+     * such as the three decimals of KWD.
      *
      * @param {number|string} value
      * @returns {number|string}
@@ -113,7 +115,7 @@ export default class AnalyticsEvent
      */
     _normalizeAmount(value) {
         const number = this._normalizeNumber(value);
-        return typeof number === 'number' ? Math.round(number * 100) / 100 : number;
+        return typeof number === 'number' ? Number(number.toPrecision(12)) : number;
     }
 
     disable() {

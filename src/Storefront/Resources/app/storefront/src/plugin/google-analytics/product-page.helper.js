@@ -305,9 +305,10 @@ export default class ProductPageHelper {
      *
      * @param {string} productId
      * @param {HTMLElement|null} element the element the interaction started from, if any
+     * @param {function(): boolean} isActive whether tracking is still active once the response arrives
      * @returns {Promise<Object>}
      */
-    static async resolveCategories(productId, element = null) {
+    static async resolveCategories(productId, element = null, isActive = () => true) {
         const categories = ProductPageHelper.getCategoriesFor(productId, element);
         if (Object.keys(categories).length > 0) {
             return categories;
@@ -333,8 +334,11 @@ export default class ProductPageHelper {
 
             const resolved = ProductPageHelper.mapCategories(await response.json());
 
-            // the line item of the product carries no categories, so the cart and checkout read them from here
-            ProductCategoryHelper.remember(productId, resolved);
+            // The line item of the product carries no categories, so the cart and checkout read them from here.
+            // A shopper who revoked the tracking consent while the request ran gets nothing stored.
+            if (isActive()) {
+                ProductCategoryHelper.remember(productId, resolved);
+            }
 
             return resolved;
         } catch {

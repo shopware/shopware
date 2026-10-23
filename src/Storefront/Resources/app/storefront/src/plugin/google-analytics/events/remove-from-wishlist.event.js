@@ -107,7 +107,7 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
         }
 
         if (!categories || Object.keys(categories).length === 0) {
-            categories = await ProductPageHelper.resolveCategories(productId, form);
+            categories = await ProductPageHelper.resolveCategories(productId, form, () => this.active);
         }
 
         // the shopper can revoke the tracking consent while the categories are requested

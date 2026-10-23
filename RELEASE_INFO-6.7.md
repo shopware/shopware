@@ -127,7 +127,7 @@ Tracking setups have to adapt to these changes:
 * With a `GTM-` tracking ID, ecommerce events are pushed to the data layer as `{ event, ecommerce }`.
   Google Tag Manager setups that read parameters from `eventModel` must use the `ecommerce` data layer variables instead.
 * Items use `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`, and numeric values are numbers instead of strings.
-  Amounts are rounded to cents.
+  Amounts keep the decimals of the currency.
 * The event `value` of cart, checkout and `purchase` events is the position price including promotion discounts, and the applied promotion codes are reported as `coupon`.
   Discounts are no longer reported as items.
 * `login` and `sign_up` are reported again, and adding a product by its number on the cart page reports `add_to_cart`.
@@ -151,8 +151,8 @@ The product box now reports the price of a matching price rule or the first grad
 With active analytics, adding a product from a product box now posts its brand and categories in the line item payload, like the buy widget does.
 Cart, checkout and purchase events report them as `item_brand` and `item_category`.
 
-The reorder of an order in the account now reports one `add_to_cart` with all products of the order, each with product number, name, price, quantity, brand and categories of the original order.
-The reorder form posts only the order, so the products are rendered into the form as `[data-analytics-line-item]` elements while analytics is active.
+The reorder of an order in the account now reports one `add_to_cart` with the products it added, priced with the current prices and the currency of the cart it returns.
+The reorder form posts only the order, so product number, quantity, brand and categories of the ordered products are rendered into the form as `[data-analytics-line-item]` elements while analytics is active.
 
 ### Storefront analytics report each checkout step once
 

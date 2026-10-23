@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\IntraEuTaxResolver;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -285,6 +286,19 @@ class InvoiceDataProviderTest extends TestCase
             'expectedIntraCommunityDelivery' => false,
         ];
 
+        foreach ([CartPrice::TAX_STATE_NET, CartPrice::TAX_STATE_GROSS] as $taxStatus) {
+            yield $taxStatus . ' orders do not carry the exemption note' => [
+                'config' => $flag,
+                'order' => self::createOrder(
+                    accountType: $business,
+                    country: $validEuCountryNoPatternCheck,
+                    vatIds: ['NL123456789B01'],
+                    taxStatus: $taxStatus,
+                ),
+                'expectedIntraCommunityDelivery' => false,
+            ];
+        }
+
         yield 'intra false - flag set, customer is not business' => [
             'config' => $flag,
             'order' => self::createOrder(),
@@ -335,8 +349,18 @@ class InvoiceDataProviderTest extends TestCase
             'order' => self::createOrder(
                 accountType: $business,
                 country: $validEuCountryNoPatternCheck,
+                vatIds: ['NL123456789B01'],
             ),
             'expectedIntraCommunityDelivery' => true,
+        ];
+
+        yield 'intra false - unchecked VAT format still requires a stored VAT ID' => [
+            'config' => $flag,
+            'order' => self::createOrder(
+                accountType: $business,
+                country: $validEuCountryNoPatternCheck,
+            ),
+            'expectedIntraCommunityDelivery' => false,
         ];
 
         yield 'intra false - all preconditions met but customer has no vatIds' => [
@@ -391,6 +415,16 @@ class InvoiceDataProviderTest extends TestCase
         static::assertFalse($this->resolveIntraCommunityDelivery(['NL123456789B01', 'INVALID']));
     }
 
+    public function testASellerVatIdDropsTheIntraCommunityNoteWithoutPatternValidation(): void
+    {
+        static::assertFalse($this->resolveIntraCommunityDelivery(['DE123456789'], checkVatIdPattern: false));
+    }
+
+    public function testAForeignVatIdKeepsTheIntraCommunityNoteWithoutPatternValidation(): void
+    {
+        static::assertTrue($this->resolveIntraCommunityDelivery(['NL123456789B01'], checkVatIdPattern: false));
+    }
+
     /**
      * @param array<string, mixed> $config
      */
@@ -432,19 +466,21 @@ class InvoiceDataProviderTest extends TestCase
         return new InvoiceDataProvider(
             $configLoader,
             $documentTypeRegistry,
-            $validator ?? static::createStub(ValidatorInterface::class),
-            $vatIdPatternProvider ?? static::createStub(VatIdPatternProvider::class),
+            new IntraEuTaxResolver(
+                $vatIdPatternProvider ?? static::createStub(VatIdPatternProvider::class),
+                $validator ?? static::createStub(ValidatorInterface::class),
+            ),
         );
     }
 
     /**
      * @param list<string> $vatIds
      */
-    private function resolveIntraCommunityDelivery(array $vatIds, ?string $deliveryCountryIso = null): bool
+    private function resolveIntraCommunityDelivery(array $vatIds, ?string $deliveryCountryIso = null, bool $checkVatIdPattern = true): bool
     {
         $order = self::createOrder(
             accountType: CustomerEntity::ACCOUNT_TYPE_BUSINESS,
-            country: self::createCountry(companyTaxEnabled: true, isEu: true, iso: $deliveryCountryIso),
+            country: self::createCountry(companyTaxEnabled: true, isEu: true, checkVatIdPattern: $checkVatIdPattern, iso: $deliveryCountryIso),
             vatIds: $vatIds,
         );
 
@@ -589,6 +625,7 @@ class InvoiceDataProviderTest extends TestCase
         bool $deliveryWithoutCountry = false,
         ?\DateTimeInterface $shippingDateLatest = null,
         bool $skipPrimaryDelivery = false,
+        string $taxStatus = CartPrice::TAX_STATE_FREE,
     ): OrderEntity {
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());
@@ -597,7 +634,8 @@ class InvoiceDataProviderTest extends TestCase
         $billingAddressId = Uuid::randomHex();
         $order->setBillingAddressId($billingAddressId);
         $order->setLineItems(new OrderLineItemCollection());
-        $order->setPrice(new CartPrice(0.0, 0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET));
+        $order->setPrice(new CartPrice(0.0, 0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection(), $taxStatus));
+        $order->setTaxStatus($taxStatus);
         $order->setAmountTotal(0.0);
         $order->setAmountNet(0.0);
 

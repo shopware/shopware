@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
+use Shopware\Core\Checkout\Cart\Tax\IntraEuTaxResolver;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Document\Event\StornoOrdersEvent;
@@ -24,7 +24,6 @@ use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('after-sales')]
@@ -51,9 +50,8 @@ final class StornoRenderer extends AbstractDocumentRenderer
         private readonly ReferenceInvoiceLoader $referenceInvoiceLoader,
         private readonly Connection $connection,
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
-        private readonly ValidatorInterface $validator,
         private readonly ClockInterface $clock,
-        private readonly VatIdPatternProvider $vatIdPatternProvider,
+        private readonly IntraEuTaxResolver $intraEuTaxResolver,
     ) {
     }
 
@@ -140,12 +138,11 @@ final class StornoRenderer extends AbstractDocumentRenderer
                         'stornoNumber' => $number,
                         'invoiceNumber' => $referenceDocumentNumber,
                     ],
-                    'intraCommunityDelivery' => $this->isAllowIntraCommunityDelivery(
+                    'intraCommunityDelivery' => $this->isIntraCommunityDelivery(
                         $config->jsonSerialize(),
                         $order,
-                    )
-                        && !$this->isDomesticSupply($order, $this->vatIdPatternProvider)
-                        && $this->isValidVat($order, $this->validator),
+                        $this->intraEuTaxResolver,
+                    ),
                 ]);
 
                 if ($operation->isStatic()) {

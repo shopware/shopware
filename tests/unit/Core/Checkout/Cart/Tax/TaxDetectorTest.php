@@ -3,9 +3,11 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Tax;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\IntraEuTaxResolver;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -24,6 +26,7 @@ use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -515,6 +518,37 @@ class TaxDetectorTest extends TestCase
         static::assertFalse($this->createDetector(self::EU_PATTERNS, 'DE')->isCompanyTaxFree($context, $country));
     }
 
+    #[DataProvider('sellerVatIdWithoutDeliveryPatternProvider')]
+    public function testSellerVatIdIsTaxableWithoutDeliveryPatternValidation(?string $pattern, bool $checkPattern): void
+    {
+        $country = (new CountryEntity())->assign([
+            'iso' => 'BE',
+            'companyTax' => new TaxFreeConfig(true),
+            'isEu' => true,
+            'vatIdPattern' => $pattern,
+            'checkVatIdPattern' => $checkPattern,
+        ]);
+        $customer = (new CustomerEntity())->assign([
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'vatIds' => ['DE123456789'],
+        ]);
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+        $context->method('getSalesChannelId')->willReturn(Uuid::randomHex());
+
+        static::assertFalse($this->createDetector(self::EU_PATTERNS, 'DE')->isCompanyTaxFree($context, $country));
+    }
+
+    /**
+     * @return iterable<string, array{string|null, bool}>
+     */
+    public static function sellerVatIdWithoutDeliveryPatternProvider(): iterable
+    {
+        yield 'pattern check disabled' => ['BE\\d{10}', false];
+        yield 'missing delivery pattern' => [null, true];
+        yield 'empty delivery pattern' => ['', true];
+    }
+
     public function testIsCompanyTaxFreeStillAcceptsAnotherMemberStateWhenTheSellerCountryIsConfigured(): void
     {
         $country = (new CountryEntity())->assign([
@@ -713,7 +747,10 @@ class TaxDetectorTest extends TestCase
             static fn (Criteria $criteria, Context $context) => new IdSearchResult(1, [$defaultCountryId => ['primaryKey' => $defaultCountryId, 'data' => []]], $criteria, $context)
         );
 
-        return new TaxDetector(new VatIdPatternProvider($repository, $this->createSystemConfigService($countries, $sellerIso)));
+        return new TaxDetector(new IntraEuTaxResolver(
+            new VatIdPatternProvider($repository, $this->createSystemConfigService($countries, $sellerIso)),
+            static::createStub(ValidatorInterface::class),
+        ));
     }
 
     /**
@@ -730,7 +767,10 @@ class TaxDetectorTest extends TestCase
             static fn (Criteria $criteria, Context $context) => new EntitySearchResult(CountryDefinition::ENTITY_NAME, $countries->count(), $countries, null, $criteria, $context)
         );
 
-        return new TaxDetector(new VatIdPatternProvider($repository, $this->createSystemConfigService($countries, $sellerIso)));
+        return new TaxDetector(new IntraEuTaxResolver(
+            new VatIdPatternProvider($repository, $this->createSystemConfigService($countries, $sellerIso)),
+            static::createStub(ValidatorInterface::class),
+        ));
     }
 
     /**
@@ -745,7 +785,10 @@ class TaxDetectorTest extends TestCase
         $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('getString')->willReturn(Uuid::randomHex());
 
-        return new TaxDetector(new VatIdPatternProvider($repository, $systemConfigService));
+        return new TaxDetector(new IntraEuTaxResolver(
+            new VatIdPatternProvider($repository, $systemConfigService),
+            static::createStub(ValidatorInterface::class),
+        ));
     }
 
     /**

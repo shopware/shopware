@@ -2,9 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Provider;
 
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
-use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
+use Shopware\Core\Checkout\Cart\Tax\IntraEuTaxResolver;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
@@ -24,8 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -38,8 +34,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
     public function __construct(
         private DocumentConfigLoader $documentConfigLoader,
         private DocumentTypeRegistry $documentTypeRegistry,
-        private ValidatorInterface $validator,
-        private VatIdPatternProvider $vatIdPatternProvider,
+        private IntraEuTaxResolver $intraEuTaxResolver,
     ) {
     }
 
@@ -100,10 +95,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
 
         $displayAdditionalNoteDelivery = (bool) ($bundle->legacyConfig['displayAdditionalNoteDelivery'] ?? false);
 
-        $isIntraCommunityDelivery = $this->isIntraCommunityDelivery(
-            $displayAdditionalNoteDelivery,
-            $order,
-        );
+        $isIntraCommunityDelivery = $displayAdditionalNoteDelivery && $this->intraEuTaxResolver->isIntraCommunityDelivery($order);
 
         $allowNegative = $this->documentTypeRegistry
             ->getDocumentType($generationRequest->documentType)
@@ -176,58 +168,5 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
         }
 
         return null;
-    }
-
-    private function isIntraCommunityDelivery(bool $displayAdditionalNoteDelivery, OrderEntity $order): bool
-    {
-        if ($displayAdditionalNoteDelivery === false) {
-            return false;
-        }
-
-        $customerType = $order->getOrderCustomer()?->getCustomer()?->getAccountType();
-
-        if ($customerType !== CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
-            return false;
-        }
-
-        $orderDelivery = Feature::isActive('v6.8.0.0')
-            ? $order->getPrimaryOrderDelivery()
-            : $order->getDeliveries()?->first();
-
-        if ($orderDelivery === null) {
-            return false;
-        }
-
-        $country = $orderDelivery->getShippingOrderAddress()?->getCountry();
-
-        if ($country === null) {
-            return false;
-        }
-
-        if (!$country->getCompanyTax()->getEnabled() || !$country->getIsEu()) {
-            return false;
-        }
-
-        if ($this->vatIdPatternProvider->isDomesticSupply($country->getIso(), $order->getSalesChannelId())) {
-            return false;
-        }
-
-        if ($country->getCheckVatIdPattern() === false) {
-            return true;
-        }
-
-        $vatIds = $order->getOrderCustomer()?->getVatIds();
-
-        if (!\is_array($vatIds)) {
-            return false;
-        }
-
-        return $this->validator->validate(
-            $vatIds,
-            [
-                new NotBlank(),
-                new CustomerVatIdentification(countryId: $country->getId(), salesChannelId: $order->getSalesChannelId()),
-            ],
-        )->count() === 0;
     }
 }

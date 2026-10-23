@@ -3,8 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Tax;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Country\CountryEntity;
@@ -16,7 +14,7 @@ class TaxDetector extends AbstractTaxDetector
     /**
      * @internal
      */
-    public function __construct(private readonly VatIdPatternProvider $vatIdPatternProvider)
+    public function __construct(private readonly IntraEuTaxResolver $intraEuTaxResolver)
     {
     }
 
@@ -59,36 +57,11 @@ class TaxDetector extends AbstractTaxDetector
     {
         $customer = $context->getCustomer();
 
-        $countryCompanyTaxFree = $shippingLocationCountry->getCompanyTax()->getEnabled();
-
-        if (!$countryCompanyTaxFree || !$customer || $customer->getAccountType() !== CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
-            return false;
-        }
-
-        if (!$shippingLocationCountry->getIsEu()) {
-            return true;
-        }
-
-        $vatPattern = $shippingLocationCountry->getVatIdPattern();
-        $vatIds = array_filter($customer->getVatIds() ?? []);
-
-        if ($vatIds === []) {
-            return false;
-        }
-
-        if ($this->vatIdPatternProvider->isDomesticSupply($shippingLocationCountry->getIso(), $context->getSalesChannelId())) {
-            return false;
-        }
-
-        if ($vatPattern !== null && $vatPattern !== '' && $shippingLocationCountry->getCheckVatIdPattern()) {
-            foreach ($vatIds as $vatId) {
-                // An intra-EU B2B supply is tax free because the customer holds a VAT ID of another member state.
-                if (!$this->vatIdPatternProvider->acceptsVatId($vatId, $vatPattern, true, $context->getSalesChannelId())) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
+        return $this->intraEuTaxResolver->isExempt(
+            $customer?->getAccountType(),
+            $customer?->getVatIds(),
+            $shippingLocationCountry,
+            $context->getSalesChannelId(),
+        );
     }
 }

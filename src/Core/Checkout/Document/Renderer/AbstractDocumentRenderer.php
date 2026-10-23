@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Cart\Tax\IntraEuTaxResolver;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
@@ -59,6 +60,14 @@ abstract class AbstractDocumentRenderer
     /**
      * @param array<string, mixed> $config
      */
+    protected function isIntraCommunityDelivery(array $config, OrderEntity $order, IntraEuTaxResolver $intraEuTaxResolver): bool
+    {
+        return ($config['displayAdditionalNoteDelivery'] ?? false) !== false && $intraEuTaxResolver->isIntraCommunityDelivery($order);
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
     protected function isAllowIntraCommunityDelivery(array $config, OrderEntity $order): bool
     {
         if (($config['displayAdditionalNoteDelivery'] ?? false) === false) {
@@ -101,7 +110,11 @@ abstract class AbstractDocumentRenderer
 
         $country = $orderDelivery?->getShippingOrderAddress()?->getCountry();
 
-        return $vatIdPatternProvider->isDomesticSupply($country?->getIso(), $order->getSalesChannelId());
+        if ($vatIdPatternProvider->isDomesticSupply($country?->getIso(), $order->getSalesChannelId())) {
+            return true;
+        }
+
+        return $vatIdPatternProvider->isSellerCountryVatId($order->getOrderCustomer()?->getVatIds(), $order->getSalesChannelId());
     }
 
     protected function isValidVat(OrderEntity $order, ValidatorInterface $validator): bool

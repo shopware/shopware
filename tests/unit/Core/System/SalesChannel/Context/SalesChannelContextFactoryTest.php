@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Tax\IntraEuTaxResolver;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
@@ -14,7 +15,6 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -53,6 +53,16 @@ class SalesChannelContextFactoryTest extends TestCase
     private const CUSTOMER_BILLING_ADDRESS_ID = 'customer-billing-address-id';
 
     private const CUSTOMER_SHIPPING_ADDRESS_ID = 'customer-shipping-address-id';
+
+    private IntraEuTaxResolver $intraEuTaxResolver;
+
+    protected function setUp(): void
+    {
+        $this->intraEuTaxResolver = static::createStub(IntraEuTaxResolver::class);
+        $this->intraEuTaxResolver->method('getTaxCountryId')->willReturnCallback(
+            static fn (mixed $accountType, mixed $vatIds, CountryEntity $country, string $salesChannelId): string => $country->getId()
+        );
+    }
 
     public function testCustomerPaymentMethodIsOnlyUsedIfActive(): void
     {
@@ -177,7 +187,7 @@ class SalesChannelContextFactoryTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(EntityRepository::class),
             $baseSalesChannelContextFactory,
-            static::createStub(VatIdPatternProvider::class),
+            $this->intraEuTaxResolver,
             new StaticEntityRepository([new CountryCollection()]),
         );
 
@@ -285,7 +295,7 @@ class SalesChannelContextFactoryTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(EntityRepository::class),
             $baseSalesChannelContextFactory,
-            static::createStub(VatIdPatternProvider::class),
+            $this->intraEuTaxResolver,
             new StaticEntityRepository([new CountryCollection()]),
         );
 
@@ -393,7 +403,7 @@ class SalesChannelContextFactoryTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(EntityRepository::class),
             $baseSalesChannelContextFactory,
-            static::createStub(VatIdPatternProvider::class),
+            $this->intraEuTaxResolver,
             new StaticEntityRepository([new CountryCollection()]),
         );
 
@@ -515,7 +525,7 @@ class SalesChannelContextFactoryTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(EntityRepository::class),
             $baseSalesChannelContextFactory,
-            static::createStub(VatIdPatternProvider::class),
+            $this->intraEuTaxResolver,
             new StaticEntityRepository([new CountryCollection()]),
         );
 
@@ -722,7 +732,7 @@ class SalesChannelContextFactoryTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(EntityRepository::class),
             $baseSalesChannelContextFactory,
-            static::createStub(VatIdPatternProvider::class),
+            $this->intraEuTaxResolver,
             new StaticEntityRepository([new CountryCollection()]),
         );
 

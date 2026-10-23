@@ -79,6 +79,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\SalesChannel\ProductShippingCostRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\ShippingCostRoute;
 use Shopware\Core\Checkout\Cart\Subscriber\CartOrderEventSubscriber;
+use Shopware\Core\Checkout\Cart\Tax\IntraEuTaxResolver;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
@@ -370,9 +371,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Tax calculation
     $services->set(PercentageTaxRuleBuilder::class);
 
-    $services->set(TaxDetector::class)
+    $services->set(IntraEuTaxResolver::class)
         ->args([
             service(VatIdPatternProvider::class),
+            service('validator'),
+        ]);
+
+    $services->set(TaxDetector::class)
+        ->args([
+            service(IntraEuTaxResolver::class),
         ]);
 
     $services->set(TaxCalculator::class);

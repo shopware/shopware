@@ -496,6 +496,24 @@ class VatIdPatternProviderTest extends TestCase
         static::assertSame(self::BE_ID, $provider->getSellerCountryId(Uuid::randomHex()));
     }
 
+    public function testAnUppercaseConfiguredSellerCountryStillMatchesItsMemberState(): void
+    {
+        $provider = $this->createProviderSellingFrom(strtoupper(self::NL_ID), salesChannelCountryId: self::BE_ID);
+        $salesChannelId = Uuid::randomHex();
+
+        static::assertSame(self::NL_ID, $provider->getSellerCountryId($salesChannelId));
+        static::assertTrue($provider->isDomesticSupply('NL', $salesChannelId));
+    }
+
+    public function testAnUppercaseFallbackSellerCountryStillMatchesItsMemberState(): void
+    {
+        $provider = $this->createProviderSellingFrom('', salesChannelCountryId: strtoupper(self::BE_ID));
+        $salesChannelId = Uuid::randomHex();
+
+        static::assertSame(self::BE_ID, $provider->getSellerCountryId($salesChannelId));
+        static::assertTrue($provider->isDomesticSupply('BE', $salesChannelId));
+    }
+
     public function testSellerCountryIdIsEmptyWithoutASalesChannel(): void
     {
         static::assertSame('', $this->createProvider([])->getSellerCountryId(''));

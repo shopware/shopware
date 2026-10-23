@@ -5,12 +5,12 @@ namespace Shopware\Core\System\SalesChannel\Context;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\AbstractTaxDetector;
+use Shopware\Core\Checkout\Cart\Tax\IntraEuTaxResolver;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
@@ -57,7 +57,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly EntityRepository $currencyCountryRepository,
         private readonly AbstractBaseSalesChannelContextFactory $baseSalesChannelContextFactory,
-        private readonly VatIdPatternProvider $vatIdPatternProvider,
+        private readonly IntraEuTaxResolver $intraEuTaxResolver,
         private readonly EntityRepository $countryRepository,
     ) {
     }
@@ -161,24 +161,17 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
     private function getTaxLocation(BaseSalesChannelContext $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): ShippingLocation
     {
-        if ($customer === null
-            || $customer->getAccountType() !== CustomerEntity::ACCOUNT_TYPE_BUSINESS
-            || !$shippingLocation->getCountry()->getIsEu()
-            || !$shippingLocation->getCountry()->getCompanyTax()->getEnabled()
-        ) {
+        $taxCountryId = $this->intraEuTaxResolver->getTaxCountryId(
+            $customer?->getAccountType(),
+            $customer?->getVatIds(),
+            $shippingLocation->getCountry(),
+            $context->getSalesChannelId(),
+        );
+        if ($taxCountryId === $shippingLocation->getCountry()->getId()) {
             return $shippingLocation;
         }
 
-        if (!$this->vatIdPatternProvider->isSellerCountryVatId($customer->getVatIds(), $context->getSalesChannelId())) {
-            return $shippingLocation;
-        }
-
-        $sellerCountryId = $this->vatIdPatternProvider->getSellerCountryId($context->getSalesChannelId());
-        if ($sellerCountryId === $shippingLocation->getCountry()->getId()) {
-            return $shippingLocation;
-        }
-
-        $criteria = new Criteria([$sellerCountryId]);
+        $criteria = new Criteria([$taxCountryId]);
         $criteria->setTitle('context-factory::tax-country');
         $sellerCountry = $this->countryRepository->search($criteria, $context->getContext())->getEntities()->first();
 

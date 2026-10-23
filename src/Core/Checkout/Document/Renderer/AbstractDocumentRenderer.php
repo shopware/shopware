@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Cart\Tax\IntraEuTaxResolver;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
@@ -54,6 +55,14 @@ abstract class AbstractDocumentRenderer
             ['ids' => Uuid::fromHexToBytesList($ids), 'versionId' => Uuid::fromHexToBytes($versionId)],
             ['ids' => ArrayParameterType::BINARY]
         );
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    protected function isIntraCommunityDelivery(array $config, OrderEntity $order, IntraEuTaxResolver $intraEuTaxResolver): bool
+    {
+        return ($config['displayAdditionalNoteDelivery'] ?? false) !== false && $intraEuTaxResolver->isIntraCommunityDelivery($order);
     }
 
     /**

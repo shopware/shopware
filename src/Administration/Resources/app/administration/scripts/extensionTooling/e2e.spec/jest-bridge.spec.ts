@@ -69,10 +69,6 @@ function createComposerInstall(projectRoot: string): string {
     const administrationRoot = createVendorAdmin(projectRoot, { entitySchema: 'none' });
     extractPackagedTests(path.resolve(administrationRoot, '../../..'));
 
-    // The meta-glob transform matches the real path of src/, which per-entry symlinks would move out of it.
-    fs.rmSync(path.join(administrationRoot, 'src'), { recursive: true });
-    fs.symlinkSync(path.join(realAdministrationRoot, 'src'), path.join(administrationRoot, 'src'), 'dir');
-
     // The harness reads these committed sources, which the package ships but createVendorAdmin does not copy.
     fs.symlinkSync(path.join(realAdministrationRoot, 'build'), path.join(administrationRoot, 'build'), 'dir');
     fs.copyFileSync(

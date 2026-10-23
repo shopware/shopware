@@ -16,8 +16,8 @@ const {
 /**
  * Whether a file belongs to an installed dependency.
  *
- * Mirrors the Vite plugin's guard. Needed despite Jest's default `transformIgnorePatterns`, because
- * the Jest config un-ignores `@shopware-ag/meteor-component-library`, which ships Options-API `.vue` files.
+ * Mirrors the Vite plugin's guard. Needed because the Jest config transforms `node_modules` as well,
+ * and `@shopware-ag/meteor-component-library` ships Options-API `.vue` files.
  *
  * @param {string} filename
  * @returns {boolean}

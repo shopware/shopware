@@ -36,33 +36,6 @@ function buildConfig(options: Record<string, unknown>, factoryFile = factoryPath
     ) as Config;
 }
 
-/**
- * Runs `statements` against the factory module, bound as `factory`, in a fresh node process
- * and returns the value of `resultExpression`.
- *
- * @example
- * evaluateInFactory('', 'factory.HOST_TRANSFORM_IGNORE_PATTERNS'); // → ['/node_modules/(?!(…)/)']
- */
-function evaluateInFactory(statements: string, resultExpression: string): unknown {
-    const probeScript = [
-        `const factory = await import(${JSON.stringify(pathToFileURL(factoryPath).href)});`,
-        statements,
-        `process.stdout.write(JSON.stringify(${resultExpression}));`,
-    ].join('\n');
-
-    return JSON.parse(
-        execFileSync(process.execPath, ['--input-type=module', '-e', probeScript], {
-            encoding: 'utf8',
-            stdio: ['ignore', 'pipe', 'pipe'],
-        }),
-    ) as unknown;
-}
-
-/** Reads the exported value `name` of the factory module in a fresh node process. */
-function readExport(name: string): unknown {
-    return evaluateInFactory('', `factory[${JSON.stringify(name)}]`);
-}
-
 /** Runs `buildConfig` and returns the error message it fails with. */
 function buildError(options: Record<string, unknown>, factoryFile = factoryPath): string {
     try {
@@ -113,29 +86,27 @@ describe('extension-tooling jest factory', () => {
         expect(harnessFiles.filter((file) => !file || !path.isAbsolute(file) || !fs.existsSync(file))).toEqual([]);
     });
 
-    it('resolves the presets and plugins of the meta-glob Babel transform into the installed Administration', () => {
-        const babelEntry = Object.values(defaults.transform ?? {}).find((entry) =>
-            transformerPath(entry).includes('babel-jest'),
+    it('sends every JS/TS file through the meta-glob-aware transformer, which picks Babel or SWC by content', () => {
+        const scriptRules = Object.entries(defaults.transform ?? {}).filter(([pattern]) =>
+            ['/admin/src/module/index.js', '/extension/src/module/index.ts'].some((file) => new RegExp(pattern).test(file)),
         );
-        const babelOptions = (Array.isArray(babelEntry) ? babelEntry[1] : {}) as {
-            presets?: unknown[];
-            plugins?: unknown[];
-        };
-        const babelFiles = [...(babelOptions.presets ?? []), ...(babelOptions.plugins ?? [])].map(transformerPath);
+
+        expect(scriptRules.map(([pattern, entry]) => [pattern, transformerPath(entry)])).toEqual([
+            ['^.+\\.[jt]sx?$', path.join(realAdministrationRoot, 'test', 'transformer', 'metaGlobAwareTransformer.js')],
+        ]);
+    });
+
+    it('resolves the presets and plugins of the meta-glob Babel transform into the installed Administration', () => {
+        const scriptEntry = defaults.transform?.['^.+\\.[jt]sx?$'];
+        const babelOptions = (
+            (Array.isArray(scriptEntry) ? scriptEntry[1] : {}) as {
+                babel?: { presets?: unknown[]; plugins?: unknown[] };
+            }
+        ).babel;
+        const babelFiles = [...(babelOptions?.presets ?? []), ...(babelOptions?.plugins ?? [])].map(transformerPath);
 
         expect(babelFiles).toHaveLength(3);
         expect(babelFiles.filter((file) => !path.isAbsolute(file) || !fs.existsSync(file))).toEqual([]);
-    });
-
-    it("sends only the Administration's own import.meta.glob files through the Babel transform", () => {
-        const babelPattern = Object.entries(defaults.transform ?? {}).find(([, entry]) =>
-            transformerPath(entry).includes('babel-jest'),
-        )?.[0];
-        const matchesBabel = (file: string) => new RegExp(String(babelPattern)).test(file);
-
-        expect(matchesBabel(path.join(fs.realpathSync(realAdministrationRoot), 'src/module/index.js'))).toBe(true);
-        expect(matchesBabel(path.join(fs.realpathSync(realAdministrationRoot), 'src/core/service/api/index.ts'))).toBe(true);
-        expect(matchesBabel('/extension/src/module/index.ts')).toBe(false);
     });
 
     it('maps src/ imports into the Administration and leaves packages whose name starts with "src" alone', () => {
@@ -253,39 +224,8 @@ describe('extension-tooling jest factory', () => {
         });
     });
 
-    it('defaults transformIgnorePatterns to the exported HOST_TRANSFORM_IGNORE_PATTERNS', () => {
-        expect(defaults.transformIgnorePatterns).toEqual(readExport('HOST_TRANSFORM_IGNORE_PATTERNS'));
-    });
-
-    it('builds HOST_TRANSFORM_IGNORE_PATTERNS from the exported HOST_TRANSFORMED_PACKAGES', () => {
-        const packages = readExport('HOST_TRANSFORMED_PACKAGES') as string[];
-
-        expect(packages).toContain('@shopware-ag/meteor-component-library');
-        expect(defaults.transformIgnorePatterns).toEqual([`/node_modules/(?!(${packages.join('|')})/)`]);
-    });
-
-    it('transforms an additional package with the pattern the README builds from HOST_TRANSFORMED_PACKAGES', () => {
-        const packages = readExport('HOST_TRANSFORMED_PACKAGES') as string[];
-        const ignored = new RegExp(`/node_modules/(?!(${[...packages, 'nanoid'].join('|')})/)`);
-
-        expect(ignored.test('/extension/node_modules/left-pad/index.js')).toBe(true);
-        expect(ignored.test('/extension/node_modules/nanoid/index.js')).toBe(false);
-        expect(packages.filter((name) => ignored.test(`/administration/node_modules/${name}/index.js`))).toEqual([]);
-    });
-
-    it.each([
-        ['HOST_TRANSFORM_IGNORE_PATTERNS', '/extension/'],
-        ['HOST_TRANSFORMED_PACKAGES', 'nanoid'],
-    ])('keeps the exported %s unchanged for later configs when an extension mutates it', (name, entry) => {
-        const result = evaluateInFactory(
-            [
-                'let mutationError = null;',
-                `try { factory.${name}.push(${JSON.stringify(entry)}); } catch (error) { mutationError = error.name; }`,
-            ].join('\n'),
-            "{ mutationError, patterns: factory.shopwareAdminJest({ rootDir: '/extension' }).transformIgnorePatterns }",
-        );
-
-        expect(result).toEqual({ mutationError: 'TypeError', patterns: defaults.transformIgnorePatterns });
+    it('leaves node_modules to the JS/TS transformer instead of ignoring packages by name', () => {
+        expect(defaults.transformIgnorePatterns).toEqual([]);
     });
 
     it('lets an allowlisted option replace the default', () => {

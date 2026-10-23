@@ -203,34 +203,12 @@ The options that build the harness are merged, so your config cannot drop it by 
 
 The other accepted options replace the default as a whole,
 for example `roots`, `testMatch`, `testPathIgnorePatterns`, `testTimeout`, `maxWorkers`, `reporters` and the `coverage*` options.
-`transformIgnorePatterns` replaces the default too, so spread `HOST_TRANSFORM_IGNORE_PATTERNS` to keep the Administration's ESM packages transformed.
-`.shopware/jest.mjs` exports it next to `shopwareAdminJest`:
-
-```js
-import { HOST_TRANSFORM_IGNORE_PATTERNS, shopwareAdminJest } from './.shopware/jest.mjs';
-
-export default shopwareAdminJest({
-    rootDir: import.meta.dirname,
-    transformIgnorePatterns: [...HOST_TRANSFORM_IGNORE_PATTERNS, '<rootDir>/vendor/'],
-});
-```
-
-Jest skips a file that matches any of the patterns.
-So to transform an additional ESM package from `node_modules`, do not add a pattern next to the host's;
-build one pattern from `HOST_TRANSFORMED_PACKAGES` and your package instead:
-
-```js
-import { HOST_TRANSFORMED_PACKAGES, shopwareAdminJest } from './.shopware/jest.mjs';
-
-export default shopwareAdminJest({
-    rootDir: import.meta.dirname,
-    transformIgnorePatterns: [`/node_modules/(?!(${[...HOST_TRANSFORMED_PACKAGES, 'nanoid'].join('|')})/)`],
-});
-```
-
 `REPLACEABLE_OPTIONS` in `extension-tooling/jest.mjs` holds the full list.
 The harness owns `testEnvironment` and `resolver`, so the factory rejects both.
 `it.activeFeatureFlags()` depends on the environment, and the resolver strips Vite query suffixes such as `?worker` from imports.
+
+Dependencies in `node_modules` need no configuration:
+the harness converts the ES modules among them to CommonJS and hands every other file to Jest unchanged.
 
 Run the specs with `test-extensions`, which uses the Administration's own Jest, so an extension needs no Jest installation of its own:
 

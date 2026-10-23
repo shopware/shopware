@@ -7,7 +7,7 @@
  * New capabilities added in admin are automatically available in extensions as well.
  */
 
-import { existsSync, realpathSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -111,40 +111,6 @@ const ACCEPTED_OPTIONS = new Set([
 ]);
 
 /**
- * Escapes `text` for use as a literal inside a regular expression.
- *
- * @example
- * escapeRegExp('/var/www/.claude'); // → '/var/www/\\.claude'
- *
- * @param {string} text
- */
-const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-/**
- * List of files that use `import.meta.glob`. For these files the babel transform gets enabled.
- * The rest skips the babel transform (because it's faster).
- *
- * @example
- * new RegExp(metaGlobFilesPattern()).test(`${administrationRoot}/src/module/index.js`); // → true
- * new RegExp(metaGlobFilesPattern()).test('/extension/src/module/index.ts'); // → false
- */
-function metaGlobFilesPattern() {
-    // Jest matches transform patterns against real paths.
-    const sourceRoot = escapeRegExp(realpathSync(fromAdministration('src')));
-    const files = [
-        'module/index',
-        'core/service/api/index',
-        'app/mixin/index',
-        'app/decorator/index',
-        'app/plugin/index',
-        'app/directive/index',
-        'app/filter/index',
-    ];
-
-    return `^${sourceRoot}/(${files.join('|')})\\.[jt]sx?$`;
-}
-
-/**
  * Fails early with the command that generates a missing file, instead of
  * letting the first spec die on an unresolved import.
  *
@@ -209,32 +175,6 @@ function withPriority(preferred = {}, fallback) {
 }
 
 /**
- * Node modules that need to be transformed to CommonJS first (Jest expects them to be CommonJS).
- *
- * @example
- * transformIgnorePatterns: [`/node_modules/(?!(${[...HOST_TRANSFORMED_PACKAGES, 'nanoid'].join('|')})/)`],
- */
-export const HOST_TRANSFORMED_PACKAGES = Object.freeze([
-    '@shopware-ag/meteor-component-library',
-    '@shopware-ag/meteor-icon-kit',
-    'uuidv7',
-    'three',
-    'other',
-]);
-
-/**
- * The Administration's default `transformIgnorePatterns`, built from `HOST_TRANSFORMED_PACKAGES`.
- * An extension that replaces `transformIgnorePatterns` spreads it, so the host's packages stay transformed.
- * Frozen, so one config cannot change the default of every config built after it.
- *
- * @example
- * transformIgnorePatterns: [...HOST_TRANSFORM_IGNORE_PATTERNS, '<rootDir>/vendor/'],
- */
-export const HOST_TRANSFORM_IGNORE_PATTERNS = Object.freeze([
-    `/node_modules/(?!(${HOST_TRANSFORMED_PACKAGES.join('|')})/)`,
-]);
-
-/**
  * Creates the Jest config for Administration specs.
  *
  * `rootDir` is required: the directory the extension's specs and paths are
@@ -250,8 +190,7 @@ export const HOST_TRANSFORM_IGNORE_PATTERNS = Object.freeze([
  *   except `globals.adminPath` and `globals['vue-jest'].tsConfig`, which stay pinned to this Administration.
  *
  * The options in `REPLACEABLE_OPTIONS`, such as `testMatch`, `reporters` or
- * `transformIgnorePatterns` (default: `HOST_TRANSFORM_IGNORE_PATTERNS`),
- * replace the default. Any other option throws,
+ * `transformIgnorePatterns` (default: none), replace the default. Any other option throws,
  * including `testEnvironment` and `resolver`, which the harness owns.
  *
  * @example
@@ -320,7 +259,8 @@ export function shopwareAdminJest(options = {}) {
             ...testEnvironmentOptions,
         },
 
-        transformIgnorePatterns: [...HOST_TRANSFORM_IGNORE_PATTERNS],
+        // Empty, because the JS/TS transformer passes CommonJS dependencies through and converts only ES modules.
+        transformIgnorePatterns: [],
 
         ...replaced,
 
@@ -365,27 +305,27 @@ export function shopwareAdminJest(options = {}) {
         ],
 
         transform: withPriority(transform, {
-            [metaGlobFilesPattern()]: [
-                require.resolve('babel-jest'),
-                {
-                    presets: [
-                        require.resolve('@babel/preset-typescript'),
-                        [
-                            require.resolve('@babel/preset-env'),
-                            { targets: { node: 'current' } },
-                        ],
-                    ],
-                    plugins: [
-                        require.resolve('babel-plugin-shopware-vite-meta-glob'),
-                    ],
-                },
-            ],
+            // Babel for files that use `import.meta.glob`, which only its meta-glob plugin rewrites; SWC for the rest.
             '^.+\\.[jt]sx?$': [
-                require.resolve('@swc/jest'),
+                fromAdministration('test', 'transformer', 'metaGlobAwareTransformer.js'),
                 {
-                    jsc: {
-                        parser: { syntax: 'typescript', decorators: true },
-                        target: 'es2021',
+                    babel: {
+                        presets: [
+                            require.resolve('@babel/preset-typescript'),
+                            [
+                                require.resolve('@babel/preset-env'),
+                                { targets: { node: 'current' } },
+                            ],
+                        ],
+                        plugins: [
+                            require.resolve('babel-plugin-shopware-vite-meta-glob'),
+                        ],
+                    },
+                    swc: {
+                        jsc: {
+                            parser: { syntax: 'typescript', decorators: true },
+                            target: 'es2021',
+                        },
                     },
                 },
             ],

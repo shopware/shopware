@@ -295,7 +295,7 @@ class McpCapabilityDiscoveryTest extends TestCase
 
         // The next request drains the queued notification alongside its own response. Per the MCP
         // spec these multiple messages must be delivered as an SSE stream (one single-object event
-        // each), never as a JSON-RPC batch array over application/json.
+        // each, the queued notification first), never as a JSON-RPC batch array over application/json.
         $browser->request(
             'POST',
             '/api/_mcp',
@@ -322,8 +322,19 @@ class McpCapabilityDiscoveryTest extends TestCase
             'client never received tools/list_changed after enabling a toolset',
         );
 
-        // The batch is re-encoded message by message on its way to SSE; that must not turn the
-        // empty `properties` of a parameterless tool into `[]` (#18722).
+        $events = array_values(array_filter(
+            explode("\n", (string) $drainResponse->getContent()),
+            static fn (string $line): bool => str_starts_with($line, 'data:'),
+        ));
+        static::assertCount(2, $events, 'the queued notification and the response must be one event each');
+        $notification = json_decode(trim(substr($events[0], 5)), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode(trim(substr($events[1], 5)), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($notification);
+        static::assertIsArray($response);
+        static::assertSame('notifications/tools/list_changed', $notification['method'] ?? null);
+        static::assertSame(3, $response['id'] ?? null);
+
+        // An empty `properties` of a parameterless tool must stay an object (#18722).
         static::assertStringContainsString('"properties":{}', (string) $drainResponse->getContent());
         static::assertStringNotContainsString('"properties":[]', (string) $drainResponse->getContent());
     }

@@ -91,7 +91,7 @@ module.exports = {
     ],
 
     transform: {
-        '^.+\\.(t|j)s$': 'babel-jest',
+        '^.+\\.(t|j)s$': ['babel-jest', { configFile: path.join(__dirname, '.babelrc.js') }],
         '^.+\\.html$': '<rootDir>/text.loader.js',
     },
 

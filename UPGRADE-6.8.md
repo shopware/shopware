@@ -28,6 +28,33 @@ The PHPUnit version provided by the Shopware platform was upgraded to 13. If you
 
 Alternatively, decouple your test runner from the platform by explicitly requiring the PHPUnit version you expect in your plugin and using that separate installation in your test pipeline. Managing PHPUnit separately can be preferable when testing across multiple Shopware and PHP versions: choose a PHPUnit version compatible with your supported PHP versions and any Shopware test helpers your tests use, rather than adopting PHPUnit 13 for every test run.
 
+## Administration build updated to Vite 8
+
+The Administration and the Administration code of plugins and apps were built with Vite 6 before and are built with Vite 8 now. Vite 8 uses Rolldown and Oxc instead of Rollup and esbuild. Building the Administration requires Node.js `^20.19.0 || >=22.12.0`.
+
+In Shopware 6.7, you can already build with Vite 8 by activating the `ADMIN_VITE_8` feature flag, for example with `ADMIN_VITE_8=1 composer watch:admin`.
+
+Check the Administration code of your plugin or app for these changes:
+
+* `import.meta.glob` with extglob patterns like `!(*.spec)` matches no files in production builds, and depending on the pattern also in the watcher. Replace them with negated patterns:
+
+  ```js
+  // Before
+  import.meta.glob('./**/!(*.spec).{j,t}s', { eager: true });
+  // After
+  import.meta.glob(['./**/*.{j,t}s', '!./**/*.spec.{j,t}s'], { eager: true });
+  ```
+
+  If your Jest setup transforms `import.meta.glob` with `babel-plugin-shopware-vite-meta-glob`, update it to 0.0.6 or newer first. Older versions ignore negated patterns in arrays and exclude nothing. A `^0.0.x` range does not pick up 0.0.6 automatically.
+
+  `composer run admin:code-mods -- --fix -v 6.8 -p YourPlugin` rewrites them for you.
+
+  With the `ADMIN_VITE_8` flag in 6.7, Shopware still rewrites negated extglobs in plugins and apps and logs a warning for each one. 6.8 no longer rewrites them.
+
+* A default import of a CommonJS module resolves to `module.exports` if the importing file is an `.mjs`/`.mts` file, the nearest `package.json` sets `"type": "module"`, or the module does not set `__esModule`. Otherwise it resolves to `module.exports.default`. Check default imports of CommonJS dependencies.
+
+If your plugin or app ships its own `vite.config.*` or Vite plugins, follow the [Vite 7](https://v7.vite.dev/guide/migration) and [Vite 8](https://vite.dev/guide/migration) migration guides.
+
 # Changed Functionality
 
 <details>
@@ -306,6 +333,13 @@ The variable `displayCustomerVatIdForDelivery` in `src/Core/Framework/Resources/
 ## `sw_garan_label_mail` Twig filter removed
 
 The `sw_garan_label_mail` Twig filter and `Shopware\Core\Content\Product\Garan\GaranLabelTwigFilter::resolveMailLabel()` were removed. Mail templates read the GARAN label from the `garanLabels` template variable instead: replace `productId|sw_garan_label_mail(context)` with `garanLabels[productId] ?? null`. Order confirmation mail templates that were never edited had already been migrated.
+
+## GARAN label only from the line item payload
+
+Cart line items show only the GARAN label stored in their `payload.garanLabel`, as order line items do since 6.7.17.0.
+The Storefront no longer looks up the product of line items without that key, they show no GARAN label.
+The `sw_garan_label_nested` Twig filter and `Shopware\Core\Content\Product\Garan\GaranLabelTwigFilter::renderNestedLabel()` were removed.
+Render the label from `lineItem.payload.garanLabel` instead, as `storefront/component/line-item/element/garan-label.html.twig` does.
 
 ## Shipping price matrix ranges use currency conversion
 

@@ -1,4 +1,4 @@
-# 6.7.16.0 (upcoming)
+# 6.7.16.1
 
 ## Security Fixes
 
@@ -7,6 +7,8 @@
 Aggregation names and range aggregation keys containing a single or double quote, the `--`, `/*`, or `*/` SQL comment markers, a backslash, or a semicolon are now rejected with a `FRAMEWORK__INVALID_AGGREGATION_QUERY` (HTTP 400), in addition to the previously rejected backtick, question mark, colon, and control characters.
 JSON field access paths used in filters, sortings, and aggregations now reject the `/*` and `*/` SQL comment markers and control characters. From 6.8.0.0 this fails as a `FRAMEWORK__INVALID_IDENTIFIER` (HTTP 400); on 6.7 the same input is rejected with an `InvalidArgumentException` (HTTP 500). Either way the request is blocked and no data is returned.
 These characters could desynchronise PDO placeholder parsing from the database server under emulated prepares on PHP 8.2 and 8.3 leading to SQL Injection.
+
+# 6.7.16.0 (upcoming)
 
 ## Critical Fixes
 

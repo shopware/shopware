@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
@@ -122,10 +123,15 @@ class Migration1792387089StoreGaranLabelInOrderLineItemsTest extends TestCase
         static::assertSame('product payload', $payload['other'] ?? null, 'the rest of the payload is kept');
     }
 
-    public function testStoresTheLabelOfLineItemsInMoreThanOneBatch(): void
+    /**
+     * a full last batch is followed by a fetch that finds no more line items
+     */
+    #[TestWith([1000])]
+    #[TestWith([1001])]
+    public function testStoresTheLabelOfLineItemsInBatches(int $count): void
     {
         $productId = $this->insertProduct(self::PRODUCT, null, [self::ORDER_LANGUAGE => 'ACME']);
-        $lineItemIds = $this->insertLineItems($productId, 1001, []);
+        $lineItemIds = $this->insertLineItems($productId, $count, []);
 
         (new Migration1792387089StoreGaranLabelInOrderLineItems())->update($this->connection);
 

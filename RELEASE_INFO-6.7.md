@@ -68,6 +68,14 @@ The `unit` entity has a new optional field `uneceCode` for the unit's UN/ECE Rec
 
 Only codes from these lists are saved, and they are case-sensitive. Any other value fails the write with the error code `UNIT__INVALID_UNECE_CODE` on `/uneceCode`. An empty value is stored as `null`.
 
+### ZUGFeRD e-invoices send the real unit code
+
+Product line items now store the `uneceCode` and the `purchaseUnit` of the product in their payload (`payload.uneceCode`, `payload.purchaseUnit`) when they are added to the cart, so orders keep the values the product had when the order was placed. Variants without their own unit store the parent's values.
+
+ZUGFeRD and XRechnung invoices use this code for the invoiced quantity and the price base quantity of each line, instead of always `H87` (piece).
+The code is only used when one pack is exactly one unit (no purchase unit, or a purchase unit of 1), so the quantity on the invoice still matches the order.
+Lines without a code, packed goods, and orders placed before this change still get `H87`.
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request

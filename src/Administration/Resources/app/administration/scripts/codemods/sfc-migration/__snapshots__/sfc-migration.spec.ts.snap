@@ -192,8 +192,8 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 <script setup>
 import { ref, nextTick } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'shopware:composables';
+import { useRouter, useRoute } from 'shopware:composables/router';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -264,7 +264,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 <script setup>
 import { computed } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'shopware:composables';
 
 const { t } = useI18n();
 
@@ -697,7 +697,9 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
-import { useNotification, useSalutation } from 'shopware:composables';
+import { useI18n, useNotification, useSalutation } from 'shopware:composables';
+
+const { t } = useI18n();
 
 defineProps({
     customer: {
@@ -710,7 +712,7 @@ const { createNotificationSuccess } = useNotification();
 const { salutation } = useSalutation();
 
 const onGreet = function () {
-    createNotificationSuccess({ message: 'greeted' });
+    createNotificationSuccess({ message: t('sw-mixin-composable.greeted') });
 };
 
 swDefinePublic({

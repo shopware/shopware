@@ -149,8 +149,10 @@
     },
     "shopware:composables": {
         "exports": [
+            "router",
             "useCmsElement",
             "useCmsState",
+            "useI18n",
             "useInlineSnippet",
             "useListing",
             "useMediaGridListener",
@@ -168,8 +170,15 @@
             "useVideoCover"
         ],
         "subpaths": {
+            "router": [
+                "useRoute",
+                "useRouter",
+                "onBeforeRouteLeave",
+                "onBeforeRouteUpdate"
+            ],
             "useCmsElement": [],
             "useCmsState": [],
+            "useI18n": [],
             "useInlineSnippet": [],
             "useListing": [],
             "useMediaGridListener": [],

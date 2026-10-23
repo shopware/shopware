@@ -131,6 +131,12 @@ They additionally react to domain changes:
 toggling the external storefront flag of a domain (or adding/removing domains) creates or removes the affected rows without re-saving the customer group.
 The storefront rows are untouched by this and keep being maintained by the Storefront bundle.
 
+### Sales channel product assignment is no longer capped at 500 products
+
+Assigning products to a sales channel through the "Categories" or "Product group selection" tab of the product assignment modal now adds every matching product.
+Previously only the first 500 products were assigned, without any notice.
+The Administration sends the selected categories and product groups to the new product assignment route instead of loading the products itself, and shows the number of assigned products afterwards.
+
 ## API
 To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
 It bundles the Administration and its plugins, but not apps.

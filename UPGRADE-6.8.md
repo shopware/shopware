@@ -1489,6 +1489,12 @@ new HreflangLoaderParameter('frontend.home.page', $routeParameters, $salesChanne
 
 # Administration
 
+## `sw-sales-channel-detail-products.saveProductVisibilities()` removed
+
+The `saveProductVisibilities()` method of the `sw-sales-channel-detail-products` component was removed.
+The component assigns products through the `salesChannelProductAssignmentApiService.assign()` service method, which resolves product groups and categories on the server.
+Extensions that called or overrode `saveProductVisibilities()` must use `salesChannelProductAssignmentApiService.assign(salesChannelId, { productIds })` instead.
+
 ## Import/export profile language tooltip removed
 
 The deprecated snippet key `sw-import-export.profile.addNewProfileTooltipLanguage` was removed without replacement. Remove references to this tooltip from extensions, as profile creation no longer requires the system language.

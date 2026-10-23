@@ -47,6 +47,10 @@ The new `bin/console sales-channel:file:enable [ids...] [--all]` command switche
 It only creates missing files, so a file switched off in the Administration stays off, and a second run changes nothing.
 The command always exits with `0`, which makes it suitable for install hooks in `.shopware-project.yml`.
 
+### `NotFilter` negates a single filter
+
+`NotFilter::negate()` negates a single filter without an operator and a list of queries, so `NotFilter::negate(new EqualsFilter('parentId', null))` replaces `new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('parentId', null)])`. Both create the same filter. With `v6.8.0`, the `NotFilter` constructor accepts the single filter directly as well.
+
 ### Product line items carry the GARAN label they were shown with
 
 Cart and order product line items now store their GARAN label values in `payload.garanLabel`; editing an order keeps them as is.

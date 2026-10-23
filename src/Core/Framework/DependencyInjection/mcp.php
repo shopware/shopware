@@ -175,6 +175,7 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             service(Connection::class),
             env('APP_URL'),
+            param('shopware.mcp.allowed_origins'),
         ]);
 
     $services->set(McpHttpTransportFactory::class)

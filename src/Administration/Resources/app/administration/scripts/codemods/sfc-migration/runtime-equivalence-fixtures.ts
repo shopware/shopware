@@ -238,6 +238,23 @@ const MODULE_BINDING_FIXTURE = runtimeFixture(
     `,
 );
 
+const CREATED_HOOK_ORDER_FIXTURE = runtimeFixture(
+    'sw-runtime-created-hook-order',
+    `
+        export default {
+            created() {
+                globalThis.__runtimeEquivalenceProbe.push('created');
+            },
+            beforeMount() {
+                globalThis.__runtimeEquivalenceProbe.push('beforeMount');
+            },
+            mounted() {
+                globalThis.__runtimeEquivalenceProbe.push('mounted');
+            },
+        };
+    `,
+);
+
 const CROSS_BLOCK_SIDE_EFFECT_FIXTURE = runtimeFixture(
     'sw-runtime-cross-block-effects',
     `
@@ -356,6 +373,7 @@ export {
     CREATED_ASYNC_FIXTURE,
     CREATED_EARLY_RETURN_FIXTURE,
     CREATED_LOCAL_COLLISION_FIXTURE,
+    CREATED_HOOK_ORDER_FIXTURE,
     CREATED_ONCE_FIXTURE,
     CREATED_REJECT_FIXTURE,
     CREATED_THROW_FIXTURE,

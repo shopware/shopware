@@ -1,0 +1,7 @@
+{
+  "verdict": "live_bug",
+  "reported": "reproduced",
+  "trunk": "reproduced",
+  "commentIncludes": ["/store-api/context"],
+  "notes": "A precondition (200) that passes plus a symptom assert that the healthy shop always violates (the token is never this literal) → reproduced on both legs → live_bug. Synthetic: it exercises the reproduced → classifier → verdict → comment path against a real HTTP response, not a real bug."
+}

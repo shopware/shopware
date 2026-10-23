@@ -2,13 +2,11 @@
 
 Reference spec: [Model Context Protocol server specification 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25/server)
 
-Shopware serves the handshake era only. mcp/sdk 0.8 added the 2026-07-28 revision and serves it from
-the same endpoint by default, but both Shopware servers are pinned back to the handshake era with
-`Builder::withoutModernEra()` in `McpServerBuilderCompilerPass`. That era is stateless: it mints no
-`Mcp-Session-Id`, which the toolset session storage and the list-changed notifications are built on,
-and a handler returning an `InputRequiredResult` additionally needs a signed request-state key shared
-across every worker that might serve the retry. Adopting it is its own piece of work, not a
-side effect of a dependency bump.
+Shopware serves the handshake era by default.
+`shopware.mcp.protocol_era.admin` and `shopware.mcp.protocol_era.store_api` switch an endpoint to `auto`, which also serves the stateless 2026-07-28 revision from the same URL, and the client picks.
+`McpServerBuilderCompilerPass` applies the setting; `legacy` keeps `Builder::withoutModernEra()`.
+What each feature does without a session is decided in `adr/2026-09-24-mcp-stateless-era-degradation-policy.md` and covered by `McpDualEraConformanceTest`.
+No request state key is configured, because no Shopware handler asks the client for input more than once.
 
 This doc is the compact matrix for one question:
 

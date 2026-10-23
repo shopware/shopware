@@ -93,6 +93,6 @@ class ToolsetEnableToolTest extends TestCase
         $result = json_decode($tool('entity'), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertFalse($result['success']);
-        static::assertSame('Cannot enable an MCP toolset without an active MCP session.', $result['error']);
+        static::assertStringContainsString('"?toolsets=entity"', $result['error']);
     }
 }

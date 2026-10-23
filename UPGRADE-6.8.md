@@ -2772,11 +2772,15 @@ The following variables were removed:
 * CSS classes `is-ctl-*` and `is-act-*`
 * JavaScript window properties `window.controllerName` and `window.actionName`
 
-## Removal of `pathIdList` option in NavbarPlugin
+## Removal of `pathIdList` from `navbarOptions` in `navbar.html.twig`
 
-The `pathIdList` option in `NavbarPlugin` and the corresponding key in the `navbarOptions` template variable in `navbar.html.twig` were removed.
+The `pathIdList` key of the `navbarOptions` Twig variable in `layout/navbar/navbar.html.twig` was removed, so `navbarOptions` is now an empty object.
+The navbar is cached as an ESI fragment and shared across pages, so the key held the path of another page.
 
-Use the `window.activeNavigationPathIdList` global variable instead, which is set in `meta.html.twig`.
+Read the path of the current page from `shopware.navigation.pathIdList` in Twig, or from `window.activeNavigationPathIdList` in JavaScript.
+
+The `pathIdList` option of the `NavbarPlugin` was not removed.
+Templates that still pass it through `data-navbar-options` keep working, but `window.activeNavigationPathIdList` takes precedence.
 
 ## Refactor of providing cookies
 

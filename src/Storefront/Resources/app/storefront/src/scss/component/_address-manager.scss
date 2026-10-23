@@ -15,9 +15,14 @@
     color: $white;
   }
 
-  .address-manager-modal-header-content {
-    width: 100%;
-  }
+    .address-manager-modal-tab-navigation-list > .btn {
+        flex: 1 1 0;
+    }
+
+    .modal-body {
+        padding-top: 4px;
+        height: 550px;
+    }
 
   .modal-body {
     padding-top: 4px;

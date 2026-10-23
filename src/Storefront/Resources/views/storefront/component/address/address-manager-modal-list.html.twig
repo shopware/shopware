@@ -25,8 +25,8 @@
 
 {% block address_base_list_create_address %}
     <button
-        class="address-manager-modal-address-form btn-outline-primary btn flex-shrink-0 btn-icon-hover-white"
-        data-address-type="{{ type }}"
+        class="address-manager-modal-address-form btn-outline-primary btn flex-shrink-0 mw-100 btn-icon-hover-white"
+        data-address-type="{{ addressType }}"
     >
         {% sw_icon 'plus' style {size: 's', pack: 'solid'} %}
         {{ 'account.addressCreateBtn'|trans|sw_sanitize }}

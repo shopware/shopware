@@ -26,17 +26,17 @@ const productionTriggerDeprecationOrThrow = Feature.triggerDeprecationOrThrow;
 /**
  * Mocks the real `triggerDeprecationOrThrow` and silences deprecations if they are explicitly asserted or allowed
  */
-function triggerDeprecationOrThrow(majorFlag, message) {
+function triggerDeprecationOrThrow(majorFlag, message, options) {
     // `FeatureMock` knows the flags of `it.activeFeatureFlags()`, a directly imported `Feature` only those a spec
     // sets with `Feature.init()`: the major counts as active when either does.
     const feature = FeatureMock.isActive(majorFlag) ? FeatureMock : this;
 
     if (shouldHandleDeprecationsThroughMock(majorFlag, feature.isActive(majorFlag), this.isKnownMajor(majorFlag))) {
-        recordDeprecation(message);
+        recordDeprecation(message, options?._blame);
         return;
     }
 
-    productionTriggerDeprecationOrThrow.call(feature, majorFlag, message);
+    productionTriggerDeprecationOrThrow.call(feature, majorFlag, message, options);
 }
 
 Feature.triggerDeprecationOrThrow = triggerDeprecationOrThrow;

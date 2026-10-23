@@ -3,8 +3,10 @@
  * @private
  */
 
+import type { DeprecationOptions } from 'src/core/feature';
 import { getDefaultActiveFeatureFlags } from './defaultActiveFeatureFlags';
 import normalizeFeatureFlag from './normalizeFeatureFlag';
+import { location, ownFrames, usageSite } from './deprecationUsageSite';
 
 /**
  * What an assertion or allowance matches a deprecation message against: a string matches part of it, a RegExp
@@ -20,11 +22,18 @@ type Expected = string | RegExp;
  *
  * @private
  * @example
- * { message: 'oldFunction() is deprecated.', asserted: false }
+ * { message: 'oldFunction() is deprecated.', error: new Error(), usageSite: 'sw-page > sw-old', asserted: false }
  */
 export type RecordedDeprecation = {
     /** The guard's message, with component names as the running Administration shows them. */
     message: string;
+    /**
+     * Where the guard was called, so a failure lists the frames that lead to the deprecated API. Its stack is read
+     * only for `usageSite` outside a component and for the failure report, because formatting a stack is expensive.
+     */
+    error: Error;
+    /** Where the deprecated API is used, see `test/_helper_/deprecationUsageSite.ts`. */
+    usageSite: string;
     /** A passing `toHaveTriggered()` matched it. */
     asserted: boolean;
 };
@@ -167,10 +176,16 @@ export function shouldHandleDeprecationsThroughMock(
  *
  * @private
  * @example
- * recordDeprecation('oldFunction() is deprecated.');
+ * recordDeprecation('oldFunction() is deprecated.', options?._blame);
  */
-export function recordDeprecation(message: string): void {
-    deprecations.entries.push({ message: withoutWrappedSuffix(message), asserted: false });
+export function recordDeprecation(message: string, blame?: DeprecationOptions['_blame']): void {
+    const error = new Error();
+    deprecations.entries.push({
+        message: withoutWrappedSuffix(message),
+        error,
+        usageSite: usageSite(error, blame),
+        asserted: false,
+    });
 }
 
 /**
@@ -199,7 +214,8 @@ export function startDeprecationLog(): void {
 
 /**
  * Ends the log of the current test and clears it with its allowances, then throws one error listing every
- * deprecation that fails the test. The Jest setup calls it after each test.
+ * deprecation that fails the test, each with where it is used and the frames that lead there. The Jest setup
+ * calls it after each test.
  *
  * @private
  * @example
@@ -220,10 +236,20 @@ export function endDeprecationLog(): void {
     const message = [
         'The test ran into deprecations it did not assert. Fix each usage, or assert it with',
         '`expect(deprecations).toHaveTriggered(message)` from `test/_helper_/deprecations`.',
-        ...failing.map(({ message: deprecation }, index) => `\n${index + 1}. ${deprecation}`),
+        ...failing.map(({ message: deprecation, error: usage, usageSite: site }, index) =>
+            [
+                `\n${index + 1}. ${deprecation}`,
+                `   used in ${site}`,
+                ...ownFrames(usage.stack).map((frame) => `   ↳ ${location(frame)}`),
+            ].join('\n'),
+        ),
     ].join('\n');
+    const error = new Error(message);
 
-    throw new Error(message);
+    // Jest prints a code frame from the stack, so it shows the first deprecation instead of this hook.
+    error.stack = [`Error: ${message}`, ...ownFrames(failing[0].error.stack).map(({ text }) => text)].join('\n');
+
+    throw error;
 }
 
 /**

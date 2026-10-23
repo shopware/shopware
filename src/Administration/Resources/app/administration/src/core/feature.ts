@@ -16,6 +16,23 @@ import { error, warn } from 'src/core/service/utils/debug.utils';
 export const UNREGISTERED_UPCOMING_MAJORS = ['V6_9_0_0'];
 
 /**
+ * Who is at fault for a deprecation, read only by the Jest deprecation recorder to name the usage site.
+ * Production ignores it.
+ *
+ * @private
+ * @example
+ * Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'The component "sw-old" is deprecated.', { _blame: 'author' });
+ */
+export type DeprecationOptions = {
+    /**
+     * `'caller'` (default): the code that calls the deprecated API: the running component, else the calling file.
+     * `'author'`: the template that renders the deprecated component or passes the deprecated prop. Only the
+     * deprecation plugin passes it.
+     */
+    _blame?: 'author' | 'caller';
+};
+
+/**
  * A static registry containing a list of all registered flags and the associated activation state
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -72,7 +89,8 @@ export default class Feature {
      * @example
      * Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'oldMethod() is deprecated. Use newMethod() instead.');
      */
-    static triggerDeprecationOrThrow(majorFlag: string, message: string): void {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- only the Jest deprecation recorder reads `options`
+    static triggerDeprecationOrThrow(majorFlag: string, message: string, options?: DeprecationOptions): void {
         if (this.isActive(majorFlag)) {
             throw new Error(`Tried to access deprecated functionality: ${message}`);
         }

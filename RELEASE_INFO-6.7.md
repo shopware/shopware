@@ -1,30 +1,5 @@
 # 6.7.17.0 (upcoming)
 
-## Critical Fixes
-
-### Tax-free detection of new sales channel contexts matches the cart
-
-Since 6.7.5.0, the cart decides tax-free delivery by the customer type (`accountType`):
-commercial customers only get the country setting "Tax-free (B2B)", which needs a company and, in EU countries, a VAT ID;
-all other customers only get "Tax-free (B2C)".
-New sales channel contexts still accepted either setting (`TaxDetector::isNetDelivery()`), and only the cart calculation corrected their tax state afterwards.
-Rule Builder conditions were evaluated before that correction.
-For a commercial customer without a VAT ID in a country with "Tax-free (B2C)", conditions like "Cart amount" therefore saw net amounts, while the cart charged tax.
-
-`TaxDetector::isNetDelivery()` now applies the same split as the cart.
-Cart and order taxes do not change, but rules can match the affected customers differently than before, for example for shipping methods or promotions.
-
-If orders became taxed after updating to 6.7.5.0 or later, check these customers:
-
-- Private customers with a company or VAT ID: change their customer type to "Commercial" if they buy as a business.
-- Commercial customers without a VAT ID: add their VAT IDs, which EU countries need even when "VAT Reg.No. required" is off.
-
-```sql
-SELECT customer_number, account_type, company, vat_ids FROM customer
-WHERE (account_type = 'private' AND (company <> '' OR JSON_LENGTH(vat_ids) > 0))
-   OR (account_type = 'business' AND COALESCE(JSON_LENGTH(vat_ids), 0) = 0);
-```
-
 ## Core
 
 ### Webhooks are authorized against their owner
@@ -86,6 +61,12 @@ The Storefront profile page marks the VAT ID field as required based on the same
 With `shopware.media.remote_thumbnails.enable`, SVGs now have an empty `thumbnails` collection, as in local mode.
 Before, their `srcset` claimed widths that the returned original file did not have, so browsers rendered small SVG logos far too small.
 Media loaded without the `mediaType` field keep their thumbnail URLs, as the type can't be checked.
+
+### Tax-free detection of new sales channel contexts matches the cart
+
+New sales channel contexts now decide tax-free delivery like the cart (`TaxDetector::isNetDelivery()`):
+commercial customers only get "Tax-free (B2B)", all other customers only "Tax-free (B2C)".
+Cart and order taxes stay the same, but Rule Builder conditions like "Cart amount" can match differently than before for customers who only met the other setting.
 
 ## API
 

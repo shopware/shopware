@@ -8,14 +8,21 @@ describe('plugin/google-analytics/events without ecommerce data', () => {
         window.gtag = jest.fn();
         window.dataLayer = [];
         window.gtagIsTagManager = false;
+        reachPageThroughRedirect(true);
     });
 
     afterEach(() => {
         delete window.gtagIsTagManager;
         window.sessionStorage.clear();
         document.body.innerHTML = '';
+        delete window.performance.getEntriesByType;
         jest.clearAllMocks();
     });
+
+    // the storefront redirects after a successful submit and renders a failed one without a redirect
+    function reachPageThroughRedirect(redirected) {
+        window.performance.getEntriesByType = jest.fn(type => (type === 'navigation' ? [{ redirectCount: redirected ? 1 : 0 }] : []));
+    }
 
     function formEvent(className) {
         const form = document.createElement('form');
@@ -65,25 +72,23 @@ describe('plugin/google-analytics/events without ecommerce data', () => {
         expect(window.gtag).toHaveBeenCalledTimes(1);
     });
 
-    // the server rejects wrong credentials after the submit and renders the login form again
-    test('login reports nothing when the next page shows the login form with an error', () => {
+    // wrong credentials, a throttled login or an outdated password render the next page without a redirect
+    test('login reports nothing when the next page is reached without a redirect', () => {
         new LoginEvent()._onFormSubmit(formEvent('login-form'));
-        document.body.innerHTML = '<form class="login-form"><input name="password" class="form-control is-invalid"></form>';
+        reachPageThroughRedirect(false);
 
         new LoginEvent().execute();
-        document.body.innerHTML = '';
+        reachPageThroughRedirect(true);
         new LoginEvent().execute();
 
         expect(window.gtag).not.toHaveBeenCalled();
     });
 
-    // the server forwards a password that no longer meets the password policies to the recovery
-    test('login reports nothing when the next page asks to recover the password', () => {
+    test('login reports nothing in a browser without navigation timing', () => {
         new LoginEvent()._onFormSubmit(formEvent('login-form'));
-        document.body.innerHTML = '<form class="account-recover-password-form card"></form>';
+        delete window.performance.getEntriesByType;
 
         new LoginEvent().execute();
-        document.body.innerHTML = '';
 
         expect(window.gtag).not.toHaveBeenCalled();
     });
@@ -130,16 +135,26 @@ describe('plugin/google-analytics/events without ecommerce data', () => {
         expect(window.gtag).not.toHaveBeenCalled();
     });
 
-    // the server rejects the registration after the submit, for example for a registered email, and renders the form again
-    test('sign_up reports nothing when the next page shows the register form with an error', () => {
+    // an invalid field, such as a registered email, or a rejected captcha renders the form again without a redirect
+    test('sign_up reports nothing when the next page is reached without a redirect', () => {
         new SignUpEvent()._onFormSubmit(registerFormEvent());
-        document.body.innerHTML = '<form class="register-form"><input name="email" class="form-control is-invalid"></form>';
+        reachPageThroughRedirect(false);
 
         new SignUpEvent().execute();
-        document.body.innerHTML = '';
+        reachPageThroughRedirect(true);
         new SignUpEvent().execute();
 
         expect(window.gtag).not.toHaveBeenCalled();
+    });
+
+    // with double opt-in the server redirects back to the register page, which shows the form again
+    test('sign_up reports the account of a double opt-in registration', () => {
+        new SignUpEvent()._onFormSubmit(registerFormEvent());
+        document.body.innerHTML = '<form class="register-form"><input name="email" class="form-control"></form>';
+
+        new SignUpEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'sign_up', { method: 'mail' });
     });
 
     // "Create account" on the checkout finish page converts the guest on its own page
@@ -150,13 +165,11 @@ describe('plugin/google-analytics/events without ecommerce data', () => {
         expect(window.gtag).toHaveBeenCalledWith('event', 'sign_up', { method: 'mail' });
     });
 
-    // a rejected password or an email registered meanwhile renders the conversion form again
-    test('sign_up reports nothing when the next page shows the guest conversion form again', () => {
+    // a rejected password, a rejected captcha or an email registered meanwhile renders the conversion form again
+    test('sign_up reports nothing when the guest conversion fails', () => {
         new SignUpEvent()._onFormSubmit(formEvent('account-guest-conversion__form'));
-        document.body.innerHTML = '<form class="account-guest-conversion__form"><input name="password"></form>';
+        reachPageThroughRedirect(false);
 
-        new SignUpEvent().execute();
-        document.body.innerHTML = '';
         new SignUpEvent().execute();
 
         expect(window.gtag).not.toHaveBeenCalled();

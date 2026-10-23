@@ -1,5 +1,6 @@
 import EventAwareAnalyticsEvent from 'src/plugin/google-analytics/event-aware-analytics-event';
 import SessionStorage from 'src/helper/storage/session-storage.helper';
+import NavigationHelper from 'src/plugin/google-analytics/navigation.helper';
 
 const PENDING_SIGN_UP_KEY = 'swGaPendingSignUp';
 
@@ -65,9 +66,9 @@ export default class SignUpEvent extends EventAwareAnalyticsEvent
 
         SessionStorage.removeItem(PENDING_SIGN_UP_KEY);
 
-        // A failed registration renders the register form again with its fields marked as invalid.
-        // A failed guest conversion renders the conversion form again, not always with an invalid field.
-        if (!this.active || document.querySelector(`.register-form .is-invalid, .${GUEST_CONVERSION_FORM_CLASS}`)) {
+        // Only a created account redirects, also with double opt-in. A failed registration or guest
+        // conversion, such as an invalid field or a rejected captcha, renders the form again without one.
+        if (!this.active || !NavigationHelper.isRedirected()) {
             return;
         }
 

@@ -127,7 +127,7 @@ Tracking setups have to adapt to these changes:
 * With a `GTM-` tracking ID, ecommerce events are pushed to the data layer as `{ event, ecommerce }`.
   Google Tag Manager setups that read parameters from `eventModel` must use the `ecommerce` data layer variables instead.
 * Items use `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`, and numeric values are numbers instead of strings.
-  Amounts are rounded to cents.
+  Amounts keep the decimals of the currency.
 * The event `value` of cart, checkout and `purchase` events is the position price including promotion discounts, and the applied promotion codes are reported as `coupon`.
   Discounts are no longer reported as items.
 * `login` and `sign_up` are reported again, and adding a product by its number on the cart page reports `add_to_cart`.

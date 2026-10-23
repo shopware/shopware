@@ -59,6 +59,9 @@ export default class SignUpEvent extends EventAwareAnalyticsEvent
         SessionStorage.setItem(PENDING_SIGN_UP_KEY, '1');
     }
 
+    /**
+     * @private
+     */
     _reportPendingSignUp() {
         if (!SessionStorage.getItem(PENDING_SIGN_UP_KEY)) {
             return;

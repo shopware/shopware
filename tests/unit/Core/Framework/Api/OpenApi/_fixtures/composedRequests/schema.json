@@ -1,0 +1,216 @@
+{
+    "openapi": "3.2.0",
+    "info": {
+        "title": "Composed request fields",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/composed": {
+            "post": {
+                "x-dto-namespace": "App\\DTO",
+                "operationId": "createComposed",
+                "x-dto-package": "framework",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/BaseInput"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "required": [
+                                            "composedValue"
+                                        ],
+                                        "properties": {
+                                            "composedValue": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                ],
+                                "required": [
+                                    "baseValue",
+                                    "siblingValue"
+                                ],
+                                "properties": {
+                                    "siblingValue": {
+                                        "type": "string"
+                                    },
+                                    "optionalValue": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Accepted"
+                    }
+                }
+            }
+        },
+        "/single": {
+            "post": {
+                "x-dto-namespace": "App\\DTO",
+                "operationId": "createSingle",
+                "x-dto-package": "framework",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/BaseInput"
+                                    }
+                                ],
+                                "required": [
+                                    "baseValue",
+                                    "siblingValue"
+                                ],
+                                "properties": {
+                                    "siblingValue": {
+                                        "type": "string"
+                                    },
+                                    "optionalValue": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Accepted"
+                    }
+                }
+            }
+        },
+        "/variants": {
+            "post": {
+                "x-dto-namespace": "App\\DTO",
+                "operationId": "createVariant",
+                "x-dto-package": "framework",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/SharedInput"
+                                    }
+                                ],
+                                "properties": {
+                                    "siblingShared": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "sharedValue",
+                                    "siblingShared"
+                                ],
+                                "oneOf": [
+                                    {
+                                        "title": "PrivateInput",
+                                        "allOf": [
+                                            {
+                                                "$ref": "#/components/schemas/PrivateFields"
+                                            }
+                                        ],
+                                        "properties": {
+                                            "privateSibling": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "privateValue",
+                                            "privateSibling"
+                                        ]
+                                    },
+                                    {
+                                        "title": "BusinessInput",
+                                        "$ref": "#/components/schemas/BusinessFields"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Accepted"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "BaseInput": {
+                "x-dto-inline": true,
+                "type": "object",
+                "properties": {
+                    "baseValue": {
+                        "type": "string"
+                    }
+                }
+            },
+            "SharedInput": {
+                "x-dto-inline": true,
+                "type": "object",
+                "properties": {
+                    "sharedValue": {
+                        "type": "string"
+                    }
+                }
+            },
+            "PrivateFields": {
+                "x-dto-inline": true,
+                "type": "object",
+                "allOf": [
+                    {
+                        "type": "object",
+                        "properties": {
+                            "privateValue": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ]
+            },
+            "BusinessFields": {
+                "x-dto-inline": true,
+                "type": "object",
+                "allOf": [
+                    {
+                        "type": "object",
+                        "properties": {
+                            "businessValue": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "required": [
+                    "businessValue",
+                    "businessSibling"
+                ],
+                "properties": {
+                    "businessSibling": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

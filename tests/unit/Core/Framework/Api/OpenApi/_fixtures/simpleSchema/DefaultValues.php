@@ -1,0 +1,54 @@
+<?php declare(strict_types=1);
+
+/**
+ * This file is auto-generated.
+ * Do not edit manually.
+ *
+ * Last generated: 2026-07-07 00:00:00
+ */
+
+namespace App\DTO;
+
+use Shopware\Core\Framework\Api\AbstractDto;
+use Symfony\Component\Validator\Constraints as Assert;
+
+/**
+ * @codeCoverageIgnore
+ */
+final class DefaultValues extends AbstractDto
+{
+    public const DEFAULT_LIMIT = 10;
+
+    public const DEFAULT_SORT_ORDER = 'relevance';
+
+    public const DEFAULT_ACTIVE = true;
+
+    public const DEFAULT_CHANNEL = 'web';
+
+    public int $limit;
+
+    public string $sortOrder;
+
+    public bool $active;
+
+    /**
+     * Single-value enum without an explicit default
+     */
+    #[Assert\Choice(choices: ['storefront'])]
+    public string $source;
+
+    /**
+     * Multi-value enum with explicit default
+     */
+    #[Assert\Choice(choices: ['web', 'api'])]
+    public string $channel;
+
+    /**
+     * @internal
+     */
+    public function __construct(
+        #[Assert\NotNull]
+        public string $query,
+    ) {
+    }
+}

@@ -1,0 +1,41 @@
+{
+    "openapi": "3.2.0",
+    "info": {
+        "title": "Inherited extensions property",
+        "version": "1.0.0"
+    },
+    "paths": {},
+    "components": {
+        "schemas": {
+            "RequiredId": {
+                "x-dto-namespace": "App\\DTO",
+                "type": "object",
+                "required": [
+                    "id"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "extensions": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
+                }
+            },
+            "OptionalExtensions": {
+                "x-dto-namespace": "App\\DTO",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "extensions": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
+                }
+            }
+        }
+    }
+}

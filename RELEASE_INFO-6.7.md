@@ -1121,6 +1121,17 @@ the component now loads all snippet sets and locales once in `createdComponent` 
 
 ## Storefront
 
+### Preview Twig block removal through documentation comments
+
+Add a Twig documentation comment directly before a deprecated block to make its removal testable with the corresponding major feature flag:
+
+```twig
+{## @deprecated tag:v6.8.0 - Use replacement_block instead. ##}
+{% block old_block %}...{% endblock %}
+```
+
+With `V6_8_0_0=1`, the declaring template no longer registers or invokes `old_block`. Normal rendering skips old extension overrides; explicitly calling the missing core block or calling its removed parent raises a Twig error. Supported nested blocks remain available, but must be invoked separately if their wrapper is skipped. With the flag inactive, the block behaves normally. Ordinary `{# ... #}` comments remain informational.
+
 ### Category Twig function removal postponed to 6.9
 
 The deprecated `category_url` and `category_linknewtab` Twig functions remain available throughout 6.8 and will be removed in 6.9.0. Extension and theme developers should migrate to `category.seoUrl` (available on `SalesChannelCategoryEntity`) and `category.shouldOpenInNewTab`. See the [migration instructions](UPGRADE-6.9.md#removed-category_url-and-category_linknewtab-twig-functions).

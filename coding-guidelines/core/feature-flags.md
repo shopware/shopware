@@ -194,6 +194,25 @@ Until `v6.8.0.0` is active the call returns without doing anything, so there is 
 Once the flag is active the deprecation is emitted, and it throws as usual as soon as `v6.9.0.0` is active.
 A marked deprecation may name a major flag that is not registered yet, it only warns until that flag exists.
 
+### Removing Twig blocks
+
+Use a Twig documentation comment directly before the block declaration to preview block removal with its major feature flag:
+
+```twig
+{## @deprecated tag:v6.8.0 - Use current_block instead. ##}
+{% block old_block %}
+    ...
+{% endblock %}
+```
+
+The annotation uses the three-part removal label `vX.Y.0`, mapped to the canonical `vX.Y.0.0` feature flag. An unregistered future flag keeps the block available. Invalid removal annotations on documented blocks raise a Twig syntax error. Ordinary `{# ... #}` comments do not change behavior.
+
+With the flag inactive, the block registers and renders normally. With it active, the declaring template no longer registers the block and skips its normal invocation, including extension overrides. Explicit calls to the missing core block and executed `parent()` calls without a parent definition raise Twig errors. Extensions may still define and explicitly invoke their own block of the same name.
+
+Nested blocks keep their own registrations. If a supported child must still render after removing its wrapper, invoke it separately in the major path. Documentation on templates, macros, and other constructs does not remove blocks. This mechanism does not emit runtime deprecation notices.
+
+The flag is checked when a template instance is constructed and when its block declaration is rendered. Compiled template classes can be reused in either mode. After switching modes, use a fresh Twig environment; already loaded template instances retain their block registrations. Keep the same feature state for the lifetime of a Twig environment.
+
 ## Planning public API changes
 
 Plan an API break for the next major with the matching attribute from `Shopware\Core\Framework\Deprecation\BCChange`,

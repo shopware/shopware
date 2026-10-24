@@ -7,7 +7,7 @@ use Danger\Struct\File;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The PHPStan baseline may only shrink: a pull request must not add more baseline entries than
+ * The PHPStan baselines may only shrink: a pull request must not add more baseline entries than
  * it removes. Skippable via the `skip-danger-phpstan-baseline` label.
  *
  * @internal
@@ -17,6 +17,11 @@ class PhpstanBaselineGrowth
 {
     private const SKIP_LABEL = 'skip-danger-phpstan-baseline';
 
+    private const BASELINES = [
+        'phpstan-baseline.php',
+        'phpstan-baseline-architecture.php',
+    ];
+
     public function __invoke(Context $context): void
     {
         $labels = array_map('strtolower', $context->platform->pullRequest->labels);
@@ -25,20 +30,14 @@ class PhpstanBaselineGrowth
             return;
         }
 
-        $phpstanBaseline = $context->platform->pullRequest->getFiles()->get('phpstan-baseline.php');
-        if (!$phpstanBaseline instanceof File) {
-            return;
-        }
+        foreach (self::BASELINES as $baselineName) {
+            $baseline = $context->platform->pullRequest->getFiles()->get($baselineName);
+            if (!$baseline instanceof File || $baseline->deletions - $baseline->additions >= 0) {
+                continue;
+            }
 
-        $additions = $phpstanBaseline->additions;
-        if ($additions === 0) {
-            return;
-        }
-
-        $deletions = $phpstanBaseline->deletions;
-        if (($deletions - $additions) < 0) {
             $context->failure(
-                'It is not allowed to add new ignored PHPStan errors to the baseline. ' .
+                \sprintf('It is not allowed to add new ignored PHPStan errors to `%s`. ', $baselineName) .
                 'Only removals are allowed. Try to fix the error(s) instead. ' .
                 'If this should not be possible, please add a `@phpstan-ignore` annotation to the affected line with the correct identifier and a proper comment, why a fix is not possible right now.'
             );

@@ -77,7 +77,7 @@ readonly class RemoteZip implements Source
 
         try {
             $this->downloader->download($remoteZipLocation, $localZipLocation);
-            $this->appExtractor->extract($appName, $localZipLocation, $appPath);
+            $this->appExtractor->extract($localZipLocation, $directory, $appName);
         } catch (HttpException $e) {
             throw AppException::cannotMountAppFilesystem($appName, $e);
         }

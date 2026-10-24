@@ -1,5 +1,10 @@
 {
   "global": {
+    "sw-verify-user-modal": {
+      "ssoReauthStartError": "Die Anmeldung bei Deinem Identity Provider konnte nicht gestartet werden. Bitte versuche es erneut.",
+      "ssoReauthCompletedTitle": "Erneut angemeldet",
+      "ssoReauthCompletedMessage": "Dein Identity Provider hat Dich bestätigt. Bitte wiederhole die Aktion, die die Bestätigung angefordert hat."
+    },
     "error-codes": {
       "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Fehlende Berechtigungen.",
       "FRAMEWORK__DELETE_RESTRICTED": "Löschen fehlgeschlagen.",

@@ -9,6 +9,7 @@ import initLanguage from './language.init';
 import initWorker from './worker.init';
 import initTelemetry from './telemetry.init';
 import initProductAnalytics from './product-analytics.init';
+import initSsoReauth from './sso-reauth.init';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -17,4 +18,5 @@ export default {
     worker: initWorker,
     telemetry: initTelemetry,
     productAnalytics: initProductAnalytics,
+    ssoReauth: initSsoReauth,
 };

@@ -1,0 +1,103 @@
+$sw-dashboard-agentic-commerce-card-desktop-breakpoint: 48rem;
+
+.sw-dashboard-agentic-commerce-card {
+    .sw-dashboard-agentic-commerce-card__content {
+        display: grid;
+        position: relative;
+        grid-template-columns: var(--scale-size-64) minmax(0, 1fr);
+        grid-template-areas:
+            "icon ."
+            "headline headline"
+            "description description"
+            "install install";
+        align-items: start;
+        column-gap: var(--scale-size-16);
+        row-gap: 0;
+    }
+
+    .sw-dashboard-agentic-commerce-card__icon {
+        grid-area: icon;
+        width: var(--scale-size-64);
+        height: var(--scale-size-64);
+        flex: 0 0 var(--scale-size-64);
+        border-radius: var(--border-radius-s);
+    }
+
+    .sw-dashboard-agentic-commerce-card__text {
+        display: contents;
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: none;
+    }
+
+    .sw-dashboard-agentic-commerce-card__headline {
+        margin: var(--scale-size-16) 0 0;
+        font-size: var(--font-size-s);
+        font-weight: var(--font-weight-bold);
+        line-height: var(--font-line-height-s);
+        grid-area: headline;
+    }
+
+    .sw-dashboard-agentic-commerce-card__description {
+        margin: 0;
+        line-height: var(--font-line-height-xs);
+        grid-area: description;
+    }
+
+    .sw-dashboard-agentic-commerce-card__actions {
+        display: contents;
+    }
+
+    .sw-dashboard-agentic-commerce-card__dismiss {
+        position: absolute;
+        top: calc((var(--font-line-height-s) - var(--scale-size-32)) / 2 - var(--scale-size-1));
+        right: 0;
+    }
+
+    .sw-dashboard-agentic-commerce-card__install {
+        grid-area: install;
+        justify-self: start;
+        margin-top: var(--scale-size-16);
+    }
+
+    @media screen and (min-width: $sw-dashboard-agentic-commerce-card-desktop-breakpoint) {
+        .sw-dashboard-agentic-commerce-card__content {
+            display: flex;
+            align-items: center;
+            gap: var(--scale-size-16);
+        }
+
+        .sw-dashboard-agentic-commerce-card__text {
+            display: block;
+            flex: 1 1 auto;
+            max-width: 28rem;
+        }
+
+        .sw-dashboard-agentic-commerce-card__headline {
+            margin-top: 0;
+            padding-right: 0;
+        }
+
+        .sw-dashboard-agentic-commerce-card__description,
+        .sw-dashboard-agentic-commerce-card__install {
+            margin-top: 0;
+        }
+
+        .sw-dashboard-agentic-commerce-card__actions {
+            display: flex;
+            align-items: center;
+            gap: var(--scale-size-8);
+            flex: 0 0 auto;
+            margin-left: auto;
+        }
+
+        .sw-dashboard-agentic-commerce-card__install {
+            grid-area: auto;
+            justify-self: auto;
+        }
+
+        .sw-dashboard-agentic-commerce-card__dismiss {
+            position: static;
+        }
+    }
+}

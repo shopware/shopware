@@ -249,6 +249,10 @@
         }
     ],
     "scripts-descriptions": {
+        "admin:api-explorer": "[EXPERIMENTAL] Start the Administration API Explorer web app (-- [--port <port>] [--host <host>])",
+        "admin:api-explorer:diff":"[EXPERIMENTAL] Compare two Administration extension API snapshots and classify each change (-- --base <file> --head <file> [--out <file>] [--fail-on-breaking])",
+        "admin:api-explorer:report": "[EXPERIMENTAL] Compare two refs and write a static HTML report, a PR comment and JSON results (-- --base <ref> [--head <ref>] --out-dir <dir> [--report-url <url>] [--fail-on-breaking])",
+        "admin:api-explorer:snapshot": "[EXPERIMENTAL] Write a JSON snapshot of the Administration extension API (-- [--ref <name>] [--out <file>])",
         "admin:check-extensions": "[EXPERIMENTAL] Type-checks and lints Administration extensions (interactive; -- --help for flags)",
         "admin:code-mods": "Run admin code mods",
         "admin:codemod:sfc-migration": "Convert Options API Administration components into native setup SFCs (-- <path> [--write] [--replace-originals])",
@@ -349,6 +353,16 @@
         "zugferd:compliance": "Validates the generated ZUGFeRD snapshot documents against the EN16931 business rules using the KoSIT validator (requires Java)"
     },
     "scripts": {
+        "admin:api-explorer": [
+            "Composer\\Config::disableProcessTimeout",
+            "@npm:admin run api-explorer:serve --"
+        ],
+        "admin:api-explorer:diff": "@npm:admin run api-explorer:diff --",
+        "admin:api-explorer:report": [
+            "Composer\\Config::disableProcessTimeout",
+            "@npm:admin run api-explorer:report --"
+        ],
+        "admin:api-explorer:snapshot": "@npm:admin run api-explorer:snapshot --",
         "admin:check-extensions": "@npm:admin:bin npm run extension-tooling:check --",
         "admin:code-mods": "@npm:admin run code-mods --",
         "admin:codemod:sfc-migration": "@npm:admin run codemod:sfc-migration --",

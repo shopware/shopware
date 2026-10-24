@@ -84,9 +84,10 @@ async function createWrapper() {
         },
         global: {
             stubs: {
+                'sw-search-bar': true,
                 'sw-page': {
                     template: `
-    <div>
+    <div><slot name="search-bar"></slot>
         <slot name="smart-bar-actions"></slot>
         <slot name="content"></slot>
     </div>`,
@@ -201,5 +202,23 @@ describe('src/module/sw-product-stream/page/sw-product-stream-detail', () => {
 
         const banner = wrapper.find('.sw-product-stream-detail__product-type-warning mt-banner-stub');
         expect(banner.exists()).toBe(false);
+    });
+
+    it('should render the search bar only when the admin search is enabled', async () => {
+        Shopware.Context.app.adminEsEnable = true;
+        const enabledWrapper = await createWrapper();
+        await flushPromises();
+
+        const searchBar = enabledWrapper.find('sw-search-bar-stub');
+        expect(searchBar.exists()).toBe(true);
+        expect(searchBar.attributes('initial-search-type')).toBe('product_stream');
+        enabledWrapper.unmount();
+
+        Shopware.Context.app.adminEsEnable = false;
+        const disabledWrapper = await createWrapper();
+        await flushPromises();
+
+        expect(disabledWrapper.find('sw-search-bar-stub').exists()).toBe(false);
+        disabledWrapper.unmount();
     });
 });

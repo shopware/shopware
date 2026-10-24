@@ -33,9 +33,10 @@ async function createWrapper() {
                 },
             },
             stubs: {
+                'sw-search-bar': true,
                 'sw-page': {
                     template: `
-                        <div class="sw-page">
+                        <div class="sw-page"><slot name="search-bar"></slot>
                             <slot name="smart-bar-actions"></slot>
                         </div>`,
                 },
@@ -84,5 +85,23 @@ describe('module/sw-property/page/sw-property-detail', () => {
         const saveButton = wrapper.find('.sw-property-detail__save-action');
 
         expect(saveButton.attributes().disabled).toBeFalsy();
+    });
+
+    it('should render the search bar only when the admin search is enabled', async () => {
+        Shopware.Context.app.adminEsEnable = true;
+        const enabledWrapper = await createWrapper();
+        await flushPromises();
+
+        const searchBar = enabledWrapper.find('sw-search-bar-stub');
+        expect(searchBar.exists()).toBe(true);
+        expect(searchBar.attributes('initial-search-type')).toBe('property_group');
+        enabledWrapper.unmount();
+
+        Shopware.Context.app.adminEsEnable = false;
+        const disabledWrapper = await createWrapper();
+        await flushPromises();
+
+        expect(disabledWrapper.find('sw-search-bar-stub').exists()).toBe(false);
+        disabledWrapper.unmount();
     });
 });

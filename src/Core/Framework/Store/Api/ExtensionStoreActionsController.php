@@ -90,7 +90,18 @@ class ExtensionStoreActionsController extends AbstractController
         }
 
         try {
-            $this->pluginManagementService->uploadPlugin($file, $context);
+            $expectedAppName = $request->request->get('technicalName');
+            if ($expectedAppName !== null && !\is_string($expectedAppName)) {
+                throw StoreException::missingRequestParameter('technicalName');
+            }
+
+            $this->pluginManagementService->uploadPlugin(
+                $file,
+                $context,
+                $request->request->getBoolean('allowNewPermissions'),
+                $expectedAppName,
+                $request->request->has('updateOnly') ? $request->request->getBoolean('updateOnly') : null,
+            );
         } catch (\Exception $e) {
             try {
                 $this->fileSystem->remove($file->getPathname());

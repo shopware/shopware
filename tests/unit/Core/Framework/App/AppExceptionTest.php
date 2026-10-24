@@ -34,6 +34,13 @@ class AppExceptionTest extends TestCase
         static::assertSame(AppException::CANNOT_DELETE_COMPOSER_MANAGED, $e->getErrorCode());
     }
 
+    public function testCannotCreateUploadTemporaryFile(): void
+    {
+        $exception = AppException::cannotCreateUploadTemporaryFile('/tmp');
+
+        static::assertSame(AppException::APP_UPLOAD_TEMPORARY_FILE_CREATION_FAILED, $exception->getErrorCode());
+    }
+
     public function testNotCompatible(): void
     {
         $e = AppException::notCompatible('IncompatibleApp');

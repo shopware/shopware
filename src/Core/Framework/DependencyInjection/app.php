@@ -50,6 +50,7 @@ use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\AppSecretResolver;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\AppStorage;
+use Shopware\Core\Framework\App\AppUploadService;
 use Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway;
 use Shopware\Core\Framework\App\Checkout\Payload\AppCheckoutGatewayPayloadService;
 use Shopware\Core\Framework\App\Cms\BlockTemplateLoader;
@@ -178,6 +179,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\Clock\ClockInterface as SymfonyClockInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
@@ -982,6 +984,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(Local::class)
         ->args([
             param('kernel.project_dir'),
+            service(AppExtractor::class),
+            service(Filesystem::class),
         ])
         ->tag('app.source_resolver', ['priority' => -100]);
 
@@ -990,6 +994,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(AppExtractor::class)
         ->args([
             service(AppArchiveValidator::class),
+        ]);
+
+    $services->set(AppUploadService::class)
+        ->args([
+            service(AppExtractor::class),
+            service(AppLifecycle::class),
+            service(AbstractExtensionDataProvider::class),
+            service(SourceResolver::class),
+            service(AppConfirmationDeltaProvider::class),
+            service('event_dispatcher'),
+            service(Filesystem::class),
+            param('kernel.cache_dir'),
         ]);
 
     $services->set(AppDownloader::class)

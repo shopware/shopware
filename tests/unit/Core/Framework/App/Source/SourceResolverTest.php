@@ -10,9 +10,11 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Source\NamedSource;
 use Shopware\Core\Framework\App\Source\NoDatabaseSourceResolver;
 use Shopware\Core\Framework\App\Source\Source;
 use Shopware\Core\Framework\App\Source\SourceResolver;
+use Shopware\Core\Framework\App\Source\UploadSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
@@ -49,6 +51,30 @@ class SourceResolverTest extends TestCase
         $resolver = new SourceResolver([new SupportingSource()], $repo, static::createStub(NoDatabaseSourceResolver::class));
 
         static::assertSame('supporting-source', $resolver->resolveSourceType($app));
+    }
+
+    public function testResolveSourceTypeUsesNamedSourceType(): void
+    {
+        $resolver = new SourceResolver([new SupportingNamedSource()], new StaticEntityRepository([]), static::createStub(NoDatabaseSourceResolver::class));
+
+        static::assertSame('named-source-type', $resolver->resolveSourceType(static::createStub(Manifest::class)));
+    }
+
+    public function testUploadSourceForManifestReturnsMatchingUploadSource(): void
+    {
+        $uploadSource = new SupportingUploadSource();
+        $resolver = new SourceResolver([$uploadSource], new StaticEntityRepository([]), static::createStub(NoDatabaseSourceResolver::class));
+
+        static::assertSame($uploadSource, $resolver->uploadSourceForManifest(static::createStub(Manifest::class)));
+    }
+
+    public function testUploadSourceForManifestThrowsWhenNoUploadSourceSupports(): void
+    {
+        static::expectException(AppException::class);
+
+        $resolver = new SourceResolver([new NonSupportingSource()], new StaticEntityRepository([]), static::createStub(NoDatabaseSourceResolver::class));
+
+        $resolver->uploadSourceForManifest(static::createStub(Manifest::class));
     }
 
     public function testFilesystemForManifestThrowsExceptionWhenNoSourceSupportsIt(): void
@@ -302,6 +328,85 @@ class NonSupportingSource implements Source
     }
 
     public function reset(array $filesystems): void
+    {
+    }
+}
+
+/**
+ * @internal
+ */
+#[Package('framework')]
+class SupportingNamedSource implements Source, NamedSource
+{
+    public static function name(): string
+    {
+        return 'supporting-source';
+    }
+
+    public function sourceType(): string
+    {
+        return 'named-source-type';
+    }
+
+    public function supports(Manifest|AppEntity $app): bool
+    {
+        return true;
+    }
+
+    public function filesystem(Manifest|AppEntity $app): Filesystem
+    {
+        return new Filesystem('/');
+    }
+
+    public function reset(array $filesystems): void
+    {
+    }
+}
+
+/**
+ * @internal
+ */
+#[Package('framework')]
+class SupportingUploadSource implements UploadSource
+{
+    public static function name(): string
+    {
+        return 'supporting-upload-source';
+    }
+
+    public function supports(Manifest|AppEntity $app): bool
+    {
+        return true;
+    }
+
+    public function filesystem(Manifest|AppEntity $app): Filesystem
+    {
+        return new Filesystem('/');
+    }
+
+    public function reset(array $filesystems): void
+    {
+    }
+
+    public function storeArchive(string $archivePath, Manifest $manifest): string
+    {
+        return '/stored.zip';
+    }
+
+    public function backup(AppEntity $app): string
+    {
+        return '/backup';
+    }
+
+    public function restore(AppEntity $app, string $backupPath): void
+    {
+    }
+
+    public function remove(AppEntity $app): void
+    {
+    }
+
+    public function removeByManifest(Manifest $manifest): void
     {
     }
 }

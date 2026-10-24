@@ -2,6 +2,7 @@ name: Downstream
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
   merge_group:
   workflow_dispatch:
     inputs:
@@ -20,6 +21,7 @@ permissions:
 
 jobs:
   markdown-only-changes:
+    if: github.event.action != 'labeled' || github.event.label.name == 'major-tests'
     runs-on: ubuntu-24.04
     outputs:
       docs_only: ${{ steps.check.outputs.docs_only }}
@@ -91,6 +93,35 @@ jobs:
           token: ${{ steps.sts.outputs.token }}
           upstream-token: ${{ github.token }}
           env: NIGHTLY=${{ inputs.nightly }}\nUPSTREAM_EVENT_NAME=${{ github.event_name }}
+
+  commercial-major:
+    name: Commercial (major)
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
+    needs:
+      - markdown-only-changes
+    if: github.repository == 'shopware/shopware' && github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'major-tests') && needs.markdown-only-changes.outputs.docs_only != 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - id: sts
+        uses: shopware/octo-sts-action@main
+        with:
+          scope: shopware
+          identity: ShopwareDownstream
+      - name: Commercial major tests
+        uses: shopware/github-actions/downstream@main
+        env:
+          NEW_LOGIC: 1
+        with:
+          repo: shopware/SwagCommercial
+          workflow: integration-major.yaml
+          ref: .auto
+          timeout: 60m
+          poll_interval: 1m
+          token: ${{ steps.sts.outputs.token }}
+          upstream-token: ${{ github.token }}
 
   mergeability-check:
     name: Downstream Mergeability Check
@@ -235,11 +266,12 @@ jobs:
             }
 
   downstream-check:
-    if: always()
+    if: always() && (github.event.action != 'labeled' || github.event.label.name == 'major-tests')
     needs:
       - markdown-only-changes
       - rufus
       - commercial
+      - commercial-major
       - mergeability-check
 
     runs-on: Ubuntu-latest
@@ -247,5 +279,8 @@ jobs:
       - name: Decide whether the needed jobs succeeded or failed
         uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # v1.3.0
         with:
-          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'rufus, commercial, mergeability-check' || 'rufus, commercial' }}
+          allowed-skips: >-
+            ${{ format('{0}{1}',
+              needs.markdown-only-changes.outputs.docs_only == 'true' && 'rufus, commercial, mergeability-check, commercial-major' || 'rufus, commercial',
+              needs.markdown-only-changes.outputs.docs_only != 'true' && (github.repository != 'shopware/shopware' || github.event_name != 'pull_request' || !contains(github.event.pull_request.labels.*.name, 'major-tests')) && ', commercial-major' || '') }}
           jobs: ${{ toJSON(needs) }}

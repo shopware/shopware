@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api;
 
+use League\OAuth2\Server\Exception\OAuthServerException;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorNotFoundException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
+use Shopware\Core\Framework\Api\OAuth\OAuthResource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssociation;
@@ -52,6 +54,7 @@ class ApiException extends HttpException
     public const API_UNABLE_GENERATE_BUNDLE = 'FRAMEWORK__API_UNABLE_GENERATE_BUNDLE';
     public const API_INVALID_ACCESS_KEY_EXCEPTION = 'FRAMEWORK__API_INVALID_ACCESS_KEY';
     public const API_OAUTH_INVALID_REDIRECT_URI = 'FRAMEWORK__OAUTH_INVALID_REDIRECT_URI';
+    public const API_OAUTH_INSECURE_REDIRECT_URI = 'FRAMEWORK__OAUTH_INSECURE_REDIRECT_URI';
     public const API_INVALID_ACCESS_KEY_IDENTIFIER_EXCEPTION = 'FRAMEWORK__API_INVALID_ACCESS_KEY_IDENTIFIER';
     public const API_INVALID_SYNC_RESOLVERS = 'FRAMEWORK__API_INVALID_SYNC_RESOLVERS';
     public const API_SALES_CHANNEL_MAINTENANCE_MODE = 'FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE';
@@ -435,6 +438,47 @@ class ApiException extends HttpException
             self::API_OAUTH_INVALID_REDIRECT_URI,
             'Redirect URL is not registered for this application.',
             previous: $previous,
+        );
+    }
+
+    /**
+     * Like {@see self::invalidOAuthRedirectUri()}, the error is shown to the user instead of being sent to the redirect URI (RFC 6749 §4.1.2.1).
+     */
+    public static function insecureOAuthRedirectUri(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::API_OAUTH_INSECURE_REDIRECT_URI,
+            'Redirect URL must use https. Plain http is only allowed for localhost and loopback IP addresses.',
+        );
+    }
+
+    /**
+     * RFC 8707 `invalid_target`, rendered by the OAuth endpoints as OAuth error.
+     */
+    public static function oauthInvalidTarget(string $hint): OAuthServerException
+    {
+        return new OAuthServerException(
+            'The requested resource is invalid, unknown, or does not match the authorization request.',
+            OAuthResource::ERROR_CODE_INVALID_TARGET,
+            OAuthResource::ERROR_INVALID_TARGET,
+            Response::HTTP_BAD_REQUEST,
+            $hint
+        );
+    }
+
+    /**
+     * A token bound to a resource (RFC 8707) was sent to another route.
+     * Keeps the error code of {@see OAuthServerException::accessDenied()} the other bearer token errors use.
+     */
+    public static function oauthTokenNotValidForResource(): OAuthServerException
+    {
+        return new OAuthServerException(
+            'The access token is not valid for this resource.',
+            9,
+            'invalid_token',
+            Response::HTTP_UNAUTHORIZED,
+            'The token was issued for the MCP endpoint and is accepted there only.'
         );
     }
 

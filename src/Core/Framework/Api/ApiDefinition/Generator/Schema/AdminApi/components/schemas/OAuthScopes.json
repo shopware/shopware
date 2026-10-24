@@ -103,6 +103,11 @@
                             "refresh_token": {
                                 "description": "The refresh token that should be used to refresh the access token.",
                                 "type": "string"
+                            },
+                            "resource": {
+                                "description": "RFC 8707 resource indicator. A refresh keeps the resource of the original grant; when sent, it must equal that resource, otherwise the OAuth error `invalid_target` is returned.",
+                                "type": "string",
+                                "format": "uri"
                             }
                         },
                         "required": ["client_id", "scope", "refresh_token"]
@@ -133,6 +138,11 @@
                                 "type": "string",
                                 "minLength": 43,
                                 "maxLength": 128
+                            },
+                            "resource": {
+                                "description": "RFC 8707 resource indicator. The tokens are bound to the resource of the authorization request; when sent, it must equal that resource, otherwise the OAuth error `invalid_target` is returned.",
+                                "type": "string",
+                                "format": "uri"
                             }
                         },
                         "required": ["client_id", "code", "redirect_uri", "code_verifier"]
@@ -148,6 +158,11 @@
                     "redirect_uri": { "type": "string", "format": "uri" },
                     "state": { "type": "string" },
                     "scope": { "$ref": "#/components/schemas/OAuthScopes" },
+                    "resource": {
+                        "description": "RFC 8707 resource indicator, an absolute URI. The only accepted value is the MCP endpoint of the shop, for example `https://shop.example/api/_mcp`; any other value gives the OAuth error `invalid_target`.",
+                        "type": "string",
+                        "format": "uri"
+                    },
                     "code_challenge": { "type": "string" },
                     "code_challenge_method": { "type": "string", "enum": ["S256"] }
                 },

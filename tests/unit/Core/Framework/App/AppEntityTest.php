@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -46,7 +47,6 @@ class AppEntityTest extends TestCase
         $app->setInAppPurchasesGatewayUrl('in-app-purchases-gateway-url');
         $app->setModules([['name' => 'module', 'label' => ['en-GB' => 'Module'], 'parent' => 'app', 'position' => 1]]);
         $app->setMainModule(['name' => 'main', 'label' => ['en-GB' => 'Main'], 'parent' => 'app', 'position' => 1]);
-        $app->setCookies([['snippet_name' => 'cookie.name']]);
         $app->setAllowedHosts(['example.com']);
         $app->setIconRaw('icon-raw');
         $app->setIcon('icon');
@@ -77,7 +77,6 @@ class AppEntityTest extends TestCase
         static::assertSame('in-app-purchases-gateway-url', $app->getInAppPurchasesGatewayUrl());
         static::assertSame([['name' => 'module', 'label' => ['en-GB' => 'Module'], 'parent' => 'app', 'position' => 1]], $app->getModules());
         static::assertSame(['name' => 'main', 'label' => ['en-GB' => 'Main'], 'parent' => 'app', 'position' => 1], $app->getMainModule());
-        static::assertSame([['snippet_name' => 'cookie.name']], $app->getCookies());
         static::assertSame(['example.com'], $app->getAllowedHosts());
         static::assertSame('icon-raw', $app->getIconRaw());
         static::assertSame('icon', $app->getIcon());
@@ -94,6 +93,16 @@ class AppEntityTest extends TestCase
         static::assertSame(['config' => 'config'], $app->getSourceConfig());
         static::assertTrue($app->isSelfManaged());
         static::assertSame(['product:read'], $app->getRequestedPrivileges());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testDeprecatedCookieAccessorsRoundTrip(): void
+    {
+        $app = new AppEntity();
+
+        $app->setCookies([['snippet_name' => 'cookie.name']]);
+
+        static::assertSame([['snippet_name' => 'cookie.name']], $app->getCookies());
     }
 
     public function testAssociationAccessorsRoundTrip(): void

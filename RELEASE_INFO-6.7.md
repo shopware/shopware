@@ -1266,6 +1266,12 @@ App-declared MCP tools, prompts, and resources are now persisted through the gen
 
 The dedicated app MCP DAL aggregates (`app_mcp_tool`, `app_mcp_prompt`, `app_mcp_resource` and their translation tables) and their accessors on `AppEntity` and `LanguageEntity` were experimental and have been removed.
 
+### App cookies use generic feature storage
+
+App-declared cookies are now persisted through the generic app feature storage instead of the `cookies` field on the `app` entity. Installed apps do not need to change their manifests.
+
+`AppEntity::getCookies()` and `setCookies()` are deprecated. They remain callable for backwards compatibility, but the app system no longer populates or consumes the field.
+
 # 6.7.15.0
 
 ## Features

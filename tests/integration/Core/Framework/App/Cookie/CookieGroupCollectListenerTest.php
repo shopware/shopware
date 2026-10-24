@@ -33,7 +33,7 @@ class CookieGroupCollectListenerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->listener = new AppCookieCollectListener(static::getContainer()->get('app.repository'));
+        $this->listener = static::getContainer()->get(AppCookieCollectListener::class);
     }
 
     public function testSingleCookie(): void

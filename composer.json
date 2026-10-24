@@ -324,6 +324,8 @@
         "rector": " ",
         "reset": "Resets this Shopware instance, without composer and npm install. (Faster reset if no dependencies changed)",
         "setup": "Resets and re-installs this Shopware instance",
+        "skills:disable": "Hides .agents/skills locally (skip-worktree + rename, no git diff), so agents do not pick them up",
+        "skills:enable": "Restores locally hidden .agents/skills",
         "static-analyze": "Launches the PHP Stan static analysis tool",
         "storefront:lint:snippets": "Checks that no storefront snippet duplicates a global.default translation in every locale.",
         "storefront:lint:snippets:all": "Like storefront:lint:snippets but ignores the allow list, listing every duplicate including the allowed ones.",
@@ -547,6 +549,12 @@
             "@build:js",
             "@php bin/console theme:change --sync --all Storefront",
             "@admin:setup-extension-tooling --if-enabled"
+        ],
+        "skills:disable": [
+            "git sparse-checkout set --no-cone '/*' '!/.agents/skills/'"
+        ],
+        "skills:enable": [
+            "git sparse-checkout disable"
         ],
         "static-analyze": [
             "@phpstan src/"

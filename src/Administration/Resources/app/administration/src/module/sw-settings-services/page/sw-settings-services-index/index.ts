@@ -3,8 +3,9 @@ import useSession from 'src/app/composables/use-session';
 import { useShopwareServicesStore } from '../../store/shopware-services.store';
 import template from './sw-settings-services-index.html.twig';
 import './sw-settings-services-index.scss';
-import type { ServiceDescription } from '../../service/shopware-services.service';
+import type { AppHealth, ServiceDescription } from '../../service/shopware-services.service';
 import extractError from '../../composables/extract-error';
+import getHealthLevel from '../../composables/app-health';
 import {
     getServicesWithShopwareAccountRequirement,
     type ServiceWithShopwareAccountRequirement,
@@ -19,6 +20,7 @@ import SwSettingsServicesServiceCard from '../../component/sw-settings-services-
 type SwSettingsPageData = {
     grantPermissionsCardBackground: string;
     services: ServiceDescription[];
+    health: Record<string, AppHealth> | null;
     suspended: boolean;
     loadingError: string;
 };
@@ -50,6 +52,7 @@ export default Shopware.Component.wrapComponentConfig({
                 '/administration/administration/static/img/services/grant-permissions-background.svg',
             ),
             services: [],
+            health: null,
             suspended: true,
             loadingError: '',
         };
@@ -59,6 +62,16 @@ export default Shopware.Component.wrapComponentConfig({
         ...mapState(useShopwareServicesStore, ['config', 'currentRevision', 'consentGiven']),
         servicesWithAccountRequirement(): ServiceWithShopwareAccountRequirement[] {
             return getServicesWithShopwareAccountRequirement(this.services);
+        },
+
+        servicesWithConnectionProblem(): ServiceDescription[] {
+            return this.services.filter((service) => getHealthLevel(service, this.healthOf(service)) === 'ERROR');
+        },
+
+        connectionProblemTitle(): string {
+            const count = this.servicesWithConnectionProblem.length;
+
+            return this.$t('sw-settings-services.index.connection-problem-banner.title', { count }, count);
         },
     },
 
@@ -70,6 +83,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         Promise.all([
             this.reloadServices(),
+            this.loadHealth(),
             shopwareServicesService.getServicesContext().then((servicesConsent) => {
                 shopwareServicesStore.config = servicesConsent;
             }),
@@ -114,6 +128,19 @@ export default Shopware.Component.wrapComponentConfig({
                     autoClose: false,
                 });
             }
+        },
+
+        // never rejects: without health, the cards fall back to the service state
+        async loadHealth() {
+            try {
+                this.health = await Shopware.Service('shopwareServicesService').getAppSystemHealth();
+            } catch {
+                this.health = null;
+            }
+        },
+
+        healthOf(service: ServiceDescription): AppHealth | null {
+            return this.health?.[service.id] ?? null;
         },
 
         async reloadServices() {

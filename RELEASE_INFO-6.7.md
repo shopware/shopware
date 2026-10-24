@@ -1220,7 +1220,19 @@ The zoom modal no longer waits for images without a source before it opens.
 
 These additions are experimental and become stable with 6.8.0.
 
+## Hosting & Configuration
+
+### `system:check` no longer fails on checks skipped for the context
+
+Checks that are not allowed in the requested execution context are now reported as `SKIPPED` with `healthy: true`. Previously they were reported with `healthy: null`, so `bin/console system:check` exited with a failure in every context, including the default `cli` one, even when all checks that ran were healthy. Checks skipped because an earlier system check failed are still unhealthy.
+
+The new `AppSystem` check runs in the `web`, `cli` and `recurrent` contexts and reports the worst app status plus the number of apps per status, without app ids or names; per-app details are only available from `GET /api/app-system/health`. It returns `ERROR`, and fails the command, only when an app can no longer communicate with its app server.
+
 ## App system
+
+### App health endpoint
+
+The experimental Admin API route `GET /api/app-system/health` returns a health status for every installed app, or for one app with `?appId=<id>`. It requires the `system.plugin_maintain` privilege. Each app gets a `status` (`OK`, `UNKNOWN`, `WARNING`, `ERROR` or `SKIPPED` for inactive apps) and a `reason`, such as `credentials_rejected`, `delivery_failing`, `webhooks_suspended`, `registration_incomplete`, `shop_id_mismatch`, `no_app_activity` or `no_signal`. The status is derived from data the shop already stores, such as failing webhook deliveries and the last time the app called the Admin API, and is cached for 60 seconds. The route is experimental: its response can change until it becomes stable, so treat unknown `reason` values as `UNKNOWN`.
 
 ### App requests keep body and signature across redirects
 

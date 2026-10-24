@@ -29,12 +29,19 @@
       "label-documentation-link": "Dokumentation",
       "label-tos-link": "AGB",
       "installing-services-title": "Shopware Services werden installiert",
-      "installing-services-description": "Dies kann eine Weile dauern. Du wirst benachrichtigt, sobald die Installationen abgeschlossen sind. In der Zwischenzeit kannst Du Deine Shopware Administration frei nutzen."
+      "installing-services-description": "Dies kann eine Weile dauern. Du wirst benachrichtigt, sobald die Installationen abgeschlossen sind. In der Zwischenzeit kannst Du Deine Shopware Administration frei nutzen.",
+      "connection-problem-banner": {
+        "title": "{count} Service hat ein Verbindungsproblem|{count} Services haben ein Verbindungsproblem",
+        "message": "Prüfe die markierten Services unter „Verfügbare Services“."
+      }
     },
     "service-card": {
       "status-active": "Aktiv",
       "status-awaiting-permissions": "Wartet auf Berechtigungen",
       "status-inactive": "Inaktiv",
+      "status-connection-problem": "Verbindungsproblem",
+      "status-needs-attention": "Prüfung empfohlen",
+      "status-no-recent-activity": "Keine aktuelle Aktivität",
       "updated-at-label": "Zuletzt aktualisiert: {updatedAt}",
       "version": "Version: {version}",
       "cannot-remove-or-deactivate": "Kann nicht entfernt oder deaktiviert werden",
@@ -42,7 +49,20 @@
         "warning": "Bist Du sicher, dass Du „{serviceName}“ deaktivieren möchtest?",
         "consequences": "Dadurch verlierst Du sofort den Zugriff auf den Service und alle zugehörigen Prozesse."
       },
-      "permissions": "Berechtigungen anzeigen"
+      "permissions": "Berechtigungen anzeigen",
+      "health-last-attempt": "Letzter Versuch: {date}",
+      "health-response-code": "Antwortcode: {code}",
+      "health-details": "Details",
+      "health-support-details": "Für den Shopware-Support: {details}",
+      "health-reason": {
+        "shop_id_mismatch": "Die Adresse oder Einrichtung Deines Shops hat sich geändert, deshalb ist dieser Service pausiert. Lade die Administration neu und folge den Schritten.",
+        "registration_incomplete": "Die Einrichtung dieses Services wurde nicht abgeschlossen. Wende Dich an den Shopware-Support.",
+        "credentials_rejected": "Dieser Service akzeptiert Deinen Shop nicht mehr und funktioniert deshalb nicht. Wende Dich an den Shopware-Support.",
+        "delivery_failing": "Einige Daten haben diesen Service nicht erreicht. Shopware versucht es weiter. Wenn das so bleibt, wende Dich an den Shopware-Support.",
+        "webhooks_suspended": "Nach wiederholten Fehlern sendet Shopware keine Daten mehr an diesen Service. Wende Dich an den Shopware-Support.",
+        "no_app_activity": "Dieser Service hat sich seit dem {date} nicht gemeldet. Wenn er nicht funktioniert, wende Dich an den Shopware-Support.",
+        "unknown": "Mit dieser Verbindung stimmt etwas nicht. Wenn das so bleibt, wende Dich an den Shopware-Support."
+      }
     },
     "grant-permissions": {
       "title": "Schalte das volle Potenzial von Shopware Services frei",

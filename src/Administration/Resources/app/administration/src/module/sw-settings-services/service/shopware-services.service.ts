@@ -33,6 +33,23 @@ export type ServiceDescription = {
     state_change_permitted: boolean;
 };
 
+/**
+ * @private
+ */
+export type AppHealthStatus = 'OK' | 'UNKNOWN' | 'WARNING' | 'ERROR' | 'SKIPPED';
+
+/**
+ * @private
+ */
+export type AppHealth = {
+    name: string;
+    status: AppHealthStatus;
+    reason: string | null;
+    lastStatusCode: number | null;
+    lastAttemptAt: string | null;
+    lastAppActivityAt: string | null;
+};
+
 type ServiceConfigurationConfigValues = {
     'core.services.disabled'?: boolean;
     'core.services.permissionsConsent'?: string;
@@ -152,6 +169,16 @@ export default class ShopwareServicesService extends ApiService {
                 headers: this.getBasicHeaders(),
             },
         );
+    }
+
+    getAppSystemHealth(): Promise<Record<string, AppHealth>> {
+        return this.httpClient
+            .get('app-system/health', {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                return (response.data as { apps: Record<string, AppHealth> }).apps;
+            });
     }
 
     getCategorizedPermissions(serviceName: string): Promise<{ permissions: CategorizedPermissions }> {

@@ -29,12 +29,19 @@
       "label-documentation-link": "Documentation",
       "label-tos-link": "Terms & Conditions",
       "installing-services-title": "Installing Shopware Services",
-      "installing-services-description": "This might take a while. You will be notified as soon as the installations are complete. In the meantime you can freely use your Shopware administration."
+      "installing-services-description": "This might take a while. You will be notified as soon as the installations are complete. In the meantime you can freely use your Shopware administration.",
+      "connection-problem-banner": {
+        "title": "{count} service has a connection problem|{count} services have a connection problem",
+        "message": "Check the highlighted services under “Available services”."
+      }
     },
     "service-card": {
       "status-active": "Active",
       "status-awaiting-permissions": "Awaits permissions",
       "status-inactive": "Inactive",
+      "status-connection-problem": "Connection problem",
+      "status-needs-attention": "Needs attention",
+      "status-no-recent-activity": "No recent activity",
       "updated-at-label": "Last updated: {updatedAt}",
       "version": "Version: {version}",
       "cannot-remove-or-deactivate": "Cannot be removed or deactivated",
@@ -42,7 +49,20 @@
         "warning": "Are you sure you want to deactivate “{serviceName}”?",
         "consequences": "This will result in an immediate loss of access to the Service and all associated processes."
       },
-      "permissions": "Show permissions"
+      "permissions": "Show permissions",
+      "health-last-attempt": "Last attempt: {date}",
+      "health-response-code": "Response code: {code}",
+      "health-details": "Details",
+      "health-support-details": "For Shopware support: {details}",
+      "health-reason": {
+        "shop_id_mismatch": "Your shop's address or setup has changed, so this service is paused. Reload the Administration and follow the steps shown.",
+        "registration_incomplete": "Setting up this service didn't finish. Contact Shopware support.",
+        "credentials_rejected": "This service no longer accepts your shop, so it isn't working. Contact Shopware support.",
+        "delivery_failing": "Some data didn't reach this service. Shopware keeps trying. If this stays, contact Shopware support.",
+        "webhooks_suspended": "Shopware stopped sending data to this service after repeated errors. Contact Shopware support.",
+        "no_app_activity": "This service hasn't been in touch since {date}. If it isn't working, contact Shopware support.",
+        "unknown": "Something is wrong with this connection. If this stays, contact Shopware support."
+      }
     },
     "grant-permissions": {
       "title": "Unlock the full potential of Shopware Services",

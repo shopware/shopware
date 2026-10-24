@@ -98,7 +98,7 @@ const pullRequestNode = (overrides: Record<string, unknown> = {}) => ({
     reviewDecision: null,
     mergeable: 'MERGEABLE',
     author: { login: 'someone', __typename: 'User' },
-    labels: { nodes: [{ name: 'domain/crm-after-sales' }] },
+    labels: { nodes: [{ name: 'external-contribution' }, { name: 'domain/crm-after-sales' }] },
     approvals: { totalCount: 0 },
     allReviews: { totalCount: 0 },
     latestOpinionatedReviews: { nodes: [] },
@@ -124,6 +124,7 @@ const schema = {
 
 function fakes(pullRequest: Record<string, unknown>, projectItems: unknown[]) {
     const labels: string[] = [];
+    const removed: string[] = [];
     const writes: string[] = [];
     const core = { info: () => {}, warning: () => {}, error: () => {}, setOutput: () => {}, summary: { addRaw: () => {}, write: async () => {} } };
     const github = {
@@ -135,7 +136,9 @@ function fakes(pullRequest: Record<string, unknown>, projectItems: unknown[]) {
                 async addLabels({ labels: added }: { labels: string[] }) {
                     labels.push(...added);
                 },
-                async removeLabel() {},
+                async removeLabel({ name }: { name: string }) {
+                    removed.push(name);
+                },
             },
         },
     };
@@ -156,7 +159,7 @@ function fakes(pullRequest: Record<string, unknown>, projectItems: unknown[]) {
         },
     };
 
-    return { labels, writes, core, github, projectGithub };
+    return { labels, removed, writes, core, github, projectGithub };
 }
 
 const context = { repo: { owner: 'shopware', repo: 'shopware' } };
@@ -180,6 +183,21 @@ test('syncPullRequest archives a closed pull request on the main project only an
     await syncPullRequest({ github, core, context }, { number: 1, project: { github: projectGithub, number: 69, teams: '{"domain/crm-after-sales":43}' } });
 
     assert.deepEqual(labels, []);
+    assert.deepEqual(writes, ['archive ITEM_MAIN']);
+});
+
+test('syncPullRequest strips the label from an internal pull request and archives it on the main project only', async () => {
+    const onBoth = [
+        { id: 'ITEM_MAIN', isArchived: false, project: { number: 69, owner: { login: 'shopware' } }, fieldValues: { nodes: [] } },
+        { id: 'ITEM_TEAM', isArchived: false, project: { number: 43, owner: { login: 'shopware' } }, fieldValues: { nodes: [] } },
+    ];
+    const internal = pullRequestNode({ labels: { nodes: [{ name: 'domain/crm-after-sales' }, { name: 'waiting-on/shopware' }] } });
+    const { labels, removed, writes, core, github, projectGithub } = fakes(internal, onBoth);
+
+    await syncPullRequest({ github, core, context }, { number: 1, project: { github: projectGithub, number: 69, teams: '{"domain/crm-after-sales":43}' } });
+
+    assert.deepEqual(labels, []);
+    assert.deepEqual(removed, ['waiting-on/shopware']);
     assert.deepEqual(writes, ['archive ITEM_MAIN']);
 });
 

@@ -366,7 +366,7 @@ const node = (overrides: Record<string, unknown> = {}) => ({
     reviewDecision: null,
     mergeable: 'MERGEABLE',
     author: { login: 'someone', __typename: 'User' },
-    labels: { nodes: [] },
+    labels: { nodes: [{ name: 'external-contribution' }] },
     approvals: { totalCount: 0 },
     allReviews: { totalCount: 0 },
     latestOpinionatedReviews: { nodes: [] },
@@ -420,7 +420,7 @@ test('a lone reply inside a review thread is activity the timeline does not repo
     assert.equal(activity.lastMaintainerActivityAt, '2026-07-21T12:24:31Z');
 });
 
-const labelled = (number: number, ...names: string[]) => node({ number, labels: { nodes: names.map((name) => ({ name })) } });
+const labelled = (number: number, ...names: string[]) => node({ number, labels: { nodes: ['external-contribution', ...names].map((name) => ({ name })) } });
 
 test('planLabelChanges sets the verdict and swaps out a stale one', () => {
     const nodes = [labelled(1), labelled(2, 'waiting-on/author', 'component/core'), labelled(3, 'waiting-on/shopware')];
@@ -430,6 +430,18 @@ test('planLabelChanges sets the verdict and swaps out a stale one', () => {
         { number: 1, add: WAITING_ON_LABEL.shopware, remove: [] },
         { number: 2, add: WAITING_ON_LABEL.shopware, remove: ['waiting-on/author'] },
     ]);
+});
+
+test('buildRows leaves out internal pull requests', () => {
+    const rows = buildRows([node({ number: 1 }), node({ number: 2, labels: { nodes: [{ name: 'domain/crm-after-sales' }] } })], new Date('2026-09-10T00:00:00Z'));
+
+    assert.deepEqual(rows.map((row) => row.number), [1]);
+});
+
+test('planLabelChanges strips the label from an internal pull request', () => {
+    const nodes = [node({ number: 5, labels: { nodes: [{ name: 'waiting-on/shopware' }, { name: 'domain/crm-after-sales' }] } })];
+
+    assert.deepEqual(planLabelChanges(nodes, buildRows(nodes, new Date())), [{ number: 5, add: undefined, remove: ['waiting-on/shopware'] }]);
 });
 
 test('planLabelChanges strips the label from a pull request a bot opened', () => {

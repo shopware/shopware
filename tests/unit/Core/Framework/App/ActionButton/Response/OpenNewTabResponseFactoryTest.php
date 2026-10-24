@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\ActionButton\Response;
 use GuzzleHttp\Psr7\Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Response\NotificationResponse;
@@ -32,12 +31,11 @@ class OpenNewTabResponseFactoryTest extends TestCase
 
     private AppAction $action;
 
-    private QuerySigner&Stub $signer;
-
     protected function setUp(): void
     {
-        $this->signer = static::createStub(QuerySigner::class);
-        $this->factory = new OpenNewTabResponseFactory($this->signer);
+        parent::setUp();
+
+        $this->factory = new OpenNewTabResponseFactory(static::createStub(QuerySigner::class));
 
         $app = new AppEntity();
         $app->setName('TestApp');
@@ -56,10 +54,21 @@ class OpenNewTabResponseFactoryTest extends TestCase
         );
     }
 
-    #[DataProvider('provideActionTypes')]
+    #[DataProvider('actionTypesProvider')]
     public function testSupportsOnlyOpenNewTabActionType(string $actionType, bool $isSupported): void
     {
         static::assertSame($isSupported, $this->factory->supports($actionType));
+    }
+
+    /**
+     * @return iterable<string, array{string, bool}>
+     */
+    public static function actionTypesProvider(): iterable
+    {
+        yield 'notification action is not supported' => [NotificationResponse::ACTION_TYPE, false];
+        yield 'open modal action is not supported' => [OpenModalResponse::ACTION_TYPE, false];
+        yield 'open new tab action is supported' => [OpenNewTabResponse::ACTION_TYPE, true];
+        yield 'reload data action is not supported' => [ReloadDataResponse::ACTION_TYPE, false];
     }
 
     public function testCreatesOpenNewTabResponse(): void
@@ -79,48 +88,108 @@ class OpenNewTabResponseFactoryTest extends TestCase
         static::assertInstanceOf(OpenNewTabResponse::class, $response);
     }
 
+    #[DataProvider('falsyAppSecretProvider')]
+    public function testKeepsRedirectUrlUnsignedWithoutSecret(?string $appSecret): void
+    {
+        $this->action->getApp()->setAppSecret($appSecret);
+
+        $response = $this->factory->create(
+            $this->action,
+            ['redirectUrl' => 'http://redirect.url'],
+            Context::createDefaultContext()
+        );
+
+        static::assertSame('http://redirect.url', $response->jsonSerialize()['redirectUrl']);
+    }
+
+    /**
+     * @return iterable<string, array{string|null}>
+     */
+    public static function falsyAppSecretProvider(): iterable
+    {
+        yield 'null' => [null];
+        yield 'empty string' => [''];
+        yield 'zero string' => ['0'];
+    }
+
+    public function testAcceptsZeroStringRedirectUrl(): void
+    {
+        $signer = static::createStub(QuerySigner::class);
+        $signer->method('signUri')->willReturn(new Uri('0?signed=1'));
+        $factory = new OpenNewTabResponseFactory($signer);
+
+        $response = $factory->create(
+            $this->action,
+            ['redirectUrl' => '0'],
+            Context::createDefaultContext()
+        );
+
+        static::assertSame('0?signed=1', $response->jsonSerialize()['redirectUrl']);
+    }
+
     /**
      * @param array<string, mixed> $payload
      */
-    #[DataProvider('provideInvalidPayloads')]
-    public function testThrowsExceptionWhenValidationFails(array $payload, string $message): void
+    #[DataProvider('rejectedRedirectUrlPayloadsProvider')]
+    public function testRejectsRedirectUrlThatIsNotANonEmptyString(array $payload): void
     {
-        $this->expectExceptionObject(AppException::actionButtonProcessException($this->action->getActionId(), $message));
+        $this->expectExceptionObject(AppException::actionButtonProcessException($this->action->getActionId(), 'The app provided an invalid redirectUrl'));
+
+        $this->createWithErrorsAsExceptions($payload);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function rejectedRedirectUrlPayloadsProvider(): iterable
+    {
+        $base = [];
+
+        yield 'missing' => [$base];
+        yield 'null' => [$base + ['redirectUrl' => null]];
+        yield 'empty string' => [$base + ['redirectUrl' => '']];
+        yield 'int zero' => [$base + ['redirectUrl' => 0]];
+        yield 'float zero' => [$base + ['redirectUrl' => 0.0]];
+        yield 'false' => [$base + ['redirectUrl' => false]];
+        yield 'empty array' => [$base + ['redirectUrl' => []]];
+    }
+
+    #[DataProvider('nonStringTruthyValuesProvider')]
+    public function testRejectsNonStringTruthyRedirectUrl(mixed $value): void
+    {
+        $this->expectExceptionObject(AppException::actionButtonProcessException($this->action->getActionId(), 'The app provided an invalid redirectUrl'));
 
         $this->factory->create(
             $this->action,
-            $payload,
+            ['redirectUrl' => $value],
             Context::createDefaultContext()
         );
     }
 
     /**
-     * @return array<array<string|bool>>
+     * @return iterable<string, array{mixed}>
      */
-    public static function provideActionTypes(): array
+    public static function nonStringTruthyValuesProvider(): iterable
     {
-        return [
-            [NotificationResponse::ACTION_TYPE, false],
-            [OpenModalResponse::ACTION_TYPE, false],
-            [OpenNewTabResponse::ACTION_TYPE, true],
-            [ReloadDataResponse::ACTION_TYPE, false],
-        ];
+        yield 'int' => [1];
+        yield 'float' => [1.5];
+        yield 'true' => [true];
+        yield 'non-empty array' => [['http://redirect.url']];
     }
 
     /**
-     * @return array<array<string|array<string, mixed>>>
+     * @param array<string, mixed> $payload
      */
-    public static function provideInvalidPayloads(): array
+    private function createWithErrorsAsExceptions(array $payload): void
     {
-        return [
-            [
-                [],
-                'The app provided an invalid redirectUrl',
-            ],
-            [
-                ['redirectUrl' => ''],
-                'The app provided an invalid redirectUrl',
-            ],
-        ];
+        set_error_handler(static function (int $severity, string $message, string $file, int $line): never {
+            throw new \ErrorException($message, 0, $severity, $file, $line);
+        });
+
+        try {
+            $this->factory->create($this->action, $payload, Context::createDefaultContext());
+        } finally {
+            restore_error_handler();
+        }
     }
 }

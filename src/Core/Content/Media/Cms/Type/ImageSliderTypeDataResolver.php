@@ -154,7 +154,7 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
     {
         $imageSliderItem = new ImageSliderItemStruct();
 
-        if (!empty($config['url'])) {
+        if (\is_string($config['url'] ?? null) && $config['url'] !== '') {
             $imageSliderItem->setUrl($config['url']);
             $imageSliderItem->setAriaLabel($config['ariaLabel'] ?? null);
             $imageSliderItem->setNewTab($config['newTab'] ?? false);

@@ -59,7 +59,7 @@ class MeasurementUnitsFieldSerializer extends JsonFieldSerializer
             return $defaultUnits;
         }
         $system = $decoded['system'] ?? $defaultUnits->getSystem();
-        $units = !empty($decoded['units']) ? array_merge($defaultUnits->getUnits(), $decoded['units']) : $defaultUnits->getUnits();
+        $units = \is_array($decoded['units'] ?? null) ? array_merge($defaultUnits->getUnits(), $decoded['units']) : $defaultUnits->getUnits();
 
         return new MeasurementUnits($system, $units);
     }

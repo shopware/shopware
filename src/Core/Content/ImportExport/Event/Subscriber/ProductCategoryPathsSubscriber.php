@@ -55,7 +55,7 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
         $row = $event->getRow();
         $entityName = $event->getConfig()->get('sourceEntity');
 
-        if ($entityName !== ProductDefinition::ENTITY_NAME || empty($row['category_paths'])) {
+        if ($entityName !== ProductDefinition::ENTITY_NAME || ($row['category_paths'] ?? '') === '') {
             return;
         }
 
@@ -119,7 +119,7 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
         }
 
         $record = $event->getRecord();
-        $record['categories'] = !empty($record['categories']) ? array_merge($record['categories'], $result) : $result;
+        $record['categories'] = \is_array($record['categories'] ?? null) && $record['categories'] !== [] ? array_merge($record['categories'], $result) : $result;
 
         $event->setRecord($record);
     }

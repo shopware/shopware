@@ -50,7 +50,7 @@ class OrderSerializer extends EntitySerializer
         if (isset($entity['deliveries']) && $entity['deliveries'] instanceof OrderDeliveryCollection && $entity['deliveries']->count() > 0) {
             $entity['deliveries'] = $entity['deliveries']->first()?->jsonSerialize();
 
-            if (!empty($entity['deliveries']['trackingCodes'])) {
+            if (($entity['deliveries']['trackingCodes'] ?? null) !== null && $entity['deliveries']['trackingCodes'] !== []) {
                 $entity['deliveries']['trackingCodes'] = implode('|', $entity['deliveries']['trackingCodes']);
             }
 
@@ -62,7 +62,7 @@ class OrderSerializer extends EntitySerializer
         if (isset($entity['transactions']) && $entity['transactions'] instanceof OrderTransactionCollection && $entity['transactions']->count() > 0) {
             $entity['transactions'] = $entity['transactions']->first()?->jsonSerialize();
 
-            if (!empty($entity['transactions']['stateMachineState']) && $entity['transactions']['stateMachineState'] instanceof StateMachineStateEntity) {
+            if (($entity['transactions']['stateMachineState'] ?? null) !== null && $entity['transactions']['stateMachineState'] instanceof StateMachineStateEntity) {
                 $entity['transactions']['stateMachineState'] = $entity['transactions']['stateMachineState']->jsonSerialize();
             }
 

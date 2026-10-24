@@ -322,6 +322,120 @@ class OrderSerializerTest extends TestCase
     }
 
     /**
+     * @param list<string> $trackingCodes
+     * @param string|array<mixed> $expected
+     */
+    #[DataProvider('trackingCodesProvider')]
+    public function testSerializeTrackingCodes(array $trackingCodes, string|array $expected): void
+    {
+        $delivery = (new OrderDeliveryEntity())->assign([
+            'id' => 'delivery-1',
+            'positions' => new OrderDeliveryPositionCollection(),
+            'shippingCosts' => new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            'trackingCodes' => $trackingCodes,
+            'shippingMethodId' => 'shipping-method-id',
+            'stateId' => '',
+        ]);
+
+        $result = $this->serializeOrder(self::createOrderEntity([
+            'deliveries' => new OrderDeliveryCollection([$delivery]),
+        ]));
+
+        static::assertIsArray($result['deliveries']);
+        static::assertSame($expected, $result['deliveries']['trackingCodes']);
+    }
+
+    /**
+     * @return iterable<string, array{trackingCodes: list<string>, expected: string|array<mixed>}>
+     */
+    public static function trackingCodesProvider(): iterable
+    {
+        yield 'no tracking codes stay an empty array' => [
+            'trackingCodes' => [],
+            'expected' => [],
+        ];
+
+        yield 'one tracking code' => [
+            'trackingCodes' => ['CODE-1'],
+            'expected' => 'CODE-1',
+        ];
+
+        yield 'several tracking codes are joined' => [
+            'trackingCodes' => ['CODE-1', 'CODE-2'],
+            'expected' => 'CODE-1|CODE-2',
+        ];
+    }
+
+    /**
+     * @param array<string, mixed>|null $expected
+     */
+    #[DataProvider('stateMachineStateProvider')]
+    public function testSerializeTransactionStateMachineState(?StateMachineStateEntity $state, ?array $expected): void
+    {
+        $transaction = (new OrderTransactionEntity())->assign([
+            'id' => 'transaction-1',
+            'amount' => new CalculatedPrice(42, 42, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            'stateMachineState' => $state,
+        ]);
+
+        $result = $this->serializeOrder(self::createOrderEntity([
+            'transactions' => new OrderTransactionCollection([$transaction]),
+        ]));
+
+        static::assertIsArray($result['transactions']);
+        static::assertSame($expected, $result['transactions']['stateMachineState']);
+    }
+
+    /**
+     * @return iterable<string, array{state: StateMachineStateEntity|null, expected: array<string, mixed>|null}>
+     */
+    public static function stateMachineStateProvider(): iterable
+    {
+        yield 'transaction without state' => [
+            'state' => null,
+            'expected' => null,
+        ];
+
+        yield 'transaction with state' => [
+            'state' => (new StateMachineStateEntity())->assign(['technicalName' => 'state-technical-name']),
+            'expected' => [
+                'extensions' => [],
+                'versionId' => null,
+                'translated' => [],
+                'createdAt' => null,
+                'updatedAt' => null,
+                'name' => null,
+                'technicalName' => 'state-technical-name',
+                'stateMachine' => null,
+                'fromStateMachineTransitions' => null,
+                'toStateMachineTransitions' => null,
+                'translations' => null,
+                'orders' => null,
+                'orderTransactionCaptures' => null,
+                'orderTransactionCaptureRefunds' => null,
+                'orderTransactions' => null,
+                'orderDeliveries' => null,
+                'fromStateMachineHistoryEntries' => null,
+                'toStateMachineHistoryEntries' => null,
+                'customFields' => null,
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function serializeOrder(OrderEntity $order): array
+    {
+        $logEntity = new ImportExportLogEntity();
+        $logEntity->setId(Uuid::randomHex());
+        $definition = new OrderDefinition();
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
+
+        return iterator_to_array($this->serializer->serialize(Config::fromLog($logEntity), $definition, $order));
+    }
+
+    /**
      * @param array<string, mixed> $data
      */
     private static function createOrderEntity(array $data = []): OrderEntity
@@ -574,7 +688,6 @@ class OrderSerializerTest extends TestCase
                 new TaxRuleCollection(),
             ),
             'stateMachineState' => new StateMachineStateEntity(),
-            'stateId' => null,
         ]);
 
         $transaction2 = (new OrderTransactionEntity())->assign([
@@ -586,7 +699,6 @@ class OrderSerializerTest extends TestCase
                 new TaxRuleCollection(),
             ),
             'stateMachineState' => null,
-            'stateId' => null,
         ]);
 
         return new OrderTransactionCollection([$transaction1, $transaction2]);

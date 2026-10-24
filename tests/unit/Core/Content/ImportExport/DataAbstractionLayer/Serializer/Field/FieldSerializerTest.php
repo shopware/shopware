@@ -25,10 +25,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
@@ -386,6 +388,84 @@ class FieldSerializerTest extends TestCase
             'field' => new BlobField('foo', 'foo'),
             'inputValue' => 'dummy',
             'expected' => 'dummy',
+        ];
+
+        yield 'many to many field drops empty segments' => [
+            'field' => new ManyToManyAssociationField('tags', 'tag', 'product_tag', 'product_id', 'tag_id'),
+            'inputValue' => 'first||second',
+            'expected' => [
+                0 => ['id' => Uuid::fromStringToHex('first')],
+                2 => ['id' => Uuid::fromStringToHex('second')],
+            ],
+        ];
+
+        yield 'many to many field with empty string has no ids' => [
+            'field' => new ManyToManyAssociationField('tags', 'tag', 'product_tag', 'product_id', 'tag_id'),
+            'inputValue' => '',
+            'expected' => [],
+        ];
+
+        yield 'many to many field keeps the id zero' => [
+            'field' => new ManyToManyAssociationField('tags', 'tag', 'product_tag', 'product_id', 'tag_id'),
+            'inputValue' => '0',
+            'expected' => [['id' => Uuid::fromStringToHex('0')]],
+        ];
+
+        yield 'one to many field drops empty segments' => [
+            'field' => new OneToManyAssociationField('deliveries', OrderDeliveryDefinition::class, 'order_id'),
+            'inputValue' => 'first||second',
+            'expected' => [
+                0 => Uuid::fromStringToHex('first'),
+                2 => Uuid::fromStringToHex('second'),
+            ],
+        ];
+
+        yield 'one to many field with empty string has no ids' => [
+            'field' => new OneToManyAssociationField('deliveries', OrderDeliveryDefinition::class, 'order_id'),
+            'inputValue' => '',
+            'expected' => [],
+        ];
+
+        yield 'one to many field keeps the id zero' => [
+            'field' => new OneToManyAssociationField('deliveries', OrderDeliveryDefinition::class, 'order_id'),
+            'inputValue' => '0',
+            'expected' => [Uuid::fromStringToHex('0')],
+        ];
+
+        yield 'id field with empty string is null' => [
+            'field' => new IdField('foo', 'foo'),
+            'inputValue' => '',
+            'expected' => null,
+        ];
+
+        yield 'id field with whitespace is null' => [
+            'field' => new IdField('foo', 'foo'),
+            'inputValue' => '   ',
+            'expected' => null,
+        ];
+
+        yield 'id field keeps the id zero' => [
+            'field' => new IdField('foo', 'foo'),
+            'inputValue' => '0',
+            'expected' => Uuid::fromStringToHex('0'),
+        ];
+
+        yield 'foreign key field with empty string is null' => [
+            'field' => new FkField('foo', 'foo', OrderDeliveryDefinition::class),
+            'inputValue' => '',
+            'expected' => null,
+        ];
+
+        yield 'foreign key field with whitespace is null' => [
+            'field' => new FkField('foo', 'foo', OrderDeliveryDefinition::class),
+            'inputValue' => '   ',
+            'expected' => null,
+        ];
+
+        yield 'foreign key field keeps the id zero' => [
+            'field' => new FkField('foo', 'foo', OrderDeliveryDefinition::class),
+            'inputValue' => '0',
+            'expected' => Uuid::fromStringToHex('0'),
         ];
     }
 

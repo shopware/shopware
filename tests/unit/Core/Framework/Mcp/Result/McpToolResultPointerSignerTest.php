@@ -30,6 +30,15 @@ class McpToolResultPointerSignerTest extends TestCase
         static::assertSame('2026-09-28T11:00:00+00:00', $pointer->expiresAt->format(\DateTimeInterface::ATOM));
     }
 
+    public function testTheTokenFormatStaysStableSoIssuedPointersKeepVerifying(): void
+    {
+        $token = '0123456789abcdef0123456789abcdef.1790593200.EzZvWF_FNVyBNHawEAi7yiNAs0YIEHYfAOTQYLQI648';
+        $signer = new McpToolResultPointerSigner('secret', new MockClock('2026-09-28T10:00:00+00:00'));
+
+        static::assertSame($token, $signer->sign('0123456789abcdef0123456789abcdef', 'admin:integration-a:')->token);
+        static::assertSame('0123456789abcdef0123456789abcdef', $signer->verify($token, 'admin:integration-a:'));
+    }
+
     public function testAnotherPrincipalCannotUseThePointer(): void
     {
         $signer = new McpToolResultPointerSigner('secret', new MockClock());

@@ -27,6 +27,26 @@ runs:
         scope: shopware
         identity: CodeownersPlus
 
+    # codeowners-plus reads the live head: going back to head-sha needs a force push, so compare both sides.
+    - id: before
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+      env:
+        PR_NUMBER: ${{ inputs.pr-number }}
+      with:
+        github-token: '${{ steps.sts.outputs.token }}'
+        script: |
+          const { repository } = await github.graphql(`
+            query($owner: String!, $name: String!, $number: Int!) {
+              repository(owner: $owner, name: $name) {
+                pullRequest(number: $number) {
+                  headRefOid
+                  timelineItems(itemTypes: [HEAD_REF_FORCE_PUSHED_EVENT]) { filteredCount }
+                }
+              }
+            }`, { owner: context.repo.owner, name: context.repo.repo, number: Number(process.env.PR_NUMBER) })
+          core.setOutput('head', repository.pullRequest.headRefOid)
+          core.setOutput('force-pushes', String(repository.pullRequest.timelineItems.filteredCount))
+
     - id: codeowners
       continue-on-error: true
       uses: multimediallc/codeowners-plus@492316f7b626694d8e43813585364ce6fab6d579 # v1.10.0
@@ -36,13 +56,34 @@ runs:
         verbose: true
         quiet: ${{ inputs.draft }}
 
+    - id: after
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+      env:
+        PR_NUMBER: ${{ inputs.pr-number }}
+      with:
+        github-token: '${{ steps.sts.outputs.token }}'
+        script: |
+          const { repository } = await github.graphql(`
+            query($owner: String!, $name: String!, $number: Int!) {
+              repository(owner: $owner, name: $name) {
+                pullRequest(number: $number) {
+                  headRefOid
+                  timelineItems(itemTypes: [HEAD_REF_FORCE_PUSHED_EVENT]) { filteredCount }
+                }
+              }
+            }`, { owner: context.repo.owner, name: context.repo.repo, number: Number(process.env.PR_NUMBER) })
+          core.setOutput('head', repository.pullRequest.headRefOid)
+          core.setOutput('force-pushes', String(repository.pullRequest.timelineItems.filteredCount))
+
     - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
       env:
         APPROVED: ${{ steps.codeowners.outcome == 'success' }}
         HEAD_SHA: ${{ inputs.head-sha }}
+        STABLE: ${{ steps.before.outputs.head == inputs.head-sha && steps.after.outputs.head == inputs.head-sha && steps.before.outputs.force-pushes == steps.after.outputs.force-pushes }}
       with:
         script: |
-          const approved = process.env.APPROVED === 'true'
+          const stable = process.env.STABLE === 'true'
+          const approved = stable && process.env.APPROVED === 'true'
           // 'pending' blocks the merge exactly like 'failure' for a required
           // status check, but keeps the commit rollup yellow: missing reviews
           // are a waiting state, not a broken build.
@@ -51,8 +92,10 @@ runs:
             sha: process.env.HEAD_SHA,
             state: approved ? 'success' : 'pending',
             context: 'codeowners/approvals',
-            description: approved
-              ? 'All required code owners approved'
-              : 'Approvals from required code owners are still missing',
+            description: !stable
+              ? 'The head changed during the check, the newer run reports'
+              : approved
+                ? 'All required code owners approved'
+                : 'Approvals from required code owners are still missing',
             target_url: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
           })

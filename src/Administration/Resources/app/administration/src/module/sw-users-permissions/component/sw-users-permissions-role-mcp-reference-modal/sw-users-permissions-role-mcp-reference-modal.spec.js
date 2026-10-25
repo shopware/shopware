@@ -170,23 +170,21 @@ describe('module/sw-users-permissions/component/sw-users-permissions-role-mcp-re
         expect(labels).toContain('shopware-entity-read');
     });
 
-    it('treats integrations with tools=null as "all tools allowed"', async () => {
+    it.each([
+        ['null', { tools: null, resources: [], prompts: null }],
+        ['missing', { resources: [], prompts: null }],
+        ['an unset allowlist', null],
+    ])('treats an integration whose tool list is %s as allowing no tools', async (_, mcpAllowlist) => {
         const wrapper = await createWrapper({
-            mcpIntegrations: [{ id: 'int-1', mcpAllowlist: { tools: null, resources: [], prompts: null } }],
+            mcpIntegrations: [{ id: 'int-1', mcpAllowlist }],
         });
         await flushPromises();
 
-        wrapper.vm.viewMode = 'tool';
-        await wrapper.vm.$nextTick();
-
-        const labels = wrapper.findAll('.sw-users-permissions-role-mcp-reference-modal__row-label').map((el) => el.text());
-
-        expect(labels).toContain('shopware-system-config-read');
-        expect(labels).toContain('shopware-entity-read');
-        expect(labels).toContain('shopware-entity-upsert');
+        expect(wrapper.find('mt-empty-state-stub').exists()).toBe(true);
+        expect(wrapper.findAll('.sw-users-permissions-role-mcp-reference-modal__row')).toHaveLength(0);
     });
 
-    it('shows all tools when one integration is unrestricted alongside a restricted one', async () => {
+    it('shows only the listed tools when an integration without a tool list sits next to a restricted one', async () => {
         const wrapper = await createWrapper({
             mcpIntegrations: [
                 { id: 'int-1', mcpAllowlist: { tools: ['shopware-system-config-read'], resources: null, prompts: null } },
@@ -200,7 +198,7 @@ describe('module/sw-users-permissions/component/sw-users-permissions-role-mcp-re
 
         const labels = wrapper.findAll('.sw-users-permissions-role-mcp-reference-modal__row-label').map((el) => el.text());
 
-        expect(labels).toContain('shopware-entity-upsert');
+        expect(labels).toEqual(['shopware-system-config-read']);
     });
 
     // ── Grant actions ──────────────────────────────────────────────────────────

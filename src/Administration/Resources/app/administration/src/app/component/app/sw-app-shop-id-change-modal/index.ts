@@ -75,7 +75,7 @@ export default Shopware.Component.wrapComponentConfig({
         async confirm() {
             if (!this.selectedStrategy) {
                 this.createNotificationError({
-                    message: this.$t('sw-app.component.sw-app-shop-id-change-modal.error.no-strategy-selected'),
+                    message: this.$t('sw-app.component.sw-app-shop-id-change-modal.noStrategySelected'),
                 });
 
                 return;
@@ -85,13 +85,16 @@ export default Shopware.Component.wrapComponentConfig({
                 await this.shopIdChangeService.changeShopId(this.selectedStrategy);
 
                 this.createNotificationSuccess({
-                    message: this.$t('sw-app.component.sw-app-shop-id-change-modal.success.shop-id-change-succeeded'),
+                    message: this.$t('sw-app.component.sw-app-shop-id-change-modal.success'),
                 });
 
                 this._reloadPage();
-            } catch {
+            } catch (error) {
+                const detail = (error as { response?: { data?: { errors?: ShopwareHttpError[] } } }).response?.data
+                    ?.errors?.[0]?.detail;
+
                 this.createNotificationError({
-                    message: this.$t('sw-app.component.sw-app-shop-id-change-modal.error.shop-id-change-failed'),
+                    message: detail ?? this.$t('sw-app.component.sw-app-shop-id-change-modal.error'),
                 });
             }
         },

@@ -325,34 +325,39 @@ class VersionManager
             }
 
             $field = $definition->getFields()->get($propertyName);
-            $message = 'Association overwrites are not supported when cloning. Write associations separately using their IDs.';
-            $allowedScopes = '';
-            if (!$field instanceof AssociationField) {
-                $writeProtection = $field?->getFlag(WriteProtected::class);
-                if ($writeProtection === null || $writeProtection->isAllowed($context->getScope())) {
-                    continue;
-                }
+            if ($field instanceof AssociationField) {
+                $message = 'Association overwrites are not supported when cloning. Write associations separately using their IDs.';
 
+                throw DataAbstractionLayerException::invalidWriteConstraintViolation(
+                    new ConstraintViolationList([
+                        new ConstraintViolation($message, $message, [], $value, '', $value),
+                    ]),
+                    $fieldPath
+                );
+            }
+
+            $writeProtection = $field?->getFlag(WriteProtected::class);
+            if ($writeProtection !== null && !$writeProtection->isAllowed($context->getScope())) {
                 $message = 'This field is write-protected.';
                 $allowedScopes = implode(' or ', $writeProtection->getAllowedScopes());
                 if ($allowedScopes !== '') {
                     $message .= ' (Got: "%s" scope and "%s" is required)';
                 }
-            }
 
-            throw DataAbstractionLayerException::invalidWriteConstraintViolation(
-                new ConstraintViolationList([
-                    new ConstraintViolation(
-                        \sprintf($message, $context->getScope(), $allowedScopes),
-                        $message,
-                        [$context->getScope(), $allowedScopes],
-                        $value,
-                        '',
-                        $value
-                    ),
-                ]),
-                $fieldPath
-            );
+                throw DataAbstractionLayerException::invalidWriteConstraintViolation(
+                    new ConstraintViolationList([
+                        new ConstraintViolation(
+                            \sprintf($message, $context->getScope(), $allowedScopes),
+                            $message,
+                            [$context->getScope(), $allowedScopes],
+                            $value,
+                            '',
+                            $value
+                        ),
+                    ]),
+                    $fieldPath
+                );
+            }
         }
     }
 

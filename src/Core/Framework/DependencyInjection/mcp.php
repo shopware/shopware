@@ -511,6 +511,7 @@ return static function (ContainerConfigurator $container): void {
 
     // Prompt
     $services->set(ShopwareContextPrompt::class)
+        ->args([service('request_stack')])
         ->tag('mcp.prompt');
 
     // Resources

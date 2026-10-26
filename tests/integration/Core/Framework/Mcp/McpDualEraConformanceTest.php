@@ -253,6 +253,30 @@ class McpDualEraConformanceTest extends TestCase
     }
 
     /**
+     * The `shopware-context` prompt of the Admin API endpoint guides the model through discovery, so on the
+     * stateless era it must not send it to the toolset session tools that era does not offer.
+     */
+    #[DataProvider('eraProvider')]
+    public function testContextPromptOnlyNamesToolsTheEraOffers(McpEra $era): void
+    {
+        $messages = $this->client(self::ADMIN, $era)->result('prompts/get', ['name' => 'shopware-context'])['messages'] ?? null;
+        static::assertIsArray($messages);
+        $text = (string) json_encode($messages);
+
+        static::assertStringContainsString('shopware-tool-search', $text);
+
+        if ($era === McpEra::Handshake) {
+            static::assertStringContainsString('shopware-toolset-enable', $text);
+
+            return;
+        }
+
+        static::assertStringContainsString('?toolsets=', $text);
+        static::assertStringNotContainsString('shopware-toolset-enable', $text);
+        static::assertStringNotContainsString('shopware-toolsets-list', $text);
+    }
+
+    /**
      * On the stateless era tool search is the way to find a tool, so it names the toolset of every match for
      * `?toolsets=` and does not lead to the toolset session tools.
      */

@@ -7,7 +7,6 @@ use Composer\IO\NullIO;
 use Composer\Semver\Constraint\Constraint;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Asset\AssetService;
@@ -502,7 +501,6 @@ class PluginLifecycleServiceTest extends TestCase
         ];
     }
 
-    #[RunInSeparateProcess]
     public function testInstallationOfPluginWhichExecutesComposerCommandsWithPreviouslyInstalledPluginThatShipsVendorDirectory(): void
     {
         $this->addTestPluginToKernel(

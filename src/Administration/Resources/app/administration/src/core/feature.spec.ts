@@ -7,7 +7,7 @@ import { resolve } from 'node:path';
 import { parse } from 'yaml';
 
 import Feature, { deprecationBaselineKey, UNREGISTERED_UPCOMING_MAJORS } from 'src/core/feature';
-import deprecationBaseline from 'src/meta/deprecation-baseline.json';
+import deprecationBaseline from 'src/core/deprecation-baseline.json';
 import normalizeFeatureFlag from 'test/_helper_/normalizeFeatureFlag';
 import { useProductionDeprecationGuard } from 'test/_helper_/deprecations';
 

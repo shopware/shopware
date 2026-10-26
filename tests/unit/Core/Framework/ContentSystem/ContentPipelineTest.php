@@ -38,6 +38,7 @@ use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolat
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingRuntimeResolver;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
@@ -1738,8 +1739,10 @@ class ContentPipelineTest extends TestCase
             new ContextDeliveryResolver(
                 new ContextDistributor(new ContextPathResolver()),
                 new ContextPathResolver(),
-                $candidates,
-                $mappingInspector,
+                new MappingRuntimeResolver(
+                    $candidates,
+                    $mappingInspector,
+                ),
             ),
             new RenderedTreeFactory(new RenderedElementFactory($types)),
             $this->inlineMappingExpander($candidates),
@@ -1773,8 +1776,10 @@ class ContentPipelineTest extends TestCase
             $mappingInspector,
             $parser,
             new InlineMappingInterpolator(
-                $candidates,
-                $mappingInspector,
+                new MappingRuntimeResolver(
+                    $candidates,
+                    $mappingInspector,
+                ),
             ),
         );
     }

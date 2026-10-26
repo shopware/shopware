@@ -7,7 +7,8 @@ All classes are `@internal` except the public `RenderedElement` model.
 - `WiringPlanner` validates stored wiring and derives redistributed providers before render.
 - `ElementLowering` coordinates the render pass: consumed page requirements, element loaders, root context, context delivery, inline expansion, and full/skeleton mode.
 - `ElementDataResolver` resolves per-element or separately supplied page requirements. Loader inputs come from the declared config and unwrapped stored properties; results retain loader identity and cacheability.
-- `ContextDeliveryResolver` walks top-down after all loading is complete. It delivers ordinary root context and dispatches admitted mappings through their catalogued provider.
+- `ContextDeliveryResolver` walks top-down after all loading is complete. It delivers ordinary root context and applies whole-field output rules to mapping results.
+- `Mapping/MappingRuntimeResolver` shares mapping admission, provider dispatch, runtime type checks, and missing-value/type diagnostics with inline interpolation. Each renderer owns its medium's output rules.
 - `ContextDistributor` delivers one parent’s context to direct children. A root-scoped consumer is never filled from a parent.
 - `RenderedElementFactory` applies property precedence and whole-field mapping fallback/omission rules while unwrapping stored values; `RenderedTreeFactory` mints the forest bottom-up.
 - `RenderedElement` is the immutable render model. `LoweringResult` pairs the tree with per-property provenance.

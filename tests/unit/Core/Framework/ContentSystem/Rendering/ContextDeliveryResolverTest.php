@@ -24,6 +24,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSyste
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingRuntimeResolver;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
@@ -65,8 +66,10 @@ class ContextDeliveryResolverTest extends TestCase
         $resolver = new ContextDeliveryResolver(
             new ContextDistributor(new ContextPathResolver()),
             new ContextPathResolver(),
-            $registry = new ContentSystemMappingCandidateRegistry([new ProductMappingCandidateProvider(new ProductContentLayoutDefinition())]),
-            $this->mappingInspector($registry, MediaEntity::class),
+            new MappingRuntimeResolver(
+                $registry = new ContentSystemMappingCandidateRegistry([new ProductMappingCandidateProvider(new ProductContentLayoutDefinition())]),
+                $this->mappingInspector($registry, MediaEntity::class),
+            ),
         );
 
         $index = $resolver->resolve([$root], [], ['product' => $product], rootSource: 'product');
@@ -612,8 +615,10 @@ class ContextDeliveryResolverTest extends TestCase
         $resolver = new ContextDeliveryResolver(
             new ContextDistributor(new ContextPathResolver()),
             new ContextPathResolver(),
-            $mappingSources,
-            $this->mappingInspector($mappingSources),
+            new MappingRuntimeResolver(
+                $mappingSources,
+                $this->mappingInspector($mappingSources),
+            ),
         );
 
         $delivery = $resolver->resolve([$this->mappedChild()], [], ['product' => new StubContextStruct('page-cover')])->all()['child-1'];
@@ -632,8 +637,10 @@ class ContextDeliveryResolverTest extends TestCase
         $resolver = new ContextDeliveryResolver(
             new ContextDistributor(new ContextPathResolver()),
             new ContextPathResolver(),
-            $mappingSources,
-            $this->mappingInspector($mappingSources),
+            new MappingRuntimeResolver(
+                $mappingSources,
+                $this->mappingInspector($mappingSources),
+            ),
         );
 
         $this->expectExceptionObject($failure);
@@ -657,8 +664,10 @@ class ContextDeliveryResolverTest extends TestCase
         $resolver = new ContextDeliveryResolver(
             new ContextDistributor(new ContextPathResolver()),
             new ContextPathResolver(),
-            $registry = new ContentSystemMappingCandidateRegistry([new ProductMappingCandidateProvider(new ProductContentLayoutDefinition())]),
-            $this->mappingInspector($registry),
+            new MappingRuntimeResolver(
+                $registry = new ContentSystemMappingCandidateRegistry([new ProductMappingCandidateProvider(new ProductContentLayoutDefinition())]),
+                $this->mappingInspector($registry),
+            ),
         );
 
         $index = $resolver->resolve([$child], [], ['product' => $product], rootSource: 'product');
@@ -752,8 +761,10 @@ class ContextDeliveryResolverTest extends TestCase
         $resolver = new ContextDeliveryResolver(
             new ContextDistributor(new ContextPathResolver()),
             new ContextPathResolver(),
-            $candidates,
-            $this->mappingInspector($candidates, coverMappable: false),
+            new MappingRuntimeResolver(
+                $candidates,
+                $this->mappingInspector($candidates, coverMappable: false),
+            ),
         );
 
         $delivery = $resolver->resolve([$this->mappedChild()], [], ['product' => new StubContextStruct('page-cover')], rootSource: 'product');
@@ -824,8 +835,10 @@ class ContextDeliveryResolverTest extends TestCase
         return new ContextDeliveryResolver(
             new ContextDistributor(new ContextPathResolver()),
             new ContextPathResolver(),
-            $mappingSources,
-            $this->mappingInspector($mappingSources, $candidateValueType),
+            new MappingRuntimeResolver(
+                $mappingSources,
+                $this->mappingInspector($mappingSources, $candidateValueType),
+            ),
         );
     }
 

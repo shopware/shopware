@@ -17,6 +17,7 @@ use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingToken;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingRuntimeResolver;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
@@ -128,8 +129,10 @@ class InlineMappingExpanderTest extends TestCase
             $mappingInspector,
             new InlineMappingTokenParser(),
             new InlineMappingInterpolator(
-                $candidates,
-                $mappingInspector,
+                new MappingRuntimeResolver(
+                    $candidates,
+                    $mappingInspector,
+                ),
             ),
         );
         $element = $this->element(['text' => StoredValue::ofString('Currency: {{map:plugin:example.message}}')]);
@@ -425,8 +428,10 @@ class InlineMappingExpanderTest extends TestCase
             $mappingInspector,
             new InlineMappingTokenParser(),
             new InlineMappingInterpolator(
-                $candidates,
-                $mappingInspector,
+                new MappingRuntimeResolver(
+                    $candidates,
+                    $mappingInspector,
+                ),
             ),
         );
     }

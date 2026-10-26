@@ -92,6 +92,7 @@ use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingExpander;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolator;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingRuntimeResolver;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
@@ -345,8 +346,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ContextDistributor::class),
             service(ContextPathResolver::class),
-            service(ContentSystemMappingCandidateRegistry::class),
-            service(StoredMappingInspector::class),
+            service(MappingRuntimeResolver::class),
         ]);
 
     $services->set(RenderedTreeFactory::class)
@@ -776,10 +776,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(InlineMappingTokenParser::class),
         ]);
 
-    $services->set(InlineMappingInterpolator::class)
+    $services->set(MappingRuntimeResolver::class)
         ->args([
             service(ContentSystemMappingCandidateRegistry::class),
             service(StoredMappingInspector::class),
+        ]);
+
+    $services->set(InlineMappingInterpolator::class)
+        ->args([
+            service(MappingRuntimeResolver::class),
         ]);
 
     $services->set(InlineMappingExpander::class)

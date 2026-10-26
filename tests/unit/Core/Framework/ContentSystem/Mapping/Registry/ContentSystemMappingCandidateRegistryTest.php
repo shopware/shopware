@@ -151,6 +151,20 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         static::assertSame('owning provider', $registry->resolveSource('product', $source, $context)->value);
     }
 
+    public function testSameDisplayNameCannotBypassTheExactSourceConfigurationCheck(): void
+    {
+        $approved = new MappingSourceReference('plugin', 'example', ['mode' => 'approved'], 'value');
+        $unlisted = new MappingSourceReference('plugin', 'example', ['mode' => 'unlisted'], 'value');
+        $provider = static::createMock(AbstractMappingCandidateProvider::class);
+        $provider->method('supports')->willReturn(true);
+        $provider->method('provide')->willReturn([self::candidate('plugin:example.value', source: $approved)]);
+        $provider->expects($this->never())->method('resolveSource');
+        $registry = new ContentSystemMappingCandidateRegistry([$provider]);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-id', 'test-element'), [], [], null);
+
+        static::assertTrue($registry->resolveSource('product', $unlisted, $context)->isNoValue());
+    }
+
     public function testForwardingDecoratorPreservesProviderInputsAndTheLiveCacheContext(): void
     {
         $source = MappingSourceReference::root('product', 'name');

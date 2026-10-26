@@ -3,15 +3,12 @@
 namespace Shopware\Core\Framework\ContentSystem\Mapping\Inline;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\MappingRuntimeDiagnosticCollector;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
-use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
-use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingRejection;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingRuntimeResolver;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
-use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
-use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -54,8 +51,7 @@ final class InlineMappingInterpolator
     public const STRINGIFIABLE_TYPES = PropertyType::PRIMITIVE_TYPES;
 
     public function __construct(
-        private readonly AbstractContentSystemMappingCandidateRegistry $candidateRegistry,
-        private readonly StoredMappingInspector $mappingInspector,
+        private readonly MappingRuntimeResolver $mappingResolver,
     ) {
     }
 
@@ -76,29 +72,14 @@ final class InlineMappingInterpolator
         ?string $propertyKey = null,
         ?InlineMappingExpansionBudget $budget = null,
     ): ?string {
-        $decision = $this->mappingInspector->admitInlinePath($path, $rootSource);
-        if ($decision instanceof ContentSystemException) {
-            return null;
-        }
-
-        $candidate = $decision;
-
-        $resolved = $this->resolve($candidate, $ambient, $rootSource, $element, $cacheContext, $loaderValues);
-
-        if (!$resolved->hasValue) {
-            $mappingDiagnostics?->record(
-                $element->id,
-                $propertyKey ?? '',
-                $path,
-                \sprintf('The mapped source "%s" has no value.', $path),
-            );
-
-            return null;
-        }
-
-        if (!$this->mappingInspector->acceptsResolvedValue($candidate, $resolved->value)) {
-            $mappingDiagnostics?->record($element->id, $propertyKey ?? '', $path, \sprintf('The mapped source "%s" returned a value incompatible with its candidate type.', $path));
-
+        $resolved = $this->mappingResolver->resolveInline(
+            $rootSource,
+            $path,
+            new MappingSourceResolutionContext($element, $ambient, $loaderValues, $cacheContext),
+            $mappingDiagnostics,
+            $propertyKey ?? '',
+        );
+        if ($resolved instanceof MappingRejection || !$resolved->hasValue) {
             return null;
         }
 
@@ -118,30 +99,6 @@ final class InlineMappingInterpolator
         $budget->assertFits(\strlen($escaped));
 
         return $escaped;
-    }
-
-    /**
-     * Resolves the candidate through its source provider.
-     *
-     * Missing source data produces no value so the caller can remove the token. Provider errors propagate
-     * through normal render error handling.
-     *
-     * @param array<string, mixed> $ambient
-     * @param array<string, mixed> $loaderValues
-     */
-    private function resolve(
-        MappingCandidate $candidate,
-        array $ambient,
-        string $rootSource,
-        StoredElement $element,
-        ?RenderingCacheContext $cacheContext,
-        array $loaderValues,
-    ): MappingSourceResolution {
-        return $this->candidateRegistry->resolveSource(
-            $rootSource,
-            $candidate->source,
-            new MappingSourceResolutionContext($element, $ambient, $loaderValues, $cacheContext),
-        );
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Rendering;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
@@ -34,7 +35,11 @@ use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingExpander;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolator;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingMetadata;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingRuntimeResolver;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
@@ -74,6 +79,76 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ElementLowering::class)]
 class ElementLoweringTest extends TestCase
 {
+    /**
+     * @param array<string, mixed> $expectedWholeField
+     */
+    #[DataProvider('mappingOutputProvider')]
+    public function testWholeFieldAndInlineMappingKeepTheirOutputRules(
+        MappingSourceResolution $resolution,
+        bool $available,
+        string $valueType,
+        string $component,
+        string|int|float|bool $fallback,
+        array $expectedWholeField,
+        string $expectedInline,
+        int $expectedDiagnostics,
+    ): void {
+        $path = match ($valueType) {
+            'boolean' => 'product.active',
+            'integer' => 'product.stock',
+            'number' => 'product.price',
+            default => 'product.name',
+        };
+        $source = MappingSourceReference::fromRootPath($path);
+        $candidate = new MappingCandidate($path, 'Value', '', 'basic', $valueType, source: $source);
+        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates->method('forRootSource')->willReturn($available ? [$path => $candidate] : []);
+        $candidates->expects($available ? $this->exactly(2) : $this->never())->method('resolveSource')->willReturn($resolution);
+        $wholeField = StoredElementBuilder::create($component, 'mapped-1')
+            ->withProperty('text', $fallback)
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: $source)
+            ->build();
+        $text = 'Hi {{map:' . $path . '}}!';
+        $inline = StoredElementBuilder::create('Sw:Content:Text', 'inline-1')->withProperty('text', $text)->build();
+        $loader = $this->loader();
+        $loader->expects($this->never())->method('load');
+
+        $result = $this->lowering($loader, candidates: $candidates)->lower(
+            [$wholeField, $inline],
+            RenderingMode::FULL,
+            Generator::generateSalesChannelContext(),
+            new Request(),
+            new RenderingCacheContext(),
+            [],
+            virtualRoot: null,
+            rootSource: 'product',
+            inlineMappings: new InlineMappingMetadata([
+                'inline-1' => ['text' => (new InlineMappingTokenParser())->parse($text)],
+            ]),
+        );
+
+        static::assertSame($expectedWholeField, $result->tree[0]->properties);
+        static::assertSame(['text' => $expectedInline], $result->tree[1]->properties);
+        static::assertCount($expectedDiagnostics, $result->mappingDiagnostics);
+    }
+
+    /**
+     * @return iterable<string, array{MappingSourceResolution, bool, string, string, string|int|float|bool, array<string, mixed>, string, int}>
+     */
+    public static function mappingOutputProvider(): iterable
+    {
+        yield 'value' => [MappingSourceResolution::resolved('Shirt'), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => 'Shirt'], 'Hi Shirt!', 0];
+        yield 'missing value' => [MappingSourceResolution::noValue(), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => 'Fallback'], 'Hi !', 2];
+        yield 'empty string' => [MappingSourceResolution::resolved(''), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => 'Fallback'], 'Hi !', 0];
+        yield 'explicit null' => [MappingSourceResolution::resolved(null), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => null], 'Hi !', 1];
+        yield 'incompatible runtime value' => [MappingSourceResolution::resolved(42), true, 'string', 'Sw:Content:Text', 'Fallback', [], 'Hi !', 2];
+        yield 'withdrawn candidate' => [MappingSourceResolution::resolved('Shirt'), false, 'string', 'Sw:Content:Text', 'Fallback', [], 'Hi !', 0];
+        yield 'false is a value' => [MappingSourceResolution::resolved(false), true, 'boolean', 'Sw:MappedBoolean', true, ['text' => false], 'Hi 0!', 0];
+        yield 'integer zero is a value' => [MappingSourceResolution::resolved(0), true, 'integer', 'Sw:MappedInteger', 7, ['text' => 0], 'Hi 0!', 0];
+        yield 'number zero is a value' => [MappingSourceResolution::resolved(0.0), true, 'number', 'Sw:MappedNumber', 1.0, ['text' => 0.0], 'Hi 0!', 0];
+        yield 'inline escaping' => [MappingSourceResolution::resolved('<b>&"'), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => '<b>&"'], 'Hi &lt;b&gt;&amp;&quot;!', 0];
+    }
+
     public function testUnknownInlineSourceDoesNotLoadDataOrDisableCaching(): void
     {
         $loader = $this->loader();
@@ -599,13 +674,16 @@ class ElementLoweringTest extends TestCase
     private function lowering(
         AbstractContentDataLoader&Stub $loader,
         ?AbstractContentDataLoaderConfigSerializer $configSerializer = null,
+        ?AbstractContentSystemMappingCandidateRegistry $candidates = null,
     ): ElementLowering {
         $provider = static::createStub(DataLoaderProvider::class);
         $provider->method('get')->willReturn($loader);
         $configSerializer ??= new StubLoaderConfigSerializer();
         $types = $this->typeRegistry();
-        $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
-        $candidates->method('forRootSource')->willReturn([]);
+        if ($candidates === null) {
+            $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+            $candidates->method('forRootSource')->willReturn([]);
+        }
         $parser = new InlineMappingTokenParser();
         $mappingInspector = new StoredMappingInspector(
             $types,
@@ -630,25 +708,23 @@ class ElementLoweringTest extends TestCase
             new ContextDeliveryResolver(
                 new ContextDistributor(new ContextPathResolver()),
                 new ContextPathResolver(),
-                $candidates,
-                $mappingInspector,
+                new MappingRuntimeResolver(
+                    $candidates,
+                    $mappingInspector,
+                ),
             ),
             new RenderedTreeFactory(new RenderedElementFactory($types)),
-            $this->inlineMappingExpander(),
+            $this->inlineMappingExpander($candidates),
             new MappingConsumers(),
             new ContextPathResolver(),
         );
     }
 
     /**
-     * No fixture here declares an inlineMappable property, so expansion is a pass-through. It is wired with a real
-     * expander over an EMPTY catalogue rather than a mock, so that a token in a fixture would be left verbatim —
-     * which is the documented behaviour — instead of quietly satisfying a mock expectation.
+     * Inline expansion uses the same candidate catalogue as whole-field delivery.
      */
-    private function inlineMappingExpander(): InlineMappingExpander
+    private function inlineMappingExpander(AbstractContentSystemMappingCandidateRegistry $candidates): InlineMappingExpander
     {
-        $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
-        $candidates->method('forRootSource')->willReturn([]);
         $parser = new InlineMappingTokenParser();
         $mappingInspector = new StoredMappingInspector(
             $this->typeRegistry(),
@@ -662,8 +738,10 @@ class ElementLoweringTest extends TestCase
             $mappingInspector,
             $parser,
             new InlineMappingInterpolator(
-                $candidates,
-                $mappingInspector,
+                new MappingRuntimeResolver(
+                    $candidates,
+                    $mappingInspector,
+                ),
             ),
         );
     }
@@ -700,6 +778,15 @@ class ElementLoweringTest extends TestCase
                 ->build(),
             'Sw:Content:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
                 ->primitive('text', 'string', mappable: true, inlineMappable: true)
+                ->build(),
+            'Sw:MappedBoolean' => ContentSystemElementTypeSpecificationBuilder::create('Sw:MappedBoolean')
+                ->primitive('text', 'boolean', mappable: true)
+                ->build(),
+            'Sw:MappedInteger' => ContentSystemElementTypeSpecificationBuilder::create('Sw:MappedInteger')
+                ->primitive('text', 'integer', mappable: true)
+                ->build(),
+            'Sw:MappedNumber' => ContentSystemElementTypeSpecificationBuilder::create('Sw:MappedNumber')
+                ->primitive('text', 'number', mappable: true)
                 ->build(),
         ];
 

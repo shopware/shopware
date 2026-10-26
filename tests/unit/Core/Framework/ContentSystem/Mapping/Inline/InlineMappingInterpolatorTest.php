@@ -17,6 +17,7 @@ use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolat
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingRuntimeResolver;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
@@ -53,8 +54,10 @@ class InlineMappingInterpolatorTest extends TestCase
         $product->setTranslated(['name' => 'Inherited storefront name']);
         $candidates = new ContentSystemMappingCandidateRegistry([new ProductMappingCandidateProvider(new ProductContentLayoutDefinition())]);
         $interpolator = new InlineMappingInterpolator(
-            $candidates,
-            $this->mappingInspector($candidates),
+            new MappingRuntimeResolver(
+                $candidates,
+                $this->mappingInspector($candidates),
+            ),
         );
 
         static::assertSame('Inherited storefront name', $interpolator->interpolate(self::NAME_PATH, ['product' => $product], 'product', $this->element()));
@@ -78,8 +81,10 @@ class InlineMappingInterpolatorTest extends TestCase
         $candidates->method('forRootSource')->willReturn([$candidate->source->displayName() => $candidate]);
         $candidates->method('resolveSource')->willReturn(MappingSourceResolution::resolved('EUR'));
         $interpolator = new InlineMappingInterpolator(
-            $candidates,
-            $this->mappingInspector($candidates),
+            new MappingRuntimeResolver(
+                $candidates,
+                $this->mappingInspector($candidates),
+            ),
         );
 
         static::assertSame(
@@ -100,7 +105,7 @@ class InlineMappingInterpolatorTest extends TestCase
         $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
         $candidates->method('forRootSource')->willReturn([$candidate->path => $candidate]);
         $candidates->method('resolveSource')->willThrowException($failure);
-        $interpolator = new InlineMappingInterpolator($candidates, $this->mappingInspector($candidates));
+        $interpolator = new InlineMappingInterpolator(new MappingRuntimeResolver($candidates, $this->mappingInspector($candidates)));
 
         $this->expectExceptionObject($failure);
 
@@ -258,8 +263,10 @@ class InlineMappingInterpolatorTest extends TestCase
         ])]);
 
         return new InlineMappingInterpolator(
-            $candidates,
-            $this->mappingInspector($candidates),
+            new MappingRuntimeResolver(
+                $candidates,
+                $this->mappingInspector($candidates),
+            ),
         );
     }
 

@@ -10,9 +10,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingRejection;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingRuntimeResolver;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
-use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
-use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -42,8 +42,7 @@ final readonly class ContextDeliveryResolver
     public function __construct(
         private ContextDistributor $distributor,
         private ContextPathResolver $pathResolver,
-        private AbstractContentSystemMappingCandidateRegistry $mappingSources,
-        private StoredMappingInspector $mappingInspector,
+        private MappingRuntimeResolver $mappingResolver,
     ) {
     }
 
@@ -190,19 +189,11 @@ final readonly class ContextDeliveryResolver
                     continue;
                 }
 
-                $candidate = $this->mappingInspector->admitStoredProperty(
-                    $element->component,
+                $destinationKey = $consumer->propertyAlias ?? (string) $consumerKey;
+                $resolved = $this->mappingResolver->resolveProperty(
+                    $rootSource,
                     (string) $consumerKey,
                     $consumer->type,
-                    $mappingSource,
-                    $rootSource,
-                );
-                if ($candidate instanceof ContentSystemException) {
-                    continue;
-                }
-
-                $resolved = $this->mappingSources->resolveSource(
-                    $rootSource,
                     $mappingSource,
                     new MappingSourceResolutionContext(
                         $element,
@@ -210,34 +201,20 @@ final readonly class ContextDeliveryResolver
                         $loaderValues[$element->id] ?? [],
                         $cacheContext,
                     ),
+                    $mappingDiagnostics,
+                    $destinationKey,
                 );
-                if (!$resolved->hasValue) {
-                    $destinationKey = $consumer->propertyAlias ?? (string) $consumerKey;
-                    $mappingDiagnostics?->record(
-                        $element->id,
-                        $destinationKey,
-                        $mappingSource->displayName(),
-                        \sprintf('The mapped source "%s" has no value.', $mappingSource->displayName()),
-                    );
+                if ($resolved instanceof MappingRejection) {
+                    continue;
+                }
 
+                if (!$resolved->hasValue) {
                     unset($context[$destinationKey]);
                     $mappingFallbackKeys[] = $destinationKey;
 
                     continue;
                 }
 
-                if (!$this->mappingInspector->acceptsResolvedValue($candidate, $resolved->value)) {
-                    $mappingDiagnostics?->record(
-                        $element->id,
-                        $consumer->propertyAlias ?? (string) $consumerKey,
-                        $mappingSource->displayName(),
-                        \sprintf('The mapped source "%s" returned a value incompatible with its candidate type.', $mappingSource->displayName()),
-                    );
-
-                    continue;
-                }
-
-                $destinationKey = $consumer->propertyAlias ?? $consumerKey;
                 if ($resolved->value !== null && $this->isEmptyMappingValue($resolved->value)) {
                     unset($context[$destinationKey]);
                     $mappingFallbackKeys[] = $destinationKey;

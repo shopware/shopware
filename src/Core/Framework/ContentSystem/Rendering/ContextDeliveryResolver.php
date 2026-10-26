@@ -15,8 +15,6 @@ use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystem
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Answers, for a whole stored forest, what context every element received. It walks the forest pre-order and
@@ -71,8 +69,6 @@ final readonly class ContextDeliveryResolver
         array $forest,
         array $loaderValues,
         array $ambientContext,
-        ?SalesChannelContext $salesChannelContext = null,
-        ?Request $request = null,
         ?RenderingCacheContext $cacheContext = null,
         ?string $rootSource = null,
         ?MappingRuntimeDiagnosticCollector $mappingDiagnostics = null,
@@ -86,8 +82,6 @@ final readonly class ContextDeliveryResolver
                 $ambientContext,
                 new ContextDelivery($root->id),
                 $deliveries,
-                $salesChannelContext,
-                $request,
                 $cacheContext,
                 $rootSource,
                 $mappingDiagnostics,
@@ -113,8 +107,6 @@ final readonly class ContextDeliveryResolver
         array $ambientContext,
         ContextDelivery $delivery,
         array &$deliveries,
-        ?SalesChannelContext $salesChannelContext,
-        ?Request $request,
         ?RenderingCacheContext $cacheContext,
         ?string $rootSource,
         ?MappingRuntimeDiagnosticCollector $mappingDiagnostics,
@@ -124,8 +116,6 @@ final readonly class ContextDeliveryResolver
             $loaderValues,
             $ambientContext,
             $delivery,
-            $salesChannelContext,
-            $request,
             $cacheContext,
             $rootSource,
             $mappingDiagnostics,
@@ -152,8 +142,6 @@ final readonly class ContextDeliveryResolver
                 $ambientContext,
                 $childDeliveries[$index],
                 $deliveries,
-                $salesChannelContext,
-                $request,
                 $cacheContext,
                 $rootSource,
                 $mappingDiagnostics,
@@ -183,8 +171,6 @@ final readonly class ContextDeliveryResolver
         array $loaderValues,
         array $ambientContext,
         ContextDelivery $delivery,
-        ?SalesChannelContext $salesChannelContext,
-        ?Request $request,
         ?RenderingCacheContext $cacheContext,
         ?string $rootSource,
         ?MappingRuntimeDiagnosticCollector $mappingDiagnostics,
@@ -222,8 +208,6 @@ final readonly class ContextDeliveryResolver
                         $element,
                         $ambientContext,
                         $loaderValues[$element->id] ?? [],
-                        $salesChannelContext,
-                        $request,
                         $cacheContext,
                     ),
                 );

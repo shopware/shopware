@@ -155,7 +155,7 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
         );
         $entity->setCustomFields(['material' => 'Raw value', 'raw_only' => 'Do not expose']);
         $entity->setTranslated(['customFields' => ['material' => 'Leather', 'private' => 'Do not expose']]);
-        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), [$rootSource => $entity], [], null, null, null);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), [$rootSource => $entity], [], null);
 
         $resolved = $provider->resolveRootSource(MappingSourceReference::root($rootSource, 'customFields.material'), $context);
 
@@ -174,7 +174,7 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
         $product = new ProductEntity();
         $product->setCustomFields(['material' => 'Raw value']);
         $product->setTranslated(['customFields' => ['material' => null]]);
-        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['product' => $product], [], null, null, null);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['product' => $product], [], null);
 
         $resolved = $provider->resolveRootSource(MappingSourceReference::root('product', 'customFields.material'), $context);
 
@@ -189,7 +189,7 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
             new TagAwareAdapter(new ArrayAdapter()),
         );
         $product = new ProductEntity();
-        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['product' => $product], [], null, null, null);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['product' => $product], [], null);
 
         static::assertTrue($provider->resolveRootSource(MappingSourceReference::root('product', 'customFields.material'), $context)->isNoValue());
     }

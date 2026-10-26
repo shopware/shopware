@@ -9,8 +9,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Replaces every `{{map:path}}` token in a forest's `inlineMappable` string properties with the text it resolves to,
@@ -56,8 +54,6 @@ final readonly class InlineMappingExpander
         array $forest,
         array $ambient,
         ?string $rootSource,
-        ?SalesChannelContext $salesChannelContext = null,
-        ?Request $request = null,
         ?RenderingCacheContext $cacheContext = null,
         array $loaderValues = [],
         ?MappingRuntimeDiagnosticCollector $mappingDiagnostics = null,
@@ -67,7 +63,7 @@ final readonly class InlineMappingExpander
         $budget = new InlineMappingExpansionBudget();
 
         return array_map(
-            fn (StoredElement $element): StoredElement => $this->expandElement($element, $ambient, $rootSource, $salesChannelContext, $request, $cacheContext, $loaderValues, $mappingDiagnostics, $inlineMappings, $budget),
+            fn (StoredElement $element): StoredElement => $this->expandElement($element, $ambient, $rootSource, $cacheContext, $loaderValues, $mappingDiagnostics, $inlineMappings, $budget),
             $forest
         );
     }
@@ -109,8 +105,6 @@ final readonly class InlineMappingExpander
         StoredElement $element,
         array $ambient,
         ?string $rootSource,
-        ?SalesChannelContext $salesChannelContext,
-        ?Request $request,
         ?RenderingCacheContext $cacheContext,
         array $loaderValues,
         ?MappingRuntimeDiagnosticCollector $mappingDiagnostics,
@@ -145,8 +139,6 @@ final readonly class InlineMappingExpander
                             $ambient,
                             $rootSource,
                             $element,
-                            $salesChannelContext,
-                            $request,
                             $cacheContext,
                             $loaderValues[$element->id] ?? [],
                             $mappingDiagnostics,
@@ -170,7 +162,7 @@ final readonly class InlineMappingExpander
         $slots = [];
         foreach ($element->slots as $slotName => $children) {
             $slots[$slotName] = array_map(
-                fn (StoredElement $child): StoredElement => $this->expandElement($child, $ambient, $rootSource, $salesChannelContext, $request, $cacheContext, $loaderValues, $mappingDiagnostics, $inlineMappings, $budget),
+                fn (StoredElement $child): StoredElement => $this->expandElement($child, $ambient, $rootSource, $cacheContext, $loaderValues, $mappingDiagnostics, $inlineMappings, $budget),
                 $children
             );
         }

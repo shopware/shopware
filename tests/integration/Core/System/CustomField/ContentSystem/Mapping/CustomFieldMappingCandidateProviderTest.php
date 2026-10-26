@@ -120,7 +120,7 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
 
         $resolved = $this->provider->resolveRootSource(
             MappingSourceReference::root($rootSource, 'customFields.' . $name),
-            new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Content:Text'), [$rootSource => $entity], [], null, null, null),
+            new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Content:Text'), [$rootSource => $entity], [], null),
         );
 
         static::assertTrue($resolved->hasValue);
@@ -155,7 +155,7 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
 
         $resolved = $this->provider->resolveRootSource(
             MappingSourceReference::root('product', 'customFields.' . $name),
-            new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Content:Text'), ['product' => $variant], [], null, null, null),
+            new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Content:Text'), ['product' => $variant], [], null),
         );
 
         static::assertTrue($resolved->hasValue);

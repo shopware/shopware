@@ -72,6 +72,7 @@ class InternalClassRule implements Rule
         'Shopware\\Core\\Framework\\ContentSystem\\Hydration\\DataLoader\\AbstractContentDataLoaderConfigSerializer',
         'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\Provider\\AbstractMappingCandidateProvider',
         'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\MappingSourceReference',
+        'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\MappingSourceResolution',
         'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\MappingSourceResolutionContext',
         'Shopware\\Core\\Framework\\ContentSystem\\Output\\Format\\AbstractResponseFactory',
         'Shopware\\Core\\Framework\\ContentSystem\\Adapter\\AbstractSpecificationSource',

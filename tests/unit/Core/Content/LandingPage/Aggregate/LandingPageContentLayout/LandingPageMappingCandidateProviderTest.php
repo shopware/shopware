@@ -52,7 +52,7 @@ class LandingPageMappingCandidateProviderTest extends TestCase
         $landingPage = new LandingPageEntity();
         $landingPage->setName('Raw name');
         $landingPage->setTranslated(['name' => 'Storefront name']);
-        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['landing_page' => $landingPage], [], null, null, null);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['landing_page' => $landingPage], [], null);
 
         static::assertSame('Storefront name', $this->provider->resolveRootSource(MappingSourceReference::root('landing_page', 'name'), $context)->value);
     }

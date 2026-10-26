@@ -57,8 +57,6 @@ abstract class AbstractContentSystemMappingCandidateRegistry
                 $context->element,
                 $context->rootValues,
                 $context->loaderValues,
-                $context->salesChannelContext,
-                $context->request,
                 $context->cacheContext,
                 $rootSource,
             ),

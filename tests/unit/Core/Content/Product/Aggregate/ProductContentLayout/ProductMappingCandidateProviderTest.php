@@ -67,7 +67,7 @@ class ProductMappingCandidateProviderTest extends TestCase
         $product->setName('Raw variant name');
         $product->setTranslated(['name' => 'Inherited storefront name']);
         $provider = new ProductMappingCandidateProvider(new ProductContentLayoutDefinition());
-        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['product' => $product], [], null, null, null);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['product' => $product], [], null);
 
         static::assertSame('Inherited storefront name', $provider->resolveRootSource(MappingSourceReference::root('product', 'name'), $context)->value);
         static::assertSame($product, $provider->resolveRootSource(MappingSourceReference::root('product'), $context)->value);
@@ -87,7 +87,7 @@ class ProductMappingCandidateProviderTest extends TestCase
         $product->setMedia($assignments);
 
         $provider = new ProductMappingCandidateProvider(new ProductContentLayoutDefinition());
-        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['product' => $product], [], null, null, null);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['product' => $product], [], null);
 
         static::assertSame($first->getMedia(), $provider->resolveRootSource(MappingSourceReference::root('product', 'cover'), $context)->value);
         $media = $provider->resolveRootSource(MappingSourceReference::root('product', 'media'), $context)->value;

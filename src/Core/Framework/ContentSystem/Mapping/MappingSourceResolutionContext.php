@@ -5,8 +5,6 @@ namespace Shopware\Core\Framework\ContentSystem\Mapping;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Runtime inputs available to a registered mapping-source provider. Providers must read only values they explicitly
@@ -25,8 +23,6 @@ final readonly class MappingSourceResolutionContext
         public StoredElement $element,
         public array $rootValues,
         public array $loaderValues,
-        public ?SalesChannelContext $salesChannelContext,
-        public ?Request $request,
         public ?RenderingCacheContext $cacheContext,
         public ?string $rootSource = null,
     ) {

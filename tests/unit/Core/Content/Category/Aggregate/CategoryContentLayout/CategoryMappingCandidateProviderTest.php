@@ -62,7 +62,7 @@ class CategoryMappingCandidateProviderTest extends TestCase
         $category = new CategoryEntity();
         $category->setName('Raw name');
         $category->setTranslated(['name' => 'Storefront name']);
-        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['category' => $category], [], null, null, null);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['category' => $category], [], null);
 
         static::assertSame('Storefront name', $this->provider->resolveRootSource(MappingSourceReference::root('category', 'name'), $context)->value);
     }

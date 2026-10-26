@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mapping;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
 use Shopware\Core\Framework\Log\Package;
@@ -20,13 +21,13 @@ class MappingSourceResolutionContextTest extends TestCase
         $element = new StoredElement('element-1', 'Sw:Text');
         $rootValues = ['product' => 'product-data'];
         $loaderValues = ['name' => 'Shirt'];
-        $context = new MappingSourceResolutionContext($element, $rootValues, $loaderValues, null, null, null);
+        $cacheContext = new RenderingCacheContext();
+        $context = new MappingSourceResolutionContext($element, $rootValues, $loaderValues, $cacheContext, 'product');
 
         static::assertSame($element, $context->element);
         static::assertSame($rootValues, $context->rootValues);
         static::assertSame($loaderValues, $context->loaderValues);
-        static::assertNull($context->salesChannelContext);
-        static::assertNull($context->request);
-        static::assertNull($context->cacheContext);
+        static::assertSame($cacheContext, $context->cacheContext);
+        static::assertSame('product', $context->rootSource);
     }
 }

@@ -89,6 +89,10 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
+### Content System mapping provider API
+
+`MappingSourceResolution` is now part of the public mapping-provider API. `MappingSourceResolutionContext` supplies the element, root values, resolved loader values, root source, and rendering cache context. It no longer exposes the sales-channel context or HTTP request; providers should use data loaders for context-dependent data and preserve cache dependencies through the supplied rendering cache context.
+
 ### Content System mapping sources
 
 Built-in data-mapping candidates are limited to products, categories, landing pages, and their public custom fields. Mapping Storefront context values such as currency, language, and tax state is not available.

@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Provider outcome: a resolved value (including null) or missing source data. Provider errors propagate.
- *
- * @internal
  */
 #[Package('framework')]
 final readonly class MappingSourceResolution

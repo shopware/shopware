@@ -13,8 +13,6 @@ use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Resolves one `{{map:path}}` token against its catalogued source and renders it as text.
@@ -72,8 +70,6 @@ final class InlineMappingInterpolator
         array $ambient,
         string $rootSource,
         StoredElement $element,
-        ?SalesChannelContext $salesChannelContext = null,
-        ?Request $request = null,
         ?RenderingCacheContext $cacheContext = null,
         array $loaderValues = [],
         ?MappingRuntimeDiagnosticCollector $mappingDiagnostics = null,
@@ -87,7 +83,7 @@ final class InlineMappingInterpolator
 
         $candidate = $decision;
 
-        $resolved = $this->resolve($candidate, $ambient, $rootSource, $element, $salesChannelContext, $request, $cacheContext, $loaderValues);
+        $resolved = $this->resolve($candidate, $ambient, $rootSource, $element, $cacheContext, $loaderValues);
 
         if (!$resolved->hasValue) {
             $mappingDiagnostics?->record(
@@ -138,15 +134,13 @@ final class InlineMappingInterpolator
         array $ambient,
         string $rootSource,
         StoredElement $element,
-        ?SalesChannelContext $salesChannelContext,
-        ?Request $request,
         ?RenderingCacheContext $cacheContext,
         array $loaderValues,
     ): MappingSourceResolution {
         return $this->candidateRegistry->resolveSourceForRootSource(
             $rootSource,
             $candidate->source,
-            new MappingSourceResolutionContext($element, $ambient, $loaderValues, $salesChannelContext, $request, $cacheContext),
+            new MappingSourceResolutionContext($element, $ambient, $loaderValues, $cacheContext),
         );
     }
 

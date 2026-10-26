@@ -2,6 +2,15 @@
 
 ## Core
 
+### Multiple SQL statements restricted in 6.8
+
+With `DISABLE_SQL_MULTI_STATEMENTS=1`, application database connections reject multiple SQL statements in a single call.
+This flag is also enabled by `V6_8_0_0=1` unless explicitly disabled.
+Execute statements separately in extensions.
+Separating read and write statements also improves compatibility with SQL proxies that cannot route mixed read/write batches in a single query.
+Migration execution, discovery, and bookkeeping now always use a separate primary connection, even while the flag is disabled.
+The connections passed to migration `update()` and `updateDestructive()` methods and the installer explicitly allow multiple statements.
+
 ### Promotion code rate limiting
 
 Promotion code submissions through the Store API and Storefront now share a separate rate limit.

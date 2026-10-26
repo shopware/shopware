@@ -68,7 +68,8 @@ class RevenueReportTool
   Keep it to one or two sentences, because it is sent on every `shopware-toolsets-list` call.
 - Set it on one tool of the group.
 - Extensions may add tools to a core group, such as `entity`, but cannot change its description.
-  A description from a `Shopware\` class always wins for its group, and an extension description for that group is ignored and logged at container build.
+  A description from a core bundle (`Shopware\Core`, `Shopware\Storefront`, `Shopware\Administration`, `Shopware\Elasticsearch`) always wins for its group, and an extension description for that group is ignored and logged at container build.
+  Separately versioned plugins such as Commercial count as extensions.
 - An extension can describe only a group no core tool describes.
   If two extensions describe the same group differently, the tool whose name sorts first wins and the conflict is logged.
 - Without a description the toolset gets a generated one (`Tools explicitly assigned to the "<group>" MCP tool group.`), which gives a model little to route on.

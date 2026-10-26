@@ -295,6 +295,32 @@ class McpToolAnalysisCompilerPassTest extends TestCase
         static::assertStringContainsString('"acme-analysis-media-export" describes the core "media" toolset', $ignored[0]);
     }
 
+    public function testACommercialToolCannotChangeACoreGroupDescription(): void
+    {
+        // Commercial is a separately versioned plugin; a Shopware\Commercial class name must not count as core.
+        $commercialClass = 'Shopware\\Commercial\\Mcp\\Tool\\AnalysisMediaExportTool';
+        if (!class_exists($commercialClass)) {
+            class_alias(McpAnalysisTestDescribingCoreGroupTool::class, $commercialClass);
+        }
+
+        $container = $this->createContainer();
+        $container->setDefinition('tool.commercial', (new Definition($commercialClass))->addTag('mcp.tool'));
+        $container->setDefinition('tool.core', (new Definition(MediaUploadTool::class))->addTag('mcp.tool'));
+
+        (new McpToolAnalysisCompilerPass())->process($container);
+
+        static::assertSame(
+            ['media' => McpToolAttributeReader::resolveAttribute(MediaUploadTool::class, McpToolGroup::class)?->description],
+            $container->getParameter('shopware.mcp.tool_group_descriptions'),
+        );
+
+        $ignored = array_values(array_filter(
+            $container->getCompiler()->getLog(),
+            static fn (string $message): bool => str_contains($message, 'extensions cannot change a core toolset description'),
+        ));
+        static::assertCount(1, $ignored);
+    }
+
     private function createContainer(): ContainerBuilder
     {
         $container = new ContainerBuilder();

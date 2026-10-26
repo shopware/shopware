@@ -26,6 +26,16 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 #[BecomesInternal(version: 'v6.8.0')]
 class McpToolAnalysisCompilerPass implements CompilerPassInterface
 {
+    /**
+     * Tools in these namespaces own the description of their toolset (see resolveGroupDescriptions()).
+     */
+    private const CORE_NAMESPACES = [
+        'Shopware\\Core\\',
+        'Shopware\\Storefront\\',
+        'Shopware\\Administration\\',
+        'Shopware\\Elasticsearch\\',
+    ];
+
     public function process(ContainerBuilder $container): void
     {
         if (!$container->hasDefinition('mcp.server.admin.builder')) {
@@ -196,7 +206,7 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * A core description always wins for its group: extensions may add tools to a core group, but
+     * A core description (see CORE_NAMESPACES) always wins for its group: extensions may add tools to a core group, but
      * cannot change how it is described. An extension can only describe a group no core tool
      * describes. Within core, and among extensions, the tool whose name sorts first wins, which keeps
      * the result independent of service registration order. Every ignored description is logged.
@@ -259,11 +269,17 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * Shopware's own code, including commercial bundles. Shopware's test fixtures count as extensions.
+     * The bundles shipped with Shopware core. Separately versioned plugins such as Commercial are extensions.
      */
     private static function isCoreClass(string $class): bool
     {
-        return str_starts_with($class, 'Shopware\\') && !str_starts_with($class, 'Shopware\\Tests\\');
+        foreach (self::CORE_NAMESPACES as $namespace) {
+            if (str_starts_with($class, $namespace)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

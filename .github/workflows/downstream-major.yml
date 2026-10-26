@@ -1,5 +1,6 @@
 name: Downstream (major)
 
+# Keep label-triggered major runs separate from the required ordinary downstream check.
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review, labeled]

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
+    ADMINISTRATION_DEPRECATION_BASELINE_PATH,
     FEATURE_REGISTRY_PATH,
     detectMajorTestArms,
     hasAcceptanceTestChanges,
@@ -126,6 +127,12 @@ test('Markdown inside JavaScript source and test directories does not enable the
     ]) {
         assert.equal(hasMajorJsMarkers(diffFor(path, '+ v6.8.0.0'), parseMajorFlags(REGISTRY)), false, path);
     }
+});
+
+test('deprecation baseline edits enable the major-js arm', () => {
+    const diff = diffFor(ADMINISTRATION_DEPRECATION_BASELINE_PATH, '+        "sw-select-base > sw-loader": ["major"]');
+
+    assert.equal(hasMajorJsMarkers(diff, parseMajorFlags(REGISTRY)), true);
 });
 
 test('labelsForMajorTestArms adds only missing relevant labels', () => {

@@ -239,11 +239,14 @@ export default [
     // usage through sw-deprecation-rules instead of
     // @typescript-eslint/no-deprecated, type-checks its spec files, and runs
     // its own stricter twig pipeline below instead of the lenient legacy one.
+    // It keeps its extglobs until 6.8, because the Jest setups of extensions
+    // transform its sources with older babel-plugin-shopware-vite-meta-glob versions.
     ...shopwareAdminExtension({
         tsconfigRootDir: __dirname,
         legacyTwig: false,
         srcImportBoundary: false,
         deprecatedApiSeverity: 'off',
+        vite8DeprecationSeverity: 'off',
         specFiles: 'typed',
     }),
 
@@ -560,6 +563,7 @@ export default [
                 'enableFix',
             ],
             'sw-deprecation-rules/no-sw-tabs-usage': 'error',
+            'sw-deprecation-rules/no-sw-empty-state-usage': 'error',
             'vue/no-useless-template-attributes': 'error',
             'vue/no-lone-template': 'error',
 
@@ -799,6 +803,41 @@ export default [
         rules: {
             // The codemod emits and documents TODO(sfc-migration) markers by design.
             'no-warning-comments': 'off',
+        },
+    },
+
+    // Runtime code must not import what src/Administration/.gitattributes export-ignores:
+    // a Composer dist install lacks those files, so its Administration build fails.
+    {
+        files: [
+            'src/**/*.js',
+            'src/**/*.ts',
+            'src/**/*.vue',
+        ],
+        ignores: [
+            '**/*.spec.js',
+            '**/*.spec.ts',
+            '**/*.spec/**',
+            'src/meta/**',
+        ],
+        rules: {
+            'no-restricted-imports': [
+                'error',
+                {
+                    patterns: [
+                        {
+                            group: [
+                                'src/meta/*',
+                                '**/meta/*',
+                                'test/*',
+                                '**/test/*',
+                            ],
+                            message:
+                                'Excluded from the Composer package (src/Administration/.gitattributes export-ignore), so a dist install cannot build it.',
+                        },
+                    ],
+                },
+            ],
         },
     },
 

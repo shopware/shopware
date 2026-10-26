@@ -7,7 +7,7 @@ import Feature from 'src/helper/feature.helper';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parse } from 'yaml';
-import getMajorFeatureFlags from '../../../../Administration/Resources/app/administration/test/_helper_/majorFeatureFlags';
+import getMajorFeatureFlags from './test/_helper_/majorFeatureFlags';
 
 const featureConfig = parse(readFileSync(resolve(__dirname, '../../../../Core/Framework/Resources/config/packages/feature.yaml'), 'utf8'));
 const activeFlags = getMajorFeatureFlags(featureConfig, process.env);

@@ -47,7 +47,7 @@ class ProcessIsolationInTests
     {
         // rule-test fixtures deliberately contain the pattern
         return $file->status !== File::STATUS_REMOVED
-            && preg_match('#^tests/(unit|devops)/.+Test\.php$#', $file->name) === 1
+            && preg_match('#^tests/(unit|devops)/.+Test\.php$#D', $file->name) === 1
             && !str_contains($file->name, '/data/');
     }
 }

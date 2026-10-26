@@ -76,12 +76,16 @@ class ThemeLifecycleHandler
              FROM theme_sales_channel'
         );
 
-        foreach ($mappings as $mapping) {
+        $lastIndex = array_key_last($mappings);
+        foreach ($mappings as $index => $mapping) {
+            // like the start, the completion of an async compilation is notified only once
             $this->themeService->compileTheme(
                 $mapping['sales_channel_id'],
                 $mapping['theme_id'],
                 $context,
-                $configurationCollection
+                $configurationCollection,
+                true,
+                $index === $lastIndex
             );
         }
     }

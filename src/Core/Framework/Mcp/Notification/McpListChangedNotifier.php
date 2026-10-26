@@ -57,7 +57,7 @@ class McpListChangedNotifier
     }
 
     /**
-     * Announces an installation-wide capability change (e.g. app install or uninstall) to every
+     * Announces an installation-wide capability change (e.g. app install or uninstall, or an allowlist edit) to every
      * session, on every server. Costs one write; each session picks the change up on its next request,
      * and each `subscriptions/listen` stream of the stateless era within about a second.
      */

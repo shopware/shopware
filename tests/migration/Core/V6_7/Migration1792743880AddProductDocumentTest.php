@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1792743880AddProductDocument;
@@ -92,6 +93,18 @@ class Migration1792743880AddProductDocumentTest extends TestCase
             'private' => '0',
             'create_thumbnails' => '0',
         ]], $folders);
+    }
+
+    public function testQueuesTheMediaFolderIndexers(): void
+    {
+        $queuer = new IndexerQueuer($this->connection);
+        $queuer->finishIndexer(['media_folder.indexer', 'media_folder_configuration.indexer']);
+
+        $this->migration->update($this->connection);
+
+        $queued = $queuer->getIndexers();
+        static::assertArrayHasKey('media_folder.indexer', $queued);
+        static::assertArrayHasKey('media_folder_configuration.indexer', $queued);
     }
 
     /**

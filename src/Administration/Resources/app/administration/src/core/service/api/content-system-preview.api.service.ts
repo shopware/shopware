@@ -19,6 +19,7 @@ type ContentSystemPreviewRequestPayload = {
     domainId?: string | null;
     customerId?: string | null;
     queryParameters?: Record<string, unknown>;
+    settings?: Record<string, unknown>;
 };
 
 /**

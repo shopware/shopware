@@ -72,7 +72,7 @@ class ContentPreviewPageBuilder
         }
 
         $renderableLayout = RenderableLayout::create(
-            LayoutReference::create(Uuid::randomHex(), 'preview', null),
+            LayoutReference::create(Uuid::randomHex(), 'preview', null, $payload->settings),
             $stored,
         );
 

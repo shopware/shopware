@@ -70,6 +70,24 @@ Shopware.Component.register(
  * @sw-package discovery
  */
 Shopware.Component.register(
+    'sw-experience-studio-page-settings',
+    () => import('./component/sw-experience-studio-page-settings'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-anchor-settings',
+    () => import('./component/sw-experience-studio-anchor-settings'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
     'sw-experience-studio-settings-fields',
     () => import('./component/sw-experience-studio-settings-fields'),
 );

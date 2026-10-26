@@ -104,6 +104,20 @@ shopware:
             enabled: false
 ```
 
+### Product documents
+
+Products can now carry documents such as manuals, datasheets or certificates.
+The new entity `product_document` links a product to a media file for one language, with a `title`, a `position` and custom fields.
+A file can be linked to many products and languages, but only once per product and language.
+A second link fails with `PRODUCT__DUPLICATE_DOCUMENT` (400).
+
+* `product.documents` is available in the Admin API and the Store API.
+  Variants without their own documents inherit the documents of their parent, like `product.media`.
+* Deleting a product, a language or a media file deletes its document links.
+  Cloning a product copies them, and both products use the same files.
+* The new default media folder "Product documents" keeps its files public and creates no thumbnails.
+* Existing roles with the product viewer or editor permission get the matching `product_document` privileges.
+
 ## Administration
 
 ### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag

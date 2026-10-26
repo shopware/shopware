@@ -21,6 +21,7 @@ use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\MediaType\SpatialMediaTypeInterface;
 use Shopware\Core\Content\Media\MediaType\SpatialObjectType;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
@@ -150,6 +151,8 @@ class MediaEntity extends Entity
     protected ?EntityCollection $appShippingMethods = null;
 
     protected ?ProductDownloadCollection $productDownloads = null;
+
+    protected ?ProductDocumentCollection $productDocuments = null;
 
     protected ?OrderLineItemDownloadCollection $orderLineItemDownloads = null;
 
@@ -664,6 +667,16 @@ class MediaEntity extends Entity
     public function setProductDownloads(ProductDownloadCollection $productDownloads): void
     {
         $this->productDownloads = $productDownloads;
+    }
+
+    public function getProductDocuments(): ?ProductDocumentCollection
+    {
+        return $this->productDocuments;
+    }
+
+    public function setProductDocuments(ProductDocumentCollection $productDocuments): void
+    {
+        $this->productDocuments = $productDocuments;
     }
 
     public function getOrderLineItemDownloads(): ?OrderLineItemDownloadCollection

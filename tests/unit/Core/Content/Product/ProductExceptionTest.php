@@ -101,4 +101,13 @@ class ProductExceptionTest extends TestCase
         static::assertSame(ProductException::PRODUCT_INVALID_OPTIONS_PARAMETER, $exception->getErrorCode());
         static::assertSame('The parameter options is invalid.', $exception->getMessage());
     }
+
+    public function testDuplicateDocument(): void
+    {
+        $exception = ProductException::duplicateDocument();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(ProductException::PRODUCT_DUPLICATE_DOCUMENT, $exception->getErrorCode());
+        static::assertSame('The file is already linked to the product in this language.', $exception->getMessage());
+    }
 }

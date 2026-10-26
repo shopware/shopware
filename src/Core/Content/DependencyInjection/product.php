@@ -23,6 +23,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCustomFieldSet\ProductCustomFieldSetDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentExceptionHandler;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationDefinition;
@@ -229,6 +231,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ProductDownloadDefinition::class)
         ->tag('shopware.entity.definition');
+
+    $services->set(ProductDocumentDefinition::class)
+        ->tag('shopware.entity.definition');
+
+    $services->set(ProductDocumentExceptionHandler::class)
+        ->tag('shopware.dal.exception_handler');
 
     $services->set(ProductTranslationDefinition::class)
         ->tag('shopware.entity.definition');

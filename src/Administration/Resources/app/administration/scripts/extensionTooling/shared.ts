@@ -67,6 +67,8 @@ export type ConfigDefect =
 export interface SetupWarning {
     message: string;
     extension?: string;
+    /** Concerns only type-checking or linting, so a spec run leaves it out. */
+    typeCheckOrLintOnly?: boolean;
 }
 
 export type ManagedFileState = 'created' | 'updated' | 'unchanged' | 'conflict' | 'skipped';

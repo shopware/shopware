@@ -46,7 +46,7 @@ import {
     writeStateFile,
 } from './shared';
 import type { ExtensionToolingManifest, SetupWarning, WriteResult } from './shared';
-import { record, toManifestState, warn } from './setup-context';
+import { record, toManifestState, warn, warnTypeCheckOrLint } from './setup-context';
 import type { GeneratorContext } from './setup-context';
 import { discoverProjects } from './setup-discovery';
 import { createIdeBootstraps, createRootEslintConfig, createRootTsconfig, ensureEntitySchema } from './setup-configs';
@@ -164,7 +164,7 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
     );
 
     if (!entitySchemaAvailable) {
-        warn(
+        warnTypeCheckOrLint(
             context,
             'Entity schema types are not available — entity names cannot be type-checked. ' +
                 `Run \`${context.commands.generateSchema}\`.`,

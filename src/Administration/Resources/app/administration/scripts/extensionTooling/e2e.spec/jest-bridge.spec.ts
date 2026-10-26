@@ -213,13 +213,14 @@ describe.each([
                 runJest: createJestRunner(administrationRoot, 'ignore'),
             });
 
-            expect(result.runs).toEqual([
+            expect(result.runs).toMatchObject([
                 {
                     extension: 'JestPlugin',
                     config: 'custom/plugins/JestPlugin/src/Resources/app/administration/jest.config.mjs',
                     exitCode: 0,
                 },
             ]);
+            expect(result.runs[0].testCount).toBeGreaterThan(0);
             expect(result.exitCode).toBe(0);
         },
         JEST_TIMEOUT,

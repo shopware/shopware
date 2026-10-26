@@ -87,10 +87,81 @@ describe('scripts/extensionTooling/test CLI', () => {
                     configPath,
                     'main.spec',
                     '--ci',
+                    '--json',
+                    expect.stringMatching(/^--outputFile=.+results\.json$/),
                 ],
             ]);
         });
+
+        it('leaves the results file to a caller who asks for JSON output', async () => {
+            jest.spyOn(console, 'log').mockImplementation(() => {});
+            const stubJestRuns = writeStubJestBin(fixture.administrationRoot);
+            writeFile(path.join(fixture.projectRoot, zeroConfigAdmin, 'jest.config.mjs'), 'export default {};');
+
+            await expect(runCli(['--only=ZeroConfig', '--', '--json'])).resolves.toBe(0);
+
+            expect(stubJestRuns()[0].slice(2)).toEqual(['--json']);
+        });
+
+        it('fails when the Jest results count no spec', async () => {
+            jest.spyOn(console, 'log').mockImplementation(() => {});
+            writeStubJestBin(fixture.administrationRoot, 0);
+            writeFile(path.join(fixture.projectRoot, zeroConfigAdmin, 'jest.config.mjs'), 'export default {};');
+
+            await expect(runCli(['--only=ZeroConfig'])).resolves.toBe(1);
+        });
+
+        it('prints a line naming the extension and config before each Jest run', async () => {
+            const consoleLog = jest.spyOn(console, 'log').mockImplementation(() => {});
+            writeStubJestBin(fixture.administrationRoot, 1);
+            writeFile(path.join(fixture.projectRoot, zeroConfigAdmin, 'jest.config.mjs'), 'export default {};');
+
+            await expect(runCli(['--only=ZeroConfig'])).resolves.toBe(0);
+
+            expect(consoleLog.mock.calls.join('\n')).toContain(`▶ ZeroConfig · ${zeroConfigAdmin}/jest.config.mjs`);
+        });
+
+        it('tests vendor extensions with --all and leaves them out with --no-vendors', async () => {
+            jest.spyOn(console, 'log').mockImplementation(() => {});
+            const stubJestRuns = writeStubJestBin(fixture.administrationRoot, 1);
+            writeFile(path.join(fixture.projectRoot, zeroConfigAdmin, 'jest.config.mjs'), 'export default {};');
+            writeFile(path.join(fixture.projectRoot, vendorAdmin, 'jest.config.mjs'), 'export default {};');
+
+            await expect(runCli(['--all'])).resolves.toBe(0);
+            expect(stubConfigPaths(fixture.projectRoot, stubJestRuns()).sort()).toEqual([
+                `${zeroConfigAdmin}/jest.config.mjs`,
+                `${vendorAdmin}/jest.config.mjs`,
+            ]);
+
+            await expect(runCli(['--all', '--no-vendors'])).resolves.toBe(0);
+            expect(stubConfigPaths(fixture.projectRoot, stubJestRuns()).slice(2)).toEqual([
+                `${zeroConfigAdmin}/jest.config.mjs`,
+            ]);
+        });
+
+        it('rejects --no-vendors together with --only as a usage error', async () => {
+            const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            await expect(runCli(['--only=ZeroConfig', '--no-vendors'])).resolves.toBe(2);
+            expect(consoleError.mock.calls.join('\n')).toContain('--no-vendors cannot be combined with --only');
+        });
     });
+
+    /** Runs the CLI against the fixture; `args` are the tooling options and, after a `--`, the Jest options. */
+    function runCli(args: string[]) {
+        const separator = args.indexOf('--');
+        const toolingArgs = separator === -1 ? args : args.slice(0, separator);
+        const jestArgs = separator === -1 ? [] : args.slice(separator);
+
+        return runTestCli([
+            ...toolingArgs,
+            '--project-root',
+            fixture.projectRoot,
+            '--administration-root',
+            fixture.administrationRoot,
+            ...jestArgs,
+        ]);
+    }
 
     describe('interactive picker', () => {
         const ttyDescriptors = {
@@ -104,13 +175,8 @@ describe('scripts/extensionTooling/test CLI', () => {
             Object.defineProperty(process.stdout, 'isTTY', { value: true, configurable: true });
         }
 
-        function runInteractive() {
-            return runTestCli([
-                '--project-root',
-                fixture.projectRoot,
-                '--administration-root',
-                fixture.administrationRoot,
-            ]);
+        function runInteractive(toolingArgs: string[] = []) {
+            return runCli(toolingArgs);
         }
 
         afterEach(() => {
@@ -153,6 +219,20 @@ describe('scripts/extensionTooling/test CLI', () => {
                 `${zeroConfigAdmin}/jest.config.mjs`,
                 `${vendorAdmin}/jest.config.mjs`,
             ]);
+        });
+
+        it('lists no vendor extension under --no-vendors', async () => {
+            jest.spyOn(console, 'log').mockImplementation(() => {});
+            withInteractiveTerminal();
+            writeStubJestBin(fixture.administrationRoot, 1);
+            writeFile(path.join(fixture.projectRoot, zeroConfigAdmin, 'jest.config.mjs'), 'export default {};');
+            writeFile(path.join(fixture.projectRoot, vendorAdmin, 'jest.config.mjs'), 'export default {};');
+            mockedPromptSelection.mockResolvedValue('all');
+
+            await expect(runInteractive(['--no-vendors'])).resolves.toBe(0);
+
+            const [listed] = mockedPromptSelection.mock.calls[0];
+            expect(listed.map((project) => project.name)).toEqual(['ZeroConfig']);
         });
 
         it('runs nothing and exits 0 when the picker is cancelled', async () => {

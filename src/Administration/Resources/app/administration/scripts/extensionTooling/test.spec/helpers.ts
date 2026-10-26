@@ -29,6 +29,10 @@ export interface TestFixture {
     jestExitCode: number;
     /** Overrides jestExitCode for single configs, keyed by the config path relative to the project root. */
     jestExitCodeByConfig: Record<string, number>;
+    /** The tests each Jest run reports; undefined stands for a run that wrote no results. */
+    jestTestCount: number | undefined;
+    /** Overrides jestTestCount for single configs, keyed like jestExitCodeByConfig. */
+    jestTestCountByConfig: Record<string, number>;
     generatorRuns: number;
     generatorExitCode: number;
     run(options?: Partial<TestExtensionsOptions>): Promise<TestExtensionsResult>;
@@ -54,6 +58,8 @@ export function createTestFixture(): TestFixture {
         jestRuns: [],
         jestExitCode: 0,
         jestExitCodeByConfig: {},
+        jestTestCount: 1,
+        jestTestCountByConfig: {},
         generatorRuns: 0,
         generatorExitCode: 0,
         run: (options = {}) =>
@@ -64,7 +70,10 @@ export function createTestFixture(): TestFixture {
                     const relativeConfigPath = path.relative(projectRoot, configPath);
                     fixture.jestRuns.push({ configPath: relativeConfigPath, jestArgs });
 
-                    return Promise.resolve(fixture.jestExitCodeByConfig[relativeConfigPath] ?? fixture.jestExitCode);
+                    return Promise.resolve({
+                        exitCode: fixture.jestExitCodeByConfig[relativeConfigPath] ?? fixture.jestExitCode,
+                        testCount: fixture.jestTestCountByConfig[relativeConfigPath] ?? fixture.jestTestCount,
+                    });
                 },
                 generateComponentImports: () => {
                     fixture.generatorRuns += 1;
@@ -80,15 +89,22 @@ export function createTestFixture(): TestFixture {
 
 /**
  * Replaces the Administration's Jest bin with a script that logs the arguments
- * of each run, so the real runner spawns without running Jest.
+ * of each run, so the real runner spawns without running Jest. With `testCount`,
+ * the script writes a results file with that many passed tests, as `--json` does.
  */
-export function writeStubJestBin(administrationRoot: string): () => string[][] {
+export function writeStubJestBin(administrationRoot: string, testCount?: number): () => string[][] {
     const logPath = path.join(administrationRoot, 'node_modules/jest/bin/runs.log');
     writeFile(
         path.join(administrationRoot, 'node_modules/jest/bin/jest.js'),
         [
             "const fs = require('fs');",
             `fs.appendFileSync(${JSON.stringify(logPath)}, JSON.stringify(process.argv.slice(2)) + '\\n');`,
+            ...(testCount === undefined
+                ? []
+                : [
+                      "const outputFile = process.argv.find((arg) => arg.startsWith('--outputFile='));",
+                      `if (outputFile) fs.writeFileSync(outputFile.slice('--outputFile='.length), JSON.stringify({ numPassedTests: ${testCount}, numFailedTests: 0 }));`,
+                  ]),
         ].join('\n'),
     );
 

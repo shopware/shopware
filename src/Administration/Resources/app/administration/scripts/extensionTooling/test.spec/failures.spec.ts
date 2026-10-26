@@ -20,16 +20,18 @@ describe('scripts/extensionTooling/test failures', () => {
         cleanupTempProject(fixture.projectRoot);
     });
 
-    it('fails when no Jest config runs, naming the vendor extensions it skipped', async () => {
+    it('fails when no Jest config runs, naming the vendor extensions it left out', async () => {
         writeFile(path.join(fixture.projectRoot, vendorAdmin, 'jest.config.mjs'), 'export default {};');
         fs.rmSync(path.join(fixture.administrationRoot, componentImportsFile));
 
-        const result = await fixture.run();
+        const result = await fixture.run({ includeVendors: false });
 
         expect(fixture.jestRuns).toEqual([]);
         expect(fixture.generatorRuns).toBe(0);
         expect(result.fatalDiagnostics).toEqual([
-            expect.stringMatching(/^Nothing was tested: .* Name a vendor extension via --only to test it: custom-admin\.$/),
+            expect.stringMatching(
+                /^Nothing was tested: .* Drop --no-vendors to test the vendor extensions: custom-admin\.$/,
+            ),
         ]);
         expect(result.exitCode).toBe(1);
     });
@@ -41,11 +43,11 @@ describe('scripts/extensionTooling/test failures', () => {
         const result = await fixture.run();
 
         expect(result.runs).toEqual([
-            { extension: 'ZeroConfig', config: `${zeroConfigAdmin}/jest.config.mjs`, exitCode: 1 },
+            { extension: 'ZeroConfig', config: `${zeroConfigAdmin}/jest.config.mjs`, exitCode: 1, testCount: 1 },
         ]);
         const report = renderTestReport(result);
         expect(report).toContain(`✗ ZeroConfig · ${zeroConfigAdmin}/jest.config.mjs`);
-        expect(report).toContain('No Jest config, not tested: Suite');
+        expect(report).not.toContain('Suite');
         expect(result.exitCode).toBe(1);
     });
 
@@ -60,13 +62,52 @@ describe('scripts/extensionTooling/test failures', () => {
             `${zeroConfigAdmin}/jest.config.mjs`,
         ]);
         expect(result.runs).toEqual([
-            { extension: 'Suite', config: 'custom/plugins/Suite/jest.config.js', exitCode: 1 },
-            { extension: 'ZeroConfig', config: `${zeroConfigAdmin}/jest.config.mjs`, exitCode: 0 },
+            { extension: 'Suite', config: 'custom/plugins/Suite/jest.config.js', exitCode: 1, testCount: 1 },
+            { extension: 'ZeroConfig', config: `${zeroConfigAdmin}/jest.config.mjs`, exitCode: 0, testCount: 1 },
         ]);
         const report = renderTestReport(result);
         expect(report).toContain('✗ Suite · custom/plugins/Suite/jest.config.js');
         expect(report).toContain(`✓ ZeroConfig · ${zeroConfigAdmin}/jest.config.mjs`);
         expect(result.exitCode).toBe(1);
+    });
+
+    it('fails when no spec ran in any Jest config, although each Jest run passed', async () => {
+        writeTwoJestConfigs(fixture.projectRoot);
+        fixture.jestTestCount = 0;
+
+        const result = await fixture.run({ jestArgs: ['--ci'] });
+
+        expect(fixture.jestRuns).toHaveLength(2);
+        const report = renderTestReport(result);
+        expect(report).toContain('– Suite · custom/plugins/Suite/jest.config.js (no matching spec)');
+        expect(report).toContain('✗ Nothing was tested: no spec matched in any Jest config.');
+        expect(result.exitCode).toBe(1);
+    });
+
+    it('passes when another Jest config ran a spec and marks the empty one', async () => {
+        writeTwoJestConfigs(fixture.projectRoot);
+        fixture.jestTestCountByConfig = { 'custom/plugins/Suite/jest.config.js': 0 };
+
+        const result = await fixture.run({ jestArgs: ['--ci'] });
+
+        const report = renderTestReport(result);
+        expect(report).toContain('– Suite · custom/plugins/Suite/jest.config.js (no matching spec)');
+        expect(report).toContain(`✓ ZeroConfig · ${zeroConfigAdmin}/jest.config.mjs`);
+        expect(result.fatalDiagnostics).toEqual([]);
+        expect(result.exitCode).toBe(0);
+    });
+
+    it.each([
+        { case: 'the caller passes --passWithNoTests', jestTestCount: 0, jestArgs: ['--passWithNoTests'] },
+        { case: 'Jest wrote no results', jestTestCount: undefined, jestArgs: ['--ci'] },
+    ])('passes without a counted spec when $case', async ({ jestTestCount, jestArgs }) => {
+        writeTwoJestConfigs(fixture.projectRoot);
+        fixture.jestTestCount = jestTestCount;
+
+        const result = await fixture.run({ jestArgs });
+
+        expect(result.fatalDiagnostics).toEqual([]);
+        expect(result.exitCode).toBe(0);
     });
 
     it('fails without running Jest when a named extension has no Jest config', async () => {

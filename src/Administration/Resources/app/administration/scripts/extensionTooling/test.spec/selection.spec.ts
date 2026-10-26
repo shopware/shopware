@@ -36,36 +36,49 @@ describe('scripts/extensionTooling/test selection', () => {
                 jestArgs: ['--ci', 'main.spec', '--passWithNoTests'],
             },
         ]);
-        expect(result.withoutConfig).toEqual([]);
+        expect(result.withoutConfig).toEqual(['custom-admin']);
         expect(renderTestReport(result)).toContain('✓ Suite · custom/plugins/Suite/jest.config.js');
         expect(result.exitCode).toBe(0);
     });
 
-    it('skips a vendor extension unless --only names it', async () => {
+    it('runs vendor extensions by default', async () => {
         writeFile(path.join(fixture.projectRoot, zeroConfigAdmin, 'jest.config.mjs'), 'export default {};');
         writeFile(path.join(fixture.projectRoot, vendorAdmin, 'jest.config.mjs'), 'export default {};');
 
         const result = await fixture.run();
 
-        expect(fixture.jestRuns.map((jestRun) => jestRun.configPath)).toEqual([`${zeroConfigAdmin}/jest.config.mjs`]);
-        expect(result.vendorNotTested).toEqual(['custom-admin']);
-        expect(renderTestReport(result)).toContain('Vendor extensions not tested (name them via --only): custom-admin');
+        expect(fixture.jestRuns.map((jestRun) => jestRun.configPath)).toEqual([
+            `${zeroConfigAdmin}/jest.config.mjs`,
+            `${vendorAdmin}/jest.config.mjs`,
+        ]);
+        expect(result.vendorNotTested).toEqual([]);
         expect(result.exitCode).toBe(0);
     });
 
-    it('leaves vendor extensions without a Jest config out of the vendor report', async () => {
+    it('leaves vendor extensions out with includeVendors: false, without listing them in the report', async () => {
         writeFile(path.join(fixture.projectRoot, zeroConfigAdmin, 'jest.config.mjs'), 'export default {};');
-
-        const result = await fixture.run();
-
-        expect(result.vendorNotTested).toEqual([]);
-        expect(renderTestReport(result)).not.toContain('Vendor extensions not tested');
-    });
-
-    it('runs a vendor extension named by its bundle name', async () => {
         writeFile(path.join(fixture.projectRoot, vendorAdmin, 'jest.config.mjs'), 'export default {};');
 
-        const result = await fixture.run({ only: 'CustomAdmin' });
+        const result = await fixture.run({ includeVendors: false });
+
+        expect(fixture.jestRuns.map((jestRun) => jestRun.configPath)).toEqual([`${zeroConfigAdmin}/jest.config.mjs`]);
+        expect(result.vendorNotTested).toEqual(['custom-admin']);
+        expect(renderTestReport(result)).not.toContain('custom-admin');
+        expect(result.exitCode).toBe(0);
+    });
+
+    it('does not count vendor extensions without a Jest config as left out', async () => {
+        writeFile(path.join(fixture.projectRoot, zeroConfigAdmin, 'jest.config.mjs'), 'export default {};');
+
+        const result = await fixture.run({ includeVendors: false });
+
+        expect(result.vendorNotTested).toEqual([]);
+    });
+
+    it('runs a vendor extension named by its bundle name, even with includeVendors: false', async () => {
+        writeFile(path.join(fixture.projectRoot, vendorAdmin, 'jest.config.mjs'), 'export default {};');
+
+        const result = await fixture.run({ only: 'CustomAdmin', includeVendors: false });
 
         expect(fixture.jestRuns.map((jestRun) => jestRun.configPath)).toEqual([`${vendorAdmin}/jest.config.mjs`]);
         expect(result.vendorNotTested).toEqual([]);
@@ -73,17 +86,29 @@ describe('scripts/extensionTooling/test selection', () => {
     });
 
     // The vendor fixture ships configs that do not compose the Shopware presets, so setup warns about them.
-    it('reports the setup warnings of a selected extension and still runs its Jest config', async () => {
+    it('leaves out the setup warnings that only concern type-checking or linting', async () => {
         writeFile(path.join(fixture.projectRoot, vendorAdmin, 'jest.config.mjs'), 'export default {};');
 
         const result = await fixture.run({ only: 'custom-admin' });
 
         expect(fixture.jestRuns.map((jestRun) => jestRun.configPath)).toEqual([`${vendorAdmin}/jest.config.mjs`]);
-        expect(result.setupWarnings).toEqual([
-            expect.stringContaining(`${vendorAdmin}/tsconfig.json already exists`),
-            expect.stringContaining(`${vendorAdmin}/eslint.config.mjs already exists`),
-        ]);
+        expect(result.setupWarnings).toEqual([]);
+        expect(renderTestReport(result)).not.toContain('⚠');
+        expect(result.exitCode).toBe(0);
+    });
+
+    it('reports a setup warning that can affect the specs and still runs the Jest config', async () => {
+        writeFile(path.join(fixture.projectRoot, zeroConfigAdmin, 'jest.config.mjs'), 'export default {};');
+        writeFile(
+            path.join(fixture.administrationRoot, 'extension-tooling/host-modules.json'),
+            JSON.stringify({ hostModules: { missing: 'node_modules/missing' } }),
+        );
+
+        const result = await fixture.run({ only: 'ZeroConfig' });
+
+        expect(result.setupWarnings).toEqual([expect.stringContaining('Host module "missing"')]);
         expect(renderTestReport(result)).toContain(`⚠ ${result.setupWarnings[0]}`);
+        expect(fixture.jestRuns).toHaveLength(1);
         expect(result.exitCode).toBe(0);
     });
 

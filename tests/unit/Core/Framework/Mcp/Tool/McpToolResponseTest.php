@@ -3,10 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use Doctrine\DBAL\Connection;
+use Mcp\Schema\Enum\ProtocolVersion;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -19,8 +21,14 @@ use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Result\McpToolError;
 use Shopware\Core\Framework\Mcp\Result\McpToolResult;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultParser;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultRenderer;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
+use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Framework\Util\Json;
+use Symfony\Component\Clock\MockClock;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -176,6 +184,57 @@ class McpToolResponseTest extends TestCase
 
         static::assertTrue($result->isError());
         static::assertSame('boom inside operation', $result->error->message);
+    }
+
+    /**
+     * @return iterable<string, array{ProtocolVersion, \Closure(TestTool): McpToolResult, \Closure(TestTool): string}>
+     */
+    public static function resultAndLegacyStringProvider(): iterable
+    {
+        $cases = [
+            'an object' => [
+                static fn (TestTool $tool): McpToolResult => $tool->callSuccess(['id' => 'a', 'nested' => ['x' => 1]]),
+                static fn (TestTool $tool): string => $tool->callLegacySuccess(['id' => 'a', 'nested' => ['x' => 1]]),
+            ],
+            'a list with metadata' => [
+                static fn (TestTool $tool): McpToolResult => $tool->callSuccess([['entity' => 'tax', 'ids' => ['a']]], ['dryRun' => true]),
+                static fn (TestTool $tool): string => $tool->callLegacySuccess([['entity' => 'tax', 'ids' => ['a']]], ['dryRun' => true]),
+            ],
+            'a result with a response size hint' => [
+                static fn (TestTool $tool): McpToolResult => $tool->callSuccess(['items' => array_fill(0, 1000, str_repeat('x', 30))], ['total' => 1000]),
+                static fn (TestTool $tool): string => $tool->callLegacySuccess(['items' => array_fill(0, 1000, str_repeat('x', 30))], ['total' => 1000]),
+            ],
+            'a failure' => [
+                static fn (TestTool $tool): McpToolResult => $tool->callError('Order not found.', McpToolError::NOT_FOUND),
+                static fn (TestTool $tool): string => $tool->callLegacyError('Order not found.', McpToolError::NOT_FOUND),
+            ],
+        ];
+
+        foreach ([ProtocolVersion::V2025_03_26, ProtocolVersion::V2025_06_18, ProtocolVersion::V2025_11_25, ProtocolVersion::V2026_07_28] as $revision) {
+            foreach ($cases as $name => [$result, $legacy]) {
+                yield $name . ' on ' . $revision->value => [$revision, $result, $legacy];
+            }
+        }
+    }
+
+    /**
+     * @param \Closure(TestTool): McpToolResult $result
+     * @param \Closure(TestTool): string $legacy
+     */
+    #[DataProvider('resultAndLegacyStringProvider')]
+    #[TestDox('Returning the result object renders $_dataName exactly like the legacy string')]
+    public function testTheResultObjectRendersLikeTheLegacyString(ProtocolVersion $revision, \Closure $result, \Closure $legacy): void
+    {
+        $renderer = new McpToolResultRenderer(new MockClock('2026-10-26 12:00:00'), static::createStub(ToolResultCacheStorage::class), new RequestStack(), new NullLogger());
+        $tool = new TestTool();
+        $legacyText = $legacy($tool);
+        $parsed = (new McpToolResultParser())->parse($legacyText);
+        static::assertNotNull($parsed);
+
+        static::assertSame(
+            Json::encode($renderer->render($parsed, $revision, $legacyText)),
+            Json::encode($renderer->render($result($tool), $revision)),
+        );
     }
 
     #[TestDox('The deprecated string helpers still build the legacy envelope, with responseSize from 20 KB')]

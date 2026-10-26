@@ -222,6 +222,10 @@ Product breadcrumbs are generated again when the product's main category — or 
 
 ## API
 
+### Content System mapping catalogue permissions
+
+`GET /api/_info/content-system-mapping-candidates.json` now requires `content_layout:read` instead of `custom_field:read`, so Experience Studio layout readers can load mapping candidates. The response includes labels and help text for active, Store-API-visible custom fields assigned to the root entity.
+
 ### Store API currency headers validate sales channel availability
 
 Store API requests that supply `sw-currency-id` now reject currencies that are not available on the requested sales channel.

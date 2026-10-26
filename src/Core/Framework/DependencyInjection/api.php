@@ -13,7 +13,6 @@ use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\AllStoreApiSchemaMigrationScopeProvider;
@@ -341,7 +340,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(InlineMappingTokenParser::class),
             service(PresignedMediaUploadService::class)->nullOnInvalid(),
             service(MediaFileExtensionListProvider::class),
-            service(CacheTagCollector::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

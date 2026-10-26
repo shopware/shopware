@@ -11,7 +11,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
@@ -59,7 +58,6 @@ use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -824,7 +822,6 @@ class InfoControllerTest extends TestCase
             new InlineMappingTokenParser(),
             null,
             new MediaFileExtensionListProvider($this->eventDispatcher, [], ['pdf', 'epub']),
-            new CacheTagCollector(new RequestStack(), $this->eventDispatcher),
         );
     }
 }

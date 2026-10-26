@@ -37,6 +37,7 @@ class CustomFieldMappingCandidateCacheInvalidator implements EventSubscriberInte
     public function invalidate(EntityWrittenContainerEvent $event): void
     {
         $tags = [];
+        $metadataChanged = false;
 
         foreach ([
             CustomFieldDefinition::ENTITY_NAME,
@@ -48,7 +49,7 @@ class CustomFieldMappingCandidateCacheInvalidator implements EventSubscriberInte
                 continue;
             }
 
-            $tags[] = 'custom_field';
+            $metadataChanged = true;
 
             if ($entityName === CustomFieldDefinition::ENTITY_NAME) {
                 foreach ($entityEvent->getIds() as $id) {
@@ -74,12 +75,15 @@ class CustomFieldMappingCandidateCacheInvalidator implements EventSubscriberInte
             }
         }
 
-        if ($tags === []) {
+        if (!$metadataChanged) {
             return;
         }
 
         $this->cache->invalidateTags([self::CACHE_TAG]);
-        $this->cacheInvalidator->invalidate(array_values(array_unique($tags)));
+
+        if ($tags !== []) {
+            $this->cacheInvalidator->invalidate(array_values(array_unique($tags)));
+        }
     }
 
     private function normalizeId(string $id): string

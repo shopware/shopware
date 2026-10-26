@@ -724,12 +724,58 @@ class InfoControllerTest extends TestCase
         }
     }
 
-    public function testContentSystemMappingCandidatesRequiresCustomFieldReadPermission(): void
+    public function testContentSystemMappingCandidatesWithOnlyContentLayoutReadPermission(): void
+    {
+        $browser = $this->getBrowser();
+        $publicName = 'mapping_public_' . Uuid::randomHex();
+        $privateName = 'mapping_private_' . Uuid::randomHex();
+        static::getContainer()->get('custom_field_set.repository')->create([[
+            'id' => Uuid::randomHex(),
+            'name' => 'mapping_catalogue_' . Uuid::randomHex(),
+            'active' => true,
+            'relations' => [['entityName' => 'product']],
+            'customFields' => [[
+                'name' => $publicName,
+                'type' => 'text',
+                'active' => true,
+                'storeApiAware' => true,
+                'config' => [
+                    'label' => ['en-GB' => 'Material'],
+                    'helpText' => ['en-GB' => 'The product material'],
+                ],
+            ], [
+                'name' => $privateName,
+                'type' => 'text',
+                'active' => true,
+                'storeApiAware' => false,
+            ]],
+        ]], Context::createDefaultContext());
+        TestUser::createNewTestUser(
+            $browser->getContainer()->get(Connection::class),
+            ['content_layout:read'],
+        )->authorizeBrowser($browser);
+
+        $browser->request(Request::METHOD_GET, '/api/_info/content-system-mapping-candidates.json');
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        $productCandidates = array_column($data['mappingCandidates']['product'], null, 'path');
+        static::assertArrayHasKey('product.name', $productCandidates);
+        $publicCandidate = $productCandidates['product.customFields.' . $publicName];
+        static::assertSame(['en-GB' => 'Material'], $publicCandidate['labelTranslations']);
+        static::assertSame(['en-GB' => 'The product material'], $publicCandidate['descriptionTranslations']);
+        static::assertArrayNotHasKey('product.customFields.' . $privateName, $productCandidates);
+    }
+
+    public function testContentSystemMappingCandidatesRequiresContentLayoutReadPermission(): void
     {
         $browser = $this->getBrowser();
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            ['category:read'],
+            ['custom_field:read'],
         )->authorizeBrowser($browser);
 
         $browser->request(Request::METHOD_GET, '/api/_info/content-system-mapping-candidates.json');

@@ -33,7 +33,6 @@ class CustomFieldMappingCandidateCacheInvalidatorTest extends TestCase
         $setId = Uuid::randomHex();
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator->expects($this->once())->method('invalidate')->with([
-            'custom_field',
             CustomFieldMappingCacheTags::candidate($fieldId),
             CustomFieldMappingCacheTags::set($setId),
         ]);
@@ -61,7 +60,6 @@ class CustomFieldMappingCandidateCacheInvalidatorTest extends TestCase
         $setId = Uuid::randomHex();
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator->expects($this->once())->method('invalidate')->with([
-            'custom_field',
             CustomFieldMappingCacheTags::set($setId),
         ]);
         $cache = $this->createMock(TagAwareCacheInterface::class);
@@ -82,7 +80,6 @@ class CustomFieldMappingCandidateCacheInvalidatorTest extends TestCase
         $setId = Uuid::randomHex();
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator->expects($this->once())->method('invalidate')->with([
-            'custom_field',
             CustomFieldMappingCacheTags::set($setId),
         ]);
         $cache = $this->createMock(TagAwareCacheInterface::class);
@@ -112,7 +109,6 @@ class CustomFieldMappingCandidateCacheInvalidatorTest extends TestCase
         $fieldId = Uuid::randomHex();
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator->expects($this->once())->method('invalidate')->with([
-            'custom_field',
             CustomFieldMappingCacheTags::candidate($fieldId),
             CustomFieldMappingCacheTags::set($setId),
         ]);
@@ -154,6 +150,29 @@ class CustomFieldMappingCandidateCacheInvalidatorTest extends TestCase
             new EntityWriteResult(Uuid::randomHex(), ['setId' => $setId], CustomFieldSetRelationDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE),
             $setId,
         ];
+    }
+
+    public function testRelationDeletionWithoutSetIdStillInvalidatesTheCatalogue(): void
+    {
+        $cacheInvalidator = $this->createMock(CacheInvalidator::class);
+        $cacheInvalidator->expects($this->never())->method('invalidate');
+        $cache = $this->createMock(TagAwareCacheInterface::class);
+        $cache->expects($this->once())->method('invalidateTags')->with(['custom_field_mapping_candidates']);
+        $context = Context::createDefaultContext();
+        $relationId = Uuid::randomHex();
+        $relationWrite = new EntityWriteResult(
+            $relationId,
+            ['id' => $relationId],
+            CustomFieldSetRelationDefinition::ENTITY_NAME,
+            EntityWriteResult::OPERATION_DELETE,
+        );
+        $event = new EntityWrittenContainerEvent(
+            $context,
+            new NestedEventCollection([new EntityWrittenEvent(CustomFieldSetRelationDefinition::ENTITY_NAME, [$relationWrite], $context)]),
+            [],
+        );
+
+        (new CustomFieldMappingCandidateCacheInvalidator($cacheInvalidator, $cache))->invalidate($event);
     }
 
     public function testLeavesCachesAloneForOtherEntityChanges(): void

@@ -68,6 +68,8 @@ class Migration1792743880AddProductDocument extends MigrationStep
         }
 
         $this->addDefaultMediaFolder($connection);
+        $this->registerIndexer($connection, 'media_folder.indexer');
+        $this->registerIndexer($connection, 'media_folder_configuration.indexer');
     }
 
     private function addDefaultMediaFolder(Connection $connection): void

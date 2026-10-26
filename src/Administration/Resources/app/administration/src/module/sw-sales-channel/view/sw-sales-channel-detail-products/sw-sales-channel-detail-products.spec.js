@@ -4,6 +4,7 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
+import { deprecations, useProductionDeprecationGuard } from 'test/_helper_/deprecations';
 
 function mockCriteria() {
     return {
@@ -522,28 +523,15 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         await wrapper.vm.saveProductVisibilities([]);
 
         expect(wrapper.vm.productVisibilityRepository.saveAll).not.toHaveBeenCalled();
+        expect(deprecations).toHaveTriggered('saveProductVisibilities() is deprecated');
 
         wrapper.vm.productVisibilityRepository.saveAll.mockRestore();
-    });
-
-    it('should report the deprecation of saveProductVisibilities while the 6.8 major is inactive', async () => {
-        const deprecationSpy = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow');
-        const { wrapper } = await createWrapper();
-        await flushPromises();
-
-        await wrapper.vm.saveProductVisibilities([]);
-
-        expect(deprecationSpy).toHaveBeenCalledWith(
-            'V6_8_0_0',
-            expect.stringContaining('saveProductVisibilities() is deprecated'),
-        );
-
-        deprecationSpy.mockRestore();
     });
 
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should throw from saveProductVisibilities once the 6.8 major is active',
         async () => {
+            useProductionDeprecationGuard();
             const { wrapper } = await createWrapper();
             await flushPromises();
 
@@ -577,6 +565,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         };
 
         expect((await getError()).message).toBe('Whoops!');
+        expect(deprecations).toHaveTriggered('saveProductVisibilities() is deprecated');
 
         wrapper.vm.productVisibilityRepository.saveAll.mockRestore();
     });

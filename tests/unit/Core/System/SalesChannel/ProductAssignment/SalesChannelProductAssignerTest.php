@@ -77,11 +77,11 @@ class SalesChannelProductAssignerTest extends TestCase
         $ids = $this->ids(4);
         /** @var list<Criteria> $searchedCriteria */
         $searchedCriteria = [];
-        $remember = static function (array $result) use (&$searchedCriteria): callable {
-            return static function (Criteria $criteria) use (&$searchedCriteria, $result): array {
+        $remember = static function (array $ids) use (&$searchedCriteria): callable {
+            return static function (Criteria $criteria) use (&$searchedCriteria, $ids): array {
                 $searchedCriteria[] = clone $criteria;
 
-                return $result;
+                return self::page($ids);
             };
         };
 
@@ -139,11 +139,11 @@ class SalesChannelProductAssignerTest extends TestCase
 
         $this->salesChannelRepository->addSearch([self::SALES_CHANNEL_ID]);
         $this->productRepository->addSearch(
-            \array_slice($ids, 0, 500),
+            self::page(\array_slice($ids, 0, 500)),
             function () use (&$writesBeforeSecondPage, $ids): array {
                 $writesBeforeSecondPage = \count($this->visibilityRepository->upserts);
 
-                return \array_slice($ids, 500);
+                return self::page(\array_slice($ids, 500));
             },
             [],
         );
@@ -250,5 +250,22 @@ class SalesChannelProductAssignerTest extends TestCase
     private function ids(int $count): array
     {
         return array_map(static fn (int $i) => Uuid::fromStringToHex('product-' . $i), range(1, $count));
+    }
+
+    /**
+     * Id search result page carrying the autoIncrement cursor the iterator pages by
+     *
+     * @param list<string> $ids
+     *
+     * @return array<string, array{primaryKey: string, data: array{autoIncrement: int}}>
+     */
+    private static function page(array $ids): array
+    {
+        $page = [];
+        foreach ($ids as $position => $id) {
+            $page[$id] = ['primaryKey' => $id, 'data' => ['autoIncrement' => $position + 1]];
+        }
+
+        return $page;
     }
 }

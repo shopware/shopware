@@ -52,6 +52,7 @@ final readonly class McpToolResult
 
     /**
      * @phpstan-assert-if-true !null $this->error
+     *
      * @phpstan-assert-if-false null $this->error
      */
     public function isError(): bool

@@ -1029,11 +1029,6 @@
       "count": 1
     }
   },
-  "src/app/component/form/sw-list-price-field/sw-list-price-field.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 9
-    }
-  },
   "src/app/component/form/sw-maintain-currencies-modal/index.js": {
     "filename-rules/not-match": {
       "count": 1
@@ -9642,11 +9637,6 @@
     },
     "filename-rules/not-match": {
       "count": 1
-    }
-  },
-  "src/module/sw-product/component/sw-product-price-form/sw-product-price-form.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 8
     }
   },
   "src/module/sw-product/component/sw-product-properties/index.js": {

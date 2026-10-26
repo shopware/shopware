@@ -748,7 +748,7 @@ export default {
                     },
                 ];
 
-                this.product.purchasePrices = this.getDefaultPurchasePrices();
+                this.product.purchasePrices = null;
 
                 // Set default tax rate / sales channels on creation
                 if (this.product.isNew) {
@@ -812,11 +812,7 @@ export default {
                     }
 
                     if (!product.parentId && (!product.purchasePrices || product.purchasePrices.length === 0)) {
-                        if (!this.defaultCurrency?.id) {
-                            await this.loadCurrencies();
-                        }
-
-                        product.purchasePrices = this.getDefaultPurchasePrices();
+                        product.purchasePrices = null;
                         product._origin.purchasePrices = cloneDeep(product.purchasePrices);
                     }
 
@@ -838,7 +834,6 @@ export default {
 
                     if (this.product.parentId) {
                         await this.loadParentProduct();
-                        this.syncVariantPriceInheritance();
                     } else {
                         Shopware.Store.get('swProductDetail').parentProduct = {};
                     }
@@ -877,31 +872,26 @@ export default {
             }
         },
 
+        /**
+         * @deprecated tag:v6.9.0 - Will be removed without replacement. Display and purchase prices inherit independently.
+         */
         syncVariantPriceInheritance() {
-            const priceInherited = this.product.price === null;
-            const purchasePricesInherited = this.product.purchasePrices === null;
-
-            // Price is inherited — purchasePrices must also inherit
-            if (priceInherited) {
-                this.product.purchasePrices = null;
-                return;
-            }
-
-            // Price is overridden but purchasePrices still inherited — copy from parent
-            if (purchasePricesInherited) {
-                this.product.purchasePrices = cloneDeep(this.parentProduct.purchasePrices);
-            }
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'sw-product-detail.syncVariantPriceInheritance() is deprecated. Display and purchase prices inherit independently.',
+            );
         },
 
+        /**
+         * @deprecated tag:v6.9.0 - Will be removed without replacement. Set `product.purchasePrices` explicitly instead.
+         */
         getDefaultPurchasePrices() {
-            return [
-                {
-                    currencyId: this.defaultCurrency.id,
-                    net: 0,
-                    linked: true,
-                    gross: 0,
-                },
-            ];
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'sw-product-detail.getDefaultPurchasePrices() is deprecated. Set product.purchasePrices explicitly instead.',
+            );
+
+            return null;
         },
 
         loadParentProduct() {
@@ -911,11 +901,7 @@ export default {
                 .get(this.product.parentId, Shopware.Context.api, this.productCriteria)
                 .then(async (parent) => {
                     if (!parent.purchasePrices || parent.purchasePrices.length === 0) {
-                        if (!this.defaultCurrency?.id) {
-                            await this.loadCurrencies();
-                        }
-
-                        parent.purchasePrices = this.getDefaultPurchasePrices();
+                        parent.purchasePrices = null;
                         parent._origin.purchasePrices = cloneDeep(parent.purchasePrices);
                     }
 

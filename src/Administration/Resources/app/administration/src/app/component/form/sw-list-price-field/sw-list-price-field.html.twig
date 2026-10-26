@@ -25,23 +25,9 @@
         {% endblock %}
     </div>
 
+    {# @deprecated tag:v6.9.0 - Use sw-purchase-price-field separately. #}
     {% block sw_product_price_form_purchase_price_field %}
-    <div
-        v-if="!hidePurchasePrices && showSettingPrice"
-        class="sw-list-price-field__purchase-price"
-    >
-        {% block sw_product_price_form_purchase_price_field_content %}
-        <sw-price-field
-            class="sw-purchase-price-field"
-            :value="purchasePrices"
-            :gross-label="$t('sw-product.priceForm.labelPurchasePriceGross')"
-            :net-label="$t('sw-product.priceForm.labelPurchasePriceNet')"
-            :tax-rate="taxRate"
-            :disabled="disabled || undefined"
-            :currency="currency"
-        />
-        {% endblock %}
-    </div>
+        {% block sw_product_price_form_purchase_price_field_content %}{% endblock %}
     {% endblock %}
 
     <div class="sw-list-price-field__list-price">

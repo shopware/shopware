@@ -66,5 +66,49 @@ describe('components/form/sw-purchase-price-field', () => {
         const wrapper = await setup();
         expect(wrapper.vm.purchasePrice[0].gross).toEqual(dollarPrice.gross);
         expect(wrapper.vm.purchasePrice[0].net).toEqual(dollarPrice.net);
+        wrapper.unmount();
+    });
+
+    it('should replace the purchase price for the selected currency', async () => {
+        const price = [structuredClone(dollarPrice), structuredClone(euroPrice)];
+        const wrapper = await setup({ price });
+        const updatedPrice = { ...dollarPrice, gross: 60, net: 50 };
+
+        wrapper.findComponent('.sw-purchase-price-field').vm.$emit('change', updatedPrice);
+
+        expect(price).toEqual([dollarPrice, euroPrice]);
+        expect(wrapper.emitted('update:value')[0]).toEqual([[updatedPrice, euroPrice]]);
+        wrapper.unmount();
+    });
+
+    it('should add a purchase price for a missing currency', async () => {
+        const price = [structuredClone(euroPrice)];
+        const wrapper = await setup({ price });
+        const newPrice = { ...dollarPrice, gross: 60, net: 50 };
+
+        wrapper.findComponent('.sw-purchase-price-field').vm.$emit('change', newPrice);
+
+        expect(price).toEqual([euroPrice]);
+        expect(wrapper.emitted('update:value')[0]).toEqual([[euroPrice, newPrice]]);
+        wrapper.unmount();
+    });
+
+    it('should remove purchase prices when both fields are empty', async () => {
+        const price = [structuredClone(dollarPrice), structuredClone(euroPrice)];
+        const wrapper = await setup({ price });
+        const emptyPrice = { ...dollarPrice, gross: null, net: null };
+
+        wrapper.findComponent('.sw-purchase-price-field').vm.$emit('change', emptyPrice);
+
+        expect(price).toEqual([dollarPrice, euroPrice]);
+        expect(wrapper.emitted('update:value')[0]).toEqual([null]);
+        wrapper.unmount();
+    });
+
+    it('should allow empty purchase prices', async () => {
+        const wrapper = await setup({ price: [] });
+
+        expect(wrapper.findComponent('.sw-purchase-price-field').attributes('allow-empty')).toBe('');
+        wrapper.unmount();
     });
 });

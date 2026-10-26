@@ -61,23 +61,31 @@ export default {
 
                 return [
                     {
-                        gross: null,
                         currencyId: this.currency.id,
                         linked: true,
+                        gross: null,
                         net: null,
                     },
                 ];
             },
 
             set(newPurchasePrice) {
-                let priceForCurrency = this.price.find((price) => price.currencyId === newPurchasePrice.currencyId);
-                if (priceForCurrency) {
-                    priceForCurrency = newPurchasePrice;
-                } else {
-                    this.price.push(newPurchasePrice);
+                if (newPurchasePrice.gross === null && newPurchasePrice.net === null) {
+                    this.$emit('update:value', null);
+
+                    return;
                 }
 
-                this.$emit('update:value', this.price);
+                const prices = [...this.price];
+                const index = prices.findIndex((price) => price.currencyId === newPurchasePrice.currencyId);
+
+                if (index !== -1) {
+                    prices.splice(index, 1, newPurchasePrice);
+                } else {
+                    prices.push(newPurchasePrice);
+                }
+
+                this.$emit('update:value', prices);
             },
         },
     },

@@ -19,9 +19,15 @@ class ActiveAppsLoaderTest extends TestCase
 
     private ActiveAppsLoader $activeAppsLoader;
 
+    private AppFixture $appFixture;
+
     protected function setUp(): void
     {
         $this->activeAppsLoader = static::getContainer()->get(ActiveAppsLoader::class);
+
+        $appFixture = static::getContainer()->get(AppFixture::class);
+        static::assertInstanceOf(AppFixture::class, $appFixture);
+        $this->appFixture = $appFixture;
     }
 
     public function testGetActiveAppsWithActiveApp(): void
@@ -39,5 +45,19 @@ class ActiveAppsLoaderTest extends TestCase
 
         $activeApps = $this->activeAppsLoader->getActiveApps();
         static::assertCount(0, $activeApps);
+    }
+
+    public function testAnAppWithASecretIsRegistered(): void
+    {
+        $this->appFixture->createAppFromData(['appSecret' => 's3cr3t']);
+
+        static::assertTrue($this->activeAppsLoader->hasRegisteredApps());
+    }
+
+    public function testAnAppWithoutASecretIsNotRegistered(): void
+    {
+        $this->appFixture->createAppFromData();
+
+        static::assertFalse($this->activeAppsLoader->hasRegisteredApps());
     }
 }

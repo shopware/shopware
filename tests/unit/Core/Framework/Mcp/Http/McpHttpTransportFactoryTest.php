@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Http;
 
 use Doctrine\DBAL\Connection;
 use Mcp\Server;
+use Mcp\Server\Transport\CallbackStream;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -19,6 +20,8 @@ use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * @internal
@@ -135,7 +138,30 @@ class McpHttpTransportFactoryTest extends TestCase
         $response = $this->factory()->createResponse($this->psrResponse('text/event-stream', $sse));
 
         static::assertStringStartsWith('text/event-stream', (string) $response->headers->get('Content-Type'));
-        static::assertSame($sse, $response->getContent());
+        static::assertSame($sse, $this->sentContent($response));
+    }
+
+    public function testCreateResponseLeavesTheSdkEventStreamUnreadUntilItIsSent(): void
+    {
+        $psr17 = new Psr17Factory();
+        $frame = "event: message\ndata: {\"jsonrpc\":\"2.0\",\"method\":\"notifications/progress\"}\n\n";
+        $stream = new CallbackStream(static function () use ($frame): void {
+            echo $frame;
+        });
+
+        $response = $this->factory()->createResponse(
+            $psr17->createResponse(200)
+                ->withHeader('Content-Type', 'text/event-stream')
+                ->withHeader(PlatformRequest::HEADER_MCP_SESSION_ID, 'session-1')
+                ->withBody($stream),
+        );
+
+        static::assertFalse($stream->eof(), 'the callback must not run before the headers are sent');
+        static::assertInstanceOf(StreamedResponse::class, $response);
+        static::assertStringStartsWith('text/event-stream', (string) $response->headers->get('Content-Type'));
+        static::assertSame('session-1', $response->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID));
+
+        static::assertSame($frame, $this->sentContent($response));
     }
 
     /**
@@ -152,6 +178,14 @@ class McpHttpTransportFactoryTest extends TestCase
 
         static::assertSame($json, $response->getContent());
         static::assertSame('kept', $response->headers->get('X-Custom-Header'));
+    }
+
+    private function sentContent(Response $response): string
+    {
+        ob_start();
+        $response->sendContent();
+
+        return (string) ob_get_clean();
     }
 
     private function psrResponse(string $contentType, string $body): ResponseInterface

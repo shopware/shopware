@@ -69,7 +69,7 @@ class SchemaCompletenessTest extends McpScenarioTestCase
         $output = ($this->entitySchemaTool)($entity);
         $data = $this->decodeToolOutput($output);
 
-        $fieldNames = array_column($data['data']['fields'], 'name');
+        $fieldNames = array_column($data->data['fields'], 'name');
         foreach ($expectedFields as $field) {
             static::assertContains($field, $fieldNames, \sprintf(
                 'Entity "%s" schema is missing field "%s" required by MCP user stories.',
@@ -78,7 +78,7 @@ class SchemaCompletenessTest extends McpScenarioTestCase
             ));
         }
 
-        $assocNames = array_column($data['data']['associations'], 'name');
+        $assocNames = array_column($data->data['associations'], 'name');
         foreach ($expectedAssociations as $assoc) {
             static::assertContains($assoc, $assocNames, \sprintf(
                 'Entity "%s" schema is missing association "%s" required by MCP user stories.',

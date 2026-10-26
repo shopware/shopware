@@ -55,7 +55,7 @@ class ProductAssociationRemovalScenarioTest extends McpScenarioTestCase
     public function testSchemaNamesTheMappingEntityOfManyToManyAssociations(): void
     {
         $data = $this->decodeToolOutput(($this->entitySchemaTool)('product'));
-        $associations = array_column($data['data']['associations'], null, 'name');
+        $associations = array_column($data->data['associations'], null, 'name');
 
         static::assertSame('category', $associations['categories']['entity']);
         static::assertSame('product_category', $associations['categories']['mappingEntity']);
@@ -84,9 +84,9 @@ class ProductAssociationRemovalScenarioTest extends McpScenarioTestCase
 
         // The DAL also reports the product and the category, whose association changed. The result must
         // not call them deleted: a client reading it, or its dry-run preview, would believe they are gone.
-        static::assertIsArray($output['data']);
+        static::assertIsArray($output->data);
         $deletedEntities = [];
-        foreach ($output['data'] as $row) {
+        foreach ($output->data as $row) {
             static::assertIsArray($row);
             if (($row['operation'] ?? null) === 'delete') {
                 $deletedEntities[] = $row['entity'] ?? null;
@@ -122,7 +122,7 @@ class ProductAssociationRemovalScenarioTest extends McpScenarioTestCase
 
         $error = $this->decodeToolError(($this->entityDeleteTool)('product_category', $ids, false));
 
-        static::assertStringContainsString('none of these rows exist', $error['error']);
+        static::assertStringContainsString('none of these rows exist', $error->message);
         static::assertCount(2, $this->loadProduct()->getCategoryIds() ?? []);
     }
 
@@ -130,7 +130,7 @@ class ProductAssociationRemovalScenarioTest extends McpScenarioTestCase
     {
         $error = $this->decodeToolError(($this->entityDeleteTool)('product_category', json_encode([$this->ids->get('remove')], \JSON_THROW_ON_ERROR), false));
 
-        static::assertStringContainsString('productId and categoryId', $error['error']);
+        static::assertStringContainsString('productId and categoryId', $error->message);
         static::assertCount(2, $this->loadProduct()->getCategoryIds() ?? []);
     }
 

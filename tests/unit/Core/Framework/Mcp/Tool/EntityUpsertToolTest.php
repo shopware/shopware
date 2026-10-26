@@ -43,10 +43,10 @@ class EntityUpsertToolTest extends TestCase
         $contextProvider->method('getContext')->willReturn($context);
 
         $tool = new EntityUpsertTool($registry, $contextProvider, static::createStub(Connection::class));
-        $result = $this->decode(($tool)('product', '{"name": "Test"}'));
+        $result = ($tool)('product', '{"name": "Test"}');
 
-        static::assertFalse($result['success']);
-        static::assertStringContainsString('product:create', $result['error']);
+        static::assertTrue($result->isError());
+        static::assertStringContainsString('product:create', $result->error->message);
     }
 
     public function testDeniesAccessWithoutUpdatePermission(): void
@@ -64,10 +64,10 @@ class EntityUpsertToolTest extends TestCase
 
         $tool = new EntityUpsertTool($registry, $contextProvider, static::createStub(Connection::class));
         // Payload with an id triggers an update operation, which requires :update privilege
-        $result = $this->decode(($tool)('product', '{"id": "' . Defaults::CURRENCY . '", "name": "Test"}'));
+        $result = ($tool)('product', '{"id": "' . Defaults::CURRENCY . '", "name": "Test"}');
 
-        static::assertFalse($result['success']);
-        static::assertStringContainsString('product:update', $result['error']);
+        static::assertTrue($result->isError());
+        static::assertStringContainsString('product:update', $result->error->message);
     }
 
     public function testAllowsCreateOnlyWithoutUpdatePermission(): void
@@ -91,9 +91,9 @@ class EntityUpsertToolTest extends TestCase
 
         $tool = new EntityUpsertTool($registry, $contextProvider, static::createStub(Connection::class));
         // Payload without id — only create privilege needed
-        $result = $this->decode(($tool)('product', '{"name": "Test"}', false));
+        $result = ($tool)('product', '{"name": "Test"}', false);
 
-        static::assertTrue($result['success']);
+        static::assertFalse($result->isError());
     }
 
     public function testAllowsUpdateOnlyWithoutCreatePermission(): void
@@ -117,9 +117,9 @@ class EntityUpsertToolTest extends TestCase
 
         $tool = new EntityUpsertTool($registry, $contextProvider, static::createStub(Connection::class));
         // Payload with id — only update privilege needed
-        $result = $this->decode(($tool)('product', '{"id": "' . Defaults::CURRENCY . '", "name": "Test"}', false));
+        $result = ($tool)('product', '{"id": "' . Defaults::CURRENCY . '", "name": "Test"}', false);
 
-        static::assertTrue($result['success']);
+        static::assertFalse($result->isError());
     }
 
     public function testEmptyPayloadRequiresCreatePrivilege(): void
@@ -135,20 +135,20 @@ class EntityUpsertToolTest extends TestCase
         $contextProvider->method('getContext')->willReturn($context);
 
         $tool = new EntityUpsertTool($registry, $contextProvider, static::createStub(Connection::class));
-        $result = $this->decode(($tool)('product', '[]'));
+        $result = ($tool)('product', '[]');
 
-        static::assertFalse($result['success']);
-        static::assertStringContainsString('product:create', $result['error']);
+        static::assertTrue($result->isError());
+        static::assertStringContainsString('product:create', $result->error->message);
     }
 
     public function testReturnsErrorForNonArrayPayload(): void
     {
         $tool = $this->createTool();
-        $result = $this->decode(($tool)('product', '"just a string"'));
+        $result = ($tool)('product', '"just a string"');
 
-        static::assertFalse($result['success']);
-        static::assertStringContainsString('"payload"', $result['error']);
-        static::assertStringContainsString('must be a JSON object or array', $result['error']);
+        static::assertTrue($result->isError());
+        static::assertStringContainsString('"payload"', $result->error->message);
+        static::assertStringContainsString('must be a JSON object or array', $result->error->message);
     }
 
     public function testNormalizesObjectPayloadToList(): void
@@ -159,9 +159,9 @@ class EntityUpsertToolTest extends TestCase
             ->with(static::callback(fn (array $data): bool => \array_is_list($data) && \count($data) === 1));
 
         $tool = $this->createTool($repository);
-        $result = $this->decode(($tool)('product', '{"name": "Test"}', false));
+        $result = ($tool)('product', '{"name": "Test"}', false);
 
-        static::assertTrue($result['success']);
+        static::assertFalse($result->isError());
     }
 
     public function testDryRunRollsBackAndReturnsWriteResult(): void
@@ -179,12 +179,12 @@ class EntityUpsertToolTest extends TestCase
         $repository->expects($this->once())->method('upsert')->willReturn($events);
 
         $tool = $this->createTool($repository, $connection);
-        $result = $this->decode(($tool)('product', '[{"name": "Test"}]', true));
+        $result = ($tool)('product', '[{"name": "Test"}]', true);
 
-        static::assertTrue($result['success']);
-        static::assertTrue($result['_meta']['dryRun']);
-        static::assertSame('product', $result['data'][0]['entity']);
-        static::assertSame(['abc'], $result['data'][0]['ids']);
+        static::assertFalse($result->isError());
+        static::assertTrue($result->meta['dryRun']);
+        static::assertSame('product', $result->data[0]['entity']);
+        static::assertSame(['abc'], $result->data[0]['ids']);
     }
 
     public function testDryRunReturnsErrorWhenUpsertThrows(): void
@@ -197,10 +197,10 @@ class EntityUpsertToolTest extends TestCase
         $repository->expects($this->once())->method('upsert')->willThrowException(new \RuntimeException('Constraint violation'));
 
         $tool = $this->createTool($repository, $connection);
-        $result = $this->decode(($tool)('product', '[{"name": "Test"}]', true));
+        $result = ($tool)('product', '[{"name": "Test"}]', true);
 
-        static::assertFalse($result['success']);
-        static::assertSame('Constraint violation', $result['error']);
+        static::assertTrue($result->isError());
+        static::assertSame('Constraint violation', $result->error->message);
     }
 
     public function testRealUpsertDoesNotRollBack(): void
@@ -216,10 +216,10 @@ class EntityUpsertToolTest extends TestCase
         $repository->expects($this->once())->method('upsert')->willReturn($events);
 
         $tool = $this->createTool($repository, $connection);
-        $result = $this->decode(($tool)('product', '{"name": "Test"}', false));
+        $result = ($tool)('product', '{"name": "Test"}', false);
 
-        static::assertTrue($result['success']);
-        static::assertFalse($result['_meta']['dryRun']);
+        static::assertFalse($result->isError());
+        static::assertFalse($result->meta['dryRun']);
     }
 
     public function testUnknownEntityReturnsError(): void
@@ -232,12 +232,12 @@ class EntityUpsertToolTest extends TestCase
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $tool = new EntityUpsertTool($registry, $contextProvider, static::createStub(Connection::class));
-        $result = $this->decode(($tool)('unknown_entity', '{"name": "Test"}'));
+        $result = ($tool)('unknown_entity', '{"name": "Test"}');
 
-        static::assertFalse($result['success']);
-        static::assertStringContainsString('unknown_entity', $result['error']);
-        static::assertStringContainsString('shopware://entities', $result['error']);
-        static::assertSame(McpToolError::INVALID_ARGUMENTS, $result['code']);
+        static::assertTrue($result->isError());
+        static::assertStringContainsString('unknown_entity', $result->error->message);
+        static::assertStringContainsString('shopware://entities', $result->error->message);
+        static::assertSame(McpToolError::INVALID_ARGUMENTS, $result->error->code);
     }
 
     /**
@@ -262,13 +262,5 @@ class EntityUpsertToolTest extends TestCase
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         return new EntityUpsertTool($registry, $contextProvider, $connection);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function decode(string $json): array
-    {
-        return json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
     }
 }

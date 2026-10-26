@@ -43,7 +43,7 @@ class ProductContentScenarioTest extends McpScenarioTestCase
 
         $data = $this->decodeToolOutput($output);
 
-        $foundIds = array_column($data['data'], 'id');
+        $foundIds = array_column($data->data, 'id');
         static::assertContains($ids->get('without-media'), $foundIds, 'Product without media should appear');
         static::assertNotContains($ids->get('with-media'), $foundIds, 'Product with media should not appear');
     }
@@ -76,7 +76,7 @@ class ProductContentScenarioTest extends McpScenarioTestCase
         );
 
         $data = $this->decodeToolOutput($output);
-        static::assertFalse($data['_meta']['dryRun']);
+        static::assertFalse($data->meta['dryRun']);
 
         $readOutput = ($this->entityReadTool)(
             entity: 'product',
@@ -84,7 +84,7 @@ class ProductContentScenarioTest extends McpScenarioTestCase
         );
 
         $readData = $this->decodeToolOutput($readOutput);
-        static::assertSame(39.99, $readData['data']['price'][0]['gross']);
+        static::assertSame(39.99, $readData->data['price'][0]['gross']);
     }
 
     public function testUS24CategoryAssignment(): void
@@ -124,7 +124,7 @@ class ProductContentScenarioTest extends McpScenarioTestCase
         );
 
         $readData = $this->decodeToolOutput($readOutput);
-        $categoryIds = array_column($readData['data']['categories'], 'id');
+        $categoryIds = array_column($readData->data['categories'], 'id');
         static::assertContains($categoryId, $categoryIds, 'Product should be assigned to the category');
     }
 }

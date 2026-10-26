@@ -16,8 +16,8 @@ class ConfigTroubleshootingScenarioTest extends McpScenarioTestCase
         $output = ($this->systemConfigReadTool)('core.listing');
         $data = $this->decodeToolOutput($output);
 
-        static::assertSame('core.listing', $data['data']['domain']);
-        static::assertIsArray($data['data']['values']);
+        static::assertSame('core.listing', $data->data['domain']);
+        static::assertIsArray($data->data['values']);
     }
 
     public function testUS7WriteConfigDryRun(): void
@@ -30,13 +30,13 @@ class ConfigTroubleshootingScenarioTest extends McpScenarioTestCase
 
         $data = $this->decodeToolOutput($output);
 
-        static::assertTrue($data['_meta']['dryRun']);
-        static::assertArrayHasKey('oldValue', $data['data']);
-        static::assertSame('name-asc', $data['data']['newValue']);
+        static::assertTrue($data->meta['dryRun']);
+        static::assertArrayHasKey('oldValue', $data->data);
+        static::assertSame('name-asc', $data->data['newValue']);
 
         $verifyOutput = ($this->systemConfigReadTool)('core.listing.defaultSorting');
         $verifyData = $this->decodeToolOutput($verifyOutput);
-        static::assertNotSame('name-asc', $verifyData['data']['value'], 'Dry run should not persist changes');
+        static::assertNotSame('name-asc', $verifyData->data['value'], 'Dry run should not persist changes');
     }
 
     public function testUS28MaintenanceMode(): void
@@ -51,7 +51,7 @@ class ConfigTroubleshootingScenarioTest extends McpScenarioTestCase
         );
 
         $data = $this->decodeToolOutput($output);
-        static::assertFalse($data['_meta']['dryRun']);
+        static::assertFalse($data->meta['dryRun']);
 
         $readOutput = ($this->entityReadTool)(
             entity: 'sales_channel',
@@ -59,7 +59,7 @@ class ConfigTroubleshootingScenarioTest extends McpScenarioTestCase
         );
 
         $readData = $this->decodeToolOutput($readOutput);
-        static::assertTrue($readData['data']['maintenance'], 'Sales channel should be in maintenance mode');
+        static::assertTrue($readData->data['maintenance'], 'Sales channel should be in maintenance mode');
 
         ($this->entityUpsertTool)(
             entity: 'sales_channel',

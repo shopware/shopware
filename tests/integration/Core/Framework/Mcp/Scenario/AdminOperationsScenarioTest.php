@@ -73,8 +73,8 @@ class AdminOperationsScenarioTest extends McpScenarioTestCase
         );
 
         $dryRunData = $this->decodeToolOutput($dryRunOutput);
-        static::assertTrue($dryRunData['_meta']['dryRun']);
-        static::assertTrue($dryRunData['data']['deliveries'][0]['actionValid']);
+        static::assertTrue($dryRunData->meta['dryRun']);
+        static::assertTrue($dryRunData->data['deliveries'][0]['actionValid']);
 
         $commitOutput = ($this->orderStateTool)(
             orderNumber: $orderNumber,
@@ -83,14 +83,14 @@ class AdminOperationsScenarioTest extends McpScenarioTestCase
         );
 
         $commitData = $this->decodeToolOutput($commitOutput);
-        static::assertFalse($commitData['_meta']['dryRun']);
+        static::assertFalse($commitData->meta['dryRun']);
 
         $readOutput = ($this->entityReadTool)('order_delivery', $deliveryId, json_encode([
             'associations' => ['stateMachineState' => []],
         ], \JSON_THROW_ON_ERROR));
 
         $readData = $this->decodeToolOutput($readOutput);
-        static::assertSame('shipped', $readData['data']['stateMachineState']['technicalName']);
+        static::assertSame('shipped', $readData->data['stateMachineState']['technicalName']);
     }
 
     public function testUS6CancelOrderWithRefund(): void
@@ -150,9 +150,9 @@ class AdminOperationsScenarioTest extends McpScenarioTestCase
         );
 
         $dryRunData = $this->decodeToolOutput($dryRunOutput);
-        static::assertTrue($dryRunData['_meta']['dryRun']);
-        static::assertSame('cancel', $dryRunData['data']['order']['action']);
-        static::assertTrue($dryRunData['data']['order']['actionValid']);
+        static::assertTrue($dryRunData->meta['dryRun']);
+        static::assertSame('cancel', $dryRunData->data['order']['action']);
+        static::assertTrue($dryRunData->data['order']['actionValid']);
 
         $commitOutput = ($this->orderStateTool)(
             orderNumber: $orderNumber,
@@ -163,16 +163,16 @@ class AdminOperationsScenarioTest extends McpScenarioTestCase
         );
 
         $commitData = $this->decodeToolOutput($commitOutput);
-        static::assertFalse($commitData['_meta']['dryRun']);
-        static::assertTrue($commitData['data']['order']['executed']);
-        static::assertSame('cancelled', $commitData['data']['order']['to']);
+        static::assertFalse($commitData->meta['dryRun']);
+        static::assertTrue($commitData->data['order']['executed']);
+        static::assertSame('cancelled', $commitData->data['order']['to']);
 
-        foreach ($commitData['data']['transactions'] as $tx) {
+        foreach ($commitData->data['transactions'] as $tx) {
             static::assertTrue($tx['executed']);
             static::assertSame('cancelled', $tx['to']);
         }
 
-        foreach ($commitData['data']['deliveries'] as $del) {
+        foreach ($commitData->data['deliveries'] as $del) {
             static::assertTrue($del['executed']);
             static::assertSame('cancelled', $del['to']);
         }
@@ -183,6 +183,6 @@ class AdminOperationsScenarioTest extends McpScenarioTestCase
             'limit' => 1,
         ], \JSON_THROW_ON_ERROR));
         $searchData = $this->decodeToolOutput($searchOutput);
-        static::assertSame('cancelled', $searchData['data'][0]['stateMachineState']['technicalName']);
+        static::assertSame('cancelled', $searchData->data[0]['stateMachineState']['technicalName']);
     }
 }

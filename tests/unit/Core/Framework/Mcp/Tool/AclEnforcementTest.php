@@ -16,6 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultParser;
 use Shopware\Core\Framework\Mcp\Tool\EntityAggregateTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityDeleteTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
@@ -204,17 +206,29 @@ class AclEnforcementTest extends TestCase
         return $provider;
     }
 
-    private function assertAclDenied(string $output, string $expectedPrivilege): void
+    private function assertAclDenied(McpToolResult|string $output, string $expectedPrivilege): void
     {
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('Missing privilege', $data['error']);
-        static::assertStringContainsString($expectedPrivilege, $data['error']);
+        $output = $this->toResult($output);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('Missing privilege', $output->error->message);
+        static::assertStringContainsString($expectedPrivilege, $output->error->message);
     }
 
-    private function assertAclAllowed(string $output): void
+    private function assertAclAllowed(McpToolResult|string $output): void
     {
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($data['success'], 'Tool should succeed when ACL permissions are granted, got: ' . $output);
+        $output = $this->toResult($output);
+        static::assertFalse($output->isError(), 'Tool should succeed when ACL permissions are granted, got: ' . $output->error?->message);
+    }
+
+    private function toResult(McpToolResult|string $output): McpToolResult
+    {
+        if ($output instanceof McpToolResult) {
+            return $output;
+        }
+
+        $result = (new McpToolResultParser())->parse($output);
+        static::assertNotNull($result);
+
+        return $result;
     }
 }

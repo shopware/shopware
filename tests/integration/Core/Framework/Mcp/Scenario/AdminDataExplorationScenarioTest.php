@@ -39,8 +39,8 @@ class AdminDataExplorationScenarioTest extends McpScenarioTestCase
 
         $data = $this->decodeToolOutput($output);
 
-        static::assertSame(2, $data['_meta']['total']);
-        foreach ($data['data'] as $product) {
+        static::assertSame(2, $data->meta['total']);
+        foreach ($data->data as $product) {
             static::assertLessThan(5, $product['stock']);
         }
     }
@@ -74,9 +74,9 @@ class AdminDataExplorationScenarioTest extends McpScenarioTestCase
         $output = ($this->entitySearchTool)('product', $criteria);
         $data = $this->decodeToolOutput($output);
 
-        static::assertCount(3, $data['data']);
-        static::assertSame(3, $data['_meta']['total']);
-        static::assertArrayNotHasKey('truncated', $data['_meta']);
+        static::assertCount(3, $data->data);
+        static::assertSame(3, $data->meta['total']);
+        static::assertArrayNotHasKey('truncated', $data->meta);
     }
 
     public function testUS3CustomerEntitySchema(): void
@@ -84,13 +84,13 @@ class AdminDataExplorationScenarioTest extends McpScenarioTestCase
         $output = ($this->entitySchemaTool)('customer');
         $data = $this->decodeToolOutput($output);
 
-        $fieldNames = array_column($data['data']['fields'], 'name');
+        $fieldNames = array_column($data->data['fields'], 'name');
         static::assertContains('email', $fieldNames);
         static::assertContains('firstName', $fieldNames);
         static::assertContains('lastName', $fieldNames);
         static::assertContains('customerNumber', $fieldNames);
 
-        $assocNames = array_column($data['data']['associations'], 'name');
+        $assocNames = array_column($data->data['associations'], 'name');
         static::assertContains('orderCustomers', $assocNames);
         static::assertContains('addresses', $assocNames);
         static::assertContains('group', $assocNames);

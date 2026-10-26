@@ -80,6 +80,20 @@ Invariants:
 - A notification costs one write per change; checking costs one small read per request, plus a session write only when something changed.
 - Don't add a mechanism that pushes to all sessions. It needs the list of sessions again. On the stateless era, clients read the SDK notification bus through `subscriptions/listen`, and the versions feed that bus (see `adr/2026-09-24-mcp-stateless-era-degradation-policy.md`).
 
+### Request state on the stateless era
+
+On 2026-07-28 a tool that needs input returns `InputRequiredResult`, and the client repeats the whole call with the answer and an opaque `requestState`.
+mcp/sdk signs that state with one HMAC key (`request_state.key` of the bundle); it does not encrypt it, binds nothing to it and cannot rotate the key.
+Without a key, `RequestContext::mintRequestState()` throws and every incoming `requestState` is refused.
+
+- Shopware configures no key.
+  A handler that asks once needs none, so core tools ask at most once per call and never call `mintRequestState()`.
+- A one-time action (a confirmed delete, a state transition) is enforced by a stored record on the server, never by the state: signing does not make a state single-use.
+  URL elicitation is planned this way, with a confirmation record bound to principal, tool and an argument digest ([#19972](https://github.com/shopware/shopware/issues/19972)).
+- The first feature that needs state across rounds brings the key, as planned in [#22081](https://github.com/shopware/shopware/issues/22081): a dedicated `SHOPWARE_MCP_REQUEST_STATE_KEY`, one HKDF subkey per server, the binding of principal, method, tool and arguments, and features that switch off without the key.
+  Do not derive it from `APP_SECRET`, store it in the database or generate it per process: a retry can reach another worker or host.
+- The state is readable by the client, so it never carries personal data.
+
 ## Naming convention
 All capability names use hyphen-separated prefixes (`a-zA-Z0-9_-` only, no dots):
 - **Core**: `shopware-{name}` (e.g., `shopware-entity-search`, `shopware-entity-upsert`)

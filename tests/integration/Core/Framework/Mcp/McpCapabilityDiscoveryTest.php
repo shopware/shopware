@@ -89,8 +89,8 @@ class McpCapabilityDiscoveryTest extends TestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        $content = $browser->getResponse()->getContent();
-        static::assertNotFalse($content, 'MCP response was empty');
+        $content = $browser->getInternalResponse()->getContent();
+        static::assertNotSame('', $content, 'MCP response was empty');
 
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($response);
@@ -126,7 +126,7 @@ class McpCapabilityDiscoveryTest extends TestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($browser->getInternalResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($response);
 
         // The server queues notifications/*/list_changed on this era, so clients must be told to expect them.
@@ -208,8 +208,8 @@ class McpCapabilityDiscoveryTest extends TestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        $content = $browser->getResponse()->getContent();
-        static::assertNotFalse($content, 'MCP response was empty');
+        $content = $browser->getInternalResponse()->getContent();
+        static::assertNotSame('', $content, 'MCP response was empty');
 
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($response);
@@ -311,6 +311,8 @@ class McpCapabilityDiscoveryTest extends TestCase
         );
 
         $drainResponse = $browser->getResponse();
+        // an event stream is a StreamedResponse without content; the browser keeps what it sent
+        $drainContent = $browser->getInternalResponse()->getContent();
         static::assertStringStartsWith(
             'text/event-stream',
             (string) $drainResponse->headers->get('Content-Type'),
@@ -318,12 +320,12 @@ class McpCapabilityDiscoveryTest extends TestCase
         );
         static::assertContains(
             'notifications/tools/list_changed',
-            $this->jsonRpcMethods((string) $drainResponse->getContent()),
+            $this->jsonRpcMethods($drainContent),
             'client never received tools/list_changed after enabling a toolset',
         );
 
         $events = array_values(array_filter(
-            explode("\n", (string) $drainResponse->getContent()),
+            explode("\n", $drainContent),
             static fn (string $line): bool => str_starts_with($line, 'data:'),
         ));
         static::assertCount(2, $events, 'the queued notification and the response must be one event each');
@@ -335,8 +337,8 @@ class McpCapabilityDiscoveryTest extends TestCase
         static::assertSame(3, $response['id'] ?? null);
 
         // An empty `properties` of a parameterless tool must stay an object (#18722).
-        static::assertStringContainsString('"properties":{}', (string) $drainResponse->getContent());
-        static::assertStringNotContainsString('"properties":[]', (string) $drainResponse->getContent());
+        static::assertStringContainsString('"properties":{}', $drainContent);
+        static::assertStringNotContainsString('"properties":[]', $drainContent);
     }
 
     /**
@@ -426,8 +428,8 @@ class McpCapabilityDiscoveryTest extends TestCase
 
         static::assertSame(200, $browser->getResponse()->getStatusCode(), 'MCP endpoint returned non-200 status');
 
-        $content = $browser->getResponse()->getContent();
-        static::assertNotFalse($content, 'MCP response was empty');
+        $content = $browser->getInternalResponse()->getContent();
+        static::assertNotSame('', $content, 'MCP response was empty');
 
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($response);

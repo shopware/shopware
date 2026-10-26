@@ -1,5 +1,17 @@
 # 6.7.17.0 (upcoming)
 
+## Critical Fixes
+
+### Many-to-many associations restrict deletes again
+
+Since 6.7.12.0, `RestrictDelete` on a many-to-many association, or on another association to an entity with a composite primary key, did not stop a delete.
+Deleting a rule removed it from the promotions that used it, and deleting a property option removed it from the variants without a configurator setting for it.
+Deleting a media that a theme uses failed with a database error.
+Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED`, which lists the mapping entity, for example `promotion_persona_rule`, `product_option` or `theme_media`, with the key of each restricting row.
+This also applies to restrictions that extensions declare, for example with `#[ManyToMany(onDelete: OnDelete::RESTRICT)]` on attribute entities.
+Integrations that delete these entities have to remove the links first.
+Links removed since 6.7.12.0 are not restored.
+
 ## Core
 
 ### Promotion code rate limiting
@@ -75,13 +87,6 @@ The Storefront profile page marks the VAT ID field as required based on the same
 With `shopware.media.remote_thumbnails.enable`, SVGs now have an empty `thumbnails` collection, as in local mode.
 Before, their `srcset` claimed widths that the returned original file did not have, so browsers rendered small SVG logos far too small.
 Media loaded without the `mediaType` field keep their thumbnail URLs, as the type can't be checked.
-
-### Many-to-many associations restrict deletes again
-
-Since 6.7.12.0, `RestrictDelete` on a many-to-many association, or on an association to another entity with a composite primary key, did not stop the delete.
-The database then removed the links: deleting a rule removed it from the promotions that used it, and deleting a property option removed it from the variants that had it.
-Such deletes are now refused again with `409 FRAMEWORK__DELETE_RESTRICTED`, which lists the mapping entity, for example `promotion_persona_rule` or `product_option`, with the key of each restricting row.
-Integrations that delete rules or property options have to remove these links first.
 
 ### Tax-free detection of new sales channel contexts matches the cart
 

@@ -147,7 +147,10 @@ Returning that string, from these helpers or built by hand, is deprecated.
 It keeps working: `McpToolResultParser` reads it into a `McpToolResult`, and both render the same on every protocol revision (`McpToolResponseTest`).
 The string can't carry a summary or error details.
 `success()`, `error()`, `requirePrivilege()`, `missingPrivilegesError()`, `invalidCriteriaError()`, `decodeJsonOrError()` and `executeWithDryRun()` stay for extensions that declare `__invoke(): string`; each has a `…Result` counterpart.
+They are `@deprecated tag:v6.8.0` and trigger a deprecation, which throws once the `v6.8.0.0` flag is active.
 All core tools return `McpToolResult`.
+`McpToolLegacyStringResultRule` (identifier `shopware.mcpToolLegacyStringResult`) reports a tool method with a native `string` return type, including `?string` and unions.
+It is registered in `core-rules.neon` only, so it guards core without failing extension builds; it moves to `rules.neon` with 6.8.0.
 App tools keep the envelope as their response format.
 
 ### What the client receives

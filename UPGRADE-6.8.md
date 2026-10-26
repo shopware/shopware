@@ -1390,10 +1390,12 @@ If you have a decorator that extends `AbstractTranslationLoader`, remove your `p
  ```
 
 The new method receives the exact locale being loaded, so the check can be scoped to that locale rather than treating any installed locale as a reason to skip all local snippet files.
+
 ## MCP tools returning the legacy `{"success": …}` string deprecated
 
 Returning the `{"success": …}` JSON string from an MCP tool was deprecated, whether it was built with `McpToolResponse::success()`, `::error()` and the other string helpers or by hand.
-It still works, but it can't carry a summary or error details.
+The string can't carry a summary or error details.
+The string helpers `success()`, `error()`, `requirePrivilege()`, `missingPrivilegesError()`, `invalidCriteriaError()`, `decodeJsonOrError()` and `executeWithDryRun()` of `McpToolResponse` are removed.
 Return a `Shopware\Core\Framework\Mcp\Result\McpToolResult` instead, built with the helper of the same name plus `Result`:
 
 ```php
@@ -1412,6 +1414,9 @@ public function __invoke(string $id): McpToolResult
 
 The counterparts are `successResult()`, `errorResult()`, `requirePrivilegeResult()`, `missingPrivilegesResult()`, `invalidCriteriaResult()`, `decodeJsonOrErrorResult()` and `executeWithDryRunResult()`.
 App tools are not affected and keep their response format.
+
+The PHPStan rule `McpToolLegacyStringResultRule` (identifier `shopware.mcpToolLegacyStringResult`) moves from `core-rules.neon` to `rules.neon`.
+It reports a `#[McpTool]` method whose native return type is `string`, `?string` or a union containing `string`.
 
 ## `MediaUploadService::validateExternalUrl()` deprecated
 

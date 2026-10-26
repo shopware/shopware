@@ -43,6 +43,8 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoRuntimeExceptionInDomainExceptionsRule
     # core-only until the commercial repositories have swept their own reflection backlogs
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoReflectionOnNonPublicMethodsRule
+    # core-only until 6.8.0, extensions are warned by the deprecated string helpers of McpToolResponse; moves to rules.neon with 6.8.0
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpToolLegacyStringResultRule
 
 services:
     -

@@ -40,6 +40,11 @@
             7
           ]
         }
+      },
+      {
+        "name": "timezone",
+        "type": "string",
+        "config": {}
       }
     ]
   },

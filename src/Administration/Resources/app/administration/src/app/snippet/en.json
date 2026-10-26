@@ -930,6 +930,9 @@
             "6": "Saturday",
             "7": "Sunday"
           }
+        },
+        "timezone": {
+          "label": "Timezone"
         }
       },
       "cartLineItemOfType": {

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Rule;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Range;
+use Symfony\Component\Validator\Constraints\Timezone;
 
 /**
  * @final
@@ -19,14 +20,21 @@ class WeekdayRule extends Rule
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
-        protected ?int $dayOfWeek = null
+        protected ?int $dayOfWeek = null,
+        protected ?string $timezone = null,
     ) {
         parent::__construct();
     }
 
     public function match(RuleScope $scope): bool
     {
-        $todaysDayOfWeek = (int) $scope->getCurrentTime()->format('N');
+        $now = $scope->getCurrentTime();
+
+        if ($this->timezone) {
+            $now = $now->setTimezone(new \DateTimeZone($this->timezone));
+        }
+
+        $todaysDayOfWeek = (int) $now->format('N');
 
         return RuleComparison::numeric($todaysDayOfWeek, $this->dayOfWeek, $this->operator);
     }
@@ -36,6 +44,7 @@ class WeekdayRule extends Rule
         return [
             'operator' => RuleConstraints::stringOperators(false),
             'dayOfWeek' => [new NotBlank(), new Range(min: 1, max: 7)],
+            'timezone' => [new Timezone()],
         ];
     }
 
@@ -43,6 +52,7 @@ class WeekdayRule extends Rule
     {
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
-            ->selectField('dayOfWeek', range(1, 7));
+            ->selectField('dayOfWeek', range(1, 7))
+            ->stringField('timezone');
     }
 }

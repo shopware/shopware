@@ -19,10 +19,7 @@ If plugins have Jest tests, these fail and they need to wait for the Administrat
 
 Until core has migrated its own usages, a deprecation that is neither asserted, allowed, nor baselined fails a test only in the platform's own Jest run.
 
-A spec belongs to the platform's own run when its file lives inside the platform's `src/`.
 The console allow-list keeps its `[Deprecation]` entry until core is migrated.
-
-The running Administration does not use this test setup, so its guard still warns, and throws in next-major mode.
 
 ## Consequences
 

@@ -2,73 +2,100 @@
  * @sw-package framework
  */
 
-import { deprecations, useProductionDeprecationGuard } from '../deprecations';
-import { isPlatformDeprecationRun, unsetPlatformDeprecationRunMarker } from '../platformDeprecationRun';
+import { resolve } from 'node:path';
+import { allowDeprecation, deprecations, failsTheTest, useProductionDeprecationGuard } from '../deprecations';
+import { isPlatformDeprecationRun } from '../platformDeprecationRun';
 import oldFunction from '../_fixtures/deprecations/oldFunction';
 import {
     failureOfEndDeprecationLog,
     ignoreBaselineUpdateRun,
     oldFunctionMessage,
     triggerOtherDeprecation,
+    useSpecPath,
 } from './deprecations-test-setup';
 
-/**
- * Asserts that the recorder neither recorded nor reported anything in the current test.
- *
- * @example
- * expectSilence();
- */
-function expectSilence(): void {
-    expect(deprecations.entries).toEqual([]);
-    expect(failureOfEndDeprecationLog()).toBe('');
-    expect(console.warn).not.toHaveBeenCalled();
-    expect(console.error).not.toHaveBeenCalled();
-}
+const repositoryPath = resolve(__dirname, '../../..', '../../../../..');
+const extensionSpecPath = resolve(
+    repositoryPath,
+    'custom/plugins/SwagExample/src/Resources/app/administration/src/example.spec.ts',
+);
 
 describe('test/_helper_/deprecations - platform run', () => {
     beforeEach(ignoreBaselineUpdateRun);
 
-    describe('in Shopware’s own Jest run', () => {
-        it('is a platform run', () => {
+    describe('isPlatformDeprecationRun', () => {
+        it('counts a spec in the platform’s src/ as the platform’s run', () => {
+            expect(isPlatformDeprecationRun()).toBe(true);
+
+            useSpecPath(resolve(repositoryPath, 'src/Storefront/Resources/app/administration/src/example.spec.ts'));
+
             expect(isPlatformDeprecationRun()).toBe(true);
         });
 
-        it('records a deprecation', () => {
-            oldFunction();
+        it('does not count the spec of a plugin as the platform’s run', () => {
+            useSpecPath(extensionSpecPath);
 
-            expect(deprecations).toHaveTriggered(oldFunctionMessage);
+            expect(isPlatformDeprecationRun()).toBe(false);
         });
+
+        it('counts a call outside a test as the platform’s run', () => {
+            useSpecPath(undefined);
+
+            expect(isPlatformDeprecationRun()).toBe(true);
+        });
+    });
+
+    it('fails on an unasserted deprecation in the platform’s run', () => {
+        oldFunction();
+
+        expect(failureOfEndDeprecationLog()).toContain(`1. ${oldFunctionMessage}`);
     });
 
     describe('in the Jest run of an extension', () => {
         beforeEach(() => {
-            unsetPlatformDeprecationRunMarker();
-            jest.spyOn(console, 'warn');
-            jest.spyOn(console, 'error');
+            useSpecPath(extensionSpecPath);
         });
 
-        it('is no platform run', () => {
-            expect(isPlatformDeprecationRun()).toBe(false);
-        });
+        it('records an unasserted deprecation without failing', () => {
+            const warn = jest.spyOn(console, 'warn');
 
-        it('neither records, reports nor fails on a deprecation', () => {
+            oldFunction();
             triggerOtherDeprecation();
+
+            expect(deprecations.entries.map(({ message }) => message)).toEqual([
+                oldFunctionMessage,
+                'otherFunction() is deprecated.',
+            ]);
+            expect(warn).not.toHaveBeenCalled();
+            expect(failureOfEndDeprecationLog()).toBe('');
+        });
+
+        it('asserts a deprecation with toHaveTriggered', () => {
             oldFunction();
 
-            expectSilence();
+            expect(deprecations).toHaveTriggered(oldFunctionMessage);
         });
 
-        it.activeFeatureFlags(['v7.0.0.0'])('does not throw for a major the test activates', () => {
-            expect(() => oldFunction()).not.toThrow();
-            expectSilence();
+        it('lets allowDeprecation pass a deprecation', () => {
+            allowDeprecation('oldFunction()');
+
+            oldFunction();
+
+            expect(deprecations.entries).toHaveLength(1);
+            expect(failsTheTest(deprecations.entries[0], deprecations.allowed)).toBe(false);
         });
 
-        it('does not reach the production guard', () => {
+        it.activeFeatureFlags(['v7.0.0.0'])('still throws for a major the test activates', () => {
+            expect(() => oldFunction()).toThrow(`Tried to access deprecated functionality: ${oldFunctionMessage}`);
+        });
+
+        it('reaches the production guard after useProductionDeprecationGuard', () => {
+            const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
             useProductionDeprecationGuard();
 
             triggerOtherDeprecation();
 
-            expectSilence();
+            expect(warn).toHaveBeenCalledWith('[Deprecation]', 'otherFunction() is deprecated.');
         });
     });
 });

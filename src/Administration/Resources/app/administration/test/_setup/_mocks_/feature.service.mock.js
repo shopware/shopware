@@ -6,7 +6,6 @@ import Feature from 'src/core/feature';
 import FeatureService from 'src/app/service/feature.service';
 import normalizeFeatureFlag from '../../_helper_/normalizeFeatureFlag';
 import { recordDeprecation, shouldHandleDeprecationsThroughMock } from '../../_helper_/deprecations';
-import { isPlatformDeprecationRun } from '../../_helper_/platformDeprecationRun';
 
 global.activeFeatureFlags = global.activeFeatureFlags ?? [];
 
@@ -25,14 +24,9 @@ export class FeatureMock extends Feature {
 const productionTriggerDeprecationOrThrow = Feature.triggerDeprecationOrThrow;
 
 /**
- * Mocks the real `triggerDeprecationOrThrow` and silences deprecations if they are explicitly asserted or allowed.
- * In the Jest run of an extension, it neither records nor reaches the production guard, see `isPlatformDeprecationRun()`.
+ * Mocks the real `triggerDeprecationOrThrow` and silences deprecations if they are explicitly asserted or allowed
  */
 function triggerDeprecationOrThrow(majorFlag, message, options) {
-    if (!isPlatformDeprecationRun()) {
-        return;
-    }
-
     // `FeatureMock` knows the flags of `it.activeFeatureFlags()`, a directly imported `Feature` only those a spec
     // sets with `Feature.init()`: the major counts as active when either does.
     const feature = FeatureMock.isActive(majorFlag) ? FeatureMock : this;

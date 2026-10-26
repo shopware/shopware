@@ -303,6 +303,19 @@ Tax providers replace the calculated taxes afterwards and keep the displayed fla
 Amounts that carry a single value instead of a net and gross pair, such as absolute or fixed-price promotion discounts, manual shipping costs and credits, also keep the displayed flavour, so under a `net` basis their net value differs slightly per country.
 
 The customer group detail page offers both settings separately. Plugins customize the selection through the new extension point `Shopware\Core\Checkout\Cart\Extension\PriceSelectorExtension` (`price-selector.select.pre` and `.post`), for example to apply charm-price rounding to derived gross prices. `GrossPriceCalculator` now grosses up uncalculated prices over several tax rules so that its own tax split returns the given net value; prices with a single tax rule are unchanged. Background and trade-offs are documented in the ADR `adr/2026-08-11-decouple-price-calculation-basis-from-tax-display.md`.
+### Product documents
+
+Products can now carry documents such as manuals, datasheets or certificates.
+The new entity `product_document` links a product to a media file for one language, with a `title`, a `position` and custom fields.
+A file can be linked to many products and languages, but only once per product and language.
+A second link fails with `PRODUCT__DUPLICATE_DOCUMENT` (400).
+
+* `product.documents` is available in the Admin API and the Store API.
+  Variants without their own documents inherit the documents of their parent, like `product.media`.
+* Deleting a product, a language or a media file deletes its document links.
+  Cloning a product copies them, and both products use the same files.
+* The new default media folder "Product documents" keeps its files public and creates no thumbnails.
+* Existing roles with the product viewer or editor permission get the matching `product_document` privileges.
 
 ## Administration
 

@@ -20,6 +20,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
@@ -178,6 +179,8 @@ class LanguageEntity extends Entity
     protected ?NumberRangeTranslationCollection $numberRangeTranslations = null;
 
     protected ?ProductReviewCollection $productReviews = null;
+
+    protected ?ProductDocumentCollection $productDocuments = null;
 
     protected ?SeoUrlCollection $seoUrlTranslations = null;
 
@@ -732,6 +735,16 @@ class LanguageEntity extends Entity
     public function setProductReviews(ProductReviewCollection $productReviews): void
     {
         $this->productReviews = $productReviews;
+    }
+
+    public function getProductDocuments(): ?ProductDocumentCollection
+    {
+        return $this->productDocuments;
+    }
+
+    public function setProductDocuments(ProductDocumentCollection $productDocuments): void
+    {
+        $this->productDocuments = $productDocuments;
     }
 
     public function getSeoUrlTranslations(): ?SeoUrlCollection

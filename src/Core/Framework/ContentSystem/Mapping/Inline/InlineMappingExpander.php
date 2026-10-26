@@ -9,8 +9,8 @@ use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Replaces every `{{map:path}}` token in a forest's `inlineMappable` string properties with the text it resolves to,
- * producing the forest the mint then reads.
+ * Expands authored `{{map:path}}` tokens in eligible text positions of a forest's `inlineMappable` string properties,
+ * producing the forest the mint then reads. Valid tokens inside HTML markup, including attributes, stay literal.
  *
  * WHY THIS IS A STORED-TREE REWRITE rather than a step inside `Rendering/RenderedElementFactory`. The factory mints
  * a property from four tiers in a fixed lowest-first order, and provenance is recorded per tier. An inline token
@@ -20,9 +20,9 @@ use Shopware\Core\Framework\Log\Package;
  * a fifth concern in the one method whose ordering is, as its own docblock puts it, load-bearing twice.
  *
  * The consequence to be aware of is that the value the mint records as DeclaredAuthored is the EXPANDED text, not
- * what the author typed. A resolved token is replaced; an unresolved token is removed while surrounding authored
- * text is retained, so a token in a supported inline-mappable property never reaches the Storefront. The editing surface
- * reads the original stored elements through the codec.
+ * what the author typed. In eligible text positions, a resolved token is replaced and an unresolved token is removed
+ * while surrounding authored text is retained. Valid tokens inside markup stay literal; normal template sanitization
+ * still applies. The editing surface reads the original stored elements through the codec.
  *
  * SHAPE RULE, borrowed verbatim from `Layout/Scaffolding/StoredTreePreparer::resolvePlaceholders()`: top-level
  * string properties only for interpolation. A token is resolved only at a declared, `inlineMappable`-flagged key;

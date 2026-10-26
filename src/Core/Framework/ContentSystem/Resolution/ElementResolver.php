@@ -96,10 +96,10 @@ class ElementResolver
      * be chosen instead is the mapping candidate endpoint's, not this list's — a resolution has no way to
      * enumerate it, since it never sees the root source.
      *
-     * Note what this deliberately does NOT do: a required primitive with a mapping and no authored value is
-     * still reported `unresolved_required` by the diagnostics layer. That is correct rather than a gap. A
-     * mapped path that resolves to null falls back to the authored value instead of delivering the null, so a
-     * required property with nothing authored genuinely can render empty, and the mapping does not make it safe.
+     * Static diagnostics still report a required mapped primitive with no authored value as `unresolved_required`;
+     * they do not inspect source values. During rendering, a resolved null is delivered as a present null and
+     * overrides authored or loader-resolved content. Missing or empty source values permit fallback to that
+     * content. A mapping alone therefore does not guarantee that a required property has a value.
      */
     private function mappedCandidate(?string $path): ?ResolutionCandidate
     {

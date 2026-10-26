@@ -64,7 +64,8 @@ class McpIntegrationDelegationTest extends TestCase
         $result = $response['result'] ?? null;
         static::assertIsArray($result);
         static::assertFalse($result['isError'] ?? false, json_encode($result, \JSON_THROW_ON_ERROR));
-        static::assertNotEmpty($result['content'] ?? []);
+        static::assertArrayHasKey('content', $result);
+        static::assertNotSame([], $result['content']);
     }
 
     public function testADelegatedToolCallIsRejectedWhenTheNamedUserDoesNotAllowTheTool(): void

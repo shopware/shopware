@@ -2,6 +2,13 @@
 
 ## Core
 
+### Promotion code rate limiting
+
+Promotion code submissions through the Store API and Storefront now share a separate rate limit.
+Promotion codes use a separate allowance from the per-item `cart_add_line_item` limit, so submitting a different code does not start a new allowance.
+Configure the backoff policy through `shopware.api.rate_limiter.promotion_code`.
+Store API clients receive HTTP 429 when throttled, while Storefront shoppers receive a message with the waiting time.
+
 ### Webhooks are authorized against their owner
 
 Webhooks created through the Admin API without an app now belong to the user or integration that created them, and only receive the events their owner is allowed to read. Nothing changes for webhooks an app registers in its manifest.
@@ -40,6 +47,10 @@ The new `bin/console sales-channel:file:enable [ids...] [--all]` command switche
 It only creates missing files, so a file switched off in the Administration stays off, and a second run changes nothing.
 The command always exits with `0`, which makes it suitable for install hooks in `.shopware-project.yml`.
 
+### `NotFilter` negates a single filter
+
+`NotFilter::negate()` negates a single filter without an operator and a list of queries, so `NotFilter::negate(new EqualsFilter('parentId', null))` replaces `new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('parentId', null)])`. Both create the same filter. With `v6.8.0`, the `NotFilter` constructor accepts the single filter directly as well.
+
 ### Product line items carry the GARAN label they were shown with
 
 Cart and order product line items now store their GARAN label values in `payload.garanLabel`; editing an order keeps them as is.
@@ -68,6 +79,12 @@ The Storefront profile page marks the VAT ID field as required based on the same
 With `shopware.media.remote_thumbnails.enable`, SVGs now have an empty `thumbnails` collection, as in local mode.
 Before, their `srcset` claimed widths that the returned original file did not have, so browsers rendered small SVG logos far too small.
 Media loaded without the `mediaType` field keep their thumbnail URLs, as the type can't be checked.
+
+### Tax-free detection of new sales channel contexts matches the cart
+
+New sales channel contexts now decide tax-free delivery like the cart (`TaxDetector::isNetDelivery()`):
+commercial customers only get "Tax-free (B2B)", all other customers only "Tax-free (B2C)".
+Cart and order taxes stay the same, but Rule Builder conditions like "Cart amount" can match differently than before for customers who only met the other setting.
 
 ## API
 
@@ -135,7 +152,7 @@ The storefront rows are untouched by this and keep being maintained by the Store
 
 ### Known core deprecations log an error in next-major mode
 
-Core usages that are not migrated yet are listed in `src/Administration/Resources/app/administration/src/meta/deprecation-baseline.json`.
+Core usages that are not migrated yet are listed in `src/Administration/Resources/app/administration/src/core/deprecation-baseline.json`.
 In next-major mode, a deprecation with a listed message logs a console error instead of throwing, so the Administration stays usable.
 Any other deprecation still throws.
 
@@ -153,6 +170,10 @@ If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ## Storefront
+
+### Theme compilation completion is notified once
+
+With asynchronous theme compilation, saving a theme or activating an extension notifies the Administration user once when the compilation is completed, instead of once per sales channel. Code that compiles several themes or sales channels at once can do the same by passing `false` as the new sixth argument `$notifyOnAsyncCompletion` of `ThemeService::compileTheme()` for all but the last call. Classes overriding `compileTheme()` should add the parameter `bool $notifyOnAsyncCompletion = true`; it becomes part of the signature in 6.8.0.0.
 
 ### Guests can open the profile page
 
@@ -180,6 +201,11 @@ The `ProductDetailReadiness` and `ProductListingReadiness` system checks only pr
 Pages that extensions such as Dynamic Access restrict by rules no longer fail `bin/console system:check --context=pre_rollout`.
 If a sales channel has no visible page, the check reports `SKIPPED`.
 A sales channel whose domain cannot be resolved is now reported as its own failure, and the other sales channels are still checked.
+### App registration requires a verified `APP_URL`
+
+Shopware now verifies that `APP_URL` reaches this installation before it registers the shop with an app server, including the Shopware service registry. This applies in every environment and to every app server. The shop must be able to reach itself under `APP_URL`, including `/api/app-system/shop/verify` when it sits behind HTTP authentication or an IP allowlist. If the verification fails, the app installation, update or secret rotation is aborted with the reason. The error code `FRAMEWORK__APP_URL_FAILED_VERIFICATION` (HTTP 502) means the verification request did not reach this installation; `FRAMEWORK__APP_URL_VERIFICATION_UNAVAILABLE` (HTTP 503) means it failed temporarily, for example on a timeout or rate limit, and can be retried. The shop ID change strategies `move-shop-permanently` and `reinstall-apps` verify the new `APP_URL` first, and leave the shop ID unchanged when it fails. Run `bin/console app:url:verify` to check the configuration.
+
+The verification stores its token in the `cache.app_url_verification` cache pool, which uses `cache.app` by default. With several app servers, this pool must be shared between them, for example on Redis.
 
 # 6.7.16.0
 

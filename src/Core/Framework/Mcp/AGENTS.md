@@ -280,6 +280,9 @@ The design is recorded in `adr/2026-10-21-mcp-oauth-client-authentication.md`.
   Any other subrequest rejects the token, because ESI fragments copy the parent's `Authorization` header.
   Services that validate bearer tokens themselves (system health check, Administration snippets) inherit the rejection.
   `SymfonyBearerTokenValidatorConsumerTest` lists every service using the validator and fails when one is added; review it for this rule.
+- The binding separates the MCP endpoint from the rest of the Admin API, not one host from another.
+  A token issued for the MCP resource of one allowed host is accepted on the MCP endpoint of every other allowed host of the same installation, because it is the same user with the same permissions.
+  The validator does not compare the bound resource with the requested host; keep it that way unless hosts of one installation get separate principals.
 - The consent page forwards `resource` to `GET /api/oauth/authorize/info` and `POST /api/oauth/authorize`, and the info answer returns it so the page says that access is limited to the MCP endpoint.
   An Administration built before resource support drops it: the code is stored without resource and the token request fails with `invalid_target` and a hint to rebuild the Administration.
 - A bound token authenticates its user like any other token of that user; MCP sessions and the rate limit treat it no differently.

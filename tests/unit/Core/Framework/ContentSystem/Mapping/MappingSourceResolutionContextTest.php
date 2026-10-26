@@ -22,12 +22,11 @@ class MappingSourceResolutionContextTest extends TestCase
         $rootValues = ['product' => 'product-data'];
         $loaderValues = ['name' => 'Shirt'];
         $cacheContext = new RenderingCacheContext();
-        $context = new MappingSourceResolutionContext($element, $rootValues, $loaderValues, $cacheContext, 'product');
+        $context = new MappingSourceResolutionContext($element, $rootValues, $loaderValues, $cacheContext);
 
         static::assertSame($element, $context->element);
         static::assertSame($rootValues, $context->rootValues);
         static::assertSame($loaderValues, $context->loaderValues);
         static::assertSame($cacheContext, $context->cacheContext);
-        static::assertSame('product', $context->rootSource);
     }
 }

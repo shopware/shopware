@@ -91,7 +91,7 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ### Content System mapping provider API
 
-`MappingSourceResolution` is now part of the public mapping-provider API. `MappingSourceResolutionContext` supplies the element, root values, resolved loader values, root source, and rendering cache context. It no longer exposes the sales-channel context or HTTP request; providers should use data loaders for context-dependent data and preserve cache dependencies through the supplied rendering cache context.
+`MappingSourceResolution` is now part of the public mapping-provider API. `MappingSourceResolutionContext` supplies the element, root values, resolved loader values, and rendering cache context. It no longer exposes the sales-channel context or HTTP request; providers should use data loaders for context-dependent data and preserve cache dependencies through the supplied rendering cache context. The mapping registry resolves sources through `resolveSource($rootSource, $source, $context)`, with a required root-source argument. Registry decorators must forward all three arguments.
 
 ### Content System mapping sources
 

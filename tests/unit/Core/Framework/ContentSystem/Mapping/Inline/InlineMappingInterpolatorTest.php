@@ -76,7 +76,7 @@ class InlineMappingInterpolatorTest extends TestCase
         );
         $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
         $candidates->method('forRootSource')->willReturn([$candidate->source->displayName() => $candidate]);
-        $candidates->method('resolveSourceForRootSource')->willReturn(MappingSourceResolution::resolved('EUR'));
+        $candidates->method('resolveSource')->willReturn(MappingSourceResolution::resolved('EUR'));
         $interpolator = new InlineMappingInterpolator(
             $candidates,
             $this->mappingInspector($candidates),
@@ -99,7 +99,7 @@ class InlineMappingInterpolatorTest extends TestCase
         $candidate = new MappingCandidate('product.name', 'name', '', 'basic', 'string');
         $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
         $candidates->method('forRootSource')->willReturn([$candidate->path => $candidate]);
-        $candidates->method('resolveSourceForRootSource')->willThrowException($failure);
+        $candidates->method('resolveSource')->willThrowException($failure);
         $interpolator = new InlineMappingInterpolator($candidates, $this->mappingInspector($candidates));
 
         $this->expectExceptionObject($failure);

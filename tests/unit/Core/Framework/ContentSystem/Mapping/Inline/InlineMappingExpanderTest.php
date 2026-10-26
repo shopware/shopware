@@ -122,7 +122,7 @@ class InlineMappingExpanderTest extends TestCase
         );
         $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
         $candidates->method('forRootSource')->willReturn([$candidate->path => $candidate]);
-        $candidates->method('resolveSourceForRootSource')->willReturn(MappingSourceResolution::resolved('EUR'));
+        $candidates->method('resolveSource')->willReturn(MappingSourceResolution::resolved('EUR'));
         $mappingInspector = $this->mappingInspector($candidates);
         $expander = new InlineMappingExpander(
             $mappingInspector,
@@ -152,10 +152,13 @@ class InlineMappingExpanderTest extends TestCase
     #[TestDox('removes inline tokens when the layout has no root source')]
     public function testRemovesTokensWithoutARootSource(): void
     {
+        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates->expects($this->never())->method('forRootSource');
+        $candidates->expects($this->never())->method('resolveSource');
         $element = $this->element(['text' => StoredValue::ofString('{{map:product.name}}')]);
         $forest = [$element];
 
-        $expanded = $this->expandPrepared($this->expander(), $forest, $this->ambient(), null);
+        $expanded = $this->expandPrepared($this->expander($candidates), $forest, $this->ambient(), null);
 
         static::assertSame('', $expanded[0]->property('text')?->asString());
     }
@@ -273,7 +276,7 @@ class InlineMappingExpanderTest extends TestCase
         $candidate = new MappingCandidate('product.name', 'Name', '', 'basic', 'string');
         $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
         $candidates->method('forRootSource')->willReturn([$candidate->path => $candidate]);
-        $candidates->expects($this->exactly(4))->method('resolveSourceForRootSource')
+        $candidates->expects($this->exactly(4))->method('resolveSource')
             ->willReturn(MappingSourceResolution::resolved(str_repeat('x', 1048576)));
         $child = $this->element(['text' => StoredValue::ofString('{{map:product.name}}')], id: 'child');
         $parent = $this->element([
@@ -303,7 +306,7 @@ class InlineMappingExpanderTest extends TestCase
         $candidate = new MappingCandidate('product.name', 'Name', '', 'basic', 'string');
         $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
         $candidates->method('forRootSource')->willReturn([$candidate->path => $candidate]);
-        $candidates->expects($this->exactly(4))->method('resolveSourceForRootSource')
+        $candidates->expects($this->exactly(4))->method('resolveSource')
             ->willReturn(MappingSourceResolution::resolved(str_repeat('x', 1048576)));
         $forest = [];
         foreach (['first', 'second', 'third', 'fourth', 'fifth'] as $id) {
@@ -403,8 +406,8 @@ class InlineMappingExpanderTest extends TestCase
                     valueType: 'string',
                 ),
             ]);
-            $candidates->method('resolveSourceForRootSource')->willReturnCallback(
-                static function (?string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution {
+            $candidates->method('resolveSource')->willReturnCallback(
+                static function (string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution {
                     $root = $context->rootValues[$source->id] ?? null;
 
                     $values = $root instanceof StubPathStruct ? $root->getVars() : [];

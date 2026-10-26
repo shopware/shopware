@@ -86,7 +86,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $provider->candidates = [$updated];
 
         static::assertSame($original, $registry->forRootSource('product')['plugin:example']);
-        static::assertSame('resolved', $registry->resolveSourceForRootSource('product', $source, $context)->value);
+        static::assertSame('resolved', $registry->resolveSource('product', $source, $context)->value);
         static::assertSame(1, $provider->provideCalls);
 
         $registry->reset();
@@ -108,11 +108,13 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $registry = new ContentSystemMappingCandidateRegistry([
             new SourceResolvingProvider(['product'], [], 'broad provider'),
             new SourceResolvingProvider(['product'], [$candidate], 'candidate provider'),
+            new SourceResolvingProvider(['category'], [$candidate], 'category provider'),
         ]);
         $decorator = new ForwardingMappingCandidateRegistry($registry);
 
-        static::assertSame('candidate provider', $decorator->resolveSourceForRootSource('product', $source, $context)->value);
-        static::assertFalse($decorator->resolveSourceForRootSource('category', $source, $context)->hasValue);
+        static::assertSame('candidate provider', $decorator->resolveSource('product', $source, $context)->value);
+        static::assertSame('category provider', $decorator->resolveSource('category', $source, $context)->value);
+        static::assertFalse($decorator->resolveSource('landing_page', $source, $context)->hasValue);
     }
 
     public function testCollectsOnlyTheConsultedCandidatesCacheTags(): void
@@ -125,14 +127,13 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
             [],
             [],
             $cacheContext,
-            'product',
         );
         $registry = new ContentSystemMappingCandidateRegistry([
             new SourceResolvingProvider(['product'], [$candidate], 'resolved'),
             new StaticMappingCandidateProvider(['product'], [self::candidate('product.name')]),
         ]);
 
-        $registry->resolveSource($source, $context);
+        $registry->resolveSource('product', $source, $context);
 
         static::assertSame(['candidate-tag', 'set-tag'], $cacheContext->getTags());
     }
@@ -147,7 +148,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         ]);
         $context = new MappingSourceResolutionContext(new StoredElement('element-id', 'test-element'), [], [], null);
 
-        static::assertSame('owning provider', $registry->resolveSourceForRootSource('product', $source, $context)->value);
+        static::assertSame('owning provider', $registry->resolveSource('product', $source, $context)->value);
     }
 
     public function testForwardingDecoratorPreservesProviderInputsAndTheLiveCacheContext(): void
@@ -162,13 +163,13 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $provider->method('supports')->willReturn(true);
         $provider->method('provide')->willReturn([self::candidate('product.name', source: $source)]);
         $provider->expects($this->once())->method('resolveRootSource')->willReturnCallback(
-            static function (MappingSourceReference $reference, MappingSourceResolutionContext $forwarded) use ($source, $element, $rootValues, $loaderValues, $cacheContext): MappingSourceResolution {
+            static function (MappingSourceReference $reference, MappingSourceResolutionContext $forwarded) use ($source, $element, $rootValues, $loaderValues, $cacheContext, $context): MappingSourceResolution {
                 static::assertSame($source, $reference);
+                static::assertSame($context, $forwarded);
                 static::assertSame($element, $forwarded->element);
                 static::assertSame($rootValues, $forwarded->rootValues);
                 static::assertSame($loaderValues, $forwarded->loaderValues);
                 static::assertSame($cacheContext, $forwarded->cacheContext);
-                static::assertSame('product', $forwarded->rootSource);
                 $forwarded->cacheContext->addTags(['provider-data']);
 
                 return MappingSourceResolution::resolved($forwarded->loaderValues['selectedName']);
@@ -176,23 +177,8 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         );
         $registry = new ForwardingMappingCandidateRegistry(new ContentSystemMappingCandidateRegistry([$provider]));
 
-        static::assertSame('Shirt', $registry->resolveSourceForRootSource('product', $source, $context)->value);
+        static::assertSame('Shirt', $registry->resolveSource('product', $source, $context)->value);
         static::assertSame(['provider-data'], $cacheContext->getTags());
-    }
-
-    public function testSourceResolutionWithoutARootSourceDoesNotBypassTheCatalogue(): void
-    {
-        $source = new MappingSourceReference('plugin', 'example');
-        $provider = new SourceResolvingProvider(['product'], [self::candidate('plugin:example', source: $source)], 'resolved');
-        $registry = new ContentSystemMappingCandidateRegistry([$provider]);
-        $context = new MappingSourceResolutionContext(
-            new StoredElement('element-id', 'test-element'),
-            [],
-            [],
-            null,
-        );
-
-        static::assertFalse($registry->resolveSource($source, $context)->hasValue);
     }
 
     public function testResolutionKeepsPresentNullDistinctFromNoValue(): void
@@ -202,7 +188,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $registry = new ContentSystemMappingCandidateRegistry([$provider]);
         $context = new MappingSourceResolutionContext(new StoredElement('element-id', 'test-element'), [], [], null);
 
-        $result = $registry->resolveSourceForRootSource('product', $source, $context);
+        $result = $registry->resolveSource('product', $source, $context);
 
         static::assertTrue($result->hasValue);
         static::assertNull($result->value);
@@ -221,7 +207,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
 
         $this->expectExceptionObject($failure);
 
-        $registry->resolveSourceForRootSource('product', $source, $context);
+        $registry->resolveSource('product', $source, $context);
     }
 
     public function testProviderSourceSupportErrorPropagates(): void
@@ -237,7 +223,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
 
         $this->expectException(\TypeError::class);
 
-        $registry->resolveSourceForRootSource('product', $source, $context);
+        $registry->resolveSource('product', $source, $context);
     }
 
     public function testRootProviderResolutionErrorPropagates(): void
@@ -253,7 +239,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
 
         $this->expectException(\TypeError::class);
 
-        $registry->resolveSourceForRootSource('product', $source, $context);
+        $registry->resolveSource('product', $source, $context);
     }
 
     public function testProviderCatalogueFailurePropagates(): void
@@ -389,10 +375,11 @@ class ForwardingMappingCandidateRegistry extends AbstractContentSystemMappingCan
     }
 
     public function resolveSource(
+        string $rootSource,
         MappingSourceReference $source,
         MappingSourceResolutionContext $context,
     ): MappingSourceResolution {
-        return $this->decorated->resolveSource($source, $context);
+        return $this->decorated->resolveSource($rootSource, $source, $context);
     }
 }
 

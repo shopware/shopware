@@ -33,33 +33,8 @@ abstract class AbstractContentSystemMappingCandidateRegistry
      * explicit result distinguishes a resolved null from no value. Provider errors propagate to normal error handling.
      */
     abstract public function resolveSource(
+        string $rootSource,
         MappingSourceReference $source,
         MappingSourceResolutionContext $context,
     ): MappingSourceResolution;
-
-    /**
-     * Resolve a source through the provider that offered it for the specified root source. Passing the root
-     * source through the existing resolution context keeps this compatible with decorators that forward
-     * `resolveSource()` to the decorated registry.
-     */
-    public function resolveSourceForRootSource(
-        ?string $rootSource,
-        MappingSourceReference $source,
-        MappingSourceResolutionContext $context,
-    ): MappingSourceResolution {
-        if ($rootSource === null) {
-            return MappingSourceResolution::noValue();
-        }
-
-        return $this->resolveSource(
-            $source,
-            new MappingSourceResolutionContext(
-                $context->element,
-                $context->rootValues,
-                $context->loaderValues,
-                $context->cacheContext,
-                $rootSource,
-            ),
-        );
-    }
 }

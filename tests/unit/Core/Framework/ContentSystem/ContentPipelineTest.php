@@ -362,8 +362,8 @@ class ContentPipelineTest extends TestCase
         $candidate = new MappingCandidate('product.name', 'Product name', '', 'basic', 'string', source: $source);
         $candidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
         $candidateRegistry->method('forRootSource')->willReturn(['product.name' => $candidate]);
-        $candidateRegistry->method('resolveSourceForRootSource')->willReturnCallback(
-            static function (?string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context) use (&$order): MappingSourceResolution {
+        $candidateRegistry->method('resolveSource')->willReturnCallback(
+            static function (string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context) use (&$order): MappingSourceResolution {
                 $order[] = 'inline expansion';
 
                 return MappingSourceResolution::resolved('Mapped product');

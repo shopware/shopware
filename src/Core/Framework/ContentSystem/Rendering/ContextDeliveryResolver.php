@@ -201,7 +201,7 @@ final readonly class ContextDeliveryResolver
                     continue;
                 }
 
-                $resolved = $this->mappingSources->resolveSourceForRootSource(
+                $resolved = $this->mappingSources->resolveSource(
                     $rootSource,
                     $mappingSource,
                     new MappingSourceResolutionContext(

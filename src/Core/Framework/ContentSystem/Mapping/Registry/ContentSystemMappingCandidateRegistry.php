@@ -52,14 +52,11 @@ final class ContentSystemMappingCandidateRegistry extends AbstractContentSystemM
     }
 
     public function resolveSource(
+        string $rootSource,
         MappingSourceReference $source,
         MappingSourceResolutionContext $context,
     ): MappingSourceResolution {
-        if ($context->rootSource === null) {
-            return MappingSourceResolution::noValue();
-        }
-
-        $catalogue = $this->catalogueForRootSource($context->rootSource);
+        $catalogue = $this->catalogueForRootSource($rootSource);
         $candidateKey = $source->displayName();
         $candidate = $catalogue['candidates'][$candidateKey] ?? null;
         $provider = $catalogue['providers'][$candidateKey] ?? null;

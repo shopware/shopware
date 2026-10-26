@@ -137,7 +137,7 @@ final class InlineMappingInterpolator
         ?RenderingCacheContext $cacheContext,
         array $loaderValues,
     ): MappingSourceResolution {
-        return $this->candidateRegistry->resolveSourceForRootSource(
+        return $this->candidateRegistry->resolveSource(
             $rootSource,
             $candidate->source,
             new MappingSourceResolutionContext($element, $ambient, $loaderValues, $cacheContext),

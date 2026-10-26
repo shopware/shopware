@@ -1,3 +1,15 @@
+# 6.7.16.1
+
+## Security Fixes
+
+### Templates can no longer change contexts
+
+Twig templates can no longer call methods that change a `Context`, a `SalesChannelContext` or a context source, such as setters.
+Reading them stays possible, for example `context.languageId` or `context.getLanguageId()`.
+Such a call now fails with the error code `FRAMEWORK__TWIG_METHOD_CALL_NOT_ALLOWED`.
+This applies to all Twig templates, including App Scripts and mail, product export and SEO URL templates.
+Change the context in PHP instead, for example in an event subscriber.
+
 # 6.7.16.0 (upcoming)
 
 ## Critical Fixes
@@ -86,14 +98,6 @@ With the newly added tabs feature, plugin developers can now add another layer o
 ```
 
 ## Core
-
-### Templates can no longer change contexts
-
-Twig templates can no longer call methods that change a `Context`, a `SalesChannelContext` or a context source, such as setters.
-Reading them stays possible, for example `context.languageId` or `context.getLanguageId()`.
-Such a call now fails with the error code `FRAMEWORK__TWIG_METHOD_CALL_NOT_ALLOWED`.
-This applies to all Twig templates, including App Scripts and mail, product export and SEO URL templates.
-Change the context in PHP instead, for example in an event subscriber.
 
 ### Document-type deprecations
 

@@ -53,6 +53,28 @@ Every registered tool belongs to a group, and group membership is the single sou
 
 The `discovery` group is reserved for the three meta-tools (`McpToolsetRegistry::DISCOVERY_META_TOOLS`). A plugin or bundle tool that claims it is moved to `other` at compile time, `bin/console debug:mcp` lists it with a warning, and the `shopware.mcpReservedToolGroup` PHPStan rule reports it during development. An extension that needs its tools on the first `tools/list`, for example for a proxy endpoint, selects its own toolset with `?toolsets=` instead, as agentic-commerce does on `/ucp/mcp`.
 
+### Toolset descriptions
+
+`shopware-toolsets-list` shows one description per toolset, and a model reads it to decide which toolset to enable.
+Set it with the optional `description` argument of `#[McpToolGroup]`:
+
+```php
+#[McpTool(name: 'swag-report-revenue', description: '...')]
+#[McpToolGroup('swag-report', description: 'Revenue, bestseller and customer reports for a date range. Enable it for questions about sales figures.')]
+class RevenueReportTool
+```
+
+- Describe the toolset, not the tool: which tasks it covers and when to enable it.
+  Keep it to one or two sentences, because it is sent on every `shopware-toolsets-list` call.
+- Set it on one tool of the group.
+  If several tools of a group set different descriptions, the tool whose name sorts first wins and the container build logs the conflict.
+- Do not describe a group you do not own, such as the core `entity` group.
+- Without a description the toolset gets a generated one (`Tools explicitly assigned to the "<group>" MCP tool group.`), which gives a model little to route on.
+- A tool that claims the reserved `discovery` group loses its description together with the group.
+- App toolsets (`mcp.xml`) cannot carry a description yet; they always get the generated one.
+
+`McpToolAnalysisCompilerPass` collects the descriptions per scope into `shopware.mcp.tool_group_descriptions` and `shopware.store_api_mcp.tool_group_descriptions`, and `McpToolsetRegistry` puts them into the toolset entries that `shopware-toolsets-list` and `shopware-toolset-enable` return.
+
 The Store API endpoint (`/store-api/_mcp`) uses the same progressive disclosure via its own toolset meta-tools (`StoreApiToolsetsListTool` / `StoreApiToolsetEnableTool`) and a `store-api` toolset group, and its `shopware-tool-search` carries the same `_meta.usage` hint. Both endpoints' server `instructions` (returned in every `initialize` response) point clients at `shopware-tool-search` as the discovery entry point when no advertised tool matches the requested action.
 
 ## Architecture

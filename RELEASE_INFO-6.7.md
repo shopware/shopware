@@ -82,6 +82,19 @@ New sales channel contexts now decide tax-free delivery like the cart (`TaxDetec
 commercial customers only get "Tax-free (B2B)", all other customers only "Tax-free (B2C)".
 Cart and order taxes stay the same, but Rule Builder conditions like "Cart amount" can match differently than before for customers who only met the other setting.
 
+### MCP toolsets can carry a description
+
+`#[McpToolGroup]` takes an optional `description` that describes the whole toolset.
+`shopware-toolsets-list` and `shopware-toolset-enable` return it instead of the generated `Tools explicitly assigned to the "<group>" MCP tool group.`, so a model can tell which toolset fits a task.
+All core toolsets now have one.
+Plugins that add their own toolset should set it on one tool of the group:
+
+```php
+#[McpToolGroup('swag-report', description: 'Revenue, bestseller and customer reports for a date range. Enable it for questions about sales figures.')]
+```
+
+Existing `#[McpToolGroup('<group>')]` declarations keep working and keep the generated description.
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request

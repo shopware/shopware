@@ -59,7 +59,7 @@ if (isCi) {
 const deprecationBaselineReporter: [string, Record<string, unknown>] = [
     '<rootDir>/test/_helper_/deprecationBaselineReporter.js',
     {
-        baselinePath: join(__dirname, 'src/meta/deprecation-baseline.json'),
+        baselinePath: join(__dirname, 'src/core/deprecation-baseline.json'),
         run: isMajorRun(loadFeatureConfig(), process.env) ? 'major' : 'default',
     },
 ];

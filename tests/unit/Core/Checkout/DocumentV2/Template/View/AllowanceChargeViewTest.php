@@ -239,6 +239,51 @@ class AllowanceChargeViewTest extends TestCase
         static::assertSame(AllowanceChargeReason::DISCOUNT, $views[1]->reasonCode);
     }
 
+    public function testListFromOrderEmitsAbsoluteAllowanceForDiscountLineItem(): void
+    {
+        $discount = $this->createPromotionLineItem(
+            label: 'script-discount',
+            type: LineItem::DISCOUNT_LINE_ITEM,
+            unitPrice: -10.0,
+            total: -10.0,
+            taxes: [new CalculatedTax(-0.7, 7.0, -10.0)],
+            payload: [],
+        );
+
+        $order = $this->createOrder(CartPrice::TAX_STATE_NET, deliveries: [], lineItems: [$discount]);
+
+        $views = AllowanceChargeView::listFromOrder($order);
+        static::assertCount(1, $views);
+        $view = $views[0];
+
+        static::assertFalse($view->isCharge);
+        static::assertSame(AllowanceChargeReason::DISCOUNT, $view->reasonCode);
+        static::assertSame(10.0, $view->actualAmount);
+        static::assertNull($view->calculationPercent);
+        static::assertNull($view->basisAmount);
+    }
+
+    public function testListFromOrderEmitsChargeForSurchargeDiscountLineItem(): void
+    {
+        $surcharge = $this->createPromotionLineItem(
+            label: 'script-surcharge',
+            type: LineItem::DISCOUNT_LINE_ITEM,
+            unitPrice: 10.0,
+            total: 10.0,
+            taxes: [new CalculatedTax(0.7, 7.0, 10.0)],
+            payload: [],
+        );
+
+        $order = $this->createOrder(CartPrice::TAX_STATE_NET, deliveries: [], lineItems: [$surcharge]);
+
+        $views = AllowanceChargeView::listFromOrder($order);
+        static::assertCount(1, $views);
+        $view = $views[0];
+
+        static::assertTrue($view->isCharge);
+        static::assertSame(10.0, $view->actualAmount);
+    }
+
     public function testListFromOrderSkipsRegularLineItems(): void
     {
         $product = new OrderLineItemEntity();

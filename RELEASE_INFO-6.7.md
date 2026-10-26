@@ -61,6 +61,13 @@ The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physica
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
 
+### ZUGFeRD documents include `discount` line items
+
+ZUGFeRD and XRechnung documents now contain line items of type `discount` (`LineItem::DISCOUNT_LINE_ITEM`), as added by app scripts via `services.cart.discount()` / `services.cart.surcharge()` or by extensions.
+Negative amounts are written as document level allowances, positive amounts as document level charges, split per tax rate.
+Before, these line items were missing from the document, so its totals did not add up and the e-invoice failed validation.
+Extensions that add these allowances or charges themselves, for example in a `zugferd-item-added.discount` event listener, must remove that workaround, otherwise the amount is contained twice.
+
 ### Business customers need a VAT ID for countries that require one
 
 If the country of the active billing address has "VAT Reg.No. required" enabled, the cart of a business customer without a VAT ID now carries the blocking error `vat-id-missing`, and the order can't be placed.

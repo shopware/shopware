@@ -153,6 +153,7 @@ Multi-select values in the Rule Builder now wrap and the condition row grows wit
 A value that was typed but not confirmed with Enter is now added when the field loses focus.
 A component set via `componentName` in the field config of `RuleConfig::taggedField()` is kept.
 If your extension overrides the Twig blocks `sw_condition_billing_zip_code_field_zip_codes` or `sw_condition_shipping_zip_code_field_zip_codes`, or styles `.sw-tagged-field` in these conditions, check your customization.
+
 ### Known core deprecations log an error in next-major mode
 
 Core usages that are not migrated yet are listed in `src/Administration/Resources/app/administration/src/meta/deprecation-baseline.json`.

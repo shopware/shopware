@@ -166,7 +166,8 @@ On the stateless revision there is no MCP session:
 
 * Choose toolsets in the endpoint URL, for example `/api/_mcp?toolsets=order,media`.
   `shopware-toolset-enable` answers with an error that points to `?toolsets=`.
-* List changes on the Admin API endpoint, for example after an app install, reach clients through `subscriptions/listen` within about a second.
+* List changes on the Admin API endpoint reach clients through `subscriptions/listen` within about a second.
+  They are raised by app installs, updates, activations and removals, and by edits of the MCP allowlist of an integration or a user, through any API.
   The stream reads the list versions from the database, so changes made on the CLI, in queue workers or on another host arrive as well.
   Each host reads them at most once a second, through a `cache.app` entry.
   The Store API endpoint does not announce list changes on the stateless revision, because its lists only change per session there.

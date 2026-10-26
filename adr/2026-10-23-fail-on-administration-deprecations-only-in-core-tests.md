@@ -17,25 +17,29 @@ If plugins have Jest tests, these fail and they need to wait for the Administrat
 
 ## Decision
 
-### Fail only in core's own Jest run
+In Jest runs that load core's test setup, a deprecation that is neither asserted, allowed, nor baselined temporarily fails the test only in the platform's own run:
 
-In Jest runs that load core's test setup, `triggerDeprecationOrThrow` is temporarily changed:
+- In the platform's own Jest run, it fails the test as before.
+- In any other Jest run, it does not fail the test.
+  The recorder still records it, so `toHaveTriggered()`, `allowDeprecation()`, and majors a test activates work as before.
 
-- In the platform's own Jest run, it behaves as before.
-- In any other Jest run, it does nothing.
+The platform's own run is recognised by where the spec file lives: inside the platform's `src/`.
+The console allow-list keeps its `[Deprecation]` entry until core is migrated.
 
 The running Administration does not use this test setup, so its guard still warns, and throws in next-major mode as before.
 
 ## Consequences
 
 * Extension Jest runs that reuse core's test setup no longer fail on deprecations that only core can fix.
-* These runs do not report deprecations until the check is removed.
+* These runs do not fail on unasserted deprecations until the check is removed.
   The running Administration, the `@deprecated` annotations, the release notes, and the upgrade notes still tell extension developers about them.
+* Extensions can still assert deprecations with `toHaveTriggered()` and test that their own guards throw with `it.activeFeatureFlags()`.
 * Core's own Jest run is unchanged and still fails on every unasserted deprecation that the baseline does not list.
 
 ## Exit plan
 
-Remove `isPlatformDeprecationRun()`, the marker, and the early return once core's deprecation baseline is stable.
+Remove `isPlatformDeprecationRun()` and its use in `endDeprecationLog()` once core's deprecation baseline is stable.
+Remove the `[Deprecation]` entry of the console allow-list then as well.
 Then extension Jest runs fail on unasserted deprecations too.
 
-Extensions that cannot migrate yet will need to migrate to the new extension tooling and can baseline these deprecations explicitly then.
+Extensions that cannot fix their deprecated uses yet will need to migrate to the new extension tooling and can baseline these deprecations explicitly then.

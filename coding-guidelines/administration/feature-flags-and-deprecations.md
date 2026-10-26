@@ -49,8 +49,8 @@ Pass a registered major flag and a version like `v6.8.0.0`. Anything else could 
 
 `@private` symbols and identifiers starting with `_` are no public contract and need no guard. See the [ADR](../../adr/2026-08-10-administration-javascript-deprecation-guards.md).
 
-For now, only core's own Jest run fails on deprecations.
-In the Jest run of an extension that reuses core's test setup, the deprecation recorder stays silent, while the running Administration warns as before.
+For now, only specs inside the platform's `src/` fail on unasserted deprecations.
+In the Jest run of an extension that reuses core's test setup, they are still recorded, so `toHaveTriggered()` works, and majors a test activates still throw.
 See the [ADR](../../adr/2026-10-23-fail-on-administration-deprecations-only-in-core-tests.md).
 
 ### Deprecation baseline

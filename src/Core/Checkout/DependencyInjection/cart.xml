@@ -120,6 +120,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
             <argument type="service" id="shopware.rate_limiter"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartLocker"/>
+            <argument type="service" id="request_stack"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute" public="true">

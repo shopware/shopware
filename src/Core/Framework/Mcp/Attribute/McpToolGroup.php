@@ -6,12 +6,19 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @experimental stableVersion:v6.8.0
+ *
+ * Assigns an MCP tool to a toolset. `$description` describes the whole toolset, not the tool: it is
+ * what a model reads in `shopware-toolsets-list` to decide which toolset to enable. Set it on one tool
+ * of the group; when several tools of a group set different descriptions, the tool whose name sorts
+ * first wins. Without a description the toolset gets a generated one.
  */
 #[Package('framework')]
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 final readonly class McpToolGroup
 {
-    public function __construct(public string $group)
-    {
+    public function __construct(
+        public string $group,
+        public ?string $description = null,
+    ) {
     }
 }

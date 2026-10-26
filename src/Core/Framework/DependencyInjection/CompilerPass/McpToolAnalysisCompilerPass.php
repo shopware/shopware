@@ -141,10 +141,18 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
         $container->setParameter($paramPrefix . 'tool_privileges', $privilegeMap);
     }
 
+    /**
+     * Stores tool-name => group and group => description. A description describes the whole toolset,
+     * so a group needs it on one tool only; when tools disagree, the tool whose name sorts first wins,
+     * which keeps the result independent of service registration order.
+     */
     private function buildToolGroupMap(ContainerBuilder $container, string $tag, string $paramPrefix): void
     {
         /** @var array<string, string> $groupMap tool-name => group */
         $groupMap = [];
+
+        /** @var array<string, string> $describedGroups tool-name => description, for tools that describe their group */
+        $describedGroups = [];
 
         foreach ($container->findTaggedServiceIds($tag) as $serviceId => $tags) {
             $definition = $container->getDefinition($serviceId);
@@ -161,19 +169,73 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
                 continue;
             }
 
-            $group = McpToolAttributeReader::resolveAttribute($class, McpToolGroup::class)?->group;
+            $groupAttribute = McpToolAttributeReader::resolveAttribute($class, McpToolGroup::class);
+            $group = $groupAttribute?->group;
 
             // The discovery group is reserved for the core meta-tools (see McpToolDiscoveryCompilerPass).
+            // A demoted tool's description described the group it claimed, not the fallback, so it is dropped.
             if (McpToolsetRegistry::isReservedGroupClaim($group, $tool->name)) {
-                $group = McpToolsetRegistry::FALLBACK_GROUP;
+                $groupMap[$tool->name] = McpToolsetRegistry::FALLBACK_GROUP;
+
+                continue;
             }
 
-            if ($group !== null && $group !== '') {
-                $groupMap[$tool->name] = $group;
+            if ($group === null || $group === '') {
+                continue;
+            }
+
+            $groupMap[$tool->name] = $group;
+
+            $description = trim($groupAttribute->description ?? '');
+            if ($description !== '') {
+                $describedGroups[$tool->name] = $description;
             }
         }
 
         $container->setParameter($paramPrefix . 'tool_groups', $groupMap);
+        $container->setParameter($paramPrefix . 'tool_group_descriptions', $this->resolveGroupDescriptions($container, $groupMap, $describedGroups));
+    }
+
+    /**
+     * @param array<string, string> $groupMap tool-name => group
+     * @param array<string, string> $describedGroups tool-name => description
+     *
+     * @return array<string, string> group => description
+     */
+    private function resolveGroupDescriptions(ContainerBuilder $container, array $groupMap, array $describedGroups): array
+    {
+        ksort($describedGroups);
+
+        $descriptions = [];
+        $describedBy = [];
+
+        foreach ($describedGroups as $toolName => $description) {
+            $group = $groupMap[$toolName];
+
+            if (!isset($descriptions[$group])) {
+                $descriptions[$group] = $description;
+                $describedBy[$group] = $toolName;
+
+                continue;
+            }
+
+            if ($descriptions[$group] !== $description) {
+                $container->log(
+                    $this,
+                    \sprintf(
+                        'MCP tool "%s" describes the "%s" toolset differently than "%s"; the description of "%s" is used.',
+                        $toolName,
+                        $group,
+                        $describedBy[$group],
+                        $describedBy[$group],
+                    ),
+                );
+            }
+        }
+
+        ksort($descriptions);
+
+        return $descriptions;
     }
 
     /**

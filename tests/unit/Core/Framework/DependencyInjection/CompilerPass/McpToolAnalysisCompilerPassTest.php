@@ -185,6 +185,52 @@ class McpToolAnalysisCompilerPassTest extends TestCase
             'swag-analysis-claims-discovery' => McpToolsetRegistry::FALLBACK_GROUP,
             McpToolsetRegistry::ENABLE_TOOLSET_TOOL => McpToolsetRegistry::DISCOVERY_GROUP,
         ], $container->getParameter('shopware.mcp.tool_groups'));
+
+        // The claimed description described the discovery group, so it must not describe the fallback toolset.
+        static::assertSame([], $container->getParameter('shopware.mcp.tool_group_descriptions'));
+    }
+
+    public function testToolGroupDescriptionsAreResolvedPerGroup(): void
+    {
+        $container = $this->createContainer();
+
+        foreach ([
+            'tool.explicit' => McpAnalysisTestExplicitGroupTool::class,
+            'tool.describing' => McpAnalysisTestDescribingGroupTool::class,
+            'tool.method-level' => McpAnalysisTestMethodLevelGroupTool::class,
+            'tool.blank' => McpAnalysisTestBlankDescriptionTool::class,
+        ] as $serviceId => $class) {
+            $container->setDefinition($serviceId, (new Definition($class))->addTag('mcp.tool'));
+        }
+
+        (new McpToolAnalysisCompilerPass())->process($container);
+
+        // One describing tool is enough for the whole group; a blank description is no description.
+        static::assertSame([
+            'catalogue' => 'Browse and edit the catalogue.',
+            'orders' => 'Manage orders.',
+        ], $container->getParameter('shopware.mcp.tool_group_descriptions'));
+        static::assertSame([], $this->groupDescriptionConflicts($container));
+    }
+
+    public function testConflictingToolGroupDescriptionsUseTheFirstToolByNameAndWarn(): void
+    {
+        $container = $this->createContainer();
+
+        // Registered in reverse name order: the result must not depend on registration order.
+        $container->setDefinition('tool.conflicting', (new Definition(McpAnalysisTestConflictingDescriptionTool::class))->addTag('mcp.tool'));
+        $container->setDefinition('tool.describing', (new Definition(McpAnalysisTestDescribingGroupTool::class))->addTag('mcp.tool'));
+
+        (new McpToolAnalysisCompilerPass())->process($container);
+
+        static::assertSame(
+            ['catalogue' => 'Browse and edit the catalogue.'],
+            $container->getParameter('shopware.mcp.tool_group_descriptions'),
+        );
+
+        $conflicts = $this->groupDescriptionConflicts($container);
+        static::assertCount(1, $conflicts);
+        static::assertStringContainsString('"swag-analysis-z-conflicting-tool" describes the "catalogue" toolset differently than "swag-analysis-describing-tool"', $conflicts[0]);
     }
 
     public function testToolWithMissingClassIsSkippedAndWarns(): void
@@ -232,6 +278,17 @@ class McpToolAnalysisCompilerPassTest extends TestCase
         $container->setParameter('shopware.mcp.tool_groups', []);
 
         return $container;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function groupDescriptionConflicts(ContainerBuilder $container): array
+    {
+        return array_values(array_filter(
+            $container->getCompiler()->getLog(),
+            static fn (string $message): bool => str_contains($message, 'toolset differently'),
+        ));
     }
 }
 
@@ -291,7 +348,7 @@ class McpAnalysisTestDynamicPrivilegeTool extends McpToolResponse
  * @internal
  */
 #[McpTool(name: 'swag-analysis-claims-discovery', description: 'extension tool claiming the reserved group')]
-#[McpToolGroup(McpToolsetRegistry::DISCOVERY_GROUP)]
+#[McpToolGroup(McpToolsetRegistry::DISCOVERY_GROUP, description: 'Always there.')]
 class McpAnalysisTestClaimingDiscoveryTool extends McpToolResponse
 {
     public function __invoke(): string
@@ -332,7 +389,7 @@ class McpAnalysisTestExplicitGroupTool extends McpToolResponse
 class McpAnalysisTestMethodLevelGroupTool extends McpToolResponse
 {
     #[McpTool(name: 'shopware-analysis-method-level-group-tool', description: 'method-level group tool')]
-    #[McpToolGroup('orders')]
+    #[McpToolGroup('orders', description: 'Manage orders.')]
     public function __invoke(): string
     {
         return '';
@@ -345,6 +402,45 @@ class McpAnalysisTestMethodLevelGroupTool extends McpToolResponse
  * Intentionally has no #[McpTool] attribute — exercises the toolInfo === null continue path.
  */
 class McpAnalysisTestNoAttributeTool extends McpToolResponse
+{
+    public function __invoke(): string
+    {
+        return '';
+    }
+}
+
+/**
+ * @internal
+ */
+#[McpTool(name: 'swag-analysis-describing-tool', description: 'tool that describes its group')]
+#[McpToolGroup('catalogue', description: '  Browse and edit the catalogue. ')]
+class McpAnalysisTestDescribingGroupTool extends McpToolResponse
+{
+    public function __invoke(): string
+    {
+        return '';
+    }
+}
+
+/**
+ * @internal
+ */
+#[McpTool(name: 'swag-analysis-z-conflicting-tool', description: 'tool that describes its group differently')]
+#[McpToolGroup('catalogue', description: 'Something else.')]
+class McpAnalysisTestConflictingDescriptionTool extends McpToolResponse
+{
+    public function __invoke(): string
+    {
+        return '';
+    }
+}
+
+/**
+ * @internal
+ */
+#[McpTool(name: 'swag-analysis-blank-description-tool', description: 'tool with a blank group description')]
+#[McpToolGroup('blank', description: '   ')]
+class McpAnalysisTestBlankDescriptionTool extends McpToolResponse
 {
     public function __invoke(): string
     {

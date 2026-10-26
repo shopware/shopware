@@ -29,6 +29,12 @@ shopware:
         major: v6.8.0.0
         toggleable: true
         description: "Execute flows after the main unit of work has concluded. Will become the default for next major 6.8"
+      - name: DISABLE_SQL_MULTI_STATEMENTS
+        default: false
+        major: v6.8.0.0
+        # The initial database connection is configured before database-backed feature toggles are loaded; use an environment override.
+        toggleable: false
+        description: "Restrict application database connections to single SQL statements. Migration and installer connections still allow multiple statements."
       - name: DOCUMENT_GENERATION_REWORK
         default: false
         major: v6.8.0.0

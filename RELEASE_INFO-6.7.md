@@ -2,6 +2,15 @@
 
 ## Core
 
+### Multiple SQL statements restricted in 6.8
+
+With `DISABLE_SQL_MULTI_STATEMENTS=1`, application database connections reject multiple SQL statements in a single call.
+This flag is also enabled by `V6_8_0_0=1` unless explicitly disabled.
+Execute statements separately in extensions.
+Separating read and write statements also improves compatibility with SQL proxies that cannot route mixed read/write batches in a single query.
+Migration execution, discovery, and bookkeeping now always use a separate primary connection, even while the flag is disabled.
+The connections passed to migration `update()` and `updateDestructive()` methods and the installer explicitly allow multiple statements.
+
 ### Promotion code rate limiting
 
 Promotion code submissions through the Store API and Storefront now share a separate rate limit.
@@ -65,6 +74,10 @@ To find out how often a customer redeemed a promotion, count the customer's orde
 Set `PROMOTION_REDEMPTION_OPTIMIZATION=1` to switch to the 6.8 behavior already: the counter is no longer written and `ordersPerCustomerCount` is removed from the promotion entity.
 When `V6_8_0_0=1`, the flag activates unless explicitly disabled.
 
+### `NotFilter` negates a single filter
+
+`NotFilter::negate()` negates a single filter without an operator and a list of queries, so `NotFilter::negate(new EqualsFilter('parentId', null))` replaces `new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('parentId', null)])`. Both create the same filter. With `v6.8.0`, the `NotFilter` constructor accepts the single filter directly as well.
+
 ### Product line items carry the GARAN label they were shown with
 
 Cart and order product line items now store their GARAN label values in `payload.garanLabel`; editing an order keeps them as is.
@@ -72,13 +85,16 @@ A migration adds them to order line items created since the update that introduc
 Order line items without `payload.garanLabel` show no GARAN label, so write it with `guaranteeMonths`, `brand` and `modelIdentifier` if you create orders through the Admin API or the Sync API.
 Headless frontends can read the payload instead of calling `/store-api/product/{productId}/garan-label`.
 The `sw_garan_label_nested` Twig filter is deprecated.
-
 ### Order line items of older orders get their product type
 
 This release fills `payload.productType` for every product and custom order line item that does not have it yet, based on the line item's deprecated `states`.
 The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physical line items, so most line items of older orders had no product type.
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
+
+### Set null on delete also applies to cascaded deletes
+
+When the DAL deletes an entity, `SetNullOnDelete` associations of the entities removed through `CascadeDelete` are now resolved as well, not only those of the deleted entity itself. For associations without a database constraint (`SetNullOnDelete(false)`) the reference is set to `null` and a write result is dispatched for the updated entity. For example, deleting a media that is used as a product cover now clears `product.coverId`. Entities that are deleted in the same operation are not updated, so deleting a product with a cover still reports the product, and its variants, as deleted.
 
 ### Business customers need a VAT ID for countries that require one
 
@@ -167,7 +183,7 @@ The storefront rows are untouched by this and keep being maintained by the Store
 
 ### Known core deprecations log an error in next-major mode
 
-Core usages that are not migrated yet are listed in `src/Administration/Resources/app/administration/src/meta/deprecation-baseline.json`.
+Core usages that are not migrated yet are listed in `src/Administration/Resources/app/administration/src/core/deprecation-baseline.json`.
 In next-major mode, a deprecation with a listed message logs a console error instead of throwing, so the Administration stays usable.
 Any other deprecation still throws.
 
@@ -185,6 +201,10 @@ If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ## Storefront
+
+### Theme compilation completion is notified once
+
+With asynchronous theme compilation, saving a theme or activating an extension notifies the Administration user once when the compilation is completed, instead of once per sales channel. Code that compiles several themes or sales channels at once can do the same by passing `false` as the new sixth argument `$notifyOnAsyncCompletion` of `ThemeService::compileTheme()` for all but the last call. Classes overriding `compileTheme()` should add the parameter `bool $notifyOnAsyncCompletion = true`; it becomes part of the signature in 6.8.0.0.
 
 ### Guests can open the profile page
 

@@ -3,9 +3,10 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mapping\Registry;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
@@ -24,6 +25,119 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 #[CoversClass(ContentSystemMappingCandidateRegistry::class)]
 class ContentSystemMappingCandidateRegistryTest extends TestCase
 {
+    /**
+     * @param list<bool> $declaredProviders
+     */
+    #[DataProvider('collisionOrders')]
+    public function testCollisionsExcludeEveryOwnerWithoutAffectingOtherCandidates(array $declaredProviders): void
+    {
+        $providers = [];
+        $available = [];
+        foreach ($declaredProviders as $index => $declared) {
+            $provider = $this->createMock($declared ? DeclaredMappingCandidateProvider::class : AbstractMappingCandidateProvider::class);
+            $provider->method('supports')->willReturn(true);
+            $path = 'category.available' . $index;
+            $available[] = $path;
+            $provider->method('provide')->willReturn([self::candidate('category.name'), self::candidate($path)]);
+            $provider->expects($this->never())->method('resolveRootSource');
+            $providers[] = $provider;
+        }
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('warning')->with(
+            'Ambiguous mapping candidates were excluded from the catalogue.',
+            static::callback(static fn (array $context): bool => $context['rootSource'] === 'category'
+                && $context['candidate'] === 'category.name'
+                && \count($context['providers']) === 2),
+        );
+        $registry = new ContentSystemMappingCandidateRegistry($providers, $logger);
+
+        static::assertSame($available, array_keys($registry->forRootSource('category')));
+        static::assertTrue($registry->resolveSource(
+            'category',
+            MappingSourceReference::root('category', 'name'),
+            new MappingSourceResolutionContext(new StoredElement('element-1', 'test-element'), [], [], null),
+        )->isNoValue());
+        static::assertSame($available, array_keys($registry->forRootSource('category')));
+    }
+
+    /**
+     * @return iterable<string, array{list<bool>}>
+     */
+    public static function collisionOrders(): iterable
+    {
+        yield 'declared then dynamic' => [[true, false]];
+        yield 'dynamic then declared' => [[false, true]];
+        yield 'two dynamic providers' => [[false, false]];
+        yield 'a third provider cannot restore the name' => [[true, false, false]];
+        yield 'declared provider last cannot restore the name' => [[false, false, true]];
+    }
+
+    public function testDifferentConfigurationsWithTheSameDisplayNameAreAlsoExcluded(): void
+    {
+        $first = new MappingSourceReference('AcmePlugin', 'message', ['mode' => 'first'], 'text');
+        $second = new MappingSourceReference('AcmePlugin', 'message', ['mode' => 'second'], 'text');
+        $registry = new ContentSystemMappingCandidateRegistry([
+            new StaticMappingCandidateProvider(['product'], [self::candidate($first->displayName(), source: $first)]),
+            new StaticMappingCandidateProvider(['product'], [self::candidate($second->displayName(), source: $second)]),
+        ]);
+
+        static::assertSame([], $registry->forRootSource('product'));
+    }
+
+    public function testDuplicatesWithinOneProviderAreExcluded(): void
+    {
+        $registry = new ContentSystemMappingCandidateRegistry([
+            new StaticMappingCandidateProvider(['product'], [self::candidate('product.name'), self::candidate('product.name')]),
+        ]);
+
+        static::assertSame([], $registry->forRootSource('product'));
+    }
+
+    public function testResetAllowsAPreviouslyAmbiguousNameAfterTheConflictIsRemoved(): void
+    {
+        $source = new MappingSourceReference('plugin', 'example');
+        $candidate = self::candidate($source->displayName(), source: $source);
+        $provider = new MutableMappingCandidateProvider([$candidate, $candidate]);
+        $registry = new ContentSystemMappingCandidateRegistry([$provider]);
+        static::assertSame([], $registry->forRootSource('product'));
+
+        $provider->candidates = [$candidate];
+        $registry->reset();
+
+        static::assertSame([$source->displayName() => $candidate], $registry->forRootSource('product'));
+        static::assertSame('resolved', $registry->resolveSource(
+            'product',
+            $source,
+            new MappingSourceResolutionContext(new StoredElement('element-1', 'test-element'), [], [], null),
+        )->value);
+    }
+
+    public function testBundleNamespacesKeepTheSameLocalSourceNameDistinct(): void
+    {
+        $providers = [];
+        $sources = [];
+        foreach (['AcmePlugin', 'OtherPlugin'] as $bundleName) {
+            $source = new MappingSourceReference($bundleName, 'recommendations', path: 'title');
+            $sources[] = $source;
+            $provider = $this->createMock(AbstractMappingCandidateProvider::class);
+            $provider->method('supports')->willReturn(true);
+            $provider->method('provide')->willReturn([self::candidate($source->displayName(), source: $source)]);
+            $provider->method('supportsSource')->willReturn(true);
+            $provider->expects($this->once())->method('resolveSource')->with($source)->willReturn(MappingSourceResolution::resolved($bundleName));
+            $providers[] = $provider;
+        }
+        $registry = new ContentSystemMappingCandidateRegistry($providers);
+        static::assertSame(['AcmePlugin:recommendations.title', 'OtherPlugin:recommendations.title'], array_keys($registry->forRootSource('product')));
+
+        foreach ($sources as $source) {
+            static::assertSame($source->type, $registry->resolveSource(
+                'product',
+                $source,
+                new MappingSourceResolutionContext(new StoredElement('element-1', 'test-element'), [], [], null),
+            )->value);
+        }
+    }
+
     public function testAggregatesOnlyTheProvidersThatClaimTheRootSource(): void
     {
         $registry = new ContentSystemMappingCandidateRegistry([
@@ -58,16 +172,6 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         );
     }
 
-    public function testRejectsDuplicateCandidateKeysAcrossProviders(): void
-    {
-        $this->expectExceptionObject(ContentSystemException::duplicateMappingCandidate('category.name'));
-
-        (new ContentSystemMappingCandidateRegistry([
-            new StaticMappingCandidateProvider(['category'], [self::candidate('category.name')]),
-            new StaticMappingCandidateProvider(['category'], [self::candidate('category.name', label: 'duplicate')]),
-        ]))->forRootSource('category');
-    }
-
     public function testCachesTheCatalogueUntilResetThenReadsUpdatedProviderData(): void
     {
         $source = new MappingSourceReference('plugin', 'example');
@@ -92,6 +196,20 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $registry->reset();
 
         static::assertSame($updated, $registry->forRootSource('product')['plugin:example']);
+        static::assertSame(2, $provider->provideCalls);
+    }
+
+    public function testForwardingDecoratorResetsItsInnerRequestCatalogue(): void
+    {
+        $source = new MappingSourceReference('plugin', 'example');
+        $provider = new MutableMappingCandidateProvider([self::candidate($source->displayName(), source: $source)]);
+        $decorator = new ForwardingMappingCandidateRegistry(new ContentSystemMappingCandidateRegistry([$provider]));
+        $decorator->forRootSource('product');
+        $provider->candidates = [];
+
+        $decorator->reset();
+
+        static::assertSame([], $decorator->forRootSource('product'));
         static::assertSame(2, $provider->provideCalls);
     }
 
@@ -305,6 +423,17 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
             source: $source,
             cacheTags: $cacheTags,
         );
+    }
+}
+
+/**
+ * @internal
+ */
+class DeclaredMappingCandidateProvider extends StaticMappingCandidateProvider
+{
+    public static function registeredCandidateKeys(): array
+    {
+        return ['category' => ['category.name']];
     }
 }
 

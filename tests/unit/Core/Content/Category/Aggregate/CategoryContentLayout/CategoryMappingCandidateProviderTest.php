@@ -33,6 +33,16 @@ class CategoryMappingCandidateProviderTest extends TestCase
         );
     }
 
+    public function testStableDeclarationsMatchTheOfferedCatalogue(): void
+    {
+        $provider = $this->provider;
+
+        static::assertSame(
+            CategoryMappingCandidateProvider::registeredCandidateKeys()['category'],
+            array_column($provider->provide('category'), 'path'),
+        );
+    }
+
     public function testClaimsTheCategoryRootSourceOnly(): void
     {
         static::assertTrue($this->provider->supports('category'));

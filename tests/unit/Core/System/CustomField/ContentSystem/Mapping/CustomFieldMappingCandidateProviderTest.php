@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\System\CustomField\ContentSystem\Mapping;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -107,28 +106,6 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
         );
 
         static::assertSame([], $provider->provide('product'));
-    }
-
-    public function testExcludesAmbiguousPersistedNamesAndKeepsOtherCandidatesAvailable(): void
-    {
-        $firstDuplicate = $this->customField('duplicate', CustomFieldTypes::TEXT);
-        $secondDuplicate = $this->customField('duplicate', CustomFieldTypes::TEXT);
-        $available = $this->customField('available', CustomFieldTypes::TEXT);
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())->method('warning')->with(
-            'Ambiguous custom-field mapping candidates were excluded from the catalogue.',
-            static::callback(static fn (array $context): bool => $context['rootSource'] === 'product'
-                && $context['candidate'] === 'product.customFields.duplicate'
-                && \count($context['customFieldIds']) === 2),
-        );
-
-        $provider = new CustomFieldMappingCandidateProvider(
-            new StaticEntityRepository([new CustomFieldCollection([$firstDuplicate, $secondDuplicate, $available])]),
-            new TagAwareAdapter(new ArrayAdapter()),
-            $logger,
-        );
-
-        static::assertSame(['product.customFields.available'], array_column($provider->provide('product'), 'path'));
     }
 
     public function testOnlySupportsEntityRootsWithCustomFieldRelations(): void

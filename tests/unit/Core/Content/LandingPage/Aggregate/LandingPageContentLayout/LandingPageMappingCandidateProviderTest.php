@@ -31,6 +31,16 @@ class LandingPageMappingCandidateProviderTest extends TestCase
         );
     }
 
+    public function testStableDeclarationsMatchTheOfferedCatalogue(): void
+    {
+        $provider = $this->provider;
+
+        static::assertSame(
+            LandingPageMappingCandidateProvider::registeredCandidateKeys()['landing_page'],
+            array_column($provider->provide('landing_page'), 'path'),
+        );
+    }
+
     public function testClaimsTheLandingPageRootSourceOnly(): void
     {
         static::assertTrue($this->provider->supports('landing_page'));

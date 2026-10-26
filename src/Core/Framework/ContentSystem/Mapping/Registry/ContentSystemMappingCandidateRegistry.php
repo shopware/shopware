@@ -2,7 +2,8 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Mapping\Registry;
 
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
@@ -10,20 +11,19 @@ use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext
 use Shopware\Core\Framework\ContentSystem\Mapping\Provider\AbstractMappingCandidateProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * Aggregator over the tagged providers with a request-lifetime catalogue cache.
  *
- * Candidate display names are unique across all providers for a root source. A collision is a configuration
- * error because a display name cannot distinguish candidates that carry different source references.
+ * Candidate display names are unique across all providers for a root source. Runtime collisions exclude all
+ * candidates with the ambiguous name and are logged once per name and catalogue build.
  * The candidate and provider index is reused for each root source during a request, then cleared by `kernel.reset`
  * so dynamic provider data such as custom fields is refreshed on the next request.
  *
  * @internal
  */
 #[Package('framework')]
-final class ContentSystemMappingCandidateRegistry extends AbstractContentSystemMappingCandidateRegistry implements ResetInterface
+final class ContentSystemMappingCandidateRegistry extends AbstractContentSystemMappingCandidateRegistry
 {
     /**
      * @var array<string, array{
@@ -38,6 +38,7 @@ final class ContentSystemMappingCandidateRegistry extends AbstractContentSystemM
      */
     public function __construct(
         private readonly iterable $providers,
+        private readonly LoggerInterface $logger = new NullLogger(),
     ) {
     }
 
@@ -106,6 +107,7 @@ final class ContentSystemMappingCandidateRegistry extends AbstractContentSystemM
     {
         $candidates = [];
         $providers = [];
+        $ambiguous = [];
 
         foreach ($this->providers as $provider) {
             if (!$provider->supports($rootSource)) {
@@ -114,8 +116,20 @@ final class ContentSystemMappingCandidateRegistry extends AbstractContentSystemM
 
             foreach ($provider->provide($rootSource) as $candidate) {
                 $candidateKey = $candidate->source->displayName();
+                if (isset($ambiguous[$candidateKey])) {
+                    continue;
+                }
+
                 if (isset($candidates[$candidateKey])) {
-                    throw ContentSystemException::duplicateMappingCandidate($candidateKey);
+                    $this->logger->warning('Ambiguous mapping candidates were excluded from the catalogue.', [
+                        'rootSource' => $rootSource,
+                        'candidate' => $candidateKey,
+                        'providers' => [$providers[$candidateKey]::class, $provider::class],
+                    ]);
+                    unset($candidates[$candidateKey], $providers[$candidateKey]);
+                    $ambiguous[$candidateKey] = true;
+
+                    continue;
                 }
 
                 $candidates[$candidateKey] = $candidate;

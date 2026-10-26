@@ -89,6 +89,12 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
+### Content System mapping provider extensions
+
+Plugin-owned mapping sources can use the bundle name as their source `type` and a bundle-local `id`, for example `AcmePlugin:recommendations.title`. To change an existing mapping intentionally, decorate `AbstractContentSystemMappingCandidateRegistry` and keep catalogue admission and resolution consistent. Registry decorators inherit request-local cache reset forwarding. Concrete core providers remain internal.
+
+Stable declared candidate collisions still fail the container build. Runtime collisions exclude every competing candidate for that name and log a warning, while unrelated mappings continue to work.
+
 ### Content System inline mapping expansion errors
 
 Exceeding the inline mapping output limit now aborts rendering with HTTP 500 and `CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE` instead of returning successful output with empty properties. This applies to Store API, Storefront, and preview. The limits remain 1 MiB per property and 4 MiB per render; the 256 KiB authored-input cap still returns HTTP 400.
@@ -221,6 +227,10 @@ Two consequences for operators:
 Product breadcrumbs are generated again when the product's main category — or its only assigned category — is configured with "Hide in navigation". The flag only removes a category from the navigation menus; it no longer prevents the category from serving as the breadcrumb source on product detail pages, in `GET /store-api/breadcrumb/{id}`, and in product exports. When the breadcrumb category is determined automatically from several assigned categories, visible categories are still preferred over hidden ones. Inactive categories remain excluded.
 
 ## API
+
+### Ambiguous Content System mapping candidates
+
+The mapping candidate catalogue excludes names offered more than once by providers instead of failing the request. Such mappings are unavailable at the layout write gate; existing layouts use the normal unavailable-mapping rendering rules.
 
 ### Content System layout diagnosis
 

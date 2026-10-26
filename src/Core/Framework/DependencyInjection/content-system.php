@@ -762,6 +762,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ContentSystemMappingCandidateRegistry::class)
         ->args([
             tagged_iterator('content_system.mapping_candidate_provider'),
+            service('logger'),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 

@@ -28,7 +28,7 @@ abstract class AbstractMappingCandidateProvider
     /**
      * Declare stable candidate display names by root source for container-build collision checks. Use `*` for
      * candidates offered for every root source. Providers whose candidates come from persisted/runtime data return
-     * an empty map and keep validating collisions in that dynamic data themselves.
+     * an empty map. The registry excludes and logs runtime collisions across all providers.
      *
      * @return array<string, list<string>>
      */

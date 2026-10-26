@@ -98,7 +98,6 @@ class ContentSystemException extends HttpException
     public const MAPPING_TYPE_MISMATCH = 'CONTENT_SYSTEM__MAPPING_TYPE_MISMATCH';
     public const INVALID_MAPPING_CANDIDATE_PATH = 'CONTENT_SYSTEM__INVALID_MAPPING_CANDIDATE_PATH';
     public const MAPPING_CANDIDATE_PATH_MISMATCH = 'CONTENT_SYSTEM__MAPPING_CANDIDATE_PATH_MISMATCH';
-    public const DUPLICATE_MAPPING_CANDIDATE = 'CONTENT_SYSTEM__DUPLICATE_MAPPING_CANDIDATE';
     public const MAPPING_CONTEXT_TYPE_MISMATCH = 'CONTENT_SYSTEM__MAPPING_CONTEXT_TYPE_MISMATCH';
     public const PROPERTY_NOT_INLINE_MAPPABLE = 'CONTENT_SYSTEM__PROPERTY_NOT_INLINE_MAPPABLE';
     public const UNKNOWN_INLINE_MAPPING_PATH = 'CONTENT_SYSTEM__UNKNOWN_INLINE_MAPPING_PATH';
@@ -1153,16 +1152,6 @@ class ContentSystemException extends HttpException
             self::MAPPING_CANDIDATE_PATH_MISMATCH,
             'Mapping candidate path "{{ path }}" must match its source display name "{{ sourceDisplayName }}".',
             ['path' => $path, 'sourceDisplayName' => $sourceDisplayName]
-        );
-    }
-
-    public static function duplicateMappingCandidate(string $key): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::DUPLICATE_MAPPING_CANDIDATE,
-            'Mapping candidate key "{{ key }}" is provided more than once for the same root source.',
-            ['key' => $key]
         );
     }
 

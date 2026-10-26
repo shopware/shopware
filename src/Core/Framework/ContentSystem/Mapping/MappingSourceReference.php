@@ -9,7 +9,8 @@ use Shopware\Core\Framework\Log\Package;
  * Identifies a typed source and an optional member within it.
  *
  * Root sources use the layout root-context key as `id` and a safe member path as `path`. Loader and context
- * providers use their registered source id and may carry provider-validated configuration.
+ * providers use their registered source id and may carry provider-validated configuration. Plugin-owned sources
+ * use the bundle name as `type` and a bundle-local `id`, for example `AcmePlugin:recommendations.title`.
  */
 #[Package('framework')]
 final readonly class MappingSourceReference implements \JsonSerializable

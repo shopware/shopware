@@ -11,7 +11,7 @@
                     "System Info & Health Check"
                 ],
                 "summary": "Get content system data mapping candidates",
-                "description": "Get the curated data a mappable element property may be mapped to, keyed by the root source a layout is bound to. Requires content_layout:read. Layout readers can also see labels and help text for active, Store-API-visible custom fields assigned to the root entity. The catalogue is an allowlist rather than a projection of the entity schema: only a path listed here is admitted by the content layout write boundary.",
+                "description": "Get the curated data a mappable element property may be mapped to, keyed by the root source a layout is bound to. Requires content_layout:read. Layout readers can also see labels and help text for active, Store-API-visible custom fields assigned to the root entity. Names offered more than once by providers are excluded from the runtime catalogue; unrelated candidates remain available. The catalogue is an allowlist rather than a projection of the entity schema: only a path listed here is admitted by the content layout write boundary.",
                 "operationId": "content-system-mapping-candidates",
                 "responses": {
                     "200": {

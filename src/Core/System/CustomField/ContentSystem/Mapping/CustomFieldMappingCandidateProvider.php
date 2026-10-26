@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\System\CustomField\ContentSystem\Mapping;
 
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -44,7 +42,6 @@ class CustomFieldMappingCandidateProvider extends AbstractMappingCandidateProvid
     public function __construct(
         private readonly EntityRepository $customFieldRepository,
         private readonly TagAwareCacheInterface $cache,
-        private readonly LoggerInterface $logger = new NullLogger(),
     ) {
     }
 
@@ -98,8 +95,7 @@ class CustomFieldMappingCandidateProvider extends AbstractMappingCandidateProvid
      */
     private function loadCandidates(string $rootSource): array
     {
-        /** @var array<string, list<array{candidate: MappingCandidate, id: string}>> $candidateRows */
-        $candidateRows = [];
+        $candidates = [];
         $offset = 0;
 
         do {
@@ -118,31 +114,13 @@ class CustomFieldMappingCandidateProvider extends AbstractMappingCandidateProvid
                 $candidate = $this->candidate($rootSource, $customField);
 
                 if ($candidate !== null) {
-                    $candidateRows[$candidate->source->displayName()][] = [
-                        'candidate' => $candidate,
-                        'id' => $customField->getId(),
-                    ];
+                    $candidates[] = $candidate;
                 }
             }
 
             $fieldCount = $fields->count();
             $offset += $fieldCount;
         } while ($fieldCount === self::SEARCH_BATCH_SIZE);
-
-        $candidates = [];
-        foreach ($candidateRows as $candidateKey => $rows) {
-            if (\count($rows) > 1) {
-                $this->logger->warning('Ambiguous custom-field mapping candidates were excluded from the catalogue.', [
-                    'rootSource' => $rootSource,
-                    'candidate' => $candidateKey,
-                    'customFieldIds' => array_column($rows, 'id'),
-                ]);
-
-                continue;
-            }
-
-            $candidates[] = $rows[0]['candidate'];
-        }
 
         return $candidates;
     }

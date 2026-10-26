@@ -25,6 +25,16 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(ProductMappingCandidateProvider::class)]
 class ProductMappingCandidateProviderTest extends TestCase
 {
+    public function testStableDeclarationsMatchTheOfferedCatalogue(): void
+    {
+        $provider = new ProductMappingCandidateProvider(new ProductContentLayoutDefinition());
+
+        static::assertSame(
+            ProductMappingCandidateProvider::registeredCandidateKeys()['product'],
+            array_column($provider->provide('product'), 'path'),
+        );
+    }
+
     public function testSupportsOnlyProductLayouts(): void
     {
         $provider = new ProductMappingCandidateProvider(new ProductContentLayoutDefinition());

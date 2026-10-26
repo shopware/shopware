@@ -35,6 +35,18 @@
         <sw-settings-usage-data-consent-modal-data-provider
             v-if="showUsageDataConsentModalDataProvider"
         />
+
+        {# Temporarily disabled: the NPS card is not rendered until the parent integration is implemented.
+        {% block sw_desktop_nps_card %}
+        <sw-admin-nps-card
+            v-if="isNpsCardVisible"
+            v-model:visible="isNpsCardVisible"
+            @submit="onNpsSubmit"
+            @not-now="onNpsNotNow"
+            @close="onNpsClose"
+        />
+        {% endblock %}
+        #}
     </div>
     {% endblock %}
 

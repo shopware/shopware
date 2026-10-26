@@ -115,6 +115,7 @@ export default () => {
     Shopware.Component.register('sw-admin-menu-item', () => import('src/app/component/structure/sw-admin-menu-item/index'));
     Shopware.Component.register('sw-admin-menu', () => import('src/app/component/structure/sw-admin-menu/index'));
     Shopware.Component.register('sw-admin', () => import('src/app/component/structure/sw-admin/index'));
+    Shopware.Component.register('sw-admin-nps-card', () => import('src/app/component/structure/sw-admin-nps-card/index'));
     Shopware.Component.register(
         'sw-sidebar-navigation-item',
         () => import('src/app/component/sidebar/sw-sidebar-navigation-item/index'),

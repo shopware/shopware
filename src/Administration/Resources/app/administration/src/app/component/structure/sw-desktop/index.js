@@ -23,6 +23,7 @@ export default {
             noNavigation: false,
             shopIdCheck: null,
             isShopIdCheckPending: true,
+            isNpsCardVisible: true,
         };
     },
 
@@ -73,6 +74,22 @@ export default {
     },
 
     methods: {
+        // Temporary stand-ins for the NPS API requests while the backend is not available yet.
+        onNpsSubmit(response) {
+            // eslint-disable-next-line no-console -- Placeholder for the real API request.
+            console.log('[NPS] submit', response);
+        },
+
+        onNpsNotNow(response) {
+            // eslint-disable-next-line no-console -- Placeholder for the real API request.
+            console.log('[NPS] not now', response);
+        },
+
+        onNpsClose() {
+            // eslint-disable-next-line no-console -- Placeholder for the real API request.
+            console.log('[NPS] close');
+        },
+
         createdComponent() {
             this.checkRouteSettings();
             this.updateShopIdChangeModal();

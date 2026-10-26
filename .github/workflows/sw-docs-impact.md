@@ -119,6 +119,12 @@ steps:
         rmSync(dir, { recursive: true, force: true })
         mkdirSync(dir)
         await collectAgentInput({ github, context, core }, dir)
+  - name: Check out the developer documentation
+    uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+    with:
+      repository: shopware/docs
+      path: .sw-docs-impact/docs
+      persist-credentials: false
 
 engine:
   id: claude
@@ -136,8 +142,7 @@ timeout-minutes: 15
 max-ai-credits: 300
 
 tools:
-  github:
-    toolsets: [repos]
+  github: false
   bash:
     - "cat"
     - "rg"
@@ -152,10 +157,10 @@ safe-outputs:
     max: 1
     report-as-issue: false
   jobs:
-    notify-docs-teams:
-      description: "Notify the documentation teams that the merged pull request needs a documentation update"
+    docs-candidate:
+      description: "Report the merged pull request as a documentation candidate"
       runs-on: ubuntu-24.04
-      output: "Documentation teams notified"
+      output: "Docs candidate comment posted"
       permissions:
         contents: read
         pull-requests: write
@@ -165,7 +170,7 @@ safe-outputs:
           required: true
           type: string
         summary:
-          description: "Markdown: per audience, what changed and which page to add or adjust"
+          description: "Markdown: per audience, which page to add, adjust or remove and why"
           required: true
           type: string
       steps:
@@ -195,5 +200,5 @@ safe-outputs:
 
 - Event: `${{ github.event_name }}`
 
-Read `.sw-docs-impact/pr.json` and `.sw-docs-impact/pr.diff`, decide per the policy above,
-and finish with exactly one `notify_docs_teams` or `noop` call.
+Read `.sw-docs-impact/pr.json` and `.sw-docs-impact/pr.diff`, check `.sw-docs-impact/docs`,
+decide per the policy above, and finish with exactly one `docs_candidate` or `noop` call.

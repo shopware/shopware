@@ -4,17 +4,6 @@ export const AUDIENCES = ['end-user', 'developer'] as const;
 
 export type Audience = (typeof AUDIENCES)[number];
 
-export const END_USER_DOCS_TEAM = '@shopware/pp-enduser-docs';
-
-export const DOMAIN_TEAMS: Record<string, string> = {
-    'domain/b2b': '@shopware/product-cc-b2b',
-    'domain/checkout': '@shopware/product-cc-checkout',
-    'domain/crm-after-sales': '@shopware/product-cc-after-sales',
-    'domain/discovery': '@shopware/product-cc-discovery',
-    'domain/framework': '@shopware/product-cc-framework',
-    'domain/inventory': '@shopware/product-cc-inventory',
-};
-
 export const COMMENT_MARKER = '<!-- sw-docs-impact -->';
 
 const MAX_SUMMARY_LENGTH = 20000;
@@ -94,26 +83,20 @@ export function neutraliseMentions(text: string): string {
     return text.replace(/(^|[^\w`])@([A-Za-z0-9][\w-]*(?:\/[\w.-]+)?)/g, '$1`@$2`');
 }
 
-export function owningTeams(labels: string[]): string[] {
-    return [...new Set(labels.map((label) => DOMAIN_TEAMS[label]).filter((team) => team !== undefined))];
-}
-
-export function buildComment(audiences: Audience[], summary: string, labels: string[]): string {
+export function buildComment(summary: string): string {
     let body = neutraliseMentions(summary.trim());
     if (body.length > MAX_SUMMARY_LENGTH) {
         body = `${body.slice(0, MAX_SUMMARY_LENGTH)}\n\n_(truncated)_`;
     }
 
-    const pings: string[] = [];
-    if (audiences.includes('end-user')) {
-        pings.push(`${END_USER_DOCS_TEAM}: please check the end-user documentation.`);
-    }
-    const owners = owningTeams(labels);
-    if (audiences.includes('developer') && owners.length > 0) {
-        pings.push(`${owners.join(' ')}: please consider a developer documentation update.`);
-    }
-
-    return [COMMENT_MARKER, '### Documentation impact', '', ...pings, ...(pings.length > 0 ? [''] : []), body].join('\n');
+    return [
+        COMMENT_MARKER,
+        '### Docs candidate',
+        '',
+        '_Automated note: this change may be worth mentioning in the documentation. No action required._',
+        '',
+        body,
+    ].join('\n');
 }
 
 export function isDryRun(context: Context): boolean {
@@ -218,36 +201,35 @@ export async function collectAgentInput({ github, context, core }: { github: Git
     writeFileSync(`${dir}/pr.diff`, diff);
 }
 
-export function notifyItems(agentOutput: { items?: AgentOutputItem[] }): AgentOutputItem[] {
-    return (agentOutput.items ?? []).filter((item) => item.type === 'notify_docs_teams');
+export function candidateItems(agentOutput: { items?: AgentOutputItem[] }): AgentOutputItem[] {
+    return (agentOutput.items ?? []).filter((item) => item.type === 'docs_candidate');
 }
 
 export async function postComment(
     { github, context, core }: { github: GitHub; context: Context; core: Core },
     agentOutput: { items?: AgentOutputItem[] },
 ): Promise<void> {
-    const items = notifyItems(agentOutput);
+    const items = candidateItems(agentOutput);
     if (items.length === 0) {
         core.info('The agent reported no documentation impact');
         return;
     }
     if (items.length > 1) {
-        throw new Error(`Expected at most one notify_docs_teams item, got ${items.length}`);
+        throw new Error(`Expected at most one docs_candidate item, got ${items.length}`);
     }
 
     const [item] = items;
     if (!item.summary?.trim()) {
-        throw new Error('notify_docs_teams item has an empty summary');
+        throw new Error('docs_candidate item has an empty summary');
     }
 
     const number = await resolvePullRequestNumber({ github, context });
     if (number === null) {
-        throw new Error(`The agent asked to notify, but no merged pull request is associated with ${context.sha}`);
+        throw new Error(`The agent reported a docs candidate, but no merged pull request is associated with ${context.sha}`);
     }
 
-    const { data: pr } = await github.rest.pulls.get({ ...context.repo, pull_number: number });
-    const labels = (pr as { labels: Array<{ name: string }> }).labels.map((label) => label.name);
-    const body = buildComment(parseAudiences(item.audiences ?? ''), item.summary, labels);
+    parseAudiences(item.audiences ?? '');
+    const body = buildComment(item.summary);
     if (isDryRun(context)) {
         core.info(`Dry run: not commenting on #${number}`);
         await core.summary?.addRaw(`## Dry run: comment for #${number}\n\n${body}`, true).write();

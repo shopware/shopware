@@ -8,7 +8,6 @@ import {
     buildComment,
     collectAgentInput,
     isDryRun,
-    owningTeams,
     neutraliseMentions,
     parseAudiences,
     postComment,
@@ -141,39 +140,18 @@ test('neutraliseMentions wraps users and teams but leaves emails and code alone'
     );
 });
 
-test('owningTeams maps domain labels to teams, dedupes and ignores the rest', () => {
-    assert.deepEqual(owningTeams(['domain/crm-after-sales', 'domain/inventory', 'domain/ux', 'major/6.8', 'domain/inventory']), [
-        '@shopware/product-cc-after-sales',
-        '@shopware/product-cc-inventory',
-    ]);
-    assert.deepEqual(owningTeams(['domain/service-enablement']), []);
-});
+test('buildComment writes a neutral note without any mention', () => {
+    const comment = buildComment('New event @someone added, see @shopware/po-docs');
 
-test('buildComment pings the owning team for developer docs only', () => {
-    const comment = buildComment(['developer'], 'New event @someone added', ['domain/inventory']);
-
-    assert.ok(comment.startsWith(COMMENT_MARKER));
-    assert.ok(comment.includes('@shopware/product-cc-inventory: please consider a developer documentation update.'));
-    assert.ok(!comment.includes('@shopware/pp-enduser-docs'));
-    assert.ok(!comment.includes('po-docs'));
+    assert.ok(comment.startsWith(`${COMMENT_MARKER}\n### Docs candidate`));
+    assert.ok(comment.includes('No action required.'));
     assert.ok(comment.includes('`@someone`'));
-});
-
-test('buildComment pings the end-user docs team and the owning teams for both audiences', () => {
-    const comment = buildComment(['end-user', 'developer'], 'Changes', ['domain/checkout', 'domain/framework']);
-
-    assert.ok(comment.includes('@shopware/pp-enduser-docs: please check the end-user documentation.'));
-    assert.ok(comment.includes('@shopware/product-cc-checkout @shopware/product-cc-framework: please consider a developer documentation update.'));
-});
-
-test('buildComment posts developer docs without a mention when no domain team is known', () => {
-    const comment = buildComment(['developer'], 'New event', ['domain/ux']);
-
-    assert.equal(comment, `${COMMENT_MARKER}\n### Documentation impact\n\nNew event`);
+    assert.ok(comment.includes('`@shopware/po-docs`'));
+    assert.equal(/(^|[^`])@[\w/-]+/.test(comment.replace(/`@[^`]+`/g, '')), false);
 });
 
 test('buildComment truncates an oversized summary', () => {
-    const comment = buildComment(['end-user'], 'x'.repeat(30000), []);
+    const comment = buildComment('x'.repeat(30000));
 
     assert.ok(comment.length < 21000);
     assert.ok(comment.endsWith('_(truncated)_'));
@@ -265,7 +243,7 @@ test('collectAgentInput rethrows other diff errors', async () => {
     await assert.rejects(collectAgentInput({ github, context: pushContext({ pr_number: '7' }), core }, dir));
 });
 
-test('postComment does nothing without a notify item', async () => {
+test('postComment does nothing without a docs candidate', async () => {
     const { github, calls } = fakeGitHub();
     const { core } = fakeCore();
 
@@ -280,12 +258,13 @@ test('postComment creates a comment on the resolved pull request', async () => {
 
     await postComment(
         { github, context: pushContext({ pr_number: '9' }), core },
-        { items: [{ type: 'notify_docs_teams', audiences: 'end-user', summary: 'New setting' }] },
+        { items: [{ type: 'docs_candidate', audiences: 'end-user', summary: 'New setting' }] },
     );
 
     const create = calls.find((c) => c.method === 'createComment');
     assert.equal(create?.params.issue_number, 9);
-    assert.ok(String(create?.params.body).includes('@shopware/pp-enduser-docs'));
+    assert.ok(String(create?.params.body).includes('New setting'));
+    assert.equal(String(create?.params.body).includes('@shopware'), false);
 });
 
 test('postComment updates its earlier comment instead of adding another', async () => {
@@ -294,7 +273,7 @@ test('postComment updates its earlier comment instead of adding another', async 
 
     await postComment(
         { github, context: pushContext({ pr_number: '9' }), core },
-        { items: [{ type: 'notify_docs_teams', audiences: 'developer', summary: 'New event' }] },
+        { items: [{ type: 'docs_candidate', audiences: 'developer', summary: 'New event' }] },
     );
 
     assert.equal(calls.find((c) => c.method === 'updateComment')?.params.comment_id, 6);
@@ -307,18 +286,18 @@ test('postComment rejects malformed agent output', async () => {
     const context = pushContext({ pr_number: '9' });
 
     await assert.rejects(
-        postComment({ github, context, core }, { items: [{ type: 'notify_docs_teams', audiences: 'developer', summary: ' ' }] }),
+        postComment({ github, context, core }, { items: [{ type: 'docs_candidate', audiences: 'developer', summary: ' ' }] }),
         /empty summary/,
     );
     await assert.rejects(
-        postComment({ github, context, core }, { items: [{ type: 'notify_docs_teams', audiences: 'sales', summary: 'x' }] }),
+        postComment({ github, context, core }, { items: [{ type: 'docs_candidate', audiences: 'sales', summary: 'x' }] }),
         /Unknown audience/,
     );
     await assert.rejects(
         postComment({ github, context, core }, {
             items: [
-                { type: 'notify_docs_teams', audiences: 'developer', summary: 'a' },
-                { type: 'notify_docs_teams', audiences: 'developer', summary: 'b' },
+                { type: 'docs_candidate', audiences: 'developer', summary: 'a' },
+                { type: 'docs_candidate', audiences: 'developer', summary: 'b' },
             ],
         }),
         /at most one/,
@@ -330,7 +309,7 @@ test('postComment fails when the commit has no merged pull request', async () =>
     const { core } = fakeCore();
 
     await assert.rejects(
-        postComment({ github, context: pushContext(), core }, { items: [{ type: 'notify_docs_teams', audiences: 'developer', summary: 'x' }] }),
+        postComment({ github, context: pushContext(), core }, { items: [{ type: 'docs_candidate', audiences: 'developer', summary: 'x' }] }),
         /no merged pull request/,
     );
 });
@@ -350,11 +329,11 @@ test('postComment in a dry run writes the comment to the step summary only', asy
 
     await postComment(
         { github, context: pushContext({ pr_number: '9', dry_run: true }), core: { ...core, summary } },
-        { items: [{ type: 'notify_docs_teams', audiences: 'developer', summary: 'New event' }] },
+        { items: [{ type: 'docs_candidate', audiences: 'developer', summary: 'New event' }] },
     );
 
     assert.equal(calls.some((c) => ['createComment', 'updateComment'].includes(c.method)), false);
     assert.equal(written.length, 1);
     assert.ok(written[0].includes('Dry run: comment for #9'));
-    assert.ok(written[0].includes('@shopware/product-cc-inventory'));
+    assert.ok(written[0].includes('New event'));
 });

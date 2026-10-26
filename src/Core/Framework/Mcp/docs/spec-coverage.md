@@ -6,6 +6,7 @@ Shopware serves the handshake era by default.
 `shopware.mcp.protocol_era.admin` and `shopware.mcp.protocol_era.store_api` switch an endpoint to `auto`, which also serves the stateless 2026-07-28 revision from the same URL, and the client picks.
 `McpServerBuilderCompilerPass` applies the setting; `legacy` keeps `Builder::withoutModernEra()`.
 What each feature does without a session is decided in `adr/2026-09-24-mcp-stateless-era-degradation-policy.md` and covered by `McpDualEraConformanceTest`.
+On the stateless era `tools/list` does not advertise `shopware-toolset-enable` and `shopware-toolsets-list`, because there is no session to keep a toolset in; a direct call answers `isError`, and the `server/discover` instructions and `shopware-tool-search` point to `?toolsets=` instead.
 No request state key is configured, because no Shopware handler asks the client for input more than once.
 
 This doc is the compact matrix for one question:

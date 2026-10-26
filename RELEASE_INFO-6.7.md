@@ -165,7 +165,8 @@ With `auto`, the client picks the revision, and clients on the handshake revisio
 On the stateless revision there is no MCP session:
 
 * Choose toolsets in the endpoint URL, for example `/api/_mcp?toolsets=order,media`.
-  `shopware-toolset-enable` answers with an error that points to `?toolsets=`.
+  `shopware-toolset-enable` and `shopware-toolsets-list` are not listed in `tools/list`; called directly, they answer with an error that points to `?toolsets=`.
+  The server instructions and `shopware-tool-search` point to `?toolsets=` as well, and each search match names its toolset.
 * List changes on the Admin API endpoint, for example after an app install, reach clients through `subscriptions/listen`.
   The notifications go through `cache.app`, so setups with several hosts need a shared `cache.app`, for example Redis.
 * Each open `subscriptions/listen` stream occupies a PHP worker for up to 30 seconds before the client reconnects.

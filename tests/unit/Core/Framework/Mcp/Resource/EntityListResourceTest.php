@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Resource;
 
+use Mcp\Schema\Content\TextResourceContents;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -27,13 +28,13 @@ class EntityListResourceTest extends TestCase
         $registry->method('getDefinitions')->willReturn([$defProduct, $defCategory]);
 
         $resource = new EntityListResource($registry);
-        $result = ($resource)();
+        $result = ($resource)()->contents[0];
+        static::assertInstanceOf(TextResourceContents::class, $result);
 
-        static::assertSame('shopware://entities', $result['uri']);
-        static::assertSame('application/json', $result['mimeType']);
-        static::assertArrayHasKey('text', $result);
+        static::assertSame('shopware://entities', $result->uri);
+        static::assertSame('application/json', $result->mimeType);
 
-        $entities = json_decode($result['text'], true, 512, \JSON_THROW_ON_ERROR);
+        $entities = json_decode($result->text, true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(['category', 'product'], $entities);
     }
 }

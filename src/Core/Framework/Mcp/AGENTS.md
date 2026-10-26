@@ -64,13 +64,23 @@ The Store API endpoint (`/store-api/_mcp`) uses the same progressive disclosure 
 
 ### List change notifications
 
-Clients learn about changed tool, prompt and resource lists through `notifications/*/list_changed`. The notification is never sent live: `McpListChangedNotifier` appends it to the session's outgoing queue in the session store, and the client receives it with its next request.
+Clients learn about changed tool, prompt and resource lists through `notifications/*/list_changed`. On the handshake era the notification is never sent live: `McpListChangedNotifier` appends it to the session's outgoing queue in the session store, and the client receives it with its next request.
 
 - **Installation-wide changes are pulled, not pushed.** An app install, update, activation, deactivation or removal calls `McpListChangedNotifier::notify()`, which increments one version per changed list in the `mcp_list_version` table (`McpListVersions`). After every Admin API MCP request, `McpServerController` calls `syncSession()`, which compares those versions with the ones stored in the session data (`shopware_list_versions`) and queues `list_changed` for the lists that moved. A new session starts at the current versions.
 - **Session-local changes are queued directly.** `shopware-toolset-enable` sets `McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE`, and the controller calls `notifySession()` for that session only.
 - **Both run after `Server::run()`**, because the SDK saves its in-memory session at the end of the run and would otherwise overwrite the queued notification.
 - **Only the Admin API server compares versions.** App capabilities are only registered there, so the Store API notifier has no `McpListVersions` and only handles toolset enables.
-- **The stateless era has no session to queue into.** With `shopware.mcp.protocol_era.admin: auto`, `notify()` also publishes the changed lists to the SDK notification bus, which `subscriptions/listen` streams read. The bus is a PSR-16 view of `cache.app`, so it reaches every worker that shares that pool; on several hosts that needs a shared `cache.app`, for example Redis. A failing bus is logged and never fails the change. The Store API server has no bus: its lists only change per session.
+- **The stateless era has no session to queue into.** With `shopware.mcp.protocol_era.admin: auto`, the Admin API server gets `McpListVersionsNotificationBus` as its SDK notification bus, which `subscriptions/listen` streams read.
+  The bus has no backlog of its own: its cursor packs the three list versions, and `since()` announces each list whose version moved.
+  The stream polls every 250 ms, and the bus reads the versions through a `cache.app` entry that lives one second, so a change reaches an open stream within about a second, from any process and any host, with one table read per host and second.
+  `publish()` bumps the version, so the SDK's registry events end up in the same table as `notify()`; `notify()` only bumps and does not publish a second time.
+  The Store API server has no bus and does not announce `listChanged` on `server/discover`: its lists only change per session.
+- **Each open listen stream holds one PHP-FPM worker** for the subscription lifetime of 25 seconds (`McpServerBuilderCompilerPass::SUBSCRIPTION_LIFETIME`), below the common `max_execution_time` of 30 seconds.
+  The SDK keeps a stream open for the full lifetime even when the client asked for no notification the server offers.
+  `McpListenStreamTest` covers the bump from another process and the flushed first frame through the kernel; a real web server needs the manual check below.
+- **Manual check behind PHP-FPM.** Set `protocol_era.admin: auto`, open a stream with `curl -N` (POST `subscriptions/listen` with `notifications.toolsListChanged: true`, the `MCP-Protocol-Version: 2026-07-28` and `Mcp-Method` headers and the `_meta` envelope), then run `bin/console app:install --activate <app with MCP tools>` or `app:deactivate` on the CLI.
+  The `notifications/subscriptions/acknowledged` frame must arrive at once, and `notifications/tools/list_changed` within about a second of the command, on the filesystem cache and on Redis.
+  If frames only arrive when the stream ends, the web server buffers the response (`X-Accel-Buffering: no` is sent for nginx).
 - **The `initialize` answer declares `listChanged` for every advertised list, on both servers.**
   mcp/sdk 0.9 strips the flag from every `initialize` answer, because it delivers list changes only through `subscriptions/listen` of the stateless era.
   `McpHandshakeListChangedSubscriber` sets it again on the SDK's `ResponseEvent`.

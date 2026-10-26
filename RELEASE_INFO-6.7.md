@@ -166,10 +166,13 @@ On the stateless revision there is no MCP session:
 
 * Choose toolsets in the endpoint URL, for example `/api/_mcp?toolsets=order,media`.
   `shopware-toolset-enable` answers with an error that points to `?toolsets=`.
-* List changes on the Admin API endpoint, for example after an app install, reach clients through `subscriptions/listen`.
-  The notifications go through `cache.app`, so setups with several hosts need a shared `cache.app`, for example Redis.
-* Each open `subscriptions/listen` stream occupies a PHP worker for up to 30 seconds before the client reconnects.
-  Account for it in `pm.max_children`.
+* List changes on the Admin API endpoint, for example after an app install, reach clients through `subscriptions/listen` within about a second.
+  The stream reads the list versions from the database, so changes made on the CLI, in queue workers or on another host arrive as well.
+  Each host reads them at most once a second, through a `cache.app` entry.
+  The Store API endpoint does not announce list changes on the stateless revision, because its lists only change per session there.
+* Each open `subscriptions/listen` stream holds one PHP-FPM worker for up to 25 seconds, then the server ends it and the client reconnects.
+  A client that keeps listening therefore occupies one worker almost all the time.
+  Account for it in `pm.max_children`, and keep `max_execution_time` and the timeouts of proxies in front of PHP above 25 seconds.
 
 ## API
 

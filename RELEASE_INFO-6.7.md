@@ -82,6 +82,13 @@ New sales channel contexts now decide tax-free delivery like the cart (`TaxDetec
 commercial customers only get "Tax-free (B2B)", all other customers only "Tax-free (B2C)".
 Cart and order taxes stay the same, but Rule Builder conditions like "Cart amount" can match differently than before for customers who only met the other setting.
 
+### Category listings include the dynamic product groups of subcategories
+
+A category listing, including the Store API `product-listing` route, now also shows the products its subcategories get through a dynamic product group, as it already did for manually assigned products.
+A category with a dynamic product group additionally lists the products of the manual categories below it.
+A subcategory whose dynamic product group has no usable filters is skipped and logged as a warning, instead of breaking the listing.
+Extensions that read the listing criteria now find the category filter as an `EqualsAnyFilter` on `product.categoriesRo.id`, combined in an `OrFilter` with the filters of the subcategory groups when there are any.
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request

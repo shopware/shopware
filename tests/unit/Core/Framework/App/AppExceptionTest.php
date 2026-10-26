@@ -12,6 +12,8 @@ use Shopware\Core\Framework\App\Exception\AppRegistrationRejectedException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
+use Shopware\Core\Framework\App\Url\VerificationState;
+use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
 use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Log\Package;
@@ -259,6 +261,39 @@ class AppExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
         static::assertSame('FRAMEWORK__APP_URL_INVALID', $e->getErrorCode());
         static::assertSame('APP_URL is invalid: invalid-url', $e->getMessage());
+    }
+
+    public function testAFailedAppUrlVerificationNamesTheHttpStatusCode(): void
+    {
+        $e = AppException::appUrlFailedVerification(
+            new VerificationState('https://shop.test', VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'HTTP code: "403"', 403),
+        );
+
+        static::assertSame(Response::HTTP_BAD_GATEWAY, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_URL_FAILED_VERIFICATION', $e->getErrorCode());
+        static::assertSame('APP_URL "https://shop.test" did not answer the verification request as expected (HTTP 403). Check that APP_URL points to this installation and is not blocked.', $e->getMessage());
+    }
+
+    public function testAFailedAppUrlVerificationWithoutAResponsePointsToTheCommand(): void
+    {
+        $e = AppException::appUrlFailedVerification(
+            new VerificationState('https://shop.test', VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'Invalid URL format.', statusCode: null),
+        );
+
+        static::assertSame(Response::HTTP_BAD_GATEWAY, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_URL_FAILED_VERIFICATION', $e->getErrorCode());
+        static::assertSame('APP_URL "https://shop.test" could not be verified. Run bin/console app:url:verify for details.', $e->getMessage());
+    }
+
+    public function testATemporarilyFailedAppUrlVerificationAsksToTryAgain(): void
+    {
+        $e = AppException::appUrlFailedVerification(
+            new VerificationState('https://shop.test', VerificationStatus::SOFT_FAIL, 1, new \DateTimeImmutable(), 'Failed to connect to APP_URL: timeout', statusCode: null),
+        );
+
+        static::assertSame(Response::HTTP_SERVICE_UNAVAILABLE, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_URL_VERIFICATION_UNAVAILABLE', $e->getErrorCode());
+        static::assertSame('APP_URL "https://shop.test" could not be reached. Try again later, or run bin/console app:url:verify for details.', $e->getMessage());
     }
 
     public function testRequirementsNotMet(): void

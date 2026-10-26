@@ -48,6 +48,11 @@ class ActiveAppsLoader implements ResetInterface
         $this->activeApps = null;
     }
 
+    public function hasRegisteredApps(): bool
+    {
+        return $this->connection->fetchOne('SELECT 1 FROM `app` WHERE `app_secret` IS NOT NULL LIMIT 1') !== false;
+    }
+
     /**
      * @return array<App>
      */

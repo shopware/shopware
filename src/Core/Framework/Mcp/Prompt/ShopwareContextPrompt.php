@@ -39,6 +39,7 @@ You are interacting with a Shopware 6 e-commerce platform via MCP tools.
 - `shopware-entity-aggregate`: entity (string), aggregations (string JSON), filters (string JSON, optional)
 - `shopware-entity-upsert`: entity (string), payload (string JSON), dryRun (bool, default true)
 - `shopware-entity-delete`: entity (string), ids (string JSON array of UUIDs, or of key objects for mapping entities), dryRun (bool, default true)
+- `shopware-entity-sync`: operations (string JSON, Admin API sync format), dryRun (bool, default true), indexingBehavior, skipTriggerFlow. Bulk writes: many upserts and deletes, also on several entities, in one call
 - `shopware-system-config-read`: key (string), salesChannelId (string, optional)
 - `shopware-system-config-write`: key (string), value (string), salesChannelId (string, optional), dryRun (bool, default true)
 - `shopware-order-state`: orderNumber or orderId, orderAction / transactionAction / deliveryAction, dryRun (bool, default true)

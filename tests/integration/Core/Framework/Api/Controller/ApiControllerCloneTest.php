@@ -119,12 +119,11 @@ class ApiControllerCloneTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
     }
 
-    public function testCloneCannotUpdateSharedTaxWithoutPermission(): void
+    public function testCloneRejectsSharedTaxAssociationOverwrite(): void
     {
         ['productId' => $productId, 'taxId' => $taxId] = $this->createProductWithTax();
         $browser = $this->getBrowser();
         $connection = $browser->getContainer()->get(Connection::class);
-        TestUser::createNewTestUser($connection, ['product:create', 'product:read'])->authorizeBrowser($browser);
         $productCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM product');
 
         $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
@@ -132,293 +131,51 @@ class ApiControllerCloneTest extends TestCase
         ]);
 
         $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
-        static::assertStringContainsString('tax:update', (string) $response->getContent());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('/tax', $data['errors'][0]['source']['pointer']);
+        static::assertStringContainsString('Association overwrites are not supported', $data['errors'][0]['detail']);
         static::assertSame(19.0, (float) $connection->fetchOne('SELECT tax_rate FROM tax WHERE id = :id', ['id' => Uuid::fromHexToBytes($taxId)]));
         static::assertSame($productCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM product'));
     }
 
-    public function testCloneCanUpdateSharedTaxWithPermission(): void
-    {
-        ['productId' => $productId, 'taxId' => $taxId] = $this->createProductWithTax();
-        $browser = $this->getBrowser();
-        $connection = $browser->getContainer()->get(Connection::class);
-        TestUser::createNewTestUser($connection, ['product:create', 'product:read', 'tax:update'])->authorizeBrowser($browser);
-
-        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
-            'overwrites' => ['productNumber' => Uuid::randomHex(), 'tax' => ['id' => $taxId, 'taxRate' => 0]],
-        ]);
-
-        $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
-        static::assertSame(0.0, (float) $connection->fetchOne('SELECT tax_rate FROM tax WHERE id = :id', ['id' => Uuid::fromHexToBytes($taxId)]));
-    }
-
-    public function testCloneCannotCreateNestedTaxWithoutPermission(): void
-    {
-        ['productId' => $productId] = $this->createProductWithTax();
-        $browser = $this->getBrowser();
-        $connection = $browser->getContainer()->get(Connection::class);
-        TestUser::createNewTestUser($connection, ['product:create', 'product:read'])->authorizeBrowser($browser);
-        $taxCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM tax');
-        $productCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM product');
-
-        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
-            'overwrites' => ['productNumber' => Uuid::randomHex(), 'tax' => ['name' => 'New clone tax', 'taxRate' => 7]],
-        ]);
-
-        $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
-        static::assertStringContainsString('tax:create', (string) $response->getContent());
-        static::assertSame($taxCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM tax'));
-        static::assertSame($productCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM product'));
-    }
-
-    public function testCloneCanCreateNestedTaxWithPermission(): void
-    {
-        ['productId' => $productId] = $this->createProductWithTax();
-        $browser = $this->getBrowser();
-        $connection = $browser->getContainer()->get(Connection::class);
-        TestUser::createNewTestUser($connection, ['product:create', 'product:read', 'tax:create'])->authorizeBrowser($browser);
-        $taxCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM tax');
-
-        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
-            'overwrites' => ['productNumber' => Uuid::randomHex(), 'tax' => ['name' => 'New clone tax', 'taxRate' => 7]],
-        ]);
-
-        $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
-        static::assertSame($taxCount + 1, (int) $connection->fetchOne('SELECT COUNT(*) FROM tax'));
-    }
-
-    public function testCloneDoesNotAllowOverwritingNestedMediaFileSize(): void
-    {
-        ['productId' => $productId] = $this->createProductWithTax();
-        $browser = $this->getBrowser();
-        $connection = $browser->getContainer()->get(Connection::class);
-        $productCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM product');
-        $mediaCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM media');
-
-        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
-            'overwrites' => ['productNumber' => Uuid::randomHex(), 'media' => [['media' => ['fileSize' => 1]]]],
-        ]);
-
-        $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
-        $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame('/media/0/media/fileSize', $data['errors'][0]['source']['pointer']);
-        static::assertSame($productCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM product'));
-        static::assertSame($mediaCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM media'));
-    }
-
-    public function testCloneCopiesProtectedMediaValuesButRejectsExplicitSameValue(): void
-    {
-        $browser = $this->getBrowser();
-        $container = $browser->getContainer();
-        $mediaId = Uuid::randomHex();
-        $container->get('media.repository')->create([['id' => $mediaId, 'fileSize' => 10]], Context::createDefaultContext());
-        TestUser::createNewTestUser($container->get(Connection::class), ['media:create', 'media:read'])->authorizeBrowser($browser);
-
-        $browser->jsonRequest('POST', '/api/_action/clone/media/' . $mediaId, ['overwrites' => ['fileName' => 'copied-media']]);
-        $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
-        $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame(10, (int) $container->get(Connection::class)->fetchOne('SELECT file_size FROM media WHERE id = :id', ['id' => Uuid::fromHexToBytes($data['id'])]));
-
-        $browser->jsonRequest('POST', '/api/_action/clone/media/' . $mediaId, ['overwrites' => ['fileSize' => 10]]);
-        $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
-    }
-
-    public function testCloneUsesParentCreatePermissionForTranslatedOverwrites(): void
-    {
-        ['productId' => $productId] = $this->createProductWithTax();
-        $browser = $this->getBrowser();
-        TestUser::createNewTestUser($browser->getContainer()->get(Connection::class), ['product:create', 'product:read'])->authorizeBrowser($browser);
-
-        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
-            'overwrites' => ['productNumber' => Uuid::randomHex(), 'translations' => ['en-GB' => ['name' => 'Translated clone']]],
-        ]);
-
-        $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
-    }
-
-    public function testCloneCopiesAssociationsWithoutRequiringTheirWritePermissions(): void
+    public function testCloneRejectsPositionalOverwriteOfMultipleCopiedMedia(): void
     {
         ['productId' => $productId] = $this->createProductWithTax();
         $browser = $this->getBrowser();
         $container = $browser->getContainer();
         $container->get('product.repository')->update([[
             'id' => $productId,
-            'media' => [['media' => ['id' => Uuid::randomHex(), 'fileSize' => 10]]],
-        ]], Context::createDefaultContext());
-        $connection = $container->get(Connection::class);
-        TestUser::createNewTestUser($connection, ['product:create', 'product:read'])->authorizeBrowser($browser);
-        $mediaCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM media');
-        $associationCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM product_media');
-
-        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
-            'overwrites' => ['productNumber' => Uuid::randomHex()],
-        ]);
-
-        $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
-        static::assertSame($mediaCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM media'));
-        static::assertSame($associationCount + 1, (int) $connection->fetchOne('SELECT COUNT(*) FROM product_media'));
-    }
-
-    public function testCloneCanOverrideCopiedAssociationWithoutResubmittingRequiredFields(): void
-    {
-        ['productId' => $productId] = $this->createProductWithTax();
-        $browser = $this->getBrowser();
-        $container = $browser->getContainer();
-        $mediaId = Uuid::randomHex();
-        $container->get('product.repository')->update([[
-            'id' => $productId,
-            'media' => [['position' => 0, 'media' => ['id' => $mediaId, 'fileSize' => 10]]],
-        ]], Context::createDefaultContext());
-        $connection = $container->get(Connection::class);
-        TestUser::createNewTestUser($connection, ['product:create', 'product:read', 'product_media:create'])->authorizeBrowser($browser);
-        $mediaCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM media');
-
-        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
-            'overwrites' => ['productNumber' => Uuid::randomHex(), 'media' => [['position' => 1]]],
-        ]);
-
-        $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
-        $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame(1, (int) $connection->fetchOne('SELECT position FROM product_media WHERE product_id = :product AND media_id = :media', ['product' => Uuid::fromHexToBytes($data['id']), 'media' => Uuid::fromHexToBytes($mediaId)]));
-        static::assertSame($mediaCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM media'));
-    }
-
-    public function testCloneCannotOverrideCopiedAssociationWithoutCreatePermission(): void
-    {
-        ['productId' => $productId] = $this->createProductWithTax();
-        $browser = $this->getBrowser();
-        $container = $browser->getContainer();
-        $container->get('product.repository')->update([[
-            'id' => $productId,
-            'media' => [['position' => 0, 'media' => ['id' => Uuid::randomHex(), 'fileSize' => 10]]],
-        ]], Context::createDefaultContext());
-        $connection = $container->get(Connection::class);
-        TestUser::createNewTestUser($connection, ['product:create', 'product:read'])->authorizeBrowser($browser);
-        $associationCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM product_media');
-
-        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
-            'overwrites' => ['productNumber' => Uuid::randomHex(), 'media' => [['position' => 1]]],
-        ]);
-
-        $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
-        static::assertStringContainsString('product_media:create', (string) $response->getContent());
-        static::assertSame($associationCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM product_media'));
-    }
-
-    public function testCloneCannotUpdateManyToManyTargetWithoutPermission(): void
-    {
-        ['productId' => $productId] = $this->createProductWithTax();
-        $browser = $this->getBrowser();
-        $container = $browser->getContainer();
-        $categoryId = Uuid::randomHex();
-        $container->get('category.repository')->create([['id' => $categoryId, 'name' => 'Original category']], Context::createDefaultContext());
-        $connection = $container->get(Connection::class);
-        TestUser::createNewTestUser($connection, ['product:create', 'product:read', 'product_category:create'])->authorizeBrowser($browser);
-        $productCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM product');
-
-        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
-            'overwrites' => [
-                'productNumber' => Uuid::randomHex(),
-                'categories' => [['id' => $categoryId, 'name' => 'Changed category']],
+            'media' => [
+                ['position' => 0, 'media' => ['id' => Uuid::randomHex(), 'fileSize' => 10]],
+                ['position' => 1, 'media' => ['id' => Uuid::randomHex(), 'fileSize' => 20]],
             ],
-        ]);
-
-        $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
-        static::assertStringContainsString('category:update', (string) $response->getContent());
-        static::assertSame('Original category', $connection->fetchOne('SELECT name FROM category_translation WHERE category_id = :id AND language_id = :language', ['id' => Uuid::fromHexToBytes($categoryId), 'language' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]));
-        static::assertSame($productCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM product'));
-    }
-
-    public function testCloneCannotUpdateCopiedManyToManyTargetWhenOverwriteOmitsItsId(): void
-    {
-        ['productId' => $productId] = $this->createProductWithTax();
-        $browser = $this->getBrowser();
-        $container = $browser->getContainer();
-        $categoryId = Uuid::randomHex();
-        $context = Context::createDefaultContext();
-        $container->get('category.repository')->create([['id' => $categoryId, 'name' => 'Original category']], $context);
-        $container->get('product.repository')->update([['id' => $productId, 'categories' => [['id' => $categoryId]]]], $context);
+        ]], Context::createDefaultContext());
         $connection = $container->get(Connection::class);
-        TestUser::createNewTestUser($connection, ['product:create', 'product:read', 'product_category:create', 'category:create'])->authorizeBrowser($browser);
         $productCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM product');
+        $associationCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM product_media');
 
         $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
-            'overwrites' => ['productNumber' => Uuid::randomHex(), 'categories' => [['name' => 'Changed category']]],
+            'overwrites' => ['productNumber' => Uuid::randomHex(), 'media' => [['position' => 5]]],
         ]);
 
         $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
-        static::assertStringContainsString('category:update', (string) $response->getContent());
-        static::assertSame('Original category', $connection->fetchOne('SELECT name FROM category_translation WHERE category_id = :id AND language_id = :language', ['id' => Uuid::fromHexToBytes($categoryId), 'language' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]));
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('/media', $data['errors'][0]['source']['pointer']);
         static::assertSame($productCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM product'));
+        static::assertSame($associationCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM product_media'));
+        static::assertSame([0, 1], array_map('intval', $connection->fetchFirstColumn('SELECT position FROM product_media WHERE product_id = :id ORDER BY position', ['id' => Uuid::fromHexToBytes($productId)])));
     }
 
-    public function testCloneChecksLiveManyToManyTargetWhenCloningDraftProduct(): void
+    public function testCloneRejectsIdOnlyManyToManyOverwrite(): void
     {
         ['productId' => $productId] = $this->createProductWithTax();
         $browser = $this->getBrowser();
         $container = $browser->getContainer();
         $categoryId = Uuid::randomHex();
-        $context = Context::createDefaultContext();
-        $container->get('category.repository')->create([['id' => $categoryId, 'name' => 'Original category']], $context);
-        $productRepository = $container->get('product.repository');
-        $productRepository->update([['id' => $productId, 'categories' => [['id' => $categoryId]]]], $context);
-        $versionId = $productRepository->createVersion($productId, $context);
+        $container->get('category.repository')->create([['id' => $categoryId, 'name' => 'Existing category']], Context::createDefaultContext());
         $connection = $container->get(Connection::class);
-        TestUser::createNewTestUser($connection, ['product:create', 'product:read', 'product_category:create', 'category:create'])->authorizeBrowser($browser);
-
-        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
-            'overwrites' => ['productNumber' => Uuid::randomHex(), 'categories' => [['name' => 'Changed category']]],
-        ], ['HTTP_SW_VERSION_ID' => $versionId]);
-
-        $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
-        static::assertStringContainsString('category:update', (string) $response->getContent());
-        static::assertSame('Original category', $connection->fetchOne('SELECT name FROM category_translation WHERE category_id = :id AND language_id = :language', ['id' => Uuid::fromHexToBytes($categoryId), 'language' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]));
-    }
-
-    public function testCloneCanUpdateCopiedManyToManyTargetWhenOverwriteOmitsItsId(): void
-    {
-        ['productId' => $productId] = $this->createProductWithTax();
-        $browser = $this->getBrowser();
-        $container = $browser->getContainer();
-        $categoryId = Uuid::randomHex();
-        $context = Context::createDefaultContext();
-        $container->get('category.repository')->create([['id' => $categoryId, 'name' => 'Original category']], $context);
-        $container->get('product.repository')->update([['id' => $productId, 'categories' => [['id' => $categoryId]]]], $context);
-        $connection = $container->get(Connection::class);
-        TestUser::createNewTestUser($connection, ['product:create', 'product:read', 'product_category:create', 'category:update'])->authorizeBrowser($browser);
-
-        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
-            'overwrites' => ['productNumber' => Uuid::randomHex(), 'categories' => [['name' => 'Changed category']]],
-        ]);
-
-        $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
-        static::assertSame('Changed category', $connection->fetchOne('SELECT name FROM category_translation WHERE category_id = :id AND language_id = :language', ['id' => Uuid::fromHexToBytes($categoryId), 'language' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]));
-    }
-
-    public function testCloneCannotLinkManyToManyTargetWithoutMappingCreatePermission(): void
-    {
-        ['productId' => $productId] = $this->createProductWithTax();
-        $browser = $this->getBrowser();
-        $container = $browser->getContainer();
-        $categoryId = Uuid::randomHex();
-        $container->get('category.repository')->create([['id' => $categoryId, 'name' => 'Linked category']], Context::createDefaultContext());
-        $connection = $container->get(Connection::class);
-        TestUser::createNewTestUser($connection, ['product:create', 'product:read'])->authorizeBrowser($browser);
         $associationCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM product_category');
 
         $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
@@ -426,93 +183,128 @@ class ApiControllerCloneTest extends TestCase
         ]);
 
         $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
-        static::assertStringContainsString('product_category:create', (string) $response->getContent());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('/categories', $data['errors'][0]['source']['pointer']);
         static::assertSame($associationCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM product_category'));
     }
 
-    public function testCloneCanLinkManyToManyTargetWithoutTargetWritePermission(): void
+    public function testCloneRejectsExplicitTranslationAssociationOverwrite(): void
+    {
+        ['productId' => $productId] = $this->createProductWithTax();
+        $browser = $this->getBrowser();
+        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
+            'overwrites' => ['productNumber' => Uuid::randomHex(), 'translations' => ['en-GB' => ['name' => 'Changed name']]],
+        ]);
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('/translations', $data['errors'][0]['source']['pointer']);
+    }
+
+    public function testCloneAllowsRootJsonTranslatedAndForeignKeyOverwrites(): void
     {
         ['productId' => $productId] = $this->createProductWithTax();
         $browser = $this->getBrowser();
         $container = $browser->getContainer();
-        $categoryId = Uuid::randomHex();
-        $container->get('category.repository')->create([['id' => $categoryId, 'name' => 'Linked category']], Context::createDefaultContext());
+        $taxId = Uuid::randomHex();
+        $container->get('tax.repository')->create([['id' => $taxId, 'name' => 'Other tax', 'taxRate' => 7]], Context::createDefaultContext());
         $connection = $container->get(Connection::class);
-        TestUser::createNewTestUser($connection, ['product:create', 'product:read', 'product_category:create'])->authorizeBrowser($browser);
+        TestUser::createNewTestUser($connection, ['product:create', 'product:read'])->authorizeBrowser($browser);
 
         $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
-            'overwrites' => ['productNumber' => Uuid::randomHex(), 'categories' => [['id' => $categoryId]]],
+            'overwrites' => [
+                'productNumber' => Uuid::randomHex(),
+                'name' => [Defaults::LANGUAGE_SYSTEM => 'Allowed clone'],
+                'taxId' => $taxId,
+                'variantListingConfig' => ['displayParent' => true, 'configuratorGroupConfig' => []],
+            ],
         ]);
 
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
         $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame(1, (int) $connection->fetchOne('SELECT COUNT(*) FROM product_category WHERE product_id = :product AND category_id = :category', ['product' => Uuid::fromHexToBytes($data['id']), 'category' => Uuid::fromHexToBytes($categoryId)]));
+        $cloneId = Uuid::fromHexToBytes($data['id']);
+        static::assertSame(Uuid::fromHexToBytes($taxId), $connection->fetchOne('SELECT tax_id FROM product WHERE id = :id', ['id' => $cloneId]));
+        static::assertSame('Allowed clone', $connection->fetchOne('SELECT name FROM product_translation WHERE product_id = :id AND language_id = :language', ['id' => $cloneId, 'language' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]));
+        $config = json_decode((string) $connection->fetchOne('SELECT variant_listing_config FROM product WHERE id = :id', ['id' => $cloneId]), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(1, $config['displayParent']);
+        static::assertSame([], $config['configuratorGroupConfig']);
     }
 
-    public function testCloneCanCreateNestedTaxWithExplicitNewId(): void
+    public function testCloneStillCopiesMultipleMediaWithProtectedValues(): void
     {
         ['productId' => $productId] = $this->createProductWithTax();
         $browser = $this->getBrowser();
-        $connection = $browser->getContainer()->get(Connection::class);
-        TestUser::createNewTestUser($connection, ['product:create', 'product:read', 'tax:create'])->authorizeBrowser($browser);
-        $taxId = Uuid::randomHex();
+        $container = $browser->getContainer();
+        $mediaIds = [Uuid::randomHex(), Uuid::randomHex()];
+        $container->get('product.repository')->update([[
+            'id' => $productId,
+            'media' => [
+                ['position' => 0, 'media' => ['id' => $mediaIds[0], 'fileSize' => 10]],
+                ['position' => 1, 'media' => ['id' => $mediaIds[1], 'fileSize' => 20]],
+            ],
+        ]], Context::createDefaultContext());
+        $connection = $container->get(Connection::class);
+        TestUser::createNewTestUser($connection, ['product:create', 'product:read'])->authorizeBrowser($browser);
+        $mediaCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM media');
 
         $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
-            'overwrites' => ['productNumber' => Uuid::randomHex(), 'tax' => ['id' => $taxId, 'name' => 'New clone tax', 'taxRate' => 7]],
+            'overwrites' => ['productNumber' => Uuid::randomHex()],
         ]);
 
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
-        static::assertSame(7.0, (float) $connection->fetchOne('SELECT tax_rate FROM tax WHERE id = :id', ['id' => Uuid::fromHexToBytes($taxId)]));
+        $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(array_map(Uuid::fromHexToBytes(...), $mediaIds), $connection->fetchFirstColumn('SELECT media_id FROM product_media WHERE product_id = :id ORDER BY position', ['id' => Uuid::fromHexToBytes($data['id'])]));
+        static::assertSame($mediaCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM media'));
+        static::assertSame(10, (int) $connection->fetchOne('SELECT file_size FROM media WHERE id = :id', ['id' => Uuid::fromHexToBytes($mediaIds[0])]));
+        static::assertSame(20, (int) $connection->fetchOne('SELECT file_size FROM media WHERE id = :id', ['id' => Uuid::fromHexToBytes($mediaIds[1])]));
     }
 
-    public function testTrustedSystemCloneCanOverwriteProtectedValues(): void
+    public function testCloneRejectsAssociationOverwriteThroughExtensions(): void
     {
-        $container = $this->getBrowser()->getContainer();
-        $mediaId = Uuid::randomHex();
-        $context = Context::createDefaultContext();
-        $container->get('media.repository')->create([['id' => $mediaId, 'fileSize' => 10]], $context);
-        $cloned = $container->get('media.repository')->clone($mediaId, $context, null, new CloneBehavior(['fileSize' => 20]));
-        $event = $cloned->getEventByEntityName('media');
-        static::assertNotNull($event);
-        $id = $event->getIds()[0];
-        static::assertIsString($id);
-        static::assertSame(20, (int) $container->get(Connection::class)->fetchOne('SELECT file_size FROM media WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]));
+        ['productId' => $productId, 'taxId' => $taxId] = $this->createProductWithTax();
+        $browser = $this->getBrowser();
+        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
+            'overwrites' => ['productNumber' => Uuid::randomHex(), 'extensions' => ['tax' => ['id' => $taxId, 'taxRate' => 0]]],
+        ]);
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('/extensions/tax', $data['errors'][0]['source']['pointer']);
+        $connection = $browser->getContainer()->get(Connection::class);
+        static::assertSame(19.0, (float) $connection->fetchOne('SELECT tax_rate FROM tax WHERE id = :id', ['id' => Uuid::fromHexToBytes($taxId)]));
     }
 
-    public function testCloneCannotBypassFieldProtectionThroughExtensions(): void
+    public function testCloneRetainsRootFieldProtectionThroughExtensions(): void
     {
         $browser = $this->getBrowser();
-        $container = $browser->getContainer();
         $mediaId = Uuid::randomHex();
-        $container->get('media.repository')->create([['id' => $mediaId, 'fileSize' => 10]], Context::createDefaultContext());
-
+        $browser->getContainer()->get('media.repository')->create([['id' => $mediaId, 'fileSize' => 10]], Context::createDefaultContext());
         $browser->jsonRequest('POST', '/api/_action/clone/media/' . $mediaId, [
             'overwrites' => ['extensions' => ['fileSize' => 1]],
         ]);
 
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
-        static::assertSame(10, (int) $container->get(Connection::class)->fetchOne('SELECT file_size FROM media WHERE id = :id', ['id' => Uuid::fromHexToBytes($mediaId)]));
+        $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('/extensions/fileSize', $data['errors'][0]['source']['pointer']);
     }
 
-    public function testCloneCannotBypassAssociationAclThroughExtensions(): void
+    public function testTrustedSystemCloneCanOverwriteProtectedRootValues(): void
     {
-        ['productId' => $productId, 'taxId' => $taxId] = $this->createProductWithTax();
-        $browser = $this->getBrowser();
-        $connection = $browser->getContainer()->get(Connection::class);
-        TestUser::createNewTestUser($connection, ['product:create', 'product:read'])->authorizeBrowser($browser);
-
-        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
-            'overwrites' => ['productNumber' => Uuid::randomHex(), 'extensions' => ['tax' => ['id' => $taxId, 'taxRate' => 0]]],
-        ]);
-
-        $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
-        static::assertStringContainsString('tax:update', (string) $response->getContent());
-        static::assertSame(19.0, (float) $connection->fetchOne('SELECT tax_rate FROM tax WHERE id = :id', ['id' => Uuid::fromHexToBytes($taxId)]));
+        $container = $this->getBrowser()->getContainer();
+        $mediaId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $container->get('media.repository')->create([['id' => $mediaId, 'fileSize' => 10]], $context);
+        $cloned = $container->get('media.repository')->clone($mediaId, $context, null, new CloneBehavior(['fileSize' => 20]));
+        $cloneId = $cloned->getEventByEntityName('media')?->getIds()[0];
+        static::assertIsString($cloneId);
+        $fileSize = $container->get(Connection::class)->fetchOne('SELECT file_size FROM media WHERE id = :id', ['id' => Uuid::fromHexToBytes($cloneId)]);
+        static::assertSame(20, (int) $fileSize);
     }
 
     public function testCloneDoesNotAllowCloningUser(): void
@@ -562,7 +354,7 @@ class ApiControllerCloneTest extends TestCase
         $taxId = Uuid::randomHex();
         $this->getBrowser()->getContainer()->get('product.repository')->create([[
             'id' => $productId,
-            'name' => 'Clone ACL test',
+            'name' => 'Clone source',
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 10, 'linked' => false]],

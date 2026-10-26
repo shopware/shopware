@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\CloneProtection;
@@ -288,11 +287,11 @@ class VersionManager
             }
         }
 
+        $this->validateOverwriteWriteProtection($definition, $behavior->getOverwrites(), $context->getContext());
+
         $data = Feature::isActive('v6.8.0.0')
             ? $this->mergeOverwrites($definition, $data, $behavior->getOverwrites())
             : array_replace_recursive($data, $behavior->getOverwrites());
-
-        $this->validateOverwriteWriteProtection($definition, $behavior->getOverwrites(), $context->getContext()->createWithVersionId($versionId), data: $data);
 
         $versionContext = $context->createWithVersionId($versionId);
         $result = null;
@@ -310,65 +309,35 @@ class VersionManager
 
     /**
      * @param array<array-key, mixed> $overwrites
-     * @param array<array-key, mixed> $data
      */
-    private function validateOverwriteWriteProtection(EntityDefinition $definition, array $overwrites, Context $context, string $path = '', array $data = []): void
+    private function validateOverwriteWriteProtection(EntityDefinition $definition, array $overwrites, Context $context, string $path = ''): void
     {
-        $data = array_replace($data, \is_array($data['extensions'] ?? null) ? $data['extensions'] : []);
         foreach ($overwrites as $propertyName => $value) {
             if (!\is_string($propertyName)) {
                 continue;
             }
 
             $fieldPath = $path . '/' . $propertyName;
-
             if ($propertyName === 'extensions' && \is_array($value)) {
-                $this->validateOverwriteWriteProtection($definition, $value, $context, $fieldPath, $data);
+                $this->validateOverwriteWriteProtection($definition, $value, $context, $fieldPath);
 
                 continue;
             }
 
             $field = $definition->getFields()->get($propertyName);
-            $writeProtection = $field?->getFlag(WriteProtected::class);
-
-            if ($writeProtection === null || $writeProtection->isAllowed($context->getScope())) {
-                if (!$field instanceof AssociationField || !\is_array($value)) {
+            $message = 'Association overwrites are not supported when cloning. Write associations separately using their IDs.';
+            $allowedScopes = '';
+            if (!$field instanceof AssociationField) {
+                $writeProtection = $field?->getFlag(WriteProtected::class);
+                if ($writeProtection === null || $writeProtection->isAllowed($context->getScope())) {
                     continue;
                 }
 
-                $reference = $this->getCloneReferenceDefinition($field);
-
-                if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
-                    $nestedData = \is_array($data[$propertyName] ?? null) ? $data[$propertyName] : $value;
-                    $this->validateAssociationWritePermission($reference, $nestedData, $context);
-                    $this->validateOverwriteWriteProtection($reference, $value, $context, $fieldPath, $nestedData);
-
-                    continue;
+                $message = 'This field is write-protected.';
+                $allowedScopes = implode(' or ', $writeProtection->getAllowedScopes());
+                if ($allowedScopes !== '') {
+                    $message .= ' (Got: "%s" scope and "%s" is required)';
                 }
-
-                if ($field instanceof ManyToManyAssociationField && $value !== []) {
-                    $this->validateAssociationWritePermission($field->getMappingDefinition(), [], $context);
-                }
-                foreach ($value as $index => $nested) {
-                    if (\is_array($nested)) {
-                        $nestedData = \is_array($data[$propertyName][$index] ?? null) ? $data[$propertyName][$index] : $nested;
-                        // Translations use their parent's privilege; ID-only many-to-many targets are only linked.
-                        if (!$field instanceof TranslationsAssociationField && !($field instanceof ManyToManyAssociationField && array_keys($nestedData) === ['id'])) {
-                            $permissionData = $field instanceof ManyToManyAssociationField ? array_replace($nestedData, ['versionId' => Defaults::LIVE_VERSION]) : $nestedData;
-                            $this->validateAssociationWritePermission($reference, $permissionData, $context);
-                        }
-                        $this->validateOverwriteWriteProtection($reference, $nested, $context, $fieldPath . '/' . $index, $nestedData);
-                    }
-                }
-
-                continue;
-            }
-
-            $message = 'This field is write-protected.';
-            $allowedScopes = implode(' or ', $writeProtection->getAllowedScopes());
-
-            if ($allowedScopes !== '') {
-                $message .= ' (Got: "%s" scope and "%s" is required)';
             }
 
             throw DataAbstractionLayerException::invalidWriteConstraintViolation(
@@ -384,45 +353,6 @@ class VersionManager
                 ]),
                 $fieldPath
             );
-        }
-    }
-
-    /**
-     * @param array<array-key, mixed> $data
-     */
-    private function validateAssociationWritePermission(EntityDefinition $definition, array $data, Context $context): void
-    {
-        $aclContext = $context;
-        $source = $context->getSource();
-        if ($source instanceof AdminSalesChannelApiSource) {
-            $aclContext = $source->getOriginalContext();
-            $source = $aclContext->getSource();
-        }
-        if ($aclContext->getScope() === Context::SYSTEM_SCOPE || !$source instanceof AdminApiSource || $source->isAdmin()) {
-            return;
-        }
-
-        $primaryKey = [];
-        foreach ($definition->getPrimaryKeys() as $field) {
-            if ($field instanceof VersionField || $field instanceof ReferenceVersionField) {
-                continue;
-            }
-            $value = $data[$field->getPropertyName()] ?? null;
-            if (!\is_string($value) || !Uuid::isValid($value)) {
-                $primaryKey = [];
-                break;
-            }
-            $primaryKey[$field->getPropertyName()] = $value;
-        }
-
-        $versionId = $data['versionId'] ?? null;
-        if ($definition->isVersionAware() && \is_string($versionId) && Uuid::isValid($versionId)) {
-            $context = $context->createWithVersionId($versionId);
-        }
-        $exists = $primaryKey !== [] && $this->entitySearcher->search($definition, new Criteria([$primaryKey]), $context)->getIds() !== [];
-        $privilege = $definition->getEntityName() . ':' . ($exists ? 'update' : 'create');
-        if (!$source->isAllowed($privilege)) {
-            throw DataAbstractionLayerException::missingPrivileges([$privilege]);
         }
     }
 

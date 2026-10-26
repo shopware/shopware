@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -70,8 +71,19 @@ class VersionManagerTest extends TestCase
     /**
      * @param array<string, mixed> $overwrites
      */
-    #[DataProvider('protectedCloneOverwriteProvider')]
-    public function testCloneRejectsProtectedOverwritesBeforeWriting(array $overwrites, string $path): void
+    #[TestWith([['protected' => 'blocked'], '/protected'])]
+    #[TestWith([['protected' => null], '/protected'])]
+    #[TestWith([['extensions' => ['protected' => 'blocked']], '/extensions/protected'])]
+    #[TestWith([['parent' => ['name' => 'blocked']], '/parent'])]
+    #[TestWith([['parent' => null], '/parent'])]
+    #[TestWith([['parent' => []], '/parent'])]
+    #[TestWith([['detail' => ['name' => 'blocked']], '/detail'])]
+    #[TestWith([['items' => [['name' => 'blocked']]], '/items'])]
+    #[TestWith([['related' => [['id' => 'blocked']]], '/related'])]
+    #[TestWith([['translations' => ['en-GB' => ['name' => 'blocked']]], '/translations'])]
+    #[TestWith([['extensions' => ['extra' => ['name' => 'blocked']]], '/extensions/extra'])]
+    #[TestWith([['parent' => ['name' => 'blocked']], '/parent', Context::SYSTEM_SCOPE])]
+    public function testCloneRejectsInvalidOverwritesBeforeWriting(array $overwrites, string $path, string $scope = Context::CRUD_API_SCOPE): void
     {
         $registry = new StaticDefinitionInstanceRegistry(
             [VersionManagerProtectedOverwriteTestDefinition::class, VersionManagerTestDefinition::class],
@@ -93,7 +105,7 @@ class VersionManagerTest extends TestCase
         ]);
 
         try {
-            Context::createDefaultContext()->scope(Context::CRUD_API_SCOPE, fn (Context $context) => $manager->clone(
+            Context::createDefaultContext()->scope($scope, fn (Context $context) => $manager->clone(
                 $registry->getByEntityName('protected_overwrite_test'),
                 Uuid::randomHex(),
                 Uuid::randomHex(),
@@ -101,53 +113,32 @@ class VersionManagerTest extends TestCase
                 WriteContext::createFromContext($context),
                 new CloneBehavior($overwrites)
             ));
-            static::fail('Protected overwrites must be rejected before insertion.');
+            static::fail('Invalid overwrites must be rejected before insertion.');
         } catch (WriteConstraintViolationException $exception) {
             static::assertSame('FRAMEWORK__WRITE_CONSTRAINT_VIOLATION', $exception->getErrorCode());
             static::assertSame($path, $exception->getPath());
         }
     }
 
-    /**
-     * @return iterable<string, array{array<string, mixed>, string}>
-     */
-    public static function protectedCloneOverwriteProvider(): iterable
+    public function testClonePreservesCopiedProtectedValuesAndAllowsRootJsonOverwrites(): void
     {
-        yield 'root field' => [['protected' => 'blocked'], '/protected'];
-        yield 'null protected field' => [['protected' => null], '/protected'];
-        yield 'many to one' => [['parent' => ['protected' => 'blocked']], '/parent/protected'];
-        yield 'one to one' => [['detail' => ['protected' => 'blocked']], '/detail/protected'];
-        yield 'one to many' => [['items' => [['protected' => 'blocked']]], '/items/0/protected'];
-        yield 'many to many target' => [['related' => [['protected' => 'blocked']]], '/related/0/protected'];
-        yield 'language keyed translations' => [['translations' => ['en-GB' => ['protected' => 'blocked']]], '/translations/en-GB/protected'];
-        yield 'deep association' => [['items' => [['parent' => ['protected' => 'blocked']]]], '/items/0/parent/protected'];
-        yield 'extension field' => [['extensions' => ['protected' => 'blocked']], '/extensions/protected'];
-        yield 'extension association' => [['extensions' => ['extra' => ['protected' => 'blocked']]], '/extensions/extra/protected'];
-        yield 'nested extensions' => [['parent' => ['extensions' => ['protected' => 'blocked']]], '/parent/extensions/protected'];
-    }
-
-    public function testClonePreservesCopiedProtectedValuesAndAllowsNestedOverwrites(): void
-    {
-        $source = new AdminApiSource(Uuid::randomHex());
-        $source->setPermissions(['protected_overwrite_test:create']);
         $this->assertCloneOverwriteResult(
             VersionManagerProtectedOverwriteTestDefinition::class,
             'protected_overwrite_test',
             ['protected' => 'copied'],
-            ['parent' => ['name' => 'allowed'], 'json' => ['protected' => 'ordinary JSON data']],
-            ['protected' => 'copied', 'parent' => ['name' => 'allowed'], 'json' => ['protected' => 'ordinary JSON data']],
-            Context::createDefaultContext($source)
+            ['json' => ['protected' => 'ordinary JSON data']],
+            ['protected' => 'copied', 'json' => ['protected' => 'ordinary JSON data']]
         );
     }
 
-    public function testCloneAllowsProtectedNestedOverwritesInSystemScope(): void
+    public function testCloneAllowsProtectedRootOverwritesInSystemScope(): void
     {
         $this->assertCloneOverwriteResult(
             VersionManagerProtectedOverwriteTestDefinition::class,
             'protected_overwrite_test',
             [],
-            ['parent' => ['protected' => 'allowed']],
-            ['parent' => ['protected' => 'allowed']],
+            ['protected' => 'allowed'],
+            ['protected' => 'allowed'],
             Context::createDefaultContext()
         );
     }

@@ -92,7 +92,6 @@ describe('src/app/component/structure/sw-admin-nps-card', () => {
     it.each([
         0,
         6,
-        7,
     ])('should replace the scale with the reason step after submitting a score of %i', async (score) => {
         const wrapper = await createWrapper();
 
@@ -110,6 +109,7 @@ describe('src/app/component/structure/sw-admin-nps-card', () => {
     });
 
     it.each([
+        7,
         8,
         10,
     ])('should submit directly and request to be hidden for a score of %i', async (score) => {
@@ -272,7 +272,7 @@ describe('src/app/component/structure/sw-admin-nps-card', () => {
     it('should label the optional reason field and move focus to it when the reason step opens', async () => {
         const wrapper = await createWrapper({}, { attachTo: document.body });
 
-        await getScoreButton(wrapper, 7).trigger('click');
+        await getScoreButton(wrapper, 6).trigger('click');
         await flushPromises();
         await wrapper.find('.sw-admin-nps-card__submit').trigger('click');
         await flushPromises();
@@ -347,6 +347,8 @@ describe('src/app/component/structure/sw-admin-nps-card', () => {
 
         expect(getScoreButton(wrapper, 0).attributes('aria-label')).not.toBe(middleAriaLabel);
         expect(getScoreButton(wrapper, 10).attributes('aria-label')).not.toBe(middleAriaLabel);
-        expect(getScoreButton(wrapper, 0).attributes('aria-label')).not.toBe(getScoreButton(wrapper, 10).attributes('aria-label'));
+        expect(getScoreButton(wrapper, 0).attributes('aria-label')).not.toBe(
+            getScoreButton(wrapper, 10).attributes('aria-label'),
+        );
     });
 });

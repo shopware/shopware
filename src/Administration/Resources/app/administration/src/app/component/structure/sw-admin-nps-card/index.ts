@@ -17,8 +17,8 @@ export type NpsResponse = {
 const MIN_SCORE = 0;
 const MAX_SCORE = 10;
 
-// Product decision: scores up to and including 7 get the follow-up question.
-const FOLLOW_UP_MAX_SCORE = 7;
+// Scores up to and including this value (the NPS detractors, 0-6) get the follow-up question.
+const FOLLOW_UP_MAX_SCORE = 6;
 
 /**
  * @sw-package framework

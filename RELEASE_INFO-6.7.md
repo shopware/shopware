@@ -111,6 +111,9 @@ shopware:
 
 The list can also come from an environment variable, for example `allowed_origins: '%env(csv:MCP_ALLOWED_ORIGINS)%'`.
 A rejected origin is logged as a warning in the `mcp` channel.
+### MCP tools can stream progress and elicitation again
+
+MCP tools that call `progress()`, `notify()`, `elicit()` or `elicitUrl()` on the SDK's `ClientGateway` now reach the client as a `text/event-stream` with its headers and frames.
 
 ## API
 

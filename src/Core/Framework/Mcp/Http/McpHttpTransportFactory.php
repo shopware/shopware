@@ -74,11 +74,18 @@ class McpHttpTransportFactory
         return $this->streamFactory->createStream($content);
     }
 
+    /**
+     * The SDK's text/event-stream body can be a `CallbackStream` that resumes the suspended request and
+     * echoes each frame when read, for example progress of a tool call or a `subscriptions/listen` stream.
+     * It must stay unread until Symfony has sent the headers, so it is passed on as a streamed response.
+     */
     public function createResponse(PsrResponseInterface $psrResponse): Response
     {
         \assert($this->httpFoundationFactory !== null);
 
-        return $this->httpFoundationFactory->createResponse($psrResponse, false);
+        $streamed = str_starts_with(strtolower($psrResponse->getHeaderLine('Content-Type')), 'text/event-stream');
+
+        return $this->httpFoundationFactory->createResponse($psrResponse, $streamed);
     }
 
     /**

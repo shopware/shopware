@@ -398,4 +398,24 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
 
         wrapper.vm.productRepository.search.mockRestore();
     });
+
+    it('should not load the visibilities of the products, because only their ids are assigned', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.productRepository.search = jest.fn(() => Promise.resolve(productsMock));
+
+        await wrapper.vm.getProducts();
+
+        const criteria = wrapper.vm.productRepository.search.mock.calls[0][0];
+        expect(criteria.hasAssociation('visibilities')).toBe(false);
+        // products that are already assigned to the sales channel are still excluded
+        expect(criteria.filters).toContainEqual(
+            expect.objectContaining({
+                type: 'not',
+                queries: [expect.objectContaining({ field: 'product.visibilities.salesChannelId', value: 1 })],
+            }),
+        );
+
+        wrapper.vm.productRepository.search.mockRestore();
+    });
 });

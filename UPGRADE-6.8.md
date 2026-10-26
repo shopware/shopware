@@ -1494,6 +1494,10 @@ $this->cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior(
 new HreflangLoaderParameter('frontend.home.page', $routeParameters, $salesChannelContext, true);
 ```
 
+## `NotFilter` constructor accepts a single filter
+
+The `$operator` parameter of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter::__construct()` is widened from `string` to `string|Filter`, so `new NotFilter($filter)` negates a single filter like `NotFilter::negate($filter)`. Existing calls keep working unchanged.
+
 # Administration
 
 ## `sw-sales-channel-detail-products.saveProductVisibilities()` removed
@@ -2574,6 +2578,22 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 # Storefront
 
 <details>
+
+## `ThemeService::compileTheme()` received a new optional `$notifyOnAsyncCompletion` parameter
+
+`Shopware\Storefront\Theme\ThemeService::compileTheme()` received a new optional parameter `bool $notifyOnAsyncCompletion = true`. With asynchronous theme compilation, it controls whether the Administration user is notified once the compilation is completed. Call sites are not affected. Classes overriding this method had to add the parameter to keep a compatible signature:
+
+Before:
+
+```php
+public function compileTheme(string $salesChannelId, string $themeId, Context $context, ?StorefrontPluginConfigurationCollection $configurationCollection = null, bool $withAssets = true): void
+```
+
+After:
+
+```php
+public function compileTheme(string $salesChannelId, string $themeId, Context $context, ?StorefrontPluginConfigurationCollection $configurationCollection = null, bool $withAssets = true, bool $notifyOnAsyncCompletion = true): void
+```
 
 ## Removed `--no-cleanup` option of `theme:compile` and `theme:change`
 

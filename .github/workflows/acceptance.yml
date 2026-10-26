@@ -86,7 +86,8 @@ jobs:
           php-version: ${{ matrix.php-version }}
           shard: ${{ matrix.shard }}
           shard-count: ${{ matrix.shard-count }}
-          workers: 4
+          # One worker per CPU: the shopware-private mirror runs this job on a smaller runner.
+          workers: 100%
           major: ${{ matrix.major }}
           install: ${{ matrix.name != 'Install' && 'true' || 'false' }}
           extra-options: ${{ matrix.name == 'Install' && '--trace=on' || '' }}

@@ -41,7 +41,7 @@ class ProductContentScenarioTest extends McpScenarioTestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        $data = $this->decodeToolOutput($output);
+        $data = $this->assertToolSucceeded($output);
 
         $foundIds = array_column($data->data, 'id');
         static::assertContains($ids->get('without-media'), $foundIds, 'Product without media should appear');
@@ -75,7 +75,7 @@ class ProductContentScenarioTest extends McpScenarioTestCase
             dryRun: false,
         );
 
-        $data = $this->decodeToolOutput($output);
+        $data = $this->assertToolSucceeded($output);
         static::assertFalse($data->meta['dryRun']);
 
         $readOutput = ($this->entityReadTool)(
@@ -83,7 +83,7 @@ class ProductContentScenarioTest extends McpScenarioTestCase
             id: $ids->get('price-update'),
         );
 
-        $readData = $this->decodeToolOutput($readOutput);
+        $readData = $this->assertToolSucceeded($readOutput);
         static::assertSame(39.99, $readData->data['price'][0]['gross']);
     }
 
@@ -113,7 +113,7 @@ class ProductContentScenarioTest extends McpScenarioTestCase
             dryRun: false,
         );
 
-        $this->decodeToolOutput($output);
+        $this->assertToolSucceeded($output);
 
         $readOutput = ($this->entityReadTool)(
             entity: 'product',
@@ -123,7 +123,7 @@ class ProductContentScenarioTest extends McpScenarioTestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        $readData = $this->decodeToolOutput($readOutput);
+        $readData = $this->assertToolSucceeded($readOutput);
         $categoryIds = array_column($readData->data['categories'], 'id');
         static::assertContains($categoryId, $categoryIds, 'Product should be assigned to the category');
     }

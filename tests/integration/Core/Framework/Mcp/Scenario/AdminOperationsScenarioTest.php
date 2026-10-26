@@ -72,7 +72,7 @@ class AdminOperationsScenarioTest extends McpScenarioTestCase
             dryRun: true,
         );
 
-        $dryRunData = $this->decodeToolOutput($dryRunOutput);
+        $dryRunData = $this->assertToolSucceeded($dryRunOutput);
         static::assertTrue($dryRunData->meta['dryRun']);
         static::assertTrue($dryRunData->data['deliveries'][0]['actionValid']);
 
@@ -82,14 +82,14 @@ class AdminOperationsScenarioTest extends McpScenarioTestCase
             dryRun: false,
         );
 
-        $commitData = $this->decodeToolOutput($commitOutput);
+        $commitData = $this->assertToolSucceeded($commitOutput);
         static::assertFalse($commitData->meta['dryRun']);
 
         $readOutput = ($this->entityReadTool)('order_delivery', $deliveryId, json_encode([
             'associations' => ['stateMachineState' => []],
         ], \JSON_THROW_ON_ERROR));
 
-        $readData = $this->decodeToolOutput($readOutput);
+        $readData = $this->assertToolSucceeded($readOutput);
         static::assertSame('shipped', $readData->data['stateMachineState']['technicalName']);
     }
 
@@ -149,7 +149,7 @@ class AdminOperationsScenarioTest extends McpScenarioTestCase
             dryRun: true,
         );
 
-        $dryRunData = $this->decodeToolOutput($dryRunOutput);
+        $dryRunData = $this->assertToolSucceeded($dryRunOutput);
         static::assertTrue($dryRunData->meta['dryRun']);
         static::assertSame('cancel', $dryRunData->data['order']['action']);
         static::assertTrue($dryRunData->data['order']['actionValid']);
@@ -162,7 +162,7 @@ class AdminOperationsScenarioTest extends McpScenarioTestCase
             dryRun: false,
         );
 
-        $commitData = $this->decodeToolOutput($commitOutput);
+        $commitData = $this->assertToolSucceeded($commitOutput);
         static::assertFalse($commitData->meta['dryRun']);
         static::assertTrue($commitData->data['order']['executed']);
         static::assertSame('cancelled', $commitData->data['order']['to']);
@@ -182,7 +182,7 @@ class AdminOperationsScenarioTest extends McpScenarioTestCase
             'associations' => ['stateMachineState' => []],
             'limit' => 1,
         ], \JSON_THROW_ON_ERROR));
-        $searchData = $this->decodeToolOutput($searchOutput);
+        $searchData = $this->assertToolSucceeded($searchOutput);
         static::assertSame('cancelled', $searchData->data[0]['stateMachineState']['technicalName']);
     }
 }

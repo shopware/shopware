@@ -71,7 +71,7 @@ class CustomerInsightsScenarioTest extends McpScenarioTestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        $data = $this->decodeToolOutput($output);
+        $data = $this->assertToolSucceeded($output);
 
         static::assertGreaterThanOrEqual(2, \count($data->data));
 
@@ -115,7 +115,7 @@ class CustomerInsightsScenarioTest extends McpScenarioTestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        $data = $this->decodeToolOutput($output);
+        $data = $this->assertToolSucceeded($output);
         $foundIds = array_column($data->data, 'id');
 
         static::assertContains($ids->get('inactive'), $foundIds, 'Inactive customer should appear');
@@ -171,7 +171,7 @@ class CustomerInsightsScenarioTest extends McpScenarioTestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        $data = $this->decodeToolOutput($output);
+        $data = $this->assertToolSucceeded($output);
 
         static::assertArrayHasKey('aggregations', $data->data);
         static::assertArrayHasKey('avgOrderValue', $data->data['aggregations']);

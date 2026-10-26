@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Result\McpToolError;
 use Shopware\Core\Framework\Mcp\Result\McpToolResult;
-use Shopware\Core\Framework\Mcp\Result\McpToolResultParser;
 use Shopware\Core\Framework\Mcp\Tool\EntityAggregateTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
@@ -25,7 +24,6 @@ use Shopware\Core\Framework\Mcp\Tool\SystemConfigWriteTool;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -91,36 +89,17 @@ abstract class McpScenarioTestCase extends TestCase
         $this->orderStateTool = new OrderStateTool($registry, $contextProvider, $stateMachineRegistry, $container->get(Connection::class));
     }
 
-    protected function decodeToolOutput(McpToolResult|string $output): McpToolResult
+    protected function assertToolSucceeded(McpToolResult $output): McpToolResult
     {
-        $result = $this->toResult($output);
-        static::assertFalse($result->isError(), 'Tool call failed: ' . $result->error?->message);
+        static::assertFalse($output->isError(), 'Tool call failed: ' . $output->error?->message);
 
-        return $result;
+        return $output;
     }
 
-    protected function decodeToolError(McpToolResult|string $output): McpToolError
+    protected function assertToolFailed(McpToolResult $output): McpToolError
     {
-        $result = $this->toResult($output);
-        static::assertTrue($result->isError());
+        static::assertTrue($output->isError());
 
-        return $result->error;
-    }
-
-    private function toResult(McpToolResult|string $output): McpToolResult
-    {
-        if ($output instanceof McpToolResult) {
-            return $output;
-        }
-
-        // Tools that still return the legacy string; the parser keeps JSON objects as objects.
-        $result = (new McpToolResultParser())->parse($output);
-        static::assertNotNull($result);
-
-        return new McpToolResult(
-            data: json_decode(Json::encode($result->data), true, 512, \JSON_THROW_ON_ERROR),
-            error: $result->error,
-            meta: json_decode(Json::encode((object) $result->meta), true, 512, \JSON_THROW_ON_ERROR),
-        );
+        return $output->error;
     }
 }

@@ -37,7 +37,7 @@ class AdminDataExplorationScenarioTest extends McpScenarioTestCase
             ],
         ], \JSON_THROW_ON_ERROR));
 
-        $data = $this->decodeToolOutput($output);
+        $data = $this->assertToolSucceeded($output);
 
         static::assertSame(2, $data->meta['total']);
         foreach ($data->data as $product) {
@@ -72,7 +72,7 @@ class AdminDataExplorationScenarioTest extends McpScenarioTestCase
         ], \JSON_THROW_ON_ERROR);
 
         $output = ($this->entitySearchTool)('product', $criteria);
-        $data = $this->decodeToolOutput($output);
+        $data = $this->assertToolSucceeded($output);
 
         static::assertCount(3, $data->data);
         static::assertSame(3, $data->meta['total']);
@@ -82,7 +82,7 @@ class AdminDataExplorationScenarioTest extends McpScenarioTestCase
     public function testUS3CustomerEntitySchema(): void
     {
         $output = ($this->entitySchemaTool)('customer');
-        $data = $this->decodeToolOutput($output);
+        $data = $this->assertToolSucceeded($output);
 
         $fieldNames = array_column($data->data['fields'], 'name');
         static::assertContains('email', $fieldNames);

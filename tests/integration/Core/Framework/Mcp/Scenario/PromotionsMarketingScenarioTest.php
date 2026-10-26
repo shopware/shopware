@@ -44,7 +44,7 @@ class PromotionsMarketingScenarioTest extends McpScenarioTestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        $data = $this->decodeToolOutput($output);
+        $data = $this->assertToolSucceeded($output);
 
         $found = false;
         foreach ($data->data as $promo) {
@@ -84,7 +84,7 @@ class PromotionsMarketingScenarioTest extends McpScenarioTestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        $data = $this->decodeToolOutput($output);
+        $data = $this->assertToolSucceeded($output);
 
         static::assertArrayHasKey('aggregations', $data->data);
         static::assertGreaterThanOrEqual(3, $data->data['aggregations']['total']['count']);

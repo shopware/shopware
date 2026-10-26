@@ -67,7 +67,7 @@ class SchemaCompletenessTest extends McpScenarioTestCase
         array $expectedAssociations,
     ): void {
         $output = ($this->entitySchemaTool)($entity);
-        $data = $this->decodeToolOutput($output);
+        $data = $this->assertToolSucceeded($output);
 
         $fieldNames = array_column($data->data['fields'], 'name');
         foreach ($expectedFields as $field) {

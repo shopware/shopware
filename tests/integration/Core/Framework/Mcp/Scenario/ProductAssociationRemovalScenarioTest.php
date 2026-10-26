@@ -54,7 +54,7 @@ class ProductAssociationRemovalScenarioTest extends McpScenarioTestCase
 
     public function testSchemaNamesTheMappingEntityOfManyToManyAssociations(): void
     {
-        $data = $this->decodeToolOutput(($this->entitySchemaTool)('product'));
+        $data = $this->assertToolSucceeded(($this->entitySchemaTool)('product'));
         $associations = array_column($data->data['associations'], null, 'name');
 
         static::assertSame('category', $associations['categories']['entity']);
@@ -71,14 +71,14 @@ class ProductAssociationRemovalScenarioTest extends McpScenarioTestCase
             'categoryId' => $this->ids->get('remove'),
         ]], \JSON_THROW_ON_ERROR);
 
-        $this->decodeToolOutput(($this->entityDeleteTool)('product_category', $ids));
+        $this->assertToolSucceeded(($this->entityDeleteTool)('product_category', $ids));
         static::assertEqualsCanonicalizing(
             [$this->ids->get('keep'), $this->ids->get('remove')],
             array_values($this->loadProduct()->getCategoryIds() ?? []),
             'A dry run must not remove the link',
         );
 
-        $output = $this->decodeToolOutput(($this->entityDeleteTool)('product_category', $ids, false));
+        $output = $this->assertToolSucceeded(($this->entityDeleteTool)('product_category', $ids, false));
 
         static::assertSame([$this->ids->get('keep')], $this->loadProduct()->getCategoryIds());
 
@@ -107,7 +107,7 @@ class ProductAssociationRemovalScenarioTest extends McpScenarioTestCase
             'optionId' => $this->ids->get('blue'),
         ]], \JSON_THROW_ON_ERROR);
 
-        $this->decodeToolOutput(($this->entityDeleteTool)('product_property', $ids, false));
+        $this->assertToolSucceeded(($this->entityDeleteTool)('product_property', $ids, false));
 
         static::assertSame([$this->ids->get('red')], $this->loadProduct()->getPropertyIds());
     }
@@ -120,7 +120,7 @@ class ProductAssociationRemovalScenarioTest extends McpScenarioTestCase
             'categoryId' => $this->ids->get('unrelated'),
         ]], \JSON_THROW_ON_ERROR);
 
-        $error = $this->decodeToolError(($this->entityDeleteTool)('product_category', $ids, false));
+        $error = $this->assertToolFailed(($this->entityDeleteTool)('product_category', $ids, false));
 
         static::assertStringContainsString('none of these rows exist', $error->message);
         static::assertCount(2, $this->loadProduct()->getCategoryIds() ?? []);
@@ -128,7 +128,7 @@ class ProductAssociationRemovalScenarioTest extends McpScenarioTestCase
 
     public function testExplainsCompositeKeyWhenPlainIdsArePassed(): void
     {
-        $error = $this->decodeToolError(($this->entityDeleteTool)('product_category', json_encode([$this->ids->get('remove')], \JSON_THROW_ON_ERROR), false));
+        $error = $this->assertToolFailed(($this->entityDeleteTool)('product_category', json_encode([$this->ids->get('remove')], \JSON_THROW_ON_ERROR), false));
 
         static::assertStringContainsString('productId and categoryId', $error->message);
         static::assertCount(2, $this->loadProduct()->getCategoryIds() ?? []);

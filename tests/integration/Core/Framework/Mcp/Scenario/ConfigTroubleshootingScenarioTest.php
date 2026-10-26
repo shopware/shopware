@@ -14,7 +14,7 @@ class ConfigTroubleshootingScenarioTest extends McpScenarioTestCase
     public function testUS7ReadListingConfig(): void
     {
         $output = ($this->systemConfigReadTool)('core.listing');
-        $data = $this->decodeToolOutput($output);
+        $data = $this->assertToolSucceeded($output);
 
         static::assertSame('core.listing', $data->data['domain']);
         static::assertIsArray($data->data['values']);
@@ -28,14 +28,14 @@ class ConfigTroubleshootingScenarioTest extends McpScenarioTestCase
             dryRun: true,
         );
 
-        $data = $this->decodeToolOutput($output);
+        $data = $this->assertToolSucceeded($output);
 
         static::assertTrue($data->meta['dryRun']);
         static::assertArrayHasKey('oldValue', $data->data);
         static::assertSame('name-asc', $data->data['newValue']);
 
         $verifyOutput = ($this->systemConfigReadTool)('core.listing.defaultSorting');
-        $verifyData = $this->decodeToolOutput($verifyOutput);
+        $verifyData = $this->assertToolSucceeded($verifyOutput);
         static::assertNotSame('name-asc', $verifyData->data['value'], 'Dry run should not persist changes');
     }
 
@@ -50,7 +50,7 @@ class ConfigTroubleshootingScenarioTest extends McpScenarioTestCase
             dryRun: false,
         );
 
-        $data = $this->decodeToolOutput($output);
+        $data = $this->assertToolSucceeded($output);
         static::assertFalse($data->meta['dryRun']);
 
         $readOutput = ($this->entityReadTool)(
@@ -58,7 +58,7 @@ class ConfigTroubleshootingScenarioTest extends McpScenarioTestCase
             id: TestDefaults::SALES_CHANNEL,
         );
 
-        $readData = $this->decodeToolOutput($readOutput);
+        $readData = $this->assertToolSucceeded($readOutput);
         static::assertTrue($readData->data['maintenance'], 'Sales channel should be in maintenance mode');
 
         ($this->entityUpsertTool)(

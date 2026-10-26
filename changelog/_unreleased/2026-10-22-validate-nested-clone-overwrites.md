@@ -7,4 +7,4 @@ author_github: keulinho
 
 # API
 
-* Changed clone requests to reject write-protected fields in nested association and extension overwrites according to the caller's scope.
+* Changed clone requests to validate explicit overwrites with DAL field protection and nested create/update permissions in the caller's scope, preserving association payloads, null suppression and copied protected values.

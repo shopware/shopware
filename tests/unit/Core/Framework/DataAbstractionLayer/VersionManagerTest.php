@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Acl\AclWriteValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -33,8 +34,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Lock\LockFactory;
@@ -67,7 +70,10 @@ class VersionManagerTest extends TestCase
             $this->createMock(VersionCommitDefinition::class),
             $this->createMock(VersionCommitDataDefinition::class),
             $this->createMock(VersionDefinition::class),
-            $this->createMock(LockFactory::class)
+            $this->createMock(LockFactory::class),
+            static::createStub(WriteCommandExtractor::class),
+            static::createStub(AclWriteValidator::class),
+            static::createStub(LanguageLoaderInterface::class)
         );
 
         $entityCollectionMock = new EntityCollection([
@@ -137,7 +143,10 @@ class VersionManagerTest extends TestCase
             $this->createMock(VersionCommitDefinition::class),
             $this->createMock(VersionCommitDataDefinition::class),
             $this->createMock(VersionDefinition::class),
-            $this->createMock(LockFactory::class)
+            $this->createMock(LockFactory::class),
+            static::createStub(WriteCommandExtractor::class),
+            static::createStub(AclWriteValidator::class),
+            static::createStub(LanguageLoaderInterface::class)
         );
 
         $productId = 'product-id';
@@ -187,7 +196,10 @@ class VersionManagerTest extends TestCase
             $this->createMock(VersionCommitDefinition::class),
             $this->createMock(VersionCommitDataDefinition::class),
             $this->createMock(VersionDefinition::class),
-            $lockFactory
+            $lockFactory,
+            static::createStub(WriteCommandExtractor::class),
+            static::createStub(AclWriteValidator::class),
+            static::createStub(LanguageLoaderInterface::class)
         );
 
         $versionId = 'version-id';
@@ -215,7 +227,10 @@ class VersionManagerTest extends TestCase
             $this->createMock(VersionCommitDefinition::class),
             $this->createMock(VersionCommitDataDefinition::class),
             $this->createMock(VersionDefinition::class),
-            $this->createMock(LockFactory::class)
+            $this->createMock(LockFactory::class),
+            static::createStub(WriteCommandExtractor::class),
+            static::createStub(AclWriteValidator::class),
+            static::createStub(LanguageLoaderInterface::class)
         );
         $registry = new StaticDefinitionInstanceRegistry(
             [CloneProtectedVersionManagerTestDefinition::class],
@@ -265,7 +280,10 @@ class VersionManagerTest extends TestCase
             $this->createMock(VersionCommitDefinition::class),
             $this->createMock(VersionCommitDataDefinition::class),
             $this->createMock(VersionDefinition::class),
-            $this->createMock(LockFactory::class)
+            $this->createMock(LockFactory::class),
+            static::createStub(WriteCommandExtractor::class),
+            static::createStub(AclWriteValidator::class),
+            static::createStub(LanguageLoaderInterface::class)
         );
         $registry = new StaticDefinitionInstanceRegistry(
             [VersionManagerRootTestDefinition::class, CloneProtectedVersionManagerChildTestDefinition::class],
@@ -319,7 +337,10 @@ class VersionManagerTest extends TestCase
             $this->createMock(VersionCommitDefinition::class),
             $this->createMock(VersionCommitDataDefinition::class),
             $this->createMock(VersionDefinition::class),
-            $lockFactory
+            $lockFactory,
+            static::createStub(WriteCommandExtractor::class),
+            static::createStub(AclWriteValidator::class),
+            static::createStub(LanguageLoaderInterface::class)
         );
 
         $versionId = 'non-existent-version-id';

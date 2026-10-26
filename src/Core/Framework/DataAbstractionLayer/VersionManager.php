@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\AclWriteValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Context;
@@ -41,20 +42,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
@@ -76,7 +80,10 @@ class VersionManager
         private readonly VersionCommitDefinition $versionCommitDefinition,
         private readonly VersionCommitDataDefinition $versionCommitDataDefinition,
         private readonly VersionDefinition $versionDefinition,
-        private readonly LockFactory $lockFactory
+        private readonly LockFactory $lockFactory,
+        private readonly WriteCommandExtractor $writeCommandExtractor,
+        private readonly AclWriteValidator $aclWriteValidator,
+        private readonly LanguageLoaderInterface $languageLoader
     ) {
     }
 
@@ -277,11 +284,11 @@ class VersionManager
             }
         }
 
-        $this->validateOverwriteWriteProtection($definition, $behavior->getOverwrites(), $context->getContext());
-
         $data = array_replace_recursive($data, $behavior->getOverwrites());
 
         $versionContext = $context->createWithVersionId($versionId);
+        $this->validateCloneOverwrites($definition, $data, $behavior->getOverwrites(), $versionContext);
+
         $result = null;
         $versionContext->scope(Context::SYSTEM_SCOPE, function (WriteContext $context) use ($definition, $data, &$result): void {
             $result = $this->entityWriter->insert($definition, [$data], $context);
@@ -296,69 +303,57 @@ class VersionManager
     }
 
     /**
-     * @param array<array-key, mixed> $overwrites
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $overwrites
      */
-    private function validateOverwriteWriteProtection(EntityDefinition $definition, array $overwrites, Context $context, string $path = ''): void
+    private function validateCloneOverwrites(EntityDefinition $definition, array $data, array $overwrites, WriteContext $context): void
     {
-        foreach ($overwrites as $propertyName => $value) {
-            if (!\is_string($propertyName)) {
-                continue;
-            }
-
-            $fieldPath = $path . '/' . $propertyName;
-
-            if ($propertyName === 'extensions' && \is_array($value)) {
-                $this->validateOverwriteWriteProtection($definition, $value, $context, $fieldPath);
-
-                continue;
-            }
-
-            $field = $definition->getFields()->get($propertyName);
-            $writeProtection = $field?->getFlag(WriteProtected::class);
-
-            if ($writeProtection === null || $writeProtection->isAllowed($context->getScope())) {
-                if (!$field instanceof AssociationField || !\is_array($value)) {
-                    continue;
-                }
-
-                $reference = $this->getCloneReferenceDefinition($field);
-
-                if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
-                    $this->validateOverwriteWriteProtection($reference, $value, $context, $fieldPath);
-
-                    continue;
-                }
-
-                foreach ($value as $index => $nested) {
-                    if (\is_array($nested)) {
-                        $this->validateOverwriteWriteProtection($reference, $nested, $context, $fieldPath . '/' . $index);
-                    }
-                }
-
-                continue;
-            }
-
-            $message = 'This field is write-protected.';
-            $allowedScopes = implode(' or ', $writeProtection->getAllowedScopes());
-
-            if ($allowedScopes !== '') {
-                $message .= ' (Got: "%s" scope and "%s" is required)';
-            }
-
-            throw DataAbstractionLayerException::invalidWriteConstraintViolation(
-                new ConstraintViolationList([
-                    new ConstraintViolation(
-                        \sprintf($message, $context->getScope(), $allowedScopes),
-                        $message,
-                        [$context->getScope(), $allowedScopes],
-                        $value,
-                        '',
-                        $value
-                    ),
-                ]),
-                $fieldPath
-            );
+        if ($overwrites === [] || $context->getContext()->getScope() === Context::SYSTEM_SCOPE) {
+            return;
         }
+
+        $validationContext = WriteContext::createFromContext(clone $context->getContext());
+        $validationContext->setLanguages($this->languageLoader->loadLanguages());
+        $queue = new WriteCommandQueue();
+        $parameters = new WriteParameterBag($definition, $validationContext, '/0', $queue);
+        $overwrites = $this->writeCommandExtractor->normalizeSingle($definition, array_replace(['id' => $data['id']], $overwrites), $parameters);
+        $validationContext->getExceptions()->tryToThrow();
+
+        // Normalize caller input first so generated IDs agree in both dry-run extractions.
+        $validationData = array_replace_recursive($data, $overwrites);
+        // A: queue the complete candidate in system scope; copied protected fields are legitimate.
+        $validationContext->scope(Context::SYSTEM_SCOPE, function () use ($definition, $validationData, $parameters, $validationContext): void {
+            $validationContext->resetPaths();
+            $validationData = $this->writeCommandExtractor->normalizeSingle($definition, $validationData, $parameters);
+            $this->entityWriteGateway->prefetchExistences($parameters);
+            $this->writeCommandExtractor->extract($validationData, $parameters);
+        });
+        $validationContext->getExceptions()->tryToThrow();
+        $cloneCommands = $queue->getCommands();
+        $commandsByPath = [];
+        foreach ($cloneCommands as $entity => $entityCommands) {
+            foreach ($entityCommands as $command) {
+                $commandsByPath[$entity][$command->getPath()][] = $command;
+            }
+        }
+
+        // B: caller-only extraction checks field protection, using queued inserts for required copied fields.
+        $validationContext->resetPaths();
+        $this->writeCommandExtractor->extract($overwrites, $parameters);
+        $validationContext->getExceptions()->tryToThrow();
+
+        $commands = [];
+        foreach ($queue->getCommands() as $entity => $entityCommands) {
+            foreach (\array_slice($entityCommands, \count($cloneCommands[$entity] ?? [])) as $command) {
+                // Use A's actual operation at each caller path: root clone=create, existing tax=update.
+                foreach ($commandsByPath[$entity][$command->getPath()] ?? [$command] as $cloneCommand) {
+                    $commands[spl_object_id($cloneCommand)] = $cloneCommand;
+                }
+            }
+        }
+
+        $this->aclWriteValidator->preValidate(new PreWriteValidationEvent($validationContext, array_values($commands)));
+        // Discard this queue; the original writer performs the sole real write after validation.
     }
 
     /**

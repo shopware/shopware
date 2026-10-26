@@ -18,7 +18,6 @@ If plugins have Jest tests, these fail and they need to wait for the Administrat
 ## Decision
 
 Until core has migrated its own usages, a deprecation that is neither asserted, allowed, nor baselined fails a test only in the platform's own Jest run.
-Other Jest runs that load core's test setup still record it, so `toHaveTriggered()`, `allowDeprecation()`, and majors a test activates work the same, but the test does not fail.
 
 A spec belongs to the platform's own run when its file lives inside the platform's `src/`.
 The console allow-list keeps its `[Deprecation]` entry until core is migrated.
@@ -27,7 +26,8 @@ The running Administration does not use this test setup, so its guard still warn
 
 ## Consequences
 
-* Extension Jest runs that reuse core's test setup no longer fail on unasserted deprecations, including the ones only core can fix.
+* Extension Jest runs that reuse core's test setup no longer fail on deprecations that only core can fix.
+  They also no longer fail on unasserted deprecations the extension could fix itself, although it should assert them.
   The running Administration, the `@deprecated` annotations, the release notes, and the upgrade notes still tell extension developers about them.
 * Extensions can still assert deprecations with `toHaveTriggered()` and test their own guards' throws with `it.activeFeatureFlags()`.
 * Core's own Jest run is unchanged.

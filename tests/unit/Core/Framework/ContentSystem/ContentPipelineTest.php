@@ -448,6 +448,29 @@ class ContentPipelineTest extends TestCase
         );
     }
 
+    public function testInlineMappingExpansionLimitAbortsRendering(): void
+    {
+        $provider = static::createStub(AbstractMappingCandidateProvider::class);
+        $provider->method('supports')->willReturn(true);
+        $provider->method('provide')->willReturn([new MappingCandidate('product.name', 'Product name', '', 'basic', 'string')]);
+        $provider->method('resolveRootSource')->willReturn(MappingSourceResolution::resolved(str_repeat('x', 65536)));
+        $this->lowering = $this->createLowering([], new ContentSystemMappingCandidateRegistry([$provider]));
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('text', 'root-id')->withProperty('title', str_repeat('{{map:product.name}}', 17))->build(),
+        );
+
+        $this->expectExceptionObject(ContentSystemException::inlineMappingExpansionTooLarge(1048576, 'property'));
+
+        $this->createPipeline()->load(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request(), rootSource: 'product'),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            false,
+            Generator::generateSalesChannelContext(),
+        );
+    }
+
     #[TestDox('exposes unexpanded redistribute consumers to preparation subscribers')]
     public function testPreparationSubscribersSeeUnexpandedRedistributeConsumers(): void
     {

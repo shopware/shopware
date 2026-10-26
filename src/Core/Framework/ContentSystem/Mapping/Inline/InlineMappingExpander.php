@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\ContentSystem\Mapping\Inline;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\MappingRuntimeDiagnosticCollector;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
@@ -127,34 +126,25 @@ final readonly class InlineMappingExpander
                 continue;
             }
 
-            try {
-                $budget->beginProperty();
-                $expanded = $this->parser->replaceTokens(
-                    $text,
-                    $tokens,
-                    fn (string $path): string => $rootSource === null
-                        ? ''
-                        : ($this->interpolator->interpolate(
-                            $path,
-                            $ambient,
-                            $rootSource,
-                            $element,
-                            $cacheContext,
-                            $loaderValues[$element->id] ?? [],
-                            $mappingDiagnostics,
-                            $propertyKey,
-                            $budget,
-                        ) ?? ''),
-                    $budget,
-                );
-            } catch (ContentSystemException $exception) {
-                if ($exception->getErrorCode() !== ContentSystemException::INLINE_MAPPING_EXPANSION_TOO_LARGE) {
-                    throw $exception;
-                }
-
-                $mappingDiagnostics?->record($element->id, $propertyKey, '', $exception->getMessage());
-                $expanded = '';
-            }
+            $budget->beginProperty();
+            $expanded = $this->parser->replaceTokens(
+                $text,
+                $tokens,
+                fn (string $path): string => $rootSource === null
+                    ? ''
+                    : ($this->interpolator->interpolate(
+                        $path,
+                        $ambient,
+                        $rootSource,
+                        $element,
+                        $cacheContext,
+                        $loaderValues[$element->id] ?? [],
+                        $mappingDiagnostics,
+                        $propertyKey,
+                        $budget,
+                    ) ?? ''),
+                $budget,
+            );
 
             $rewritten[$key] = StoredValue::ofString($expanded);
         }

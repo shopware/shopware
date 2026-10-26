@@ -45,6 +45,7 @@ A malformed element **config** is reported as an `invalid_config` violation in t
 |------------------------------------------------------------|------|---------------------------------------------------|
 | Missing/invalid envelope field                             | 400  | `#[MapRequestPayload]` validation (forced to 400) |
 | `rootSource` is a non-empty value not registered in `RootSourceRegistry` | 400  | `unknownRootSource` (the route gates membership against `RootSourceRegistry::knownRootSources()` before resolving, the same as the write validator) |
+| A render requested through `runtimeContext` exceeds an inline mapping output limit | 500 | `inlineMappingExpansionTooLarge` (`CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE`); the request aborts instead of returning a finding |
 | Layout element missing a non-empty string `id`/`component` | 400  | `invalidLayoutStructure`                          |
 
 An internal fault during decoding (a non-client-defect `ContentSystemException`, e.g. an unexpected field type) propagates rather than being relabelled as an `invalid_config` violation — see `ContentSystemException::isClientDefect()`.

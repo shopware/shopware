@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -63,6 +64,26 @@ class ProductLayoutDataMappingTest extends TestCase
         $this->persistLayout($this->textElement(mappedTo: 'product.name'));
 
         static::assertSame(self::PRODUCT_NAME, $this->servedProperties()['text'] ?? null);
+    }
+
+    public function testInlineExpansionLimitReturnsAnErrorInsteadOfBlankContent(): void
+    {
+        $this->createProduct();
+        $this->repository('product.repository')->update([[
+            'id' => $this->ids->get('product'),
+            'description' => str_repeat('x', 65536),
+        ]], Context::createDefaultContext());
+        $element = $this->textElement(mappedTo: null);
+        $element['properties']['text'] = str_repeat('{{map:product.description}}', 17);
+        $this->persistLayout($element);
+
+        $this->browser->request('GET', '/store-api/content/product/' . $this->ids->get('product'));
+
+        $response = $this->browser->getResponse();
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
+        static::assertSame(ContentSystemException::INLINE_MAPPING_EXPANSION_TOO_LARGE, $body['errors'][0]['code']);
+        static::assertArrayNotHasKey('elements', $body);
     }
 
     #[TestDox('serves a catalogued product custom field in an inline mapping token')]

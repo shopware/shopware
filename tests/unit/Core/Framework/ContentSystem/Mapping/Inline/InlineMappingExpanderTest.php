@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mapping\Inline;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\MappingRuntimeDiagnosticCollector;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
@@ -221,7 +222,7 @@ class InlineMappingExpanderTest extends TestCase
         static::assertSame('{{map:product.name}}', $expanded[0]->property('text')?->asString());
     }
 
-    public function testOmitsAnOversizedExpandedPropertyAndKeepsOtherContent(): void
+    public function testOversizedExpandedPropertyAbortsRendering(): void
     {
         $element = $this->element([
             'text' => StoredValue::ofString('<p>' . str_repeat('{{map:product.name}}', 17) . '</p>'),
@@ -229,20 +230,15 @@ class InlineMappingExpanderTest extends TestCase
         ]);
         $diagnostics = new MappingRuntimeDiagnosticCollector();
 
-        $expanded = $this->expandPrepared(
+        $this->expectExceptionObject(ContentSystemException::inlineMappingExpansionTooLarge(1048576, 'property'));
+
+        $this->expandPrepared(
             $this->expander(),
             [$element],
             ['product' => new StubPathStruct(name: str_repeat('x', 65536))],
             'product',
             $diagnostics,
         );
-
-        static::assertSame(0, \strlen($expanded[0]->property('text')?->asString() ?? ''));
-        static::assertSame('Unaffected', $expanded[0]->property('other')?->asString());
-        static::assertCount(1, $diagnostics->violations());
-        static::assertSame('el-1', $diagnostics->violations()[0]->elementId);
-        static::assertSame('text', $diagnostics->violations()[0]->key);
-        static::assertStringContainsString('1048576 bytes per property', $diagnostics->violations()[0]->message);
     }
 
     public function testAllowsExactlyOneMiBIncludingSurroundingMarkup(): void
@@ -262,16 +258,15 @@ class InlineMappingExpanderTest extends TestCase
         $element = $this->element(['text' => StoredValue::ofString('{{map:product.name}}')]);
         $diagnostics = new MappingRuntimeDiagnosticCollector();
 
-        $expanded = $this->expandPrepared(
+        $this->expectExceptionObject(ContentSystemException::inlineMappingExpansionTooLarge(1048576, 'property'));
+
+        $this->expandPrepared(
             $this->expander(),
             [$element],
             ['product' => new StubPathStruct(name: str_repeat('"', 174763))],
             'product',
             $diagnostics,
         );
-
-        static::assertSame(0, \strlen($expanded[0]->property('text')?->asString() ?? ''));
-        static::assertCount(1, $diagnostics->violations());
     }
 
     public function testSharesTheRenderBudgetAcrossPropertiesRootsAndChildrenAndStopsResolving(): void
@@ -292,24 +287,17 @@ class InlineMappingExpanderTest extends TestCase
         }
         $diagnostics = new MappingRuntimeDiagnosticCollector();
 
-        $expanded = $this->expandPrepared($this->expander($candidates), $forest, [], 'product', $diagnostics);
+        $this->expectExceptionObject(ContentSystemException::inlineMappingExpansionTooLarge(4194304, 'render'));
 
-        static::assertSame(1048576, \strlen($expanded[0]->property('text')?->asString() ?? ''));
-        static::assertSame(1048576, \strlen($expanded[0]->slots['content'][0]->property('text')?->asString() ?? ''));
-        static::assertSame(1048576, \strlen($expanded[1]->property('text')?->asString() ?? ''));
-        static::assertSame(1048576, \strlen($expanded[0]->property('caption')?->asString() ?? ''));
-        static::assertSame('', $expanded[2]->property('text')?->asString());
-        static::assertCount(1, $diagnostics->violations());
-        static::assertSame('over-budget', $diagnostics->violations()[0]->elementId);
-        static::assertStringContainsString('4194304 bytes per render', $diagnostics->violations()[0]->message);
+        $this->expandPrepared($this->expander($candidates), $forest, [], 'product', $diagnostics);
     }
 
-    public function testDiscardingFailedPropertiesDoesNotRefundTheRenderBudget(): void
+    public function testPropertyFailureStopsBeforeResolvingLaterProperties(): void
     {
         $candidate = new MappingCandidate('product.name', 'Name', '', 'basic', 'string');
         $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
         $candidates->method('forRootSource')->willReturn([$candidate->path => $candidate]);
-        $candidates->expects($this->exactly(4))->method('resolveSource')
+        $candidates->expects($this->once())->method('resolveSource')
             ->willReturn(MappingSourceResolution::resolved(str_repeat('x', 1048576)));
         $forest = [];
         foreach (['first', 'second', 'third', 'fourth', 'fifth'] as $id) {
@@ -317,12 +305,9 @@ class InlineMappingExpanderTest extends TestCase
         }
         $diagnostics = new MappingRuntimeDiagnosticCollector();
 
-        $expanded = $this->expandPrepared($this->expander($candidates), $forest, [], 'product', $diagnostics);
+        $this->expectExceptionObject(ContentSystemException::inlineMappingExpansionTooLarge(1048576, 'property'));
 
-        foreach ($expanded as $element) {
-            static::assertSame('', $element->property('text')?->asString());
-        }
-        static::assertCount(5, $diagnostics->violations());
+        $this->expandPrepared($this->expander($candidates), $forest, [], 'product', $diagnostics);
     }
 
     public function testStartsAFreshBudgetForEachRender(): void

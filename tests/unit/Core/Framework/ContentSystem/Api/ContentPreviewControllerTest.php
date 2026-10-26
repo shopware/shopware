@@ -62,6 +62,24 @@ class ContentPreviewControllerTest extends TestCase
         );
     }
 
+    public function testPreviewExpansionLimitPropagatesWithoutStoringAToken(): void
+    {
+        $failure = ContentSystemException::inlineMappingExpansionTooLarge(1048576, 'property');
+        $pageBuilder = static::createStub(ContentPreviewPageBuilder::class);
+        $pageBuilder->method('build')->willThrowException($failure);
+        $payloadStore = static::createMock(ContentPreviewPayloadStore::class);
+        $payloadStore->expects($this->never())->method('store');
+        $controller = new ContentPreviewController($pageBuilder, $payloadStore);
+
+        $this->expectExceptionObject($failure);
+
+        $controller->previewUrl(
+            $this->request(),
+            Request::create('https://admin.example.com/api/_action/content-system/preview/entity/url'),
+            Context::createDefaultContext(),
+        );
+    }
+
     #[TestDox('previewUrl rejects a draft the page builder refuses and stores nothing')]
     public function testPreviewUrlRejectsMalformedDraftWithoutStoring(): void
     {

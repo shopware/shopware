@@ -6,8 +6,8 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Bounds inline output across one render. Bytes assembled for a property that later fails are not refunded,
- * so repeatedly discarding oversized properties cannot bypass the render's allowance.
+ * Bounds inline output per property and across one render, checking before escaping or appending.
+ * Exceeding either allowance aborts rendering through normal error handling.
  *
  * @internal
  */

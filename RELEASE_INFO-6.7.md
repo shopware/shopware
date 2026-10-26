@@ -89,6 +89,10 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
+### Content System inline mapping expansion errors
+
+Exceeding the inline mapping output limit now aborts rendering with HTTP 500 and `CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE` instead of returning successful output with empty properties. This applies to Store API, Storefront, preview, and runtime diagnosis. The limits remain 1 MiB per property and 4 MiB per render; the 256 KiB authored-input cap still returns HTTP 400.
+
 ### Content System mapping provider API
 
 `MappingSourceResolution` is now part of the public mapping-provider API. `MappingSourceResolutionContext` supplies the element, root values, resolved loader values, and rendering cache context. It no longer exposes the sales-channel context or HTTP request; providers should use data loaders for context-dependent data and preserve cache dependencies through the supplied rendering cache context. The mapping registry resolves sources through `resolveSource($rootSource, $source, $context)`, with a required root-source argument. Registry decorators must forward all three arguments.

@@ -1110,10 +1110,11 @@ class ContentSystemException extends HttpException
         );
     }
 
+    // Expansion depends on live source values, so exceeding its budget is a render fault, not an input-validation 400.
     public static function inlineMappingExpansionTooLarge(int $maximumBytes, string $scope): self
     {
         return new self(
-            Response::HTTP_BAD_REQUEST,
+            Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INLINE_MAPPING_EXPANSION_TOO_LARGE,
             'Inline mapping text exceeds the maximum expanded size of {{ maximumBytes }} bytes per {{ scope }}.',
             ['maximumBytes' => $maximumBytes, 'scope' => $scope]

@@ -177,6 +177,7 @@ class ContentSystemExceptionTest extends TestCase
         yield 'a code outside the client-defect catalogue as an internal fault' => [ContentSystemException::invalidFieldType('A', 'B'), false];
         // A served layout is stored data, not client input, so a corrupt forest is an internal fault.
         yield 'a duplicate element id as an internal fault' => [ContentSystemException::duplicateElementId('repeated-id'), false];
+        yield 'an inline expansion resource limit as an internal fault' => [ContentSystemException::inlineMappingExpansionTooLarge(1048576, 'property'), false];
         // The two halves of the split: an HTTP 500 that is nonetheless a client defect, so the strict draft
         // decode turns it into a 400 and the lintable one collects it as a 200 violation, while the
         // stored-column read keeps the fault status.
@@ -190,6 +191,20 @@ class ContentSystemExceptionTest extends TestCase
      */
     public static function producesCorrectStatusAndErrorCodeProvider(): iterable
     {
+        yield 'inline expansion limit is a render fault' => [
+            ContentSystemException::inlineMappingExpansionTooLarge(1048576, 'property'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE',
+            '1048576 bytes per property',
+        ];
+
+        yield 'inline input limit remains a validation failure' => [
+            ContentSystemException::inlineMappingInputTooLarge(262144),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__INLINE_MAPPING_INPUT_TOO_LARGE',
+            '262144 bytes',
+        ];
+
         yield 'data loader not registered' => [
             ContentSystemException::dataLoaderNotRegistered('product', 'Sw:Product:Card', 'elem-1'),
             Response::HTTP_INTERNAL_SERVER_ERROR,

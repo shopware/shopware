@@ -194,19 +194,6 @@ Products that extensions render in their own markup are reported as well.
 The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#products) describes the expected attribute.
 The product box now reports the price of a matching price rule or the first graduated price, the same price as the product detail page, instead of the default price.
 
-### Guests can open the profile page
-
-Guests can now open and save the profile page to correct their personal data, company and VAT ID, for example when the cart reports `vat-id-missing`.
-The e-mail, password and account deletion sections stay hidden for guests, and their routes still reject them.
-The profile form keeps a `redirectTo` parameter, which the `vat-id-missing` error uses to send the customer back to the checkout after saving.
-Themes that override blocks of the personal data form in `page/account/profile/index.html.twig` should check that the content also suits guests.
-
-### Business customers keep company and VAT ID when saving the profile
-
-The profile page now shows company and VAT ID for business customers even when "Show selection between company and customer account" is disabled, and saving it keeps their account type.
-Before, saving the profile without that setting removed the company and the VAT IDs of business customers.
-Themes that override `component_address_personal_company_section`, `component_address_personal_company` or `component_address_personal_vat_id` in `component/address/address-personal.html.twig` should check that the content also suits this case.
-
 ### Storefront analytics report brand and category of products added from a product box
 
 With active analytics, adding a product from a product box now posts its brand and categories in the line item payload, like the buy widget does.
@@ -224,6 +211,23 @@ A new customer reports `add_shipping_info` when registering in the checkout.
 
 Storefront analytics now report the selected options of a variant as `item_variant`.
 `add_to_cart` on the product detail page reports the graduated price of the quantity the cart holds after the add.
+
+### Theme compilation completion is notified once
+
+With asynchronous theme compilation, saving a theme or activating an extension notifies the Administration user once when the compilation is completed, instead of once per sales channel. Code that compiles several themes or sales channels at once can do the same by passing `false` as the new sixth argument `$notifyOnAsyncCompletion` of `ThemeService::compileTheme()` for all but the last call. Classes overriding `compileTheme()` should add the parameter `bool $notifyOnAsyncCompletion = true`; it becomes part of the signature in 6.8.0.0.
+
+### Guests can open the profile page
+
+Guests can now open and save the profile page to correct their personal data, company and VAT ID, for example when the cart reports `vat-id-missing`.
+The e-mail, password and account deletion sections stay hidden for guests, and their routes still reject them.
+The profile form keeps a `redirectTo` parameter, which the `vat-id-missing` error uses to send the customer back to the checkout after saving.
+Themes that override blocks of the personal data form in `page/account/profile/index.html.twig` should check that the content also suits guests.
+
+### Business customers keep company and VAT ID when saving the profile
+
+The profile page now shows company and VAT ID for business customers even when "Show selection between company and customer account" is disabled, and saving it keeps their account type.
+Before, saving the profile without that setting removed the company and the VAT IDs of business customers.
+Themes that override `component_address_personal_company_section`, `component_address_personal_company` or `component_address_personal_vat_id` in `component/address/address-personal.html.twig` should check that the content also suits this case.
 
 ## Hosting & Configuration
 

@@ -7,10 +7,10 @@ through the same `MutationResult` named constructor.
 ## MutationPipeline
 
 `@internal`, with a `@final` annotation (behaviorally final, kept mockable for tests). Constructor:
-`LayoutDiagnostics $diagnostics, ContextConsumerMirror $contextMirror`.
+`LayoutDiagnostics $diagnostics, ContextConsumerMirror $contextMirror, DefaultMappingSeeder $defaultMappingSeeder`.
 
-`run(LayoutMutation $mutation, StoredTree $tree, ?array $rootContext): MutationResult` applies the mutation to the
-already-decoded `$tree`, seeds defaults on fresh scaffolds, diagnoses the whole new tree, mirrors the proven consumers onto the same fresh ids via
+`run(LayoutMutation $mutation, StoredTree $tree, ?array $rootContext, ?string $rootSource = null): MutationResult` applies the mutation to the
+already-decoded `$tree`, seeds compatible default mappings on fresh scaffolds, diagnoses the whole new tree, mirrors the proven consumers onto the same fresh ids via
 `ContextConsumerMirror::apply()`, re-diagnoses when (and only when) the wiring returned a different `StoredTree`
 instance, and hands the wired tree, the surviving analysis and the mutation to
 `MutationResult::fromAnalyzedMutation()`, which owns the restriction of the returned resolutions to the affected set
@@ -29,7 +29,7 @@ from a request draft or a loaded `content_layout`. Stateless: it never persists.
 ## PersistedLayoutMutator
 
 `@internal`, `@final` annotation. The persisted counterpart to `MutationPipeline`. Constructor:
-`LockFactory $lockFactory, EntityRepository<ContentLayoutCollection> $contentLayoutRepository, RootSourceRegistry $rootSourceRegistry, LayoutDiagnostics $diagnostics`.
+`LockFactory $lockFactory, EntityRepository<ContentLayoutCollection> $contentLayoutRepository, RootSourceRegistry $rootSourceRegistry, LayoutDiagnostics $diagnostics, DefaultMappingSeeder $defaultMappingSeeder`.
 
 `mutate(string $layoutId, ?string $expectedVersion, LayoutMutation $mutation, Context $context): MutationResult`
 serializes concurrent writers for the layout id under a `lock.factory` named lock so the load → version-check →
@@ -37,7 +37,8 @@ commit span is atomic, closing the lost-update window. It then loads by id
 (`ContentSystemException::contentLayoutNotFound`, 404, if absent), guards the optimistic-concurrency token against
 the row's `updatedAt` (`layoutVersionConflict`, 409, without writing on a mismatch; an unparseable token is a `400`
 `invalidVersionToken`; a `null` token matches a never-updated row), applies the op to the loaded `getLayout()` tree
-as it is (the entity and the operations speak the same stored model), then persists the mutated tree's `roots` via
+as it is (the entity and the operations speak the same stored model), seeds compatible default mappings only on
+the operation's `freshlyScaffolded()` ids, then persists the mutated tree's `roots` via
 `update()`, which runs the resolvability gates and rejects a resolvability-breaking edit, and returns the
 `MutationResult`.
 

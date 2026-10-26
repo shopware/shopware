@@ -133,6 +133,7 @@
                                                                     "type": ["object", "null"]
                                                                 },
                                                                 "defaultMapping": {
+                                                                    "description": "Initial mapping for a freshly scaffolded element when the layout root offers a compatible candidate. Insert, preset attachment, and replacement mutations apply it. Duplication preserves the copied mapping state. Direct DAL, Admin CRUD API, and Sync API writes do not seed it, and saving does not restore a removed mapping.",
                                                                     "oneOf": [
                                                                         { "$ref": "#/components/schemas/ContentSystemMappingSourceReference" },
                                                                         { "type": "null" }

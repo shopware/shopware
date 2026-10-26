@@ -12,8 +12,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Seeds a property's declared default mapping when the layout root source offers it. An existing consumer always
- * wins, so an explicit author mapping is preserved. With no matching root source, the property remains unmapped.
+ * Seeds a property's declared default mapping on explicitly reported fresh scaffolds when the layout root source
+ * offers it. An existing consumer always wins, so an explicit author mapping is preserved. With no matching root
+ * source, the property remains unmapped. Ordinary saves and duplicate clones do not receive default mappings.
  *
  * @internal
  */
@@ -27,7 +28,7 @@ final readonly class DefaultMappingSeeder
     }
 
     /**
-     * @param list<string> $elementIds newly created elements in this mutation
+     * @param list<string> $elementIds freshly scaffolded elements in this mutation, excluding duplicate clones
      */
     public function seed(StoredTree $tree, ?string $rootSource, array $elementIds): StoredTree
     {

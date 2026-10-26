@@ -42,7 +42,7 @@ Every action shares one envelope and adds its own operation fields. Shared field
 
 `insert-preset` reads the named preset from the layout preset registry, decodes its payload through `DraftLayoutDecoder::decode()`, and places every root element the way `attach-element` places one subtree: ids are reminted and each element's type default binding is fill-applied. The preset comes from the registry, never from the request, so the client names a preset and cannot alter its content. An unregistered `presetId` is a `404` (`layoutPresetNotFound`, see [mutation-errors.md](mutation-errors.md)).
 
-Default property mappings are seeded on freshly scaffolded elements in both draft and persisted mutation paths. Insert and preset attach seed new scaffolds; replacement seeds its newly built replacement; duplication preserves the copied mapping state and does not seed. Each mutation reports `freshlyScaffolded()` ids explicitly, so this behavior is not inferred from its generic created-id report.
+Default property mappings are seeded on freshly scaffolded elements in both draft and persisted mutation paths. Insert and preset attach seed new scaffolds; replacement seeds its newly built replacement; duplication preserves the copied mapping state and does not seed. Each mutation reports `freshlyScaffolded()` ids explicitly, so this behavior is not inferred from its generic created-id report. Direct DAL, Admin CRUD API, and Sync API writes do not seed default mappings: callers must supply mapping consumers or use these mutation actions. Removing a mapping and saving the layout leaves it unmapped.
 
 Example (`insert-element`):
 

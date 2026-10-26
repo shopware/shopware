@@ -8,6 +8,7 @@ import {
     buildComment,
     collectAgentInput,
     isDryRun,
+    owningTeams,
     neutraliseMentions,
     parseAudiences,
     postComment,
@@ -140,17 +141,39 @@ test('neutraliseMentions wraps users and teams but leaves emails and code alone'
     );
 });
 
-test('buildComment pings only the teams of the given audiences', () => {
-    const comment = buildComment(['developer'], 'New event @someone added');
+test('owningTeams maps domain labels to teams, dedupes and ignores the rest', () => {
+    assert.deepEqual(owningTeams(['domain/crm-after-sales', 'domain/inventory', 'domain/ux', 'major/6.8', 'domain/inventory']), [
+        '@shopware/product-cc-after-sales',
+        '@shopware/product-cc-inventory',
+    ]);
+    assert.deepEqual(owningTeams(['domain/service-enablement']), []);
+});
+
+test('buildComment pings the owning team for developer docs only', () => {
+    const comment = buildComment(['developer'], 'New event @someone added', ['domain/inventory']);
 
     assert.ok(comment.startsWith(COMMENT_MARKER));
-    assert.ok(comment.includes('@shopware/po-docs:'));
+    assert.ok(comment.includes('@shopware/product-cc-inventory: please consider a developer documentation update.'));
     assert.ok(!comment.includes('@shopware/pp-enduser-docs'));
+    assert.ok(!comment.includes('po-docs'));
     assert.ok(comment.includes('`@someone`'));
 });
 
+test('buildComment pings the end-user docs team and the owning teams for both audiences', () => {
+    const comment = buildComment(['end-user', 'developer'], 'Changes', ['domain/checkout', 'domain/framework']);
+
+    assert.ok(comment.includes('@shopware/pp-enduser-docs: please check the end-user documentation.'));
+    assert.ok(comment.includes('@shopware/product-cc-checkout @shopware/product-cc-framework: please consider a developer documentation update.'));
+});
+
+test('buildComment posts developer docs without a mention when no domain team is known', () => {
+    const comment = buildComment(['developer'], 'New event', ['domain/ux']);
+
+    assert.equal(comment, `${COMMENT_MARKER}\n### Documentation impact\n\nNew event`);
+});
+
 test('buildComment truncates an oversized summary', () => {
-    const comment = buildComment(['end-user'], 'x'.repeat(30000));
+    const comment = buildComment(['end-user'], 'x'.repeat(30000), []);
 
     assert.ok(comment.length < 21000);
     assert.ok(comment.endsWith('_(truncated)_'));
@@ -333,5 +356,5 @@ test('postComment in a dry run writes the comment to the step summary only', asy
     assert.equal(calls.some((c) => ['createComment', 'updateComment'].includes(c.method)), false);
     assert.equal(written.length, 1);
     assert.ok(written[0].includes('Dry run: comment for #9'));
-    assert.ok(written[0].includes('@shopware/po-docs'));
+    assert.ok(written[0].includes('@shopware/product-cc-inventory'));
 });

@@ -1,11 +1,19 @@
 import { writeFileSync } from 'node:fs';
 
-export const AUDIENCE_TEAMS = {
-    'end-user': '@shopware/pp-enduser-docs',
-    developer: '@shopware/po-docs',
-} as const;
+export const AUDIENCES = ['end-user', 'developer'] as const;
 
-export type Audience = keyof typeof AUDIENCE_TEAMS;
+export type Audience = (typeof AUDIENCES)[number];
+
+export const END_USER_DOCS_TEAM = '@shopware/pp-enduser-docs';
+
+export const DOMAIN_TEAMS: Record<string, string> = {
+    'domain/b2b': '@shopware/product-cc-b2b',
+    'domain/checkout': '@shopware/product-cc-checkout',
+    'domain/crm-after-sales': '@shopware/product-cc-after-sales',
+    'domain/discovery': '@shopware/product-cc-discovery',
+    'domain/framework': '@shopware/product-cc-framework',
+    'domain/inventory': '@shopware/product-cc-inventory',
+};
 
 export const COMMENT_MARKER = '<!-- sw-docs-impact -->';
 
@@ -71,9 +79,9 @@ export function parseAudiences(raw: string): Audience[] {
         .map((audience) => audience.trim())
         .filter((audience) => audience !== '');
 
-    const unknown = audiences.filter((audience) => !(audience in AUDIENCE_TEAMS));
+    const unknown = audiences.filter((audience) => !(AUDIENCES as readonly string[]).includes(audience));
     if (unknown.length > 0) {
-        throw new Error(`Unknown audience(s): ${unknown.join(', ')}. Allowed: ${Object.keys(AUDIENCE_TEAMS).join(', ')}`);
+        throw new Error(`Unknown audience(s): ${unknown.join(', ')}. Allowed: ${AUDIENCES.join(', ')}`);
     }
     if (audiences.length === 0) {
         throw new Error('No audience given');
@@ -86,22 +94,26 @@ export function neutraliseMentions(text: string): string {
     return text.replace(/(^|[^\w`])@([A-Za-z0-9][\w-]*(?:\/[\w.-]+)?)/g, '$1`@$2`');
 }
 
-export function buildComment(audiences: Audience[], summary: string): string {
+export function owningTeams(labels: string[]): string[] {
+    return [...new Set(labels.map((label) => DOMAIN_TEAMS[label]).filter((team) => team !== undefined))];
+}
+
+export function buildComment(audiences: Audience[], summary: string, labels: string[]): string {
     let body = neutraliseMentions(summary.trim());
     if (body.length > MAX_SUMMARY_LENGTH) {
         body = `${body.slice(0, MAX_SUMMARY_LENGTH)}\n\n_(truncated)_`;
     }
 
-    const teams = audiences.map((audience) => AUDIENCE_TEAMS[audience]).join(' ');
+    const pings: string[] = [];
+    if (audiences.includes('end-user')) {
+        pings.push(`${END_USER_DOCS_TEAM}: please check the end-user documentation.`);
+    }
+    const owners = owningTeams(labels);
+    if (audiences.includes('developer') && owners.length > 0) {
+        pings.push(`${owners.join(' ')}: please consider a developer documentation update.`);
+    }
 
-    return [
-        COMMENT_MARKER,
-        '### Documentation impact',
-        '',
-        `${teams}: this change likely needs a documentation update.`,
-        '',
-        body,
-    ].join('\n');
+    return [COMMENT_MARKER, '### Documentation impact', '', ...pings, ...(pings.length > 0 ? [''] : []), body].join('\n');
 }
 
 export function isDryRun(context: Context): boolean {
@@ -233,7 +245,9 @@ export async function postComment(
         throw new Error(`The agent asked to notify, but no merged pull request is associated with ${context.sha}`);
     }
 
-    const body = buildComment(parseAudiences(item.audiences ?? ''), item.summary);
+    const { data: pr } = await github.rest.pulls.get({ ...context.repo, pull_number: number });
+    const labels = (pr as { labels: Array<{ name: string }> }).labels.map((label) => label.name);
+    const body = buildComment(parseAudiences(item.audiences ?? ''), item.summary, labels);
     if (isDryRun(context)) {
         core.info(`Dry run: not commenting on #${number}`);
         await core.summary?.addRaw(`## Dry run: comment for #${number}\n\n${body}`, true).write();

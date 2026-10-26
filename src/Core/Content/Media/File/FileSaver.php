@@ -370,9 +370,20 @@ class FileSaver
      */
     private function validateContentType(MediaFile $mediaFile): void
     {
+        if ($this->isContentTypeAllowed($mediaFile)) {
+            return;
+        }
+
+        $contentType = mb_strtolower(trim(explode(';', $mediaFile->getMimeType(), 2)[0]));
+
+        throw MediaException::invalidFile(\sprintf('The content type "%s" does not match the file extension "%s"', $contentType, $mediaFile->getFileExtension()));
+    }
+
+    private function isContentTypeAllowed(MediaFile $mediaFile): bool
+    {
         $contentType = mb_strtolower(trim(explode(';', $mediaFile->getMimeType(), 2)[0]));
         if (!\in_array($contentType, ['text/html', 'application/xhtml+xml', 'text/xml', 'application/xml'], true) && !str_ends_with($contentType, '+xml')) {
-            return;
+            return true;
         }
 
         $extension = mb_strtolower($mediaFile->getFileExtension());
@@ -382,9 +393,7 @@ class FileSaver
             $allowedContentTypes = [...$allowedContentTypes, 'text/xml', 'application/xml'];
         }
 
-        if (!\in_array($contentType, $allowedContentTypes, true)) {
-            throw MediaException::invalidFile(\sprintf('The content type "%s" does not match the file extension "%s"', $contentType, $mediaFile->getFileExtension()));
-        }
+        return \in_array($contentType, $allowedContentTypes, true);
     }
 
     /**

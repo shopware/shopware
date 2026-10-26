@@ -267,15 +267,15 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
         // Use the permissions associated to that app, if the request is made by an integration associated to an app
         $app = $this->fetchAppByIntegrationId($integrationId);
-        if ($app !== null) {
+        if ($integrationId !== null && $app !== null) {
             if (!$app['active']) {
-                // An inactive app grants nothing, also to a token issued before the deactivation: no integration roles, no admin flag, no named user.
-                return new AdminApiSource(null, $integrationId);
+                // A deactivated app keeps no access, also on a token issued before the deactivation.
+                throw RoutingException::appIntegrationNotFound($integrationId);
             }
 
             $appPermissions = $app['privileges'];
             // If both userId and integrationId are provided (HEADER_APP_USER_ID case), intersect user permissions with app permissions
-            if ($userId !== null && !$this->isAdmin($userId)) {
+            if ($userId !== null && !$this->fetchUserState($userId)['admin']) {
                 $appPermissions = array_intersect(
                     $appPermissions,
                     $this->fetchPermissions($userId)
@@ -290,20 +290,20 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
         if ($userId !== null && $integrationId !== null) {
             $source = new AdminApiSource(null, $integrationId);
-            $isActiveUser = $this->isActiveUser($userId);
+            $user = $this->fetchUserState($userId);
 
             if ($this->isAdminIntegration($integrationId)) {
-                $source->setPermissions($this->withDefaultUserPrivileges($isActiveUser ? $this->fetchPermissions($userId) : []));
-                $source->setIsAdmin($isActiveUser && $this->isAdmin($userId));
+                $source->setPermissions($this->withDefaultUserPrivileges($user['active'] ? $this->fetchPermissions($userId) : []));
+                $source->setIsAdmin($user['active'] && $user['admin']);
 
                 return $source;
             }
 
             $permissions = $this->fetchIntegrationPermissions($integrationId);
 
-            if (!$isActiveUser) {
+            if (!$user['active']) {
                 $permissions = [];
-            } elseif (!$this->isAdmin($userId)) {
+            } elseif (!$user['admin']) {
                 $permissions = array_intersect(
                     $permissions,
                     $this->fetchPermissions($userId)
@@ -318,7 +318,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
         if ($userId !== null) {
             $source->setPermissions($this->withDefaultUserPrivileges($this->fetchPermissions($userId)));
-            $source->setIsAdmin($this->isAdmin($userId));
+            $source->setIsAdmin($this->fetchUserState($userId)['admin']);
 
             return $source;
         }
@@ -346,20 +346,20 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         ]));
     }
 
-    private function isAdmin(string $userId): bool
+    /**
+     * @return array{active: bool, admin: bool}
+     */
+    private function fetchUserState(string $userId): array
     {
-        return (bool) $this->connection->fetchOne(
-            'SELECT admin FROM `user` WHERE id = :id',
+        $user = $this->connection->fetchAssociative(
+            'SELECT `active`, `admin` FROM `user` WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($userId)]
         );
-    }
 
-    private function isActiveUser(string $userId): bool
-    {
-        return (bool) $this->connection->fetchOne(
-            'SELECT active FROM `user` WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($userId)]
-        );
+        return [
+            'active' => $user !== false && (bool) $user['active'],
+            'admin' => $user !== false && (bool) $user['admin'],
+        ];
     }
 
     private function isAdminIntegration(string $integrationId): bool
@@ -504,13 +504,13 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         // An inactive or unknown user holds no privileges, so the check below fails like any user without app access.
-        $isActiveUser = $this->isActiveUser($userId);
+        $user = $this->fetchUserState($userId);
 
-        if ($isActiveUser && $this->isAdmin($userId)) {
+        if ($user['active'] && $user['admin']) {
             return true;
         }
 
-        $permissions = $isActiveUser ? $this->fetchPermissions($userId) : [];
+        $permissions = $user['active'] ? $this->fetchPermissions($userId) : [];
         $allAppsPrivileged = \in_array('app.all', $permissions, true);
         $appPrivilegeName = \sprintf('app.%s', $appName);
         $specificAppPrivileged = \in_array($appPrivilegeName, $permissions, true);

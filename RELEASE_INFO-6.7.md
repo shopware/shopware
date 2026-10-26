@@ -109,21 +109,11 @@ For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-
 
 A standard integration that sends the `sw-app-user-id` header keeps its own identity.
 The header only narrows its permissions to those of the named user, and writes are attributed to the integration.
-Naming an inactive or unknown user narrows the permissions to none, and an inactive app resolves no permissions at all.
+Naming an inactive or unknown user narrows the permissions to none, and requests of a deactivated app are rejected.
 An app integration still acts for the named user, except that an inactive user is now treated like a user without the required app privilege.
 
-The following routes reject every integration, including an app that names a user, with a `403` and the error code `FRAMEWORK__API_EXPECTED_USER`:
-
-- `GET`/`PATCH /api/_info/me`
-- `GET /api/_info/ping`
-- `POST /api/_action/user/logout`
-- `GET`/`POST`/`PATCH /api/_info/config-me`
-- `POST /api/oauth/authorize`
-
-Other routes that require a user id answer the same `403`, for example `POST /api/_proxy/generate-imitate-customer-token`.
-`DELETE /api/user/{id}` and `POST /api/user`, `PATCH /api/user/{id}` no longer treat an integration naming that user as a self-service change.
-To read a user, use `GET /api/user/{id}` with `user:read`.
-To change a user, use `PATCH /api/user/{id}` with `user:update`.
+Routes that act on the signed-in Administration user now require a directly authenticated user and reject every integration, including an app that names a user, with a `403` and the error code `FRAMEWORK__API_EXPECTED_USER`.
+To read a user, use `GET /api/user/{id}` with `user:read`; to change a user, use `PATCH /api/user/{id}` with `user:update`.
 
 # 6.7.16.0 (upcoming)
 

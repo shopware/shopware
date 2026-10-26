@@ -93,24 +93,6 @@
           "label": "Keywords",
           "description": "The SEO keywords of the landing page."
         }
-      },
-      "context": {
-        "currencyIsoCode": {
-          "label": "Currency ISO code",
-          "description": "The ISO 4217 code of the current Storefront currency."
-        },
-        "currencySymbol": {
-          "label": "Currency symbol",
-          "description": "The symbol of the current Storefront currency."
-        },
-        "languageLocale": {
-          "label": "Language locale",
-          "description": "The locale code of the current Storefront language."
-        },
-        "taxState": {
-          "label": "Tax state",
-          "description": "The current Storefront tax state."
-        }
       }
     },
     "elements": {
@@ -260,12 +242,10 @@
             "basic": "Basic information",
             "seo": "SEO",
             "media": "Media",
-            "customFields": "Custom Fields",
-            "storefront-context": "Storefront context"
+            "customFields": "Custom Fields"
           },
           "sources": {
             "rootEntity": "Root entity",
-            "storefrontContext": "Storefront context",
             "navigationLabel": "Data sources"
           }
         }

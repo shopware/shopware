@@ -9,7 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -30,6 +30,7 @@ use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\DuplicateElement;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
 /**
  * @internal
@@ -42,10 +43,15 @@ class DefaultMappingSeederTest extends TestCase
     {
         $source = MappingSourceReference::root('product', 'cover');
         $seeder = $this->seeder($source);
-        $element = new StoredElement('element-1', 'test:Media');
+        $element = new StoredElement(
+            'element-1',
+            'test:Media',
+            dataRequirements: ['selectedMedia' => new DataRequirement('selectedMedia', 'entity', new StubLoaderConfig())],
+        );
 
         $mapped = $seeder->seed(new StoredTree([$element]), 'product', [$element->id])->roots[0];
         static::assertSame($source->jsonSerialize(), $mapped->contextDefinitions->getAllConsumers()['media']->source?->jsonSerialize());
+        static::assertSame($element->dataRequirements, $mapped->dataRequirements);
 
         $otherLayout = $seeder->seed(new StoredTree([$element]), 'category', [$element->id])->roots[0];
         static::assertSame([], $otherLayout->contextDefinitions->getAllConsumers());
@@ -64,17 +70,6 @@ class DefaultMappingSeederTest extends TestCase
         static::assertCount(2, $result->layout->roots);
         static::assertSame([], $result->layout->roots[0]->contextDefinitions->getAllConsumers());
         static::assertSame([], $result->layout->roots[1]->contextDefinitions->getAllConsumers());
-    }
-
-    public function testContextDefaultAlsoSeedsTheLoaderRequirement(): void
-    {
-        $source = new MappingSourceReference('context', 'storefront', path: 'currency.isoCode');
-        $element = new StoredElement('element-1', 'test:Media');
-
-        $mapped = $this->seeder($source, 'string')->seed(new StoredTree([$element]), 'product', [$element->id])->roots[0];
-
-        static::assertSame($source->jsonSerialize(), $mapped->contextDefinitions->getAllConsumers()['media']->source?->jsonSerialize());
-        static::assertSame(StorefrontContextLoader::SOURCE, $mapped->dataRequirements[StorefrontContextLoader::REQUIREMENT_KEY]->source);
     }
 
     private function seeder(MappingSourceReference $source, string $valueType = MediaEntity::class): DefaultMappingSeeder

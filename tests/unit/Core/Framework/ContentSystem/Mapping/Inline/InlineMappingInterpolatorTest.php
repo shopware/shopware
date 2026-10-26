@@ -63,16 +63,16 @@ class InlineMappingInterpolatorTest extends TestCase
     /**
      * Null marks an unavailable value; the render caller removes only the token and keeps surrounding authored text.
      */
-    #[TestDox('resolves a stringifiable context candidate through its provider')]
-    public function testResolvesAContextCandidateThroughItsProvider(): void
+    #[TestDox('resolves a stringifiable plugin candidate through its provider')]
+    public function testResolvesAPluginCandidateThroughItsProvider(): void
     {
         $candidate = new MappingCandidate(
-            path: 'context:storefront.currency.isoCode',
+            path: 'plugin:example.message',
             label: 'currency code',
             description: '',
-            group: 'storefront-context',
+            group: 'plugin',
             valueType: 'string',
-            source: new MappingSourceReference('context', 'storefront', path: 'currency.isoCode'),
+            source: new MappingSourceReference('plugin', 'example', path: 'message'),
         );
         $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
         $candidates->method('forRootSource')->willReturn([$candidate->source->displayName() => $candidate]);

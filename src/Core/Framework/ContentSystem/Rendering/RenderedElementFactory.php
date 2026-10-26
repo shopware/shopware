@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
@@ -27,8 +26,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * - declared authored properties — every key the element's type declares except a resolvable reference,
  *   carrying the stored value under that key. A primitive, a bare `object` and any union are all authored
- * - requirement keys — the keys of the element's data requirements, carrying the resolved loader value;
- *   the private Storefront context mapping requirement is excluded
+ * - requirement keys — the keys of the element's data requirements, carrying the resolved loader value
  * - delivered context keys — the keys context was actually delivered under, carrying the delivered value
  * - distribution-referenced keys — stored keys a parent's distribution config dereferences by name (today
  *   only {@see KeyedDistributionConfig::$keyProperty}),
@@ -138,11 +136,6 @@ final readonly class RenderedElementFactory
         }
 
         foreach (array_keys($stored->dataRequirements) as $key) {
-            // This loader is a mapping input, never an element property or a response value.
-            if ($key === StorefrontContextLoader::REQUIREMENT_KEY) {
-                continue;
-            }
-
             if (\in_array($key, $mappedPropertyKeys, true) && !\in_array($key, $mappingFallbackKeys, true)) {
                 continue;
             }

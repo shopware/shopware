@@ -172,10 +172,6 @@ export default Shopware.Component.wrapComponentConfig({
                 return `${this.$t(`${SOURCE_SNIPPET_ROOT}.rootEntity`)} · ${entityLabel}`;
             }
 
-            if (type === 'context' && id === 'storefront') {
-                return this.$t(`${SOURCE_SNIPPET_ROOT}.storefrontContext`);
-            }
-
             return `${type}: ${id}`;
         },
 

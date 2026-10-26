@@ -15,7 +15,7 @@ All classes are `@internal` except the public `RenderedElement` model.
 ## Constraints
 
 - Complete element and consumed page requirement loading for the whole forest before context delivery. Providers may pass loaded values to descendants. The real phase order is documented in [the pipeline contract](../docs/pipeline-contract.md).
-- Root-ambient context is an explicit render input, never a tree lookup. Resolve page requirements only when used by root consumers, typed whole-field mappings, or recognized inline tokens in opted-in properties. Derive Storefront context requirements from the current whole-field mappings and inline tokens, and do not load them when those references are removed.
+- Root-ambient context is an explicit render input, never a tree lookup. Resolve page requirements only when used by root consumers, typed whole-field mappings, or recognized inline tokens in opted-in properties.
 - A present ordinary value, including `null`, is delivered. Missing ordinary paths are absent. Mapping resolution has its own explicit outcome contract: a resolved `null` is present and overrides authored content; a missing or empty whole-field source falls back to authored or loader-resolved content; unavailable or incompatible whole-field mappings remain omitted. Provider errors abort rendering through normal error handling. Inline rendering removes only the unresolved token and keeps surrounding authored text. Tokens in supported inline-mappable properties never reach Storefront output. See [mapping runtime](../Mapping/README.md).
 - SKELETON mode resolves no loaders or context and records no property provenance.
 - Record provenance at the write that wins a property key. Value precedence and provenance precedence must stay aligned.

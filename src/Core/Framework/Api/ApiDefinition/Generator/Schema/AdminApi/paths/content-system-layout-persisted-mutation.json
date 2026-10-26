@@ -604,7 +604,7 @@
                 "tags": ["Content System"],
                 "summary": "Map a property in a stored layout",
                 "operationId": "contentSystemLayoutPersistedMapProperty",
-                "description": "Maps one mappable property to a path catalogued for the stored layout's authoritative root source and commits the edit. Context cardinality is derived by the server. A malformed source returns 400 with code CONTENT_SYSTEM__INVALID_MAPPING_SOURCE. A Storefront context mapping whose internal requirement key is already used by another loader returns 400 with code CONTENT_SYSTEM__MAPPING_REQUIREMENT_CONFLICT.",
+                "description": "Maps one mappable property to a path catalogued for the stored layout's authoritative root source and commits the edit. Context cardinality is derived by the server. A malformed source returns 400 with code CONTENT_SYSTEM__INVALID_MAPPING_SOURCE.",
                 "parameters": [{
                     "name": "layoutId",
                     "in": "path",

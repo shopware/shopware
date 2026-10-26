@@ -30,7 +30,7 @@ class InlineMappingTokenParserTest extends TestCase
         yield 'a plain token' => ['{{map:product.name}}', ['product.name']];
         yield 'inner whitespace on both sides' => ['{{ map:product.name }}', ['product.name']];
         yield 'a deep path' => ['{{map:product.manufacturer.name}}', ['product.manufacturer.name']];
-        yield 'a typed context source' => ['{{map:context:storefront.currency.isoCode}}', ['context:storefront.currency.isoCode']];
+        yield 'a typed plugin source' => ['{{map:plugin:example.message}}', ['plugin:example.message']];
         yield 'a namespaced typed source' => ['{{map:external-source:lookup-id.value}}', ['external-source:lookup-id.value']];
         yield 'underscores and digits' => ['{{map:product.custom_field_2}}', ['product.custom_field_2']];
         yield 'a Unicode custom field name' => ['{{map:product.customFields.größe}}', ['product.customFields.größe']];

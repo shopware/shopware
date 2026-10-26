@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoader;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -64,17 +63,6 @@ class ProductLayoutDataMappingTest extends TestCase
         $this->persistLayout($this->textElement(mappedTo: 'product.name'));
 
         static::assertSame(self::PRODUCT_NAME, $this->servedProperties()['text'] ?? null);
-    }
-
-    #[TestDox('serves a Storefront currency token through the registered context loader')]
-    public function testStorefrontCurrencyTokenUsesTheRegisteredLoader(): void
-    {
-        $this->createProduct();
-        $this->persistLayout($this->textElement(mappedTo: 'context:storefront.currency.isoCode'));
-
-        $properties = $this->servedProperties();
-        static::assertSame('EUR', $properties['text'] ?? null);
-        static::assertArrayNotHasKey(StorefrontContextLoader::REQUIREMENT_KEY, $properties);
     }
 
     #[TestDox('serves a catalogued product custom field in an inline mapping token')]

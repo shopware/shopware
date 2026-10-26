@@ -19,8 +19,8 @@ const KNOWN_TOKENS = new Map([
         '{{map:product.customFields.größe}}',
     ],
     [
-        'context:storefront.currency.isoCode',
-        '{{map:context:storefront.currency.isoCode}}',
+        'plugin:example.message',
+        '{{map:plugin:example.message}}',
     ],
     [
         'external-source:lookup-id.value',

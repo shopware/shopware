@@ -718,7 +718,7 @@
         "tags": ["Content System"],
         "summary": "Map a property in a draft layout",
         "operationId": "contentSystemLayoutMapProperty",
-        "description": "Maps one mappable property to a catalogued path for the required root source. Context cardinality is derived by the server. The authored property value remains stored as fallback. A malformed source returns 400 with code CONTENT_SYSTEM__INVALID_MAPPING_SOURCE. A Storefront context mapping whose internal requirement key is already used by another loader returns 400 with code CONTENT_SYSTEM__MAPPING_REQUIREMENT_CONFLICT.",
+        "description": "Maps one mappable property to a catalogued path for the required root source. Context cardinality is derived by the server. The authored property value remains stored as fallback. A malformed source returns 400 with code CONTENT_SYSTEM__INVALID_MAPPING_SOURCE.",
         "requestBody": {
           "required": true,
           "content": {

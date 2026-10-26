@@ -104,8 +104,8 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
                 candidate({ path: 'product.price', valueType: 'number' }),
                 candidate({ path: 'product.active', valueType: 'boolean' }),
                 candidate({
-                    path: 'context:storefront.currency.isoCode',
-                    source: { type: 'context', id: 'storefront', path: 'currency.isoCode' },
+                    path: 'plugin:example.message',
+                    source: { type: 'plugin', id: 'example', path: 'message' },
                     valueType: 'string',
                 }),
                 candidate({ path: 'product.cover', valueType: 'Shopware\\Core\\Content\\Media\\MediaEntity' }),
@@ -117,23 +117,23 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
                 'product.stock',
                 'product.price',
                 'product.active',
-                'context:storefront.currency.isoCode',
+                'plugin:example.message',
             ]);
         });
 
-        it('offers stringifiable context candidates to inline text mappings', () => {
-            const contextCandidate = candidate({
-                path: 'context:storefront.currency.isoCode',
-                source: { type: 'context', id: 'storefront', path: 'currency.isoCode' },
+        it('offers stringifiable plugin candidates to inline text mappings', () => {
+            const pluginCandidate = candidate({
+                path: 'plugin:example.message',
+                source: { type: 'plugin', id: 'example', path: 'message' },
             });
 
-            expect(getInlineMappingCandidates([contextCandidate])).toEqual([contextCandidate]);
+            expect(getInlineMappingCandidates([pluginCandidate])).toEqual([pluginCandidate]);
         });
 
         it('does not offer a pathless typed source in the inline picker', () => {
             const pathlessCandidate = candidate({
-                path: 'context:example',
-                source: { type: 'context', id: 'example' },
+                path: 'plugin:example',
+                source: { type: 'plugin', id: 'example' },
                 inlineMappable: false,
                 canonicalToken: null,
             });
@@ -191,12 +191,12 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
                         type: 'single' as const,
                         required: false,
                         scope: 'root' as const,
-                        source: { type: 'context', id: 'storefront', path: 'currency.isoCode' },
+                        source: { type: 'plugin', id: 'example', path: 'message' },
                     },
                 },
             } satisfies ContentElementNode;
 
-            expect(findPropertyMapping(element, 'text')?.path).toBe('context:storefront.currency.isoCode');
+            expect(findPropertyMapping(element, 'text')?.path).toBe('plugin:example.message');
         });
 
         it('ignores a consumer that feeds a different property', () => {

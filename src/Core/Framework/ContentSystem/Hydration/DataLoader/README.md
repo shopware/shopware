@@ -18,7 +18,6 @@ Data fetching for content elements. Elements declare `DataRequirement` objects w
 
 - [**EntityLoader** (`entity`)](docs/entity.md) — Single entity by ID
 - [**EntityCollectionLoader** (`entity_collection`)](docs/entity_collection.md) — Multiple entities by IDs
-- **StorefrontContextLoader** (`storefront_context`) — approved currency, language, and tax mapping values; internal requirement, uncacheable result
 - [**ProductListingDataLoader** (`product_listing`)](docs/product_listing.md) — Product listings with filters, sorting, pagination
 - [**NavigationDataLoader** (`navigation`)](docs/navigation.md) — Navigation tree; aliases: `main-navigation`, `service-navigation`, `footer-navigation`
 - [**ServiceMenuDataLoader** (`service_menu`)](docs/service_menu.md) — Service menu navigation

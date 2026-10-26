@@ -109,16 +109,16 @@ class InlineMappingExpanderTest extends TestCase
         static::assertSame('Buy  today', $expanded[0]->property('text')?->asString());
     }
 
-    #[TestDox('expands a Storefront context token for a rootless section source')]
-    public function testExpandsStorefrontContextTokenForRootlessSectionSource(): void
+    #[TestDox('expands a plugin token for a rootless section source')]
+    public function testExpandsPluginTokenForRootlessSectionSource(): void
     {
         $candidate = new MappingCandidate(
-            path: 'context:storefront.currency.isoCode',
+            path: 'plugin:example.message',
             label: 'currency code',
             description: '',
-            group: 'storefront-context',
+            group: 'plugin',
             valueType: 'string',
-            source: new MappingSourceReference('context', 'storefront', path: 'currency.isoCode'),
+            source: new MappingSourceReference('plugin', 'example', path: 'message'),
         );
         $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
         $candidates->method('forRootSource')->willReturn([$candidate->path => $candidate]);
@@ -132,7 +132,7 @@ class InlineMappingExpanderTest extends TestCase
                 $mappingInspector,
             ),
         );
-        $element = $this->element(['text' => StoredValue::ofString('Currency: {{map:context:storefront.currency.isoCode}}')]);
+        $element = $this->element(['text' => StoredValue::ofString('Currency: {{map:plugin:example.message}}')]);
 
         $expanded = $this->expandPrepared($expander, [$element], [], 'header');
 
@@ -142,7 +142,7 @@ class InlineMappingExpanderTest extends TestCase
     #[TestDox('removes an unknown inline token for a rootless section source')]
     public function testRemovesUnknownTokenForRootlessSectionSource(): void
     {
-        $element = $this->element(['text' => StoredValue::ofString('{{map:context:storefront.unknown}}')]);
+        $element = $this->element(['text' => StoredValue::ofString('{{map:plugin:example.unknown}}')]);
 
         $expanded = $this->expandPrepared($this->expander(), [$element], [], 'header');
 

@@ -16,18 +16,9 @@ A loader-backed provider can offer a source whose stable config identifies a loa
 
 The product provider returns `MediaEntity` for `product.cover` and a position-sorted `MediaCollection` for `product.media` directly. Providers reshape intermediate data before returning it; the candidate's `valueType` describes that delivered value.
 
-## Built-in Storefront context source
+## Built-in sources
 
-The framework provider offers only these public string values:
-
-- `context:storefront.currency.isoCode`
-- `context:storefront.currency.symbol`
-- `context:storefront.language.localeCode`
-- `context:storefront.tax.state`
-
-The full `SalesChannelContext`, customer data, and request attributes are not candidates. Extend this list only with an explicit review of value sensitivity and cache behavior.
-
-These values come from the `storefront_context` element data loader. A whole-field map operation stores its internal requirement alongside the consumer; an inline token causes the same requirement to run during rendering. The requirement result is private to mapping and never appears as a rendered property. Because changes to currency symbols and language locale codes cannot currently be tracked for invalidation, the loader marks a page using these values uncacheable through the normal loader result.
+Built-in candidates come from products, categories, landing pages, and their active, Store-API-visible custom fields. Storefront context values such as currency, language, and tax state are not offered.
 
 ## Stored mappings and rendering
 

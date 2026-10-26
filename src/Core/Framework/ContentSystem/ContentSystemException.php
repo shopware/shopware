@@ -100,7 +100,6 @@ class ContentSystemException extends HttpException
     public const MAPPING_CANDIDATE_PATH_MISMATCH = 'CONTENT_SYSTEM__MAPPING_CANDIDATE_PATH_MISMATCH';
     public const DUPLICATE_MAPPING_CANDIDATE = 'CONTENT_SYSTEM__DUPLICATE_MAPPING_CANDIDATE';
     public const MAPPING_CONTEXT_TYPE_MISMATCH = 'CONTENT_SYSTEM__MAPPING_CONTEXT_TYPE_MISMATCH';
-    public const MAPPING_REQUIREMENT_CONFLICT = 'CONTENT_SYSTEM__MAPPING_REQUIREMENT_CONFLICT';
     public const PROPERTY_NOT_INLINE_MAPPABLE = 'CONTENT_SYSTEM__PROPERTY_NOT_INLINE_MAPPABLE';
     public const UNKNOWN_INLINE_MAPPING_PATH = 'CONTENT_SYSTEM__UNKNOWN_INLINE_MAPPING_PATH';
     public const MALFORMED_INLINE_MAPPING_TOKEN = 'CONTENT_SYSTEM__MALFORMED_INLINE_MAPPING_TOKEN';
@@ -1034,16 +1033,6 @@ class ContentSystemException extends HttpException
             self::MAPPING_CONTEXT_TYPE_MISMATCH,
             'Mapping path "{{ path }}" must use context type "{{ expected }}", got "{{ contextType }}".',
             ['path' => $path, 'contextType' => $contextType, 'expected' => $expected]
-        );
-    }
-
-    public static function mappingRequirementConflict(string $key): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::MAPPING_REQUIREMENT_CONFLICT,
-            'Data requirement "{{ key }}" is reserved for Storefront context mapping.',
-            ['key' => $key]
         );
     }
 

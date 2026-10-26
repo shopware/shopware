@@ -49,8 +49,6 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionL
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoader;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\PropertyTypeConformanceValidator;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
@@ -95,7 +93,6 @@ use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolat
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
-use Shopware\Core\Framework\ContentSystem\Mapping\Provider\StorefrontContextMappingCandidateProvider;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
@@ -260,9 +257,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('content_system.data_loader');
 
-    $services->set(StorefrontContextLoader::class)
-        ->tag('content_system.data_loader');
-
     // Data Loader Provider with Tagged Locator
     $services->set(DataLoaderProvider::class)
         ->args([
@@ -271,9 +265,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     // Config Serializers
     $services->set(EntityLoaderConfigSerializer::class)
-        ->tag('content_system.config_serializer');
-
-    $services->set(StorefrontContextLoaderConfigSerializer::class)
         ->tag('content_system.config_serializer');
 
     $services->set(EntityCollectionLoaderConfigSerializer::class)
@@ -773,9 +764,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             tagged_iterator('content_system.mapping_candidate_provider'),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
-
-    $services->set(StorefrontContextMappingCandidateProvider::class)
-        ->tag('content_system.mapping_candidate_provider', ['priority' => -100]);
 
     // Inline mapping: the `{{map:path}}` tokens an author embeds in an inlineMappable string property. The parser
     // is the single source of truth for the syntax and is shared by the render path and the write gate, so the

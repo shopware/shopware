@@ -37,7 +37,6 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
         'sw-experience-studio.detail.elementSettings.mapping.loadingCandidates': 'Loading dynamic data...',
         'sw-experience-studio.detail.elementSettings.mapping.loadError': 'Dynamic data could not be loaded.',
         'sw-experience-studio.detail.elementSettings.mapping.sources.rootEntity': 'Root entity',
-        'sw-experience-studio.detail.elementSettings.mapping.sources.storefrontContext': 'Storefront context',
         'sw-experience-studio.createWizard.layoutTypes.product': 'Product',
     };
 
@@ -121,13 +120,13 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
 
     it('groups candidates by typed source and puts the root entity first', () => {
         const rootCandidate = candidate({ path: 'product.name', source: { type: 'root', id: 'product', path: 'name' } });
-        const contextCandidate = candidate({
-            path: 'context:storefront.currency.isoCode',
-            source: { type: 'context', id: 'storefront', path: 'currency.isoCode' },
+        const pluginCandidate = candidate({
+            path: 'plugin:example.message',
+            source: { type: 'plugin', id: 'example', path: 'message' },
         });
         const sourceGroups = computed.sourceGroups.call({
             matchingCandidates: [
-                contextCandidate,
+                pluginCandidate,
                 rootCandidate,
             ],
             getSourceKey: methods.getSourceKey,
@@ -135,40 +134,40 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
 
         expect(sourceGroups.map((group) => group.key)).toEqual([
             'root:product',
-            'context:storefront',
+            'plugin:example',
         ]);
         expect(sourceGroups[0].candidates).toEqual([rootCandidate]);
-        expect(sourceGroups[1].candidates).toEqual([contextCandidate]);
+        expect(sourceGroups[1].candidates).toEqual([pluginCandidate]);
     });
 
     it('keeps the source containing the current mapping active', () => {
         const rootGroup = { key: 'root:product', type: 'root', id: 'product', candidates: [candidate()] };
-        const contextCandidate = candidate({
-            path: 'context:storefront.currency.isoCode',
-            source: { type: 'context', id: 'storefront', path: 'currency.isoCode' },
+        const pluginCandidate = candidate({
+            path: 'plugin:example.message',
+            source: { type: 'plugin', id: 'example', path: 'message' },
         });
-        const contextGroup = {
-            key: 'context:storefront',
-            type: 'context',
-            id: 'storefront',
-            candidates: [contextCandidate],
+        const pluginGroup = {
+            key: 'plugin:example',
+            type: 'plugin',
+            id: 'example',
+            candidates: [pluginCandidate],
         };
 
         const active = computed.activeSourceGroup.call({
             sourceGroups: [
                 rootGroup,
-                contextGroup,
+                pluginGroup,
             ],
             selectedSourceKey: null,
-            currentPath: contextCandidate.path,
+            currentPath: pluginCandidate.path,
         });
 
-        expect(active).toBe(contextGroup);
+        expect(active).toBe(pluginGroup);
     });
 
-    it('labels root and Storefront context sources for the left navigation', () => {
+    it('labels root and plugin sources for the left navigation', () => {
         expect(methods.getSourceLabel.call(i18n, 'root', 'product')).toBe('Root entity · Product');
-        expect(methods.getSourceLabel.call(i18n, 'context', 'storefront')).toBe('Storefront context');
+        expect(methods.getSourceLabel.call(i18n, 'plugin', 'example')).toBe('plugin: example');
     });
 
     it('returns every candidate for an empty search term', () => {

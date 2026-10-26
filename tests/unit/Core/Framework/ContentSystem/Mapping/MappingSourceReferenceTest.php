@@ -28,14 +28,14 @@ class MappingSourceReferenceTest extends TestCase
 
     public function testSerializesProviderReferencesWithOptionalConfiguration(): void
     {
-        $source = new MappingSourceReference('context', 'storefront', ['region' => 'eu'], 'currency.isoCode');
+        $source = new MappingSourceReference('plugin', 'example', ['region' => 'eu'], 'message');
 
-        static::assertSame('context:storefront.currency.isoCode', $source->displayName());
+        static::assertSame('plugin:example.message', $source->displayName());
         static::assertSame([
-            'type' => 'context',
-            'id' => 'storefront',
+            'type' => 'plugin',
+            'id' => 'example',
             'config' => ['region' => 'eu'],
-            'path' => 'currency.isoCode',
+            'path' => 'message',
         ], $source->jsonSerialize());
     }
 

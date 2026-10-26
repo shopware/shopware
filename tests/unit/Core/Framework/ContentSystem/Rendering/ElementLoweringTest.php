@@ -22,9 +22,6 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvide
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoader;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoaderConfig;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -38,11 +35,8 @@ use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolat
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingMetadata;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
-use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
-use Shopware\Core\Framework\ContentSystem\Mapping\Provider\StorefrontContextMappingCandidateProvider;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
-use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentityFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueFingerprinter;
@@ -56,7 +50,6 @@ use Shopware\Core\Framework\ContentSystem\Rendering\RenderedTreeFactory;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
@@ -81,42 +74,31 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ElementLowering::class)]
 class ElementLoweringTest extends TestCase
 {
-    public function testStorefrontContextMappingsUseLoaderValuesWithoutExposingTheInternalRequirement(): void
+    public function testUnknownInlineSourceDoesNotLoadDataOrDisableCaching(): void
     {
-        $currency = new CurrencyEntity();
-        $currency->setIsoCode('USD');
-        $currency->setSymbol('$');
-        $context = Generator::generateSalesChannelContext(currency: $currency);
-        $source = new MappingSourceReference('context', 'storefront', path: 'currency.isoCode');
-        $wholeField = StoredElementBuilder::create('Sw:Content:Text', 'mapped-1')
-            ->withProperty('text', 'Fallback')
-            ->withDataRequirement(StorefrontContextLoader::REQUIREMENT_KEY, StorefrontContextLoader::SOURCE, new StorefrontContextLoaderConfig())
-            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: $source)
-            ->build();
-        $inline = StoredElementBuilder::create('Sw:Content:Text', 'inline-1')
-            ->withProperty('text', 'Currency {{map:context:storefront.currency.isoCode}}')
-            ->build();
+        $loader = $this->loader();
+        $loader->expects($this->never())->method('load');
+        $text = 'Message {{map:plugin:missing.value}}';
+        $element = StoredElementBuilder::create('Sw:Content:Text', 'text-1')->withProperty('text', $text)->build();
         $cacheContext = new RenderingCacheContext();
 
-        $rendered = $this->storefrontContextLowering()->lower(
-            [$wholeField, $inline],
+        $rendered = $this->lowering($loader)->lower(
+            [$element],
             RenderingMode::FULL,
-            $context,
+            Generator::generateSalesChannelContext(),
             new Request(),
             $cacheContext,
             [],
-            null,
-            'product',
+            virtualRoot: null,
+            rootSource: 'header',
             inlineMappings: new InlineMappingMetadata([
-                'inline-1' => [
-                    'text' => (new InlineMappingTokenParser())->parse('Currency {{map:context:storefront.currency.isoCode}}'),
-                ],
+                'text-1' => ['text' => (new InlineMappingTokenParser())->parse($text)],
             ]),
         )->tree;
 
-        static::assertSame(['text' => 'USD'], $rendered[0]->properties);
-        static::assertSame(['text' => 'Currency USD'], $rendered[1]->properties);
-        static::assertTrue($cacheContext->isDisabled());
+        static::assertSame(['text' => 'Message '], $rendered[0]->properties);
+        static::assertFalse($cacheContext->isDisabled());
+        static::assertSame([], $cacheContext->getTags());
     }
 
     /**
@@ -655,43 +637,6 @@ class ElementLoweringTest extends TestCase
             $this->inlineMappingExpander(),
             new MappingConsumers(),
             new ContextPathResolver(),
-        );
-    }
-
-    private function storefrontContextLowering(): ElementLowering
-    {
-        $registry = new ContentSystemMappingCandidateRegistry([new StorefrontContextMappingCandidateProvider()]);
-        $loader = new StorefrontContextLoader();
-        $serializer = new StorefrontContextLoaderConfigSerializer();
-        $pathResolver = new ContextPathResolver();
-        $types = $this->typeRegistry();
-        $mappingInspector = new StoredMappingInspector(
-            $types,
-            $registry,
-            new MappingTypeCompatibility(),
-            new MappingConsumers(),
-            new InlineMappingTokenParser(),
-        );
-
-        return new ElementLowering(
-            new ElementDataResolver(
-                new DataLoaderProvider(new ServiceLocator([
-                    StorefrontContextLoader::SOURCE => static fn (): StorefrontContextLoader => $loader,
-                ])),
-                new LoaderInputResolver(),
-                new LoaderValueIdentityFactory(
-                    new DataLoaderConfigSerializerProvider(new ServiceLocator([
-                        StorefrontContextLoader::SOURCE => static fn (): StorefrontContextLoaderConfigSerializer => $serializer,
-                    ])),
-                    new ConfigCanonicalizer(),
-                    new ValueFingerprinter(),
-                ),
-            ),
-            new ContextDeliveryResolver(new ContextDistributor($pathResolver), $pathResolver, $registry, $mappingInspector),
-            new RenderedTreeFactory(new RenderedElementFactory($types)),
-            new InlineMappingExpander($mappingInspector, new InlineMappingTokenParser(), new InlineMappingInterpolator($registry, $mappingInspector)),
-            new MappingConsumers(),
-            $pathResolver,
         );
     }
 

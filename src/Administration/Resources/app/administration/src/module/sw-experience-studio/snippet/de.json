@@ -93,24 +93,6 @@
           "label": "Schlagwörter",
           "description": "Die SEO-Schlagwörter der Landingpage."
         }
-      },
-      "context": {
-        "currencyIsoCode": {
-          "label": "Währungs-ISO-Code",
-          "description": "Der ISO-4217-Code der aktuellen Storefront-Währung."
-        },
-        "currencySymbol": {
-          "label": "Währungssymbol",
-          "description": "Das Symbol der aktuellen Storefront-Währung."
-        },
-        "languageLocale": {
-          "label": "Sprach-Locale",
-          "description": "Der Locale-Code der aktuellen Storefront-Sprache."
-        },
-        "taxState": {
-          "label": "Steuerstatus",
-          "description": "Der aktuelle Steuerstatus der Storefront."
-        }
       }
     },
     "elements": {
@@ -260,12 +242,10 @@
             "basic": "Basisinformationen",
             "seo": "SEO",
             "media": "Medien",
-            "customFields": "Zusatzfelder",
-            "storefront-context": "Storefront-Kontext"
+            "customFields": "Zusatzfelder"
           },
           "sources": {
             "rootEntity": "Stammentität",
-            "storefrontContext": "Storefront-Kontext",
             "navigationLabel": "Datenquellen"
           }
         }

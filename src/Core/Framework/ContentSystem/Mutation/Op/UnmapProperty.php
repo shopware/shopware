@@ -3,10 +3,8 @@
 namespace Shopware\Core\Framework\ContentSystem\Mutation\Op;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
-use Shopware\Core\Framework\ContentSystem\Mapping\Provider\StorefrontContextMappingCandidateProvider;
 use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
 use Shopware\Core\Framework\Log\Package;
 
@@ -42,29 +40,10 @@ final class UnmapProperty extends AbstractLayoutMutation
 
         unset($consumers[$this->propertyKey]);
 
-        $requirements = $node->dataRequirements;
-        $stillUsesStorefrontContext = false;
-        foreach ($consumers as $remainingConsumer) {
-            if (
-                $remainingConsumer->source !== null
-                && StorefrontContextMappingCandidateProvider::isApprovedSource($remainingConsumer->source)
-            ) {
-                $stillUsesStorefrontContext = true;
-                break;
-            }
-        }
-
-        if (!$stillUsesStorefrontContext) {
-            $requirement = $requirements[StorefrontContextLoader::REQUIREMENT_KEY] ?? null;
-            if ($requirement?->source === StorefrontContextLoader::SOURCE && $requirement->config->jsonSerialize() === []) {
-                unset($requirements[StorefrontContextLoader::REQUIREMENT_KEY]);
-            }
-        }
-
         $replacement = $node->withContextDefinitions(new ContextDefinitions(
             $definitions->getAllProviders(),
             $consumers,
-        ))->withDataRequirements($requirements);
+        ));
         $this->affected = [$replacement->id];
 
         return $tree->replace($this->elementId, $replacement);

@@ -8,7 +8,6 @@ use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryMappi
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageMappingCandidateProvider;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductMappingCandidateProvider;
 use Shopware\Core\Framework\ContentSystem\Mapping\Provider\AbstractMappingCandidateProvider;
-use Shopware\Core\Framework\ContentSystem\Mapping\Provider\StorefrontContextMappingCandidateProvider;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\MappingCandidateProviderCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
@@ -73,7 +72,6 @@ class MappingCandidateProviderCompilerPassTest extends TestCase
             ProductMappingCandidateProvider::class,
             CategoryMappingCandidateProvider::class,
             LandingPageMappingCandidateProvider::class,
-            StorefrontContextMappingCandidateProvider::class,
             CustomFieldMappingCandidateProvider::class,
         ] as $index => $providerClass) {
             $container->setDefinition(
@@ -84,7 +82,7 @@ class MappingCandidateProviderCompilerPassTest extends TestCase
 
         (new MappingCandidateProviderCompilerPass())->process($container);
 
-        static::assertCount(5, $container->findTaggedServiceIds('content_system.mapping_candidate_provider'));
+        static::assertCount(4, $container->findTaggedServiceIds('content_system.mapping_candidate_provider'));
     }
 }
 

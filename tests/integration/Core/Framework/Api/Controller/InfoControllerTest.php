@@ -715,19 +715,13 @@ class InfoControllerTest extends TestCase
         static::assertIsArray($nameCandidate);
         static::assertSame('{{map:category.name}}', $nameCandidate['canonicalToken']);
 
-        // Root entity candidates lead with the page-level requirement key; the shared Storefront context
-        // candidates are also available on entity-backed layouts.
         foreach ($paths as $path) {
-            static::assertTrue(
-                str_starts_with((string) $path, 'category.') || str_starts_with((string) $path, 'context:storefront.'),
-                \sprintf('Unexpected candidate path "%s".', $path)
-            );
+            static::assertStringStartsWith('category.', (string) $path);
         }
 
-        static::assertContains('context:storefront.currency.isoCode', $paths);
-        static::assertContains('context:storefront.currency.symbol', $paths);
-        static::assertContains('context:storefront.language.localeCode', $paths);
-        static::assertContains('context:storefront.tax.state', $paths);
+        foreach (['header', 'footer', 'none'] as $rootSource) {
+            static::assertSame([], $data['mappingCandidates'][$rootSource]);
+        }
     }
 
     public function testContentSystemMappingCandidatesRequiresCustomFieldReadPermission(): void

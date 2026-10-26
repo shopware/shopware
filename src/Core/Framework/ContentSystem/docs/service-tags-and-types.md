@@ -39,7 +39,7 @@ Key types extension developers encounter when working with the ContentSystem:
 | `PlaceholderValues`       | Created via `PlaceholderValues::from(array $values)`                                   |
 
 The layout value objects a source assembles and the pipeline consumes — `RenderingSpecification`, `ResolvedContentLayout`, `LayoutReference`, `RenderableLayout` — are listed in [AGENTS.md](../AGENTS.md#source-code-references).
-Mapping provider candidate and runtime contracts are described in [Mapping/README.md](../Mapping/README.md). Providers may resolve only catalogued values, including declared loader results and approved Storefront context values; a missing value omits the mapped property.
+Mapping provider candidate and runtime contracts are described in [Mapping/README.md](../Mapping/README.md). Providers may resolve only catalogued values. Missing values follow the documented mapping fallback rules; provider errors propagate through normal error handling.
 
 The layout value objects a source assembles and the pipeline consumes — `RenderingSpecification`, `ResolvedContentLayout`, `LayoutReference`, `RenderableLayout` — are described in [README.md](../README.md#key-classes).
 

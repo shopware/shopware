@@ -6,8 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -61,6 +59,18 @@ class MapPropertyTest extends TestCase
         static::assertSame('product.metaTitle', $consumers['text']->source?->displayName());
     }
 
+    public function testMappingPreservesExistingDataRequirements(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Text', 'element-1')
+            ->withDataRequirement('selectedProduct', 'entity', new StubLoaderConfig())
+            ->build();
+
+        $mapped = $this->map('text', 'product.name')->apply(new StoredTree([$element]))->roots[0];
+
+        static::assertSame($element->dataRequirements, $mapped->dataRequirements);
+        static::assertSame('product.name', $mapped->contextDefinitions->getAllConsumers()['text']->source?->displayName());
+    }
+
     public function testRejectsAnIncompatibleCandidateBeforeWriting(): void
     {
         $tree = new StoredTree([new StoredElement('element-1', 'Sw:Text')]);
@@ -68,30 +78,6 @@ class MapPropertyTest extends TestCase
         $this->expectExceptionObject(ContentSystemException::mappingTypeMismatch('text', 'string', MediaEntity::class));
 
         $this->map('text', 'product.cover')->apply($tree);
-    }
-
-    public function testMappingStorefrontContextAddsItsLoaderRequirement(): void
-    {
-        $tree = new StoredTree([new StoredElement('element-1', 'Sw:Text')]);
-        $source = new MappingSourceReference('context', 'storefront', path: 'currency.isoCode');
-
-        $mapped = $this->mapSource('text', $source)->apply($tree)->roots[0];
-
-        static::assertSame($source->jsonSerialize(), $mapped->contextDefinitions->getAllConsumers()['text']->source?->jsonSerialize());
-        static::assertSame(StorefrontContextLoader::SOURCE, $mapped->dataRequirements[StorefrontContextLoader::REQUIREMENT_KEY]->source);
-        static::assertSame([], $mapped->dataRequirements[StorefrontContextLoader::REQUIREMENT_KEY]->config->jsonSerialize());
-    }
-
-    public function testStorefrontContextMappingRejectsAnOccupiedInternalRequirementKey(): void
-    {
-        $element = StoredElementBuilder::create('Sw:Text', 'element-1')
-            ->withDataRequirement(StorefrontContextLoader::REQUIREMENT_KEY, 'entity', new StubLoaderConfig())
-            ->build();
-        $source = new MappingSourceReference('context', 'storefront', path: 'currency.isoCode');
-
-        $this->expectExceptionObject(ContentSystemException::mappingRequirementConflict(StorefrontContextLoader::REQUIREMENT_KEY));
-
-        $this->mapSource('text', $source)->apply(new StoredTree([$element]));
     }
 
     private function map(string $propertyKey, string $sourcePath): MapProperty
@@ -117,15 +103,6 @@ class MapPropertyTest extends TestCase
             'product.name' => $this->candidate('product.name'),
             'product.metaTitle' => $this->candidate('product.metaTitle'),
             'product.cover' => new MappingCandidate('product.cover', 'label', 'description', 'media', MediaEntity::class),
-            'context:storefront.currency.isoCode' => new MappingCandidate(
-                'context:storefront.currency.isoCode',
-                'label',
-                'description',
-                'storefront-context',
-                'string',
-                ContextType::Single,
-                source: new MappingSourceReference('context', 'storefront', path: 'currency.isoCode'),
-            ),
         ]);
 
         return new MapProperty(

@@ -89,6 +89,10 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
+### Content System mapping sources
+
+Built-in data-mapping candidates are limited to products, categories, landing pages, and their public custom fields. Mapping Storefront context values such as currency, language, and tax state is not available.
+
 ### Content System mapping provider errors
 
 Errors thrown by data-mapping providers now use normal error handling and abort rendering instead of silently omitting mapped content. Custom providers should return `MappingSourceResolution::noValue()` for missing source data and throw unexpected errors instead of returning the removed `MappingSourceResolution::failed()` result. Missing or empty source values retain their existing rendering behavior.

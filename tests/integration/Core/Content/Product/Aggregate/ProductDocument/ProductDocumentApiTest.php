@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
 use Shopware\Core\Content\Product\Events\InvalidateProductCache;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -52,11 +51,11 @@ class ProductDocumentApiTest extends TestCase
         );
 
         $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, flags: \JSON_THROW_ON_ERROR);
-        static::assertSame(['Manual'], array_column($response['data'][0]['documents'], 'title'));
-        static::assertSame([$this->ids->get('manual')], array_column($response['data'][0]['documents'], 'mediaId'));
+        static::assertSame(['Manual'], array_column(array_column($response['data'][0]['documents'], 'translated'), 'title'));
+        static::assertSame([$this->ids->get('manual')], array_column(array_column($response['data'][0]['documents'], 'translated'), 'mediaId'));
     }
 
-    public function testTheStoreApiReturnsTheDocumentsOfAProductOnRequest(): void
+    public function testTheStoreApiReturnsTheDocumentsOfAProductWithTheirFiles(): void
     {
         $browser = $this->createCustomSalesChannelBrowser(['id' => $this->ids->create('sales-channel')]);
 
@@ -68,12 +67,13 @@ class ProductDocumentApiTest extends TestCase
             'POST',
             '/store-api/product/' . $this->ids->get('drill'),
             server: ['CONTENT_TYPE' => 'application/json'],
-            content: json_encode(['associations' => ['documents' => ['associations' => ['media' => []]]]], \JSON_THROW_ON_ERROR),
+            content: json_encode(['associations' => ['documents' => ['associations' => ['translations' => ['associations' => ['media' => []]]]]]], \JSON_THROW_ON_ERROR),
         );
 
         $response = json_decode((string) $browser->getResponse()->getContent(), true, flags: \JSON_THROW_ON_ERROR);
-        static::assertSame(['Manual'], array_column($response['product']['documents'], 'title'));
-        static::assertSame([$this->ids->get('manual')], array_column(array_column($response['product']['documents'], 'media'), 'id'));
+        $documents = $response['product']['documents'];
+        static::assertSame(['Manual'], array_column(array_column($documents, 'translated'), 'title'));
+        static::assertSame([$this->ids->get('manual')], array_column(array_column($documents[0]['translations'], 'media'), 'id'));
     }
 
     public function testDocumentRoutesOfTheAdminApiInvalidateTheProductAndItsVariants(): void
@@ -88,6 +88,15 @@ class ProductDocumentApiTest extends TestCase
         $updated = $this->collectInvalidatedProductIds('PATCH', '/api/product-document/' . $this->ids->get('document'), ['title' => 'Manual v2']);
         static::assertContains($this->ids->get('drill'), $updated);
         static::assertContains($this->ids->get('drill.blue'), $updated);
+
+        $translated = $this->collectInvalidatedProductIds(
+            'PATCH',
+            '/api/product-document/' . $this->ids->get('document'),
+            ['title' => 'Handbuch'],
+            ['HTTP_SW_LANGUAGE_ID' => $this->getDeDeLanguageId()],
+        );
+        static::assertContains($this->ids->get('drill'), $translated);
+        static::assertContains($this->ids->get('drill.blue'), $translated);
 
         $deleted = $this->collectInvalidatedProductIds('DELETE', '/api/product-document/' . $this->ids->get('document'));
         static::assertContains($this->ids->get('drill'), $deleted);
@@ -119,11 +128,11 @@ class ProductDocumentApiTest extends TestCase
     }
 
     /**
-     * @return array{languageId: string, mediaId: string, title: string}
+     * @return array{title: string, mediaId: string}
      */
     private function manual(): array
     {
-        return ['languageId' => Defaults::LANGUAGE_SYSTEM, 'mediaId' => $this->ids->get('manual'), 'title' => 'Manual'];
+        return ['title' => 'Manual', 'mediaId' => $this->ids->get('manual')];
     }
 
     private function createDrillWithBlueVariant(): void
@@ -138,10 +147,11 @@ class ProductDocumentApiTest extends TestCase
 
     /**
      * @param array<mixed> $body
+     * @param array<string, string> $server
      *
      * @return list<string>
      */
-    private function collectInvalidatedProductIds(string $method, string $url, array $body = []): array
+    private function collectInvalidatedProductIds(string $method, string $url, array $body = [], array $server = []): array
     {
         $invalidatedIds = [];
         $hook = static function (InvalidateProductCache $event) use (&$invalidatedIds): void {
@@ -150,7 +160,7 @@ class ProductDocumentApiTest extends TestCase
 
         $dispatcher = EventHookDispatcher::fromContainer(static::getContainer());
         $dispatcher->on(InvalidateProductCache::class, $hook);
-        $this->getBrowser()->request($method, $url, server: ['CONTENT_TYPE' => 'application/json'], content: json_encode($body, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->request($method, $url, server: ['CONTENT_TYPE' => 'application/json', ...$server], content: json_encode($body, \JSON_THROW_ON_ERROR));
         $dispatcher->off(InvalidateProductCache::class, $hook);
 
         $response = $this->getBrowser()->getResponse();

@@ -41,41 +41,27 @@ class Migration1792743880AddProductDocumentTest extends TestCase
         static::assertSame(1792743880, $this->migration->getCreationTimestamp());
     }
 
-    public function testCreatesTheProductDocumentTable(): void
+    public function testCreatesTheDocumentAndTranslationTables(): void
     {
         $this->migration->update($this->connection);
         $this->migration->update($this->connection);
 
         static::assertSame(
-            ['id', 'version_id', 'product_id', 'product_version_id', 'language_id', 'media_id', 'title', 'position', 'custom_fields', 'created_at', 'updated_at'],
-            $this->connection->fetchFirstColumn(
-                'SELECT `COLUMN_NAME` FROM `information_schema`.`COLUMNS`
-                 WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = :table
-                 ORDER BY `ORDINAL_POSITION`',
-                ['table' => 'product_document']
-            )
+            ['id', 'version_id', 'product_id', 'product_version_id', 'position', 'created_at', 'updated_at'],
+            $this->getColumns('product_document')
         );
         static::assertSame(
-            ['product_id', 'product_version_id', 'language_id', 'media_id'],
-            $this->connection->fetchFirstColumn(
-                'SELECT `COLUMN_NAME` FROM `information_schema`.`STATISTICS`
-                 WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = :table AND `INDEX_NAME` = :index
-                 ORDER BY `SEQ_IN_INDEX`',
-                ['table' => 'product_document', 'index' => 'uniq.product_document.product_language_media']
-            )
+            ['product_document_id', 'product_document_version_id', 'language_id', 'title', 'media_id', 'custom_fields', 'created_at', 'updated_at'],
+            $this->getColumns('product_document_translation')
         );
+        static::assertSame(['fk.product_document.product_id' => 'CASCADE'], $this->getDeleteRules('product_document'));
         static::assertSame(
             [
-                'fk.product_document.language_id' => 'CASCADE',
-                'fk.product_document.media_id' => 'CASCADE',
-                'fk.product_document.product_id' => 'CASCADE',
+                'fk.product_document_translation.language_id' => 'CASCADE',
+                'fk.product_document_translation.media_id' => 'CASCADE',
+                'fk.product_document_translation.product_document_id' => 'CASCADE',
             ],
-            $this->connection->fetchAllKeyValue(
-                'SELECT `CONSTRAINT_NAME`, `DELETE_RULE` FROM `information_schema`.`REFERENTIAL_CONSTRAINTS`
-                 WHERE `CONSTRAINT_SCHEMA` = DATABASE() AND `TABLE_NAME` = :table
-                 ORDER BY `CONSTRAINT_NAME`',
-                ['table' => 'product_document']
-            )
+            $this->getDeleteRules('product_document_translation')
         );
     }
 
@@ -108,8 +94,35 @@ class Migration1792743880AddProductDocumentTest extends TestCase
         ]], $folders);
     }
 
+    /**
+     * @return list<string>
+     */
+    private function getColumns(string $table): array
+    {
+        return $this->connection->fetchFirstColumn(
+            'SELECT `COLUMN_NAME` FROM `information_schema`.`COLUMNS`
+             WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = :table
+             ORDER BY `ORDINAL_POSITION`',
+            ['table' => $table]
+        );
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getDeleteRules(string $table): array
+    {
+        return $this->connection->fetchAllKeyValue(
+            'SELECT `CONSTRAINT_NAME`, `DELETE_RULE` FROM `information_schema`.`REFERENTIAL_CONSTRAINTS`
+             WHERE `CONSTRAINT_SCHEMA` = DATABASE() AND `TABLE_NAME` = :table
+             ORDER BY `CONSTRAINT_NAME`',
+            ['table' => $table]
+        );
+    }
+
     private function rollback(): void
     {
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `product_document_translation`');
         $this->connection->executeStatement('DROP TABLE IF EXISTS `product_document`');
 
         if (TableHelper::columnExists($this->connection, 'product', 'documents')) {

@@ -20,7 +20,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
@@ -180,7 +180,7 @@ class LanguageEntity extends Entity
 
     protected ?ProductReviewCollection $productReviews = null;
 
-    protected ?ProductDocumentCollection $productDocuments = null;
+    protected ?ProductDocumentTranslationCollection $productDocumentTranslations = null;
 
     protected ?SeoUrlCollection $seoUrlTranslations = null;
 
@@ -737,14 +737,14 @@ class LanguageEntity extends Entity
         $this->productReviews = $productReviews;
     }
 
-    public function getProductDocuments(): ?ProductDocumentCollection
+    public function getProductDocumentTranslations(): ?ProductDocumentTranslationCollection
     {
-        return $this->productDocuments;
+        return $this->productDocumentTranslations;
     }
 
-    public function setProductDocuments(ProductDocumentCollection $productDocuments): void
+    public function setProductDocumentTranslations(ProductDocumentTranslationCollection $productDocumentTranslations): void
     {
-        $this->productDocuments = $productDocuments;
+        $this->productDocumentTranslations = $productDocumentTranslations;
     }
 
     public function getSeoUrlTranslations(): ?SeoUrlCollection

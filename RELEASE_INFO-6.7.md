@@ -303,23 +303,6 @@ Tax providers replace the calculated taxes afterwards and keep the displayed fla
 Amounts that carry a single value instead of a net and gross pair, such as absolute or fixed-price promotion discounts, manual shipping costs and credits, also keep the displayed flavour, so under a `net` basis their net value differs slightly per country.
 
 The customer group detail page offers both settings separately. Plugins customize the selection through the new extension point `Shopware\Core\Checkout\Cart\Extension\PriceSelectorExtension` (`price-selector.select.pre` and `.post`), for example to apply charm-price rounding to derived gross prices. `GrossPriceCalculator` now grosses up uncalculated prices over several tax rules so that its own tax split returns the given net value; prices with a single tax rule are unchanged. Background and trade-offs are documented in the ADR `adr/2026-08-11-decouple-price-calculation-basis-from-tax-display.md`.
-### Product documents
-
-Products can now carry documents such as manuals, datasheets or certificates.
-The new entity `product_document` holds the documents of a product and their `position`.
-Its translations hold the `title`, the file (`mediaId`) and custom fields of each document per language.
-A language without its own version of a document gets the version of the default language, field by field, like any translated field.
-
-* `product.documents` is available in the Admin API and the Store API.
-  `translated.mediaId` is the file of a document in the current language.
-  Variants without their own documents inherit the documents of their parent, like `product.media`.
-* The version of a document in the default language needs a file.
-* Deleting a product deletes its documents, and deleting a language deletes the document versions in that language.
-* Deleting a file deletes the document versions that use it.
-  When it is the file of the default language, the whole document is deleted.
-* Cloning a product copies its documents with all their versions, and both products use the same files.
-* The new default media folder "Product documents" keeps its files public and creates no thumbnails.
-* Existing roles with the product viewer or editor permission get the matching `product_document` privileges.
 
 ## Administration
 

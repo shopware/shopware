@@ -453,7 +453,9 @@ final class McpEraClient
      */
     public function result(string $method, array $params = []): array
     {
-        $content = (string) $this->post($method, $params)->getContent();
+        $this->post($method, $params);
+        // an event stream is a StreamedResponse without content; the browser keeps what it sent
+        $content = $this->browser->getInternalResponse()->getContent();
 
         $this->lastNotifications = [];
         $body = null;

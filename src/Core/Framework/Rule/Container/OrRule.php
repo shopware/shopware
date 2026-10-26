@@ -12,7 +12,7 @@ class OrRule extends Container
 
     public function match(RuleScope $scope): bool
     {
-        foreach ($this->getRules() as $rule) {
+        foreach ($this->rules as $rule) {
             if ($rule->match($scope)) {
                 return true;
             }

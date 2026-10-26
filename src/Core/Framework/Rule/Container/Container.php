@@ -4,7 +4,9 @@ namespace Shopware\Core\Framework\Rule\Container;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\UnknownConditionRule;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
+use Symfony\Component\VarExporter\Hydrator;
 
 /**
  * AbstractContainer implements setRules and addRule of the container interface
@@ -36,6 +38,20 @@ abstract class Container extends Rule implements ContainerInterface
     }
 
     /**
+     * @param array<string, mixed> $data
+     */
+    public function __unserialize(array $data): void
+    {
+        Hydrator::hydrate($this, $data);
+
+        foreach ($this->rules as $i => $rule) {
+            if ($rule instanceof \__PHP_Incomplete_Class) {
+                $this->rules[$i] = new UnknownConditionRule();
+            }
+        }
+    }
+
+    /**
      * @param list<Rule> $rules
      */
     public function setRules(array $rules): void
@@ -53,12 +69,7 @@ abstract class Container extends Rule implements ContainerInterface
      */
     public function getRules(): array
     {
-        // PHP can restore unavailable plugin classes as incomplete objects inside this array.
-        // Keep the stored data intact, but never expose these objects as executable rules.
-        return array_values(array_filter(
-            $this->rules,
-            static fn ($rule): bool => !$rule instanceof \__PHP_Incomplete_Class
-        ));
+        return $this->rules;
     }
 
     public function getConstraints(): array

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\RuleCollection;
 use Shopware\Core\Framework\Rule\SimpleRule;
+use Shopware\Core\Framework\Rule\UnknownConditionRule;
 use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
 
@@ -19,7 +20,7 @@ use Shopware\Core\Test\Stub\Rule\TrueRule;
 #[CoversClass(RuleCollection::class)]
 class RuleCollectionTest extends TestCase
 {
-    public function testSkipsMissingConditionsWhenCollectingNestedRules(): void
+    public function testCollectsUnknownConditionsWhenCollectingNestedRules(): void
     {
         $original = new AndRule([new OrRule([new SimpleRule(), new TrueRule()])]);
 
@@ -28,13 +29,14 @@ class RuleCollectionTest extends TestCase
         $rule = Serialization::assertUnserializedInstanceOf(AndRule::class, $serialized);
         $nested = $rule->getRules()[0];
         static::assertInstanceOf(OrRule::class, $nested);
-        static::assertStringContainsString('AbsentRule', serialize($nested));
+        static::assertInstanceOf(UnknownConditionRule::class, $nested->getRules()[0]);
 
         $collection = new RuleCollection([$rule]);
 
         static::assertTrue($collection->has(AndRule::class));
         static::assertTrue($collection->has(OrRule::class));
         static::assertTrue($collection->has(TrueRule::class));
+        static::assertTrue($collection->has(UnknownConditionRule::class));
         static::assertFalse($collection->has(SimpleRule::class));
         static::assertCount(1, $collection->filterInstance(TrueRule::class));
     }

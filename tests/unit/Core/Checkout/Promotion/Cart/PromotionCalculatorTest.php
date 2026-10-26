@@ -80,7 +80,7 @@ class PromotionCalculatorTest extends TestCase
         static::assertCount(2, $restored->getLineItems());
         $restoredDiscount = $restored->get($discountItem->getId());
         static::assertNotNull($restoredDiscount);
-        static::assertStringContainsString('AbsentRule', serialize($restoredDiscount));
+        static::assertStringNotContainsString('AbsentRule', serialize($restoredDiscount));
         $restoredProduct = $restored->get($product->getId());
         static::assertNotNull($restoredProduct);
         $calculated = new Cart('calculated');
@@ -91,7 +91,7 @@ class PromotionCalculatorTest extends TestCase
 
         static::assertSame([$product->getId()], $calculated->getLineItems()->getKeys());
         static::assertSame(10.0, $calculated->get($product->getId())?->getPrice()?->getTotalPrice());
-        static::assertCount(0, $calculated->getErrors());
+        static::assertInstanceOf(PromotionDiscountUnknownConditionError::class, $calculated->getErrors()->first());
     }
 
     public function testZeroValueDiscountWithUnknownConditionAddsWarning(): void

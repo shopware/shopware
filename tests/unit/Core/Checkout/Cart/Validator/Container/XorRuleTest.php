@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Rule\Container\XorRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Rule\SimpleRule;
+use Shopware\Core\Framework\Rule\UnknownConditionRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Core\Test\Stub\Rule\FalseRule;
@@ -27,14 +28,14 @@ class XorRuleTest extends TestCase
      * @param list<Rule> $remainingRules
      */
     #[DataProvider('missingConditionCases')]
-    public function testSkipsMissingConditionsAfterUnserialization(array $remainingRules, bool $expected): void
+    public function testReplacesMissingConditionsAfterUnserialization(array $remainingRules, bool $expected): void
     {
         $original = new XorRule([new SimpleRule(), ...$remainingRules]);
 
         // Replace the class name with an unavailable name of the same length to keep the serialized data valid.
         $serialized = str_replace(SimpleRule::class, 'Shopware\Core\Framework\Rule\AbsentRule', serialize($original));
         $rule = Serialization::assertUnserializedInstanceOf(XorRule::class, $serialized);
-        static::assertStringContainsString('AbsentRule', serialize($rule));
+        static::assertInstanceOf(UnknownConditionRule::class, $rule->getRules()[0]);
 
         static::assertSame($expected, $rule->match(static::createStub(RuleScope::class)));
     }

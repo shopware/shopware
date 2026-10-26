@@ -5,8 +5,11 @@
 ### Missing plugin conditions in stored carts
 
 Stored carts can be recalculated when a rule container references a condition whose PHP class is no longer available, for example an uninstalled plugin.
-Unavailable child conditions are skipped; the remaining conditions determine whether the container matches.
-An AND container with no remaining conditions matches, while a NOT container whose child is unavailable does not match.
+Unavailable child conditions are replaced with `UnknownConditionRule`, which evaluates to false.
+A NOT container whose child is an `UnknownConditionRule` also evaluates to false.
+
+`Container` now implements `__unserialize()`, so PHP no longer calls `__wakeup()` on its subclasses.
+If your custom rule container relies on `__wakeup()`, move that logic into `__unserialize(array $data): void` and call `parent::__unserialize($data)` before running it.
 
 ### Promotion code rate limiting
 

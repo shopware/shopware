@@ -75,7 +75,7 @@ Clients learn about changed tool, prompt and resource lists through `notificatio
   The stream polls every 250 ms, and the bus reads the versions through a `cache.app` entry that lives one second, so a change reaches an open stream within about a second, from any process and any host, with one table read per host and second.
   `publish()` bumps the version, so the SDK's registry events end up in the same table as `notify()`; `notify()` only bumps and does not publish a second time.
   The Store API server has no bus and does not announce `listChanged` on `server/discover`: its lists only change per session.
-  A Store API client that still opens `subscriptions/listen` gets a stream that can carry nothing, and it holds a worker for the full lifetime until the SDK ends such streams at once (https://github.com/modelcontextprotocol/php-sdk).
+  A Store API client that still opens `subscriptions/listen` gets a stream that can carry nothing, and it holds a worker for the full lifetime until the SDK ends such streams at once ([php-sdk#618](https://github.com/modelcontextprotocol/php-sdk/pull/618)).
 - **Each open listen stream holds one PHP-FPM worker** for the subscription lifetime of 25 seconds (`McpServerBuilderCompilerPass::SUBSCRIPTION_LIFETIME`), below the common `max_execution_time` of 30 seconds.
   The SDK keeps a stream open for the full lifetime even when the client asked for no notification the server offers.
   `McpListenStreamTest` covers the bump from another process and the flushed first frame through the kernel; a real web server needs the manual check below.

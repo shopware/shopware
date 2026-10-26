@@ -832,16 +832,6 @@ For entity fields declared as `ListField` (including `ListField` properties nest
 Overwrites are now applied with a field-aware merge that fully replaces `ListField` values and recurses through nested property mappings.
 For supported root-field overwrites, other field types retain their existing merge behavior.
 
-## Association overwrites during cloning
-
-Explicit association overwrites in `CloneBehavior` and Admin API clone requests were removed as part of the clone security fix.
-This includes to-one and to-many associations, explicit `translations` payloads, and associations inside `extensions`, regardless of caller permissions or scope.
-To-many payloads were merged by array index rather than entity ID, so they depended on the serialized source order to select the intended record.
-Do not send association properties in clone overwrites.
-Cloning still copies source associations normally; read their new IDs and customize them through ordinary authorized writes after cloning.
-For existing to-one references, use a supported root foreign-key field such as `taxId` instead of a nested `tax` payload.
-Root JSON fields and translated root fields such as `name` remain supported, including their array values.
-
 ## Removal of helper methods in `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper`
 
 Following helper methods have been removed from the `EntityDefinitionQueryHelper`:

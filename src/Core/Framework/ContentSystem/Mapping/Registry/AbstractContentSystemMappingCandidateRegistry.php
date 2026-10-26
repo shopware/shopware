@@ -30,7 +30,7 @@ abstract class AbstractContentSystemMappingCandidateRegistry
 
     /**
      * Resolve an admitted source through the provider that offered it for this root source;
-     * explicit result distinguishes a resolved null, no value, and provider failure.
+     * explicit result distinguishes a resolved null from no value. Provider errors propagate to normal error handling.
      */
     abstract public function resolveSource(
         MappingSourceReference $source,

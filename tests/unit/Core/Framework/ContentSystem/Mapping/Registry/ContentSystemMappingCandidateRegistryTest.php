@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mapping\Registry;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
@@ -185,29 +184,67 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
 
         static::assertTrue($result->hasValue);
         static::assertNull($result->value);
-        static::assertFalse($result->isFailure());
+        static::assertFalse($result->isNoValue());
     }
 
-    public function testProviderFailureIsReturnedAndLoggedInsteadOfEscapingTheRegistry(): void
+    public function testProviderResolutionFailurePropagates(): void
     {
         $source = new MappingSourceReference('plugin', 'example');
         $candidate = self::candidate('plugin:example', source: $source);
         $provider = new FailingMappingCandidateProvider(['product'], [$candidate]);
         $failure = new \RuntimeException('provider failure');
         $provider->failure = $failure;
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())->method('error')->with(
-            'A content mapping provider failed while resolving a candidate.',
-            static::callback(static fn (array $context): bool => $context['exception'] === $failure && $context['candidate'] === 'plugin:example'),
-        );
-        $registry = new ContentSystemMappingCandidateRegistry([$provider], $logger);
+        $registry = new ContentSystemMappingCandidateRegistry([$provider]);
         $context = new MappingSourceResolutionContext(new StoredElement('element-id', 'test-element'), [], [], null, null, null);
 
-        $result = $registry->resolveSourceForRootSource('product', $source, $context);
+        $this->expectExceptionObject($failure);
 
-        static::assertTrue($result->isFailure());
-        static::assertSame($failure, $result->failure);
-        static::assertFalse($result->hasValue);
+        $registry->resolveSourceForRootSource('product', $source, $context);
+    }
+
+    public function testProviderSourceSupportErrorPropagates(): void
+    {
+        $source = new MappingSourceReference('plugin', 'example');
+        $failure = new \TypeError('provider source check failed');
+        $provider = static::createStub(AbstractMappingCandidateProvider::class);
+        $provider->method('supports')->willReturn(true);
+        $provider->method('provide')->willReturn([self::candidate('plugin:example', source: $source)]);
+        $provider->method('supportsSource')->willThrowException($failure);
+        $registry = new ContentSystemMappingCandidateRegistry([$provider]);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-id', 'test-element'), [], [], null, null, null);
+
+        $this->expectException(\TypeError::class);
+
+        $registry->resolveSourceForRootSource('product', $source, $context);
+    }
+
+    public function testRootProviderResolutionErrorPropagates(): void
+    {
+        $source = MappingSourceReference::root('product', 'name');
+        $failure = new \TypeError('root provider resolution failed');
+        $provider = static::createStub(AbstractMappingCandidateProvider::class);
+        $provider->method('supports')->willReturn(true);
+        $provider->method('provide')->willReturn([self::candidate('product.name', source: $source)]);
+        $provider->method('resolveRootSource')->willThrowException($failure);
+        $registry = new ContentSystemMappingCandidateRegistry([$provider]);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-id', 'test-element'), [], [], null, null, null);
+
+        $this->expectException(\TypeError::class);
+
+        $registry->resolveSourceForRootSource('product', $source, $context);
+    }
+
+    public function testProviderCatalogueFailurePropagates(): void
+    {
+        $failure = new \RuntimeException('provider catalogue failed');
+        $provider = static::createStub(AbstractMappingCandidateProvider::class);
+        $provider->method('supports')->willReturn(true);
+        $provider->method('provide')->willThrowException($failure);
+        $registry = new ContentSystemMappingCandidateRegistry([$provider]);
+
+        $this->expectExceptionObject($failure);
+
+        $registry->forRootSource('product');
     }
 
     public function testARootSourceNobodyClaimsYieldsAnEmptyCatalogueRatherThanThrowing(): void

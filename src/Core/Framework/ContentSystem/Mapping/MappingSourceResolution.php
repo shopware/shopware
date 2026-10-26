@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Mapping;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Provider outcome: resolved values (including null), missing source data, or a provider failure.
+ * Provider outcome: a resolved value (including null) or missing source data. Provider errors propagate.
  *
  * @internal
  */
@@ -15,32 +15,21 @@ final readonly class MappingSourceResolution
     private function __construct(
         public bool $hasValue,
         public mixed $value,
-        public ?\Throwable $failure,
     ) {
     }
 
     public static function resolved(mixed $value): self
     {
-        return new self(true, $value, null);
+        return new self(true, $value);
     }
 
     public static function noValue(): self
     {
-        return new self(false, null, null);
-    }
-
-    public static function failed(\Throwable $failure): self
-    {
-        return new self(false, null, $failure);
-    }
-
-    public function isFailure(): bool
-    {
-        return $this->failure !== null;
+        return new self(false, null);
     }
 
     public function isNoValue(): bool
     {
-        return !$this->hasValue && $this->failure === null;
+        return !$this->hasValue;
     }
 }

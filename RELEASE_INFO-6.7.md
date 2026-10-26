@@ -89,6 +89,10 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
+### Content System mapping provider errors
+
+Errors thrown by data-mapping providers now use normal error handling and abort rendering instead of silently omitting mapped content. Custom providers should return `MappingSourceResolution::noValue()` for missing source data and throw unexpected errors instead of returning the removed `MappingSourceResolution::failed()` result. Missing or empty source values retain their existing rendering behavior.
+
 ### State machine transitions resolve deterministically
 
 When a state machine contains multiple transitions with the same action name and source state but different destination states, firing that action now deterministically resolves to the oldest transition instead of an undefined one. Such conflicting transitions are deprecated: resolving or writing them triggers a deprecation notice, and with v6.8.0.0 existing duplicates are removed and new ones are prevented by a unique database constraint. If your extension needs its own destination state, register the transition under its own action name instead of reusing an existing one.

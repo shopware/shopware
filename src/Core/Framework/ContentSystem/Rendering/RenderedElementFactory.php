@@ -45,7 +45,8 @@ use Shopware\Core\Framework\Log\Package;
  *
  * A consumer carrying a typed source — a data mapping — replaces the target property's authored and
  * loader-resolved value when it resolves to a value, including an explicit null. A missing or empty mapping
- * may use the authored or loader-resolved value instead. Invalid or failed mappings remain omitted.
+ * may use the authored or loader-resolved value instead. Invalid mappings remain omitted; provider errors
+ * propagate before minting.
  *
  * The same reading applies to a declared key with no stored value: the member carries "the stored value
  * under that key", so a declared reference property nothing filled is absent rather than null. An authored

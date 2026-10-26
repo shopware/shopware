@@ -233,15 +233,11 @@ final readonly class ContextDeliveryResolver
                         $element->id,
                         $destinationKey,
                         $mappingSource->displayName(),
-                        $resolved->isFailure()
-                            ? 'The mapping provider failed while resolving this source.'
-                            : \sprintf('The mapped source "%s" has no value.', $mappingSource->displayName()),
+                        \sprintf('The mapped source "%s" has no value.', $mappingSource->displayName()),
                     );
 
-                    if (!$resolved->isFailure()) {
-                        unset($context[$destinationKey]);
-                        $mappingFallbackKeys[] = $destinationKey;
-                    }
+                    unset($context[$destinationKey]);
+                    $mappingFallbackKeys[] = $destinationKey;
 
                     continue;
                 }

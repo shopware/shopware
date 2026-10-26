@@ -42,7 +42,9 @@ use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Provider\AbstractMappingCandidateProvider;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
 use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentityFactory;
@@ -419,6 +421,30 @@ class ContentPipelineTest extends TestCase
             'inline expansion',
             'rendered-tree finalization',
         ], $order);
+    }
+
+    public function testInlineMappingProviderErrorAbortsRendering(): void
+    {
+        $failure = new \TypeError('provider resolution failed');
+        $provider = static::createStub(AbstractMappingCandidateProvider::class);
+        $provider->method('supports')->willReturn(true);
+        $provider->method('provide')->willReturn([new MappingCandidate('product.name', 'Product name', '', 'basic', 'string')]);
+        $provider->method('resolveRootSource')->willThrowException($failure);
+        $this->lowering = $this->createLowering([], new ContentSystemMappingCandidateRegistry([$provider]));
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('text', 'root-id')->withProperty('title', 'Hello {{map:product.name}}!')->build(),
+        );
+
+        $this->expectException(\TypeError::class);
+
+        $this->createPipeline()->load(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request(), rootSource: 'product'),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            false,
+            Generator::generateSalesChannelContext(),
+        );
     }
 
     #[TestDox('exposes unexpanded redistribute consumers to preparation subscribers')]

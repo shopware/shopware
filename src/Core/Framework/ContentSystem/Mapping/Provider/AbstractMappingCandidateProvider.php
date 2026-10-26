@@ -47,6 +47,7 @@ abstract class AbstractMappingCandidateProvider
      * Resolve a root reference offered by this provider. The registry checks exact catalogue identity before
      * dispatch, so this fallback is limited to a path the provider explicitly offered. Providers with translated
      * or inherited values should override this with storefront-facing accessors.
+     * Provider errors propagate to normal error handling; return `noValue()` only for missing source data.
      */
     public function resolveRootSource(MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
     {
@@ -87,7 +88,7 @@ abstract class AbstractMappingCandidateProvider
 
     /**
      * Resolve an admitted non-root reference. Return `noValue()` when source data is missing and `resolved(null)`
-     * when it explicitly resolves to null. The registry logs provider exceptions and returns a failed result.
+     * when it explicitly resolves to null. Provider errors propagate to normal error handling.
      */
     public function resolveSource(MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
     {

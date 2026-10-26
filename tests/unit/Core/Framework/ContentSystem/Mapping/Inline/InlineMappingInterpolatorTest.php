@@ -11,8 +11,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentL
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductMappingCandidateProvider;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\MappingRuntimeDiagnosticCollector;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolator;
@@ -95,26 +93,23 @@ class InlineMappingInterpolatorTest extends TestCase
         );
     }
 
-    public function testProviderFailureLeavesTheInlineTokenUnresolved(): void
+    public function testProviderFailurePropagatesDuringInterpolation(): void
     {
+        $failure = new \RuntimeException('provider failed');
         $candidate = new MappingCandidate('product.name', 'name', '', 'basic', 'string');
         $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
         $candidates->method('forRootSource')->willReturn([$candidate->path => $candidate]);
-        $candidates->method('resolveSourceForRootSource')->willReturn(MappingSourceResolution::failed(new \RuntimeException('provider failed')));
+        $candidates->method('resolveSourceForRootSource')->willThrowException($failure);
         $interpolator = new InlineMappingInterpolator($candidates, $this->mappingInspector($candidates));
 
-        $diagnostics = new MappingRuntimeDiagnosticCollector();
+        $this->expectExceptionObject($failure);
 
-        static::assertNull($interpolator->interpolate(
+        $interpolator->interpolate(
             self::NAME_PATH,
             [],
             'product',
             $this->element(),
-            mappingDiagnostics: $diagnostics,
-            propertyKey: 'text',
-        ));
-        static::assertSame(ViolationCode::InvalidMapping, $diagnostics->violations()[0]->code);
-        static::assertSame('text', $diagnostics->violations()[0]->key);
+        );
     }
 
     #[TestDox('answers null for a path the catalogue does not offer')]

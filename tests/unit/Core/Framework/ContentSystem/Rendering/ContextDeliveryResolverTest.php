@@ -12,7 +12,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\MappingRuntimeDiagnosticCollector;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
@@ -605,12 +604,13 @@ class ContextDeliveryResolverTest extends TestCase
         static::assertNull($index->all()['child-1']->context['text']);
     }
 
-    public function testProviderFailureOmitsTheMappedValueWithoutFailingRendering(): void
+    public function testProviderFailurePropagatesDuringMappingDelivery(): void
     {
+        $failure = new \RuntimeException('provider failed');
         $candidate = new MappingCandidate('product.cover', 'cover', '', 'media', 'string');
         $mappingSources = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
         $mappingSources->method('forRootSource')->willReturn(['product.cover' => $candidate]);
-        $mappingSources->method('resolveSourceForRootSource')->willReturn(MappingSourceResolution::failed(new \RuntimeException('provider failed')));
+        $mappingSources->method('resolveSourceForRootSource')->willThrowException($failure);
         $resolver = new ContextDeliveryResolver(
             new ContextDistributor(new ContextPathResolver()),
             new ContextPathResolver(),
@@ -618,18 +618,14 @@ class ContextDeliveryResolverTest extends TestCase
             $this->mappingInspector($mappingSources),
         );
 
-        $mappingDiagnostics = new MappingRuntimeDiagnosticCollector();
-        $delivery = $resolver->resolve(
+        $this->expectExceptionObject($failure);
+
+        $resolver->resolve(
             [$this->mappedChild()],
             [],
             ['product' => new StubContextStruct('page-cover')],
             rootSource: 'product',
-            mappingDiagnostics: $mappingDiagnostics,
         );
-
-        static::assertSame([], $delivery->all()['child-1']->context);
-        static::assertSame(ViolationCode::InvalidMapping, $mappingDiagnostics->violations()[0]->code);
-        static::assertStringContainsString('provider failed', $mappingDiagnostics->violations()[0]->message);
     }
 
     public function testProductMappingUsesTheOwningProvidersActiveTranslation(): void

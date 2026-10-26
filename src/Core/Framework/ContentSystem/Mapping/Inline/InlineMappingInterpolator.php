@@ -94,9 +94,7 @@ final class InlineMappingInterpolator
                 $element->id,
                 $propertyKey ?? '',
                 $path,
-                $resolved->isFailure()
-                    ? 'The mapping provider failed while resolving this source.'
-                    : \sprintf('The mapped source "%s" has no value.', $path),
+                \sprintf('The mapped source "%s" has no value.', $path),
             );
 
             return null;
@@ -129,9 +127,8 @@ final class InlineMappingInterpolator
     /**
      * Resolves the candidate through its source provider.
      *
-     * Everything is resolved as OPTIONAL (`required: false`), so an untraversable path yields null instead of
-     * throwing mid-render. An inline token is one character among many in a paragraph; it must not be able to take
-     * a storefront page down.
+     * Missing source data produces no value so the caller can remove the token. Provider errors propagate
+     * through normal render error handling.
      *
      * @param array<string, mixed> $ambient
      * @param array<string, mixed> $loaderValues

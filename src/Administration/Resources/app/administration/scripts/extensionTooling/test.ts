@@ -122,7 +122,10 @@ export function createJestRunner(administrationRoot: string, stdio: StdioOptions
     const jestBin = path.join(administrationRoot, 'node_modules', 'jest', 'bin', 'jest.js');
 
     return async (configPath, jestArgs) => {
-        const countsTests = !isWatchRun(jestArgs) && !jestArgs.some((arg) => /^--(json|outputFile)(=|$)/.test(arg));
+        const countsTests =
+            !isWatchRun(jestArgs) &&
+            booleanJestOption(jestArgs, 'json') !== true &&
+            !jestArgs.some((arg) => new RegExp(`^--(?:${optionPattern('outputFile')})(=|$)`).test(arg));
         const resultsDirectory = countsTests ? fs.mkdtempSync(path.join(os.tmpdir(), 'sw-test-extensions-')) : undefined;
         const resultsFile = resultsDirectory && path.join(resultsDirectory, 'results.json');
 
@@ -183,32 +186,53 @@ function createComponentImportsGenerator(administrationRoot: string): () => numb
     };
 }
 
+/** A Jest option name in both spellings Jest accepts, e.g. `--watchAll` and `--watch-all`. */
+function optionPattern(camelCaseName: string): string {
+    const kebabCaseName = camelCaseName.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+
+    return kebabCaseName === camelCaseName ? camelCaseName : `${camelCaseName}|${kebabCaseName}`;
+}
+
+/**
+ * The value of a boolean Jest option, read like Jest's own parser: either
+ * spelling, `--no-<option>`, `=<value>` or a separate `true` / `false`
+ * argument, and the last occurrence wins. Undefined when the option is absent.
+ *
+ * @example
+ * booleanJestOption(['--watch-all'], 'watchAll'); // → true
+ * booleanJestOption(['--watch', 'false'], 'watch'); // → false
+ * booleanJestOption(['--no-passWithNoTests'], 'passWithNoTests'); // → false
+ * booleanJestOption(['--watchman'], 'watch'); // → undefined
+ */
+function booleanJestOption(jestArgs: string[], camelCaseName: string): boolean | undefined {
+    const pattern = new RegExp(`^--(?<negation>no-)?(?:${optionPattern(camelCaseName)})(?:=(?<value>.*))?$`);
+    let enabled: boolean | undefined;
+
+    jestArgs.forEach((arg, index) => {
+        const groups = pattern.exec(arg)?.groups;
+
+        if (!groups) {
+            return;
+        }
+
+        const nextArg = jestArgs[index + 1];
+        const value = groups.value ?? (nextArg === 'true' || nextArg === 'false' ? nextArg : undefined);
+        enabled = !groups.negation && value?.toLowerCase() !== 'false';
+    });
+
+    return enabled;
+}
+
 /**
  * Whether the Jest options start watch mode, which takes over the terminal and
  * never returns, so the configs after the first would never run.
- * Like Jest's own parser, the last `--watch` or `--watchAll` occurrence wins,
- * and `--no-<flag>` or a `false` value turns that flag off.
  *
  * @example
- * isWatchRun(['--watchAll=true']); // → true
- * isWatchRun(['--no-watch', '--watch']); // → true
- * isWatchRun(['--watch=false']); // → false
- * isWatchRun(['--watch', '--no-watch']); // → false
- * isWatchRun(['--watchman']); // → false
+ * isWatchRun(['--watch-all']); // → true
+ * isWatchRun(['--watch', 'false']); // → false
  */
 function isWatchRun(jestArgs: string[]): boolean {
-    const watchFlags = new Map<string, boolean>();
-
-    jestArgs.forEach((arg) => {
-        const match = /^--(?<negation>no-)?(?<flag>watch|watchAll)(?:=(?<value>.*))?$/.exec(arg);
-
-        if (match?.groups) {
-            const { negation, flag, value } = match.groups;
-            watchFlags.set(flag, !negation && value?.toLowerCase() !== 'false');
-        }
-    });
-
-    return [...watchFlags.values()].some(Boolean);
+    return booleanJestOption(jestArgs, 'watch') === true || booleanJestOption(jestArgs, 'watchAll') === true;
 }
 
 /**
@@ -221,7 +245,7 @@ function isWatchRun(jestArgs: string[]): boolean {
  * withPassWithNoTests(['main.spec'], 1); // → ['main.spec']
  */
 function withPassWithNoTests(jestArgs: string[], configCount: number): string[] {
-    if (configCount < 2 || jestArgs.length === 0 || jestArgs.some((arg) => /^--passWithNoTests(=|$)/.test(arg))) {
+    if (configCount < 2 || jestArgs.length === 0 || booleanJestOption(jestArgs, 'passWithNoTests') !== undefined) {
         return jestArgs;
     }
 
@@ -257,7 +281,7 @@ function ranNoTest(runs: JestRun[], jestArgs: string[]): boolean {
     return (
         runs.length > 0 &&
         runs.every((run) => run.testCount === 0) &&
-        !jestArgs.some((arg) => /^--passWithNoTests(=|$)/.test(arg))
+        booleanJestOption(jestArgs, 'passWithNoTests') !== true
     );
 }
 
@@ -405,12 +429,13 @@ export async function testExtensions(options: TestExtensionsOptions): Promise<Te
     }
 
     const runs: JestRun[] = [];
+    const runJestArgs = withPassWithNoTests(jestArgs, plan.configCount);
 
     for (const { project, configs } of plan.configsByExtension) {
         for (const config of configs) {
             const relativeConfig = relativePosix(projectRoot, config);
             options.onJestRun?.(project.name, relativeConfig);
-            const { exitCode, testCount } = await runJest(config, withPassWithNoTests(jestArgs, plan.configCount));
+            const { exitCode, testCount } = await runJest(config, runJestArgs);
 
             runs.push({
                 extension: project.name,

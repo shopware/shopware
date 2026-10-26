@@ -30,6 +30,19 @@ describe('scripts/extensionTooling/test Jest options', () => {
             configs: 2,
         },
         { case: 'the bare option already given', only: undefined, jestArgs: ['main.spec', '--passWithNoTests'], configs: 2 },
+        {
+            case: 'the kebab-case option given',
+            only: undefined,
+            jestArgs: ['main.spec', '--pass-with-no-tests'],
+            configs: 2,
+        },
+        { case: 'the option turned off', only: undefined, jestArgs: ['main.spec', '--no-passWithNoTests'], configs: 2 },
+        {
+            case: 'a separate false value',
+            only: undefined,
+            jestArgs: ['main.spec', '--passWithNoTests', 'false'],
+            configs: 2,
+        },
     ])('forwards the Jest options unchanged for $case', async ({ only, jestArgs, configs }) => {
         writeTwoJestConfigs(fixture.projectRoot);
 
@@ -54,6 +67,9 @@ describe('scripts/extensionTooling/test Jest options', () => {
         [['--watchAll=true']],
         [['--no-watch', '--watch']],
         [['--watch', '--no-watchAll']],
+        [['--watch-all']],
+        [['--watch-all=true']],
+        [['--watch', 'true']],
     ])('refuses %j over more than one Jest config without running Jest', async (watchOptions) => {
         writeTwoJestConfigs(fixture.projectRoot);
 
@@ -68,6 +84,9 @@ describe('scripts/extensionTooling/test Jest options', () => {
         [['--no-watchAll']],
         [['--watch', '--watch=false']],
         [['--watchman']],
+        [['--watch', 'false']],
+        [['--watch-all', 'false']],
+        [['--no-watch-all']],
     ])('runs every Jest config for %j, which starts no watch mode', async (watchOptions) => {
         writeTwoJestConfigs(fixture.projectRoot);
 

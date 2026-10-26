@@ -99,6 +99,7 @@ describe('scripts/extensionTooling/test failures', () => {
 
     it.each([
         { case: 'the caller passes --passWithNoTests', jestTestCount: 0, jestArgs: ['--passWithNoTests'] },
+        { case: 'the caller passes --pass-with-no-tests', jestTestCount: 0, jestArgs: ['--pass-with-no-tests'] },
         { case: 'Jest wrote no results', jestTestCount: undefined, jestArgs: ['--ci'] },
     ])('passes without a counted spec when $case', async ({ jestTestCount, jestArgs }) => {
         writeTwoJestConfigs(fixture.projectRoot);
@@ -108,6 +109,16 @@ describe('scripts/extensionTooling/test failures', () => {
 
         expect(result.fatalDiagnostics).toEqual([]);
         expect(result.exitCode).toBe(0);
+    });
+
+    it('fails without a counted spec when the caller turns --passWithNoTests off', async () => {
+        writeTwoJestConfigs(fixture.projectRoot);
+        fixture.jestTestCount = 0;
+
+        const result = await fixture.run({ jestArgs: ['--passWithNoTests=false'] });
+
+        expect(result.fatalDiagnostics).toEqual(['Nothing was tested: no spec matched in any Jest config.']);
+        expect(result.exitCode).toBe(1);
     });
 
     it('fails without running Jest when a named extension has no Jest config', async () => {

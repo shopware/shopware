@@ -92,7 +92,7 @@ class McpListChangedNotificationTest extends TestCase
             'HTTP_MCP_SESSION_ID' => $sessionId,
         ], json_encode(['jsonrpc' => '2.0', 'method' => 'ping', 'id' => $id], \JSON_THROW_ON_ERROR));
 
-        $content = (string) $browser->getInternalResponse()->getContent();
+        $content = $browser->getInternalResponse()->getContent();
         $messages = [];
         if (str_starts_with(ltrim($content), '{')) {
             $messages[] = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);

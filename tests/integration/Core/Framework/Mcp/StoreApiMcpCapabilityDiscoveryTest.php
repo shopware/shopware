@@ -99,7 +99,7 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
         ], \JSON_THROW_ON_ERROR));
 
         $content = $browser->getInternalResponse()->getContent();
-        static::assertNotFalse($content, 'Store API MCP response was empty');
+        static::assertNotSame('', $content, 'Store API MCP response was empty');
 
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($response);
@@ -128,7 +128,7 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
             'id' => 1,
         ], \JSON_THROW_ON_ERROR));
 
-        $response = json_decode((string) $browser->getInternalResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($browser->getInternalResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($response);
 
         // shopware-toolset-enable queues notifications/tools/list_changed on this era.
@@ -248,7 +248,7 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), 'Store API MCP endpoint returned non-200');
         $content = $browser->getInternalResponse()->getContent();
-        static::assertNotFalse($content, 'Store API MCP response was empty');
+        static::assertNotSame('', $content, 'Store API MCP response was empty');
 
         // A request issued right after a toolset-enable also drains the queued
         // notifications/tools/list_changed. Per the MCP spec those multiple messages are delivered

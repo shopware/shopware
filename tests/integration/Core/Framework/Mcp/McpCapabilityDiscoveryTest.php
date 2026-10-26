@@ -90,7 +90,7 @@ class McpCapabilityDiscoveryTest extends TestCase
         );
 
         $content = $browser->getInternalResponse()->getContent();
-        static::assertNotFalse($content, 'MCP response was empty');
+        static::assertNotSame('', $content, 'MCP response was empty');
 
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($response);
@@ -126,7 +126,7 @@ class McpCapabilityDiscoveryTest extends TestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        $response = json_decode((string) $browser->getInternalResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($browser->getInternalResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($response);
 
         // The server queues notifications/*/list_changed on this era, so clients must be told to expect them.
@@ -209,7 +209,7 @@ class McpCapabilityDiscoveryTest extends TestCase
         );
 
         $content = $browser->getInternalResponse()->getContent();
-        static::assertNotFalse($content, 'MCP response was empty');
+        static::assertNotSame('', $content, 'MCP response was empty');
 
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($response);
@@ -429,7 +429,7 @@ class McpCapabilityDiscoveryTest extends TestCase
         static::assertSame(200, $browser->getResponse()->getStatusCode(), 'MCP endpoint returned non-200 status');
 
         $content = $browser->getInternalResponse()->getContent();
-        static::assertNotFalse($content, 'MCP response was empty');
+        static::assertNotSame('', $content, 'MCP response was empty');
 
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($response);

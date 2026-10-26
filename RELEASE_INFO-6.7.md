@@ -104,24 +104,6 @@ shopware:
             enabled: false
 ```
 
-### Product documents
-
-Products can now carry documents such as manuals, datasheets or certificates.
-The new entity `product_document` holds the documents of a product and their `position`.
-Its translations hold the `title`, the file (`mediaId`) and custom fields of each document per language.
-A language without its own version of a document gets the version of the default language, field by field, like any translated field.
-
-* `product.documents` is available in the Admin API and the Store API.
-  `translated.mediaId` is the file of a document in the current language.
-  Variants without their own documents inherit the documents of their parent, like `product.media`.
-* The version of a document in the default language needs a file.
-* Deleting a product deletes its documents, and deleting a language deletes the document versions in that language.
-* Deleting a file deletes the document versions that use it.
-  When it is the file of the default language, the whole document is deleted.
-* Cloning a product copies its documents with all their versions, and both products use the same files.
-* The new default media folder "Product documents" keeps its files public and creates no thumbnails.
-* Existing roles with the product viewer or editor permission get the matching `product_document` privileges.
-
 ## Administration
 
 ### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag

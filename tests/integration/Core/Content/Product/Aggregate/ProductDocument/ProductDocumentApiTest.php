@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
@@ -21,7 +20,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 class ProductDocumentApiTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
-    use SalesChannelApiTestBehaviour;
 
     private IdsCollection $ids;
 
@@ -35,45 +33,6 @@ class ProductDocumentApiTest extends TestCase
             'fileExtension' => 'pdf',
             'mimeType' => 'application/pdf',
         ]], Context::createDefaultContext());
-    }
-
-    public function testTheAdminApiReturnsTheDocumentsOfAProduct(): void
-    {
-        $product = (new ProductBuilder($this->ids, 'drill'))->price(10)->build();
-        $product['documents'] = [$this->manual()];
-        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
-
-        $this->getBrowser()->request(
-            'POST',
-            '/api/search/product',
-            server: ['HTTP_ACCEPT' => 'application/json', 'CONTENT_TYPE' => 'application/json'],
-            content: json_encode(['ids' => [$this->ids->get('drill')], 'associations' => ['documents' => []]], \JSON_THROW_ON_ERROR),
-        );
-
-        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, flags: \JSON_THROW_ON_ERROR);
-        static::assertSame(['Manual'], array_column(array_column($response['data'][0]['documents'], 'translated'), 'title'));
-        static::assertSame([$this->ids->get('manual')], array_column(array_column($response['data'][0]['documents'], 'translated'), 'mediaId'));
-    }
-
-    public function testTheStoreApiReturnsTheDocumentsOfAProductWithTheirFiles(): void
-    {
-        $browser = $this->createCustomSalesChannelBrowser(['id' => $this->ids->create('sales-channel')]);
-
-        $product = (new ProductBuilder($this->ids, 'drill'))->price(10)->visibility($this->ids->get('sales-channel'))->build();
-        $product['documents'] = [$this->manual()];
-        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
-
-        $browser->request(
-            'POST',
-            '/store-api/product/' . $this->ids->get('drill'),
-            server: ['CONTENT_TYPE' => 'application/json'],
-            content: json_encode(['associations' => ['documents' => ['associations' => ['translations' => ['associations' => ['media' => []]]]]]], \JSON_THROW_ON_ERROR),
-        );
-
-        $response = json_decode((string) $browser->getResponse()->getContent(), true, flags: \JSON_THROW_ON_ERROR);
-        $documents = $response['product']['documents'];
-        static::assertSame(['Manual'], array_column(array_column($documents, 'translated'), 'title'));
-        static::assertSame([$this->ids->get('manual')], array_column(array_column($documents[0]['translations'], 'media'), 'id'));
     }
 
     public function testDocumentRoutesOfTheAdminApiInvalidateTheProductAndItsVariants(): void

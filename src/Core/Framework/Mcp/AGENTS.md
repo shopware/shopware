@@ -33,6 +33,7 @@ Static data the AI client can read. Resources are identified by URIs and provide
 - **Examples**: `shopware://entities`, `shopware://sales-channels`, `shopware://state-machines`, `shopware://business-events`, `shopware://flow-actions`
 - **Attribute**: `#[McpResource(uri: '...', name: '...', description: '...')]`
 - **Implementation**: `__invoke()` returns `['uri' => '...', 'mimeType' => '...', 'text' => '...']`
+  or, for a resource with its own cache TTL, `McpResourceCacheHint::read([...], $requestContext, <ttl>)` (see "Cache hints")
 
 ### When to use which
 | Need | Use |
@@ -109,6 +110,26 @@ All capability names use hyphen-separated prefixes (`a-zA-Z0-9_-` only, no dots)
 The MCP server is **no longer feature-flag gated** — it is always enabled. Classes remain marked `@experimental stableVersion:v6.8.0`, so the API may still change until 6.8.0, but there is no `MCP_SERVER` flag to toggle.
 
 The `=== null` null-checks on injected `mcp.*` dependencies in controllers/commands are a safety net for "`symfony/mcp-bundle` truly absent" (they resolve to `null` via `nullOnInvalid()`), **not** a feature-flag substitute. Because the bundle is in `require` and registered unconditionally in `config/bundles.php`, they never resolve to `null` in practice; the guards will be removed once MCP is stable (v6.8.0).
+
+## Cache hints
+
+The 2026-07-28 revision (SEP-2549) puts `ttlMs` and `cacheScope` on `server/discover`, the four list methods and `resources/read`.
+mcp/sdk 0.9 adds them only on that revision, in `Rev2026Codec`; answers on the handshake revisions up to 2025-11-25 carry none.
+The hints are fields of the JSON-RPC result, not HTTP headers, and both MCP endpoints only answer `POST`, so no HTTP cache or reverse proxy stores an answer.
+
+- **Policy**: `servers.<name>.cache` in `Resources/config/packages/mcp.php`, the same for both servers.
+  Default `private` with `ttlMs: 0`; `tools/list`, `prompts/list`, `resources/list` and `resources/templates/list` are `private` for 60 seconds.
+  The list TTL is the fallback for clients that do not follow `subscriptions/listen`; it also bounds how long an allowlist change takes to reach a client, since allowlist changes publish no `list_changed`.
+- **Reference resources**: `resources/read` stays at 0, because it also reads stored tool results and app resources.
+  The reference resources return a `ReadResourceResult` with their own TTL through `McpResourceCacheHint`: one hour for data that only changes with a deployment or an extension lifecycle change (`shopware://entities`, `shopware://state-machines`, `shopware://business-events`, `shopware://flow-actions`), five minutes for shop configuration (`shopware://currencies`, `shopware://languages`, `shopware://sales-channels`).
+  `shopware://extensions` stays at 0: an agent that installs an extension reads it right after.
+  `McpResourceCacheHint` sets the hints only when the request is on a modern revision, so handshake answers stay byte for byte as before.
+- **Never `public`.** The allowlist of the integration or user and `?toolsets=` shape the lists, and every resource is read with the caller's credentials.
+  `public` lets a shared cache hand one caller's answer to another.
+  `McpCachePolicyConfigTest` fails if any cacheable method of either server becomes `public`.
+- **Rate limiting**: `McpRateLimiter` counts every request before the protocol runs, cached or not.
+  A client that honours the hints sends fewer `tools/list` and reference reads, so it uses less of its bucket; the limits need no change.
+  A client that ignores them is limited as before.
 
 ## Conventions
 - All classes use `@experimental stableVersion:v6.8.0` annotation

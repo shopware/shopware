@@ -47,6 +47,7 @@ These are not “server feature rows” in the spec navigation, but Shopware sti
 |---|---|---|---|
 | Transport | Streamable HTTP at `/api/_mcp` via `symfony/mcp-bundle` and `McpServerController` | clear | Keep docs aligned with the actual bundle behavior after upgrades |
 | Session lifecycle and JSON-RPC routing | Delegated to `symfony/mcp-bundle` / MCP PHP SDK | partial | Document the exact boundary between bundle behavior and Shopware-specific additions |
+| Cache hints (SEP-2549) | `ttlMs` and `cacheScope` on `server/discover`, the list methods and `resources/read`, sent by mcp/sdk 0.9 on 2026-07-28 only; handshake answers carry none. Everything is `private`, because the allowlist and `?toolsets=` shape the lists per caller. Default `ttlMs: 0`; the four list methods 60 seconds; reference resources one hour (entities, state machines, business events, flow actions) or five minutes (currencies, languages, sales channels) through `McpResourceCacheHint`; stored tool results, app resources and `shopware://extensions` 0. Configured in `servers.<name>.cache` of `packages/mcp.php` | clear | Revisit the TTLs once stateless clients report how they use them |
 | Auth and authorization | Shopware adds Admin API auth bridge, ACL, rate limiting, feature flag, app HMAC execution, and MCP tool registration rules | clear | Keep docs and tests aligned with the real enforcement path |
 
 ## Client-side spec areas that are not server features here

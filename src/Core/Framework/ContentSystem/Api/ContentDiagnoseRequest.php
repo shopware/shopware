@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\ContentSystem\Api;
 
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Envelope DTO for the resolve-and-diagnose action; the raw layout tree stays undecoded so DraftLayoutDecoder
@@ -21,8 +20,6 @@ final class ContentDiagnoseRequest
     public function __construct(
         public readonly array $layout = [],
         public readonly ?string $rootSource = null,
-        #[Assert\Valid]
-        public readonly ?ContentDiagnoseRuntimeContext $runtimeContext = null,
     ) {
     }
 }

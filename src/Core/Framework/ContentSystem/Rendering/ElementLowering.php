@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\MappingRuntimeDiagnosticCollector;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -98,7 +97,6 @@ final readonly class ElementLowering
             return $this->treeFactory->create($forest, new ContextDeliveryIndex(), [], $mode);
         }
 
-        $mappingDiagnostics = new MappingRuntimeDiagnosticCollector();
         $inlineMappings ??= new InlineMappingMetadata();
 
         $loaderValues = $this->resolveLoaderValues($forest, $context, $request, $cacheContext);
@@ -137,7 +135,6 @@ final readonly class ElementLowering
             $plainAmbient,
             $cacheContext,
             $rootSource,
-            $mappingDiagnostics,
         );
 
         // Inline mapping expansion sits between delivery and the mint, and that is the only window it fits in: it
@@ -152,13 +149,10 @@ final readonly class ElementLowering
             $rootSource,
             $cacheContext,
             $plainLoaderValues,
-            $mappingDiagnostics,
             $inlineMappings,
         );
 
-        $lowered = $this->treeFactory->create($forest, $deliveries, $loaderValues, $mode);
-
-        return new LoweringResult($lowered->tree, $lowered->provenance, $mappingDiagnostics->violations());
+        return $this->treeFactory->create($forest, $deliveries, $loaderValues, $mode);
     }
 
     /**

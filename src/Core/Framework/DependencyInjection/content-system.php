@@ -863,7 +863,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DraftLayoutDecoder::class),
             service(RootSourceRegistry::class),
             service(LayoutDiagnostics::class),
-            service(ContentPreviewPageBuilder::class),
         ]);
 
     $services->set(ContentPreviewPageBuilder::class)

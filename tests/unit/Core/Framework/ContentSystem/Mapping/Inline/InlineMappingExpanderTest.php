@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\MappingRuntimeDiagnosticCollector;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -228,7 +227,6 @@ class InlineMappingExpanderTest extends TestCase
             'text' => StoredValue::ofString('<p>' . str_repeat('{{map:product.name}}', 17) . '</p>'),
             'other' => StoredValue::ofString('Unaffected'),
         ]);
-        $diagnostics = new MappingRuntimeDiagnosticCollector();
 
         $this->expectExceptionObject(ContentSystemException::inlineMappingExpansionTooLarge(1048576, 'property'));
 
@@ -237,7 +235,6 @@ class InlineMappingExpanderTest extends TestCase
             [$element],
             ['product' => new StubPathStruct(name: str_repeat('x', 65536))],
             'product',
-            $diagnostics,
         );
     }
 
@@ -245,18 +242,15 @@ class InlineMappingExpanderTest extends TestCase
     {
         $element = $this->element(['text' => StoredValue::ofString('<p>{{map:product.name}}</p>')]);
         $source = str_repeat('x', 1048576 - 7);
-        $diagnostics = new MappingRuntimeDiagnosticCollector();
 
-        $expanded = $this->expandPrepared($this->expander(), [$element], ['product' => new StubPathStruct(name: $source)], 'product', $diagnostics);
+        $expanded = $this->expandPrepared($this->expander(), [$element], ['product' => new StubPathStruct(name: $source)], 'product');
 
         static::assertSame('<p>' . $source . '</p>', $expanded[0]->property('text')?->asString());
-        static::assertSame([], $diagnostics->violations());
     }
 
     public function testCountsEscapingAgainstThePropertyLimit(): void
     {
         $element = $this->element(['text' => StoredValue::ofString('{{map:product.name}}')]);
-        $diagnostics = new MappingRuntimeDiagnosticCollector();
 
         $this->expectExceptionObject(ContentSystemException::inlineMappingExpansionTooLarge(1048576, 'property'));
 
@@ -265,7 +259,6 @@ class InlineMappingExpanderTest extends TestCase
             [$element],
             ['product' => new StubPathStruct(name: str_repeat('"', 174763))],
             'product',
-            $diagnostics,
         );
     }
 
@@ -285,11 +278,10 @@ class InlineMappingExpanderTest extends TestCase
         foreach (['second-root', 'over-budget'] as $id) {
             $forest[] = $this->element(['text' => StoredValue::ofString('{{map:product.name}}')], id: $id);
         }
-        $diagnostics = new MappingRuntimeDiagnosticCollector();
 
         $this->expectExceptionObject(ContentSystemException::inlineMappingExpansionTooLarge(4194304, 'render'));
 
-        $this->expandPrepared($this->expander($candidates), $forest, [], 'product', $diagnostics);
+        $this->expandPrepared($this->expander($candidates), $forest, [], 'product');
     }
 
     public function testPropertyFailureStopsBeforeResolvingLaterProperties(): void
@@ -303,11 +295,10 @@ class InlineMappingExpanderTest extends TestCase
         foreach (['first', 'second', 'third', 'fourth', 'fifth'] as $id) {
             $forest[] = $this->element(['text' => StoredValue::ofString('{{map:product.name}}{{map:product.name}}')], id: $id);
         }
-        $diagnostics = new MappingRuntimeDiagnosticCollector();
 
         $this->expectExceptionObject(ContentSystemException::inlineMappingExpansionTooLarge(1048576, 'property'));
 
-        $this->expandPrepared($this->expander($candidates), $forest, [], 'product', $diagnostics);
+        $this->expandPrepared($this->expander($candidates), $forest, [], 'product');
     }
 
     public function testStartsAFreshBudgetForEachRender(): void
@@ -319,12 +310,10 @@ class InlineMappingExpanderTest extends TestCase
             $forest[] = $this->element(['text' => StoredValue::ofString('{{map:product.name}}')], id: $id);
         }
         $this->expandPrepared($expander, $forest, $ambient, 'product');
-        $diagnostics = new MappingRuntimeDiagnosticCollector();
 
-        $expanded = $this->expandPrepared($expander, [$forest[0]], $ambient, 'product', $diagnostics);
+        $expanded = $this->expandPrepared($expander, [$forest[0]], $ambient, 'product');
 
         static::assertSame(1048576, \strlen($expanded[0]->property('text')?->asString() ?? ''));
-        static::assertSame([], $diagnostics->violations());
     }
 
     /**
@@ -349,12 +338,12 @@ class InlineMappingExpanderTest extends TestCase
      *
      * @return list<StoredElement>
      */
-    private function expandPrepared(InlineMappingExpander $expander, array $forest, array $ambient, ?string $rootSource, ?MappingRuntimeDiagnosticCollector $diagnostics = null): array
+    private function expandPrepared(InlineMappingExpander $expander, array $forest, array $ambient, ?string $rootSource): array
     {
         $tokens = [];
         $this->collectTokens($forest, $tokens);
 
-        return $expander->expand($forest, $ambient, $rootSource, mappingDiagnostics: $diagnostics, inlineMappings: new InlineMappingMetadata($tokens));
+        return $expander->expand($forest, $ambient, $rootSource, inlineMappings: new InlineMappingMetadata($tokens));
     }
 
     /**

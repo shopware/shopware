@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\ContentSystem\Mapping\Inline;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\MappingRuntimeDiagnosticCollector;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingRejection;
@@ -19,7 +18,7 @@ use Shopware\Core\Framework\Log\Package;
  * An unresolved result is distinct from text:
  *
  * - **Unavailable path or value** — answers null, so the render caller removes only the token and retains
- *   surrounding authored text; the diagnostics API reports the mapping issue separately.
+ *   surrounding authored text.
  * - **Resolved value** — answers escaped text, including an empty string when that is the actual value.
  *
  * ESCAPING IS NOT THE BOUNDARY ON EVERY RENDER PATH, and it cannot be. `Util\HtmlSanitizer::sanitize()` opens with
@@ -68,16 +67,12 @@ final class InlineMappingInterpolator
         StoredElement $element,
         ?RenderingCacheContext $cacheContext = null,
         array $loaderValues = [],
-        ?MappingRuntimeDiagnosticCollector $mappingDiagnostics = null,
-        ?string $propertyKey = null,
         ?InlineMappingExpansionBudget $budget = null,
     ): ?string {
         $resolved = $this->mappingResolver->resolveInline(
             $rootSource,
             $path,
             new MappingSourceResolutionContext($element, $ambient, $loaderValues, $cacheContext),
-            $mappingDiagnostics,
-            $propertyKey ?? '',
         );
         if ($resolved instanceof MappingRejection || !$resolved->hasValue) {
             return null;
@@ -86,8 +81,6 @@ final class InlineMappingInterpolator
         $text = $this->stringify($resolved->value);
 
         if ($text === null) {
-            $mappingDiagnostics?->record($element->id, $propertyKey ?? '', $path, \sprintf('The mapped source "%s" cannot be converted to text.', $path));
-
             return null;
         }
 

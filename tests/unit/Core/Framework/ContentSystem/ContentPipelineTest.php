@@ -259,7 +259,6 @@ class ContentPipelineTest extends TestCase
         );
 
         static::assertSame('Product prod-1', $this->renderedElement($result->tree, 'target-id')->properties['title']);
-        static::assertSame([], $result->mappingDiagnostics);
         if ($targetElementId === null) {
             static::assertSame($literal, $this->renderedElement($result->tree, 'sibling-id')->properties['literal']);
         } else {

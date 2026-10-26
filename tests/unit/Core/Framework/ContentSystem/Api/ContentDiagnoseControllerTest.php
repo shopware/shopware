@@ -9,8 +9,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseRequest;
-use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseRuntimeContext;
-use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPageBuilder;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
@@ -32,13 +30,11 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNorma
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
-use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
-use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
@@ -94,52 +90,6 @@ class ContentDiagnoseControllerTest extends TestCase
         $body = $this->decode($response);
         static::assertFalse($body['diagnostics']['wellFormed']);
         static::assertSame(ViolationCode::DuplicateElementId->value, $body['diagnostics']['violations'][0]['code']);
-    }
-
-    #[TestDox('returns runtime mapping findings through diagnostics when actual render data is requested')]
-    public function testDiagnoseIncludesRuntimeMappingFindings(): void
-    {
-        $runtimeViolation = new Violation(ViolationCode::InvalidMapping, 'el-1', 'text', 'Mapped source has no value.');
-        $previewBuilder = static::createMock(ContentPreviewPageBuilder::class);
-        $previewBuilder->expects($this->once())
-            ->method('build')
-            ->willReturn([
-                'result' => new RenderResult([], LayoutReference::create('preview-layout', 'preview', null), null, [$runtimeViolation]),
-                'salesChannelContext' => null,
-            ]);
-
-        $controller = $this->controller(
-            diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
-            previewPageBuilder: $previewBuilder,
-        );
-        $response = $controller->diagnose(new ContentDiagnoseRequest(
-            layout: [],
-            rootSource: 'product',
-            runtimeContext: new ContentDiagnoseRuntimeContext('product', 'product-id', 'sales-channel-id'),
-        ), Context::createDefaultContext());
-
-        $body = $this->decode($response);
-        static::assertSame(ViolationCode::InvalidMapping->value, $body['diagnostics']['violations'][0]['code']);
-        static::assertSame('text', $body['diagnostics']['violations'][0]['key']);
-    }
-
-    public function testRuntimeDiagnosisPropagatesRenderFailure(): void
-    {
-        $failure = new \RuntimeException('mapping provider failed');
-        $previewBuilder = static::createStub(ContentPreviewPageBuilder::class);
-        $previewBuilder->method('build')->willThrowException($failure);
-        $controller = $this->controller(
-            diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
-            previewPageBuilder: $previewBuilder,
-        );
-
-        $this->expectExceptionObject($failure);
-
-        $controller->diagnose(new ContentDiagnoseRequest(
-            layout: [],
-            rootSource: 'product',
-            runtimeContext: new ContentDiagnoseRuntimeContext('product', 'product-id', 'sales-channel-id'),
-        ), Context::createDefaultContext());
     }
 
     #[TestDox('returns 200 with an embedded invalid_config violation for a draft element whose providers collide on a child-facing key')]
@@ -349,7 +299,6 @@ class ContentDiagnoseControllerTest extends TestCase
         LayoutDiagnostics $diagnostics,
         ?DataLoaderConfigSerializerProvider $configProvider = null,
         ?RootSourceRegistry $rootSourceRegistry = null,
-        ?ContentPreviewPageBuilder $previewPageBuilder = null,
     ): ContentDiagnoseController {
         $decoder = new DraftLayoutDecoder(
             new StoredElementCodec($configProvider ?? static::createStub(DataLoaderConfigSerializerProvider::class)),
@@ -363,7 +312,6 @@ class ContentDiagnoseControllerTest extends TestCase
             $decoder,
             $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
             $diagnostics,
-            $previewPageBuilder ?? static::createStub(ContentPreviewPageBuilder::class),
         );
     }
 

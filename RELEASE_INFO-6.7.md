@@ -91,7 +91,7 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ### Content System inline mapping expansion errors
 
-Exceeding the inline mapping output limit now aborts rendering with HTTP 500 and `CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE` instead of returning successful output with empty properties. This applies to Store API, Storefront, preview, and runtime diagnosis. The limits remain 1 MiB per property and 4 MiB per render; the 256 KiB authored-input cap still returns HTTP 400.
+Exceeding the inline mapping output limit now aborts rendering with HTTP 500 and `CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE` instead of returning successful output with empty properties. This applies to Store API, Storefront, and preview. The limits remain 1 MiB per property and 4 MiB per render; the 256 KiB authored-input cap still returns HTTP 400.
 
 ### Content System mapping provider API
 
@@ -221,6 +221,10 @@ Two consequences for operators:
 Product breadcrumbs are generated again when the product's main category — or its only assigned category — is configured with "Hide in navigation". The flag only removes a category from the navigation menus; it no longer prevents the category from serving as the breadcrumb source on product detail pages, in `GET /store-api/breadcrumb/{id}`, and in product exports. When the breadcrumb category is determined automatically from several assigned categories, visible categories are still preferred over hidden ones. Inactive categories remain excluded.
 
 ## API
+
+### Content System layout diagnosis
+
+`POST /api/_action/content-system/layout/diagnose` checks layout structure and mapping admission using the optional `rootSource`. The `runtimeContext` request option has been removed and is rejected as an unknown field. Missing entity values continue to use the normal fallback or omission behavior in preview and Storefront rendering.
 
 ### Content System mapping catalogue permissions
 

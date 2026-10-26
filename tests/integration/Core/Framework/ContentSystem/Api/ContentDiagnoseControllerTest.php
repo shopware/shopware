@@ -200,12 +200,16 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertContains(ContentSystemException::UNKNOWN_ROOT_SOURCE, array_column($body['errors'], 'code'));
     }
 
+    /**
+     * @param array<string, mixed> $unknownFields
+     */
+    #[DataProvider('unknownRequestFields')]
     #[TestDox('rejects an unknown request field with a 400 and the unknownRequestField code')]
-    public function testDiagnoseRejectsUnknownRequestField(): void
+    public function testDiagnoseRejectsUnknownRequestField(array $unknownFields): void
     {
         $this->getBrowser()->jsonRequest('POST', self::DIAGNOSE_URL, [
             'layout' => [$this->element($this->registeredComponent())],
-            'entityType' => 'product',
+            ...$unknownFields,
         ]);
         $response = $this->getBrowser()->getResponse();
 
@@ -213,6 +217,21 @@ class ContentDiagnoseControllerTest extends TestCase
 
         $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertContains(ContentSystemException::UNKNOWN_REQUEST_FIELD, array_column($body['errors'], 'code'));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function unknownRequestFields(): iterable
+    {
+        yield 'entity context belongs to preview' => [['entityType' => 'product']];
+        yield 'runtime context is no longer supported' => [[
+            'runtimeContext' => [
+                'entityType' => 'product',
+                'entityId' => 'product-id',
+                'salesChannelId' => 'sales-channel-id',
+            ],
+        ]];
     }
 
     /**

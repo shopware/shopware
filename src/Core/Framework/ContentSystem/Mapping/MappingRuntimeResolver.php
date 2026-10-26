@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\ContentSystem\Mapping;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\MappingRuntimeDiagnosticCollector;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\Log\Package;
@@ -29,8 +28,6 @@ final readonly class MappingRuntimeResolver
         ContextType $contextType,
         MappingSourceReference $source,
         MappingSourceResolutionContext $context,
-        ?MappingRuntimeDiagnosticCollector $mappingDiagnostics = null,
-        ?string $destinationKey = null,
     ): MappingSourceResolution|MappingRejection {
         $candidate = $this->mappingInspector->admitStoredProperty(
             $context->element->component,
@@ -43,22 +40,20 @@ final readonly class MappingRuntimeResolver
             return MappingRejection::Unavailable;
         }
 
-        return $this->resolveCandidate($rootSource, $candidate, $source, $context, $mappingDiagnostics, $destinationKey ?? $propertyKey);
+        return $this->resolveCandidate($rootSource, $candidate, $source, $context);
     }
 
     public function resolveInline(
         string $rootSource,
         string $path,
         MappingSourceResolutionContext $context,
-        ?MappingRuntimeDiagnosticCollector $mappingDiagnostics = null,
-        string $propertyKey = '',
     ): MappingSourceResolution|MappingRejection {
         $candidate = $this->mappingInspector->admitInlinePath($path, $rootSource);
         if ($candidate instanceof ContentSystemException) {
             return MappingRejection::Unavailable;
         }
 
-        return $this->resolveCandidate($rootSource, $candidate, $candidate->source, $context, $mappingDiagnostics, $propertyKey);
+        return $this->resolveCandidate($rootSource, $candidate, $candidate->source, $context);
     }
 
     private function resolveCandidate(
@@ -66,31 +61,13 @@ final readonly class MappingRuntimeResolver
         MappingCandidate $candidate,
         MappingSourceReference $source,
         MappingSourceResolutionContext $context,
-        ?MappingRuntimeDiagnosticCollector $mappingDiagnostics,
-        string $propertyKey,
     ): MappingSourceResolution|MappingRejection {
         $resolved = $this->candidateRegistry->resolveSource($rootSource, $source, $context);
-        $path = $source->displayName();
-
         if (!$resolved->hasValue) {
-            $mappingDiagnostics?->record(
-                $context->element->id,
-                $propertyKey,
-                $path,
-                \sprintf('The mapped source "%s" has no value.', $path),
-            );
-
             return $resolved;
         }
 
         if (!$this->mappingInspector->acceptsResolvedValue($candidate, $resolved->value)) {
-            $mappingDiagnostics?->record(
-                $context->element->id,
-                $propertyKey,
-                $path,
-                \sprintf('The mapped source "%s" returned a value incompatible with its candidate type.', $path),
-            );
-
             return MappingRejection::Incompatible;
         }
 

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\ContentSystem\Api;
 
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\Context;
@@ -35,7 +34,6 @@ class ContentDiagnoseController
         private readonly DraftLayoutDecoder $decoder,
         private readonly RootSourceRegistry $rootSourceRegistry,
         private readonly LayoutDiagnostics $diagnostics,
-        private readonly ContentPreviewPageBuilder $previewPageBuilder,
     ) {
     }
 
@@ -47,37 +45,13 @@ class ContentDiagnoseController
     ): Response {
         [$tree, $decodeViolations] = $this->decoder->decodeLintable($payload->layout);
 
-        $rootSource = $payload->runtimeContext === null
-            ? $payload->rootSource
-            : $payload->runtimeContext->entityType;
-        if ($payload->runtimeContext !== null && $payload->rootSource !== null && $payload->rootSource !== $payload->runtimeContext->entityType) {
-            throw ContentSystemException::unknownRootSource($payload->rootSource);
-        }
-
-        $rootContext = $this->rootSourceRegistry->resolveGated($rootSource, $context);
+        $rootContext = $this->rootSourceRegistry->resolveGated($payload->rootSource, $context);
 
         // resolveGated() has already rejected an unknown non-empty source. When no source is bound,
         // diagnostics still report inline tokens that require one; whole-field mappings remain unjudged.
-        $analysis = $this->diagnostics->analyze($tree, $rootContext, $rootSource);
+        $analysis = $this->diagnostics->analyze($tree, $rootContext, $payload->rootSource);
 
-        $runtimeViolations = [];
-        if ($payload->runtimeContext !== null) {
-            $runtime = $payload->runtimeContext;
-            $render = $this->previewPageBuilder->build(new ContentPreviewRequest(
-                layout: $payload->layout,
-                entityType: $runtime->entityType,
-                entityId: $runtime->entityId,
-                salesChannelId: $runtime->salesChannelId,
-                languageId: $runtime->languageId,
-                currencyId: $runtime->currencyId,
-                domainId: $runtime->domainId,
-                customerId: $runtime->customerId,
-                queryParameters: $runtime->queryParameters,
-            ), $context);
-            $runtimeViolations = $render['result']->mappingDiagnostics;
-        }
-
-        $report = new DiagnosticsReport([...$decodeViolations, ...$analysis->report->violations, ...$runtimeViolations]);
+        $report = new DiagnosticsReport([...$decodeViolations, ...$analysis->report->violations]);
 
         return new JsonResponse(DiagnoseResponse::fromReport($analysis->resolutions, $report));
     }

@@ -11,7 +11,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductMappingC
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\MappingRuntimeDiagnosticCollector;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
@@ -681,14 +680,10 @@ class ContextDeliveryResolverTest extends TestCase
             ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.customFields.material'))
             ->build();
 
-        $diagnostics = new MappingRuntimeDiagnosticCollector();
-        $index = $this->resolve($child, new StubPathStruct(customFields: []), mappingDiagnostics: $diagnostics);
+        $index = $this->resolve($child, new StubPathStruct(customFields: []));
 
         static::assertSame([], $index->all()['child-1']->context);
         static::assertSame(['text'], $index->all()['child-1']->mappingFallbackKeys);
-        static::assertCount(1, $diagnostics->violations());
-        static::assertSame('text', $diagnostics->violations()[0]->key);
-        static::assertStringContainsString('has no value', $diagnostics->violations()[0]->message);
     }
 
     #[TestDox('marks an empty mapped value for authored fallback')]
@@ -880,14 +875,14 @@ class ContextDeliveryResolverTest extends TestCase
         'product.cover',
         'product.customFields.material',
         'product.child',
-    ], string $candidateValueType = 'string', ?MappingRuntimeDiagnosticCollector $mappingDiagnostics = null): ContextDeliveryIndex
+    ], string $candidateValueType = 'string'): ContextDeliveryIndex
     {
         $root = StoredElementBuilder::create('Sw:Section', 'root-1')
             ->withSlot('main', [$child])
             ->build();
 
         return $this->resolverWith($candidatePaths, $candidateValueType)
-            ->resolve([$root], [], ['product' => $ambient], rootSource: 'product', mappingDiagnostics: $mappingDiagnostics);
+            ->resolve([$root], [], ['product' => $ambient], rootSource: 'product');
     }
 
     private function mappedChild(): StoredElement

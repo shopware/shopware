@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\MappingRuntimeDiagnosticCollector;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
@@ -70,7 +69,6 @@ final readonly class ContextDeliveryResolver
         array $ambientContext,
         ?RenderingCacheContext $cacheContext = null,
         ?string $rootSource = null,
-        ?MappingRuntimeDiagnosticCollector $mappingDiagnostics = null,
     ): ContextDeliveryIndex {
         $deliveries = [];
 
@@ -83,7 +81,6 @@ final readonly class ContextDeliveryResolver
                 $deliveries,
                 $cacheContext,
                 $rootSource,
-                $mappingDiagnostics,
             );
         }
 
@@ -108,7 +105,6 @@ final readonly class ContextDeliveryResolver
         array &$deliveries,
         ?RenderingCacheContext $cacheContext,
         ?string $rootSource,
-        ?MappingRuntimeDiagnosticCollector $mappingDiagnostics,
     ): void {
         $delivery = $this->overlayRootContext(
             $element,
@@ -117,7 +113,6 @@ final readonly class ContextDeliveryResolver
             $delivery,
             $cacheContext,
             $rootSource,
-            $mappingDiagnostics,
         );
 
         $deliveries[$element->id] = $delivery;
@@ -143,7 +138,6 @@ final readonly class ContextDeliveryResolver
                 $deliveries,
                 $cacheContext,
                 $rootSource,
-                $mappingDiagnostics,
             );
         }
     }
@@ -172,7 +166,6 @@ final readonly class ContextDeliveryResolver
         ContextDelivery $delivery,
         ?RenderingCacheContext $cacheContext,
         ?string $rootSource,
-        ?MappingRuntimeDiagnosticCollector $mappingDiagnostics,
     ): ContextDelivery {
         $context = $delivery->context;
         $mappingFallbackKeys = $delivery->mappingFallbackKeys;
@@ -201,8 +194,6 @@ final readonly class ContextDeliveryResolver
                         $loaderValues[$element->id] ?? [],
                         $cacheContext,
                     ),
-                    $mappingDiagnostics,
-                    $destinationKey,
                 );
                 if ($resolved instanceof MappingRejection) {
                     continue;

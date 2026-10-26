@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\ContentSystem\Mapping\Inline;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\MappingRuntimeDiagnosticCollector;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
@@ -22,8 +21,8 @@ use Shopware\Core\Framework\Log\Package;
  *
  * The consequence to be aware of is that the value the mint records as DeclaredAuthored is the EXPANDED text, not
  * what the author typed. A resolved token is replaced; an unresolved token is removed while surrounding authored
- * text is retained, so a token in a supported inline-mappable property never reaches the Storefront. Diagnostics
- * report why it did not resolve, and the editing surface reads the original stored elements through the codec.
+ * text is retained, so a token in a supported inline-mappable property never reaches the Storefront. The editing surface
+ * reads the original stored elements through the codec.
  *
  * SHAPE RULE, borrowed verbatim from `Layout/Scaffolding/StoredTreePreparer::resolvePlaceholders()`: top-level
  * string properties only for interpolation. A token is resolved only at a declared, `inlineMappable`-flagged key;
@@ -55,14 +54,13 @@ final readonly class InlineMappingExpander
         ?string $rootSource,
         ?RenderingCacheContext $cacheContext = null,
         array $loaderValues = [],
-        ?MappingRuntimeDiagnosticCollector $mappingDiagnostics = null,
         ?InlineMappingMetadata $inlineMappings = null,
     ): array {
         $inlineMappings ??= new InlineMappingMetadata();
         $budget = new InlineMappingExpansionBudget();
 
         return array_map(
-            fn (StoredElement $element): StoredElement => $this->expandElement($element, $ambient, $rootSource, $cacheContext, $loaderValues, $mappingDiagnostics, $inlineMappings, $budget),
+            fn (StoredElement $element): StoredElement => $this->expandElement($element, $ambient, $rootSource, $cacheContext, $loaderValues, $inlineMappings, $budget),
             $forest
         );
     }
@@ -106,7 +104,6 @@ final readonly class InlineMappingExpander
         ?string $rootSource,
         ?RenderingCacheContext $cacheContext,
         array $loaderValues,
-        ?MappingRuntimeDiagnosticCollector $mappingDiagnostics,
         InlineMappingMetadata $inlineMappings,
         InlineMappingExpansionBudget $budget,
     ): StoredElement {
@@ -139,8 +136,6 @@ final readonly class InlineMappingExpander
                         $element,
                         $cacheContext,
                         $loaderValues[$element->id] ?? [],
-                        $mappingDiagnostics,
-                        $propertyKey,
                         $budget,
                     ) ?? ''),
                 $budget,
@@ -152,7 +147,7 @@ final readonly class InlineMappingExpander
         $slots = [];
         foreach ($element->slots as $slotName => $children) {
             $slots[$slotName] = array_map(
-                fn (StoredElement $child): StoredElement => $this->expandElement($child, $ambient, $rootSource, $cacheContext, $loaderValues, $mappingDiagnostics, $inlineMappings, $budget),
+                fn (StoredElement $child): StoredElement => $this->expandElement($child, $ambient, $rootSource, $cacheContext, $loaderValues, $inlineMappings, $budget),
                 $children
             );
         }

@@ -106,7 +106,6 @@ class ContentPipeline
             $finishedTree,
             $finalizationEvent->layout,
             $collectValueIndex ? $this->indexFactory->create($finishedTree, $lowered->provenance) : null,
-            $lowered->mappingDiagnostics,
         );
     }
 

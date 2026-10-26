@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\MappingRuntimeDiagnosticCollector;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -83,11 +82,9 @@ class MappingRuntimeResolverTest extends TestCase
                 return $expected;
             },
         );
-        $diagnostics = new MappingRuntimeDiagnosticCollector();
 
-        static::assertSame($expected, $this->resolve($inline, $diagnostics));
+        static::assertSame($expected, $this->resolve($inline));
         static::assertSame(['provider-data'], $this->cacheContext->getTags());
-        static::assertSame([], $diagnostics->violations());
     }
 
     #[DataProvider('mappingKinds')]
@@ -96,12 +93,8 @@ class MappingRuntimeResolverTest extends TestCase
         $expected = MappingSourceResolution::noValue();
         $this->registry->method('forRootSource')->willReturn([$this->candidate->path => $this->candidate]);
         $this->registry->expects($this->once())->method('resolveSource')->willReturn($expected);
-        $diagnostics = new MappingRuntimeDiagnosticCollector();
 
-        static::assertSame($expected, $this->resolve($inline, $diagnostics));
-        static::assertCount(1, $diagnostics->violations());
-        static::assertSame('text', $diagnostics->violations()[0]->key);
-        static::assertSame('The mapped source "product.name" has no value.', $diagnostics->violations()[0]->message);
+        static::assertSame($expected, $this->resolve($inline));
     }
 
     #[DataProvider('mappingKinds')]
@@ -109,23 +102,17 @@ class MappingRuntimeResolverTest extends TestCase
     {
         $this->registry->method('forRootSource')->willReturn([]);
         $this->registry->expects($this->never())->method('resolveSource');
-        $diagnostics = new MappingRuntimeDiagnosticCollector();
 
-        static::assertSame(MappingRejection::Unavailable, $this->resolve($inline, $diagnostics));
-        static::assertSame([], $diagnostics->violations());
+        static::assertSame(MappingRejection::Unavailable, $this->resolve($inline));
     }
 
     #[DataProvider('mappingKinds')]
-    public function testIncompatibleValueIsRejectedWithASharedDiagnostic(bool $inline): void
+    public function testIncompatibleValueIsRejected(bool $inline): void
     {
         $this->registry->method('forRootSource')->willReturn([$this->candidate->path => $this->candidate]);
         $this->registry->expects($this->once())->method('resolveSource')->willReturn(MappingSourceResolution::resolved(42));
-        $diagnostics = new MappingRuntimeDiagnosticCollector();
 
-        static::assertSame(MappingRejection::Incompatible, $this->resolve($inline, $diagnostics));
-        static::assertCount(1, $diagnostics->violations());
-        static::assertSame('text', $diagnostics->violations()[0]->key);
-        static::assertSame('The mapped source "product.name" returned a value incompatible with its candidate type.', $diagnostics->violations()[0]->message);
+        static::assertSame(MappingRejection::Incompatible, $this->resolve($inline));
     }
 
     #[DataProvider('mappingKinds')]
@@ -134,10 +121,8 @@ class MappingRuntimeResolverTest extends TestCase
         $expected = MappingSourceResolution::resolved(null);
         $this->registry->method('forRootSource')->willReturn([$this->candidate->path => $this->candidate]);
         $this->registry->expects($this->once())->method('resolveSource')->willReturn($expected);
-        $diagnostics = new MappingRuntimeDiagnosticCollector();
 
-        static::assertSame($expected, $this->resolve($inline, $diagnostics));
-        static::assertSame([], $diagnostics->violations());
+        static::assertSame($expected, $this->resolve($inline));
     }
 
     #[DataProvider('mappingKinds')]
@@ -148,7 +133,7 @@ class MappingRuntimeResolverTest extends TestCase
 
         $this->expectException(\TypeError::class);
 
-        $this->resolve($inline, new MappingRuntimeDiagnosticCollector());
+        $this->resolve($inline);
     }
 
     public function testStoredCardinalityIsAdmittedBeforeProviderDispatch(): void
@@ -165,18 +150,6 @@ class MappingRuntimeResolverTest extends TestCase
         ));
     }
 
-    public function testWholeFieldDiagnosticUsesItsDestinationKey(): void
-    {
-        $this->registry->method('forRootSource')->willReturn([$this->candidate->path => $this->candidate]);
-        $this->registry->expects($this->once())->method('resolveSource')->willReturn(MappingSourceResolution::noValue());
-        $diagnostics = new MappingRuntimeDiagnosticCollector();
-
-        $this->resolver->resolveProperty('product', 'text', ContextType::Single, $this->candidate->source, $this->context, $diagnostics, 'headline');
-
-        static::assertCount(1, $diagnostics->violations());
-        static::assertSame('headline', $diagnostics->violations()[0]->key);
-    }
-
     /**
      * @return iterable<string, array{bool}>
      */
@@ -186,10 +159,10 @@ class MappingRuntimeResolverTest extends TestCase
         yield 'inline' => [true];
     }
 
-    private function resolve(bool $inline, MappingRuntimeDiagnosticCollector $diagnostics): MappingSourceResolution|MappingRejection
+    private function resolve(bool $inline): MappingSourceResolution|MappingRejection
     {
         return $inline
-            ? $this->resolver->resolveInline('product', $this->candidate->path, $this->context, $diagnostics, 'text')
-            : $this->resolver->resolveProperty('product', 'text', ContextType::Single, $this->candidate->source, $this->context, $diagnostics);
+            ? $this->resolver->resolveInline('product', $this->candidate->path, $this->context)
+            : $this->resolver->resolveProperty('product', 'text', ContextType::Single, $this->candidate->source, $this->context);
     }
 }

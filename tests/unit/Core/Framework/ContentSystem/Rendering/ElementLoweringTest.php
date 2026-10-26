@@ -91,7 +91,6 @@ class ElementLoweringTest extends TestCase
         string|int|float|bool $fallback,
         array $expectedWholeField,
         string $expectedInline,
-        int $expectedDiagnostics,
     ): void {
         $path = match ($valueType) {
             'boolean' => 'product.active',
@@ -129,24 +128,23 @@ class ElementLoweringTest extends TestCase
 
         static::assertSame($expectedWholeField, $result->tree[0]->properties);
         static::assertSame(['text' => $expectedInline], $result->tree[1]->properties);
-        static::assertCount($expectedDiagnostics, $result->mappingDiagnostics);
     }
 
     /**
-     * @return iterable<string, array{MappingSourceResolution, bool, string, string, string|int|float|bool, array<string, mixed>, string, int}>
+     * @return iterable<string, array{MappingSourceResolution, bool, string, string, string|int|float|bool, array<string, mixed>, string}>
      */
     public static function mappingOutputProvider(): iterable
     {
-        yield 'value' => [MappingSourceResolution::resolved('Shirt'), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => 'Shirt'], 'Hi Shirt!', 0];
-        yield 'missing value' => [MappingSourceResolution::noValue(), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => 'Fallback'], 'Hi !', 2];
-        yield 'empty string' => [MappingSourceResolution::resolved(''), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => 'Fallback'], 'Hi !', 0];
-        yield 'explicit null' => [MappingSourceResolution::resolved(null), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => null], 'Hi !', 1];
-        yield 'incompatible runtime value' => [MappingSourceResolution::resolved(42), true, 'string', 'Sw:Content:Text', 'Fallback', [], 'Hi !', 2];
-        yield 'withdrawn candidate' => [MappingSourceResolution::resolved('Shirt'), false, 'string', 'Sw:Content:Text', 'Fallback', [], 'Hi !', 0];
-        yield 'false is a value' => [MappingSourceResolution::resolved(false), true, 'boolean', 'Sw:MappedBoolean', true, ['text' => false], 'Hi 0!', 0];
-        yield 'integer zero is a value' => [MappingSourceResolution::resolved(0), true, 'integer', 'Sw:MappedInteger', 7, ['text' => 0], 'Hi 0!', 0];
-        yield 'number zero is a value' => [MappingSourceResolution::resolved(0.0), true, 'number', 'Sw:MappedNumber', 1.0, ['text' => 0.0], 'Hi 0!', 0];
-        yield 'inline escaping' => [MappingSourceResolution::resolved('<b>&"'), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => '<b>&"'], 'Hi &lt;b&gt;&amp;&quot;!', 0];
+        yield 'value' => [MappingSourceResolution::resolved('Shirt'), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => 'Shirt'], 'Hi Shirt!'];
+        yield 'missing value' => [MappingSourceResolution::noValue(), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => 'Fallback'], 'Hi !'];
+        yield 'empty string' => [MappingSourceResolution::resolved(''), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => 'Fallback'], 'Hi !'];
+        yield 'explicit null' => [MappingSourceResolution::resolved(null), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => null], 'Hi !'];
+        yield 'incompatible runtime value' => [MappingSourceResolution::resolved(42), true, 'string', 'Sw:Content:Text', 'Fallback', [], 'Hi !'];
+        yield 'withdrawn candidate' => [MappingSourceResolution::resolved('Shirt'), false, 'string', 'Sw:Content:Text', 'Fallback', [], 'Hi !'];
+        yield 'false is a value' => [MappingSourceResolution::resolved(false), true, 'boolean', 'Sw:MappedBoolean', true, ['text' => false], 'Hi 0!'];
+        yield 'integer zero is a value' => [MappingSourceResolution::resolved(0), true, 'integer', 'Sw:MappedInteger', 7, ['text' => 0], 'Hi 0!'];
+        yield 'number zero is a value' => [MappingSourceResolution::resolved(0.0), true, 'number', 'Sw:MappedNumber', 1.0, ['text' => 0.0], 'Hi 0!'];
+        yield 'inline escaping' => [MappingSourceResolution::resolved('<b>&"'), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => '<b>&"'], 'Hi &lt;b&gt;&amp;&quot;!'];
     }
 
     public function testUnknownInlineSourceDoesNotLoadDataOrDisableCaching(): void

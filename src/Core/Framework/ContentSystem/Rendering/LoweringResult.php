@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
-use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueProvenance;
 use Shopware\Core\Framework\Log\Package;
 
@@ -24,12 +23,10 @@ final readonly class LoweringResult
     /**
      * @param list<RenderedElement> $tree
      * @param array<string, array<string, ValueProvenance>> $provenance element id => property key => provenance
-     * @param list<Violation> $mappingDiagnostics runtime mapping findings, separate from the rendered tree
      */
     public function __construct(
         public array $tree,
         public array $provenance,
-        public array $mappingDiagnostics = [],
     ) {
     }
 }

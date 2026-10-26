@@ -5,8 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Output\Encoder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentPageEncoder;
@@ -33,21 +31,6 @@ class ContentPageEncoderTest extends TestCase
         static::assertSame('layout-1', $body['id']);
         static::assertSame('Landing', $body['name']);
         static::assertSame('1.0.0', $body['version']);
-    }
-
-    #[TestDox('keeps runtime mapping diagnostics outside the Store API page body')]
-    public function testEncodeDoesNotExposeRuntimeMappingDiagnostics(): void
-    {
-        $result = new RenderResult(
-            [new RenderedElement('r1', 'section')],
-            LayoutReference::create('layout-1', 'Landing', '1.0.0'),
-            null,
-            [new Violation(ViolationCode::InvalidMapping, 'r1', 'text', 'unavailable')],
-        );
-        $body = (new ContentPageEncoder(static::createStub(StructEncoder::class)))->encode($result)->jsonSerialize();
-
-        static::assertArrayNotHasKey('diagnostics', $body);
-        static::assertSame(['id', 'name', 'version', 'elements'], array_keys($body));
     }
 
     #[TestDox('carries the api alias on a nested element, not only on a root')]

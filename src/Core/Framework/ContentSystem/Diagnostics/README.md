@@ -11,8 +11,6 @@ Produces a `LayoutAnalysis` for a layout element tree: per-element property reso
 - `ViolationCode` - Enum, string-backed. The single source of truth for scope and severity.
 - `RootContextMapper` - `map(array<DataRequirement>): list<ProvidedContext>` converts a bound source's data requirements into the root-ambient context fed to `analyze()`. `resolveType(DataRequirement): string` returns the concrete FQCN a requirement's configured loader produces and `@throws ContentSystemException` for an unregistered source or unknown entity; `LayoutDiagnostics` calls it inline and catches the client-defect codes to detect invalid loader config.
 
-The diagnose API can optionally run an entity-backed render. `MappingRuntimeDiagnosticCollector` carries no-value, provider-failure, incompatible-value, and inline-conversion findings beside the render tree; `ContentDiagnoseController` merges them into the diagnostics report. Render encoders ignore this side channel, so preview and Storefront output never contain diagnostics.
-
 ## ViolationCode Reference
 
 | Code | Scope | Severity |

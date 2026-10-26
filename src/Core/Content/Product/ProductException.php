@@ -29,7 +29,6 @@ class ProductException extends HttpException
     final public const PRODUCT_REVIEW_NOT_ACTIVE = 'PRODUCT__REVIEW_NOT_ACTIVE';
     final public const PRODUCT_ORIGINAL_ID_NOT_FOUND = 'PRODUCT__ORIGINAL_ID_NOT_FOUND';
     public const MISSING_REQUEST_PARAMETER_CODE = 'PRODUCT__MISSING_REQUEST_PARAMETER_CODE';
-    final public const PRODUCT_DUPLICATE_DOCUMENT = 'PRODUCT__DUPLICATE_DOCUMENT';
 
     public static function invalidCheapestPriceFacade(string $id): self
     {
@@ -105,15 +104,6 @@ class ProductException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::PRODUCT_INVALID_OPTIONS_PARAMETER,
             'The parameter options is invalid.'
-        );
-    }
-
-    public static function duplicateDocument(): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::PRODUCT_DUPLICATE_DOCUMENT,
-            'The file is already linked to the product in this language.'
         );
     }
 

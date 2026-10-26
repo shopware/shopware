@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductDocument;
 
-use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Language\LanguageEntity;
 
 /**
  * @codeCoverageIgnore
@@ -23,19 +22,15 @@ class ProductDocumentEntity extends Entity
 
     protected string $productVersionId;
 
-    protected string $languageId;
-
-    protected string $mediaId;
+    protected int $position;
 
     protected ?string $title = null;
 
-    protected int $position;
+    protected ?string $mediaId = null;
 
     protected ?ProductEntity $product = null;
 
-    protected ?LanguageEntity $language = null;
-
-    protected ?MediaEntity $media = null;
+    protected ?ProductDocumentTranslationCollection $translations = null;
 
     public function getProductId(): string
     {
@@ -57,24 +52,14 @@ class ProductDocumentEntity extends Entity
         $this->productVersionId = $productVersionId;
     }
 
-    public function getLanguageId(): string
+    public function getPosition(): int
     {
-        return $this->languageId;
+        return $this->position;
     }
 
-    public function setLanguageId(string $languageId): void
+    public function setPosition(int $position): void
     {
-        $this->languageId = $languageId;
-    }
-
-    public function getMediaId(): string
-    {
-        return $this->mediaId;
-    }
-
-    public function setMediaId(string $mediaId): void
-    {
-        $this->mediaId = $mediaId;
+        $this->position = $position;
     }
 
     public function getTitle(): ?string
@@ -87,14 +72,14 @@ class ProductDocumentEntity extends Entity
         $this->title = $title;
     }
 
-    public function getPosition(): int
+    public function getMediaId(): ?string
     {
-        return $this->position;
+        return $this->mediaId;
     }
 
-    public function setPosition(int $position): void
+    public function setMediaId(?string $mediaId): void
     {
-        $this->position = $position;
+        $this->mediaId = $mediaId;
     }
 
     public function getProduct(): ?ProductEntity
@@ -107,23 +92,13 @@ class ProductDocumentEntity extends Entity
         $this->product = $product;
     }
 
-    public function getLanguage(): ?LanguageEntity
+    public function getTranslations(): ?ProductDocumentTranslationCollection
     {
-        return $this->language;
+        return $this->translations;
     }
 
-    public function setLanguage(LanguageEntity $language): void
+    public function setTranslations(ProductDocumentTranslationCollection $translations): void
     {
-        $this->language = $language;
-    }
-
-    public function getMedia(): ?MediaEntity
-    {
-        return $this->media;
-    }
-
-    public function setMedia(MediaEntity $media): void
-    {
-        $this->media = $media;
+        $this->translations = $translations;
     }
 }

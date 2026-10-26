@@ -107,14 +107,18 @@ shopware:
 ### Product documents
 
 Products can now carry documents such as manuals, datasheets or certificates.
-The new entity `product_document` links a product to a media file for one language, with a `title`, a `position` and custom fields.
-A file can be linked to many products and languages, but only once per product and language.
-A second link fails with `PRODUCT__DUPLICATE_DOCUMENT` (400).
+The new entity `product_document` holds the documents of a product and their `position`.
+Its translations hold the `title`, the file (`mediaId`) and custom fields of each document per language.
+A language without its own version of a document gets the version of the default language, field by field, like any translated field.
 
 * `product.documents` is available in the Admin API and the Store API.
+  `translated.mediaId` is the file of a document in the current language.
   Variants without their own documents inherit the documents of their parent, like `product.media`.
-* Deleting a product, a language or a media file deletes its document links.
-  Cloning a product copies them, and both products use the same files.
+* The version of a document in the default language needs a file.
+* Deleting a product deletes its documents, and deleting a language deletes the document versions in that language.
+* Deleting a file deletes the document versions that use it.
+  When it is the file of the default language, the whole document is deleted.
+* Cloning a product copies its documents with all their versions, and both products use the same files.
 * The new default media folder "Product documents" keeps its files public and creates no thumbnails.
 * Existing roles with the product viewer or editor permission get the matching `product_document` privileges.
 

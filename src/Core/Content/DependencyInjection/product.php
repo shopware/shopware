@@ -24,7 +24,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCustomFieldSet\ProductCustomFieldSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentExceptionHandler;
+use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationDefinition;
@@ -140,6 +140,7 @@ use Shopware\Core\Content\Product\Stock\OrderStockSubscriber;
 use Shopware\Core\Content\Product\Stock\StockStorage;
 use Shopware\Core\Content\Product\Subscriber\CustomFieldSearchableSubscriber;
 use Shopware\Core\Content\Product\Subscriber\ProductDescriptionTeaserSubscriber;
+use Shopware\Core\Content\Product\Subscriber\ProductDocumentCleanupSubscriber;
 use Shopware\Core\Content\Product\Subscriber\ProductSubscriber;
 use Shopware\Core\Content\Product\Subscriber\RepairDigitalProductStatesSubscriber;
 use Shopware\Core\Content\Product\Util\VariantCombinationLoader;
@@ -235,8 +236,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ProductDocumentDefinition::class)
         ->tag('shopware.entity.definition');
 
-    $services->set(ProductDocumentExceptionHandler::class)
-        ->tag('shopware.dal.exception_handler');
+    $services->set(ProductDocumentTranslationDefinition::class)
+        ->tag('shopware.entity.definition');
 
     $services->set(ProductTranslationDefinition::class)
         ->tag('shopware.entity.definition');
@@ -383,6 +384,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ProductDescriptionTeaserSubscriber::class)
         ->args([
             service(ProductDescriptionTeaserBuilder::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(ProductDocumentCleanupSubscriber::class)
+        ->args([
+            service('product_document.repository'),
         ])
         ->tag('kernel.event_subscriber');
 

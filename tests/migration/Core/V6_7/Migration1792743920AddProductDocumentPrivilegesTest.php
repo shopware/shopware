@@ -36,7 +36,7 @@ class Migration1792743920AddProductDocumentPrivilegesTest extends TestCase
         static::assertSame(1792743920, $this->migration->getCreationTimestamp());
     }
 
-    public function testProductViewersCanReadDocuments(): void
+    public function testProductViewersCanReadDocumentsAndTheirTranslations(): void
     {
         $roleId = $this->createRole(['product.viewer']);
 
@@ -44,7 +44,7 @@ class Migration1792743920AddProductDocumentPrivilegesTest extends TestCase
         $this->migration->update($this->connection);
 
         $privileges = $this->fetchPrivileges($roleId);
-        static::assertSame(['product.viewer', 'product_document:read'], $privileges);
+        static::assertSame(['product.viewer', 'product_document:read', 'product_document_translation:read'], $privileges);
     }
 
     public function testProductEditorsCanMaintainDocuments(): void

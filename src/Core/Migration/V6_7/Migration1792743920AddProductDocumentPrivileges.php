@@ -15,6 +15,7 @@ class Migration1792743920AddProductDocumentPrivileges extends MigrationStep
     final public const NEW_PRIVILEGES = [
         'product.viewer' => [
             'product_document:read',
+            'product_document_translation:read',
         ],
         'product.editor' => [
             'product_document:create',

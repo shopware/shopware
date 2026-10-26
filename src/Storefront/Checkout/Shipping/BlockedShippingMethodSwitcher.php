@@ -2,14 +2,12 @@
 
 namespace Shopware\Storefront\Checkout\Shipping;
 
-use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
@@ -86,31 +84,44 @@ class BlockedShippingMethodSwitcher
     }
 
     /**
-     * @return array<string, string>
+     * @return array{ids: array<string, true>, names: array<string, true>}
      */
     private function getBlockedShippingMethodLookup(ErrorCollection $errors): array
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            // @deprecated tag:v6.8.0 - remove this branch; keep only the id-based lookup below
-            return \array_flip($errors->fmap(static fn (Error $error) => $error instanceof ShippingMethodBlockedError ? $error->getName() : null));
+        $blocked = ['ids' => [], 'names' => []];
+
+        foreach ($errors as $error) {
+            if (!$error instanceof ShippingMethodBlockedError) {
+                continue;
+            }
+
+            $id = $error->getShippingMethodId();
+            if ($id !== null) {
+                $blocked['ids'][$id] = true;
+
+                continue;
+            }
+
+            // @deprecated tag:v6.8.0 - remove the name fallback, the error always carries the id
+            $blocked['names'][$error->getName()] = true;
         }
 
-        return \array_flip($errors->fmap(static fn (Error $error) => $error instanceof ShippingMethodBlockedError ? $error->getShippingMethodId() : null));
+        return $blocked;
     }
 
     /**
-     * @param array<string, string> $blocked
+     * @param array{ids: array<string, true>, names: array<string, true>} $blocked
      */
     private function isBlocked(ShippingMethodEntity $shippingMethod, array $blocked): bool
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            // @deprecated tag:v6.8.0 - remove this branch; keep only the id-based check below
-            $name = $shippingMethod->getName();
-
-            return $name !== null && isset($blocked[$name]);
+        if (isset($blocked['ids'][$shippingMethod->getId()])) {
+            return true;
         }
 
-        return isset($blocked[$shippingMethod->getId()]);
+        // @deprecated tag:v6.8.0 - remove the name check together with the name fallback in the lookup
+        $name = $shippingMethod->getName();
+
+        return $name !== null && isset($blocked['names'][$name]);
     }
 
     private function addNoticeToCart(ErrorCollection $cartErrors, ShippingMethodEntity $shippingMethod): void

@@ -240,6 +240,12 @@ bin/console administration:check-extensions -- --only=MyPlugin --fix
 
 To keep a rule off, set it to `'off'` in the `eslint.config.mjs` of your extension, or record the current findings with `--update-baseline`.
 
+### Product Prices card restructured
+
+Display and purchase prices now have separate sections and inheritance controls; advanced pricing moved to the card header.
+The change is active without a feature flag.
+Extensions overriding the price form must [update their blocks and callbacks](./UPGRADE-6.9.md#product-prices-card-extension-points).
+
 ### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag
 
 The new `ADMIN_VITE_8` feature flag builds the Administration and the Administration code of extensions with Vite 8.

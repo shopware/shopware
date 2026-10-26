@@ -88,6 +88,25 @@ Implement `Shopware\Core\Checkout\DocumentV2\Renderer\AbstractDocumentRenderer` 
 
 # Administration
 
+## Product Prices card extension points
+
+The Prices card changed without a feature flag.
+The old form blocks became empty and were deprecated for removal in 6.9; `parent()` no longer renders their former content.
+Update overrides as follows:
+
+| Previous block | Replacement |
+| --- | --- |
+| `sw_product_price_form_fields`, `sw_product_price_form_price_field` | `sw_product_price_form_tax_field`, `sw_product_price_form_display_prices`, or `sw_product_price_form_purchase_prices` |
+| `sw_product_price_form_link`, `sw_product_price_form_maintain_currencies_link` | `sw_product_price_form_currency_link` |
+| `sw_product_price_form_advanced_prices_link` | `sw_product_detail_base_advanced_prices_link` in `sw-product-detail-base` |
+
+- Purchase prices moved from `sw-list-price-field` to `sw-purchase-price-field`.
+  Customize the card's purchase section through `sw_product_price_form_purchase_prices`.
+- Each inheritance wrapper now exposes a price array as `currentValue`; replace `currentValue.price` and `currentValue.purchasePrices` with `currentValue`.
+- Replace `removePriceInheritation()` and `inheritationCheckFunction()` overrides with `copyDefaultPrice(prices)` and `isPriceInherited(prices)`, which receive one section's price array.
+- `syncVariantPriceInheritance()` became a deprecated no-op and is no longer called.
+  Move unrelated load-time customization to `sw-product-detail.loadProduct()`.
+
 ## `sw-empty-state` removed
 
 The deprecated `sw-empty-state` component was removed. Use `mt-empty-state` instead:

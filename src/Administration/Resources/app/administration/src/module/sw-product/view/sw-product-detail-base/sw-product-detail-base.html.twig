@@ -65,25 +65,23 @@
             <sw-product-price-form :allow-edit="acl.can('product.editor')" />
             {% endblock %}
 
-            {% block sw_product_detail_base_advanced_prices_link %}
-            <sw-container
-                v-if="productId"
-                columns="1fr"
-                justify="end"
-            >
-
-                <router-link
-                    :to="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
-                    class="sw-card__quick-link"
+            <template #headerRight>
+                {% block sw_product_detail_base_advanced_prices_link %}
+                <mt-button
+                    v-if="product.id && !product._isNew"
+                    class="sw-product-detail-base__advanced-prices"
+                    variant="secondary"
+                    size="small"
+                    @click="onOpenAdvancedPrices"
                 >
                     {{ $t('sw-product.detailBase.linkAdvancedPrices') }}
                     <mt-icon
                         name="regular-long-arrow-right"
                         size="var(--scale-size-16)"
                     />
-                </router-link>
-            </sw-container>
-            {% endblock %}
+                </mt-button>
+                {% endblock %}
+            </template>
 
         </mt-card>
         {% endblock %}

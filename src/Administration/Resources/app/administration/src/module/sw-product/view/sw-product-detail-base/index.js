@@ -266,5 +266,14 @@ export default {
             media.position = 0;
             this.product.coverId = media.id;
         },
+
+        onOpenAdvancedPrices() {
+            this.$router.push({
+                name: 'sw.product.detail.prices',
+                params: {
+                    id: this.product.id,
+                },
+            });
+        },
     },
 };

@@ -183,5 +183,26 @@ export default {
         updatePrices(index) {
             this.product.price.splice(index, 1);
         },
+
+        copyDefaultPrice(prices) {
+            const price = prices?.find((item) => item.currencyId === this.defaultCurrency.id);
+
+            if (price) {
+                return [Shopware.Utils.object.cloneDeep(price)];
+            }
+
+            return [
+                {
+                    currencyId: this.defaultCurrency.id,
+                    gross: null,
+                    net: null,
+                    linked: true,
+                },
+            ];
+        },
+
+        isPriceInherited(prices) {
+            return !prices?.length;
+        },
     },
 };

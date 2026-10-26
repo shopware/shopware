@@ -838,7 +838,6 @@ export default {
 
                     if (this.product.parentId) {
                         await this.loadParentProduct();
-                        this.syncVariantPriceInheritance();
                     } else {
                         Shopware.Store.get('swProductDetail').parentProduct = {};
                     }
@@ -877,29 +876,23 @@ export default {
             }
         },
 
+        /**
+         * @deprecated tag:v6.9.0 - Will be removed without replacement. Display and purchase prices inherit independently.
+         */
         syncVariantPriceInheritance() {
-            const priceInherited = this.product.price === null;
-            const purchasePricesInherited = this.product.purchasePrices === null;
-
-            // Price is inherited — purchasePrices must also inherit
-            if (priceInherited) {
-                this.product.purchasePrices = null;
-                return;
-            }
-
-            // Price is overridden but purchasePrices still inherited — copy from parent
-            if (purchasePricesInherited) {
-                this.product.purchasePrices = cloneDeep(this.parentProduct.purchasePrices);
-            }
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'sw-product-detail.syncVariantPriceInheritance() is deprecated. Display and purchase prices inherit independently.',
+            );
         },
 
         getDefaultPurchasePrices() {
             return [
                 {
                     currencyId: this.defaultCurrency.id,
-                    net: 0,
+                    net: null,
                     linked: true,
-                    gross: 0,
+                    gross: null,
                 },
             ];
         },

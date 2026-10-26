@@ -67,4 +67,28 @@ describe('components/form/sw-purchase-price-field', () => {
         expect(wrapper.vm.purchasePrice[0].gross).toEqual(dollarPrice.gross);
         expect(wrapper.vm.purchasePrice[0].net).toEqual(dollarPrice.net);
     });
+
+    it('should replace the purchase price for the selected currency', async () => {
+        const price = [structuredClone(dollarPrice), structuredClone(euroPrice)];
+        const wrapper = await setup({ price });
+        const updatedPrice = { ...dollarPrice, gross: 60, net: 50 };
+
+        wrapper.findComponent('.sw-purchase-price-field').vm.$emit('change', updatedPrice);
+
+        expect(price).toEqual([updatedPrice, euroPrice]);
+        expect(wrapper.emitted('update:value')[0]).toEqual([price]);
+        wrapper.unmount();
+    });
+
+    it('should add a purchase price for a missing currency', async () => {
+        const price = [structuredClone(euroPrice)];
+        const wrapper = await setup({ price });
+        const newPrice = { ...dollarPrice, gross: 60, net: 50 };
+
+        wrapper.findComponent('.sw-purchase-price-field').vm.$emit('change', newPrice);
+
+        expect(price).toEqual([euroPrice, newPrice]);
+        expect(wrapper.emitted('update:value')[0]).toEqual([price]);
+        wrapper.unmount();
+    });
 });

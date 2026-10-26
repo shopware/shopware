@@ -1,0 +1,9 @@
+{% block sw_admin_nps_card_data_provider %}
+<sw-admin-nps-card
+    v-if="isVisible"
+    v-model:visible="isVisible"
+    @submit="onSubmit"
+    @not-now="onNotNow"
+    @close="onClose"
+/>
+{% endblock %}

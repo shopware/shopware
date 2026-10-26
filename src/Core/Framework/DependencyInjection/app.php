@@ -361,6 +361,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CustomFieldLifecycleHandler::class)
         ->args([
             service(CustomFieldSetPersister::class),
+            service('logger'),
         ])
         ->tag('shopware.app_lifecycle.handler', ['priority' => -1100]);
 

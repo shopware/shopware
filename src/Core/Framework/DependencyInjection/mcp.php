@@ -7,6 +7,7 @@ use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
+use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\App\AppSecretResolver;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\App\Mcp\Feature\McpPromptFeatureDefinition;
@@ -69,6 +70,7 @@ use Shopware\Core\Framework\Mcp\Tool\EntityDeleteTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
+use Shopware\Core\Framework\Mcp\Tool\EntitySyncTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityUpsertTool;
 use Shopware\Core\Framework\Mcp\Tool\MediaUploadTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderStateTool;
@@ -417,6 +419,15 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(EntityDeleteTool::class)
         ->args([
+            service(DefinitionInstanceRegistry::class),
+            service(McpContextProvider::class),
+            service(Connection::class),
+        ])
+        ->tag('mcp.tool');
+
+    $services->set(EntitySyncTool::class)
+        ->args([
+            service(SyncService::class),
             service(DefinitionInstanceRegistry::class),
             service(McpContextProvider::class),
             service(Connection::class),

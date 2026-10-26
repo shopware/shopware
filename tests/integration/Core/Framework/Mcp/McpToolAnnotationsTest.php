@@ -61,7 +61,7 @@ class McpToolAnnotationsTest extends TestCase
             'shopware-tool-search' => self::READ_ONLY,
             'shopware-toolsets-list' => self::READ_ONLY,
             'shopware-toolset-enable' => self::SESSION_STATE,
-            'shopware-entity-upsert' => ['readOnlyHint' => false, 'destructiveHint' => false, 'idempotentHint' => false, 'openWorldHint' => false],
+            'shopware-entity-upsert' => ['readOnlyHint' => false, 'destructiveHint' => true, 'idempotentHint' => false, 'openWorldHint' => false],
             'shopware-media-upload' => ['readOnlyHint' => false, 'destructiveHint' => false, 'idempotentHint' => false, 'openWorldHint' => true],
             'shopware-entity-delete' => ['readOnlyHint' => false, 'destructiveHint' => true, 'idempotentHint' => true, 'openWorldHint' => false],
             'shopware-order-state' => ['readOnlyHint' => false, 'destructiveHint' => true, 'idempotentHint' => false, 'openWorldHint' => false],

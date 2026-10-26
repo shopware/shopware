@@ -118,7 +118,7 @@ shopware:
 ### MCP tools declare whether they change shop data
 
 The core MCP tools on `/api/_mcp` and `/store-api/_mcp` now send the tool annotations of the MCP specification in `tools/list` and in `shopware-tool-search` results.
-Read tools such as `shopware-entity-search` are marked with `readOnlyHint`, and tools that change or remove data, such as `shopware-entity-delete`, `shopware-order-state`, `shopware-system-config-write` and `shopware-theme-config`, with `destructiveHint`.
+Read tools such as `shopware-entity-search` are marked with `readOnlyHint`, and tools that change or remove data, such as `shopware-entity-upsert`, `shopware-entity-delete`, `shopware-order-state`, `shopware-system-config-write` and `shopware-theme-config`, with `destructiveHint`.
 MCP clients use these hints to decide when to ask the user before a call, so some clients may now ask for confirmation where they did not before.
 Plugin and bundle tools can declare the same hints with the `annotations` argument of `#[McpTool]`.
 

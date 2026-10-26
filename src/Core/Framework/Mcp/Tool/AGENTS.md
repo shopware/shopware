@@ -230,8 +230,9 @@ How to choose:
   The spec says `destructiveHint` and `idempotentHint` are only meaningful when `readOnlyHint` is false, so read tools leave them out.
 - `readOnlyHint: false` as soon as one action of the tool writes, even if `dryRun` defaults to true.
   The hints describe what the tool can do, not what one call with default arguments does.
-- `destructiveHint: true` when the tool removes data or replaces state that is not one record's own fields: configuration, theme settings, order states.
-  `destructiveHint: false` when the tool only creates or edits records, or changes session state.
+- `destructiveHint: true` when the tool can remove or overwrite existing data: records, record fields, configuration, theme settings, order states.
+  The spec reserves `destructiveHint: false` for tools that only make additive updates, so a tool that edits existing records is destructive.
+  `destructiveHint: false` when the tool only creates data or changes session state.
 - `idempotentHint: true` when repeating a call with the same arguments has no further effect.
   Creating records without a caller-supplied id, or firing state transitions that can start flows and send mails, is not idempotent.
 - `openWorldHint: false` when the tool only acts on the shop itself.
@@ -244,7 +245,7 @@ How to choose:
 | `shopware-tool-search`, `shopware-toolsets-list` (Admin and Store API) | true | | | false |
 | `shopware-store-api-context` (Store API) | true | | | false |
 | `shopware-toolset-enable` (Admin and Store API) | false | false | true | false |
-| `shopware-entity-upsert` | false | false | false | false |
+| `shopware-entity-upsert` | false | true | false | false |
 | `shopware-media-upload` | false | false | false | true |
 | `shopware-entity-delete` | false | true | true | false |
 | `shopware-order-state` | false | true | false | false |
@@ -254,7 +255,7 @@ How to choose:
 Notes on the less obvious rows:
 - `shopware-toolset-enable` changes which tools the session advertises, so it is not read-only.
   It touches no shop data, and enabling a toolset twice changes nothing.
-- `shopware-entity-upsert` is the general write path for records; an update can overwrite fields, but it removes nothing.
+- `shopware-entity-upsert` is destructive because an update overwrites existing fields, even though it removes no record.
   It is not idempotent because a payload without ids creates new records on every call.
 - `shopware-entity-delete` is idempotent: deleting the same records again reports them as not found and changes nothing.
 - `shopware-media-upload` downloads the file from a caller-supplied URL, which makes it the only core tool reaching outside the shop.

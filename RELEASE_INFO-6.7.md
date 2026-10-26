@@ -289,10 +289,6 @@ If you override the template of one of these components and render your own fiel
 ```html
 <mt-text-field v-bind="$attrs" @update:model-value="$emit('update:modelValue', $event)" />
 ```
-### Extension Jest runs no longer fail on Administration deprecations
-
-Extensions whose Jest run reuses Shopware's Administration test setup no longer fail on deprecations until core's own usages are migrated.
-The running Administration still warns about deprecations as before.
 
 ### Known core deprecations log an error in next-major mode
 

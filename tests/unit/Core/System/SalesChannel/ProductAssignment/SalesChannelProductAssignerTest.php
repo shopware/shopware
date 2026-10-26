@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\ProductAssignment\SalesChannelProductAssigner;
+use Shopware\Core\System\SalesChannel\ProductAssignment\SalesChannelProductAssignmentResult;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -88,14 +89,11 @@ class SalesChannelProductAssignerTest extends TestCase
         $this->salesChannelRepository->addSearch([self::SALES_CHANNEL_ID]);
         $this->productRepository->addSearch(
             $remember([$ids[0], $ids[1]]),
-            [],
             $remember([$ids[2]]),
-            [],
             $remember([$ids[3]]),
-            [],
         );
 
-        $assigned = $this->assigner->assign(
+        $result = $this->assigner->assign(
             self::SALES_CHANNEL_ID,
             productIds: [$ids[0], $ids[1]],
             productStreamIds: ['stream-id'],
@@ -104,7 +102,7 @@ class SalesChannelProductAssignerTest extends TestCase
             context: $this->context,
         );
 
-        static::assertSame(4, $assigned);
+        static::assertEquals(new SalesChannelProductAssignmentResult(4, complete: true), $result);
         static::assertCount(3, $this->visibilityRepository->upserts);
         static::assertSame(
             array_map(static fn (string $id) => [
@@ -145,10 +143,9 @@ class SalesChannelProductAssignerTest extends TestCase
 
                 return self::page(\array_slice($ids, 500));
             },
-            [],
         );
 
-        $assigned = $this->assigner->assign(
+        $result = $this->assigner->assign(
             self::SALES_CHANNEL_ID,
             productIds: $ids,
             productStreamIds: [],
@@ -157,7 +154,7 @@ class SalesChannelProductAssignerTest extends TestCase
             context: $this->context,
         );
 
-        static::assertSame(501, $assigned);
+        static::assertEquals(new SalesChannelProductAssignmentResult(501, complete: true), $result);
         static::assertSame(1, $writesBeforeSecondPage);
         static::assertCount(2, $this->visibilityRepository->upserts);
         static::assertCount(500, $this->visibilityRepository->upserts[0]);
@@ -166,6 +163,51 @@ class SalesChannelProductAssignerTest extends TestCase
             ProductVisibilityDefinition::VISIBILITY_SEARCH,
             $this->visibilityRepository->getPayloads(StaticEntityRepository::UPSERT)[0]['visibility'],
         );
+    }
+
+    public function testStopsAtThePageBudgetAndReportsTheCallAsIncomplete(): void
+    {
+        $ids = $this->ids(5000);
+
+        // Exactly ten full pages are queued, an eleventh search would hit the empty queue and throw
+        $this->salesChannelRepository->addSearch([self::SALES_CHANNEL_ID]);
+        $this->productRepository->addSearch(
+            ...array_map(static fn (array $page) => self::page($page), array_chunk($ids, 500)),
+        );
+
+        $result = $this->assigner->assign(
+            self::SALES_CHANNEL_ID,
+            productIds: [],
+            productStreamIds: ['stream-id'],
+            categoryIds: ['category-id'],
+            visibility: ProductVisibilityDefinition::VISIBILITY_ALL,
+            context: $this->context,
+        );
+
+        static::assertEquals(new SalesChannelProductAssignmentResult(5000, complete: false), $result);
+        static::assertCount(10, $this->visibilityRepository->upserts);
+        static::assertCount(10, $this->productRepository->searchedCriteria);
+    }
+
+    public function testFetchesOnceMoreAfterAFullPageToProveNothingIsLeft(): void
+    {
+        $ids = $this->ids(500);
+
+        $this->salesChannelRepository->addSearch([self::SALES_CHANNEL_ID]);
+        $this->productRepository->addSearch(self::page($ids), []);
+
+        $result = $this->assigner->assign(
+            self::SALES_CHANNEL_ID,
+            productIds: $ids,
+            productStreamIds: [],
+            categoryIds: [],
+            visibility: ProductVisibilityDefinition::VISIBILITY_ALL,
+            context: $this->context,
+        );
+
+        static::assertEquals(new SalesChannelProductAssignmentResult(500, complete: true), $result);
+        static::assertCount(1, $this->visibilityRepository->upserts);
+        static::assertCount(2, $this->productRepository->searchedCriteria);
     }
 
     public function testQueuesTheIndexingWithoutTouchingTheCallersContext(): void
@@ -200,7 +242,7 @@ class SalesChannelProductAssignerTest extends TestCase
         $this->salesChannelRepository->addSearch([self::SALES_CHANNEL_ID]);
         $this->productRepository->addSearch([]);
 
-        $assigned = $this->assigner->assign(
+        $result = $this->assigner->assign(
             self::SALES_CHANNEL_ID,
             productIds: $this->ids(1),
             productStreamIds: [],
@@ -209,13 +251,13 @@ class SalesChannelProductAssignerTest extends TestCase
             context: $this->context,
         );
 
-        static::assertSame(0, $assigned);
+        static::assertEquals(new SalesChannelProductAssignmentResult(0, complete: true), $result);
         static::assertSame([], $this->visibilityRepository->upserts);
     }
 
     public function testDoesNotTouchTheDatabaseWithoutSources(): void
     {
-        $assigned = $this->assigner->assign(
+        $result = $this->assigner->assign(
             self::SALES_CHANNEL_ID,
             productIds: [],
             productStreamIds: [],
@@ -224,7 +266,7 @@ class SalesChannelProductAssignerTest extends TestCase
             context: $this->context,
         );
 
-        static::assertSame(0, $assigned);
+        static::assertEquals(new SalesChannelProductAssignmentResult(0, complete: true), $result);
         static::assertSame([], $this->visibilityRepository->upserts);
     }
 

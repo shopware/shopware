@@ -263,14 +263,24 @@ export default {
 
             return this.salesChannelProductAssignmentApiService
                 .assign(this.salesChannel.id, { productIds, productStreamIds, categoryIds })
-                .then((assigned) => {
-                    this.createNotificationSuccess({
-                        message: this.$t(
-                            'sw-sales-channel.detail.products.messageProductsAssigned',
-                            { count: assigned },
-                            assigned,
-                        ),
-                    });
+                .then(({ assigned, complete }) => {
+                    if (complete) {
+                        this.createNotificationSuccess({
+                            message: this.$t(
+                                'sw-sales-channel.detail.products.messageProductsAssigned',
+                                { count: assigned },
+                                assigned,
+                            ),
+                        });
+                    } else {
+                        this.createNotificationWarning({
+                            message: this.$t(
+                                'sw-sales-channel.detail.products.messageProductsAssignmentIncomplete',
+                                { count: assigned },
+                                assigned,
+                            ),
+                        });
+                    }
 
                     return this.getProducts();
                 })

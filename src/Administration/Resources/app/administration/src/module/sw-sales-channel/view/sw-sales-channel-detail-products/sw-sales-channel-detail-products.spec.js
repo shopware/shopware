@@ -100,7 +100,7 @@ let assignMock;
 
 async function createWrapper({ salesChannel, products } = {}) {
     repositoryFactoryDeleteMock = jest.fn(async () => {});
-    assignMock = jest.fn(async () => 1);
+    assignMock = jest.fn(async () => ({ assigned: 1, complete: true }));
 
     const wrapper = mount(
         await wrapTestComponent('sw-sales-channel-detail-products', {
@@ -417,7 +417,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     it('should add products successful', async () => {
         const { wrapper } = await createWrapper();
         await flushPromises();
-        assignMock.mockResolvedValue(1);
+        assignMock.mockResolvedValue({ assigned: 1, complete: true });
         wrapper.vm.createNotificationSuccess = jest.fn();
         wrapper.vm.getProducts = jest.fn(() => Promise.resolve());
 
@@ -437,6 +437,30 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         expect(wrapper.vm.isAssignProductLoading).toBe(false);
 
         wrapper.vm.createNotificationSuccess.mockRestore();
+        wrapper.vm.getProducts.mockRestore();
+    });
+
+    it('should warn instead of celebrating when the assignment stopped before every product was assigned', async () => {
+        const { wrapper } = await createWrapper();
+        await flushPromises();
+        assignMock.mockResolvedValue({ assigned: 200, complete: false });
+        wrapper.vm.createNotificationSuccess = jest.fn();
+        wrapper.vm.createNotificationWarning = jest.fn();
+        wrapper.vm.getProducts = jest.fn(() => Promise.resolve());
+
+        await wrapper.setData({ products: productsMock, showProductsModal: true });
+        await wrapper.vm.onAddProducts([], { productStreamIds: ['stream-1'] });
+
+        expect(wrapper.vm.createNotificationSuccess).not.toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationWarning).toHaveBeenCalledWith({
+            message: 'sw-sales-channel.detail.products.messageProductsAssignmentIncomplete',
+        });
+        expect(wrapper.vm.getProducts).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.showProductsModal).toBe(false);
+        expect(wrapper.vm.isAssignProductLoading).toBe(false);
+
+        wrapper.vm.createNotificationSuccess.mockRestore();
+        wrapper.vm.createNotificationWarning.mockRestore();
         wrapper.vm.getProducts.mockRestore();
     });
 

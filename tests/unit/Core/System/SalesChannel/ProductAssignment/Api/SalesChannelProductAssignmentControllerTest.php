@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\ProductAssignment\Api\SalesChannelProductAssignmentController;
 use Shopware\Core\System\SalesChannel\ProductAssignment\SalesChannelProductAssigner;
+use Shopware\Core\System\SalesChannel\ProductAssignment\SalesChannelProductAssignmentResult;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
@@ -60,7 +61,7 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
                 ProductVisibilityDefinition::VISIBILITY_LINK,
                 $this->context,
             )
-            ->willReturn(3);
+            ->willReturn(new SalesChannelProductAssignmentResult(3, complete: true));
 
         $response = $this->controller->assign(
             self::SALES_CHANNEL_ID,
@@ -73,7 +74,7 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
             $this->context,
         );
 
-        static::assertSame('{"assigned":3}', $response->getContent());
+        static::assertSame('{"assigned":3,"complete":true}', $response->getContent());
     }
 
     public function testDefaultsToEmptySourcesAndFullVisibility(): void
@@ -83,11 +84,11 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
             ->expects($this->once())
             ->method('assign')
             ->with(self::SALES_CHANNEL_ID, [], [], [], ProductVisibilityDefinition::VISIBILITY_ALL, $this->context)
-            ->willReturn(0);
+            ->willReturn(new SalesChannelProductAssignmentResult(0, complete: true));
 
         $response = $this->controller->assign(self::SALES_CHANNEL_ID, new RequestDataBag(), $this->context);
 
-        static::assertSame('{"assigned":0}', $response->getContent());
+        static::assertSame('{"assigned":0,"complete":true}', $response->getContent());
     }
 
     public function testRequiresReadPrivilegesForTheNamedSources(): void
@@ -124,7 +125,7 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
             ->expects($this->once())
             ->method('assign')
             ->with(self::SALES_CHANNEL_ID, [], ['stream-a'], [], ProductVisibilityDefinition::VISIBILITY_ALL, $context)
-            ->willReturn(2);
+            ->willReturn(new SalesChannelProductAssignmentResult(2, complete: false));
 
         $response = $this->controller->assign(
             self::SALES_CHANNEL_ID,
@@ -132,7 +133,7 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
             $context,
         );
 
-        static::assertSame('{"assigned":2}', $response->getContent());
+        static::assertSame('{"assigned":2,"complete":false}', $response->getContent());
     }
 
     public function testValidatesIdListsAndVisibilityBeforeAssigning(): void
@@ -181,7 +182,7 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
     public function testAcceptsIdListsAtTheirLimit(string $key, int $limit): void
     {
         $this->validator->expects($this->never())->method('validate');
-        $this->assigner->expects($this->once())->method('assign')->willReturn($limit);
+        $this->assigner->expects($this->once())->method('assign')->willReturn(new SalesChannelProductAssignmentResult($limit, complete: true));
 
         $response = $this->controllerWithRealValidator()->assign(
             self::SALES_CHANNEL_ID,
@@ -189,7 +190,7 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
             $this->context,
         );
 
-        static::assertSame(\sprintf('{"assigned":%d}', $limit), $response->getContent());
+        static::assertSame(\sprintf('{"assigned":%d,"complete":true}', $limit), $response->getContent());
     }
 
     /**

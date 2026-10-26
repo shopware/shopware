@@ -97,6 +97,8 @@ A criteria that filters, sorts, queries or aggregates by a field the API does no
 `POST /api/_action/sales-channel/{salesChannelId}/product-assignment` makes products visible in a sales channel.
 Products are given by `productIds`, by `productStreamIds` (dynamic product groups) or by `categoryIds`, and the matching products are resolved on the server.
 Products that are already visible in the sales channel are skipped, and the response reports the number of newly assigned products as `assigned`.
+A single call writes up to 5000 products and answers with `complete: false` when products are left.
+Repeat the same request until `complete` is `true`, every call continues with the products that are not visible yet.
 The optional `visibility` (`10`, `20` or `30`, default `30`) is applied to every assigned product.
 The route requires the `product_visibility:create` and `product:read` privileges, plus `product_stream:read` when `productStreamIds` is given and `category:read` when `categoryIds` is given.
 

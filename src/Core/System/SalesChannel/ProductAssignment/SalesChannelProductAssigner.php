@@ -30,6 +30,12 @@ class SalesChannelProductAssigner
     private const CHUNK_SIZE = 500;
 
     /**
+     * Every page costs a catalog search plus a visibility write, so a call stops after this many pages
+     * and reports itself as incomplete. Repeating the same call continues with the products not written yet.
+     */
+    private const MAX_PAGES_PER_CALL = 10;
+
+    /**
      * @param EntityRepository<ProductCollection> $productRepository
      * @param EntityRepository<ProductVisibilityCollection> $productVisibilityRepository
      * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
@@ -49,8 +55,6 @@ class SalesChannelProductAssigner
      * @param list<string> $productIds
      * @param list<string> $productStreamIds
      * @param list<string> $categoryIds
-     *
-     * @return int the number of products that received a new visibility
      */
     public function assign(
         string $salesChannelId,
@@ -59,9 +63,9 @@ class SalesChannelProductAssigner
         array $categoryIds,
         int $visibility,
         Context $context,
-    ): int {
+    ): SalesChannelProductAssignmentResult {
         if ($productIds === [] && $productStreamIds === [] && $categoryIds === []) {
-            return 0;
+            return new SalesChannelProductAssignmentResult(0, complete: true);
         }
 
         $this->ensureSalesChannelExists($salesChannelId, $context);
@@ -74,6 +78,7 @@ class SalesChannelProductAssigner
         $context->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE);
 
         $assigned = 0;
+        $remainingPages = self::MAX_PAGES_PER_CALL;
         foreach ($this->buildCriteria($productIds, $productStreamIds, $categoryIds, $context) as $criteria) {
             $criteria->addFilter(
                 new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('visibilities.salesChannelId', $salesChannelId)])
@@ -82,29 +87,48 @@ class SalesChannelProductAssigner
 
             /**
              * Each page is written before the next one is fetched, so memory stays bound to one page
-             * and products assigned by an earlier page or source drop out of the following searches.
+             * and products assigned by an earlier page, source or call drop out of the following searches.
              */
             $iterator = new RepositoryIterator($this->productRepository, $context, $criteria);
-            while ($page = $iterator->fetchIds()) {
-                $visibilities = [];
-                foreach ($page as $productId) {
-                    if (\is_string($productId)) {
-                        $visibilities[] = [
-                            'id' => Uuid::fromStringToHex($productId . $salesChannelId),
-                            'productId' => $productId,
-                            'salesChannelId' => $salesChannelId,
-                            'visibility' => $visibility,
-                        ];
-                    }
+            do {
+                if ($remainingPages === 0) {
+                    return new SalesChannelProductAssignmentResult($assigned, complete: false);
                 }
 
-                // Deterministic ids let a retry or double submit complete instead of failing on the unique product/sales channel key
-                $this->productVisibilityRepository->upsert($visibilities, $context);
-                $assigned += \count($visibilities);
+                $page = $iterator->fetchIds();
+                if ($page === null) {
+                    break;
+                }
+
+                --$remainingPages;
+                $assigned += $this->writeVisibilities($page, $salesChannelId, $visibility, $context);
+            } while (\count($page) === self::CHUNK_SIZE);
+        }
+
+        return new SalesChannelProductAssignmentResult($assigned, complete: true);
+    }
+
+    /**
+     * @param list<string>|list<array<string, string>> $page
+     */
+    private function writeVisibilities(array $page, string $salesChannelId, int $visibility, Context $context): int
+    {
+        $visibilities = [];
+        foreach ($page as $productId) {
+            if (\is_string($productId)) {
+                $visibilities[] = [
+                    'id' => Uuid::fromStringToHex($productId . $salesChannelId),
+                    'productId' => $productId,
+                    'salesChannelId' => $salesChannelId,
+                    'visibility' => $visibility,
+                ];
             }
         }
 
-        return $assigned;
+        // Deterministic ids let a retry or double submit complete instead of failing on the unique product/sales channel key
+        $this->productVisibilityRepository->upsert($visibilities, $context);
+
+        return \count($visibilities);
     }
 
     /**

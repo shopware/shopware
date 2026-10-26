@@ -55,7 +55,7 @@ class SalesChannelProductAssignmentController extends AbstractController
         $categoryIds = $this->idList($data, 'categoryIds');
         $this->ensureSourcePrivileges($productStreamIds, $categoryIds, $context);
 
-        $assigned = $this->assigner->assign(
+        $result = $this->assigner->assign(
             $salesChannelId,
             $this->idList($data, 'productIds'),
             $productStreamIds,
@@ -64,7 +64,7 @@ class SalesChannelProductAssignmentController extends AbstractController
             $context,
         );
 
-        return new JsonResponse(['assigned' => $assigned]);
+        return new JsonResponse(['assigned' => $result->assigned, 'complete' => $result->complete]);
     }
 
     /**

@@ -68,7 +68,7 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
         ]);
 
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
-        static::assertSame(['assigned' => 3], $this->decodeResponse($this->getBrowser()));
+        static::assertSame(['assigned' => 3, 'complete' => true], $this->decodeResponse($this->getBrowser()));
 
         static::assertSame([
             'STREAM-already-visible' => ProductVisibilityDefinition::VISIBILITY_ALL,

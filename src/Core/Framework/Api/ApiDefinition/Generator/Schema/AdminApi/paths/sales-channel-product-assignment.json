@@ -8,7 +8,7 @@
                     "Sales Channel"
                 ],
                 "summary": "Assign products to a sales channel",
-                "description": "Makes products visible in a sales channel. Products can be given explicitly by id, through dynamic product groups or through categories. The matching products are resolved on the server, so the number of products is not limited by the API search limit. Products that are already visible in the sales channel are skipped. Categories only contribute main products, dynamic product groups contribute every matching product including variants.",
+                "description": "Makes products visible in a sales channel. Products can be given explicitly by id, through dynamic product groups or through categories. The matching products are resolved on the server, so the number of products is not limited by the API search limit. Products that are already visible in the sales channel are skipped. Categories only contribute main products, dynamic product groups contribute every matching product including variants. A single call writes a bounded number of products and reports `complete: false` when products are left. Repeat the same request until `complete` is `true`, every call continues with the products that are not visible yet.",
                 "operationId": "assignSalesChannelProducts",
                 "parameters": [
                     {
@@ -106,12 +106,17 @@
             "SalesChannelProductAssignmentResponse": {
                 "type": "object",
                 "required": [
-                    "assigned"
+                    "assigned",
+                    "complete"
                 ],
                 "properties": {
                     "assigned": {
-                        "description": "Number of products that received a new visibility. Products that were already visible in the sales channel are not counted.",
+                        "description": "Number of products that received a new visibility in this call. Products that were already visible in the sales channel are not counted.",
                         "type": "integer"
+                    },
+                    "complete": {
+                        "description": "`true` when every matching product is visible now. `false` when the call stopped at its page budget, repeat the same request to continue.",
+                        "type": "boolean"
                     }
                 }
             }

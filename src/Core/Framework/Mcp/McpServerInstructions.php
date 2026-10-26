@@ -48,12 +48,17 @@ final class McpServerInstructions
     ];
 
     /**
-     * Rewrites the instructions of a `server/discover` answer on the stateless era. Every other answer is
-     * returned unchanged.
+     * Rewrites the instructions of a non-streamed JSON `server/discover` answer on the stateless era. Every
+     * other answer is returned unchanged.
+     *
+     * A workaround until mcp/sdk can configure instructions per protocol era.
      */
     public static function applyToStatelessDiscover(Request $request, Response $response): void
     {
-        if ($request->getMethod() !== Request::METHOD_POST || $response instanceof StreamedResponse) {
+        // Only a plain JSON answer is rewritten. An event stream, streamed or buffered, is passed through as is.
+        if ($request->getMethod() !== Request::METHOD_POST
+            || $response instanceof StreamedResponse
+            || !str_starts_with(strtolower((string) $response->headers->get('Content-Type')), 'application/json')) {
             return;
         }
 

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpServerInstructions;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * @internal
@@ -68,6 +69,29 @@ class McpServerInstructionsTest extends TestCase
         $content = $response->getContent();
 
         McpServerInstructions::applyToStatelessDiscover($request, $response);
+
+        static::assertSame($content, $response->getContent());
+    }
+
+    public function testLeavesAStreamedResponseAlone(): void
+    {
+        $response = new StreamedResponse(static function (): void {
+            echo 'data: {}';
+        }, Response::HTTP_OK, ['Content-Type' => 'application/json']);
+
+        McpServerInstructions::applyToStatelessDiscover(self::request('server/discover', stateless: true), $response);
+
+        static::assertFalse($response->getContent());
+        static::assertFalse($response->headers->has('Content-Length'));
+    }
+
+    public function testLeavesABufferedEventStreamAlone(): void
+    {
+        $json = (string) self::discoverResponse(McpServerInstructions::ADMIN)->getContent();
+        $response = new Response('event: message' . "\n" . 'data: ' . $json . "\n\n", Response::HTTP_OK, ['Content-Type' => 'text/event-stream']);
+        $content = $response->getContent();
+
+        McpServerInstructions::applyToStatelessDiscover(self::request('server/discover', stateless: true), $response);
 
         static::assertSame($content, $response->getContent());
     }

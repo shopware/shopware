@@ -17,6 +17,14 @@ export const sendTimeoutExpired = {
     method: 'error',
 };
 
+/**
+ * Pre-major deprecation warnings, silenced because the suite runs both sides of a feature flag.
+ */
+export const deprecationWarning = {
+    msg: '[Deprecation]',
+    method: 'warn',
+};
+
 // Vue 3 component resolution warnings for non-registered components in tests.
 // sw-block and sw-block-parent are excluded: they are registered globally by the Jest setup, and
 // silencing them is what let an unresolved <sw-block> add a DOM element the application does not have.

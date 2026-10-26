@@ -114,6 +114,35 @@ A rejected origin is logged as a warning in the `mcp` channel.
 ### MCP tools can stream progress and elicitation again
 
 MCP tools that call `progress()`, `notify()`, `elicit()` or `elicitUrl()` on the SDK's `ClientGateway` now reach the client as a `text/event-stream` with its headers and frames.
+### MCP tool results follow the negotiated protocol revision
+
+Tool results of `/api/_mcp` and `/store-api/_mcp` now take their format from the protocol revision the client negotiated, not from the `v6.8.0.0` feature flag.
+
+* **Clients on 2025-06-18 and later** get the MCP format: the first text block is the result data as plain JSON (or the error message), followed by the summary and the metadata (`{"_meta": …}`) as blocks of their own.
+  The text is no longer the `{"success": …}` envelope.
+  The data is also in `structuredContent`, a failure sets `isError: true` with a stable code in `structuredContent.error.code`, and the metadata is also in the result's `_meta` with the prefix `shopware/`.
+  Integrations that parse `success` out of `content[0].text` have to read `isError` and `structuredContent` instead, or negotiate an older revision.
+  When a result has metadata for the model, such as `dryRun`, `total` or a summary, `structuredContent` carries it under the reserved key `_meta`: next to the keys of an object, or as `{"result": …, "_meta": …}` for a list or scalar, on 2026-07-28 too.
+  Tools that declare an `outputSchema` get exactly their data in `structuredContent`.
+* **Clients on 2024-11-05 and 2025-03-26** keep the `{"success": …}` envelope as the only text block, unchanged.
+  This legacy envelope is deprecated as a wire format.
+  It is kept for these clients and is not removed in 6.8.0.
+  `McpToolResponse::success()` and `::error()` stay; tools don't need to change.
+
+### Large MCP results in the result envelope are stored and linked for every tool
+
+The MCP result renderer now decides whether a tool result is too large to return inline, on `/api/_mcp` and `/store-api/_mcp`.
+It renders every result in the `{"success": …}` envelope, meaning a JSON string with a boolean `success`, no matter whether it comes from `McpToolResponse::success()`, an app tool, or a plugin tool that builds the string by hand.
+Such results, which were always returned inline unless they came from `McpToolResponse::success()`, are now stored when they are too large and sent as a `resource_link` (2025-06-18 and later) or with `_meta.resourceUri` in the envelope (before 2025-06-18).
+A tool result that is not in this envelope, such as plain text, is passed through unchanged and is never stored.
+On 2025-06-18 and later, results of a tool that declares an `outputSchema` are never stored, because a link carries no `structuredContent` that could match the schema; such a tool has to keep its results small itself.
+The model reads stored results with `resources/read`.
+`McpToolResponse::success()` itself no longer stores anything and always returns the full data, so a tool called outside of an MCP request gets its complete result.
+The limit applies to the rendered result, the text plus `structuredContent`, and is set so that the offload point stays at about 100 KB of data.
+The linked response keeps the tool's summary, its own links, and its metadata up to 10 KB; larger metadata values are named in `_meta.omittedMeta`.
+For clients on protocol revision 2025-06-18 or later, `resources/read` of a stored result returns the plain data instead of the `{"success": true, "data": …}` envelope.
+Its metadata, such as `total`, comes with the link in the tool result.
+Clients on 2024-11-05 and 2025-03-26 keep reading the envelope.
 
 ## API
 

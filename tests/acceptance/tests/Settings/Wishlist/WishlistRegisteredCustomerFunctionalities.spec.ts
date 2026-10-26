@@ -84,7 +84,7 @@ test(
             await ShopCustomer.presses(product1Locators.wishlistNotAddedIcon);
             await ShopCustomer.expects(StorefrontHome.wishlistCookieAcceptButton).toBeVisible();
 
-            //Accept wishlist cookie 
+            //Accept wishlist cookie
             await ShopCustomer.presses(StorefrontHome.wishlistCookieAcceptButton);
             await ShopCustomer.expects(StorefrontHome.wishlistCookieAcceptButton).not.toBeVisible();
 
@@ -103,10 +103,10 @@ test(
             await ShopCustomer.attemptsTo(AddProductToWishlist(product1));
             await ShopCustomer.attemptsTo(AddProductToWishlist(product3));
             await ShopCustomer.expects(StorefrontHeader.wishlistBasket).toHaveText('2');
-            
+
             await ShopCustomer.attemptsTo(Login());
             await ShopCustomer.expects(StorefrontHeader.wishlistBasket).toHaveText('2');
-            
+
             await ShopCustomer.presses(StorefrontHeader.wishlistIcon);
             await ShopCustomer.expects(StorefrontWishlist.wishlistItems.nth(0)).toContainText(product3.name);
             await ShopCustomer.expects(StorefrontWishlist.wishlistItems.nth(1)).toContainText(product1.name);

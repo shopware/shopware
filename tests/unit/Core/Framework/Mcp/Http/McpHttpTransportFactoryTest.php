@@ -2,12 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Http;
 
+use Doctrine\DBAL\Connection;
 use Mcp\Server;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
@@ -40,43 +42,75 @@ class McpHttpTransportFactoryTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string, string|null}>
+     * @return iterable<string, array{string, string|null, list<string>}>
      */
     public static function acceptedRequestProvider(): iterable
     {
-        yield 'a CLI client sends no Origin header' => ['https://shop.example/api/_mcp', null];
-        yield 'a browser client on the shop origin' => ['https://shop.example/api/_mcp', 'https://shop.example'];
-        yield 'the MCP Inspector on a local port of its own' => ['https://shop.example/api/_mcp', 'http://localhost:6274'];
-        yield 'another scheme and port of a shop host' => ['https://shop.example/api/_mcp', 'http://shop.example:8080'];
-        yield 'a request to a local host' => ['http://localhost:8000/api/_mcp', null];
+        yield 'a CLI client sends no Origin header' => ['https://shop.example/api/_mcp', null, []];
+        yield 'a browser client on the shop origin' => ['https://shop.example/api/_mcp', 'https://shop.example', []];
+        yield 'a browser client on another sales channel domain' => ['https://shop.example/api/_mcp', 'https://de.shop.example', []];
+        yield 'the MCP Inspector against a local shop' => ['http://localhost:8000/api/_mcp', 'http://localhost:6274', []];
+        yield 'the MCP Inspector against a .localhost shop' => ['http://trunk.localhost:8088/api/_mcp', 'http://localhost:6274', []];
+        yield 'a configured exact origin' => ['https://shop.example/api/_mcp', 'https://chat.example', ['https://chat.example']];
+        yield 'a configured origin with any port' => ['https://shop.example/api/_mcp', 'http://localhost:6274', ['http://localhost:*']];
+        yield 'any origin when configured' => ['https://shop.example/api/_mcp', 'https://attacker.example', ['*']];
+        yield 'a request to a local host' => ['http://localhost:8000/api/_mcp', null, []];
     }
 
+    /**
+     * @param list<string> $configuredOrigins
+     */
     #[DataProvider('acceptedRequestProvider')]
-    public function testTransportAcceptsRequestsForAllowedHostsAndOrigins(string $uri, ?string $origin): void
+    public function testTransportAcceptsRequestsForAllowedHostsAndOrigins(string $uri, ?string $origin, array $configuredOrigins): void
     {
-        $response = $this->initialize($uri, $origin);
+        $response = $this->initialize($uri, $origin, $configuredOrigins);
 
         static::assertSame(200, $response->getStatusCode(), (string) $response->getBody());
         static::assertNotSame('', $response->getHeaderLine(PlatformRequest::HEADER_MCP_SESSION_ID));
     }
 
     /**
-     * @return iterable<string, array{string, string|null, string}>
+     * @return iterable<string, array{string, string|null, list<string>, string}>
      */
     public static function rejectedRequestProvider(): iterable
     {
-        yield 'a host the shop does not serve' => ['https://rebound.example/api/_mcp', null, 'Forbidden: Invalid Host header.'];
-        yield 'an origin on a foreign host' => ['https://shop.example/api/_mcp', 'https://attacker.example', 'Forbidden: Invalid Origin header.'];
-        yield 'an opaque origin' => ['https://shop.example/api/_mcp', 'null', 'Forbidden: Invalid Origin header.'];
+        yield 'a host the shop does not serve' => ['https://rebound.example/api/_mcp', null, [], 'Forbidden: Invalid Host header.'];
+        yield 'an origin on a foreign host' => ['https://shop.example/api/_mcp', 'https://attacker.example', [], 'Forbidden: Invalid Origin header.'];
+        yield 'an opaque origin' => ['https://shop.example/api/_mcp', 'null', [], 'Forbidden: Invalid Origin header.'];
+        yield 'another scheme and port of a shop host' => ['https://shop.example/api/_mcp', 'http://shop.example:8080', [], 'Forbidden: Invalid Origin header.'];
+        yield 'the MCP Inspector against a public shop' => ['https://shop.example/api/_mcp', 'http://localhost:6274', [], 'Forbidden: Invalid Origin header.'];
+        yield 'another port than the configured one' => ['https://shop.example/api/_mcp', 'https://chat.example:8443', ['https://chat.example'], 'Forbidden: Invalid Origin header.'];
     }
 
+    /**
+     * @param list<string> $configuredOrigins
+     */
     #[DataProvider('rejectedRequestProvider')]
-    public function testTransportRejectsRequestsForForeignHostsAndOrigins(string $uri, ?string $origin, string $message): void
+    public function testTransportRejectsRequestsForForeignHostsAndOrigins(string $uri, ?string $origin, array $configuredOrigins, string $message): void
     {
-        $response = $this->initialize($uri, $origin);
+        $response = $this->initialize($uri, $origin, $configuredOrigins);
 
         static::assertSame(403, $response->getStatusCode());
         static::assertSame($message, (string) $response->getBody());
+    }
+
+    public function testLogsARejectedOrigin(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('warning')->with(
+            static::stringContains('shopware.mcp.allowed_origins'),
+            ['origin' => 'https://attacker.example', 'host' => 'shop.example'],
+        );
+
+        $this->initialize('https://shop.example/api/_mcp', 'https://attacker.example', [], $logger);
+    }
+
+    public function testDoesNotLogASameOriginRequest(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('warning');
+
+        $this->initialize('https://shop.example/api/_mcp', 'https://shop.example', [], $logger);
     }
 
     public function testCreateStreamReturnsStreamWithGivenContent(): void
@@ -129,17 +163,22 @@ class McpHttpTransportFactoryTest extends TestCase
             ->withBody($psr17->createStream($body));
     }
 
-    private function initialize(string $uri, ?string $origin): ResponseInterface
+    /**
+     * @param list<string> $configuredOrigins
+     */
+    private function initialize(string $uri, ?string $origin, array $configuredOrigins = [], ?LoggerInterface $logger = null): ResponseInterface
     {
         $psr17 = new Psr17Factory();
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturn(['https://shop.example', 'https://de.shop.example', 'http://trunk.localhost:8088']);
+
         $factory = new McpHttpTransportFactory(
             new PsrHttpFactory($psr17, $psr17, $psr17, $psr17),
             $psr17,
             $psr17,
             new HttpFoundationFactory(),
-            static::createConfiguredStub(McpAllowedHostsProvider::class, [
-                'getAllowedHosts' => ['localhost', '127.0.0.1', '[::1]', 'shop.example'],
-            ]),
+            new McpAllowedHostsProvider($connection, 'https://shop.example', $configuredOrigins),
+            $logger,
         );
 
         $request = Request::create($uri, Request::METHOD_POST, server: [

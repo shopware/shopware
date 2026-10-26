@@ -17,6 +17,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Notification\McpHandshakeListChangedSubscriber;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -44,7 +46,7 @@ class McpHandshakeListChangedSubscriberTest extends TestCase
         );
         $event = $this->event(new InitializeRequest('2025-06-18', new ClientCapabilities(), new Implementation('client', '1.0')), $result);
 
-        (new McpHandshakeListChangedSubscriber())->onResponse($event);
+        $this->subscriber()->onResponse($event);
 
         $response = $event->getResponse();
         static::assertSame(1, $response->id);
@@ -68,9 +70,44 @@ class McpHandshakeListChangedSubscriberTest extends TestCase
         $event = $this->event(new PingRequest(), new EmptyResult());
         $response = $event->getResponse();
 
-        (new McpHandshakeListChangedSubscriber())->onResponse($event);
+        $this->subscriber()->onResponse($event);
 
         static::assertSame($response, $event->getResponse());
+    }
+
+    public function testLeavesTheInitializeAnswerOfAnotherMcpServerUntouched(): void
+    {
+        $event = $this->event(
+            new InitializeRequest('2025-06-18', new ClientCapabilities(), new Implementation('client', '1.0')),
+            new InitializeResult(new ServerCapabilities(tools: true), new Implementation('Plugin server', '1.0.0')),
+        );
+        $response = $event->getResponse();
+
+        $this->subscriber('_mcp_plugin')->onResponse($event);
+
+        static::assertSame($response, $event->getResponse());
+    }
+
+    public function testDeclaresListChangedOnTheStoreApiEndpoint(): void
+    {
+        $event = $this->event(
+            new InitializeRequest('2025-06-18', new ClientCapabilities(), new Implementation('client', '1.0')),
+            new InitializeResult(new ServerCapabilities(tools: true), new Implementation('Shopware Store API', '1.0.0')),
+        );
+
+        $this->subscriber('store-api.mcp.endpoint')->onResponse($event);
+
+        $answer = $event->getResponse()->result;
+        static::assertInstanceOf(InitializeResult::class, $answer);
+        static::assertTrue($answer->capabilities->toolsListChanged);
+    }
+
+    private function subscriber(string $route = 'api.mcp.endpoint'): McpHandshakeListChangedSubscriber
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(new Request(attributes: ['_route' => $route]));
+
+        return new McpHandshakeListChangedSubscriber($requestStack);
     }
 
     private function event(InitializeRequest|PingRequest $request, InitializeResult|EmptyResult $result): ResponseEvent

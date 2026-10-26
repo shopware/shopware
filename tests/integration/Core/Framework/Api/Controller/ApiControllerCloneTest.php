@@ -7,7 +7,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Acl\Event\CommandAclValidationEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Log\Package;
@@ -16,7 +15,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -208,7 +206,7 @@ class ApiControllerCloneTest extends TestCase
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
         $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertStringStartsWith('/0/media/0/media/fileSize', $data['errors'][0]['source']['pointer']);
+        static::assertSame('/media/0/media/fileSize', $data['errors'][0]['source']['pointer']);
         static::assertSame($productCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM product'));
         static::assertSame($mediaCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM media'));
     }
@@ -283,13 +281,6 @@ class ApiControllerCloneTest extends TestCase
         $connection = $container->get(Connection::class);
         TestUser::createNewTestUser($connection, ['product:create', 'product:read', 'product_media:create'])->authorizeBrowser($browser);
         $mediaCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM media');
-        $associationCommands = [];
-        EventHookDispatcher::fromContainer($container)->on(CommandAclValidationEvent::class, static function (CommandAclValidationEvent $event) use (&$associationCommands): void {
-            $command = $event->getCommand();
-            if ($command->getEntityName() === 'product_media') {
-                $associationCommands[] = [$command->getPrivilege(), $command->getPayload()['position'], $command->getPayload()['media_id']];
-            }
-        });
 
         $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
             'overwrites' => ['productNumber' => Uuid::randomHex(), 'media' => [['position' => 1]]],
@@ -300,7 +291,6 @@ class ApiControllerCloneTest extends TestCase
         $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(1, (int) $connection->fetchOne('SELECT position FROM product_media WHERE product_id = :product AND media_id = :media', ['product' => Uuid::fromHexToBytes($data['id']), 'media' => Uuid::fromHexToBytes($mediaId)]));
         static::assertSame($mediaCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM media'));
-        static::assertSame([['create', 1, Uuid::fromHexToBytes($mediaId)]], $associationCommands);
     }
 
     public function testCloneCannotOverrideCopiedAssociationWithoutCreatePermission(): void
@@ -349,6 +339,133 @@ class ApiControllerCloneTest extends TestCase
         static::assertStringContainsString('category:update', (string) $response->getContent());
         static::assertSame('Original category', $connection->fetchOne('SELECT name FROM category_translation WHERE category_id = :id AND language_id = :language', ['id' => Uuid::fromHexToBytes($categoryId), 'language' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]));
         static::assertSame($productCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM product'));
+    }
+
+    public function testCloneCannotUpdateCopiedManyToManyTargetWhenOverwriteOmitsItsId(): void
+    {
+        ['productId' => $productId] = $this->createProductWithTax();
+        $browser = $this->getBrowser();
+        $container = $browser->getContainer();
+        $categoryId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $container->get('category.repository')->create([['id' => $categoryId, 'name' => 'Original category']], $context);
+        $container->get('product.repository')->update([['id' => $productId, 'categories' => [['id' => $categoryId]]]], $context);
+        $connection = $container->get(Connection::class);
+        TestUser::createNewTestUser($connection, ['product:create', 'product:read', 'product_category:create', 'category:create'])->authorizeBrowser($browser);
+        $productCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM product');
+
+        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
+            'overwrites' => ['productNumber' => Uuid::randomHex(), 'categories' => [['name' => 'Changed category']]],
+        ]);
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString('category:update', (string) $response->getContent());
+        static::assertSame('Original category', $connection->fetchOne('SELECT name FROM category_translation WHERE category_id = :id AND language_id = :language', ['id' => Uuid::fromHexToBytes($categoryId), 'language' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]));
+        static::assertSame($productCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM product'));
+    }
+
+    public function testCloneChecksLiveManyToManyTargetWhenCloningDraftProduct(): void
+    {
+        ['productId' => $productId] = $this->createProductWithTax();
+        $browser = $this->getBrowser();
+        $container = $browser->getContainer();
+        $categoryId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $container->get('category.repository')->create([['id' => $categoryId, 'name' => 'Original category']], $context);
+        $productRepository = $container->get('product.repository');
+        $productRepository->update([['id' => $productId, 'categories' => [['id' => $categoryId]]]], $context);
+        $versionId = $productRepository->createVersion($productId, $context);
+        $connection = $container->get(Connection::class);
+        TestUser::createNewTestUser($connection, ['product:create', 'product:read', 'product_category:create', 'category:create'])->authorizeBrowser($browser);
+
+        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
+            'overwrites' => ['productNumber' => Uuid::randomHex(), 'categories' => [['name' => 'Changed category']]],
+        ], ['HTTP_SW_VERSION_ID' => $versionId]);
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString('category:update', (string) $response->getContent());
+        static::assertSame('Original category', $connection->fetchOne('SELECT name FROM category_translation WHERE category_id = :id AND language_id = :language', ['id' => Uuid::fromHexToBytes($categoryId), 'language' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]));
+    }
+
+    public function testCloneCanUpdateCopiedManyToManyTargetWhenOverwriteOmitsItsId(): void
+    {
+        ['productId' => $productId] = $this->createProductWithTax();
+        $browser = $this->getBrowser();
+        $container = $browser->getContainer();
+        $categoryId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $container->get('category.repository')->create([['id' => $categoryId, 'name' => 'Original category']], $context);
+        $container->get('product.repository')->update([['id' => $productId, 'categories' => [['id' => $categoryId]]]], $context);
+        $connection = $container->get(Connection::class);
+        TestUser::createNewTestUser($connection, ['product:create', 'product:read', 'product_category:create', 'category:update'])->authorizeBrowser($browser);
+
+        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
+            'overwrites' => ['productNumber' => Uuid::randomHex(), 'categories' => [['name' => 'Changed category']]],
+        ]);
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame('Changed category', $connection->fetchOne('SELECT name FROM category_translation WHERE category_id = :id AND language_id = :language', ['id' => Uuid::fromHexToBytes($categoryId), 'language' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]));
+    }
+
+    public function testCloneCannotLinkManyToManyTargetWithoutMappingCreatePermission(): void
+    {
+        ['productId' => $productId] = $this->createProductWithTax();
+        $browser = $this->getBrowser();
+        $container = $browser->getContainer();
+        $categoryId = Uuid::randomHex();
+        $container->get('category.repository')->create([['id' => $categoryId, 'name' => 'Linked category']], Context::createDefaultContext());
+        $connection = $container->get(Connection::class);
+        TestUser::createNewTestUser($connection, ['product:create', 'product:read'])->authorizeBrowser($browser);
+        $associationCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM product_category');
+
+        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
+            'overwrites' => ['productNumber' => Uuid::randomHex(), 'categories' => [['id' => $categoryId]]],
+        ]);
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString('product_category:create', (string) $response->getContent());
+        static::assertSame($associationCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM product_category'));
+    }
+
+    public function testCloneCanLinkManyToManyTargetWithoutTargetWritePermission(): void
+    {
+        ['productId' => $productId] = $this->createProductWithTax();
+        $browser = $this->getBrowser();
+        $container = $browser->getContainer();
+        $categoryId = Uuid::randomHex();
+        $container->get('category.repository')->create([['id' => $categoryId, 'name' => 'Linked category']], Context::createDefaultContext());
+        $connection = $container->get(Connection::class);
+        TestUser::createNewTestUser($connection, ['product:create', 'product:read', 'product_category:create'])->authorizeBrowser($browser);
+
+        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
+            'overwrites' => ['productNumber' => Uuid::randomHex(), 'categories' => [['id' => $categoryId]]],
+        ]);
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(1, (int) $connection->fetchOne('SELECT COUNT(*) FROM product_category WHERE product_id = :product AND category_id = :category', ['product' => Uuid::fromHexToBytes($data['id']), 'category' => Uuid::fromHexToBytes($categoryId)]));
+    }
+
+    public function testCloneCanCreateNestedTaxWithExplicitNewId(): void
+    {
+        ['productId' => $productId] = $this->createProductWithTax();
+        $browser = $this->getBrowser();
+        $connection = $browser->getContainer()->get(Connection::class);
+        TestUser::createNewTestUser($connection, ['product:create', 'product:read', 'tax:create'])->authorizeBrowser($browser);
+        $taxId = Uuid::randomHex();
+
+        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
+            'overwrites' => ['productNumber' => Uuid::randomHex(), 'tax' => ['id' => $taxId, 'name' => 'New clone tax', 'taxRate' => 7]],
+        ]);
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(7.0, (float) $connection->fetchOne('SELECT tax_rate FROM tax WHERE id = :id', ['id' => Uuid::fromHexToBytes($taxId)]));
     }
 
     public function testTrustedSystemCloneCanOverwriteProtectedValues(): void

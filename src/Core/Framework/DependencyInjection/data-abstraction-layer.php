@@ -7,7 +7,6 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Product\SearchKeyword\KeywordLoader;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
-use Shopware\Core\Framework\Api\Acl\AclWriteValidator;
 use Shopware\Core\Framework\Api\Sync\SyncFkResolver;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Api\Sync\Telemetry\SyncMetricsInstrumentor;
@@ -533,9 +532,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(VersionDefinition::class),
             service('lock.factory'),
             service(ClockInterface::class),
-            service(WriteCommandExtractor::class),
-            service(AclWriteValidator::class),
-            service(LanguageLoader::class),
         ]);
 
     $services->set(CalculatedPriceFieldSerializer::class)

@@ -259,4 +259,20 @@ class ConfigurationTest extends TestCase
             ],
         ]);
     }
+
+    public function testMediaAllowedProtocolsDefaultToAllSupportedProtocols(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [['media' => []]]);
+
+        static::assertSame(['http', 'https', 'ftp', 'sftp'], $config['media']['allowed_protocols']);
+    }
+
+    public function testMediaAllowedProtocolsRejectUnsupportedProtocol(): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException('The value "gopher" is not allowed for path "shopware.media.allowed_protocols.1". Permissible values: "http", "https", "ftp", "sftp".'));
+
+        (new Processor())->processConfiguration(new Configuration(), [
+            ['media' => ['allowed_protocols' => ['https', 'gopher']]],
+        ]);
+    }
 }

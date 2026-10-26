@@ -94,7 +94,23 @@ Plugins and bundles that register MCP tools are affected in these points:
 * `#[CompletionProvider]` no longer takes `providerClass`; pass the class to `provider` instead.
 
 The SDK classes for an OAuth proxy, client registration and OIDC discovery were removed, see the [mcp/sdk 0.9.0 changelog](https://github.com/modelcontextprotocol/php-sdk/blob/v0.9.0/CHANGELOG.md).
-The MCP endpoints still accept browser clients from any origin on one of the shop's hosts, for example the MCP Inspector on `http://localhost:6274`.
+The MCP endpoints match the `Origin` header of browser clients exactly, including scheme and port.
+They accept the origins of `APP_URL` and of every sales channel domain.
+A loopback origin, for example the MCP Inspector on `http://localhost:6274`, is accepted only for a shop on a loopback host such as `localhost` or `*.localhost`.
+Clients without an `Origin` header, such as CLI clients and desktop apps, are not affected.
+Allow further origins with `shopware.mcp.allowed_origins`.
+An entry is an exact origin, an origin with `:*` for any port, or `*` for any origin:
+
+```yaml
+shopware:
+    mcp:
+        allowed_origins:
+            - 'https://chat.example.com'
+            - 'http://localhost:*'
+```
+
+The list can also come from an environment variable, for example `allowed_origins: '%env(csv:MCP_ALLOWED_ORIGINS)%'`.
+A rejected origin is logged as a warning in the `mcp` channel.
 
 ## API
 

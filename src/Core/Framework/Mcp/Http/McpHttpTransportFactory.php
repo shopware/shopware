@@ -87,10 +87,8 @@ class McpHttpTransportFactory
      * seed it with the shop's own hosts (APP_URL + sales channel domains) so legitimate clients pass
      * while rebinding attempts are still blocked.
      *
-     * The SDK accepts a cross-origin request only for an exact origin (scheme, host and port), while
-     * Shopware allows every origin on one of its hosts, as mcp/sdk 0.8 did. Browser clients such as
-     * the MCP Inspector run on a port of their own (`http://localhost:6274`), which no static list
-     * can name. The request's own origin is therefore passed when its host is allowed.
+     * A cross-origin request needs an exact origin, see {@see McpAllowedHostsProvider::isAllowedOrigin()}.
+     * The SDK keeps checking same-origin requests itself.
      *
      * @return list<MiddlewareInterface>
      */
@@ -101,9 +99,13 @@ class McpHttpTransportFactory
 
         $origin = $request->headers->get('Origin');
         if ($origin !== null) {
-            $originHost = parse_url($origin, \PHP_URL_HOST);
-            if (\is_string($originHost) && \in_array(strtolower($originHost), $allowedHosts, true)) {
+            if ($this->allowedHostsProvider->isAllowedOrigin($origin, $request->getHttpHost())) {
                 $allowedOrigins[] = $origin;
+            } elseif (strtolower(rtrim($origin, '/')) !== strtolower($request->getSchemeAndHttpHost())) {
+                $this->logger?->warning('MCP request rejected: Origin "{origin}" is not allowed. Add it to shopware.mcp.allowed_origins to accept it.', [
+                    'origin' => $origin,
+                    'host' => $request->getHttpHost(),
+                ]);
             }
         }
 

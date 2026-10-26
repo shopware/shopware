@@ -67,8 +67,10 @@ class RevenueReportTool
 - Describe the toolset, not the tool: which tasks it covers and when to enable it.
   Keep it to one or two sentences, because it is sent on every `shopware-toolsets-list` call.
 - Set it on one tool of the group.
-  If several tools of a group set different descriptions, the tool whose name sorts first wins and the container build logs the conflict.
-- Do not describe a group you do not own, such as the core `entity` group.
+- Extensions may add tools to a core group, such as `entity`, but cannot change its description.
+  A description from a `Shopware\` class always wins for its group, and an extension description for that group is ignored and logged at container build.
+- An extension can describe only a group no core tool describes.
+  If two extensions describe the same group differently, the tool whose name sorts first wins and the conflict is logged.
 - Without a description the toolset gets a generated one (`Tools explicitly assigned to the "<group>" MCP tool group.`), which gives a model little to route on.
 - A tool that claims the reserved `discovery` group loses its description together with the group.
 - App toolsets (`mcp.xml`) cannot carry a description yet; they always get the generated one.

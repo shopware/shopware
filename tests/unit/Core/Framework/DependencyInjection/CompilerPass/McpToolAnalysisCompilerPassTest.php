@@ -6,6 +6,7 @@ use Mcp\Capability\Attribute\McpTool;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolAnalysisCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolAttributeReader;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolDependsOn;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
+use Shopware\Core\Framework\Mcp\Tool\MediaUploadTool;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
@@ -213,7 +215,7 @@ class McpToolAnalysisCompilerPassTest extends TestCase
         static::assertSame([], $this->groupDescriptionConflicts($container));
     }
 
-    public function testConflictingToolGroupDescriptionsUseTheFirstToolByNameAndWarn(): void
+    public function testConflictingExtensionDescriptionsUseTheFirstToolByNameAndWarn(): void
     {
         $container = $this->createContainer();
 
@@ -267,6 +269,30 @@ class McpToolAnalysisCompilerPassTest extends TestCase
         $pass->process($container);
 
         static::assertSame([], $container->getParameter('shopware.mcp.tool_dependencies'));
+    }
+
+    public function testACoreDescriptionWinsOverAnExtensionDescriptionOfTheSameGroup(): void
+    {
+        $container = $this->createContainer();
+
+        // The extension tool sorts before the core tool by name, so only the core rule can let core win.
+        $container->setDefinition('tool.extension', (new Definition(McpAnalysisTestDescribingCoreGroupTool::class))->addTag('mcp.tool'));
+        $container->setDefinition('tool.core', (new Definition(MediaUploadTool::class))->addTag('mcp.tool'));
+
+        (new McpToolAnalysisCompilerPass())->process($container);
+
+        $coreDescription = McpToolAttributeReader::resolveAttribute(MediaUploadTool::class, McpToolGroup::class)?->description;
+        static::assertIsString($coreDescription);
+
+        static::assertSame(['media' => $coreDescription], $container->getParameter('shopware.mcp.tool_group_descriptions'));
+        static::assertSame('media', $container->getParameter('shopware.mcp.tool_groups')['acme-analysis-media-export'] ?? null, 'the extension tool still joins the core group');
+
+        $ignored = array_values(array_filter(
+            $container->getCompiler()->getLog(),
+            static fn (string $message): bool => str_contains($message, 'extensions cannot change a core toolset description'),
+        ));
+        static::assertCount(1, $ignored);
+        static::assertStringContainsString('"acme-analysis-media-export" describes the core "media" toolset', $ignored[0]);
     }
 
     private function createContainer(): ContainerBuilder
@@ -441,6 +467,19 @@ class McpAnalysisTestConflictingDescriptionTool extends McpToolResponse
 #[McpTool(name: 'swag-analysis-blank-description-tool', description: 'tool with a blank group description')]
 #[McpToolGroup('blank', description: '   ')]
 class McpAnalysisTestBlankDescriptionTool extends McpToolResponse
+{
+    public function __invoke(): string
+    {
+        return '';
+    }
+}
+
+/**
+ * @internal
+ */
+#[McpTool(name: 'acme-analysis-media-export', description: 'extension tool in a core group')]
+#[McpToolGroup('media', description: 'Export media, and everything else.')]
+class McpAnalysisTestDescribingCoreGroupTool extends McpToolResponse
 {
     public function __invoke(): string
     {

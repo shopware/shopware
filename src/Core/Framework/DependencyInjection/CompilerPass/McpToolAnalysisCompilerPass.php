@@ -143,15 +143,14 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
 
     /**
      * Stores tool-name => group and group => description. A description describes the whole toolset,
-     * so a group needs it on one tool only; when tools disagree, the tool whose name sorts first wins,
-     * which keeps the result independent of service registration order.
+     * so a group needs it on one tool only. See resolveGroupDescriptions() for who wins.
      */
     private function buildToolGroupMap(ContainerBuilder $container, string $tag, string $paramPrefix): void
     {
         /** @var array<string, string> $groupMap tool-name => group */
         $groupMap = [];
 
-        /** @var array<string, string> $describedGroups tool-name => description, for tools that describe their group */
+        /** @var array<string, array{description: string, core: bool}> $describedGroups tool-name => description, for tools that describe their group */
         $describedGroups = [];
 
         foreach ($container->findTaggedServiceIds($tag) as $serviceId => $tags) {
@@ -188,7 +187,7 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
 
             $description = trim($groupAttribute->description ?? '');
             if ($description !== '') {
-                $describedGroups[$tool->name] = $description;
+                $describedGroups[$tool->name] = ['description' => $description, 'core' => self::isCoreClass($class)];
             }
         }
 
@@ -197,8 +196,13 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
     }
 
     /**
+     * A core description always wins for its group: extensions may add tools to a core group, but
+     * cannot change how it is described. An extension can only describe a group no core tool
+     * describes. Within core, and among extensions, the tool whose name sorts first wins, which keeps
+     * the result independent of service registration order. Every ignored description is logged.
+     *
      * @param array<string, string> $groupMap tool-name => group
-     * @param array<string, string> $describedGroups tool-name => description
+     * @param array<string, array{description: string, core: bool}> $describedGroups tool-name => description
      *
      * @return array<string, string> group => description
      */
@@ -208,34 +212,58 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
 
         $descriptions = [];
         $describedBy = [];
+        $coreGroups = [];
 
-        foreach ($describedGroups as $toolName => $description) {
-            $group = $groupMap[$toolName];
+        foreach ([true, false] as $core) {
+            foreach ($describedGroups as $toolName => $entry) {
+                if ($entry['core'] !== $core) {
+                    continue;
+                }
 
-            if (!isset($descriptions[$group])) {
-                $descriptions[$group] = $description;
-                $describedBy[$group] = $toolName;
+                $group = $groupMap[$toolName];
 
-                continue;
-            }
+                if (!isset($descriptions[$group])) {
+                    $descriptions[$group] = $entry['description'];
+                    $describedBy[$group] = $toolName;
+                    $coreGroups[$group] = $core;
 
-            if ($descriptions[$group] !== $description) {
-                $container->log(
-                    $this,
-                    \sprintf(
+                    continue;
+                }
+
+                if (!$core && $coreGroups[$group]) {
+                    $container->log($this, \sprintf(
+                        'MCP tool "%s" describes the core "%s" toolset; extensions cannot change a core toolset description, the description of "%s" is used.',
+                        $toolName,
+                        $group,
+                        $describedBy[$group],
+                    ));
+
+                    continue;
+                }
+
+                if ($descriptions[$group] !== $entry['description']) {
+                    $container->log($this, \sprintf(
                         'MCP tool "%s" describes the "%s" toolset differently than "%s"; the description of "%s" is used.',
                         $toolName,
                         $group,
                         $describedBy[$group],
                         $describedBy[$group],
-                    ),
-                );
+                    ));
+                }
             }
         }
 
         ksort($descriptions);
 
         return $descriptions;
+    }
+
+    /**
+     * Shopware's own code, including commercial bundles. Shopware's test fixtures count as extensions.
+     */
+    private static function isCoreClass(string $class): bool
+    {
+        return str_starts_with($class, 'Shopware\\') && !str_starts_with($class, 'Shopware\\Tests\\');
     }
 
     /**

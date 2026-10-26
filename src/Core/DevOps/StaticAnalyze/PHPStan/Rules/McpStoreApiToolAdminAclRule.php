@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Reports Admin API ACL in Store API MCP tools: a `#[McpToolRequires]` attribute or a
- * `requirePrivilege()` call. Store API tools run in a sales channel context, where Admin ACL
+ * `requirePrivilege()` or `requirePrivilegeResult()` call. Store API tools run in a sales channel context, where Admin ACL
  * privileges do not exist, so such a check always passes and suggests a protection that is not
  * there.
  *
@@ -40,7 +40,7 @@ class McpStoreApiToolAdminAclRule implements Rule
 {
     private const MCP_TOOL_REQUIRES_ATTRIBUTE = 'Shopware\Core\Framework\Mcp\Attribute\McpToolRequires';
 
-    private const REQUIRE_PRIVILEGE_METHOD = 'requirePrivilege';
+    private const REQUIRE_PRIVILEGE_METHODS = ['requireprivilege', 'requireprivilegeresult'];
 
     private const IDENTIFIER = 'shopware.mcpStoreApiToolAdminAcl';
 
@@ -78,7 +78,7 @@ class McpStoreApiToolAdminAclRule implements Rule
 
         foreach ($this->requirePrivilegeCalls($class->stmts) as $call) {
             $errors[] = $this->error(
-                \sprintf('Store API MCP tool %s must not call requirePrivilege(). Admin ACL privileges do not apply in a sales channel context.', $className),
+                \sprintf('Store API MCP tool %s must not call %s(). Admin ACL privileges do not apply in a sales channel context.', $className, $call->name instanceof Identifier ? $call->name->toString() : 'requirePrivilege'),
                 $call->getStartLine(),
             );
         }
@@ -87,7 +87,7 @@ class McpStoreApiToolAdminAclRule implements Rule
     }
 
     /**
-     * Calls on the tool itself: `$this->requirePrivilege()`, `self::`, `static::` and `parent::`.
+     * Calls of `requirePrivilege()` or `requirePrivilegeResult()` on the tool itself: `$this->`, `self::`, `static::` and `parent::`.
      *
      * @param array<Node> $stmts
      *
@@ -101,7 +101,7 @@ class McpStoreApiToolAdminAclRule implements Rule
                 return false;
             }
 
-            if (!$node->name instanceof Identifier || $node->name->toLowerString() !== strtolower(self::REQUIRE_PRIVILEGE_METHOD)) {
+            if (!$node->name instanceof Identifier || !\in_array($node->name->toLowerString(), self::REQUIRE_PRIVILEGE_METHODS, true)) {
                 return false;
             }
 

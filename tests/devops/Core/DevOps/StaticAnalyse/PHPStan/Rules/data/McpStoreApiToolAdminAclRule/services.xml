@@ -11,6 +11,10 @@
             <tag name="mcp.tool"/>
             <tag name="shopware.store_api_mcp.tool"/>
         </service>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\StoreApiToolCallingRequirePrivilegeResult" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\StoreApiToolCallingRequirePrivilegeResult">
+            <tag name="mcp.tool"/>
+            <tag name="shopware.store_api_mcp.tool"/>
+        </service>
         <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\StoreApiToolWithoutAdminAcl" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\StoreApiToolWithoutAdminAcl">
             <tag name="mcp.tool"/>
             <tag name="shopware.store_api_mcp.tool"/>

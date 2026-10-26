@@ -124,12 +124,12 @@ Every Admin API tool declares exactly one of two attributes on its class.
 `#[McpToolRequiresNoPrivilege(reason: '...')]` is the explicit opt-out for a tool that reads no shop data, such as `shopware-entity-schema` and the three discovery meta-tools.
 Both are informational and grant nothing: the opt-out is not shown in `debug:mcp` or the capabilities API, a tool with it simply has no privileges listed, and the DAL still checks the ACL of every repository call.
 
-Store API tools declare neither ACL attribute nor call `requirePrivilege()`, because Admin ACL privileges do not exist in a sales channel context.
+Store API tools declare neither ACL attribute nor call `requirePrivilege()` or `requirePrivilegeResult()`, because Admin ACL privileges do not exist in a sales channel context.
 
 PHPStan enforces this with two rules:
 
 - `shopware.mcpAdminToolMissingRequires` (`McpAdminToolRequiresPrivilegeRule`) reports an Admin API tool with neither attribute, or with both.
-- `shopware.mcpStoreApiToolAdminAcl` (`McpStoreApiToolAdminAclRule`) reports a Store API tool with `#[McpToolRequires]` or a `requirePrivilege()` call in its own class.
+- `shopware.mcpStoreApiToolAdminAcl` (`McpStoreApiToolAdminAclRule`) reports a Store API tool with `#[McpToolRequires]` or a `requirePrivilege()` or `requirePrivilegeResult()` call in its own class.
   Inherited calls are not followed. They are harmless, because `requirePrivilege()` always passes outside an Admin API context.
 
 Both read the server from the container tags (`McpToolScopeResolver`), one service definition at a time.

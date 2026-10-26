@@ -1587,6 +1587,33 @@ The unused property was removed.
 
 # Administration
 
+## Product prices card extension points
+
+The product prices card was restructured, and display prices and purchase prices now have separate inheritance controls.
+The following blocks were deprecated and left empty, so `parent()` no longer renders their former content.
+Update overrides to use the replacement blocks:
+
+| Previous block | Replacement |
+| --- | --- |
+| `sw_product_price_form_fields`, `sw_product_price_form_price_field` | `sw_product_price_form_tax_field`, `sw_product_price_form_display_prices`, or `sw_product_price_form_purchase_prices` |
+| `sw_product_price_form_link` | `sw_product_price_form_currency_link` or `sw_product_detail_base_advanced_prices_link` |
+| `sw_product_price_form_maintain_currencies_link` | `sw_product_price_form_currency_link` |
+| `sw_product_price_form_advanced_prices_link` | `sw_product_detail_base_advanced_prices_link` in `sw-product-detail-base` |
+
+`sw-list-price-field` no longer renders purchase prices, and its `hidePurchasePrices` and `purchasePrices` props were deprecated.
+Render `sw-purchase-price-field` separately where purchase prices are needed.
+The `sw_product_price_form_purchase_price_field` and `sw_product_price_form_purchase_price_field_content` blocks were deprecated and left empty.
+Use `sw_product_price_form_purchase_prices` to customize the product card's purchase section.
+
+Each price inheritance wrapper now exposes its price array directly as `currentValue`.
+Replace `currentValue.price` and `currentValue.purchasePrices` with `currentValue` in the corresponding sections.
+Replace overrides of `removePriceInheritation()` and `inheritationCheckFunction()` with `copyDefaultPrice(prices)` and `isPriceInherited(prices)`; each receives one section's price array.
+
+`sw-product-detail.syncVariantPriceInheritance()` was deprecated and is no longer called.
+Move unrelated load-time customization to `sw-product-detail.loadProduct()`.
+`sw-product-detail.getDefaultPurchasePrices()` was deprecated and is no longer called.
+Set `product.purchasePrices` explicitly in a product-detail extension when a default purchase price is required.
+
 ## Sales channel lists removed from `sw-settings-search-live-search` and `sw-newsletter-recipient-list`
 
 The `salesChannels` data property, the `salesChannelRepository` computed property and the `fetchSalesChannels()` method of `sw-settings-search-live-search` were removed without replacement.

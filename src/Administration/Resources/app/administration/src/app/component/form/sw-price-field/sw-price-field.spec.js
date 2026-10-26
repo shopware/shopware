@@ -43,10 +43,12 @@ const defaultPrice = {
     linked: true,
 };
 
+let wrapper;
+
 // initial component setup
 const setup = async (propOverride) => {
     const props = {
-        value: [dollarPrice, euroPrice],
+        value: [structuredClone(dollarPrice), structuredClone(euroPrice)],
         taxRate,
         currency,
         defaultPrice,
@@ -54,7 +56,7 @@ const setup = async (propOverride) => {
         ...propOverride,
     };
 
-    return mount(await wrapTestComponent('sw-price-field', { sync: true }), {
+    wrapper = mount(await wrapTestComponent('sw-price-field', { sync: true }), {
         global: {
             stubs: {
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field', { sync: true }),
@@ -75,6 +77,8 @@ const setup = async (propOverride) => {
         },
         props,
     });
+
+    return wrapper;
 };
 
 describe('components/form/sw-price-field', () => {
@@ -101,6 +105,7 @@ describe('components/form/sw-price-field', () => {
     });
 
     afterEach(() => {
+        wrapper?.unmount();
         jest.useRealTimers();
     });
 
@@ -111,16 +116,18 @@ describe('components/form/sw-price-field', () => {
         expect(wrapper.vm.priceForCurrency.net).toEqual(dollarPrice.net);
     });
 
-    it('should not be an disabled field', async () => {
+    it('should not disable the field', async () => {
         const wrapper = await setup();
 
         expect(wrapper.find('.sw-price-field--disabled').exists()).toBeFalsy();
+        expect(wrapper.get('.sw-price-field__lock').attributes('disabled')).toBeUndefined();
     });
 
-    it('should be an disabled field', async () => {
+    it('should disable the field', async () => {
         const wrapper = await setup({ value: [euroPrice] });
 
         expect(wrapper.find('.sw-price-field--disabled').exists()).toBeTruthy();
+        expect(wrapper.get('.sw-price-field__lock').attributes('disabled')).toBeDefined();
     });
 
     it('should calculate price based on default price', async () => {
@@ -211,6 +218,36 @@ describe('components/form/sw-price-field', () => {
         // New help-text has teleported to document.body
         expect(document.body.innerHTML).toContain('help for gross price');
         expect(document.body.innerHTML).toContain('help for net price');
+    });
+
+    it('should clear linked net when gross is cleared', async () => {
+        const price = { ...dollarPrice, linked: true };
+        const wrapper = await setup({ allowEmpty: true, value: [price] });
+
+        await wrapper.findComponent('.sw-price-field__gross').vm.$emit('input-change', null);
+
+        expect(price.gross).toBeNull();
+        expect(price.net).toBeNull();
+    });
+
+    it('should clear linked gross when net is cleared', async () => {
+        const price = { ...dollarPrice, linked: true };
+        const wrapper = await setup({ allowEmpty: true, value: [price] });
+
+        await wrapper.findComponent('.sw-price-field__net').vm.$emit('input-change', null);
+
+        expect(price.gross).toBeNull();
+        expect(price.net).toBeNull();
+    });
+
+    it('should keep unlinked net when gross is cleared', async () => {
+        const price = { ...dollarPrice, linked: false };
+        const wrapper = await setup({ allowEmpty: true, value: [price] });
+
+        await wrapper.findComponent('.sw-price-field__gross').vm.$emit('input-change', null);
+
+        expect(price.gross).toBeNull();
+        expect(price.net).toBe(dollarPrice.net);
     });
 
     it('should set gross value when the net value is updated', async () => {

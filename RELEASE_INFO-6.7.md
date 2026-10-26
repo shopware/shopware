@@ -567,6 +567,12 @@ The watcher remounts the edited component and the components an edited override 
 It reloads the page for edits it cannot apply in place:
 edits that change the blocks of a component, edits of a component built with `Component.extend()` or `Component.override()` or of a component that is not on the page, and updates that fail to render.
 
+### Product Prices card restructured
+
+Display and purchase prices now have separate sections and inheritance controls; advanced pricing moved to the card header.
+Extensions overriding the price form must [update their blocks and callbacks](./UPGRADE-6.8.md#product-prices-card-extension-points).
+Callers of `sw-list-price-field` must render purchase prices separately; its purchase-price props were deprecated.
+
 ### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag
 
 The new `ADMIN_VITE_8` feature flag builds the Administration and the Administration code of extensions with Vite 8.

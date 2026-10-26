@@ -1,35 +1,39 @@
+# This file is managed by shopware-cli. Do not edit manually.
+# Create a compose.override.yaml to customize services.
+# See https://docs.docker.com/compose/how-tos/multiple-compose-files/merge/
+
 services:
     web:
-        image: ghcr.io/shopware/docker-dev:php8.4-node24-caddy
+        image: ghcr.io/shopware/docker-dev:php8.5-node24-caddy
         ports:
             - 8000:8000
-            - 5173:5173
-            - 5175:5175
-            - 9998:9998
+            - 8080:8080
             - 9999:9999
+            - 9998:9998
+            - 5173:5173
+            - 5773:5773
+        env_file:
+            - .env.local
         environment:
-            COMPOSER_ROOT_VERSION: 6.7.9999999-dev
-            HOST: '0.0.0.0'
-            STOREFRONT_VITE_HOST: '0.0.0.0'
-            STOREFRONT_VITE_ORIGIN: http://localhost:5175
-            APP_URL: http://localhost:8000
+            HOST: 0.0.0.0
             DATABASE_URL: mysql://root:root@database/shopware
             MAILER_DSN: smtp://mailer:1025
-            OPENSEARCH_URL: http://opensearch:9200
-            ADMIN_OPENSEARCH_URL: http://opensearch:9200
+            TRUSTED_PROXIES: REMOTE_ADDR
+            SYMFONY_TRUSTED_PROXIES: REMOTE_ADDR
         volumes:
             - .:/var/www/html
         depends_on:
             database:
                 condition: service_healthy
-
     database:
-        image: mariadb:latest
-        ports:
-            - 3306:3306
+        image: mariadb:11.8
         environment:
-            MARIADB_ROOT_PASSWORD: root
             MARIADB_DATABASE: shopware
+            MARIADB_ROOT_PASSWORD: root
+            MARIADB_USER: shopware
+            MARIADB_PASSWORD: shopware
+        volumes:
+            - db-data:/var/lib/mysql:rw
         command:
             - --sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
             - --log_bin_trust_function_creators=1
@@ -43,40 +47,35 @@ services:
             - --default-time-zone=+00:00
             - --max_binlog_size=512M
             - --binlog_expire_logs_seconds=86400
-        volumes:
-            - db-data:/var/lib/mysql
         healthcheck:
-            test: [ "CMD", "mariadb-admin" ,"ping", "-h", "localhost", "-proot" ]
-            start_interval: 3s
+            test:
+                - CMD
+                - mariadb-admin
+                - ping
+                - -h
+                - localhost
+                - -proot
             start_period: 10s
+            start_interval: 3s
             interval: 5s
             timeout: 1s
             retries: 10
-
     adminer:
         image: adminer
         stop_signal: SIGKILL
-        depends_on: [ database ]
+        depends_on:
+            - database
         environment:
             ADMINER_DEFAULT_SERVER: database
         ports:
-            - '9080:8080'
-
-    valkey:
-        image: valkey/valkey:alpine
-        command: [ "--maxmemory-policy", "volatile-lfu", "--save", "", "--appendonly", "no" ]
-
+            - 9080:8080
     mailer:
         image: axllent/mailpit
         ports:
-            - '8025:8025'
-
-    opensearch:
-        image: opensearchproject/opensearch:2
+            - 1025:1025
+            - 8025:8025
         environment:
-            OPENSEARCH_INITIAL_ADMIN_PASSWORD: 'c3o_ZPHo!'
-            discovery.type: single-node
-            plugins.security.disabled: 'true'
-
+            MP_SMTP_AUTH_ACCEPT_ANY: "1"
+            MP_SMTP_AUTH_ALLOW_INSECURE: "1"
 volumes:
-  db-data:
+    db-data:

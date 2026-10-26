@@ -259,6 +259,7 @@ The design is recorded in `adr/2026-10-21-mcp-oauth-client-authentication.md`.
   The protected resource metadata is the `mcp/sdk` value object `ProtectedResourceMetadata`; the authorization server metadata (RFC 8414) stays ours, the SDK has no class for it.
   Only the value object is used, not `ProtectedResourceMetadataHandler` or its middleware: the document depends on the request host, base path and query, and the routes stay Symfony routes.
   Since `mcp/sdk` 0.9 the class rejects plain http outside loopback hosts (`localhost`, `127.0.0.1`, `::1`); the route then answers `404` with `MCP__OAUTH_PROTECTED_RESOURCE_METADATA_UNAVAILABLE`.
+  Dev lanes on `http://<name>.localhost` are affected until the SDK accepts `*.localhost` as loopback ([php-sdk#620](https://github.com/modelcontextprotocol/php-sdk/pull/620)); use `http://localhost:<port>` meanwhile.
 - The routes have no route scope (`McpOAuthMetadataRouteScopeWhitelist`) and are exempt from the sales channel lookup in `RequestTransformer`.
 - Well-known URIs sit at the host root with the path inserted.
   An installation in a subdirectory (`https://shop.example/shop`) needs a web server rewrite, for example in nginx:

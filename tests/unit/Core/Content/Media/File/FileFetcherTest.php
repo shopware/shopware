@@ -287,48 +287,48 @@ class FileFetcherTest extends TestCase
         ];
     }
 
-    public function testFetchFromURLDownloadsFromFtpServer(): void
+    public function testFetchFileFromURLDownloadsFromFtpServer(): void
     {
         $port = $this->startFtpServer(pasvAddress: '127.0.0.1', epsv: true);
 
         $media = $this->createFileFetcher(resolver: $this->createLoopbackResolver())
-            ->fetchFromURL('ftp://ftp.example.com:' . $port . '/image1x1.png', self::TEMP_FILE);
+            ->fetchFileFromURL($this->createUrlRequest('ftp://ftp.example.com:' . $port . '/image1x1.png'), self::TEMP_FILE);
 
         static::assertSame(self::IMAGE_MIME_TYPE, $media->getMimeType());
         static::assertFileEquals(self::IMAGE_URL_WITH_EXTENSION, self::TEMP_FILE);
     }
 
-    public function testFetchFromURLIgnoresPrivateAddressInPasvReply(): void
+    public function testFetchFileFromURLIgnoresPrivateAddressInPasvReply(): void
     {
         $port = $this->startFtpServer(pasvAddress: '10.255.255.1', epsv: false);
 
         $this->createFileFetcher(resolver: $this->createLoopbackResolver())
-            ->fetchFromURL('ftp://ftp.example.com:' . $port . '/image1x1.png', self::TEMP_FILE);
+            ->fetchFileFromURL($this->createUrlRequest('ftp://ftp.example.com:' . $port . '/image1x1.png'), self::TEMP_FILE);
 
         static::assertFileEquals(self::IMAGE_URL_WITH_EXTENSION, self::TEMP_FILE);
     }
 
-    public function testFetchFromURLRejectsFtpHostResolvingToPrivateAddress(): void
+    public function testFetchFileFromURLRejectsFtpHostResolvingToPrivateAddress(): void
     {
         $port = $this->startFtpServer(pasvAddress: '127.0.0.1', epsv: true);
         $url = 'ftp://ftp.example.com:' . $port . '/image1x1.png';
 
         $this->expectExceptionObject(MediaException::illegalUrl($url));
 
-        $this->createFileFetcher(resolver: $this->createLoopbackResolver(allowedPrivateIps: []))->fetchFromURL($url, self::TEMP_FILE);
+        $this->createFileFetcher(resolver: $this->createLoopbackResolver(allowedPrivateIps: []))->fetchFileFromURL($this->createUrlRequest($url), self::TEMP_FILE);
     }
 
-    public function testFetchFromURLRejectsFtpFileExceedingTheSizeLimit(): void
+    public function testFetchFileFromURLRejectsFtpFileExceedingTheSizeLimit(): void
     {
         $port = $this->startFtpServer(pasvAddress: '127.0.0.1', epsv: true);
 
         $this->expectExceptionObject(MediaException::fileSizeLimitExceeded());
 
         $this->createFileFetcher(resolver: $this->createLoopbackResolver(), maxFileSize: 50)
-            ->fetchFromURL('ftp://ftp.example.com:' . $port . '/image1x1.png', self::TEMP_FILE);
+            ->fetchFileFromURL($this->createUrlRequest('ftp://ftp.example.com:' . $port . '/image1x1.png'), self::TEMP_FILE);
     }
 
-    public function testFetchFromURLAbortsStalledFtpTransfer(): void
+    public function testFetchFileFromURLAbortsStalledFtpTransfer(): void
     {
         $port = $this->startFtpServer(pasvAddress: '127.0.0.1', epsv: true, stall: true);
         $url = 'ftp://ftp.example.com:' . $port . '/image1x1.png';
@@ -338,7 +338,7 @@ class FileFetcherTest extends TestCase
         $start = microtime(true);
 
         try {
-            $this->createFileFetcher(resolver: $this->createLoopbackResolver())->fetchFromURL($url, self::TEMP_FILE);
+            $this->createFileFetcher(resolver: $this->createLoopbackResolver())->fetchFileFromURL($this->createUrlRequest($url), self::TEMP_FILE);
             static::fail('The stalled transfer should be aborted.');
         } catch (MediaException $exception) {
             static::assertEquals(MediaException::cannotOpenSourceStreamToRead($url), $exception);
@@ -349,14 +349,14 @@ class FileFetcherTest extends TestCase
         static::assertLessThan(10, microtime(true) - $start);
     }
 
-    public function testFetchFromURLIgnoresProxyFromEnvironmentForFtp(): void
+    public function testFetchFileFromURLIgnoresProxyFromEnvironmentForFtp(): void
     {
         $port = $this->startFtpServer(pasvAddress: '127.0.0.1', epsv: true);
         putenv('all_proxy=http://127.0.0.1:9');
 
         try {
             $this->createFileFetcher(resolver: $this->createLoopbackResolver())
-                ->fetchFromURL('ftp://ftp.example.com:' . $port . '/image1x1.png', self::TEMP_FILE);
+                ->fetchFileFromURL($this->createUrlRequest('ftp://ftp.example.com:' . $port . '/image1x1.png'), self::TEMP_FILE);
         } finally {
             putenv('all_proxy');
         }
@@ -364,7 +364,7 @@ class FileFetcherTest extends TestCase
         static::assertFileEquals(self::IMAGE_URL_WITH_EXTENSION, self::TEMP_FILE);
     }
 
-    public function testFetchFromURLConnectsSftpToTheCheckedAddress(): void
+    public function testFetchFileFromURLConnectsSftpToTheCheckedAddress(): void
     {
         $this->server = new Process([
             (string) (new PhpExecutableFinder())->find(),
@@ -376,7 +376,7 @@ class FileFetcherTest extends TestCase
         $url = 'sftp://user:secret@sftp.example.com:' . trim($this->server->getOutput()) . '/image1x1.png';
 
         try {
-            $this->createFileFetcher(resolver: $this->createLoopbackResolver())->fetchFromURL($url, self::TEMP_FILE);
+            $this->createFileFetcher(resolver: $this->createLoopbackResolver())->fetchFileFromURL($this->createUrlRequest($url), self::TEMP_FILE);
             static::fail('The download from a server without SSH should fail.');
         } catch (MediaException $exception) {
             static::assertEquals(MediaException::cannotOpenSourceStreamToRead($url), $exception);
@@ -384,6 +384,14 @@ class FileFetcherTest extends TestCase
 
         $this->server->wait();
         static::assertStringEndsWith('connected', $this->server->getOutput());
+    }
+
+    private function createUrlRequest(string $url): Request
+    {
+        $request = new Request();
+        $request->request->set('url', $url);
+
+        return $request;
     }
 
     private function startFtpServer(string $pasvAddress, bool $epsv, bool $stall = false): int

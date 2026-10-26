@@ -170,7 +170,7 @@ Previously only the first 500 products were assigned, without any notice.
 The Administration sends the selected categories and product groups to the new product assignment route instead of loading the products itself, and shows the number of assigned products afterwards.
 ### Known core deprecations log an error in next-major mode
 
-Core usages that are not migrated yet are listed in `src/Administration/Resources/app/administration/src/meta/deprecation-baseline.json`.
+Core usages that are not migrated yet are listed in `src/Administration/Resources/app/administration/src/core/deprecation-baseline.json`.
 In next-major mode, a deprecation with a listed message logs a console error instead of throwing, so the Administration stays usable.
 Any other deprecation still throws.
 

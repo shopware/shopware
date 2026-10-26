@@ -806,6 +806,41 @@ export default [
         },
     },
 
+    // Runtime code must not import what src/Administration/.gitattributes export-ignores:
+    // a Composer dist install lacks those files, so its Administration build fails.
+    {
+        files: [
+            'src/**/*.js',
+            'src/**/*.ts',
+            'src/**/*.vue',
+        ],
+        ignores: [
+            '**/*.spec.js',
+            '**/*.spec.ts',
+            '**/*.spec/**',
+            'src/meta/**',
+        ],
+        rules: {
+            'no-restricted-imports': [
+                'error',
+                {
+                    patterns: [
+                        {
+                            group: [
+                                'src/meta/*',
+                                '**/meta/*',
+                                'test/*',
+                                '**/test/*',
+                            ],
+                            message:
+                                'Excluded from the Composer package (src/Administration/.gitattributes export-ignore), so a dist install cannot build it.',
+                        },
+                    ],
+                },
+            ],
+        },
+    },
+
     // Snippet JSON files: parse as JSON and flag entries that duplicate a global.default translation
     {
         files: ['src/**/snippet/*.json'],

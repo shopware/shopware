@@ -86,5 +86,5 @@ This is not purely a spec issue, but it affects how we talk about MCP logging an
 | 1 | Audit actual `initialize` capability advertisement | No over-promising in capability flags |
 | 2 | Audit `tools/list`, `prompts/list`, `resources/list`, and `resources/templates/list` for pagination behavior | Honest docs and capability claims |
 | 3 | ~~Decide whether Shopware wants real MCP logging utility support~~ — answered by SEP-2577: telemetry plus support logs, no protocol logging | Clear logging story |
-| 4 | ~~Review `McpToolResponse` against `content[]`, `structuredContent`, `isError`, and `outputSchema`~~ Done for `content[]`, `structuredContent` and `isError`; `outputSchema` follows with #21306 | Cleaner tool result contract |
+| 4 | ~~Review `McpToolResponse` against `content[]`, `structuredContent`, `isError`, and `outputSchema`~~ Done for `content[]`, `structuredContent` and `isError`; `outputSchema` follows with #17516 | Cleaner tool result contract |
 | 5 | Mirror the final matrix into official docs on `developer.shopware.com/docs` | One canonical public explanation |

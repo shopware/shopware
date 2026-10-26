@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Framework\Mcp\Authentication;
 
+use Mcp\Exception\InvalidArgumentException;
+use Mcp\Server\Transport\Http\OAuth\ProtectedResourceMetadata;
 use Shopware\Core\Framework\Api\OAuth\OAuthResource;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
+use Shopware\Core\Framework\Mcp\McpException;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -21,7 +24,8 @@ use Symfony\Component\HttpFoundation\Request;
  * The metadata URL in the challenge and the `resource` of the document therefore carry the query of the request
  * unchanged. Matching a requested resource ({@see self::matchResource()}) and the token audience still ignore it.
  *
- * Replace the document building with the `mcp/sdk` `ProtectedResourceMetadata` class once the SDK is upgraded (#21832).
+ * The protected resource metadata is the `mcp/sdk` {@see ProtectedResourceMetadata}; the SDK has no class for the
+ * authorization server metadata, so that document is built here.
  *
  * @internal
  *
@@ -79,15 +83,26 @@ class McpOAuthMetadata
      * For a request to the metadata URL: the `resource` keeps the request's query, so it is identical to the
      * MCP endpoint URL the client derived the metadata URL from (RFC 9728 §3.3).
      *
-     * @return array{resource: string, authorization_servers: list<string>, bearer_methods_supported: list<string>}
+     * Since `mcp/sdk` 0.9 the SDK class rejects plain http outside loopback hosts, as the MCP authorization
+     * specification requires https; such a shop gets no document.
+     *
+     * @return array<string, mixed>
      */
     public function buildProtectedResourceMetadata(Request $request): array
     {
-        return [
-            'resource' => $this->getResource($request) . $this->getRawQuery($request),
-            'authorization_servers' => [$this->getIssuer($request)],
-            'bearer_methods_supported' => ['header'],
-        ];
+        $resource = $this->getResource($request) . $this->getRawQuery($request);
+
+        try {
+            $metadata = new ProtectedResourceMetadata(
+                resource: $resource,
+                authorizationServers: [$this->getIssuer($request)],
+            );
+        } catch (InvalidArgumentException $exception) {
+            throw McpException::oauthProtectedResourceMetadataUnavailable($resource, $exception);
+        }
+
+        // `mcp/sdk` 0.9 always adds `bearer_methods_supported`, 0.8 only takes it as extra field under another constructor.
+        return $metadata->jsonSerialize() + ['bearer_methods_supported' => ['header']];
     }
 
     /**

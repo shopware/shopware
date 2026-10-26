@@ -2,13 +2,18 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Authentication;
 
+use Composer\InstalledVersions;
+use Composer\Semver\VersionParser;
+use Mcp\Exception\InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Authentication\McpOAuthMetadata;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
+use Shopware\Core\Framework\Mcp\McpException;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -136,6 +141,46 @@ class McpOAuthMetadataTest extends TestCase
         $request = Request::create('https://shop.example/.well-known/oauth-protected-resource/api/_mcp?');
 
         static::assertSame('https://shop.example/api/_mcp', $metadata->buildProtectedResourceMetadata($request)['resource']);
+    }
+
+    public function testProtectedResourceMetadataHasTheRfc9728Shape(): void
+    {
+        $metadata = $this->createMetadata(['shop.example'], 'https://fallback.example');
+        $request = Request::create('https://shop.example/.well-known/oauth-protected-resource/api/_mcp');
+
+        // The key order differs between mcp/sdk 0.8 and 0.9; JSON objects are unordered.
+        static::assertEquals([
+            'resource' => 'https://shop.example/api/_mcp',
+            'authorization_servers' => ['https://shop.example/api'],
+            'bearer_methods_supported' => ['header'],
+        ], $metadata->buildProtectedResourceMetadata($request));
+    }
+
+    public function testProtectedResourceMetadataAcceptsPlainHttpOnLoopbackHosts(): void
+    {
+        $metadata = $this->createMetadata([], 'http://localhost:8000');
+        $request = Request::create('http://unknown.example/.well-known/oauth-protected-resource/api/_mcp');
+
+        static::assertSame('http://localhost:8000/api/_mcp', $metadata->buildProtectedResourceMetadata($request)['resource']);
+    }
+
+    public function testProtectedResourceMetadataIsUnavailableWhenTheSdkRejectsPlainHttp(): void
+    {
+        if (!InstalledVersions::satisfies(new VersionParser(), 'mcp/sdk', '>=0.9')) {
+            static::markTestSkipped('mcp/sdk before 0.9 accepts plain http on any host.');
+        }
+
+        $metadata = $this->createMetadata(['shop.example'], 'https://fallback.example');
+        $request = Request::create('http://shop.example/.well-known/oauth-protected-resource/api/_mcp');
+
+        try {
+            $metadata->buildProtectedResourceMetadata($request);
+            static::fail('The SDK accepted plain http on a non-loopback host.');
+        } catch (McpException $exception) {
+            static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
+            static::assertSame('MCP__OAUTH_PROTECTED_RESOURCE_METADATA_UNAVAILABLE', $exception->getErrorCode());
+            static::assertInstanceOf(InvalidArgumentException::class, $exception->getPrevious());
+        }
     }
 
     #[DataProvider('resourceProvider')]

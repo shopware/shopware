@@ -25,6 +25,11 @@ class McpOAuthMetadataControllerTest extends TestCase
         $content = (string) $response->getContent();
         static::assertStringContainsString('"resource":"https://shop.example/api/_mcp"', $content);
         static::assertStringNotContainsString('\/', $content);
+        static::assertEquals([
+            'resource' => 'https://shop.example/api/_mcp',
+            'authorization_servers' => ['https://shop.example/api'],
+            'bearer_methods_supported' => ['header'],
+        ], json_decode($content, true, flags: \JSON_THROW_ON_ERROR));
     }
 
     public function testAuthorizationServerReturnsTheIssuer(): void

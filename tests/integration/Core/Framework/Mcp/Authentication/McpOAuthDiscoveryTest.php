@@ -21,7 +21,8 @@ class McpOAuthDiscoveryTest extends TestCase
     {
         $document = $this->fetchJson('/.well-known/oauth-protected-resource/api/_mcp');
 
-        static::assertSame([
+        // Built by the mcp/sdk class, whose key order differs between 0.8 and 0.9; JSON objects are unordered.
+        static::assertEquals([
             'resource' => 'http://localhost/api/_mcp',
             'authorization_servers' => ['http://localhost/api'],
             'bearer_methods_supported' => ['header'],

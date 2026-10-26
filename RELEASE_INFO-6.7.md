@@ -2,10 +2,11 @@
 
 ## Critical Fixes
 
-### Clone overwrites respect nested field write protection
+### Clone overwrites respect field protection and association permissions
 
-The Admin API clone action now enforces field write protection in nested association and extension overwrites.
-Integrations must omit fields that are not writable in their request scope.
+Clone requests now validate explicit overwrites using the caller's permissions, including nested associations, translations, and extensions.
+Creating or updating an associated entity through an overwrite requires its corresponding create or update permission.
+Values and associations copied from the source retain their existing clone behavior.
 
 ### Theme configuration updates reach all descendants
 

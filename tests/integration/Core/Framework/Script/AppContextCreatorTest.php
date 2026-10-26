@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Script;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -15,7 +16,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\AppSystemTestBehaviour;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -49,91 +49,30 @@ class AppContextCreatorTest extends TestCase
         static::assertSame(0, $this->countTax($taxId, $connection));
     }
 
-    public function testChangedSearchContextIsNotReusedByALaterWrite(): void
-    {
-        $browser = $this->getBrowserAuthenticatedWithIntegration($this->installFixtureApp()->getIntegrationId());
-
-        $response = $this->requestScript($browser, 'reused-search-context-write', ['tagId' => Uuid::randomHex()]);
-
-        static::assertTrue($response['changedAdmin'], 'the changed search context keeps its own change');
-        static::assertFalse($response['writeAdmin'], 'a later write must get a new, non-admin source');
-        static::assertSame(Context::USER_SCOPE, $response['writeScope']);
-    }
-
-    public function testChangedWriteContextIsNotReusedByALaterWrite(): void
-    {
-        $browser = $this->getBrowserAuthenticatedWithIntegration($this->installFixtureApp()->getIntegrationId());
-
-        $response = $this->requestScript($browser, 'reused-write-context', [
-            'firstTagId' => Uuid::randomHex(),
-            'secondTagId' => Uuid::randomHex(),
-        ]);
-
-        static::assertTrue($response['changedAdmin'], 'the changed write context keeps its own change');
-        static::assertFalse($response['writeAdmin'], 'a later write must get a new, non-admin source');
-        static::assertSame(Context::USER_SCOPE, $response['writeScope']);
-    }
-
     /**
      * @param array<string, string> $payload
      */
-    #[DataProvider('changedContextScriptProvider')]
-    public function testDeniedWriteAfterAChangedContextIsForbidden(string $script, array $payload): void
+    #[DataProvider('contextChangeScriptProvider')]
+    public function testScriptCannotChangeARequestContext(string $script, array $payload): void
     {
-        $browser = $this->getBrowserAuthenticatedWithIntegration($this->installFixtureApp()->getIntegrationId());
+        $app = $this->installFixtureApp();
+        $connection = static::getContainer()->get(Connection::class);
+        $browser = $this->getBrowserAuthenticatedWithIntegration($app->getIntegrationId());
 
-        $browser->jsonRequest('POST', '/api/script/' . $script, [...$payload, 'taxId' => Uuid::randomHex()]);
+        $taxId = Uuid::randomHex();
+        $browser->jsonRequest('POST', '/api/script/' . $script, [...$payload, 'taxId' => $taxId]);
 
-        static::assertSame(
-            Response::HTTP_FORBIDDEN,
-            $browser->getResponse()->getStatusCode(),
-            'tax write must stay forbidden after a changed context: ' . (string) $browser->getResponse()->getContent()
-        );
+        $content = (string) $browser->getResponse()->getContent();
+        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), $content);
+        static::assertSame(AdapterException::TWIG_METHOD_CALL_NOT_ALLOWED, \json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['errors'][0]['code']);
+        static::assertSame(0, $this->countTax($taxId, $connection));
     }
 
-    public static function changedContextScriptProvider(): \Generator
+    public static function contextChangeScriptProvider(): \Generator
     {
-        yield 'changed search context' => ['reused-search-context-write', ['tagId' => Uuid::randomHex()]];
-        yield 'changed write context' => ['reused-write-context', ['firstTagId' => Uuid::randomHex(), 'secondTagId' => Uuid::randomHex()]];
-    }
-
-    public function testConsecutiveScriptRunsStartFromOriginalPrivileges(): void
-    {
-        $browser = $this->getBrowserAuthenticatedWithIntegration($this->installFixtureApp()->getIntegrationId());
-
-        // A changed source must not carry over into the next run of the same app.
-        $this->requestScript($browser, 'reused-write-context', [
-            'firstTagId' => Uuid::randomHex(),
-            'secondTagId' => Uuid::randomHex(),
-        ]);
-        $response = $this->requestScript($browser, 'reused-write-context', [
-            'firstTagId' => Uuid::randomHex(),
-            'secondTagId' => Uuid::randomHex(),
-        ]);
-
-        static::assertFalse($response['initialAdmin'], 'second run must start from the original non-admin privileges');
-    }
-
-    public function testChangedSearchContextIsNotReused(): void
-    {
-        $browser = $this->getBrowserAuthenticatedWithIntegration($this->installFixtureApp()->getIntegrationId());
-
-        $response = $this->requestScript($browser, 'reused-search-context', []);
-
-        // The change stays on its own object; a later search gets a new, non-admin source.
-        static::assertTrue($response['firstAdmin'], 'the changed source keeps its own change');
-        static::assertFalse($response['secondAdmin'], 'a later search must get a new, non-admin source');
-    }
-
-    public function testChangedContextsDoNotReachTheAclService(): void
-    {
-        $browser = $this->getBrowserAuthenticatedWithIntegration($this->installFixtureApp()->getIntegrationId());
-
-        $response = $this->requestScript($browser, 'acl-after-changed-context', ['tagId' => Uuid::randomHex()]);
-
-        static::assertFalse($response['canBefore']);
-        static::assertFalse($response['canAfter'], 'acl must not see a change made to a returned context');
-        static::assertTrue($response['canGranted'], 'acl must still grant the app privileges');
+        yield 'source of a search result' => ['changed-search-context', []];
+        yield 'source of a write result' => ['changed-write-context', ['tagId' => Uuid::randomHex()]];
+        yield 'scope switch with an arrow function' => ['scope-switch', []];
     }
 
     private function installFixtureApp(): AppEntity
@@ -157,28 +96,6 @@ class AppContextCreatorTest extends TestCase
         static::assertSame(0, (int) $integrationIsAdmin, 'the app integration must not be an admin');
 
         return $app;
-    }
-
-    /**
-     * @param array<string, string> $payload
-     *
-     * @return array<string, mixed>
-     */
-    private function requestScript(KernelBrowser $browser, string $script, array $payload): array
-    {
-        $browser->jsonRequest('POST', '/api/script/' . $script, $payload);
-
-        static::assertSame(
-            Response::HTTP_OK,
-            $browser->getResponse()->getStatusCode(),
-            (string) $browser->getResponse()->getContent()
-        );
-        $content = $browser->getResponse()->getContent();
-        static::assertNotFalse($content);
-        $response = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertIsArray($response);
-
-        return $response;
     }
 
     private function countTax(string $taxId, Connection $connection): int

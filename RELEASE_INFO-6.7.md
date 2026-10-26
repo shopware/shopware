@@ -87,6 +87,14 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Templates can only read contexts
+
+Twig templates can no longer call methods that change a `Context`, a `SalesChannelContext` or a context source, such as setters.
+Reading them stays possible, for example `context.languageId` or `context.getLanguageId()`.
+Such a call now fails with the error code `FRAMEWORK__TWIG_METHOD_CALL_NOT_ALLOWED`.
+This applies to all Twig templates, including App Scripts and mail, product export and SEO URL templates.
+Change the context in PHP instead, for example in an event subscriber.
+
 ### Document-type deprecations
 
 Constructing the deprecated document-type definitions, entities and collections, including empty collections, throws when `v6.9.0.0` is active. Their getters and setters emit no deprecation notices. Use `document.typeName` and the document v2 type registry instead of the legacy DAL entities.

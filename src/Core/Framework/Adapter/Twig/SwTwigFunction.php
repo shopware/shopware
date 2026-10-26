@@ -2,9 +2,13 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\Adapter\AdapterException;
+use Shopware\Core\Framework\Api\Context\ContextSource;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Environment;
 use Twig\Extension\CoreExtension;
 use Twig\Source;
@@ -16,6 +20,11 @@ use Twig\Template;
 #[Package('framework')]
 class SwTwigFunction
 {
+    /**
+     * Read methods on request contexts that do not follow the get/is/has naming.
+     */
+    private const CONTEXT_READ_METHODS = ['considerInheritance', 'buildTaxRules'];
+
     /**
      * @var array<int, array{returned: bool, value: mixed}>
      */
@@ -76,6 +85,11 @@ class SwTwigFunction
         bool $sandboxed = false,
         int $lineno = -1
     ): mixed {
+        // Checked outside the try block, the fallback below would call the method otherwise.
+        if (\is_object($object)) {
+            self::assertCallAllowed($object, (string) $item, $type);
+        }
+
         try {
             if ($object instanceof Struct) {
                 FieldVisibility::$isInTwigRenderingContext = true;
@@ -100,6 +114,51 @@ class SwTwigFunction
         } finally {
             FieldVisibility::$isInTwigRenderingContext = false;
         }
+    }
+
+    /**
+     * Templates may only read request contexts and their sources, every other method is denied.
+     */
+    private static function assertCallAllowed(object $object, string $item, string $type): void
+    {
+        if (!$object instanceof Context && !$object instanceof SalesChannelContext && !$object instanceof ContextSource) {
+            return;
+        }
+
+        $method = self::resolveCalledMethod($object, $item, $type);
+        if ($method === null || self::isReadMethod($method)) {
+            return;
+        }
+
+        throw AdapterException::twigMethodCallNotAllowed($object::class, $method);
+    }
+
+    /**
+     * Returns the declared name of the method Twig would call, null for a property read.
+     */
+    private static function resolveCalledMethod(object $object, string $item, string $type): ?string
+    {
+        if ($type !== Template::METHOD_CALL) {
+            // Mirrors the lookup order: Structs prefer get/is accessors, other objects public properties.
+            if ($object instanceof Struct) {
+                if (method_exists($object, 'get' . $item) || method_exists($object, 'is' . $item)) {
+                    return null;
+                }
+            } elseif (\array_key_exists($item, get_object_vars($object))) {
+                return null;
+            }
+        }
+
+        if (!method_exists($object, $item)) {
+            return null;
+        }
+
+        return (new \ReflectionMethod($object, $item))->getName();
+    }
+
+    private static function isReadMethod(string $method): bool
+    {
+        return preg_match('/^(get|is|has)[A-Z]/', $method) === 1 || \in_array($method, self::CONTEXT_READ_METHODS, true);
     }
 
     private static function resolveGetter(Struct $object, string $item): string

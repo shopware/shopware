@@ -1,0 +1,2 @@
+{# Tries to run an arrow function in the system scope of the hook context. #}
+{% do hook.context.scope('system', context => context.getScope()) %}

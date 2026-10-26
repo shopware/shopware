@@ -8,8 +8,9 @@ Stored carts can be recalculated when a rule container references a condition wh
 Unavailable child conditions are replaced with `UnknownConditionRule`, which evaluates to false.
 A NOT container whose child is an `UnknownConditionRule` also evaluates to false.
 
-`Container` now implements `__unserialize()`, so PHP no longer calls `__wakeup()` on its subclasses.
-If your custom rule container relies on `__wakeup()`, move that logic into `__unserialize(array $data): void` and call `parent::__unserialize($data)` before running it.
+`Container` now implements `__unserialize()` and continues to call subclass `__wakeup()` hooks for compatibility while the `v6.8.0.0` feature flag is disabled.
+If your custom rule container relies on `__wakeup()`, move that logic into `__unserialize(array $data): void`, call `parent::__unserialize($data)` before running it, and remove the old `__wakeup()` implementation to avoid running the logic twice.
+The compatibility call is removed in 6.8.
 
 ### Promotion code rate limiting
 

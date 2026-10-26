@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Rule\SimpleRule;
 use Shopware\Core\Framework\Rule\UnknownConditionRule;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Core\Test\Stub\Rule\FalseRule;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
@@ -71,6 +72,33 @@ class ContainerTest extends TestCase
         static::assertEquals([new FalseRule()], $rule->getRules());
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the legacy __wakeup compatibility call.
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testLegacyWakeupRunsAfterReplacingMissingChildren(): void
+    {
+        $original = new WakeupContainerTestRule([new SimpleRule()], 'plugin state');
+        $serialized = str_replace(SimpleRule::class, 'Shopware\Core\Framework\Rule\AbsentRule', serialize($original));
+
+        $container = Serialization::assertUnserializedInstanceOf(WakeupContainerTestRule::class, $serialized);
+
+        static::assertSame(1, $container->wakeupCalls);
+        static::assertTrue($container->hadUnknownConditionOnWakeup);
+    }
+
+    public function testWakeupIsNotCalledInNextMajor(): void
+    {
+        $original = new WakeupContainerTestRule([new SimpleRule()], 'plugin state');
+        $serialized = str_replace(SimpleRule::class, 'Shopware\Core\Framework\Rule\AbsentRule', serialize($original));
+
+        $container = Serialization::assertUnserializedInstanceOf(WakeupContainerTestRule::class, $serialized);
+
+        static::assertSame(0, $container->wakeupCalls);
+        static::assertFalse($container->hadUnknownConditionOnWakeup);
+        static::assertInstanceOf(UnknownConditionRule::class, $container->getRules()[0]);
+    }
+
     public function testConstraintsAreStillTheSame(): void
     {
         static::assertEquals(
@@ -125,5 +153,22 @@ class ContainerTestRule extends Container
         }
 
         return $this->pluginState === 'plugin state';
+    }
+}
+
+/**
+ * @internal
+ */
+#[Package('fundamentals@after-sales')]
+class WakeupContainerTestRule extends ContainerTestRule
+{
+    public int $wakeupCalls = 0;
+
+    public bool $hadUnknownConditionOnWakeup = false;
+
+    public function __wakeup(): void
+    {
+        ++$this->wakeupCalls;
+        $this->hadUnknownConditionOnWakeup = $this->rules[0] instanceof UnknownConditionRule;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Rule\Container;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\UnknownConditionRule;
@@ -48,6 +49,11 @@ abstract class Container extends Rule implements ContainerInterface
             if ($rule instanceof \__PHP_Incomplete_Class) {
                 $this->rules[$i] = new UnknownConditionRule();
             }
+        }
+
+        // @deprecated tag:v6.8.0 - Remove the compatibility call to subclass __wakeup hooks.
+        if (!Feature::isActive('v6.8.0.0') && method_exists($this, '__wakeup')) {
+            $this->__wakeup();
         }
     }
 

@@ -177,6 +177,22 @@ class SwTwigFunctionTest extends TestCase
             'method' => 'withPermissions',
         ];
 
+        yield 'state flag on the sales channel context' => [
+            'object' => Generator::generateSalesChannelContext(),
+            'item' => 'addState',
+            'arguments' => ['state'],
+            'type' => Template::METHOD_CALL,
+            'method' => 'addState',
+        ];
+
+        yield 'rule lock on the context' => [
+            'object' => Context::createDefaultContext(),
+            'item' => 'lockRules',
+            'arguments' => [],
+            'type' => Template::METHOD_CALL,
+            'method' => 'lockRules',
+        ];
+
         yield 'setter called through attribute() on a Struct' => [
             'object' => Context::createDefaultContext(),
             'item' => 'setRuleIds',
@@ -263,6 +279,16 @@ class SwTwigFunctionTest extends TestCase
     public function testTemplatesCanReadARequestContext(object $object, string $item, string $type, mixed $expected): void
     {
         static::assertSame($expected, SwTwigFunction::getAttribute($this->environment, new Source('', 'empty'), $object, $item, type: $type));
+    }
+
+    public function testMethodOutsideTheDenyListIsCalled(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $result = SwTwigFunction::getAttribute($this->environment, new Source('', 'empty'), $context, 'createWithVersionId', ['version-id'], Template::METHOD_CALL);
+
+        static::assertInstanceOf(Context::class, $result);
+        static::assertSame('version-id', $result->getVersionId());
     }
 
     public function testTemplatesCanStillExtendOtherStructs(): void

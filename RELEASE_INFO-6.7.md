@@ -87,7 +87,7 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
-### Templates can only read contexts
+### Templates can no longer change contexts
 
 Twig templates can no longer call methods that change a `Context`, a `SalesChannelContext` or a context source, such as setters.
 Reading them stays possible, for example `context.languageId` or `context.getLanguageId()`.

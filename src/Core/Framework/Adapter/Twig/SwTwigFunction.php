@@ -21,9 +21,9 @@ use Twig\Template;
 class SwTwigFunction
 {
     /**
-     * Read methods on request contexts that do not follow the get/is/has naming.
+     * Methods of request contexts that change them or run a callback with changed state, next to set/add/remove/lock methods.
      */
-    private const CONTEXT_READ_METHODS = ['considerInheritance', 'buildTaxRules'];
+    private const DENIED_CONTEXT_METHODS = ['scope', 'state', 'live', 'withPermissions', 'enableInheritance', 'disableInheritance', 'assign', 'assignRecursive'];
 
     /**
      * @var array<int, array{returned: bool, value: mixed}>
@@ -117,7 +117,7 @@ class SwTwigFunction
     }
 
     /**
-     * Templates may only read request contexts and their sources, every other method is denied.
+     * Templates must not change request contexts and their sources.
      */
     private static function assertCallAllowed(object $object, string $item, string $type): void
     {
@@ -126,7 +126,7 @@ class SwTwigFunction
         }
 
         $method = self::resolveCalledMethod($object, $item, $type);
-        if ($method === null || self::isReadMethod($method)) {
+        if ($method === null || !self::isDeniedMethod($method)) {
             return;
         }
 
@@ -156,9 +156,9 @@ class SwTwigFunction
         return (new \ReflectionMethod($object, $item))->getName();
     }
 
-    private static function isReadMethod(string $method): bool
+    private static function isDeniedMethod(string $method): bool
     {
-        return preg_match('/^(get|is|has)[A-Z]/', $method) === 1 || \in_array($method, self::CONTEXT_READ_METHODS, true);
+        return preg_match('/^(set|add|remove|lock)[A-Z]/', $method) === 1 || \in_array($method, self::DENIED_CONTEXT_METHODS, true);
     }
 
     private static function resolveGetter(Struct $object, string $item): string

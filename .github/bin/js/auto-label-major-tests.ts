@@ -20,7 +20,9 @@
  *
  * The PHP arm retains that repository-wide marker detection. The Administration
  * Jest arm uses the same markers only in Administration source and test files;
- * a feature-registry change enables both arms because it changes both baselines.
+ * a feature-registry change enables both arms because it changes the flags of both major runs.
+ * A change to the Jest deprecation baseline enables the Jest arm, so the major run checks the
+ * usages it lists for that run.
  * Acceptance spec changes enable the ATS arm, using the same paths as
  * acceptance-tests-changed; fixtures, tasks and dependency-only changes do not.
  */
@@ -29,6 +31,7 @@ export const FEATURE_REGISTRY_PATH = 'src/Core/Framework/Resources/config/packag
 export const ADMINISTRATION_APP_PATH = 'src/Administration/Resources/app/administration/';
 export const ADMINISTRATION_SOURCE_PATH = `${ADMINISTRATION_APP_PATH}src/`;
 export const ADMINISTRATION_TEST_PATH = `${ADMINISTRATION_APP_PATH}test/`;
+export const ADMINISTRATION_DEPRECATION_BASELINE_PATH = `${ADMINISTRATION_SOURCE_PATH}meta/deprecation-baseline.json`;
 
 type PullRequestLabel = {
     name: string;
@@ -128,7 +131,7 @@ export type MajorTestArms = {
 // All run conditions beyond the workflow-level `if: github.event_name == 'pull_request'`
 // live here so they are unit-testable instead of being an untestable YAML expression.
 export function shouldDetect(context: PullRequestDetectionContext): boolean {
-    if (context.eventName !== 'pull_request') {
+    if (context.eventName !== 'pull_request_target') {
         return false;
     }
 
@@ -136,13 +139,8 @@ export function shouldDetect(context: PullRequestDetectionContext): boolean {
         return false;
     }
 
-    const pullRequest = context.payload.pull_request;
-    // fork PRs cannot mint the app token needed for the label to trigger the matrix
-    if (pullRequest.head.repo.full_name !== `${context.repo.owner}/${context.repo.repo}`) {
-        return false;
-    }
-
-    const labels = (pullRequest.labels ?? []).map((label) => label.name);
+    // fork PRs included: pull_request_target runs base code only and reads the head as data
+    const labels = (context.payload.pull_request.labels ?? []).map((label) => label.name);
 
     return !labels.includes('major-tests') &&
         ['major-php', 'major-js', 'major-acceptance'].some((label) => !labels.includes(label));
@@ -221,7 +219,7 @@ export function hasMajorMarkers(diff: string, majorFlags: string[]): boolean {
 export function hasMajorJsMarkers(diff: string, majorFlags: string[]): boolean {
     const files = splitDiffByFile(diff);
 
-    if (files.some(({ path }) => path === FEATURE_REGISTRY_PATH)) {
+    if (files.some(({ path }) => path === FEATURE_REGISTRY_PATH || path === ADMINISTRATION_DEPRECATION_BASELINE_PATH)) {
         return true;
     }
 
@@ -263,7 +261,7 @@ export function labelsForMajorTestArms(arms: MajorTestArms, existingLabels: Pull
 
 export async function detectMajorTestArms({ github, core, context }: DetectionToolkit): Promise<MajorTestArms> {
     if (!shouldDetect(context)) {
-        core.info('skipping major-flag detection: event, fork head, or existing label rules it out');
+        core.info('skipping major-flag detection: event or existing labels rule it out');
 
         return { php: false, js: false, acceptance: false };
     }

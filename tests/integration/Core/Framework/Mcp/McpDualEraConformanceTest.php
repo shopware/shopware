@@ -204,7 +204,7 @@ class McpDualEraConformanceTest extends TestCase
 
         if ($era === McpEra::Stateless) {
             $discover = $this->client($endpoint, $era)->result('server/discover');
-            static::assertSame(0, $discover['ttlMs'] ?? null);
+            static::assertSame(60_000, $discover['ttlMs'] ?? null);
             static::assertSame('private', $discover['cacheScope'] ?? null);
         }
     }

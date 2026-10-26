@@ -26,7 +26,7 @@ use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 #[CoversNothing]
 class McpCachePolicyConfigTest extends TestCase
 {
-    private const LIST_METHODS = ['tools/list', 'prompts/list', 'resources/list', 'resources/templates/list'];
+    private const MINUTE_METHODS = ['server/discover', 'tools/list', 'prompts/list', 'resources/list', 'resources/templates/list'];
 
     /**
      * @return iterable<string, array{string}>
@@ -52,14 +52,14 @@ class McpCachePolicyConfigTest extends TestCase
     }
 
     /**
-     * The lists stay fresh for a minute, the fallback for clients that do not follow list changes.
+     * `server/discover` and the lists stay fresh for a minute, the fallback for clients that do not follow list changes.
      */
     #[DataProvider('serverProvider')]
-    public function testListsAreFreshForAMinute(string $server): void
+    public function testDiscoverAndListsAreFreshForAMinute(string $server): void
     {
         $policy = $this->policy($server);
 
-        foreach (self::LIST_METHODS as $method) {
+        foreach (self::MINUTE_METHODS as $method) {
             static::assertSame(60_000, $policy->ttlFor($method), $method);
         }
     }
@@ -69,12 +69,11 @@ class McpCachePolicyConfigTest extends TestCase
      * the reference resources name their own TTL.
      */
     #[DataProvider('serverProvider')]
-    public function testEverythingElseIsNotCached(string $server): void
+    public function testResourceReadsAreNotCachedByDefault(string $server): void
     {
         $policy = $this->policy($server);
 
         static::assertSame(0, $policy->ttlFor('resources/read'));
-        static::assertSame(0, $policy->ttlFor('server/discover'));
     }
 
     private function policy(string $server): CachePolicy

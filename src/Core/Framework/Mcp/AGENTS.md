@@ -118,7 +118,7 @@ mcp/sdk 0.9 adds them only on that revision, in `Rev2026Codec`; answers on the h
 The hints are fields of the JSON-RPC result, not HTTP headers, and both MCP endpoints only answer `POST`, so no HTTP cache or reverse proxy stores an answer.
 
 - **Policy**: `servers.<name>.cache` in `Resources/config/packages/mcp.php`, the same for both servers.
-  Default `private` with `ttlMs: 0`; `tools/list`, `prompts/list`, `resources/list` and `resources/templates/list` are `private` for 60 seconds.
+  Default `private` with `ttlMs: 0`; `server/discover`, `tools/list`, `prompts/list`, `resources/list` and `resources/templates/list` are `private` for 60 seconds.
   The list TTL is the fallback for clients that do not follow `subscriptions/listen`; it also bounds how long an allowlist change takes to reach a client, since allowlist changes publish no `list_changed`.
 - **Reference resources**: `resources/read` stays at 0, because it also reads stored tool results and app resources.
   The reference resources return a `ReadResourceResult` with their own TTL through `McpResourceCacheHint`: one hour for data that only changes with a deployment or an extension lifecycle change (`shopware://entities`, `shopware://state-machines`, `shopware://business-events`, `shopware://flow-actions`), five minutes for shop configuration (`shopware://currencies`, `shopware://languages`, `shopware://sales-channels`).

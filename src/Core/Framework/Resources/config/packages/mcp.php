@@ -35,14 +35,15 @@ return static function (ContainerConfigurator $container, ContainerBuilder $buil
     // Cache hints (SEP-2549) on the answers of the stateless 2026-07-28 revision; the handshake
     // revisions carry none. Every answer is `private`, because both servers answer per caller: the
     // allowlist of the integration or user and `?toolsets=` shape the lists. A shared cache must never
-    // hand them to another caller. Nothing is fresh by default. The lists stay fresh for a minute, a
-    // fallback for clients that do not follow `subscriptions/listen`, so an allowlist change reaches every
-    // client within that minute. The reference resources name their own TTL, see McpResourceCacheHint.
+    // hand them to another caller. Nothing is fresh by default. `server/discover` and the lists stay fresh for a
+    // minute, a fallback for clients that do not follow `subscriptions/listen`, so an allowlist change reaches
+    // every client within that minute. The reference resources name their own TTL, see McpResourceCacheHint.
     $listTtlMs = 60_000;
     $cache = [
         'ttl_ms' => 0,
         'scope' => 'private',
         'methods' => [
+            'server/discover' => ['ttl_ms' => $listTtlMs, 'scope' => 'private'],
             'tools/list' => ['ttl_ms' => $listTtlMs, 'scope' => 'private'],
             'prompts/list' => ['ttl_ms' => $listTtlMs, 'scope' => 'private'],
             'resources/list' => ['ttl_ms' => $listTtlMs, 'scope' => 'private'],

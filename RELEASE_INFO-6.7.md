@@ -5,7 +5,7 @@
 ### Many-to-many associations restrict deletes again
 
 Since 6.7.12.0, `RestrictDelete` on many-to-many associations, and on other associations to entities with a composite primary key, did not stop a delete.
-Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED`; remove the links first.
+Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while another entity still references them.
 
 ## Core
 

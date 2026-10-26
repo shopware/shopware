@@ -6,6 +6,7 @@ use Mcp\Server;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
+use Shopware\Core\Framework\Mcp\McpServerInstructions;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
@@ -73,7 +74,10 @@ class StoreApiMcpServerController
         $psrResponse = $this->server->run($this->transportFactory->createTransport($request));
         $this->flushPendingToolsListChanged($request);
 
-        return $this->transportFactory->createResponse($psrResponse);
+        $response = $this->transportFactory->createResponse($psrResponse);
+        McpServerInstructions::applyToStatelessDiscover($request, $response);
+
+        return $response;
     }
 
     /**

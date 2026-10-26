@@ -373,6 +373,8 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.server.admin.registry')->nullOnInvalid(),
             service(ToolSearch::class),
             service(McpAllowlistProvider::class),
+            service(McpToolsetRegistry::class)->nullOnInvalid(),
+            service('request_stack'),
         ])
         ->tag('mcp.tool');
 
@@ -465,6 +467,8 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.server.store_api.registry')->nullOnInvalid(),
             service(ToolSearch::class),
             null,
+            service('mcp.store_api.toolset_registry'),
+            service('request_stack'),
         ])
         ->tag('shopware.store_api_mcp.tool');
 

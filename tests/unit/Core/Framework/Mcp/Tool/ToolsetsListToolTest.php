@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
+use Mcp\Schema\Enum\ProtocolVersion;
+use Mcp\Server\Stateless\RequestMeta;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -81,6 +83,22 @@ class ToolsetsListToolTest extends TestCase
         static::assertFalse($result['data']['toolsets'][0]['enabled']);
     }
 
+    public function testIsUnavailableOnTheStatelessEraAndPointsToToolsetsInTheUrl(): void
+    {
+        $registry = $this->createMock(McpToolsetRegistry::class);
+        $registry->expects($this->never())->method('toolsets');
+
+        $requestStack = new RequestStack();
+        $requestStack->push(self::statelessRequest('tools/call'));
+
+        $tool = new ToolsetsListTool($registry, static::createStub(McpToolsetSessionStorage::class), $requestStack, new McpRequestedToolsetResolver($requestStack));
+        $result = json_decode($tool(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($result['success']);
+        static::assertStringContainsString('"?toolsets=<toolset>"', $result['error']);
+        static::assertStringContainsString(McpToolsetRegistry::TOOL_SEARCH_TOOL, $result['error']);
+    }
+
     /**
      * @param list<string> $sessionToolsets
      * @param array<string, bool> $expected
@@ -118,5 +136,15 @@ class ToolsetsListToolTest extends TestCase
         yield 'all toolsets in the URL' => ['toolsets=all', [], ['entity' => true, 'media' => true, 'order' => true]];
         yield 'URL and session together' => ['toolsets=order', ['media'], ['entity' => false, 'media' => true, 'order' => true]];
         yield 'malformed parameter' => ['toolsets[]=order', [], ['entity' => false, 'media' => false, 'order' => false]];
+    }
+
+    private static function statelessRequest(string $method): Request
+    {
+        return Request::create('/api/_mcp', 'POST', content: json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'method' => $method,
+            'params' => ['_meta' => [RequestMeta::PROTOCOL_VERSION => ProtocolVersion::V2026_07_28->value]],
+        ], \JSON_THROW_ON_ERROR));
     }
 }

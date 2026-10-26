@@ -28,11 +28,13 @@ class TrustedUrlResolver implements ResetInterface
     /**
      * @param (\Closure(string): list<string>)|null $dnsResolver
      * @param list<string> $allowedPrivateIps
+     * @param list<string> $allowedSchemes
      */
     public function __construct(
         ?\Closure $dnsResolver = null,
         private readonly bool $rejectPrivateRanges = true,
         private readonly array $allowedPrivateIps = [],
+        private readonly array $allowedSchemes = ['http', 'https', 'ftp', 'sftp'],
     ) {
         $this->dnsResolver = $dnsResolver ?? static function (string $host): array {
             $ips = [];
@@ -65,7 +67,7 @@ class TrustedUrlResolver implements ResetInterface
     public function resolve(string $url): ResolvedUrl
     {
         $scheme = parse_url($url, \PHP_URL_SCHEME);
-        if ($scheme !== 'http' && $scheme !== 'https') {
+        if (!\in_array($scheme, $this->allowedSchemes, true)) {
             throw MediaException::illegalUrl($url);
         }
 

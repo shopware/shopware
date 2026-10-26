@@ -18,7 +18,7 @@ class FileServiceTest extends TestCase
     #[DataProvider('urlDataProvider')]
     public function testIsUrl(string $url, bool $expectedResult): void
     {
-        $fileService = new FileService();
+        $fileService = new FileService(['http', 'https', 'ftp', 'sftp']);
 
         static::assertSame($expectedResult, $fileService->isUrl($url));
     }

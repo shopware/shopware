@@ -10,7 +10,12 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 class FileService
 {
-    private const ALLOWED_PROTOCOLS = ['http', 'https', 'ftp', 'sftp'];
+    /**
+     * @param list<string> $allowedProtocols
+     */
+    public function __construct(private readonly array $allowedProtocols)
+    {
+    }
 
     public function isUrl(string $url): bool
     {
@@ -21,6 +26,6 @@ class FileService
     {
         $fragments = explode(':', $url);
 
-        return \in_array($fragments[0], self::ALLOWED_PROTOCOLS, true);
+        return \in_array($fragments[0], $this->allowedProtocols, true);
     }
 }

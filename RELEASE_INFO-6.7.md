@@ -2,13 +2,12 @@
 
 ## Critical Fixes
 
-### Association overwrites are rejected during cloning
+### Clone overwrites enforce field protection and association permissions
 
-The Admin API clone action and `CloneBehavior` now reject explicit association overwrites, including `translations` and associations inside `extensions`, with HTTP 400.
-This also applies to administrators and system-scope callers.
-Root fields, JSON values, translated root fields, and scalar foreign keys such as `taxId` remain supported and retain field write protection.
-Associations are still copied from the source normally.
-To customize associations, clone first, obtain the copied association IDs, and use ordinary authorized writes with explicit IDs.
+The Admin API clone action and `CloneBehavior` validate explicit root, nested association, translation and extension overwrites using the caller's field write protection and create/update permissions.
+Association overwrites remain supported, including partial payloads and `null` values that suppress copying.
+Copied source values retain their existing clone behavior without requiring additional association write privileges.
+Creating the root clone still requires create permission; updating an existing associated entity requires its update permission, while creating a new associated entity requires its create permission.
 
 ### Theme configuration updates reach all descendants
 

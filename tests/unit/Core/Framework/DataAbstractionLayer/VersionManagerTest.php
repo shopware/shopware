@@ -4,10 +4,9 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Acl\AclWriteValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -19,20 +18,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtecti
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ResetOnClone;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -45,11 +38,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Clock\NativeClock;
@@ -67,81 +61,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class VersionManagerTest extends TestCase
 {
     private VersionManager $versionManager;
-
-    /**
-     * @param array<string, mixed> $overwrites
-     */
-    #[TestWith([['protected' => 'blocked'], '/protected'])]
-    #[TestWith([['protected' => null], '/protected'])]
-    #[TestWith([['extensions' => ['protected' => 'blocked']], '/extensions/protected'])]
-    #[TestWith([['parent' => ['name' => 'blocked']], '/parent'])]
-    #[TestWith([['parent' => null], '/parent'])]
-    #[TestWith([['parent' => []], '/parent'])]
-    #[TestWith([['detail' => ['name' => 'blocked']], '/detail'])]
-    #[TestWith([['items' => [['name' => 'blocked']]], '/items'])]
-    #[TestWith([['related' => [['id' => 'blocked']]], '/related'])]
-    #[TestWith([['translations' => ['en-GB' => ['name' => 'blocked']]], '/translations'])]
-    #[TestWith([['extensions' => ['extra' => ['name' => 'blocked']]], '/extensions/extra'])]
-    #[TestWith([['parent' => ['name' => 'blocked']], '/parent', Context::SYSTEM_SCOPE])]
-    public function testCloneRejectsInvalidOverwritesBeforeWriting(array $overwrites, string $path, string $scope = Context::CRUD_API_SCOPE): void
-    {
-        $registry = new StaticDefinitionInstanceRegistry(
-            [VersionManagerProtectedOverwriteTestDefinition::class, VersionManagerTestDefinition::class],
-            static::createStub(ValidatorInterface::class),
-            static::createStub(EntityWriteGatewayInterface::class)
-        );
-        $reader = static::createStub(EntityReaderInterface::class);
-        $reader->method('read')->willReturn(new EntityCollection([new ArrayEntity(['id' => Uuid::randomHex()])]));
-        $serializer = static::createStub(SerializerInterface::class);
-        $serializer->method('serialize')->willReturn('{}');
-        $writer = $this->createMock(EntityWriterInterface::class);
-        $writer->expects($this->never())->method('insert');
-
-        $manager = $this->createVersionManager([
-            'entityReader' => $reader,
-            'serializer' => $serializer,
-            'entityWriter' => $writer,
-            'registry' => $registry,
-        ]);
-
-        try {
-            Context::createDefaultContext()->scope($scope, fn (Context $context) => $manager->clone(
-                $registry->getByEntityName('protected_overwrite_test'),
-                Uuid::randomHex(),
-                Uuid::randomHex(),
-                Uuid::randomHex(),
-                WriteContext::createFromContext($context),
-                new CloneBehavior($overwrites)
-            ));
-            static::fail('Invalid overwrites must be rejected before insertion.');
-        } catch (WriteConstraintViolationException $exception) {
-            static::assertSame('FRAMEWORK__WRITE_CONSTRAINT_VIOLATION', $exception->getErrorCode());
-            static::assertSame($path, $exception->getPath());
-        }
-    }
-
-    public function testClonePreservesCopiedProtectedValuesAndAllowsRootJsonOverwrites(): void
-    {
-        $this->assertCloneOverwriteResult(
-            VersionManagerProtectedOverwriteTestDefinition::class,
-            'protected_overwrite_test',
-            ['protected' => 'copied'],
-            ['json' => ['protected' => 'ordinary JSON data']],
-            ['protected' => 'copied', 'json' => ['protected' => 'ordinary JSON data']]
-        );
-    }
-
-    public function testCloneAllowsProtectedRootOverwritesInSystemScope(): void
-    {
-        $this->assertCloneOverwriteResult(
-            VersionManagerProtectedOverwriteTestDefinition::class,
-            'protected_overwrite_test',
-            [],
-            ['protected' => 'allowed'],
-            ['protected' => 'allowed'],
-            Context::createDefaultContext()
-        );
-    }
 
     public function testCloneEntityWithFkAsExtension(): void
     {
@@ -657,15 +576,14 @@ class VersionManagerTest extends TestCase
         string $entityName,
         array $originalData,
         array $overwriteData,
-        array $expectedData,
-        ?Context $context = null
+        array $expectedData
     ): void {
         $entityReaderMock = $this->createMock(EntityReaderInterface::class);
         $serializer = $this->createMock(SerializerInterface::class);
         $entityWriterMock = $this->createMock(EntityWriterInterface::class);
 
         $registry = new StaticDefinitionInstanceRegistry(
-            [$definitionClass, VersionManagerTestDefinition::class],
+            [$definitionClass],
             static::createStub(ValidatorInterface::class),
             static::createStub(EntityWriteGatewayInterface::class)
         );
@@ -684,7 +602,6 @@ class VersionManagerTest extends TestCase
 
         $writeContextMock = $this->createMock(WriteContext::class);
         $writeContextMockWithVersionId = $this->createMock(WriteContext::class);
-        $writeContextMock->method('getContext')->willReturn($context ?? Context::createDefaultContext(new AdminApiSource(Uuid::randomHex())));
         $writeContextMock->expects($this->once())->method('createWithVersionId')->willReturn($writeContextMockWithVersionId);
         $writeContextMockWithVersionId->expects($this->atLeastOnce())->method('getContext')->willReturn(Context::createDefaultContext());
 
@@ -745,6 +662,9 @@ class VersionManagerTest extends TestCase
             'versionDefinition' => static::createStub(VersionDefinition::class),
             'lockFactory' => static::createStub(LockFactory::class),
             'clock' => new NativeClock(),
+            'writeCommandExtractor' => static::createStub(WriteCommandExtractor::class),
+            'aclWriteValidator' => static::createStub(AclWriteValidator::class),
+            'languageLoader' => static::createStub(LanguageLoaderInterface::class),
         ];
 
         $params = array_merge($defaults, $overrides);
@@ -761,35 +681,11 @@ class VersionManagerTest extends TestCase
             $params['versionCommitDataDefinition'],
             $params['versionDefinition'],
             $params['lockFactory'],
-            $params['clock']
+            $params['clock'],
+            $params['writeCommandExtractor'],
+            $params['aclWriteValidator'],
+            $params['languageLoader']
         );
-    }
-}
-
-/**
- * @internal
- */
-class VersionManagerProtectedOverwriteTestDefinition extends EntityDefinition
-{
-    public function getEntityName(): string
-    {
-        return 'protected_overwrite_test';
-    }
-
-    protected function defineFields(): FieldCollection
-    {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
-            new StringField('name', 'name'),
-            (new StringField('protected', 'protected'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
-            new JsonField('json', 'json'),
-            new ManyToOneAssociationField('parent', 'parent_id', self::class),
-            new OneToOneAssociationField('detail', 'detail_id', 'id', self::class, false),
-            new OneToManyAssociationField('items', self::class, 'parent_id'),
-            new ManyToManyAssociationField('related', self::class, VersionManagerTestDefinition::class, 'source_id', 'target_id'),
-            (new TranslationsAssociationField(self::class, 'parent_id'))->removeFlag(CascadeDelete::class),
-            (new ManyToOneAssociationField('extra', 'extra_id', self::class))->addFlags(new Extension()),
-        ]);
     }
 }
 

@@ -4,13 +4,8 @@
 
 ### Many-to-many associations restrict deletes again
 
-Since 6.7.12.0, `RestrictDelete` on a many-to-many association, or on another association to an entity with a composite primary key, did not stop a delete.
-Deleting a rule removed it from the promotions that used it, and deleting a property option removed it from the variants without a configurator setting for it.
-Deleting a media that a theme uses failed with a database error.
-Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED`, which lists the mapping entity, for example `promotion_persona_rule`, `product_option` or `theme_media`, with the key of each restricting row.
-This also applies to restrictions that extensions declare, for example with `#[ManyToMany(onDelete: OnDelete::RESTRICT)]` on attribute entities.
-Integrations that delete these entities have to remove the links first.
-Links removed since 6.7.12.0 are not restored.
+Since 6.7.12.0, `RestrictDelete` on many-to-many associations, and on other associations to entities with a composite primary key, did not stop a delete.
+Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED`; remove the links first.
 
 ## Core
 

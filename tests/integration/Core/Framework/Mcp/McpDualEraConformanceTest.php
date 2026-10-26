@@ -22,7 +22,6 @@ use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
-use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -31,7 +30,6 @@ use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -253,9 +251,9 @@ class McpDualEraConformanceTest extends TestCase
             $read = $this->client(self::ADMIN, $readingEra, browser: $browser)->result('resources/read', ['uri' => $uri]);
             $stored = json_decode($read['contents'][0]['text'] ?? '', true, 512, \JSON_THROW_ON_ERROR);
 
-            static::assertTrue($stored['success'] ?? false, $readingEra->name . ': ' . json_encode($read));
-            static::assertIsList($stored['data']);
-            static::assertNotSame([], $stored['data']);
+            // both eras negotiate a revision since 2025-06-18, which stores the bare result data
+            static::assertIsList($stored, $readingEra->name . ': ' . json_encode($read));
+            static::assertNotSame([], $stored);
         }
     }
 
@@ -275,7 +273,7 @@ class McpDualEraConformanceTest extends TestCase
             $read = $this->client(self::STORE, $readingEra, browser: $browser)->result('resources/read', ['uri' => $uri]);
             $stored = json_decode($read['contents'][0]['text'] ?? '', true, 512, \JSON_THROW_ON_ERROR);
 
-            static::assertSame(OversizedResultTool::rows(), $stored['data'] ?? null, $readingEra->name);
+            static::assertSame(OversizedResultTool::rows(), $stored, $readingEra->name);
         }
     }
 
@@ -752,9 +750,6 @@ final class OversizedResultTool extends McpToolResponse
     public static function register(ContainerInterface $container): void
     {
         $tool = new self();
-        $logger = $container->get(LoggerInterface::class);
-        \assert($logger instanceof LoggerInterface);
-        $tool->setToolResultCache($container->get(ToolResultCacheStorage::class), $container->get(RequestStack::class), $logger);
 
         $registry = $container->get(self::REGISTRY);
         \assert($registry instanceof RegistryInterface);

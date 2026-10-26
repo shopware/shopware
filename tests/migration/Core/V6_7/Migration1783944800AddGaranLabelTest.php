@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1783944800AddGaranLabel;
+use Shopware\Core\Migration\V6_7\Migration1788531955MakeProductGuaranteeConfirmedInheritable;
 
 /**
  * @internal
@@ -45,12 +46,9 @@ class Migration1783944800AddGaranLabelTest extends TestCase
 
     protected function tearDown(): void
     {
-        foreach (['guarantee_confirmed', 'guarantee_months'] as $column) {
-            try {
-                $this->connection->executeStatement(\sprintf('ALTER TABLE `product` DROP COLUMN `%s`;', $column));
-            } catch (\Throwable) {
-            }
-        }
+        // DDL is not rolled back, so leave the columns as a fully migrated database has them.
+        $this->migration->update($this->connection);
+        (new Migration1788531955MakeProductGuaranteeConfirmedInheritable())->update($this->connection);
 
         foreach ($this->originalMailTranslations as $languageId => $translation) {
             $this->connection->update(

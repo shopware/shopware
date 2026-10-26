@@ -102,34 +102,33 @@
                     {{ $t(activePage.descriptionKey) }}
                 </mt-text>
 
-                <template v-if="activePage.hasThemeSelect">
-                    <mt-theme-select
-                        v-model="userTheme"
-                        name="sw-field--ui-shell-update-2026-theme"
-                        class="sw-ui-shell-update-2026-modal__theme-select"
-                        :label="$t('sw-ui-shell-update-2026-modal.pages.darkMode.themeSelectLabel')"
-                    />
+                <mt-theme-select
+                    v-if="activePage.hasThemeSelect"
+                    v-model="userTheme"
+                    name="sw-field--ui-shell-update-2026-theme"
+                    class="sw-ui-shell-update-2026-modal__theme-select"
+                    :label="$t('sw-ui-shell-update-2026-modal.pages.darkMode.themeSelectLabel')"
+                />
 
-                    <mt-text
-                        as="p"
-                        size="s"
-                        color="color-text-tertiary-default"
-                        class="sw-ui-shell-update-2026-modal__theme-hint"
-                    >
-                        <i18n-t keypath="sw-ui-shell-update-2026-modal.pages.darkMode.themeSelectHint">
-                            <template #profileSettingsLink>
-                                <mt-link
-                                    class="sw-ui-shell-update-2026-modal__inline-link"
-                                    type="internal"
-                                    :to="{ name: 'sw.profile.index.general' }"
-                                    @click="onFinish"
-                                >
-                                    {{ $t('sw-ui-shell-update-2026-modal.pages.darkMode.profileSettingsLink') }}
-                                </mt-link>
-                            </template>
-                        </i18n-t>
-                    </mt-text>
-                </template>
+                <mt-text
+                    as="p"
+                    size="s"
+                    color="color-text-tertiary-default"
+                    class="sw-ui-shell-update-2026-modal__hint"
+                >
+                    <i18n-t :keypath="activePage.hintKey">
+                        <template #profileSettingsLink>
+                            <mt-link
+                                class="sw-ui-shell-update-2026-modal__inline-link"
+                                type="internal"
+                                :to="{ name: 'sw.profile.index.general' }"
+                                @click="onFinish"
+                            >
+                                {{ $t('sw-ui-shell-update-2026-modal.profileSettingsLink') }}
+                            </mt-link>
+                        </template>
+                    </i18n-t>
+                </mt-text>
             </div>
         </div>
 

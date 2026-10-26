@@ -21,21 +21,24 @@ class ToolSearchToolTest extends TestCase
     {
         $tool = new ToolSearchTool($this->registry(), new ToolSearch());
 
-        $data = json_decode($tool('read entity'), true, 512, \JSON_THROW_ON_ERROR);
+        $data = $tool('read entity');
 
-        static::assertTrue($data['success']);
-        static::assertSame('shopware-entity-read', $data['data'][0]['tool']['name']);
-        static::assertSame(2, $data['_meta']['totalCandidates']);
+        static::assertFalse($data->isError());
+        static::assertIsArray($data->data);
+        $match = $data->data[0]['tool'];
+        static::assertInstanceOf(Tool::class, $match);
+        static::assertSame('shopware-entity-read', $match->name);
+        static::assertSame(2, $data->meta['totalCandidates']);
     }
 
     public function testResultCarriesToolsetEnableUsageHint(): void
     {
         $tool = new ToolSearchTool($this->registry(), new ToolSearch());
 
-        $data = json_decode($tool('read entity'), true, 512, \JSON_THROW_ON_ERROR);
+        $data = $tool('read entity');
 
-        static::assertArrayHasKey('usage', $data['_meta']);
-        static::assertStringContainsString('shopware-toolset-enable', $data['_meta']['usage']);
+        static::assertArrayHasKey('usage', $data->meta);
+        static::assertStringContainsString('shopware-toolset-enable', $data->meta['usage']);
     }
 
     private function registry(): Registry

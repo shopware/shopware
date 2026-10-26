@@ -6,6 +6,7 @@ use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\Mcp\Tool\ToolsetEnableTool;
 
 /**
@@ -24,7 +25,7 @@ use Shopware\Core\Framework\Mcp\Tool\ToolsetEnableTool;
 class StoreApiToolsetEnableTool extends ToolsetEnableTool
 {
     #[\Override]
-    public function __invoke(string $toolset): string
+    public function __invoke(string $toolset): McpToolResult
     {
         return parent::__invoke($toolset);
     }

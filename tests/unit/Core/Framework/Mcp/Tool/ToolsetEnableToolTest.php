@@ -43,11 +43,11 @@ class ToolsetEnableToolTest extends TestCase
         $requestStack->push($request);
 
         $tool = new ToolsetEnableTool($registry, $storage, $requestStack);
-        $result = json_decode($tool('entity'), true, 512, \JSON_THROW_ON_ERROR);
+        $result = $tool('entity');
 
-        static::assertTrue($result['success']);
-        static::assertSame('entity', $result['data']['toolset']['name']);
-        static::assertTrue($result['_meta']['listChanged']);
+        static::assertFalse($result->isError());
+        static::assertSame('entity', $result->data['toolset']['name']);
+        static::assertTrue($result->meta['listChanged']);
         // The tool records intent; the controller emits the notification after the SDK session save.
         static::assertTrue($request->attributes->getBoolean(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE));
     }
@@ -68,10 +68,10 @@ class ToolsetEnableToolTest extends TestCase
             $requestStack,
         );
 
-        $result = json_decode($tool('missing'), true, 512, \JSON_THROW_ON_ERROR);
+        $result = $tool('missing');
 
-        static::assertFalse($result['success']);
-        static::assertStringContainsString('Unknown MCP toolset "missing"', $result['error']);
+        static::assertTrue($result->isError());
+        static::assertStringContainsString('Unknown MCP toolset "missing"', $result->error->message);
         static::assertFalse($request->attributes->getBoolean(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE));
     }
 
@@ -90,9 +90,9 @@ class ToolsetEnableToolTest extends TestCase
 
         $tool = new ToolsetEnableTool($registry, $storage, new RequestStack());
 
-        $result = json_decode($tool('entity'), true, 512, \JSON_THROW_ON_ERROR);
+        $result = $tool('entity');
 
-        static::assertFalse($result['success']);
-        static::assertSame('Cannot enable an MCP toolset without an active MCP session.', $result['error']);
+        static::assertTrue($result->isError());
+        static::assertSame('Cannot enable an MCP toolset without an active MCP session.', $result->error->message);
     }
 }

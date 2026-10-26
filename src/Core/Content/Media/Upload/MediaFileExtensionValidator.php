@@ -65,23 +65,29 @@ readonly class MediaFileExtensionValidator
      */
     public function validateContentType(string $extension, string $mimeType): void
     {
+        if ($this->isContentTypeAllowed($extension, $mimeType)) {
+            return;
+        }
+
+        $contentType = mb_strtolower(FileInfoHelper::stripParameters($mimeType));
+
+        throw MediaException::invalidFile(\sprintf('The content type "%s" does not match the file extension "%s"', $contentType, $extension));
+    }
+
+    public function isContentTypeAllowed(string $extension, string $mimeType): bool
+    {
         $contentType = mb_strtolower(FileInfoHelper::stripParameters($mimeType));
 
         if (!$this->isActiveContentType($contentType)) {
-            return;
+            return true;
         }
 
         $fileExtension = mb_strtolower($extension);
-        $allowedContentTypes = [
+
+        return \in_array($contentType, [
             ...MimeTypes::getDefault()->getMimeTypes($fileExtension),
             ...self::ADDITIONAL_CONTENT_TYPES[$fileExtension] ?? [],
-        ];
-
-        if (\in_array($contentType, $allowedContentTypes, true)) {
-            return;
-        }
-
-        throw MediaException::invalidFile(\sprintf('The content type "%s" does not match the file extension "%s"', $contentType, $extension));
+        ], true);
     }
 
     private function isActiveContentType(string $contentType): bool

@@ -70,11 +70,11 @@ class MediaFileExtensionValidatorTest extends TestCase
     }
 
     #[DataProvider('matchingContentTypeProvider')]
-    public function testValidateContentTypeAcceptsMatchingOrPassiveContent(string $extension, string $mimeType): void
+    public function testIsContentTypeAllowedAcceptsMatchingOrPassiveContent(string $extension, string $mimeType): void
     {
         $validator = new MediaFileExtensionValidator(static::createStub(MediaFileExtensionListProvider::class));
 
-        $this->expectNotToPerformAssertions();
+        static::assertTrue($validator->isContentTypeAllowed($extension, $mimeType));
         $validator->validateContentType($extension, $mimeType);
     }
 

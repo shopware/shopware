@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\IntFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StrictChoiceResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -19,8 +20,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Symfony\Component\Validator\Constraints\Choice as ChoiceConstraint;
+use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
 use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Context\ExecutionContextFactory;
 use Symfony\Component\Validator\Mapping\Factory\BlackHoleMetadataFactory;
@@ -40,17 +44,19 @@ class IntFieldSerializerTest extends TestCase
 
     private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
+    private RecursiveValidator $validator;
+
     protected function setUp(): void
     {
         $this->definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $validator = new RecursiveValidator(
+        $this->validator = new RecursiveValidator(
             new ExecutionContextFactory(static::createStub(TranslatorInterface::class)),
             new BlackHoleMetadataFactory(),
             new ConstraintValidatorFactory()
         );
 
         $this->serializer = new IntFieldSerializer(
-            $validator,
+            $this->validator,
             $this->definitionInstanceRegistry
         );
     }
@@ -96,6 +102,46 @@ class IntFieldSerializerTest extends TestCase
         ));
 
         iterator_to_array($this->serializer->encode($field, $existence, $kv, $this->createWriteParameterBag()));
+    }
+
+    public function testChoiceStrictViolationIsReportedTogetherWithRangeViolation(): void
+    {
+        $field = (new IntField('test', 'test', 0, 5))->addFlags(new Choice([1, 2], strict: true));
+        $field->compile($this->definitionInstanceRegistry);
+
+        try {
+            iterator_to_array($this->serializer->encode($field, EntityExistence::createEmpty(), new KeyValuePair('test', 10, true), $this->createWriteParameterBag()));
+            static::fail('A strict choice int field must reject values that are out of range and not a valid choice.');
+        } catch (WriteConstraintViolationException $exception) {
+            $codes = array_map(static fn (ConstraintViolationInterface $violation): ?string => $violation->getCode(), iterator_to_array($exception->getViolations()));
+            static::assertSame([Range::NOT_IN_RANGE_ERROR, ChoiceConstraint::NO_SUCH_CHOICE_ERROR], $codes);
+        }
+    }
+
+    public function testChoiceStrictAcceptsValueOfEnumProvider(): void
+    {
+        $serializer = $this->createSerializerWithEnumProvider([3]);
+        $field = (new IntField('test', 'test'))->addFlags(new Choice([1, 2], strict: true));
+        $field->compile($this->definitionInstanceRegistry);
+
+        $encoded = iterator_to_array($serializer->encode($field, EntityExistence::createEmpty(), new KeyValuePair('test', 3, true), $this->createWriteParameterBag()));
+
+        static::assertSame(['test' => 3], $encoded);
+    }
+
+    public function testChoiceStrictRejectsValueUnknownToEnumProvider(): void
+    {
+        $serializer = $this->createSerializerWithEnumProvider([3]);
+        $field = (new IntField('test', 'test'))->addFlags(new Choice([1, 2], strict: true));
+        $field->compile($this->definitionInstanceRegistry);
+
+        static::expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation('Invalid choice.', 'Invalid choice.', [], null, '/test', 4),
+            ])
+        ));
+
+        iterator_to_array($serializer->encode($field, EntityExistence::createEmpty(), new KeyValuePair('test', 4, true), $this->createWriteParameterBag()));
     }
 
     public function testRequiredNullValueThrowsConstraintViolation(): void
@@ -174,6 +220,18 @@ class IntFieldSerializerTest extends TestCase
             WriteContext::createFromContext(Context::createDefaultContext()),
             '',
             new WriteCommandQueue()
+        );
+    }
+
+    /**
+     * @param list<int> $choices
+     */
+    private function createSerializerWithEnumProvider(array $choices): IntFieldSerializer
+    {
+        return new IntFieldSerializer(
+            $this->validator,
+            $this->definitionInstanceRegistry,
+            new StrictChoiceResolver([StrictChoiceResolverTest::createEnumProvider(ProductDefinition::ENTITY_NAME, 'test', $choices)])
         );
     }
 }

@@ -113,6 +113,33 @@ MCP tools that call `progress()`, `notify()`, `elicit()` or `elicitUrl()` on the
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
 
+### Unknown category types are rejected
+
+Writing a `type` other than `page`, `link` or `folder` to a category is now rejected with a write validation error on the `type` field.
+Before, any value was stored.
+This applies to the Admin API, the Sync API, imports and every DAL write, including categories written inside another entity's payload, for example `{"categories": [{"id": "...", "type": "remove"}]}` on a product.
+Categories that already store another type keep it, and writes that do not send `type` still succeed.
+
+Extensions that use their own category types register them with an enum provider.
+Tag a service that implements `Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldEnumProviderInterface` with `shopware.api.enum_provider`, support the entity `category` and the field `type`, and return the additional types from `getChoices()`.
+The write validation accepts these types, and the generated API schema lists them.
+This works for every field with a strict `Choice` flag, for example `product_visibility.visibility`.
+For a translated field, the provider is asked for the parent entity, for example `category` and not `category_translation`, the same as for the API schema.
+
+```php
+class MyCategoryTypeProvider implements FieldEnumProviderInterface
+{
+    public function isSupported(string $entity, string $fieldName): bool
+    {
+        return $entity === CategoryDefinition::ENTITY_NAME && $fieldName === 'type';
+    }
+
+    public function getChoices(): array
+    {
+        return ['my_type'];
+    }
+}
+```
 ### Profile updates without `accountType` keep the account type
 
 `/store-api/account/change-profile` now keeps the customer's current account type when the request doesn't contain `accountType`.

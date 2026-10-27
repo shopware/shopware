@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice as ChoiceFlag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
@@ -17,6 +18,7 @@ use Symfony\Component\Validator\Constraints\Choice as ChoiceConstraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -24,6 +26,17 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('framework')]
 class FloatFieldSerializer extends AbstractFieldSerializer
 {
+    /**
+     * @internal
+     */
+    public function __construct(
+        ValidatorInterface $validator,
+        DefinitionInstanceRegistry $definitionRegistry,
+        private readonly StrictChoiceResolver $strictChoiceResolver = new StrictChoiceResolver(),
+    ) {
+        parent::__construct($validator, $definitionRegistry);
+    }
+
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
     {
         if (!$field instanceof StorageAware) {
@@ -36,7 +49,18 @@ class FloatFieldSerializer extends AbstractFieldSerializer
             $data->setValue((float) $data->getValue());
         }
 
-        $this->validateIfNeeded($field, $existence, $data, $parameters);
+        $constraints = $this->getCachedConstraints($field);
+        $choices = $this->strictChoiceResolver->getStrictChoices($field, $parameters->getDefinition());
+        if ($choices !== null) {
+            $constraints[] = new ChoiceConstraint(
+                choices: array_map(static fn (string|bool|int|float $value): float => (float) $value, $choices),
+                strict: true
+            );
+        }
+
+        if ($this->requiresValidation($field, $existence, $data->getValue(), $parameters)) {
+            $this->validate($constraints, $data, $parameters->getPath());
+        }
 
         if ($data->getValue() === null) {
             yield $field->getStorageName() => null;
@@ -66,14 +90,6 @@ class FloatFieldSerializer extends AbstractFieldSerializer
 
         if ($field->getMinValue() !== null || $field->getMaxValue() !== null) {
             $constraints[] = new Range(min: $field->getMinValue(), max: $field->getMaxValue());
-        }
-
-        $choice = $field->getFlag(ChoiceFlag::class);
-        if ($choice instanceof ChoiceFlag && $choice->isStrict() && $choice->getChoices() !== []) {
-            $constraints[] = new ChoiceConstraint(
-                choices: array_map(static fn (string|bool|int|float $value): float => (float) $value, $choice->getChoices()),
-                strict: true
-            );
         }
 
         return $constraints;

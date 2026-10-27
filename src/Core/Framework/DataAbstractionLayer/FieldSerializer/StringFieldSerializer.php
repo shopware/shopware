@@ -7,7 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice as ChoiceFlag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -35,7 +34,8 @@ class StringFieldSerializer extends AbstractFieldSerializer
     public function __construct(
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $definitionRegistry,
-        private readonly HtmlSanitizer $sanitizer
+        private readonly HtmlSanitizer $sanitizer,
+        private readonly StrictChoiceResolver $strictChoiceResolver = new StrictChoiceResolver(),
     ) {
         parent::__construct($validator, $definitionRegistry);
     }
@@ -59,11 +59,18 @@ class StringFieldSerializer extends AbstractFieldSerializer
             $data->setValue(null);
         }
 
-        $this->validateIfNeeded($field, $existence, $data, $parameters);
+        $constraints = $this->getCachedConstraints($field);
+        $choices = $this->strictChoiceResolver->getStrictChoices($field, $parameters->getDefinition());
+        if ($choices !== null) {
+            $constraints[] = new ChoiceConstraint(choices: $choices, strict: true);
+        }
+
+        // Validate the submitted value as well, so strict choices reject values that only match after sanitizing.
+        $this->validateConstraintsIfNeeded($constraints, $field, $existence, $data, $parameters);
 
         $data->setValue($this->sanitize($this->sanitizer, $data, $field, $existence));
 
-        $this->validateIfNeeded($field, $existence, $data, $parameters);
+        $this->validateConstraintsIfNeeded($constraints, $field, $existence, $data, $parameters);
 
         yield $field->getStorageName() => $data->getValue() !== null ? (string) $data->getValue() : null;
     }
@@ -102,11 +109,18 @@ class StringFieldSerializer extends AbstractFieldSerializer
             $constraints[] = new NotNull();
         }
 
-        $choice = $field->getFlag(ChoiceFlag::class);
-        if ($choice instanceof ChoiceFlag && $choice->isStrict() && $choice->getChoices() !== []) {
-            $constraints[] = new ChoiceConstraint(choices: $choice->getChoices(), strict: true);
+        return $constraints;
+    }
+
+    /**
+     * @param list<Constraint> $constraints
+     */
+    private function validateConstraintsIfNeeded(array $constraints, Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): void
+    {
+        if (!$this->requiresValidation($field, $existence, $data->getValue(), $parameters)) {
+            return;
         }
 
-        return $constraints;
+        $this->validate($constraints, $data, $parameters->getPath());
     }
 }

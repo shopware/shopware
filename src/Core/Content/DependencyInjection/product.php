@@ -20,6 +20,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryT
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingExceptionHandler;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductMappingCandidateProvider;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductSpecificationSource;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
@@ -950,4 +951,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('sales_channel.product.repository'),
         ])
         ->tag('content_system.entity_specification_source', ['priority' => 100]);
+
+    $services->set(ProductMappingCandidateProvider::class)
+        ->args([
+            service(ProductContentLayoutDefinition::class),
+        ])
+        ->tag('content_system.mapping_candidate_provider', ['priority' => 100]);
 };

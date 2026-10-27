@@ -239,6 +239,14 @@ class StoredValueTest extends TestCase
         static::assertSame($expected, $value->isNull());
     }
 
+    public function testContainerVariantPredicates(): void
+    {
+        static::assertTrue(StoredValue::ofList([])->isList());
+        static::assertFalse(StoredValue::ofList([])->isMap());
+        static::assertTrue(StoredValue::ofMap([])->isMap());
+        static::assertFalse(StoredValue::ofMap([])->isList());
+    }
+
     #[DataProvider('decodableValueProvider')]
     #[TestDox('wraps a raw decoded value so it unwraps back unchanged')]
     public function testFromDecodedRoundTripsARawValue(mixed $raw): void

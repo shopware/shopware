@@ -36,6 +36,11 @@ interface LayoutMutation
     public function created(): array;
 
     /**
+     * @return list<string> element ids whose properties were freshly scaffolded and may receive declared defaults
+     */
+    public function freshlyScaffolded(): array;
+
+    /**
      * @return list<StoredElement> subtrees detached by the op (e.g. replace dropping a slot's children),
      *                             returned so the caller can re-place them; never discarded
      */

@@ -17,7 +17,7 @@
                     },
                     "resolvable": {
                         "type": "boolean",
-                        "description": "True when there are no binding-scope error violations. Meaningful only when the layout was bound to a source (via `entityType`/`section` on the draft routes, or the layout's real bindings on the persisted routes); this is the predicate that gates serving.",
+                        "description": "True when there are no binding-scope error violations. A bound root source enables the full resolvability checks; on the diagnose route it comes from rootSource. Without a source, inline tokens in opted-in properties can still produce invalid_mapping errors and make this false, while whole-field mappings and other binding checks remain unjudged. This is the predicate that gates serving.",
                         "readOnly": true
                     },
                     "violations": {
@@ -50,14 +50,15 @@
                             "ambiguous_required",
                             "broken_required_chain",
                             "unresolved_optional",
-                            "unfilled_required_input"
+                            "unfilled_required_input",
+                            "invalid_mapping"
                         ],
-                        "description": "The defect code. Intrinsic-scope codes (`unregistered_component`, `duplicate_element_id`, `invalid_config`, `mismatched_reference_type`, `mismatched_property_type`, `unknown_style_option`, `orphaned_provider`) describe the layout in isolation; binding-scope codes (`unresolved_required`, `ambiguous_required`, `broken_required_chain`, `unresolved_optional`, `unfilled_required_input`) describe resolvability against a bound source. `mismatched_reference_type` flags a stored reference wiring whose resolved produced type is not assignable to the property's declared FQCN. `mismatched_property_type` flags a stored property value that disagrees with the primitive type its element type declares for that key; `key` carries the property name. `unknown_style_option` flags an element `style` entry naming an option the style option registry does not know; `key` carries the option name. `unfilled_required_input` flags a required reference whose stored wiring references an element property that holds no value."
+                        "description": "The defect code. Intrinsic-scope codes (`unregistered_component`, `duplicate_element_id`, `invalid_config`, `mismatched_reference_type`, `mismatched_property_type`, `unknown_style_option`, `orphaned_provider`) describe the layout in isolation; binding-scope codes (`unresolved_required`, `ambiguous_required`, `broken_required_chain`, `unresolved_optional`, `unfilled_required_input`, `invalid_mapping`) describe source-dependent resolvability, including mappings that require a source. `mismatched_reference_type` flags a stored reference wiring whose resolved produced type is not assignable to the property's declared FQCN. `mismatched_property_type` flags a stored property value that disagrees with the primitive type its element type declares for that key; `key` carries the property name. `unknown_style_option` flags an element `style` entry naming an option the style option registry does not know; `key` carries the option name. `unfilled_required_input` flags a required reference whose stored wiring references an element property that holds no value. `invalid_mapping` flags an invalid whole-field or inline mapping; `key` carries the destination property name. Whole-field admission checks require a root source and reject a property without `mappable`, an unavailable candidate, or incompatible cardinality or value type. On the diagnose route, the source comes from `rootSource`. Without it, whole-field mappings remain unjudged, but explicit inline tokens in opted-in properties still produce `invalid_mapping` violations because they require a bound source. Static admission defects are also refused by the `content_layout` write with specific `CONTENT_SYSTEM__*` codes."
                     },
                     "scope": {
                         "type": "string",
                         "enum": ["intrinsic", "binding"],
-                        "description": "Whether the defect is intrinsic to the layout or only meaningful relative to a bound source. Derived from `code`."
+                        "description": "Whether the defect concerns layout structure (intrinsic) or source-dependent resolution (binding), including mappings that require a missing source. Derived from code."
                     },
                     "severity": {
                         "type": "string",

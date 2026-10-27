@@ -54,7 +54,7 @@ The response body of the diagnose endpoint ([diagnose.md](diagnose.md)): the res
 
 A client derives the specifications applicable to an element from the `bindingSpecifications` map on that element's type entry in [`content-system-element-types.json`](../../Layout/Type/docs/introspection.md) (`bindingSpecifications[element.component]`) — the ids from the [Binding specifications](../../Binding/docs/introspection.md) fold that a client may pass as `bindingSpecificationId` to a bind-element action.
 
-`diagnostics.wellFormed` is true when there are no intrinsic-scope error violations (the persistence gate predicate); `diagnostics.resolvable` is true when there are no binding-scope error violations (the serving gate predicate, meaningful only when a source was bound). Each violation derives its `scope` and `severity` from its `code`:
+`diagnostics.wellFormed` is true when there are no intrinsic-scope error violations (the persistence gate predicate); `diagnostics.resolvable` is true when there are no binding-scope error violations (the serving gate predicate). A bound source enables the full resolvability checks. Without one, inline tokens in opted-in properties can still make `resolvable` false by requiring a source; whole-field mappings and other binding checks remain unjudged. Each violation derives its `scope` and `severity` from its `code`:
 
 | `code`                   | `scope`   | `severity` |
 |--------------------------|-----------|------------|
@@ -69,8 +69,13 @@ A client derives the specifications applicable to an element from the `bindingSp
 | `ambiguous_required`         | binding   | error      |
 | `broken_required_chain`      | binding   | error      |
 | `unfilled_required_input`    | binding   | error      |
+| `invalid_mapping`            | binding   | error      |
 | `unresolved_optional`        | binding   | warning    |
 
 `mismatched_reference_type` flags a stored reference wiring (any `dataRequirements` entry the element carries, not only one recorded in `attributedSpecifications`) whose resolved produced type is not assignable to the property's declared FQCN. It is intrinsic, not binding-scope: the mismatch is a property of the element's own stored wiring, independent of any bound `rootSource`. A config that fails to resolve (a client defect) is `invalid_config` instead; a config that resolves and fits produces no violation — it becomes a `stored` resolution instead (see the `origin` note above).
 
 `mismatched_property_type` flags a stored `properties` value that disagrees with the primitive type the element's type declares for that key, one violation per key, with `key` carrying the property name. `string` takes a string, `integer` an integer, `number` an integer or a float, `boolean` a boolean, and a union whose members are all primitive takes a value matching any one of them; `null` is admissible under all of them, because whether a key may be absent or null is `unresolved_required`'s business. A key declared as `object`, as an FQCN, or as a union carrying either constrains nothing and is never flagged, and neither is a `resolvedBy` storage key the type does not also declare as a property. Like `unknown_style_option`, it never appears on a DAL write: the write-path constraint pass refuses such a tree before the gate that produces these diagnostics runs.
+
+`invalid_mapping` flags a stored data mapping the bound source's candidate catalogue does not admit, with `key` carrying the mapped property. This includes a property without `mappable`, an unavailable path, context cardinality different from the candidate's, or a candidate value type that cannot fill the declared property. It has binding scope because admission depends on the root source's catalogue. Without a `rootSource`, whole-field mappings remain unjudged, but explicit inline tokens in opted-in properties still produce `invalid_mapping` violations because inline mapping requires a bound source.
+
+The same conditions refuse the `content_layout` write, where they surface as `CONTENT_SYSTEM__PROPERTY_NOT_MAPPABLE`, `CONTENT_SYSTEM__UNKNOWN_MAPPING_PATH`, `CONTENT_SYSTEM__MAPPING_CONTEXT_TYPE_MISMATCH`, or `CONTENT_SYSTEM__MAPPING_TYPE_MISMATCH` on the property path. The two surfaces read one rule set (`Mapping/StoredMappingInspector`) and cannot disagree about which mappings are legal; they differ only in how much they say, because a write needs a code a client can branch on while an editor needs to mark a control.

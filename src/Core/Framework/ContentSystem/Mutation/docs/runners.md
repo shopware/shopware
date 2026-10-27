@@ -7,14 +7,17 @@ through the same `MutationResult` named constructor.
 ## MutationPipeline
 
 `@internal`, with a `@final` annotation (behaviorally final, kept mockable for tests). Constructor:
-`LayoutDiagnostics $diagnostics, ContextConsumerMirror $contextMirror`.
+`LayoutDiagnostics $diagnostics, ContextConsumerMirror $contextMirror, DefaultMappingSeeder $defaultMappingSeeder`.
 
 `run(LayoutMutation $mutation, StoredTree $tree, ?array $rootContext): MutationResult` applies the mutation to the
-already-decoded `$tree`, diagnoses the whole new tree, mirrors the proven consumers onto `$mutation->created()` via
+already-decoded `$tree`, seeds compatible default mappings on fresh scaffolds, diagnoses the whole new tree, mirrors the proven consumers onto the same fresh ids via
 `ContextConsumerMirror::apply()`, re-diagnoses when (and only when) the wiring returned a different `StoredTree`
 instance, and hands the wired tree, the surviving analysis and the mutation to
 `MutationResult::fromAnalyzedMutation()`, which owns the restriction of the returned resolutions to the affected set
 (`array_intersect_key($analysis->resolutions, array_flip($affected))`).
+The root source is carried only by `StoredTree::$rootSource`; seeding, mapping admission, default bindings, and every diagnostics pass read it from the tree. Helpers that rebuild the forest use `StoredTree::withRoots()` to preserve it. A null source remains valid for an unbound draft, but `MapProperty` rejects that state.
+
+Each operation reports the exact ids in `freshlyScaffolded()`; the runner does not infer this from `created()`. `DuplicateElement` is a copy rather than a fresh scaffold, so its new ids are excluded from seeding and mirroring while still appearing in its created/affected reports.
 
 The instance-identity check is the whole gate: mirroring returns the input tree unchanged when it writes no
 consumer, so the common case stays at one analysis pass while a wired response never carries diagnostics describing
@@ -28,7 +31,7 @@ from a request draft or a loaded `content_layout`. Stateless: it never persists.
 ## PersistedLayoutMutator
 
 `@internal`, `@final` annotation. The persisted counterpart to `MutationPipeline`. Constructor:
-`LockFactory $lockFactory, EntityRepository<ContentLayoutCollection> $contentLayoutRepository, RootSourceRegistry $rootSourceRegistry, LayoutDiagnostics $diagnostics`.
+`LockFactory $lockFactory, EntityRepository<ContentLayoutCollection> $contentLayoutRepository, RootSourceRegistry $rootSourceRegistry, LayoutDiagnostics $diagnostics, DefaultMappingSeeder $defaultMappingSeeder`.
 
 `mutate(string $layoutId, ?string $expectedVersion, LayoutMutation $mutation, Context $context): MutationResult`
 serializes concurrent writers for the layout id under a `lock.factory` named lock so the load → version-check →
@@ -36,7 +39,8 @@ commit span is atomic, closing the lost-update window. It then loads by id
 (`ContentSystemException::contentLayoutNotFound`, 404, if absent), guards the optimistic-concurrency token against
 the row's `updatedAt` (`layoutVersionConflict`, 409, without writing on a mismatch; an unparseable token is a `400`
 `invalidVersionToken`; a `null` token matches a never-updated row), applies the op to the loaded `getLayout()` tree
-as it is (the entity and the operations speak the same stored model), then persists the mutated tree's `roots` via
+as it is (the entity and the operations speak the same stored model), seeds compatible default mappings only on
+the operation's `freshlyScaffolded()` ids, then persists the mutated tree's `roots` via
 `update()`, which runs the resolvability gates and rejects a resolvability-breaking edit, and returns the
 `MutationResult`.
 
@@ -46,11 +50,12 @@ microseconds.
 
 It runs no consumer mirroring at all, so a persisted mutation commits without mirrored wiring.
 
-The response diagnostics are derived from the loaded layout's single `root_source`, resolved once via
-`RootSourceRegistry::resolve()`, which returns a list and never `null` (`[]` for `none` / header / footer), so the
-binding-scope checks always run. `resolve()` is never handed an unregistered id here: the preceding `update()` runs
-`Validation/ContentLayoutWriteValidator`, which re-checks membership of the committed root source and rejects a
-de-registered source as a clean `unknownRootSource` 400 before any commit.
+The loaded layout's `root_source` initializes the `StoredTree` inside the locked mutation. Operations read it
+from that tree, so replacement and property mapping use the same `mutate()` entry point as structural edits;
+there is no separate source-aware mutation factory. Default mapping seeding and tree transforms preserve the
+source, and response diagnostics derive it from the resulting tree via `RootSourceRegistry::resolveGated()`.
+Bound stored sources enable binding-scope checks (`[]` for `none` / header / footer). The preceding `update()`
+re-checks source membership through `ContentLayoutWriteValidator`, rejecting a de-registered source before commit.
 
 Content the op detaches (`orphaned`), wiring it drops (`droppedWiring`), and static property values it cannot carry
 (`droppedProperties`) are never lost: the committed tree omits them and they ride back in the `MutationResult` so

@@ -16,6 +16,12 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
  * which it returns; it never throws. The preview action and the persistence gate thus share one diagnostics path
  * and the component-registration check cannot drift.
  *
+ * WHY THE INTRINSIC SUBSET. A draft is checked before it has been
+ * seeded with data, so a binding-scope analysis over-reports: every required input that a render would have filled
+ * looks unfilled. Keeping only the intrinsic subset is what makes this usable on a draft at all.
+ *
+ * Mapping and binding faults are reported by diagnostics and do not prevent authors from previewing a draft.
+ *
  * @internal
  *
  * @final

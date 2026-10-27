@@ -86,6 +86,7 @@ class AttachElementTest extends TestCase
             [$attached->id, $attached->slots['content'][0]->id, $attached->slots['content'][1]->id],
             $attach->created(),
         );
+        static::assertSame($attach->created(), $attach->freshlyScaffolded());
     }
 
     #[TestDox('attaches the subtree into a parent slot at an explicit index')]

@@ -90,6 +90,20 @@ class ContentSystemException extends HttpException
     public const BINDING_TYPE_MISMATCH = 'CONTENT_SYSTEM__BINDING_TYPE_MISMATCH';
     public const BINDING_SPECIFICATION_UNKNOWN_TYPE = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_UNKNOWN_TYPE';
     public const BINDING_SPECIFICATION_CANONICALIZATION_FAILED = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_CANONICALIZATION_FAILED';
+    public const PROPERTY_NOT_MAPPABLE = 'CONTENT_SYSTEM__PROPERTY_NOT_MAPPABLE';
+    public const UNKNOWN_MAPPING_PATH = 'CONTENT_SYSTEM__UNKNOWN_MAPPING_PATH';
+    public const INVALID_MAPPING_SOURCE = 'CONTENT_SYSTEM__INVALID_MAPPING_SOURCE';
+    public const MAPPING_TYPE_MISMATCH = 'CONTENT_SYSTEM__MAPPING_TYPE_MISMATCH';
+    public const INVALID_MAPPING_CANDIDATE_PATH = 'CONTENT_SYSTEM__INVALID_MAPPING_CANDIDATE_PATH';
+    public const MAPPING_CANDIDATE_PATH_MISMATCH = 'CONTENT_SYSTEM__MAPPING_CANDIDATE_PATH_MISMATCH';
+    public const MAPPING_CONTEXT_TYPE_MISMATCH = 'CONTENT_SYSTEM__MAPPING_CONTEXT_TYPE_MISMATCH';
+    public const UNKNOWN_INLINE_MAPPING_PATH = 'CONTENT_SYSTEM__UNKNOWN_INLINE_MAPPING_PATH';
+    public const MALFORMED_INLINE_MAPPING_TOKEN = 'CONTENT_SYSTEM__MALFORMED_INLINE_MAPPING_TOKEN';
+    public const INLINE_MAPPING_VALUE_NOT_STRINGIFIABLE = 'CONTENT_SYSTEM__INLINE_MAPPING_VALUE_NOT_STRINGIFIABLE';
+    public const INLINE_MAPPING_TOKEN_IN_MARKUP = 'CONTENT_SYSTEM__INLINE_MAPPING_TOKEN_IN_MARKUP';
+    public const INLINE_MAPPING_REQUIRES_ROOT_SOURCE = 'CONTENT_SYSTEM__INLINE_MAPPING_REQUIRES_ROOT_SOURCE';
+    public const INLINE_MAPPING_INPUT_TOO_LARGE = 'CONTENT_SYSTEM__INLINE_MAPPING_INPUT_TOO_LARGE';
+    public const INLINE_MAPPING_EXPANSION_TOO_LARGE = 'CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE';
     public const BINDING_SPECIFICATION_RESERVED_ID = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_RESERVED_ID';
     public const BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS';
     public const BOX_SPACING_TOKENIZATION_FAILED = 'CONTENT_SYSTEM__BOX_SPACING_TOKENIZATION_FAILED';
@@ -944,6 +958,174 @@ class ContentSystemException extends HttpException
             self::DEFAULT_CONTENT_LAYOUT_DELETION,
             'The content layouts with ids "{{ layoutIds }}" are assigned as a default and therefore cannot be deleted.',
             ['layoutIds' => implode(', ', $layoutIds)]
+        );
+    }
+
+    // The client-facing 400s of the data-mapping write gate. A mapping is a root-scoped context consumer
+    // whose propertyAlias names a declared property of the element's type, so all four name a defect in a
+    // stored mapping rather than in context wiring at large.
+
+    // The declared property exists but its type did not opt in with `mappable: true`.
+    public static function propertyNotMappable(string $component, string $propertyKey): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PROPERTY_NOT_MAPPABLE,
+            'Property "{{ propertyKey }}" of element type "{{ component }}" is not mappable. Declare "mappable: true" on it to allow mapping it to dynamic data.',
+            ['component' => $component, 'propertyKey' => $propertyKey]
+        );
+    }
+
+    // The path is not in the mapping catalogue of the layout's root source. The catalogue is curated, so this
+    // also rejects a path that would resolve but was never vouched for as safe to serve.
+    public static function unknownMappingPath(string $path, string $rootSource): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::UNKNOWN_MAPPING_PATH,
+            'Mapping path "{{ path }}" is not offered for root source "{{ rootSource }}".',
+            ['path' => $path, 'rootSource' => $rootSource]
+        );
+    }
+
+    public static function invalidMappingSource(\Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_MAPPING_SOURCE,
+            'The mapping source must contain non-empty type and id strings, optional non-empty path, and an optional config object with no unknown fields.',
+            [],
+            $previous,
+        );
+    }
+
+    // The catalogue offers the path, but the value it yields cannot fill the property it was mapped onto. The
+    // render path cannot catch this for itself: it serves whatever the path resolved to.
+    public static function mappingTypeMismatch(string $propertyKey, string $declaredType, string $valueType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MAPPING_TYPE_MISMATCH,
+            'Mapping onto property "{{ propertyKey }}" yields "{{ valueType }}", which does not satisfy its declared type "{{ declaredType }}".',
+            ['propertyKey' => $propertyKey, 'declaredType' => $declaredType, 'valueType' => $valueType]
+        );
+    }
+
+    public static function mappingContextTypeMismatch(string $path, string $contextType, string $expected): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MAPPING_CONTEXT_TYPE_MISMATCH,
+            'Mapping path "{{ path }}" must use context type "{{ expected }}", got "{{ contextType }}".',
+            ['path' => $path, 'contextType' => $contextType, 'expected' => $expected]
+        );
+    }
+
+    // The validation factories of the INLINE mapping gate. An inline mapping is a `{{map:path}}` token inside an
+    // `inlineMappable` string property, carrying no `acceptsContext` entry of its own, so whole-field mapping checks
+    // cannot see one. Mapping admissibility faults use the shared `Mapping/MappingProblem` channel; a missing root
+    // source is also reported through that channel by diagnostics. These codes are absent from CLIENT_DEFECT_CODES.
+
+    // The token's path is not in the mapping catalogue of the layout's root source. Rendering removes the token
+    // without resolving it; the write error and diagnostics API tell the author why it is unavailable.
+    public static function unknownInlineMappingPath(string $path, string $rootSource): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::UNKNOWN_INLINE_MAPPING_PATH,
+            'Inline mapping path "{{ path }}" is not offered for root source "{{ rootSource }}".',
+            ['path' => $path, 'rootSource' => $rootSource]
+        );
+    }
+
+    public static function malformedInlineMappingToken(string $path, string $propertyKey): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MALFORMED_INLINE_MAPPING_TOKEN,
+            'Inline mapping path "{{ path }}" in property "{{ propertyKey }}" must include a member below its source, for example "{{map:product.name}}".',
+            ['path' => $path, 'propertyKey' => $propertyKey]
+        );
+    }
+
+    // The catalogue offers the path, but interpolation has to write the value into a string, and this candidate
+    // yields something with no faithful text form — an entity or a collection.
+    public static function inlineMappingValueNotStringifiable(string $path, string $valueType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INLINE_MAPPING_VALUE_NOT_STRINGIFIABLE,
+            'Inline mapping path "{{ path }}" yields "{{ valueType }}", which has no text representation. Inline mapping supports string, integer, number and boolean values.',
+            ['path' => $path, 'valueType' => $valueType]
+        );
+    }
+
+    // A token inside an HTML tag rather than in text content. Escaping makes a value safe in text context only;
+    // in attribute context an escaped value can still terminate a quoted attribute, and supporting that properly
+    // would mean HTML-aware interpolation rather than string substitution.
+    public static function inlineMappingTokenInMarkup(string $path, string $propertyKey): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INLINE_MAPPING_TOKEN_IN_MARKUP,
+            'Inline mapping token "{{ path }}" in property "{{ propertyKey }}" sits inside an HTML tag. Tokens are only supported in text content, not in tags or attributes.',
+            ['path' => $path, 'propertyKey' => $propertyKey]
+        );
+    }
+
+    public static function inlineMappingRequiresRootSource(string $path, string $propertyKey): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INLINE_MAPPING_REQUIRES_ROOT_SOURCE,
+            'Inline mapping path "{{ path }}" in property "{{ propertyKey }}" requires a layout with a bound root source.',
+            ['path' => $path, 'propertyKey' => $propertyKey]
+        );
+    }
+
+    // Expansion depends on live source values, so exceeding its budget is a render fault, not an input-validation 400.
+    public static function inlineMappingExpansionTooLarge(int $maximumBytes, string $scope): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INLINE_MAPPING_EXPANSION_TOO_LARGE,
+            'Inline mapping text exceeds the maximum expanded size of {{ maximumBytes }} bytes per {{ scope }}.',
+            ['maximumBytes' => $maximumBytes, 'scope' => $scope]
+        );
+    }
+
+    public static function inlineMappingInputTooLarge(int $maximumBytes): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INLINE_MAPPING_INPUT_TOO_LARGE,
+            'Inline mapping text exceeds the maximum supported size of {{ maximumBytes }} bytes.',
+            ['maximumBytes' => $maximumBytes]
+        );
+    }
+
+    /**
+     * A provider offering an undotted path, which would make the write gate mistake every mapping onto it for
+     * the root-scoped consumer `Mutation/ContextConsumerMirror` writes, leaving it unvalidated. Unreachable
+     * from client input: only a `Mapping/Provider/AbstractMappingCandidateProvider` implementation can cause it.
+     */
+    public static function invalidMappingCandidatePath(string $path): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_MAPPING_CANDIDATE_PATH,
+            'Mapping candidate path "{{ path }}" must be a dotted path into a root-ambient context value, e.g. "category.name".',
+            ['path' => $path]
+        );
+    }
+
+    public static function mappingCandidatePathMismatch(string $path, string $sourceDisplayName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MAPPING_CANDIDATE_PATH_MISMATCH,
+            'Mapping candidate path "{{ path }}" must match its source display name "{{ sourceDisplayName }}".',
+            ['path' => $path, 'sourceDisplayName' => $sourceDisplayName]
         );
     }
 

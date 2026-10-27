@@ -5,6 +5,11 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Rendering;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductMappingCandidateProvider;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
@@ -13,11 +18,30 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\Br
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IndexedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingRuntimeResolver;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
+use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryIndex;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDistributor;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubContextStruct;
+use Shopware\Core\Test\Stub\ContentSystem\StubPathStruct;
 
 /**
  * @internal
@@ -26,6 +50,32 @@ use Shopware\Core\Test\Stub\ContentSystem\StubContextStruct;
 #[CoversClass(ContextDeliveryResolver::class)]
 class ContextDeliveryResolverTest extends TestCase
 {
+    public function testProductCoverMappingReceivesTheProvidersMediaValue(): void
+    {
+        $media = new MediaEntity();
+        $media->setUniqueIdentifier(Uuid::randomHex());
+        $cover = new ProductMediaEntity();
+        $cover->setUniqueIdentifier(Uuid::randomHex());
+        $cover->setMedia($media);
+        $product = new SalesChannelProductEntity();
+        $product->setCover($cover);
+
+        $child = $this->mappedChild();
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')->withSlot('main', [$child])->build();
+        $resolver = new ContextDeliveryResolver(
+            new ContextDistributor(new ContextPathResolver()),
+            new ContextPathResolver(),
+            new MappingRuntimeResolver(
+                $registry = new ContentSystemMappingCandidateRegistry([new ProductMappingCandidateProvider(new ProductContentLayoutDefinition())]),
+                $this->mappingInspector($registry, MediaEntity::class),
+            ),
+        );
+
+        $index = $resolver->resolve([$root], [], ['product' => $product], rootSource: 'product', cacheContext: null);
+
+        static::assertSame(['cover' => $media], $index->all()['child-1']->context);
+    }
+
     #[TestDox('delivers a parent value to its own children')]
     public function testDeliversFromParentToItsChildren(): void
     {
@@ -36,7 +86,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], []);
+        $index = $this->resolver()->resolve([$root], [], [], cacheContext: null, rootSource: null);
 
         static::assertSame(['product' => 'product-data'], $index->all()['child-1']->context);
     }
@@ -51,7 +101,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$this->consumer('child-1', 'product'), $bystander])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], []);
+        $index = $this->resolver()->resolve([$root], [], [], cacheContext: null, rootSource: null);
 
         static::assertSame(['root-1', 'child-1', 'child-2'], array_keys($index->all()));
         static::assertTrue($index->all()['root-1']->isEmpty());
@@ -66,7 +116,7 @@ class ContextDeliveryResolverTest extends TestCase
             $this->providerRoot('root-2', 'child-2', 'second-data'),
         ];
 
-        $index = $this->resolver()->resolve($forest, [], []);
+        $index = $this->resolver()->resolve($forest, [], [], cacheContext: null, rootSource: null);
 
         static::assertSame(['product' => 'first-data'], $index->all()['child-1']->context);
         static::assertSame(['product' => 'second-data'], $index->all()['child-2']->context);
@@ -92,7 +142,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$middle])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], []);
+        $index = $this->resolver()->resolve([$root], [], [], cacheContext: null, rootSource: null);
 
         static::assertSame(['product' => 'product-data'], $index->all()['child-1']->context);
         static::assertSame(['product' => 'product-data'], $index->all()['grandchild-1']->context);
@@ -113,7 +163,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('right', [$this->consumer('child-3', 'items')])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], []);
+        $index = $this->resolver()->resolve([$root], [], [], cacheContext: null, rootSource: null);
 
         static::assertSame(['items' => 'first-item'], $index->all()['child-1']->context);
         static::assertSame(['items' => 'second-item'], $index->all()['child-2']->context);
@@ -128,7 +178,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$this->consumer('child-1', 'product')])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], ['root-1' => ['product' => 'loaded-data']], []);
+        $index = $this->resolver()->resolve([$root], ['root-1' => ['product' => 'loaded-data']], [], cacheContext: null, rootSource: null);
 
         static::assertSame(['product' => 'loaded-data'], $index->all()['child-1']->context);
     }
@@ -142,7 +192,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$this->consumer('child-1', 'product')])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], ['root-1' => ['product' => 'loaded-data']], []);
+        $index = $this->resolver()->resolve([$root], ['root-1' => ['product' => 'loaded-data']], [], cacheContext: null, rootSource: null);
 
         static::assertSame(['product' => 'loaded-data'], $index->all()['child-1']->context);
     }
@@ -163,7 +213,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$middle])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], []);
+        $index = $this->resolver()->resolve([$root], [], [], cacheContext: null, rootSource: null);
 
         static::assertSame(['product' => 'inherited-data'], $index->all()['grandchild-1']->context);
     }
@@ -184,7 +234,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$this->consumer('child-1', 'product')])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], ['root-1' => ['product' => null]], []);
+        $index = $this->resolver()->resolve([$root], ['root-1' => ['product' => null]], [], cacheContext: null, rootSource: null);
 
         static::assertSame([], $index->all()['child-1']->context);
     }
@@ -210,7 +260,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], []);
+        $index = $this->resolver()->resolve([$root], [], [], cacheContext: null, rootSource: null);
 
         static::assertSame(['data_key' => 'present', 'items' => null], $index->all()['child-1']->context);
     }
@@ -228,7 +278,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], []);
+        $index = $this->resolver()->resolve([$root], [], [], cacheContext: null, rootSource: null);
 
         static::assertSame(['data_key'], $index->all()['child-1']->distributionReferencedKeys);
     }
@@ -243,7 +293,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        $this->resolver()->resolve([$root], [], []);
+        $this->resolver()->resolve([$root], [], [], cacheContext: null, rootSource: null);
 
         static::assertSame([], $child->properties());
         static::assertSame(['product' => 'product-data'], array_map(
@@ -255,7 +305,7 @@ class ContextDeliveryResolverTest extends TestCase
     #[TestDox('returns an empty index for an empty forest')]
     public function testEmptyForestYieldsAnEmptyIndex(): void
     {
-        $index = $this->resolver()->resolve([], [], []);
+        $index = $this->resolver()->resolve([], [], [], cacheContext: null, rootSource: null);
 
         static::assertSame([], $index->all());
     }
@@ -263,7 +313,7 @@ class ContextDeliveryResolverTest extends TestCase
     #[TestDox('reports an element id it never walked as absent rather than as having received nothing')]
     public function testAnIdOutsideTheForestIsAbsentFromTheIndex(): void
     {
-        $index = $this->resolver()->resolve([$this->providerRoot('root-1', 'child-1', 'product-data')], [], []);
+        $index = $this->resolver()->resolve([$this->providerRoot('root-1', 'child-1', 'product-data')], [], [], cacheContext: null, rootSource: null);
 
         static::assertTrue($index->has('child-1'));
         static::assertFalse($index->has('not-in-this-forest'));
@@ -285,7 +335,7 @@ class ContextDeliveryResolverTest extends TestCase
             ContentSystemException::contextPathNotResolvable('product.name', 'child-1', 'Context data is not a Struct instance')
         );
 
-        $this->resolver()->resolve([$root], [], []);
+        $this->resolver()->resolve([$root], [], [], cacheContext: null, rootSource: null);
     }
 
     /**
@@ -309,7 +359,7 @@ class ContextDeliveryResolverTest extends TestCase
         static::assertSame([], $root->contextDefinitions->getAllProviders());
         static::assertSame([], $middle->contextDefinitions->getAllProviders());
 
-        $index = $this->resolver()->resolve([$root], [], ['language' => 'page-language']);
+        $index = $this->resolver()->resolve([$root], [], ['language' => 'page-language'], cacheContext: null, rootSource: null);
 
         static::assertSame(['language' => 'page-language'], $index->all()['grandchild-1']->context);
         static::assertSame([], $index->all()['child-1']->context);
@@ -329,7 +379,7 @@ class ContextDeliveryResolverTest extends TestCase
             ])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], ['language' => 'page-language']);
+        $index = $this->resolver()->resolve([$root], [], ['language' => 'page-language'], cacheContext: null, rootSource: null);
 
         static::assertSame(['language' => 'page-language'], $index->all()['root-scoped-1']->context);
         static::assertSame([], $index->all()['parent-scoped-1']->context);
@@ -345,7 +395,9 @@ class ContextDeliveryResolverTest extends TestCase
         $index = $this->resolver()->resolve(
             [$root],
             [],
-            ['product' => new StubContextStruct('page-cover')]
+            ['product' => new StubContextStruct('page-cover')],
+            cacheContext: null,
+            rootSource: null
         );
 
         static::assertSame(['product.cover' => 'page-cover'], $index->all()['child-1']->context);
@@ -367,16 +419,14 @@ class ContextDeliveryResolverTest extends TestCase
             'Context data is not a Struct instance'
         ));
 
-        $this->resolver()->resolve([$root], [], ['product' => 'not-a-struct']);
+        $this->resolver()->resolve([$root], [], ['product' => 'not-a-struct'], cacheContext: null, rootSource: null);
     }
 
     /**
-     * The optional twin of the rejection above: a dotted path needs a Struct to traverse, and an optional
-     * consumer that cannot get one takes a PRESENT null (a resolution ran and found nothing), unlike the
-     * ambient null below, which writes no key.
+     * An ordinary optional consumer delivers a present null when traversal cannot resolve its path.
      */
-    #[TestDox('delivers a present null to an optional dotted root-scoped consumer over a non-Struct ambient value')]
-    public function testOptionalDottedRootScopedConsumerTakesANullOverANonStructAmbientValue(): void
+    #[TestDox('writes null for an optional dotted root-scoped consumer over a non-Struct ambient value')]
+    public function testOptionalDottedRootScopedConsumerWritesNullOverANonStructAmbientValue(): void
     {
         $child = StoredElementBuilder::create('Sw:Box', 'child-1')
             ->withConsumer('product.cover', ContextType::Single, required: false, scope: ConsumerScope::Root)
@@ -385,9 +435,45 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], ['product' => 'not-a-struct']);
+        $index = $this->resolver()->resolve([$root], [], ['product' => 'not-a-struct'], cacheContext: null, rootSource: null);
 
         static::assertSame(['product.cover' => null], $index->all()['child-1']->context);
+    }
+
+    /**
+     * Resolving no leaf still writes a present null for ordinary context wiring.
+     */
+    #[TestDox('writes null when an ordinary dotted root-scoped consumer resolves to null')]
+    public function testAnOrdinaryDottedRootScopedConsumerResolvingToNullWritesNull(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Box', 'child-1')
+            ->withConsumer('product.cover', ContextType::Single, required: false, scope: ConsumerScope::Root)
+            ->build();
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [$child])
+            ->build();
+
+        $index = $this->resolver()->resolve([$root], [], ['product' => new StubContextStruct()], cacheContext: null, rootSource: null);
+
+        static::assertSame(['product.cover' => null], $index->all()['child-1']->context);
+    }
+
+    /**
+     * The scoping guard. The no-delivery rule is keyed on the consumer key being dotted, so an EXACT ambient
+     * key match must keep delivering whatever the ambient map holds — including a value that is itself
+     * falsy. Without this, a narrowing of the rule to "any null-ish delivered value" would pass every test
+     * above while quietly dropping legitimate exact-key deliveries.
+     */
+    #[TestDox('still delivers an exact-key root-scoped value that is falsy rather than treating it as unresolved')]
+    public function testAnExactKeyRootDeliveryOfAFalsyValueIsStillWritten(): void
+    {
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [$this->rootScopedConsumer('child-1', 'language')])
+            ->build();
+
+        $index = $this->resolver()->resolve([$root], [], ['language' => ''], cacheContext: null, rootSource: null);
+
+        static::assertSame(['language' => ''], $index->all()['child-1']->context);
     }
 
     /**
@@ -402,7 +488,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$this->rootScopedConsumer('child-1', 'language')])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], ['language' => null]);
+        $index = $this->resolver()->resolve([$root], [], ['language' => null], cacheContext: null, rootSource: null);
 
         static::assertSame([], $index->all()['child-1']->context);
     }
@@ -417,7 +503,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], ['language' => 'page-language']);
+        $index = $this->resolver()->resolve([$root], [], ['language' => 'page-language'], cacheContext: null, rootSource: null);
 
         static::assertSame(['pageLanguage' => 'page-language'], $index->all()['child-1']->context);
     }
@@ -445,7 +531,7 @@ class ContextDeliveryResolverTest extends TestCase
         // can hand on is the one the ambient overlay put into its working map.
         static::assertNull($middle->property('language'));
 
-        $index = $this->resolver()->resolve([$root], [], ['language' => 'page-language']);
+        $index = $this->resolver()->resolve([$root], [], ['language' => 'page-language'], cacheContext: null, rootSource: null);
 
         static::assertSame(['language' => 'page-language'], $index->all()['child-1']->context);
         static::assertSame(['language' => 'page-language'], $index->all()['grandchild-1']->context);
@@ -473,7 +559,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        $delivery = $this->resolver()->resolve([$root], [], ['language' => 'page-language'])->all()['child-1'];
+        $delivery = $this->resolver()->resolve([$root], [], ['language' => 'page-language'], cacheContext: null, rootSource: null)->all()['child-1'];
 
         // Fixture guard: the overlay really did run, so the delivery really was replaced.
         static::assertSame(
@@ -484,6 +570,206 @@ class ContextDeliveryResolverTest extends TestCase
         static::assertSame('child-1', $delivery->elementId);
     }
 
+    public function testOneMappedSourceCanFillSeveralProperties(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Card', 'child-1')
+            ->withConsumer('title', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.cover'))
+            ->withConsumer('subtitle', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.cover'))
+            ->build();
+
+        $index = $this->resolve($child, new StubContextStruct('page-cover'));
+
+        static::assertSame([
+            'title' => 'page-cover',
+            'subtitle' => 'page-cover',
+        ], $index->all()['child-1']->context);
+    }
+
+    public function testMappingCanReadACataloguedCustomField(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Content:Text', 'child-1')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.customFields.material'))
+            ->build();
+
+        $index = $this->resolve($child, new StubPathStruct(customFields: ['material' => 'Leather']));
+
+        static::assertSame(['text' => 'Leather'], $index->all()['child-1']->context);
+    }
+
+    public function testPresentNullFromAMappedSourceIsDeliveredAsPresentNull(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Content:Text', 'child-1')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.customFields.material'))
+            ->build();
+
+        $index = $this->resolve($child, new StubPathStruct(customFields: ['material' => null]));
+
+        static::assertArrayHasKey('text', $index->all()['child-1']->context);
+        static::assertNull($index->all()['child-1']->context['text']);
+    }
+
+    public function testMappingWithoutARootSourceSkipsResolutionAndAuthoredFallback(): void
+    {
+        $mappingSources = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $mappingSources->expects($this->never())->method('forRootSource');
+        $mappingSources->expects($this->never())->method('resolveSource');
+        $resolver = new ContextDeliveryResolver(
+            new ContextDistributor(new ContextPathResolver()),
+            new ContextPathResolver(),
+            new MappingRuntimeResolver(
+                $mappingSources,
+                $this->mappingInspector($mappingSources),
+            ),
+        );
+
+        $delivery = $resolver->resolve([$this->mappedChild()], [], ['product' => new StubContextStruct('page-cover')], cacheContext: null, rootSource: null)->all()['child-1'];
+
+        static::assertSame([], $delivery->context);
+        static::assertSame([], $delivery->mappingFallbackKeys);
+    }
+
+    public function testProviderFailurePropagatesDuringMappingDelivery(): void
+    {
+        $failure = new \RuntimeException('provider failed');
+        $candidate = new MappingCandidate('product.cover', 'cover', '', 'media', 'string');
+        $mappingSources = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $mappingSources->method('forRootSource')->willReturn(['product.cover' => $candidate]);
+        $mappingSources->method('resolveSource')->willThrowException($failure);
+        $resolver = new ContextDeliveryResolver(
+            new ContextDistributor(new ContextPathResolver()),
+            new ContextPathResolver(),
+            new MappingRuntimeResolver(
+                $mappingSources,
+                $this->mappingInspector($mappingSources),
+            ),
+        );
+
+        $this->expectExceptionObject($failure);
+
+        $resolver->resolve(
+            [$this->mappedChild()],
+            [],
+            ['product' => new StubContextStruct('page-cover')],
+            rootSource: 'product',
+            cacheContext: null,
+        );
+    }
+
+    public function testProductMappingUsesTheOwningProvidersActiveTranslation(): void
+    {
+        $product = new SalesChannelProductEntity();
+        $product->setName('Raw variant name');
+        $product->setTranslated(['name' => 'Inherited storefront name']);
+        $child = StoredElementBuilder::create('Sw:Content:Text', 'child-1')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::root('product', 'name'))
+            ->build();
+        $resolver = new ContextDeliveryResolver(
+            new ContextDistributor(new ContextPathResolver()),
+            new ContextPathResolver(),
+            new MappingRuntimeResolver(
+                $registry = new ContentSystemMappingCandidateRegistry([new ProductMappingCandidateProvider(new ProductContentLayoutDefinition())]),
+                $this->mappingInspector($registry),
+            ),
+        );
+
+        $index = $resolver->resolve([$child], [], ['product' => $product], rootSource: 'product', cacheContext: null);
+
+        static::assertSame(['text' => 'Inherited storefront name'], $index->all()['child-1']->context);
+    }
+
+    public function testMissingCustomFieldProducesNoMappingDelivery(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Content:Text', 'child-1')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.customFields.material'))
+            ->build();
+
+        $index = $this->resolve($child, new StubPathStruct(customFields: []));
+
+        static::assertSame([], $index->all()['child-1']->context);
+        static::assertSame(['text'], $index->all()['child-1']->mappingFallbackKeys);
+    }
+
+    #[TestDox('marks an empty mapped value for authored fallback')]
+    public function testEmptyMappingValueAllowsAuthoredFallback(): void
+    {
+        $index = $this->resolve($this->mappedChild(), new StubContextStruct(''));
+
+        static::assertSame([], $index->all()['child-1']->context);
+        static::assertSame(['cover'], $index->all()['child-1']->mappingFallbackKeys);
+    }
+
+    #[TestDox('marks an empty array mapping for authored fallback')]
+    public function testEmptyArrayMappingValueAllowsAuthoredFallback(): void
+    {
+        $index = $this->resolve(
+            $this->mappedChild(),
+            new ArrayStruct(['cover' => new \ArrayObject()]),
+            candidateValueType: \ArrayObject::class,
+        );
+
+        static::assertSame([], $index->all()['child-1']->context);
+        static::assertSame(['cover'], $index->all()['child-1']->mappingFallbackKeys);
+    }
+
+    #[TestDox('delivers an explicit null mapping without enabling authored fallback')]
+    public function testExplicitNullMappingDoesNotAllowAuthoredFallback(): void
+    {
+        $index = $this->resolve($this->mappedChild(), new StubContextStruct(null));
+
+        static::assertArrayHasKey('cover', $index->all()['child-1']->context);
+        static::assertNull($index->all()['child-1']->context['cover']);
+        static::assertSame([], $index->all()['child-1']->mappingFallbackKeys);
+    }
+
+    #[TestDox('does not deliver a stored mapping after its source leaves the live candidate catalogue')]
+    public function testRevokedRootCandidateProducesNoMappingDelivery(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Content:Text', 'child-1')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.customFields.material'))
+            ->build();
+
+        $index = $this->resolve($child, new StubPathStruct(customFields: ['material' => 'Leather']), candidatePaths: []);
+
+        static::assertSame([], $index->all()['child-1']->context);
+    }
+
+    #[TestDox('omits a mapping whose live candidate declares a different effective value type')]
+    public function testCandidateValueTypeDriftProducesNoMappingDelivery(): void
+    {
+        $child = $this->mappedChild();
+
+        $index = $this->resolve($child, new StubContextStruct('page-cover'), candidateValueType: 'boolean');
+
+        static::assertSame([], $index->all()['child-1']->context);
+    }
+
+    #[TestDox('does not resolve a stored mapping whose target property is no longer mappable')]
+    public function testStoredMappingMustStillPassTheSharedTargetAdmissionRule(): void
+    {
+        $candidate = new MappingCandidate(
+            path: 'product.cover',
+            label: 'a label',
+            description: 'a description',
+            group: 'basic',
+            valueType: 'string',
+        );
+        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates->method('forRootSource')->willReturn(['product.cover' => $candidate]);
+        $candidates->expects($this->never())->method('resolveSource');
+        $resolver = new ContextDeliveryResolver(
+            new ContextDistributor(new ContextPathResolver()),
+            new ContextPathResolver(),
+            new MappingRuntimeResolver(
+                $candidates,
+                $this->mappingInspector($candidates, coverMappable: false),
+            ),
+        );
+
+        $delivery = $resolver->resolve([$this->mappedChild()], [], ['product' => new StubContextStruct('page-cover')], rootSource: 'product', cacheContext: null);
+
+        static::assertSame([], $delivery->all()['child-1']->context);
+    }
+
     #[TestDox('hands an exact-key root delivery the same instance the ambient map holds')]
     public function testExactKeyRootDeliveryHandsOnTheSameInstance(): void
     {
@@ -492,17 +778,133 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$this->rootScopedConsumer('child-1', 'product')])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], ['product' => $ambientValue]);
+        $index = $this->resolver()->resolve([$root], [], ['product' => $ambientValue], cacheContext: null, rootSource: null);
 
         static::assertSame($ambientValue, $index->all()['child-1']->context['product']);
     }
 
     private function resolver(): ContextDeliveryResolver
     {
+        return $this->resolverWith();
+    }
+
+    /**
+     * @param list<string> $candidatePaths
+     */
+    private function resolverWith(array $candidatePaths = [
+        'product.cover',
+        'product.customFields.material',
+        'product.child',
+    ], string $candidateValueType = 'string'): ContextDeliveryResolver
+    {
+        $candidates = [];
+        foreach ($candidatePaths as $path) {
+            $candidate = new MappingCandidate(
+                path: $path,
+                label: 'a label',
+                description: 'a description',
+                group: 'basic',
+                valueType: $candidateValueType,
+            );
+            $candidates[$candidate->source->displayName()] = $candidate;
+        }
+
+        $mappingSources = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $mappingSources->method('forRootSource')->willReturn($candidates);
+        $mappingSources->method('resolveSource')->willReturnCallback(
+            static function (string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution {
+                $root = $context->rootValues[$source->id] ?? null;
+                if ($source->path === null) {
+                    return $root === null ? MappingSourceResolution::noValue() : MappingSourceResolution::resolved($root);
+                }
+
+                if (!$root instanceof Struct) {
+                    return MappingSourceResolution::noValue();
+                }
+
+                $result = (new ContextPathResolver())->resolveMappingPathWithPresence($root, explode('.', $source->path));
+
+                return $result['found']
+                    ? MappingSourceResolution::resolved($result['value'])
+                    : MappingSourceResolution::noValue();
+            }
+        );
+
         return new ContextDeliveryResolver(
             new ContextDistributor(new ContextPathResolver()),
-            new ContextPathResolver()
+            new ContextPathResolver(),
+            new MappingRuntimeResolver(
+                $mappingSources,
+                $this->mappingInspector($mappingSources, $candidateValueType),
+            ),
         );
+    }
+
+    private function mappingInspector(
+        AbstractContentSystemMappingCandidateRegistry $candidates,
+        string $coverType = 'string',
+        bool $coverMappable = true,
+    ): StoredMappingInspector {
+        $specifications = [
+            'Sw:Section' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Section')->build(),
+            'Sw:Box' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Box')
+                ->primitive('cover', $coverType, mappable: $coverMappable)
+                ->primitive('title', 'string', mappable: true)
+                ->primitive('subtitle', 'string', mappable: true)
+                ->primitive('text', 'string', mappable: true)
+                ->build(),
+            'Sw:Card' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Card')
+                ->primitive('title', 'string', mappable: true)
+                ->primitive('subtitle', 'string', mappable: true)
+                ->build(),
+            'Sw:Content:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+                ->primitive('text', 'string', mappable: true, inlineMappable: true)
+                ->build(),
+        ];
+        $types = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $types->method('has')->willReturnCallback(static fn (string $name): bool => isset($specifications[$name]));
+        $types->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specifications[$name]);
+
+        return new StoredMappingInspector($types, $candidates, new MappingTypeCompatibility(), new MappingConsumers(), new InlineMappingTokenParser());
+    }
+
+    /**
+     * One child mapping `product.<member>` under a root, rendered
+     * against a single ambient `product`.
+     *
+     * @param list<string> $candidatePaths
+     */
+    private function resolve(StoredElement $child, Struct $ambient, array $candidatePaths = [
+        'product.cover',
+        'product.customFields.material',
+        'product.child',
+    ], string $candidateValueType = 'string'): ContextDeliveryIndex
+    {
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [$child])
+            ->build();
+
+        return $this->resolverWith($candidatePaths, $candidateValueType)
+            ->resolve(
+                [$root],
+                [],
+                ['product' => $ambient],
+                rootSource: 'product',
+                cacheContext: null
+            );
+    }
+
+    private function mappedChild(): StoredElement
+    {
+        return StoredElementBuilder::create('Sw:Box', 'child-1')
+            ->withConsumer(
+                'cover',
+                ContextType::Single,
+                required: false,
+                scope: ConsumerScope::Root,
+                source: MappingSourceReference::fromRootPath('product.cover'),
+            )
+            ->build();
     }
 
     private function rootScopedConsumer(string $id, string $contextKey): StoredElement

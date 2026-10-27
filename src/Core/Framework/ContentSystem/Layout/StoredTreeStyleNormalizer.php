@@ -33,7 +33,7 @@ final class StoredTreeStyleNormalizer
 
     public function normalize(StoredTree $tree): StoredTree
     {
-        return new StoredTree(array_map($this->normalizeElement(...), $tree->roots));
+        return $tree->withRoots(array_map($this->normalizeElement(...), $tree->roots));
     }
 
     private function normalizeElement(StoredElement $element): StoredElement

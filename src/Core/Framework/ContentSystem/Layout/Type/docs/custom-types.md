@@ -60,9 +60,36 @@ slots:
 
 **`meta`** (required): `label`, `description` are required. `icon`, `category`, `copilot` are optional.
 
-**`properties`** (optional): Each property declares its type (`string`, `boolean`, `integer`, `number`, or a FQCN for hydrated data). Optional fields: `required`, `translatable` (string only), `enum` (primitives only), `default`, `title`, `description`, `adminUI`, `resolvedBy` (reference properties only — the resolvedBy shorthand, see [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md)). A property shown as a `radio-panel` whose type is not `string` declares its values in `enum`; without one, a click on one of its options throws an error in the Administration and emits no value.
+**`properties`** (optional): Each property declares its type (`string`, `boolean`, `integer`, `number`, or a FQCN for hydrated data). Optional fields: `required`, `translatable` (string only), `enum` (primitives only), `default`, `title`, `description`, `adminUI`, `mappable`, `inlineMappable`, `resolvedBy` (reference properties only — the resolvedBy shorthand, see [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md)). A property shown as a `radio-panel` whose type is not `string` declares its values in `enum`; without one, a click on one of its options throws an error in the Administration and emits no value.
 
 The default-specification synthesizer runs on every type file, whether or not it declares a `bindings:` key, so a misused `resolvedBy` — for example on a primitive property — fails app install and `manifest:validate` outright.
+
+### `mappable`
+
+`mappable: true` lets a layout author fill the property from a registered data source — for example, a text property from `category.name` or an entity property from the whole root product. It defaults to **false**, so a property is never mappable unless you say so, and that default is the switch for the distinction below.
+
+```yaml
+properties:
+  text:
+    type: string
+    mappable: true
+```
+
+**Do not set it on a property the element needs in order to work.** A property you fill yourself — through `dataRequirements`, a binding specification, or root-ambient context the page supplies — is your contract with the element, not a choice to hand the author. `Sw:Product:Listing`'s `listing` property is the reference case: the page loads the listing once and delivers it as root-scoped context, the element cannot render without it, and it stays silent on `mappable`. Leaving the flag off is enough; `Validation/StoredMappingValidator` then rejects any write that tries to map it, so no client can map it behind your back.
+
+A mapping is keyed by the destination property and carries a typed source reference (`type`, `id`, and optional `path`/`config`); ordinary and server-mirrored context wiring carries no source. Use the dedicated mapping mutations rather than writing this metadata in a client: the server derives cardinality from the candidate catalogue. Rendering distinguishes a missing or empty source value, which permits fallback, from a present null value and an unavailable or incompatible mapping.
+
+If you do mark a property both mappable and self-filled, a mapping takes precedence when it supplies a non-empty value or an explicit `null`. A resolved `null` is delivered as null and overrides authored or loader-resolved content. A missing source value (`noValue()`), an empty string, an empty array, or an empty `Countable` value permits fallback to authored or loader-resolved content. An unavailable or incompatible candidate or an incompatible runtime value leaves the mapped property omitted. Static diagnostics report mapping admission faults. Provider errors abort rendering through normal error handling. That combination is only meaningful when overriding your loader is a feature you intend to offer — which is how `Sw:Media:Image.media` works, where mapping the category's image and picking one by hand are two ways to say the same thing.
+
+Note what that means for a **required** reference with a `resolvedBy` storage key. Mapping it and filling the storage key are alternatives, so an author who maps leaves the key empty, and the diagnostics rule that would normally call an empty required loader input a defect (`UnfilledRequiredInput`) stands down for a mapped property. You get that for free; it is not something a type file opts into.
+
+You do not declare which candidates fit, either. The introspection payload derives a `contextTypes` entry from your `type` — `single`, `collection`, or both for a union or a bare `object` — and the Administration filters the catalogue by it before anything else, so a `MediaCollection` property is never offered a single image. Declare the type accurately and that follows; there is no flag to set.
+
+What a mappable property can be mapped to is determined by the mapping catalogue of the layout's root source. The write gate admits a candidate only when its effective value type satisfies your declared property type. Where the source data has a different shape — the gallery declares `MediaCollection`, while a product's `media` holds image assignment records — the provider reshapes it before delivery and advertises `MediaCollection`. Declare the type your template needs; the provider owns the conversion.
+
+### `inlineMappable`
+
+`inlineMappable: true` allows `{{map:candidate.path}}` tokens in that property's authored string. It is an output-format declaration: the property must be sanitized HTML text, as with `Sw:Content:Text`; a plain string property does not support inline mapping. Candidate text is escaped before insertion, then Storefront purification processes the resulting markup alongside authored rich text. Providers still own the storefront-safety of values they expose. In eligible text positions, authored tokens are expanded; unavailable or unconvertible tokens are removed. Surrounding authored text is retained. Valid tokens inside HTML markup, including attributes, remain literal and are subject to normal template sanitization. The parser scans at most 256 KiB of property text.
 
 **`slots`** (optional): Each slot has a `name`. Optional: `maxElements` (cap on child count), `allowList` (restrict allowed child component types), `description`. A slot name PHP casts to an integer, such as `12`, is unusable: a stored element rejects an integer slot key (`invalidMapKey`), so no child can be stored under it.
 
@@ -83,3 +110,8 @@ Reference: [Layout/Type/README.md](../README.md), `Layout/Type/Definitions/` (5 
 ## Discoverability
 
 A registered type appears in `GET /api/_info/content-system-element-types.json`, which the Administration reads to offer the type (with its property and slot schema) in the layout editor. See [introspection.md](introspection.md).
+
+
+A mappable property may declare `defaultMapping` as a typed source reference, for example `defaultMapping: {type: root, id: product}`. Freshly scaffolded elements receive the mapped state only when the bound layout root offers that candidate and its effective type fits. Insert, preset attach, and replacement operations report their freshly scaffolded ids explicitly; duplicate operations report none, preserving the copied mapped, selected, or deliberately unmapped state. An existing mapping always wins. The element can be unmapped to expose its authored or resolved-by control (for example, an entity selector for a specific product). Layouts with another root source leave the property unmapped. This is a deliberate type-declaration exception: `defaultMapping` is a typed source declaration rather than a second property-type declaration. It supplies initial dynamic source wiring; `resolvedBy` supplies the loader-backed alternative that remains available after unmapping.
+
+Direct DAL, Admin CRUD API, and Sync API writes do not apply `defaultMapping`. To create a mapped element through those paths, supply its `acceptsContext` consumer explicitly or create it through the layout mutation actions. Ordinary saves do not restore a removed mapping. Primitive and nested stored defaults continue to be seeded at the DAL write boundary.

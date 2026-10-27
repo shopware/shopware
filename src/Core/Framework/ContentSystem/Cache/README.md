@@ -30,3 +30,9 @@ Unsupported entities return null → page becomes uncacheable.
 Every table name comes from its definition's `ENTITY_NAME`. Header and footer are Storefront-owned, so
 the Storefront hands those two to the subscriber through the container parameter
 `shopware.content_system.section_assignment_entities`; Core declares it empty.
+
+Custom-field mapping metadata uses a separate dependency: `content-system-custom-field-mapping-metadata`.
+It is attached only when a render attempts a custom-field mapping, including an unavailable field, and applies
+to both whole-field and inline mappings. Writes/deletes to custom-field definitions, sets, or set relations
+invalidate those pages. Layouts with only normal core mappings receive no such dependency and remain cached.
+The custom-field provider owns path recognition; general rendering code does not inspect custom-field names.

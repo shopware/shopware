@@ -71,4 +71,9 @@ class LandingPageSpecificationSource extends AbstractSpecificationSource
     {
         return $this->contextFactory->providedRootContext($this->definition);
     }
+
+    public function rootSource(): string
+    {
+        return $this->definition->getContentLayoutEntityType();
+    }
 }

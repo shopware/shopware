@@ -1,0 +1,112 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Content System Mapping Candidates",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "\/_info\/content-system-mapping-candidates.json": {
+            "get": {
+                "tags": [
+                    "System Info & Health Check"
+                ],
+                "summary": "Get content system data mapping candidates",
+                "description": "Get the curated data a mappable element property may be mapped to, keyed by the root source a layout is bound to. Requires content_layout:read. Layout readers can also see labels and help text for active, Store-API-visible custom fields assigned to the root entity. Names offered more than once by providers are excluded from the runtime catalogue; unrelated candidates remain available. The catalogue is an allowlist rather than a projection of the entity schema: only a path listed here is admitted by the content layout write boundary.",
+                "operationId": "content-system-mapping-candidates",
+                "responses": {
+                    "200": {
+                        "description": "Returns the mapping candidates of every registered root source.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["mappingCandidates"],
+                                    "properties": {
+                                        "mappingCandidates": {
+                                            "type": "object",
+                                            "description": "Keyed by root-source id. Every registered root source carries an entry; a source that offers nothing mappable carries an empty array, so a client never has to tell \"no candidates\" apart from \"unknown source\".",
+                                            "additionalProperties": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "required": ["path", "source", "label", "description", "group", "valueType", "compatibleTypes", "inlineMappable", "canonicalToken", "contextType", "labelTranslations", "descriptionTranslations"],
+                                                    "properties": {
+                                                        "path": {
+                                                            "type": "string",
+                                                            "description": "Stable candidate display path. For root candidates this includes the context key (\"product.name\"); the typed `source` field is the persisted mapping reference."
+                                                        },
+                                                        "source": {
+                                                            "type": "object",
+                                                            "required": ["type", "id"],
+                                                            "description": "Typed source reference, with an optional safe member path and provider configuration.",
+                                                            "properties": {
+                                                                "type": { "type": "string", "example": "root" },
+                                                                "id": { "type": "string", "example": "product" },
+                                                                "path": { "type": "string", "example": "name" },
+                                                                "config": { "type": "object", "additionalProperties": true }
+                                                            }
+                                                        },
+                                                        "label": {
+                                                            "type": "string",
+                                                            "description": "Snippet key for the human-readable name; the Administration resolves it against the user's locale."
+                                                        },
+                                                        "description": {
+                                                            "type": "string",
+                                                            "description": "Snippet key for the supporting line rendered under the name."
+                                                        },
+                                                        "group": {
+                                                            "type": "string",
+                                                            "description": "Grouping id the Administration renders as a section in the selection modal, for example \"basic\", \"seo\" or \"media\"."
+                                                        },
+                                                        "valueType": {
+                                                            "type": "string",
+                                                            "description": "The effective type the provider delivers to the property: a primitive (\"string\", \"integer\", \"number\", \"boolean\") or a fully qualified class name."
+                                                        },
+                                                        "compatibleTypes": {
+                                                            "type": "array",
+                                                            "description": "Declared property types that accept this candidate's effective value, computed using the same compatibility rule that admits mappings. Includes primitive types, object, and assignable class and interface types where applicable.",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "contextType": {
+                                                            "type": "string",
+                                                            "enum": ["single", "collection"],
+                                                            "description": "Whether the candidate yields a single value or a collection."
+                                                        },
+                                                        "inlineMappable": {
+                                                            "type": "boolean",
+                                                            "description": "Whether the server's inline mapping interpolator can render this candidate as text."
+                                                        },
+                                                        "canonicalToken": {
+                                                            "type": ["string", "null"],
+                                                            "description": "The token text to use when inserting or serializing this candidate, generated by the server's inline mapping parser. Null when the candidate path cannot be represented by a valid inline token."
+                                                        },
+                                                        "labelTranslations": {
+                                                            "type": "object",
+                                                            "description": "Literal localized labels supplied by a dynamic candidate's configuration. The Administration prefers these over label when present.",
+                                                            "additionalProperties": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "descriptionTranslations": {
+                                                            "type": "object",
+                                                            "description": "Literal localized descriptions supplied by a dynamic candidate's configuration. The Administration prefers these over description when present.",
+                                                            "additionalProperties": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

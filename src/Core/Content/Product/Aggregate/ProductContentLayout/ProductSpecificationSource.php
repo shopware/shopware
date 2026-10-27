@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @final
  */
-#[Package('inventory')]
+#[Package('discovery')]
 class ProductSpecificationSource extends AbstractSpecificationSource
 {
     /**
@@ -87,6 +87,11 @@ class ProductSpecificationSource extends AbstractSpecificationSource
     public function providedRootContext(Context $context): array
     {
         return $this->contextFactory->providedRootContext($this->definition);
+    }
+
+    public function rootSource(): string
+    {
+        return $this->definition->getContentLayoutEntityType();
     }
 
     private function fetchParentId(string $path, SalesChannelContext $context): ?string

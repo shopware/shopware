@@ -4,4 +4,6 @@
 
 ## Constraints
 
-- Path resolution requires Struct objects at every intermediate step
+- Ordinary context path resolution requires Struct objects at every intermediate step. Catalogued data mappings
+  additionally permit one terminal lookup in an entity's array-backed `customFields` member; arbitrary array
+  traversal remains unsupported.

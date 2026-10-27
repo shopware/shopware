@@ -37,9 +37,11 @@ class ContextConsumerMirrorTest extends TestCase
     public function testMirrorsParentOriginAsParentScopeConsumer(): void
     {
         [$tree, $resolutions, $created] = self::parentOriginReferenceScenario();
+        $tree = new StoredTree($tree->roots, 'category');
 
         $wired = (new ContextConsumerMirror())->apply($tree, $resolutions, $created);
 
+        static::assertSame('category', $wired->rootSource);
         $consumers = $this->consumers($wired->roots[0]);
         static::assertArrayHasKey('product', $consumers);
         static::assertSame(ContextType::Single, $consumers['product']->type);

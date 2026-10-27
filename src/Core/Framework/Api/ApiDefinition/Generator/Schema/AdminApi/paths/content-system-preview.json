@@ -7,7 +7,7 @@
                 "tags": ["Content System"],
                 "summary": "Create a shareable preview URL for a draft layout",
                 "operationId": "contentSystemPreviewEntityUrl",
-                "description": "Stores an externally supplied, unsaved draft layout behind a short-lived token and returns a URL that renders it against real entity data. The layout is neither persisted nor required to have an assignment; the target entity only needs to exist. Before anything is stored, the draft is admitted through the same build that opening the returned URL runs, so a draft rejected by the builder never becomes a token. A `SalesChannelContext` is synthesized from `salesChannelId` (optionally overridden by `languageId`/`currencyId`/`domainId`/`customerId`), and `queryParameters` are forwarded as the render request's query (where `elementId` selects a single element for partial preview). Requires the `content_layout:read` privilege. A missing or invalid envelope field, an `entityType` matching no source, or a layout with an intrinsic defect is rejected with `400`.",
+                "description": "Stores an externally supplied, unsaved draft layout behind a short-lived token and returns a URL that renders it against real entity data. The layout is neither persisted nor required to have an assignment; the target entity only needs to exist. Before anything is stored, the draft is admitted through the same build that opening the returned URL runs, so a draft rejected by the builder never becomes a token. Runtime faults keep their own HTTP status; an inline expansion-limit failure returns `500` and also prevents token creation. A `SalesChannelContext` is synthesized from `salesChannelId` (optionally overridden by `languageId`/`currencyId`/`domainId`/`customerId`), and `queryParameters` are forwarded as the render request's query (where `elementId` selects a single element for partial preview). Requires the `content_layout:read` privilege. A missing or invalid envelope field, an `entityType` matching no source, or a layout with an intrinsic defect is rejected with `400`.",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -62,7 +62,10 @@
                             }
                         }
                     },
-                    "400": { "$ref": "#/components/responses/400" }
+                    "400": { "$ref": "#/components/responses/400" },
+                    "500": {
+                        "description": "A runtime rendering or installed-definition fault. Inline mapping output exhaustion (CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE) also returns 500. No preview token is stored after a failed build, and output exhaustion does not return partial or blanked content."
+                    }
                 }
             }
         }

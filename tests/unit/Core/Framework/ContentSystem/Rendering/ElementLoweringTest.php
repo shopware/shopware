@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Rendering;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
@@ -30,6 +31,18 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingExpander;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolator;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingMetadata;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingRuntimeResolver;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentityFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueFingerprinter;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
@@ -43,6 +56,7 @@ use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
@@ -65,6 +79,101 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ElementLowering::class)]
 class ElementLoweringTest extends TestCase
 {
+    /**
+     * @param array<string, mixed> $expectedWholeField
+     */
+    #[DataProvider('mappingOutputProvider')]
+    public function testWholeFieldAndInlineMappingKeepTheirOutputRules(
+        MappingSourceResolution $resolution,
+        bool $available,
+        string $valueType,
+        string $component,
+        string|int|float|bool $fallback,
+        array $expectedWholeField,
+        string $expectedInline,
+    ): void {
+        $path = match ($valueType) {
+            'boolean' => 'product.active',
+            'integer' => 'product.stock',
+            'number' => 'product.price',
+            default => 'product.name',
+        };
+        $source = MappingSourceReference::fromRootPath($path);
+        $candidate = new MappingCandidate($path, 'Value', '', 'basic', $valueType, source: $source);
+        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates->method('forRootSource')->willReturn($available ? [$path => $candidate] : []);
+        $candidates->expects($available ? $this->exactly(2) : $this->never())->method('resolveSource')->willReturn($resolution);
+        $wholeField = StoredElementBuilder::create($component, 'mapped-1')
+            ->withProperty('text', $fallback)
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: $source)
+            ->build();
+        $text = 'Hi {{map:' . $path . '}}!';
+        $inline = StoredElementBuilder::create('Sw:Content:Text', 'inline-1')->withProperty('text', $text)->build();
+        $loader = $this->loader();
+        $loader->expects($this->never())->method('load');
+
+        $result = $this->lowering($loader, candidates: $candidates)->lower(
+            [$wholeField, $inline],
+            RenderingMode::FULL,
+            Generator::generateSalesChannelContext(),
+            new Request(),
+            new RenderingCacheContext(),
+            [],
+            virtualRoot: null,
+            rootSource: 'product',
+            inlineMappings: new InlineMappingMetadata([
+                'inline-1' => ['text' => (new InlineMappingTokenParser())->parse($text)],
+            ]),
+        );
+
+        static::assertSame($expectedWholeField, $result->tree[0]->properties);
+        static::assertSame(['text' => $expectedInline], $result->tree[1]->properties);
+    }
+
+    /**
+     * @return iterable<string, array{MappingSourceResolution, bool, string, string, string|int|float|bool, array<string, mixed>, string}>
+     */
+    public static function mappingOutputProvider(): iterable
+    {
+        yield 'value' => [MappingSourceResolution::resolved('Shirt'), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => 'Shirt'], 'Hi Shirt!'];
+        yield 'missing value' => [MappingSourceResolution::noValue(), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => 'Fallback'], 'Hi !'];
+        yield 'empty string' => [MappingSourceResolution::resolved(''), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => 'Fallback'], 'Hi !'];
+        yield 'explicit null' => [MappingSourceResolution::resolved(null), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => null], 'Hi !'];
+        yield 'incompatible runtime value' => [MappingSourceResolution::resolved(42), true, 'string', 'Sw:Content:Text', 'Fallback', [], 'Hi !'];
+        yield 'withdrawn candidate' => [MappingSourceResolution::resolved('Shirt'), false, 'string', 'Sw:Content:Text', 'Fallback', [], 'Hi !'];
+        yield 'false is a value' => [MappingSourceResolution::resolved(false), true, 'boolean', 'Sw:MappedBoolean', true, ['text' => false], 'Hi 0!'];
+        yield 'integer zero is a value' => [MappingSourceResolution::resolved(0), true, 'integer', 'Sw:MappedInteger', 7, ['text' => 0], 'Hi 0!'];
+        yield 'number zero is a value' => [MappingSourceResolution::resolved(0.0), true, 'number', 'Sw:MappedNumber', 1.0, ['text' => 0.0], 'Hi 0!'];
+        yield 'inline escaping' => [MappingSourceResolution::resolved('<b>&"'), true, 'string', 'Sw:Content:Text', 'Fallback', ['text' => '<b>&"'], 'Hi &lt;b&gt;&amp;&quot;!'];
+    }
+
+    public function testUnknownInlineSourceDoesNotLoadDataOrDisableCaching(): void
+    {
+        $loader = $this->loader();
+        $loader->expects($this->never())->method('load');
+        $text = 'Message {{map:plugin:missing.value}}';
+        $element = StoredElementBuilder::create('Sw:Content:Text', 'text-1')->withProperty('text', $text)->build();
+        $cacheContext = new RenderingCacheContext();
+
+        $rendered = $this->lowering($loader)->lower(
+            [$element],
+            RenderingMode::FULL,
+            Generator::generateSalesChannelContext(),
+            new Request(),
+            $cacheContext,
+            [],
+            virtualRoot: null,
+            rootSource: 'header',
+            inlineMappings: new InlineMappingMetadata([
+                'text-1' => ['text' => (new InlineMappingTokenParser())->parse($text)],
+            ]),
+        )->tree;
+
+        static::assertSame(['text' => 'Message '], $rendered[0]->properties);
+        static::assertFalse($cacheContext->isDisabled());
+        static::assertSame([], $cacheContext->getTags());
+    }
+
     /**
      * An effort-negative claim: the never-expectation is the behaviour under test, not decoration. A skeleton
      * is a structural answer, so neither the element's declared data requirement nor the page-level one may
@@ -89,6 +198,8 @@ class ElementLoweringTest extends TestCase
             $cacheContext,
             [new DataRequirement('language', 'entity', new StubLoaderConfig())],
             $this->virtualRoot(),
+            rootSource: null,
+            inlineMappings: new InlineMappingMetadata(),
         );
 
         $tree = $lowered->tree;
@@ -284,6 +395,8 @@ class ElementLoweringTest extends TestCase
             $cacheContext,
             [new DataRequirement('product', 'entity', new StubLoaderConfig())],
             $wrapper,
+            rootSource: null,
+            inlineMappings: new InlineMappingMetadata(),
         );
 
         static::assertFalse($cacheContext->isDisabled());
@@ -317,6 +430,33 @@ class ElementLoweringTest extends TestCase
             [$wrapper],
             [new DataRequirement('product', 'entity', new StubLoaderConfig())],
             $wrapper
+        );
+    }
+
+    #[TestDox('resolves a page-level requirement referenced by an inline mapping token')]
+    public function testFullModeResolvesARequirementConsumedByAnInlineMappingToken(): void
+    {
+        $loader = $this->loader();
+        $loader->expects($this->once())
+            ->method('load')
+            ->willReturn(ContentDataLoaderResult::cached(new StubStruct()));
+
+        $text = StoredElementBuilder::create('Sw:Content:Text', 'text-1')
+            ->withProperty('text', '{{map:product.name}}')
+            ->build();
+        $wrapper = $this->virtualRoot($text);
+
+        $this->lower(
+            $loader,
+            [$wrapper],
+            [new DataRequirement('product', 'entity', new StubLoaderConfig())],
+            $wrapper,
+            new InlineMappingMetadata([
+                'text-1' => [
+                    'text' => (new InlineMappingTokenParser())->parse('{{map:product.name}}'),
+                ],
+            ]),
+            'product',
         );
     }
 
@@ -456,7 +596,9 @@ class ElementLoweringTest extends TestCase
                 'entity',
                 new TestNavigationShapedLoaderConfig(entity: 'product', activeProperty: 'productId')
             )],
-            $wrapper
+            $wrapper,
+            rootSource: null,
+            inlineMappings: new InlineMappingMetadata()
         );
 
         static::assertInstanceOf(LoaderInputs::class, $captured);
@@ -479,6 +621,8 @@ class ElementLoweringTest extends TestCase
         array $forest,
         array $pageDataRequirements = [],
         ?StoredElement $virtualRoot = null,
+        InlineMappingMetadata $inlineMappings = new InlineMappingMetadata(),
+        ?string $rootSource = null,
     ): array {
         return $this->lowering($loader)->lower(
             $forest,
@@ -488,6 +632,8 @@ class ElementLoweringTest extends TestCase
             new RenderingCacheContext(),
             $pageDataRequirements,
             $virtualRoot,
+            $rootSource,
+            $inlineMappings,
         )->tree;
     }
 
@@ -532,10 +678,24 @@ class ElementLoweringTest extends TestCase
     private function lowering(
         AbstractContentDataLoader&Stub $loader,
         ?AbstractContentDataLoaderConfigSerializer $configSerializer = null,
+        ?AbstractContentSystemMappingCandidateRegistry $candidates = null,
     ): ElementLowering {
         $provider = static::createStub(DataLoaderProvider::class);
         $provider->method('get')->willReturn($loader);
         $configSerializer ??= new StubLoaderConfigSerializer();
+        $types = $this->typeRegistry();
+        if ($candidates === null) {
+            $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+            $candidates->method('forRootSource')->willReturn([]);
+        }
+        $parser = new InlineMappingTokenParser();
+        $mappingInspector = new StoredMappingInspector(
+            $types,
+            $candidates,
+            new MappingTypeCompatibility(),
+            new MappingConsumers(),
+            $parser,
+        );
 
         return new ElementLowering(
             new ElementDataResolver(
@@ -551,10 +711,42 @@ class ElementLoweringTest extends TestCase
             ),
             new ContextDeliveryResolver(
                 new ContextDistributor(new ContextPathResolver()),
-                new ContextPathResolver()
+                new ContextPathResolver(),
+                new MappingRuntimeResolver(
+                    $candidates,
+                    $mappingInspector,
+                ),
             ),
-            new RenderedTreeFactory(new RenderedElementFactory($this->typeRegistry())),
-            new ContextPathResolver()
+            new RenderedTreeFactory(new RenderedElementFactory($types)),
+            $this->inlineMappingExpander($candidates),
+            new MappingConsumers(),
+            new ContextPathResolver(),
+        );
+    }
+
+    /**
+     * Inline expansion uses the same candidate catalogue as whole-field delivery.
+     */
+    private function inlineMappingExpander(AbstractContentSystemMappingCandidateRegistry $candidates): InlineMappingExpander
+    {
+        $parser = new InlineMappingTokenParser();
+        $mappingInspector = new StoredMappingInspector(
+            $this->typeRegistry(),
+            $candidates,
+            new MappingTypeCompatibility(),
+            new MappingConsumers(),
+            $parser,
+        );
+
+        return new InlineMappingExpander(
+            $mappingInspector,
+            $parser,
+            new InlineMappingInterpolator(
+                new MappingRuntimeResolver(
+                    $candidates,
+                    $mappingInspector,
+                ),
+            ),
         );
     }
 
@@ -587,6 +779,18 @@ class ElementLoweringTest extends TestCase
             'Sw:Box' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Box')->build(),
             'Sw:Product' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Product')
                 ->reference('product', StubStruct::class)
+                ->build(),
+            'Sw:Content:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+                ->primitive('text', 'string', mappable: true, inlineMappable: true)
+                ->build(),
+            'Sw:MappedBoolean' => ContentSystemElementTypeSpecificationBuilder::create('Sw:MappedBoolean')
+                ->primitive('text', 'boolean', mappable: true)
+                ->build(),
+            'Sw:MappedInteger' => ContentSystemElementTypeSpecificationBuilder::create('Sw:MappedInteger')
+                ->primitive('text', 'integer', mappable: true)
+                ->build(),
+            'Sw:MappedNumber' => ContentSystemElementTypeSpecificationBuilder::create('Sw:MappedNumber')
+                ->primitive('text', 'number', mappable: true)
                 ->build(),
         ];
 

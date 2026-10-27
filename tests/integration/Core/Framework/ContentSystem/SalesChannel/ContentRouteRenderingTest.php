@@ -107,7 +107,7 @@ class ContentRouteRenderingTest extends TestCase
      *
      * @see CachedContentSystemElementTypeRegistry
      */
-    private const ELEMENT_TYPE_CACHE_KEY = 'content_system.element_types';
+    private const ELEMENT_TYPE_CACHE_KEY = 'content_system.element_types.v2';
 
     private IdsCollection $ids;
 

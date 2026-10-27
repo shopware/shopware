@@ -11,6 +11,8 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\DraftLayoutChecker;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -20,6 +22,8 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(DraftLayoutChecker::class)]
 class DraftLayoutCheckerTest extends TestCase
 {
+    private const COMPONENT = 'Sw:Content:Text';
+
     #[TestDox('maps an intrinsic error to a constraint violation addressed by the element id')]
     public function testMapsIntrinsicErrorToConstraintViolation(): void
     {
@@ -54,10 +58,32 @@ class DraftLayoutCheckerTest extends TestCase
         static::assertCount(0, $violations);
     }
 
+    #[TestDox('allows a preview with an unavailable inline mapping')]
+    public function testAllowsUnavailableInlineMapping(): void
+    {
+        $violations = $this->checker()->check([$this->elementWithToken('{{map:product.secret}}')]);
+
+        static::assertCount(0, $violations);
+    }
+
+    private function elementWithToken(string $text): StoredElement
+    {
+        return new StoredElement(
+            id: 'el-1',
+            component: self::COMPONENT,
+            properties: ['text' => StoredValue::ofString($text)],
+        );
+    }
+
     private function checkerReturning(DiagnosticsReport $report): DraftLayoutChecker
     {
+        return $this->checker($report);
+    }
+
+    private function checker(?DiagnosticsReport $report = null): DraftLayoutChecker
+    {
         $diagnostics = static::createStub(LayoutDiagnostics::class);
-        $diagnostics->method('analyze')->willReturn(new LayoutAnalysis($report, []));
+        $diagnostics->method('analyze')->willReturn(new LayoutAnalysis($report ?? new DiagnosticsReport([]), []));
 
         return new DraftLayoutChecker($diagnostics);
     }

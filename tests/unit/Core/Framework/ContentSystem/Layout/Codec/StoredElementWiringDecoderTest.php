@@ -17,6 +17,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\In
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IteratorDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\SlicedDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -168,6 +169,28 @@ class StoredElementWiringDecoderTest extends StoredElementCodecTestCase
             static::assertSame($expected->getErrorCode(), $exception->getErrorCode());
             static::assertSame($expected->getMessage(), $exception->getMessage());
         }
+    }
+
+    #[TestDox('decodes and writes back a mapped consumer')]
+    public function testDecodeReadsAMappingSource(): void
+    {
+        $element = $this->codec()->decode(self::baseWire(['acceptsContext' => [
+            'media' => [
+                'type' => 'single',
+                'required' => false,
+                'scope' => 'root',
+                'source' => MappingSourceReference::fromRootPath('product.cover')->jsonSerialize(),
+            ],
+        ]]));
+
+        $consumer = $element->contextDefinitions->getAllConsumers()['media'];
+
+        static::assertSame([
+            'type' => 'single',
+            'required' => false,
+            'scope' => 'root',
+            'source' => MappingSourceReference::fromRootPath('product.cover')->jsonSerialize(),
+        ], $consumer->jsonSerialize());
     }
 
     /**

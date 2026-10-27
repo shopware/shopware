@@ -47,7 +47,9 @@ class ContentDiagnoseController
 
         $rootContext = $this->rootSourceRegistry->resolveGated($payload->rootSource, $context);
 
-        $analysis = $this->diagnostics->analyze($tree, $rootContext);
+        // resolveGated() has already rejected an unknown non-empty source. When no source is bound,
+        // diagnostics still report inline tokens that require one; whole-field mappings remain unjudged.
+        $analysis = $this->diagnostics->analyze($tree, $rootContext, $payload->rootSource);
 
         $report = new DiagnosticsReport([...$decodeViolations, ...$analysis->report->violations]);
 

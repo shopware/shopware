@@ -8,10 +8,17 @@
 
     &__workspace {
         display: grid;
-        grid-template-columns: 280px 1fr 320px;
+        grid-template-columns: 280px minmax(0, 1fr) 8px var(--element-settings-width, 320px);
         flex: 1;
         min-height: 0;
         overflow: hidden;
+        transition: grid-template-columns 200ms ease;
+
+        &.is-resizing {
+            cursor: col-resize;
+            user-select: none;
+            transition: none;
+        }
     }
 
     &__sidebar-tree,
@@ -31,5 +38,16 @@
 
     &__element-settings {
         border-left: 1px solid var(--color-border-primary-default);
+    }
+
+    &__settings-resizer {
+        z-index: 1;
+        cursor: col-resize;
+        border-left: 1px solid var(--color-border-primary-default);
+
+        &:hover,
+        &:focus-visible {
+            background-color: var(--color-shopware-brand-50);
+        }
     }
 }

@@ -17,7 +17,7 @@ POST /api/_action/content-system/layout/bind-element
 
 Apply exactly one structural edit to an **unsaved** draft layout and return the re-resolved layout plus a diagnostics report, **without** persisting. This is the assemble step done server-side: the caller sends the current draft tree and one edit, and gets back the edited, freshly diagnosed tree, ready to feed straight into the next edit or into preview. Served by `Api/LayoutMutationController`; route names follow `api.action.content_system.layout.<op>`, where `<op>` is `insert_element`, `remove_element`, `move_element`, `replace_element`, `duplicate_element`, `wrap_elements`, `unwrap_element`, `attach_element`, `insert_preset`, or `bind_element`.
 
-Because each response already carries the diagnostics, a caller editing through these endpoints does not also call the diagnose endpoint. The optional `rootSource` binds that root source's context for binding-scope resolvability, using the same `Adapter/RootSourceRegistry::resolveGated()` selection as the diagnose endpoint (empty or omitted → only intrinsic well-formedness is evaluated).
+Because each response already carries the diagnostics, a caller editing through these endpoints does not also call the diagnose endpoint. The optional `rootSource` binds that root source's context for binding-scope resolvability, using the same `Adapter/RootSourceRegistry::resolveGated()` selection as the diagnose endpoint. When it is empty or omitted, intrinsic well-formedness is evaluated and inline tokens in opted-in properties report `invalid_mapping`; whole-field mappings and other binding checks remain unjudged.
 
 ## Request
 
@@ -41,6 +41,8 @@ Every action shares one envelope and adds its own operation fields. Shared field
 `attach-element` is the inverse of the detachment a `replace` reports: hand its `orphaned` subtrees (or any copied subtree) back to `attach-element` to re-place them. Ids are server-minted, so the placed elements get fresh ids returned in `affectedElementIds`.
 
 `insert-preset` reads the named preset from the layout preset registry, decodes its payload through `DraftLayoutDecoder::decode()`, and places every root element the way `attach-element` places one subtree: ids are reminted and each element's type default binding is fill-applied. The preset comes from the registry, never from the request, so the client names a preset and cannot alter its content. An unregistered `presetId` is a `404` (`layoutPresetNotFound`, see [mutation-errors.md](mutation-errors.md)).
+
+Default property mappings are seeded on freshly scaffolded elements in both draft and persisted mutation paths. Insert and preset attach seed new scaffolds; replacement seeds its newly built replacement; duplication preserves the copied mapping state and does not seed. Each mutation reports `freshlyScaffolded()` ids explicitly, so this behavior is not inferred from its generic created-id report. Direct DAL, Admin CRUD API, and Sync API writes do not seed default mappings: callers must supply mapping consumers or use these mutation actions. Removing a mapping and saving the layout leaves it unmapped.
 
 Example (`insert-element`):
 

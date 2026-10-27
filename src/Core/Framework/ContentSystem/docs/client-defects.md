@@ -26,7 +26,7 @@ The catalogue is consumed at several boundaries:
 - `Resolution/ElementResolver` treats caught defects as no stored candidate or an incomplete config.
 - `Binding/Validation/TypeConsistentBindingSpecificationValidator` turns caught defects into constraint violations.
 
-Other `ContentSystemException` codes propagate unchanged, preserving their status and code.
+At these generic exception-handling boundaries, other `ContentSystemException` codes propagate unchanged, preserving their status and code. Mapping validation has its own reporting path, described below.
 
 ## Box-spacing failures
 
@@ -37,3 +37,11 @@ Style normalization runs outside the draft decoder's per-element codec catch. Co
 ## Why Not Filter by Status Code
 
 Because the two do not line up. Some HTTP 500 codes — `DATA_LOADER_NOT_REGISTERED` and `INVALID_FIELD_VALUE_TYPE` among them — are legitimate client defects for a client-supplied tree. A status-code filter would classify those as server faults and hide a correctable mistake from the author.
+
+## Mapping Validation
+
+Keep mapping-specific admission codes such as `PROPERTY_NOT_MAPPABLE`, `UNKNOWN_MAPPING_PATH`, and `MAPPING_TYPE_MISMATCH` outside `CLIENT_DEFECT_CODES`. `Mapping/StoredMappingInspector` reports whole-field and inline admission problems through `MappingProblem`. `LayoutDiagnostics` converts those findings into property-specific `ViolationCode::InvalidMapping` entries in successful diagnosis/mutation responses; the mapping write gate rejects invalid persisted mappings. These paths do not depend on the generic client-defect exception handlers.
+
+Dedicated mapping actions can also reject an invalid request with HTTP 400, for example `INVALID_MAPPING_SOURCE`. That response does not require membership in `CLIENT_DEFECT_CODES`. Shared structural codes, including `PROPERTY_ALIAS_COLLISION`, retain their existing classification when reached from a mapping action. Administration translations select messages by response code independently of this list.
+
+Runtime inline-output exhaustion remains an HTTP 500 failure outside this list, and provider/internal failures continue to propagate through normal error handling. Missing or empty mapped values continue to follow the rendering rules. Any future expansion of the list must identify a concrete generic catch site that needs the new classification and test that author-correctable input receives feedback while provider/internal faults still propagate.

@@ -1,4 +1,23 @@
 /**
+ * A context entry an element consumes.
+ *
+ * A data mapping is keyed in `acceptsContext` by its destination property and carries a typed `source` reference.
+ * Ordinary context consumers continue to read from their map key.
+ *
+ * @private
+ * @sw-package discovery
+ */
+export interface ContentElementContextConsumer {
+    type: 'single' | 'collection';
+    required: boolean;
+    redistribute?: boolean;
+    consumerAlias?: string | null;
+    propertyAlias?: string | null;
+    scope?: 'parent' | 'root';
+    source?: { type: string; id: string; config?: Record<string, unknown>; path?: string };
+}
+
+/**
  * @private
  * @sw-package discovery
  */
@@ -10,6 +29,6 @@ export interface ContentElementNode {
     dataRequirements?: unknown;
     slots?: Record<string, ContentElementNode[]>;
     providesContext?: unknown;
-    acceptsContext?: unknown;
+    acceptsContext?: Record<string, ContentElementContextConsumer>;
     attributedSpecifications?: Record<string, string>;
 }

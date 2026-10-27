@@ -35,8 +35,9 @@ class StoredTreeStyleNormalizerTest extends TestCase
             ->withStyle(new ElementStyle([self::BREAKPOINT_AWARE => ['xs' => false]]))
             ->build();
 
-        $result = $this->normalizer()->normalize(new StoredTree([$root]));
+        $result = $this->normalizer()->normalize(new StoredTree([$root], 'product'));
 
+        static::assertSame('product', $result->rootSource);
         static::assertSame([self::BREAKPOINT_AWARE => self::EXPANDED], $result->roots[0]->style->toArray());
         static::assertSame(Breakpoint::values(), array_keys($result->roots[0]->style->toArray()[self::BREAKPOINT_AWARE]));
     }

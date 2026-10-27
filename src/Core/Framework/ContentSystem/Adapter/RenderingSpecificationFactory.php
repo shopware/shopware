@@ -33,6 +33,7 @@ class RenderingSpecificationFactory
                 request: $request,
                 targetElementId: $source->resolveTargetElementId($path, $request, $context),
                 cacheTags: $source->resolveCacheTags($path, $request, $context),
+                rootSource: $source->rootSource(),
             ),
         );
     }
@@ -51,6 +52,7 @@ class RenderingSpecificationFactory
             request: $request,
             targetElementId: $source->resolveTargetElementId('', $request, $context),
             cacheTags: [],
+            rootSource: $source->rootSource(),
         );
     }
 }

@@ -7,6 +7,94 @@
       "moduleTitle": "Experience Studio",
       "createNewLayout": "Neues Layout erstellen"
     },
+    "mapping": {
+      "category": {
+        "name": {
+          "label": "Kategoriename",
+          "description": "Der Name der Kategorie, die die Seite zeigt."
+        },
+        "description": {
+          "label": "Kategoriebeschreibung",
+          "description": "Der Beschreibungstext der Kategorie."
+        },
+        "metaTitle": {
+          "label": "Meta-Titel",
+          "description": "Der SEO-Titel der Kategorie."
+        },
+        "metaDescription": {
+          "label": "Meta-Beschreibung",
+          "description": "Die SEO-Beschreibung der Kategorie."
+        },
+        "keywords": {
+          "label": "Schlagwörter",
+          "description": "Die SEO-Schlagwörter der Kategorie."
+        },
+        "media": {
+          "label": "Kategoriebild",
+          "description": "Das der Kategorie zugewiesene Bild."
+        }
+      },
+      "product": {
+        "entity": {
+          "label": "Produktentität",
+          "description": "Das vollständige Produkt, das auf der Seite angezeigt wird."
+        },
+        "name": {
+          "label": "Produktname",
+          "description": "Der Name des Produkts, das die Seite zeigt."
+        },
+        "description": {
+          "label": "Produktbeschreibung",
+          "description": "Der Beschreibungstext des Produkts."
+        },
+        "productNumber": {
+          "label": "Produktnummer",
+          "description": "Die Bestellnummer des Produkts."
+        },
+        "metaTitle": {
+          "label": "Meta-Titel",
+          "description": "Der SEO-Titel des Produkts."
+        },
+        "metaDescription": {
+          "label": "Meta-Beschreibung",
+          "description": "Die SEO-Beschreibung des Produkts."
+        },
+        "keywords": {
+          "label": "Schlagwörter",
+          "description": "Die SEO-Schlagwörter des Produkts."
+        },
+        "cover": {
+          "label": "Titelbild",
+          "description": "Das Hauptbild des Produkts."
+        },
+        "media": {
+          "label": "Produktbilder",
+          "description": "Alle Bilder des Produkts, in der am Produkt festgelegten Reihenfolge."
+        }
+      },
+      "landingPage": {
+        "name": {
+          "label": "Landingpage-Name",
+          "description": "Der Name der angezeigten Landingpage."
+        },
+        "url": {
+          "label": "Landingpage-URL",
+          "description": "Der für die Landingpage konfigurierte URL-Pfad."
+        },
+        "metaTitle": {
+          "label": "Meta-Titel",
+          "description": "Der SEO-Titel der Landingpage."
+        },
+        "metaDescription": {
+          "label": "Meta-Beschreibung",
+          "description": "Die SEO-Beschreibung der Landingpage."
+        },
+        "keywords": {
+          "label": "Schlagwörter",
+          "description": "Die SEO-Schlagwörter der Landingpage."
+        }
+      }
+    },
     "elements": {
       "sw-grid-container": {
         "panels": {
@@ -136,8 +224,33 @@
         "boxSpacingLeft": "Links",
         "boxSpacingLinkSides": "Alle Seiten gemeinsam bearbeiten",
         "boxSpacingUnlinkSides": "Seiten einzeln bearbeiten",
-        "inlineTextHint": "Bearbeite den Text direkt in der Vorschau. Doppelklick zum Bearbeiten.",
-        "inlineTextEditingActive": "Inline-Bearbeitung ist aktuell in der Vorschau aktiv."
+        "mapping": {
+          "mapAction": "Dynamische Daten",
+          "insertAction": "Dynamische Daten einfügen",
+          "unmapAction": "Dynamische Daten entfernen",
+          "modalTitle": "Dynamische Daten auswählen",
+          "modalIntro": "Wähle die Daten, die „{property}“ beim Anzeigen der Seite füllen.",
+          "sourceIntro": "Wähle eine Eigenschaft für dieses Feld aus.",
+          "searchLabel": "Suche",
+          "searchPlaceholder": "Datenfelder suchen",
+          "noCandidates": "Für dieses Feld sind keine dynamischen Daten verfügbar.",
+          "noSearchResults": "Kein Datenfeld entspricht deiner Suche.",
+          "loadingCandidates": "Dynamische Daten werden geladen ...",
+          "loadError": "Dynamische Daten konnten nicht geladen werden.",
+          "loadingText": "Text wird für die Bearbeitung vorbereitet...",
+          "parseError": "Platzhalter für dynamische Daten konnten nicht geprüft werden. Dein Text wurde beibehalten. Versuche erneut, die Platzhalter zu prüfen.",
+          "retryAction": "Erneut versuchen",
+          "groups": {
+            "basic": "Basisinformationen",
+            "seo": "SEO",
+            "media": "Medien",
+            "customFields": "Zusatzfelder"
+          },
+          "sources": {
+            "rootEntity": "Stammentität",
+            "navigationLabel": "Datenquellen"
+          }
+        }
       },
       "elementPicker": {
         "title": "Element hinzufügen",
@@ -149,6 +262,21 @@
           "presets": "Vorlagen",
           "other": "Sonstige"
         }
+      },
+      "mappingMutationErrors": {
+        "propertyNotMappable": "Für diese Eigenschaft ist keine Datenzuordnung möglich. Wähle eine Eigenschaft, die Zuordnungen unterstützt.",
+        "unknownMappingPath": "Diese Datenquelle ist nicht mehr verfügbar. Wähle eine andere Quelle für diese Eigenschaft.",
+        "mappingTypeMismatch": "Diese Datenquelle ist mit der Eigenschaft nicht kompatibel. Wähle eine kompatible Quelle.",
+        "propertyAliasCollision": "Diese Eigenschaft erhält bereits Daten aus einer anderen Bindung. Wähle eine andere Eigenschaft oder passe die bestehende Bindung an.",
+        "invalidMappingSource": "Die gewählte Zuordnungsquelle ist ungültig. Wähle eine Quelle aus der verfügbaren Liste.",
+        "missingRootSource": "Wähle eine Datenquelle in den Layout-Einstellungen, bevor Du eine Zuordnung hinzufügst."
+      },
+      "mutationErrors": {
+        "unknownRootSource": "Die Datenquelle des Layouts ist nicht verfügbar. Wähle eine verfügbare Datenquelle in den Layout-Einstellungen.",
+        "targetNotFound": "Das gewählte Element ist nicht mehr verfügbar. Wähle ein vorhandenes Element, bevor Du es bearbeitest.",
+        "unknownElementType": "Dieser Elementtyp ist nicht mehr verfügbar. Wähle einen verfügbaren Elementtyp.",
+        "invalidStructure": "Diese Änderung ist für die aktuelle Layout-Struktur nicht gültig. Prüfe die gewählten Elemente und ihre Positionen.",
+        "generic": "Die Layout-Änderung konnte nicht angewendet werden. Prüfe Deine Änderungen oder wende Dich an Deine Administration."
       },
       "messageSaved": "Inhaltslayout erfolgreich gespeichert.",
       "messageSaveError": "Das Inhaltslayout konnte nicht gespeichert werden.",

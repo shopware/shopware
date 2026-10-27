@@ -186,7 +186,7 @@ class AvailableContextResolver
                     continue;
                 }
 
-                if (!$this->pathResolver->matches($provided->contextKey, (string) $consumerKey)) {
+                if (!$this->pathResolver->matches($provided->contextKey, $consumer->source?->displayName() ?? (string) $consumerKey)) {
                     continue;
                 }
 

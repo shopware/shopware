@@ -28,6 +28,7 @@ class DependencyInjectionException extends HttpException
     public const DATA_LOADER_CONFIG_KEY_INVALID_MERGE = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_INVALID_MERGE';
     public const DATA_LOADER_SOURCE_WITHOUT_CONFIG_SERIALIZER = 'FRAMEWORK__DATA_LOADER_SOURCE_WITHOUT_CONFIG_SERIALIZER';
     public const DATA_LOADER_CLASS_IS_ABSTRACT = 'FRAMEWORK__DATA_LOADER_CLASS_IS_ABSTRACT';
+    public const MAPPING_CANDIDATE_PROVIDER_KEY_COLLISION = 'FRAMEWORK__MAPPING_CANDIDATE_PROVIDER_KEY_COLLISION';
     private const MCP_DUPLICATE_TOOL_NAME = 'FRAMEWORK__MCP_DUPLICATE_TOOL_NAME';
     private const MCP_UNKNOWN_TOOL_DEPENDENCY = 'FRAMEWORK__MCP_UNKNOWN_TOOL_DEPENDENCY';
 
@@ -81,6 +82,21 @@ class DependencyInjectionException extends HttpException
                 'The content-layout entity type "%s" collides with a reserved root-source id (a section id or "none"). '
                 . 'Entity-type ids, section ids, and "none" must remain disjoint so RootSourceRegistry resolves each to one source.',
                 $rootSource
+            )
+        );
+    }
+
+    public static function mappingCandidateProviderKeyCollision(string $rootSource, string $candidateKey, string $firstProvider, string $secondProvider): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MAPPING_CANDIDATE_PROVIDER_KEY_COLLISION,
+            \sprintf(
+                'Mapping candidate key "%s" for root source "%s" is declared by both "%s" and "%s".',
+                $candidateKey,
+                $rootSource,
+                $firstProvider,
+                $secondProvider,
             )
         );
     }

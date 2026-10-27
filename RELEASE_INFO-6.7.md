@@ -21,10 +21,6 @@ If your shop needs HTML files as public media, add `html` to `shopware.filesyste
 Changing a media item from private to public through the Admin API is validated against the public extension list as well.
 A private HTML or XML file can no longer be exposed by only switching its `private` flag; the write fails with `MEDIA_ILLEGAL_FILE_EXTENSION`.
 
-The shipped `public/.htaccess.dist` now sends `X-Content-Type-Options: nosniff` for files under `/media` and `/thumbnail`.
-Browsers then no longer sniff a stored file with an unknown content type into HTML.
-Update your `.htaccess` if you maintain your own copy, and send the same header for stored media on other web servers.
-
 ### User, access key and admin integration writes are restricted
 
 A non-admin may only update or delete their own user and their own access keys through the Admin API.

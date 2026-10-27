@@ -139,6 +139,9 @@ Existing extension listeners keep working unchanged.
 Code that observes every dispatched event, such as APM tracing or a decorator of `event_dispatcher`, no longer sees extension events nobody listens to.
 Unit tests that pass a mocked `EventDispatcherInterface` to `ExtensionDispatcher` and expect `dispatch()` calls need the mock's `hasListeners()` to return `true`.
 
+### Live state transition retries
+
+Live state transitions batch history and state writes. `EntityWriteEvent` subscribers can receive multiple entities: filter with `getCommandsForEntity()` and make pre-write work idempotent or compensate it through `addError()`. `WriteCommandExceptionEvent` and error callbacks can run before SQL executes, and each failed attempt runs its error callbacks before it is retried. Retries stop once success callbacks or written listeners begin, or compensation fails. MariaDB error `1020` is now retryable.
 ## API
 
 ### Criteria on fields the API does not expose is a bad request

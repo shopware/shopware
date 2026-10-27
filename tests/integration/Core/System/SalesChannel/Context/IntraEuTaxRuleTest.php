@@ -360,7 +360,7 @@ class IntraEuTaxRuleTest extends TestCase
         static::getContainer()->get('country.repository')->update([[
             'id' => $this->countryIds['CH'],
             'isEu' => false,
-            'customerTax' => ['enabled' => true, 'currencyId' => Defaults::CURRENCY, 'amount' => 0],
+            'companyTax' => ['enabled' => true, 'currencyId' => Defaults::CURRENCY, 'amount' => 0],
         ]], Context::createDefaultContext());
 
         $context = $this->createContext();

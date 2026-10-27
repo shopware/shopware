@@ -10,6 +10,7 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -136,6 +137,22 @@ class OAuthAuthorizeControllerTest extends TestCase
         static::assertStringContainsString('error=invalid_request', $location);
         static::assertStringContainsString('state=xyz', $location);
         static::assertStringContainsString('iss=http%3A%2F%2Fshop.example%2Fapi', $location);
+    }
+
+    public function testAuthorizeReplacesAnIssuerTheRedirectUriAlreadyCarries(): void
+    {
+        $exception = new OAuthServerException('Missing code challenge', 3, 'invalid_request', 400, null, 'http://127.0.0.1:54321/callback?iss=old&tenant=a%2Bb&state=xyz');
+        $this->authorizationServer->expects($this->once())->method('validateAuthorizationRequest')->willThrowException($exception);
+        $this->rateLimiter->expects($this->once())->method('ensureAccepted');
+
+        $response = $this->controller->authorize(Request::create('/api/oauth/authorize', 'GET', self::QUERY));
+
+        $location = (string) $response->headers->get('Location');
+        $query = (string) parse_url($location, \PHP_URL_QUERY);
+        static::assertSame(1, substr_count($query, 'iss='));
+        static::assertStringContainsString('tenant=a%2Bb', $query);
+        static::assertStringContainsString('iss=http%3A%2F%2Fshop.example%2Fapi', $query);
+        static::assertStringNotContainsString('iss=old', $query);
     }
 
     public function testAuthorizeRedirectsAForeignResourceAsInvalidTarget(): void
@@ -324,6 +341,29 @@ class OAuthAuthorizeControllerTest extends TestCase
         $response = $this->controller->approve(
             $this->createApproveRequest(true),
             Context::createDefaultContext(new AdminApiSource($userId))
+        );
+
+        static::assertSame(
+            ['redirectUri' => 'http://127.0.0.1:54321/callback?code=abc&state=xyz&iss=http%3A%2F%2Fshop.example%2Fapi'],
+            json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)
+        );
+    }
+
+    public function testApproveReplacesAnIssuerTheRedirectUriAlreadyCarries(): void
+    {
+        $this->rateLimiter->expects($this->never())->method('ensureAccepted');
+        $this->authorizationServer->expects($this->once())->method('validateAuthorizationRequest')->willReturn(new AuthorizationRequest());
+        $this->authorizationServer->expects($this->once())->method('completeAuthorizationRequest')
+            ->willReturnCallback(static function (): ResponseInterface {
+                $response = new OAuthRedirectResponse();
+                $response->setRedirectUri('http://127.0.0.1:54321/callback?iss=old&code=abc&state=xyz');
+
+                return $response->generateHttpResponse((new Psr17Factory())->createResponse());
+            });
+
+        $response = $this->controller->approve(
+            $this->createApproveRequest(true),
+            Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()))
         );
 
         static::assertSame(

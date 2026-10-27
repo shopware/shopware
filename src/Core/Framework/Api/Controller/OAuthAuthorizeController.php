@@ -201,9 +201,38 @@ class OAuthAuthorizeController extends AbstractController
             return $redirectUri;
         }
 
-        $separator = str_contains($redirectUri, '?') ? '&' : '?';
+        return $this->withQueryParameters($redirectUri, ['iss' => $this->mcpOAuthMetadata->getIssuer($request)]);
+    }
 
-        return $redirectUri . $separator . http_build_query(['iss' => $this->mcpOAuthMetadata->getIssuer($request)]);
+    /**
+     * Sets the given query parameters on the URI and drops any value the URI already carries for them,
+     * so each parameter appears exactly once. Other query parameters and the fragment stay untouched.
+     *
+     * @param array<string, string> $parameters
+     */
+    private function withQueryParameters(string $uri, array $parameters): string
+    {
+        $fragment = '';
+        $fragmentPosition = strpos($uri, '#');
+        if ($fragmentPosition !== false) {
+            $fragment = substr($uri, $fragmentPosition);
+            $uri = substr($uri, 0, $fragmentPosition);
+        }
+
+        $query = '';
+        $queryPosition = strpos($uri, '?');
+        if ($queryPosition !== false) {
+            $query = substr($uri, $queryPosition + 1);
+            $uri = substr($uri, 0, $queryPosition);
+        }
+
+        $kept = array_filter(
+            explode('&', $query),
+            static fn (string $pair): bool => $pair !== '' && !\array_key_exists(urldecode(explode('=', $pair, 2)[0]), $parameters)
+        );
+        $kept[] = http_build_query($parameters);
+
+        return $uri . '?' . implode('&', $kept) . $fragment;
     }
 
     /**
@@ -254,9 +283,7 @@ class OAuthAuthorizeController extends AbstractController
         }
         $parameters['iss'] = $this->mcpOAuthMetadata->getIssuer($request);
 
-        $separator = str_contains($redirectUri, '?') ? '&' : '?';
-
-        return new RedirectResponse($redirectUri . $separator . http_build_query($parameters));
+        return new RedirectResponse($this->withQueryParameters($redirectUri, $parameters));
     }
 
     private function getAdminUrl(): string

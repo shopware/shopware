@@ -147,6 +147,11 @@ Returning that string, from these helpers or built by hand, is deprecated.
 It keeps working: `McpToolResultParser` reads it into a `McpToolResult`, and both render the same on every protocol revision (`McpToolResponseTest`).
 The string can't carry a summary or error details.
 `success()`, `error()`, `requirePrivilege()`, `missingPrivilegesError()`, `invalidCriteriaError()`, `decodeJsonOrError()` and `executeWithDryRun()` stay for extensions that declare `__invoke(): string`; each has a `…Result` counterpart.
+These helpers are tagged `@deprecated tag:v6.9.0` and call `Feature::triggerDeprecationOrThrow('v6.9.0.0', …, silentUntil: 'v6.8.0.0')`.
+`McpToolResultReferenceHandler` reports the same for a PHP tool that returns the string, so a hand-built string is covered too.
+App tools are registered as closures and are not reported, because the envelope stays their response format.
+The notices are silent until `v6.8.0.0` is active and never throw in 6.8, since `v6.9.0.0` is not registered yet.
+This deprecates the PHP return value only; the envelope as a wire format for old clients is not scheduled for removal.
 All core tools return `McpToolResult`.
 App tools keep the envelope as their response format.
 

@@ -15,10 +15,14 @@ use Mcp\Schema\Tool;
 use Mcp\Server\Session\InMemorySessionStore;
 use Mcp\Server\Session\Session;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\Triggerer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultParser;
@@ -27,6 +31,7 @@ use Shopware\Core\Framework\Mcp\Result\McpToolResultReferenceHandler;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultRenderer;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultStoredFormat;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\Clock\MockClock;
@@ -40,6 +45,20 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[CoversClass(McpToolResultReferenceHandler::class)]
 class McpToolResultReferenceHandlerTest extends TestCase
 {
+    use EnvTestBehaviour;
+
+    private ?Triggerer $triggererBackup;
+
+    protected function setUp(): void
+    {
+        $this->triggererBackup = Feature::$triggerer;
+    }
+
+    protected function tearDown(): void
+    {
+        Feature::$triggerer = $this->triggererBackup;
+    }
+
     public function testRendersAResultObject(): void
     {
         $result = $this->handler(McpToolResult::success(['a' => 1]))->handle($this->toolReference(), []);
@@ -133,6 +152,48 @@ class McpToolResultReferenceHandlerTest extends TestCase
         static::assertSame(['tool' => 'app-tool', 'arguments' => ['entity' => 'product']], $result->meta['shopware/query'] ?? null);
     }
 
+    #[TestDox('A PHP tool returning the legacy string reports a deprecation once v6.8.0.0 is active, and is still rendered')]
+    public function testReportsTheLegacyStringOfAPhpTool(): void
+    {
+        $this->setEnvVars(['TESTS_RUNNING' => false, 'V6_8_0_0' => true]);
+        $triggerer = $this->createMock(Triggerer::class);
+        $triggerer->expects($this->once())->method('deprecation')
+            ->with('', '', \sprintf('MCP tool "t" returned the legacy {"success": …} JSON string, which is deprecated and will be removed in v6.9.0.0. Return a "%s" instead.', McpToolResult::class));
+        Feature::$triggerer = $triggerer;
+
+        $result = $this->handler('{"success":true,"data":{"id":"a"}}')->handle($this->classToolReference(), []);
+
+        static::assertInstanceOf(CallToolResult::class, $result);
+        static::assertSame('{"id":"a"}', Json::encode($result->structuredContent));
+    }
+
+    /**
+     * @return iterable<string, array{mixed, bool}>
+     */
+    public static function notReportedProvider(): iterable
+    {
+        yield 'result object of a PHP tool' => [McpToolResult::success(['id' => 'a']), true];
+        yield 'plain text of a PHP tool' => ['plain text', true];
+        yield 'legacy string of an app tool' => ['{"success":true,"data":{"id":"a"}}', false];
+    }
+
+    #[DataProvider('notReportedProvider')]
+    #[TestDox('No deprecation for the $_dataName')]
+    public function testDoesNotReport(mixed $innerResult, bool $classTool): void
+    {
+        $this->setEnvVars(['TESTS_RUNNING' => false, 'V6_8_0_0' => true]);
+        $triggerer = $this->createMock(Triggerer::class);
+        $triggerer->expects($this->never())->method('deprecation');
+        Feature::$triggerer = $triggerer;
+
+        $this->handler($innerResult)->handle($classTool ? $this->classToolReference() : $this->toolReference(), []);
+    }
+
+    public static function toolHandler(): string
+    {
+        return '';
+    }
+
     private function handler(mixed $innerResult, ?ToolResultCacheStorage $storage = null, RequestStack $requestStack = new RequestStack()): McpToolResultReferenceHandler
     {
         $inner = static::createStub(ReferenceHandlerInterface::class);
@@ -143,6 +204,17 @@ class McpToolResultReferenceHandlerTest extends TestCase
         return new McpToolResultReferenceHandler($inner, $renderer, new McpToolResultParser());
     }
 
+    /**
+     * Registered with class and method, as core, plugin and bundle tools are.
+     */
+    private function classToolReference(): ToolReference
+    {
+        return new ToolReference(new Tool('t', null, ['type' => 'object', 'properties' => [], 'required' => null], null, null), [self::class, 'toolHandler']);
+    }
+
+    /**
+     * Registered as a closure, as AppMcpToolLoader registers app tools.
+     */
     private function toolReference(): ElementReference
     {
         return new ToolReference(new Tool('t', null, ['type' => 'object', 'properties' => [], 'required' => null], null, null), static fn (): string => '');

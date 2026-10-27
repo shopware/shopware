@@ -138,6 +138,8 @@ The other helpers have a counterpart as well: `requirePrivilegeResult()`, `missi
 
 Returning the legacy string from a plugin or bundle tool, built with `success()`, `error()` and the other string helpers or by hand, is deprecated.
 It keeps working in 6.8, including for tools that declare `__invoke(): string`, but it can't carry a summary or error details.
+The string helpers are tagged `@deprecated tag:v6.9.0`.
+Once `v6.8.0.0` is active, each of them and each PHP tool that returns the string report a deprecation notice; nothing throws in 6.8.
 Switch a tool by declaring `__invoke(): McpToolResult` and using the `…Result` helpers:
 
 ```php

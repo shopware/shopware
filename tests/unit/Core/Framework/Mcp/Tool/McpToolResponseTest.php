@@ -17,6 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\ApiProtectionExceptio
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\RuntimeFieldInCriteriaException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\Triggerer;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Result\McpToolError;
@@ -26,6 +28,7 @@ use Shopware\Core\Framework\Mcp\Result\McpToolResultRenderer;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -37,6 +40,20 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[CoversClass(McpToolResponse::class)]
 class McpToolResponseTest extends TestCase
 {
+    use EnvTestBehaviour;
+
+    private ?Triggerer $triggererBackup;
+
+    protected function setUp(): void
+    {
+        $this->triggererBackup = Feature::$triggerer;
+    }
+
+    protected function tearDown(): void
+    {
+        Feature::$triggerer = $this->triggererBackup;
+    }
+
     public function testTinyPayloadHasNoResponseSizeHint(): void
     {
         $result = (new TestTool())->callSuccess(['items' => ['a', 'b']]);
@@ -269,6 +286,46 @@ class McpToolResponseTest extends TestCase
         );
     }
 
+    /**
+     * @return iterable<string, array{string, string, \Closure(TestTool, Context): mixed}>
+     */
+    public static function legacyHelperProvider(): iterable
+    {
+        yield 'success' => ['success', 'successResult()', static fn (TestTool $tool): string => $tool->callLegacySuccess(['a' => 1])];
+        yield 'error' => ['error', 'errorResult()', static fn (TestTool $tool): string => $tool->callLegacyError('broken')];
+        yield 'invalidCriteriaError' => ['invalidCriteriaError', 'invalidCriteriaResult()', static fn (TestTool $tool): string => $tool->callLegacyInvalidCriteriaError(new SearchRequestException())];
+        yield 'decodeJsonOrError' => ['decodeJsonOrError', 'decodeJsonOrErrorResult()', static fn (TestTool $tool): array|string => $tool->callLegacyDecodeJsonOrError('{}')];
+        yield 'requirePrivilege' => ['requirePrivilege', 'requirePrivilegeResult()', static fn (TestTool $tool, Context $context): ?string => $tool->callLegacyRequirePrivilege($context, 'product:read')];
+        yield 'missingPrivilegesError' => ['missingPrivilegesError', 'missingPrivilegesResult()', static fn (TestTool $tool): string => $tool->callLegacyMissingPrivilegesError(['product:read'])];
+        yield 'executeWithDryRun' => ['executeWithDryRun', 'executeWithDryRunResult()', static fn (TestTool $tool, Context $context): string => $tool->callLegacyDryRun(static::createStub(Connection::class), $context, static fn (): string => throw new \RuntimeException('boom'))];
+    }
+
+    /**
+     * @param \Closure(TestTool, Context): mixed $call
+     */
+    #[DataProvider('legacyHelperProvider')]
+    #[TestDox('$method() reports one deprecation once v6.8.0.0 is active, and does not throw')]
+    public function testLegacyHelperTriggersADeprecation(string $method, string $replacement, \Closure $call): void
+    {
+        $this->setEnvVars(['TESTS_RUNNING' => false, 'V6_8_0_0' => true]);
+        $triggerer = $this->createMock(Triggerer::class);
+        $triggerer->expects($this->once())->method('deprecation')
+            ->with('', '', Feature::deprecatedMethodMessage(McpToolResponse::class, McpToolResponse::class . '::' . $method, 'v6.9.0.0', $replacement));
+        Feature::$triggerer = $triggerer;
+
+        $call(new TestTool(), $this->createContext());
+    }
+
+    public function testLegacyHelperStaysSilentBeforeV680(): void
+    {
+        $this->setEnvVars(['TESTS_RUNNING' => false, 'V6_8_0_0' => false]);
+        $triggerer = $this->createMock(Triggerer::class);
+        $triggerer->expects($this->never())->method('deprecation');
+        Feature::$triggerer = $triggerer;
+
+        static::assertSame('{"success":true,"data":{"a":1}}', (new TestTool())->callLegacySuccess(['a' => 1]));
+    }
+
     #[TestDox('The pointer of each rejected element is named, because the caller cannot infer which one was wrong')]
     public function testInvalidCriteriaErrorNamesThePointerOfEachRejectedElement(): void
     {
@@ -433,6 +490,14 @@ class TestTool extends McpToolResponse
     public function callLegacyRequirePrivilege(Context $context, string ...$privileges): ?string
     {
         return $this->requirePrivilege($context, ...$privileges);
+    }
+
+    /**
+     * @param non-empty-list<string> $privileges
+     */
+    public function callLegacyMissingPrivilegesError(array $privileges): string
+    {
+        return $this->missingPrivilegesError($privileges);
     }
 
     public function callLegacyInvalidCriteriaError(ShopwareHttpException $e): string

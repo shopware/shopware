@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\ProductAssignment\Api\SalesChannelProductAssignmentRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 
@@ -51,20 +52,13 @@ class SalesChannelProductAssigner
     /**
      * Products that are already visible in the sales channel are skipped.
      * Categories only contribute main products, product groups contribute every matching product including variants.
-     *
-     * @param list<string> $productIds
-     * @param list<string> $productStreamIds
-     * @param list<string> $categoryIds
      */
     public function assign(
         string $salesChannelId,
-        array $productIds,
-        array $productStreamIds,
-        array $categoryIds,
-        int $visibility,
+        SalesChannelProductAssignmentRequest $request,
         Context $context,
     ): SalesChannelProductAssignmentResult {
-        if ($productIds === [] && $productStreamIds === [] && $categoryIds === []) {
+        if ($request->productIds === [] && $request->productStreamIds === [] && $request->categoryIds === []) {
             return new SalesChannelProductAssignmentResult(0, complete: true);
         }
 
@@ -79,7 +73,7 @@ class SalesChannelProductAssigner
 
         $assigned = 0;
         $remainingPages = self::MAX_PAGES_PER_CALL;
-        foreach ($this->buildCriteria($productIds, $productStreamIds, $categoryIds, $queuedIndexingContext) as $criteria) {
+        foreach ($this->buildCriteria($request, $queuedIndexingContext) as $criteria) {
             $criteria->addFilter(
                 new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('visibilities.salesChannelId', $salesChannelId)])
             );
@@ -101,7 +95,7 @@ class SalesChannelProductAssigner
                 }
 
                 --$remainingPages;
-                $assigned += $this->writeVisibilities($page, $salesChannelId, $visibility, $queuedIndexingContext);
+                $assigned += $this->writeVisibilities($page, $salesChannelId, $request->visibility, $queuedIndexingContext);
             } while (\count($page) === self::CHUNK_SIZE);
         }
 
@@ -132,29 +126,25 @@ class SalesChannelProductAssigner
     }
 
     /**
-     * @param list<string> $productIds
-     * @param list<string> $productStreamIds
-     * @param list<string> $categoryIds
-     *
      * @return list<Criteria>
      */
-    private function buildCriteria(array $productIds, array $productStreamIds, array $categoryIds, Context $context): array
+    private function buildCriteria(SalesChannelProductAssignmentRequest $request, Context $context): array
     {
         $criteriaList = [];
 
-        if ($productIds !== []) {
-            $criteriaList[] = (new Criteria())->addFilter(new EqualsAnyFilter('id', $productIds));
+        if ($request->productIds !== []) {
+            $criteriaList[] = (new Criteria())->addFilter(new EqualsAnyFilter('id', $request->productIds));
         }
 
-        foreach ($productStreamIds as $productStreamId) {
+        foreach ($request->productStreamIds as $productStreamId) {
             $criteria = new Criteria();
             $this->productStreamBuilder->enrichCriteria($criteria, $productStreamId, $context);
             $criteriaList[] = $criteria;
         }
 
-        if ($categoryIds !== []) {
+        if ($request->categoryIds !== []) {
             $criteriaList[] = (new Criteria())
-                ->addFilter(new EqualsAnyFilter('categoryIds', $categoryIds))
+                ->addFilter(new EqualsAnyFilter('categoryIds', $request->categoryIds))
                 ->addFilter(new EqualsFilter('parentId', null));
         }
 

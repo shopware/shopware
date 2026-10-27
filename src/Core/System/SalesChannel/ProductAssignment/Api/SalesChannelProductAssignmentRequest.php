@@ -29,12 +29,15 @@ final readonly class SalesChannelProductAssignmentRequest
      * @param list<string> $categoryIds
      */
     public function __construct(
+        #[Assert\Type('list')]
         #[Assert\Count(max: self::MAX_PRODUCT_IDS)]
         #[Assert\All([new Uuid()])]
         public array $productIds = [],
+        #[Assert\Type('list')]
         #[Assert\Count(max: self::MAX_PRODUCT_STREAM_IDS)]
         #[Assert\All([new Uuid()])]
         public array $productStreamIds = [],
+        #[Assert\Type('list')]
         #[Assert\Count(max: self::MAX_CATEGORY_IDS)]
         #[Assert\All([new Uuid()])]
         public array $categoryIds = [],

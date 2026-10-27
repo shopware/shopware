@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\ProductAssignment\Api\SalesChannelProductAssignmentRequest;
 use Shopware\Core\System\SalesChannel\ProductAssignment\SalesChannelProductAssigner;
 use Shopware\Core\System\SalesChannel\ProductAssignment\SalesChannelProductAssignmentResult;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -86,11 +87,12 @@ class SalesChannelProductAssignerTest extends TestCase
 
         $result = $this->assigner->assign(
             self::SALES_CHANNEL_ID,
-            productIds: [$ids[0], $ids[1]],
-            productStreamIds: ['stream-id'],
-            categoryIds: ['category-id'],
-            visibility: ProductVisibilityDefinition::VISIBILITY_ALL,
-            context: $this->context,
+            new SalesChannelProductAssignmentRequest(
+                productIds: [$ids[0], $ids[1]],
+                productStreamIds: ['stream-id'],
+                categoryIds: ['category-id'],
+            ),
+            $this->context,
         );
 
         static::assertEquals(new SalesChannelProductAssignmentResult(4, complete: true), $result);
@@ -139,11 +141,11 @@ class SalesChannelProductAssignerTest extends TestCase
 
         $result = $this->assigner->assign(
             self::SALES_CHANNEL_ID,
-            productIds: $ids,
-            productStreamIds: [],
-            categoryIds: [],
-            visibility: ProductVisibilityDefinition::VISIBILITY_SEARCH,
-            context: $this->context,
+            new SalesChannelProductAssignmentRequest(
+                productIds: $ids,
+                visibility: ProductVisibilityDefinition::VISIBILITY_SEARCH,
+            ),
+            $this->context,
         );
 
         static::assertEquals(new SalesChannelProductAssignmentResult(501, complete: true), $result);
@@ -169,11 +171,11 @@ class SalesChannelProductAssignerTest extends TestCase
 
         $result = $this->assigner->assign(
             self::SALES_CHANNEL_ID,
-            productIds: [],
-            productStreamIds: ['stream-id'],
-            categoryIds: ['category-id'],
-            visibility: ProductVisibilityDefinition::VISIBILITY_ALL,
-            context: $this->context,
+            new SalesChannelProductAssignmentRequest(
+                productStreamIds: ['stream-id'],
+                categoryIds: ['category-id'],
+            ),
+            $this->context,
         );
 
         static::assertEquals(new SalesChannelProductAssignmentResult(5000, complete: false), $result);
@@ -188,14 +190,7 @@ class SalesChannelProductAssignerTest extends TestCase
         $this->salesChannelRepository->addSearch([self::SALES_CHANNEL_ID]);
         $this->productRepository->addSearch(self::page($ids), []);
 
-        $result = $this->assigner->assign(
-            self::SALES_CHANNEL_ID,
-            productIds: $ids,
-            productStreamIds: [],
-            categoryIds: [],
-            visibility: ProductVisibilityDefinition::VISIBILITY_ALL,
-            context: $this->context,
-        );
+        $result = $this->assigner->assign(self::SALES_CHANNEL_ID, new SalesChannelProductAssignmentRequest(productIds: $ids), $this->context);
 
         static::assertEquals(new SalesChannelProductAssignmentResult(500, complete: true), $result);
         static::assertCount(1, $this->visibilityRepository->upserts);
@@ -215,14 +210,7 @@ class SalesChannelProductAssignerTest extends TestCase
             },
         );
 
-        $this->assigner->assign(
-            self::SALES_CHANNEL_ID,
-            productIds: $this->ids(1),
-            productStreamIds: [],
-            categoryIds: [],
-            visibility: ProductVisibilityDefinition::VISIBILITY_ALL,
-            context: $this->context,
-        );
+        $this->assigner->assign(self::SALES_CHANNEL_ID, new SalesChannelProductAssignmentRequest(productIds: $this->ids(1)), $this->context);
 
         static::assertInstanceOf(Context::class, $searchContext);
         static::assertTrue($searchContext->hasState(EntityIndexerRegistry::USE_INDEXING_QUEUE));
@@ -234,14 +222,7 @@ class SalesChannelProductAssignerTest extends TestCase
         $this->salesChannelRepository->addSearch([self::SALES_CHANNEL_ID]);
         $this->productRepository->addSearch([]);
 
-        $result = $this->assigner->assign(
-            self::SALES_CHANNEL_ID,
-            productIds: $this->ids(1),
-            productStreamIds: [],
-            categoryIds: [],
-            visibility: ProductVisibilityDefinition::VISIBILITY_ALL,
-            context: $this->context,
-        );
+        $result = $this->assigner->assign(self::SALES_CHANNEL_ID, new SalesChannelProductAssignmentRequest(productIds: $this->ids(1)), $this->context);
 
         static::assertEquals(new SalesChannelProductAssignmentResult(0, complete: true), $result);
         static::assertSame([], $this->visibilityRepository->upserts);
@@ -249,14 +230,7 @@ class SalesChannelProductAssignerTest extends TestCase
 
     public function testDoesNotTouchTheDatabaseWithoutSources(): void
     {
-        $result = $this->assigner->assign(
-            self::SALES_CHANNEL_ID,
-            productIds: [],
-            productStreamIds: [],
-            categoryIds: [],
-            visibility: ProductVisibilityDefinition::VISIBILITY_ALL,
-            context: $this->context,
-        );
+        $result = $this->assigner->assign(self::SALES_CHANNEL_ID, new SalesChannelProductAssignmentRequest(), $this->context);
 
         static::assertEquals(new SalesChannelProductAssignmentResult(0, complete: true), $result);
         static::assertSame([], $this->visibilityRepository->upserts);
@@ -268,14 +242,7 @@ class SalesChannelProductAssignerTest extends TestCase
 
         $this->expectExceptionObject(SalesChannelException::salesChannelNotFound(self::SALES_CHANNEL_ID));
 
-        $this->assigner->assign(
-            self::SALES_CHANNEL_ID,
-            productIds: $this->ids(1),
-            productStreamIds: [],
-            categoryIds: [],
-            visibility: ProductVisibilityDefinition::VISIBILITY_ALL,
-            context: $this->context,
-        );
+        $this->assigner->assign(self::SALES_CHANNEL_ID, new SalesChannelProductAssignmentRequest(productIds: $this->ids(1)), $this->context);
     }
 
     /**

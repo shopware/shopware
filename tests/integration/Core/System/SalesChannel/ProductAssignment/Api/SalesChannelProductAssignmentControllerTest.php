@@ -34,6 +34,8 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
+    private const URL = '/api/_action/sales-channel/' . TestDefaults::SALES_CHANNEL . '/product-assignment';
+
     private IdsCollection $ids;
 
     private Context $context;
@@ -61,7 +63,7 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
 
     public function testItAssignsProductsFromIdsCategoriesAndProductGroupsOnce(): void
     {
-        $this->getBrowser()->jsonRequest('POST', $this->url(), [
+        $this->getBrowser()->jsonRequest('POST', self::URL, [
             'productIds' => [$this->ids->get('explicit'), $this->ids->get('already-visible')],
             'productStreamIds' => [$this->ids->get('stream')],
             'categoryIds' => [$this->ids->get('assignment-category')],
@@ -81,8 +83,9 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
 
     public function testItRejectsInvalidIdsAndVisibility(): void
     {
-        $this->getBrowser()->jsonRequest('POST', $this->url(), [
+        $this->getBrowser()->jsonRequest('POST', self::URL, [
             'productIds' => ['not-a-uuid'],
+            'categoryIds' => ['first' => $this->ids->get('assignment-category')],
             'visibility' => 15,
         ]);
 
@@ -91,6 +94,7 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
         $detail = $this->decodeResponse($this->getBrowser())['errors'][0]['detail'];
         static::assertIsString($detail);
         static::assertStringContainsString('"not-a-uuid" is not a valid uuid', $detail);
+        static::assertStringContainsString('This value should be of type list.', $detail);
         static::assertStringContainsString('not a valid choice', $detail);
         static::assertSame(['STREAM-already-visible', 'already-visible'], array_keys($this->visibilitiesOfSalesChannel()));
     }
@@ -102,7 +106,7 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
             range(1, SalesChannelProductAssignmentRequest::MAX_PRODUCT_STREAM_IDS + 1),
         );
 
-        $this->getBrowser()->jsonRequest('POST', $this->url(), ['productStreamIds' => $streamIds]);
+        $this->getBrowser()->jsonRequest('POST', self::URL, ['productStreamIds' => $streamIds]);
 
         static::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $this->getBrowser()->getResponse()->getStatusCode());
 
@@ -122,7 +126,7 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
     public function testItRejectsCallersWithoutTheRequiredPrivilege(array $privileges, string $source, string $idKey): void
     {
         $browser = $this->getBrowser(true, [], $privileges);
-        $browser->jsonRequest('POST', $this->url(), [$source => [$this->ids->get($idKey)]]);
+        $browser->jsonRequest('POST', self::URL, [$source => [$this->ids->get($idKey)]]);
 
         static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
         static::assertSame(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, $this->decodeResponse($browser)['errors'][0]['code']);
@@ -137,11 +141,6 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
         yield 'without product_visibility:create nothing is assigned' => [['product:read', 'sales_channel:update'], 'productIds', 'explicit'];
         yield 'without product:read even explicit ids are rejected' => [['product_visibility:create'], 'productIds', 'explicit'];
         yield 'without product_stream:read a product group is not resolved' => [['product_visibility:create', 'product:read', 'category:read'], 'productStreamIds', 'stream'];
-    }
-
-    private function url(string $salesChannelId = TestDefaults::SALES_CHANNEL): string
-    {
-        return \sprintf('/api/_action/sales-channel/%s/product-assignment', $salesChannelId);
     }
 
     /**

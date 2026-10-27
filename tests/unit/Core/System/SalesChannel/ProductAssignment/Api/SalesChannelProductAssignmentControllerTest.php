@@ -38,44 +38,37 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
         $this->controller = new SalesChannelProductAssignmentController($this->assigner);
     }
 
-    public function testForwardsEverySourceWithTheRequestedVisibility(): void
+    public function testForwardsTheRequestToTheAssigner(): void
     {
+        $request = new SalesChannelProductAssignmentRequest(
+            productIds: ['product-a', 'product-b'],
+            productStreamIds: ['stream-a'],
+            categoryIds: ['category-a'],
+            visibility: ProductVisibilityDefinition::VISIBILITY_LINK,
+        );
+
         $this->assigner
             ->expects($this->once())
             ->method('assign')
-            ->with(
-                self::SALES_CHANNEL_ID,
-                ['product-a', 'product-b'],
-                ['stream-a'],
-                ['category-a'],
-                ProductVisibilityDefinition::VISIBILITY_LINK,
-                $this->context,
-            )
+            ->with(self::SALES_CHANNEL_ID, $request, $this->context)
             ->willReturn(new SalesChannelProductAssignmentResult(3, complete: true));
 
-        $response = $this->controller->assign(
-            self::SALES_CHANNEL_ID,
-            new SalesChannelProductAssignmentRequest(
-                productIds: ['product-a', 'product-b'],
-                productStreamIds: ['stream-a'],
-                categoryIds: ['category-a'],
-                visibility: ProductVisibilityDefinition::VISIBILITY_LINK,
-            ),
-            $this->context,
-        );
+        $response = $this->controller->assign(self::SALES_CHANNEL_ID, $request, $this->context);
 
         static::assertSame('{"assigned":3,"complete":true}', $response->getContent());
     }
 
-    public function testDefaultsToEmptySourcesAndFullVisibility(): void
+    public function testAcceptsAnEmptyRequest(): void
     {
+        $request = new SalesChannelProductAssignmentRequest();
+
         $this->assigner
             ->expects($this->once())
             ->method('assign')
-            ->with(self::SALES_CHANNEL_ID, [], [], [], ProductVisibilityDefinition::VISIBILITY_ALL, $this->context)
+            ->with(self::SALES_CHANNEL_ID, $request, $this->context)
             ->willReturn(new SalesChannelProductAssignmentResult(0, complete: true));
 
-        $response = $this->controller->assign(self::SALES_CHANNEL_ID, new SalesChannelProductAssignmentRequest(), $this->context);
+        $response = $this->controller->assign(self::SALES_CHANNEL_ID, $request, $this->context);
 
         static::assertSame('{"assigned":0,"complete":true}', $response->getContent());
     }
@@ -96,18 +89,15 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
     public function testAcceptsSourcesTheCallerMayRead(): void
     {
         $context = $this->contextWithPermissions(['product_visibility:create', 'product:read', 'product_stream:read']);
+        $request = new SalesChannelProductAssignmentRequest(productStreamIds: ['stream-a']);
 
         $this->assigner
             ->expects($this->once())
             ->method('assign')
-            ->with(self::SALES_CHANNEL_ID, [], ['stream-a'], [], ProductVisibilityDefinition::VISIBILITY_ALL, $context)
+            ->with(self::SALES_CHANNEL_ID, $request, $context)
             ->willReturn(new SalesChannelProductAssignmentResult(2, complete: false));
 
-        $response = $this->controller->assign(
-            self::SALES_CHANNEL_ID,
-            new SalesChannelProductAssignmentRequest(productStreamIds: ['stream-a']),
-            $context,
-        );
+        $response = $this->controller->assign(self::SALES_CHANNEL_ID, $request, $context);
 
         static::assertSame('{"assigned":2,"complete":false}', $response->getContent());
     }

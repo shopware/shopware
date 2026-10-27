@@ -37,14 +37,7 @@ readonly class SalesChannelProductAssignmentController
     ): JsonResponse {
         $this->ensureSourcePrivileges($request, $context);
 
-        return new JsonResponse($this->assigner->assign(
-            $salesChannelId,
-            $request->productIds,
-            $request->productStreamIds,
-            $request->categoryIds,
-            $request->visibility,
-            $context,
-        ));
+        return new JsonResponse($this->assigner->assign($salesChannelId, $request, $context));
     }
 
     /**

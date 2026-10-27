@@ -60,7 +60,9 @@ class McpAllowlistChangeSubscriber implements EventSubscriberInterface
 
             foreach ($commands as $command) {
                 $changeSet = $command->getChangeSet();
-                if ($changeSet === null) {
+                // The change set drops an unchanged column, so `after` is null both for an identical write
+                // and for a removed allowlist. Only the latter is a change.
+                if ($changeSet === null || !$changeSet->hasChanged(self::FIELD)) {
                     continue;
                 }
 

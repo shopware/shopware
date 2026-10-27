@@ -186,6 +186,7 @@ class McpAllowlistListChangedTest extends TestCase
     {
         $localeId = static::getContainer()->get('language.repository')
             ->search(new Criteria([Defaults::LANGUAGE_SYSTEM]), Context::createDefaultContext())
+            ->getEntities()
             ->first()
             ?->get('localeId');
         static::assertIsString($localeId);

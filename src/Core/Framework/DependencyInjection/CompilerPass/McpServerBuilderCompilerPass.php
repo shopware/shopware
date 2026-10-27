@@ -2,12 +2,16 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
+use Mcp\Server\Subscription\Psr16NotificationBus;
+use Mcp\Server\Subscription\PublishingEventDispatcher;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Cache\Psr16Cache;
 use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -25,7 +29,8 @@ use Symfony\Component\DependencyInjection\Definition;
  * 3. Both servers page with Shopware's own pagination parameter, so the number the allowlist request
  *    handlers slice with cannot drift from the one the SDK advertises.
  *
- * It also pins both servers to the handshake protocol era — see {@see self::pinHandshakeEra()}.
+ * It also applies the protocol era configured per server in `shopware.mcp.protocol_era`, see
+ * {@see self::applyProtocolEra()}.
  *
  * Must run after McpToolDiscoveryCompilerPass and McpToolAnalysisCompilerPass.
  */
@@ -33,6 +38,22 @@ use Symfony\Component\DependencyInjection\Definition;
 #[BecomesInternal(version: 'v6.8.0')]
 class McpServerBuilderCompilerPass implements CompilerPassInterface
 {
+    final public const PROTOCOL_ERA_PARAMETER = 'shopware.mcp.protocol_era';
+
+    /**
+     * Serves the handshake revisions only, up to 2025-11-25.
+     */
+    final public const ERA_LEGACY = 'legacy';
+
+    /**
+     * Serves the handshake revisions and the stateless 2026-07-28 revision; the client picks.
+     */
+    final public const ERA_AUTO = 'auto';
+
+    /**
+     * Carries list changes to the `subscriptions/listen` streams of the stateless era.
+     */
+    final public const ADMIN_NOTIFICATION_BUS = 'shopware.mcp.admin.notification_bus';
     /**
      * The server names configured in packages/mcp.php. Only the Admin API server takes the
      * capability loaders.
@@ -41,6 +62,12 @@ class McpServerBuilderCompilerPass implements CompilerPassInterface
         'admin' => true,
         'store_api' => false,
     ];
+
+    /**
+     * Seconds a `subscriptions/listen` stream is held before the server closes it and the client reconnects.
+     * Each open stream occupies a PHP worker for that time.
+     */
+    private const SUBSCRIPTION_LIFETIME = 30.0;
 
     public function process(ContainerBuilder $container): void
     {
@@ -54,8 +81,26 @@ class McpServerBuilderCompilerPass implements CompilerPassInterface
             $definition = $container->getDefinition($builderId);
 
             $this->scopeBuilderCalls($definition, $server, $takesLoaders);
-            $this->pinHandshakeEra($definition);
+            $this->applyProtocolEra($container, $definition, $server);
         }
+    }
+
+    /**
+     * @return array<string, self::ERA_*>
+     */
+    public static function protocolEras(ContainerBuilder $container): array
+    {
+        $configured = $container->hasParameter(self::PROTOCOL_ERA_PARAMETER)
+            ? $container->getParameter(self::PROTOCOL_ERA_PARAMETER)
+            : [];
+        $configured = \is_array($configured) ? $configured : [];
+
+        $eras = [];
+        foreach (array_keys(self::SERVERS) as $server) {
+            $eras[$server] = ($configured[$server] ?? null) === self::ERA_AUTO ? self::ERA_AUTO : self::ERA_LEGACY;
+        }
+
+        return $eras;
     }
 
     /**
@@ -95,17 +140,52 @@ class McpServerBuilderCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * mcp/sdk 0.8 serves the 2026-07-28 revision from the same endpoint as the handshake era, and
-     * Shopware builds the transport itself, so both endpoints would start answering it the moment the
-     * SDK is upgraded. That era is stateless: it mints no Mcp-Session-Id, which the toolset session
-     * storage and the list-changed notifications are built on, and a handler returning an
-     * InputRequiredResult additionally needs a signed request state key shared across every worker
-     * that might serve the retry.
+     * The SDK serves the 2026-07-28 revision next to the handshake revisions from the same endpoint unless
+     * it is told not to. `legacy` keeps an endpoint on the handshake revisions, `auto` lets the client pick.
+     * The stateless era has no session, see adr/2026-09-24-mcp-stateless-era-degradation-policy.md for what
+     * that means per feature.
      *
-     * Keep the endpoints on the era they were written for until that is designed and tested.
+     * On `auto` the Admin API server also gets a notification bus, so a list change such as an app install
+     * reaches the `subscriptions/listen` streams of stateless clients. The bus is a PSR-16 view of
+     * `cache.app`, so it reaches every worker that shares that pool. The Store API lists only change per
+     * session, so that server has nothing to publish and gets no bus.
+     *
+     * No request state key is configured: no Shopware handler asks the client for input more than once
+     * or mints its own request state.
      */
-    private function pinHandshakeEra(Definition $definition): void
+    private function applyProtocolEra(ContainerBuilder $container, Definition $definition, string $server): void
     {
-        $definition->addMethodCall('withoutModernEra');
+        if (self::protocolEras($container)[$server] === self::ERA_LEGACY) {
+            $definition->addMethodCall('withoutModernEra');
+
+            return;
+        }
+
+        if ($server !== 'admin') {
+            return;
+        }
+
+        $cache = (new Definition(Psr16Cache::class))->setArguments([new Reference('cache.app')]);
+
+        $container->register(self::ADMIN_NOTIFICATION_BUS, Psr16NotificationBus::class)
+            ->setArguments([
+                '$cache' => $cache,
+                '$prefix' => 'mcp-admin-notifications.',
+                '$logger' => new Reference('logger'),
+            ])
+            ->addTag('monolog.logger', ['channel' => 'mcp']);
+
+        // The SDK announces `listChanged` on the stateless era only for a registry that publishes its own
+        // changes, which the bundle wires only when it configures the bus itself.
+        $registryId = \sprintf('mcp.server.%s.registry', $server);
+        if ($container->hasDefinition($registryId)) {
+            $container->getDefinition($registryId)->replaceArgument(0, new Definition(PublishingEventDispatcher::class, [
+                new Reference(self::ADMIN_NOTIFICATION_BUS),
+                new Reference('event_dispatcher'),
+            ]));
+        }
+
+        $definition->addMethodCall('setNotificationBus', [new Reference(self::ADMIN_NOTIFICATION_BUS)]);
+        $definition->addMethodCall('setSubscriptionLifetime', [self::SUBSCRIPTION_LIFETIME]);
     }
 }

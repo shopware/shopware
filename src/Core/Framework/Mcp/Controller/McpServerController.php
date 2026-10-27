@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
 use Shopware\Core\Framework\Mcp\McpJsonRpcResponse;
+use Shopware\Core\Framework\Mcp\McpServerInstructions;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
@@ -127,7 +128,10 @@ class McpServerController
             $psrResponse = $this->enrichInitializeResponse($request, $psrResponse);
         }
 
-        return $this->transportFactory->createResponse($psrResponse);
+        $response = $this->transportFactory->createResponse($psrResponse);
+        McpServerInstructions::applyToStatelessDiscover($request, $response);
+
+        return $response;
     }
 
     /**

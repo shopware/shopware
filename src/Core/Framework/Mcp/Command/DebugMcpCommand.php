@@ -8,6 +8,7 @@ use Mcp\Schema\ResourceDefinition;
 use Mcp\Schema\Tool;
 use Mcp\Server\Builder;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpDebugCommandCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpServerBuilderCompilerPass;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
@@ -39,6 +40,7 @@ class DebugMcpCommand extends Command
      *
      * @param array<string, list<string>> $unassigned kind => service ids the bundle assigned to no server
      * @param array<string, array<string, string>> $demotedDiscoveryTools scope => tool name => class of tools that claimed the reserved discovery group
+     * @param array<string, string> $protocolEras server name => configured protocol era, see `shopware.mcp.protocol_era`
      *
      * The builder and registry arguments are nullable via nullOnInvalid(): null when the MCP
      * bundle is absent. Once MCP is stable (v6.8.0) remove the nullable
@@ -54,6 +56,7 @@ class DebugMcpCommand extends Command
         private readonly ?McpCapabilityCatalog $storeApiCatalog = null,
         private readonly array $unassigned = [],
         private readonly array $demotedDiscoveryTools = [],
+        private readonly array $protocolEras = [],
     ) {
         parent::__construct();
     }
@@ -149,6 +152,7 @@ class DebugMcpCommand extends Command
 
         foreach ($scopes as $scopeId => $scope) {
             $io->title($scope['label']);
+            $io->text($this->describeProtocolEra($scopeId));
 
             $this->renderTools($io, $scope, $scopeId === ApiRouteScope::ID ? $toolsAllowlist : null);
         }
@@ -177,6 +181,16 @@ class DebugMcpCommand extends Command
      * so it is reported here rather than only by the bundle's own command: a developer whose tool is
      * missing should not have to know a second command exists to find out why.
      */
+    private function describeProtocolEra(string $scopeId): string
+    {
+        $server = $scopeId === ApiRouteScope::ID ? 'admin' : 'store_api';
+        $era = $this->protocolEras[$server] ?? McpServerBuilderCompilerPass::ERA_LEGACY;
+
+        return $era === McpServerBuilderCompilerPass::ERA_AUTO
+            ? \sprintf('Protocol era: %s (handshake revisions up to 2025-11-25 and the stateless 2026-07-28 revision)', $era)
+            : \sprintf('Protocol era: %s (handshake revisions up to 2025-11-25)', $era);
+    }
+
     private function renderUnassigned(SymfonyStyle $io): void
     {
         $unassigned = array_filter($this->unassigned);

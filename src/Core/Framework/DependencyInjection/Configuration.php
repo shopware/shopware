@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DependencyInjection;
 
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpServerBuilderCompilerPass;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
@@ -1715,6 +1716,20 @@ class Configuration implements ConfigurationInterface
                     ->info('Additional Origin values accepted by the MCP endpoints, on top of the shop\'s own origins. An entry is an exact origin (https://chat.example), an origin with any port (http://localhost:*) or * for any origin. Accepts %env(csv:MCP_ALLOWED_ORIGINS)%.')
                     ->scalarPrototype()->end()
                     ->defaultValue([])
+                ->end()
+                ->arrayNode('protocol_era')
+                    ->info('MCP protocol revisions each endpoint serves. "legacy" serves the handshake revisions up to 2025-11-25. "auto" also serves the stateless 2026-07-28 revision, and the client picks.')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->enumNode('admin')
+                            ->values([McpServerBuilderCompilerPass::ERA_LEGACY, McpServerBuilderCompilerPass::ERA_AUTO])
+                            ->defaultValue(McpServerBuilderCompilerPass::ERA_LEGACY)
+                        ->end()
+                        ->enumNode('store_api')
+                            ->values([McpServerBuilderCompilerPass::ERA_LEGACY, McpServerBuilderCompilerPass::ERA_AUTO])
+                            ->defaultValue(McpServerBuilderCompilerPass::ERA_LEGACY)
+                        ->end()
+                    ->end()
                 ->end()
                 ->integerNode('app_tool_timeout')
                     ->info('Timeout in seconds for app webhook MCP tool calls.')

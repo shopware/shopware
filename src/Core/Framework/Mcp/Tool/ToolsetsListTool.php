@@ -7,6 +7,7 @@ use Mcp\Schema\ToolAnnotations;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequiresNoPrivilege;
+use Shopware\Core\Framework\Mcp\McpProtocolEra;
 use Shopware\Core\Framework\Mcp\McpRequestedToolsetResolver;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
@@ -34,6 +35,12 @@ class ToolsetsListTool extends McpToolResponse
 
     public function __invoke(): string
     {
+        // Not advertised on the stateless era (2026-07-28): which toolsets are enabled is session state,
+        // and there is no toolset-enable to follow up with. See McpProtocolEra::HIDDEN_ON_STATELESS_ERA.
+        if (McpProtocolEra::isStateless($this->requestStack->getMainRequest())) {
+            return $this->error(McpProtocolEra::toolsetToolUnavailableMessage(McpToolsetRegistry::LIST_TOOLSETS_TOOL));
+        }
+
         $enabledToolsets = $this->enabledToolsets();
         $areAllToolsetsEnabled = \in_array(McpToolsetRegistry::ALL_TOOLSETS, $enabledToolsets, true);
 

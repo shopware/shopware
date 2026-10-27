@@ -25,6 +25,8 @@ export default Component.wrapComponentConfig({
 
     inject: ['repositoryFactory', 'cartStoreService'],
 
+    emits: ['error'],
+
     mixins: [Mixin.getByName('notification'), Mixin.getByName('cart-notification')],
 
     data(): {

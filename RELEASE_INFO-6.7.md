@@ -110,6 +110,10 @@ New sales channel contexts now decide tax-free delivery like the cart (`TaxDetec
 commercial customers only get "Tax-free (B2B)", all other customers only "Tax-free (B2C)".
 Cart and order taxes stay the same, but Rule Builder conditions like "Cart amount" can match differently than before for customers who only met the other setting.
 
+### Retired services are uninstalled by the daily service reconcile
+
+Shops now uninstall a service once the service registry lists it as `retired` in `GET /api/service/v2`. This happens in the daily service install task, on `bin/console services:install` and on `system:update:finish`, so a retired service no longer stays installed until the shop's next update. A service that is merely missing from the registry's service list is no longer uninstalled on `system:update:finish`; only an explicit `retired` status removes it. Shops now read the service list only from `GET /api/service/v2` and install and update only services listed as `active`; a status they don't know is left alone.
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request

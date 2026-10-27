@@ -769,21 +769,49 @@ export default class ListingPlugin extends Plugin {
             return;
         }
 
-        /** @deprecated tag:v6.8.0 - Remove the ariaLiveContainer check together with the legacy property. */
-        if (this.ariaLiveContainers.length === 0 && !this.ariaLiveContainer) {
+        const containers = new Set();
+
+        /** @deprecated tag:v6.8.0 - Remove the legacy ariaLiveContainer candidate together with the property. */
+        if (this.ariaLiveContainer) {
+            containers.add(this.ariaLiveContainer);
+        }
+
+        this.ariaLiveContainers.forEach(container => containers.add(container));
+
+        const exposedContainers = [...containers].filter(container => this._isAriaLiveContainerExposed(container));
+        const target = exposedContainers.find(container => container.closest('[role="dialog"][aria-modal="true"], dialog[open]'))
+            ?? exposedContainers[0];
+
+        if (!target) {
             return;
         }
 
         const listingResultsEl = this.el.querySelector(this.options.cmsProductListingResultsSelector);
+        target.innerHTML = listingResultsEl.dataset.ariaLiveText;
+    }
 
-        this.ariaLiveContainers.forEach(ariaLiveContainer => {
-            ariaLiveContainer.innerHTML = listingResultsEl.dataset.ariaLiveText;
-        });
-
-        /** @deprecated tag:v6.8.0 - Backwards compatibility for ariaLiveContainer which can be reassigned. Remove the following if statement in v6.8.0 together with ariaLiveContainer. */
-        if (this.ariaLiveContainer && !Array.from(this.ariaLiveContainers).includes(this.ariaLiveContainer)) {
-            this.ariaLiveContainer.innerHTML = listingResultsEl.dataset.ariaLiveText;
+    /**
+     * Visually hidden live regions remain accessible, unlike inert or hidden ancestors.
+     *
+     * @private
+     */
+    _isAriaLiveContainerExposed(container) {
+        if (!container.isConnected) {
+            return false;
         }
+
+        for (let element = container; element; element = element.parentElement) {
+            if (element.inert || element.hasAttribute('inert') || element.hidden || element.getAttribute('aria-hidden') === 'true') {
+                return false;
+            }
+
+            const style = window.getComputedStyle(element);
+            if (style.display === 'none' || style.visibility === 'hidden' || style.visibility === 'collapse' || style.contentVisibility === 'hidden') {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

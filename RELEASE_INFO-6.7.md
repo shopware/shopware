@@ -203,6 +203,9 @@ The Storefront listing plugin now supports updating multiple filter panels on th
 - `activeFilterContainer` → `activeFilterContainers`
 - `ariaLiveContainer` → `ariaLiveContainers`
 
+Listing result counts now update only one accessible live region to avoid duplicate screen-reader announcements across filter panels.
+While the mobile filter dialog is open, its live region is preferred over background regions.
+
 `ListingPlugin.createResetAllButton(activeFilterContainer)` now accepts the target active-filter container as an argument.
 Update custom calls and overrides to pass this argument, including calls to `super.createResetAllButton(activeFilterContainer)`.
 Omitting the argument still falls back to `this.activeFilterContainer` in 6.7, but this fallback is deprecated and will be removed in 6.8.

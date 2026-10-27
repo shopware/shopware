@@ -81,6 +81,119 @@ describe('ListingPlugin tests', () => {
         });
     });
 
+    describe('accessible result announcements', () => {
+        let regions;
+
+        beforeEach(() => {
+            const panel = document.querySelector('.cms-element-sidebar-filter');
+
+            document.body.append(panel.cloneNode(true), panel.cloneNode(true));
+            listingPlugin = new ListingPlugin(document.querySelector('[data-listing="true"]'));
+            regions = [...listingPlugin.ariaLiveContainers];
+            listingPlugin.el.querySelector('.js-listing-wrapper').dataset.ariaLiveText = 'Showing 2 products.';
+        });
+
+        test('writes to only one visually hidden live region across three panels', () => {
+            const setters = regions.map(region => jest.spyOn(region, 'innerHTML', 'set'));
+
+            listingPlugin._updateAriaLive();
+
+            expect(regions[0].textContent).toBe('Showing 2 products.');
+            expect(regions[1].textContent).toBe('');
+            expect(regions[2].textContent).toBe('');
+            expect(setters.reduce((count, setter) => count + setter.mock.calls.length, 0)).toBe(1);
+        });
+
+        test.each([
+            ['inert attribute', element => element.setAttribute('inert', '')],
+            ['inert property', element => { element.inert = true; }],
+            ['aria-hidden', element => element.setAttribute('aria-hidden', 'true')],
+            ['hidden attribute', element => { element.hidden = true; }],
+            ['display none', element => { element.style.display = 'none'; }],
+            ['visibility hidden', element => { element.style.visibility = 'hidden'; }],
+            ['visibility collapse', element => { element.style.visibility = 'collapse'; }],
+            ['content visibility hidden', element => { element.style.contentVisibility = 'hidden'; }],
+        ])('skips regions inside ancestors with %s', (_name, hide) => {
+            hide(regions[0].closest('.cms-element-sidebar-filter'));
+
+            listingPlugin._updateAriaLive();
+
+            expect(regions[0].textContent).toBe('');
+            expect(regions[1].textContent).toBe('Showing 2 products.');
+            expect(regions[2].textContent).toBe('');
+        });
+
+        test('ignores a detached legacy region and selects an exposed region', () => {
+            regions[0].remove();
+
+            listingPlugin._updateAriaLive();
+
+            expect(regions[0].textContent).toBe('');
+            expect(regions[1].textContent).toBe('Showing 2 products.');
+            expect(regions[2].textContent).toBe('');
+        });
+
+        test.each([
+            '<div role="dialog" aria-modal="true"></div>',
+            '<dialog open></dialog>',
+        ])('prefers the exposed modal region in %s', (markup) => {
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = markup;
+            const dialog = wrapper.firstElementChild;
+            document.body.append(dialog);
+            dialog.append(regions[2]);
+
+            listingPlugin._updateAriaLive();
+
+            expect(regions[0].textContent).toBe('');
+            expect(regions[1].textContent).toBe('');
+            expect(regions[2].textContent).toBe('Showing 2 products.');
+        });
+
+        test('selects the accessible region at results-change time when the mobile dialog opens and closes', () => {
+            const dialog = document.createElement('div');
+            dialog.setAttribute('role', 'dialog');
+            dialog.setAttribute('aria-modal', 'true');
+            document.body.append(dialog);
+            const mobilePanel = regions[2].closest('.cms-element-sidebar-filter');
+            dialog.append(mobilePanel);
+            const backgroundPanels = regions.slice(0, 2).map(region => region.closest('.cms-element-sidebar-filter'));
+            backgroundPanels.forEach(panel => {
+                panel.inert = true;
+                panel.setAttribute('aria-hidden', 'true');
+            });
+
+            listingPlugin._updateAriaLive();
+
+            expect(regions[2].textContent).toBe('Showing 2 products.');
+            expect(regions[0].textContent).toBe('');
+            expect(regions[1].textContent).toBe('');
+
+            document.body.append(mobilePanel);
+            dialog.remove();
+            backgroundPanels.forEach(panel => {
+                panel.inert = false;
+                panel.removeAttribute('aria-hidden');
+            });
+            listingPlugin.el.querySelector('.js-listing-wrapper').dataset.ariaLiveText = 'Showing 3 products.';
+
+            listingPlugin._updateAriaLive();
+
+            expect(regions[0].textContent).toBe('Showing 3 products.');
+            expect(regions[1].textContent).toBe('');
+            expect(regions[2].textContent).toBe('Showing 2 products.');
+        });
+
+        test('does not mutate live regions when none is exposed', () => {
+            const setters = regions.map(region => jest.spyOn(region, 'innerHTML', 'set'));
+            regions.forEach(region => region.setAttribute('aria-hidden', 'true'));
+
+            listingPlugin._updateAriaLive();
+
+            setters.forEach(setter => expect(setter).not.toHaveBeenCalled());
+        });
+    });
+
     /** @deprecated tag:v6.8.0 - Tests for legacy filter panel properties. Remove in v6.8.0 */
     describe('legacy filter panel properties', () => {
         beforeEach(() => {
@@ -94,7 +207,7 @@ describe('ListingPlugin tests', () => {
             expect(listingPlugin.ariaLiveContainer).toBe(listingPlugin.ariaLiveContainers[0]);
         });
 
-        test.each(['external', 'existing', 'null'])('updates aria-live regions after %s container reassignment', (target) => {
+        test.each(['external', 'existing', 'null'])('updates only one aria-live region after %s container reassignment', (target) => {
             const replacement = target === 'external'
                 ? document.createElement('div')
                 : target === 'existing' ? listingPlugin.ariaLiveContainers[1] : null;
@@ -103,6 +216,9 @@ describe('ListingPlugin tests', () => {
 
             if (replacement) {
                 containers.add(replacement);
+                if (target === 'external') {
+                    document.body.append(replacement);
+                }
             }
 
             const setters = [...containers].map(container => jest.spyOn(container, 'innerHTML', 'set'));
@@ -110,8 +226,14 @@ describe('ListingPlugin tests', () => {
 
             listingPlugin._updateAriaLive();
 
-            containers.forEach(container => expect(container.textContent).toBe('Showing 2 products.'));
-            setters.forEach(setter => expect(setter).toHaveBeenCalledTimes(1));
+            const expected = replacement ?? listingPlugin.ariaLiveContainers[0];
+            expect(expected.textContent).toBe('Showing 2 products.');
+            expect(setters.reduce((count, setter) => count + setter.mock.calls.length, 0)).toBe(1);
+            containers.forEach(container => {
+                if (container !== expected) {
+                    expect(container.textContent).toBe('');
+                }
+            });
         });
 
         test('updates a reassigned aria-live container when no matching regions exist', () => {
@@ -123,6 +245,7 @@ describe('ListingPlugin tests', () => {
             expect(() => listingPlugin._updateAriaLive()).not.toThrow();
 
             const replacement = document.createElement('div');
+            document.body.append(replacement);
             listingPlugin.ariaLiveContainer = replacement;
             listingPlugin.el.querySelector('.js-listing-wrapper').dataset.ariaLiveText = 'Showing 2 products.';
 

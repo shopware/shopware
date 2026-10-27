@@ -6,6 +6,8 @@ permissions:
 name: Visual Tests (Docker)
 
 on:
+  pull_request:
+    types: edited
   workflow_dispatch:
     inputs:
       update-snapshots:

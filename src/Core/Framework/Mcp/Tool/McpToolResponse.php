@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Result\McpToolError;
 use Shopware\Core\Framework\Mcp\Result\McpToolResult;
@@ -179,79 +180,93 @@ abstract class McpToolResponse
     /**
      * Builds the legacy `{"success": true, …}` string.
      *
-     * Deprecated: return successResult() instead. The string still works, see the class description.
+     * @deprecated tag:v6.8.0 - Will be removed, return successResult() instead. The string still works until then, see the class description.
      *
      * @param array<string, mixed>|list<mixed> $data
      * @param array<string, mixed> $meta
      */
     protected function success(array $data, array $meta = []): string
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'successResult()'));
+
         return $this->legacyEnvelope($this->successResult($data, $meta));
     }
 
     /**
      * Builds the legacy `{"success": false, …}` string.
      *
-     * Deprecated: return errorResult() instead. The string still works, see the class description.
+     * @deprecated tag:v6.8.0 - Will be removed, return errorResult() instead. The string still works until then, see the class description.
      *
      * @param string $code a stable code clients can match on, see {@see McpToolError}; it ends up in
      *                     `structuredContent.error.code` next to `isError: true`
      */
     protected function error(string $message, string $code = McpToolError::TOOL_ERROR): string
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'errorResult()'));
+
         return $this->legacyEnvelope($this->errorResult($message, $code));
     }
 
     /**
-     * Deprecated: use invalidCriteriaResult() instead. The string still works, see the class description.
+     * @deprecated tag:v6.8.0 - Will be removed, use invalidCriteriaResult() instead. The string still works until then, see the class description.
      */
     protected function invalidCriteriaError(ShopwareHttpException $e): string
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'invalidCriteriaResult()'));
+
         return $this->legacyEnvelope($this->invalidCriteriaResult($e));
     }
 
     /**
-     * Deprecated: use decodeJsonOrErrorResult() instead. The string still works, see the class description.
+     * @deprecated tag:v6.8.0 - Will be removed, use decodeJsonOrErrorResult() instead. The string still works until then, see the class description.
      *
      * @return array<mixed>|string Returns the decoded array on success, or an error JSON string on failure.
      */
     protected function decodeJsonOrError(string $json, string $fieldName = 'input'): array|string
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'decodeJsonOrErrorResult()'));
+
         $result = $this->decodeJsonOrErrorResult($json, $fieldName);
 
         return $result instanceof McpToolResult ? $this->legacyEnvelope($result) : $result;
     }
 
     /**
-     * Deprecated: use requirePrivilegeResult() instead. The string still works, see the class description.
+     * @deprecated tag:v6.8.0 - Will be removed, use requirePrivilegeResult() instead. The string still works until then, see the class description.
      *
      * @return string|null Error JSON string if a privilege is missing, null if all granted
      */
     protected function requirePrivilege(Context $context, string ...$privileges): ?string
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'requirePrivilegeResult()'));
+
         $result = $this->requirePrivilegeResult($context, ...$privileges);
 
         return $result !== null ? $this->legacyEnvelope($result) : null;
     }
 
     /**
-     * Deprecated: use missingPrivilegesResult() instead. The string still works, see the class description.
+     * @deprecated tag:v6.8.0 - Will be removed, use missingPrivilegesResult() instead. The string still works until then, see the class description.
      *
      * @param non-empty-list<string> $privileges
      */
     protected function missingPrivilegesError(array $privileges): string
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'missingPrivilegesResult()'));
+
         return $this->legacyEnvelope($this->missingPrivilegesResult($privileges));
     }
 
     /**
-     * Deprecated: use executeWithDryRunResult() instead. The string still works, see the class description.
+     * @deprecated tag:v6.8.0 - Will be removed, use executeWithDryRunResult() instead. The string still works until then, see the class description.
      *
      * @param callable(): string $operation Must return the JSON result string
      */
     protected function executeWithDryRun(Connection $connection, Context $context, callable $operation): string
     {
-        return $this->rolledBack($connection, $context, $operation, $this->error(...));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'executeWithDryRunResult()'));
+
+        return $this->rolledBack($connection, $context, $operation, fn (string $message): string => $this->legacyEnvelope($this->errorResult($message)));
     }
 
     /**

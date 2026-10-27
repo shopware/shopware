@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolDependsOn;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 use Shopware\Core\Framework\Mcp\Tool\MediaUploadTool;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -350,9 +351,9 @@ class McpToolAnalysisCompilerPassTest extends TestCase
 #[McpTool(name: 'shopware-analysis-core-tool', description: 'analysis test core tool')]
 class McpAnalysisTestCoreTool extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -363,9 +364,9 @@ class McpAnalysisTestCoreTool extends McpToolResponse
 #[McpToolDependsOn('shopware-analysis-core-tool')]
 class McpAnalysisTestDependentTool extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -376,9 +377,9 @@ class McpAnalysisTestDependentTool extends McpToolResponse
 #[McpToolRequires('system_config:read')]
 class McpAnalysisTestStaticPrivilegeTool extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -390,9 +391,9 @@ class McpAnalysisTestStaticPrivilegeTool extends McpToolResponse
 #[McpToolRequires(entityParam: 'entity', operations: ['update'])]
 class McpAnalysisTestDynamicPrivilegeTool extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -403,9 +404,9 @@ class McpAnalysisTestDynamicPrivilegeTool extends McpToolResponse
 #[McpToolGroup(McpToolsetRegistry::DISCOVERY_GROUP, description: 'Always there.')]
 class McpAnalysisTestClaimingDiscoveryTool extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -416,9 +417,9 @@ class McpAnalysisTestClaimingDiscoveryTool extends McpToolResponse
 #[McpToolGroup(McpToolsetRegistry::DISCOVERY_GROUP)]
 class McpAnalysisTestDiscoveryMetaTool extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -429,9 +430,9 @@ class McpAnalysisTestDiscoveryMetaTool extends McpToolResponse
 #[McpToolGroup('catalogue')]
 class McpAnalysisTestExplicitGroupTool extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -441,10 +442,15 @@ class McpAnalysisTestExplicitGroupTool extends McpToolResponse
 class McpAnalysisTestMethodLevelGroupTool extends McpToolResponse
 {
     #[McpTool(name: 'shopware-analysis-method-level-group-tool', description: 'method-level group tool')]
+<<<<<<< HEAD
     #[McpToolGroup('orders', description: 'Manage orders.')]
     public function __invoke(): string
+=======
+    #[McpToolGroup('orders')]
+    public function __invoke(): McpToolResult
+>>>>>>> origin/feat/framework/mcp-legacy-string-result-rule
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -455,9 +461,9 @@ class McpAnalysisTestMethodLevelGroupTool extends McpToolResponse
  */
 class McpAnalysisTestNoAttributeTool extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 

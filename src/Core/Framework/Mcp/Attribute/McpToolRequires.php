@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * IMPORTANT: This attribute is purely informational for operators configuring
  * ACL roles. It does NOT enforce privileges at runtime. Actual enforcement
- * happens via McpToolResponse::requirePrivilege() calls inside __invoke()
+ * happens via McpToolResponse::requirePrivilegeResult() calls inside __invoke()
  * and the DAL's own ACL checks on every repository operation.
  *
  * @codeCoverageIgnore

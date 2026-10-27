@@ -22,7 +22,8 @@ class Migration1792500758AddWebhookIdToWebhookEventLog extends MigrationStep
     {
         // Indexed because the event log is filtered by webhook_id for every caller who isn't an admin.
         // Set to NULL when the webhook is deleted: the log entries are kept, but a webhook recreated with the same id can't read them.
-        // Foreign key checks are off while the constraint is added, so the log table is not copied; every existing webhook_id is NULL.
+        // Foreign key checks are off while the constraint is added, so MySQL doesn't copy and lock the log table to validate it.
+        // That can't let invalid data in: the column was just added, so every existing webhook_id is NULL and no row can violate the constraint.
         $this->addColumn($connection, 'webhook_event_log', 'webhook_id', 'BINARY(16)');
 
         $changes = [];

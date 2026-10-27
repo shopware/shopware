@@ -73,6 +73,8 @@ class RevenueReportTool
 - An extension can describe only a group no core tool describes.
   If two extensions describe the same group differently, the tool whose name sorts first wins and the conflict is logged.
 - Without a description the toolset gets a generated one (`Tools explicitly assigned to the "<group>" MCP tool group.`), which gives a model little to route on.
+- A description is used only while every tool of the toolset is visible.
+  When the caller's allowlist hides some of its tools, the toolset gets the generated description instead, so it never promises a tool the caller cannot use.
 - A tool that claims the reserved `discovery` group loses its description together with the group.
 - App toolsets (`mcp.xml`) cannot carry a description yet; they always get the generated one.
 

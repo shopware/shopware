@@ -246,7 +246,7 @@ How to choose:
 | `shopware-store-api-context` (Store API) | true | | | false |
 | `shopware-toolset-enable` (Admin and Store API) | false | false | true | false |
 | `shopware-entity-upsert` | false | true | false | false |
-| `shopware-media-upload` | false | false | false | true |
+| `shopware-media-upload` | false | true | false | true |
 | `shopware-entity-delete` | false | true | true | false |
 | `shopware-order-state` | false | true | false | false |
 | `shopware-system-config-write` | false | true | true | false |
@@ -259,6 +259,7 @@ Notes on the less obvious rows:
   It is not idempotent because a payload without ids creates new records on every call.
 - `shopware-entity-delete` is idempotent: deleting the same records again reports them as not found and changes nothing.
 - `shopware-media-upload` downloads the file from a caller-supplied URL, which makes it the only core tool reaching outside the shop.
+  It is destructive because a `productId` makes the new file the product cover and replaces the current one.
 - `shopware-theme-config` has a read action too, but the tool as a whole can overwrite theme settings.
 
 App tools from `mcp.xml` carry no annotations yet.

@@ -81,9 +81,7 @@ class CustomFieldMappingCandidateCacheInvalidator implements EventSubscriberInte
 
         $this->cache->invalidateTags([self::CACHE_TAG]);
 
-        if ($tags !== []) {
-            $this->cacheInvalidator->invalidate(array_values(array_unique($tags)));
-        }
+        $this->cacheInvalidator->invalidate([CustomFieldMappingCacheTags::METADATA, ...array_values(array_unique($tags))]);
     }
 
     private function normalizeId(string $id): string

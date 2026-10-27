@@ -33,6 +33,7 @@ class CustomFieldMappingCandidateCacheInvalidatorTest extends TestCase
         $setId = Uuid::randomHex();
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator->expects($this->once())->method('invalidate')->with([
+            CustomFieldMappingCacheTags::METADATA,
             CustomFieldMappingCacheTags::candidate($fieldId),
             CustomFieldMappingCacheTags::set($setId),
         ]);
@@ -60,6 +61,7 @@ class CustomFieldMappingCandidateCacheInvalidatorTest extends TestCase
         $setId = Uuid::randomHex();
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator->expects($this->once())->method('invalidate')->with([
+            CustomFieldMappingCacheTags::METADATA,
             CustomFieldMappingCacheTags::set($setId),
         ]);
         $cache = $this->createMock(TagAwareCacheInterface::class);
@@ -80,6 +82,7 @@ class CustomFieldMappingCandidateCacheInvalidatorTest extends TestCase
         $setId = Uuid::randomHex();
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator->expects($this->once())->method('invalidate')->with([
+            CustomFieldMappingCacheTags::METADATA,
             CustomFieldMappingCacheTags::set($setId),
         ]);
         $cache = $this->createMock(TagAwareCacheInterface::class);
@@ -109,6 +112,7 @@ class CustomFieldMappingCandidateCacheInvalidatorTest extends TestCase
         $fieldId = Uuid::randomHex();
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator->expects($this->once())->method('invalidate')->with([
+            CustomFieldMappingCacheTags::METADATA,
             CustomFieldMappingCacheTags::candidate($fieldId),
             CustomFieldMappingCacheTags::set($setId),
         ]);
@@ -152,10 +156,10 @@ class CustomFieldMappingCandidateCacheInvalidatorTest extends TestCase
         ];
     }
 
-    public function testRelationDeletionWithoutSetIdStillInvalidatesTheCatalogue(): void
+    public function testRelationDeletionWithoutSetIdInvalidatesMappedPagesAndTheCatalogue(): void
     {
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
-        $cacheInvalidator->expects($this->never())->method('invalidate');
+        $cacheInvalidator->expects($this->once())->method('invalidate')->with([CustomFieldMappingCacheTags::METADATA]);
         $cache = $this->createMock(TagAwareCacheInterface::class);
         $cache->expects($this->once())->method('invalidateTags')->with(['custom_field_mapping_candidates']);
         $context = Context::createDefaultContext();

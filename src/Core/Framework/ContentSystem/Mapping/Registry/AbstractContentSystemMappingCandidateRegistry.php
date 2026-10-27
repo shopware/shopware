@@ -31,6 +31,16 @@ abstract class AbstractContentSystemMappingCandidateRegistry implements ResetInt
     }
 
     /**
+     * Metadata dependencies for an attempted mapping, including a rejected or unavailable candidate.
+     *
+     * @return list<string>
+     */
+    public function cacheTagsForMapping(string $rootSource, string $path): array
+    {
+        return $this->getDecorated()->cacheTagsForMapping($rootSource, $path);
+    }
+
+    /**
      * Keyed by the candidate's source display name, so the write boundary validates the exact typed source reference.
      * Ambiguous names discovered during runtime catalogue construction are excluded.
      *

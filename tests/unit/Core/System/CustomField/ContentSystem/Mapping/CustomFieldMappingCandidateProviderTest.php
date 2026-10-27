@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomField\ContentSystem\Mapping\CustomFieldMappingCacheTags;
 use Shopware\Core\System\CustomField\ContentSystem\Mapping\CustomFieldMappingCandidateProvider;
 use Shopware\Core\System\CustomField\CustomFieldCollection;
 use Shopware\Core\System\CustomField\CustomFieldEntity;
@@ -32,6 +33,32 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 #[CoversClass(CustomFieldMappingCandidateProvider::class)]
 class CustomFieldMappingCandidateProviderTest extends TestCase
 {
+    #[DataProvider('mappingDependencies')]
+    public function testOnlyCustomFieldMappingAttemptsDependOnMetadata(string $rootSource, string $path, bool $depends): void
+    {
+        $provider = new CustomFieldMappingCandidateProvider(
+            StaticEntityRepository::of(CustomFieldCollection::class),
+            new TagAwareAdapter(new ArrayAdapter()),
+        );
+
+        static::assertSame($depends ? [CustomFieldMappingCacheTags::METADATA] : [], $provider->cacheTagsForMapping($rootSource, $path));
+    }
+
+    /**
+     * @return iterable<string, array{string, string, bool}>
+     */
+    public static function mappingDependencies(): iterable
+    {
+        yield 'product custom field, including a withdrawn one' => ['product', 'product.customFields.material', true];
+        yield 'category custom field' => ['category', 'category.customFields.material', true];
+        yield 'landing page custom field' => ['landing_page', 'landing_page.customFields.material', true];
+        yield 'ordinary core mapping' => ['product', 'product.name', false];
+        yield 'whole product mapping' => ['product', 'product', false];
+        yield 'other root source' => ['category', 'product.customFields.material', false];
+        yield 'unsupported root' => ['header', 'header.customFields.material', false];
+        yield 'plugin-owned source' => ['product', 'AcmePlugin:product.customFields.material', false];
+    }
+
     public function testOffersConfiguredScalarCustomFieldsForEveryRootSource(): void
     {
         $material = $this->customField('material', CustomFieldTypes::TEXT, [

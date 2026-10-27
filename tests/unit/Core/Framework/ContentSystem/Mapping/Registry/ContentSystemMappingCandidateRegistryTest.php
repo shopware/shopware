@@ -25,6 +25,38 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 #[CoversClass(ContentSystemMappingCandidateRegistry::class)]
 class ContentSystemMappingCandidateRegistryTest extends TestCase
 {
+    public function testAttemptDependenciesAreScopedAndForwardedByDecoratorsEvenWithoutACandidate(): void
+    {
+        $provider = $this->createMock(AbstractMappingCandidateProvider::class);
+        $provider->method('supports')->willReturnCallback(static fn (string $rootSource): bool => $rootSource === 'product');
+        $provider->expects($this->once())->method('cacheTagsForMapping')->with('product', 'product.customFields.withdrawn')->willReturn(['custom-metadata']);
+        $provider->expects($this->never())->method('provide');
+        $decorator = new ForwardingMappingCandidateRegistry(new ContentSystemMappingCandidateRegistry([$provider]));
+
+        static::assertSame(['custom-metadata'], $decorator->cacheTagsForMapping('product', 'product.customFields.withdrawn'));
+        static::assertSame([], $decorator->cacheTagsForMapping('category', 'category.name'));
+    }
+
+    public function testDirectResolutionTracksDependenciesEvenWhenTheCandidateIsUnavailable(): void
+    {
+        $provider = $this->createMock(AbstractMappingCandidateProvider::class);
+        $provider->method('supports')->willReturn(true);
+        $provider->method('provide')->willReturn([]);
+        $provider->expects($this->once())->method('cacheTagsForMapping')->with('product', 'product.customFields.withdrawn')->willReturn(['custom-metadata']);
+        $provider->expects($this->never())->method('resolveRootSource');
+        $registry = new ContentSystemMappingCandidateRegistry([$provider]);
+        $cache = new RenderingCacheContext();
+
+        $result = $registry->resolveSource(
+            'product',
+            MappingSourceReference::root('product', 'customFields.withdrawn'),
+            new MappingSourceResolutionContext(new StoredElement('element-1', 'test-element'), [], [], $cache),
+        );
+
+        static::assertTrue($result->isNoValue());
+        static::assertSame(['custom-metadata'], $cache->getTags());
+    }
+
     /**
      * @param list<bool> $declaredProviders
      */

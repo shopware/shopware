@@ -44,6 +44,18 @@ abstract class AbstractMappingCandidateProvider
     abstract public function provide(string $rootSource): array;
 
     /**
+     * Metadata dependencies for an attempted mapping, including a currently unavailable candidate. Called only
+     * for a supported root source. Inspect the display name without reading source values or trusting config;
+     * this hook does not admit a mapping or authorize resolution.
+     *
+     * @return list<string>
+     */
+    public function cacheTagsForMapping(string $rootSource, string $path): array
+    {
+        return [];
+    }
+
+    /**
      * Resolve a root reference offered by this provider. The registry checks exact catalogue identity before
      * dispatch, so this fallback is limited to a path the provider explicitly offered. Providers with translated
      * or inherited values should override this with storefront-facing accessors.

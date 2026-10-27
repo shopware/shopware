@@ -55,6 +55,13 @@ class CustomFieldMappingCandidateProvider extends AbstractMappingCandidateProvid
         return \in_array($rootSource, self::ROOT_SOURCES, true);
     }
 
+    public function cacheTagsForMapping(string $rootSource, string $path): array
+    {
+        return $this->supports($rootSource) && str_starts_with($path, $rootSource . '.customFields.')
+            ? [CustomFieldMappingCacheTags::METADATA]
+            : [];
+    }
+
     public function provide(string $rootSource): array
     {
         if (!$this->supports($rootSource)) {

@@ -37,6 +37,8 @@ final readonly class MappingRuntimeResolver
             $rootSource,
         );
         if ($candidate instanceof ContentSystemException) {
+            $context->cacheContext?->addTags($this->candidateRegistry->cacheTagsForMapping($rootSource, $source->displayName()));
+
             return MappingRejection::Unavailable;
         }
 
@@ -50,6 +52,8 @@ final readonly class MappingRuntimeResolver
     ): MappingSourceResolution|MappingRejection {
         $candidate = $this->mappingInspector->admitInlinePath($path, $rootSource);
         if ($candidate instanceof ContentSystemException) {
+            $context->cacheContext?->addTags($this->candidateRegistry->cacheTagsForMapping($rootSource, $path));
+
             return MappingRejection::Unavailable;
         }
 

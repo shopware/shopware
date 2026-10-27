@@ -89,6 +89,10 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
+### Content System custom-field mapping cache dependencies
+
+Cached content using custom-field mappings is invalidated when field definitions, sets, or assignments change, including field reactivation and assignment deletion. Layouts using only core mappings such as `product.name` are outside this invalidation policy. Custom mapping providers can declare dependencies for unavailable candidates through `cacheTagsForMapping($rootSource, $path)`; registry decorators forward this hook to their inner registry.
+
 ### Content System tree root-source preservation
 
 `StoredTree::withRoots()` rebuilds an element forest while retaining its `rootSource`. Mutation and normalization code use the tree as the single source of root-source metadata, so sequential edits preserve mapping and default-binding decisions. Custom tree transforms should preserve that metadata when rebuilding a forest.

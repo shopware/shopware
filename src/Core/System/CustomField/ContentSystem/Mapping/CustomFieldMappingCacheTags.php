@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final class CustomFieldMappingCacheTags
 {
+    public const METADATA = 'content-system-custom-field-mapping-metadata';
+
     public static function candidate(string $customFieldId): string
     {
         return 'content-system-custom-field-' . $customFieldId;

@@ -67,6 +67,17 @@ class MappingRuntimeResolverTest extends TestCase
     }
 
     #[DataProvider('mappingKinds')]
+    public function testUnavailableMappingsStillRecordMetadataDependencies(bool $inline): void
+    {
+        $this->registry->method('forRootSource')->willReturn([]);
+        $this->registry->expects($this->never())->method('resolveSource');
+        $this->registry->expects($this->once())->method('cacheTagsForMapping')->with('product', 'product.name')->willReturn(['provider-metadata']);
+
+        static::assertSame(MappingRejection::Unavailable, $this->resolve($inline));
+        static::assertSame(['provider-metadata'], $this->cacheContext->getTags());
+    }
+
+    #[DataProvider('mappingKinds')]
     public function testAdmittedResolutionPreservesTheProviderResultAndCacheDependencies(bool $inline): void
     {
         $expected = MappingSourceResolution::resolved('Shirt');

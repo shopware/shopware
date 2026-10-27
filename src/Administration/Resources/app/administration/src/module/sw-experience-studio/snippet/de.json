@@ -264,7 +264,17 @@
       "mappingMutationErrors": {
         "propertyNotMappable": "Für diese Eigenschaft ist keine Datenzuordnung möglich. Wähle eine Eigenschaft, die Zuordnungen unterstützt.",
         "unknownMappingPath": "Diese Datenquelle ist nicht mehr verfügbar. Wähle eine andere Quelle für diese Eigenschaft.",
-        "mappingTypeMismatch": "Diese Datenquelle ist mit der Eigenschaft nicht kompatibel. Wähle eine kompatible Quelle."
+        "mappingTypeMismatch": "Diese Datenquelle ist mit der Eigenschaft nicht kompatibel. Wähle eine kompatible Quelle.",
+        "propertyAliasCollision": "Diese Eigenschaft erhält bereits Daten aus einer anderen Bindung. Wähle eine andere Eigenschaft oder passe die bestehende Bindung an.",
+        "invalidMappingSource": "Die gewählte Zuordnungsquelle ist ungültig. Wähle eine Quelle aus der verfügbaren Liste.",
+        "missingRootSource": "Wähle eine Datenquelle in den Layout-Einstellungen, bevor Du eine Zuordnung hinzufügst."
+      },
+      "mutationErrors": {
+        "unknownRootSource": "Die Datenquelle des Layouts ist nicht verfügbar. Wähle eine verfügbare Datenquelle in den Layout-Einstellungen.",
+        "targetNotFound": "Das gewählte Element ist nicht mehr verfügbar. Wähle ein vorhandenes Element, bevor Du es bearbeitest.",
+        "unknownElementType": "Dieser Elementtyp ist nicht mehr verfügbar. Wähle einen verfügbaren Elementtyp.",
+        "invalidStructure": "Diese Änderung ist für die aktuelle Layout-Struktur nicht gültig. Prüfe die gewählten Elemente und ihre Positionen.",
+        "generic": "Die Layout-Änderung konnte nicht angewendet werden. Prüfe Deine Änderungen oder wende Dich an Deine Administration."
       },
       "messageSaved": "Inhaltslayout erfolgreich gespeichert.",
       "messageSaveError": "Das Inhaltslayout konnte nicht gespeichert werden.",

@@ -45,10 +45,19 @@ const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 const DIAGNOSE_DEBOUNCE_MS = 800;
-const MAPPING_MUTATION_ERROR_SNIPPETS: Record<string, string> = {
+const MUTATION_ERROR_SNIPPETS: Record<string, string> = {
     CONTENT_SYSTEM__PROPERTY_NOT_MAPPABLE: 'sw-experience-studio.detail.mappingMutationErrors.propertyNotMappable',
     CONTENT_SYSTEM__UNKNOWN_MAPPING_PATH: 'sw-experience-studio.detail.mappingMutationErrors.unknownMappingPath',
     CONTENT_SYSTEM__MAPPING_TYPE_MISMATCH: 'sw-experience-studio.detail.mappingMutationErrors.mappingTypeMismatch',
+    CONTENT_SYSTEM__PROPERTY_ALIAS_COLLISION: 'sw-experience-studio.detail.mappingMutationErrors.propertyAliasCollision',
+    CONTENT_SYSTEM__INVALID_MAPPING_SOURCE: 'sw-experience-studio.detail.mappingMutationErrors.invalidMappingSource',
+    CONTENT_SYSTEM__UNKNOWN_ROOT_SOURCE: 'sw-experience-studio.detail.mutationErrors.unknownRootSource',
+    CONTENT_SYSTEM__MUTATION_TARGET_NOT_FOUND: 'sw-experience-studio.detail.mutationErrors.targetNotFound',
+    CONTENT_SYSTEM__MUTATION_UNKNOWN_TYPE: 'sw-experience-studio.detail.mutationErrors.unknownElementType',
+    CONTENT_SYSTEM__MUTATION_CYCLE: 'sw-experience-studio.detail.mutationErrors.invalidStructure',
+    CONTENT_SYSTEM__MUTATION_SLOT_REQUIRED: 'sw-experience-studio.detail.mutationErrors.invalidStructure',
+    CONTENT_SYSTEM__MUTATION_INVALID_WRAP_TARGETS: 'sw-experience-studio.detail.mutationErrors.invalidStructure',
+    CONTENT_SYSTEM__INVALID_LAYOUT_STRUCTURE: 'sw-experience-studio.detail.mutationErrors.invalidStructure',
 };
 
 type Viewport = 'mobile' | 'tablet-landscape' | 'desktop';
@@ -1069,7 +1078,9 @@ export default Shopware.Component.wrapComponentConfig({
 
             const rootSource = this.resolveMutationRootSource();
             if (payload.source !== null && rootSource === null) {
-                this.notifyMutationError(['CONTENT_SYSTEM__UNKNOWN_ROOT_SOURCE']);
+                this.createNotificationError({
+                    message: this.$t('sw-experience-studio.detail.mappingMutationErrors.missingRootSource'),
+                });
 
                 return;
             }
@@ -1160,39 +1171,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         notifyMutationError(codes: string[]): void {
-            const structuralErrorCodes = new Set([
-                'CONTENT_SYSTEM__MUTATION_TARGET_NOT_FOUND',
-                'CONTENT_SYSTEM__MUTATION_CYCLE',
-                'CONTENT_SYSTEM__MUTATION_SLOT_REQUIRED',
-                'CONTENT_SYSTEM__MUTATION_INVALID_WRAP_TARGETS',
-                'CONTENT_SYSTEM__MUTATION_UNKNOWN_TYPE',
-                'CONTENT_SYSTEM__INVALID_LAYOUT_STRUCTURE',
-                'CONTENT_SYSTEM__UNKNOWN_ROOT_SOURCE',
-            ]);
-
-            if (codes.some((code) => structuralErrorCodes.has(code))) {
-                this.createNotificationError({
-                    message:
-                        'The layout edit is not valid in the current structure. Please review your change and try again.',
-                });
-
-                return;
-            }
-
-            const mappingErrorSnippet = codes
-                .map((code) => MAPPING_MUTATION_ERROR_SNIPPETS[code])
+            const errorSnippet = codes
+                .map((code) => MUTATION_ERROR_SNIPPETS[code])
                 .find((snippet): snippet is string => typeof snippet === 'string');
 
-            if (mappingErrorSnippet) {
-                this.createNotificationError({
-                    message: this.$t(mappingErrorSnippet),
-                });
-
-                return;
-            }
-
             this.createNotificationError({
-                message: 'The layout edit failed. Please try again.',
+                message: this.$t(errorSnippet ?? 'sw-experience-studio.detail.mutationErrors.generic'),
             });
         },
 

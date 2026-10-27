@@ -264,7 +264,17 @@
       "mappingMutationErrors": {
         "propertyNotMappable": "This property cannot use data mapping. Choose a property that supports mapping.",
         "unknownMappingPath": "This data source is no longer available. Choose another source for this property.",
-        "mappingTypeMismatch": "This data source is incompatible with the property. Choose a compatible source."
+        "mappingTypeMismatch": "This data source is incompatible with the property. Choose a compatible source.",
+        "propertyAliasCollision": "This property already receives data from another binding. Choose another property or adjust the existing binding.",
+        "invalidMappingSource": "The selected mapping source is invalid. Choose a source from the available list.",
+        "missingRootSource": "Select a data source in the layout settings before adding a mapping."
+      },
+      "mutationErrors": {
+        "unknownRootSource": "The layout's data source is not available. Select an available data source in the layout settings.",
+        "targetNotFound": "The selected element is no longer available. Select an existing element before editing it.",
+        "unknownElementType": "This element type is no longer available. Choose an available element type.",
+        "invalidStructure": "This change is not valid for the current layout structure. Review the selected elements and their positions.",
+        "generic": "The layout edit could not be applied. Review your changes or contact your administrator."
       },
       "messageSaved": "Content layout saved successfully.",
       "messageSaveError": "The content layout could not be saved.",

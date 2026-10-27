@@ -16,8 +16,7 @@ use Symfony\Component\Filesystem\Filesystem;
  * which `LIBXML_NONET` does not cover. This class rejects document types before `XmlUtils` sees the content.
  *
  * The messages of `XmlUtils` are kept, so callers that pass them on report the same errors as before.
- *
- * @internal
+ * Extensions that parse XML from an untrusted source should use this class instead of `XmlUtils` as well.
  */
 #[Package('framework')]
 final class XmlParser

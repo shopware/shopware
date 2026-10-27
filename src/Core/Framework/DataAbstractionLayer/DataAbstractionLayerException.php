@@ -157,6 +157,18 @@ class DataAbstractionLayerException extends HttpException
     public const FIELD_CANNOT_BE_EXCLUDED = 'FRAMEWORK__DAL_FIELD_CANNOT_BE_EXCLUDED';
     public const CANNOT_EXCLUDE_UNKNOWN_FIELD = 'FRAMEWORK__DAL_CANNOT_EXCLUDE_UNKNOWN_FIELD';
 
+    public const OUTCOME_ROW_COLUMN_NOT_LOADED = 'FRAMEWORK__DAL_OUTCOME_ROW_COLUMN_NOT_LOADED';
+
+    public static function outcomeRowColumnNotLoaded(string $column): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::OUTCOME_ROW_COLUMN_NOT_LOADED,
+            'Column "{{ column }}" was not loaded. Pass it to WriteOutcome::rows().',
+            ['column' => $column],
+        );
+    }
+
     public static function criteriaFieldsAndExcludedFieldsAreMutuallyExclusive(): self
     {
         return new self(

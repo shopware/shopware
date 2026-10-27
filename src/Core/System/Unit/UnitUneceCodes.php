@@ -27,7 +27,7 @@ class UnitUneceCodes
 
         $codes = [];
         foreach ((new \ReflectionClass(ZugferdUnitCodes::class))->getConstants() as $name => $code) {
-            if (!\is_string($code) || !preg_match('/^REC2[01]_(.+)$/', $name, $match)) {
+            if (!\is_string($code) || !preg_match('/^REC2[01]_(.+)\z/', $name, $match)) {
                 continue;
             }
 

@@ -319,7 +319,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         $productStreamIds = [$this->getProductStreamId($category)];
 
         foreach ($streamSubcategories as $subcategory) {
-            array_push($categoryIds, ...$this->getCategoryIdsDownTo($category->getId(), $subcategory));
+            array_push($categoryIds, ...$this->getCategoryIdsDownToDescendant($category->getId(), $subcategory));
             $productStreamIds[] = $this->getProductStreamId($subcategory);
         }
 
@@ -332,16 +332,16 @@ class ProductListingRoute extends AbstractProductListingRoute
     }
 
     /**
-     * @return list<string> the categories below $categoryId on the way down to the subcategory, the subcategory included
+     * @return list<string> the categories below $categoryId on the way down to $descendant, $descendant included
      */
-    private function getCategoryIdsDownTo(string $categoryId, PartialEntity $subcategory): array
+    private function getCategoryIdsDownToDescendant(string $categoryId, PartialEntity $descendant): array
     {
-        $path = $subcategory->get('path');
+        $path = $descendant->get('path');
         $pathIds = \is_string($path) ? array_values(array_filter(explode('|', $path))) : [];
 
         $position = array_search($categoryId, $pathIds, true);
         $idsBelow = $position === false ? [] : \array_slice($pathIds, $position + 1);
 
-        return [...$idsBelow, $subcategory->getId()];
+        return [...$idsBelow, $descendant->getId()];
     }
 }

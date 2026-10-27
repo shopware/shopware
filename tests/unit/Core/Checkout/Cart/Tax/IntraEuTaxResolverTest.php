@@ -289,22 +289,27 @@ class IntraEuTaxResolverTest extends TestCase
      * @param list<string>|null $vatIds
      */
     #[DataProvider('nonIntraCommunityOrderProvider')]
-    public function testTaxFreeStatusAloneDoesNotMakeAnIntraCommunityDelivery(string $countryId, ?array $vatIds): void
+    public function testTaxFreeStatusAloneDoesNotMakeAnIntraCommunityDelivery(string $countryId, ?array $vatIds, bool $checkVatIdPattern): void
     {
-        $order = $this->order($this->country($countryId), $vatIds);
+        $country = $this->country($countryId);
+        $country->setCheckVatIdPattern($checkVatIdPattern);
+        $order = $this->order($country, $vatIds);
 
         static::assertFalse($this->resolver->isIntraCommunityDelivery($order));
     }
 
     /**
-     * @return iterable<string, array{string, list<string>|null}>
+     * @return iterable<string, array{string, list<string>|null, bool}>
      */
     public static function nonIntraCommunityOrderProvider(): iterable
     {
-        yield 'export supply' => [self::CH_ID, [self::FOREIGN_VAT]];
-        yield 'domestic supply' => [self::DE_ID, [self::FOREIGN_VAT]];
-        yield 'seller VAT' => [self::FR_ID, [self::SELLER_VAT]];
-        yield 'missing VAT' => [self::FR_ID, null];
+        yield 'export supply' => [self::CH_ID, [self::FOREIGN_VAT], true];
+        yield 'domestic supply' => [self::DE_ID, [self::FOREIGN_VAT], true];
+        yield 'seller VAT' => [self::FR_ID, [self::SELLER_VAT], true];
+        yield 'missing VAT with pattern checks enabled' => [self::FR_ID, null, true];
+        yield 'missing VAT with pattern checks disabled' => [self::FR_ID, null, false];
+        yield 'empty VAT list with pattern checks enabled' => [self::FR_ID, [], true];
+        yield 'empty VAT list with pattern checks disabled' => [self::FR_ID, [], false];
     }
 
     public function testMissingCustomerKeepsTheNoteOff(): void

@@ -83,10 +83,6 @@ class IntraEuTaxResolver
             return true;
         }
 
-        if ($vatIds === null) {
-            return false;
-        }
-
         return $this->validator->validate($vatIds, [
             new NotBlank(),
             new CustomerVatIdentification(countryId: $country->getId(), salesChannelId: $order->getSalesChannelId()),
@@ -109,7 +105,7 @@ class IntraEuTaxResolver
         $vatPattern = $deliveryCountry->getVatIdPattern();
         if ($vatPattern !== null && $vatPattern !== '' && $deliveryCountry->getCheckVatIdPattern()) {
             foreach ($vatIds as $vatId) {
-                if (!$this->vatIdPatternProvider->acceptsVatId($vatId, $vatPattern, true, $salesChannelId)) {
+                if (!$this->vatIdPatternProvider->acceptsVatId($vatId, $vatPattern, $deliveryCountry->getIsEu(), $salesChannelId)) {
                     return false;
                 }
             }

@@ -379,7 +379,7 @@ class ReplaceElementTest extends TestCase
         ], [], 'core');
 
         $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry(['core:Sw:New' => $default]), $this->applicator($newConfig));
-        $result = $replace->apply(new StoredTree([$old]));
+        $result = $replace->apply(new StoredTree([$old], 'product'));
 
         static::assertSame($carriedConfig, $result->roots[0]->dataRequirements['product']->config);
         static::assertSame($newConfig, $result->roots[0]->dataRequirements['gallery']->config);
@@ -432,7 +432,7 @@ class ReplaceElementTest extends TestCase
             ->build();
 
         $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
-        $result = $replace->apply(new StoredTree([$old]));
+        $result = $replace->apply(new StoredTree([$old], 'product'));
 
         static::assertSame([], $result->roots[0]->attributedSpecifications);
         static::assertArrayHasKey('product', $result->roots[0]->contextDefinitions->getAllConsumers());
@@ -478,7 +478,7 @@ class ReplaceElementTest extends TestCase
         $old = new StoredElement('el', 'Sw:Old', contextDefinitions: new ContextDefinitions([], ['flexible' => $consumer]));
         $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
 
-        $result = $replace->apply(new StoredTree([$old]));
+        $result = $replace->apply(new StoredTree([$old], 'product'));
 
         static::assertSame([], $result->roots[0]->contextDefinitions->getAllConsumers());
         static::assertSame(['flexible'], $replace->droppedWiring());
@@ -625,10 +625,9 @@ class ReplaceElementTest extends TestCase
             $this->bindingRegistry([]),
             $this->unboundApplicator(),
             $inspector,
-            'product',
         );
 
-        $result = $replace->apply(new StoredTree([$old]));
+        $result = $replace->apply(new StoredTree([$old], 'product'));
 
         static::assertSame($retained, isset($result->roots[0]->contextDefinitions->getAllConsumers()['text']));
         static::assertSame($retained ? [] : ['text'], $replace->droppedWiring());
@@ -658,10 +657,9 @@ class ReplaceElementTest extends TestCase
             $this->bindingRegistry([]),
             $this->unboundApplicator(),
             $inspector,
-            'product',
         );
 
-        $result = $replace->apply(new StoredTree([$old]));
+        $result = $replace->apply(new StoredTree([$old], 'product'));
 
         static::assertSame([], $replace->droppedWiring());
         static::assertSame('Hello {{map:product.missing}}', $result->roots[0]->property('text')?->asString());

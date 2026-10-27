@@ -49,11 +49,13 @@ class DefaultMappingSeederTest extends TestCase
             dataRequirements: ['selectedMedia' => new DataRequirement('selectedMedia', 'entity', new StubLoaderConfig())],
         );
 
-        $mapped = $seeder->seed(new StoredTree([$element]), 'product', [$element->id])->roots[0];
+        $seeded = $seeder->seed(new StoredTree([$element], 'product'), [$element->id]);
+        static::assertSame('product', $seeded->rootSource);
+        $mapped = $seeded->roots[0];
         static::assertSame($source->jsonSerialize(), $mapped->contextDefinitions->getAllConsumers()['media']->source?->jsonSerialize());
         static::assertSame($element->dataRequirements, $mapped->dataRequirements);
 
-        $otherLayout = $seeder->seed(new StoredTree([$element]), 'category', [$element->id])->roots[0];
+        $otherLayout = $seeder->seed(new StoredTree([$element], 'category'), [$element->id])->roots[0];
         static::assertSame([], $otherLayout->contextDefinitions->getAllConsumers());
     }
 
@@ -65,7 +67,7 @@ class DefaultMappingSeederTest extends TestCase
         $diagnostics->method('analyze')->willReturn(new LayoutAnalysis(new DiagnosticsReport([]), []));
         $pipeline = new MutationPipeline($diagnostics, new ContextConsumerMirror(), $seeder);
 
-        $result = $pipeline->run(new DuplicateElement($element->id), new StoredTree([$element]), null, 'product');
+        $result = $pipeline->run(new DuplicateElement($element->id), new StoredTree([$element], 'product'), null);
 
         static::assertCount(2, $result->layout->roots);
         static::assertSame([], $result->layout->roots[0]->contextDefinitions->getAllConsumers());

@@ -26,21 +26,20 @@ class MutationPipeline
     /**
      * @param StoredTree $tree the decoded draft tree
      * @param list<ProvidedContext>|null $rootContext the bound source's root-ambient context, or null when none is bound
-     * @param string|null $rootSource the id of the bound source, or null when none is bound
      */
-    public function run(LayoutMutation $mutation, StoredTree $tree, ?array $rootContext, ?string $rootSource = null): MutationResult
+    public function run(LayoutMutation $mutation, StoredTree $tree, ?array $rootContext): MutationResult
     {
         $mutated = $mutation->apply($tree);
         $scaffoldedIds = $mutation->freshlyScaffolded();
-        $mutated = $this->defaultMappingSeeder->seed($mutated, $rootSource, $scaffoldedIds);
+        $mutated = $this->defaultMappingSeeder->seed($mutated, $scaffoldedIds);
 
-        $analysis = $this->diagnostics->analyze($mutated->roots, $rootContext, $rootSource);
+        $analysis = $this->diagnostics->analyze($mutated->roots, $rootContext, $mutated->rootSource);
 
         $wired = $this->contextMirror->apply($mutated, $analysis->resolutions, $scaffoldedIds);
 
         // Re-analyze only when the wiring changed the tree, so the returned diagnostics and resolutions describe the returned tree.
         if ($wired !== $mutated) {
-            $analysis = $this->diagnostics->analyze($wired->roots, $rootContext, $rootSource);
+            $analysis = $this->diagnostics->analyze($wired->roots, $rootContext, $wired->rootSource);
         }
 
         return MutationResult::fromAnalyzedMutation($wired, $analysis, $mutation);

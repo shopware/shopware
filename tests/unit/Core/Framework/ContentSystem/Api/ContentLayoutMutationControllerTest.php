@@ -95,13 +95,6 @@ class ContentLayoutMutationControllerTest extends TestCase
                 return MutationResult::fromParts(new StoredTree([]), [], new DiagnosticsReport([]), []);
             }
         );
-        $mutator->method('mutateSourceAware')->willReturnCallback(
-            function (string $layoutId, ?string $expectedVersion, \Closure $mutationFactory) use (&$captured): MutationResult {
-                $captured = $mutationFactory('product');
-
-                return MutationResult::fromParts(new StoredTree([]), [], new DiagnosticsReport([]), []);
-            }
-        );
 
         $this->controller($mutator)->remove('layout-42', new ContentLayoutRemoveRequest('el', '2026-06-22T10:00:00.000+00:00'), Context::createDefaultContext());
 
@@ -122,13 +115,6 @@ class ContentLayoutMutationControllerTest extends TestCase
         $mutator->method('mutate')->willReturnCallback(
             function (string $layoutId, ?string $expectedVersion, LayoutMutation $mutation) use (&$captured): MutationResult {
                 $captured = $mutation;
-
-                return MutationResult::fromParts(new StoredTree([]), [], new DiagnosticsReport([]), []);
-            }
-        );
-        $mutator->method('mutateSourceAware')->willReturnCallback(
-            function (string $layoutId, ?string $expectedVersion, \Closure $mutationFactory) use (&$captured): MutationResult {
-                $captured = $mutationFactory('product');
 
                 return MutationResult::fromParts(new StoredTree([]), [], new DiagnosticsReport([]), []);
             }
@@ -306,7 +292,6 @@ class ContentLayoutMutationControllerTest extends TestCase
     {
         $mutator = static::createStub(PersistedLayoutMutator::class);
         $mutator->method('mutate')->willReturn($result);
-        $mutator->method('mutateSourceAware')->willReturn($result);
 
         return $mutator;
     }

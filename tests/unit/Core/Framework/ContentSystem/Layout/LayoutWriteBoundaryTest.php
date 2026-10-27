@@ -40,8 +40,9 @@ class LayoutWriteBoundaryTest extends TestCase
             ->withStyle(new ElementStyle([self::BREAKPOINT_AWARE => ['xs' => false]]))
             ->build();
 
-        $result = $this->boundary()->apply(new StoredTree([$element]));
+        $result = $this->boundary()->apply(new StoredTree([$element], 'category'));
 
+        static::assertSame('category', $result->rootSource);
         static::assertSame(
             [self::BREAKPOINT_AWARE => ['xs' => false, 'sm' => true, 'md' => true, 'lg' => true, 'xl' => true, 'xxl' => true]],
             $result->roots[0]->style->toArray()

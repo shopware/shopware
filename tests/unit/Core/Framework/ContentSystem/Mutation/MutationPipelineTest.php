@@ -265,7 +265,7 @@ class MutationPipelineTest extends TestCase
     #[TestDox('threads the root source into the analysis of the re-wired tree, not only the first pass')]
     public function testRunThreadsRootSourceIntoEveryAnalysis(): void
     {
-        $mutated = new StoredTree([StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build()]);
+        $mutated = new StoredTree([StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build()], 'category');
 
         $diagnostics = $this->createMock(LayoutDiagnostics::class);
         // Both passes, because the mirror wires the created element and the second pass is the one describing
@@ -275,9 +275,10 @@ class MutationPipelineTest extends TestCase
             ->with(static::anything(), static::anything(), static::identicalTo('category'))
             ->willReturnCallback(fn (array $roots): LayoutAnalysis => new LayoutAnalysis(new DiagnosticsReport([]), $this->productResolutions($roots)));
 
-        $result = $this->pipeline($diagnostics)->run($this->mutation($mutated, ['p1'], created: ['p1']), $this->inputTree(), null, 'category');
+        $result = $this->pipeline($diagnostics)->run($this->mutation($mutated, ['p1'], created: ['p1']), $mutated->withRoots($this->inputTree()->roots), null);
 
         static::assertNotSame($mutated, $result->layout);
+        static::assertSame('category', $result->layout->rootSource);
     }
 
     private function pipeline(LayoutDiagnostics $diagnostics): MutationPipeline

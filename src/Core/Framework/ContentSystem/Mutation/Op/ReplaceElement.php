@@ -43,7 +43,6 @@ final class ReplaceElement extends AbstractLayoutMutation
         private readonly AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
         private readonly BindingApplicator $bindingApplicator,
         private readonly ?StoredMappingInspector $mappingInspector = null,
-        private readonly ?string $rootSource = null,
     ) {
     }
 
@@ -68,7 +67,7 @@ final class ReplaceElement extends AbstractLayoutMutation
 
         $keptDataRequirements = $this->carryWiring($node->dataRequirements, $properties);
         $keptProviders = $this->carryWiring($contextDefinitions->getAllProviders(), $properties);
-        $keptConsumers = $this->carryConsumers($contextDefinitions->getAllConsumers(), $properties);
+        $keptConsumers = $this->carryConsumers($contextDefinitions->getAllConsumers(), $properties, $tree->rootSource);
         $keptAttributedSpecifications = array_intersect_key($node->attributedSpecifications, $keptDataRequirements);
 
         $this->droppedWiring = $this->droppedWiringKeys(
@@ -95,7 +94,7 @@ final class ReplaceElement extends AbstractLayoutMutation
             $replacement = $this->bindingApplicator->applyFillOnly($replacement, $default, $default->qualifiedId(), $tree->rootSource);
         }
 
-        $replacement = $this->dropInvalidMappings($replacement);
+        $replacement = $this->dropInvalidMappings($replacement, $tree->rootSource);
 
         // Whole subtree, not just the replaced element: a kept descendant may re-resolve if the new type drops a provider it consumed.
         $this->affected = $this->subtreeIds($replacement);
@@ -218,7 +217,7 @@ final class ReplaceElement extends AbstractLayoutMutation
      *
      * @return array<string, ContextConsumer>
      */
-    private function carryConsumers(array $consumers, array $newTypeProperties): array
+    private function carryConsumers(array $consumers, array $newTypeProperties, ?string $rootSource): array
     {
         $kept = [];
 
@@ -228,7 +227,7 @@ final class ReplaceElement extends AbstractLayoutMutation
             if (
                 $consumer->source !== null
                 && $this->mappingInspector !== null
-                && $this->rootSource !== null
+                && $rootSource !== null
                 && isset($newTypeProperties[$propertyKey])
             ) {
                 $kept[$key] = $consumer;
@@ -248,13 +247,13 @@ final class ReplaceElement extends AbstractLayoutMutation
         return $kept;
     }
 
-    private function dropInvalidMappings(StoredElement $replacement): StoredElement
+    private function dropInvalidMappings(StoredElement $replacement, ?string $rootSource): StoredElement
     {
-        if ($this->mappingInspector === null || $this->rootSource === null) {
+        if ($this->mappingInspector === null || $rootSource === null) {
             return $replacement;
         }
 
-        $problems = $this->mappingInspector->inspectWholeField([$replacement], $this->rootSource);
+        $problems = $this->mappingInspector->inspectWholeField([$replacement], $rootSource);
 
         if ($problems === []) {
             return $replacement;

@@ -89,6 +89,10 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
+### Content System tree root-source preservation
+
+`StoredTree::withRoots()` rebuilds an element forest while retaining its `rootSource`. Mutation and normalization code use the tree as the single source of root-source metadata, so sequential edits preserve mapping and default-binding decisions. Custom tree transforms should preserve that metadata when rebuilding a forest.
+
 ### Content System mapping provider extensions
 
 Plugin-owned mapping sources can use the bundle name as their source `type` and a bundle-local `id`, for example `AcmePlugin:recommendations.title`. To change an existing mapping intentionally, decorate `AbstractContentSystemMappingCandidateRegistry` and keep catalogue admission and resolution consistent. Registry decorators inherit request-local cache reset forwarding. Concrete core providers remain internal.

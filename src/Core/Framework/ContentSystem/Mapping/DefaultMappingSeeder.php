@@ -30,15 +30,16 @@ final readonly class DefaultMappingSeeder
     /**
      * @param list<string> $elementIds freshly scaffolded elements in this mutation, excluding duplicate clones
      */
-    public function seed(StoredTree $tree, ?string $rootSource, array $elementIds): StoredTree
+    public function seed(StoredTree $tree, array $elementIds): StoredTree
     {
+        $rootSource = $tree->rootSource;
         if ($rootSource === null || $rootSource === '' || $elementIds === []) {
             return $tree;
         }
 
         $targets = array_fill_keys($elementIds, true);
 
-        return new StoredTree(array_map(fn (StoredElement $element): StoredElement => $this->seedElement($element, $rootSource, $targets), $tree->roots));
+        return $tree->withRoots(array_map(fn (StoredElement $element): StoredElement => $this->seedElement($element, $rootSource, $targets), $tree->roots));
     }
 
     /**

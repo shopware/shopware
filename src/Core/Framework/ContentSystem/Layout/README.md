@@ -2,6 +2,8 @@
 
 Content layout tree structure and processing. Layouts are reusable templates containing nested content elements with slots.
 
+`StoredTree::$rootSource` carries the layout root source through mutation operations and normalization; null represents an unbound draft. Use `StoredTree::withRoots()` when rebuilding a forest to retain that source. Primitive-default seeding, style normalization, attribution reconciliation, and default-mapping/consumer transforms preserve it. Storage codecs still serialize the element forest; the layout's `rootSource` is supplied separately at the draft or persisted mutation boundary.
+
 ## Architecture
 
 1. **Element Structure** (Element/) — the stored element model (`StoredElement`, `StoredValue`) plus `RenderedTreeEditor`, the whole-tree edit idiom for a rendered forest

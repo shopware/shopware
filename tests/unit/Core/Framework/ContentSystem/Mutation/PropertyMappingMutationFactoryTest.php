@@ -37,10 +37,9 @@ class PropertyMappingMutationFactoryTest extends TestCase
                 'Sw:Text',
                 properties: ['text' => StoredValue::ofString('fallback')],
             ),
-        ]);
+        ], 'product');
 
         $mapped = $factory->map(
-            'product',
             'element-1',
             'text',
             MappingSourceReference::fromRootPath('product.name'),

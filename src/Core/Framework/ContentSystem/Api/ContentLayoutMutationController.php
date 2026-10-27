@@ -97,22 +97,19 @@ class ContentLayoutMutationController
         ContentLayoutReplaceRequest $payload,
         Context $context,
     ): Response {
-        $result = $this->mutator->mutateSourceAware(
+        return $this->respond(
             $layoutId,
             $payload->expectedVersion,
-            fn (string $rootSource): LayoutMutation => new ReplaceElement(
+            new ReplaceElement(
                 $this->registry,
                 $payload->elementId,
                 $payload->newType,
                 $this->bindingRegistry,
                 $this->bindingApplicator,
                 $this->mappingInspector,
-                $rootSource,
             ),
             $context,
         );
-
-        return new JsonResponse(MutationResponse::fromResult($result, $this->elementCodec));
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/duplicate-element', name: 'api.action.content_system.layout.persisted_duplicate_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
@@ -178,19 +175,16 @@ class ContentLayoutMutationController
         ContentLayoutMapPropertyRequest $payload,
         Context $context,
     ): Response {
-        $result = $this->mutator->mutateSourceAware(
+        return $this->respond(
             $layoutId,
             $payload->expectedVersion,
-            fn (string $rootSource): LayoutMutation => $this->propertyMappingMutations->map(
-                $rootSource,
+            $this->propertyMappingMutations->map(
                 $payload->elementId,
                 $payload->propertyKey,
                 MappingSourceRequestDecoder::decode($payload->source),
             ),
             $context,
         );
-
-        return new JsonResponse(MutationResponse::fromResult($result, $this->elementCodec));
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/unmap-property', name: 'api.action.content_system.layout.persisted_unmap_property', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]

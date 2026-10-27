@@ -16,6 +16,7 @@
 
 ## Constraints
 
+- `StoredTree::$rootSource` is the single mutation root-source authority. The draft controller initializes it from the request; the persisted runner initializes it from the locked entity. Do not copy it into operation constructors or runner/seeder arguments. Rebuild forests through `StoredTree::withRoots()` so normalization, seeding, and mirroring retain it. A null source is legitimate for an unbound draft; mapping explicitly rejects it.
 - Immutability is the core invariant, enforced by the types: `StoredTree` and `StoredElement` are `final readonly`, so `apply()` cannot mutate the input, and a result tree may safely alias an input subtree by reference.
 - Rebuild a stored element through `StoredElement::withSlots()`, never by hand: `Layout/StoredTree`'s surgery and `Output/ElementTreePruner`'s partial-render rebuild both go through it, and a hand-written rebuild silently drops any field added to `StoredElement` later. This replaced an earlier reading (two layers with opposite intents, a surface-only similarity), which held while `Output/ElementTreePruner` rebuilt a different element model by hand; both layers now rebuild stored elements.
 - A mutation is single-use: `apply()` computes the report stash, so it must run before any reporter is read; never re-apply an instance to a second tree.

@@ -46,7 +46,7 @@ class ContextConsumerMirror
         }
 
         // No consumer written, so this identical instance is returned.
-        return $changed ? new StoredTree($roots) : $tree;
+        return $changed ? $tree->withRoots($roots) : $tree;
     }
 
     /**

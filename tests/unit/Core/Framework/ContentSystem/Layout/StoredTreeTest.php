@@ -18,6 +18,33 @@ use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 #[CoversClass(StoredTree::class)]
 class StoredTreeTest extends TestCase
 {
+    #[DataProvider('rootSources')]
+    public function testWithRootsPreservesTheSourceAndLeavesTheOriginalUnchanged(?string $rootSource): void
+    {
+        $original = new StoredElement('original', 'Sw:Block');
+        $replacement = new StoredElement('replacement', 'Sw:Block');
+        $tree = new StoredTree([$original], $rootSource);
+
+        $rebuilt = $tree->withRoots([$replacement]);
+
+        static::assertSame($rootSource, $rebuilt->rootSource);
+        static::assertSame([$replacement], $rebuilt->roots);
+        static::assertSame([$original], $tree->roots);
+        static::assertSame($rootSource, $tree->rootSource);
+    }
+
+    /**
+     * @return iterable<string, array{string|null}>
+     */
+    public static function rootSources(): iterable
+    {
+        yield 'product layout' => ['product'];
+        yield 'category layout' => ['category'];
+        yield 'section layout' => ['header'];
+        yield 'explicit none source' => ['none'];
+        yield 'unbound draft' => [null];
+    }
+
     #[TestDox('find returns a root element by id')]
     public function testFindReturnsARootElement(): void
     {

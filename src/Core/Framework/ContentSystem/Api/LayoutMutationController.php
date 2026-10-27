@@ -106,7 +106,6 @@ class LayoutMutationController
             $this->bindingRegistry,
             $this->bindingApplicator,
             $this->mappingInspector,
-            $payload->rootSource,
         );
 
         return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
@@ -183,7 +182,7 @@ class LayoutMutationController
         MapPropertyRequest $payload,
         Context $context,
     ): Response {
-        $mutation = $this->propertyMappingMutations->map($payload->rootSource, $payload->elementId, $payload->propertyKey, MappingSourceRequestDecoder::decode($payload->source));
+        $mutation = $this->propertyMappingMutations->map($payload->elementId, $payload->propertyKey, MappingSourceRequestDecoder::decode($payload->source));
 
         return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
     }
@@ -205,8 +204,8 @@ class LayoutMutationController
     private function respond(LayoutMutation $mutation, array $layout, ?string $rootSource, Context $context): JsonResponse
     {
         $tree = new StoredTree($this->decoder->decode($layout), $rootSource);
-        $rootContext = $this->rootSourceRegistry->resolveGated($rootSource, $context);
-        $result = $this->pipeline->run($mutation, $tree, $rootContext, $rootSource);
+        $rootContext = $this->rootSourceRegistry->resolveGated($tree->rootSource, $context);
+        $result = $this->pipeline->run($mutation, $tree, $rootContext);
 
         return new JsonResponse(MutationResponse::fromResult($result, $this->elementCodec));
     }

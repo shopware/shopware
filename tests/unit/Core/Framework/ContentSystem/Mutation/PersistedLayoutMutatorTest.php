@@ -97,26 +97,22 @@ class PersistedLayoutMutatorTest extends TestCase
         static::assertSame(['block-b'], array_map(static fn (StoredElement $e): string => $e->id, $result->layout->roots));
     }
 
-    public function testConstructsASourceAwareMutationFromTheLockedLayout(): void
+    public function testMutationReceivesTheRootSourceFromTheLockedLayout(): void
     {
         $id = $this->ids->get('layout');
         $context = Context::createDefaultContext();
         $repository = $this->staticRepository($this->entity($id, null, 'category'), $id, $context);
-        $capturedRootSource = null;
+        $mutation = $this->createMock(LayoutMutation::class);
+        $mutation->expects($this->once())->method('apply')->willReturnCallback(static function (StoredTree $tree): StoredTree {
+            static::assertSame('category', $tree->rootSource);
+
+            return $tree->remove('block-a');
+        });
         $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder());
 
-        $mutator->mutateSourceAware(
-            $id,
-            null,
-            static function (string $rootSource) use (&$capturedRootSource): LayoutMutation {
-                $capturedRootSource = $rootSource;
+        $result = $mutator->mutate($id, null, $mutation, $context);
 
-                return new RemoveElement('block-a');
-            },
-            $context,
-        );
-
-        static::assertSame('category', $capturedRootSource);
+        static::assertSame('category', $result->layout->rootSource);
     }
 
     #[DataProvider('diagnosesAgainstRootSourceProvider')]
@@ -130,7 +126,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $rootContext = $rooted ? [$this->providedContext()] : [];
 
         $registry = $this->createMock(RootSourceRegistry::class);
-        $registry->expects($this->once())->method('resolve')->with($rootSource)->willReturn($rootContext);
+        $registry->expects($this->once())->method('resolveGated')->with($rootSource)->willReturn($rootContext);
 
         $report = new DiagnosticsReport([]);
         $diagnostics = $this->createMock(LayoutDiagnostics::class);
@@ -332,7 +328,7 @@ class PersistedLayoutMutatorTest extends TestCase
     private function registry(): RootSourceRegistry
     {
         $registry = static::createStub(RootSourceRegistry::class);
-        $registry->method('resolve')->willReturn([]);
+        $registry->method('resolveGated')->willReturn([]);
 
         return $registry;
     }

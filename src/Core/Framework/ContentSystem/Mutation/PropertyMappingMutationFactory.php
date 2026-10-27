@@ -23,12 +23,11 @@ final readonly class PropertyMappingMutationFactory
     ) {
     }
 
-    public function map(string $rootSource, string $elementId, string $propertyKey, MappingSourceReference $source): MapProperty
+    public function map(string $elementId, string $propertyKey, MappingSourceReference $source): MapProperty
     {
         return new MapProperty(
             $this->typeRegistry,
             $this->mappingInspector,
-            $rootSource,
             $elementId,
             $propertyKey,
             $source,

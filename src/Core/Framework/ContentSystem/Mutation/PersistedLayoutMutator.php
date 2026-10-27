@@ -41,23 +41,6 @@ class PersistedLayoutMutator
 
     public function mutate(string $layoutId, ?string $expectedVersion, LayoutMutation $mutation, Context $context): MutationResult
     {
-        return $this->mutateSourceAware(
-            $layoutId,
-            $expectedVersion,
-            static fn (string $rootSource): LayoutMutation => $mutation,
-            $context,
-        );
-    }
-
-    /**
-     * @param \Closure(string): LayoutMutation $mutationFactory
-     */
-    public function mutateSourceAware(
-        string $layoutId,
-        ?string $expectedVersion,
-        \Closure $mutationFactory,
-        Context $context,
-    ): MutationResult {
         // Serialize concurrent writers for this layout id so the load → versionMatches → update span is atomic:
         // a second writer blocks here, then re-reads the now-bumped updatedAt and fails versionMatches with a 409
         // instead of silently clobbering the first edit (the lost-update window the optimistic token alone leaves open).
@@ -75,20 +58,18 @@ class PersistedLayoutMutator
                 throw ContentSystemException::layoutVersionConflict($layoutId);
             }
 
-            $mutation = $mutationFactory($layout->getRootSource());
-
             // The entity holds the storage model the operations speak, so the loaded tree goes in as it is and the
             // mutated one is handed to the write path the same way: the layout field's serializer takes stored
             // elements directly.
             $mutated = $mutation->apply(new StoredTree($layout->getLayout(), $layout->getRootSource()));
-            $mutated = $this->defaultMappingSeeder->seed($mutated, $layout->getRootSource(), $mutation->freshlyScaffolded());
+            $mutated = $this->defaultMappingSeeder->seed($mutated, $mutation->freshlyScaffolded());
 
             $this->contentLayoutRepository->update([[
                 'id' => $layoutId,
                 'layout' => $mutated->roots,
             ]], $context);
 
-            $analysis = $this->diagnose($layout->getRootSource(), $mutated, $context);
+            $analysis = $this->diagnose($mutated, $context);
 
             return MutationResult::fromAnalyzedMutation($mutated, $analysis, $mutation);
         } finally {
@@ -121,21 +102,16 @@ class PersistedLayoutMutator
     }
 
     /**
-     * Re-resolves the mutated tree against the layout's single root source (the loaded entity carries it), so the
-     * echoed report matches what the content_layout write gate enforced on commit. resolve() returns a list (never
-     * null — [] for none/header/footer), so the binding-scope checks always run; the intrinsic-only path no longer
-     * applies to a stored layout.
+     * Re-resolves the mutated tree against its root source, initialized from the locked layout and preserved by
+     * every transform. A bound source supplies a list ([] for none/header/footer), enabling binding-scope checks.
      *
-     * resolve() is never handed an unregistered id here even when the stored source was de-registered: mutate()
-     * commits the tree via update() first, and that write runs ContentLayoutWriteValidator, which re-checks
-     * membership of the committed root source and rejects a de-registered source as a clean unknownRootSource 400
-     * before any commit. A membership gate in this method would instead fire after the commit (this diagnose()
-     * runs after update() has already committed), so the preceding write gate is the correct and only check needed.
+     * A de-registered source is rejected by ContentLayoutWriteValidator during update(), before commit;
+     * this later lookup therefore resolves the same admitted root source carried by the mutated tree.
      */
-    private function diagnose(string $rootSource, StoredTree $tree, Context $context): LayoutAnalysis
+    private function diagnose(StoredTree $tree, Context $context): LayoutAnalysis
     {
-        $rootContext = $this->rootSourceRegistry->resolve($rootSource, $context);
+        $rootContext = $this->rootSourceRegistry->resolveGated($tree->rootSource, $context);
 
-        return $this->diagnostics->analyze($tree->roots, $rootContext, $rootSource);
+        return $this->diagnostics->analyze($tree->roots, $rootContext, $tree->rootSource);
     }
 }

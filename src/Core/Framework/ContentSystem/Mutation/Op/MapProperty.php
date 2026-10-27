@@ -24,7 +24,6 @@ final class MapProperty extends AbstractLayoutMutation
     public function __construct(
         private readonly AbstractContentSystemElementTypeRegistry $typeRegistry,
         private readonly StoredMappingInspector $mappingInspector,
-        private readonly string $rootSource,
         private readonly string $elementId,
         private readonly string $propertyKey,
         private readonly MappingSourceReference $source,
@@ -33,6 +32,10 @@ final class MapProperty extends AbstractLayoutMutation
 
     public function apply(StoredTree $tree): StoredTree
     {
+        if ($tree->rootSource === null || $tree->rootSource === '') {
+            throw ContentSystemException::unknownRootSource($tree->rootSource ?? '');
+        }
+
         $node = $tree->find($this->elementId);
 
         if ($node === null) {
@@ -40,7 +43,7 @@ final class MapProperty extends AbstractLayoutMutation
         }
 
         $this->requireRegistered($this->typeRegistry, $node->component);
-        $candidate = $this->mappingInspector->admitProperty($node->component, $this->propertyKey, $this->source, $this->rootSource);
+        $candidate = $this->mappingInspector->admitProperty($node->component, $this->propertyKey, $this->source, $tree->rootSource);
         if ($candidate instanceof ContentSystemException) {
             throw $candidate;
         }

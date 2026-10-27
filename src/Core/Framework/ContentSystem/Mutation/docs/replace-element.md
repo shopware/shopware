@@ -3,7 +3,9 @@
 The one operation that changes an element's type in place, and the only one whose contract is a set of carry-over
 rules rather than a placement. The other eight are in [operations.md](operations.md).
 
-`__construct(AbstractContentSystemElementTypeRegistry $registry, string $elementId, string $newType, AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, BindingApplicator $bindingApplicator)`.
+`__construct(AbstractContentSystemElementTypeRegistry $registry, string $elementId, string $newType, AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, BindingApplicator $bindingApplicator, ?StoredMappingInspector $mappingInspector = null)`.
+
+Default bindings and mapping revalidation both use `StoredTree::$rootSource` from the input tree. The operation has no separate root-source argument.
 
 ## What it carries over
 

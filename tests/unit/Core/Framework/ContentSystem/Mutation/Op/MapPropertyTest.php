@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -30,6 +31,25 @@ use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 #[CoversClass(MapProperty::class)]
 class MapPropertyTest extends TestCase
 {
+    #[DataProvider('unboundSources')]
+    public function testRejectsMappingAnUnboundTree(?string $rootSource): void
+    {
+        $tree = new StoredTree([new StoredElement('element-1', 'Sw:Text')], $rootSource);
+
+        $this->expectExceptionObject(ContentSystemException::unknownRootSource(''));
+
+        $this->map('text', 'product.name')->apply($tree);
+    }
+
+    /**
+     * @return iterable<string, array{string|null}>
+     */
+    public static function unboundSources(): iterable
+    {
+        yield 'absent source' => [null];
+        yield 'empty source' => [''];
+    }
+
     public function testOneSourcePathCanFeedSeveralProperties(): void
     {
         $tree = new StoredTree([
@@ -37,7 +57,7 @@ class MapPropertyTest extends TestCase
                 ->withProperty('text', 'Text fallback')
                 ->withProperty('headline', 'Headline fallback')
                 ->build(),
-        ]);
+        ], 'product');
 
         $tree = $this->map('text', 'product.name')->apply($tree);
         $tree = $this->map('headline', 'product.name')->apply($tree);
@@ -49,7 +69,7 @@ class MapPropertyTest extends TestCase
 
     public function testMappingTheSamePropertyAgainReplacesOnlyThatMapping(): void
     {
-        $tree = new StoredTree([new StoredElement('element-1', 'Sw:Text')]);
+        $tree = new StoredTree([new StoredElement('element-1', 'Sw:Text')], 'product');
         $tree = $this->map('text', 'product.name')->apply($tree);
         $tree = $this->map('text', 'product.metaTitle')->apply($tree);
 
@@ -65,7 +85,7 @@ class MapPropertyTest extends TestCase
             ->withDataRequirement('selectedProduct', 'entity', new StubLoaderConfig())
             ->build();
 
-        $mapped = $this->map('text', 'product.name')->apply(new StoredTree([$element]))->roots[0];
+        $mapped = $this->map('text', 'product.name')->apply(new StoredTree([$element], 'product'))->roots[0];
 
         static::assertSame($element->dataRequirements, $mapped->dataRequirements);
         static::assertSame('product.name', $mapped->contextDefinitions->getAllConsumers()['text']->source?->displayName());
@@ -73,7 +93,7 @@ class MapPropertyTest extends TestCase
 
     public function testRejectsAnIncompatibleCandidateBeforeWriting(): void
     {
-        $tree = new StoredTree([new StoredElement('element-1', 'Sw:Text')]);
+        $tree = new StoredTree([new StoredElement('element-1', 'Sw:Text')], 'product');
 
         $this->expectExceptionObject(ContentSystemException::mappingTypeMismatch('text', 'string', MediaEntity::class));
 
@@ -114,7 +134,6 @@ class MapPropertyTest extends TestCase
                 new MappingConsumers(),
                 new InlineMappingTokenParser(),
             ),
-            'product',
             'element-1',
             $propertyKey,
             $source,

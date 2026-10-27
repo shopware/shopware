@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolAttributeReader;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 
 /**
@@ -147,9 +148,9 @@ class McpToolAttributeReaderTest extends TestCase
  */
 class McpAttributeReaderTestNoAttribute
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -159,9 +160,9 @@ class McpAttributeReaderTestNoAttribute
 #[McpTool(name: 'reader-class-level-tool', description: 'class-level description')]
 class McpAttributeReaderTestClassLevel extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -171,9 +172,9 @@ class McpAttributeReaderTestClassLevel extends McpToolResponse
 class McpAttributeReaderTestMethodLevel
 {
     #[McpTool(name: 'reader-method-level-tool', description: 'method-level description')]
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -184,9 +185,9 @@ class McpAttributeReaderTestMethodLevel
 class McpAttributeReaderTestBothLevels extends McpToolResponse
 {
     #[McpTool(name: 'reader-method-loses', description: 'method description loses')]
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -195,8 +196,8 @@ class McpAttributeReaderTestBothLevels extends McpToolResponse
  */
 class McpAttributeReaderTestNoInvokeNoAttribute
 {
-    public function doSomething(): string
+    public function doSomething(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }

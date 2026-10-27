@@ -156,6 +156,16 @@ public function __invoke(string $id): McpToolResult
 
 App tools keep the `{"success": …}` envelope as their response format.
 
+The new PHPStan rule `McpToolLegacyStringResultRule` (identifier `shopware.mcpToolLegacyStringResult`) reports a `#[McpTool]` method whose native return type is `string`, `?string` or a union containing `string`.
+For now it is registered in `core-rules.neon` only, which the Shopware PHPStan extension doesn't load for extensions by default, so it does not fail your build in 6.7.
+It moves to `rules.neon` with 6.8.0.
+To check your tools today, add it to the `rules` of your `phpstan.neon`:
+
+```neon
+rules:
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpToolLegacyStringResultRule
+```
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request

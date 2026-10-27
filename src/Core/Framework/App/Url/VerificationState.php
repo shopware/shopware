@@ -11,10 +11,12 @@ use Shopware\Core\Framework\Log\Package;
 readonly class VerificationState
 {
     public function __construct(
+        public string $appUrl,
         public VerificationStatus $status,
         public int $numTries,
         public \DateTimeImmutable $at,
-        public ?string $info = null
+        public ?string $info,
+        public ?int $statusCode,
     ) {
     }
 

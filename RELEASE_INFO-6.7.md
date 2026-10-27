@@ -98,6 +98,9 @@ Media loaded without the `mediaType` field keep their thumbnail URLs, as the typ
 New sales channel contexts now decide tax-free delivery like the cart (`TaxDetector::isNetDelivery()`):
 commercial customers only get "Tax-free (B2B)", all other customers only "Tax-free (B2C)".
 Cart and order taxes stay the same, but Rule Builder conditions like "Cart amount" can match differently than before for customers who only met the other setting.
+### MCP tools can stream progress and elicitation again
+
+MCP tools that call `progress()`, `notify()`, `elicit()` or `elicitUrl()` on the SDK's `ClientGateway` now reach the client as a `text/event-stream` with its headers and frames.
 
 ## API
 

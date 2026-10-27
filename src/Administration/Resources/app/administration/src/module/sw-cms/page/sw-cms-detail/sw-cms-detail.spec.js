@@ -741,7 +741,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         expect(wrapper.vm.blockRepository.clone).toHaveBeenCalledWith(
             'main-block-id',
-            expect.any(Object),
+            { overwrites: { position: 1 }, cloneChildren: true },
             wrapper.vm.layoutVersionContext,
         );
 
@@ -807,7 +807,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         expect(wrapper.vm.sectionRepository.clone).toHaveBeenCalledWith(
             'main-section-id',
-            expect.any(Object),
+            { overwrites: { position: 1 }, cloneChildren: true },
             wrapper.vm.layoutVersionContext,
         );
 

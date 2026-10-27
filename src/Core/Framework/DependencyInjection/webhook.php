@@ -17,6 +17,7 @@ use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
+use Shopware\Core\Framework\Webhook\Authorization\EventLog\RestrictEventLogReadSubscriber;
 use Shopware\Core\Framework\Webhook\Authorization\Ownership\AppIntegrationChangeSubscriber;
 use Shopware\Core\Framework\Webhook\Authorization\Ownership\RecordOwnerSubscriber;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\AppEventPolicy;
@@ -276,6 +277,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(RestrictWriteSubscriber::class)
         ->args([service(WriteAuthorizer::class)])
         ->tag('kernel.event_subscriber');
+
+    $services->set(RestrictEventLogReadSubscriber::class)
+        ->args([service('webhook.repository')])
+        ->tag('kernel.event_subscriber')
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(WebhookEventLogDefinition::class)
         ->tag('shopware.entity.definition');

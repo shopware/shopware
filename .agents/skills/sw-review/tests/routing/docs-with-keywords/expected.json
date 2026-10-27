@@ -1,0 +1,1 @@
+{"signals": ["release_docs"], "not_signals": ["php_src", "cache", "acl_route", "scheduled_task", "filesystem", "command", "request_input", "sync_path_change", "twig", "deprecation"], "guides": ["bc-php", "release-docs"]}

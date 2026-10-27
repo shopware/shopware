@@ -94,7 +94,7 @@
     "dompurify": "3.4.17",
     "entities": "4.5.0",
     "eslint-plugin-listeners": "1.5.1",
-    "flatpickr": "4.6.13",
+    "flatpickr": "npm:flatpickr-ce@4.7.0",
     "focus-trap": "7.6.4",
     "fs-extra": "11.3.0",
     "html2canvas": "1.4.1",

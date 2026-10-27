@@ -14,6 +14,11 @@ class GaranLabelResolver
     public const LABEL_TYPE_FULL = 'full';
     public const LABEL_TYPE_NESTED = 'nested';
 
+    /**
+     * Line item holds the {@see self::resolveSnapshot()} values
+     */
+    public const PAYLOAD_KEY = 'garanLabel';
+
     public function __construct(
         private readonly GaranLabelDurationFormatter $durationFormatter,
         private readonly GaranLabelRenderer $renderer,

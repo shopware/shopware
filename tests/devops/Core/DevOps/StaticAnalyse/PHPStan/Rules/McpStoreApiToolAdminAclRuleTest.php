@@ -56,6 +56,20 @@ class McpStoreApiToolAdminAclRuleTest extends RuleTestCase
         ]]);
     }
 
+    public function testStoreApiToolCallingRequirePrivilegeInClosureFails(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpStoreApiToolAdminAclRule/StoreApiToolCallingRequirePrivilegeInClosure.php'], [[
+            'Store API MCP tool ' . self::FIXTURE_NAMESPACE . 'StoreApiToolCallingRequirePrivilegeInClosure must not call requirePrivilege(). Admin ACL privileges do not apply in a sales channel context.',
+            15,
+            self::TIP,
+        ]]);
+    }
+
+    public function testRequirePrivilegeInNestedAnonymousClassPasses(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpStoreApiToolAdminAclRule/StoreApiToolWithAnonymousPrivilegeHelper.php'], []);
+    }
+
     public function testStoreApiToolWithoutAdminAclPasses(): void
     {
         $this->analyse([__DIR__ . '/data/McpStoreApiToolAdminAclRule/StoreApiToolWithoutAdminAcl.php'], []);

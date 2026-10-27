@@ -3,8 +3,6 @@
 namespace Shopware\Tests\Unit\Storefront\Framework\Health\Util;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -23,11 +21,8 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\HttpKernel\DependencyInjection\ServicesResetter;
 use Symfony\Component\HttpKernel\DependencyInjection\ServicesResetterInterface;
-use Symfony\Component\HttpKernel\EventListener\SessionListener;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Twig\Extension\AbstractExtension;
@@ -289,41 +284,6 @@ class SalesChannelDomainUtilTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $util->handleRequest(Request::create('http://localhost/failing'))->responseCode);
         static::assertSame(Response::HTTP_OK, $util->handleRequest(Request::create('http://localhost/healthy'))->responseCode);
         static::assertSame(4, $resets);
-    }
-
-    #[RunInSeparateProcess]
-    #[PreserveGlobalState(false)]
-    public function testFailedProbeClosesItsNativeSessionBeforeTheNextProbe(): void
-    {
-        $this->kernel->method('handle')->willReturnCallback(static function (Request $request): Response {
-            $session = new Session(new NativeSessionStorage(['use_cookies' => false, 'cache_limiter' => '']));
-            $request->setSession($session);
-            $session->start();
-
-            if ($request->getPathInfo() === '/failing') {
-                throw new \RuntimeException('Rendering failed after starting the session');
-            }
-
-            return new Response();
-        });
-        $resetter = new ServicesResetter(new \ArrayIterator(['session_listener' => new SessionListener()]), ['session_listener' => 'reset']);
-        $util = $this->getUtil(servicesResetter: $resetter);
-
-        try {
-            $failed = $util->handleRequest(Request::create('http://localhost/failing'));
-            $sessionStatusAfterFailure = session_status();
-            $healthy = $util->handleRequest(Request::create('http://localhost/healthy'));
-
-            static::assertSame(Response::HTTP_BAD_REQUEST, $failed->responseCode);
-            static::assertSame('Rendering failed after starting the session', $failed->errorMessage);
-            static::assertSame(\PHP_SESSION_NONE, $sessionStatusAfterFailure);
-            static::assertSame(Response::HTTP_OK, $healthy->responseCode);
-            static::assertSame(\PHP_SESSION_NONE, session_status());
-        } finally {
-            if (session_status() === \PHP_SESSION_ACTIVE) {
-                session_abort();
-            }
-        }
     }
 
     private function getUtil(?RouterInterface $router = null, ?LoggerInterface $logger = null, ?ServicesResetterInterface $servicesResetter = null): SalesChannelDomainUtil

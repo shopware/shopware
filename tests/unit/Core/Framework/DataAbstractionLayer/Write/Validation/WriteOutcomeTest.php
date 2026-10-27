@@ -59,7 +59,7 @@ class WriteOutcomeTest extends TestCase
         $rows = (new WriteOutcome(static::createStub(RowLoader::class)))->rows([
             $this->insertProduct(['product_number' => 'p1', 'stock' => 1], '/insert'),
             $this->updateProduct(['stock' => 2], '/update'),
-        ], ['stock']);
+        ], ['product_number', 'stock']);
 
         static::assertCount(1, $rows);
         static::assertTrue($rows[0]->isNew);
@@ -114,6 +114,18 @@ class WriteOutcomeTest extends TestCase
         ], ['stock', 'active']);
 
         static::assertSame(['1', '0'], [$rows[0]->getResultingValue('active'), $rows[1]->getResultingValue('active')]);
+    }
+
+    public function testOnlyTheRequestedColumnsOfTheStoredRowCanBeRead(): void
+    {
+        $rowLoader = static::createStub(RowLoader::class);
+        $rowLoader->method('load')->willReturn([[...$this->productPrimaryKey, 'stock' => '1']]);
+
+        $row = (new WriteOutcome($rowLoader))->rows([$this->updateProduct(['stock' => 2])], ['stock'])[0];
+
+        $this->expectExceptionObject(DataAbstractionLayerException::outcomeRowColumnNotRequested('id'));
+
+        $row->getResultingValue('id');
     }
 
     public function testANewRecordHasNoValuesFromTheDatabase(): void

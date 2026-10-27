@@ -18,7 +18,7 @@ final readonly class OutcomeRow
      * @param array<string, string> $primaryKey in storage format
      * @param array<string, string> $decodedPrimaryKey
      * @param array<string, mixed> $payload the merged payloads of the write
-     * @param array<string, mixed> $state the loaded columns of the row in the database, all null for a new record
+     * @param array<string, mixed> $state the requested columns of the row in the database, all null for a new record
      */
     public function __construct(
         public array $primaryKey,
@@ -32,6 +32,8 @@ final readonly class OutcomeRow
 
     public function isInPayload(string $column): bool
     {
+        $this->ensureRequested($column);
+
         return \array_key_exists($column, $this->payload);
     }
 
@@ -44,10 +46,13 @@ final readonly class OutcomeRow
             return $this->payload[$column];
         }
 
-        if (!\array_key_exists($column, $this->state)) {
-            throw DataAbstractionLayerException::outcomeRowColumnNotLoaded($column);
-        }
-
         return $this->state[$column];
+    }
+
+    private function ensureRequested(string $column): void
+    {
+        if (!\array_key_exists($column, $this->state)) {
+            throw DataAbstractionLayerException::outcomeRowColumnNotRequested($column);
+        }
     }
 }

@@ -127,7 +127,7 @@ class WriteOutcome
 
         $state = array_fill_keys($columns, null);
         if (!$isNew) {
-            $state = [...$state, ...$storedRow];
+            $state = [...$state, ...self::only($storedRow, $columns)];
         }
 
         return new OutcomeRow(

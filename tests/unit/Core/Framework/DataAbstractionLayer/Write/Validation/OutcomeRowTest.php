@@ -24,13 +24,22 @@ class OutcomeRowTest extends TestCase
         static::assertSame([2, '1'], [$row->getResultingValue('stock'), $row->getResultingValue('active')]);
     }
 
-    public function testAColumnThatWasNotLoadedCannotBeRead(): void
+    public function testAColumnThatWasNotRequestedCannotBeReadEvenFromThePayload(): void
     {
-        $row = $this->row(payload: ['stock' => 2], state: ['stock' => '1']);
+        $row = $this->row(payload: ['stock' => 2, 'product_number' => 'p2'], state: ['stock' => '1']);
 
-        $this->expectExceptionObject(DataAbstractionLayerException::outcomeRowColumnNotLoaded('active'));
+        $this->expectExceptionObject(DataAbstractionLayerException::outcomeRowColumnNotRequested('product_number'));
 
-        $row->getResultingValue('active');
+        $row->getResultingValue('product_number');
+    }
+
+    public function testAColumnThatWasNotRequestedCannotBeCheckedInThePayload(): void
+    {
+        $row = $this->row(payload: ['stock' => 2, 'product_number' => 'p2'], state: ['stock' => '1']);
+
+        $this->expectExceptionObject(DataAbstractionLayerException::outcomeRowColumnNotRequested('product_number'));
+
+        $row->isInPayload('product_number');
     }
 
     /**

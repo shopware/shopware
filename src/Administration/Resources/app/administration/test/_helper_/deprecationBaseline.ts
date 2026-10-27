@@ -2,7 +2,7 @@
  * @sw-package framework
  * @private
  */
-import deprecationBaseline from 'src/meta/deprecation-baseline.json';
+import deprecationBaseline from 'src/core/deprecation-baseline.json';
 import { deprecationBaselineKey } from 'src/core/feature';
 import { isBaselineUpdateRun } from './isBaselineUpdateRun';
 import { isMajorRun, loadFeatureConfig } from './majorFeatureFlags';
@@ -95,7 +95,7 @@ export function baselineDeprecation({ message, callSites }: { message: string; c
 }
 
 /**
- * Restores the baseline to the checked-in `src/meta/deprecation-baseline.json`, dropping every entry
+ * Restores the baseline to the checked-in `src/core/deprecation-baseline.json`, dropping every entry
  * `baselineDeprecation()` listed.
  *
  * @private

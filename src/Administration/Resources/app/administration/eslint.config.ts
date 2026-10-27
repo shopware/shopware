@@ -15,6 +15,7 @@ import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import { fixupPluginRules } from '@eslint/compat';
 import importX from 'eslint-plugin-import-x';
+import eslintComments from '@eslint-community/eslint-plugin-eslint-comments';
 import jestPlugin from 'eslint-plugin-jest';
 import prettier from 'eslint-config-prettier';
 import globals from 'globals';
@@ -67,6 +68,19 @@ const filenameRulesPatched = {
 
 const vueParserSetup = pluginVue.configs['flat/recommended'].find((c) => c.name === 'vue/base/setup-for-vue');
 const vueParser = vueParserSetup.languageOptions.parser;
+
+const testFiles = [
+    '**/*.spec.js',
+    '**/*.spec.ts',
+    '**/*.spec/**/*.js',
+    '**/*.spec/**/*.ts',
+    '**/fixtures/*.js',
+    'test/**/*.js',
+    'test/**/*.ts',
+];
+
+// Inline disables are blocked for these rules, so eslint-suppressions.json is the only way around them
+const rulesWithoutInlineDisable: string[] = [];
 
 /**
  * Shared rule policy applied to normal source files and TypeScript-specific overrides.
@@ -194,6 +208,29 @@ const baseRules = {
     ],
     'vue/prefer-import-from-vue': 'off',
     'vue/one-component-per-file': 'off',
+
+    '@eslint-community/eslint-comments/no-restricted-disable': [
+        'error',
+        ...rulesWithoutInlineDisable,
+        '@eslint-community/eslint-comments/*',
+    ],
+    // A rule config comment (`eslint <rule>: off` in a block comment) would bypass
+    // rulesWithoutInlineDisable and the baselines
+    '@eslint-community/eslint-comments/no-use': [
+        'error',
+        {
+            allow: [
+                'eslint-disable',
+                'eslint-disable-line',
+                'eslint-disable-next-line',
+                'eslint-enable',
+                'eslint-env',
+                'exported',
+                'global',
+                'globals',
+            ],
+        },
+    ],
 };
 
 export default [
@@ -227,6 +264,9 @@ export default [
             // Hand-written declaration files under build/ sit outside the tsconfig program (a sibling
             // .ts of the same name shadows them), so the typed parser cannot resolve them.
             'build/**/*.d.ts',
+            // Generated and gitignored
+            'src/entity-schema-definition.d.ts',
+            'test/_helper_/componentWrapper/component-imports.js',
         ],
     },
 
@@ -288,6 +328,7 @@ export default [
             'sw-test-rules': fixupPluginRules(swTestRules),
             'twig-vue': twigVue,
             listeners: fixupPluginRules(listeners),
+            '@eslint-community/eslint-comments': eslintComments,
         },
         languageOptions: {
             ecmaVersion: 'latest',
@@ -653,15 +694,7 @@ export default [
 
     // Test files
     {
-        files: [
-            '**/*.spec.js',
-            '**/*.spec.ts',
-            '**/*.spec/*.js',
-            '**/*.spec/*.ts',
-            '**/fixtures/*.js',
-            'test/**/*.js',
-            'test/**/*.ts',
-        ],
+        files: testFiles,
         ...jestPlugin.configs['flat/recommended'],
         languageOptions: {
             ...jestPlugin.configs['flat/recommended'].languageOptions,

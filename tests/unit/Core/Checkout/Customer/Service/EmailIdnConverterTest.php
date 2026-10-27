@@ -33,21 +33,24 @@ class EmailIdnConverterTest extends TestCase
         static::assertSame($asciiMail, $encodeResult);
     }
 
-    public function testEncodeAndDecodePreserveIdnaDeviationCharacters(): void
+    #[DataProvider('deviationEmailProvider')]
+    public function testEncodeAndDecodePreserveIdnaDeviationCharacters(string $email): void
     {
-        $emails = [
-            'customer@straße.de',
-            'customer@οδός.gr',
-            'customer@نامه‌ای.ir',
-            'customer@क्‍ष.example',
-        ];
+        $encoded = EmailIdnConverter::encode($email);
 
-        foreach ($emails as $email) {
-            $encoded = EmailIdnConverter::encode($email);
+        static::assertNotSame($email, $encoded);
+        static::assertSame($email, EmailIdnConverter::decode($encoded));
+    }
 
-            static::assertNotSame($email, $encoded);
-            static::assertSame($email, EmailIdnConverter::decode($encoded));
-        }
+    /**
+     * @return \Generator<array{0: string}>
+     */
+    public static function deviationEmailProvider(): \Generator
+    {
+        yield 'sharp s remains distinct from ASCII ss' => ['customer@straße.de'];
+        yield 'Greek final sigma is preserved' => ['customer@οδός.gr'];
+        yield 'ZWNJ is preserved' => ['customer@نامه‌ای.ir'];
+        yield 'ZWJ is preserved' => ['customer@क्‍ष.example'];
     }
 
     public function testEncodeKeepsSharpSAndAsciiSAsDifferentDomains(): void
@@ -63,21 +66,32 @@ class EmailIdnConverterTest extends TestCase
         static::assertSame('customer@täst..de', EmailIdnConverter::encode('customer@täst..de'));
     }
 
-    public function testExplicitOptionsMatchSymfonyPolyfill(): void
+    #[DataProvider('idnaDomainProvider')]
+    public function testExplicitOptionsMatchSymfonyPolyfill(string $domain): void
     {
-        foreach (['straße.de', 'οδός.gr', 'نامه‌ای.ir', 'क्‍ष.example', 'example.com'] as $domain) {
-            $ascii = idn_to_ascii($domain, \IDNA_NONTRANSITIONAL_TO_ASCII, \INTL_IDNA_VARIANT_UTS46);
-            static::assertIsString($ascii);
+        $ascii = idn_to_ascii($domain, \IDNA_NONTRANSITIONAL_TO_ASCII, \INTL_IDNA_VARIANT_UTS46);
+        static::assertIsString($ascii);
 
-            static::assertSame(
-                Idn::idn_to_ascii($domain, \IDNA_NONTRANSITIONAL_TO_ASCII, \INTL_IDNA_VARIANT_UTS46),
-                $ascii
-            );
-            static::assertSame(
-                Idn::idn_to_utf8($ascii, \IDNA_NONTRANSITIONAL_TO_UNICODE, \INTL_IDNA_VARIANT_UTS46),
-                idn_to_utf8($ascii, \IDNA_NONTRANSITIONAL_TO_UNICODE, \INTL_IDNA_VARIANT_UTS46)
-            );
-        }
+        static::assertSame(
+            Idn::idn_to_ascii($domain, \IDNA_NONTRANSITIONAL_TO_ASCII, \INTL_IDNA_VARIANT_UTS46),
+            $ascii
+        );
+        static::assertSame(
+            Idn::idn_to_utf8($ascii, \IDNA_NONTRANSITIONAL_TO_UNICODE, \INTL_IDNA_VARIANT_UTS46),
+            idn_to_utf8($ascii, \IDNA_NONTRANSITIONAL_TO_UNICODE, \INTL_IDNA_VARIANT_UTS46)
+        );
+    }
+
+    /**
+     * @return \Generator<array{0: string}>
+     */
+    public static function idnaDomainProvider(): \Generator
+    {
+        yield 'sharp s uses non-transitional conversion' => ['straße.de'];
+        yield 'Greek final sigma uses non-transitional conversion' => ['οδός.gr'];
+        yield 'ZWNJ uses non-transitional conversion' => ['نامه‌ای.ir'];
+        yield 'ZWJ uses non-transitional conversion' => ['क्‍ष.example'];
+        yield 'ASCII domain remains supported' => ['example.com'];
     }
 
     public function testEncodeInDataBagWithoutEmail(): void

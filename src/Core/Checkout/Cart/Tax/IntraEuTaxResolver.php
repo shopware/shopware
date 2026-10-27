@@ -48,6 +48,7 @@ class IntraEuTaxResolver
      */
     public function getTaxCountryId(?string $accountType, ?array $vatIds, CountryEntity $deliveryCountry, string $salesChannelId): string
     {
+        // Keep VAT-based country selection opt-in through the destination's B2B setting.
         if (!$this->appliesTo($accountType, $deliveryCountry)
             || !$deliveryCountry->getIsEu()
             || !$this->vatIdPatternProvider->isSellerCountryVatId($vatIds, $salesChannelId)

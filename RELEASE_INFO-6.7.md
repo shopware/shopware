@@ -197,7 +197,7 @@ For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-
 
 ### Deprecation of unused custom `$offcanvas-zindex` SCSS variable
 
-The custom offcanvas z-index SCSS variable `$offcanvas-zindex` is not used anymore and was therefore deprecated. To override the offcanvas z-index or calculate your own z-index based on it, use the bootstrap variable `$zindex-offcanvas` instead. Additionally, a new `--offcanvas-backdrop-zindex` CSS root variable has been added.
+The custom offcanvas z-index SCSS variable `$offcanvas-zindex` is not used anymore and is therefore deprecated. To override the offcanvas z-index or calculate your own z-index based on it, use the bootstrap variable `$zindex-offcanvas` instead. The `--offcanvas-zindex` CSS root variable now reflects the actual Bootstrap offcanvas z-index (`1045` instead of `1050`). Additionally, a new `--offcanvas-backdrop-zindex` CSS root variable has been added.
 
 ### Theme compilation completion is notified once
 
@@ -676,7 +676,7 @@ The product detail page links the terms below the GARAN label, in the new block 
 - Default metrics prefix was changed from `io.opentelemetry.contrib.php.shopware` to `shopware.platform`.
 - `http.server.request.duration` now shows client-facing latency without post-response processing.
 - `cart.calculation.duration` records failed calculations (added `result=success|failed` label).
-- `Telemetry::instrument()` now collects duration metrics also for failed callbacks. 
+- `Telemetry::instrument()` now collects duration metrics also for failed callbacks.
 - Added support for lazy labels calculation in `DurationMetric` and `ConfiguredMetric` (see instrumentors for usage examples).
 - New methods `Telemetry::isMetricEnabled()` / `Meter::isEnabled()` saying if a metric would be emitted, so expensive calculations may be skipped for disabled metrics.
 - Metrics are flushed after all other terminate tasks.

@@ -90,7 +90,7 @@ export function createTestFixture(): TestFixture {
 /**
  * Replaces the Administration's Jest bin with a script that logs the arguments
  * of each run, so the real runner spawns without running Jest. With `testCount`,
- * the script writes a results file with that many passed tests, as `--json` does.
+ * the script hands that many passed tests to the `--testResultsProcessor`, as Jest does.
  */
 export function writeStubJestBin(administrationRoot: string, testCount?: number): () => string[][] {
     const logPath = path.join(administrationRoot, 'node_modules/jest/bin/runs.log');
@@ -102,8 +102,8 @@ export function writeStubJestBin(administrationRoot: string, testCount?: number)
             ...(testCount === undefined
                 ? []
                 : [
-                      "const outputFile = process.argv.find((arg) => arg.startsWith('--outputFile='));",
-                      `if (outputFile) fs.writeFileSync(outputFile.slice('--outputFile='.length), JSON.stringify({ numPassedTests: ${testCount}, numFailedTests: 0 }));`,
+                      "const processor = process.argv.find((arg) => arg.startsWith('--testResultsProcessor='));",
+                      `if (processor) require(processor.slice('--testResultsProcessor='.length))({ numPassedTests: ${testCount}, numFailedTests: 0 });`,
                   ]),
         ].join('\n'),
     );

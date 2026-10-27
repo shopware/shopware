@@ -87,17 +87,15 @@ describe('scripts/extensionTooling/test CLI', () => {
                     configPath,
                     'main.spec',
                     '--ci',
-                    '--json',
-                    expect.stringMatching(/^--outputFile=.+results\.json$/),
+                    expect.stringMatching(/^--testResultsProcessor=.+jest-results-processor\.js$/),
                 ],
             ]);
         });
 
         it.each([
-            [['--json']],
-            [['--json', 'true']],
-            [['--output-file=results.json']],
-        ])('leaves the results file to a caller who passes %j', async (jestOptions) => {
+            [['--testResultsProcessor=./own-processor.js']],
+            [['--test-results-processor', './own-processor.js']],
+        ])('leaves the results processor to a caller who passes %j', async (jestOptions) => {
             jest.spyOn(console, 'log').mockImplementation(() => {});
             const stubJestRuns = writeStubJestBin(fixture.administrationRoot);
             writeFile(path.join(fixture.projectRoot, zeroConfigAdmin, 'jest.config.mjs'), 'export default {};');
@@ -105,6 +103,17 @@ describe('scripts/extensionTooling/test CLI', () => {
             await expect(runCli(['--only=ZeroConfig', '--', ...jestOptions])).resolves.toBe(0);
 
             expect(stubJestRuns()[0].slice(2)).toEqual(jestOptions);
+        });
+
+        it.each([
+            [['--json']],
+            [['--json', '--outputFile=results.json']],
+        ])('still counts the specs when the caller asks for %j', async (jestOptions) => {
+            jest.spyOn(console, 'log').mockImplementation(() => {});
+            writeStubJestBin(fixture.administrationRoot, 0);
+            writeFile(path.join(fixture.projectRoot, zeroConfigAdmin, 'jest.config.mjs'), 'export default {};');
+
+            await expect(runCli(['--only=ZeroConfig', '--', ...jestOptions])).resolves.toBe(1);
         });
 
         it('fails when the Jest results count no spec', async () => {

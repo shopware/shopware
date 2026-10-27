@@ -34,9 +34,11 @@ export const JEST_CONFIG_FILE_NAMES = [
 
 const COMPONENT_IMPORTS_FILE = 'test/_helper_/componentWrapper/component-imports.js';
 
+const RESULTS_PROCESSOR = path.join(__dirname, 'jest-results-processor.js');
+
 export interface JestOutcome {
     exitCode: number;
-    /** Tests that passed or failed; undefined when Jest wrote no results, e.g. with the caller's own --json. */
+    /** Tests that passed or failed; undefined when Jest wrote no results, e.g. with the caller's own --testResultsProcessor. */
     testCount?: number;
 }
 
@@ -115,8 +117,8 @@ export function findJestConfigs(projectRoot: string, project: ExtensionToolingPr
 /**
  * Runs the Administration's Jest from the config's directory, so relative CLI paths
  * (e.g. --outputFile) and process.cwd() inside the config resolve there.
- * Jest writes its results to a temp file to count the tests that ran, unless
- * the caller asks for JSON output itself or starts watch mode, which never ends.
+ * A results processor writes the test counts to a temp file, unless the caller
+ * passes their own --testResultsProcessor or starts watch mode, which never ends.
  */
 export function createJestRunner(administrationRoot: string, stdio: StdioOptions = 'inherit'): JestRunner {
     const jestBin = path.join(administrationRoot, 'node_modules', 'jest', 'bin', 'jest.js');
@@ -124,8 +126,7 @@ export function createJestRunner(administrationRoot: string, stdio: StdioOptions
     return async (configPath, jestArgs) => {
         const countsTests =
             !isWatchRun(jestArgs) &&
-            booleanJestOption(jestArgs, 'json') !== true &&
-            !jestArgs.some((arg) => new RegExp(`^--(?:${optionPattern('outputFile')})(=|$)`).test(arg));
+            !jestArgs.some((arg) => new RegExp(`^--(?:${optionPattern('testResultsProcessor')})(=|$)`).test(arg));
         const resultsDirectory = countsTests ? fs.mkdtempSync(path.join(os.tmpdir(), 'sw-test-extensions-')) : undefined;
         const resultsFile = resultsDirectory && path.join(resultsDirectory, 'results.json');
 
@@ -137,10 +138,11 @@ export function createJestRunner(administrationRoot: string, stdio: StdioOptions
                     '--config',
                     configPath,
                     ...jestArgs,
-                    ...(resultsFile ? ['--json', `--outputFile=${resultsFile}`] : []),
+                    ...(resultsFile ? [`--testResultsProcessor=${RESULTS_PROCESSOR}`] : []),
                 ],
                 {
                     cwd: path.dirname(configPath),
+                    env: resultsFile ? { ...process.env, SW_TEST_EXTENSIONS_RESULTS_FILE: resultsFile } : process.env,
                     stdio,
                 },
             );
@@ -156,7 +158,7 @@ export function createJestRunner(administrationRoot: string, stdio: StdioOptions
     };
 }
 
-/** The passed and failed tests in a Jest `--json` results file, or undefined when Jest wrote none. */
+/** The passed and failed tests in the results processor's file, or undefined when Jest wrote none. */
 function readTestCount(resultsFile: string): number | undefined {
     if (!fs.existsSync(resultsFile)) {
         return undefined;

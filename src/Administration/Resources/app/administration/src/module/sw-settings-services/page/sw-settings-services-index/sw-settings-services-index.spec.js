@@ -80,6 +80,7 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
                     grantedAt: '2025-07-08',
                 },
             })),
+            getAvailableServices: jest.fn(async () => []),
             acceptRevision: jest.fn(async () => ({
                 disabled: false,
                 permissionsConsent: {
@@ -98,6 +99,11 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
                 permissionsConsent: null,
             })),
         }));
+    });
+
+    beforeEach(() => {
+        Shopware.Context.app.config.services = { enabled: true, setting: 'auto' };
+        Shopware.Context.app.config.settings = { ...Shopware.Context.app.config.settings, appEnv: 'prod' };
     });
 
     async function mountPage() {
@@ -256,7 +262,9 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
     });
 
     it('can activate services', async () => {
-        Shopware.Service('shopwareServicesService').getInstalledServices.mockImplementationOnce(async () => []);
+        Shopware.Service('shopwareServicesService')
+            .getInstalledServices.mockImplementationOnce(async () => [])
+            .mockImplementationOnce(async () => []);
 
         Shopware.Service('shopwareServicesService').getServicesContext.mockImplementationOnce(async () => ({
             disabled: true,
@@ -274,6 +282,161 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
         expect(page.findComponent(SwSettingsServicesGrantPermissionsCard).exists()).toBe(false);
         expect(page.findAll('sw-settings-services-service-card-stub')).toHaveLength(0);
         expect(page.find('.sw-settings-services-index__installing-card').exists()).toBe(true);
+    });
+
+    it('explains that ENABLE_SERVICES=auto keeps services off outside the prod environment', async () => {
+        Shopware.Service('shopwareServicesService').getInstalledServices.mockImplementationOnce(async () => []);
+        Shopware.Context.app.config.services = { enabled: false, setting: 'auto' };
+        Shopware.Context.app.config.settings.appEnv = 'dev';
+        const availableServicesCalls = Shopware.Service('shopwareServicesService').getAvailableServices.mock.calls.length;
+
+        const page = await mountPage();
+        await flushPromises();
+
+        const banner = page.get('.sw-settings-services-index__services-turned-off-banner');
+
+        expect(banner.text()).toContain('sw-settings-services.index.turned-off.reason-auto');
+        expect(banner.text()).not.toContain('sw-settings-services.index.turned-off.reason-disabled');
+        expect(banner.findAll('.sw-settings-services-index__debug-options li').map((option) => option.text())).toEqual([
+            'sw-settings-services.index.turned-off.option-enable',
+            'sw-settings-services.index.turned-off.option-prod',
+        ]);
+        expect(page.find('.sw-settings-services__listing-section h3').exists()).toBe(false);
+        expect(page.find('.sw-settings-services-index__installing-card').exists()).toBe(false);
+        expect(Shopware.Service('shopwareServicesService').getAvailableServices).toHaveBeenCalledTimes(
+            availableServicesCalls,
+        );
+    });
+
+    it('explains that ENABLE_SERVICES turns services off', async () => {
+        Shopware.Service('shopwareServicesService').getInstalledServices.mockImplementationOnce(async () => []);
+        Shopware.Context.app.config.services = { enabled: false, setting: 'false' };
+        Shopware.Service('shopwareServicesService').getServicesContext.mockImplementationOnce(async () => ({
+            disabled: true,
+            permissionsConsent: null,
+        }));
+
+        const page = await mountPage();
+        await flushPromises();
+
+        const banner = page.get('.sw-settings-services-index__services-turned-off-banner');
+
+        expect(banner.text()).toContain('sw-settings-services.index.turned-off.reason-disabled');
+        expect(banner.findAll('.sw-settings-services-index__debug-options li').map((option) => option.text())).toEqual([
+            'sw-settings-services.index.turned-off.option-enable',
+        ]);
+        expect(page.find('.sw-settings-services-index__services-deactivated-banner').exists()).toBe(false);
+        expect(page.find('.sw-settings-services-index__installing-card').exists()).toBe(false);
+    });
+
+    describe('while services install', () => {
+        const firstService = {
+            id: 'service-id',
+            active: true,
+            name: 'first-service-name',
+            label: 'First Service',
+            requirements: ['service_consent'],
+        };
+
+        const secondService = {
+            id: 'service-id-2',
+            active: true,
+            name: 'second-service-name',
+            label: 'Second Service',
+            requirements: ['service_consent'],
+        };
+
+        let defaultInstalledServices;
+        let defaultAvailableServices;
+
+        beforeEach(() => {
+            jest.useFakeTimers();
+
+            const shopwareServicesService = Shopware.Service('shopwareServicesService');
+            defaultInstalledServices = shopwareServicesService.getInstalledServices.getMockImplementation();
+            defaultAvailableServices = shopwareServicesService.getAvailableServices.getMockImplementation();
+        });
+
+        afterEach(() => {
+            jest.useRealTimers();
+
+            const shopwareServicesService = Shopware.Service('shopwareServicesService');
+            shopwareServicesService.getInstalledServices.mockImplementation(defaultInstalledServices);
+            shopwareServicesService.getAvailableServices.mockImplementation(defaultAvailableServices);
+        });
+
+        it('shows pending services and refreshes the list until they are installed', async () => {
+            const shopwareServicesService = Shopware.Service('shopwareServicesService');
+            shopwareServicesService.getInstalledServices
+                .mockImplementationOnce(async () => [firstService])
+                .mockImplementationOnce(async () => [
+                    firstService,
+                    secondService,
+                ]);
+            shopwareServicesService.getAvailableServices.mockImplementation(async () => [
+                { name: 'first-service-name' },
+                { name: 'second-service-name' },
+            ]);
+            const availableServicesCalls = shopwareServicesService.getAvailableServices.mock.calls.length;
+
+            const page = await mountPage();
+            await flushPromises();
+
+            expect(page.findAll('sw-settings-services-service-card-stub')).toHaveLength(1);
+            expect(page.vm.installedServicesCount).toBe(1);
+            expect(page.get('.sw-settings-services-index__installing-card-progress').text()).toBe(
+                'sw-settings-services.index.installing-services-progress',
+            );
+
+            jest.advanceTimersByTime(10_000);
+            await flushPromises();
+
+            expect(page.findAll('sw-settings-services-service-card-stub')).toHaveLength(2);
+            expect(page.find('.sw-settings-services-index__installing-card').exists()).toBe(false);
+
+            const callsAfterInstallation = shopwareServicesService.getInstalledServices.mock.calls.length;
+            jest.advanceTimersByTime(60_000);
+            await flushPromises();
+
+            expect(shopwareServicesService.getInstalledServices).toHaveBeenCalledTimes(callsAfterInstallation);
+            expect(shopwareServicesService.getAvailableServices).toHaveBeenCalledTimes(availableServicesCalls + 1);
+        });
+
+        it('stops refreshing and offers to check again when the installation takes long', async () => {
+            const shopwareServicesService = Shopware.Service('shopwareServicesService');
+            shopwareServicesService.getInstalledServices.mockImplementation(async () => []);
+            shopwareServicesService.getAvailableServices.mockImplementation(async () => [
+                { name: 'first-service-name' },
+            ]);
+
+            const page = await mountPage();
+            await flushPromises();
+
+            expect(page.find('.sw-settings-services-index__installation-stalled-banner').exists()).toBe(false);
+
+            for (let elapsed = 0; elapsed < 120_000; elapsed += 10_000) {
+                jest.advanceTimersByTime(10_000);
+                await flushPromises();
+            }
+
+            const stalledBanner = page.get('.sw-settings-services-index__installation-stalled-banner');
+            expect(stalledBanner.text()).toContain('sw-settings-services.index.installation-stalled.description');
+            expect(stalledBanner.find('code').exists()).toBe(false);
+
+            const callsWhenStalled = shopwareServicesService.getInstalledServices.mock.calls.length;
+            jest.advanceTimersByTime(60_000);
+            await flushPromises();
+
+            expect(shopwareServicesService.getInstalledServices).toHaveBeenCalledTimes(callsWhenStalled);
+
+            shopwareServicesService.getInstalledServices.mockImplementation(async () => [firstService]);
+
+            await stalledBanner.getComponent(MtButton).trigger('click');
+            await flushPromises();
+
+            expect(page.find('.sw-settings-services-index__installation-stalled-banner').exists()).toBe(false);
+            expect(page.findAll('sw-settings-services-service-card-stub')).toHaveLength(1);
+        });
     });
 
     it('shows error banner', async () => {

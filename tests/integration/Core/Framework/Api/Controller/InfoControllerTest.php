@@ -139,8 +139,13 @@ class InfoControllerTest extends TestCase
                 'disableExtensionManagement' => false,
                 'hideUpdateModule' => false,
                 'minSearchTermLength' => 2,
+                'appEnv' => 'test',
             ],
             'inAppPurchases' => [],
+            'services' => [
+                'enabled' => false,
+                'setting' => 'auto',
+            ],
         ];
 
         if (Feature::isActive('v6.8.0.0')) {

@@ -256,6 +256,8 @@ class DocumentGenerator
             throw DocumentException::documentGenerationException('Parameter "fileName" is missing');
         }
 
+        // Media is written under system scope because the route-level document:update
+        // ACL check already authorizes the caller to create document media.
         $mediaId = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->saveMediaFile($mediaFile, $fileName, $context, 'document'));
 
         $this->documentRepository->upsert([

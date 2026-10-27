@@ -17,7 +17,14 @@ When a client calls a tool, the MCP specification expects a result with these pa
 
 JSON-RPC errors are separate from all of this. They are meant for protocol problems (unknown tool, invalid parameters, server failure), not for normal business errors.
 
-The specification also says that a tool returning `structuredContent` SHOULD return the same data serialized as JSON in a text block. Many clients only pass `content` to the model, so this text copy is what the model actually reads. A spec-compliant result therefore carries the data twice, and that stays true after any migration.
+The specification also says that a tool returning `structuredContent` SHOULD return the same data serialized as JSON in a text block. A spec-compliant result therefore carries the data twice, and that stays true after any migration.
+Clients disagree on which copy reaches the model (as of October 2026):
+
+- Gemini CLI and Cursor pass only `content`.
+- Claude Code, Codex CLI and VS Code Copilot pass `structuredContent` and drop the text blocks when it is present.
+- ChatGPT passes both.
+
+So neither copy can be dropped without some major client losing the data.
 
 ### What Shopware returns today
 
@@ -58,7 +65,7 @@ The SDK (`mcp/sdk` 0.8) passes a complete `CallToolResult` through unchanged. So
 
 ## Decision
 
-We choose option 4, and use it to run the phased move from option 3 in one place.
+We choose option 4, and serve both formats from it: each client gets the format its negotiated protocol revision supports.
 
 ### The internal result object
 
@@ -87,38 +94,57 @@ Renderers pass them on where their format can express them, for example as cache
 - **Meaning, not wire names.** No part is named after an MCP field. `isError`, `structuredContent`, `_meta` and `resource_link` exist only inside the mapper.
 - **Closed set of part types.** Only core defines part types. An extension can't add a new kind of part, so every renderer can always map every result completely. New part types are added to core together with support in every renderer.
 - **Grow by adding, never by changing.** New optional parts or fields may be added. Existing ones keep their meaning. This keeps plugins that build results today valid for later formats.
-- **Immutable and complete.** The object is a value object, built from phase 2 on by the `McpToolResponse` helpers (or a builder for richer results); in phase 1 the mapper builds it from the helpers' string. The mapper only reads it, and nothing downstream depends on a tool having produced JSON.
+- **Immutable and complete.** The object is a value object, built by the mapper from the helpers' string today, and returned by tools directly once [#21306](https://github.com/shopware/shopware/issues/21306) lands (or built with a builder for richer results). The mapper only reads it, and nothing downstream depends on a tool having produced JSON.
 - **No transport concerns.** Size limits, offloading, pagination cursors of the protocol, and synchronous versus task-based delivery are not part of the object. They belong to the renderer and the protocol layer.
 
-Tools declare `__invoke(): string` today, and PHP checks that return type before the mapper sees the value. So in phase 1, `McpToolResponse::success()` and `::error()` keep returning the legacy JSON string, and the mapper parses it into this object (see *Legacy input* below). That is why tools using these helpers, which is almost all core and plugin tools, don't have to change yet. Returning the object directly also needs the return declaration changed (`string|McpToolResult`, later the object alone), so it becomes the documented path in phase 2, together with the PHPStan rule. `::error()` accepts an optional error code, and the existing helpers such as `missingPrivilegesError()` set one. Tools declare `outputSchema` against the result data, not against a wire format.
+Tools declare `__invoke(): string` today, and PHP checks that return type before the mapper sees the value. So `McpToolResponse::success()` and `::error()` keep returning the legacy JSON string, and the mapper parses it into this object (see *Legacy input* below). That is why tools using these helpers, which is almost all core and plugin tools, don't have to change. Returning the object directly also needs the return declaration changed (`string|McpToolResult`), so it becomes the documented path with [#21306](https://github.com/shopware/shopware/issues/21306), together with the PHPStan rule. `::error()` accepts an optional error code, and the existing helpers such as `missingPrivilegesError()` set one. Tools declare `outputSchema` against the result data, not against a wire format.
 
 ### The output mapper
 
 One mapper in core converts every tool result before the SDK sends it. It is the only place that knows the wire format.
 
-- **One renderer per output format.** The mapper picks a renderer for each request: the legacy envelope, the handshake era, the stateless era, and later formats as they appear. The choice depends on the phase, the `v6.8.0.0` feature flag and the negotiated protocol revision, not only on the era. `structuredContent` and `resource_link` only exist since 2025-06-18, so for clients on 2024-11-05 or 2025-03-26 everything goes into the text block, including the pointer to a stored result. Supporting a new format means adding a renderer, not touching tools.
+- **One renderer per output format.** The mapper picks a renderer for each request: the legacy envelope, the handshake era, the stateless era, and later formats as they appear. The choice depends only on the negotiated protocol revision, not on a feature flag and not only on the era. One table, `McpToolResultCapabilities`, maps a revision to what it supports (the MCP format with `structuredContent` and `resource_link`, object-only `structuredContent`, the inline size limit, the stored format), so a new revision is one entry. `structuredContent` and `resource_link` only exist since 2025-06-18, so clients on 2024-11-05 or 2025-03-26 get the legacy envelope as the only text block, including the pointer to a stored result. Supporting a new format means adding an entry or a renderer, not touching tools.
 - **Every renderer handles every part.** A renderer maps each part type to the closest concept of its format. Where a format has no equivalent (for example images in a text-only format), the renderer falls back to a documented text form, never to silently dropping the part.
-- **Size limits per format.** The renderer applies the size limit of its format to the complete rendered result, including the text copy the MCP spec asks for. Anything too large is stored and sent as a link. In phase 1 the size check and the store stay in `McpToolResponse::success()`; they move into the renderer in phase 2 ([#21306](https://github.com/shopware/shopware/issues/21306)).
-- **Format version on the serialized form.** Results that leave PHP and are read back later or elsewhere carry a format version, an enum defined by core: stored large results in `mcp_tool_result_cache`, and responses from app tools. The mapper picks the matching parser for that version, so older stored results and apps built against an older format stay readable. The in-memory result object has no version field: inside PHP the class is the version, and the renderer is chosen by the output target, not by the result. Phase 1 stores the legacy string without a version; the version comes with the move into the renderer.
-- **Legacy input.** The mapper also accepts the legacy JSON string, so tools that still return a string, the phase 1 helpers and app tools keep working. It parses `{success, data, error}` into a result object and renders it like any other result. An `error` may also be an object, as some extension tools return it; its `message` and `code` become the error, and its other keys are kept as details. Keys next to the envelope fields, such as `dryRun` and `preview` of agentic-commerce's UCP tools, are kept as metadata, so a preview can still be told from a committed change. A string that isn't this envelope (no boolean `success`) is passed through unchanged as a single text block, as today.
+- **Size limits per format.** The renderer applies the size limit of its format to the complete rendered result, including the text copy the MCP spec asks for. Anything too large is stored and sent as a link, which keeps the tool's summary, its own links and its metadata up to a fixed budget. The limit is 200 KB rendered since 2025-06-18, where the data is sent twice, and 100 KB before, so the offload point is about 100 KB of data on every revision.
+- **Format version on the serialized form.** Results that leave PHP and are read back later or elsewhere carry a format version, an enum defined by core: stored large results in `mcp_tool_result_cache`, and responses from app tools. The mapper picks the matching parser for that version, so older stored results and apps built against an older format stay readable. The in-memory result object has no version field: inside PHP the class is the version, and the renderer is chosen by the output target, not by the result. For stored results the version is the `mime_type` column (`McpToolResultStoredFormat`): plain data for clients since 2025-06-18, the legacy envelope before.
+- **Legacy input.** The mapper also accepts the legacy JSON string, so tools that return a string, the `McpToolResponse` helpers and app tools keep working. It parses `{success, data, error}` into a result object and renders it like any other result. An `error` may also be an object, as some extension tools return it; its `message` and `code` become the error, and its other keys are kept as details. Keys next to the envelope fields, such as `dryRun` and `preview` of agentic-commerce's UCP tools, are kept as metadata, so a preview can still be told from a committed change. A string that isn't this envelope (no boolean `success`) is passed through unchanged as a single text block, as today.
 
 For MCP today, the renderers fill `structuredContent`, `isError` and the text block, turn links to stored results into `resource_link` blocks, and respect era differences, for example that `structuredContent` must be an object on the handshake era.
 
 **Checking that the format holds up.** A test matrix renders a fixed set of sample results (success with data, failure with an error code, mixed content parts, a large result with a link, metadata from an extension) through every renderer. As a design check, the result parts also have to map onto the result shapes of at least one other agent protocol, for example the artifacts of the Agent2Agent protocol, before the object is finalized. If a sample can't be represented, the object is extended before any renderer is written against it.
 
-### Phases
+### Formats per protocol revision
 
-The phases are renderers of the mapper, selected per request, not a tool-by-tool migration.
+The negotiated protocol revision picks the format, per request.
+There is no feature flag and no date at which the legacy format is removed.
 
-1. **Both formats (default until 6.8.0).** `structuredContent` contains the result data, a failed call sets `isError: true`, and the text block still contains the legacy `{"success": …}` string, so existing readers keep working. App tools keep their `{success, data}` responses and the mapper translates them.
-2. **Deprecation.** Release notes and upgrade notes announce the removal of the legacy string. A PHPStan rule reports tools that build JSON strings by hand instead of returning the result object.
-3. **Spec format only (6.8.0).** The text block contains the result data as plain JSON, without the `success` wrapper. Whenever `structuredContent` is present, that JSON copy stays, because clients that pass only `content` to the model would otherwise lose the data. A summary, if the tool gives one, goes into an additional text block, never in place of the JSON. The metadata follows as a text block of its own (`{"_meta": …}`), next to the result's `_meta`: much of it is written for the model (`dryRun`, `total`, `resourceUri`, the `usage` hint of tool search), and most clients don't pass `_meta` on to it. A result without data, such as one stored behind a link, sends no data block. This mode is behind the `v6.8.0.0` feature flag, so developers, clients and the evaluation suite can switch to it early and test against it.
+1. **MCP format (2025-06-18 and later).** `structuredContent` contains the result data, a failed call sets `isError: true`, and stored results are linked with `resource_link`.
+   The text block contains the result data as plain JSON, without the `success` wrapper.
+   That JSON copy stays whenever `structuredContent` is present, because some major clients pass only `content` to the model (see *Context*).
+   A summary, if the tool gives one, goes into an additional text block, never in place of the JSON.
+   The metadata follows as a text block of its own (`{"_meta": …}`), next to the result's `_meta`: much of it is written for the model (`dryRun`, `total`, the `usage` hint of tool search), and most clients don't pass `_meta` on to it.
+   A result without data, such as one stored behind a link, sends no data block.
+   Clients that pass only `structuredContent` never show the model that text block, so `structuredContent` carries the same metadata under the reserved key `_meta`, without client bookkeeping (`responseSize`, `resourceUri`) and with `summary` when the tool gives one.
+   An object gains the key next to its own keys; a list or scalar is wrapped as `{"result": …, "_meta": …}`, on 2026-07-28 too.
+   A result without such metadata keeps `structuredContent` as described above, and so do failures, linked results (no `structuredContent`), data with a `_meta` key of its own, and tools with an `outputSchema` (see *Output schemas*).
+   A dry-run write:
 
-The spec-only mode doesn't make results smaller than phase 1, because the specification itself asks for the text copy. Phase 1 replaces that copy with the legacy string, which is about the same size. Large results are kept in check by the size limit and `resource_link`, not by dropping one of the copies.
+   ```json
+   {"result": [{"entity": "tax", "ids": ["0190..."], "operation": "upsert"}], "_meta": {"dryRun": true}}
+   ```
 
-### How the old format maps to the new one
+2. **Legacy envelope (before 2025-06-18), deprecated.** These revisions have neither `structuredContent` nor `resource_link`, so the only text block is the `{"success": …}` string, and the pointer to a stored result is `_meta.resourceUri` inside it.
+   The format is deprecated: release notes say so, and new clients are expected to negotiate 2025-06-18 or later.
+   It is kept for the clients that still need it, and every client gets only the format it expects.
 
-| Today | After the migration |
+The tool side is independent of the wire format: the `McpToolResponse` helpers stay, and a PHPStan rule reports tools that build JSON strings by hand ([#21306](https://github.com/shopware/shopware/issues/21306)).
+
+The MCP format doesn't make results smaller than the legacy envelope, because the specification itself asks for the text copy and the envelope is about the same size as that copy.
+Large results are kept in check by the size limit and `resource_link`, not by dropping one of the copies.
+
+### How the legacy envelope maps to the MCP format
+
+| Legacy envelope (before 2025-06-18) | MCP format (2025-06-18 and later) |
 |---|---|
 | `success: true` with `data` | `structuredContent` = `data`, plus the text block. `isError` is not set. |
 | `success: false` with `error` | `isError: true`, with the message in the text block (and optionally a structured error object). Not a JSON-RPC error. |
@@ -130,19 +156,25 @@ The spec-only mode doesn't make results smaller than phase 1, because the specif
 
 Tools may declare an `outputSchema` for their result data. We add them first to tools with a stable, documented result. It isn't mandatory for every tool in the first step. The mapper makes sure a schema-described result is only sent in a shape the negotiated protocol era allows. This is covered by tests on both eras.
 
+The schema describes the data, so the `structuredContent` of a tool with an `outputSchema` is exactly its data, without the reserved `_meta` key for the model.
+`mcp/sdk` 0.9 validates `structuredContent` against the schema, and a strict schema (`additionalProperties: false`) would reject the extra key.
+Such a tool makes the metadata the model needs part of its data and its schema.
+
 ### Static analysis
 
 - `McpToolResponseRule` stays as it is: every `#[McpTool]` class extends `McpToolResponse`.
-- A second, separate rule reports tools that return a hand-built JSON string instead of the result object. It starts as a warning in phase 2 and becomes an error for 6.8.0. We don't make the existing rule do both, so each rule has one clear job.
+- A second, separate rule reports tools that return a hand-built JSON string instead of the result object. It starts as a warning ([#21306](https://github.com/shopware/shopware/issues/21306)). We don't make the existing rule do both, so each rule has one clear job.
 
 Other MCP checks we want in PHPStan are tracked separately and aren't part of this decision: Admin tools must declare ACL privileges, Store tools follow Store API authentication instead of Admin ACL, and extensions must not register tools in reserved groups such as `discovery`.
 
 ## Consequences
 
-**For MCP clients and agents.** Until 6.8.0 they can read either format. After that they read `content`, `structuredContent` and `isError` like with any other MCP server. Failures are reported through `isError`, so clients can tell them apart from successes. The `v6.8.0.0` feature flag gives them the final format early.
+**For MCP clients and agents.** Clients on 2025-06-18 and later read `content`, `structuredContent` and `isError` like with any other MCP server, and failures are reported through `isError`, so clients can tell them apart from successes.
+Their text block is no longer the `{"success": …}` envelope, so an integration that parses `success` out of the text has to read `isError` and `structuredContent`, or negotiate an older revision.
+Clients before 2025-06-18 keep the deprecated envelope unchanged.
 
-**For extension developers.** Plugin and bundle tools that use the `McpToolResponse` helpers get every format change automatically, now and for future MCP revisions. Extensions can attach their own metadata in a namespaced area, but can't invent new part types. Tools that build the JSON string by hand keep working during phase 1, get a PHPStan warning, and must return the result object before 6.8.0 (phase 2, [#21306](https://github.com/shopware/shopware/issues/21306)). The return type of `__invoke()` becomes the result object. Declaring `string` keeps working until 6.8.0. App tools keep their response format. The mapper translates it, and any change to the app contract is announced separately in the release and upgrade notes.
+**For extension developers.** Plugin and bundle tools that use the `McpToolResponse` helpers get every format change automatically, now and for future MCP revisions. Extensions can attach their own metadata in a namespaced area, but can't invent new part types. Tools that build the JSON string by hand keep working and get a PHPStan warning that points them to the helpers or the result object ([#21306](https://github.com/shopware/shopware/issues/21306)). Declaring `string` as the return type of `__invoke()` keeps working. App tools keep their response format. The mapper translates it, and any change to the app contract is announced separately in the release and upgrade notes.
 
-**For Shopware development.** The mapper is the single place to test the output format on both protocol eras. The large-result pointer and the planned Sync tool build on the result object directly. Every step that changes what clients see comes with a matching change in the evaluation suite and with release notes.
+**For Shopware development.** The mapper is the single place to test the output format on every protocol revision. The large-result pointer and the planned Sync tool build on the result object directly. Every step that changes what clients see comes with a matching change in the evaluation suite and with release notes.
 
 Related issues: epic [#19965](https://github.com/shopware/shopware/issues/19965), [#19967](https://github.com/shopware/shopware/issues/19967) (this decision), [#19966](https://github.com/shopware/shopware/issues/19966) (large-result pointer), [#20520](https://github.com/shopware/shopware/issues/20520) (Sync tool).

@@ -29,6 +29,12 @@ shopware:
         major: v6.8.0.0
         toggleable: true
         description: "Execute flows after the main unit of work has concluded. Will become the default for next major 6.8"
+      - name: DISABLE_SQL_MULTI_STATEMENTS
+        default: false
+        major: v6.8.0.0
+        # The initial database connection is configured before database-backed feature toggles are loaded; use an environment override.
+        toggleable: false
+        description: "Restrict application database connections to single SQL statements. Migration and installer connections still allow multiple statements."
       - name: DOCUMENT_GENERATION_REWORK
         default: false
         major: v6.8.0.0
@@ -111,6 +117,11 @@ shopware:
         major: v6.8.0.0
         toggleable: true
         description: "Experimental! Enable outbox-owned retry scheduling for webhooks instead of Messenger retries."
+      # No `major: v6.8.0.0` yet: setup-shopware caches only the admin node_modules, so major CI lanes would miss build/vite-8/node_modules
+      - name: ADMIN_VITE_8
+        default: false
+        toggleable: true
+        description: "Experimental! Build the Administration and the Administration code of extensions with Vite 8. Requires Node.js ^20.19.0 || >=22.12.0. Will become the default with 6.8."
       - name: ADMIN_EXTENSION_TOOLING
         default: false
         toggleable: true

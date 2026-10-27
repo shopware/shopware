@@ -214,3 +214,6 @@ danger.phar
 # inside the directory as a marker.
 .github/aw/logs/*
 !.github/aw/logs/README.md
+
+# sw-review change profile written by CI before the review agent starts
+.sw-review/

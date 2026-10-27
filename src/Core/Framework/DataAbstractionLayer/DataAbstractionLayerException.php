@@ -88,6 +88,7 @@ class DataAbstractionLayerException extends HttpException
     public const EXPECTED_ARRAY_WITH_TYPE = 'FRAMEWORK__EXPECTED_ARRAY_WITH_TYPE';
     public const EXPECTED_FIELD_VALUE_TYPE_WITH_VALUE = 'FRAMEWORK__EXPECTED_FIELD_VALUE_TYPE_WITH_VALUE';
     public const REPOSITORY_ITERATOR_EXPECTED_STRING_LAST_ID = 'FRAMEWORK__REPOSITORY_ITERATOR_EXPECTED_STRING_LAST_ID';
+    public const REPOSITORY_ITERATOR_MISSING_AUTO_INCREMENT = 'FRAMEWORK__REPOSITORY_ITERATOR_MISSING_AUTO_INCREMENT';
     public const INVALID_AGGREGATION_NAME = 'FRAMEWORK__INVALID_AGGREGATION_NAME';
     public const MISSING_FIELD_VALUE = 'FRAMEWORK__MISSING_FIELD_VALUE';
     public const NOT_CUSTOM_FIELDS_SUPPORT = 'FRAMEWORK__NOT_CUSTOM_FIELDS_SUPPORT';
@@ -270,6 +271,15 @@ class DataAbstractionLayerException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::REPOSITORY_ITERATOR_EXPECTED_STRING_LAST_ID,
             'Expected string as last element of ids array.'
+        );
+    }
+
+    public static function repositoryIteratorMissingAutoIncrement(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REPOSITORY_ITERATOR_MISSING_AUTO_INCREMENT,
+            'Expected the id search result to contain the autoIncrement value of the last id.'
         );
     }
 

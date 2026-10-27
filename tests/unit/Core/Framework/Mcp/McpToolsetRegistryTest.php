@@ -167,6 +167,35 @@ class McpToolsetRegistryTest extends TestCase
             ],
             $toolsetRegistry->advertisedTools(['entity', 'order']),
         );
+
+        static::assertSame(
+            $toolsetRegistry->advertisedToolsForNames([McpToolsetRegistry::ALL_TOOLSETS]),
+            $toolsetRegistry->advertisedTools([McpToolsetRegistry::ALL_TOOLSETS]),
+        );
+    }
+
+    public function testAToolGroupNamedLikeTheAllSelectorLandsInTheFallbackToolset(): void
+    {
+        $registry = $this->buildRegistry([
+            McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
+            'swag-report',
+            'my-erp-sync-orders',
+        ]);
+
+        $toolsetRegistry = new McpToolsetRegistry(new McpCapabilityCatalog(
+            $registry,
+            $this->stubPrivilegeProvider(['my-erp-sync-orders' => McpToolsetRegistry::ALL_TOOLSETS]),
+            toolGroups: [
+                McpToolsetRegistry::ENABLE_TOOLSET_TOOL => 'discovery',
+                'swag-report' => McpToolsetRegistry::ALL_TOOLSETS,
+            ],
+        ));
+
+        $toolsetsByName = array_column($toolsetRegistry->toolsets(), null, 'name');
+
+        static::assertSame([McpToolsetRegistry::FALLBACK_GROUP], array_keys($toolsetsByName));
+        static::assertSame(['my-erp-sync-orders', 'swag-report'], $toolsetsByName[McpToolsetRegistry::FALLBACK_GROUP]['tools']);
+        static::assertNull($toolsetRegistry->find(McpToolsetRegistry::ALL_TOOLSETS));
     }
 
     public function testToolsetsAreScopedToTheCurrentAllowlist(): void

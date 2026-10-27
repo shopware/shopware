@@ -143,6 +143,17 @@ Requests that send `accountType` behave as before.
 
 ## Features
 
+### MCP tool for bulk writes through the Sync API
+
+The Admin API MCP server (`/api/_mcp`) has a new tool `shopware-entity-sync` in the `entity` toolset.
+It takes the operations of the Admin API sync endpoint (`POST /api/_action/sync`), so a client can write and delete many records, also on several entities, in one call.
+`dryRun` defaults to `true`: the operations run and are rolled back, and the result shows what would be written, deleted or not found.
+`indexingBehavior` accepts `use-queue-indexing`; `disable-indexing` is rejected.
+`skipTriggerFlow` works like the `sw-skip-trigger-flow` header.
+
+The tool needs the `create`, `update` or `delete` privilege of every entity its operations write.
+Like every MCP tool, it is only callable after it was added to the MCP allowlist of the integration or user.
+
 ### Disable the Administration password recovery flow
 
 The Administration "forgot password" flow can now be disabled in `shopware.yaml`, for example when user passwords are managed externally via SSO.

@@ -276,6 +276,7 @@ class McpCapabilityDiscoveryTest extends TestCase
         yield 'shopware-toolset-enable' => ['shopware-toolset-enable'];
         yield 'shopware-entity-schema' => ['shopware-entity-schema'];
         yield 'shopware-entity-search' => ['shopware-entity-search'];
+        yield 'shopware-entity-sync' => ['shopware-entity-sync'];
         yield 'shopware-tool-search' => ['shopware-tool-search'];
     }
 

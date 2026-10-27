@@ -76,21 +76,12 @@ class SalesChannelProductAssignerTest extends TestCase
     public function testAssignsTheProductsOfEverySource(): void
     {
         $ids = $this->ids(4);
-        /** @var list<Criteria> $searchedCriteria */
-        $searchedCriteria = [];
-        $remember = static function (array $ids) use (&$searchedCriteria): callable {
-            return static function (Criteria $criteria) use (&$searchedCriteria, $ids): array {
-                $searchedCriteria[] = clone $criteria;
-
-                return self::page($ids);
-            };
-        };
 
         $this->salesChannelRepository->addSearch([self::SALES_CHANNEL_ID]);
         $this->productRepository->addSearch(
-            $remember([$ids[0], $ids[1]]),
-            $remember([$ids[2]]),
-            $remember([$ids[3]]),
+            self::page([$ids[0], $ids[1]]),
+            self::page([$ids[2]]),
+            self::page([$ids[3]]),
         );
 
         $result = $this->assigner->assign(
@@ -114,6 +105,7 @@ class SalesChannelProductAssignerTest extends TestCase
             $this->visibilityRepository->getPayloads(StaticEntityRepository::UPSERT),
         );
 
+        $searchedCriteria = $this->productRepository->searchedCriteria;
         static::assertCount(3, $searchedCriteria);
         [$byIds, $byStream, $byCategory] = $searchedCriteria;
 

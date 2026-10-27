@@ -63,10 +63,10 @@ class StoreApiToolsetEnableToolTest extends TestCase
         $requestStack->push(self::statelessRequest());
 
         $tool = new StoreApiToolsetEnableTool(static::createStub(McpToolsetRegistry::class), $storage, $requestStack);
-        $result = json_decode($tool('store-api'), true, 512, \JSON_THROW_ON_ERROR);
+        $result = $tool('store-api');
 
-        static::assertFalse($result['success']);
-        static::assertStringContainsString('"?toolsets=store-api"', $result['error']);
+        static::assertTrue($result->isError());
+        static::assertStringContainsString('"?toolsets=store-api"', $result->error->message);
     }
 
     private static function statelessRequest(): Request

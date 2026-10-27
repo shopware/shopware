@@ -39,7 +39,7 @@ class ToolsetsListTool extends McpToolResponse
         // Not advertised on the stateless era (2026-07-28): which toolsets are enabled is session state,
         // and there is no toolset-enable to follow up with. See McpProtocolEra::HIDDEN_ON_STATELESS_ERA.
         if (McpProtocolEra::isStateless($this->requestStack->getMainRequest())) {
-            return $this->error(McpProtocolEra::toolsetToolUnavailableMessage(McpToolsetRegistry::LIST_TOOLSETS_TOOL));
+            return $this->errorResult(McpProtocolEra::toolsetToolUnavailableMessage(McpToolsetRegistry::LIST_TOOLSETS_TOOL));
         }
 
         $enabledToolsets = $this->enabledToolsets();

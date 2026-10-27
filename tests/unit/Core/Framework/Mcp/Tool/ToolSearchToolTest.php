@@ -53,10 +53,10 @@ class ToolSearchToolTest extends TestCase
 
         $tool = new ToolSearchTool($this->registry(), new ToolSearch(), null, $this->toolsetRegistry(), $requestStack);
 
-        $data = json_decode($tool('read entity'), true, 512, \JSON_THROW_ON_ERROR);
+        $data = $tool('read entity');
 
-        static::assertArrayNotHasKey('toolset', $data['data'][0]);
-        static::assertStringContainsString('shopware-toolset-enable', $data['_meta']['usage']);
+        static::assertArrayNotHasKey('toolset', $data->data[0]);
+        static::assertStringContainsString('shopware-toolset-enable', $data->meta['usage']);
     }
 
     public function testStatelessResultNamesTheToolsetAndPointsToToolsetsInTheUrl(): void
@@ -66,14 +66,17 @@ class ToolSearchToolTest extends TestCase
 
         $tool = new ToolSearchTool($this->registry(), new ToolSearch(), null, $this->toolsetRegistry(), $requestStack);
 
-        $data = json_decode($tool('read entity', 20), true, 512, \JSON_THROW_ON_ERROR);
+        $data = $tool('read entity', 20);
 
-        static::assertSame('shopware-entity-read', $data['data'][0]['tool']['name']);
-        static::assertSame('entity', $data['data'][0]['toolset']);
-        static::assertSame(2, $data['_meta']['totalCandidates']);
-        static::assertStringContainsString('?toolsets=', $data['_meta']['usage']);
-        static::assertStringNotContainsString('shopware-toolset-enable', $data['_meta']['usage']);
-        static::assertStringNotContainsString('shopware-toolsets-list', $data['_meta']['usage']);
+        static::assertIsArray($data->data);
+        $match = $data->data[0]['tool'];
+        static::assertInstanceOf(Tool::class, $match);
+        static::assertSame('shopware-entity-read', $match->name);
+        static::assertSame('entity', $data->data[0]['toolset']);
+        static::assertSame(2, $data->meta['totalCandidates']);
+        static::assertStringContainsString('?toolsets=', $data->meta['usage']);
+        static::assertStringNotContainsString('shopware-toolset-enable', $data->meta['usage']);
+        static::assertStringNotContainsString('shopware-toolsets-list', $data->meta['usage']);
     }
 
     public function testStatelessSearchDoesNotFindTheToolsetSessionTools(): void
@@ -87,10 +90,10 @@ class ToolSearchToolTest extends TestCase
 
         $tool = new ToolSearchTool($registry, new ToolSearch(), null, $this->toolsetRegistry(), $requestStack);
 
-        $data = json_decode($tool('toolset', 20), true, 512, \JSON_THROW_ON_ERROR);
+        $data = $tool('toolset', 20);
 
-        static::assertSame([], $data['data']);
-        static::assertSame(2, $data['_meta']['totalCandidates']);
+        static::assertSame([], $data->data);
+        static::assertSame(2, $data->meta['totalCandidates']);
     }
 
     private function toolsetRegistry(): McpToolsetRegistry

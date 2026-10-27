@@ -512,6 +512,7 @@
       "tabOptions": "Optionen",
       "tabCredit": "Gutschrift",
       "buttonPreviewOrder": "Vorschau",
+      "messageCancelCartError": "Der Warenkorb konnte nicht verworfen werden.",
       "customerGrid": {
         "buttonAddNewCustomer": "Kunden anlegen",
         "placeholderSearchCustomer": "Kundennamen eingeben ...",

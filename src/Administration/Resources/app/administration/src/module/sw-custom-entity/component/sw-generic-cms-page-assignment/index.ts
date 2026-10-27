@@ -20,6 +20,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['repositoryFactory', 'cmsPageTypeService'],
 
+    emits: ['update:cms-page-id', 'create-layout', 'update:slot-overrides'],
+
     props: {
         cmsPageId: {
             type: String as unknown as PropType<EntityKey<'cms_page'> | null>,

@@ -10,6 +10,8 @@ import template from './sw-textarea-field.html.twig';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    emits: ['update:modelValue'],
+
     props: {
         placeholder: {
             type: String,

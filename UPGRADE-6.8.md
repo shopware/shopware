@@ -454,7 +454,23 @@ Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new fo
 
 # Core
 
+## Multiple SQL statements restricted to migrations and installation
+
+Application database connections no longer accepted multiple SQL statements in a single call.
+The restriction was controlled by `DISABLE_SQL_MULTI_STATEMENTS`, which was enabled by the 6.8 major flag unless explicitly disabled.
+Replace batches such as `executeStatement('UPDATE ...; DELETE ...')` with separate calls and keep any required transaction around them.
+Separating read and write statements also improved compatibility with SQL proxies that could not route mixed read/write batches in a single query.
+
+Migration execution, discovery, and bookkeeping used a dedicated connection to the primary database.
+Use the connection passed to `MigrationStep::update()` and `MigrationStep::updateDestructive()` for migration queries; these methods and installer schema imports continued to support multiple statements.
+
 <details>
+
+## Rule container `__wakeup()` hooks are no longer called
+
+`Shopware\Core\Framework\Rule\Container\Container::__unserialize()` no longer calls subclass `__wakeup()` hooks.
+Move custom rule container initialization from `__wakeup()` into `__unserialize(array $data): void` and call `parent::__unserialize($data)` before running it.
+Remove the old `__wakeup()` implementation to avoid duplicate initialization when supporting earlier Shopware versions that provide the compatibility call.
 
 ## Invalid price definition exceptions
 
@@ -1493,6 +1509,32 @@ $this->cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior(
 ```php
 new HreflangLoaderParameter('frontend.home.page', $routeParameters, $salesChannelContext, true);
 ```
+
+## Removal of the per-customer redemption counter of promotions
+
+The per-customer redemption counter of promotions was removed:
+
+* DAL: the promotion field `ordersPerCustomerCount` and the database column `promotion.orders_per_customer_count` were removed.
+* Admin API: promotions no longer contain `ordersPerCustomerCount`.
+* `\Shopware\Core\Checkout\Promotion\PromotionEntity`: `getOrdersPerCustomerCount()`, `setOrdersPerCustomerCount()` and `isOrderCountPerCustomerCountValid()` were removed.
+
+Count the customer's orders that contain a line item of the promotion instead:
+
+```php
+// Before
+$redemptions = $promotion->getOrdersPerCustomerCount()[$customerId] ?? 0;
+
+// After
+$criteria = (new Criteria())
+    ->addFilter(new EqualsFilter('orderCustomer.customerId', $customerId))
+    ->addFilter(new EqualsFilter('lineItems.promotionId', $promotion->getId()));
+
+$redemptions = $this->orderRepository->searchIds($criteria, $context)->getTotal();
+```
+
+## `NotFilter` constructor accepts a single filter
+
+The `$operator` parameter of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter::__construct()` is widened from `string` to `string|Filter`, so `new NotFilter($filter)` negates a single filter like `NotFilter::negate($filter)`. Existing calls keep working unchanged.
 
 # Administration
 
@@ -2568,6 +2610,22 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 # Storefront
 
 <details>
+
+## `ThemeService::compileTheme()` received a new optional `$notifyOnAsyncCompletion` parameter
+
+`Shopware\Storefront\Theme\ThemeService::compileTheme()` received a new optional parameter `bool $notifyOnAsyncCompletion = true`. With asynchronous theme compilation, it controls whether the Administration user is notified once the compilation is completed. Call sites are not affected. Classes overriding this method had to add the parameter to keep a compatible signature:
+
+Before:
+
+```php
+public function compileTheme(string $salesChannelId, string $themeId, Context $context, ?StorefrontPluginConfigurationCollection $configurationCollection = null, bool $withAssets = true): void
+```
+
+After:
+
+```php
+public function compileTheme(string $salesChannelId, string $themeId, Context $context, ?StorefrontPluginConfigurationCollection $configurationCollection = null, bool $withAssets = true, bool $notifyOnAsyncCompletion = true): void
+```
 
 ## Removed `--no-cleanup` option of `theme:compile` and `theme:change`
 

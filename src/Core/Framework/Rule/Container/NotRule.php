@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Rule\UnknownConditionRule;
 
 /**
  * NotRule inverses the return value of the child rule. Only one child is possible
@@ -35,6 +36,10 @@ class NotRule extends Container
 
         if (!$rule instanceof Rule) {
             throw RuleException::unsupportedValue(\gettype($rule), self::class);
+        }
+
+        if ($rule instanceof UnknownConditionRule) {
+            return false;
         }
 
         return !$rule->match($scope);

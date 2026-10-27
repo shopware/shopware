@@ -2,6 +2,25 @@
 
 ## Core
 
+### Missing plugin conditions in stored carts
+
+Stored carts can be recalculated when a rule container references a condition whose PHP class is no longer available, for example an uninstalled plugin.
+Unavailable child conditions are replaced with `UnknownConditionRule`, which evaluates to false.
+A NOT container whose child is an `UnknownConditionRule` also evaluates to false.
+
+`Container` now implements `__unserialize()` and continues to call subclass `__wakeup()` hooks for compatibility while the `v6.8.0.0` feature flag is disabled.
+If your custom rule container relies on `__wakeup()`, move that logic into `__unserialize(array $data): void`, call `parent::__unserialize($data)` before running it, and remove the old `__wakeup()` implementation to avoid running the logic twice.
+The compatibility call is removed in 6.8.
+
+### Multiple SQL statements restricted in 6.8
+
+With `DISABLE_SQL_MULTI_STATEMENTS=1`, application database connections reject multiple SQL statements in a single call.
+This flag is also enabled by `V6_8_0_0=1` unless explicitly disabled.
+Execute statements separately in extensions.
+Separating read and write statements also improves compatibility with SQL proxies that cannot route mixed read/write batches in a single query.
+Migration execution, discovery, and bookkeeping now always use a separate primary connection, even while the flag is disabled.
+The connections passed to migration `update()` and `updateDestructive()` methods and the installer explicitly allow multiple statements.
+
 ### Promotion code rate limiting
 
 Promotion code submissions through the Store API and Storefront now share a separate rate limit.
@@ -40,12 +59,35 @@ Webhooks created through the Admin API without an app now belong to the user or 
   ```
 
   The list must not be empty or contain empty entries, every role must exist, and every role must be held by the owner unless the owner is an administrator. Otherwise the write is rejected with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `aclRoleIds`. If the event is not covered by the listed roles, `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` is returned, also when an administrator changes somebody else's webhook.
+* **Event log:** `webhook_event_log` entries are only returned to administrators and to the owner of the webhook that wrote them. An app's integration sees the entries of its app's webhooks. Entries written before the update, and entries of deleted webhooks, are only returned to administrators.
 
 ### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
 
 The new `bin/console sales-channel:file:enable [ids...] [--all]` command switches on `llms.txt` and `AGENTS.md` for Storefront and Headless sales channels.
 It only creates missing files, so a file switched off in the Administration stays off, and a second run changes nothing.
 The command always exits with `0`, which makes it suitable for install hooks in `.shopware-project.yml`.
+
+### Order placement no longer rebuilds the per-customer redemption counter
+
+Placing an order or deleting a promotion line item updates only the entries of the affected customers in `promotion.orders_per_customer_count`, so its cost no longer grows with the number of customers who redeemed the promotion before.
+`promotion.order_count` now also counts orders whose customer was deleted.
+The cart checks `maxRedemptionsPerCustomer` against the customer's orders and no longer reads `orders_per_customer_count`, which is still maintained.
+Saving a promotion no longer recounts its redemptions; `bin/console dal:refresh:index --only=promotion.indexer` rebuilds them.
+
+### Deprecated the per-customer redemption counter of promotions
+
+The per-customer redemption counter of promotions is deprecated and will be removed with Shopware 6.8:
+
+- DAL and Admin API: the promotion field `ordersPerCustomerCount` and its column `promotion.orders_per_customer_count`.
+- `Shopware\Core\Checkout\Promotion\PromotionEntity`: `getOrdersPerCustomerCount()`, `setOrdersPerCustomerCount()` and `isOrderCountPerCustomerCountValid()`.
+
+To find out how often a customer redeemed a promotion, count the customer's orders that contain a line item of the promotion, for example with the filters `orderCustomer.customerId` and `lineItems.promotionId` on the `order` repository.
+Set `PROMOTION_REDEMPTION_OPTIMIZATION=1` to switch to the 6.8 behavior already: the counter is no longer written and `ordersPerCustomerCount` is removed from the promotion entity.
+When `V6_8_0_0=1`, the flag activates unless explicitly disabled.
+
+### `NotFilter` negates a single filter
+
+`NotFilter::negate()` negates a single filter without an operator and a list of queries, so `NotFilter::negate(new EqualsFilter('parentId', null))` replaces `new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('parentId', null)])`. Both create the same filter. With `v6.8.0`, the `NotFilter` constructor accepts the single filter directly as well.
 
 ### Product line items carry the GARAN label they were shown with
 
@@ -60,6 +102,10 @@ This release fills `payload.productType` for every product and custom order line
 The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physical line items, so most line items of older orders had no product type.
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
+
+### Set null on delete also applies to cascaded deletes
+
+When the DAL deletes an entity, `SetNullOnDelete` associations of the entities removed through `CascadeDelete` are now resolved as well, not only those of the deleted entity itself. For associations without a database constraint (`SetNullOnDelete(false)`) the reference is set to `null` and a write result is dispatched for the updated entity. For example, deleting a media that is used as a product cover now clears `product.coverId`. Entities that are deleted in the same operation are not updated, so deleting a product with a cover still reports the product, and its variants, as deleted.
 
 ### Business customers need a VAT ID for countries that require one
 
@@ -81,6 +127,10 @@ Media loaded without the `mediaType` field keep their thumbnail URLs, as the typ
 New sales channel contexts now decide tax-free delivery like the cart (`TaxDetector::isNetDelivery()`):
 commercial customers only get "Tax-free (B2B)", all other customers only "Tax-free (B2C)".
 Cart and order taxes stay the same, but Rule Builder conditions like "Cart amount" can match differently than before for customers who only met the other setting.
+
+### Retired services are uninstalled by the daily service reconcile
+
+Shops now uninstall a service once the service registry lists it as `retired` in `GET /api/service/v2`. This happens in the daily service install task, on `bin/console services:install` and on `system:update:finish`, so a retired service no longer stays installed until the shop's next update. A service that is merely missing from the registry's service list is no longer uninstalled on `system:update:finish`; only an explicit `retired` status removes it. Shops now read the service list only from `GET /api/service/v2` and install and update only services listed as `active`; a status they don't know is left alone.
 
 ## API
 
@@ -112,6 +162,19 @@ shopware:
 ```
 
 ## Administration
+
+### Extension tooling reports redundant code
+
+The ESLint config of the Administration extension tooling now enables `no-else-return`, `no-useless-return`, `no-lonely-if` and `no-unneeded-ternary`.
+In TypeScript and Vue files it also enables `@typescript-eslint/no-unnecessary-boolean-literal-compare`, `@typescript-eslint/no-unnecessary-template-expression` and `@typescript-eslint/no-unnecessary-type-conversion`.
+`administration:check-extensions` can therefore report findings for an extension that passed before.
+All of these rules have an autofix:
+
+```bash
+bin/console administration:check-extensions -- --only=MyPlugin --fix
+```
+
+To keep a rule off, set it to `'off'` in the `eslint.config.mjs` of your extension, or record the current findings with `--update-baseline`.
 
 ### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag
 
@@ -154,9 +217,18 @@ A value that was typed but not confirmed with Enter is now added when the field 
 A component set via `componentName` in the field config of `RuleConfig::taggedField()` is kept.
 If your extension overrides the Twig blocks `sw_condition_billing_zip_code_field_zip_codes` or `sw_condition_shipping_zip_code_field_zip_codes`, or styles `.sw-tagged-field` in these conditions, check your customization.
 
+### More Administration components declare their emitted events
+
+About 30 Administration components now list the events they emit in `emits`, for example `sw-datepicker`, `sw-password-field`, `sw-url-field`, `sw-textarea-field` and `sw-string-filter`.
+Listeners for these events are no longer part of the component's `$attrs`, so they fire once per event instead of twice.
+If you override the template of one of these components and render your own field with `v-bind="$attrs"`, forward `update:modelValue` explicitly:
+
+```html
+<mt-text-field v-bind="$attrs" @update:model-value="$emit('update:modelValue', $event)" />
+```
 ### Known core deprecations log an error in next-major mode
 
-Core usages that are not migrated yet are listed in `src/Administration/Resources/app/administration/src/meta/deprecation-baseline.json`.
+Core usages that are not migrated yet are listed in `src/Administration/Resources/app/administration/src/core/deprecation-baseline.json`.
 In next-major mode, a deprecation with a listed message logs a console error instead of throwing, so the Administration stays usable.
 Any other deprecation still throws.
 
@@ -174,6 +246,10 @@ If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ## Storefront
+
+### Theme compilation completion is notified once
+
+With asynchronous theme compilation, saving a theme or activating an extension notifies the Administration user once when the compilation is completed, instead of once per sales channel. Code that compiles several themes or sales channels at once can do the same by passing `false` as the new sixth argument `$notifyOnAsyncCompletion` of `ThemeService::compileTheme()` for all but the last call. Classes overriding `compileTheme()` should add the parameter `bool $notifyOnAsyncCompletion = true`; it becomes part of the signature in 6.8.0.0.
 
 ### Guests can open the profile page
 

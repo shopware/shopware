@@ -41,7 +41,9 @@ jobs:
     needs:
       - markdown-only-changes
     if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
-    runs-on: ubuntu-24.04
+    runs-on: ${{ github.repository == 'shopware/shopware-private' && format('runs-on={0}/runner=sw-amd64/cpu=4', github.run_id) || 'ubuntu-24.04' }}
+    env:
+      NODE_OPTIONS: "--max_old_space_size=8192"
     steps:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
@@ -97,11 +99,12 @@ jobs:
     needs:
       - markdown-only-changes
     if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
-    runs-on: ubuntu-24.04
+    runs-on: ${{ github.repository == 'shopware/shopware-private' && format('runs-on={0}/runner=sw-amd64/cpu=4', github.run_id) || 'ubuntu-24.04' }}
     name: "Jest Admin (unit)"
     env:
       NODE_VERSION: 'lts/*'
       JEST_MAX_WORKERS: 100%
+      NODE_OPTIONS: "--max_old_space_size=8192"
 
     steps:
       - name: Setup Shopware

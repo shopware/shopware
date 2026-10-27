@@ -84,7 +84,7 @@ function componentBindingCollision(
     unboundComponents: string[],
     boundComponents: string[],
     bindings: Readonly<Record<string, unknown>>,
-    imports: Readonly<Record<string, { isFromSetup: boolean }>>,
+    imports: Readonly<Partial<Record<string, { isFromSetup: boolean }>>>,
 ): string | null {
     const remaining = new Set(boundComponents.map(componentTag));
 
@@ -119,7 +119,7 @@ function directiveBindingCollision(
     unboundDirectives: string[],
     boundDirectives: string[],
     bindings: Readonly<Record<string, unknown>>,
-    imports: Readonly<Record<string, { isFromSetup: boolean }>>,
+    imports: Readonly<Partial<Record<string, { isFromSetup: boolean }>>>,
 ): string | null {
     const remaining = new Set(boundDirectives);
 

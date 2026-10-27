@@ -238,7 +238,7 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
         await tabs.vm.$emit('new-item-active', 'settings');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('settings');
         expect(wrapper.find('.sw-media-list-selection-v2').exists()).toBe(false);
@@ -326,7 +326,7 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
             mediaListSelectionV2Vm.mediaItems[2],
             true,
         );
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const items = wrapper.findAll('.sw-media-item');
 

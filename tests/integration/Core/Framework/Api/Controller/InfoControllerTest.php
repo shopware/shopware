@@ -83,6 +83,7 @@ class InfoControllerTest extends TestCase
                 'enableUrlFeature' => true,
                 'presignedUploadSupported' => false,
                 'appUrlReachable' => true,
+                'appUrlStatusCode' => null,
                 'appsRequireAppUrl' => false,
                 'firstMigrationDate' => null,
                 'private_allowed_extensions' => [

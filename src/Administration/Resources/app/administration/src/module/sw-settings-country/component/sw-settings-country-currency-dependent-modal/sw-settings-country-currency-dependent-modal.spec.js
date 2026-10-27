@@ -108,7 +108,7 @@ describe('module/sw-settings-country/component/sw-settings-country-currency-depe
 
     it('should able to show right data on grid', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const modalGrid = wrapper.findComponent('.sw-data-grid-stub');
 
         expect(modalGrid.props().dataSource).toStrictEqual([
@@ -123,7 +123,7 @@ describe('module/sw-settings-country/component/sw-settings-country-currency-depe
 
     it('should be disabled the context menu delete button', async () => {
         const wrapper = await createWrapper(['country.editor']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const contextMenuDelete = wrapper.find('sw-context-menu-item-stub');
 
         expect(contextMenuDelete.attributes().disabled).toBeTruthy();
@@ -131,7 +131,7 @@ describe('module/sw-settings-country/component/sw-settings-country-currency-depe
 
     it('should be enabled the context menu delete button', async () => {
         const wrapper = await createWrapper(['country.editor'], false);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const contextMenuDelete = wrapper.find('sw-context-menu-item-stub');
 
         expect(contextMenuDelete.attributes().disabled).toBeFalsy();
@@ -139,28 +139,28 @@ describe('module/sw-settings-country/component/sw-settings-country-currency-depe
 
     it('should be enabled the base currency radio button', async () => {
         const wrapper = await createWrapper(['country.editor'], false);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const radioButton = wrapper.find('sw-radio-field-stub');
         expect(radioButton.attributes().value).toBeTruthy();
     });
 
     it('should be change amount for based currency', async () => {
         const wrapper = await createWrapper(['country.editor']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const radioButton = wrapper.find('sw-radio-field-stub');
         expect(radioButton.attributes().disabled).toBeFalsy();
     });
 
     it('should not be change amount for dependent currency', async () => {
         const wrapper = await createWrapper(['country.editor'].false);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const radioButton = wrapper.find('sw-radio-field-stub');
         expect(radioButton.attributes().disabled).toBeTruthy();
     });
 
     it('should be show buttons at the modal footer', async () => {
         const wrapper = await createWrapper(['country.editor']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const cancelButton = wrapper.find('.sw-settings-country-currency-dependent-modal__cancel-button');
         const saveButton = wrapper.find('.sw-settings-country-currency-dependent-modal__save-button');
         expect(cancelButton.isVisible()).toBeTruthy();

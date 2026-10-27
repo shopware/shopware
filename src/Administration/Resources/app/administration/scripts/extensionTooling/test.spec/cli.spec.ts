@@ -124,6 +124,21 @@ describe('scripts/extensionTooling/test CLI', () => {
             await expect(runCli(['--only=ZeroConfig'])).resolves.toBe(1);
         });
 
+        it("spawns the extension's own Jest for a config without the harness and labels the run", async () => {
+            const consoleLog = jest.spyOn(console, 'log').mockImplementation(() => {});
+            const administrationJestRuns = writeStubJestBin(fixture.administrationRoot, 1);
+            const ownJestRuns = writeStubJestBin(path.join(fixture.projectRoot, 'custom/plugins/ZeroConfig'), 1);
+            writeFile(path.join(fixture.projectRoot, zeroConfigAdmin, 'jest.config.js'), 'module.exports = {};');
+
+            await expect(runCli(['--only=ZeroConfig'])).resolves.toBe(0);
+
+            expect(stubConfigPaths(fixture.projectRoot, ownJestRuns())).toEqual([`${zeroConfigAdmin}/jest.config.js`]);
+            expect(administrationJestRuns()).toEqual([]);
+            const output = consoleLog.mock.calls.join('\n');
+            expect(output).toContain(`▶ ZeroConfig · ${zeroConfigAdmin}/jest.config.js (own Jest)`);
+            expect(output).toContain(`✓ ZeroConfig · ${zeroConfigAdmin}/jest.config.js (own Jest)`);
+        });
+
         it('prints a line naming the extension and config before each Jest run', async () => {
             const consoleLog = jest.spyOn(console, 'log').mockImplementation(() => {});
             writeStubJestBin(fixture.administrationRoot, 1);
@@ -232,6 +247,23 @@ describe('scripts/extensionTooling/test CLI', () => {
                 `${zeroConfigAdmin}/jest.config.mjs`,
                 `${vendorAdmin}/jest.config.mjs`,
             ]);
+        });
+
+        it('marks a listed extension whose own Jest is not installed yet', async () => {
+            jest.spyOn(console, 'log').mockImplementation(() => {});
+            withInteractiveTerminal();
+            writeFile(path.join(fixture.projectRoot, 'custom/plugins/Suite/jest.config.js'), 'module.exports = {};');
+            writeFile(
+                path.join(fixture.projectRoot, 'custom/plugins/Suite/package.json'),
+                JSON.stringify({ devDependencies: { jest: '^29.7.0' } }),
+            );
+            mockedPromptSelection.mockResolvedValue('cancel');
+
+            await expect(runInteractive()).resolves.toBe(0);
+
+            const [listed, , describeProject] = mockedPromptSelection.mock.calls[0];
+            const suite = listed.find((project) => project.name === 'Suite');
+            expect(describeProject?.(suite!)).toBe('custom/plugins/Suite · 1 Jest config · own Jest not installed');
         });
 
         it('lists no vendor extension under --no-vendors', async () => {

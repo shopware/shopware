@@ -25,7 +25,8 @@ export const vendorAdmin = 'vendor/acme/custom-admin/src/Resources/app/administr
 export interface TestFixture {
     projectRoot: string;
     administrationRoot: string;
-    jestRuns: Array<{ configPath: string; jestArgs: string[] }>;
+    /** `ownJestBin` is set, relative to the project root, for a run on the extension's own Jest. */
+    jestRuns: Array<{ configPath: string; jestArgs: string[]; ownJestBin?: string }>;
     jestExitCode: number;
     /** Overrides jestExitCode for single configs, keyed by the config path relative to the project root. */
     jestExitCodeByConfig: Record<string, number>;
@@ -66,9 +67,13 @@ export function createTestFixture(): TestFixture {
             testExtensions({
                 projectRoot,
                 administrationRoot,
-                runJest: (configPath, jestArgs) => {
+                runJest: (configPath, jestArgs, ownJestBin) => {
                     const relativeConfigPath = path.relative(projectRoot, configPath);
-                    fixture.jestRuns.push({ configPath: relativeConfigPath, jestArgs });
+                    fixture.jestRuns.push({
+                        configPath: relativeConfigPath,
+                        jestArgs,
+                        ...(ownJestBin === undefined ? {} : { ownJestBin: path.relative(projectRoot, ownJestBin) }),
+                    });
 
                     return Promise.resolve({
                         exitCode: fixture.jestExitCodeByConfig[relativeConfigPath] ?? fixture.jestExitCode,
@@ -88,14 +93,15 @@ export function createTestFixture(): TestFixture {
 }
 
 /**
- * Replaces the Administration's Jest bin with a script that logs the arguments
- * of each run, so the real runner spawns without running Jest. With `testCount`,
- * the script hands that many passed tests to the `--testResultsProcessor`, as Jest does.
+ * Replaces the Jest bin under `packageRoot` (the Administration's, or an
+ * extension's own) with a script that logs the arguments of each run, so the
+ * real runner spawns without running Jest. With `testCount`, the script hands
+ * that many passed tests to the `--testResultsProcessor`, as Jest does.
  */
-export function writeStubJestBin(administrationRoot: string, testCount?: number): () => string[][] {
-    const logPath = path.join(administrationRoot, 'node_modules/jest/bin/runs.log');
+export function writeStubJestBin(packageRoot: string, testCount?: number): () => string[][] {
+    const logPath = path.join(packageRoot, 'node_modules/jest/bin/runs.log');
     writeFile(
-        path.join(administrationRoot, 'node_modules/jest/bin/jest.js'),
+        path.join(packageRoot, 'node_modules/jest/bin/jest.js'),
         [
             "const fs = require('fs');",
             `fs.appendFileSync(${JSON.stringify(logPath)}, JSON.stringify(process.argv.slice(2)) + '\\n');`,

@@ -258,6 +258,18 @@ Jest's `--watch` and `--watchAll` need exactly one Jest config, so name one exte
 When Jest options go to more than one Jest config, the command adds `--passWithNoTests`,
 so a spec path or name filter fails the run only on a failing spec, not on an extension without a matching spec.
 The report marks such an extension with `–`, and the run still fails when no Jest config ran a spec; pass `--passWithNoTests` yourself to allow that.
+
+Which Jest runs a config depends on the config:
+
+- A config on the harness runs on the Administration's Jest, which the harness is built for.
+  The command recognizes it by an import of `.shopware/jest.mjs` or `extension-tooling/jest.mjs`, or a call of `shopwareAdminJest`.
+- Any other config runs on the Jest the extension installs between the config's folder and the extension root.
+  The `▶` line and the report mark it with `(own Jest)`.
+- When a `package.json` there declares Jest but it is not installed, the config does not run.
+  The report marks it with `⊘` and names the `npm ci` or `npm install` that installs it;
+  the run fails on it only when `--only` or the picker named its extension.
+- A config with neither runs on the Administration's Jest.
+
 An extension that installs its own Jest can keep running it directly, as long as it has the same major version as the Administration's.
 
 The harness lives in the Administration's `test/` folder and works in a platform checkout and in a Composer install alike.

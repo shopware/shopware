@@ -2,9 +2,10 @@
  * @sw-package framework
  *
  * Spec runner for Administration extensions: runs each selected extension's
- * own Jest config with the Administration's Jest, so an extension needs no
- * Jest installation of its own. Setup runs first, so the `.shopware/jest.mjs`
- * bridge those configs import is current.
+ * own Jest config. A config on the Administration's test harness runs on the
+ * Administration's Jest, so the extension needs no Jest installation of its own;
+ * any other config runs on the Jest the extension installs. Setup runs first,
+ * so the `.shopware/jest.mjs` bridge those configs import is current.
  *
  * A run in which no spec ran fails, so CI cannot pass without running a spec.
  */
@@ -21,7 +22,7 @@ import { CliUsageError, parseCli, renderHelp } from './cli';
 import type { CommandSpec } from './cli';
 import { promptSelection } from './select';
 import { discoverProjects, setupExtensionTooling } from './setup';
-import { pluginsConfigPath, relativePosix } from './shared';
+import { isWithin, pluginsConfigPath, relativePosix } from './shared';
 import type { ExtensionToolingProject } from './shared';
 
 /** The config file names Jest itself looks for, in its own order of preference. */
@@ -36,14 +37,20 @@ const COMPONENT_IMPORTS_FILE = 'test/_helper_/componentWrapper/component-imports
 
 const RESULTS_PROCESSOR = path.join(__dirname, 'jest-results-processor.js');
 
+/** Matches a Jest config that builds on the Administration's test harness: the bridge, the factory, or a call of it. */
+const HARNESS_IMPORT = /shopwareAdminJest|\.shopware\/jest\.mjs|extension-tooling\/jest\.mjs/;
+
 export interface JestOutcome {
     exitCode: number;
     /** Tests that passed or failed; undefined when Jest wrote no results, e.g. with the caller's own --testResultsProcessor. */
     testCount?: number;
 }
 
-/** Runs Jest with one config file and resolves with its exit code and test count. */
-export type JestRunner = (configPath: string, jestArgs: string[]) => Promise<JestOutcome>;
+/**
+ * Runs Jest with one config file and resolves with its exit code and test count.
+ * `ownJestBin` is the extension's own Jest; without it, the Administration's runs.
+ */
+export type JestRunner = (configPath: string, jestArgs: string[], ownJestBin?: string) => Promise<JestOutcome>;
 
 export interface TestExtensionsOptions {
     projectRoot: string;
@@ -62,7 +69,7 @@ export interface TestExtensionsOptions {
     jestArgs?: string[];
     runJest?: JestRunner;
     /** Called before each Jest run, so the caller can label the Jest output that follows. */
-    onJestRun?: (extension: string, config: string) => void;
+    onJestRun?: (extension: string, config: string, ownJest: boolean) => void;
     /** Generates the component import map `wrapTestComponent` reads; returns the exit code. */
     generateComponentImports?: () => number;
 }
@@ -73,10 +80,28 @@ export interface JestRun {
     config: string;
     exitCode: number;
     testCount?: number;
+    /** Set when the config ran on the extension's own Jest instead of the Administration's. */
+    ownJest?: boolean;
+}
+
+/**
+ * A config that is not on the Administration's harness and whose own Jest is
+ * declared in a package.json but not installed, so it cannot run yet.
+ */
+export interface NotRunnableConfig {
+    extension: string;
+    /** Relative to the project root (posix). */
+    config: string;
+    /** The directory of the package.json that declares Jest, relative to the project root (posix). */
+    installDirectory: string;
+    installCommand: 'npm ci' | 'npm install';
+    /** Whether the extension was named via --only or the picker, so the config not running fails the run. */
+    failsRun: boolean;
 }
 
 export interface TestExtensionsResult {
     runs: JestRun[];
+    notRunnable: NotRunnableConfig[];
     /** Extensions of the selection that have no Jest config, so nothing ran for them. */
     withoutConfig: string[];
     /** vendor/ extensions with a Jest config that did not run, because of `includeVendors: false`. */
@@ -115,15 +140,98 @@ export function findJestConfigs(projectRoot: string, project: ExtensionToolingPr
 }
 
 /**
- * Runs the Administration's Jest from the config's directory, so relative CLI paths
- * (e.g. --outputFile) and process.cwd() inside the config resolve there.
+ * Picks the Jest for a config. A config on the Administration's harness runs on
+ * the Administration's Jest, which the harness is built for. Any other config
+ * runs on the Jest the extension installs between the config's directory and the
+ * extension root. A package.json there that declares Jest which is not installed
+ * means the config cannot run yet; without such a declaration, the
+ * Administration's Jest runs it.
+ *
+ * @example
+ * chooseJest('/shop', swagCmsExtensions, `${cmsAdmin}/jest.config.js`);
+ * // → { missingJest: { directory: cmsAdmin, command: 'npm ci' } } before `npm ci` there
+ * // → { ownJestBin: `${cmsAdmin}/node_modules/jest/bin/jest.js` } after it
+ */
+function chooseJest(
+    projectRoot: string,
+    project: ExtensionToolingProject,
+    configPath: string,
+): { ownJestBin?: string } | { missingJest: { directory: string; command: 'npm ci' | 'npm install' } } {
+    if (HARNESS_IMPORT.test(fs.readFileSync(configPath, 'utf8'))) {
+        return {};
+    }
+
+    const directories = directoriesUpTo(path.dirname(configPath), path.join(projectRoot, project.basePath));
+    const ownJestBin = directories
+        .map((directory) => path.join(directory, 'node_modules', 'jest', 'bin', 'jest.js'))
+        .find((jestBin) => fs.existsSync(jestBin));
+
+    if (ownJestBin) {
+        return { ownJestBin };
+    }
+
+    const declaringDirectory = directories.find((directory) => declaresJest(path.join(directory, 'package.json')));
+
+    if (!declaringDirectory) {
+        return {};
+    }
+
+    return {
+        missingJest: {
+            directory: declaringDirectory,
+            command: fs.existsSync(path.join(declaringDirectory, 'package-lock.json')) ? 'npm ci' : 'npm install',
+        },
+    };
+}
+
+/**
+ * The directory and its ancestors up to and including `root`.
+ *
+ * @example
+ * directoriesUpTo('/shop/custom/plugins/A/src', '/shop/custom/plugins/A');
+ * // → ['/shop/custom/plugins/A/src', '/shop/custom/plugins/A']
+ */
+function directoriesUpTo(directory: string, root: string): string[] {
+    const directories = [directory];
+    let current = directory;
+
+    while (current !== root && isWithin(current, root)) {
+        current = path.dirname(current);
+        directories.push(current);
+    }
+
+    return directories;
+}
+
+/** Whether the package.json at `packageJsonPath` lists Jest in its dependencies or devDependencies. */
+function declaresJest(packageJsonPath: string): boolean {
+    if (!fs.existsSync(packageJsonPath)) {
+        return false;
+    }
+
+    try {
+        const manifest = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')) as {
+            dependencies?: Record<string, string>;
+            devDependencies?: Record<string, string>;
+        };
+
+        return 'jest' in { ...manifest.dependencies, ...manifest.devDependencies };
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * Runs Jest from the config's directory, so relative CLI paths (e.g. --outputFile)
+ * and process.cwd() inside the config resolve there: the extension's own Jest when
+ * the caller passes it, otherwise the Administration's.
  * A results processor writes the test counts to a temp file, unless the caller
  * passes their own --testResultsProcessor or starts watch mode, which never ends.
  */
 export function createJestRunner(administrationRoot: string, stdio: StdioOptions = 'inherit'): JestRunner {
-    const jestBin = path.join(administrationRoot, 'node_modules', 'jest', 'bin', 'jest.js');
+    const administrationJestBin = path.join(administrationRoot, 'node_modules', 'jest', 'bin', 'jest.js');
 
-    return async (configPath, jestArgs) => {
+    return async (configPath, jestArgs, ownJestBin) => {
         const countsTests =
             !isWatchRun(jestArgs) &&
             !jestArgs.some((arg) => new RegExp(`^--(?:${optionPattern('testResultsProcessor')})(=|$)`).test(arg));
@@ -134,7 +242,7 @@ export function createJestRunner(administrationRoot: string, stdio: StdioOptions
             const jest = spawn(
                 process.execPath,
                 [
-                    jestBin,
+                    ownJestBin ?? administrationJestBin,
                     '--config',
                     configPath,
                     ...jestArgs,
@@ -258,15 +366,17 @@ function withPassWithNoTests(jestArgs: string[], configCount: number): string[] 
 }
 
 /**
- * Explains a run without a single Jest config, so it fails instead of passing green.
+ * Explains a run without a single Jest config that could run, so it fails instead of passing green.
  *
  * @example
- * nothingTestedDiagnostic(['custom-admin']);
+ * nothingTestedDiagnostic(['custom-admin'], []);
  * // → 'Nothing was tested: … Drop --no-vendors to test the vendor extensions: custom-admin.'
  */
-function nothingTestedDiagnostic(vendorNotTested: string[]): string {
+function nothingTestedDiagnostic(vendorNotTested: string[], notRunnable: NotRunnableConfig[]): string {
     return [
-        `Nothing was tested: no extension in this run has a Jest config (${JEST_CONFIG_FILE_NAMES.join(', ')}).`,
+        notRunnable.length > 0
+            ? 'Nothing was tested: no Jest config of this run can run yet, see the fixes above.'
+            : `Nothing was tested: no extension in this run has a Jest config (${JEST_CONFIG_FILE_NAMES.join(', ')}).`,
         ...(vendorNotTested.length > 0
             ? [`Drop --no-vendors to test the vendor extensions: ${vendorNotTested.join(', ')}.`]
             : []),
@@ -320,37 +430,82 @@ function watchUsageMessage(
 
 /** The Jest configs of the extensions a run covers, grouped per extension. */
 interface TestRunPlan {
+    /** The configs that can run; a config that cannot run yet is in `notRunnable` instead. */
     configsByExtension: Array<{ project: ExtensionToolingProject; configs: string[] }>;
+    /** The extension's own Jest bin of each config that runs on it. */
+    ownJestBins: Map<string, string>;
+    notRunnable: NotRunnableConfig[];
     withoutConfig: string[];
     vendorNotTested: string[];
     configCount: number;
 }
 
 /**
- * Decides which extensions of the selection run and which Jest configs they
- * bring. vendor/ extensions stay out only when the caller excludes them.
+ * Decides which extensions of the selection run, which Jest configs they bring,
+ * and which Jest runs each config. vendor/ extensions stay out only when the
+ * caller excludes them.
  *
  * @example
- * planTestRun('/shop', [zeroConfig, customAdmin], false);
+ * planTestRun('/shop', [zeroConfig, customAdmin], false, false);
  * // → { configsByExtension: [{ project: zeroConfig, configs: [...] }], vendorNotTested: ['custom-admin'], … }
  */
-function planTestRun(projectRoot: string, projects: ExtensionToolingProject[], includeVendors: boolean): TestRunPlan {
+function planTestRun(
+    projectRoot: string,
+    projects: ExtensionToolingProject[],
+    includeVendors: boolean,
+    namedOnPurpose: boolean,
+): TestRunPlan {
     const configsByExtension: TestRunPlan['configsByExtension'] = [];
+    const ownJestBins = new Map<string, string>();
+    const notRunnable: NotRunnableConfig[] = [];
+    const withoutConfig: string[] = [];
     const vendorNotTested: string[] = [];
 
     for (const project of projects) {
         const configs = findJestConfigs(projectRoot, project);
 
-        if (includeVendors || !project.vendor) {
-            configsByExtension.push({ project, configs });
-        } else if (configs.length > 0) {
-            vendorNotTested.push(project.name);
+        if (!includeVendors && project.vendor) {
+            if (configs.length > 0) {
+                vendorNotTested.push(project.name);
+            }
+
+            continue;
         }
+
+        if (configs.length === 0) {
+            withoutConfig.push(project.name);
+        }
+
+        const runnable = configs.filter((config) => {
+            const choice = chooseJest(projectRoot, project, config);
+
+            if ('missingJest' in choice) {
+                notRunnable.push({
+                    extension: project.name,
+                    config: relativePosix(projectRoot, config),
+                    installDirectory: relativePosix(projectRoot, choice.missingJest.directory),
+                    installCommand: choice.missingJest.command,
+                    failsRun: namedOnPurpose,
+                });
+
+                return false;
+            }
+
+            if (choice.ownJestBin) {
+                ownJestBins.set(config, choice.ownJestBin);
+            }
+
+            return true;
+        });
+
+        configsByExtension.push({ project, configs: runnable });
     }
 
     return {
         configsByExtension,
-        withoutConfig: configsByExtension.filter(({ configs }) => configs.length === 0).map(({ project }) => project.name),
+        ownJestBins,
+        notRunnable,
+        withoutConfig,
         vendorNotTested,
         configCount: configsByExtension.reduce((count, { configs }) => count + configs.length, 0),
     };
@@ -399,16 +554,27 @@ export async function testExtensions(options: TestExtensionsOptions): Promise<Te
     const setupResult = setupExtensionTooling({ projectRoot, administrationRoot });
     const selection = filterSelectedProjects(setupResult.manifest.projects, selected);
     const namedOnPurpose = selected.length > 0;
-    const plan = planTestRun(projectRoot, selection.projects, namedOnPurpose || options.includeVendors !== false);
+    const plan = planTestRun(
+        projectRoot,
+        selection.projects,
+        namedOnPurpose || options.includeVendors !== false,
+        namedOnPurpose,
+    );
     const testWarnings = setupResult.warnings.filter((warning) => !warning.typeCheckOrLintOnly);
 
     const result = (runs: JestRun[], fatalDiagnostics: string[]): TestExtensionsResult => ({
         runs,
+        notRunnable: plan.notRunnable,
         withoutConfig: plan.withoutConfig,
         vendorNotTested: plan.vendorNotTested,
         setupWarnings: selectedSetupWarnings(testWarnings, setupResult.manifest.projects, selected),
         fatalDiagnostics,
-        exitCode: fatalDiagnostics.length > 0 || runs.some((run) => run.exitCode !== 0) ? 1 : 0,
+        exitCode:
+            fatalDiagnostics.length > 0 ||
+            runs.some((run) => run.exitCode !== 0) ||
+            plan.notRunnable.some((config) => config.failsRun)
+                ? 1
+                : 0,
     });
 
     const diagnostic = selectionDiagnostic(selection, plan, namedOnPurpose);
@@ -422,7 +588,7 @@ export async function testExtensions(options: TestExtensionsOptions): Promise<Te
     }
 
     if (plan.configCount === 0) {
-        return result([], [nothingTestedDiagnostic(plan.vendorNotTested)]);
+        return result([], [nothingTestedDiagnostic(plan.vendorNotTested, plan.notRunnable)]);
     }
 
     // A Composer update replaces the Administration package and drops the generated map with it.
@@ -436,14 +602,16 @@ export async function testExtensions(options: TestExtensionsOptions): Promise<Te
     for (const { project, configs } of plan.configsByExtension) {
         for (const config of configs) {
             const relativeConfig = relativePosix(projectRoot, config);
-            options.onJestRun?.(project.name, relativeConfig);
-            const { exitCode, testCount } = await runJest(config, runJestArgs);
+            const ownJestBin = plan.ownJestBins.get(config);
+            options.onJestRun?.(project.name, relativeConfig, ownJestBin !== undefined);
+            const { exitCode, testCount } = await runJest(config, runJestArgs, ownJestBin);
 
             runs.push({
                 extension: project.name,
                 config: relativeConfig,
                 exitCode,
                 ...(testCount === undefined ? {} : { testCount }),
+                ...(ownJestBin === undefined ? {} : { ownJest: true }),
             });
         }
     }
@@ -453,26 +621,40 @@ export async function testExtensions(options: TestExtensionsOptions): Promise<Te
 
 /**
  * The setup warnings first, as they may explain a failed run, then one line per
- * run and any fatal diagnostic.
+ * run, the configs that could not run with their fix, and any fatal diagnostic.
  */
 export function renderTestReport(result: TestExtensionsResult): string {
     return [
         '',
         ...result.setupWarnings.map((warning) => `⚠ ${warning}`),
         ...result.runs.map(renderRunLine),
+        ...result.notRunnable.map(renderNotRunnable),
         ...result.fatalDiagnostics.map((diagnostic) => `✗ ${diagnostic}`),
     ].join('\n');
 }
 
 /** ✓ passed, ✗ failed, – passed without running a spec. */
 function renderRunLine(run: JestRun): string {
-    if (run.exitCode !== 0) {
-        return `✗ ${run.extension} · ${run.config}`;
-    }
+    const mark = run.exitCode !== 0 ? '✗' : run.testCount === 0 ? '–' : '✓';
+    const notes = [
+        ...(run.ownJest ? ['own Jest'] : []),
+        ...(run.exitCode === 0 && run.testCount === 0 ? ['no matching spec'] : []),
+    ];
 
-    return run.testCount === 0
-        ? `– ${run.extension} · ${run.config} (no matching spec)`
-        : `✓ ${run.extension} · ${run.config}`;
+    return `${mark} ${run.extension} · ${run.config}${notes.length > 0 ? ` (${notes.join(', ')})` : ''}`;
+}
+
+/**
+ * ⊘ for a config left out of the run, ✗ when the extension was named on purpose,
+ * followed by why it did not run and how to make it run.
+ */
+function renderNotRunnable(config: NotRunnableConfig): string {
+    return [
+        `${config.failsRun ? '✗' : '⊘'} ${config.extension} · ${config.config} (not run)`,
+        "  It does not use the Administration's test harness, so it runs on its own Jest, which is not installed.",
+        `  Fix: run \`${config.installCommand}\` in ${config.installDirectory},`,
+        '  or build the config on the harness with `shopwareAdminJestConfig` from `.shopware/jest.mjs`.',
+    ].join('\n');
 }
 
 const TEST_COMMAND: CommandSpec = {
@@ -568,7 +750,8 @@ async function runTestCommand(argv: string[]): Promise<number> {
         only,
         includeVendors,
         jestArgs,
-        onJestRun: (extension, config) => console.log(colors.bold(`\n▶ ${extension} · ${config}`)),
+        onJestRun: (extension, config, ownJest) =>
+            console.log(colors.bold(`\n▶ ${extension} · ${config}${ownJest ? ' (own Jest)' : ''}`)),
     });
 
     console.log(renderTestReport(result));
@@ -592,17 +775,17 @@ async function pickExtensionsToTest(
     includeVendors: boolean,
 ): Promise<string[] | undefined> {
     const resolvedRoot = path.resolve(projectRoot);
-    const configCounts = new Map<ExtensionToolingProject, number>();
+    const configsByProject = new Map<ExtensionToolingProject, string[]>();
 
     for (const project of discoverProjects(resolvedRoot, administrationRoot, pluginsConfigPath(resolvedRoot))) {
-        const configCount = findJestConfigs(resolvedRoot, project).length;
+        const configs = findJestConfigs(resolvedRoot, project);
 
-        if (configCount > 0 && (includeVendors || !project.vendor)) {
-            configCounts.set(project, configCount);
+        if (configs.length > 0 && (includeVendors || !project.vendor)) {
+            configsByProject.set(project, configs);
         }
     }
 
-    const testable = [...configCounts.keys()];
+    const testable = [...configsByProject.keys()];
 
     if (testable.length === 0) {
         console.log(`No Administration extension has a Jest config (${JEST_CONFIG_FILE_NAMES.join(', ')}).`);
@@ -611,10 +794,15 @@ async function pickExtensionsToTest(
     }
 
     const choice = await promptSelection(testable, 'Select extensions to test (Jest):', (project) => {
-        const configCount = configCounts.get(project) ?? 0;
+        const configs = configsByProject.get(project) ?? [];
         const location = project.vendor ? 'vendor' : project.basePath;
+        const ownJestMissing = configs.some((config) => 'missingJest' in chooseJest(resolvedRoot, project, config));
 
-        return `${location} · ${configCount === 1 ? '1 Jest config' : `${configCount} Jest configs`}`;
+        return [
+            location,
+            configs.length === 1 ? '1 Jest config' : `${configs.length} Jest configs`,
+            ...(ownJestMissing ? ['own Jest not installed'] : []),
+        ].join(' · ');
     });
 
     if (choice === 'cancel') {

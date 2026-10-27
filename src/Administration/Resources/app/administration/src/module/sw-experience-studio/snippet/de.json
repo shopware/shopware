@@ -237,6 +237,8 @@
           "noSearchResults": "Kein Datenfeld entspricht deiner Suche.",
           "loadingCandidates": "Dynamische Daten werden geladen ...",
           "loadError": "Dynamische Daten konnten nicht geladen werden.",
+          "loadingText": "Text wird für die Bearbeitung vorbereitet...",
+          "parseError": "Platzhalter für dynamische Daten konnten nicht geprüft werden. Dein Text wurde beibehalten. Versuche erneut, die Platzhalter zu prüfen.",
           "retryAction": "Erneut versuchen",
           "groups": {
             "basic": "Basisinformationen",

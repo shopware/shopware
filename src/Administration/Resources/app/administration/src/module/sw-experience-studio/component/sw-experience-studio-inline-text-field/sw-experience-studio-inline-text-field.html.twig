@@ -1,5 +1,30 @@
 {% block sw_experience_studio_inline_text_field %}
 <div class="sw-experience-studio-inline-text-field">
+    {% block sw_experience_studio_inline_text_field_parse_status %}
+    <div
+        v-if="isParsing && !isEditorReady"
+        role="status"
+    >
+        {{ $t('sw-experience-studio.detail.elementSettings.mapping.loadingText') }}
+    </div>
+
+    <mt-banner
+        v-if="hasParseError"
+        variant="critical"
+        role="alert"
+    >
+        <p>{{ $t('sw-experience-studio.detail.elementSettings.mapping.parseError') }}</p>
+        <mt-button
+            variant="secondary"
+            size="small"
+            :disabled="isParsing"
+            @click="onRetryParse"
+        >
+            {{ $t('sw-experience-studio.detail.elementSettings.mapping.retryAction') }}
+        </mt-button>
+    </mt-banner>
+    {% endblock %}
+
     {% block sw_experience_studio_inline_text_field_editor %}
     <mt-text-editor
         v-if="isEditorReady"

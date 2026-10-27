@@ -33,6 +33,7 @@ const createVm = (value: string, candidates = [candidate('product.name')]) => {
         value,
         candidates,
         disabled: false,
+        isEditorReady: true,
         editorHtml: '',
         lastEmittedValue: null as string | null,
         parseRevision: 0,
@@ -197,6 +198,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
             candidates: [],
             knownTokenTexts: new Map<string, string>(),
             toEditorHtml: (value: string) => `<p>${value}</p>`,
+            onCloseMappingModal: jest.fn(),
         };
 
         const olderRequest = methods.refreshEditorValue.call(vm, 'older text') as Promise<void>;
@@ -241,6 +243,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
             ]),
             editorHtml: '',
             lastEmittedValue: null as string | null,
+            isEditorReady: true,
             emitted: [] as string[],
             $emit(_event: string, payload: string) {
                 this.emitted.push(payload);
@@ -350,5 +353,26 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
         });
 
         expect(vm.isMappingModalOpen).toBe(false);
+    });
+
+    it.each([
+        { disabled: true, isEditorReady: true },
+        { disabled: false, isEditorReady: false },
+    ])('rejects edits and mapping insertion while disabled=$disabled and ready=$isEditorReady', (state) => {
+        const vm = createVm('<p>Original text</p>');
+        Object.assign(vm, state);
+        const originalHtml = vm.editorHtml;
+        const insertContent = jest.fn(() => ({ run: jest.fn() }));
+        const editor = { chain: () => ({ focus: () => ({ insertContent }) }) };
+
+        methods.onUpdateEditorHtml.call(vm, '<p>Stale update</p>');
+        methods.onOpenMappingModal.call(vm, editor);
+        vm.activeEditor = editor;
+        methods.onSelectMapping.call(vm, candidate('product.name'));
+
+        expect(vm.editorHtml).toBe(originalHtml);
+        expect(vm.emitted).toEqual([]);
+        expect(vm.isMappingModalOpen).toBe(false);
+        expect(insertContent).not.toHaveBeenCalled();
     });
 });

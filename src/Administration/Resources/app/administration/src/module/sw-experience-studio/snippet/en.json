@@ -237,6 +237,8 @@
           "noSearchResults": "No data field matches your search.",
           "loadingCandidates": "Loading dynamic data...",
           "loadError": "Dynamic data could not be loaded.",
+          "loadingText": "Preparing text for editing...",
+          "parseError": "Dynamic data placeholders could not be checked. Your text has been preserved. Retry to check the placeholders.",
           "retryAction": "Retry",
           "groups": {
             "basic": "Basic information",

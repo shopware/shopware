@@ -70,6 +70,8 @@ export default Shopware.Component.wrapComponentConfig({
         customButtons: CustomButton[];
         editorHtml: string;
         isEditorReady: boolean;
+        isParsing: boolean;
+        hasParseError: boolean;
         lastEmittedValue: string | null;
         parseRevision: number;
         parseTimeoutId: number | null;
@@ -82,6 +84,8 @@ export default Shopware.Component.wrapComponentConfig({
             customButtons: [],
             editorHtml: '',
             isEditorReady: false,
+            isParsing: false,
+            hasParseError: false,
             lastEmittedValue: null,
             parseRevision: 0,
             parseTimeoutId: null,
@@ -124,7 +128,7 @@ export default Shopware.Component.wrapComponentConfig({
          * caret reason as above.
          */
         candidates() {
-            if (this.lastEmittedValue !== null) {
+            if (!this.isEditorReady || this.hasParseError || this.lastEmittedValue !== null) {
                 return;
             }
 
@@ -178,13 +182,25 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             const revision = requestRevision ?? ++this.parseRevision;
+            this.isParsing = true;
+            this.hasParseError = false;
+            if (updateEditorMarkup) {
+                // External changes must replace the old document before it can emit another edit.
+                this.isEditorReady = false;
+                this.onCloseMappingModal();
+            }
 
             try {
                 const response = await Shopware.Service('contentSystemMappingCandidateService').parseInlineMappingTokens(
                     value,
                     revision,
                 );
-                if (revision !== this.parseRevision || response.revision !== revision) {
+                if (revision !== this.parseRevision) {
+                    return;
+                }
+                if (response.revision !== revision) {
+                    this.hasParseError = true;
+
                     return;
                 }
 
@@ -198,12 +214,20 @@ export default Shopware.Component.wrapComponentConfig({
                     return;
                 }
 
-                this.parsedTokens = [];
-                if (updateEditorMarkup) {
-                    this.editorHtml = tokensToEditorHtml(value, [], () => false);
+                this.hasParseError = true;
+            } finally {
+                if (revision === this.parseRevision) {
+                    this.isParsing = false;
                 }
-                this.isEditorReady = true;
             }
+        },
+
+        onRetryParse(): void {
+            if (this.isParsing) {
+                return;
+            }
+
+            void this.refreshEditorValue(this.lastEmittedValue ?? this.value, !this.isEditorReady);
         },
 
         scheduleEditorValueParse(value: string): void {
@@ -213,6 +237,8 @@ export default Shopware.Component.wrapComponentConfig({
 
             // Invalidate any in-flight response immediately; the replacement parse runs after input settles.
             const revision = ++this.parseRevision;
+            this.isParsing = true;
+            this.hasParseError = false;
             this.parseTimeoutId = window.setTimeout(() => {
                 this.parseTimeoutId = null;
                 void this.refreshEditorValue(value, false, revision);
@@ -276,6 +302,10 @@ export default Shopware.Component.wrapComponentConfig({
          * carry — so the markup has to be stored, not re-derived from the tokens we emit.
          */
         onUpdateEditorHtml(html: string): void {
+            if (this.disabled || !this.isEditorReady) {
+                return;
+            }
+
             this.editorHtml = html;
             this.lastEmittedValue = editorHtmlToTokens(html, this.knownTokenTexts);
 
@@ -284,7 +314,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onOpenMappingModal(editor: MinimalEditor): void {
-            if (this.disabled) {
+            if (this.disabled || !this.isEditorReady) {
                 return;
             }
 
@@ -305,6 +335,10 @@ export default Shopware.Component.wrapComponentConfig({
             const editor = this.activeEditor;
 
             this.onCloseMappingModal();
+
+            if (this.disabled || !this.isEditorReady) {
+                return;
+            }
 
             editor
                 ?.chain()

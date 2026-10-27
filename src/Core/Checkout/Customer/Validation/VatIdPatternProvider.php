@@ -178,7 +178,11 @@ class VatIdPatternProvider implements ResetInterface
      */
     public function isSellerCountryVatId(?array $vatIds, string $salesChannelId): bool
     {
-        foreach ($vatIds ?? [] as $vatId) {
+        // A business holds at most one VAT ID per member state. Customers can have multiple VAT IDs by design,
+        // and each one may be matched against every EU pattern on every request, so the rest is not scanned.
+        $vatIds = \array_slice(array_filter($vatIds ?? []), 0, \count($this->getEuCountryIds()));
+
+        foreach ($vatIds as $vatId) {
             $vatIdCountryId = $this->getCountryIdForVatIds([$vatId]);
             if ($vatIdCountryId !== null && $vatIdCountryId === $this->getSellerCountryId($salesChannelId)) {
                 return true;

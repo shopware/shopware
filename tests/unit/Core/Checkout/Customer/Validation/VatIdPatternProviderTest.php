@@ -550,6 +550,7 @@ class VatIdPatternProviderTest extends TestCase
         yield 'reversing two foreign VAT IDs still does not match' => [['BE0123456789', 'NL123456789B01'], false];
         yield 'an invalid seller VAT ID after a foreign VAT ID does not match' => [['NL123456789B01', 'DEINVALID'], false];
         yield 'a repeated seller VAT ID still matches' => [['DE123456789', 'DE123456789'], true];
+        yield 'entries beyond one per member state are not scanned' => [['NL123456789B01', 'BE0123456789', 'INVALID', 'DE123456789'], false];
     }
 
     public function testSellerCountryMatchDoesNotChangeTheStoredFirstVatCountry(): void

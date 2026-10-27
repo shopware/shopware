@@ -130,6 +130,8 @@ class ProductListingRoute extends AbstractProductListingRoute
     /**
      * Loads the subcategories that show a dynamic product group. The condition on the group reference lets the
      * database read them through the index of that reference instead of scanning the whole category tree.
+     * EqualsAnyFilter compiles null to IS NULL, which the database negates to IS NOT NULL and reads from the index.
+     * EqualsFilter compiles it to <=> NULL, whose negation the database checks against every category.
      *
      * @return EntityCollection<PartialEntity>
      */
@@ -140,7 +142,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         $criteria->addFields(['productAssignmentType', 'productStreamId', 'path']);
         $criteria->addFilter(
             new EqualsFilter('productAssignmentType', CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM),
-            new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('productStreamId', null)]),
+            new NotFilter(NotFilter::CONNECTION_AND, [new EqualsAnyFilter('productStreamId', [null])]),
             new ContainsFilter('path', '|' . $categoryId . '|'),
         );
 

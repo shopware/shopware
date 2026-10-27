@@ -334,7 +334,7 @@ class ProductListingRouteTest extends TestCase
         static::assertInstanceOf(Criteria::class, $subcategoryCriteria);
         static::assertEquals([
             new EqualsFilter('productAssignmentType', CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM),
-            new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('productStreamId', null)]),
+            new NotFilter(NotFilter::CONNECTION_AND, [new EqualsAnyFilter('productStreamId', [null])]),
             new ContainsFilter('path', '|categoryId|'),
         ], $subcategoryCriteria->getFilters());
     }

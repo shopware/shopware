@@ -49,7 +49,7 @@
       "errorPatternNeededMessage": "No pattern defined. Please define at least a start value.",
       "infoStartDecrementMessage": "Changes to the start number will only take effect when the start number is higher than the current number.",
       "patternCollisionWarningTitle": "Pattern already used by another number range",
-      "patternCollisionWarning": "The pattern \"{pattern}\" is already used by \"{names}\", a number range of the same document type. Document numbers are unique per installation and document type, so generating a document from either range will fail once both have reached the same number. Give each range its own prefix or suffix."
+      "patternCollisionWarning": "The pattern \"{pattern}\" is also used by \"{names}\" for the same document type. Document numbers must be unique per document type, so both ranges may eventually generate the same number. Add a unique prefix or suffix to each range."
     }
   },
   "sw-privileges": {

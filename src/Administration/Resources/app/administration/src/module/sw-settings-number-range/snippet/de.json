@@ -49,7 +49,7 @@
       "errorPatternNeededMessage": "Kein Pattern angegeben. Bitte gib mindestens eine Startnummer an.",
       "infoStartDecrementMessage": "Änderungen der Startnummer werden nur wirksam, wenn die Startnummer größer als die aktuelle Nummer ist.",
       "patternCollisionWarningTitle": "Pattern wird bereits von einem anderen Nummernkreis verwendet",
-      "patternCollisionWarning": "Das Pattern \"{pattern}\" wird bereits von \"{names}\" verwendet, einem Nummernkreis desselben Dokumenttyps. Dokumentnummern sind pro Installation und Dokumenttyp eindeutig. Sobald beide Nummernkreise dieselbe Nummer erreichen, schlägt die Dokumenterzeugung aus beiden fehl. Vergib für jeden Nummernkreis ein eigenes Präfix oder Suffix."
+      "patternCollisionWarning": "Das Pattern \"{pattern}\" wird auch von \"{names}\" für denselben Dokumenttyp verwendet. Dokumentnummern müssen pro Dokumenttyp eindeutig sein, daher können beide Nummernkreise irgendwann dieselbe Nummer erzeugen. Vergib jedem Nummernkreis ein eigenes Präfix oder Suffix."
     }
   },
   "sw-privileges": {

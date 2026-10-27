@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Adapter\AdapterException;
+use Shopware\Core\Framework\Adapter\Twig\Exception\TwigMethodCallNotAllowedException;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
@@ -132,12 +133,10 @@ class SwTwigFunction
             }
 
             return CoreExtension::getAttribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);
-        } catch (\Throwable $exception) {
-            // The fallback would call the denied method.
-            if ($exception instanceof AdapterException && $exception->getErrorCode() === AdapterException::TWIG_METHOD_CALL_NOT_ALLOWED) {
-                throw $exception;
-            }
-
+        } catch (TwigMethodCallNotAllowedException $exception) {
+            // The fallback below would call the denied method.
+            throw $exception;
+        } catch (\Throwable) {
             return CoreExtension::getAttribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);
         } finally {
             FieldVisibility::$isInTwigRenderingContext = false;

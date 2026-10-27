@@ -97,6 +97,11 @@ shopware:
         major: v6.8.0.0
         toggleable: true
         description: "Automatic promotions cannot be removed anymore and are therefore no longer tracked as blocked after removal."
+      - name: PROMOTION_REDEMPTION_OPTIMIZATION
+        default: false
+        major: v6.8.0.0
+        toggleable: true
+        description: "Stops maintaining the deprecated per-customer redemption counter of promotions and removes `ordersPerCustomerCount` from the promotion entity."
       - name: METEOR_TEXT_EDITOR
         default: false
         major: v6.8.0.0

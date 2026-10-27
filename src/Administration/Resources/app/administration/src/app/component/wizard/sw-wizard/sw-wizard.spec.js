@@ -78,7 +78,7 @@ describe('src/app/component/wizard/sw-wizard', () => {
 
         expect(wrapper.vm.pagesCount).toBe(6);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const emitted = wrapper.emitted();
 
         expect(emitted['pages-updated']).toHaveLength(6);
@@ -95,7 +95,7 @@ describe('src/app/component/wizard/sw-wizard', () => {
 
         expect(wrapper.vm.pagesCount).toBe(4);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const emitted = wrapper.emitted();
 
         expect(emitted['pages-updated']).toHaveLength(6);

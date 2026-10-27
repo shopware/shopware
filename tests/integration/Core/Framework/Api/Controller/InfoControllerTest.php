@@ -37,6 +37,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\AppSystemTestBehaviour;
+use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -934,13 +935,18 @@ class InfoControllerTest extends TestCase
         // The declared FQCN property is filled by the pipeline, never stored, so it contributes no entry.
         static::assertArrayNotHasKey('media', $typesByName['Sw:Media:Image']['storageSchema']);
 
-        // quantity-selector.yaml declares only `product`, an FQCN filled by the pipeline, so it contributes no
-        // property entry; no binding specification for this type names a propertyReference key either, so
-        // storageSchema resolves to []. InfoController::elementTypeSchema() casts it to (object) before
-        // encoding, so an empty schema must reach the wire as {} rather than [] — this pins that encoding the
-        // way the bindingSpecifications case above pins its own empty-map encoding.
+        // The quantity selector retains `resolvedBy: productId` alongside its default product mapping,
+        // so manual product selection remains available after unmapping.
         static::assertArrayHasKey('Sw:Product:QuantitySelector', $typesByName);
-        static::assertSame([], $typesByName['Sw:Product:QuantitySelector']['storageSchema']);
+        static::assertSame(
+            ['productId' => ['kind' => 'resolvedByStorage', 'type' => 'string', 'required' => true]],
+            $typesByName['Sw:Product:QuantitySelector']['storageSchema'],
+        );
+
+        // The property-free test type has no storage keys. Its empty schema must be encoded as {} rather
+        // than [], independently of changes to shipped element definitions.
+        static::assertArrayHasKey(TestElementTypeLoader::RESOLVABLE, $typesByName);
+        static::assertSame([], $typesByName[TestElementTypeLoader::RESOLVABLE]['storageSchema']);
         static::assertStringContainsString('"storageSchema":{}', $content);
     }
 

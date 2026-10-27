@@ -180,8 +180,11 @@ class McpToolListControllerTest extends TestCase
     }
 
     /**
+     * @param Page<Tool> $page
      * @param array<string, list<string>> $toolDependencies
      * @param array<string, array{static: list<string>, entityParam: ?string, operations: list<string>}> $toolPrivileges
+     * @param Page<ResourceDefinition>|null $resourcesPage
+     * @param Page<Prompt>|null $promptsPage
      */
     private function makeController(
         Page $page,

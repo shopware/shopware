@@ -56,13 +56,13 @@ class ToolsetsListToolTest extends TestCase
         $requestStack->push($request);
 
         $tool = new ToolsetsListTool($registry, $storage, $requestStack, new McpRequestedToolsetResolver($requestStack));
-        $result = json_decode($tool(), true, 512, \JSON_THROW_ON_ERROR);
+        $result = $tool();
 
-        static::assertTrue($result['success']);
-        static::assertTrue($result['data']['toolsets'][0]['enabled']);
-        static::assertFalse($result['data']['toolsets'][1]['enabled']);
-        static::assertSame('tool-groups', $result['_meta']['taxonomy']);
-        static::assertSame('Toolsets are derived from explicit MCP tool group metadata.', $result['_meta']['note']);
+        static::assertFalse($result->isError());
+        static::assertTrue($result->data['toolsets'][0]['enabled']);
+        static::assertFalse($result->data['toolsets'][1]['enabled']);
+        static::assertSame('tool-groups', $result->meta['taxonomy']);
+        static::assertSame('Toolsets are derived from explicit MCP tool group metadata.', $result->meta['note']);
     }
 
     public function testListsToolsetsWithoutSessionState(): void
@@ -81,10 +81,10 @@ class ToolsetsListToolTest extends TestCase
         $storage->expects($this->never())->method('enabledToolsets');
 
         $tool = new ToolsetsListTool($registry, $storage, new RequestStack(), new McpRequestedToolsetResolver(new RequestStack()));
-        $result = json_decode($tool(), true, 512, \JSON_THROW_ON_ERROR);
+        $result = $tool();
 
-        static::assertTrue($result['success']);
-        static::assertFalse($result['data']['toolsets'][0]['enabled']);
+        static::assertFalse($result->isError());
+        static::assertFalse($result->data['toolsets'][0]['enabled']);
     }
 
     public function testListsTheAuthoredToolsetDescription(): void
@@ -154,9 +154,9 @@ class ToolsetsListToolTest extends TestCase
         $requestStack->push($request);
 
         $tool = new ToolsetsListTool($registry, $storage, $requestStack, new McpRequestedToolsetResolver($requestStack));
-        $result = json_decode($tool(), true, 512, \JSON_THROW_ON_ERROR);
+        $result = $tool();
 
-        static::assertSame($expected, array_column($result['data']['toolsets'], 'enabled', 'name'));
+        static::assertSame($expected, array_column($result->data['toolsets'], 'enabled', 'name'));
     }
 
     /**

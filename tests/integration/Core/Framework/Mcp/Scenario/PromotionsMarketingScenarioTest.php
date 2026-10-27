@@ -44,10 +44,10 @@ class PromotionsMarketingScenarioTest extends McpScenarioTestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        $data = $this->decodeToolOutput($output);
+        $data = $this->assertToolSucceeded($output);
 
         $found = false;
-        foreach ($data['data'] as $promo) {
+        foreach ($data->data as $promo) {
             if ($promo['id'] === $promotionId) {
                 $found = true;
 
@@ -84,10 +84,10 @@ class PromotionsMarketingScenarioTest extends McpScenarioTestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        $data = $this->decodeToolOutput($output);
+        $data = $this->assertToolSucceeded($output);
 
-        static::assertArrayHasKey('aggregations', $data['data']);
-        static::assertGreaterThanOrEqual(3, $data['data']['aggregations']['total']['count']);
+        static::assertArrayHasKey('aggregations', $data->data);
+        static::assertGreaterThanOrEqual(3, $data->data['aggregations']['total']['count']);
     }
 
     private function getSalesChannelId(): string

@@ -45,11 +45,11 @@ class StoreApiToolsetEnableToolTest extends TestCase
         $requestStack->push($request);
 
         $tool = new StoreApiToolsetEnableTool($registry, $storage, $requestStack);
-        $result = json_decode($tool('store-api'), true, 512, \JSON_THROW_ON_ERROR);
+        $result = $tool('store-api');
 
-        static::assertTrue($result['success']);
-        static::assertSame('store-api', $result['data']['toolset']['name']);
-        static::assertTrue($result['_meta']['listChanged']);
+        static::assertFalse($result->isError());
+        static::assertSame('store-api', $result->data['toolset']['name']);
+        static::assertTrue($result->meta['listChanged']);
         // Like the admin tool, the store-api variant records intent; the controller emits it.
         static::assertTrue($request->attributes->getBoolean(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE));
     }

@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Result\McpToolError;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -55,26 +56,26 @@ class EntityDeleteTool extends McpToolResponse
         string $ids,
         #[Schema(description: 'Preview without deleting. Leave true first, then call again with false to delete.')]
         bool $dryRun = true,
-    ): string {
+    ): McpToolResult {
         $context = $this->contextProvider->getContext();
 
         if (!$this->registry->has($entity)) {
-            return $this->error(\sprintf('Entity "%s" not found. Use the shopware://entities resource for available entity names.', $entity), McpToolError::INVALID_ARGUMENTS);
+            return $this->errorResult(\sprintf('Entity "%s" not found. Use the shopware://entities resource for available entity names.', $entity), McpToolError::INVALID_ARGUMENTS);
         }
 
-        if ($error = $this->requirePrivilege($context, $entity . ':delete')) {
+        if ($error = $this->requirePrivilegeResult($context, $entity . ':delete')) {
             return $error;
         }
 
         $deletePayload = $this->buildDeletePayload($this->registry->getByEntityName($entity), $ids, $context);
-        if (\is_string($deletePayload)) {
+        if ($deletePayload instanceof McpToolResult) {
             return $deletePayload;
         }
 
         $repository = $this->registry->getRepository($entity);
 
         if ($dryRun) {
-            return $this->executeWithDryRun($this->connection, $context, function () use ($repository, $deletePayload, $context) {
+            return $this->executeWithDryRunResult($this->connection, $context, function () use ($repository, $deletePayload, $context) {
                 return $this->result($repository->delete($deletePayload, $context), \count($deletePayload), true);
             });
         }
@@ -86,7 +87,7 @@ class EntityDeleteTool extends McpToolResponse
      * Rows that don't exist are reported in the event's errors, like the Admin API does: an error
      * when none of them existed, and their keys in `_meta.notFound` when only some did.
      */
-    private function result(EntityWrittenContainerEvent $events, int $requested, bool $dryRun): string
+    private function result(EntityWrittenContainerEvent $events, int $requested, bool $dryRun): McpToolResult
     {
         $notFound = [];
         foreach ($events->getErrors() as $results) {
@@ -98,7 +99,7 @@ class EntityDeleteTool extends McpToolResponse
         }
 
         if ($notFound !== [] && \count($notFound) >= $requested) {
-            return $this->error(\sprintf('Nothing was deleted, none of these rows exist: %s', json_encode($notFound, \JSON_THROW_ON_ERROR)));
+            return $this->errorResult(\sprintf('Nothing was deleted, none of these rows exist: %s', json_encode($notFound, \JSON_THROW_ON_ERROR)));
         }
 
         $meta = ['dryRun' => $dryRun];
@@ -106,7 +107,7 @@ class EntityDeleteTool extends McpToolResponse
             $meta['notFound'] = $notFound;
         }
 
-        return $this->success($this->formatDeleteEvents($events), $meta);
+        return $this->successResult($this->formatDeleteEvents($events), $meta);
     }
 
     /**
@@ -139,9 +140,9 @@ class EntityDeleteTool extends McpToolResponse
      * `DELETE /api/product/{id}/categories/{categoryId}` uses the context version for the parent and
      * the live version for the referenced side, and a mapping row does not say which side is which.
      *
-     * @return list<array<string, string>>|string the payload, or an error response
+     * @return list<array<string, string>>|McpToolResult the payload, or a failure
      */
-    private function buildDeletePayload(EntityDefinition $definition, string $ids, Context $context): array|string
+    private function buildDeletePayload(EntityDefinition $definition, string $ids, Context $context): array|McpToolResult
     {
         $keyFields = [];
         $versionFields = [];
@@ -165,7 +166,7 @@ class EntityDeleteTool extends McpToolResponse
             ));
 
             if ($idList === []) {
-                return $this->error('No valid IDs provided.');
+                return $this->errorResult('No valid IDs provided.');
             }
 
             return array_map(static fn (string $id): array => ['id' => $id], $idList);
@@ -175,23 +176,23 @@ class EntityDeleteTool extends McpToolResponse
         $usage = \sprintf('Entity "%s" has a composite primary key. Pass ids as a JSON array of objects with %s, e.g. %s.', $definition->getEntityName(), implode(' and ', $keyFields), $example);
 
         if (!\is_array($decoded) || $decoded === [] || !array_is_list($decoded)) {
-            return $this->error($usage);
+            return $this->errorResult($usage);
         }
 
         $payload = [];
         foreach ($decoded as $row) {
             if (!\is_array($row)) {
-                return $this->error($usage);
+                return $this->errorResult($usage);
             }
 
             $keys = [];
             foreach ($keyFields as $keyField) {
                 $value = $row[$keyField] ?? null;
                 if (!\is_string($value) || $value === '') {
-                    return $this->error($usage);
+                    return $this->errorResult($usage);
                 }
                 if (!Uuid::isValid($value)) {
-                    return $this->error(\sprintf('"%s" must be a UUID. %s', $keyField, $usage));
+                    return $this->errorResult(\sprintf('"%s" must be a UUID. %s', $keyField, $usage));
                 }
 
                 $keys[$keyField] = $value;
@@ -201,7 +202,7 @@ class EntityDeleteTool extends McpToolResponse
                 $version = $row[$versionField] ?? null;
                 if ($version !== null) {
                     if (!\is_string($version) || !Uuid::isValid($version)) {
-                        return $this->error(\sprintf('"%s" must be a version UUID.', $versionField));
+                        return $this->errorResult(\sprintf('"%s" must be a version UUID.', $versionField));
                     }
 
                     $keys[$versionField] = $version;
@@ -210,7 +211,7 @@ class EntityDeleteTool extends McpToolResponse
                 }
 
                 if ($context->getVersionId() !== Defaults::LIVE_VERSION) {
-                    return $this->error(\sprintf(
+                    return $this->errorResult(\sprintf(
                         'This request runs in version %s. Name every version field (%s) in each ids object, for example the live version %s for a side that is not being edited.',
                         $context->getVersionId(),
                         implode(', ', $versionFields),

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Mcp\McpProtocolEra;
 use Shopware\Core\Framework\Mcp\McpRequestedToolsetResolver;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -33,7 +34,7 @@ class ToolsetsListTool extends McpToolResponse
     ) {
     }
 
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
         // Not advertised on the stateless era (2026-07-28): which toolsets are enabled is session state,
         // and there is no toolset-enable to follow up with. See McpProtocolEra::HIDDEN_ON_STATELESS_ERA.
@@ -44,7 +45,7 @@ class ToolsetsListTool extends McpToolResponse
         $enabledToolsets = $this->enabledToolsets();
         $areAllToolsetsEnabled = \in_array(McpToolsetRegistry::ALL_TOOLSETS, $enabledToolsets, true);
 
-        return $this->success([
+        return $this->successResult([
             'toolsets' => array_map(
                 static fn (array $toolset): array => [
                     ...$toolset,

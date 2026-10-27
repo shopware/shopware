@@ -8,6 +8,10 @@ Shopware serves the handshake era by default.
 What each feature does without a session is decided in `adr/2026-09-24-mcp-stateless-era-degradation-policy.md` and covered by `McpDualEraConformanceTest`.
 On the stateless era `tools/list` does not advertise `shopware-toolset-enable` and `shopware-toolsets-list`, because there is no session to keep a toolset in; a direct call answers `isError`, and the `server/discover` instructions and `shopware-tool-search` point to `?toolsets=` instead.
 No request state key is configured, because no Shopware handler asks the client for input more than once; the rules are in "Request state on the stateless era" of `AGENTS.md`, the key itself is planned in #22081.
+On the stateless revision, `subscriptions/listen` carries `notifications/{tools,resources,prompts}/list_changed` on the Admin API endpoint, from the list versions in `mcp_list_version` (`McpListVersionsNotificationBus`).
+`server/discover` of the Admin API endpoint announces `listChanged`; the Store API endpoint does not, because its lists only change per session.
+A listen stream lasts 25 seconds and holds one PHP worker for that time.
+`notifications/resources/updated` is not published.
 
 This doc is the compact matrix for one question:
 
@@ -48,6 +52,7 @@ These are not “server feature rows” in the spec navigation, but Shopware sti
 |---|---|---|---|
 | Transport | Streamable HTTP at `/api/_mcp` via `symfony/mcp-bundle` and `McpServerController` | clear | Keep docs aligned with the actual bundle behavior after upgrades |
 | Session lifecycle and JSON-RPC routing | Delegated to `symfony/mcp-bundle` / MCP PHP SDK | partial | Document the exact boundary between bundle behavior and Shopware-specific additions |
+| Cache hints (SEP-2549) | `ttlMs` and `cacheScope` on `server/discover`, the list methods and `resources/read`, sent by mcp/sdk 0.9 on 2026-07-28 only; handshake answers carry none. Everything is `private`, because the allowlist and `?toolsets=` shape the lists per caller. Default `ttlMs: 0`; `server/discover` and the four list methods 60 seconds; reference resources one hour (entities, state machines, business events, flow actions) or five minutes (currencies, languages, sales channels) through `McpResourceCacheHint`; stored tool results, app resources and `shopware://extensions` 0. Configured in `servers.<name>.cache` of `packages/mcp.php` | clear | Revisit the TTLs once stateless clients report how they use them |
 | Auth and authorization | Shopware adds Admin API auth bridge, ACL, rate limiting, feature flag, app HMAC execution, and MCP tool registration rules. OAuth per the MCP authorization spec on `/api/_mcp`: `401` with `WWW-Authenticate` pointing to the protected resource metadata (RFC 9728), authorization server metadata (RFC 8414), PKCE `S256`, and tokens bound to the MCP resource (RFC 8707). Clients are registered by the operator in `shopware.api.oauth_clients`; see `## Authentication` in `AGENTS.md` | clear | Client ID metadata documents or dynamic client registration (#22047); keep docs and tests aligned with the real enforcement path |
 
 ## Client-side spec areas that are not server features here
@@ -85,5 +90,5 @@ This is not purely a spec issue, but it affects how we talk about MCP logging an
 | 1 | Audit actual `initialize` capability advertisement | No over-promising in capability flags |
 | 2 | Audit `tools/list`, `prompts/list`, `resources/list`, and `resources/templates/list` for pagination behavior | Honest docs and capability claims |
 | 3 | ~~Decide whether Shopware wants real MCP logging utility support~~ — answered by SEP-2577: telemetry plus support logs, no protocol logging | Clear logging story |
-| 4 | ~~Review `McpToolResponse` against `content[]`, `structuredContent`, `isError`, and `outputSchema`~~ Done for `content[]`, `structuredContent` and `isError`; `outputSchema` follows with #21306 | Cleaner tool result contract |
+| 4 | ~~Review `McpToolResponse` against `content[]`, `structuredContent`, `isError`, and `outputSchema`~~ Done for `content[]`, `structuredContent` and `isError`; `outputSchema` follows with #17516 | Cleaner tool result contract |
 | 5 | Mirror the final matrix into official docs on `developer.shopware.com/docs` | One canonical public explanation |

@@ -12,6 +12,7 @@ Empty, missing or malformed extension XML files now fail with a `UtilException` 
 The error messages are unchanged.
 The PHPStan rule `NoXmlUtilsParsingRule` in the core rule set reports direct calls to `XmlUtils::parse()` and `XmlUtils::loadFile()` outside tests.
 Use `XmlParser` for XML that may come from an extension.
+`XmlParser` is public API, so extensions that parse XML from an untrusted source should use it instead of `XmlUtils` as well.
 
 # 6.7.16.0 (upcoming)
 

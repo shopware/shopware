@@ -174,8 +174,10 @@
       },
       "messageDraftNotFound": "Der Entwurf existiert nicht mehr. Stattdessen wurde das Live-Layout geöffnet.",
       "draftDefaultName": "Entwurf",
-      "messageDraftConflict": "Der Entwurf wurde zwischenzeitlich geändert. Bitte lade die Seite neu, um mit dem aktuellen Stand weiterzuarbeiten.",
-      "messageDraftLoadError": "Der Entwurf konnte nicht geladen werden. Stattdessen wurde das Live-Layout geöffnet."
+      "messageDraftConflict": "Der Draft wurde zwischenzeitlich geändert, Deine Änderungen konnten nicht gespeichert werden. Sie sind weiterhin im Editor sichtbar.",
+      "messageDraftLoadError": "Der Entwurf konnte nicht geladen werden. Stattdessen wurde das Live-Layout geöffnet.",
+      "messageDraftForked": "Der Draft \"{previous}\" wurde zwischenzeitlich geändert. Deine Änderungen wurden als neuer Draft \"{name}\" gespeichert.",
+      "messagePublishConflict": "Das Live-Layout wurde zwischenzeitlich geändert, daher wurde der Draft nicht veröffentlicht. Vergleiche den aktuellen Live-Stand in der Historie, bevor Du veröffentlichst."
     },
     "draftsModal": {
       "title": "Entwürfe",
@@ -209,6 +211,11 @@
       "publishModal": {
         "title": "Revision veröffentlichen",
         "text": "Diese Revision ersetzt das Live-Layout. Ungespeicherte Änderungen im Editor gehen verloren. Trotzdem fortfahren?"
+      },
+      "messagePublishConflict": "Das Live-Layout wurde zwischenzeitlich geändert. Die Historie wurde neu geladen, prüfe den aktuellen Stand, bevor Du veröffentlichst.",
+      "openAsDraftModal": {
+        "title": "Als Draft öffnen",
+        "text": "Im Editor gibt es ungespeicherte Änderungen. Sie gehen verloren, wenn Du diese Revision als Draft öffnest. Trotzdem fortfahren?"
       }
     }
   }

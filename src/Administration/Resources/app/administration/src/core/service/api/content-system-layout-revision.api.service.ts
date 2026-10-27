@@ -77,6 +77,7 @@ export type ContentLayoutSaveRevisionPayload = {
 export type ContentLayoutPublishPayload = {
     revisionId: string;
     deleteBranchId?: string;
+    expectedPublished?: string;
 };
 
 /**

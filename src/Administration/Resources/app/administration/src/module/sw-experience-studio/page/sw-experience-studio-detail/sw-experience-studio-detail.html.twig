@@ -133,6 +133,7 @@
                     v-if="showRevisionsModal"
                     :layout-id="layoutId"
                     :branch-id="branchId"
+                    :has-unsaved-changes="isDirty"
                     @published="onRevisionPublished"
                     @open-branch="onOpenRevisionAsDraft"
                     @modal-close="onCloseRevisionsModal"

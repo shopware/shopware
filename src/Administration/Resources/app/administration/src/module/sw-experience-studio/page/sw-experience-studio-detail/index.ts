@@ -3,6 +3,7 @@ import type { ContentSystemElementTypeSpecification } from 'src/core/service/api
 import type ContentSystemLayoutRevisionApiService from 'src/core/service/api/content-system-layout-revision.api.service';
 import type {
     ContentLayoutBranch,
+    ContentLayoutCreateBranchPayload,
     ContentLayoutSavedRevision,
 } from 'src/core/service/api/content-system-layout-revision.api.service';
 import type {
@@ -1440,17 +1441,17 @@ export default Shopware.Component.wrapComponentConfig({
                     return;
                 }
 
-                const wasDraftMode = this.hasDraft;
+                const savedAsNewDraft = await this.saveDraft(layout);
 
-                await this.saveDraft(layout);
-
-                if (!wasDraftMode) {
+                if (this.routeBranchId !== this.branchId) {
                     await this.navigateToBranch(this.branchId);
                 }
 
-                this.createNotificationSuccess({
-                    message: this.$t('sw-experience-studio.detail.messageDraftSaved'),
-                });
+                if (!savedAsNewDraft) {
+                    this.createNotificationSuccess({
+                        message: this.$t('sw-experience-studio.detail.messageDraftSaved'),
+                    });
+                }
             } catch (error) {
                 this.notifySaveError(error);
             } finally {
@@ -1514,21 +1515,46 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        async saveDraft(workingLayout: ContentLayoutEntity): Promise<void> {
-            if (this.branch) {
-                await this.saveRevision(this.branch, workingLayout);
+        /**
+         * Resolves `true` when the changes went into a new draft because the open one was saved elsewhere meanwhile.
+         */
+        async saveDraft(workingLayout: ContentLayoutEntity): Promise<boolean> {
+            const branch = this.branch;
 
-                return;
+            if (!branch) {
+                await this.saveToNewDraft(workingLayout, { name: this.createDefaultDraftName() });
+
+                return false;
             }
 
-            const branch = await this.revisionService().createBranch(this.layoutId, {
-                name: this.createDefaultDraftName(),
+            try {
+                await this.saveRevision(branch, workingLayout);
+
+                return false;
+            } catch (error) {
+                if (this.getErrorStatus(error) !== 409) {
+                    throw error;
+                }
+            }
+
+            // Branching from the head the changes were made on keeps both the other save and these changes.
+            const name = this.createDefaultDraftName();
+            await this.saveToNewDraft(workingLayout, { name, fromRevisionId: branch.head });
+
+            this.createNotificationWarning({
+                message: this.$t('sw-experience-studio.detail.messageDraftForked', { previous: branch.name, name }),
             });
+
+            return true;
+        },
+
+        async saveToNewDraft(workingLayout: ContentLayoutEntity, payload: ContentLayoutCreateBranchPayload): Promise<void> {
+            const branch = await this.revisionService().createBranch(this.layoutId, payload);
 
             try {
                 await this.saveRevision(branch, workingLayout);
             } catch (error) {
-                this.leaveDraftCreatedFromLive(branch.id);
+                this.discardEmptyDraft(branch.id);
 
                 throw error;
             }
@@ -1554,8 +1580,8 @@ export default Shopware.Component.wrapComponentConfig({
             this.lastSavedSnapshot = this.createLayoutSnapshot(this.layout);
         },
 
-        leaveDraftCreatedFromLive(branchId: string): void {
-            // Create and first save are two requests; a live-mode save that failed in between must not leave an empty draft.
+        discardEmptyDraft(branchId: string): void {
+            // Create and first save are two requests; a save that failed in between must not leave an empty draft.
             this.revisionService()
                 .deleteBranch(this.layoutId, branchId)
                 .catch(() => undefined);
@@ -1620,13 +1646,17 @@ export default Shopware.Component.wrapComponentConfig({
                 this.createNotificationSuccess({
                     message: this.$t('sw-experience-studio.detail.messagePublished'),
                 });
-            } catch {
+            } catch (error) {
                 this.createNotificationError({
-                    message: this.$t('sw-experience-studio.detail.messagePublishError'),
+                    message: this.$t(
+                        this.getErrorStatus(error) === 409
+                            ? 'sw-experience-studio.detail.messagePublishConflict'
+                            : 'sw-experience-studio.detail.messagePublishError',
+                    ),
                 });
 
-                if (!wasDraftMode) {
-                    // The changes are saved in the new draft by now; continue there instead of on stale live state.
+                if (this.routeBranchId !== branch.id) {
+                    // The changes are saved in a draft by now; continue there instead of on stale state.
                     await this.navigateToBranch(branch.id);
                 }
             } finally {

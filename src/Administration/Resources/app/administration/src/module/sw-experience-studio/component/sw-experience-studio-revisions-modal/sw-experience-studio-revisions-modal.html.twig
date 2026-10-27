@@ -10,6 +10,18 @@
     @close="onCancelPublish"
 />
 
+<sw-confirm-modal
+    v-else-if="revisionPendingOpenAsDraft"
+    class="sw-experience-studio-revisions-modal__open-as-draft-modal"
+    type="discard"
+    :title="$t('sw-experience-studio.revisionsModal.openAsDraftModal.title')"
+    :text="$t('sw-experience-studio.revisionsModal.openAsDraftModal.text')"
+    :text-confirm="$t('sw-experience-studio.revisionsModal.actionOpenAsDraft')"
+    @confirm="onConfirmOpenAsDraft"
+    @cancel="onCancelOpenAsDraft"
+    @close="onCancelOpenAsDraft"
+/>
+
 <sw-modal
     v-else
     class="sw-experience-studio-revisions-modal"

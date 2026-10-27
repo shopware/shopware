@@ -44,6 +44,11 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: null,
         },
+        hasUnsavedChanges: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     emits: [
@@ -54,17 +59,21 @@ export default Shopware.Component.wrapComponentConfig({
 
     data(): {
         revisions: ContentLayoutRevisionSummary[];
+        published: string | null;
         branches: ContentLayoutBranch[];
         authorNames: Record<string, string>;
         isLoading: boolean;
         revisionPendingPublish: string | null;
+        revisionPendingOpenAsDraft: string | null;
     } {
         return {
             revisions: [],
+            published: null,
             branches: [],
             authorNames: {},
             isLoading: false,
             revisionPendingPublish: null,
+            revisionPendingOpenAsDraft: null,
         };
     },
 
@@ -138,9 +147,11 @@ export default Shopware.Component.wrapComponentConfig({
                 ]);
 
                 this.revisions = history.revisions;
+                this.published = history.published;
                 this.branches = branches;
             } catch {
                 this.revisions = [];
+                this.published = null;
                 this.branches = [];
                 this.createNotificationError({
                     message: this.$t('sw-experience-studio.revisionsModal.messageLoadError'),
@@ -228,14 +239,23 @@ export default Shopware.Component.wrapComponentConfig({
             this.isLoading = true;
 
             try {
-                await this.revisionService().publish(this.layoutId, { revisionId });
+                await this.revisionService().publish(this.layoutId, {
+                    revisionId,
+                    expectedPublished: this.published ?? undefined,
+                });
                 this.createNotificationSuccess({
                     message: this.$t('sw-experience-studio.revisionsModal.messagePublished'),
                 });
                 this.$emit('published');
-            } catch {
+            } catch (error) {
+                const status = (error as { response?: { status?: unknown } } | null)?.response?.status;
+
                 this.createNotificationError({
-                    message: this.$t('sw-experience-studio.revisionsModal.messagePublishError'),
+                    message: this.$t(
+                        status === 409
+                            ? 'sw-experience-studio.revisionsModal.messagePublishConflict'
+                            : 'sw-experience-studio.revisionsModal.messagePublishError',
+                    ),
                 });
                 await this.loadHistory();
             } finally {
@@ -243,11 +263,36 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        async onOpenAsDraft(revisionId: string): Promise<void> {
+        onOpenAsDraft(revisionId: string): void {
             if (!this.allowEdit) {
                 return;
             }
 
+            if (this.hasUnsavedChanges) {
+                this.revisionPendingOpenAsDraft = revisionId;
+
+                return;
+            }
+
+            void this.openAsDraft(revisionId);
+        },
+
+        onCancelOpenAsDraft(): void {
+            this.revisionPendingOpenAsDraft = null;
+        },
+
+        async onConfirmOpenAsDraft(): Promise<void> {
+            const revisionId = this.revisionPendingOpenAsDraft;
+            this.revisionPendingOpenAsDraft = null;
+
+            if (!revisionId) {
+                return;
+            }
+
+            await this.openAsDraft(revisionId);
+        },
+
+        async openAsDraft(revisionId: string): Promise<void> {
             this.isLoading = true;
 
             try {

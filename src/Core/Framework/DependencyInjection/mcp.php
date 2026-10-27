@@ -134,7 +134,8 @@ return static function (ContainerConfigurator $container): void {
             service(AppMcpCapabilityDetector::class),
             service(McpListChangedNotifier::class),
         ])
-        ->tag('kernel.event_subscriber');
+        ->tag('kernel.event_subscriber')
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(McpHandshakeListChangedSubscriber::class)
         ->args([service('request_stack')])

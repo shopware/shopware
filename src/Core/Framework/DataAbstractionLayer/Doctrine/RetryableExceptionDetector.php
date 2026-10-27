@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class RetryableExceptionDetector
 {
-    private const MARIADB_RECORD_CHANGED_ERROR_CODE = 1020;
+    private const RECORD_CHANGED_ERROR_CODE = 1020;
 
     public static function detect(\Throwable $exception): ?\Throwable
     {
@@ -26,7 +26,7 @@ class RetryableExceptionDetector
                 && (
                     $exception instanceof RetryableException
                     || $exception instanceof TransactionRolledBack
-                    || ($exception instanceof DriverException && $exception->getCode() === self::MARIADB_RECORD_CHANGED_ERROR_CODE)
+                    || ($exception instanceof DriverException && $exception->getCode() === self::RECORD_CHANGED_ERROR_CODE)
                 )
             ) {
                 return $exception;
@@ -34,7 +34,7 @@ class RetryableExceptionDetector
                 $missingSavepointException === null
                 && self::isMissingSavepoint($exception)
             ) {
-                // The missing savepoint can mask the exception which caused MariaDB to roll back the transaction.
+                // The missing savepoint can mask the exception which caused the database to roll back the transaction.
                 // Keep it only as a fallback for https://github.com/doctrine/dbal/issues/6651.
                 $missingSavepointException = $exception;
             }

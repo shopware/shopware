@@ -148,6 +148,21 @@ class PromotionCollectorTest extends TestCase
         static::assertFalse($cart->getErrors()->has('promotion-not-eligible'));
     }
 
+    public function testCartWithoutCustomerIsNotHeldToThePerCustomerLimit(): void
+    {
+        $promotionId = Uuid::randomHex();
+        $cart = $this->prepareCart([Uuid::randomHex()], $promotionId, maxUsePerCustomer: 1);
+        $this->connection->method('fetchAllKeyValue')->willReturn([$promotionId => '1']);
+        $cartDataCollection = new CartDataCollection();
+
+        $this->promotionCollector->collect($cartDataCollection, $cart, Generator::generateSalesChannelContext(overrides: ['customer' => null]), new CartBehavior());
+
+        $promotions = $cartDataCollection->get(PromotionProcessor::DATA_KEY);
+        static::assertInstanceOf(LineItemCollection::class, $promotions);
+        static::assertCount(1, $promotions);
+        static::assertFalse($cart->getErrors()->has('promotion-not-eligible'));
+    }
+
     public function testUnknownPromotionCodeAddsNotFoundError(): void
     {
         $lineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex());

@@ -2,12 +2,13 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 
-use Mcp\Server\Subscription\Psr16NotificationBus;
 use Mcp\Server\Subscription\PublishingEventDispatcher;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpServerBuilderCompilerPass;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Notification\McpListVersions;
+use Shopware\Core\Framework\Mcp\Notification\McpListVersionsNotificationBus;
 use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -104,8 +105,14 @@ class McpServerBuilderCompilerPassTest extends TestCase
         static::assertCount(1, $busCalls);
         static::assertInstanceOf(Reference::class, $busCalls[0][0]);
         static::assertSame(McpServerBuilderCompilerPass::ADMIN_NOTIFICATION_BUS, (string) $busCalls[0][0]);
-        static::assertSame([[30.0]], $this->calls($container, 'admin', 'setSubscriptionLifetime'));
-        static::assertSame(Psr16NotificationBus::class, $container->getDefinition(McpServerBuilderCompilerPass::ADMIN_NOTIFICATION_BUS)->getClass());
+        static::assertSame([[25.0]], $this->calls($container, 'admin', 'setSubscriptionLifetime'));
+
+        $bus = $container->getDefinition(McpServerBuilderCompilerPass::ADMIN_NOTIFICATION_BUS);
+        static::assertSame(McpListVersionsNotificationBus::class, $bus->getClass());
+        static::assertSame(
+            [McpListVersions::class, 'cache.app', 'logger'],
+            array_map(static fn (mixed $argument): string => (string) $argument, $bus->getArguments()),
+        );
 
         $dispatcher = $container->getDefinition('mcp.server.admin.registry')->getArgument(0);
         static::assertInstanceOf(Definition::class, $dispatcher);

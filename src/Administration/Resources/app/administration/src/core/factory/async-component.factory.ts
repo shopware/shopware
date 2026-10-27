@@ -171,7 +171,7 @@ type PublicProps = VNodeProps & AllowedComponentProps & ComponentCustomProps;
 
 type EmitsToProps<T extends EmitsOptions> = T extends string[]
     ? {
-          // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents,
+          // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
           [K in string & `on${Capitalize<T[number]>}`]?: (...args: any[]) => any;
       }
     : T extends ObjectEmitsOptions
@@ -970,7 +970,7 @@ function buildSuperRegistry(config: ComponentConfig): SuperRegistry {
             // is computed getter/setter definition
             if (methodOrComputed === 'computed' && typeof method === 'object') {
                 Object.entries(method as object).forEach(([cmd, func]) => {
-                    const path = `${String(name)}.${String(cmd)}`;
+                    const path = `${name}.${cmd}`;
 
                     superRegistry = updateSuperRegistry(superRegistry, path, func, methodOrComputed, config);
                 });

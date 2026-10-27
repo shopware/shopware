@@ -3,8 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Framework\Routing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
@@ -19,19 +17,15 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
 use Shopware\Core\Framework\Routing\SessionContextTokenSubscriber;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\Storage\Handler\NativeFileSessionHandler;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
-use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -247,66 +241,50 @@ class SessionContextTokenSubscriberTest extends TestCase
         static::assertSame('fresh', $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
-    #[RunInSeparateProcess]
-    #[PreserveGlobalState(false)]
     public function testLoginAfterContextReplacementPersistsTheLatestTokenAndSessionCookie(): void
     {
-        $filesystem = new Filesystem();
-        $directory = sys_get_temp_dir() . '/shopware-session-' . Uuid::randomHex();
-        $filesystem->mkdir($directory);
-        $session = new Session(new NativeSessionStorage(
-            ['name' => 'session-', 'cache_limiter' => '', 'use_cookies' => false],
-            new NativeFileSessionHandler($directory),
-        ));
+        $session = new Session($this->nativeLikeStorage());
+        $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'expired');
+        $originalId = $session->getId();
+        $session->save();
 
-        try {
-            $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'expired');
-            $originalId = $session->getId();
-            $session->save();
+        $context = Generator::generateSalesChannelContext(token: 'fresh');
+        $request = new Request(cookies: ['session-' => $originalId], attributes: [
+            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
+        ]);
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_SOURCE, SessionContextTokenAccessor::CONTEXT_SOURCE_SESSION);
+        $request->setSession($session);
+        $accessor = new SessionContextTokenAccessor(['name' => 'session-'], new StaticSystemConfigService());
+        static::assertSame('expired', $accessor->read($request, $context->getSalesChannelId()));
 
-            $context = Generator::generateSalesChannelContext(token: 'fresh');
-            $request = new Request(cookies: ['session-' => $originalId], attributes: [
-                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
-            ]);
-            $request->headers->set(PlatformRequest::HEADER_CONTEXT_SOURCE, SessionContextTokenAccessor::CONTEXT_SOURCE_SESSION);
-            $request->setSession($session);
-            $accessor = new SessionContextTokenAccessor(['name' => 'session-'], new StaticSystemConfigService());
-            static::assertSame('expired', $accessor->read($request, $context->getSalesChannelId()));
+        $subscriber = $this->subscriber([$request]);
+        $subscriber->onContextResolved(new SalesChannelContextResolvedEvent($context, 'expired'));
+        $replacementId = $session->getId();
+        static::assertNotSame($originalId, $replacementId);
 
-            $subscriber = $this->subscriber([$request]);
-            $subscriber->onContextResolved(new SalesChannelContextResolvedEvent($context, 'expired'));
-            $replacementId = $session->getId();
-            static::assertNotSame($originalId, $replacementId);
+        $subscriber->onCustomerLogin(new CustomerLoginEvent($context, new CustomerEntity(), 'logged-in'));
 
-            $subscriber->onCustomerLogin(new CustomerLoginEvent($context, new CustomerEntity(), 'logged-in'));
+        static::assertTrue($session->isStarted(), 'Symfony must still emit the migrated session cookie');
+        static::assertNotSame($replacementId, $session->getId());
+        static::assertSame('logged-in', $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame('logged-in', $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame($session->getId(), $session->get(SessionContextTokenAccessor::SESSION_ID_KEY));
 
-            static::assertTrue($session->isStarted(), 'Symfony must still emit the migrated session cookie');
-            static::assertNotSame($replacementId, $session->getId());
-            static::assertSame('logged-in', $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-            static::assertSame('logged-in', $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-            static::assertSame($session->getId(), $session->get(SessionContextTokenAccessor::SESSION_ID_KEY));
+        $response = new Response();
+        (new SessionListener())->onKernelResponse($this->responseEvent($request, $response));
+        $cookies = $response->headers->getCookies();
+        static::assertCount(1, $cookies);
+        static::assertSame('session-', $cookies[0]->getName());
+        static::assertSame($session->getId(), $cookies[0]->getValue());
+        static::assertFalse($session->isStarted());
 
-            $response = new Response();
-            (new SessionListener())->onKernelResponse($this->responseEvent($request, $response));
-            $cookies = $response->headers->getCookies();
-            static::assertCount(1, $cookies);
-            static::assertSame('session-', $cookies[0]->getName());
-            static::assertSame($session->getId(), $cookies[0]->getValue());
-            static::assertFalse($session->isStarted());
-
-            $nextRequest = new Request(
-                attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]],
-                cookies: ['session-' => $cookies[0]->getValue()]
-            );
-            $nextRequest->headers->set(PlatformRequest::HEADER_CONTEXT_SOURCE, SessionContextTokenAccessor::CONTEXT_SOURCE_SESSION);
-            $nextRequest->setSession($session);
-            static::assertSame('logged-in', $accessor->read($nextRequest, $context->getSalesChannelId()));
-        } finally {
-            if ($session->isStarted()) {
-                $session->save();
-            }
-            $filesystem->remove($directory);
-        }
+        $nextRequest = new Request(
+            attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]],
+            cookies: ['session-' => $cookies[0]->getValue()]
+        );
+        $nextRequest->headers->set(PlatformRequest::HEADER_CONTEXT_SOURCE, SessionContextTokenAccessor::CONTEXT_SOURCE_SESSION);
+        $nextRequest->setSession($session);
+        static::assertSame('logged-in', $accessor->read($nextRequest, $context->getSalesChannelId()));
     }
 
     public function testAnUnchangedTokenLeavesTheSessionAlone(): void
@@ -475,6 +453,23 @@ class SessionContextTokenSubscriberTest extends TestCase
         $this->subscriber([$request])->stripContextToken($this->responseEvent($request, $response));
 
         static::assertSame('a-client-managed-token', $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    /**
+     * Like the native storage, it refuses to regenerate the ID of a closed session.
+     */
+    private function nativeLikeStorage(): MockArraySessionStorage
+    {
+        return new class('session-') extends MockArraySessionStorage {
+            public function regenerate(bool $destroy = false, ?int $lifetime = null): bool
+            {
+                if (!$this->started) {
+                    return false;
+                }
+
+                return parent::regenerate($destroy, $lifetime);
+            }
+        };
     }
 
     /**

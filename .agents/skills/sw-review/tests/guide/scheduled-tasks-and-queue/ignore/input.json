@@ -1,0 +1,39 @@
+{
+  "persona": "architecture",
+  "tier": "balanced",
+  "guides": [
+    "guides/scheduled-tasks-and-queue.md"
+  ],
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-guide-queue-ignore",
+    "title": "feat(core): clean up expired Administration password recovery entries",
+    "body": "Administration password recovery hashes are valid for two hours, but their `user_recovery` rows stay in the database until the user requests a new one. Adds the daily `user.cleanup_user_recovery` scheduled task, which deletes entries older than 48 hours in batches of 1000, the same way `CleanupCustomerRecoveryTaskHandler` does for customers.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/guide-queue-ignore",
+    "additions": 152,
+    "deletions": 0,
+    "changed_files": 4
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "src/Core/System/DependencyInjection/user.php",
+    "src/Core/System/User/Recovery/CleanupUserRecoveryTask.php",
+    "src/Core/System/User/Recovery/CleanupUserRecoveryTaskHandler.php",
+    "tests/unit/Core/System/User/Recovery/CleanupUserRecoveryTaskHandlerTest.php"
+  ],
+  "change_profile": {
+    "signals": [
+      "php_src",
+      "public_surface",
+      "scheduled_task",
+      "tests_changed"
+    ],
+    "guides": [
+      "scheduled-tasks-and-queue"
+    ]
+  }
+}

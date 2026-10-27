@@ -56,6 +56,8 @@ framework:
                 adapter: cache.app
             cache.double_submit:
                 adapter: cache.app
+            cache.app_url_verification:
+                adapter: cache.app
     messenger:
         failure_transport: failed
         serializer:

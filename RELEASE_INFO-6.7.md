@@ -24,6 +24,7 @@ A private HTML or XML file can no longer be exposed by only switching its `priva
 The shipped `public/.htaccess.dist` now sends `X-Content-Type-Options: nosniff` for files under `/media` and `/thumbnail`.
 Browsers then no longer sniff a stored file with an unknown content type into HTML.
 Update your `.htaccess` if you maintain your own copy, and send the same header for stored media on other web servers.
+
 ### User, access key and admin integration writes are restricted
 
 A non-admin may only update or delete their own user and their own access keys through the Admin API.

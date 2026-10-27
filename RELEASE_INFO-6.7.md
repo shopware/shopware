@@ -2,6 +2,16 @@
 
 ## Core
 
+### Missing plugin conditions in stored carts
+
+Stored carts can be recalculated when a rule container references a condition whose PHP class is no longer available, for example an uninstalled plugin.
+Unavailable child conditions are replaced with `UnknownConditionRule`, which evaluates to false.
+A NOT container whose child is an `UnknownConditionRule` also evaluates to false.
+
+`Container` now implements `__unserialize()` and continues to call subclass `__wakeup()` hooks for compatibility while the `v6.8.0.0` feature flag is disabled.
+If your custom rule container relies on `__wakeup()`, move that logic into `__unserialize(array $data): void`, call `parent::__unserialize($data)` before running it, and remove the old `__wakeup()` implementation to avoid running the logic twice.
+The compatibility call is removed in 6.8.
+
 ### Multiple SQL statements restricted in 6.8
 
 With `DISABLE_SQL_MULTI_STATEMENTS=1`, application database connections reject multiple SQL statements in a single call.
@@ -49,6 +59,7 @@ Webhooks created through the Admin API without an app now belong to the user or 
   ```
 
   The list must not be empty or contain empty entries, every role must exist, and every role must be held by the owner unless the owner is an administrator. Otherwise the write is rejected with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `aclRoleIds`. If the event is not covered by the listed roles, `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` is returned, also when an administrator changes somebody else's webhook.
+* **Event log:** `webhook_event_log` entries are only returned to administrators and to the owner of the webhook that wrote them. An app's integration sees the entries of its app's webhooks. Entries written before the update, and entries of deleted webhooks, are only returned to administrators.
 
 ### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
 
@@ -74,6 +85,10 @@ The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physica
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
 
+### Set null on delete also applies to cascaded deletes
+
+When the DAL deletes an entity, `SetNullOnDelete` associations of the entities removed through `CascadeDelete` are now resolved as well, not only those of the deleted entity itself. For associations without a database constraint (`SetNullOnDelete(false)`) the reference is set to `null` and a write result is dispatched for the updated entity. For example, deleting a media that is used as a product cover now clears `product.coverId`. Entities that are deleted in the same operation are not updated, so deleting a product with a cover still reports the product, and its variants, as deleted.
+
 ### Business customers need a VAT ID for countries that require one
 
 If the country of the active billing address has "VAT Reg.No. required" enabled, the cart of a business customer without a VAT ID now carries the blocking error `vat-id-missing`, and the order can't be placed.
@@ -94,6 +109,10 @@ Media loaded without the `mediaType` field keep their thumbnail URLs, as the typ
 New sales channel contexts now decide tax-free delivery like the cart (`TaxDetector::isNetDelivery()`):
 commercial customers only get "Tax-free (B2B)", all other customers only "Tax-free (B2C)".
 Cart and order taxes stay the same, but Rule Builder conditions like "Cart amount" can match differently than before for customers who only met the other setting.
+
+### Retired services are uninstalled by the daily service reconcile
+
+Shops now uninstall a service once the service registry lists it as `retired` in `GET /api/service/v2`. This happens in the daily service install task, on `bin/console services:install` and on `system:update:finish`, so a retired service no longer stays installed until the shop's next update. A service that is merely missing from the registry's service list is no longer uninstalled on `system:update:finish`; only an explicit `retired` status removes it. Shops now read the service list only from `GET /api/service/v2` and install and update only services listed as `active`; a status they don't know is left alone.
 
 ### Live state transition retries
 

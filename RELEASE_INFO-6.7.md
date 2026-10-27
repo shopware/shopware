@@ -18,8 +18,14 @@ S3 and other object storages serve a file with the content type stored at upload
 
 If your shop needs HTML files as public media, add `html` to `shopware.filesystem.allowed_extensions` in your own configuration and serve these files from a separate domain or with a `Content-Security-Policy: sandbox` header.
 
-Changing a media item from private to public through the Admin API is validated against the public extension list as well.
-A private HTML or XML file can no longer be exposed by only switching its `private` flag; the write fails with `MEDIA_ILLEGAL_FILE_EXTENSION`.
+### Media visibility is immutable
+
+The `private` field of media can now only be set when creating the media entity.
+Updates that change its value are rejected because toggling the flag does not move the actual file or its thumbnails between the public and private filesystems.
+Set the intended visibility during creation.
+Updates that resend the existing value remain supported.
+
+The DAL `Immutable` flag now correctly rejects changes to falsy values such as `false`, `0`, and an empty string.
 
 ### User, access key and admin integration writes are restricted
 

@@ -182,7 +182,8 @@ With `auto`, the client picks the revision, and clients on the handshake revisio
 On the stateless revision there is no MCP session:
 
 * Choose toolsets in the endpoint URL, for example `/api/_mcp?toolsets=order,media`.
-  `shopware-toolset-enable` answers with an error that points to `?toolsets=`.
+  `shopware-toolset-enable` and `shopware-toolsets-list` are not listed in `tools/list`; called directly, they answer with an error that points to `?toolsets=`.
+  The server instructions and `shopware-tool-search` point to `?toolsets=` as well, and each search match names its toolset.
 * List changes on the Admin API endpoint reach clients through `subscriptions/listen` within about a second.
   They are raised by app installs, updates, activations and removals, and by edits of the MCP allowlist of an integration or a user, through any API.
   The stream reads the list versions from the database, so changes made on the CLI, in queue workers or on another host arrive as well.
@@ -191,12 +192,6 @@ On the stateless revision there is no MCP session:
 * Each open `subscriptions/listen` stream holds one PHP-FPM worker for up to 25 seconds, then the server ends it and the client reconnects.
   A client that keeps listening therefore occupies one worker almost all the time.
   Account for it in `pm.max_children`, and keep `max_execution_time` and the timeouts of proxies in front of PHP above 25 seconds.
-  `shopware-toolset-enable` and `shopware-toolsets-list` are not listed in `tools/list`; called directly, they answer with an error that points to `?toolsets=`.
-  The server instructions and `shopware-tool-search` point to `?toolsets=` as well, and each search match names its toolset.
-* List changes on the Admin API endpoint, for example after an app install, reach clients through `subscriptions/listen`.
-  The notifications go through `cache.app`, so setups with several hosts need a shared `cache.app`, for example Redis.
-* Each open `subscriptions/listen` stream occupies a PHP worker for up to 30 seconds before the client reconnects.
-  Account for it in `pm.max_children`.
 
 ## API
 

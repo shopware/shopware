@@ -138,6 +138,13 @@ Cart and order taxes stay the same, but Rule Builder conditions like "Cart amoun
 
 Shops now uninstall a service once the service registry lists it as `retired` in `GET /api/service/v2`. This happens in the daily service install task, on `bin/console services:install` and on `system:update:finish`, so a retired service no longer stays installed until the shop's next update. A service that is merely missing from the registry's service list is no longer uninstalled on `system:update:finish`; only an explicit `retired` status removes it. Shops now read the service list only from `GET /api/service/v2` and install and update only services listed as `active`; a status they don't know is left alone.
 
+### Extension events are only dispatched when something listens
+
+`ExtensionDispatcher::publish()` now dispatches each of an extension's `.pre`, `.post` and `.error` events only when it has a listener.
+Existing extension listeners keep working unchanged.
+Code that observes every dispatched event, such as APM tracing or a decorator of `event_dispatcher`, no longer sees extension events nobody listens to.
+Unit tests that pass a mocked `EventDispatcherInterface` to `ExtensionDispatcher` and expect `dispatch()` calls need the mock's `hasListeners()` to return `true`.
+
 ### Live state transition retries
 
 Live state transitions batch history and state writes. `EntityWriteEvent` subscribers can receive multiple entities: filter with `getCommandsForEntity()` and make pre-write work idempotent or compensate it through `addError()`. `WriteCommandExceptionEvent` and error callbacks can run before SQL executes, and each failed attempt runs its error callbacks before it is retried. Retries stop once success callbacks or written listeners begin, or compensation fails. MariaDB error `1020` is now retryable.

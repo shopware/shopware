@@ -466,6 +466,12 @@ Use the connection passed to `MigrationStep::update()` and `MigrationStep::updat
 
 <details>
 
+## Rule container `__wakeup()` hooks are no longer called
+
+`Shopware\Core\Framework\Rule\Container\Container::__unserialize()` no longer calls subclass `__wakeup()` hooks.
+Move custom rule container initialization from `__wakeup()` into `__unserialize(array $data): void` and call `parent::__unserialize($data)` before running it.
+Remove the old `__wakeup()` implementation to avoid duplicate initialization when supporting earlier Shopware versions that provide the compatibility call.
+
 ## Invalid price definition exceptions
 
 `PriceDefinitionFieldSerializer` now throws `DataAbstractionLayerException` for invalid price-definition types instead of the removed `InvalidPriceFieldTypeException`. Update exception catches and use `DataAbstractionLayerException::invalidPriceFieldType()` to construct this error. Its error code, status, and message remain unchanged.
@@ -1502,6 +1508,28 @@ $this->cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior(
 
 ```php
 new HreflangLoaderParameter('frontend.home.page', $routeParameters, $salesChannelContext, true);
+```
+
+## Removal of the per-customer redemption counter of promotions
+
+The per-customer redemption counter of promotions was removed:
+
+* DAL: the promotion field `ordersPerCustomerCount` and the database column `promotion.orders_per_customer_count` were removed.
+* Admin API: promotions no longer contain `ordersPerCustomerCount`.
+* `\Shopware\Core\Checkout\Promotion\PromotionEntity`: `getOrdersPerCustomerCount()`, `setOrdersPerCustomerCount()` and `isOrderCountPerCustomerCountValid()` were removed.
+
+Count the customer's orders that contain a line item of the promotion instead:
+
+```php
+// Before
+$redemptions = $promotion->getOrdersPerCustomerCount()[$customerId] ?? 0;
+
+// After
+$criteria = (new Criteria())
+    ->addFilter(new EqualsFilter('orderCustomer.customerId', $customerId))
+    ->addFilter(new EqualsFilter('lineItems.promotionId', $promotion->getId()));
+
+$redemptions = $this->orderRepository->searchIds($criteria, $context)->getTotal();
 ```
 
 ## `NotFilter` constructor accepts a single filter

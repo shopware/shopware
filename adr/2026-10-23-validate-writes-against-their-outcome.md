@@ -36,7 +36,6 @@ It loads the stored values for all records in one query.
 ## Consequences
 
 * Checks no longer merge commands or query the rows they validate themselves.
-* Custom fields are not fully supported yet. If a write changes only some custom fields, `rows()` returns only those, not the full set.
 
 ## Example
 

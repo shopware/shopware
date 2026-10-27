@@ -11,11 +11,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\RowLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -189,6 +191,31 @@ class WriteOutcomeTest extends TestCase
         ], ['stock']);
     }
 
+    public function testAPartialCustomFieldsUpdateIsMergedIntoTheStoredValue(): void
+    {
+        $rowLoader = static::createStub(RowLoader::class);
+        $rowLoader->method('load')->willReturn([[...$this->productPrimaryKey, 'custom_fields' => '{"colour": "red"}']]);
+
+        $row = (new WriteOutcome($rowLoader))->rows([$this->updateCustomFields(['size' => 'L'])], ['custom_fields'])[0];
+
+        $customFields = $row->getResultingValue('custom_fields');
+        static::assertTrue($row->isInPayload('custom_fields'));
+        static::assertIsString($customFields);
+        static::assertSame(['colour' => 'red', 'size' => 'L'], Json::decodeToArray($customFields));
+    }
+
+    public function testAPartialCustomFieldsUpdateIsMergedIntoAnEarlierWrite(): void
+    {
+        $row = (new WriteOutcome(static::createStub(RowLoader::class)))->rows([
+            $this->insertProduct(['custom_fields' => '{"colour":"red"}']),
+            $this->updateCustomFields(['size' => 'L']),
+        ], ['custom_fields'])[0];
+
+        $customFields = $row->getResultingValue('custom_fields');
+        static::assertIsString($customFields);
+        static::assertSame(['colour' => 'red', 'size' => 'L'], Json::decodeToArray($customFields));
+    }
+
     public function testARecordInsertedAfterADeleteIsNew(): void
     {
         $row = (new WriteOutcome(static::createStub(RowLoader::class)))->rows([
@@ -206,6 +233,14 @@ class WriteOutcomeTest extends TestCase
     private function insertProduct(array $payload, string $path = ''): InsertCommand
     {
         return new InsertCommand($this->productDefinition, $payload, $this->productPrimaryKey, static::createStub(EntityExistence::class), $path);
+    }
+
+    /**
+     * @param array<string, mixed> $patch
+     */
+    private function updateCustomFields(array $patch): JsonUpdateCommand
+    {
+        return new JsonUpdateCommand($this->productDefinition, 'custom_fields', $patch, $this->productPrimaryKey, static::createStub(EntityExistence::class), '');
     }
 
     /**

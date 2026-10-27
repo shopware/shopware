@@ -6,9 +6,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\RowLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 
 /**
  * @final
@@ -107,7 +109,7 @@ class WriteOutcome
                 unset($records[$hash]);
             } elseif ($command instanceof InsertCommand) {
                 $records[$hash] = [$command];
-            } elseif ($command instanceof UpdateCommand && $command->hasAnyField(...$columns)) {
+            } elseif ($command instanceof UpdateCommand && self::setsAnyColumn($command, $columns)) {
                 $records[$hash][] = $command;
             }
         }
@@ -135,24 +137,54 @@ class WriteOutcome
             primaryKey: $first->getPrimaryKey(),
             path: $last->getPath(),
             isNew: $isNew,
-            payload: self::mergedPayload($recordCommands),
+            payload: self::mergedPayload($recordCommands, $storedRow),
             state: $state,
         );
     }
 
     /**
+     * @param list<string> $columns
+     */
+    private static function setsAnyColumn(UpdateCommand $command, array $columns): bool
+    {
+        if ($command instanceof JsonUpdateCommand) {
+            return \in_array($command->getStorageName(), $columns, true);
+        }
+
+        return $command->hasAnyField(...$columns);
+    }
+
+    /**
      * @param non-empty-list<InsertCommand|UpdateCommand> $commands
+     * @param array<string, mixed> $storedRow
      *
      * @return array<string, mixed>
      */
-    private static function mergedPayload(array $commands): array
+    private static function mergedPayload(array $commands, array $storedRow): array
     {
         $payload = [];
         foreach ($commands as $command) {
+            if ($command instanceof JsonUpdateCommand) {
+                $column = $command->getStorageName();
+                $payload[$column] = self::patchJson($payload[$column] ?? $storedRow[$column] ?? null, $command->getPayload());
+
+                continue;
+            }
+
             $payload = array_replace($payload, $command->getPayload());
         }
 
         return $payload;
+    }
+
+    /**
+     * @param array<string, mixed> $patch
+     */
+    private static function patchJson(mixed $json, array $patch): string
+    {
+        $values = \is_string($json) ? Json::decodeToArray($json) : [];
+
+        return Json::encode(array_replace($values, $patch));
     }
 
     /**

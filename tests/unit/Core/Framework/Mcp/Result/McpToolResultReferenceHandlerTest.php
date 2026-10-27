@@ -108,6 +108,28 @@ class McpToolResultReferenceHandlerTest extends TestCase
         static::assertSame([1, 2], $result->structuredContent, 'from 2026-07-28 on a list is sent unwrapped');
     }
 
+    public function testUsesTheRevisionOfAStatelessRequest(): void
+    {
+        // The stateless era negotiates nothing: the SDK hands the tool a fresh per-request session,
+        // and the revision travels in the request's own metadata.
+        $result = $this->handler(McpToolResult::success([1, 2]))->handle($this->toolReference(), [
+            '_session' => new Session(new InMemorySessionStore()),
+            '_request' => CallToolRequest::fromArray([
+                'jsonrpc' => '2.0',
+                'id' => 1,
+                'method' => 'tools/call',
+                'params' => [
+                    'name' => 't',
+                    'arguments' => [],
+                    '_meta' => ['io.modelcontextprotocol/protocolVersion' => ProtocolVersion::V2026_07_28->value],
+                ],
+            ]),
+        ]);
+
+        static::assertInstanceOf(CallToolResult::class, $result);
+        static::assertSame([1, 2], $result->structuredContent, 'a stateless request gets the shape of its own revision');
+    }
+
     public function testOffloadsAHandBuiltStringAndEchoesTheCall(): void
     {
         // App tools and tools that build their JSON by hand never went through McpToolResponse::success().

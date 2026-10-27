@@ -27,6 +27,7 @@ Promotion code submissions through the Store API and Storefront now share a sepa
 Promotion codes use a separate allowance from the per-item `cart_add_line_item` limit, so submitting a different code does not start a new allowance.
 Configure the backoff policy through `shopware.api.rate_limiter.promotion_code`.
 Store API clients receive HTTP 429 when throttled, while Storefront shoppers receive a message with the waiting time.
+
 ### Email domain processing preserves IDN distinctions
 
 Email domain conversion now uses explicit non-transitional UTS #46 processing, so results are consistent across supported ICU versions and the Symfony polyfill.

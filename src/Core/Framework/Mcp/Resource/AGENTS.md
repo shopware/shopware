@@ -26,6 +26,10 @@ Templates are registered with the `mcp.resource_template` DI tag (not `mcp.resou
 ## Adding a resource
 1. Create a class with `#[McpResource(uri: '...', name: '...', description: '...')]` on the class
 2. Return an array with `uri`, `mimeType`, and `text` keys from `__invoke`
+   - If the data rarely changes, return `McpResourceCacheHint::read([...], $requestContext, <ttl>)` instead, with a `?RequestContext $requestContext = null` parameter.
+     It adds a `private` cache TTL (SEP-2549) on the 2026-07-28 revision and nothing on the handshake revisions.
+     Use `DEPLOYMENT_TTL_MS` for data that only changes with a deployment or an extension lifecycle change, `SHOP_CONFIGURATION_TTL_MS` for shop configuration.
+     Leave the hint out for anything that changes during an agent's work or differs per request.
 3. Register in `mcp.php` with `mcp.resource` and `shopware.feature` tags
 
 ## Adding a resource template

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Resource;
 
+use Mcp\Schema\Content\TextResourceContents;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -50,12 +51,13 @@ class LanguageListResourceTest extends TestCase
         $repository->method('search')->willReturn($searchResult);
 
         $resource = new LanguageListResource($repository);
-        $result = ($resource)();
+        $result = ($resource)()->contents[0];
+        static::assertInstanceOf(TextResourceContents::class, $result);
 
-        static::assertSame('shopware://languages', $result['uri']);
-        static::assertSame('application/json', $result['mimeType']);
+        static::assertSame('shopware://languages', $result->uri);
+        static::assertSame('application/json', $result->mimeType);
 
-        $data = json_decode($result['text'], true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode($result->text, true, 512, \JSON_THROW_ON_ERROR);
         static::assertCount(1, $data);
         static::assertSame($id, $data[0]['id']);
         static::assertSame('English', $data[0]['name']);

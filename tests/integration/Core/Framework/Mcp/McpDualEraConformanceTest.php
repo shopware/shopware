@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Mcp\Controller\StoreApiMcpServerController;
 use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
+use Shopware\Core\Framework\Mcp\Resource\McpResourceCacheHint;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -176,6 +177,69 @@ class McpDualEraConformanceTest extends TestCase
 
         static::assertContains($tool, $tools);
         static::assertContains('shopware-tool-search', $tools);
+    }
+
+    /**
+     * SEP-2549 cache hints exist on 2026-07-28 only. A list differs per principal and per `?toolsets=`, so it
+     * is `private`, with a short TTL as the fallback for clients that do not follow list changes.
+     */
+    #[DataProvider('endpointAndEraProvider')]
+    public function testListsCarryPrivateCacheHintsOnTheStatelessEraOnly(string $endpoint, McpEra $era): void
+    {
+        [$toolset] = self::toolsetOf($endpoint);
+
+        foreach (['', '?toolsets=' . $toolset] as $query) {
+            $result = $this->client($endpoint, $era, $query)->result('tools/list');
+
+            if ($era === McpEra::Handshake) {
+                static::assertArrayNotHasKey('ttlMs', $result, $query);
+                static::assertArrayNotHasKey('cacheScope', $result, $query);
+
+                continue;
+            }
+
+            static::assertSame(60_000, $result['ttlMs'] ?? null, $query);
+            static::assertSame('private', $result['cacheScope'] ?? null, $query);
+        }
+
+        if ($era === McpEra::Stateless) {
+            $discover = $this->client($endpoint, $era)->result('server/discover');
+            static::assertSame(60_000, $discover['ttlMs'] ?? null);
+            static::assertSame('private', $discover['cacheScope'] ?? null);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{McpEra, string, int}>
+     */
+    public static function referenceResourceProvider(): iterable
+    {
+        foreach (McpEra::cases() as $era) {
+            yield 'shopware://entities, ' . $era->name => [$era, 'shopware://entities', McpResourceCacheHint::DEPLOYMENT_TTL_MS];
+            yield 'shopware://currencies, ' . $era->name => [$era, 'shopware://currencies', McpResourceCacheHint::SHOP_CONFIGURATION_TTL_MS];
+        }
+    }
+
+    /**
+     * The reference resources rarely change and name their own TTL on 2026-07-28. The handshake answer
+     * stays as it was.
+     */
+    #[DataProvider('referenceResourceProvider')]
+    public function testReferenceResourcesCarryTheirOwnTtlOnTheStatelessEraOnly(McpEra $era, string $uri, int $ttlMs): void
+    {
+        $read = $this->client(self::ADMIN, $era)->result('resources/read', ['uri' => $uri]);
+
+        static::assertSame($uri, $read['contents'][0]['uri'] ?? null, (string) json_encode($read));
+
+        if ($era === McpEra::Handshake) {
+            static::assertArrayNotHasKey('ttlMs', $read);
+            static::assertArrayNotHasKey('cacheScope', $read);
+
+            return;
+        }
+
+        static::assertSame($ttlMs, $read['ttlMs'] ?? null);
+        static::assertSame('private', $read['cacheScope'] ?? null);
     }
 
     /**

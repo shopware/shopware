@@ -302,6 +302,17 @@ To check your tools today, add it to the `rules` of your `phpstan.neon`:
 rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpToolLegacyStringResultRule
 ```
+### MCP answers carry cache hints on the 2026-07-28 revision
+
+On the stateless 2026-07-28 revision, both MCP endpoints now tell clients how long they may reuse an answer (`ttlMs` and `cacheScope`, SEP-2549).
+Every hint is `private`, because the allowlist and `?toolsets=` make the answers differ per caller.
+`server/discover`, `tools/list`, `prompts/list`, `resources/list` and `resources/templates/list` stay fresh for 60 seconds, so an allowlist change reaches a client within a minute.
+The reference resources stay fresh for one hour (`shopware://entities`, `shopware://state-machines`, `shopware://business-events`, `shopware://flow-actions`) or five minutes (`shopware://currencies`, `shopware://languages`, `shopware://sales-channels`).
+Everything else, including stored tool results and app resources, is not cached.
+Answers on the handshake revisions carry no hints and are unchanged.
+
+The core reference resources now return a `Mcp\Schema\Result\ReadResourceResult` instead of an array.
+A plugin resource can set its own hint by returning a `ReadResourceResult` with `ttlMs` and `cacheScope`; only do so on the 2026-07-28 revision, as `RequestContext::getProtocolVersion()->isModern()` tells.
 
 ## API
 

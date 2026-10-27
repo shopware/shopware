@@ -63,6 +63,35 @@ class ExtensionDispatcherTest extends TestCase
         static::assertSame([], $dispatcher->getEvents());
     }
 
+    public function testDispatchesOnlyEventsWithListeners(): void
+    {
+        $dispatched = [];
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
+        $dispatcher->method('hasListeners')->willReturnCallback(static fn (string $eventName): bool => $eventName === 'eventName.post');
+        $dispatcher->method('dispatch')->willReturnCallback(static function (object $event, string $eventName) use (&$dispatched): object {
+            $dispatched[] = $eventName;
+
+            return $event;
+        });
+
+        $extension = new class extends Extension {
+            public const NAME = 'test.extension';
+
+            public function getParams(): array
+            {
+                return ['param1' => 'value1', 'param2' => 2];
+            }
+        };
+
+        $function = static fn (string $param1, int $param2) => $param1 . $param2;
+
+        $extensionDispatcher = new ExtensionDispatcher($dispatcher);
+        $result = $extensionDispatcher->publish('eventName', $extension, $function);
+
+        static::assertSame('value12', $result);
+        static::assertSame(['eventName.post'], $dispatched);
+    }
+
     public function testPreListenerCanReplaceTheResult(): void
     {
         $dispatcher = new EventDispatcher();

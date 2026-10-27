@@ -134,8 +134,8 @@ Shops now uninstall a service once the service registry lists it as `retired` in
 
 ### Extension events are only dispatched when something listens
 
-`ExtensionDispatcher::publish()` now calls the extended function directly when none of the extension's `.pre`, `.post` and `.error` events has a listener.
-As soon as one of them has a listener, all three are dispatched as before, so existing extension listeners keep working unchanged.
+`ExtensionDispatcher::publish()` now dispatches each of an extension's `.pre`, `.post` and `.error` events only when it has a listener.
+Existing extension listeners keep working unchanged.
 Code that observes every dispatched event, such as APM tracing or a decorator of `event_dispatcher`, no longer sees extension events nobody listens to.
 Unit tests that pass a mocked `EventDispatcherInterface` to `ExtensionDispatcher` and expect `dispatch()` calls need the mock's `hasListeners()` to return `true`.
 

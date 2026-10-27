@@ -74,10 +74,14 @@ class RevenueReportTool
 - An extension can describe only a group no core tool describes.
   If two extensions describe the same group differently, the tool whose name sorts first wins and the conflict is logged.
 - Without a description the toolset gets a generated one (`Tools explicitly assigned to the "<group>" MCP tool group.`), which gives a model little to route on.
+- A description is used only while every tool of the toolset is visible.
+  When the caller's allowlist hides some of its tools, the toolset gets the generated description instead, so it never promises a tool the caller cannot use.
 - A tool that claims the reserved `discovery` group loses its description together with the group.
 - App toolsets (`mcp.xml`) cannot carry a description yet; they always get the generated one.
 
-`McpToolAnalysisCompilerPass` collects the descriptions per scope into `shopware.mcp.tool_group_descriptions` and `shopware.store_api_mcp.tool_group_descriptions`, and `McpToolsetRegistry` puts them into the toolset entries that `shopware-toolsets-list` and `shopware-toolset-enable` return.
+`McpToolAnalysisCompilerPass` collects the descriptions per scope into `shopware.mcp.tool_group_descriptions` and `shopware.store_api_mcp.tool_group_descriptions`.
+Store API tools also carry the SDK tag `mcp.tool`, so the Admin scope leaves them out, and a Store API description never reaches the Admin toolsets.
+`McpToolsetRegistry` puts them into the toolset entries that `shopware-toolsets-list` and `shopware-toolset-enable` return.
 
 The Store API endpoint (`/store-api/_mcp`) uses the same progressive disclosure via its own toolset meta-tools (`StoreApiToolsetsListTool` / `StoreApiToolsetEnableTool`) and a `store-api` toolset group, and its `shopware-tool-search` carries the same `_meta.usage` hint. Both endpoints' server `instructions` (returned in every `initialize` response) point clients at `shopware-tool-search` as the discovery entry point when no advertised tool matches the requested action.
 

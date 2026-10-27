@@ -261,6 +261,39 @@ class McpToolsetRegistryTest extends TestCase
         static::assertSame([], $toolsetRegistry->advertisedTools(['order']));
     }
 
+    public function testAuthoredDescriptionIsReplacedWhenTheAllowlistHidesToolsOfTheToolset(): void
+    {
+        $toolsetRegistry = new McpToolsetRegistry(
+            new McpCapabilityCatalog(
+                $this->buildRegistry([
+                    'shopware-entity-search',
+                    'shopware-entity-delete',
+                    'shopware-order-state',
+                ]),
+                $this->stubPrivilegeProvider(),
+                toolGroups: [
+                    'shopware-entity-search' => 'entity',
+                    'shopware-entity-delete' => 'entity',
+                    'shopware-order-state' => 'order',
+                ],
+            ),
+            $this->stubAllowlistProvider(['shopware-entity-search', 'shopware-order-state']),
+            [
+                'entity' => 'Find, change and delete shop data.',
+                'order' => 'Change the state of orders.',
+            ],
+        );
+
+        $toolsetsByName = array_column($toolsetRegistry->toolsets(), null, 'name');
+
+        static::assertSame(
+            'Tools explicitly assigned to the "entity" MCP tool group.',
+            $toolsetsByName['entity']['description'],
+            'The entity description promises deleting, which the allowlist hides.',
+        );
+        static::assertSame('Change the state of orders.', $toolsetsByName['order']['description']);
+    }
+
     public function testAdvertisedToolsForNamesReturnsEmptyWithoutReadingTheCatalogue(): void
     {
         $privilegeProvider = $this->createMock(AppMcpPrivilegeProvider::class);

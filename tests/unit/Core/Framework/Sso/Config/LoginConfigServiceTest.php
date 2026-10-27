@@ -73,6 +73,22 @@ class LoginConfigServiceTest extends TestCase
         static::assertSame($rawConfig['token_path'], $config->tokenPath);
     }
 
+    #[DataProvider('baseUrlWithoutTrailingSlashProvider')]
+    public function testGetConfigAcceptsBaseUrlWithoutTrailingSlash(string $baseUrl): void
+    {
+        $config = $this->createLoginConfigService(self::createConfig(['base_url' => $baseUrl]))->getConfig();
+
+        static::assertNotNull($config);
+        static::assertSame($baseUrl, $config->baseUrl);
+    }
+
+    public static function baseUrlWithoutTrailingSlashProvider(): \Generator
+    {
+        yield 'ends with a word character' => ['https://base.url'];
+        yield 'ends with a dot' => ['https://base.url/a.'];
+        yield 'ends with a hyphen' => ['https://base.url/realm-'];
+    }
+
     /**
      * @param array<string, mixed> $rawConfig
      */
@@ -195,6 +211,10 @@ class LoginConfigServiceTest extends TestCase
             'rawConfig' => self::createConfig(['authorize_path' => 'https://authorize']),
             'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is invalid path. Requires to start with "/"',
         ];
+        yield 'authorize_path with a trailing newline' => [
+            'rawConfig' => self::createConfig(['authorize_path' => "/authorize\n"]),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is invalid path. Requires to start with "/"',
+        ];
         yield 'token_path is null' => [
             'rawConfig' => self::createConfig([], ['token_path']),
             'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is missing',
@@ -211,6 +231,10 @@ class LoginConfigServiceTest extends TestCase
             'rawConfig' => self::createConfig(['token_path' => 'any/token']),
             'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is invalid path. Requires to start with "/"',
         ];
+        yield 'token_path with a trailing newline' => [
+            'rawConfig' => self::createConfig(['token_path' => "/token\n"]),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is invalid path. Requires to start with "/"',
+        ];
         yield 'jwks_path is null' => [
             'rawConfig' => self::createConfig([], ['jwks_path']),
             'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [jwks_path] is missing',
@@ -225,6 +249,10 @@ class LoginConfigServiceTest extends TestCase
         ];
         yield 'jwks_path not start with slash' => [
             'rawConfig' => self::createConfig(['jwks_path' => 'jwks/json']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [jwks_path] is invalid path. Requires to start with "/"',
+        ];
+        yield 'jwks_path with a trailing newline' => [
+            'rawConfig' => self::createConfig(['jwks_path' => "/jwks\n"]),
             'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [jwks_path] is invalid path. Requires to start with "/"',
         ];
         yield 'scope is null' => [

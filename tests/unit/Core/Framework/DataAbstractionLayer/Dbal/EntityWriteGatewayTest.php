@@ -13,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\RowLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableWriteTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -167,6 +168,7 @@ class EntityWriteGatewayTest extends TestCase
             $this->dispatcher,
             static::createStub(ExceptionHandlerRegistry::class),
             $definitionRegistry,
+            new RowLoader($connection),
         );
         $context = WriteContext::createFromContext(Context::createDefaultContext());
 
@@ -469,12 +471,15 @@ class EntityWriteGatewayTest extends TestCase
 
     private function createGateway(?Connection $connection = null): EntityWriteGateway
     {
+        $connection ??= new FakeConnection([]);
+
         return new EntityWriteGateway(
             100,
-            $connection ?? new FakeConnection([]),
+            $connection,
             $this->dispatcher,
             static::createStub(ExceptionHandlerRegistry::class),
-            static::createStub(DefinitionInstanceRegistry::class)
+            static::createStub(DefinitionInstanceRegistry::class),
+            new RowLoader($connection),
         );
     }
 

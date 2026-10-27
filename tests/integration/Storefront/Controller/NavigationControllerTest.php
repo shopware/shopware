@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Defaults;
@@ -167,7 +168,7 @@ class NavigationControllerTest extends TestCase
         $category = [
             'id' => $this->ids->create('category'),
             'name' => 'my-navigation',
-            'type' => 'landing_page',
+            'type' => CategoryDefinition::TYPE_PAGE,
             'parentId' => $salesChannel->getNavigationCategoryId(),
         ];
 

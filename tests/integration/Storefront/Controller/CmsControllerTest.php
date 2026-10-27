@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
@@ -64,7 +65,7 @@ class CmsControllerTest extends TestCase
         $category = [
             'id' => $this->ids->create('category'),
             'name' => 'Test',
-            'type' => 'landing_page',
+            'type' => CategoryDefinition::TYPE_PAGE,
             'cmsPage' => [
                 'id' => $this->ids->create('page'),
                 'name' => 'test page',

@@ -10,7 +10,8 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Framework\Api\Acl\AclRoles;
-use Shopware\Core\Framework\Api\Acl\ApiCallerType;
+use Shopware\Core\Framework\Api\Acl\ApiCaller;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
@@ -80,7 +81,10 @@ class NotHookablePolicyTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testApiSubscriptionIsDeniedEvenBeforeTheNextMajor(): void
     {
-        static::assertFalse($this->createPolicy()->permitsSubscription(UserRecoveryRequestEvent::EVENT_NAME, Subscriber::api(ApiCallerType::User)));
+        $caller = ApiCaller::of(new AdminApiSource('user-id'));
+        static::assertNotNull($caller);
+
+        static::assertFalse($this->createPolicy()->permitsSubscription(UserRecoveryRequestEvent::EVENT_NAME, Subscriber::api($caller)));
     }
 
     /**

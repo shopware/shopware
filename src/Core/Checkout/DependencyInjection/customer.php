@@ -68,6 +68,7 @@ use Shopware\Core\Checkout\Customer\Subscriber\CustomerBeforeDeleteSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerChangePasswordSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerEmailUniqueSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerFlowEventsSubscriber;
+use Shopware\Core\Checkout\Customer\Subscriber\CustomerGroupRegistrationSeoUrlSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerLanguageSalesChannelSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerLogoutSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerMetaFieldSubscriber;
@@ -87,6 +88,7 @@ use Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
+use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
@@ -253,6 +255,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
             service('request_stack'),
             service(SystemConfigService::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(CustomerGroupRegistrationSeoUrlSubscriber::class)
+        ->args([
+            service('customer_group.repository'),
+            service('seo_url.repository'),
+            service('language.repository'),
+            service(SeoUrlPersister::class),
+            service('slugify'),
         ])
         ->tag('kernel.event_subscriber');
 

@@ -29,7 +29,7 @@ class MigrationLoaderTest extends TestCase
     {
         $container = static::getContainer();
 
-        $this->connection = $container->get(Connection::class);
+        $this->connection = $container->get('doctrine.dbal.migration_connection');
         $this->loader = $container->get(MigrationCollectionLoader::class);
     }
 

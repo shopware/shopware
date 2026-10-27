@@ -37,6 +37,7 @@
             <sw-entity-listing
                 v-if="layouts && layouts.length > 0"
                 :repository="layoutRepository"
+                detail-route="sw.experience.studio.detail"
                 :columns="columnConfig"
                 :data-source="layouts"
                 :is-loading="isLoading"
@@ -47,7 +48,16 @@
                 :sort-direction="sortDirection"
                 @page-change="onPageChange"
                 @column-sort="onSortColumn"
-            />
+            >
+                <template #more-actions="{ item }">
+                    <sw-context-menu-item
+                        class="sw-experience-studio-list__show-drafts-action"
+                        @click="onShowDrafts(item)"
+                    >
+                        {{ $t('sw-experience-studio.list.actionShowDrafts') }}
+                    </sw-context-menu-item>
+                </template>
+            </sw-entity-listing>
 
             <mt-empty-state
                 v-else-if="!isLoading"
@@ -57,6 +67,13 @@
             />
 
             <sw-loader v-else />
+
+            <sw-experience-studio-drafts-modal
+                v-if="draftsModalLayout"
+                :layout-id="draftsModalLayout.id"
+                :layout-name="draftsModalLayout.name"
+                @modal-close="onCloseDraftsModal"
+            />
         </div>
     </template>
     {% endblock %}

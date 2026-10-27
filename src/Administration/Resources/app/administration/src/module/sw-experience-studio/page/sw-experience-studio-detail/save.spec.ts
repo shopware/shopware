@@ -3,6 +3,14 @@ import detailComponent from './index';
 
 describe('module/sw-experience-studio/page/sw-experience-studio-detail save', () => {
     const methods = (detailComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
+    const saveMethods = {
+        hasRequiredLayoutMetadata: methods.hasRequiredLayoutMetadata,
+        saveNewLayout: methods.saveNewLayout,
+        createLayoutSnapshot: methods.createLayoutSnapshot,
+        getErrorStatus: methods.getErrorStatus,
+        notifySaveError: methods.notifySaveError,
+        extractApiErrorDetail: methods.extractApiErrorDetail,
+    };
 
     it('surfaces the API error detail and stops loading when the save is refused', async () => {
         const authoredLayout: ContentElementNode[] = [
@@ -33,8 +41,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail save', ()
             applyPreviewContextDefaults: jest.fn(),
             createNotificationSuccess: jest.fn(),
             createNotificationError: jest.fn(),
-            notifySaveError: methods.notifySaveError,
-            extractApiErrorDetail: methods.extractApiErrorDetail,
+            ...saveMethods,
             $t,
             $router: { push: jest.fn() },
             isCreateMode: true,
@@ -66,10 +73,10 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail save', ()
             applyPreviewContextDefaults: jest.fn(),
             createNotificationSuccess: jest.fn(),
             createNotificationError: jest.fn(),
-            notifySaveError: methods.notifySaveError,
-            extractApiErrorDetail: methods.extractApiErrorDetail,
+            ...saveMethods,
             $t,
-            isCreateMode: false,
+            $router: { push: jest.fn() },
+            isCreateMode: true,
             isLoading: false,
         };
 
@@ -97,8 +104,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail save', ()
             applyPreviewContextDefaults: jest.fn(),
             createNotificationSuccess: jest.fn(),
             createNotificationError: jest.fn(),
-            notifySaveError: methods.notifySaveError,
-            extractApiErrorDetail: methods.extractApiErrorDetail,
+            ...saveMethods,
             $t,
             $router: { push: jest.fn() },
             isCreateMode: true,
@@ -160,8 +166,11 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail save', ()
             layoutRepository: { save, get },
             applyPreviewContextDefaults: jest.fn(),
             createNotificationSuccess: jest.fn(),
+            createNotificationError: jest.fn(),
+            ...saveMethods,
             $t: jest.fn().mockReturnValue('saved'),
-            isCreateMode: false,
+            $router: { push: jest.fn() },
+            isCreateMode: true,
             isLoading: false,
         };
 
@@ -193,5 +202,24 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail save', ()
             'col-span': { xs: 6, sm: 6, md: 6, lg: 6, xl: 6, xxl: 6 },
         });
         expect(vm.layout.layout[0].properties).toEqual({ visibleFilterCount: 5, showLayoutSwitch: true });
+    });
+
+    it('reports a draft conflict instead of the API detail when the save answers 409', () => {
+        const vm = {
+            ...saveMethods,
+            createNotificationError: jest.fn(),
+            $t: jest.fn((key: string) => key),
+        };
+
+        methods.notifySaveError.call(vm, {
+            response: {
+                status: 409,
+                data: { errors: [{ detail: 'Expected head "a" but found "b".' }] },
+            },
+        });
+
+        expect(vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-experience-studio.detail.messageDraftConflict',
+        });
     });
 });

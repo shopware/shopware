@@ -25,7 +25,7 @@ class SalesChannelFileStoreApiMcpSubscriberTest extends TestCase
 {
     private const APP_URL = 'https://shopware.example.com/';
 
-    public function testStoreApiMcpUrlIsAddedForHeadlessAiCatalog(): void
+    public function testStoreApiMcpUrlIsAddedForTheAiCatalog(): void
     {
         $currentDomain = $this->createDomain('https://headless.example.com/en/');
         $fallbackDomain = $this->createDomain('https://fallback.example.com');
@@ -74,13 +74,14 @@ class SalesChannelFileStoreApiMcpSubscriberTest extends TestCase
         );
         $extension->result = [];
 
-        (new SalesChannelFileStoreApiMcpSubscriber(static::createStub(UrlGeneratorInterface::class), self::APP_URL))->addStoreApiMcpContext($extension);
+        (new SalesChannelFileStoreApiMcpSubscriber($this->createUrlGeneratorStub(), self::APP_URL))->addStoreApiMcpContext($extension);
 
         static::assertSame([
             'salesChannelFileContext' => [
                 'appUrl' => 'https://shopware.example.com',
                 'baseUrl' => 'https://en.headless.example.com',
                 'publisher' => 'en.headless.example.com',
+                'storeApiMcpServerUrl' => 'https://shopware.example.com/store-api/_mcp',
             ],
         ], $extension->result);
     }
@@ -100,21 +101,21 @@ class SalesChannelFileStoreApiMcpSubscriberTest extends TestCase
         );
         $extension->result = [];
 
-        (new SalesChannelFileStoreApiMcpSubscriber(static::createStub(UrlGeneratorInterface::class), self::APP_URL))->addStoreApiMcpContext($extension);
+        (new SalesChannelFileStoreApiMcpSubscriber($this->createUrlGeneratorStub(), self::APP_URL))->addStoreApiMcpContext($extension);
 
         static::assertSame([
             'salesChannelFileContext' => [
                 'appUrl' => 'https://shopware.example.com',
                 'baseUrl' => 'https://first.example.com',
                 'publisher' => 'first.example.com',
+                'storeApiMcpServerUrl' => 'https://shopware.example.com/store-api/_mcp',
             ],
         ], $extension->result);
     }
 
-    public function testStoreApiMcpUrlIsAddedForHeadlessSalesChannelWithoutDomains(): void
+    public function testStoreApiMcpUrlIsAddedForSalesChannelWithoutDomains(): void
     {
-        $urlGenerator = static::createStub(UrlGeneratorInterface::class);
-        $urlGenerator->method('generate')->willReturn('/store-api/_mcp');
+        $urlGenerator = $this->createUrlGeneratorStub();
 
         $extension = new SalesChannelFileRenderParametersExtension(
             $this->createSalesChannelFile('.well-known/ai-catalog.json'),
@@ -153,6 +154,14 @@ class SalesChannelFileStoreApiMcpSubscriberTest extends TestCase
         (new SalesChannelFileStoreApiMcpSubscriber($urlGenerator, self::APP_URL))->addStoreApiMcpContext($extension);
 
         static::assertSame([], $extension->result);
+    }
+
+    private function createUrlGeneratorStub(): UrlGeneratorInterface
+    {
+        $urlGenerator = static::createStub(UrlGeneratorInterface::class);
+        $urlGenerator->method('generate')->willReturn('/store-api/_mcp');
+
+        return $urlGenerator;
     }
 
     private function createSalesChannelContext(?string $domainId, string $languageId = Defaults::LANGUAGE_SYSTEM): SalesChannelContext

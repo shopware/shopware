@@ -15,7 +15,6 @@ use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -87,7 +86,8 @@ class McpHttpTransportFactoryTest extends TestCase
         $response = $this->factory()->createResponse($this->psrResponse('text/event-stream', $sse));
 
         static::assertStringStartsWith('text/event-stream', (string) $response->headers->get('Content-Type'));
-        static::assertSame($sse, $this->sentContent($response));
+        $this->expectOutputString($sse);
+        $response->sendContent();
     }
 
     public function testCreateResponseLeavesTheSdkEventStreamUnreadUntilItIsSent(): void
@@ -110,7 +110,8 @@ class McpHttpTransportFactoryTest extends TestCase
         static::assertStringStartsWith('text/event-stream', (string) $response->headers->get('Content-Type'));
         static::assertSame('session-1', $response->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID));
 
-        static::assertSame($frame, $this->sentContent($response));
+        $this->expectOutputString($frame);
+        $response->sendContent();
     }
 
     /**
@@ -154,14 +155,6 @@ class McpHttpTransportFactoryTest extends TestCase
 
         static::assertStringStartsWith('application/json', (string) $response->headers->get('Content-Type'));
         static::assertSame('[]', $response->getContent());
-    }
-
-    private function sentContent(Response $response): string
-    {
-        ob_start();
-        $response->sendContent();
-
-        return (string) ob_get_clean();
     }
 
     private function psrResponse(string $contentType, string $body): ResponseInterface

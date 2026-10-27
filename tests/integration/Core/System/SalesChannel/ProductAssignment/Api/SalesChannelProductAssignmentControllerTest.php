@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\ProductAssignment\Api\SalesChannelProductAssignmentController;
+use Shopware\Core\System\SalesChannel\ProductAssignment\Api\SalesChannelProductAssignmentRequest;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
@@ -86,13 +86,12 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
             'visibility' => 15,
         ]);
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $this->getBrowser()->getResponse()->getStatusCode());
 
-        $pointers = array_column($this->decodeResponse($this->getBrowser())['errors'], 'source');
-        $pointers = array_column($pointers, 'pointer');
-
-        static::assertContains('/productIds', $pointers);
-        static::assertContains('/visibility', $pointers);
+        $detail = $this->decodeResponse($this->getBrowser())['errors'][0]['detail'];
+        static::assertIsString($detail);
+        static::assertStringContainsString('productIds[0]: ', $detail);
+        static::assertStringContainsString('visibility: ', $detail);
         static::assertSame(['STREAM-already-visible', 'already-visible'], array_keys($this->visibilitiesOfSalesChannel()));
     }
 
@@ -100,17 +99,16 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
     {
         $streamIds = array_map(
             static fn (): string => Uuid::randomHex(),
-            range(1, SalesChannelProductAssignmentController::MAX_PRODUCT_STREAM_IDS + 1),
+            range(1, SalesChannelProductAssignmentRequest::MAX_PRODUCT_STREAM_IDS + 1),
         );
 
         $this->getBrowser()->jsonRequest('POST', $this->url(), ['productStreamIds' => $streamIds]);
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $this->getBrowser()->getResponse()->getStatusCode());
 
-        $pointers = array_column($this->decodeResponse($this->getBrowser())['errors'], 'source');
-        $pointers = array_column($pointers, 'pointer');
-
-        static::assertSame(['/productStreamIds'], $pointers);
+        $detail = $this->decodeResponse($this->getBrowser())['errors'][0]['detail'];
+        static::assertIsString($detail);
+        static::assertStringStartsWith('productStreamIds: ', $detail);
         static::assertSame(['STREAM-already-visible', 'already-visible'], array_keys($this->visibilitiesOfSalesChannel()));
     }
 

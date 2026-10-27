@@ -44,16 +44,22 @@
                             }
                         }
                     },
-                    "400": {
-                        "description": "Invalid request payload.",
-                        "$ref": "#/components/responses/400"
-                    },
                     "403": {
                         "description": "Missing privileges. The route requires `product_visibility:create` and `product:read`, plus `product_stream:read` for `productStreamIds` and `category:read` for `categoryIds`."
                     },
                     "404": {
                         "description": "The sales channel or a dynamic product group was not found.",
                         "$ref": "#/components/responses/404"
+                    },
+                    "422": {
+                        "description": "Validation error. An id is not a UUID, a list exceeds its `maxItems` or `visibility` is not one of `10`, `20` and `30`.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
                     }
                 }
             }

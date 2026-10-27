@@ -74,12 +74,12 @@ class SalesChannelProductAssigner
          * Queued indexing keeps the product indexer and its cache invalidation out of the request,
          * otherwise every written page would be indexed inline.
          */
-        $context = clone $context;
-        $context->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE);
+        $queuedIndexingContext = clone $context;
+        $queuedIndexingContext->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE);
 
         $assigned = 0;
         $remainingPages = self::MAX_PAGES_PER_CALL;
-        foreach ($this->buildCriteria($productIds, $productStreamIds, $categoryIds, $context) as $criteria) {
+        foreach ($this->buildCriteria($productIds, $productStreamIds, $categoryIds, $queuedIndexingContext) as $criteria) {
             $criteria->addFilter(
                 new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('visibilities.salesChannelId', $salesChannelId)])
             );
@@ -89,7 +89,7 @@ class SalesChannelProductAssigner
              * Each page is written before the next one is fetched, so memory stays bound to one page
              * and products assigned by an earlier page, source or call drop out of the following searches.
              */
-            $iterator = new RepositoryIterator($this->productRepository, $context, $criteria);
+            $iterator = new RepositoryIterator($this->productRepository, $queuedIndexingContext, $criteria);
             do {
                 if ($remainingPages === 0) {
                     return new SalesChannelProductAssignmentResult($assigned, complete: false);
@@ -101,7 +101,7 @@ class SalesChannelProductAssigner
                 }
 
                 --$remainingPages;
-                $assigned += $this->writeVisibilities($page, $salesChannelId, $visibility, $context);
+                $assigned += $this->writeVisibilities($page, $salesChannelId, $visibility, $queuedIndexingContext);
             } while (\count($page) === self::CHUNK_SIZE);
         }
 

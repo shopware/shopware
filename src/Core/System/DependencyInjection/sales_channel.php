@@ -242,10 +242,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(SalesChannelProductAssigner::class),
-            service(DataValidator::class),
-        ])
-        ->call('setContainer', [
-            service('service_container'),
         ]);
 
     $services->set(SalesChannelContextPersister::class)

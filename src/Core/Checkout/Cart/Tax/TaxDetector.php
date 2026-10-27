@@ -31,13 +31,12 @@ class TaxDetector extends AbstractTaxDetector
     public function isNetDelivery(SalesChannelContext $context): bool
     {
         $shippingLocationCountry = $context->getShippingLocation()->getCountry();
-        $countryTaxFree = $shippingLocationCountry->getCustomerTax()->getEnabled();
 
-        if ($countryTaxFree) {
-            return true;
+        if ($context->getCustomer()?->getAccountType() === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            return $this->isCompanyTaxFree($context, $shippingLocationCountry);
         }
 
-        return $this->isCompanyTaxFree($context, $shippingLocationCountry);
+        return $shippingLocationCountry->getCustomerTax()->getEnabled();
     }
 
     public function getTaxState(SalesChannelContext $context): string

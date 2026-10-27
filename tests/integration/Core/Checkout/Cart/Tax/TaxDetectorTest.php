@@ -108,7 +108,7 @@ class TaxDetectorTest extends TestCase
             ShippingLocation::createFromCountry($country)
         );
 
-        $context->expects($this->once())->method('getCustomer')->willReturn(
+        $context->method('getCustomer')->willReturn(
             $customer
         );
 
@@ -189,7 +189,7 @@ class TaxDetectorTest extends TestCase
             ShippingLocation::createFromCountry($deCountry)
         );
 
-        $context->expects($this->once())->method('getCustomer')->willReturn(
+        $context->method('getCustomer')->willReturn(
             $customer
         );
 
@@ -218,7 +218,7 @@ class TaxDetectorTest extends TestCase
             ShippingLocation::createFromCountry($country)
         );
 
-        $context->expects($this->once())->method('getCustomer')->willReturn(
+        $context->method('getCustomer')->willReturn(
             $customer
         );
 
@@ -266,7 +266,7 @@ class TaxDetectorTest extends TestCase
             ShippingLocation::createFromCountry($deCountry)
         );
 
-        $context->expects($this->once())->method('getCustomer')->willReturn(
+        $context->method('getCustomer')->willReturn(
             $customer
         );
 
@@ -292,7 +292,7 @@ class TaxDetectorTest extends TestCase
         $context->expects($this->once())->method('getShippingLocation')->willReturn(
             ShippingLocation::createFromCountry($country)
         );
-        $context->expects($this->once())->method('getCustomer')->willReturn($customer);
+        $context->method('getCustomer')->willReturn($customer);
 
         $detector = static::getContainer()->get(TaxDetector::class);
         static::assertTrue($detector->isNetDelivery($context));
@@ -318,7 +318,7 @@ class TaxDetectorTest extends TestCase
         $context->expects($this->once())->method('getShippingLocation')->willReturn(
             ShippingLocation::createFromCountry($country)
         );
-        $context->expects($this->once())->method('getCustomer')->willReturn($customer);
+        $context->method('getCustomer')->willReturn($customer);
 
         $detector = static::getContainer()->get(TaxDetector::class);
         static::assertTrue($detector->isNetDelivery($context));
@@ -344,7 +344,7 @@ class TaxDetectorTest extends TestCase
         $context->expects($this->once())->method('getShippingLocation')->willReturn(
             ShippingLocation::createFromCountry($country)
         );
-        $context->expects($this->once())->method('getCustomer')->willReturn($customer);
+        $context->method('getCustomer')->willReturn($customer);
 
         $detector = static::getContainer()->get(TaxDetector::class);
         static::assertTrue($detector->isNetDelivery($context));
@@ -370,7 +370,7 @@ class TaxDetectorTest extends TestCase
         $context->expects($this->once())->method('getShippingLocation')->willReturn(
             ShippingLocation::createFromCountry($country)
         );
-        $context->expects($this->once())->method('getCustomer')->willReturn($customer);
+        $context->method('getCustomer')->willReturn($customer);
 
         $detector = static::getContainer()->get(TaxDetector::class);
         static::assertTrue($detector->isNetDelivery($context));
@@ -396,7 +396,7 @@ class TaxDetectorTest extends TestCase
         $context->expects($this->once())->method('getShippingLocation')->willReturn(
             ShippingLocation::createFromCountry($country)
         );
-        $context->expects($this->once())->method('getCustomer')->willReturn($customer);
+        $context->method('getCustomer')->willReturn($customer);
 
         $detector = static::getContainer()->get(TaxDetector::class);
         static::assertFalse($detector->isNetDelivery($context));
@@ -451,7 +451,7 @@ class TaxDetectorTest extends TestCase
             ShippingLocation::createFromCountry($beCountry)
         );
 
-        $context->expects($this->once())->method('getCustomer')->willReturn(
+        $context->method('getCustomer')->willReturn(
             $customer
         );
 
@@ -477,7 +477,7 @@ class TaxDetectorTest extends TestCase
             ShippingLocation::createFromCountry($beCountry)
         );
 
-        $context->expects($this->once())->method('getCustomer')->willReturn(
+        $context->method('getCustomer')->willReturn(
             $customer
         );
 
@@ -504,7 +504,7 @@ class TaxDetectorTest extends TestCase
             ShippingLocation::createFromCountry($beCountry)
         );
 
-        $context->expects($this->once())->method('getCustomer')->willReturn(
+        $context->method('getCustomer')->willReturn(
             $customer
         );
 
@@ -528,7 +528,7 @@ class TaxDetectorTest extends TestCase
             ShippingLocation::createFromCountry($beCountry)
         );
 
-        $context->expects($this->once())->method('getCustomer')->willReturn(
+        $context->method('getCustomer')->willReturn(
             $customer
         );
 

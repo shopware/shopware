@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestIntegration;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
 use Shopware\Core\Framework\Webhook\WebhookException;
+use Shopware\Core\Test\Integration\Builder\Webhook\WebhookBuilder;
 use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -231,6 +233,28 @@ class WebhookApiTest extends TestCase
         static::assertSame('https://owner.example', $this->loadWebhook($webhookId)->getUrl());
     }
 
+    public function testAUserThatOwnsAWebhookCannotBeDeleted(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $userId = TestUser::createNewTestUser($connection)->getUserId();
+        WebhookBuilder::ownedByUser($userId)->insert($connection);
+
+        $this->expectException(RestrictDeleteViolationException::class);
+
+        static::getContainer()->get('user.repository')->delete([['id' => $userId]], Context::createDefaultContext());
+    }
+
+    public function testAnIntegrationThatOwnsAWebhookCannotBeDeleted(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $integrationId = TestIntegration::create($connection, [])->getId();
+        WebhookBuilder::ownedByIntegration($integrationId)->insert($connection);
+
+        $this->expectException(RestrictDeleteViolationException::class);
+
+        static::getContainer()->get('integration.repository')->delete([['id' => $integrationId]], Context::createDefaultContext());
+    }
+
     public function testWebhookCannotBeUpdatedByAnIntegrationNamingItsOwner(): void
     {
         $connection = static::getContainer()->get(Connection::class);
@@ -432,17 +456,9 @@ class WebhookApiTest extends TestCase
         $connection = static::getContainer()->get(Connection::class);
         $ownerUserId ??= TestUser::createNewTestUser($connection)->getUserId();
 
-        $webhookId = Uuid::randomHex();
-        $connection->insert('webhook', [
-            'id' => Uuid::fromHexToBytes($webhookId),
-            'name' => 'Someone elses webhook',
-            'event_name' => 'product.written',
-            'url' => 'https://owner.example',
-            'owner_user_id' => Uuid::fromHexToBytes($ownerUserId),
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
-
-        return $webhookId;
+        return WebhookBuilder::ownedByUser($ownerUserId)
+            ->subscribe('product.written', 'https://owner.example')
+            ->insert($connection);
     }
 
     private function createAppWebhook(): string

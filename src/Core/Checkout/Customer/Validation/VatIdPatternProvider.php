@@ -221,8 +221,7 @@ class VatIdPatternProvider implements ResetInterface
 
     public function matches(string $pattern, string $vatId): bool
     {
-        // A pattern a merchant broke matches nothing instead of warning on every VAT ID
-        return @preg_match($this->toRegex($pattern), $vatId) === 1;
+        return $this->match($pattern, $vatId) === 1;
     }
 
     /**
@@ -288,12 +287,16 @@ class VatIdPatternProvider implements ResetInterface
 
     private function compiles(string $pattern): bool
     {
-        return @preg_match($this->toRegex($pattern), '') !== false;
+        return $this->match($pattern, '') !== false;
     }
 
-    private function toRegex(string $pattern): string
+    /**
+     * @return int|false false if the pattern does not compile
+     */
+    private function match(string $pattern, string $subject): int|false
     {
-        // the stored pattern is wrapped so an alternation inside it stays anchored on both sides
-        return '/^(?:' . $pattern . ')$/D';
+        // The stored pattern is wrapped so an alternation inside it stays anchored on both sides.
+        // A pattern a merchant broke matches nothing instead of warning on every VAT ID.
+        return @preg_match('/^(?:' . $pattern . ')$/D', $subject);
     }
 }

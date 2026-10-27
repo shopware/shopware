@@ -18,6 +18,7 @@ export interface AuthObject {
 export interface LoginConfig {
     useDefault: boolean;
     url: string;
+    passwordRecoveryEnabled?: boolean;
 }
 
 interface TokenResponse {

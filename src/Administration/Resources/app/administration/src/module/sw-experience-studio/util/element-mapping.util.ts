@@ -5,7 +5,7 @@ import type { ContentSystemMappingCandidate } from 'src/core/service/api/content
 /**
  * Decides whether a stored consumer is a data mapping, mirroring the server's `Mapping/MappingConsumers`.
  *
- * Only data mappings carry an explicit source path; ordinary and server-mirrored context wiring do not.
+ * Only data mappings carry an explicit source reference; ordinary and server-mirrored context wiring do not.
  *
  * @private
  * @sw-package discovery
@@ -87,6 +87,24 @@ export function getMappingCandidateTranslation(
 }
 
 /**
+ * Formats a valid serialized source like
+ * Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference::displayName().
+ *
+ * Root sources use `id[.path]`; other sources use `type:id[.path]`. An omitted path identifies the whole source,
+ * and configuration is not part of the name. Keep the examples in element-mapping.util.spec/source-display-name.spec.ts
+ * aligned with MappingSourceReferenceTest::displayNameExamples(). Prefer catalogue labels for presentation;
+ * this name also lets a stored mapping find its catalogue entry or remain readable after that entry is withdrawn.
+ *
+ * @private
+ * @sw-package discovery
+ */
+export function getMappingSourceDisplayName(source: ContentSystemMappingCandidate['source']): string {
+    const sourceName = source.type === 'root' ? source.id : `${source.type}:${source.id}`;
+
+    return source.path ? `${sourceName}.${source.path}` : sourceName;
+}
+
+/**
  * Finds the mapping that currently feeds `propertyKey`, or null when the property carries a static value.
  *
  * @private
@@ -99,15 +117,7 @@ export function findPropertyMapping(element: ContentElementNode | null, property
     ] of Object.entries(element?.acceptsContext ?? {})) {
         if (targetProperty === propertyKey && isMappingConsumer(consumer)) {
             return {
-                path:
-                    consumer.source.type === 'root'
-                        ? [
-                              consumer.source.id,
-                              consumer.source.path,
-                          ]
-                              .filter(Boolean)
-                              .join('.')
-                        : `${consumer.source.type}:${consumer.source.id}${consumer.source.path ? `.${consumer.source.path}` : ''}`,
+                path: getMappingSourceDisplayName(consumer.source),
                 consumer,
             };
         }

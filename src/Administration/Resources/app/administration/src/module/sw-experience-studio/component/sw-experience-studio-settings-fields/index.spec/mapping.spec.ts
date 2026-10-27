@@ -1,4 +1,5 @@
 import settingsFieldsComponent from '../index';
+import { findPropertyMapping } from '../../../util/element-mapping.util';
 
 const computed = (
     settingsFieldsComponent as unknown as {
@@ -225,6 +226,35 @@ describe('data mapping', () => {
         };
 
         expect(methods.getFieldMappingLabel.call(context, mappableTextField)).toBe('Material');
+    });
+
+    it.each([
+        { source: { type: 'root', id: 'product' }, path: 'product' },
+        { source: { type: 'AcmePlugin', id: 'recommendations' }, path: 'AcmePlugin:recommendations' },
+        {
+            source: { type: 'AcmePlugin', id: 'recommendations', config: { region: 'eu' }, path: 'metadata.title' },
+            path: 'AcmePlugin:recommendations.metadata.title',
+        },
+    ])('keeps the friendly label for $path and its technical name after withdrawal', ({ source, path }) => {
+        const mapping = findPropertyMapping(
+            {
+                id: 'element-1',
+                component: 'Sw:Content:Text',
+                acceptsContext: { text: { type: 'single', required: false, scope: 'root', source } },
+            },
+            'text',
+        );
+        const context = {
+            mappingCandidates: [{ ...categoryNameCandidate, source, path }],
+            mappings: { text: mapping?.path },
+            getFieldMappingPath: methods.getFieldMappingPath,
+            $te: () => true,
+            $t: () => 'Available source label',
+        };
+
+        expect(methods.getFieldMappingLabel.call(context, mappableTextField)).toBe('Available source label');
+        context.mappingCandidates = [];
+        expect(methods.getFieldMappingLabel.call(context, mappableTextField)).toBe(path);
     });
 
     it('emits the chosen source together with its context type and closes the modal', () => {

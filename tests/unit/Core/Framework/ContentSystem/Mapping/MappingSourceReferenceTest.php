@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mapping;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
@@ -15,6 +16,31 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(MappingSourceReference::class)]
 class MappingSourceReferenceTest extends TestCase
 {
+    /**
+     * @param array{type: string, id: string, config?: array<string, mixed>, path?: string} $source
+     */
+    #[DataProvider('displayNameExamples')]
+    public function testFormatsSourceDisplayNames(array $source, string $expected): void
+    {
+        static::assertSame($expected, MappingSourceReference::fromArray($source, 'source')->displayName());
+    }
+
+    /**
+     * Mirrored in Administration's element-mapping.util.spec/source-display-name.spec.ts.
+     *
+     * @return iterable<string, array{array{type: string, id: string, config?: array<string, mixed>, path?: string}, string}>
+     */
+    public static function displayNameExamples(): iterable
+    {
+        yield 'whole root source' => [['type' => 'root', 'id' => 'product'], 'product'];
+        yield 'root member' => [['type' => 'root', 'id' => 'product', 'path' => 'name'], 'product.name'];
+        yield 'nested root member' => [['type' => 'root', 'id' => 'product', 'path' => 'manufacturer.name'], 'product.manufacturer.name'];
+        yield 'whole plugin source' => [['type' => 'AcmePlugin', 'id' => 'recommendations'], 'AcmePlugin:recommendations'];
+        yield 'plugin member' => [['type' => 'AcmePlugin', 'id' => 'recommendations', 'path' => 'title'], 'AcmePlugin:recommendations.title'];
+        yield 'nested plugin member' => [['type' => 'AcmePlugin', 'id' => 'recommendations', 'path' => 'metadata.title'], 'AcmePlugin:recommendations.metadata.title'];
+        yield 'configuration does not change the name' => [['type' => 'AcmePlugin', 'id' => 'recommendations', 'config' => ['region' => 'eu'], 'path' => 'title'], 'AcmePlugin:recommendations.title'];
+    }
+
     public function testBuildsAndDisplaysRootReferences(): void
     {
         $wholeValue = MappingSourceReference::root('product');

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Mcp;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -181,8 +180,7 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
     }
 
     /**
-     * The tool's data and metadata in either result format: the legacy envelope in the first text
-     * block, or, with `v6.8.0.0`, the plain data followed by a `{"_meta": …}` block.
+     * The tool's data and metadata from the legacy envelope, which this test's 2025-03-26 client gets.
      *
      * @param array{content: list<array{text: string}>, _meta?: array<string, mixed>} $result
      *
@@ -190,25 +188,12 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
      */
     private function toolPayload(array $result): array
     {
-        $first = json_decode($result['content'][0]['text'], true, 512, \JSON_THROW_ON_ERROR);
+        $envelope = json_decode($result['content'][0]['text'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($envelope);
+        $meta = $envelope['_meta'] ?? [];
+        static::assertIsArray($meta);
 
-        if (!Feature::isActive('v6.8.0.0')) {
-            static::assertIsArray($first);
-            $meta = $first['_meta'] ?? [];
-            static::assertIsArray($meta);
-
-            return ['data' => $first['data'] ?? null, '_meta' => $meta];
-        }
-
-        $meta = [];
-        foreach (\array_slice($result['content'], 1) as $block) {
-            $decoded = json_decode($block['text'], true);
-            if (\is_array($decoded) && \is_array($decoded['_meta'] ?? null)) {
-                $meta = $decoded['_meta'];
-            }
-        }
-
-        return ['data' => $first, '_meta' => $meta];
+        return ['data' => $envelope['data'] ?? null, '_meta' => $meta];
     }
 
     /**

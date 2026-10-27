@@ -337,7 +337,13 @@ return static function (ContainerConfigurator $container): void {
         ->tag('console.command');
 
     $services->set(McpToolResultRenderer::class)
-        ->args([service(ClockInterface::class)]);
+        ->args([
+            service(ClockInterface::class),
+            service(ToolResultCacheStorage::class),
+            service('request_stack'),
+            service('logger'),
+        ])
+        ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set(McpToolResultParser::class);
 

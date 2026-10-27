@@ -19,7 +19,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Storefront\Storefront;
 use Shopware\Core\Framework\App\Manifest\Xml\Tax\Tax;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhooks;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Config\Util\XmlUtils;
+use Shopware\Core\Framework\Util\XmlParser;
 
 /**
  * @internal only for use by the app-system
@@ -60,7 +60,7 @@ class Manifest
     public static function validate(string $fileContent, string $file): void
     {
         try {
-            $doc = XmlUtils::parse($fileContent, self::XSD_FILE);
+            $doc = XmlParser::parse($fileContent, self::XSD_FILE);
         } catch (\Exception $e) {
             throw AppException::xmlParsingException($file, $e->getMessage());
         }
@@ -71,7 +71,7 @@ class Manifest
     public static function createFromXml(string $xml): self
     {
         try {
-            $doc = XmlUtils::parse($xml, self::XSD_FILE);
+            $doc = XmlParser::parse($xml, self::XSD_FILE);
         } catch (\Exception $e) {
             throw AppXmlParsingException::cannotParseContent($e->getMessage());
         }
@@ -82,7 +82,7 @@ class Manifest
     public static function createFromXmlFile(string $xmlFile): self
     {
         try {
-            $doc = XmlUtils::loadFile($xmlFile, self::XSD_FILE);
+            $doc = XmlParser::loadFile($xmlFile, self::XSD_FILE);
         } catch (\Exception $e) {
             throw AppException::xmlParsingException($xmlFile, $e->getMessage());
         }

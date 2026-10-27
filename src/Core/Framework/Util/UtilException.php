@@ -18,6 +18,7 @@ class UtilException extends HttpException
     public const INVALID_JSON_NOT_LIST = 'UTIL_INVALID_JSON_NOT_LIST';
     public const XML_PARSE_ERROR = 'UTIL__XML_PARSE_ERROR';
     public const XML_ELEMENT_NOT_FOUND = 'UTIL__XML_ELEMENT_NOT_FOUND';
+    public const XML_PARSING_FAILED = 'UTIL__XML_PARSING_FAILED';
     public const FILESYSTEM_FILE_NOT_FOUND = 'UTIL__FILESYSTEM_FILE_NOT_FOUND';
     public const COULD_NOT_HASH_FILE = 'UTIL__COULD_NOT_HASH_FILE';
     public const OPERATOR_NOT_SUPPORTED = 'UTIL__OPERATOR_NOT_SUPPORTED';
@@ -66,6 +67,17 @@ class UtilException extends HttpException
         }
 
         return new UtilXmlParsingException($file, $message);
+    }
+
+    public static function xmlParsingFailed(string $message, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::XML_PARSING_FAILED,
+            '{{ message }}',
+            ['message' => $message],
+            $previous
+        );
     }
 
     public static function cannotFindFileInFilesystem(string $file, string $filesystem): self

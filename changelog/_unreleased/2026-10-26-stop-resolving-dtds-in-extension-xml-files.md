@@ -1,0 +1,13 @@
+---
+title: Stop resolving DTDs in extension XML files
+issue: https://github.com/shopware/shopware-private/issues/506
+---
+
+# Core
+
+* Added `Shopware\Core\Framework\Util\XmlParser`, which rejects a document type declaration before libxml can resolve an external DTD or entity.
+  App manifests, plugin `config.xml` files, custom entity, admin UI, flow and CMS XML files are now read through it.
+* Changed the exception for empty, missing or malformed extension XML files from `InvalidArgumentException` to `UtilException` (`UTIL__XML_PARSING_FAILED`, HTTP 400).
+  The error messages are unchanged.
+* Added the PHPStan rule `NoXmlUtilsParsingRule` to the core rule set.
+  It reports direct calls to `XmlUtils::parse()` and `XmlUtils::loadFile()` outside tests.

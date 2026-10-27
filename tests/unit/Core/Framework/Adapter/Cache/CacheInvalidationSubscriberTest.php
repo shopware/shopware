@@ -9,6 +9,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
@@ -17,6 +18,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
@@ -148,6 +150,59 @@ class CacheInvalidationSubscriberTest extends TestCase
             );
 
         $subscriber->invalidateMedia($event);
+    }
+
+    public function testInvalidateProductListingRouteByCategoryIds(): void
+    {
+        $grandParentId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
+        $childId = Uuid::randomHex();
+
+        $subscriber = $this->createSubscriber();
+
+        // the child shows a dynamic product group, so the listings above it are invalidated as well
+        $this->connection->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn(['|' . $grandParentId . '|' . $parentId . '|']);
+
+        $this->cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with(array_map(ProductListingRoute::buildName(...), [$childId, $grandParentId, $parentId]));
+
+        $subscriber->invalidateProductListingRouteByCategoryIds(
+            new CategoryIndexerEvent([$childId], Context::createDefaultContext())
+        );
+    }
+
+    public function testInvalidateChangedCategoryListings(): void
+    {
+        $parentId = Uuid::randomHex();
+        $categoryId = Uuid::randomHex();
+
+        $subscriber = $this->createSubscriber();
+
+        $this->connection->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn(['|' . $parentId . '|']);
+
+        $this->cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with(array_map(ProductListingRoute::buildName(...), [$categoryId, $parentId]));
+
+        $subscriber->invalidateChangedCategoryListings(
+            $this->createCategoryWrittenEvent($categoryId, ['productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM])
+        );
+    }
+
+    public function testInvalidateChangedCategoryListingsIgnoresOtherChanges(): void
+    {
+        $subscriber = $this->createSubscriber();
+
+        // the listener runs on every write, so writes that keep the product assignment must not even query
+        $this->connection->expects($this->never())->method('fetchFirstColumn');
+        $this->cacheInvalidator->expects($this->never())->method('invalidate');
+
+        $subscriber->invalidateChangedCategoryListings($this->createCategoryWrittenEvent(Uuid::randomHex(), ['active' => false]));
     }
 
     public function testInvalidateNavigationRouteWithSalesChannelSettings(): void
@@ -797,6 +852,26 @@ class CacheInvalidationSubscriberTest extends TestCase
                         ),
                     ],
                     Context::createDefaultContext(),
+                ),
+            ]),
+            [],
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function createCategoryWrittenEvent(string $categoryId, array $payload): EntityWrittenContainerEvent
+    {
+        $context = Context::createDefaultContext();
+
+        return new EntityWrittenContainerEvent(
+            $context,
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    CategoryDefinition::ENTITY_NAME,
+                    [new EntityWriteResult($categoryId, $payload, CategoryDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE)],
+                    $context,
                 ),
             ]),
             [],

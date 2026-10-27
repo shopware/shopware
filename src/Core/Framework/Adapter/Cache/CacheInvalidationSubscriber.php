@@ -246,6 +246,20 @@ class CacheInvalidationSubscriber
         $this->cacheInvalidator->invalidate(array_map(CategoryRoute::buildName(...), $event->getIds()));
     }
 
+    public function invalidateProductListingRouteByCategoryIds(CategoryIndexerEvent $event): void
+    {
+        $this->invalidateCategoryListings($event->getIds(), $event->getContext()->getVersionId());
+    }
+
+    public function invalidateChangedCategoryListings(EntityWrittenContainerEvent $event): void
+    {
+        // the category indexer skips updates that only change the product assignment, so no CategoryIndexerEvent covers them
+        $this->invalidateCategoryListings(
+            $event->getPrimaryKeysWithPropertyChange(CategoryDefinition::ENTITY_NAME, ['productAssignmentType', 'productStreamId']),
+            $event->getContext()->getVersionId()
+        );
+    }
+
     public function invalidateIndexedLandingPages(LandingPageIndexerEvent $event): void
     {
         // invalidates the landing page route, if the corresponding landing page changed
@@ -522,6 +536,37 @@ class CacheInvalidationSubscriber
             ['ids' => Uuid::fromHexToBytesList($ids), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
             ['ids' => ArrayParameterType::BINARY]
         );
+    }
+
+    /**
+     * A category with a dynamic product group also invalidates the listings above it. They are tagged with every
+     * category on the way down to it, but the category may just have been created or moved there.
+     *
+     * @param list<string> $categoryIds
+     */
+    private function invalidateCategoryListings(array $categoryIds, string $versionId): void
+    {
+        if ($categoryIds === []) {
+            return;
+        }
+
+        $paths = $this->connection->fetchFirstColumn(
+            'SELECT path FROM category
+             WHERE id IN (:ids) AND version_id = :version AND path IS NOT NULL
+               AND product_assignment_type = :productStream AND product_stream_id IS NOT NULL',
+            [
+                'ids' => Uuid::fromHexToBytesList($categoryIds),
+                'version' => Uuid::fromHexToBytes($versionId),
+                'productStream' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+            ],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        foreach ($paths as $path) {
+            array_push($categoryIds, ...array_filter(explode('|', $path)));
+        }
+
+        $this->cacheInvalidator->invalidate(array_map(ProductListingRoute::buildName(...), $categoryIds));
     }
 
     /**

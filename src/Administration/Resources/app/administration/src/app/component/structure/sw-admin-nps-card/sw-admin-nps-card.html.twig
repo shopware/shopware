@@ -1,13 +1,10 @@
-{% block sw_admin_nps_card %}
 <div
     v-if="visible"
     class="sw-admin-nps-card"
     role="region"
     :aria-labelledby="titleId"
 >
-    {% block sw_admin_nps_card_header %}
     <div class="sw-admin-nps-card__header">
-        {% block sw_admin_nps_card_title %}
         <h3
             :id="titleId"
             class="sw-admin-nps-card__title"
@@ -19,9 +16,7 @@
                 {{ $t('global.sw-admin-nps-card.title') }}
             </template>
         </h3>
-        {% endblock %}
 
-        {% block sw_admin_nps_card_close %}
         <mt-button
             class="sw-admin-nps-card__close"
             variant="tertiary"
@@ -37,19 +32,15 @@
                 />
             </template>
         </mt-button>
-        {% endblock %}
     </div>
-    {% endblock %}
 
     <template v-if="!showReasonStep">
-    {% block sw_admin_nps_card_scale %}
         <div
             class="sw-admin-nps-card__scale"
             role="group"
             :aria-label="$t('global.sw-admin-nps-card.title')"
             :aria-describedby="showScoreError ? scoreErrorId : undefined"
         >
-        {% block sw_admin_nps_card_scale_buttons %}
             <button
                 v-for="scoreValue in scores"
                 :key="scoreValue"
@@ -62,11 +53,8 @@
             >
                 {{ scoreValue }}
             </button>
-        {% endblock %}
         </div>
-    {% endblock %}
 
-    {% block sw_admin_nps_card_scale_labels %}
         <div
             class="sw-admin-nps-card__scale-labels"
             aria-hidden="true"
@@ -78,9 +66,7 @@
                 {{ $t('global.sw-admin-nps-card.scoreLabelExtremelyLikely') }}
             </span>
         </div>
-    {% endblock %}
 
-    {% block sw_admin_nps_card_score_error %}
         <p
             v-if="showScoreError"
             :id="scoreErrorId"
@@ -89,10 +75,8 @@
         >
             {{ $t('global.sw-admin-nps-card.errorNoScore') }}
         </p>
-    {% endblock %}
     </template>
 
-    {% block sw_admin_nps_card_follow_up %}
     <div
         v-if="showReasonStep"
         ref="followUpElement"
@@ -103,11 +87,8 @@
             :label="$t('global.sw-admin-nps-card.reasonLabel')"
         />
     </div>
-    {% endblock %}
 
-    {% block sw_admin_nps_card_actions %}
     <div class="sw-admin-nps-card__actions">
-        {% block sw_admin_nps_card_not_now %}
         <mt-button
             class="sw-admin-nps-card__not-now"
             variant="secondary"
@@ -116,9 +97,7 @@
         >
             {{ $t('global.sw-admin-nps-card.buttonNotNow') }}
         </mt-button>
-        {% endblock %}
 
-        {% block sw_admin_nps_card_submit %}
         <mt-button
             class="sw-admin-nps-card__submit"
             variant="primary"
@@ -127,8 +106,5 @@
         >
             {{ $t('global.default.submit') }}
         </mt-button>
-        {% endblock %}
     </div>
-    {% endblock %}
 </div>
-{% endblock %}

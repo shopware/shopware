@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Checkout\Shipping;
 
+use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
@@ -84,44 +85,27 @@ class BlockedShippingMethodSwitcher
     }
 
     /**
-     * @return array{ids: array<string, true>, names: array<string, true>}
+     * @return array<string, string>
      */
     private function getBlockedShippingMethodLookup(ErrorCollection $errors): array
     {
-        $blocked = ['ids' => [], 'names' => []];
-
-        foreach ($errors as $error) {
-            if (!$error instanceof ShippingMethodBlockedError) {
-                continue;
-            }
-
-            $id = $error->getShippingMethodId();
-            if ($id !== null) {
-                $blocked['ids'][$id] = true;
-
-                continue;
-            }
-
-            // @deprecated tag:v6.8.0 - remove the name fallback, the error always carries the id
-            $blocked['names'][$error->getName()] = true;
-        }
-
-        return $blocked;
+        // @deprecated tag:v6.8.0 - remove the name fallback, the error always carries the id
+        return \array_flip($errors->fmap(static fn (Error $error) => $error instanceof ShippingMethodBlockedError ? ($error->getShippingMethodId() ?? $error->getName()) : null));
     }
 
     /**
-     * @param array{ids: array<string, true>, names: array<string, true>} $blocked
+     * @param array<string, string> $blocked
      */
     private function isBlocked(ShippingMethodEntity $shippingMethod, array $blocked): bool
     {
-        if (isset($blocked['ids'][$shippingMethod->getId()])) {
+        if (isset($blocked[$shippingMethod->getId()])) {
             return true;
         }
 
         // @deprecated tag:v6.8.0 - remove the name check together with the name fallback in the lookup
         $name = $shippingMethod->getName();
 
-        return $name !== null && isset($blocked['names'][$name]);
+        return $name !== null && isset($blocked[$name]);
     }
 
     private function addNoticeToCart(ErrorCollection $cartErrors, ShippingMethodEntity $shippingMethod): void

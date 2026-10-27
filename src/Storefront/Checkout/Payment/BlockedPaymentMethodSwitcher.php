@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Checkout\Payment;
 
+use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Payment\Cart\Error\PaymentMethodBlockedError;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
@@ -84,44 +85,27 @@ class BlockedPaymentMethodSwitcher
     }
 
     /**
-     * @return array{ids: array<string, true>, names: array<string, true>}
+     * @return array<string, string>
      */
     private function getBlockedPaymentMethodLookup(ErrorCollection $errors): array
     {
-        $blocked = ['ids' => [], 'names' => []];
-
-        foreach ($errors as $error) {
-            if (!$error instanceof PaymentMethodBlockedError) {
-                continue;
-            }
-
-            $id = $error->getPaymentMethodId();
-            if ($id !== null) {
-                $blocked['ids'][$id] = true;
-
-                continue;
-            }
-
-            // @deprecated tag:v6.8.0 - remove the name fallback, the error always carries the id
-            $blocked['names'][$error->getName()] = true;
-        }
-
-        return $blocked;
+        // @deprecated tag:v6.8.0 - remove the name fallback, the error always carries the id
+        return \array_flip($errors->fmap(static fn (Error $error) => $error instanceof PaymentMethodBlockedError ? ($error->getPaymentMethodId() ?? $error->getName()) : null));
     }
 
     /**
-     * @param array{ids: array<string, true>, names: array<string, true>} $blocked
+     * @param array<string, string> $blocked
      */
     private function isBlocked(PaymentMethodEntity $paymentMethod, array $blocked): bool
     {
-        if (isset($blocked['ids'][$paymentMethod->getId()])) {
+        if (isset($blocked[$paymentMethod->getId()])) {
             return true;
         }
 
         // @deprecated tag:v6.8.0 - remove the name check together with the name fallback in the lookup
         $name = $paymentMethod->getName();
 
-        return $name !== null && isset($blocked['names'][$name]);
+        return $name !== null && isset($blocked[$name]);
     }
 
     private function addNoticeToCart(ErrorCollection $cartErrors, PaymentMethodEntity $paymentMethod): void

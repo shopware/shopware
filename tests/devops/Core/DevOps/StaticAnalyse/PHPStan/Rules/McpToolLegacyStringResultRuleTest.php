@@ -7,6 +7,7 @@ use PHPStan\Testing\RuleTestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpToolLegacyStringResultRule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpToolLegacyStringResultRule\MethodLevelToolReturningUnion;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpToolLegacyStringResultRule\ToolInheritingStringInvoke;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpToolLegacyStringResultRule\ToolReturningNullableString;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpToolLegacyStringResultRule\ToolReturningString;
 
@@ -49,6 +50,23 @@ class McpToolLegacyStringResultRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/data/McpToolLegacyStringResultRule/MethodLevelToolReturningUnion.php'], [
             [self::message(MethodLevelToolReturningUnion::class, 'search'), 16, self::TIP],
         ]);
+    }
+
+    public function testInvokeInheritedFromAParentClassIsReportedOnTheTool(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpToolLegacyStringResultRule/ToolInheritingStringInvoke.php'], [
+            [self::message(ToolInheritingStringInvoke::class, '__invoke'), 7, self::TIP],
+        ]);
+    }
+
+    public function testInheritedInvokeReturningTheResultObjectPasses(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpToolLegacyStringResultRule/ToolInheritingResultInvoke.php'], []);
+    }
+
+    public function testAbstractBaseWithoutAttributeIsNotReported(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpToolLegacyStringResultRule/AbstractStringTool.php'], []);
     }
 
     protected function getRule(): Rule

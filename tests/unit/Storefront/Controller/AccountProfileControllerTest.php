@@ -57,6 +57,17 @@ class AccountProfileControllerTest extends TestCase
         );
     }
 
+    public function testProfileOverviewKeepsTheRedirectTarget(): void
+    {
+        $this->controller->profileOverview(
+            new Request(['redirectTo' => 'frontend.checkout.confirm.page']),
+            static::createStub(SalesChannelContext::class)
+        );
+
+        static::assertSame('@Storefront/storefront/page/account/profile/index.html.twig', $this->controller->recorder()->renderStorefrontView);
+        static::assertSame('frontend.checkout.confirm.page', $this->controller->recorder()->renderStorefrontParameters['redirectTo']);
+    }
+
     public function testProfileOverviewRendersSubmittedProfileData(): void
     {
         $this->profilePageLoader->method('load')->willReturn(new AccountProfilePage());
@@ -71,6 +82,31 @@ class AccountProfileControllerTest extends TestCase
         static::assertSame($submittedData, $this->controller->recorder()->renderStorefrontParameters['profileFormData']);
     }
 
+    public function testSaveProfileWithDefaultRedirect(): void
+    {
+        $this->controller->saveProfile(
+            new RequestDataBag(),
+            static::createStub(SalesChannelContext::class),
+            new CustomerEntity(),
+            new Request()
+        );
+
+        static::assertArrayHasKey('frontend.account.profile.page', $this->controller->recorder()->redirected);
+        static::assertSame(['account.profileUpdateSuccess'], $this->controller->recorder()->flashBag[StorefrontController::SUCCESS]);
+    }
+
+    public function testSaveProfileReturnsToTheRedirectTarget(): void
+    {
+        $this->controller->saveProfile(
+            new RequestDataBag(),
+            static::createStub(SalesChannelContext::class),
+            new CustomerEntity(),
+            new Request([], ['redirectTo' => 'frontend.checkout.confirm.page'])
+        );
+
+        static::assertArrayHasKey('frontend.checkout.confirm.page', $this->controller->recorder()->redirected);
+    }
+
     public function testSaveProfileWithConstraintViolationForwardsSubmittedData(): void
     {
         $this->changeCustomerProfileRoute->method('change')->willThrowException(
@@ -81,12 +117,14 @@ class AccountProfileControllerTest extends TestCase
         $this->controller->saveProfile(
             $submittedData,
             static::createStub(SalesChannelContext::class),
-            new CustomerEntity()
+            new CustomerEntity(),
+            new Request([], ['redirectTo' => 'frontend.checkout.confirm.page'])
         );
 
         static::assertSame('frontend.account.profile.page', $this->controller->recorder()->forwardToRoute);
         static::assertInstanceOf(ConstraintViolationException::class, $this->controller->recorder()->forwardToRouteAttributes['formViolations']);
         static::assertSame($submittedData, $this->controller->recorder()->forwardToRouteAttributes['profileFormData']);
+        static::assertSame([], $this->controller->recorder()->redirected);
     }
 
     public function testSavePasswordWithMissingPasswordParam(): void

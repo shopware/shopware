@@ -2,6 +2,15 @@
 
 ## Core
 
+### Multiple SQL statements restricted in 6.8
+
+With `DISABLE_SQL_MULTI_STATEMENTS=1`, application database connections reject multiple SQL statements in a single call.
+This flag is also enabled by `V6_8_0_0=1` unless explicitly disabled.
+Execute statements separately in extensions.
+Separating read and write statements also improves compatibility with SQL proxies that cannot route mixed read/write batches in a single query.
+Migration execution, discovery, and bookkeeping now always use a separate primary connection, even while the flag is disabled.
+The connections passed to migration `update()` and `updateDestructive()` methods and the installer explicitly allow multiple statements.
+
 ### Promotion code rate limiting
 
 Promotion code submissions through the Store API and Storefront now share a separate rate limit.
@@ -64,6 +73,10 @@ This release fills `payload.productType` for every product and custom order line
 The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physical line items, so most line items of older orders had no product type.
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
+
+### Set null on delete also applies to cascaded deletes
+
+When the DAL deletes an entity, `SetNullOnDelete` associations of the entities removed through `CascadeDelete` are now resolved as well, not only those of the deleted entity itself. For associations without a database constraint (`SetNullOnDelete(false)`) the reference is set to `null` and a write result is dispatched for the updated entity. For example, deleting a media that is used as a product cover now clears `product.coverId`. Entities that are deleted in the same operation are not updated, so deleting a product with a cover still reports the product, and its variants, as deleted.
 
 ### Business customers need a VAT ID for countries that require one
 

@@ -14,8 +14,8 @@
  * between backend configuration and frontend cookie handling.
  *
  * Hash-based configuration tracking:
- * Automatically resets to required cookies when cookie-config-hash changes,
- * prompting users to review updated cookie settings.
+ * Resets to required cookies when a configuration change introduces new cookie names.
+ * Removals preserve the existing consent when the previous cookie names are known.
  *
  * Rendering:
  * Renders the configuration template inside an offCanvas via CookieController.php
@@ -35,6 +35,7 @@
 /* global PluginManager */
 
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
+import Storage from 'src/helper/storage/storage.helper';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import OffCanvas, { OffCanvasInstance } from 'src/plugin/offcanvas/offcanvas.plugin';
 import Plugin from 'src/plugin-system/plugin.class';
@@ -295,7 +296,7 @@ export default class CookieConfiguration extends Plugin {
     }
 
     /**
-     * Check if cookie configuration hash has changed for the current language and reset cookies if needed.
+     * Check for new cookie names in the current language and reset cookies if needed.
      * Hashes are stored per language to allow users to accept cookies once per language.
      * @private
      */
@@ -320,9 +321,24 @@ export default class CookieConfiguration extends Plugin {
         const hashChanged = storedHashForLanguage && storedHashForLanguage !== currentHash;
         const noConsentForThisLanguage = hasPreference && !storedHashForLanguage;
 
+        const cookieNames = this._extractAllCookiesFromGroups(data.elements || []).map(cookie => cookie.cookie);
+
         if (hashChanged) {
-            await this._resetCookieConfiguration(data);
-            return;
+            const storedCookieNames = this._getStoredCookieNames(languageId, storedHashForLanguage);
+
+            if (storedCookieNames) {
+                const removedCookieNames = storedCookieNames.filter(name => !cookieNames.includes(name));
+                removedCookieNames.forEach(name => CookieStorage.removeItem(name));
+                if (removedCookieNames.length > 0) {
+                    this._handleUpdateListener([], removedCookieNames);
+                }
+            }
+
+            // A hash alone cannot distinguish additions from removals for existing visitors.
+            if (!storedCookieNames || cookieNames.some(name => !storedCookieNames.includes(name))) {
+                await this._resetCookieConfiguration(data);
+                return;
+            }
         }
 
         // Consented for another language but not this one: show the banner without clearing the
@@ -332,9 +348,41 @@ export default class CookieConfiguration extends Plugin {
             return;
         }
 
-        // Hash matches for this language - refresh to extend expiration
+        // Refresh the configuration without changing the visitor's consent choices.
         if (storedHashForLanguage) {
             this._storeHashForLanguage(languageId, currentHash, storedHashData);
+            this._storeCookieNames(languageId, currentHash, cookieNames);
+        }
+    }
+
+    /**
+     * Read the cookie names belonging to the stored configuration hash.
+     * Missing or unavailable storage falls back to the existing hash-based consent check.
+     * @private
+     */
+    _getStoredCookieNames(languageId, hash) {
+        try {
+            const stored = JSON.parse(Storage.getItem(`${this.options.cookieConfigHash}-${languageId}-cookies`));
+            if (stored?.hash === hash && Array.isArray(stored.cookies) && stored.cookies.every(name => typeof name === 'string')) {
+                return stored.cookies;
+            }
+        } catch (_error) {
+            // Storage may be unavailable or contain invalid data.
+        }
+
+        return null;
+    }
+
+    /**
+     * Keep cookie names in browser storage to avoid increasing the configuration cookie size.
+     * The hash ties the names to the configuration, while language consent stays independent.
+     * @private
+     */
+    _storeCookieNames(languageId, hash, cookies) {
+        try {
+            Storage.setItem(`${this.options.cookieConfigHash}-${languageId}-cookies`, JSON.stringify({ hash, cookies }));
+        } catch (_error) {
+            // Consent still works through the configuration hash if storage is unavailable.
         }
     }
 
@@ -489,6 +537,7 @@ export default class CookieConfiguration extends Plugin {
                 // Handle cookie-config-hash specially: store per language
                 if (isCookieConfigHash && languageId) {
                     this._storeHashForLanguage(languageId, cookieData.value);
+                    this._storeCookieNames(languageId, cookieData.value, allCookiesFromApi.map(cookie => cookie.cookie));
                 } else if (!isCookieConfigHash) {
                     CookieStorage.setItem(
                         cookieData.cookie,

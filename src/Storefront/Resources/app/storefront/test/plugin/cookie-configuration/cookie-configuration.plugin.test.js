@@ -1,4 +1,5 @@
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
+import Storage from 'src/helper/storage/storage.helper';
 import CookieConfiguration, { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
@@ -98,7 +99,7 @@ describe('CookieConfiguration plugin tests', () => {
                 return [];
             }),
             getPluginInstancesFromElement: jest.fn(() => new Map()),
-            getPlugin: jest.fn(() => new Map([['instances', []]]))
+            getPlugin: jest.fn(() => new Map([['instances', []]])),
         };
 
         global.fetch = jest.fn(() =>
@@ -109,7 +110,7 @@ describe('CookieConfiguration plugin tests', () => {
                     languageId: 'default-language-id',
                     elements: [],
                 }),
-            })
+            }),
         );
 
         const container = document.createElement('div');
@@ -258,7 +259,7 @@ describe('CookieConfiguration plugin tests', () => {
             ctrlKey: false,
             metaKey: false,
             shiftKey: false,
-            defaultPrevented: false
+            defaultPrevented: false,
         });
 
         expect(openOffCanvas).toHaveBeenCalled();
@@ -274,7 +275,7 @@ describe('CookieConfiguration plugin tests', () => {
             ctrlKey: false,
             metaKey: false,
             shiftKey: false,
-            defaultPrevented: false
+            defaultPrevented: false,
         });
 
         expect(openOffCanvas).not.toHaveBeenCalled();
@@ -286,7 +287,7 @@ describe('CookieConfiguration plugin tests', () => {
             ctrlKey: true,
             metaKey: false,
             shiftKey: false,
-            defaultPrevented: false
+            defaultPrevented: false,
         });
 
         expect(openOffCanvas).not.toHaveBeenCalled();
@@ -422,14 +423,14 @@ describe('CookieConfiguration plugin tests', () => {
         expect(setItemSpy).toHaveBeenCalledWith(
             'cookie-preference',
             '1',
-            30
+            30,
         );
 
         // Check that cookie hash was set from the entries (in new JSON format per language)
         expect(setItemSpy).toHaveBeenCalledWith(
             'cookie-config-hash',
             JSON.stringify({ 'test-lang-id': 'test-hash-123' }),
-            30
+            30,
         );
 
         setItemSpy.mockRestore();
@@ -499,7 +500,7 @@ describe('CookieConfiguration plugin tests', () => {
             '/cookie/consent-offcanvas',
             false,
             expect.any(Function),
-            'left'
+            'left',
         );
         document.body.removeChild(triggerBtn);
     });
@@ -591,14 +592,14 @@ describe('CookieConfiguration plugin tests', () => {
                         technicalName: 'required-group',
                         isRequired: true,
                         entries: [
-                            { cookie: 'cookie-preference', value: '1', expiration: 30 }
-                        ]
-                    }
-                ]
+                            { cookie: 'cookie-preference', value: '1', expiration: 30 },
+                        ],
+                    },
+                ],
             };
 
             mockFetch.mockResolvedValueOnce({
-                json: () => Promise.resolve(mockApiResponse)
+                json: () => Promise.resolve(mockApiResponse),
             });
 
             // User has made a choice for another language, but not for this one
@@ -650,21 +651,21 @@ describe('CookieConfiguration plugin tests', () => {
                             { cookie: 'session-', value: 'abc123', expiration: 30 }, // PHP-managed, should not be set
                             { cookie: 'csrf-token', value: 'xyz789', expiration: 30 }, // Should be set
                             { cookie: 'cookie-preference', value: '1', expiration: 30 }, // Will be removed to trigger re-consent
-                            { cookie: 'cookie-config-hash', value: newHash, expiration: 30 } // Should be set to prevent re-consent loop
-                        ]
+                            { cookie: 'cookie-config-hash', value: newHash, expiration: 30 }, // Should be set to prevent re-consent loop
+                        ],
                     },
                     {
                         technicalName: 'analytics-group',
                         isRequired: false,
                         entries: [
-                            { cookie: 'analytics', value: '1', expiration: 365 }
-                        ]
-                    }
-                ]
+                            { cookie: 'analytics', value: '1', expiration: 365 },
+                        ],
+                    },
+                ],
             };
 
             mockFetch.mockResolvedValueOnce({
-                json: () => Promise.resolve(mockApiResponse)
+                json: () => Promise.resolve(mockApiResponse),
             });
 
             // Simulate user has made choice with old hash (stored in new JSON format)
@@ -704,7 +705,7 @@ describe('CookieConfiguration plugin tests', () => {
 
             // Verify showCookieBar event was dispatched
             expect(dispatchEventSpy).toHaveBeenCalledWith(expect.objectContaining({
-                type: 'showCookieBar'
+                type: 'showCookieBar',
             }));
 
             // Verify cookie bar functionality is called through event simulation
@@ -723,11 +724,11 @@ describe('CookieConfiguration plugin tests', () => {
             const mockApiResponse = {
                 hash: sameHash,
                 languageId: languageId,
-                elements: []
+                elements: [],
             };
 
             mockFetch.mockResolvedValueOnce({
-                json: () => Promise.resolve(mockApiResponse)
+                json: () => Promise.resolve(mockApiResponse),
             });
 
             // User has made choice with same hash (stored in new JSON format)
@@ -747,7 +748,7 @@ describe('CookieConfiguration plugin tests', () => {
             expect(setItemSpy).toHaveBeenCalledWith(
                 plugin.options.cookieConfigHash,
                 JSON.stringify({ [languageId]: sameHash }),
-                30
+                30,
             );
 
             removeItemSpy.mockRestore();
@@ -766,7 +767,7 @@ describe('CookieConfiguration plugin tests', () => {
 
             expect(consoleErrorSpy).toHaveBeenCalledWith(
                 'Failed to fetch cookie groups:',
-                expect.any(Error)
+                expect.any(Error),
             );
 
             consoleErrorSpy.mockRestore();
@@ -803,24 +804,24 @@ describe('CookieConfiguration plugin tests', () => {
                             {
                                 cookie: 'session-',
                                 value: 'abc123',
-                                expiration: 30
+                                expiration: 30,
                             },
                             {
                                 cookie: 'csrf-token',
                                 value: 'xyz789',
-                                expiration: 30
+                                expiration: 30,
                             },
                             {
                                 cookie: 'cookie-preference',
                                 value: '1',
-                                expiration: 30
+                                expiration: 30,
                             },
                             {
                                 cookie: 'cookie-config-hash',
                                 value: 'test123hash',
-                                expiration: 30
-                            }
-                        ]
+                                expiration: 30,
+                            },
+                        ],
                     },
                     {
                         technicalName: 'marketing-group',
@@ -829,20 +830,20 @@ describe('CookieConfiguration plugin tests', () => {
                             {
                                 cookie: 'analytics',
                                 value: '1',
-                                expiration: 365
+                                expiration: 365,
                             },
                             {
                                 cookie: 'tracking',
                                 value: '1',
-                                expiration: 90
-                            }
-                        ]
-                    }
-                ]
+                                expiration: 90,
+                            },
+                        ],
+                    },
+                ],
             };
 
             mockFetch.mockResolvedValueOnce({
-                json: () => Promise.resolve(mockApiResponse)
+                json: () => Promise.resolve(mockApiResponse),
             });
 
             // Set non-required cookies first
@@ -889,7 +890,7 @@ describe('CookieConfiguration plugin tests', () => {
             // Verify update listener called with correct parameters
             expect(handleUpdateListenerSpy).toHaveBeenCalledWith(
                 ['session-', 'timezone', 'csrf-token', 'cookie-preference', 'cookie-config-hash'], // active (PHP-managed + cookies we set)
-                ['analytics', 'tracking'] // inactive (remaining cookies)
+                ['analytics', 'tracking'], // inactive (remaining cookies)
             );
 
             // Verify offcanvas closes
@@ -909,34 +910,34 @@ describe('CookieConfiguration plugin tests', () => {
                         isRequired: true,
                         cookie: 'PHPSESSID',
                         value: 'session123',
-                        expiration: 30
+                        expiration: 30,
                     },
                     {
                         technicalName: 'preference-cookie',
                         isRequired: true,
                         cookie: 'cookie-preference',
                         value: '1',
-                        expiration: 30
+                        expiration: 30,
                     },
                     {
                         technicalName: 'hash-cookie',
                         isRequired: true,
                         cookie: 'cookie-config-hash',
                         value: 'standalone123hash',
-                        expiration: 30
+                        expiration: 30,
                     },
                     {
                         technicalName: 'analytics-cookie',
                         isRequired: false,
                         cookie: 'ga_tracking',
                         value: 'GA1.2.123456789',
-                        expiration: 365
-                    }
-                ]
+                        expiration: 365,
+                    },
+                ],
             };
 
             mockFetch.mockResolvedValueOnce({
-                json: () => Promise.resolve(mockApiResponse)
+                json: () => Promise.resolve(mockApiResponse),
             });
 
             // Set the non-required cookie first
@@ -982,20 +983,20 @@ describe('CookieConfiguration plugin tests', () => {
                             {
                                 cookie: 'cookie-preference',
                                 value: '1',
-                                expiration: 30
+                                expiration: 30,
                             },
                             {
                                 cookie: 'cookie-config-hash',
                                 value: 'empty123hash',
-                                expiration: 30
-                            }
-                        ]
-                    }
-                ]
+                                expiration: 30,
+                            },
+                        ],
+                    },
+                ],
             };
 
             mockFetch.mockResolvedValueOnce({
-                json: () => Promise.resolve(mockApiResponse)
+                json: () => Promise.resolve(mockApiResponse),
             });
 
             const setItemSpy = jest.spyOn(CookieStorage, 'setItem');
@@ -1042,7 +1043,7 @@ describe('CookieConfiguration plugin tests', () => {
             // Test uncovered lines 285-286
             const mockRegisterFunction = jest.fn();
             window.registerGoogleReCaptchaPlugins = mockRegisterFunction;
-            const initializePluginsSpy = jest.spyOn(PluginManager, 'initializePlugins');
+            const initializePluginsSpy = jest.spyOn(window.PluginManager, 'initializePlugins');
 
             plugin._handleUpdateListener(['test-cookie'], []);
 
@@ -1413,7 +1414,7 @@ describe('CookieConfiguration plugin tests', () => {
 
             // Mock querySelector to return an element in the callback
             const mockOffcanvasElement = {
-                addEventListener: jest.fn()
+                addEventListener: jest.fn(),
             };
 
             const originalQuerySelector = document.querySelector;
@@ -1607,11 +1608,11 @@ describe('CookieConfiguration plugin tests', () => {
             const mockResponse = {
                 hash: 'test-hash',
                 languageId: 'test-lang-id',
-                elements: [{ cookie: 'test-cookie' }]
+                elements: [{ cookie: 'test-cookie' }],
             };
 
             global.fetch = jest.fn().mockResolvedValue({
-                json: jest.fn().mockResolvedValue(mockResponse)
+                json: jest.fn().mockResolvedValue(mockResponse),
             });
 
             const result = await plugin._fetchCookieGroups();
@@ -1675,7 +1676,7 @@ describe('CookieConfiguration plugin tests', () => {
             expect(setItemSpy).toHaveBeenCalledWith(
                 plugin.options.cookieConfigHash,
                 JSON.stringify(expected),
-                30
+                30,
             );
         });
     });
@@ -1693,5 +1694,183 @@ describe('CookieConfiguration plugin tests', () => {
             const testPlugin = new CookieConfiguration(document.body, value !== undefined ? { defaultCookieExpiration: value } : {});
             expect(testPlugin._getDefaultCookieExpiration()).toBe(expected);
         });
+    });
+});
+
+describe('Cookie configuration additions and removals', () => {
+    const configuration = (hash, cookies, languageId = 'language-id') => ({
+        hash,
+        languageId,
+        elements: [
+            {
+                isRequired: true,
+                entries: [
+                    { cookie: 'cookie-preference', value: '1', expiration: 30 },
+                    { cookie: 'cookie-config-hash', value: hash, expiration: 30 },
+                ],
+            },
+            {
+                entries: cookies.map(cookie => ({ cookie, value: '1', expiration: 30 })),
+            },
+        ],
+    });
+
+    let plugin;
+
+    beforeEach(() => {
+        window.router = {
+            'frontend.cookie.groups': '/cookie/groups',
+            'frontend.cookie.offcanvas': '/cookie/offcanvas',
+        };
+        window.PluginManager = {
+            initializePlugins: jest.fn(),
+            getPluginInstancesFromElement: jest.fn(() => new Map()),
+            getPlugin: jest.fn(() => new Map([['instances', []]])),
+        };
+        global.fetch = jest.fn();
+        plugin = new CookieConfiguration(document.createElement('div'));
+    });
+
+    afterEach(() => {
+        plugin.destroy();
+        jest.restoreAllMocks();
+        document.cookie.split(';').forEach(cookie => CookieStorage.removeItem(cookie.split('=')[0].trim()));
+        Storage.removeItem('cookie-config-hash-language-id-cookies');
+        Storage.removeItem('cookie-config-hash-other-language-id-cookies');
+    });
+
+    test('removing a cookie preserves consent and remaining choices without showing the banner', async () => {
+        const previous = configuration('previous-hash', ['analytics', 'advertising']);
+        plugin._applyCookieConfiguration(previous.elements, 'all', [], previous.languageId);
+        const current = configuration('current-hash', ['analytics']);
+        fetch.mockResolvedValue({ json: async () => current });
+        const showBanner = jest.spyOn(plugin, '_showCookieBar');
+        const reset = jest.spyOn(plugin, '_resetCookieConfiguration');
+        const publish = jest.spyOn(document.$emitter, 'publish');
+
+        await plugin._checkCookieConfigurationHash();
+
+        expect(reset).not.toHaveBeenCalled();
+        expect(showBanner).not.toHaveBeenCalled();
+        expect(CookieStorage.getItem('cookie-preference')).toBe('1');
+        expect(CookieStorage.getItem('analytics')).toBe('1');
+        expect(CookieStorage.getItem('advertising')).toBeFalsy();
+        expect(publish).toHaveBeenCalledWith(COOKIE_CONFIGURATION_UPDATE, { advertising: false });
+        expect(plugin._getStoredHashForLanguage(CookieStorage.getItem('cookie-config-hash'), current.languageId)).toBe(current.hash);
+        expect(plugin._getStoredCookieNames(current.languageId, current.hash)).toEqual(['cookie-preference', 'cookie-config-hash', 'analytics']);
+    });
+
+    test.each([
+        ['adding a cookie', ['analytics'], ['analytics', 'advertising']],
+        ['replacing a cookie', ['analytics'], ['advertising']],
+        ['adding a cookie after all optional cookies were removed', [], ['advertising']],
+    ])('%s requires renewed consent', async (_name, previousNames, currentNames) => {
+        const previous = configuration('previous-hash', previousNames);
+        plugin._applyCookieConfiguration(previous.elements, 'all', [], previous.languageId);
+        const current = configuration('current-hash', currentNames);
+        fetch.mockResolvedValue({ json: async () => current });
+        const showBanner = jest.spyOn(plugin, '_showCookieBar');
+
+        await plugin._checkCookieConfigurationHash();
+
+        expect(CookieStorage.getItem('cookie-preference')).toBeFalsy();
+        [...previousNames, ...currentNames].forEach(name => expect(CookieStorage.getItem(name)).toBeFalsy());
+        expect(showBanner).toHaveBeenCalledTimes(1);
+    });
+
+    test.each([
+        ['removing all optional cookies', []],
+        ['changing metadata without adding cookies', ['analytics', 'advertising']],
+        ['reordering cookies', ['advertising', 'analytics']],
+    ])('%s preserves a declined choice', async (_name, currentNames) => {
+        const previous = configuration('previous-hash', ['analytics', 'advertising']);
+        plugin._applyCookieConfiguration(previous.elements, 'required', [], previous.languageId);
+        const current = configuration('current-hash', currentNames);
+        fetch.mockResolvedValue({ json: async () => current });
+        const showBanner = jest.spyOn(plugin, '_showCookieBar');
+
+        await plugin._checkCookieConfigurationHash();
+
+        expect(showBanner).not.toHaveBeenCalled();
+        expect(CookieStorage.getItem('cookie-preference')).toBe('1');
+        expect(CookieStorage.getItem('analytics')).toBeFalsy();
+        expect(CookieStorage.getItem('advertising')).toBeFalsy();
+    });
+
+    test('a matching legacy hash records cookie names without asking for consent', async () => {
+        const current = configuration('current-hash', ['analytics']);
+        CookieStorage.setItem('cookie-preference', '1', 30);
+        CookieStorage.setItem('cookie-config-hash', JSON.stringify({ [current.languageId]: current.hash }), 30);
+        fetch.mockResolvedValue({ json: async () => current });
+        const showBanner = jest.spyOn(plugin, '_showCookieBar');
+
+        await plugin._checkCookieConfigurationHash();
+
+        expect(showBanner).not.toHaveBeenCalled();
+        expect(plugin._getStoredCookieNames(current.languageId, current.hash)).toEqual(['cookie-preference', 'cookie-config-hash', 'analytics']);
+    });
+
+    test.each([
+        ['missing snapshot', null],
+        ['invalid JSON', '{invalid'],
+        ['a snapshot for another hash', JSON.stringify({ hash: 'different-hash', cookies: ['analytics'] })],
+        ['invalid cookie names', JSON.stringify({ hash: 'previous-hash', cookies: [null] })],
+    ])('%s falls back to asking for consent when the hash changes', async (_name, stored) => {
+        CookieStorage.setItem('cookie-preference', '1', 30);
+        CookieStorage.setItem('cookie-config-hash', JSON.stringify({ 'language-id': 'previous-hash' }), 30);
+        if (stored !== null) {
+            Storage.setItem('cookie-config-hash-language-id-cookies', stored);
+        }
+        fetch.mockResolvedValue({ json: async () => configuration('current-hash', []) });
+        const showBanner = jest.spyOn(plugin, '_showCookieBar');
+
+        await plugin._checkCookieConfigurationHash();
+
+        expect(showBanner).toHaveBeenCalledTimes(1);
+        expect(CookieStorage.getItem('cookie-preference')).toBeFalsy();
+    });
+
+    test('cookie names and hashes remain independent for each language', async () => {
+        const previous = configuration('previous-hash', ['analytics']);
+        plugin._applyCookieConfiguration(previous.elements, 'selected', [], previous.languageId);
+        const other = configuration('other-hash', ['advertising'], 'other-language-id');
+        plugin._applyCookieConfiguration(other.elements, 'required', [], other.languageId);
+        const current = configuration('current-hash', [], previous.languageId);
+        fetch.mockResolvedValue({ json: async () => current });
+        const showBanner = jest.spyOn(plugin, '_showCookieBar');
+
+        await plugin._checkCookieConfigurationHash();
+
+        expect(showBanner).not.toHaveBeenCalled();
+        expect(plugin._getStoredCookieNames(other.languageId, other.hash)).toEqual(['cookie-preference', 'cookie-config-hash', 'advertising']);
+        expect(plugin._getStoredHashForLanguage(CookieStorage.getItem('cookie-config-hash'), other.languageId)).toBe(other.hash);
+    });
+
+    test('direct group cookies also require renewed consent when added', async () => {
+        const previous = configuration('previous-hash', []);
+        plugin._applyCookieConfiguration(previous.elements, 'required', [], previous.languageId);
+        const current = configuration('current-hash', []);
+        current.elements.push({ cookie: 'advertising', value: '1', expiration: 30 });
+        fetch.mockResolvedValue({ json: async () => current });
+        const showBanner = jest.spyOn(plugin, '_showCookieBar');
+
+        await plugin._checkCookieConfigurationHash();
+
+        expect(showBanner).toHaveBeenCalledTimes(1);
+        expect(CookieStorage.getItem('advertising')).toBeFalsy();
+    });
+
+    test('unavailable browser storage preserves the hash-based consent fallback', async () => {
+        const previous = configuration('previous-hash', ['analytics']);
+        plugin._applyCookieConfiguration(previous.elements, 'all', [], previous.languageId);
+        jest.spyOn(Object.getPrototypeOf(Storage), 'getItem').mockImplementation(() => { throw new Error('Unavailable storage'); });
+        jest.spyOn(Object.getPrototypeOf(Storage), 'setItem').mockImplementation(() => { throw new Error('Unavailable storage'); });
+        fetch.mockResolvedValue({ json: async () => configuration('current-hash', []) });
+        const showBanner = jest.spyOn(plugin, '_showCookieBar');
+
+        await expect(plugin._checkCookieConfigurationHash()).resolves.toBeUndefined();
+
+        expect(showBanner).toHaveBeenCalledTimes(1);
+        expect(CookieStorage.getItem('cookie-preference')).toBeFalsy();
     });
 });

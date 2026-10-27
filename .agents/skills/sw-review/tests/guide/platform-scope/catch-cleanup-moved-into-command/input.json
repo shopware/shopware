@@ -1,0 +1,54 @@
+{
+  "persona": "maintainer",
+  "tier": "balanced",
+  "guides": [
+    "guides/platform-scope.md",
+    "guides/cache-and-asset-lifetime.md"
+  ],
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-catch-cleanup-moved-into-command",
+    "title": "fix(storefront): delete unused theme folders after theme:compile",
+    "body": "Runs the unused theme folder cleanup at the end of `theme:compile` and `theme:change`, because the daily scheduled task does not run reliably in some environments. Folders whose files are older than one day are deleted, and `--no-cleanup` keeps the previous behaviour.",
+    "labels": [
+      "external-contribution"
+    ],
+    "author": "synthetic",
+    "author_association": "CONTRIBUTOR",
+    "base_ref_name": "trunk",
+    "head_ref_name": "fix/theme-cleanup-after-compile",
+    "additions": 412,
+    "deletions": 181,
+    "changed_files": 11
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "RELEASE_INFO-6.7.md",
+    "src/Storefront/DependencyInjection/theme.php",
+    "src/Storefront/Theme/Command/ThemeChangeCommand.php",
+    "src/Storefront/Theme/Command/ThemeCompileCommand.php",
+    "src/Storefront/Theme/ScheduledTask/DeleteThemeFilesTaskHandler.php",
+    "src/Storefront/Theme/UnusedThemeDirectoryDeleter.php",
+    "tests/integration/Storefront/Theme/Command/ThemeChangeCommandTest.php",
+    "tests/unit/Storefront/Theme/Command/ThemeChangeCommandTest.php",
+    "tests/unit/Storefront/Theme/Command/ThemeCompileCommandTest.php",
+    "tests/unit/Storefront/Theme/ScheduledTask/DeleteThemeFilesTaskHandlerTest.php",
+    "tests/unit/Storefront/Theme/UnusedThemeDirectoryDeleterTest.php"
+  ],
+  "change_profile": {
+    "signals": [
+      "command",
+      "external",
+      "filesystem",
+      "php_src",
+      "release_docs",
+      "scheduled_task",
+      "sync_path_change",
+      "tests_changed"
+    ],
+    "guides": [
+      "platform-scope",
+      "cache-and-asset-lifetime"
+    ]
+  }
+}

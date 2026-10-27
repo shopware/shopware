@@ -1,3 +1,18 @@
+# 6.7.16.1
+
+## Security Fixes
+
+### Extension XML files are parsed without resolving document types
+
+App manifests, plugin `config.xml` files, custom entity, admin UI, flow, CMS and custom field XML files are now read through `Shopware\Core\Framework\Util\XmlParser`.
+It rejects any document type declaration before libxml can load an external DTD or entity.
+Previously the DTD was resolved before the document type was rejected, so an administrator who may upload extensions could read local files through a crafted manifest (XML external entity injection).
+
+Empty, missing or malformed extension XML files now fail with a `UtilException` (`UTIL__XML_PARSING_FAILED`, HTTP 400) instead of Symfony's `InvalidArgumentException`.
+The error messages are unchanged.
+The PHPStan rule `NoXmlUtilsParsingRule` in the core rule set reports direct calls to `XmlUtils::parse()` and `XmlUtils::loadFile()` outside tests.
+Use `XmlParser` for XML that may come from an extension.
+
 # 6.7.16.0 (upcoming)
 
 ## Critical Fixes

@@ -255,7 +255,7 @@ Additional safeguards:
 - **Audit logging**: tool invocations logged via `mcp` Monolog channel
 - **App HMAC**: app tool calls signed with `RequestSigner` using the app secret
 - **Signed result pointers**: `McpToolResultPointerSigner` signs the pointers in tool result links (`<id>.<expiry>.<hmac>`, bound to the principal). Reuse it for any new short-lived signed token instead of calling `hash_hmac` directly; it already has an injected clock, a constant-time compare and validated fields. Sharing it outside MCP is tracked in #21520.
-- **XML parsing**: `mcp.xml` parsed with `XmlUtils::loadFile()` to prevent XXE attacks
+- **XML parsing**: `mcp.xml` parsed with `XmlParserUtils::loadFile()`, which rejects document types before any DTD is resolved (XXE)
 - **Entity validation**: entity tools check `registry->has()` before ACL to give clear "entity not found" errors
 - **Global compile-time allowlist**: `shopware.mcp.allowed_tools` acts as an installation-wide safety switch (secondary to per-integration allowlists)
 - **Error visibility**: `McpExceptionListener` converts exceptions on the MCP route to JSON-RPC error responses instead of HTML. It also handles `POST /register` — some clients (e.g. Cursor) fall back to that path when the primary connection fails; without the listener they receive an HTML 404 or a storefront redirect that hides the real error. The gate is `POST` method (not `Accept: application/json`) since browser navigation to a register page uses GET.

@@ -2589,6 +2589,14 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 <details>
 
+## Removal of deprecated `ListingPlugin` properties
+
+The following deprecated properties of the `ListingPlugin` class in `listing.plugin.js` carrying single elements have been removed and were replaced respectively by new properties carrying `NodeList`s:
+
+- `_filterPanel` → `_filterPanels`
+- `activeFilterContainer` → `activeFilterContainers`
+- `ariaLiveContainer` → `ariaLiveContainers`
+
 ## `ThemeService::compileTheme()` received a new optional `$notifyOnAsyncCompletion` parameter
 
 `Shopware\Storefront\Theme\ThemeService::compileTheme()` received a new optional parameter `bool $notifyOnAsyncCompletion = true`. With asynchronous theme compilation, it controls whether the Administration user is notified once the compilation is completed. Call sites are not affected. Classes overriding this method had to add the parameter to keep a compatible signature:

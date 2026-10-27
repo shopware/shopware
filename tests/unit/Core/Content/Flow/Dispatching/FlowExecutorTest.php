@@ -86,6 +86,7 @@ class FlowExecutorTest extends TestCase
     protected function setUp(): void
     {
         $this->eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
+        $this->eventDispatcherMock->method('hasListeners')->willReturn(true);
         $this->appFlowActionProviderMock = $this->createMock(AppFlowActionProvider::class);
         $this->ruleLoaderMock = $this->createMock(AbstractRuleLoader::class);
         $this->scopeBuilderMock = static::createStub(FlowRuleScopeBuilder::class);

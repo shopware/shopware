@@ -59,6 +59,10 @@ final readonly class ExtensionDispatcher
      */
     public function publish(string $name, Extension $extension, callable $function): mixed
     {
+        if (!$this->hasListeners($name)) {
+            return $function(...$extension->getParams());
+        }
+
         $this->dispatcher->dispatch($extension, self::pre($name));
 
         if (!$extension->isPropagationStopped()) {

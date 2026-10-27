@@ -215,15 +215,20 @@ Shopware now verifies that `APP_URL` reaches this installation before it registe
 
 The verification stores its token in the `cache.app_url_verification` cache pool, which uses `cache.app` by default. With several app servers, this pool must be shared between them, for example on Redis.
 
-### Elasticsearch mapping update no longer fails on an indexed product price
+### Elasticsearch errors no longer fail `system:update:finish`
 
-`system:update:finish` failed with `mapper [price.c_<currencyId>.gross] cannot be changed from type [float] to [double]` when a product was indexed between the deployment of 6.7.16.0 and the update.
+`system:update:finish` no longer fails when the Elasticsearch mapping update or the scheduling of a reindex fails.
+The error is logged on the `elasticsearch` channel, and the update continues.
+`SHOPWARE_ES_THROW_EXCEPTION` no longer affects the system update.
+`bin/console es:mapping:update` still fails on a mapping error when `SHOPWARE_ES_THROW_EXCEPTION` is enabled.
+
+When the mapping update hits a field type conflict, the entity is scheduled for a reindex, and the system update dispatches it.
+If the reindex cannot be scheduled, it is retried on the next system update.
+
 The product mapping no longer declares a type for each currency of `product.price`.
 A dynamic template maps a newly indexed price as `double`.
-A price that was already indexed keeps its `float` type until you run `bin/console es:index`.
+A price indexed as `float` before the mapping was updated keeps its type until you run `bin/console es:index`.
 A sorting on `product.price` in a currency without any indexed price no longer fails.
-
-When a mapping update fails with a field type conflict, the entity is now scheduled for a reindex before the exception is thrown.
 
 # 6.7.16.0
 

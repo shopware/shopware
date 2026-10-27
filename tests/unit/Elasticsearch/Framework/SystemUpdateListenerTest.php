@@ -4,6 +4,8 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
@@ -34,7 +36,8 @@ class SystemUpdateListenerTest extends TestCase
             static::createStub(AbstractKeyValueStorage::class),
             static::createStub(ElasticsearchIndexer::class),
             $messageBus,
-            $mappingUpdater
+            $mappingUpdater,
+            new NullLogger(),
         );
 
         $listener(static::createStub(UpdatePostFinishEvent::class));
@@ -73,11 +76,84 @@ class SystemUpdateListenerTest extends TestCase
             $storage,
             $indexer,
             $messageBus,
-            $mappingUpdater
+            $mappingUpdater,
+            new NullLogger(),
         );
 
         $listener(static::createStub(UpdatePostFinishEvent::class));
 
         static::assertCount(1, $messageBus->getMessages());
+    }
+
+    public function testFailedMappingUpdateStillDispatchesReindex(): void
+    {
+        $messageBus = new CollectingMessageBus();
+
+        $mappingUpdater = static::createStub(IndexMappingUpdater::class);
+        $mappingUpdater
+            ->method('update')
+            ->willThrowException(new \RuntimeException('mapping conflict'));
+
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->method('get')->willReturn(['product']);
+        $storage->expects($this->once())->method('remove')->with(SystemUpdateListener::CONFIG_KEY);
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('error');
+
+        $listener = new SystemUpdateListener(
+            $storage,
+            $this->createIndexer(),
+            $messageBus,
+            $mappingUpdater,
+            $logger,
+        );
+
+        $listener(static::createStub(UpdatePostFinishEvent::class));
+
+        static::assertCount(1, $messageBus->getMessages());
+    }
+
+    public function testFailedReindexKeepsTheSchedule(): void
+    {
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->method('get')->willReturn(['product']);
+        $storage->expects($this->never())->method('remove');
+
+        $indexer = static::createStub(ElasticsearchIndexer::class);
+        $indexer
+            ->method('iterate')
+            ->willThrowException(new \RuntimeException('cluster unavailable'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('error');
+
+        $listener = new SystemUpdateListener(
+            $storage,
+            $indexer,
+            new CollectingMessageBus(),
+            static::createStub(IndexMappingUpdater::class),
+            $logger,
+        );
+
+        $listener(static::createStub(UpdatePostFinishEvent::class));
+    }
+
+    private function createIndexer(): ElasticsearchIndexer
+    {
+        $message = static::createStub(ElasticsearchIndexingMessage::class);
+        $message->method('getOffset')
+            ->willReturn(static::createStub(IndexerOffset::class));
+
+        $indexer = static::createStub(ElasticsearchIndexer::class);
+        $indexer
+            ->method('iterate')
+            ->willReturnCallback(static function ($offset) use ($message) {
+                return $offset === null
+                    ? $message
+                    : null;
+            });
+
+        return $indexer;
     }
 }

@@ -629,12 +629,12 @@ class WebhookOutboxStore
                 INSERT INTO webhook_event_log (
                     id, app_name, delivery_status, webhook_name, event_name,
                     app_version, url, only_live_version, created_at,
-                    serialized_webhook_message
+                    serialized_webhook_message, webhook_id
                 )
                 SELECT
                     :id, a.name, :status, w.name, w.event_name,
                     a.version, w.url, w.only_live_version, :createdAt,
-                    :serializedMessage
+                    :serializedMessage, w.id
                 FROM webhook w
                 LEFT JOIN app a ON (a.id = w.app_id)
                 WHERE w.id = :webhookId

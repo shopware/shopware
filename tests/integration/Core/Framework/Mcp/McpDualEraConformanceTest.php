@@ -2,33 +2,20 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Mcp;
 
-use Mcp\Capability\RegistryInterface;
-use Mcp\Schema\Enum\ProtocolVersion;
-use Mcp\Schema\Tool;
-use Mcp\Schema\Wire\McpHeader;
-use Mcp\Server;
-use Mcp\Server\Builder;
-use Mcp\Server\Stateless\RequestMeta;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
-use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
-use Shopware\Core\Framework\Mcp\Controller\McpServerController;
-use Shopware\Core\Framework\Mcp\Controller\StoreApiMcpServerController;
-use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
-use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
-use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Resource\McpResourceCacheHint;
-use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
-use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Kernel;
-use Shopware\Core\PlatformRequest;
+use Shopware\Tests\Integration\Core\Framework\Mcp\DualEra\DualEraServerFixture;
+use Shopware\Tests\Integration\Core\Framework\Mcp\DualEra\McpEra;
+use Shopware\Tests\Integration\Core\Framework\Mcp\DualEra\McpEraClient;
+use Shopware\Tests\Integration\Core\Framework\Mcp\DualEra\OversizedResultTool;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,7 +25,7 @@ use Symfony\Component\HttpFoundation\Response;
  * in adr/2026-09-24-mcp-stateless-era-degradation-policy.md.
  *
  * Both servers stay on the handshake era unless `shopware.mcp.protocol_era` says `auto`, which the shared
- * test kernel does not. This test therefore boots a kernel of its own, builds a server with both legs from
+ * test kernel does not. This test therefore boots a kernel of its own, builds a server with both eras from
  * the same builder and swaps it into both controllers of that kernel. The shared test kernel stays untouched.
  *
  * @internal
@@ -87,14 +74,23 @@ class McpDualEraConformanceTest extends TestCase
     }
 
     /**
+     * @return iterable<string, array{string}>
+     */
+    public static function endpointProvider(): iterable
+    {
+        yield 'Admin API endpoint' => [self::ADMIN];
+        yield 'Store API endpoint' => [self::STORE];
+    }
+
+    /**
      * @return iterable<string, array{string, McpEra}>
      */
     public static function endpointAndEraProvider(): iterable
     {
-        yield 'Admin API endpoint, handshake era' => [self::ADMIN, McpEra::Handshake];
-        yield 'Admin API endpoint, stateless era' => [self::ADMIN, McpEra::Stateless];
-        yield 'Store API endpoint, handshake era' => [self::STORE, McpEra::Handshake];
-        yield 'Store API endpoint, stateless era' => [self::STORE, McpEra::Stateless];
+        yield 'Admin API endpoint on the handshake era' => [self::ADMIN, McpEra::Handshake];
+        yield 'Admin API endpoint on the stateless era' => [self::ADMIN, McpEra::Stateless];
+        yield 'Store API endpoint on the handshake era' => [self::STORE, McpEra::Handshake];
+        yield 'Store API endpoint on the stateless era' => [self::STORE, McpEra::Stateless];
     }
 
     /**
@@ -106,69 +102,71 @@ class McpDualEraConformanceTest extends TestCase
         yield 'stateless era' => [McpEra::Stateless];
     }
 
-    /**
-     * Guards every other scenario: a stateless request must really be answered by the stateless leg, not
-     * fall through to the handshake leg, or the tests below would prove nothing about that era.
-     */
-    #[DataProvider('endpointAndEraProvider')]
-    public function testEachEraIsAnsweredByItsOwnLeg(string $endpoint, McpEra $era): void
+    #[DataProvider('endpointProvider')]
+    #[TestDox('The $_dataName answers a handshake request with a session')]
+    public function testHandshakeRequestIsAnsweredWithASession(string $endpoint): void
     {
-        $client = $this->client($endpoint, $era);
+        $client = $this->client($endpoint, McpEra::Handshake);
 
-        $client->result('tools/list');
+        $result = $client->result('tools/list');
 
-        if ($era === McpEra::Handshake) {
-            static::assertNotSame('', $client->sessionId(), 'the handshake leg mints an Mcp-Session-Id');
-            static::assertArrayNotHasKey('resultType', $client->lastResponse()['result']);
-
-            return;
-        }
-
-        static::assertNull($client->lastSessionIdHeader(), 'the stateless leg must not mint an Mcp-Session-Id');
-        static::assertSame('complete', $client->lastResponse()['result']['resultType'] ?? null, 'only the 2026-07-28 codec stamps resultType');
+        static::assertNotSame('', $client->sessionId(), 'the handshake era mints an Mcp-Session-Id');
+        static::assertArrayNotHasKey('resultType', $result, 'only the stateless era stamps resultType');
     }
 
-    /**
-     * The modern era has no `initialize`. A client learns what the server offers through `server/discover`.
-     */
-    #[DataProvider('endpointAndEraProvider')]
-    public function testCapabilitiesAreDiscoverable(string $endpoint, McpEra $era): void
+    #[DataProvider('endpointProvider')]
+    #[TestDox('The $_dataName answers a stateless request without a session, so the other scenarios really test that era')]
+    public function testStatelessRequestIsAnsweredWithoutASession(string $endpoint): void
     {
-        if ($era === McpEra::Handshake) {
-            $capabilities = $this->client($endpoint, $era)->initializeResult()['capabilities'] ?? null;
-        } else {
-            $discover = $this->client($endpoint, $era)->result('server/discover');
-            $capabilities = $discover['capabilities'] ?? null;
-            static::assertContains('2026-07-28', $discover['supportedVersions'] ?? [], (string) json_encode($discover));
-        }
+        $client = $this->client($endpoint, McpEra::Stateless);
+
+        $result = $client->result('tools/list');
+
+        static::assertNull($client->lastSessionIdHeader(), 'the stateless era must not mint an Mcp-Session-Id');
+        static::assertSame('complete', $result['resultType'] ?? null, 'only the stateless era stamps resultType');
+    }
+
+    #[DataProvider('endpointProvider')]
+    #[TestDox('The $_dataName announces its capabilities in the initialize result of the handshake era')]
+    public function testHandshakeCapabilitiesAreInTheInitializeResult(string $endpoint): void
+    {
+        $capabilities = $this->client($endpoint, McpEra::Handshake)->initializeResult()['capabilities'] ?? null;
 
         static::assertIsArray($capabilities);
         static::assertArrayHasKey('tools', $capabilities);
     }
 
-    /**
-     * Without `?toolsets=` only the discovery meta-tools are advertised. The stateless era has no session to
-     * enable a toolset in, so it advertises `shopware-tool-search` alone.
-     */
-    #[DataProvider('endpointAndEraProvider')]
-    public function testToolsListWithoutToolsetsAdvertisesOnlyDiscoveryTools(string $endpoint, McpEra $era): void
+    #[DataProvider('endpointProvider')]
+    #[TestDox('The $_dataName announces its capabilities through server/discover on the stateless era, which has no initialize')]
+    public function testStatelessCapabilitiesAreDiscoverable(string $endpoint): void
     {
-        $tools = $this->client($endpoint, $era)->toolNames();
+        $discover = $this->client($endpoint, McpEra::Stateless)->result('server/discover');
 
-        if ($era === McpEra::Handshake) {
-            static::assertEqualsCanonicalizing(self::DISCOVERY_TOOLS, $tools);
+        static::assertContains(McpEra::Stateless->protocolVersion()->value, $discover['supportedVersions'] ?? [], (string) json_encode($discover));
+        static::assertIsArray($discover['capabilities'] ?? null);
+        static::assertArrayHasKey('tools', $discover['capabilities']);
+    }
 
-            return;
-        }
+    #[DataProvider('endpointProvider')]
+    #[TestDox('Without ?toolsets= the $_dataName advertises only the discovery tools on the handshake era')]
+    public function testHandshakeToolsListWithoutToolsetsAdvertisesOnlyDiscoveryTools(string $endpoint): void
+    {
+        $tools = $this->client($endpoint, McpEra::Handshake)->toolNames();
+
+        static::assertEqualsCanonicalizing(self::DISCOVERY_TOOLS, $tools);
+    }
+
+    #[DataProvider('endpointProvider')]
+    #[TestDox('Without ?toolsets= the $_dataName advertises only tool search on the stateless era, which has no session to enable a toolset in')]
+    public function testStatelessToolsListWithoutToolsetsAdvertisesOnlyToolSearch(string $endpoint): void
+    {
+        $tools = $this->client($endpoint, McpEra::Stateless)->toolNames();
 
         static::assertSame(['shopware-tool-search'], $tools);
     }
 
-    /**
-     * `?toolsets=` is the way to choose tools that works on both eras: the toolset is advertised from the
-     * first `tools/list`, without any earlier request.
-     */
     #[DataProvider('endpointAndEraProvider')]
+    #[TestDox('The $_dataName advertises the toolsets of ?toolsets= from the first tools/list')]
     public function testToolsetsInTheUrlAreAdvertisedFromTheFirstToolsList(string $endpoint, McpEra $era): void
     {
         [$toolset, $tool] = self::toolsetOf($endpoint);
@@ -180,82 +178,92 @@ class McpDualEraConformanceTest extends TestCase
     }
 
     /**
-     * SEP-2549 cache hints exist on 2026-07-28 only. A list differs per principal and per `?toolsets=`, so it
-     * is `private`, with a short TTL as the fallback for clients that do not follow list changes.
+     * @return iterable<string, array{string, string}>
      */
-    #[DataProvider('endpointAndEraProvider')]
-    public function testListsCarryPrivateCacheHintsOnTheStatelessEraOnly(string $endpoint, McpEra $era): void
+    public static function listRequestProvider(): iterable
     {
-        [$toolset] = self::toolsetOf($endpoint);
+        yield 'Admin API endpoint' => [self::ADMIN, ''];
+        yield 'Admin API endpoint with ?toolsets=' => [self::ADMIN, '?toolsets=entity'];
+        yield 'Store API endpoint' => [self::STORE, ''];
+        yield 'Store API endpoint with ?toolsets=' => [self::STORE, '?toolsets=store-api'];
+    }
 
-        foreach (['', '?toolsets=' . $toolset] as $query) {
-            $result = $this->client($endpoint, $era, $query)->result('tools/list');
+    #[DataProvider('listRequestProvider')]
+    #[TestDox('The tool list of the $_dataName carries no cache hints on the handshake era')]
+    public function testHandshakeListsCarryNoCacheHints(string $endpoint, string $query): void
+    {
+        $result = $this->client($endpoint, McpEra::Handshake, $query)->result('tools/list');
 
-            if ($era === McpEra::Handshake) {
-                static::assertArrayNotHasKey('ttlMs', $result, $query);
-                static::assertArrayNotHasKey('cacheScope', $result, $query);
-
-                continue;
-            }
-
-            static::assertSame(60_000, $result['ttlMs'] ?? null, $query);
-            static::assertSame('private', $result['cacheScope'] ?? null, $query);
-        }
-
-        if ($era === McpEra::Stateless) {
-            $discover = $this->client($endpoint, $era)->result('server/discover');
-            static::assertSame(60_000, $discover['ttlMs'] ?? null);
-            static::assertSame('private', $discover['cacheScope'] ?? null);
-        }
+        static::assertArrayNotHasKey('ttlMs', $result);
+        static::assertArrayNotHasKey('cacheScope', $result);
     }
 
     /**
-     * @return iterable<string, array{McpEra, string, int}>
+     * A list differs per principal and per `?toolsets=`, so it is `private`, with a short TTL as the fallback
+     * for clients that do not follow list changes.
+     */
+    #[DataProvider('listRequestProvider')]
+    #[TestDox('The tool list of the $_dataName carries a private cache hint on the stateless era')]
+    public function testStatelessListsCarryPrivateCacheHints(string $endpoint, string $query): void
+    {
+        $result = $this->client($endpoint, McpEra::Stateless, $query)->result('tools/list');
+
+        static::assertSame(60_000, $result['ttlMs'] ?? null);
+        static::assertSame('private', $result['cacheScope'] ?? null);
+    }
+
+    #[DataProvider('endpointProvider')]
+    #[TestDox('server/discover of the $_dataName carries a private cache hint on the stateless era')]
+    public function testStatelessServerDiscoverCarriesPrivateCacheHints(string $endpoint): void
+    {
+        $discover = $this->client($endpoint, McpEra::Stateless)->result('server/discover');
+
+        static::assertSame(60_000, $discover['ttlMs'] ?? null);
+        static::assertSame('private', $discover['cacheScope'] ?? null);
+    }
+
+    /**
+     * @return iterable<string, array{string, int}>
      */
     public static function referenceResourceProvider(): iterable
     {
-        foreach (McpEra::cases() as $era) {
-            yield 'shopware://entities, ' . $era->name => [$era, 'shopware://entities', McpResourceCacheHint::DEPLOYMENT_TTL_MS];
-            yield 'shopware://currencies, ' . $era->name => [$era, 'shopware://currencies', McpResourceCacheHint::SHOP_CONFIGURATION_TTL_MS];
-        }
-    }
-
-    /**
-     * The reference resources rarely change and name their own TTL on 2026-07-28. The handshake answer
-     * stays as it was.
-     */
-    #[DataProvider('referenceResourceProvider')]
-    public function testReferenceResourcesCarryTheirOwnTtlOnTheStatelessEraOnly(McpEra $era, string $uri, int $ttlMs): void
-    {
-        $read = $this->client(self::ADMIN, $era)->result('resources/read', ['uri' => $uri]);
-
-        static::assertSame($uri, $read['contents'][0]['uri'] ?? null, (string) json_encode($read));
-
-        if ($era === McpEra::Handshake) {
-            static::assertArrayNotHasKey('ttlMs', $read);
-            static::assertArrayNotHasKey('cacheScope', $read);
-
-            return;
-        }
-
-        static::assertSame($ttlMs, $read['ttlMs'] ?? null);
-        static::assertSame('private', $read['cacheScope'] ?? null);
+        yield 'shopware://entities' => ['shopware://entities', McpResourceCacheHint::DEPLOYMENT_TTL_MS];
+        yield 'shopware://currencies' => ['shopware://currencies', McpResourceCacheHint::SHOP_CONFIGURATION_TTL_MS];
     }
 
     /**
      * @return iterable<string, array{string}>
      */
-    public static function endpointProvider(): iterable
+    public static function referenceResourceUriProvider(): iterable
     {
-        yield 'Admin API endpoint' => [self::ADMIN];
-        yield 'Store API endpoint' => [self::STORE];
+        yield 'shopware://entities' => ['shopware://entities'];
+        yield 'shopware://currencies' => ['shopware://currencies'];
     }
 
-    /**
-     * Regression baseline: on the handshake era, enabling a toolset advertises it on the next
-     * `tools/list` of the same session, which also delivers the queued `list_changed`.
-     */
+    #[DataProvider('referenceResourceUriProvider')]
+    #[TestDox('The reference resource $_dataName carries no cache hints on the handshake era')]
+    public function testHandshakeReferenceResourcesCarryNoCacheHints(string $uri): void
+    {
+        $read = $this->client(self::ADMIN, McpEra::Handshake)->result('resources/read', ['uri' => $uri]);
+
+        static::assertSame($uri, $read['contents'][0]['uri'] ?? null, (string) json_encode($read));
+        static::assertArrayNotHasKey('ttlMs', $read);
+        static::assertArrayNotHasKey('cacheScope', $read);
+    }
+
+    #[DataProvider('referenceResourceProvider')]
+    #[TestDox('The reference resource $_dataName names its own TTL on the stateless era, because it rarely changes')]
+    public function testStatelessReferenceResourcesCarryTheirOwnTtl(string $uri, int $ttlMs): void
+    {
+        $read = $this->client(self::ADMIN, McpEra::Stateless)->result('resources/read', ['uri' => $uri]);
+
+        static::assertSame($uri, $read['contents'][0]['uri'] ?? null, (string) json_encode($read));
+        static::assertSame($ttlMs, $read['ttlMs'] ?? null);
+        static::assertSame('private', $read['cacheScope'] ?? null);
+    }
+
     #[DataProvider('endpointProvider')]
+    #[TestDox('On the handshake era the $_dataName advertises an enabled toolset on the next tools/list of the session, together with list_changed')]
     public function testToolsetEnableAdvertisesTheToolsetOnTheHandshakeEra(string $endpoint): void
     {
         [$toolset, $tool] = self::toolsetOf($endpoint);
@@ -269,114 +277,107 @@ class McpDualEraConformanceTest extends TestCase
     }
 
     /**
-     * The stateless era has no session to keep an enabled toolset in, so neither toolset session tool is
-     * advertised there. A client that kept a name from a handshake connection gets an `isError` that points
-     * to `?toolsets=` and tool search, never a success while the next `tools/list` stays unchanged.
+     * @return iterable<string, array{string, string, array<string, string>}>
      */
-    #[DataProvider('endpointProvider')]
-    public function testToolsetSessionToolsAnswerAnErrorOnTheStatelessEra(string $endpoint): void
+    public static function toolsetSessionToolProvider(): iterable
     {
-        [$toolset, $tool] = self::toolsetOf($endpoint);
-        $client = $this->client($endpoint, McpEra::Stateless);
-
-        foreach (['shopware-toolset-enable' => ['toolset' => $toolset], 'shopware-toolsets-list' => []] as $name => $arguments) {
-            $result = $client->callTool($name, $arguments);
-
-            static::assertTrue($result['isError'] ?? false, $name . ' must answer with an error without a session: ' . json_encode($result));
-            static::assertStringContainsString('?toolsets=', McpEraClient::text($result), $name);
-            static::assertStringContainsString('shopware-tool-search', McpEraClient::text($result), $name);
-        }
-
-        static::assertNotContains($tool, $client->toolNames());
+        yield 'shopware-toolset-enable on the Admin API endpoint' => [self::ADMIN, 'shopware-toolset-enable', ['toolset' => 'entity']];
+        yield 'shopware-toolsets-list on the Admin API endpoint' => [self::ADMIN, 'shopware-toolsets-list', []];
+        yield 'shopware-toolset-enable on the Store API endpoint' => [self::STORE, 'shopware-toolset-enable', ['toolset' => 'store-api']];
+        yield 'shopware-toolsets-list on the Store API endpoint' => [self::STORE, 'shopware-toolsets-list', []];
     }
 
     /**
-     * The server instructions of the stateless era point to `?toolsets=` and tool search, not to the toolset
-     * session tools it does not offer. The handshake era keeps its instructions.
+     * @param array<string, string> $arguments
      */
-    #[DataProvider('endpointAndEraProvider')]
-    public function testServerInstructionsOnlyNameToolsTheEraOffers(string $endpoint, McpEra $era): void
+    #[DataProvider('toolsetSessionToolProvider')]
+    #[TestDox('On the stateless era $_dataName answers with an error that points to ?toolsets= and tool search, because there is no session to keep a toolset in')]
+    public function testToolsetSessionToolAnswersAnErrorOnTheStatelessEra(string $endpoint, string $name, array $arguments): void
     {
-        $client = $this->client($endpoint, $era);
-        $instructions = $era === McpEra::Handshake
-            ? $client->initializeResult()['instructions'] ?? null
-            : $client->result('server/discover')['instructions'] ?? null;
+        [, $tool] = self::toolsetOf($endpoint);
+        $client = $this->client($endpoint, McpEra::Stateless);
+
+        $result = $client->callTool($name, $arguments);
+
+        static::assertTrue($result['isError'] ?? false, 'a toolset session tool must answer with an error without a session: ' . json_encode($result));
+        static::assertStringContainsString('?toolsets=', McpEraClient::text($result));
+        static::assertStringContainsString('shopware-tool-search', McpEraClient::text($result));
+        static::assertNotContains($tool, $client->toolNames(), 'the call must not change the advertised tools');
+    }
+
+    #[DataProvider('endpointProvider')]
+    #[TestDox('The server instructions of the $_dataName name the toolset session tools on the handshake era')]
+    public function testHandshakeServerInstructionsNameTheToolsetSessionTools(string $endpoint): void
+    {
+        $instructions = $this->client($endpoint, McpEra::Handshake)->initializeResult()['instructions'] ?? null;
 
         static::assertIsString($instructions);
         static::assertStringContainsString('shopware-tool-search', $instructions);
+        static::assertStringContainsString('shopware-toolset-enable', $instructions);
+    }
 
-        if ($era === McpEra::Handshake) {
-            static::assertStringContainsString('shopware-toolset-enable', $instructions);
+    #[DataProvider('endpointProvider')]
+    #[TestDox('The server instructions of the $_dataName point to ?toolsets= and tool search on the stateless era, not to the toolset session tools it does not offer')]
+    public function testStatelessServerInstructionsPointToToolsetsInTheUrl(string $endpoint): void
+    {
+        $instructions = $this->client($endpoint, McpEra::Stateless)->result('server/discover')['instructions'] ?? null;
 
-            return;
-        }
-
+        static::assertIsString($instructions);
+        static::assertStringContainsString('shopware-tool-search', $instructions);
         static::assertStringContainsString('?toolsets=', $instructions);
         static::assertStringNotContainsString('shopware-toolset-enable', $instructions);
         static::assertStringNotContainsString('shopware-toolsets-list', $instructions);
     }
 
-    /**
-     * The `shopware-context` prompt of the Admin API endpoint guides the model through discovery, so on the
-     * stateless era it must not send it to the toolset session tools that era does not offer.
-     */
-    #[DataProvider('eraProvider')]
-    public function testContextPromptOnlyNamesToolsTheEraOffers(McpEra $era): void
+    #[TestDox('The shopware-context prompt of the Admin API endpoint names shopware-toolset-enable on the handshake era')]
+    public function testHandshakeContextPromptNamesToolsetEnable(): void
     {
-        $messages = $this->client(self::ADMIN, $era)->result('prompts/get', ['name' => 'shopware-context'])['messages'] ?? null;
-        static::assertIsArray($messages);
-        $text = (string) json_encode($messages);
+        $text = $this->contextPrompt(McpEra::Handshake);
 
         static::assertStringContainsString('shopware-tool-search', $text);
+        static::assertStringContainsString('shopware-toolset-enable', $text);
+    }
 
-        if ($era === McpEra::Handshake) {
-            static::assertStringContainsString('shopware-toolset-enable', $text);
+    #[TestDox('The shopware-context prompt of the Admin API endpoint points to ?toolsets= on the stateless era, not to the toolset session tools it does not offer')]
+    public function testStatelessContextPromptPointsToToolsetsInTheUrl(): void
+    {
+        $text = $this->contextPrompt(McpEra::Stateless);
 
-            return;
-        }
-
+        static::assertStringContainsString('shopware-tool-search', $text);
         static::assertStringContainsString('?toolsets=', $text);
         static::assertStringNotContainsString('shopware-toolset-enable', $text);
         static::assertStringNotContainsString('shopware-toolsets-list', $text);
     }
 
-    /**
-     * On the stateless era tool search is the way to find a tool, so it names the toolset of every match for
-     * `?toolsets=` and does not lead to the toolset session tools.
-     */
     #[DataProvider('endpointProvider')]
+    #[TestDox('On the stateless era tool search of the $_dataName names the toolset of every match for ?toolsets=')]
     public function testToolSearchPointsToToolsetsInTheUrlOnTheStatelessEra(string $endpoint): void
     {
         [$toolset, $tool] = self::toolsetOf($endpoint);
-        $client = $this->client($endpoint, McpEra::Stateless);
 
-        $structured = $client->callTool('shopware-tool-search', ['query' => $tool, 'maxResults' => 20])['structuredContent'] ?? null;
+        $structured = $this->client($endpoint, McpEra::Stateless)->callTool('shopware-tool-search', ['query' => $tool, 'maxResults' => 20])['structuredContent'] ?? null;
+
         static::assertIsArray($structured);
         static::assertIsString($structured['_meta']['usage'] ?? null);
-
-        $toolsets = [];
-        foreach ($structured['result'] ?? [] as $match) {
-            static::assertIsArray($match);
-            $toolsets[$match['tool']['name']] = $match['toolset'] ?? null;
-        }
-
-        static::assertSame($toolset, $toolsets[$tool] ?? null, (string) json_encode($structured));
+        static::assertSame($toolset, self::toolsetsByTool($structured)[$tool] ?? null, (string) json_encode($structured));
         static::assertStringContainsString('?toolsets=', $structured['_meta']['usage']);
         static::assertStringNotContainsString('shopware-toolset-enable', $structured['_meta']['usage']);
-
-        $hidden = $client->callTool('shopware-tool-search', ['query' => 'toolset enable list', 'maxResults' => 20])['structuredContent']['result'] ?? [];
-        static::assertIsArray($hidden);
-        static::assertSame([], array_values(array_intersect(
-            array_map(static fn (array $match): string => $match['tool']['name'], $hidden),
-            ['shopware-toolset-enable', 'shopware-toolsets-list'],
-        )));
     }
 
-    /**
-     * A result above 100 KB is stored and linked with a `resource_link` whose pointer is signed for the
-     * principal. Any later request of that principal reads it, on either era.
-     */
+    #[DataProvider('endpointProvider')]
+    #[TestDox('On the stateless era tool search of the $_dataName does not find the toolset session tools it does not offer')]
+    public function testToolSearchDoesNotFindToolsetSessionToolsOnTheStatelessEra(string $endpoint): void
+    {
+        $structured = $this->client($endpoint, McpEra::Stateless)->callTool('shopware-tool-search', ['query' => 'toolset enable list', 'maxResults' => 20])['structuredContent'] ?? null;
+
+        static::assertIsArray($structured);
+        $found = array_keys(self::toolsetsByTool($structured));
+        static::assertNotContains('shopware-toolset-enable', $found);
+        static::assertNotContains('shopware-toolsets-list', $found);
+    }
+
     #[DataProvider('eraProvider')]
+    #[TestDox('An Admin API result above 100 KB on the $_dataName is linked with a signed pointer that any later request of the same principal can read')]
     public function testAnOversizedAdminResultIsLinkedAndReadableByTheSamePrincipal(McpEra $era): void
     {
         $browser = $this->adminBrowser();
@@ -393,16 +394,13 @@ class McpDualEraConformanceTest extends TestCase
             $read = $this->client(self::ADMIN, $readingEra, browser: $browser)->result('resources/read', ['uri' => $uri]);
             $stored = json_decode($read['contents'][0]['text'] ?? '', true, 512, \JSON_THROW_ON_ERROR);
 
-            // both eras negotiate a revision since 2025-06-18, which stores the bare result data
-            static::assertIsList($stored, $readingEra->name . ': ' . json_encode($read));
+            static::assertIsList($stored, $readingEra->name . ' reads the bare result data, which both eras negotiate: ' . json_encode($read));
             static::assertNotSame([], $stored);
         }
     }
 
-    /**
-     * On the Store API the principal is the sales channel plus the `sw-context-token`.
-     */
     #[DataProvider('eraProvider')]
+    #[TestDox('A Store API result above 100 KB on the $_dataName is readable by any later request with the same sales channel and context token')]
     public function testAnOversizedStoreResultIsLinkedAndReadableWithTheSameContextToken(McpEra $era): void
     {
         $browser = $this->storeBrowser();
@@ -419,11 +417,8 @@ class McpDualEraConformanceTest extends TestCase
         }
     }
 
-    /**
-     * A Store API client without `sw-context-token` gets a token minted for this one request, which no
-     * later request could present. Its result is therefore returned inline.
-     */
     #[DataProvider('eraProvider')]
+    #[TestDox('A Store API client without sw-context-token gets the result inline on the $_dataName, because no later request could present its one-off token')]
     public function testAStoreClientWithoutContextTokenGetsTheResultInline(McpEra $era): void
     {
         $browser = $this->storeBrowser();
@@ -436,34 +431,36 @@ class McpDualEraConformanceTest extends TestCase
 
         static::assertNotTrue($result['isError'] ?? false, (string) json_encode($result));
         static::assertSame([], self::resourceLinks($result), 'nothing may be stored that no later request could read');
-        static::assertStringContainsString(OversizedResultTool::rows()[999]['text'], McpEraClient::text($result) . json_encode($result['structuredContent'] ?? null));
+        static::assertGreaterThan(100_000, \strlen((string) json_encode($result)), 'the whole result must be inline');
     }
 
     /**
-     * Handshake clients end their session with `DELETE`, which discards it. A stateless client never sends one.
-     * A server that serves both eras answers a `DELETE` as the handshake revisions describe (2026-07-28,
-     * "Earlier Streamable HTTP Revisions"); 405 is only for servers that serve 2026-07-28 alone. Without a
-     * session id the handshake leg answers 400, as 2025-11-25 asks of servers that require a session.
+     * The handshake era uses sessions, which a client ends with `DELETE`.
      */
-    #[DataProvider('endpointAndEraProvider')]
-    public function testDelete(string $endpoint, McpEra $era): void
+    #[DataProvider('endpointProvider')]
+    #[TestDox('DELETE ends a handshake session on the $_dataName')]
+    public function testDeleteEndsAHandshakeSession(string $endpoint): void
     {
-        $client = $this->client($endpoint, $era);
-
-        if ($era === McpEra::Handshake) {
-            $client->result('tools/list');
-            $response = $client->delete();
-
-            // The specification names no success status; mcp/sdk 0.9 answers 200.
-            static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
-            static::assertSame(Response::HTTP_NOT_FOUND, $client->post('tools/list')->getStatusCode(), 'the session must be gone after DELETE');
-
-            return;
-        }
+        $client = $this->client($endpoint, McpEra::Handshake);
+        $client->result('tools/list');
 
         $response = $client->delete();
 
-        // Every DELETE goes to the handshake leg, which has no session to end and does not know 2026-07-28.
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), 'the specification names no success status, the MCP SDK answers 200: ' . $response->getContent());
+        static::assertSame(Response::HTTP_NOT_FOUND, $client->post('tools/list')->getStatusCode(), 'the session must be gone after DELETE');
+    }
+
+    /**
+     * The stateless era has no sessions, so a server that speaks only that era answers `DELETE` with 405.
+     * A server that speaks both, like this one, handles `DELETE` like a handshake server:
+     * it answers 400 when no session id is sent.
+     */
+    #[DataProvider('endpointProvider')]
+    #[TestDox('DELETE without a session id is a bad request on the $_dataName, which also speaks the handshake era')]
+    public function testDeleteWithoutASessionIdIsABadRequest(string $endpoint): void
+    {
+        $response = $this->client($endpoint, McpEra::Stateless)->delete();
+
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
     }
 
@@ -529,376 +526,28 @@ class McpDualEraConformanceTest extends TestCase
 
         return $this->createSalesChannelBrowser(self::$dualEraKernel);
     }
-}
-
-/**
- * @internal
- */
-enum McpEra
-{
-    /**
-     * Revisions up to 2025-11-25: `initialize`, then `Mcp-Session-Id` on every request.
-     */
-    case Handshake;
 
     /**
-     * Revision 2026-07-28: no session, every request carries its protocol version and client
-     * capabilities in `params._meta`.
-     */
-    case Stateless;
-}
-
-/**
- * A minimal MCP client speaking one era. A stateless request is built from scratch rather than adapted from
- * a handshake one: it needs the `_meta` envelope `RequestMeta::fromParams()` requires, and the SEP-2243
- * headers the stateless leg validates against the body.
- *
- * @internal
- */
-final class McpEraClient
-{
-    private const HANDSHAKE_VERSION = ProtocolVersion::V2025_11_25;
-    private const STATELESS_VERSION = ProtocolVersion::V2026_07_28;
-
-    private ?string $sessionId = null;
-
-    /**
-     * @var array<string, mixed>|null
-     */
-    private ?array $initializeResult = null;
-
-    /**
-     * @var array<string, mixed>
-     */
-    private array $lastResponse = [];
-
-    /**
-     * @var list<string>
-     */
-    private array $lastNotifications = [];
-
-    private int $id = 0;
-
-    public function __construct(
-        private readonly KernelBrowser $browser,
-        private readonly string $uri,
-        private readonly McpEra $era,
-    ) {
-    }
-
-    /**
-     * @param array<string, mixed> $params
+     * @param array<string, mixed> $structured
      *
-     * @return array<string, mixed>
+     * @return array<string, mixed> the toolset of each tool search match, by tool name
      */
-    public function result(string $method, array $params = []): array
+    private static function toolsetsByTool(array $structured): array
     {
-        $this->post($method, $params);
-        // an event stream is a StreamedResponse without content; the browser keeps what it sent
-        $content = $this->browser->getInternalResponse()->getContent();
+        $matches = $structured['result'] ?? [];
+        static::assertIsArray($matches);
 
-        $this->lastNotifications = [];
-        $body = null;
-        foreach (self::messages($content) as $message) {
-            if (\array_key_exists('id', $message)) {
-                $body = $message;
-            } else {
-                $this->lastNotifications[] = (string) ($message['method'] ?? '');
-            }
-        }
-
-        TestCase::assertIsArray($body['result'] ?? null, \sprintf('%s %s failed: %s', $this->era->name, $method, $content));
-        $this->lastResponse = $body;
-
-        return $body['result'];
+        return array_column(array_map(
+            static fn (array $match): array => ['name' => $match['tool']['name'], 'toolset' => $match['toolset'] ?? null],
+            $matches,
+        ), 'toolset', 'name');
     }
 
-    /**
-     * The methods of the notifications delivered together with the last result.
-     *
-     * @return list<string>
-     */
-    public function lastNotifications(): array
+    private function contextPrompt(McpEra $era): string
     {
-        return $this->lastNotifications;
-    }
+        $messages = $this->client(self::ADMIN, $era)->result('prompts/get', ['name' => 'shopware-context'])['messages'] ?? null;
+        static::assertIsArray($messages);
 
-    /**
-     * @param array<string, mixed> $arguments
-     *
-     * @return array<string, mixed>
-     */
-    public function callTool(string $name, array $arguments = []): array
-    {
-        return $this->result('tools/call', ['name' => $name, 'arguments' => $arguments === [] ? new \stdClass() : $arguments]);
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function toolNames(): array
-    {
-        $tools = $this->result('tools/list')['tools'] ?? [];
-        TestCase::assertIsArray($tools);
-
-        return array_values(array_map(static fn (array $tool): string => $tool['name'], $tools));
-    }
-
-    /**
-     * @param array<string, mixed> $params
-     */
-    public function post(string $method, array $params = []): Response
-    {
-        $server = ['CONTENT_TYPE' => 'application/json'];
-
-        if ($this->era === McpEra::Handshake) {
-            $server['HTTP_MCP_SESSION_ID'] = $this->sessionId();
-            $server['HTTP_MCP_PROTOCOL_VERSION'] = self::HANDSHAKE_VERSION->value;
-        } else {
-            $params['_meta'] = [
-                RequestMeta::PROTOCOL_VERSION => self::STATELESS_VERSION->value,
-                RequestMeta::CLIENT_CAPABILITIES => new \stdClass(),
-                RequestMeta::CLIENT_INFO => ['name' => 'mcp-dual-era-conformance-test', 'version' => '1.0'],
-            ];
-            $server['HTTP_MCP_PROTOCOL_VERSION'] = self::STATELESS_VERSION->value;
-            $server['HTTP_MCP_METHOD'] = $method;
-
-            $name = McpHeader::nameFor($method, $params);
-            if ($name !== null) {
-                $server['HTTP_MCP_NAME'] = (string) McpHeader::encode($name);
-            }
-        }
-
-        return $this->send('POST', $server, [
-            'jsonrpc' => '2.0',
-            'method' => $method,
-            'params' => $params === [] ? new \stdClass() : $params,
-            'id' => ++$this->id,
-        ]);
-    }
-
-    public function delete(): Response
-    {
-        $server = $this->era === McpEra::Handshake
-            ? ['HTTP_MCP_SESSION_ID' => $this->sessionId()]
-            : ['HTTP_MCP_PROTOCOL_VERSION' => self::STATELESS_VERSION->value];
-
-        return $this->send('DELETE', $server);
-    }
-
-    public function sessionId(): string
-    {
-        if ($this->sessionId === null) {
-            $this->initialize();
-        }
-        \assert($this->sessionId !== null);
-
-        return $this->sessionId;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function initializeResult(): array
-    {
-        if ($this->initializeResult === null) {
-            $this->initialize();
-        }
-        \assert($this->initializeResult !== null);
-
-        return $this->initializeResult;
-    }
-
-    public function lastSessionIdHeader(): ?string
-    {
-        return $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function lastResponse(): array
-    {
-        return $this->lastResponse;
-    }
-
-    /**
-     * The text of every text block of a tool result.
-     *
-     * @param array<string, mixed> $result
-     */
-    public static function text(array $result): string
-    {
-        $text = '';
-        foreach ($result['content'] ?? [] as $block) {
-            if (\is_array($block) && ($block['type'] ?? null) === 'text') {
-                $text .= $block['text'] . "\n";
-            }
-        }
-
-        return $text;
-    }
-
-    /**
-     * A response is one JSON message, or an event stream when queued notifications go out with it.
-     *
-     * @return list<array<string, mixed>>
-     */
-    private static function messages(string $content): array
-    {
-        $payloads = [$content];
-        if (!str_starts_with(ltrim($content), '{')) {
-            preg_match_all('/^data: ?(.*)$/m', $content, $matches);
-            $payloads = $matches[1];
-        }
-
-        $messages = [];
-        foreach ($payloads as $payload) {
-            $message = json_decode($payload, true, 512, \JSON_THROW_ON_ERROR);
-            TestCase::assertIsArray($message, $content);
-            $messages[] = $message;
-        }
-
-        return $messages;
-    }
-
-    private function initialize(): void
-    {
-        TestCase::assertSame(McpEra::Handshake, $this->era, 'the stateless era has no initialize');
-
-        $response = $this->send('POST', ['CONTENT_TYPE' => 'application/json'], [
-            'jsonrpc' => '2.0',
-            'method' => 'initialize',
-            'params' => [
-                'protocolVersion' => self::HANDSHAKE_VERSION->value,
-                'capabilities' => new \stdClass(),
-                'clientInfo' => ['name' => 'mcp-dual-era-conformance-test', 'version' => '1.0'],
-            ],
-            'id' => ++$this->id,
-        ]);
-
-        $sessionId = $response->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID);
-        TestCase::assertIsString($sessionId, 'initialize did not return an Mcp-Session-Id: ' . $response->getContent());
-
-        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        TestCase::assertIsArray($body['result'] ?? null, (string) $response->getContent());
-
-        $this->sessionId = $sessionId;
-        $this->initializeResult = $body['result'];
-
-        $this->send('POST', ['CONTENT_TYPE' => 'application/json', 'HTTP_MCP_SESSION_ID' => $sessionId], [
-            'jsonrpc' => '2.0',
-            'method' => 'notifications/initialized',
-        ]);
-    }
-
-    /**
-     * @param array<string, string> $server
-     * @param array<string, mixed>|null $body
-     */
-    private function send(string $method, array $server, ?array $body = null): Response
-    {
-        $this->browser->request(
-            $method,
-            $this->uri,
-            [],
-            [],
-            $server,
-            $body !== null ? json_encode($body, \JSON_THROW_ON_ERROR) : null,
-        );
-
-        return $this->browser->getResponse();
-    }
-}
-
-/**
- * Builds a server with both protocol legs from the builder the container configured, and puts it into
- * both MCP controllers. The container must not have created the controllers yet. The builder is put back
- * to the handshake-only pin right away, so nothing else built from it changes.
- *
- * @internal
- */
-final class DualEraServerFixture
-{
-    public static function install(ContainerInterface $container): void
-    {
-        $container->set(McpServerController::class, new McpServerController(
-            self::dualEraServer($container, 'mcp.server.admin.builder'),
-            $container->get(McpHttpTransportFactory::class),
-            $container->get(McpRateLimiter::class),
-            $container->get(McpSessionIdValidator::class),
-            $container->get(McpAllowlistProvider::class),
-            $container->get(LoggerInterface::class),
-            $container->get(McpAllowlistFilter::class),
-            $container->get(McpListChangedNotifier::class),
-        ));
-
-        $storeNotifier = $container->get('mcp.store_api.list_changed_notifier');
-        \assert($storeNotifier instanceof McpListChangedNotifier);
-
-        $container->set(StoreApiMcpServerController::class, new StoreApiMcpServerController(
-            self::dualEraServer($container, 'mcp.server.store_api.builder'),
-            $container->get(McpHttpTransportFactory::class),
-            $container->get(McpRateLimiter::class),
-            $container->get(McpSessionIdValidator::class),
-            $container->get(LoggerInterface::class),
-            $storeNotifier,
-        ));
-
-        OversizedResultTool::register($container);
-    }
-
-    private static function dualEraServer(ContainerInterface $container, string $builderId): Server
-    {
-        $builder = $container->get($builderId);
-        \assert($builder instanceof Builder);
-
-        try {
-            return $builder->setModernVersions([ProtocolVersion::V2026_07_28])->build();
-        } finally {
-            $builder->withoutModernEra();
-        }
-    }
-}
-
-/**
- * A Store API tool whose result is above the inline limit of {@see McpToolResponse}. No shipped Store API
- * tool returns that much, so the large-result path of that endpoint needs its own.
- *
- * @internal
- */
-final class OversizedResultTool extends McpToolResponse
-{
-    public const NAME = 'dual-era-test-oversized-result';
-
-    private const REGISTRY = 'mcp.server.store_api.registry';
-
-    public function __invoke(): string
-    {
-        return $this->success(self::rows());
-    }
-
-    /**
-     * @return list<array{id: int, text: string}>
-     */
-    public static function rows(): array
-    {
-        return array_map(
-            static fn (int $id): array => ['id' => $id, 'text' => \sprintf('row-%04d-%s', $id, str_repeat('x', 100))],
-            range(0, 999),
-        );
-    }
-
-    public static function register(ContainerInterface $container): void
-    {
-        $tool = new self();
-
-        $registry = $container->get(self::REGISTRY);
-        \assert($registry instanceof RegistryInterface);
-        $registry->getTools();
-        $registry->registerTool(
-            new Tool(self::NAME, null, ['type' => 'object', 'properties' => new \stdClass()], 'Returns a result above the inline limit.', null),
-            $tool(...),
-        );
+        return (string) json_encode($messages);
     }
 }

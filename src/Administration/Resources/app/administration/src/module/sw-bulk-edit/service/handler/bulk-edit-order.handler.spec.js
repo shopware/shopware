@@ -13,6 +13,7 @@ function getBulkEditOrderHandler(orders) {
     };
     handler.orderStateMachineService = {
         transitionOrderDeliveryState: jest.fn(() => Promise.resolve()),
+        transitionOrderTransactionState: jest.fn(() => Promise.resolve()),
     };
 
     return handler;
@@ -28,6 +29,27 @@ function createOrder(primaryOrderDeliveryId, deliveryIds) {
             null,
             null,
             deliveryIds.map((id) => ({ id })),
+        ),
+    };
+}
+
+function createOrderWithTransactions(transactionStates) {
+    return {
+        id: 'order-id',
+        transactions: new EntityCollection(
+            '/order-transaction',
+            'order_transaction',
+            null,
+            null,
+            Object.entries(transactionStates).map(
+                ([
+                    id,
+                    technicalName,
+                ]) => ({
+                    id,
+                    stateMachineState: { technicalName },
+                }),
+            ),
         ),
     };
 }
@@ -77,6 +99,56 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-order.handler', () => {
         expect(handler.orderStateMachineService.transitionOrderDeliveryState).toHaveBeenCalledWith(
             'first-delivery',
             'ship',
+            expect.any(Object),
+            {},
+            expect.any(Object),
+        );
+    });
+
+    it('should sort transactions like the order list', () => {
+        const handler = getBulkEditOrderHandler([]);
+        const transactionCriteria = handler.getCriteria().getAssociation('transactions');
+
+        expect(transactionCriteria.hasAssociation('stateMachineState')).toBe(true);
+        expect(transactionCriteria.sortings).toEqual([
+            expect.objectContaining({ field: 'createdAt', order: 'ASC' }),
+        ]);
+    });
+
+    it('should transition the first transaction that is not cancelled or failed', async () => {
+        const handler = getBulkEditOrderHandler([
+            createOrderWithTransactions({
+                'cancelled-transaction': 'cancelled',
+                'failed-transaction': 'failed',
+                'open-transaction': 'open',
+                'newer-open-transaction': 'open',
+            }),
+        ]);
+
+        await handler.bulkEditStatus(['order-id'], [{ field: 'orderTransactions', value: 'paid' }]);
+
+        expect(handler.orderStateMachineService.transitionOrderTransactionState).toHaveBeenCalledWith(
+            'open-transaction',
+            'paid',
+            expect.any(Object),
+            {},
+            expect.any(Object),
+        );
+    });
+
+    it('should transition the last transaction when all transactions are cancelled or failed', async () => {
+        const handler = getBulkEditOrderHandler([
+            createOrderWithTransactions({
+                'failed-transaction': 'failed',
+                'cancelled-transaction': 'cancelled',
+            }),
+        ]);
+
+        await handler.bulkEditStatus(['order-id'], [{ field: 'orderTransactions', value: 'reopen' }]);
+
+        expect(handler.orderStateMachineService.transitionOrderTransactionState).toHaveBeenCalledWith(
+            'cancelled-transaction',
+            'reopen',
             expect.any(Object),
             {},
             expect.any(Object),

@@ -172,7 +172,7 @@ class IndexMappingUpdaterTest extends TestCase
 
     public function testUpdatePersistsReindexBeforeRethrowing(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper->method('getIndexName')->willReturn('index');
         $elasticsearchHelper->method('allowIndexing')->willReturn(true);
         $elasticsearchHelper

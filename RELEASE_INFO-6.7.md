@@ -1,3 +1,15 @@
+# 6.7.16.1
+
+## Security Fixes
+
+### User, access key and admin integration writes are restricted
+
+A non-admin may only update or delete their own user and their own access keys through the Admin API.
+Writes to other users or their access keys are rejected with `403` and `USER__USER_CHANGE_NOT_ALLOWED`.
+A non-admin may no longer update or delete an admin integration; these writes are rejected with `403` and `INTEGRATION__ADMIN_INTEGRATION_CHANGE_NOT_ALLOWED`.
+Administrators are unaffected.
+The user of an access key can no longer be changed after the key was created, also not by administrators.
+
 # 6.7.16.0 (upcoming)
 
 ## Critical Fixes

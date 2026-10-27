@@ -166,11 +166,12 @@ class McpAllowlistEnforcementTest extends TestCase
         static::assertNull($this->allowlistColumn('user', Uuid::fromHexToBytes($victimId)));
     }
 
-    public function testWritingAnotherUsersAllowlistSucceedsWithUserUpdate(): void
+    public function testAnAdminCanWriteAnotherUsersAllowlist(): void
     {
         $victimId = $this->victimUserId();
 
         $caller = $this->getBrowser(true, [], ['api_action_user_mcp-allowlist', 'user:update']);
+        $this->connection()->update('user', ['admin' => 1], ['id' => $this->userId($caller)]);
 
         $this->postAllowlist($caller, $victimId, ['tools' => ['shopware-entity-search']]);
 
@@ -184,6 +185,19 @@ class McpAllowlistEnforcementTest extends TestCase
             ['tools' => ['shopware-entity-search']],
             json_decode($stored, true, 512, \JSON_THROW_ON_ERROR),
         );
+    }
+
+    public function testANonAdminCannotWriteAnotherUsersAllowlistEvenWithUserUpdate(): void
+    {
+        $victimId = $this->victimUserId();
+
+        // only the user itself or an admin may change a user
+        $caller = $this->getBrowser(true, [], ['api_action_user_mcp-allowlist', 'user:update']);
+
+        $this->postAllowlist($caller, $victimId, ['tools' => ['shopware-entity-search']]);
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $caller->getResponse()->getStatusCode());
+        static::assertNull($this->allowlistColumn('user', Uuid::fromHexToBytes($victimId)));
     }
 
     public function testWritingAnIntegrationAllowlistRequiresIntegrationUpdate(): void

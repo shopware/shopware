@@ -12,6 +12,7 @@ class UserException extends HttpException
     public const MISSING_REQUEST_PARAMETER_CODE = 'SYSTEM_USER__MISSING_REQUEST_PARAMETER';
     final public const SALES_CHANNEL_NOT_FOUND = 'USER__SALES_CHANNEL_NOT_FOUND';
     final public const INVALID_APP_URL = 'USER__INVALID_APP_URL';
+    final public const USER_CHANGE_NOT_ALLOWED = 'USER__USER_CHANGE_NOT_ALLOWED';
 
     public static function missingRequestParameter(string $name, string $path = ''): self
     {
@@ -39,6 +40,15 @@ class UserException extends HttpException
             self::INVALID_APP_URL,
             'The APP_URL "{{ appUrl }}" is not a valid http(s) URL.',
             ['appUrl' => $appUrl]
+        );
+    }
+
+    public static function userChangeNotAllowed(): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::USER_CHANGE_NOT_ALLOWED,
+            'A user and its access keys can only be changed or deleted by that user or an admin.'
         );
     }
 }

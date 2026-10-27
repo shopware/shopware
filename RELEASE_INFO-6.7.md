@@ -50,6 +50,16 @@ Webhooks created through the Admin API without an app now belong to the user or 
 
   The list must not be empty or contain empty entries, every role must exist, and every role must be held by the owner unless the owner is an administrator. Otherwise the write is rejected with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `aclRoleIds`. If the event is not covered by the listed roles, `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` is returned, also when an administrator changes somebody else's webhook.
 
+### MCP sessions on `/api/_mcp` are bound to the principal that opened them
+
+A session on the Admin API MCP endpoint now belongs to the user or integration that sent `initialize`.
+A request with the `Mcp-Session-Id` of a session opened by someone else gets the same `404` as an unknown session.
+The session stays valid when the client gets a new access token for the same user or integration.
+
+Sessions opened before the update have no owner and are answered with `404` once.
+MCP clients start a new session on `404`, so no action is needed.
+The stateless protocol era and `/store-api/_mcp` are not affected.
+
 ### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
 
 The new `bin/console sales-channel:file:enable [ids...] [--all]` command switches on `llms.txt` and `AGENTS.md` for Storefront and Headless sales channels.

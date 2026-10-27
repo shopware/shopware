@@ -153,6 +153,9 @@ It keeps working: `McpToolResultParser` reads it into a `McpToolResult`, and bot
 The string can't carry a summary or error details.
 `success()`, `error()`, `requirePrivilege()`, `missingPrivilegesError()`, `invalidCriteriaError()`, `decodeJsonOrError()` and `executeWithDryRun()` stay for extensions that declare `__invoke(): string`; each has a `…Result` counterpart.
 They are `@deprecated tag:v6.8.0` and trigger a deprecation, which throws once the `v6.8.0.0` flag is active.
+`McpToolResultReferenceHandler` does the same for a PHP tool that returns the string, so a hand-built string is covered too.
+App tools are registered as closures and are not reported, because the envelope stays their response format.
+This deprecates the PHP return value only; the legacy text format that old protocol revisions receive is not affected.
 All core tools return `McpToolResult`.
 `McpToolLegacyStringResultRule` (identifier `shopware.mcpToolLegacyStringResult`) reports a tool method with a native `string` return type, including `?string` and unions.
 It is registered in `core-rules.neon` only, so it guards core without failing extension builds; it moves to `rules.neon` with 6.8.0.

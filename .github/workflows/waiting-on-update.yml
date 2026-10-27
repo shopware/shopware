@@ -48,13 +48,20 @@ jobs:
       actions: write
     steps:
       # a workflow_dispatch sent with GITHUB_TOKEN is the one event that still starts a run
-      - env:
-          GH_TOKEN: ${{ github.token }}
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
           NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-        run: |
-          set -euo pipefail
-          gh workflow run waiting-on-update.yml --repo "$GITHUB_REPOSITORY" --ref "$DEFAULT_BRANCH" -f number="$NUMBER"
+        with:
+          # retries server errors only, 4xx fail at once
+          retries: 3
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              ...context.repo,
+              workflow_id: 'waiting-on-update.yml',
+              ref: process.env.DEFAULT_BRANCH,
+              inputs: { number: process.env.NUMBER },
+            })
 
   update:
     name: Update the pull request's waiting-on state

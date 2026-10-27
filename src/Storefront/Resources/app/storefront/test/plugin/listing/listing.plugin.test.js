@@ -62,6 +62,164 @@ describe('ListingPlugin tests', () => {
         expect(typeof listingPlugin).toBe('object');
     });
 
+    /** @deprecated tag:v6.8.0 - Tests for legacy filter panel properties. Remove in v6.8.0 */
+    describe('legacy filter panel properties', () => {
+        beforeEach(() => {
+            document.body.append(document.querySelector('.cms-element-sidebar-filter').cloneNode(true));
+            listingPlugin = new ListingPlugin(document.querySelector('[data-listing="true"]'));
+        });
+
+        test('initializes the legacy properties with the first matching elements', () => {
+            expect(listingPlugin._filterPanel).toBe(listingPlugin._filterPanels[0]);
+            expect(listingPlugin.activeFilterContainer).toBe(listingPlugin.activeFilterContainers[0]);
+            expect(listingPlugin.ariaLiveContainer).toBe(listingPlugin.ariaLiveContainers[0]);
+        });
+
+        test.each(['external', 'existing', 'null'])('updates aria-live regions after %s container reassignment', (target) => {
+            const replacement = target === 'external'
+                ? document.createElement('div')
+                : target === 'existing' ? listingPlugin.ariaLiveContainers[1] : null;
+            listingPlugin.ariaLiveContainer = replacement;
+            const containers = new Set(listingPlugin.ariaLiveContainers);
+
+            if (replacement) {
+                containers.add(replacement);
+            }
+
+            const setters = [...containers].map(container => jest.spyOn(container, 'innerHTML', 'set'));
+            listingPlugin.el.querySelector('.js-listing-wrapper').dataset.ariaLiveText = 'Showing 2 products.';
+
+            listingPlugin._updateAriaLive();
+
+            containers.forEach(container => expect(container.textContent).toBe('Showing 2 products.'));
+            setters.forEach(setter => expect(setter).toHaveBeenCalledTimes(1));
+        });
+
+        test('updates a reassigned aria-live container when no matching regions exist', () => {
+            document.querySelectorAll('.filter-panel-aria-live').forEach(container => container.remove());
+            listingPlugin = new ListingPlugin(document.querySelector('[data-listing="true"]'));
+
+            expect(listingPlugin.ariaLiveContainers).toHaveLength(0);
+            expect(listingPlugin.ariaLiveContainer).toBeNull();
+            expect(() => listingPlugin._updateAriaLive()).not.toThrow();
+
+            const replacement = document.createElement('div');
+            listingPlugin.ariaLiveContainer = replacement;
+            listingPlugin.el.querySelector('.js-listing-wrapper').dataset.ariaLiveText = 'Showing 2 products.';
+
+            listingPlugin._updateAriaLive();
+
+            expect(replacement.textContent).toBe('Showing 2 products.');
+        });
+
+        test('does not update reassigned or existing aria-live containers when updates are disabled', () => {
+            const replacement = document.createElement('div');
+            replacement.textContent = 'Previous results';
+            listingPlugin.ariaLiveContainer = replacement;
+            listingPlugin.options.ariaLiveUpdates = false;
+            listingPlugin.ariaLiveContainers.forEach(container => {
+                container.textContent = 'Previous results';
+            });
+
+            listingPlugin._updateAriaLive();
+
+            expect(replacement.textContent).toBe('Previous results');
+            listingPlugin.ariaLiveContainers.forEach(container => {
+                expect(container.textContent).toBe('Previous results');
+            });
+        });
+
+        test.each(['external', 'existing', 'null'])('updates loading indicators after %s panel reassignment', (target) => {
+            const replacement = target === 'external'
+                ? document.createElement('div')
+                : target === 'existing' ? listingPlugin._filterPanels[1] : null;
+            listingPlugin._filterPanel = replacement;
+
+            listingPlugin.addLoadingIndicatorClass();
+
+            listingPlugin._filterPanels.forEach(panel => {
+                expect(panel.classList.contains('is-loading')).toBe(true);
+            });
+
+            if (replacement) {
+                expect(replacement.classList.contains('is-loading')).toBe(true);
+            }
+
+            listingPlugin.removeLoadingIndicatorClass();
+
+            listingPlugin._filterPanels.forEach(panel => {
+                expect(panel.classList.contains('is-loading')).toBe(false);
+            });
+
+            if (replacement) {
+                expect(replacement.classList.contains('is-loading')).toBe(false);
+            }
+        });
+
+        test('loading indicator methods are safe when no filter panel exists', () => {
+            document.querySelectorAll('.filter-panel').forEach(panel => panel.remove());
+            listingPlugin = new ListingPlugin(document.querySelector('[data-listing="true"]'));
+
+            expect(listingPlugin._filterPanel).toBeNull();
+            expect(() => listingPlugin.addLoadingIndicatorClass()).not.toThrow();
+            expect(() => listingPlugin.removeLoadingIndicatorClass()).not.toThrow();
+        });
+
+        test.each(['external', 'existing', 'null'])('renders labels and binds resets after %s container reassignment', (target) => {
+            const replacement = target === 'external'
+                ? document.createElement('div')
+                : target === 'existing' ? listingPlugin.activeFilterContainers[1] : null;
+            listingPlugin.activeFilterContainer = replacement;
+            listingPlugin._registry = [{
+                getLabels: () => [{ id: 'brand', label: 'Brand' }],
+            }];
+            listingPlugin._showResetAll = true;
+            const reset = jest.spyOn(listingPlugin, 'resetFilter').mockImplementation(() => {});
+            const resetAll = jest.spyOn(listingPlugin, 'resetAllFilter').mockImplementation(() => {});
+            const containers = new Set(listingPlugin.activeFilterContainers);
+
+            if (replacement) {
+                containers.add(replacement);
+            }
+
+            listingPlugin._buildLabels();
+            listingPlugin._buildLabels();
+
+            containers.forEach(container => {
+                expect(container.querySelectorAll('.filter-active')).toHaveLength(1);
+                expect(container.querySelectorAll('.filter-reset-all')).toHaveLength(1);
+
+                const label = container.querySelector('.filter-active');
+
+                label.click();
+
+                expect(reset).toHaveBeenLastCalledWith(label);
+
+                container.querySelector('.filter-reset-all').click();
+            });
+
+            expect(reset).toHaveBeenCalledTimes(containers.size);
+            expect(resetAll).toHaveBeenCalledTimes(containers.size);
+
+            listingPlugin._registry = [];
+            listingPlugin._buildLabels();
+
+            containers.forEach(container => expect(container.innerHTML).toBe(''));
+        });
+
+        test('supports createResetAllButton without an argument after container reassignment', () => {
+            const replacement = document.createElement('div');
+            listingPlugin.activeFilterContainer = replacement;
+            listingPlugin._showResetAll = true;
+            const resetAll = jest.spyOn(listingPlugin, 'resetAllFilter').mockImplementation(() => {});
+
+            listingPlugin.createResetAllButton();
+            replacement.querySelector('.filter-reset-all').click();
+
+            expect(resetAll).toHaveBeenCalledTimes(1);
+        });
+    });
+
     test.each([0, 1, 2, 3])('only synchronizes multiple filter panels with %i panels present', (panelCount) => {
         const panel = document.querySelector('.filter-panel');
 

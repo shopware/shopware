@@ -53,6 +53,8 @@ export default class ListingPlugin extends Plugin {
         this._urlFilterParams = Object.fromEntries(new URLSearchParams(window.location.search).entries());
 
         this._filterPanels = document.querySelectorAll(this.options.filterPanelSelector);
+        /** @deprecated tag:v6.8.0 - _filterPanel is deprecated. Use _filterPanels instead. */
+        this._filterPanel = this._filterPanels[0] ?? null;
         this._filterPanelActive = this._filterPanels.length > 0;
         this._filterSnapshots = this._filterPanels.length > 1 ? new WeakMap() : null;
 
@@ -495,6 +497,18 @@ export default class ListingPlugin extends Plugin {
                 this.createResetAllButton(activeFilterContainer);
             }
         });
+
+        /** @deprecated tag:v6.8.0 - Backwards compatibility for activeFilterContainer which can be reassigned. Remove the following if statement in v6.8.0 together with activeFilterContainer. */
+        if (this.activeFilterContainer && !Array.from(this.activeFilterContainers).includes(this.activeFilterContainer)) {
+            this.activeFilterContainer.innerHTML = labelHtml;
+
+            const resetButtons = this.activeFilterContainer.querySelectorAll(this.options.activeFilterLabelSelector);
+
+            if (labelHtml.length) {
+                this._registerLabelEvents(resetButtons);
+                this.createResetAllButton(this.activeFilterContainer);
+            }
+        }
     }
 
     _registerLabelEvents(resetButtons) {
@@ -605,6 +619,9 @@ export default class ListingPlugin extends Plugin {
      */
     addLoadingIndicatorClass() {
         this._filterPanels.forEach((filterPanel) => filterPanel.classList.add(this.options.loadingIndicatorClass));
+
+        /** @deprecated tag:v6.8.0 - Backwards compatibility for _filterPanel which can be reassigned. Remove next line in v6.8.0 together with _filterPanel. */
+        this._filterPanel?.classList.add(this.options.loadingIndicatorClass);
     }
 
     /**
@@ -612,6 +629,9 @@ export default class ListingPlugin extends Plugin {
      */
     removeLoadingIndicatorClass() {
         this._filterPanels.forEach((filterPanel) => filterPanel.classList.remove(this.options.loadingIndicatorClass));
+
+        /** @deprecated tag:v6.8.0 - Backwards compatibility for _filterPanel which can be reassigned. Remove next line in v6.8.0 together with _filterPanel. */
+        this._filterPanel?.classList.remove(this.options.loadingIndicatorClass);
     }
 
     /**
@@ -749,7 +769,8 @@ export default class ListingPlugin extends Plugin {
             return;
         }
 
-        if (this.ariaLiveContainers.length === 0) {
+        /** @deprecated tag:v6.8.0 - Remove the ariaLiveContainer check together with the legacy property. */
+        if (this.ariaLiveContainers.length === 0 && !this.ariaLiveContainer) {
             return;
         }
 
@@ -758,6 +779,11 @@ export default class ListingPlugin extends Plugin {
         this.ariaLiveContainers.forEach(ariaLiveContainer => {
             ariaLiveContainer.innerHTML = listingResultsEl.dataset.ariaLiveText;
         });
+
+        /** @deprecated tag:v6.8.0 - Backwards compatibility for ariaLiveContainer which can be reassigned. Remove the following if statement in v6.8.0 together with ariaLiveContainer. */
+        if (this.ariaLiveContainer && !Array.from(this.ariaLiveContainers).includes(this.ariaLiveContainer)) {
+            this.ariaLiveContainer.innerHTML = listingResultsEl.dataset.ariaLiveText;
+        }
     }
 
     /**

@@ -96,6 +96,7 @@ A migration adds them to order line items created since the update that introduc
 Order line items without `payload.garanLabel` show no GARAN label, so write it with `guaranteeMonths`, `brand` and `modelIdentifier` if you create orders through the Admin API or the Sync API.
 Headless frontends can read the payload instead of calling `/store-api/product/{productId}/garan-label`.
 The `sw_garan_label_nested` Twig filter is deprecated.
+
 ### Order line items of older orders get their product type
 
 This release fills `payload.productType` for every product and custom order line item that does not have it yet, based on the line item's deprecated `states`.
@@ -135,6 +136,7 @@ Shops now uninstall a service once the service registry lists it as `retired` in
 ### Live state transition retries
 
 Live state transitions batch history and state writes. `EntityWriteEvent` subscribers can receive multiple entities: filter with `getCommandsForEntity()` and make pre-write work idempotent or compensate it through `addError()`. `WriteCommandExceptionEvent` and error callbacks can run before SQL executes, and each failed attempt runs its error callbacks before it is retried. Retries stop once success callbacks or written listeners begin, or compensation fails. MariaDB error `1020` is now retryable.
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request
@@ -221,6 +223,7 @@ If you override the template of one of these components and render your own fiel
 ```html
 <mt-text-field v-bind="$attrs" @update:model-value="$emit('update:modelValue', $event)" />
 ```
+
 ### Known core deprecations log an error in next-major mode
 
 Core usages that are not migrated yet are listed in `src/Administration/Resources/app/administration/src/core/deprecation-baseline.json`.
@@ -228,6 +231,7 @@ In next-major mode, a deprecation with a listed message logs a console error ins
 Any other deprecation still throws.
 
 ## API
+
 To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
 It bundles the Administration and its plugins, but not apps.
 Changes to plugin files reload the page instead of using HMR.
@@ -256,6 +260,7 @@ While the mobile filter dialog is open, its live region is preferred over backgr
 `ListingPlugin.createResetAllButton(activeFilterContainer)` now accepts the target active-filter container as an argument.
 Update custom calls and overrides to pass this argument, including calls to `super.createResetAllButton(activeFilterContainer)`.
 Omitting the argument still falls back to `this.activeFilterContainer` in 6.7, but this fallback is deprecated and will be removed in 6.8.
+
 ### Deprecation of unused custom `$offcanvas-zindex` SCSS variable
 
 The custom offcanvas z-index SCSS variable `$offcanvas-zindex` is not used anymore and is therefore deprecated. To override the offcanvas z-index or calculate your own z-index based on it, use the bootstrap variable `$zindex-offcanvas` instead. The deprecated `$offcanvas-zindex` SCSS variable and its respective `--offcanvas-zindex` CSS root variable now reflect the actual Bootstrap offcanvas z-index (`1045` instead of `1050`). Additionally, a new `--offcanvas-backdrop-zindex` CSS root variable has been added.
@@ -285,6 +290,7 @@ The `ProductDetailReadiness` and `ProductListingReadiness` system checks only pr
 Pages that extensions such as Dynamic Access restrict by rules no longer fail `bin/console system:check --context=pre_rollout`.
 If a sales channel has no visible page, the check reports `SKIPPED`.
 A sales channel whose domain cannot be resolved is now reported as its own failure, and the other sales channels are still checked.
+
 ### App registration requires a verified `APP_URL`
 
 Shopware now verifies that `APP_URL` reaches this installation before it registers the shop with an app server, including the Shopware service registry. This applies in every environment and to every app server. The shop must be able to reach itself under `APP_URL`, including `/api/app-system/shop/verify` when it sits behind HTTP authentication or an IP allowlist. If the verification fails, the app installation, update or secret rotation is aborted with the reason. The error code `FRAMEWORK__APP_URL_FAILED_VERIFICATION` (HTTP 502) means the verification request did not reach this installation; `FRAMEWORK__APP_URL_VERIFICATION_UNAVAILABLE` (HTTP 503) means it failed temporarily, for example on a timeout or rate limit, and can be retried. The shop ID change strategies `move-shop-permanently` and `reinstall-apps` verify the new `APP_URL` first, and leave the shop ID unchanged when it fails. Run `bin/console app:url:verify` to check the configuration.

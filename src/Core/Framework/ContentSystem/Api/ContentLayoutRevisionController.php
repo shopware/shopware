@@ -3,10 +3,10 @@
 namespace Shopware\Core\Framework\ContentSystem\Api;
 
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutBranch;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevision;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionService;
-use Shopware\Core\Framework\ContentSystem\Layout\Revision\RevisionGraph;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -67,7 +67,7 @@ class ContentLayoutRevisionController
 
         return new JsonResponse([
             'branch' => $this->branch($result['branch']),
-            'layout' => $this->tree($result['head']),
+            'layout' => $this->tree($result['layout']),
         ]);
     }
 
@@ -92,21 +92,25 @@ class ContentLayoutRevisionController
         );
 
         return new JsonResponse([
-            'revision' => $this->revisionSummary($result['graph'], $result['revision']),
+            'revision' => $this->revisionSummary($result['revision'], [$result['branch']->id], false),
             'branch' => $this->branch($result['branch']),
-            'layout' => $this->tree($result['revision']),
+            'layout' => $this->tree($result['layout']),
         ]);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/revisions', name: 'api.action.content_system.layout.revision.list', requirements: ['layoutId' => self::ID_PATTERN], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_GET])]
     public function listRevisions(string $layoutId): JsonResponse
     {
-        $graph = $this->revisionService->listRevisions($layoutId);
+        $graph = $this->revisionService->history($layoutId);
 
         return new JsonResponse([
             'published' => $graph->published,
             'revisions' => array_map(
-                fn (LayoutRevision $revision): array => $this->revisionSummary($graph, $revision),
+                fn (LayoutRevision $revision): array => $this->revisionSummary(
+                    $revision,
+                    $graph->branchIdsAt($revision->id),
+                    $revision->id === $graph->published,
+                ),
                 $graph->newestFirst(),
             ),
         ]);
@@ -119,6 +123,7 @@ class ContentLayoutRevisionController
             $layoutId,
             $this->string($data, 'revisionId') ?? '',
             $this->string($data, 'deleteBranchId'),
+            $this->string($data, 'expectedPublished'),
             $context,
         );
 
@@ -141,26 +146,30 @@ class ContentLayoutRevisionController
     }
 
     /**
+     * @param list<string> $branchIds
+     *
      * @return array{id: string, parent: string|null, createdAt: string, createdBy: string|null, branches: list<string>, published: bool}
      */
-    private function revisionSummary(RevisionGraph $graph, LayoutRevision $revision): array
+    private function revisionSummary(LayoutRevision $revision, array $branchIds, bool $published): array
     {
         return [
             'id' => $revision->id,
             'parent' => $revision->parent,
             'createdAt' => $revision->createdAt->format(\DATE_ATOM),
             'createdBy' => $revision->createdBy,
-            'branches' => $graph->branchIdsAt($revision->id),
-            'published' => $revision->id === $graph->published,
+            'branches' => $branchIds,
+            'published' => $published,
         ];
     }
 
     /**
+     * @param list<StoredElement> $tree
+     *
      * @return list<array<string, mixed>>
      */
-    private function tree(LayoutRevision $revision): array
+    private function tree(array $tree): array
     {
-        return $this->treeCodec->encode(new StoredTree($revision->tree));
+        return $this->treeCodec->encode(new StoredTree($tree));
     }
 
     /**

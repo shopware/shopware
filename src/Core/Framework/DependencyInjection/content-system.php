@@ -78,7 +78,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLa
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionService;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionStore;
-use Shopware\Core\Framework\ContentSystem\Layout\Revision\RevisionGraphCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
@@ -852,15 +851,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     // Layout revision graph (drafts as branches, publish moves the published pointer)
-    $services->set(RevisionGraphCodec::class)
-        ->args([
-            service(StoredTreeCodec::class),
-        ]);
-
     $services->set(LayoutRevisionStore::class)
         ->args([
             service(Connection::class),
-            service(RevisionGraphCodec::class),
+            service(StoredTreeCodec::class),
         ]);
 
     $services->set(LayoutRevisionService::class)

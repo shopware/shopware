@@ -55,7 +55,7 @@ class WriteOutcomeTest extends TestCase
         static::assertCount(1, $rows);
         static::assertTrue($rows[0]->isNew);
         static::assertSame('/insert', $rows[0]->path);
-        static::assertSame(['p1', 2], [$rows[0]->get('product_number'), $rows[0]->get('stock')]);
+        static::assertSame(['p1', 2], [$rows[0]->getResultingValue('product_number'), $rows[0]->getResultingValue('stock')]);
     }
 
     public function testALaterUpdateDoesNotHideAnEarlierOne(): void
@@ -70,7 +70,7 @@ class WriteOutcomeTest extends TestCase
 
         static::assertCount(1, $rows);
         static::assertSame('/first', $rows[0]->path);
-        static::assertSame(2, $rows[0]->get('stock'));
+        static::assertSame(2, $rows[0]->getResultingValue('stock'));
     }
 
     public function testAColumnThePayloadDoesNotSetComesFromTheDatabase(): void
@@ -84,7 +84,7 @@ class WriteOutcomeTest extends TestCase
         $row = (new WriteOutcome($rowLoader))->rows([$this->updateProduct(['stock' => 2])], ['stock', 'active'])[0];
 
         static::assertFalse($row->isNew);
-        static::assertSame([2, '1'], [$row->get('stock'), $row->get('active')]);
+        static::assertSame([2, '1'], [$row->getResultingValue('stock'), $row->getResultingValue('active')]);
     }
 
     public function testTheRowsOfAllRecordsAreLoadedInOneQuery(): void
@@ -104,7 +104,7 @@ class WriteOutcomeTest extends TestCase
             new UpdateCommand($this->productDefinition, ['stock' => 3], $otherPrimaryKey, static::createStub(EntityExistence::class), ''),
         ], ['stock', 'active']);
 
-        static::assertSame(['1', '0'], [$rows[0]->get('active'), $rows[1]->get('active')]);
+        static::assertSame(['1', '0'], [$rows[0]->getResultingValue('active'), $rows[1]->getResultingValue('active')]);
     }
 
     public function testANewRecordHasNoValuesFromTheDatabase(): void
@@ -114,7 +114,7 @@ class WriteOutcomeTest extends TestCase
 
         $row = (new WriteOutcome($rowLoader))->rows([$this->insertProduct(['stock' => 1])], ['active'])[0];
 
-        static::assertNull($row->get('active'));
+        static::assertNull($row->getResultingValue('active'));
     }
 
     public function testAnUpdateThatSetsNoneOfTheColumnsIsLeftOut(): void
@@ -143,7 +143,7 @@ class WriteOutcomeTest extends TestCase
         ], ['active'])[0];
 
         static::assertTrue($row->isNew);
-        static::assertNull($row->get('active'));
+        static::assertNull($row->getResultingValue('active'));
     }
 
     /**

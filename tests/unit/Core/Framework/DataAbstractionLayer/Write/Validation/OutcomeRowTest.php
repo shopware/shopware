@@ -19,9 +19,9 @@ class OutcomeRowTest extends TestCase
     {
         $row = $this->row(payload: ['stock' => 2], state: ['stock' => '1', 'active' => '1']);
 
-        static::assertTrue($row->hasField('stock'));
-        static::assertFalse($row->hasField('active'));
-        static::assertSame([2, '1'], [$row->get('stock'), $row->get('active')]);
+        static::assertTrue($row->isInPayload('stock'));
+        static::assertFalse($row->isInPayload('active'));
+        static::assertSame([2, '1'], [$row->getResultingValue('stock'), $row->getResultingValue('active')]);
     }
 
     public function testAColumnThatWasNotLoadedCannotBeRead(): void
@@ -30,7 +30,7 @@ class OutcomeRowTest extends TestCase
 
         $this->expectExceptionObject(DataAbstractionLayerException::outcomeRowColumnNotLoaded('active'));
 
-        $row->get('active');
+        $row->getResultingValue('active');
     }
 
     /**

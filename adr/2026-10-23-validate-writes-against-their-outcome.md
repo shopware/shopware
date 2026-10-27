@@ -93,7 +93,7 @@ Request B: the first write is checked before the clearance flag is set in the se
 $commands = $event->getCommandsForEntity('promotion');
 
 foreach ($this->writeOutcome->rows($commands, ['discount', 'clearance']) as $promotion) {
-    if ($promotion->get('discount') > 50 && !$promotion->get('clearance')) {
+    if ($promotion->getResultingValue('discount') > 50 && !$promotion->getResultingValue('clearance')) {
         $this->reject($promotion->path);
     }
 }

@@ -30,7 +30,7 @@ final readonly class OutcomeRow
     ) {
     }
 
-    public function hasField(string $column): bool
+    public function isInPayload(string $column): bool
     {
         return \array_key_exists($column, $this->payload);
     }
@@ -38,9 +38,9 @@ final readonly class OutcomeRow
     /**
      * The value from the payload, else from the state.
      */
-    public function get(string $column): mixed
+    public function getResultingValue(string $column): mixed
     {
-        if ($this->hasField($column)) {
+        if ($this->isInPayload($column)) {
             return $this->payload[$column];
         }
 

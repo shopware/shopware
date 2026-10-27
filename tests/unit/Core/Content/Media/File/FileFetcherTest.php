@@ -382,6 +382,7 @@ class FileFetcherTest extends TestCase
             static::assertEquals(MediaException::cannotOpenSourceStreamToRead($url), $exception);
         }
 
+        static::assertInstanceOf(Process::class, $this->server);
         $this->server->wait();
         static::assertStringEndsWith('connected', $this->server->getOutput());
     }

@@ -91,6 +91,8 @@ describe('ListingPlugin tests', () => {
             listingPlugin = new ListingPlugin(document.querySelector('[data-listing="true"]'));
             regions = [...listingPlugin.ariaLiveContainers];
             listingPlugin.el.querySelector('.js-listing-wrapper').dataset.ariaLiveText = 'Showing 2 products.';
+
+            expect(regions).toHaveLength(3);
         });
 
         test('writes to only one visually hidden live region across three panels', () => {

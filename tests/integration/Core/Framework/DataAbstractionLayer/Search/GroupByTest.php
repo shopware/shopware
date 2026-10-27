@@ -57,9 +57,8 @@ class GroupByTest extends TestCase
 
         $this->connection->rollBack();
 
+        $this->connection->executeStatement('DROP TABLE IF EXISTS group_by_test');
         $this->connection->executeStatement('
-            DROP TABLE IF EXISTS group_by_test;
-
             CREATE TABLE `group_by_test` (
               `id` binary(16) NOT NULL,
               `name` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,

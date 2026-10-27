@@ -454,6 +454,16 @@ Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new fo
 
 # Core
 
+## Multiple SQL statements restricted to migrations and installation
+
+Application database connections no longer accepted multiple SQL statements in a single call.
+The restriction was controlled by `DISABLE_SQL_MULTI_STATEMENTS`, which was enabled by the 6.8 major flag unless explicitly disabled.
+Replace batches such as `executeStatement('UPDATE ...; DELETE ...')` with separate calls and keep any required transaction around them.
+Separating read and write statements also improved compatibility with SQL proxies that could not route mixed read/write batches in a single query.
+
+Migration execution, discovery, and bookkeeping used a dedicated connection to the primary database.
+Use the connection passed to `MigrationStep::update()` and `MigrationStep::updateDestructive()` for migration queries; these methods and installer schema imports continued to support multiple statements.
+
 <details>
 
 ## Invalid price definition exceptions
@@ -1493,6 +1503,10 @@ $this->cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior(
 ```php
 new HreflangLoaderParameter('frontend.home.page', $routeParameters, $salesChannelContext, true);
 ```
+
+## `NotFilter` constructor accepts a single filter
+
+The `$operator` parameter of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter::__construct()` is widened from `string` to `string|Filter`, so `new NotFilter($filter)` negates a single filter like `NotFilter::negate($filter)`. Existing calls keep working unchanged.
 
 # Administration
 
@@ -2568,6 +2582,22 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 # Storefront
 
 <details>
+
+## `ThemeService::compileTheme()` received a new optional `$notifyOnAsyncCompletion` parameter
+
+`Shopware\Storefront\Theme\ThemeService::compileTheme()` received a new optional parameter `bool $notifyOnAsyncCompletion = true`. With asynchronous theme compilation, it controls whether the Administration user is notified once the compilation is completed. Call sites are not affected. Classes overriding this method had to add the parameter to keep a compatible signature:
+
+Before:
+
+```php
+public function compileTheme(string $salesChannelId, string $themeId, Context $context, ?StorefrontPluginConfigurationCollection $configurationCollection = null, bool $withAssets = true): void
+```
+
+After:
+
+```php
+public function compileTheme(string $salesChannelId, string $themeId, Context $context, ?StorefrontPluginConfigurationCollection $configurationCollection = null, bool $withAssets = true, bool $notifyOnAsyncCompletion = true): void
+```
 
 ## Removed `--no-cleanup` option of `theme:compile` and `theme:change`
 

@@ -19,6 +19,7 @@ use Mcp\Schema\Tool;
 use Mcp\Server\Handler\Request\RequestHandlerInterface;
 use Mcp\Server\Session\SessionInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\McpProtocolEra;
 use Shopware\Core\Framework\Mcp\McpRequestedToolsetResolver;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
@@ -118,6 +119,13 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
         }
 
         $advertisedTools = array_values(array_unique($advertisedTools));
+
+        // The stateless era (2026-07-28) has no session to enable a toolset in, so the toolset session
+        // tools are not offered there. They are dropped before paginating, so a cursor stays valid
+        // within the era it was issued on.
+        if (McpProtocolEra::isStateless($this->requestStack?->getMainRequest())) {
+            $advertisedTools = array_values(array_diff($advertisedTools, McpProtocolEra::HIDDEN_ON_STATELESS_ERA));
+        }
 
         if ($allowlist->tools === null) {
             return $advertisedTools;

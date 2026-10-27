@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
+use Shopware\Core\Framework\Mcp\McpProtocolEra;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
@@ -30,19 +31,18 @@ class ToolsetEnableTool extends McpToolResponse
 
     public function __invoke(string $toolset): string
     {
+        $request = $this->requestStack->getCurrentRequest();
+        $sessionId = $request?->headers->get('Mcp-Session-Id') ?? '';
+
+        // Not advertised on the stateless era (2026-07-28), which has no session to keep the toolset
+        // in. A client that kept the name from a handshake connection is pointed to `?toolsets=`.
+        if ($sessionId === '' || McpProtocolEra::isStateless($this->requestStack->getMainRequest())) {
+            return $this->error(McpProtocolEra::toolsetToolUnavailableMessage(McpToolsetRegistry::ENABLE_TOOLSET_TOOL, $toolset));
+        }
+
         $definition = $this->toolsetRegistry->find($toolset);
         if ($definition === null) {
             return $this->error(\sprintf('Unknown MCP toolset "%s". Call %s first to list available toolsets.', $toolset, McpToolsetRegistry::LIST_TOOLSETS_TOOL));
-        }
-
-        $request = $this->requestStack->getCurrentRequest();
-        $sessionId = $request?->headers->get('Mcp-Session-Id') ?? '';
-        if ($sessionId === '') {
-            // The stateless era (2026-07-28) has no session to keep the toolset in.
-            return $this->error(\sprintf(
-                'Cannot enable an MCP toolset on a connection without an MCP session, such as one on protocol revision 2026-07-28. Reconnect to the MCP endpoint URL with the toolset in the query instead, for example "?toolsets=%s".',
-                $toolset,
-            ));
         }
 
         $this->sessionStorage->enable($sessionId, $toolset);

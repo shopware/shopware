@@ -6,7 +6,8 @@ Shopware serves the handshake era by default.
 `shopware.mcp.protocol_era.admin` and `shopware.mcp.protocol_era.store_api` switch an endpoint to `auto`, which also serves the stateless 2026-07-28 revision from the same URL, and the client picks.
 `McpServerBuilderCompilerPass` applies the setting; `legacy` keeps `Builder::withoutModernEra()`.
 What each feature does without a session is decided in `adr/2026-09-24-mcp-stateless-era-degradation-policy.md` and covered by `McpDualEraConformanceTest`.
-No request state key is configured, because no Shopware handler asks the client for input more than once.
+On the stateless era `tools/list` does not advertise `shopware-toolset-enable` and `shopware-toolsets-list`, because there is no session to keep a toolset in; a direct call answers `isError`, and the `server/discover` instructions and `shopware-tool-search` point to `?toolsets=` instead.
+No request state key is configured, because no Shopware handler asks the client for input more than once; the rules are in "Request state on the stateless era" of `AGENTS.md`, the key itself is planned in #22081.
 On the stateless revision, `subscriptions/listen` carries `notifications/{tools,resources,prompts}/list_changed` on the Admin API endpoint, from the list versions in `mcp_list_version` (`McpListVersionsNotificationBus`).
 `server/discover` of the Admin API endpoint announces `listChanged`; the Store API endpoint does not, because its lists only change per session.
 A listen stream lasts 25 seconds and holds one PHP worker for that time.
@@ -59,7 +60,7 @@ These are not “server feature rows” in the spec navigation, but Shopware sti
 |---|---|
 | Client roots | Implemented by MCP clients, not the Shopware server; also deprecated upstream by SEP-2577 (earliest removal 2027-07-28) |
 | Client sampling | The client or model provider handles this, not the Shopware server; also deprecated upstream by SEP-2577 (earliest removal 2027-07-28) |
-| Client elicitation | Client-side interactive UX, not a shop server feature |
+| Client elicitation | The form is client-side UX. URL elicitation as a confirmation path for destructive tools is planned in #19972, with a stored confirmation record instead of request state |
 
 ## Response model review
 

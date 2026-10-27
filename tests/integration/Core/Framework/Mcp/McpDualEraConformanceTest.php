@@ -146,21 +146,21 @@ class McpDualEraConformanceTest extends TestCase
     }
 
     /**
-     * Without `?toolsets=` only the discovery meta-tools are advertised. On the stateless era the ADR lets
-     * `shopware-toolset-enable` be hidden, so only its presence is left open there.
+     * Without `?toolsets=` only the discovery meta-tools are advertised. The stateless era has no session to
+     * enable a toolset in, so it advertises `shopware-tool-search` alone.
      */
     #[DataProvider('endpointAndEraProvider')]
     public function testToolsListWithoutToolsetsAdvertisesOnlyDiscoveryTools(string $endpoint, McpEra $era): void
     {
         $tools = $this->client($endpoint, $era)->toolNames();
 
-        static::assertContains('shopware-tool-search', $tools);
-        static::assertContains('shopware-toolsets-list', $tools);
-        static::assertSame([], array_values(array_diff($tools, self::DISCOVERY_TOOLS)), 'no domain tool may leak into the default surface');
-
         if ($era === McpEra::Handshake) {
-            static::assertContains('shopware-toolset-enable', $tools);
+            static::assertEqualsCanonicalizing(self::DISCOVERY_TOOLS, $tools);
+
+            return;
         }
+
+        static::assertSame(['shopware-tool-search'], $tools);
     }
 
     /**
@@ -205,29 +205,107 @@ class McpDualEraConformanceTest extends TestCase
     }
 
     /**
-     * The stateless era has no session to keep an enabled toolset in. The ADR: the tool is either not
-     * offered, or it answers with `isError` and tells the client to reconnect with `?toolsets=`. It must
-     * never report success while the next `tools/list` stays unchanged.
+     * The stateless era has no session to keep an enabled toolset in, so neither toolset session tool is
+     * advertised there. A client that kept a name from a handshake connection gets an `isError` that points
+     * to `?toolsets=` and tool search, never a success while the next `tools/list` stays unchanged.
      */
     #[DataProvider('endpointProvider')]
-    public function testToolsetEnableNeverSilentlyDoesNothingOnTheStatelessEra(string $endpoint): void
+    public function testToolsetSessionToolsAnswerAnErrorOnTheStatelessEra(string $endpoint): void
     {
         [$toolset, $tool] = self::toolsetOf($endpoint);
         $client = $this->client($endpoint, McpEra::Stateless);
 
-        if (!\in_array('shopware-toolset-enable', $client->toolNames(), true)) {
-            // Hidden on the stateless era, which the ADR allows.
-            static::assertNotContains($tool, $client->toolNames());
+        foreach (['shopware-toolset-enable' => ['toolset' => $toolset], 'shopware-toolsets-list' => []] as $name => $arguments) {
+            $result = $client->callTool($name, $arguments);
+
+            static::assertTrue($result['isError'] ?? false, $name . ' must answer with an error without a session: ' . json_encode($result));
+            static::assertStringContainsString('?toolsets=', McpEraClient::text($result), $name);
+            static::assertStringContainsString('shopware-tool-search', McpEraClient::text($result), $name);
+        }
+
+        static::assertNotContains($tool, $client->toolNames());
+    }
+
+    /**
+     * The server instructions of the stateless era point to `?toolsets=` and tool search, not to the toolset
+     * session tools it does not offer. The handshake era keeps its instructions.
+     */
+    #[DataProvider('endpointAndEraProvider')]
+    public function testServerInstructionsOnlyNameToolsTheEraOffers(string $endpoint, McpEra $era): void
+    {
+        $client = $this->client($endpoint, $era);
+        $instructions = $era === McpEra::Handshake
+            ? $client->initializeResult()['instructions'] ?? null
+            : $client->result('server/discover')['instructions'] ?? null;
+
+        static::assertIsString($instructions);
+        static::assertStringContainsString('shopware-tool-search', $instructions);
+
+        if ($era === McpEra::Handshake) {
+            static::assertStringContainsString('shopware-toolset-enable', $instructions);
 
             return;
         }
 
-        $result = $client->callTool('shopware-toolset-enable', ['toolset' => $toolset]);
+        static::assertStringContainsString('?toolsets=', $instructions);
+        static::assertStringNotContainsString('shopware-toolset-enable', $instructions);
+        static::assertStringNotContainsString('shopware-toolsets-list', $instructions);
+    }
 
-        static::assertTrue($result['isError'] ?? false, 'enabling a toolset without a session must be an error: ' . json_encode($result));
-        static::assertNotContains($tool, $client->toolNames());
+    /**
+     * The `shopware-context` prompt of the Admin API endpoint guides the model through discovery, so on the
+     * stateless era it must not send it to the toolset session tools that era does not offer.
+     */
+    #[DataProvider('eraProvider')]
+    public function testContextPromptOnlyNamesToolsTheEraOffers(McpEra $era): void
+    {
+        $messages = $this->client(self::ADMIN, $era)->result('prompts/get', ['name' => 'shopware-context'])['messages'] ?? null;
+        static::assertIsArray($messages);
+        $text = (string) json_encode($messages);
 
-        static::assertStringContainsString('?toolsets=', McpEraClient::text($result));
+        static::assertStringContainsString('shopware-tool-search', $text);
+
+        if ($era === McpEra::Handshake) {
+            static::assertStringContainsString('shopware-toolset-enable', $text);
+
+            return;
+        }
+
+        static::assertStringContainsString('?toolsets=', $text);
+        static::assertStringNotContainsString('shopware-toolset-enable', $text);
+        static::assertStringNotContainsString('shopware-toolsets-list', $text);
+    }
+
+    /**
+     * On the stateless era tool search is the way to find a tool, so it names the toolset of every match for
+     * `?toolsets=` and does not lead to the toolset session tools.
+     */
+    #[DataProvider('endpointProvider')]
+    public function testToolSearchPointsToToolsetsInTheUrlOnTheStatelessEra(string $endpoint): void
+    {
+        [$toolset, $tool] = self::toolsetOf($endpoint);
+        $client = $this->client($endpoint, McpEra::Stateless);
+
+        $structured = $client->callTool('shopware-tool-search', ['query' => $tool, 'maxResults' => 20])['structuredContent'] ?? null;
+        static::assertIsArray($structured);
+        static::assertIsString($structured['_meta']['usage'] ?? null);
+
+        $toolsets = [];
+        foreach ($structured['result'] ?? [] as $match) {
+            static::assertIsArray($match);
+            $toolsets[$match['tool']['name']] = $match['toolset'] ?? null;
+        }
+
+        static::assertSame($toolset, $toolsets[$tool] ?? null, (string) json_encode($structured));
+        static::assertStringContainsString('?toolsets=', $structured['_meta']['usage']);
+        static::assertStringNotContainsString('shopware-toolset-enable', $structured['_meta']['usage']);
+
+        $hidden = $client->callTool('shopware-tool-search', ['query' => 'toolset enable list', 'maxResults' => 20])['structuredContent']['result'] ?? [];
+        static::assertIsArray($hidden);
+        static::assertSame([], array_values(array_intersect(
+            array_map(static fn (array $match): string => $match['tool']['name'], $hidden),
+            ['shopware-toolset-enable', 'shopware-toolsets-list'],
+        )));
     }
 
     /**

@@ -50,6 +50,7 @@ use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
+use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -156,6 +157,82 @@ class StoredElementListFieldSerializerTest extends TestCase
         } catch (WriteConstraintViolationException $exception) {
             static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getViolations()->get(0)->getCode());
             static::assertSame([], $calls);
+        }
+    }
+
+    #[TestDox('propagates a registry load failure instead of reporting an invalid layout request')]
+    public function testNormalizePropagatesRegistryLoadFailure(): void
+    {
+        $violations = new ConstraintViolationList([
+            new ConstraintViolation('Invalid label', null, [], null, 'types[App:Broken].label', null),
+        ]);
+        $failure = ContentSystemException::elementTypeLoadFailed('test definitions', ContentSystemException::violationMessages($violations));
+        $typeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $typeRegistry->method('has')->willThrowException($failure);
+        $boundary = new LayoutWriteBoundary(
+            new LayoutDefaultSeeder($typeRegistry, new StoredDefaultProvider()),
+            new StoredTreeStyleNormalizer($this->styleNormalizer()),
+            $this->passthroughReconciler(),
+        );
+        $serializer = new StoredElementListFieldSerializer(
+            $this->validator(),
+            static::createStub(DefinitionInstanceRegistry::class),
+            $this->codec(),
+            new ViolationConstraintMapper(),
+            $boundary,
+            $this->treeConstraints(),
+        );
+
+        $this->expectExceptionObject($failure);
+
+        $serializer->normalize(
+            $this->createField(),
+            ['id' => 'layout-1', 'elements' => [['id' => 'el', 'component' => 'App:Broken', 'properties' => []]]],
+            $this->parameters(),
+        );
+    }
+
+    public function testNormalizePropagatesInternalCodecFailure(): void
+    {
+        $failure = ContentSystemException::invalidFieldType('expected', 'actual');
+        $provider = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $provider->method('decode')->willThrowException($failure);
+        $codec = new StoredTreeCodec(new StoredElementCodec($provider));
+
+        $this->expectExceptionObject($failure);
+
+        $this->serializerWithPassthroughValidator($codec)->normalize($this->createField(), [
+            'id' => 'layout-1',
+            'elements' => [[
+                'id' => 'elem-1',
+                'component' => 'text',
+                'dataRequirements' => ['data' => ['source' => 'broken', 'config' => []]],
+            ]],
+        ], $this->parameters());
+    }
+
+    public function testNormalizeWrapsAClientDefectFromTheBoundary(): void
+    {
+        $seeder = static::createStub(LayoutDefaultSeeder::class);
+        $seeder->method('seed')->willThrowException(ContentSystemException::boxSpacingInvalidValue('trim', 'x'));
+        $serializer = new StoredElementListFieldSerializer(
+            $this->validator(),
+            static::createStub(DefinitionInstanceRegistry::class),
+            $this->codec(),
+            new ViolationConstraintMapper(),
+            $this->boundary($seeder),
+            $this->treeConstraints(),
+        );
+
+        try {
+            $serializer->normalize($this->createField(), [
+                'id' => 'layout-1',
+                'elements' => [['id' => 'el', 'component' => 'text']],
+            ], $this->parameters());
+            static::fail('Expected a write rejection.');
+        } catch (WriteConstraintViolationException $exception) {
+            static::assertSame(ContentSystemException::BOX_SPACING_INVALID_VALUE, $exception->getViolations()->get(0)->getCode());
+            static::assertSame('/elements', $exception->getViolations()->get(0)->getPropertyPath());
         }
     }
 
@@ -330,6 +407,31 @@ class StoredElementListFieldSerializerTest extends TestCase
         }
 
         static::fail('Encoding a numeric wiring key did not raise a WriteConstraintViolationException.');
+    }
+
+    #[TestDox('propagates an internal codec failure without wrapping it as a layout write rejection')]
+    public function testEncodePropagatesInternalCodecFailure(): void
+    {
+        $failure = ContentSystemException::invalidFieldType('expected', 'actual');
+        $configProvider = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $configProvider->method('decode')->willThrowException($failure);
+        $codec = new StoredTreeCodec(new StoredElementCodec($configProvider));
+        $kvPair = new KeyValuePair('elements', [[
+            'id' => 'elem-1',
+            'component' => 'text',
+            'dataRequirements' => ['data' => ['source' => 'broken', 'config' => []]],
+        ]], false);
+
+        $this->expectExceptionObject($failure);
+
+        iterator_to_array(
+            $this->serializerWithPassthroughValidator($codec)->encode(
+                $this->createField(),
+                $this->existence(),
+                $kvPair,
+                $this->parameters(),
+            )
+        );
     }
 
     /**
@@ -622,7 +724,7 @@ class StoredElementListFieldSerializerTest extends TestCase
      * A passthrough validator raises no violations — used when encoding element objects and payloads whose
      * rejection is the codec's to make, so the constraint pass cannot pre-empt what the test is asserting.
      */
-    private function serializerWithPassthroughValidator(): StoredElementListFieldSerializer
+    private function serializerWithPassthroughValidator(?StoredTreeCodec $codec = null): StoredElementListFieldSerializer
     {
         $passthroughValidator = static::createStub(ValidatorInterface::class);
         $passthroughValidator->method('validate')->willReturn(new ConstraintViolationList());
@@ -630,7 +732,7 @@ class StoredElementListFieldSerializerTest extends TestCase
         return new StoredElementListFieldSerializer(
             $passthroughValidator,
             static::createStub(DefinitionInstanceRegistry::class),
-            $this->codec(),
+            $codec ?? $this->codec(),
             new ViolationConstraintMapper(),
             $this->boundary($this->passthroughSeeder()),
             $this->treeConstraints(),

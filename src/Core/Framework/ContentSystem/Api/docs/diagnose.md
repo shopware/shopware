@@ -43,5 +43,8 @@ A malformed element **config** is reported as an `invalid_config` violation in t
 | Missing/invalid envelope field                             | 400  | `#[MapRequestPayload]` validation (forced to 400) |
 | `rootSource` is a non-empty value not registered in `RootSourceRegistry` | 400  | `unknownRootSource` (the route gates membership against `RootSourceRegistry::knownRootSources()` before resolving, the same as the write validator) |
 | Layout element missing a non-empty string `id`/`component` | 400  | `invalidLayoutStructure`                          |
+| Collective validation fails or a per-file/per-row load step raises the matching `*_LOAD_FAILED` code for the element-type or style-option registry | 500 | `ELEMENT_TYPE_LOAD_FAILED` or `STYLE_OPTION_LOAD_FAILED` propagates from the registry read |
 
 An internal fault during decoding (a non-client-defect `ContentSystemException`, e.g. an unexpected field type) propagates rather than being relabelled as an `invalid_config` violation — see `ContentSystemException::isClientDefect()`.
+
+Runtime definition failures also include invalid filenames and binding canonicalization/type errors (500 with their specific codes). Preset-loading operations additionally expose preset load and validation errors. See [definition-load errors](../../docs/definition-load-errors.md) for the code/status mapping and app-install distinction.

@@ -41,4 +41,4 @@
 - Uniqueness is by source-qualified id (`"source:id"`), not by bare id, so only a duplicate **within** one source or directory throws `bindingSpecificationDuplicate`
 - At most one default specification per element type; `isDefault()` derives `id === type`, computed and never stored. An authored `bindings:` key equal to the file's type name is `bindingSpecificationReservedId` (409), rejected before duplicate detection. At application time zero defaults is a no-op, one is fill-applied, more than one is `bindingSpecificationDefaultAmbiguous` (409)
 - `TypeConsistentBindingSpecification` resolves each `resolves` entry's produced type via `Diagnostics/RootContextMapper::resolveType()`; a client-defect exception becomes a validation violation, any other propagates
-- An unknown declared type is `bindingSpecificationUnknownType` (400) and non-deterministic sugar is `bindingSpecificationCanonicalizationFailed` (400) — neither is a `CLIENT_DEFECT_CODE`
+- An unknown declared type is `bindingSpecificationUnknownType` (500 at runtime) and non-deterministic sugar is `bindingSpecificationCanonicalizationFailed` (500 at runtime) — neither is a `CLIENT_DEFECT_CODE`

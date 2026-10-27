@@ -32,6 +32,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\SharedLockInterface;
 use Symfony\Component\Lock\Store\InMemoryStore;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
@@ -273,7 +274,7 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
     #[TestDox('wraps a loader ContentSystemException as an AppException')]
     public function testThrowsAppExceptionWhenLoaderFails(): void
     {
-        $loaderException = ContentSystemException::layoutPresetLoadFailed('hero.yaml', 'Invalid YAML syntax');
+        $loaderException = ContentSystemException::layoutPresetsInvalid(new ConstraintViolationList());
 
         $loader = static::createStub(YamlLayoutPresetLoader::class);
         $loader->method('loadDtosFromDirectory')->willThrowException($loaderException);
@@ -283,10 +284,14 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
 
         $persister = $this->buildPersister($repo, $loader);
 
-        $this->expectExceptionObject(
-            AppException::contentSystemLayoutPresetLoadFailed('Resources/content-system/presets', $loaderException->getMessage(), $loaderException)
-        );
-        $persister->persist($this->buildContext());
+        try {
+            $persister->persist($this->buildContext());
+            static::fail('Expected app validation to reject the definition.');
+        } catch (AppException $exception) {
+            static::assertSame(400, $exception->getStatusCode());
+            static::assertSame(AppException::CONTENT_SYSTEM_LAYOUT_PRESET_LOAD_FAILED, $exception->getErrorCode());
+            static::assertSame($loaderException, $exception->getPrevious());
+        }
     }
 
     #[TestDox('wraps a UniqueConstraintViolationException as an AppException on concurrent id collision')]

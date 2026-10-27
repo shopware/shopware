@@ -7,14 +7,16 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemLayoutPreset\AppContentSystemLayoutPresetCollection;
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\DatabaseLayoutPresetLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\ContentSystemLayoutPresetSpecification;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -24,7 +26,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[Package('framework')]
 class DatabaseLayoutPresetLoaderTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use AdminFunctionalTestBehaviour;
 
     #[TestDox('serves the presets of active apps and leaves out the presets of inactive apps')]
     public function testLoadServesPresetsOfActiveAppsOnly(): void
@@ -41,6 +43,35 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
             ['AcmeActivePresets:Hero'],
             array_map(static fn (ContentSystemLayoutPresetSpecification $preset): string => $preset->id, $presets),
         );
+    }
+
+    public function testInsertPresetReturnsServerErrorForAnInvalidActiveAppRow(): void
+    {
+        $ids = new IdsCollection();
+        $this->createApp($ids->get('app'), 'AcmeInvalidPresets', true);
+        $this->presetRepository()->create([[
+            'id' => $ids->get('preset'),
+            'appId' => $ids->get('app'),
+            'name' => 'AcmeInvalidPresets:Broken',
+            'schema' => ['layout' => []],
+            'hash' => 'invalid-preset',
+        ]], Context::createDefaultContext());
+        $registry = static::getContainer()->get(ContentSystemLayoutPresetRegistry::class);
+        $registry->invalidate();
+
+        try {
+            $this->getBrowser()->jsonRequest('POST', '/api/_action/content-system/layout/insert-preset', [
+                'presetId' => 'AcmeInvalidPresets:Broken',
+                'layout' => [],
+            ]);
+
+            $response = $this->getBrowser()->getResponse();
+            static::assertSame(500, $response->getStatusCode());
+            $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+            static::assertSame(ContentSystemException::LAYOUT_PRESETS_INVALID, $body['errors'][0]['code']);
+        } finally {
+            $registry->invalidate();
+        }
     }
 
     private function createApp(string $appId, string $appName, bool $active): void

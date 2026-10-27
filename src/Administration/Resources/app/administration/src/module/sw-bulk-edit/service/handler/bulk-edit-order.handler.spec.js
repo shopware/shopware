@@ -33,19 +33,23 @@ function createOrder(primaryOrderDeliveryId, deliveryIds) {
     };
 }
 
-function createOrderWithTransactions(primaryOrderTransactionId, transactionStates) {
+function createOrderWithTransactions(transactionStates) {
     return {
         id: 'order-id',
-        primaryOrderTransactionId,
         transactions: new EntityCollection(
             '/order-transaction',
             'order_transaction',
             null,
             null,
-            Object.entries(transactionStates).map(([id, technicalName]) => ({
-                id,
-                stateMachineState: { technicalName },
-            })),
+            Object.entries(transactionStates).map(
+                ([
+                    id,
+                    technicalName,
+                ]) => ({
+                    id,
+                    stateMachineState: { technicalName },
+                }),
+            ),
         ),
     };
 }
@@ -111,28 +115,9 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-order.handler', () => {
         ]);
     });
 
-    it('should transition the primary order transaction', async () => {
+    it('should transition the first transaction that is not cancelled or failed', async () => {
         const handler = getBulkEditOrderHandler([
-            createOrderWithTransactions('primary-transaction', {
-                'failed-transaction': 'failed',
-                'primary-transaction': 'open',
-            }),
-        ]);
-
-        await handler.bulkEditStatus(['order-id'], [{ field: 'orderTransactions', value: 'paid' }]);
-
-        expect(handler.orderStateMachineService.transitionOrderTransactionState).toHaveBeenCalledWith(
-            'primary-transaction',
-            'paid',
-            expect.any(Object),
-            {},
-            expect.any(Object),
-        );
-    });
-
-    it('should transition the first transaction that is not cancelled or failed when the order has no primary order transaction', async () => {
-        const handler = getBulkEditOrderHandler([
-            createOrderWithTransactions(null, {
+            createOrderWithTransactions({
                 'cancelled-transaction': 'cancelled',
                 'failed-transaction': 'failed',
                 'open-transaction': 'open',
@@ -151,9 +136,9 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-order.handler', () => {
         );
     });
 
-    it('should transition the last transaction when all transactions are cancelled or failed and the order has no primary order transaction', async () => {
+    it('should transition the last transaction when all transactions are cancelled or failed', async () => {
         const handler = getBulkEditOrderHandler([
-            createOrderWithTransactions(null, {
+            createOrderWithTransactions({
                 'failed-transaction': 'failed',
                 'cancelled-transaction': 'cancelled',
             }),

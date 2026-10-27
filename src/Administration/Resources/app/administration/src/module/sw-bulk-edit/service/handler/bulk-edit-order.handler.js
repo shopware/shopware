@@ -114,12 +114,11 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
     }
 
     getTransactionId(order) {
-        if (order.primaryOrderTransactionId) {
-            return order.primaryOrderTransactionId;
-        }
-
         const transaction = order.transactions.find(({ stateMachineState }) => {
-            return !['cancelled', 'failed'].includes(stateMachineState?.technicalName);
+            return ![
+                'cancelled',
+                'failed',
+            ].includes(stateMachineState?.technicalName);
         });
 
         return (transaction ?? order.transactions.last())?.id;

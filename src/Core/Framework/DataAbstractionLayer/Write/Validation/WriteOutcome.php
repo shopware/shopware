@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Validation;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\RowLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
@@ -27,12 +28,16 @@ class WriteOutcome
      * with its inserts and updates merged in order. A record whose last write is a delete is left out.
      *
      * @param list<WriteCommand> $commands the writes of one entity, in the order they run, e.g. from PreWriteValidationEvent::getCommandsForEntity()
-     * @param list<string> $columns the columns to read, from the write or else from the stored row
+     * @param non-empty-list<string> $columns the columns to read, from the write or else from the stored row
      *
      * @return list<OutcomeRow>
      */
     public function rows(array $commands, array $columns): array
     {
+        if ($columns === []) {
+            throw DataAbstractionLayerException::writeOutcomeWithoutColumns();
+        }
+
         $primaryKeys = $this->updatedPrimaryKeys($commands, $columns);
         $storedRows = $this->loadStoredRows($commands, $primaryKeys, $columns);
 

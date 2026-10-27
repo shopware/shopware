@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\RowLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
@@ -43,6 +44,14 @@ class WriteOutcomeTest extends TestCase
 
         $this->productDefinition = $registry->getByEntityName('product');
         $this->productPrimaryKey = ['id' => Uuid::randomBytes(), 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)];
+    }
+
+    public function testTheColumnsToReadMustBeNamed(): void
+    {
+        $this->expectExceptionObject(DataAbstractionLayerException::writeOutcomeWithoutColumns());
+
+        // @phpstan-ignore argument.type (an empty list must be rejected at runtime)
+        (new WriteOutcome(static::createStub(RowLoader::class)))->rows([$this->updateProduct(['stock' => 2])], []);
     }
 
     public function testTheWritesOfARecordAreMergedInOrder(): void

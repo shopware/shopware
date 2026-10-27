@@ -74,6 +74,36 @@ class McpToolsetRegistryTest extends TestCase
         static::assertSame('Tools explicitly assigned to the "entity" MCP tool group.', $toolsetsByName['entity']['description']);
     }
 
+    public function testUsesTheAuthoredToolsetDescriptionAndGeneratesTheRest(): void
+    {
+        $toolsetRegistry = new McpToolsetRegistry(
+            new McpCapabilityCatalog(
+                $this->buildRegistry([
+                    McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
+                    'shopware-entity-search',
+                    'shopware-order-state',
+                ]),
+                $this->stubPrivilegeProvider(),
+                toolGroups: [
+                    McpToolsetRegistry::ENABLE_TOOLSET_TOOL => McpToolsetRegistry::DISCOVERY_GROUP,
+                    'shopware-entity-search' => 'entity',
+                    'shopware-order-state' => 'order',
+                ],
+            ),
+            toolsetDescriptions: [
+                'entity' => 'Find and change shop data.',
+                McpToolsetRegistry::DISCOVERY_GROUP => 'Never listed.',
+            ],
+        );
+
+        $toolsetsByName = array_column($toolsetRegistry->toolsets(), null, 'name');
+
+        static::assertSame(['entity', 'order'], array_keys($toolsetsByName));
+        static::assertSame('Find and change shop data.', $toolsetsByName['entity']['description']);
+        static::assertSame('Tools explicitly assigned to the "order" MCP tool group.', $toolsetsByName['order']['description']);
+        static::assertSame('Find and change shop data.', $toolsetRegistry->find('entity')['description'] ?? null);
+    }
+
     public function testBuildsToolsetPerAppFromRuntimeAppGroups(): void
     {
         $registry = $this->buildRegistry([

@@ -65,10 +65,13 @@ class McpToolsetRegistry
      *
      * $allowlistProvider is null in scopes without a per-integration allowlist (e.g. the Store API
      * registry, which advertises all its tools); a null provider leaves toolset generation unscoped.
+     *
+     * @param array<string, string> $toolsetDescriptions group => description, from `#[McpToolGroup(description: ...)]`
      */
     public function __construct(
         private readonly McpCapabilityCatalog $catalog,
         private readonly ?McpAllowlistProvider $allowlistProvider = null,
+        private readonly array $toolsetDescriptions = [],
     ) {
     }
 
@@ -118,7 +121,7 @@ class McpToolsetRegistry
             $toolsets[] = [
                 'name' => $group,
                 'title' => $this->humanizeToolsetName($group),
-                'description' => \sprintf('Tools explicitly assigned to the "%s" MCP tool group.', $group),
+                'description' => $this->toolsetDescriptions[$group] ?? \sprintf('Tools explicitly assigned to the "%s" MCP tool group.', $group),
                 'tools' => $tools,
             ];
         }

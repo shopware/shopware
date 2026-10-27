@@ -175,6 +175,47 @@ class McpCapabilityDiscoveryTest extends TestCase
         static::assertStringNotContainsString('"properties":[]', $content);
     }
 
+    public function testToolsetsListDescribesEveryCoreToolset(): void
+    {
+        $browser = $this->getBrowser();
+
+        $browser->request('POST', '/api/_mcp', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+            'jsonrpc' => '2.0',
+            'method' => 'initialize',
+            'params' => [
+                'protocolVersion' => '2025-06-18',
+                'capabilities' => new \stdClass(),
+                'clientInfo' => ['name' => 'mcp-discovery-test', 'version' => '1.0'],
+            ],
+            'id' => 1,
+        ], \JSON_THROW_ON_ERROR));
+
+        $sessionId = $this->extractSessionId($browser->getResponse()->headers->all());
+        static::assertIsString($sessionId, 'initialize did not return an MCP session id');
+
+        $browser->request('POST', '/api/_mcp', [], [], ['CONTENT_TYPE' => 'application/json', 'HTTP_MCP_SESSION_ID' => $sessionId], json_encode([
+            'jsonrpc' => '2.0',
+            'method' => 'tools/call',
+            'params' => ['name' => McpToolsetRegistry::LIST_TOOLSETS_TOOL, 'arguments' => new \stdClass()],
+            'id' => 2,
+        ], \JSON_THROW_ON_ERROR));
+
+        $content = (string) $browser->getResponse()->getContent();
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        $toolsets = $response['result']['structuredContent']['toolsets'] ?? null;
+        static::assertIsArray($toolsets, 'shopware-toolsets-list returned no toolsets: ' . $content);
+
+        $descriptions = array_column($toolsets, 'description', 'name');
+
+        // The description is what a model routes on, so every core toolset carries an authored one
+        // instead of the generated fallback.
+        foreach (['entity', 'media', 'order', 'system-config', 'theme'] as $toolset) {
+            static::assertArrayHasKey($toolset, $descriptions);
+            static::assertIsString($descriptions[$toolset]);
+            static::assertStringNotContainsString('Tools explicitly assigned', $descriptions[$toolset], \sprintf('toolset "%s" has no authored description', $toolset));
+        }
+    }
+
     public function testEnablingToolsetDeliversToolsListChangedNotification(): void
     {
         $browser = $this->getBrowser();

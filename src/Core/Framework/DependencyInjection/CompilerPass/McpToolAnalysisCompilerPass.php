@@ -26,6 +26,16 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 #[BecomesInternal(version: 'v6.8.0')]
 class McpToolAnalysisCompilerPass implements CompilerPassInterface
 {
+    /**
+     * Tools in these namespaces own the description of their toolset (see resolveGroupDescriptions()).
+     */
+    private const CORE_NAMESPACES = [
+        'Shopware\\Core\\',
+        'Shopware\\Storefront\\',
+        'Shopware\\Administration\\',
+        'Shopware\\Elasticsearch\\',
+    ];
+
     public function process(ContainerBuilder $container): void
     {
         if (!$container->hasDefinition('mcp.server.admin.builder')) {
@@ -141,10 +151,17 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
         $container->setParameter($paramPrefix . 'tool_privileges', $privilegeMap);
     }
 
+    /**
+     * Stores tool-name => group and group => description. A description describes the whole toolset,
+     * so a group needs it on one tool only. See resolveGroupDescriptions() for who wins.
+     */
     private function buildToolGroupMap(ContainerBuilder $container, string $tag, string $paramPrefix): void
     {
         /** @var array<string, string> $groupMap tool-name => group */
         $groupMap = [];
+
+        /** @var array<string, array{description: string, core: bool}> $describedGroups tool-name => description, for tools that describe their group */
+        $describedGroups = [];
 
         foreach ($container->findTaggedServiceIds($tag) as $serviceId => $tags) {
             $definition = $container->getDefinition($serviceId);
@@ -161,19 +178,108 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
                 continue;
             }
 
-            $group = McpToolAttributeReader::resolveAttribute($class, McpToolGroup::class)?->group;
+            $groupAttribute = McpToolAttributeReader::resolveAttribute($class, McpToolGroup::class);
+            $group = $groupAttribute?->group;
 
             // The discovery group is reserved for the core meta-tools (see McpToolDiscoveryCompilerPass).
+            // A demoted tool's description described the group it claimed, not the fallback, so it is dropped.
             if (McpToolsetRegistry::isReservedGroupClaim($group, $tool->name)) {
-                $group = McpToolsetRegistry::FALLBACK_GROUP;
+                $groupMap[$tool->name] = McpToolsetRegistry::FALLBACK_GROUP;
+
+                continue;
             }
 
-            if ($group !== null && $group !== '') {
-                $groupMap[$tool->name] = $group;
+            if ($group === null || $group === '') {
+                continue;
+            }
+
+            $groupMap[$tool->name] = $group;
+
+            $description = trim($groupAttribute->description ?? '');
+            if ($description !== '') {
+                $describedGroups[$tool->name] = ['description' => $description, 'core' => self::isCoreClass($class)];
             }
         }
 
         $container->setParameter($paramPrefix . 'tool_groups', $groupMap);
+        $container->setParameter($paramPrefix . 'tool_group_descriptions', $this->resolveGroupDescriptions($container, $groupMap, $describedGroups));
+    }
+
+    /**
+     * A core description (see CORE_NAMESPACES) always wins for its group: extensions may add tools to a core group, but
+     * cannot change how it is described. An extension can only describe a group no core tool
+     * describes. Within core, and among extensions, the tool whose name sorts first wins, which keeps
+     * the result independent of service registration order. Every ignored description is logged.
+     *
+     * @param array<string, string> $groupMap tool-name => group
+     * @param array<string, array{description: string, core: bool}> $describedGroups tool-name => description
+     *
+     * @return array<string, string> group => description
+     */
+    private function resolveGroupDescriptions(ContainerBuilder $container, array $groupMap, array $describedGroups): array
+    {
+        ksort($describedGroups);
+
+        $descriptions = [];
+        $describedBy = [];
+        $coreGroups = [];
+
+        foreach ([true, false] as $core) {
+            foreach ($describedGroups as $toolName => $entry) {
+                if ($entry['core'] !== $core) {
+                    continue;
+                }
+
+                $group = $groupMap[$toolName];
+
+                if (!isset($descriptions[$group])) {
+                    $descriptions[$group] = $entry['description'];
+                    $describedBy[$group] = $toolName;
+                    $coreGroups[$group] = $core;
+
+                    continue;
+                }
+
+                if (!$core && $coreGroups[$group]) {
+                    $container->log($this, \sprintf(
+                        'MCP tool "%s" describes the core "%s" toolset; extensions cannot change a core toolset description, the description of "%s" is used.',
+                        $toolName,
+                        $group,
+                        $describedBy[$group],
+                    ));
+
+                    continue;
+                }
+
+                if ($descriptions[$group] !== $entry['description']) {
+                    $container->log($this, \sprintf(
+                        'MCP tool "%s" describes the "%s" toolset differently than "%s"; the description of "%s" is used.',
+                        $toolName,
+                        $group,
+                        $describedBy[$group],
+                        $describedBy[$group],
+                    ));
+                }
+            }
+        }
+
+        ksort($descriptions);
+
+        return $descriptions;
+    }
+
+    /**
+     * The bundles shipped with Shopware core. Separately versioned plugins such as Commercial are extensions.
+     */
+    private static function isCoreClass(string $class): bool
+    {
+        foreach (self::CORE_NAMESPACES as $namespace) {
+            if (str_starts_with($class, $namespace)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

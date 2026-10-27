@@ -147,7 +147,7 @@ class FileFetcher
     {
         $resolved = $this->trustedUrlResolver->resolve($url);
 
-        $scheme = parse_url($url, \PHP_URL_SCHEME);
+        $scheme = strtolower((string) parse_url($url, \PHP_URL_SCHEME));
         if ($scheme === 'ftp' || $scheme === 'sftp') {
             return $this->downloadWithCurl($url, $scheme, $fileName, $resolved);
         }

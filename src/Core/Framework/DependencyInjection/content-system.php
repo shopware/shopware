@@ -854,7 +854,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(DraftLayoutChecker::class)
         ->args([
             service(LayoutDiagnostics::class),
-            service(StoredMappingInspector::class),
         ]);
 
     // Resolve-and-diagnose Action (Admin API)

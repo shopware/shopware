@@ -9,7 +9,6 @@ A resolvability problem (an unresolved required property, a broken context chain
 | Missing/invalid envelope field                                                                           | 400  | `#[MapRequestPayload]` validation (forced to 400) |
 | `map-property` source has missing, invalid, or unknown fields                                             | 400  | `invalidMappingSource` (`CONTENT_SYSTEM__INVALID_MAPPING_SOURCE`) |
 | `map-property` targets a property without mapping opt-in, an unavailable source, or an incompatible value type | 400 | `propertyNotMappable`, `unknownMappingPath`, `mappingTypeMismatch` |
-| An inline mapping token has a malformed path without a member below its source | 400 | `malformedInlineMappingToken` (`CONTENT_SYSTEM__MALFORMED_INLINE_MAPPING_TOKEN`) |
 | An inline-mapped property exceeds 256 KiB | 400 | `inlineMappingInputTooLarge` (`CONTENT_SYSTEM__INLINE_MAPPING_INPUT_TOO_LARGE`) |
 | A referenced element id is not in the layout                                                             | 400  | `mutationTargetNotFound`                          |
 | Moving an element into itself or a descendant                                                            | 400  | `mutationCycle`                                   |
@@ -23,3 +22,7 @@ A resolvability problem (an unresolved required property, a broken context chain
 | `insert-element`, `replace-element`, `attach-element` or `insert-preset` on a type whose default binding specification set holds more than one (only reachable via a database row created outside the app lifecycle) | 409 | `bindingSpecificationDefaultAmbiguous`            |
 | Layout element missing a non-empty string `id`/`component`; a duplicate element `id`, nesting past the maximum depth, or a non-array nested child (rejected before the edit runs); or an element config that is a client defect | 400 | `invalidLayoutStructure`                          |
 | `rootSource` is a non-empty value not registered in `RootSourceRegistry`                                 | 400  | `unknownRootSource` (the route gates membership against `RootSourceRegistry::knownRootSources()` before resolving, the same as the write validator) |
+
+Mapping findings discovered during analysis, including a malformed inline path without a member below its source, are returned as property-specific `invalid_mapping` entries in the HTTP 200 diagnostics body of diagnosis and stateless draft-mutation responses. `malformedInlineMappingToken` (`CONTENT_SYSTEM__MALFORMED_INLINE_MAPPING_TOKEN`) supplies the finding's message; analysis does not throw that exception. Saving an invalid mapping is separately rejected by the persistence write gate with HTTP 400.
+
+The authored-input limit above is an actual throwing validation failure. Runtime inline-output exhaustion is separate again: preview/rendering aborts with HTTP 500 and `CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE`, following the [mapping runtime rules](../../Mapping/README.md). Neither limit turns into a successful response with blanked content.

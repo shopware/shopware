@@ -141,9 +141,8 @@ function utf8ByteOffsetToUtf16Index(text: string, byteOffset: number): number {
  * round trip by locking itself behind a "review these changes" gate. The beautified diff renders the added `<p>` as
  * an empty line before the content, which reads as a stray empty paragraph.
  *
- * The case is not exotic: a text mapped as a whole is stored as exactly one bare token, with nothing around it —
- * which is also the form the migration away from whole-field mapping produces. An empty value has the same problem,
- * since `''` parses to one empty paragraph.
+ * A text consisting of one inline mapping token may be stored as a bare token with nothing around it. An empty
+ * value has the same problem, since `''` parses to one empty paragraph.
  *
  * This only normalises on the way *into* the editor. Storage is left alone until the author actually edits, because
  * rewriting a value on mere page load would mark the layout dirty for anyone who merely looked at it — and when they
@@ -202,7 +201,7 @@ export function editorHtmlToTokens(html: string, canonicalTokens: ReadonlyMap<st
  *   description is a heading and several paragraphs — and the renderer puts it where the token stood. Inside a `<p>`
  *   that nests blocks in a paragraph, which no browser accepts: the parser closes the paragraph before the first
  *   block and leaves an empty one behind, visible as a blank gap above the mapped content. The bare token renders
- *   exactly as the whole-field mapping it replaces.
+ *   without an additional paragraph wrapper.
  * - **Nothing at all.** An empty document serializes to `<p></p>`, so storing it verbatim leaves a paragraph in the
  *   rendered page that an author has no way to remove — erasing the text is the one gesture available, and it is
  *   already the gesture that produced this. Emptying the editor must empty the property.

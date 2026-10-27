@@ -17,7 +17,7 @@
 - **Write gates**: `Validation/ContentLayoutWriteValidator`, `Validation/ContentLayoutAssignmentWriteValidator`, `Validation/ContentLayoutDefaultValidator` (product/category default layout in system config), `Validation/LayoutGate` — see [Validation/AGENTS.md](Validation/AGENTS.md)
 - **Write boundary**: `Layout/LayoutWriteBoundary` with `Layout/LayoutDefaultSeeder`, reached from `Layout/Field/StoredElementListFieldSerializer::normalize` — see [Layout/README.md](Layout/README.md)
 - **Delete protection**: `RestrictDelete` on the five `content_layout` assignment associations, plus `Validation/ContentLayoutDefaultValidator` for a layout that is a product or category default — see [Layout/Entity/AGENTS.md](Layout/Entity/AGENTS.md)
-- **Draft Check**: `DraftLayoutChecker` (module root) — the preview action's intrinsic-subset diagnostics plus source-qualified mapping admission when `rootSource` is present
+- **Draft Check**: `DraftLayoutChecker` (module root) — the preview action's intrinsic-subset diagnostics without a bound root source. Source-qualified mapping admission belongs to diagnosis and persistence validation; mapping/binding findings do not block draft preview.
 - **Admin API**: `Api/` — preview, resolve-and-diagnose, draft and persisted mutation routes; see [Api/AGENTS.md](Api/AGENTS.md)
 - **Layout mutation**: `Mutation/MutationPipeline` over the `Mutation/Op` operations, and `Mutation/PersistedLayoutMutator` for the committed counterpart — see [Mutation/AGENTS.md](Mutation/AGENTS.md)
 - **Element Type Registry**: `Layout/Type/Registry/ContentSystemElementTypeRegistry` — see [Layout/Type/AGENTS.md](Layout/Type/AGENTS.md)

@@ -268,6 +268,21 @@ class ContentDiagnoseControllerTest extends TestCase
         ];
     }
 
+    public function testDiagnoseReportsMalformedInlineTokenWithoutAborting(): void
+    {
+        $element = $this->element('Sw:Content:Text');
+        $element['properties'] = ['text' => 'Hello {{map:product}}'];
+
+        $body = $this->diagnose(['layout' => [$element], 'rootSource' => 'product']);
+
+        $violations = $this->violationsWithCode($body, 'invalid_mapping');
+        static::assertCount(1, $violations);
+        static::assertSame($element['id'], $violations[0]['elementId']);
+        static::assertSame('text', $violations[0]['key']);
+        static::assertSame('binding', $violations[0]['scope']);
+        static::assertTrue($body['diagnostics']['wellFormed']);
+    }
+
     /**
      * The gap this closes end-to-end: `Sw:Media:Gallery.mediaItems` declares a `MediaCollection`, and
      * `category.media` is a single `MediaEntity`, so the catalogue can prove the mapping wrong. Before, the

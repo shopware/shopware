@@ -318,6 +318,31 @@ class LayoutMutationControllerTest extends TestCase
         static::assertFalse($body['diagnostics']['resolvable']);
     }
 
+    public function testMalformedInlineTokenIsReportedWithoutAbortingTheDraftMutation(): void
+    {
+        $text = 'Hello {{map:product}}';
+        $body = $this->mutate('insert-element', [
+            'layout' => [[
+                'id' => 'text-with-token',
+                'component' => 'Sw:Content:Text',
+                'properties' => ['text' => $text],
+            ]],
+            'type' => TestElementTypeLoader::RESOLVABLE,
+            'rootSource' => 'product',
+        ]);
+
+        $violations = array_values(array_filter(
+            $body['diagnostics']['violations'],
+            static fn (array $violation): bool => $violation['code'] === 'invalid_mapping',
+        ));
+        static::assertCount(1, $violations);
+        static::assertSame('text-with-token', $violations[0]['elementId']);
+        static::assertSame('text', $violations[0]['key']);
+        static::assertSame('binding', $violations[0]['scope']);
+        static::assertSame($text, $body['layout'][0]['properties']['text']);
+        static::assertCount(2, $body['layout']);
+    }
+
     #[TestDox('inlines the core Sw:Media:Image default specification\'s wiring and attribution on a draft bind')]
     public function testBindElementInlinesCoreSpecificationWiringAndAttribution(): void
     {

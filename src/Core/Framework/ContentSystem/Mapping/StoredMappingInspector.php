@@ -101,28 +101,6 @@ final class StoredMappingInspector
     }
 
     /**
-     * The INLINE rules alone, for a caller that needs them without whole-field mappings.
-     *
-     * Production gates should generally use {@see inspect()} so whole-field and inline mapping admission are checked
-     * together. This narrower pass remains useful when a caller explicitly needs only inline-token diagnostics.
-     *
-     * @param list<StoredElement> $roots
-     *
-     * @return list<MappingProblem>
-     */
-    public function inspectInline(array $roots, string $rootSource): array
-    {
-        $problems = [];
-        foreach ($this->flatten($roots) as $element) {
-            foreach ($this->inspectElementInline($element, $rootSource) as $problem) {
-                $problems[] = $problem;
-            }
-        }
-
-        return $problems;
-    }
-
-    /**
      * Inline tokens are explicit mapping intent even when no root source is bound. Report that missing
      * prerequisite without consulting a source-specific candidate catalogue. Whole-field mappings remain
      * unjudged here because their admissibility cannot be determined without that catalogue.

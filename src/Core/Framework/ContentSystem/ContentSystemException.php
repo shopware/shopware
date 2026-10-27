@@ -99,7 +99,6 @@ class ContentSystemException extends HttpException
     public const INVALID_MAPPING_CANDIDATE_PATH = 'CONTENT_SYSTEM__INVALID_MAPPING_CANDIDATE_PATH';
     public const MAPPING_CANDIDATE_PATH_MISMATCH = 'CONTENT_SYSTEM__MAPPING_CANDIDATE_PATH_MISMATCH';
     public const MAPPING_CONTEXT_TYPE_MISMATCH = 'CONTENT_SYSTEM__MAPPING_CONTEXT_TYPE_MISMATCH';
-    public const PROPERTY_NOT_INLINE_MAPPABLE = 'CONTENT_SYSTEM__PROPERTY_NOT_INLINE_MAPPABLE';
     public const UNKNOWN_INLINE_MAPPING_PATH = 'CONTENT_SYSTEM__UNKNOWN_INLINE_MAPPING_PATH';
     public const MALFORMED_INLINE_MAPPING_TOKEN = 'CONTENT_SYSTEM__MALFORMED_INLINE_MAPPING_TOKEN';
     public const INLINE_MAPPING_VALUE_NOT_STRINGIFIABLE = 'CONTENT_SYSTEM__INLINE_MAPPING_VALUE_NOT_STRINGIFIABLE';
@@ -1035,22 +1034,10 @@ class ContentSystemException extends HttpException
         );
     }
 
-    // The client-facing 400s of the INLINE mapping gate. An inline mapping is a `{{map:path}}` token inside an
+    // The validation factories of the INLINE mapping gate. An inline mapping is a `{{map:path}}` token inside an
     // `inlineMappable` string property, carrying no `acceptsContext` entry of its own, so whole-field mapping checks
     // cannot see one. Mapping admissibility faults use the shared `Mapping/MappingProblem` channel; a missing root
     // source is also reported through that channel by diagnostics. These codes are absent from CLIENT_DEFECT_CODES.
-
-    // A token in a property whose type did not opt in with `inlineMappable: true`. The `map:` prefix is what makes
-    // this an error rather than a guess: nobody writes `{{map:…}}` as prose, so the intent is unambiguous.
-    public static function propertyNotInlineMappable(string $component, string $propertyKey): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::PROPERTY_NOT_INLINE_MAPPABLE,
-            'Property "{{ propertyKey }}" of element type "{{ component }}" does not support inline mapping. Declare "inlineMappable: true" on it to allow inline mapping tokens in its text.',
-            ['component' => $component, 'propertyKey' => $propertyKey]
-        );
-    }
 
     // The token's path is not in the mapping catalogue of the layout's root source. Rendering removes the token
     // without resolving it; the write error and diagnostics API tell the author why it is unavailable.

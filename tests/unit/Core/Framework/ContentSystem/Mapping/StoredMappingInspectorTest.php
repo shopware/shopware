@@ -330,20 +330,6 @@ class StoredMappingInspectorTest extends TestCase
         static::assertSame([], $this->inspector($this->textElementType(inlineMappable: true))->inspect([$element], 'category'));
     }
 
-    #[TestDox('inspectInline reports the inline rules without the whole-field ones')]
-    public function testInspectInlineReportsOnlyTheInlineRules(): void
-    {
-        $inlineOffender = $this->elementWithText('{{map:category.internalNote}}');
-        $wholeFieldOffender = $this->elementMapping('category.internalNote', onto: 'text', id: 'element-2');
-
-        $inspector = $this->inspector($this->textElementType(inlineMappable: true));
-        $problems = $inspector->inspectInline([$inlineOffender, $wholeFieldOffender], 'category');
-
-        static::assertCount(1, $problems);
-        static::assertSame('element-1', $problems[0]->elementId);
-        static::assertSame(ContentSystemException::UNKNOWN_INLINE_MAPPING_PATH, $problems[0]->exception->getErrorCode());
-    }
-
     #[TestDox('leaves an ordinary placeholder alone, because only the map: prefix marks a mapping')]
     public function testIgnoresAPlaceholderWithoutTheMapPrefix(): void
     {

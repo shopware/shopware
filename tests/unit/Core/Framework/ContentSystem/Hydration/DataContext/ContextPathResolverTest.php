@@ -74,13 +74,13 @@ class ContextPathResolverTest extends TestCase
     }
 
     #[TestDox('resolves a catalogued mapping through the array-backed customFields member')]
-    public function testResolveMappingPathResolvesCustomField(): void
+    public function testResolveMappingPathWithPresenceResolvesCustomField(): void
     {
         $struct = new StubPathStruct(customFields: ['material' => 'Leather']);
 
         static::assertSame(
-            'Leather',
-            $this->resolver->resolveMappingPath($struct, ['customFields', 'material'], false, 'product.customFields.material', 'elem-1')
+            ['found' => true, 'value' => 'Leather'],
+            $this->resolver->resolveMappingPathWithPresence($struct, ['customFields', 'material'])
         );
     }
 
@@ -95,30 +95,55 @@ class ContextPathResolverTest extends TestCase
     }
 
     #[TestDox('does not permit custom-field array traversal below the root entity')]
-    public function testResolveMappingPathRejectsNestedCustomFieldArrays(): void
+    public function testResolveMappingPathWithPresenceRejectsNestedCustomFieldArrays(): void
     {
         $child = new StubPathStruct(customFields: ['secret' => 'hidden']);
         $struct = new StubPathStruct(child: $child);
 
-        static::assertNull(
-            $this->resolver->resolveMappingPath(
+        static::assertSame(
+            ['found' => false, 'value' => null],
+            $this->resolver->resolveMappingPathWithPresence(
                 $struct,
                 ['child', 'customFields', 'secret'],
-                false,
-                'product.child.customFields.secret',
-                'elem-1'
             )
         );
     }
 
-    #[TestDox('returns null when a catalogued custom field has no value on the entity')]
-    public function testResolveMappingPathReturnsNullForMissingCustomField(): void
+    #[TestDox('reports missing when a catalogued custom field has no value on the entity')]
+    public function testResolveMappingPathWithPresenceReportsMissingCustomField(): void
     {
         $struct = new StubPathStruct(customFields: []);
 
-        static::assertNull(
-            $this->resolver->resolveMappingPath($struct, ['customFields', 'material'], false, 'product.customFields.material', 'elem-1')
+        static::assertSame(
+            ['found' => false, 'value' => null],
+            $this->resolver->resolveMappingPathWithPresence($struct, ['customFields', 'material'])
         );
+    }
+
+    /**
+     * @param list<string> $path
+     */
+    #[DataProvider('presenceAwarePathProvider')]
+    public function testMappingLookupPreservesPresence(?Struct $data, array $path, bool $found, mixed $value): void
+    {
+        static::assertSame(['found' => $found, 'value' => $value], $this->resolver->resolveMappingPathWithPresence($data, $path));
+    }
+
+    /**
+     * @return iterable<string, array{Struct|null, list<string>, bool, mixed}>
+     */
+    public static function presenceAwarePathProvider(): iterable
+    {
+        $whole = new StubPathStruct(name: 'Whole source');
+        yield 'whole source preserves its instance' => [$whole, [], true, $whole];
+        yield 'missing whole source' => [null, [], false, null];
+        yield 'present terminal null' => [new StubPathStruct(name: null), ['name'], true, null];
+        yield 'present null custom field' => [new StubPathStruct(customFields: ['material' => null]), ['customFields', 'material'], true, null];
+        yield 'present empty custom field' => [new StubPathStruct(customFields: ['material' => '']), ['customFields', 'material'], true, ''];
+        yield 'missing property' => [new StubPathStruct(), ['missing'], false, null];
+        yield 'null intermediate value' => [new StubPathStruct(child: null), ['child', 'name'], false, null];
+        yield 'nested Struct value' => [new StubPathStruct(child: new StubPathStruct(name: 'Child')), ['child', 'name'], true, 'Child'];
+        yield 'ordinary arrays remain opaque' => [new StubPathStruct(nonStructProp: ['secret' => 'hidden']), ['nonStructProp', 'secret'], false, null];
     }
 
     /**

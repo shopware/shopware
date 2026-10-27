@@ -7,8 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * Resolves nested property paths on Struct objects for context distribution. Catalogued mappings additionally
- * have a narrow terminal lookup into an entity's array-backed custom fields.
+ * Resolves nested property paths on Struct objects for context distribution. Catalogued mappings use a separate
+ * presence-aware lookup with a narrow terminal lookup into an entity's array-backed custom fields.
  *
  * @internal
  *
@@ -35,20 +35,7 @@ class ContextPathResolver
      */
     public function resolvePath(?Struct $data, array $path, bool $required, string $fullPath, string $elementId): mixed
     {
-        return $this->resolve($data, $path, $required, $fullPath, $elementId, false);
-    }
-
-    /**
-     * Resolves a catalogued mapping path, additionally permitting one terminal lookup in the root entity's
-     * array-backed `customFields` member. Ordinary context wiring deliberately remains Struct-only.
-     *
-     * @param array<string> $path
-     *
-     * @throws ContentSystemException If path cannot be resolved and $required is true
-     */
-    public function resolveMappingPath(?Struct $data, array $path, bool $required, string $fullPath, string $elementId): mixed
-    {
-        return $this->resolve($data, $path, $required, $fullPath, $elementId, true);
+        return $this->resolve($data, $path, $required, $fullPath, $elementId);
     }
 
     /**
@@ -121,7 +108,6 @@ class ContextPathResolver
         bool $required,
         string $fullPath,
         string $elementId,
-        bool $allowCustomField,
     ): mixed {
         if ($path === []) {
             return $data;
@@ -143,27 +129,6 @@ class ContextPathResolver
         $pathCount = \count($path);
 
         foreach ($path as $index => $segment) {
-            if ($allowCustomField
-                && \is_array($current)
-                && $pathCount === 2
-                && $index === 1
-                && $path[0] === 'customFields'
-            ) {
-                if (\array_key_exists($segment, $current)) {
-                    return $current[$segment];
-                }
-
-                if ($required) {
-                    throw ContentSystemException::contextPathNotResolvable(
-                        $fullPath,
-                        $elementId,
-                        "Custom field '{$segment}' does not exist"
-                    );
-                }
-
-                return null;
-            }
-
             if (!$current instanceof Struct) {
                 if ($required) {
                     $traversedPath = implode('.', \array_slice($path, 0, $index));

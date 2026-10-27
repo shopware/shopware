@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Mcp;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\HttpFoundation\IpUtils;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -148,14 +149,18 @@ class McpAllowedHostsProvider
     {
         $host = strtolower($host);
         if (str_starts_with($host, '[')) {
-            return str_starts_with($host, '[::1]');
+            return preg_match('#\A\[::1\](:\d+)?\z#', $host) === 1;
         }
 
         $host = explode(':', $host, 2)[0];
 
-        return $host === 'localhost'
-            || str_ends_with($host, '.localhost')
-            || str_starts_with($host, '127.');
+        if ($host === 'localhost' || str_ends_with($host, '.localhost')) {
+            return true;
+        }
+
+        // Only a real IPv4 literal counts: a hostname such as `127.attacker.example` must not pass.
+        return filter_var($host, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV4) !== false
+            && IpUtils::checkIp4($host, '127.0.0.0/8');
     }
 
     private function extractHost(string $url): ?string

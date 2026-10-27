@@ -38,11 +38,12 @@ class WriteOutcome
             throw DataAbstractionLayerException::writeOutcomeWithoutColumns();
         }
 
-        $primaryKeys = $this->updatedPrimaryKeys($commands, $columns);
+        $records = $this->commandsPerRecord($commands, $columns);
+        $primaryKeys = $this->updatedPrimaryKeys($records);
         $storedRows = $this->loadStoredRows($commands, $primaryKeys, $columns);
 
         $rows = [];
-        foreach ($this->commandsPerRecord($commands, $columns) as $hash => $recordCommands) {
+        foreach ($records as $hash => $recordCommands) {
             $rows[] = $this->toOutcomeRow($recordCommands, $storedRows[$hash] ?? [], $columns);
         }
 
@@ -50,21 +51,20 @@ class WriteOutcome
     }
 
     /**
-     * @param list<WriteCommand> $commands
-     * @param list<string> $columns
+     * @param array<string, non-empty-list<InsertCommand|UpdateCommand>> $records
      *
-     * @return list<array<string, string>>
+     * @return list<array<string, string>> the primary keys of the records that already exist
      */
-    private function updatedPrimaryKeys(array $commands, array $columns): array
+    private function updatedPrimaryKeys(array $records): array
     {
         $primaryKeys = [];
-        foreach ($commands as $command) {
-            if ($command instanceof UpdateCommand && $command->hasAnyField(...$columns)) {
-                $primaryKeys[self::hashPrimaryKey($command->getPrimaryKey())] = $command->getPrimaryKey();
+        foreach ($records as $recordCommands) {
+            if ($recordCommands[0] instanceof UpdateCommand) {
+                $primaryKeys[] = $recordCommands[0]->getPrimaryKey();
             }
         }
 
-        return array_values($primaryKeys);
+        return $primaryKeys;
     }
 
     /**

@@ -166,6 +166,29 @@ class WriteOutcomeTest extends TestCase
         static::assertSame([], $rows);
     }
 
+    public function testNoRowIsLoadedForARecordTheWriteDeletes(): void
+    {
+        $rowLoader = $this->createMock(RowLoader::class);
+        $rowLoader->expects($this->never())->method('load');
+
+        (new WriteOutcome($rowLoader))->rows([
+            $this->updateProduct(['stock' => 2]),
+            new DeleteCommand($this->productDefinition, $this->productPrimaryKey, static::createStub(EntityExistence::class)),
+        ], ['stock']);
+    }
+
+    public function testNoRowIsLoadedForARecordTheWriteDeletesAndCreatesAgain(): void
+    {
+        $rowLoader = $this->createMock(RowLoader::class);
+        $rowLoader->expects($this->never())->method('load');
+
+        (new WriteOutcome($rowLoader))->rows([
+            new DeleteCommand($this->productDefinition, $this->productPrimaryKey, static::createStub(EntityExistence::class)),
+            $this->insertProduct(['stock' => 1]),
+            $this->updateProduct(['stock' => 2]),
+        ], ['stock']);
+    }
+
     public function testARecordInsertedAfterADeleteIsNew(): void
     {
         $row = (new WriteOutcome(static::createStub(RowLoader::class)))->rows([

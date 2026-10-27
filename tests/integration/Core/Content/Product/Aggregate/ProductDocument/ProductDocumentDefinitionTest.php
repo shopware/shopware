@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
@@ -152,6 +154,73 @@ class ProductDocumentDefinitionTest extends TestCase
         static::assertSame([$this->ids->get('blue-manual')], $this->translated($documents, 'mediaId'));
     }
 
+    public function testAnUnlinkedVariantChangesItsCopiesAndAddsItsOwnDocuments(): void
+    {
+        $germanId = $this->getDeDeLanguageId();
+        $this->createProduct('drill', documents: [
+            [
+                'position' => 1,
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => ['title' => 'Certificate', 'mediaId' => $this->createMedia('certificate-en')],
+                    $germanId => ['title' => 'Zertifikat', 'mediaId' => $this->createMedia('certificate-de')],
+                ],
+            ],
+            ['position' => 2, 'title' => 'Manual', 'mediaId' => $this->createMedia('manual-en')],
+        ], variants: ['drill.blue' => []]);
+        [$certificate, $manual] = $this->copyDocumentsToVariant('drill', 'drill.blue');
+
+        $this->productDocumentRepository->update([
+            ['id' => $certificate, 'position' => 2, 'title' => 'Certificate (blue)'],
+            ['id' => $manual, 'position' => 1, 'mediaId' => $this->createMedia('blue-manual-en'), 'translations' => [
+                $germanId => ['title' => 'Handbuch (blau)', 'mediaId' => $this->createMedia('blue-manual-de')],
+            ]],
+        ], $this->context);
+
+        $english = $this->loadDocuments('drill.blue', considerInheritance: true);
+        static::assertSame(['Manual', 'Certificate (blue)'], $this->translated($english, 'title'));
+        static::assertSame([$this->ids->get('blue-manual-en'), $this->ids->get('certificate-en')], $this->translated($english, 'mediaId'));
+        $german = $this->loadDocuments('drill.blue', [$germanId, Defaults::LANGUAGE_SYSTEM], considerInheritance: true);
+        static::assertSame(['Handbuch (blau)', 'Zertifikat'], $this->translated($german, 'title'));
+
+        /** @var EntityRepository<ProductDocumentTranslationCollection> $translationRepository */
+        $translationRepository = static::getContainer()->get('product_document_translation.repository');
+        $translationRepository->delete([[
+            'productDocumentId' => $manual,
+            'productDocumentVersionId' => Defaults::LIVE_VERSION,
+            'languageId' => $germanId,
+        ]], $this->context);
+        $this->productDocumentRepository->delete([['id' => $certificate]], $this->context);
+        $this->productDocumentRepository->create([
+            ['productId' => $this->ids->get('drill.blue'), 'position' => 2, 'title' => 'Colour chart', 'mediaId' => $this->createMedia('colour-chart')],
+        ], $this->context);
+
+        $german = $this->loadDocuments('drill.blue', [$germanId, Defaults::LANGUAGE_SYSTEM], considerInheritance: true);
+        static::assertSame(['Manual', 'Colour chart'], $this->translated($german, 'title'));
+        static::assertSame([$this->ids->get('blue-manual-en'), $this->ids->get('colour-chart')], $this->translated($german, 'mediaId'));
+
+        $parent = $this->loadDocuments('drill', [$germanId, Defaults::LANGUAGE_SYSTEM]);
+        static::assertSame(['Zertifikat', 'Manual'], $this->translated($parent, 'title'));
+        static::assertSame([$this->ids->get('certificate-de'), $this->ids->get('manual-en')], $this->translated($parent, 'mediaId'));
+    }
+
+    public function testRestoringInheritanceShowsTheParentListAgain(): void
+    {
+        $this->createProduct(
+            'drill',
+            documents: [['title' => 'Manual', 'mediaId' => $this->createMedia('manual')]],
+            variants: ['drill.blue' => []],
+        );
+        [$copy] = $this->copyDocumentsToVariant('drill', 'drill.blue');
+        $this->productDocumentRepository->update([['id' => $copy, 'title' => 'Blue manual']], $this->context);
+        static::assertSame(['Blue manual'], $this->translated($this->loadDocuments('drill.blue', considerInheritance: true), 'title'));
+
+        $this->productDocumentRepository->delete([['id' => $copy]], $this->context);
+
+        $documents = $this->loadDocuments('drill.blue', considerInheritance: true);
+        static::assertSame(['Manual'], $this->translated($documents, 'title'));
+        static::assertSame($this->ids->get('drill'), $documents->first()?->getProductId());
+    }
+
     public function testDeletingAProductDeletesItsDocumentsButKeepsTheFiles(): void
     {
         $manualId = $this->createMedia('manual');
@@ -246,6 +315,33 @@ class ProductDocumentDefinitionTest extends TestCase
         $product['documents'] = $documents;
 
         $this->productRepository->create([$product], $this->context);
+    }
+
+    /**
+     * Copies the parent's documents with all their versions to the variant, the way the Administration unlinks the list.
+     *
+     * @return list<string> ids of the copies, in the parent's order
+     */
+    private function copyDocumentsToVariant(string $parentNumber, string $variantNumber): array
+    {
+        $copies = [];
+        foreach ($this->loadDocuments($parentNumber) as $document) {
+            $translations = [];
+            foreach ($document->getTranslations() ?? [] as $translation) {
+                $translations[$translation->getLanguageId()] = ['title' => $translation->getTitle(), 'mediaId' => $translation->getMediaId()];
+            }
+
+            $copies[] = [
+                'id' => Uuid::randomHex(),
+                'productId' => $this->ids->get($variantNumber),
+                'position' => $document->getPosition(),
+                'translations' => $translations,
+            ];
+        }
+
+        $this->productDocumentRepository->create($copies, $this->context);
+
+        return array_column($copies, 'id');
     }
 
     /**

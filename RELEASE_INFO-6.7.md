@@ -242,6 +242,10 @@ They additionally react to domain changes:
 toggling the external storefront flag of a domain (or adding/removing domains) creates or removes the affected rows without re-saving the customer group.
 The storefront rows are untouched by this and keep being maintained by the Storefront bundle.
 
+### Overrides keep their own methods and props across component builds
+
+Repeated `Component.build()` calls no longer remove methods, props or other options that an override defines from components built earlier. Components with three or more overrides, such as the base of a `Component.extend()` that is mounted after other builds, failed with `this.<method> is not a function` or lost props before. No changes to extensions are required.
+
 ### Sales channel product assignment is no longer capped at 500 products
 
 Assigning products to a sales channel through the "Categories" or "Product group selection" tab of the product assignment modal now adds every matching product.
@@ -256,6 +260,7 @@ If you override the template of one of these components and render your own fiel
 ```html
 <mt-text-field v-bind="$attrs" @update:model-value="$emit('update:modelValue', $event)" />
 ```
+
 ### Known core deprecations log an error in next-major mode
 
 Core usages that are not migrated yet are listed in `src/Administration/Resources/app/administration/src/core/deprecation-baseline.json`.

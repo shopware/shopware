@@ -53,6 +53,30 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
     }
 
     /**
+     * The tool services of one scope. McpToolDiscoveryCompilerPass also gives every Store API tool the
+     * SDK tag 'mcp.tool' so the bundle collects it for its own server, so the Admin scope leaves the
+     * Store API tools out. Otherwise their groups, descriptions and privileges would leak into the
+     * Admin API maps.
+     *
+     * @return list<string>
+     */
+    private function toolServiceIds(ContainerBuilder $container, string $tag): array
+    {
+        $serviceIds = array_keys($container->findTaggedServiceIds($tag));
+
+        if ($tag !== 'mcp.tool') {
+            return $serviceIds;
+        }
+
+        $storeApiTools = $container->findTaggedServiceIds('shopware.store_api_mcp.tool');
+
+        return array_values(array_filter(
+            $serviceIds,
+            static fn (string $serviceId): bool => !isset($storeApiTools[$serviceId]),
+        ));
+    }
+
+    /**
      * Reads #[McpToolDependsOn] attributes from every registered tool, validates that each
      * declared dependency name is itself a registered tool, then stores the resolved map as a
      * container parameter so the runtime provider can expand allowlists without reflection.
@@ -64,7 +88,7 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
         /** @var array<string, string> $toolNames  tool-name => class */
         $toolNames = [];
 
-        foreach ($container->findTaggedServiceIds($tag) as $serviceId => $tags) {
+        foreach ($this->toolServiceIds($container, $tag) as $serviceId) {
             $definition = $container->getDefinition($serviceId);
             $class = $definition->getClass() ?? $serviceId;
             $toolInfo = McpToolAttributeReader::resolveInfo($class, McpTool::class, ['name', 'description']);
@@ -114,7 +138,7 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
         /** @var array<string, array{static: list<string>, entityParam: ?string, operations: list<string>}> $privilegeMap */
         $privilegeMap = [];
 
-        foreach ($container->findTaggedServiceIds($tag) as $serviceId => $tags) {
+        foreach ($this->toolServiceIds($container, $tag) as $serviceId) {
             $definition = $container->getDefinition($serviceId);
             $class = $definition->getClass() ?? $serviceId;
             $toolInfo = McpToolAttributeReader::resolveInfo($class, McpTool::class, ['name', 'description']);
@@ -163,7 +187,7 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
         /** @var array<string, array{description: string, core: bool}> $describedGroups tool-name => description, for tools that describe their group */
         $describedGroups = [];
 
-        foreach ($container->findTaggedServiceIds($tag) as $serviceId => $tags) {
+        foreach ($this->toolServiceIds($container, $tag) as $serviceId) {
             $definition = $container->getDefinition($serviceId);
             $class = $definition->getClass() ?? $serviceId;
 

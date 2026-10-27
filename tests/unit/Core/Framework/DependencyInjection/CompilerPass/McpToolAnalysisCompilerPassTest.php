@@ -215,6 +215,28 @@ class McpToolAnalysisCompilerPassTest extends TestCase
         static::assertSame([], $this->groupDescriptionConflicts($container));
     }
 
+    public function testStoreApiToolsStayOutOfTheAdminToolMaps(): void
+    {
+        $container = $this->createContainer();
+
+        // McpToolDiscoveryCompilerPass gives every Store API tool the SDK tag "mcp.tool" as well.
+        $container->setDefinition(
+            'tool.store-api',
+            (new Definition(McpAnalysisTestDescribingGroupTool::class))
+                ->addTag('shopware.store_api_mcp.tool')
+                ->addTag('mcp.tool'),
+        );
+
+        (new McpToolAnalysisCompilerPass())->process($container);
+
+        static::assertSame([], $container->getParameter('shopware.mcp.tool_groups'));
+        static::assertSame([], $container->getParameter('shopware.mcp.tool_group_descriptions'));
+        static::assertSame(
+            ['catalogue' => 'Browse and edit the catalogue.'],
+            $container->getParameter('shopware.store_api_mcp.tool_group_descriptions'),
+        );
+    }
+
     public function testConflictingExtensionDescriptionsUseTheFirstToolByNameAndWarn(): void
     {
         $container = $this->createContainer();

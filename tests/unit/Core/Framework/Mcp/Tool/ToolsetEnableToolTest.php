@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
+use Mcp\Schema\Enum\ProtocolVersion;
+use Mcp\Server\Stateless\RequestMeta;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -94,5 +96,36 @@ class ToolsetEnableToolTest extends TestCase
 
         static::assertFalse($result['success']);
         static::assertStringContainsString('"?toolsets=entity"', $result['error']);
+    }
+
+    public function testIsUnavailableOnTheStatelessEraAndPointsToToolsetsInTheUrl(): void
+    {
+        $registry = $this->createMock(McpToolsetRegistry::class);
+        $registry->expects($this->never())->method('find');
+
+        $storage = $this->createMock(McpToolsetSessionStorage::class);
+        $storage->expects($this->never())->method('enable');
+
+        $requestStack = new RequestStack();
+        $request = self::statelessRequest('tools/call');
+        $requestStack->push($request);
+
+        $result = json_decode((new ToolsetEnableTool($registry, $storage, $requestStack))('entity'), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($result['success']);
+        static::assertStringContainsString('2026-07-28', $result['error']);
+        static::assertStringContainsString('"?toolsets=entity"', $result['error']);
+        static::assertStringContainsString(McpToolsetRegistry::TOOL_SEARCH_TOOL, $result['error']);
+        static::assertFalse($request->attributes->getBoolean(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE));
+    }
+
+    private static function statelessRequest(string $method): Request
+    {
+        return Request::create('/api/_mcp', 'POST', content: json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'method' => $method,
+            'params' => ['_meta' => [RequestMeta::PROTOCOL_VERSION => ProtocolVersion::V2026_07_28->value]],
+        ], \JSON_THROW_ON_ERROR));
     }
 }

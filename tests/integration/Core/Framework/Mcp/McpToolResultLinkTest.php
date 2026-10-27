@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultStoredFormat;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -24,6 +25,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 class McpToolResultLinkTest extends TestCase
 {
     use AdminApiTestBehaviour;
+    use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
     use SalesChannelApiTestBehaviour;
 

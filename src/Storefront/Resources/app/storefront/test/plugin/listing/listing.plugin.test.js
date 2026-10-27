@@ -62,6 +62,25 @@ describe('ListingPlugin tests', () => {
         expect(typeof listingPlugin).toBe('object');
     });
 
+    test('initializes without an active-filter container', () => {
+        document.querySelectorAll('.filter-panel-active-container').forEach(container => container.remove());
+        const listing = new ListingPlugin(document.querySelector('[data-listing="true"]'));
+
+        expect(listing.activeFilterContainers).toHaveLength(0);
+        expect(listing.activeFilterContainer).toBeNull();
+        expect(() => listing._buildLabels()).not.toThrow();
+    });
+
+    describe('_getFilterSnapshot', () => {
+        test.each([null, undefined])('returns an empty snapshot when a filter returns %s', (values) => {
+            expect(listingPlugin._getFilterSnapshot({ getValues: () => values })).toEqual({});
+        });
+
+        test('returns an empty snapshot when a filter does not provide getValues', () => {
+            expect(listingPlugin._getFilterSnapshot({})).toEqual({});
+        });
+    });
+
     /** @deprecated tag:v6.8.0 - Tests for legacy filter panel properties. Remove in v6.8.0 */
     describe('legacy filter panel properties', () => {
         beforeEach(() => {
@@ -613,6 +632,53 @@ describe('ListingPlugin tests', () => {
             return new FilterRangePlugin(element, options);
         }
 
+        test('establishes a baseline for a filter without a snapshot without treating its values as changes', () => {
+            const filter = {
+                getValues: () => ({ properties: ['red'] }),
+                setValuesFromUrl: jest.fn(),
+            };
+            listingPlugin._registry.push(filter);
+
+            listingPlugin.changeListing();
+
+            expect(filter.setValuesFromUrl).not.toHaveBeenCalled();
+            expect(listingPlugin._filterSnapshots.get(filter)).toEqual({ properties: ['red'] });
+            expect(sendDataRequest.mock.calls[0][0].get('properties')).toBe('red');
+        });
+
+        test('synchronizes array values when a filter previously reported a scalar', () => {
+            let values = { properties: '' };
+            const filter = {
+                getValues: () => values,
+                setValuesFromUrl: jest.fn(),
+            };
+            listingPlugin.registerFilter(filter);
+            const other = createFilter('properties', ['red'], FilterPropertySelectPlugin, 1);
+            values = { properties: ['red'] };
+
+            listingPlugin.changeListing();
+
+            expect(filter.setValuesFromUrl).toHaveBeenCalledWith({ properties: 'red' });
+            expect(other.getValues()).toEqual({ properties: ['red'] });
+            expect(sendDataRequest.mock.calls[0][0].get('properties')).toBe('red');
+        });
+
+        test.each([null, undefined])('serializes a cleared scalar value of %s as an empty string', (value) => {
+            let values = { 'min-price': '10' };
+            const filter = {
+                getValues: () => values,
+                setValuesFromUrl: jest.fn(),
+            };
+            listingPlugin.registerFilter(filter);
+            values = { 'min-price': value };
+
+            listingPlugin.changeListing();
+
+            expect(filter.setValuesFromUrl).toHaveBeenCalledWith({ 'min-price': '' });
+            expect(sendDataRequest.mock.calls[0][0].has('min-price')).toBe(false);
+            expect(listingPlugin._filterSnapshots.get(filter)).toEqual({ 'min-price': value });
+        });
+
         test('synchronizes boolean filters including clearing the checked state', () => {
             const filters = [0, 1].map((panelIndex) => {
                 const element = document.createElement('div');
@@ -730,6 +796,32 @@ describe('ListingPlugin tests', () => {
 
                 input.dispatchEvent(new Event('input', { bubbles: true }));
             }
+
+            test.each(['.min-input', '.max-input'])('synchronizes lower-bound validation for %s and clears it after correction', (selector) => {
+                const options = {
+                    snippets: {
+                        filterRangeLowerBoundErrorMessage: 'Price must not be negative',
+                    },
+                };
+                const filters = [createRangeFilter(0, options), createRangeFilter(1, options)];
+
+                changeInput(filters[0], selector, '-1');
+                jest.advanceTimersByTime(500);
+
+                filters.forEach((filter) => {
+                    expect(filter.el.querySelectorAll('.is-invalid')).toHaveLength(2);
+                    expect(filter.el.querySelector('.filter-range-error').textContent).toBe('Price must not be negative');
+                });
+
+                changeInput(filters[1], selector, '0');
+                jest.advanceTimersByTime(500);
+
+                filters.forEach((filter) => {
+                    expect(filter.el.querySelectorAll('.is-invalid')).toHaveLength(0);
+                    expect(filter.el.querySelector('.filter-range-error')).toBeNull();
+                });
+                expect(sendDataRequest).toHaveBeenCalledTimes(2);
+            });
 
             test.each([0, 1])('synchronizes and clears both bounds from panel %i', (sourceIndex) => {
                 const filters = [createRangeFilter(), createRangeFilter(1)];

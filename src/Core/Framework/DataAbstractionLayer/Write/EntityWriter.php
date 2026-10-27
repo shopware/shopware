@@ -259,8 +259,10 @@ class EntityWriter implements EntityWriterInterface
         }
         $cascades = $this->foreignKeyResolver->getAffectedDeletes($definition, $resolved, $writeContext->getContext());
 
+        $cascadedDeletes = [];
         foreach ($cascades as $affectedDefinitionClass => $keys) {
             $affectedDefinition = $this->registry->getByEntityName($affectedDefinitionClass);
+            $cascadedDeletes[] = [$affectedDefinition, $keys];
 
             foreach ($keys as $key) {
                 if (!\is_array($key)) {
@@ -285,10 +287,14 @@ class EntityWriter implements EntityWriterInterface
                 );
             }
         }
+
+        foreach ($cascadedDeletes as [$affectedDefinition, $keys]) {
+            $this->addSetNullOnDeletesCommands($queue, $affectedDefinition, $writeContext, $keys);
+        }
     }
 
     /**
-     * @param array<array<string, string>> $resolved
+     * @param array<string>|array<array<string, string>> $resolved
      */
     private function addSetNullOnDeletesCommands(WriteCommandQueue $queue, EntityDefinition $definition, WriteContext $writeContext, array $resolved): void
     {
@@ -318,6 +324,10 @@ class EntityWriter implements EntityWriterInterface
 
                 $primary = EntityHydrator::encodePrimaryKey($affectedDefinition, ['id' => $key], $writeContext->getContext());
 
+                if ($this->isDeletedInQueue($queue, $affectedDefinition, $primary)) {
+                    continue;
+                }
+
                 $existence = new EntityExistence($affectedDefinition->getEntityName(), $primary, true, false, false, []);
 
                 if ($definition->isVersionAware()) {
@@ -336,6 +346,20 @@ class EntityWriter implements EntityWriterInterface
                 );
             }
         }
+    }
+
+    /**
+     * @param array<string, string> $primaryKey
+     */
+    private function isDeletedInQueue(WriteCommandQueue $queue, EntityDefinition $definition, array $primaryKey): bool
+    {
+        foreach ($queue->getCommandsForEntity($definition, $primaryKey) as $command) {
+            if ($command instanceof DeleteCommand) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

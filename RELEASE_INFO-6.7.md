@@ -89,36 +89,6 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
-### Content System custom-field mapping cache dependencies
-
-Cached content using custom-field mappings is invalidated when field definitions, sets, or assignments change, including field reactivation and assignment deletion. Layouts using only core mappings such as `product.name` are outside this invalidation policy. Custom mapping providers can declare dependencies for unavailable candidates through `cacheTagsForMapping($rootSource, $path)`; registry decorators forward this hook to their inner registry.
-
-### Content System tree root-source preservation
-
-`StoredTree::withRoots()` rebuilds an element forest while retaining its `rootSource`. Mutation and normalization code use the tree as the single source of root-source metadata, so sequential edits preserve mapping and default-binding decisions. Custom tree transforms should preserve that metadata when rebuilding a forest.
-
-### Content System mapping provider extensions
-
-Plugin-owned mapping sources can use the bundle name as their source `type` and a bundle-local `id`, for example `AcmePlugin:recommendations.title`. To change an existing mapping intentionally, decorate `AbstractContentSystemMappingCandidateRegistry` and keep catalogue admission and resolution consistent. Registry decorators inherit request-local cache reset forwarding. Concrete core providers remain internal.
-
-Stable declared candidate collisions still fail the container build. Runtime collisions exclude every competing candidate for that name and log a warning, while unrelated mappings continue to work.
-
-### Content System inline mapping expansion errors
-
-Exceeding the inline mapping output limit now aborts rendering with HTTP 500 and `CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE` instead of returning successful output with empty properties. This applies to Store API, Storefront, and preview. The limits remain 1 MiB per property and 4 MiB per render; the 256 KiB authored-input cap still returns HTTP 400.
-
-### Content System mapping provider API
-
-`MappingSourceResolution` is now part of the public mapping-provider API. `MappingSourceResolutionContext` supplies the element, root values, resolved loader values, and rendering cache context. It no longer exposes the sales-channel context or HTTP request; providers should use data loaders for context-dependent data and preserve cache dependencies through the supplied rendering cache context. The mapping registry resolves sources through `resolveSource($rootSource, $source, $context)`, with a required root-source argument. Registry decorators must forward all three arguments.
-
-### Content System mapping sources
-
-Built-in data-mapping candidates are limited to products, categories, landing pages, and their public custom fields. Mapping Storefront context values such as currency, language, and tax state is not available.
-
-### Content System mapping provider errors
-
-Errors thrown by data-mapping providers now use normal error handling and abort rendering instead of silently omitting mapped content. Custom providers should return `MappingSourceResolution::noValue()` for missing source data and throw unexpected errors instead of returning the removed `MappingSourceResolution::failed()` result. Missing or empty source values retain their existing rendering behavior.
-
 ### State machine transitions resolve deterministically
 
 When a state machine contains multiple transitions with the same action name and source state but different destination states, firing that action now deterministically resolves to the oldest transition instead of an undefined one. Such conflicting transitions are deprecated: resolving or writing them triggers a deprecation notice, and with v6.8.0.0 existing duplicates are removed and new ones are prevented by a unique database constraint. If your extension needs its own destination state, register the transition under its own action name instead of reusing an existing one.
@@ -235,18 +205,6 @@ Two consequences for operators:
 Product breadcrumbs are generated again when the product's main category — or its only assigned category — is configured with "Hide in navigation". The flag only removes a category from the navigation menus; it no longer prevents the category from serving as the breadcrumb source on product detail pages, in `GET /store-api/breadcrumb/{id}`, and in product exports. When the breadcrumb category is determined automatically from several assigned categories, visible categories are still preferred over hidden ones. Inactive categories remain excluded.
 
 ## API
-
-### Ambiguous Content System mapping candidates
-
-The mapping candidate catalogue excludes names offered more than once by providers instead of failing the request. Such mappings are unavailable at the layout write gate; existing layouts use the normal unavailable-mapping rendering rules.
-
-### Content System layout diagnosis
-
-`POST /api/_action/content-system/layout/diagnose` checks layout structure and mapping admission using the optional `rootSource`. The `runtimeContext` request option has been removed and is rejected as an unknown field. Missing entity values continue to use the normal fallback or omission behavior in preview and Storefront rendering.
-
-### Content System mapping catalogue permissions
-
-`GET /api/_info/content-system-mapping-candidates.json` now requires `content_layout:read` instead of `custom_field:read`, so Experience Studio layout readers can load mapping candidates. The response includes labels and help text for active, Store-API-visible custom fields assigned to the root entity.
 
 ### Store API currency headers validate sales channel availability
 

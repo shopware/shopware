@@ -15,10 +15,10 @@ use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * An invalid persisted row belonging to an active app must abort registry construction.
@@ -32,7 +32,99 @@ class AppBindingPoisonRowTest extends TestCase
 
     private const CORE_MEDIA_BINDING_ID = 'core:Sw:Media:Image';
 
-    protected function setUp(): void
+    protected function tearDown(): void
+    {
+        $this->registry()->invalidate();
+    }
+
+    #[TestDox('aborts registry construction when an active app has an invalid persisted binding')]
+    public function testInvalidActiveAppRowAbortsRegistryConstruction(): void
+    {
+        $this->createPoisonAppBinding();
+
+        try {
+            $this->registry()->all();
+            static::fail('Expected the invalid active-app binding row to abort registry construction.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+            static::assertSame(ContentSystemException::BINDING_SPECIFICATION_LOAD_FAILED, $exception->getErrorCode());
+            static::assertStringContainsString('poison-binding', $exception->getMessage());
+        }
+    }
+
+    #[TestDox('rejects an otherwise valid content layout write when an active app has an invalid persisted binding')]
+    public function testValidBindingWriteFailsWithPoisonAppBindingRowPresent(): void
+    {
+        $this->createPoisonAppBinding();
+
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+        $layoutId = $ids->get('layout');
+
+        try {
+            $this->contentLayoutRepository()->create([[
+                'id' => $layoutId,
+                'name' => 'poison-row-write-' . $layoutId,
+                'version' => '1.0.0',
+                'rootSource' => 'none',
+                'layout' => [[
+                    'id' => $ids->get('element'),
+                    'component' => 'Sw:Media:Image',
+                    'properties' => ['mediaId' => 'a-media-id'],
+                    'dataRequirements' => [
+                        'media' => ['source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
+                    ],
+                    'attributedSpecifications' => ['media' => self::CORE_MEDIA_BINDING_ID],
+                ]],
+            ]], $context);
+            static::fail('Expected the invalid active-app binding row to reject the content layout write.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+            static::assertSame(ContentSystemException::BINDING_SPECIFICATION_LOAD_FAILED, $exception->getErrorCode());
+            static::assertStringContainsString('poison-binding', $exception->getMessage());
+        }
+
+        static::assertNull(
+            $this->contentLayoutRepository()->search(new Criteria([$layoutId]), $context)->getEntities()->first()
+        );
+    }
+
+    #[TestDox('returns the registry load failure from the persisted mutation route as an HTTP 500')]
+    public function testPersistedMutationRoutePropagatesPoisonBindingFailure(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+        $layoutId = $ids->get('layout');
+        $this->contentLayoutRepository()->create([[
+            'id' => $layoutId,
+            'name' => 'poison-row-route-' . $layoutId,
+            'version' => '1.0.0',
+            'rootSource' => 'none',
+            'layout' => [[
+                'id' => $ids->get('element'),
+                'component' => 'Sw:Media:Image',
+                'properties' => ['mediaId' => 'a-media-id'],
+                'dataRequirements' => [
+                    'media' => ['source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
+                ],
+                'attributedSpecifications' => ['media' => self::CORE_MEDIA_BINDING_ID],
+            ]],
+        ]], $context);
+
+        $this->createPoisonAppBinding();
+        $this->getBrowser()->jsonRequest(
+            'POST',
+            '/api/_action/content-system/layout/' . $layoutId . '/insert-element',
+            ['type' => 'Sw:Media:Image', 'expectedVersion' => null]
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(ContentSystemException::BINDING_SPECIFICATION_LOAD_FAILED, $body['errors'][0]['code']);
+    }
+
+    private function createPoisonAppBinding(): void
     {
         $ids = new IdsCollection();
         $context = Context::createDefaultContext();
@@ -60,60 +152,6 @@ class AppBindingPoisonRowTest extends TestCase
         ]], $context);
 
         $this->registry()->invalidate();
-    }
-
-    protected function tearDown(): void
-    {
-        $this->registry()->invalidate();
-    }
-
-    #[TestDox('aborts registry construction when an active app has an invalid persisted binding')]
-    public function testInvalidActiveAppRowAbortsRegistryConstruction(): void
-    {
-        try {
-            $this->registry()->all();
-            static::fail('Expected the invalid active-app binding row to abort registry construction.');
-        } catch (ContentSystemException $exception) {
-            static::assertSame(ContentSystemException::BINDING_SPECIFICATIONS_INVALID, $exception->getErrorCode());
-            static::assertStringContainsString('poison-binding', $exception->getMessage());
-        }
-    }
-
-    #[TestDox('rejects an otherwise valid content layout write when an active app has an invalid persisted binding')]
-    public function testValidBindingWriteFailsWithPoisonAppBindingRowPresent(): void
-    {
-        $ids = new IdsCollection();
-        $context = Context::createDefaultContext();
-        $layoutId = $ids->get('layout');
-
-        try {
-            $this->contentLayoutRepository()->create([[
-                'id' => $layoutId,
-                'name' => 'poison-row-write-' . $layoutId,
-                'version' => '1.0.0',
-                'rootSource' => 'none',
-                'layout' => [[
-                    'id' => $ids->get('element'),
-                    'component' => 'Sw:Media:Image',
-                    'properties' => ['mediaId' => 'a-media-id'],
-                    'dataRequirements' => [
-                        'media' => ['source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
-                    ],
-                    'attributedSpecifications' => ['media' => self::CORE_MEDIA_BINDING_ID],
-                ]],
-            ]], $context);
-            static::fail('Expected the invalid active-app binding row to reject the content layout write.');
-        } catch (WriteException $exception) {
-            static::assertStringContainsString('poison-binding', $exception->getMessage());
-            static::assertContains(
-                ContentSystemException::BINDING_SPECIFICATIONS_INVALID,
-                array_column(iterator_to_array($exception->getErrors(), false), 'code')
-            );
-        }
-
-        static::assertNull(
-            $this->contentLayoutRepository()->search(new Criteria([$layoutId]), $context)->getEntities()->first()
-        );
     }
 
     private function registry(): AbstractContentSystemBindingSpecificationRegistry

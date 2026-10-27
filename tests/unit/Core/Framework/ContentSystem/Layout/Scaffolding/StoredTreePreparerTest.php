@@ -6,7 +6,15 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationLoaderConfig;
+use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
@@ -22,6 +30,7 @@ use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfig;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -80,9 +89,45 @@ class StoredTreePreparerTest extends TestCase
         static::assertSame(['root-id', 'target-id', 'sibling-id'], $this->collectIds($prepared->prePruneForest));
     }
 
-    /**
-     * @param scalar|null $value
-     */
+    #[TestDox('carries the substituted values in the pre-prune forest, discarded subtree included')]
+    public function testPrepareCarriesPreparedValuesInTheFullModePrePruneForest(): void
+    {
+        $root = StoredElementBuilder::create('section', 'root-id')
+            ->withSlot('default', [
+                StoredElementBuilder::create('text', 'target-id')
+                    ->withConsumer('product', ContextType::Single)
+                    ->build(),
+                StoredElementBuilder::create('text', 'sibling-id')
+                    ->withProperty('title', 'Product {{productId}}')
+                    ->build(),
+            ])
+            ->build();
+        $specification = new RenderingSpecification([], PlaceholderValues::from(['productId' => 'prod-1']), new Request(), 'target-id');
+
+        $prepared = $this->preparer()->prepare([$root], $specification, RenderingMode::FULL);
+
+        static::assertSame(['root-id', 'target-id'], $this->collectIds($prepared->tree));
+        $discardedSibling = $prepared->prePruneForest[0]->slots['default'][1];
+        static::assertSame('sibling-id', $discardedSibling->id);
+        static::assertSame('Product prod-1', $discardedSibling->property('title')?->asString());
+    }
+
+    #[TestDox('substitutes a declared token in a Literal loader-config value')]
+    public function testPrepareResolvesLiteralConfigValues(): void
+    {
+        $config = new NavigationLoaderConfig('{{rootId}}');
+
+        $element = StoredElementBuilder::create('navigation', 'root-id')
+            ->withDataRequirement('navigationTree', 'test_literal', $config)
+            ->build();
+
+        $prepared = $this->prepare([$element], ['rootId' => 'cat-42']);
+
+        $resolved = $prepared[0]->dataRequirements['navigationTree']->config;
+
+        static::assertSame('cat-42', $resolved->jsonSerialize()['rootId']);
+    }
+
     #[DataProvider('nonStringPropertyProvider')]
     #[TestDox('leaves a $_dataName property untouched')]
     public function testPrepareLeavesNonStringPropertiesUntouched(string|int|float|bool|null $value): void
@@ -97,16 +142,14 @@ class StoredTreePreparerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{scalar|null}>
+     * @return iterable<string, array{scalar|null}>
      */
-    public static function nonStringPropertyProvider(): array
+    public static function nonStringPropertyProvider(): iterable
     {
-        return [
-            'int' => [42],
-            'float' => [4.2],
-            'bool' => [true],
-            'null' => [null],
-        ];
+        yield 'int' => [42];
+        yield 'float' => [4.2];
+        yield 'bool' => [true];
+        yield 'null' => [null];
     }
 
     #[TestDox('leaves the roots unwrapped when the specification carries no page-level data requirement')]
@@ -151,34 +194,29 @@ class StoredTreePreparerTest extends TestCase
         static::assertTrue($prepared->scaffolding->virtualRootSurvivedPrune);
     }
 
-    #[TestDox('leaves a list property untouched, its string items included')]
-    public function testPrepareDoesNotRecurseIntoListProperties(): void
+    /**
+     * @param list<string>|array<string, string> $value
+     */
+    #[DataProvider('containerPropertyProvider')]
+    #[TestDox('leaves a $_dataName property untouched, the strings inside it included')]
+    public function testPrepareLeavesAContainerPropertyUntouched(string $key, array $value): void
     {
         $element = StoredElementBuilder::create('text', 'root-id')
-            ->withProperty('tags', ['Product {{productId}}', 'plain'])
+            ->withProperty($key, $value)
             ->build();
 
         $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
 
-        static::assertSame(
-            ['Product {{productId}}', 'plain'],
-            $prepared[0]->property('tags')?->jsonSerialize()
-        );
+        static::assertSame($value, $prepared[0]->property($key)?->jsonSerialize());
     }
 
-    #[TestDox('leaves a map property untouched, its string values included')]
-    public function testPrepareDoesNotRecurseIntoMapProperties(): void
+    /**
+     * @return iterable<string, array{string, list<string>|array<string, string>}>
+     */
+    public static function containerPropertyProvider(): iterable
     {
-        $element = StoredElementBuilder::create('text', 'root-id')
-            ->withProperty('labels', ['headline' => 'Product {{productId}}'])
-            ->build();
-
-        $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
-
-        static::assertSame(
-            ['headline' => 'Product {{productId}}'],
-            $prepared[0]->property('labels')?->jsonSerialize()
-        );
+        yield 'list' => ['tags', ['Product {{productId}}', 'plain']];
+        yield 'map' => ['labels', ['headline' => 'Product {{productId}}']];
     }
 
     #[TestDox('leaves the element style untouched')]
@@ -195,16 +233,41 @@ class StoredTreePreparerTest extends TestCase
         static::assertSame($style, $prepared[0]->style);
     }
 
-    #[TestDox('leaves a token with no declared value verbatim')]
-    public function testPrepareLeavesUnknownTokenVerbatim(): void
+    /**
+     * @param array<string, string> $placeholderValues
+     */
+    #[DataProvider('unresolvedTokenProvider')]
+    #[TestDox('leaves a token verbatim when $_dataName')]
+    public function testPrepareLeavesAnUnresolvedTokenVerbatim(string $title, array $placeholderValues): void
     {
         $element = StoredElementBuilder::create('text', 'root-id')
-            ->withProperty('title', 'Category {{categoryId}}')
+            ->withProperty('title', $title)
+            ->build();
+
+        $prepared = $this->prepare([$element], $placeholderValues);
+
+        static::assertSame($title, $prepared[0]->property('title')?->asString());
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, string>}>
+     */
+    public static function unresolvedTokenProvider(): iterable
+    {
+        yield 'no declared value matches it' => ['Category {{categoryId}}', ['productId' => 'prod-1']];
+        yield 'the placeholder values map is empty' => ['Product {{productId}}', []];
+    }
+
+    #[TestDox('collapses a lone unresolved token to null')]
+    public function testPrepareCollapsesLoneUnresolvedTokenToNull(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('title', '{{categoryId}}')
             ->build();
 
         $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
 
-        static::assertSame('Category {{categoryId}}', $prepared[0]->property('title')?->asString());
+        static::assertTrue($prepared[0]->property('title')?->isNull());
     }
 
     #[TestDox('records that the virtual root did not survive a prune that cut it away')]
@@ -221,12 +284,12 @@ class StoredTreePreparerTest extends TestCase
             'target-id'
         );
 
+        $prepared = $this->preparer()->prepare([$root], $specification, RenderingMode::SKELETON);
+
         // Fixture guard: the target needs no parent data, so the prune really does cut above it rather
         // than there never having been a virtual root to lose.
         static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, [$root]));
         static::assertFalse((new ContextDependencyAnalyzer())->requiresParentData($target));
-
-        $prepared = $this->preparer()->prepare([$root], $specification, RenderingMode::SKELETON);
 
         static::assertSame(['target-id'], $this->collectIds($prepared->tree));
         static::assertFalse($prepared->scaffolding->virtualRootSurvivedPrune);
@@ -251,23 +314,34 @@ class StoredTreePreparerTest extends TestCase
         static::assertSame([], $prepared);
     }
 
-    #[TestDox('leaves a token verbatim when the placeholder values map is empty')]
-    public function testPrepareLeavesATokenVerbatimWithAnEmptyPlaceholderValuesMap(): void
-    {
-        $element = StoredElementBuilder::create('text', 'root-id')
-            ->withProperty('title', 'Product {{productId}}')
-            ->build();
-
-        $prepared = $this->prepare([$element], []);
-
-        static::assertSame('Product {{productId}}', $prepared[0]->property('title')?->asString());
-    }
-
     private function preparer(): StoredTreePreparer
     {
+        $serializerLocator = static::createStub(ServiceLocator::class);
+        $serializerLocator->method('has')->willReturnCallback(static fn (string $id): bool => $id === 'test_literal');
+        $serializerLocator->method('get')->willReturnCallback(
+            static fn (string $id): NavigationLoaderConfigSerializer => $id === 'test_literal'
+                ? new NavigationLoaderConfigSerializer()
+                : throw new \LogicException(\sprintf('Unexpected serializer id "%s"', $id))
+        );
+
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification([
+            new ConfigKeySpecification('rootId', ConfigKeyKind::Literal, 'string', required: false),
+        ]));
+
+        $loaderLocator = static::createStub(ServiceLocator::class);
+        $loaderLocator->method('has')->willReturnCallback(static fn (string $id): bool => $id === 'test_literal');
+        $loaderLocator->method('get')->willReturnCallback(
+            static fn (string $id): AbstractContentDataLoader => $id === 'test_literal'
+                ? $loader
+                : throw new \LogicException(\sprintf('Unexpected loader id "%s"', $id))
+        );
+
         return new StoredTreePreparer(
             new VirtualRootWrapper(),
             new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
+            new DataLoaderConfigSerializerProvider($serializerLocator),
+            new DataLoaderProvider($loaderLocator),
         );
     }
 

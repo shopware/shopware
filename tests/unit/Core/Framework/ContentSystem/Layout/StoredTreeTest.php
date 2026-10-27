@@ -3,9 +3,9 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\Log\Package;
@@ -70,6 +70,21 @@ class StoredTreeTest extends TestCase
         static::assertNull($this->tree()->locate('absent'));
     }
 
+    #[TestDox('locate reports an element nested two levels down with its parent, slot and sibling index')]
+    public function testLocateReportsADeeplyNestedElement(): void
+    {
+        // 'grandchild-1' is not a direct child of a root, so this only resolves through locateUnder()'s second,
+        // recursive loop at StoredTree.php:181-189; deleting that loop would leave this locate() call returning
+        // null even though the fixture carries the id two levels down.
+        $location = $this->tree()->locate('grandchild-1');
+
+        static::assertNotNull($location);
+        static::assertSame('grandchild-1', $location['element']->id);
+        static::assertSame(0, $location['index']);
+        static::assertSame('child-a', $location['parentId']);
+        static::assertSame('inner', $location['slot']);
+    }
+
     #[TestDox('ids lists every element in the forest depth first')]
     public function testIdsListsEveryElementDepthFirst(): void
     {
@@ -113,14 +128,6 @@ class StoredTreeTest extends TestCase
         static::assertSame($this->serialize($tree), $this->serialize($tree->remove('absent')));
     }
 
-    #[TestDox('insertAtRoot appends when no index is given')]
-    public function testInsertAtRootAppendsWithoutAnIndex(): void
-    {
-        $inserted = $this->tree()->insertAtRoot(null, [$this->element('root-3')]);
-
-        static::assertSame(['root-1', 'root-2', 'root-3'], $this->rootIds($inserted));
-    }
-
     #[TestDox('insertAtRoot places the nodes at the given index')]
     public function testInsertAtRootPlacesNodesAtTheGivenIndex(): void
     {
@@ -129,12 +136,41 @@ class StoredTreeTest extends TestCase
         static::assertSame(['root-0', 'root-1', 'root-2'], $this->rootIds($inserted));
     }
 
-    #[TestDox('insertAtRoot appends when the index is beyond the end of the root list')]
-    public function testInsertAtRootAppendsWhenTheIndexIsOutOfRange(): void
+    #[DataProvider('appendingIndexProvider')]
+    #[TestDox('insertAtRoot appends when the index is $_dataName')]
+    public function testInsertAtRootAppends(?int $index): void
     {
-        $inserted = $this->tree()->insertAtRoot(99, [$this->element('root-3')]);
+        $inserted = $this->tree()->insertAtRoot($index, [$this->element('root-3')]);
 
         static::assertSame(['root-1', 'root-2', 'root-3'], $this->rootIds($inserted));
+    }
+
+    /**
+     * @return iterable<string, array{int|null}>
+     */
+    public static function appendingIndexProvider(): iterable
+    {
+        yield 'absent' => [null];
+        yield 'beyond the end of the root list' => [99];
+        // splice()'s compound append guard ORs in `$index < 0`, so this operand alone discriminates it.
+        // Deleting it would send a negative index down the array_slice branch instead, inserting before the
+        // last element rather than appending.
+        yield 'negative' => [-1];
+    }
+
+    #[TestDox('insertIntoSlot places the nodes inside a slot of a nested parent')]
+    public function testInsertIntoSlotPlacesNodesUnderANestedParent(): void
+    {
+        // Every other insertIntoSlot test targets a root-level parent ('root-1', 'root-2'), so the recursive
+        // descent in insertInto() at StoredTree.php:255 never runs against a matching subtree. Targeting 'child-a',
+        // which is nested under root-1, forces that recursive branch; replacing it with a plain pass-through would
+        // leave 'child-a' unmodified and this insert would silently not happen.
+        $inserted = $this->tree()->insertIntoSlot('child-a', 'inner', null, [$this->element('grandchild-2')]);
+
+        static::assertSame(
+            ['root-1', 'child-a', 'grandchild-1', 'grandchild-2', 'child-b', 'root-2'],
+            $inserted->ids()
+        );
     }
 
     #[TestDox('insertIntoSlot places the nodes inside an existing slot at the given index')]
@@ -197,27 +233,22 @@ class StoredTreeTest extends TestCase
         static::assertSame($this->serialize($tree), $this->serialize($tree->replace('absent', $this->element('replacement'))));
     }
 
-    #[TestDox('validate reports nothing for a forest whose ids are all unique')]
-    public function testValidateReportsNothingForAWellFormedForest(): void
+    #[TestDox('names no duplicate for a forest whose ids are all unique')]
+    public function testNamesNoDuplicateForAWellFormedForest(): void
     {
-        static::assertSame([], $this->tree()->validate());
+        static::assertSame([], $this->tree()->duplicateElementIds());
     }
 
-    #[TestDox('validate reports an id reused across two roots')]
-    public function testValidateReportsAnIdReusedAcrossRoots(): void
+    #[TestDox('names an id reused across two roots')]
+    public function testNamesAnIdReusedAcrossRoots(): void
     {
         $tree = new StoredTree([$this->element('root-1'), $this->element('root-1')]);
 
-        $violations = $tree->validate();
-
-        static::assertCount(1, $violations);
-        static::assertSame(ViolationCode::DuplicateElementId, $violations[0]->code);
-        static::assertSame('root-1', $violations[0]->elementId);
-        static::assertSame('Element id "root-1" is not unique across the layout.', $violations[0]->message);
+        static::assertSame(['root-1'], $tree->duplicateElementIds());
     }
 
-    #[TestDox('validate reports an id reused at a different nesting depth')]
-    public function testValidateReportsAnIdReusedAcrossNestingDepths(): void
+    #[TestDox('names an id reused at a different nesting depth')]
+    public function testNamesAnIdReusedAcrossNestingDepths(): void
     {
         $deep = StoredElementBuilder::create('core:section', 'root-1')
             ->withSlot('main', [
@@ -227,14 +258,11 @@ class StoredTreeTest extends TestCase
             ])
             ->build();
 
-        $violations = (new StoredTree([$deep]))->validate();
-
-        static::assertCount(1, $violations);
-        static::assertSame('root-1', $violations[0]->elementId);
+        static::assertSame(['root-1'], (new StoredTree([$deep]))->duplicateElementIds());
     }
 
-    #[TestDox('validate reports one violation per duplicated id, not one per occurrence')]
-    public function testValidateReportsOneViolationPerDuplicatedId(): void
+    #[TestDox('names a duplicated id once, not once per occurrence')]
+    public function testNamesADuplicatedIdOncePerId(): void
     {
         $tree = new StoredTree([
             $this->element('root-1'),
@@ -242,7 +270,7 @@ class StoredTreeTest extends TestCase
             $this->element('root-1'),
         ]);
 
-        static::assertCount(1, $tree->validate());
+        static::assertSame(['root-1'], $tree->duplicateElementIds());
     }
 
     private function tree(): StoredTree

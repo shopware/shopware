@@ -146,6 +146,7 @@ export default Shopware.Component.wrapComponentConfig({
         layoutTypeLoadError: string | null;
         createWizardName: string;
         createWizardSelectedType: string | null;
+        isAssignmentModalOpen: boolean;
     } {
         return {
             layout: null,
@@ -171,6 +172,7 @@ export default Shopware.Component.wrapComponentConfig({
             layoutTypeLoadError: null,
             createWizardName: '',
             createWizardSelectedType: null,
+            isAssignmentModalOpen: false,
         };
     },
 
@@ -241,6 +243,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         isDirty(): boolean {
             return this.createLayoutSnapshot(this.layout) !== this.lastSavedSnapshot;
+        },
+
+        canManageAssignments(): boolean {
+            return !this.isCreateMode && (this.layoutRootSource === 'product' || this.layoutRootSource === 'category');
         },
 
         showCreateWizard(): boolean {
@@ -479,6 +485,14 @@ export default Shopware.Component.wrapComponentConfig({
 
         onViewportChange(viewport: Viewport): void {
             this.currentViewport = viewport;
+        },
+
+        onOpenAssignmentModal(): void {
+            this.isAssignmentModalOpen = true;
+        },
+
+        onCloseAssignmentModal(): void {
+            this.isAssignmentModalOpen = false;
         },
 
         async loadDefaultPreviewSalesChannel(): Promise<void> {
@@ -1444,14 +1458,43 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
+        // Resolvability is a write-time gate, so a draft that previews cleanly can still be refused on save.
         notifySaveError(error: unknown): void {
+            if (this.getErrorStatus(error) === 409) {
+                this.createNotificationError({
+                    message: this.$t('sw-experience-studio.detail.messageDraftConflict'),
+                });
+
+                return;
+            }
+
+            const detail = this.extractApiErrorDetail(error);
+
             this.createNotificationError({
-                message: this.$t(
-                    this.getErrorStatus(error) === 409
-                        ? 'sw-experience-studio.detail.messageDraftConflict'
-                        : 'sw-experience-studio.detail.messageSaveError',
-                ),
+                message: detail
+                    ? this.$t('sw-experience-studio.detail.messageSaveErrorDetail', { detail })
+                    : this.$t('sw-experience-studio.detail.messageSaveError'),
             });
+        },
+
+        extractApiErrorDetail(error: unknown): string | null {
+            const responseErrors = (
+                error as {
+                    response?: {
+                        data?: {
+                            errors?: Array<{ detail?: unknown }>;
+                        };
+                    };
+                }
+            ).response?.data?.errors;
+
+            if (!Array.isArray(responseErrors)) {
+                return null;
+            }
+
+            const detail = responseErrors.find((item) => typeof item.detail === 'string' && item.detail.trim())?.detail;
+
+            return typeof detail === 'string' ? detail : null;
         },
 
         async saveNewLayout(layout: ContentLayoutEntity): Promise<void> {
@@ -1459,9 +1502,16 @@ export default Shopware.Component.wrapComponentConfig({
             layout.layout = cloneDeep(layout.layout);
 
             await this.layoutRepository.save(layout, Shopware.Context.api);
-            this.layout = await this.layoutRepository.get(layout.id, Shopware.Context.api, this.layoutLoadCriteria);
-            this.lastSavedSnapshot = this.createLayoutSnapshot(this.layout);
-            this.applyPreviewContextDefaults();
+
+            try {
+                this.layout = await this.layoutRepository.get(layout.id, Shopware.Context.api, this.layoutLoadCriteria);
+                this.lastSavedSnapshot = this.createLayoutSnapshot(this.layout);
+                this.applyPreviewContextDefaults();
+            } catch {
+                this.createNotificationError({
+                    message: this.$t('sw-experience-studio.detail.messageReloadError'),
+                });
+            }
         },
 
         async saveDraft(workingLayout: ContentLayoutEntity): Promise<void> {

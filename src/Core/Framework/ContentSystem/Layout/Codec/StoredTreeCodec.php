@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * It owns wire-level concerns only — the top level must be a list, and each entry must be an element shape.
  * Per-element work belongs to {@see StoredElementCodec}, including the nesting-depth guard, and every
- * tree-global invariant belongs to {@see StoredTree::validate()}: a forest that repeats an id decodes here
+ * tree-global invariant belongs to {@see StoredTree::duplicateElementIds()}: a forest that repeats an id decodes here
  * without complaint and is reported there.
  *
  * @internal

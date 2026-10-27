@@ -32,5 +32,16 @@ Classes where we want to reserve a complete **refactoring** or where we only imp
 
 Do not repeat `@internal` on constructors or methods inside an `@internal` class. The class-level marker is enough.
 
+Extending `Struct` does not by itself make a class Public API. `Struct` is the framework's carrier type: a
+`StoreApiResponse` payload, a DAL `Entity`, `EntityCollection` or field definition, and a `Context` extension
+all have to be one. A class that inherits it only to satisfy one of those requirements is not thereby
+supported, and stays `@internal` if nothing else makes it public.
+
+What does make it public is a third party reaching the class itself: it appears in the signature of a method
+they can call or override, in the type of something a supported method returns, or in a template's variables.
+Data crossing a boundary is not the same thing. A response body's keys are a contract with the client and are
+governed as one; adding a PHP-level promise beside them binds the same shape twice, so a class nothing imports
+gains nothing by becoming public.
+
 ## Internal interfaces
 We declare interfaces as `@internal` when we want multiple implementations of a feature or adapter inside core, but do not want third party developers to implement or depend on that contract. A good example of this is the Data Abstraction layer and the Field and FieldSerializer classes. In such areas of the domain we want to reserve optimizations and breaks within minor versions but still be able to work with interfaces and abstract classes.

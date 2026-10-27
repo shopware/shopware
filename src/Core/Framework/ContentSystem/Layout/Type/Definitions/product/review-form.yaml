@@ -1,0 +1,18 @@
+meta:
+  label: "Product Review Form"
+  description: "Lets a logged-in customer write or edit their review for the product; shows a login prompt to guests."
+  icon: "regular-pencil-s"
+  category: "content"
+  copilot:
+    summary: "Submission form for a product review."
+    hints:
+      - "Use on a product detail page; place it anywhere alongside the Product Reviews element."
+      - "Submits the review in the background; a saved review is held for moderation, so it does not appear in the list right away."
+      - "Guests see a prompt to log in instead of the form."
+
+properties:
+  reviews:
+    type: Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult
+    required: false
+    title: "Reviews"
+    description: "Hydrated review result the form reads the product id, rating scale and the customer's own review from. Received as root-scoped context from the page, which loads it once, so the form adds no load of its own."

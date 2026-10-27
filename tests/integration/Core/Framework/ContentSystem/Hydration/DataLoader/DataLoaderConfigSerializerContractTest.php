@@ -120,7 +120,7 @@ class DataLoaderConfigSerializerContractTest extends TestCase
         ];
         yield ProductReviewDataLoader::SOURCE => [
             'source' => ProductReviewDataLoader::SOURCE,
-            'config' => ['property' => 'productId', 'associations' => ['customerReview']],
+            'config' => ['property' => 'productId'],
         ];
         yield ProductSearchDataLoader::SOURCE => [
             'source' => ProductSearchDataLoader::SOURCE,

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Codec;
 
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -49,15 +48,13 @@ final class PropertyTypeConformanceValidator extends ConstraintValidator
         foreach ($properties as $key => $raw) {
             $specification = $declared[$key] ?? null;
 
-            // A null value is admissible under every primitive: whether a key may be absent or null is the
-            // required-input rule's business, not this one's.
-            if ($specification === null || $raw === null) {
+            if ($specification === null) {
                 continue;
             }
 
-            $types = $this->enforceableTypes($specification->type());
+            $types = $specification->type()->enforceableTypes();
 
-            if ($types === null || $this->matchesAny($raw, $types)) {
+            if ($types === null || $specification->type()->admits($raw)) {
                 continue;
             }
 
@@ -68,65 +65,5 @@ final class PropertyTypeConformanceValidator extends ConstraintValidator
                 ->atPath('[properties][' . $key . ']')
                 ->addViolation();
         }
-    }
-
-    /**
-     * The primitive types a value must satisfy at least one of, or `null` when the declaration constrains
-     * nothing: a bare `object` or an FQCN admits whatever the client authored, and so does a union carrying
-     * either, because that member alone accepts every value.
-     *
-     * A union's declared type is an array, so {@see PropertyType::isPrimitive()} answers false for every one of
-     * them; the members are tested against {@see PropertyType::PRIMITIVE_TYPES} here instead.
-     *
-     * @return list<string>|null
-     */
-    private function enforceableTypes(PropertyType $type): ?array
-    {
-        $declared = $type->type();
-
-        if (\is_string($declared)) {
-            return \in_array($declared, PropertyType::PRIMITIVE_TYPES, true) ? [$declared] : null;
-        }
-
-        if ($declared === []) {
-            return null;
-        }
-
-        foreach ($declared as $member) {
-            if (!\in_array($member, PropertyType::PRIMITIVE_TYPES, true)) {
-                return null;
-            }
-        }
-
-        return $declared;
-    }
-
-    /**
-     * @param list<string> $types
-     */
-    private function matchesAny(mixed $value, array $types): bool
-    {
-        foreach ($types as $type) {
-            if ($this->matches($value, $type)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * `number` admits an integer as well as a float — JSON carries no distinction a client can be held to —
-     * while `integer` admits only an integer.
-     */
-    private function matches(mixed $value, string $type): bool
-    {
-        return match ($type) {
-            'string' => \is_string($value),
-            'integer' => \is_int($value),
-            'number' => \is_int($value) || \is_float($value),
-            'boolean' => \is_bool($value),
-            default => false,
-        };
     }
 }

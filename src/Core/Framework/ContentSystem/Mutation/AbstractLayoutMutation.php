@@ -11,6 +11,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
 use Shopware\Core\Framework\Log\Package;
@@ -162,9 +163,8 @@ abstract class AbstractLayoutMutation implements LayoutMutation
     /**
      * The type's default binding specification (`byType($type)` filtered by `isDefault()`), read as zero, one, or
      * more: zero returns null (nothing to fill-apply), one is returned, more than one throws — never a first-wins
-     * pick. Shared by {@see InsertElement} and
-     * {@see ReplaceElement}, the two ops that auto-apply a
-     * type's default at scaffold.
+     * pick. Shared by {@see InsertElement} and {@see ReplaceElement}, which auto-apply a type's default at scaffold, and
+     * by {@see AttachElement}, which applies it to every element of the attached cloned subtree.
      */
     protected function resolveDefaultSpecification(AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, string $type): ?BindingSpecification
     {
@@ -191,6 +191,7 @@ abstract class AbstractLayoutMutation implements LayoutMutation
         AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
         BindingApplicator $bindingApplicator,
         StoredElement $element,
+        ?string $rootSource = null,
     ): StoredElement {
         $default = $this->resolveDefaultSpecification($bindingRegistry, $element->component);
 
@@ -198,20 +199,21 @@ abstract class AbstractLayoutMutation implements LayoutMutation
             return $element;
         }
 
-        return $bindingApplicator->applyFillOnly($element, $default, $default->qualifiedId());
+        return $bindingApplicator->applyFillOnly($element, $default, $default->qualifiedId(), $rootSource);
     }
 
     protected function applyDefaultBindingToSubtree(
         AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
         BindingApplicator $bindingApplicator,
         StoredElement $element,
+        ?string $rootSource = null,
     ): StoredElement {
-        $bound = $this->applyDefaultBinding($bindingRegistry, $bindingApplicator, $element);
+        $bound = $this->applyDefaultBinding($bindingRegistry, $bindingApplicator, $element, $rootSource);
 
         $slots = [];
         foreach ($bound->slots as $name => $children) {
             $slots[$name] = array_values(array_map(
-                fn (StoredElement $child): StoredElement => $this->applyDefaultBindingToSubtree($bindingRegistry, $bindingApplicator, $child),
+                fn (StoredElement $child): StoredElement => $this->applyDefaultBindingToSubtree($bindingRegistry, $bindingApplicator, $child, $rootSource),
                 $children,
             ));
         }

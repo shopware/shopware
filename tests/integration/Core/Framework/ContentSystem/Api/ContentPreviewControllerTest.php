@@ -21,6 +21,29 @@ class ContentPreviewControllerTest extends TestCase
 
     private const PREVIEW_URL_URL = '/api/_action/content-system/preview/entity/url';
 
+    /**
+     * The studio requests a preview the moment a layout opens, so a freshly created layout arrives here with
+     * no elements at all. Resolvability is a write-time gate; the preview only needs a decodable tree.
+     */
+    #[TestDox('previewUrl mints a token for a layout without elements')]
+    public function testPreviewUrlMintsATokenForAnEmptyLayout(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::PREVIEW_URL_URL, [
+            'layout' => [],
+            'entityType' => 'product',
+            'entityId' => 'some-product-id',
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsString($body['url'] ?? null);
+        static::assertStringContainsString('/content-system/preview/', $body['url']);
+    }
+
     #[TestDox('previewUrl rejects a numeric wiring key with 400 invalidLayoutStructure')]
     public function testPreviewUrlReturns400ForNumericWiringKey(): void
     {

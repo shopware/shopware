@@ -12,6 +12,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\YamlStyleO
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Serialization\StyleOptionSpecificationSerializer;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -174,10 +175,14 @@ class YamlStyleOptionLoaderTest extends TestCase
 
         $loader = $this->createLoader([new StyleOptionSourceDirectory('core', $this->tempDir)]);
 
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessageMatches('/options\[broken-option\]\.type/');
-
-        $loader->load();
+        try {
+            $loader->load();
+            static::fail('Expected the invalid style option definition to abort the load.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+            static::assertSame(ContentSystemException::STYLE_OPTION_LOAD_FAILED, $exception->getErrorCode());
+            static::assertMatchesRegularExpression('/options\[broken-option\]\.type/', $exception->getMessage());
+        }
     }
 
     #[TestDox('fails batch validation when a declaration carries an unknown kind, naming the option path')]

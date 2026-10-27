@@ -22,6 +22,8 @@ class CategoryContentLayoutDefinition extends AbstractContentLayoutAssignableDef
 
     final public const CONTENT_LAYOUT_ENTITY_TYPE = 'category';
 
+    final public const CONFIG_KEY_DEFAULT_CONTENT_LAYOUT = 'core.content_system.default_category_content_layout';
+
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;
@@ -45,6 +47,11 @@ class CategoryContentLayoutDefinition extends AbstractContentLayoutAssignableDef
     public function getCacheTags(string $entityId): array
     {
         return [CategoryRoute::buildName($entityId)];
+    }
+
+    public function getContentLayoutDefaultConfigKey(): string
+    {
+        return self::CONFIG_KEY_DEFAULT_CONTENT_LAYOUT;
     }
 
     public function getPageDataRequirements(): array

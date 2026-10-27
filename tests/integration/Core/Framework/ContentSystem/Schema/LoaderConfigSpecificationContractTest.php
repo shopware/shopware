@@ -200,8 +200,6 @@ class LoaderConfigSpecificationContractTest extends TestCase
     public function testEveryPropertyReferenceKeyMatchesTheReferencedTypeRoster(): void
     {
         $expected = [
-            'breadcrumb.property' => 'string',
-            'breadcrumb.referrerCategoryProperty' => 'string',
             'cross_selling.associationOverride' => 'list<string>',
             'cross_selling.property' => 'string',
             'entity.property' => 'string',
@@ -210,7 +208,6 @@ class LoaderConfigSpecificationContractTest extends TestCase
             'product_configurator.productId' => 'string',
             'product_listing.associationOverride' => 'list<string>',
             'product_listing.property' => 'string',
-            'product_review.associationOverride' => 'list<string>',
             'product_review.property' => 'string',
             'product_search.associationOverride' => 'list<string>',
             'product_search.searchTermProperty' => 'string',

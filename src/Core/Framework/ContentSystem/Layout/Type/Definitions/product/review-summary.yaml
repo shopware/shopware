@@ -1,0 +1,17 @@
+meta:
+  label: "Product Review Summary"
+  description: "Rating summary for a product: average rating, per-star breakdown and a login prompt for guests."
+  icon: "regular-star-half"
+  category: "content"
+  copilot:
+    summary: "Product rating summary (average and per-star breakdown)."
+    hints:
+      - "Use on a product detail page; place it anywhere alongside the Product Reviews element."
+      - "It shows the aggregate rating only; the review list and controls are separate elements."
+
+properties:
+  reviews:
+    type: Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult
+    required: false
+    title: "Reviews"
+    description: "Hydrated review result the summary reads its rating matrix and totals from. Received as root-scoped context from the page, which loads it once, so the summary and the reviews element beside it share the same load."

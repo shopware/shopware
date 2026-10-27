@@ -1,0 +1,29 @@
+.sw-product-review-form {
+    display: block;
+}
+
+.sw-product-review-form__login-description {
+    margin-bottom: var(--spacer-md);
+}
+
+.sw-product-review-form__teaser-text {
+    margin-bottom: var(--spacer-md);
+}
+
+.sw-product-review-form__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacer-sm);
+    margin-top: var(--spacer-md);
+}
+
+.sw-product-review-form__required {
+    margin: 0;
+}
+
+.sw-product-review-form__actions {
+    display: flex;
+    gap: var(--spacer-sm);
+}

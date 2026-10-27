@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
+use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\RevocationRequest\SalesChannel\AbstractRevocationRequestRoute;
 use Shopware\Core\Framework\Adapter\Translation\ConstraintViolationTranslator;
 use Shopware\Core\Framework\Log\Package;
@@ -41,6 +42,7 @@ class FormController extends StorefrontController
         private readonly AbstractNewsletterSubscribeRoute $subscribeRoute,
         private readonly AbstractNewsletterUnsubscribeRoute $unsubscribeRoute,
         private readonly AbstractRevocationRequestRoute $abstractRevocationRequestRoute,
+        private readonly AbstractProductReviewSaveRoute $productReviewSaveRoute,
         private readonly ConstraintViolationTranslator $constraintViolationTranslator,
     ) {
     }
@@ -166,6 +168,33 @@ class FormController extends StorefrontController
         }
 
         return new JsonResponse($response);
+    }
+
+    #[Route(
+        path: '/form/product/{productId}/review',
+        name: 'frontend.form.product.review.send',
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+        ],
+        methods: [Request::METHOD_POST]
+    )]
+    public function sendProductReview(string $productId, RequestDataBag $data, SalesChannelContext $context): JsonResponse
+    {
+        try {
+            $response = $this->productReviewSaveRoute->save($productId, $data, $context);
+        } catch (ConstraintViolationException $formViolations) {
+            $errors = [];
+            foreach ($formViolations->getViolations() as $violation) {
+                $errors[] = $this->constraintViolationTranslator->translate($violation);
+            }
+
+            return new JsonResponse(['errors' => $errors], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        return new JsonResponse([
+            'id' => $response->getObject()->get(AbstractProductReviewSaveRoute::REVIEW_ID),
+        ]);
     }
 
     /**

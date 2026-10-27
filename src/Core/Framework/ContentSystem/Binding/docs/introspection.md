@@ -34,3 +34,7 @@ A client does not read storage keys out of `resolves` config. The server derives
 `default: true` marks a type's synthesized default — the specification a `media`-style `resolvedBy` reference property produces automatically, with an id equal to the type name itself (`id === type`). It is derived, never authored: no `bindings:` entry can set it, and an authored entry's id can never equal the type name (reserved for the default). At most one specification per type is ever `default`. `InsertElement` and `ReplaceElement` fill-apply a type's default at scaffold/replace time with no client action — see [Api/docs/mutation-binding.md](../../Api/docs/mutation-binding.md) ("Automatic default application").
 
 Full field-level schema: [content-system-element-types.json](../../../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-element-types.json).
+
+## The Routes That Apply One
+
+`Api/LayoutMutationController::bind()` and `insert()` serve `POST /api/_action/content-system/layout/{bind-element,insert-element}` (names `api.action.content_system.layout.{bind_element,insert_element}`). `Api/ContentLayoutMutationController::bind()` and `insert()` serve the same two paths under `/layout/{layoutId}/` (names `..._{persisted_bind_element,persisted_insert_element}`). Both `insert()` actions apply an optional request `bindingSpecificationId` onto the freshly scaffolded element.

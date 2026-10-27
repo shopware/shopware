@@ -273,8 +273,7 @@ class ProductController extends StorefrontController
 
     private function loadProductContentPage(ProductPage $page, Request $request, SalesChannelContext $context): ?ContentPage
     {
-        $productId = $page->getProduct()->getParentId() ?? $page->getProduct()->getId();
-        $path = '/product/' . $productId;
+        $path = '/product/' . $page->getProduct()->getId();
 
         return $this->loadContentPage($path, $request, $context);
     }

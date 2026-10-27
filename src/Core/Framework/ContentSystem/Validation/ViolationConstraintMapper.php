@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Validation;
 
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -19,6 +20,18 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[Package('framework')]
 class ViolationConstraintMapper
 {
+    /**
+     * The duplicate-id list both write boundaries raise: {@see StoredTree::duplicateElementIds()} reports ids,
+     * the DAL and the draft API need constraint violations, and this is the one place that bridges the two so
+     * a change to how the defect is reported does not have to be made per boundary.
+     *
+     * @param list<string> $ids
+     */
+    public function fromDuplicateElementIds(array $ids): ConstraintViolationList
+    {
+        return $this->toConstraintViolationList(array_map(Violation::duplicateElementId(...), $ids));
+    }
+
     /**
      * @param list<Violation> $violations
      */

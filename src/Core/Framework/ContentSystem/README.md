@@ -40,20 +40,6 @@ The pipeline is source-independent — specification sources translate entity ID
 
 See [docs/data-flow.md](docs/data-flow.md) for a diagram of this pipeline's data flow.
 
-## Key Classes
-
-Module root:
-- `ContentPipeline` - Orchestrates steps 3-5 of the rendering pipeline; receives the loaded `RenderableLayout` from the route
-- `RenderableLayout` - Loaded layout handed to the pipeline: a `LayoutReference` plus its `list<StoredElement>`
-- `LayoutReference` - Immutable layout identity: id, name, version
-- `ResolvedContentLayout` - Resolver output: layout ID plus the `RenderingSpecification`
-- `ContentSection` - Enum: HEADER, FOOTER, MAIN
-- `RenderingSpecification` - Data requirements, placeholders, request, target element, cache tags
-- `RenderingMode` - Enum: FULL (resolve data and context), SKELETON (structure only)
-- `PlaceholderValues` - Immutable placeholder value map
-- `SpecificationData` - Bundles data requirements (from the entity definition) with placeholder values (from the request path and query parameters), independent of layout assignment
-- `DraftLayoutChecker` - Draft-layout check for the preview action (runs the `LayoutDiagnostics` intrinsic subset)
-
 ## Extension Model
 
 Plugins extend the ContentSystem through six mechanisms, documented in [docs/extending.md](docs/extending.md).
@@ -74,12 +60,12 @@ The reasoning behind how classes in this module are named starts at [`NAMING.md`
 
 ## Administration API
 
-Admin-facing endpoints (layout preview, resolve-and-diagnose, the nine draft mutation actions, and the nine persisted mutation actions) are documented in [Api/README.md](Api/README.md), which also routes on to the four type-introspection endpoints the Administration consumes.
+Admin-facing endpoints (layout preview, resolve-and-diagnose, the draft mutation actions, and the persisted mutation actions) are documented in [Api/README.md](Api/README.md), which also routes on to the type-introspection endpoints the Administration consumes.
 
 ## Subdirectories
 
 - **Adapter/** - [Adapter/README.md](Adapter/README.md) - Specification sources, layout assignment entities, resolution helpers
-- **Api/** - [Api/README.md](Api/README.md) - Admin API controllers (layout preview, resolve-and-diagnose, the nine draft mutation actions, and the nine persisted mutation actions)
+- **Api/** - [Api/README.md](Api/README.md) - Admin API controllers (layout preview, resolve-and-diagnose, the draft mutation actions, and the persisted mutation actions)
 - **Binding/** - [Binding/README.md](Binding/README.md) - Binding specification system: declarations wiring a type's reference properties to loaders and seeding its primitive inputs — authored inline, or synthesized automatically from a `resolvedBy` reference property and fill-applied at scaffold/replace with no client action — plus explicit application via the `bind-element` mutation or an `insert-element` carrying a `bindingSpecificationId`
 - **Cache/** - [Cache/README.md](Cache/README.md) - HTTP cache integration and invalidation
 - **Diagnostics/** - [Diagnostics/README.md](Diagnostics/README.md) - Layout analysis: per-element property resolution plus a well-formedness/resolvability report

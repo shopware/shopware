@@ -20,15 +20,14 @@ Data fetching for content elements. Elements declare `DataRequirement` objects w
 - [**EntityCollectionLoader** (`entity_collection`)](docs/entity_collection.md) — Multiple entities by IDs
 - [**ProductListingDataLoader** (`product_listing`)](docs/product_listing.md) — Product listings with filters, sorting, pagination
 - [**NavigationDataLoader** (`navigation`)](docs/navigation.md) — Navigation tree; aliases: `main-navigation`, `service-navigation`, `footer-navigation`
-- **ServiceMenuDataLoader** (`service_menu`) — Service menu navigation
-- **CrossSellingDataLoader** (`cross_selling`) — Cross-selling product sets
-- **ProductReviewDataLoader** (`product_review`) — Product reviews
-- **ProductSearchDataLoader** (`product_search`) — Product search results
-- **ProductSuggestDataLoader** (`product_suggest`) — Product search suggestions
-- **BreadcrumbDataLoader** (`breadcrumb`) — Breadcrumb trail
+- [**ServiceMenuDataLoader** (`service_menu`)](docs/service_menu.md) — Service menu navigation
+- [**CrossSellingDataLoader** (`cross_selling`)](docs/cross_selling.md) — Cross-selling product sets
+- [**ProductReviewDataLoader** (`product_review`)](docs/product_review.md) — Product reviews
+- [**ProductSearchDataLoader** (`product_search`)](docs/product_search.md) — Product search results
+- [**ProductSuggestDataLoader** (`product_suggest`)](docs/product_suggest.md) — Product search suggestions
+- [**ProductConfiguratorDataLoader** (`product_configurator`)](docs/product_configurator.md) — Variant property groups of a configurable product
+- [**BreadcrumbDataLoader** (`breadcrumb`)](docs/breadcrumb.md) — Breadcrumb trail
 - [**LanguageDataLoader** (`language`)](docs/language.md), [**CurrencyDataLoader** (`currency`)](docs/currency.md), [**PaymentMethodDataLoader** (`payment_method`)](docs/payment_method.md), [**ShippingMethodDataLoader** (`shipping_method`)](docs/shipping_method.md)
-
-The six unlinked loaders above — `service_menu`, `cross_selling`, `product_review`, `product_search`, `product_suggest`, `breadcrumb` — have no configuration reference yet.
 
 ## Degradation boundary
 

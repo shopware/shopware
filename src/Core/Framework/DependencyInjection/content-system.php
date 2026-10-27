@@ -122,14 +122,18 @@ use Shopware\Core\Framework\ContentSystem\SalesChannel\Routing\ContentRouteLoade
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutAssignmentWriteValidator;
+use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutDefaultValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutWriteValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
+use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -156,6 +160,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(VirtualRootWrapper::class),
             service(PartialRenderer::class),
+            service(DataLoaderConfigSerializerProvider::class),
+            service(DataLoaderProvider::class),
         ]);
 
     // Output Services
@@ -287,7 +293,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DefinitionInstanceRegistry::class),
             param('shopware.content_system.section_assignment_entities'),
         ])
-        ->tag('kernel.event_listener');
+        ->tag('kernel.event_listener')
+        ->tag('kernel.event_listener', ['event' => EntityDeleteEvent::class, 'method' => 'beforeDelete'])
+        ->tag('kernel.event_listener', ['event' => SystemConfigChangedEvent::class, 'method' => 'invalidateDefaultLayout']);
 
     // Hydration Services
     $services->set(LoaderInputResolver::class);
@@ -341,6 +349,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ElementDataResolver::class),
             service(ContextDeliveryResolver::class),
             service(RenderedTreeFactory::class),
+            service(ContextPathResolver::class),
         ]);
 
     $services->set(WiringPlanner::class)
@@ -362,6 +371,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(EntityLayoutResolver::class),
             service(RootContextMapper::class),
+            service(SystemConfigService::class),
+            service(CacheTagCollector::class),
         ]);
 
     // Domain-Aware Layout Resolution (Header/Footer)
@@ -517,7 +528,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('validator'),
             service(Connection::class),
             param('kernel.environment'),
-            service('logger'),
         ])
         ->tag('content_system.layout_preset_loader');
 
@@ -631,6 +641,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DataLoaderConfigSerializerProvider::class),
             service(RootContextMapper::class),
             service(ContentSystemDataLoaderMapResolver::class),
+            service(RootSourceRegistry::class),
         ])
         ->tag('validator.constraint_validator');
 
@@ -734,6 +745,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(DefinitionInstanceRegistry::class),
             service(LayoutRootSourceReader::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    // Default-layout gate (system config change, content_layout delete)
+    $services->set(ContentLayoutDefaultValidator::class)
+        ->args([
+            service(DefinitionInstanceRegistry::class),
+            service(LayoutRootSourceReader::class),
+            service(Connection::class),
         ])
         ->tag('kernel.event_subscriber');
 

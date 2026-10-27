@@ -14,9 +14,12 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\ContentSystem\ContentSection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 /**
@@ -59,6 +62,61 @@ class CacheInvalidationSubscriber
         foreach ($this->sectionAssignments as $entityName => $section) {
             $this->invalidateSectionContentLayout($event, $entityName, $section);
         }
+    }
+
+    /**
+     * A deleted assignment row is gone by the time the written event fires, so the entity tags are resolved before
+     * the delete and invalidated once it succeeded.
+     */
+    public function beforeDelete(EntityDeleteEvent $event): void
+    {
+        $assignments = [
+            ProductContentLayoutDefinition::ENTITY_NAME => ['product_id', ProductDefinition::class],
+            CategoryContentLayoutDefinition::ENTITY_NAME => ['category_id', CategoryDefinition::class],
+            LandingPageContentLayoutDefinition::ENTITY_NAME => ['landing_page_id', LandingPageDefinition::class],
+        ];
+
+        $tags = [];
+
+        foreach ($assignments as $entityName => [$column, $definitionClass]) {
+            $ids = array_values(array_filter($event->getIds($entityName), '\is_string'));
+
+            if ($ids === []) {
+                continue;
+            }
+
+            $definition = $this->definitionRegistry->get($definitionClass);
+
+            foreach ($this->fetchIdsFromAssignments($ids, $entityName, $column) as $entityId) {
+                $tags[] = $this->cacheTagResolver->resolve($definition, $entityId);
+            }
+        }
+
+        $tags = array_values(array_filter($tags));
+
+        if ($tags === []) {
+            return;
+        }
+
+        $event->addSuccess(fn () => $this->cacheInvalidator->invalidate($tags));
+    }
+
+    /**
+     * Every page of the type carries the default layout key tag, because a default change applies to all sales channels
+     * inheriting it; the event fires regardless of the silent flag.
+     */
+    public function invalidateDefaultLayout(SystemConfigChangedEvent $event): void
+    {
+        $defaultLayoutKeys = [
+            ProductContentLayoutDefinition::CONFIG_KEY_DEFAULT_CONTENT_LAYOUT,
+            CategoryContentLayoutDefinition::CONFIG_KEY_DEFAULT_CONTENT_LAYOUT,
+        ];
+
+        if (!\in_array($event->getKey(), $defaultLayoutKeys, true)) {
+            return;
+        }
+
+        $this->cacheInvalidator->invalidate([SystemConfigService::buildName($event->getKey())]);
     }
 
     private function invalidateContentLayout(EntityWrittenContainerEvent $event): void

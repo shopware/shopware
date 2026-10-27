@@ -40,6 +40,22 @@ class ViolationConstraintMapperTest extends TestCase
         static::assertSame('/el-1', $list->get(0)->getPropertyPath());
     }
 
+    /**
+     * The seam both write boundaries use: they hold ids, the DAL and the draft API need constraint
+     * violations, and neither should mint a Violation of its own.
+     */
+    #[TestDox('turns a duplicate-id list into element-scoped violations carrying the shared wording')]
+    public function testMapsDuplicateElementIdsWithoutTheCallerMintingViolations(): void
+    {
+        $list = (new ViolationConstraintMapper())->fromDuplicateElementIds(['hero', 'teaser']);
+
+        static::assertCount(2, $list);
+        static::assertSame('/hero', $list->get(0)->getPropertyPath());
+        static::assertSame('duplicate_element_id', $list->get(0)->getCode());
+        static::assertSame('Element id "hero" is not unique across the layout.', $list->get(0)->getMessage());
+        static::assertSame('/teaser', $list->get(1)->getPropertyPath());
+    }
+
     #[TestDox('maps every violation in the batch')]
     public function testMapsEveryViolation(): void
     {

@@ -256,6 +256,164 @@ class ElementLoweringTest extends TestCase
     }
 
     /**
+     * The wrapper-present arm: a page-level requirement no root-scoped consumer in the forest matches is
+     * never loaded, so it runs no loader and leaves the cache context untouched. The forest carries a root
+     * consumer for a different key, so the skip is per requirement key rather than all-or-nothing.
+     */
+    #[TestDox('runs no page-level loader and leaves the cache untouched when no consumer uses the requirement')]
+    public function testFullModeSkipsAnUnconsumedPageLevelRequirement(): void
+    {
+        $loader = $this->loader();
+        $loader->expects($this->never())->method('load');
+        $cacheContext = new RenderingCacheContext();
+
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [
+                StoredElementBuilder::create('Sw:Box', 'child-1')
+                    ->withConsumer('language', ContextType::Single, scope: ConsumerScope::Root)
+                    ->build(),
+            ])
+            ->build();
+        $wrapper = $this->virtualRoot($root);
+
+        $this->lowering($loader)->lower(
+            [$wrapper],
+            RenderingMode::FULL,
+            static::createStub(SalesChannelContext::class),
+            new Request(),
+            $cacheContext,
+            [new DataRequirement('product', 'entity', new StubLoaderConfig())],
+            $wrapper,
+        );
+
+        static::assertFalse($cacheContext->isDisabled());
+        static::assertSame([], $cacheContext->getTags());
+    }
+
+    /**
+     * A dotted root-scoped consumer reads a path INTO a page value (`product.cover` off the `product`
+     * requirement), so the requirement is consumed and must be loaded. Exact-key matching would drop it,
+     * diverging from the delivery predicate — this guards against that regression.
+     */
+    #[TestDox('resolves a page-level requirement consumed only through a dotted root-scoped consumer')]
+    public function testFullModeResolvesARequirementConsumedByADottedRootConsumer(): void
+    {
+        $loader = $this->loader();
+        $loader->expects($this->once())
+            ->method('load')
+            ->willReturn(ContentDataLoaderResult::cached(new StubStruct()));
+
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [
+                StoredElementBuilder::create('Sw:Box', 'child-1')
+                    ->withConsumer('product.cover', ContextType::Single, required: false, scope: ConsumerScope::Root)
+                    ->build(),
+            ])
+            ->build();
+        $wrapper = $this->virtualRoot($root);
+
+        $this->lower(
+            $loader,
+            [$wrapper],
+            [new DataRequirement('product', 'entity', new StubLoaderConfig())],
+            $wrapper
+        );
+    }
+
+    /**
+     * The match must keep the dot boundary: a `productId` consumer is not reading a path into the `product`
+     * requirement, so the requirement stays unconsumed and must not load. A plain prefix match would wrongly
+     * pull it in.
+     */
+    #[TestDox('does not resolve a page-level requirement a root consumer only prefix-matches without the dot boundary')]
+    public function testFullModeDoesNotResolveARequirementPrefixMatchedWithoutTheDotBoundary(): void
+    {
+        $loader = $this->loader();
+        $loader->expects($this->never())->method('load');
+
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [
+                StoredElementBuilder::create('Sw:Box', 'child-1')
+                    ->withConsumer('productId', ContextType::Single, scope: ConsumerScope::Root)
+                    ->build(),
+            ])
+            ->build();
+        $wrapper = $this->virtualRoot($root);
+
+        $this->lower(
+            $loader,
+            [$wrapper],
+            [new DataRequirement('product', 'entity', new StubLoaderConfig())],
+            $wrapper
+        );
+    }
+
+    /**
+     * Only a root-scoped consumer marks a page-level requirement consumed. A parent-scoped consumer of the
+     * same key takes its value off the parent chain, never the root-ambient map, so the requirement must not
+     * load on its account.
+     */
+    #[TestDox('does not resolve a page-level requirement read only by a parent-scoped consumer')]
+    public function testFullModeDoesNotResolveARequirementReadOnlyByAParentScopedConsumer(): void
+    {
+        $loader = $this->loader();
+        $loader->expects($this->never())->method('load');
+
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [
+                StoredElementBuilder::create('Sw:Box', 'child-1')
+                    ->withConsumer('product', ContextType::Single)
+                    ->build(),
+            ])
+            ->build();
+        $wrapper = $this->virtualRoot($root);
+
+        $this->lower(
+            $loader,
+            [$wrapper],
+            [new DataRequirement('product', 'entity', new StubLoaderConfig())],
+            $wrapper
+        );
+    }
+
+    /**
+     * Per requirement, not all-or-nothing: a page declaring two requirements where a root-scoped consumer
+     * reads only one loads exactly that one, and its value is the one delivered to the consumer. The
+     * unconsumed requirement never reaches a loader.
+     */
+    #[TestDox('resolves only the consumed requirement when a page declares several')]
+    public function testFullModeResolvesOnlyTheConsumedOfSeveralRequirements(): void
+    {
+        $consumed = new StubStruct();
+        $loader = $this->loader();
+        $loader->expects($this->once())
+            ->method('load')
+            ->willReturn(ContentDataLoaderResult::cached($consumed));
+
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [
+                StoredElementBuilder::create('Sw:Box', 'child-1')
+                    ->withConsumer('configuratorSettings', ContextType::Single, scope: ConsumerScope::Root)
+                    ->build(),
+            ])
+            ->build();
+        $wrapper = $this->virtualRoot($root);
+
+        $tree = $this->lower(
+            $loader,
+            [$wrapper],
+            [
+                new DataRequirement('product', 'entity', new StubLoaderConfig()),
+                new DataRequirement('configuratorSettings', 'entity', new StubLoaderConfig()),
+            ],
+            $wrapper
+        );
+
+        $delivered = $tree[0]->slots['__page_roots__'][0]->slots['main'][0];
+        static::assertSame(['configuratorSettings' => $consumed], $delivered->properties);
+    }
+
+    /**
      * Why the wrapper is the input source rather than an arbitrary element: a page-level requirement's
      * `propertyReference` input names a stored key, and the keys it can name are the placeholder values the
      * wrapper carries. The loader receives the placeholder's VALUE, so a run that dereferenced against
@@ -278,7 +436,10 @@ class ElementLoweringTest extends TestCase
             }
         );
 
-        $wrapper = $this->virtualRoot(StoredElementBuilder::create('Sw:Section', 'root-1')->build());
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withConsumer('product', ContextType::Single, scope: ConsumerScope::Root)
+            ->build();
+        $wrapper = $this->virtualRoot($root);
 
         // Fixture guard: the placeholder key the config references really is on the wrapper, and its value
         // is the one the assertion below expects to arrive at the loader.
@@ -392,7 +553,8 @@ class ElementLoweringTest extends TestCase
                 new ContextDistributor(new ContextPathResolver()),
                 new ContextPathResolver()
             ),
-            new RenderedTreeFactory(new RenderedElementFactory($this->typeRegistry()))
+            new RenderedTreeFactory(new RenderedElementFactory($this->typeRegistry())),
+            new ContextPathResolver()
         );
     }
 

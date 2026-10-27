@@ -17,7 +17,7 @@ After `ContentTreePreparationEvent` is dispatched:
 4. Duplicate-element-id check — rejects a repeated id (`CONTENT_SYSTEM__DUPLICATE_ELEMENT_ID`, 500), judging the pre-prune forest
 5. Wiring validation — rejects a context-wiring defect, judging the same pre-prune forest, so a defect inside a subtree the prune discarded still fails the request
 6. Redistribute derivation — expands `redistribute: true` into broadcast providers on the surviving stored tree, after the validation and before the render step; it throws nothing
-7. Render step: turns the derived stored tree into the rendered forest (`Rendering/ElementLowering`: forest-wide data resolution, the once-per-render root-ambient resolution of the specification's page-level data requirements when the specification declares any and the preparation wrapped, context-delivery resolution, then the mint; FULL does all four, SKELETON mints structure only)
+7. Render step: turns the derived stored tree into the rendered forest (`Rendering/ElementLowering`: forest-wide data resolution, the root-ambient resolution of the specification's page-level data requirements a root-scoped consumer on the page reads (when the specification declares any and the preparation wrapped), context-delivery resolution, then the mint; FULL does all four, SKELETON mints structure only)
 
 **After the render step**, before `RenderedTreeFinalizationEvent` is dispatched:
 1. Virtual-root unwrap — removes the virtual root wrapper, on the rendered forest

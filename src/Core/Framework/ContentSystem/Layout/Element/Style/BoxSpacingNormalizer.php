@@ -167,7 +167,7 @@ final class BoxSpacingNormalizer
         $trimmed = preg_replace(self::TRIM_PATTERN, '', $value);
 
         if ($trimmed === null) {
-            throw ContentSystemException::boxSpacingTokenizationFailed('trim', $value, preg_last_error_msg());
+            throw $this->tokenizationFailure('trim', $value);
         }
 
         return $trimmed;
@@ -187,10 +187,28 @@ final class BoxSpacingNormalizer
         // value. `false` is the documented error return; the empty array cannot occur with these flags and
         // is rejected on the same grounds instead of being left to an undefined offset 0.
         if ($parts === false || $parts === []) {
-            throw ContentSystemException::boxSpacingTokenizationFailed('split', $value, preg_last_error_msg());
+            throw $this->tokenizationFailure('split', $value);
         }
 
         return $parts;
+    }
+
+    private function tokenizationFailure(string $operation, string $value): ContentSystemException
+    {
+        if (\in_array(preg_last_error(), [
+            \PREG_BACKTRACK_LIMIT_ERROR,
+            \PREG_RECURSION_LIMIT_ERROR,
+            \PREG_BAD_UTF8_ERROR,
+            \PREG_BAD_UTF8_OFFSET_ERROR,
+            \PREG_JIT_STACKLIMIT_ERROR,
+        ], true)) {
+            return ContentSystemException::boxSpacingInvalidValue($operation, $value);
+        }
+
+        // Two paths reach this 500: a PCRE error outside the input-limit codes above, which cannot be
+        // induced reliably through this public API, and `preg_split()` returning `[]`, which it does not do
+        // without flags. Keep both distinct from input limits; the exception factory pins its 500 contract.
+        return ContentSystemException::boxSpacingTokenizationFailed($operation, $value, preg_last_error_msg());
     }
 
     /**
@@ -218,7 +236,12 @@ final class BoxSpacingNormalizer
             return '';
         }
 
-        if (preg_match(self::PLAIN_NUMBER_WITH_PX_PATTERN, $trimmed, $matches) === 1) {
+        $matched = preg_match(self::PLAIN_NUMBER_WITH_PX_PATTERN, $trimmed, $matches);
+        if ($matched === false) {
+            throw $this->tokenizationFailure('match', $trimmed);
+        }
+
+        if ($matched === 1) {
             return $matches[1];
         }
 
@@ -278,18 +301,28 @@ final class BoxSpacingNormalizer
             return $trimmed;
         }
 
-        if (preg_match(self::CSS_KEYWORD_PATTERN, $trimmed) === 1) {
+        if ($this->matches(self::CSS_KEYWORD_PATTERN, $trimmed)) {
             return strtolower($trimmed);
         }
 
-        if (str_contains($trimmed, '(') || preg_match(self::HAS_CSS_UNIT_PATTERN, $trimmed) === 1) {
+        if (str_contains($trimmed, '(') || $this->matches(self::HAS_CSS_UNIT_PATTERN, $trimmed)) {
             return $trimmed;
         }
 
-        if (preg_match(self::PLAIN_NUMBER_PATTERN, $trimmed) === 1) {
+        if ($this->matches(self::PLAIN_NUMBER_PATTERN, $trimmed)) {
             return $trimmed . 'px';
         }
 
         return $trimmed;
+    }
+
+    private function matches(string $pattern, string $value): bool
+    {
+        $matched = preg_match($pattern, $value);
+        if ($matched === false) {
+            throw $this->tokenizationFailure('match', $value);
+        }
+
+        return $matched === 1;
     }
 }

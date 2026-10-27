@@ -30,7 +30,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  *
  * The strict path ({@see decode()}, and {@see decodeOne()} through it) additionally rejects globally duplicate
  * ids before any operation runs, because a mutation applied to such a tree would silently corrupt or drop
- * content. That rule is read off {@see StoredTree::validate()} rather than restated here. The lenient
+ * content. That rule is read off {@see StoredTree::duplicateElementIds()} rather than restated here. The lenient
  * {@see decodeLintable()} path deliberately does NOT run it: the diagnose route is meant to report a duplicate id
  * as a `duplicate_element_id` violation in its 200 body, not to reject it.
  *
@@ -176,19 +176,21 @@ class DraftLayoutDecoder
      * Strict-path tree validation, run after the whole forest decoded but never on the lenient diagnose decode.
      * Ids that repeat across the forest are the one corruption a structural transform cannot survive — the read
      * primitives match the first, the write primitives rewrite all, so a duplicate silently loses one subtree.
-     * The rule itself belongs to the forest, so it is read off {@see StoredTree::validate()}.
+     * The rule itself belongs to the forest, so it is read off {@see StoredTree::duplicateElementIds()}.
      *
      * @param list<StoredElement> $tree
      */
     private function assertUniqueIds(array $tree): void
     {
-        $violations = (new StoredTree($tree))->validate();
+        $duplicates = (new StoredTree($tree))->duplicateElementIds();
 
-        if ($violations === []) {
+        if ($duplicates === []) {
             return;
         }
 
-        throw ContentSystemException::invalidLayoutStructure($this->violationMapper->toConstraintViolationList($violations));
+        throw ContentSystemException::invalidLayoutStructure(
+            $this->violationMapper->fromDuplicateElementIds($duplicates)
+        );
     }
 
     private function structuralViolation(string $propertyPath, string $message, mixed $invalidValue): ConstraintViolation

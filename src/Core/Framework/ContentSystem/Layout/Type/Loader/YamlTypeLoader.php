@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Loader;
 
+use Shopware\Core\Framework\ContentSystem\Binding\ScopedConfigNormalizer;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
@@ -138,7 +139,7 @@ class YamlTypeLoader extends AbstractContentSystemElementTypeLoader
 
         $violations = $this->validator->validate(new ElementTypeSpecificationDtoCollection($specificationDtos));
         if ($violations->count() > 0) {
-            throw ContentSystemException::elementTypesInvalid($violations);
+            throw ContentSystemException::elementTypeLoadFailed($directory, ContentSystemException::violationMessages($violations));
         }
 
         return $resolvedSpecificationDtos;
@@ -152,7 +153,7 @@ class YamlTypeLoader extends AbstractContentSystemElementTypeLoader
         $content = $filesystem->read($relativePath);
 
         try {
-            $data = Yaml::parse($content);
+            $data = ScopedConfigNormalizer::normalize(Yaml::parse($content, Yaml::PARSE_CUSTOM_TAGS));
         } catch (ParseException $e) {
             throw ContentSystemException::elementTypeLoadFailed($filesystem->path($relativePath), 'Invalid YAML syntax: ' . $e->getMessage(), $e);
         }

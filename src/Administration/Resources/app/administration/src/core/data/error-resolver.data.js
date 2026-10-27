@@ -98,6 +98,19 @@ export default class ErrorResolver {
 
     /**
      * @private
+     * @param {ShopwareError|Object} error - a single error or the nested pointer map produced by reduceErrorsByWriteIndex
+     * @returns {ShopwareError[]}
+     */
+    collectShopwareErrors(error) {
+        if (error instanceof this.ShopwareError) {
+            return [error];
+        }
+
+        return Object.values(error).flatMap((nested) => this.collectShopwareErrors(nested));
+    }
+
+    /**
+     * @private
      * @param writeErrors
      * @param changeset
      */
@@ -129,7 +142,9 @@ export default class ErrorResolver {
         const field = definition.getField(fieldName);
 
         if (!field) {
-            this.errorStore.addSystemError(error);
+            this.collectShopwareErrors(error).forEach((shopwareError) => {
+                Shopware.Store.get('error').addSystemError({ error: shopwareError });
+            });
             return;
         }
 

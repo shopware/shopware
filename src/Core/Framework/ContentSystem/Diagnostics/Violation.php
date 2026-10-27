@@ -26,6 +26,21 @@ final readonly class Violation
     ) {
     }
 
+    /**
+     * The tree-global duplicate-id defect, minted here so its code and message are stated once: the write
+     * boundary and the diagnostics report both raise it, and a wording that drifted between them would give
+     * one defect two descriptions.
+     */
+    public static function duplicateElementId(string $id): self
+    {
+        return new self(
+            ViolationCode::DuplicateElementId,
+            $id,
+            null,
+            \sprintf('Element id "%s" is not unique across the layout.', $id),
+        );
+    }
+
     public function scope(): ViolationScope
     {
         return $this->code->scope();

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpeci
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeRegistry;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validation;
@@ -84,7 +85,7 @@ abstract class StoredTreeConstraintsTestCase extends TestCase
      */
     private function typeRegistry(): AbstractContentSystemElementTypeRegistry
     {
-        $specs = ['core:text' => new ContentSystemElementTypeSpecification(
+        return TestElementTypeRegistry::of(['core:text' => new ContentSystemElementTypeSpecification(
             'core:text',
             'Text',
             '',
@@ -93,12 +94,6 @@ abstract class StoredTreeConstraintsTestCase extends TestCase
             new CopilotSpecification('', []),
             ['headline' => new PropertySpecification('headline', new PropertyType('string', false, null, null), false, '', '', null)],
             [],
-        )];
-
-        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('has')->willReturnCallback(static fn (string $name): bool => isset($specs[$name]));
-        $registry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
-
-        return $registry;
+        )]);
     }
 }

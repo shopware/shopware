@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\ContentSystem\Api;
 
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Envelope DTO for the insert-element mutation action.
@@ -18,7 +17,6 @@ final class InsertElementRequest
      */
     public function __construct(
         public readonly string $type,
-        #[Assert\Type('array')]
         public readonly array $layout = [],
         public readonly ?string $parentElementId = null,
         public readonly ?string $slot = null,

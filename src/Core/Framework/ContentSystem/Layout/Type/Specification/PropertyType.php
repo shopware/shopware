@@ -89,4 +89,65 @@ final readonly class PropertyType
     {
         return \in_array($this->type, self::PRIMITIVE_TYPES, true);
     }
+
+    /**
+     * The primitive types a value must satisfy at least one of, or `null` when the declaration constrains
+     * nothing: a bare `object` or an FQCN admits whatever the client authored, and so does a union carrying
+     * either, because that member alone accepts every value.
+     *
+     * @return list<string>|null
+     */
+    public function enforceableTypes(): ?array
+    {
+        if (\is_string($this->type)) {
+            return \in_array($this->type, self::PRIMITIVE_TYPES, true) ? [$this->type] : null;
+        }
+
+        if ($this->type === []) {
+            return null;
+        }
+
+        foreach ($this->type as $member) {
+            if (!\in_array($member, self::PRIMITIVE_TYPES, true)) {
+                return null;
+            }
+        }
+
+        return $this->type;
+    }
+
+    /**
+     * A null is admissible under every primitive, because whether a key may be null is the required-input
+     * rule's business, not this one's.
+     */
+    public function admits(mixed $value): bool
+    {
+        $types = $this->enforceableTypes();
+
+        if ($types === null || $value === null) {
+            return true;
+        }
+
+        foreach ($types as $type) {
+            if (self::matchesPrimitive($value, $type)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * `number` admits an integer as well as a float: JSON carries no distinction a client can be held to.
+     */
+    private static function matchesPrimitive(mixed $value, string $type): bool
+    {
+        return match ($type) {
+            'string' => \is_string($value),
+            'integer' => \is_int($value),
+            'number' => \is_int($value) || \is_float($value),
+            'boolean' => \is_bool($value),
+            default => false,
+        };
+    }
 }

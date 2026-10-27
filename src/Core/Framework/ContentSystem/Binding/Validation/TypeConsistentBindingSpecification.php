@@ -28,6 +28,8 @@ final class TypeConsistentBindingSpecification extends Constraint
 
     public string $resolvesEntryPropertyReferenceNotPrimitiveMessage = 'resolves config key "{{ configKey }}" must name a primitive property of type "{{ type }}", but "{{ property }}" is not';
 
+    public string $resolvesEntryRootSourceMapMessage = 'resolves entry "{{ key }}" config key "{{ configKey }}" must be a map of root source to string, with keys limited to {{ rootSources }}';
+
     public string $resolvesEntryContextFormMessage = 'resolves entry "{{ key }}" uses the "context" form, which is not yet supported';
 
     public string $inputsEntryNotPrimitivePropertyMessage = 'inputs entry "{{ key }}" does not name a primitive property of type "{{ type }}"';

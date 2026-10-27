@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Binding\Validation;
 
+use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDtoCollection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -31,6 +33,7 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
         private readonly DataLoaderConfigSerializerProvider $configSerializerProvider,
         private readonly RootContextMapper $rootContextMapper,
         private readonly AbstractContentSystemDataLoaderMapResolver $mapResolver,
+        private readonly RootSourceRegistry $rootSourceRegistry,
     ) {
     }
 
@@ -138,6 +141,103 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
         $config = $entry['config'] ?? [];
         $config = \is_array($config) ? $config : [];
 
+        $knownRootSources = $this->rootSourceRegistry->entityRootSources();
+
+        if (!$this->validateScopedMaps($id, $key, $config, $knownRootSources, $constraint)) {
+            return;
+        }
+
+        foreach ($this->configBranches($config) as $branchConfig) {
+            $this->validateConfigBranch($id, $key, $loader, $branchConfig, $declaredType, $type, $constraint);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     * @param list<string> $knownRootSources
+     */
+    private function validateScopedMaps(string $id, string $key, array $config, array $knownRootSources, TypeConsistentBindingSpecification $constraint): bool
+    {
+        $valid = true;
+
+        foreach ($config as $configKey => $value) {
+            $map = RootSourceConfigMap::scopeMap($value);
+
+            if ($map === null) {
+                continue;
+            }
+
+            if ($map !== [] && $this->onlyRootSourceKeys($map, $knownRootSources) && $this->allStringValues($map)) {
+                continue;
+            }
+
+            $this->context->buildViolation($constraint->resolvesEntryRootSourceMapMessage)
+                ->setParameter('{{ key }}', $key)
+                ->setParameter('{{ configKey }}', (string) $configKey)
+                ->setParameter('{{ rootSources }}', implode(', ', $knownRootSources))
+                ->atPath($this->path($id, 'resolves[' . $key . '].config.' . $configKey))
+                ->addViolation();
+
+            $valid = false;
+        }
+
+        return $valid;
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function configBranches(array $config): array
+    {
+        $rootSources = [];
+
+        foreach ($config as $value) {
+            $map = RootSourceConfigMap::scopeMap($value);
+
+            if ($map === null) {
+                continue;
+            }
+
+            foreach (array_keys($map) as $rootSource) {
+                $rootSources[$rootSource] = true;
+            }
+        }
+
+        if ($rootSources === []) {
+            return [$config];
+        }
+
+        $branches = [];
+
+        foreach (array_keys($rootSources) as $rootSource) {
+            $branches[] = RootSourceConfigMap::collapse($config, (string) $rootSource);
+        }
+
+        return $branches;
+    }
+
+    /**
+     * @param array<array-key, mixed> $map
+     * @param list<string> $knownRootSources
+     */
+    private function onlyRootSourceKeys(array $map, array $knownRootSources): bool
+    {
+        foreach (array_keys($map) as $key) {
+            if (!\is_string($key) || !\in_array($key, $knownRootSources, true)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function validateConfigBranch(string $id, string $key, string $loader, array $config, string $declaredType, ContentSystemElementTypeSpecification $type, TypeConsistentBindingSpecification $constraint): void
+    {
         $configObject = $this->decodeConfig($id, $key, $loader, $config, $constraint);
 
         if ($configObject === null) {
@@ -162,6 +262,20 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
         }
 
         $this->validatePropertyReferenceKeys($id, $key, $loader, $config, $type, $constraint);
+    }
+
+    /**
+     * @param array<array-key, mixed> $value
+     */
+    private function allStringValues(array $value): bool
+    {
+        foreach ($value as $item) {
+            if (!\is_string($item)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -299,17 +413,20 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
 
         $primitiveType = $this->getSinglePrimitiveType($property);
 
-        if ($primitiveType !== null && $this->matchesType($default, $primitiveType)) {
+        if ($this->matchesType($default, $primitiveType)) {
             return;
         }
 
         $this->context->buildViolation($constraint->inputsEntryDefaultTypeMessage)
             ->setParameter('{{ key }}', $key)
-            ->setParameter('{{ type }}', $primitiveType ?? '')
+            ->setParameter('{{ type }}', $primitiveType)
             ->atPath($this->path($id, 'inputs[' . $key . '].default'))
             ->addViolation();
     }
 
+    /**
+     * @param 'string'|'integer'|'number'|'boolean' $type
+     */
     private function matchesType(string|int|float|bool $value, string $type): bool
     {
         return match ($type) {
@@ -317,26 +434,20 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
             'integer' => \is_int($value),
             'boolean' => \is_bool($value),
             'number' => \is_int($value) || \is_float($value),
-            default => false,
         };
     }
 
-    private function getSinglePrimitiveType(PropertySpecification $property): ?string
+    /**
+     * @return 'string'|'integer'|'number'|'boolean'
+     */
+    private function getSinglePrimitiveType(PropertySpecification $property): string
     {
         $declaredType = $property->type()->type();
-        $types = \is_string($declaredType) ? [$declaredType] : array_values($declaredType);
 
-        if (\count($types) !== 1) {
-            return null;
-        }
+        // The caller's isPrimitive() gate admits only a lone primitive type name.
+        \assert(\in_array($declaredType, PropertyType::PRIMITIVE_TYPES, true));
 
-        $resolvedType = $types[0];
-
-        if (!\in_array($resolvedType, PropertyType::PRIMITIVE_TYPES, true)) {
-            return null;
-        }
-
-        return $resolvedType;
+        return $declaredType;
     }
 
     private function path(string $id, string $suffix): string

@@ -25,7 +25,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * The tree is not decoded here. The layout field serializer decoded it, admitted it through the write boundary
  * and left it on the write `Context` ({@see LayoutWriteContext}), so this gate judges the tree that is about to
  * be stored rather than a second decode of the same column. Reading the memo consumes it, on the skip path as
- * well as the checking path, so a write that reaches this subscriber leaves nothing behind.
+ * well as the checking path, so a write that reaches this subscriber leaves nothing behind. Only the memo this
+ * write opened is read: one left by an earlier write on the same `Context` counts as absent.
  *
  * @internal
  *
@@ -54,7 +55,9 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
     {
         $context = $event->getContext();
         $extension = $context->getExtension(LayoutWriteContext::EXTENSION_NAME);
-        $memo = $extension instanceof LayoutWriteContext ? $extension : null;
+        $memo = $extension instanceof LayoutWriteContext && $extension->ownedBy($event->getWriteContext())
+            ? $extension
+            : null;
 
         if ($context->hasState(LayoutGate::SKIP_VALIDATION_STATE)) {
             $this->drain($memo, $event->getCommands());
@@ -108,8 +111,8 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
         // Step 3: resolvability against the declared root source (the create payload value, else the committed row
         // read through LayoutRootSourceReader). On the create path membership was already gated in step 2; on a
         // layout-only edit the committed source is gated here before resolve() — a source de-registered after the
-        // layout was written, or a stray non-member value, surfaces as the unknownRootSource 400 instead of the
-        // resolve() 500. After this, resolve() is never handed an unregistered id on either path.
+        // layout was written surfaces as the unknownRootSource 400 instead of the resolve() 500. After this,
+        // resolve() is never handed an unregistered id on either path.
         //
         // resolvability() re-runs the analysis; its intrinsic checks are root-context-independent, so it recomputes
         // step 1's intrinsic errors identically and we discard them, keeping only bindingErrors(). The redundant

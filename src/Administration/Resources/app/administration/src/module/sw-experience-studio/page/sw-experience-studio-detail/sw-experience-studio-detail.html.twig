@@ -36,6 +36,7 @@
                     :has-draft="hasDraft"
                     :draft-name="branch ? branch.name : null"
                     :is-dirty="isDirty"
+                    :can-manage-assignments="canManageAssignments"
                     @back="onClickBack"
                     @viewport-change="onViewportChange"
                     @preview-sales-channel-change="onPreviewSalesChannelChange"
@@ -46,6 +47,7 @@
                     @history="onOpenRevisionsModal"
                     @undo="onUndo"
                     @redo="onRedo"
+                    @open-assignments="onOpenAssignmentModal"
                 />
             {% endblock %}
 
@@ -136,6 +138,16 @@
                     @modal-close="onCloseRevisionsModal"
                 />
                 {% endblock %}
+
+            {% block sw_experience_studio_detail_assignment_modal %}
+                <sw-experience-studio-assignment-modal
+                    v-if="isAssignmentModalOpen && layout && layoutRootSource"
+                    :layout-id="layout.id"
+                    :root-source="layoutRootSource"
+                    :allow-edit="allowSave"
+                    @close="onCloseAssignmentModal"
+                />
+            {% endblock %}
             </template>
 
             <sw-loader v-if="isLoading" />

@@ -9,6 +9,7 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Api\OAuth\OAuthResource;
 use Shopware\Core\Framework\App\AppSecretResolver;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\ShopId\ShopId;
@@ -276,6 +277,55 @@ class AppMcpCapabilityExecutorTest extends TestCase
                 static::assertSame('Bearer my-token-123', $r->server->get('HTTP_AUTHORIZATION'));
                 static::assertSame('Bearer my-token-123', $r->headers->get('Authorization'));
                 static::assertSame(HttpKernelInterface::SUB_REQUEST, $type);
+
+                return new SymfonyResponse('{"success":true}');
+            }
+        );
+
+        $executor = $this->makeExecutorWithSubrequest($kernel, $requestStack, $router);
+        $executor->execute('my-tool', 'my-app', '/api/script/my-tool', []);
+    }
+
+    public function testSubrequestIsMarkedWithTheResourceOfAnMcpBoundToken(): void
+    {
+        $parent = new Request();
+        $parent->headers->set('Authorization', 'Bearer my-token-123');
+        $parent->attributes->set(OAuthResource::REQUEST_ATTRIBUTE, 'https://shop.example/api/_mcp');
+
+        $requestStack = static::createStub(RequestStack::class);
+        $requestStack->method('getCurrentRequest')->willReturn($parent);
+
+        $router = static::createStub(RouterInterface::class);
+        $router->method('match')->willReturn(['_route' => 'api.script.run']);
+
+        $kernel = $this->createMock(KernelInterface::class);
+        $kernel->expects($this->once())->method('handle')->willReturnCallback(
+            static function (Request $r): SymfonyResponse {
+                static::assertSame('https://shop.example/api/_mcp', $r->attributes->get(OAuthResource::SUBREQUEST_ATTRIBUTE));
+
+                return new SymfonyResponse('{"success":true}');
+            }
+        );
+
+        $executor = $this->makeExecutorWithSubrequest($kernel, $requestStack, $router);
+        $executor->execute('my-tool', 'my-app', '/api/script/my-tool', []);
+    }
+
+    public function testSubrequestOfATokenWithoutResourceIsNotMarked(): void
+    {
+        $parent = new Request();
+        $parent->headers->set('Authorization', 'Bearer my-token-123');
+
+        $requestStack = static::createStub(RequestStack::class);
+        $requestStack->method('getCurrentRequest')->willReturn($parent);
+
+        $router = static::createStub(RouterInterface::class);
+        $router->method('match')->willReturn(['_route' => 'api.script.run']);
+
+        $kernel = $this->createMock(KernelInterface::class);
+        $kernel->expects($this->once())->method('handle')->willReturnCallback(
+            static function (Request $r): SymfonyResponse {
+                static::assertFalse($r->attributes->has(OAuthResource::SUBREQUEST_ATTRIBUTE));
 
                 return new SymfonyResponse('{"success":true}');
             }

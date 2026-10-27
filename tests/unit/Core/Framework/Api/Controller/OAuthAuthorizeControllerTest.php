@@ -17,9 +17,13 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Api\Controller\OAuthAuthorizeController;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\OAuth\Client\PublicClientRegistry;
+use Shopware\Core\Framework\Api\OAuth\OAuthResource;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
+use Shopware\Core\Framework\Api\OAuth\ShopwareAuthorizationRequest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Authentication\McpOAuthMetadata;
+use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -131,6 +135,66 @@ class OAuthAuthorizeControllerTest extends TestCase
         static::assertStringStartsWith('http://127.0.0.1:54321/callback?', $location);
         static::assertStringContainsString('error=invalid_request', $location);
         static::assertStringContainsString('state=xyz', $location);
+        static::assertStringContainsString('iss=http%3A%2F%2Fshop.example%2Fapi', $location);
+    }
+
+    public function testAuthorizeRedirectsAForeignResourceAsInvalidTarget(): void
+    {
+        $this->authorizationServer->expects($this->once())->method('validateAuthorizationRequest')->willReturn(new ShopwareAuthorizationRequest());
+        $this->rateLimiter->expects($this->never())->method('reset');
+
+        $response = $this->controller->authorize(Request::create('/api/oauth/authorize', 'GET', [...self::QUERY, 'resource' => 'http://other.example/api/_mcp']));
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        parse_str((string) parse_url($response->getTargetUrl(), \PHP_URL_QUERY), $callback);
+        static::assertSame(OAuthResource::ERROR_INVALID_TARGET, $callback['error']);
+        static::assertSame('xyz', $callback['state']);
+        static::assertSame('http://shop.example/api', $callback['iss']);
+    }
+
+    public function testInfoRejectsAForeignResource(): void
+    {
+        $this->rateLimiter->expects($this->never())->method('ensureAccepted');
+        $this->authorizationServer->expects($this->once())->method('validateAuthorizationRequest')->willReturn(new ShopwareAuthorizationRequest());
+
+        $this->expectExceptionObject(ApiException::oauthInvalidTarget('The only supported resource is http://shop.example/api/_mcp.'));
+
+        $this->controller->info(Request::create('/api/oauth/authorize/info', 'GET', [...self::QUERY, 'resource' => ['http://shop.example/api/_mcp']]));
+    }
+
+    public function testApproveBindsTheMcpResource(): void
+    {
+        $this->rateLimiter->expects($this->never())->method('ensureAccepted');
+        $authorizationRequest = new ShopwareAuthorizationRequest();
+        $this->authorizationServer->expects($this->once())->method('validateAuthorizationRequest')->willReturn($authorizationRequest);
+        $this->authorizationServer->expects($this->once())->method('completeAuthorizationRequest')
+            ->willReturnCallback(static function (ShopwareAuthorizationRequest $request) {
+                static::assertSame('http://shop.example/api/_mcp', $request->getResource());
+
+                $response = new OAuthRedirectResponse();
+                $response->setRedirectUri('http://127.0.0.1:54321/callback?code=abc');
+
+                return $response->generateHttpResponse((new Psr17Factory())->createResponse());
+            });
+
+        $request = $this->createApproveRequest(true);
+        $request->request->set('resource', 'http://SHOP.example/api/_mcp/');
+
+        $this->controller->approve($request, Context::createDefaultContext(new AdminApiSource(Uuid::randomHex())));
+    }
+
+    public function testApproveFailsWhenTheRequestCannotCarryTheResource(): void
+    {
+        $this->rateLimiter->expects($this->never())->method('ensureAccepted');
+        $this->authorizationServer->expects($this->once())->method('validateAuthorizationRequest')->willReturn(new AuthorizationRequest());
+        $this->authorizationServer->expects($this->never())->method('completeAuthorizationRequest');
+
+        $request = $this->createApproveRequest(true);
+        $request->request->set('resource', 'http://shop.example/api/_mcp');
+
+        $this->expectException(OAuthServerException::class);
+
+        $this->controller->approve($request, Context::createDefaultContext(new AdminApiSource(Uuid::randomHex())));
     }
 
     public function testAuthorizeRedirectsErrorsToRegisteredLoopbackRedirectUri(): void
@@ -188,7 +252,23 @@ class OAuthAuthorizeControllerTest extends TestCase
             'client' => ['id' => 'shopware-cli', 'name' => 'Shopware CLI'],
             'redirectUri' => 'http://127.0.0.1:54321/callback',
             'scopes' => ['write'],
+            'resource' => null,
         ], json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
+    }
+
+    public function testInfoReturnsTheBoundResource(): void
+    {
+        $authorizationRequest = new AuthorizationRequest();
+        $authorizationRequest->setClient(new ApiClient('shopware-cli', true, 'Shopware CLI', false));
+        $authorizationRequest->setRedirectUri('http://127.0.0.1:54321/callback');
+        $authorizationRequest->setScopes([new WriteScope()]);
+        $this->rateLimiter->expects($this->never())->method('ensureAccepted');
+        $this->authorizationServer->expects($this->once())->method('validateAuthorizationRequest')->willReturn($authorizationRequest);
+
+        $response = $this->controller->info(Request::create('/api/oauth/authorize/info', 'GET', [...self::QUERY, 'resource' => 'http://SHOP.example/api/_mcp/']));
+
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('http://shop.example/api/_mcp', $content['resource']);
     }
 
     public function testApproveRequiresAdminApiSource(): void
@@ -247,7 +327,7 @@ class OAuthAuthorizeControllerTest extends TestCase
         );
 
         static::assertSame(
-            ['redirectUri' => 'http://127.0.0.1:54321/callback?code=abc&state=xyz'],
+            ['redirectUri' => 'http://127.0.0.1:54321/callback?code=abc&state=xyz&iss=http%3A%2F%2Fshop.example%2Fapi'],
             json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)
         );
     }
@@ -297,14 +377,17 @@ class OAuthAuthorizeControllerTest extends TestCase
         }
 
         $psr17Factory = new Psr17Factory();
+        $allowedHosts = static::createStub(McpAllowedHostsProvider::class);
+        $allowedHosts->method('getAllowedHosts')->willReturn([]);
 
         return new OAuthAuthorizeController(
             $authorizationServer,
             new PsrHttpFactory($psr17Factory, $psr17Factory, $psr17Factory, $psr17Factory),
             $psr17Factory,
-            new PublicClientRegistry(['shopware-cli' => ['name' => 'Shopware CLI', 'redirect_uris' => ['http://127.0.0.1/callback']]]),
+            new PublicClientRegistry(['shopware-cli' => ['name' => 'Shopware CLI', 'redirect_uris' => ['http://127.0.0.1/callback']]], 'prod'),
             $rateLimiter,
             $router,
+            new McpOAuthMetadata($allowedHosts, 'http://shop.example'),
         );
     }
 

@@ -21,11 +21,14 @@ use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistListRequestHandler;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\Authentication\McpAuthenticationListener;
 use Shopware\Core\Framework\Mcp\Authentication\McpExceptionListener;
+use Shopware\Core\Framework\Mcp\Authentication\McpOAuthMetadata;
 use Shopware\Core\Framework\Mcp\Authentication\McpPrincipalResolver;
 use Shopware\Core\Framework\Mcp\Command\DebugMcpCommand;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Context\StoreApiMcpContextProvider;
 use Shopware\Core\Framework\Mcp\Controller\IntegrationMcpAllowlistController;
+use Shopware\Core\Framework\Mcp\Controller\McpOAuthMetadataController;
+use Shopware\Core\Framework\Mcp\Controller\McpOAuthMetadataRouteScopeWhitelist;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\Controller\McpToolListController;
 use Shopware\Core\Framework\Mcp\Controller\StoreApiMcpServerController;
@@ -162,7 +165,22 @@ return static function (ContainerConfigurator $container): void {
         ->tag('kernel.event_subscriber');
 
     $services->set(McpExceptionListener::class)
+        ->args([service(McpOAuthMetadata::class)])
         ->tag('kernel.event_subscriber');
+
+    $services->set(McpOAuthMetadata::class)
+        ->args([
+            service(McpAllowedHostsProvider::class),
+            env('APP_URL'),
+        ]);
+
+    $services->set(McpOAuthMetadataController::class)
+        ->public()
+        ->args([service(McpOAuthMetadata::class)])
+        ->tag('controller.service_arguments');
+
+    $services->set(McpOAuthMetadataRouteScopeWhitelist::class)
+        ->tag('shopware.route_scope_whitelist');
 
     $services->set(McpSessionIdValidator::class);
 

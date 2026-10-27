@@ -19,6 +19,7 @@ export type OAuthAuthorizationParams = {
     code_challenge_method: string;
     state?: string;
     scope?: string;
+    resource?: string;
 };
 
 /**
@@ -31,6 +32,8 @@ export type OAuthAuthorizationInfo = {
     };
     redirectUri: string;
     scopes: string[];
+    /** RFC 8707 resource the tokens are bound to, `null` for unrestricted Admin API access */
+    resource?: string | null;
 };
 
 /**

@@ -260,7 +260,7 @@ describe('ListingPlugin tests', () => {
         expect(buildLabels).toHaveBeenCalledTimes(panelCount > 0 ? 1 : 0);
     });
 
-    test.each([0, 1, 2, 3])('only tracks filter snapshots for multiple panels with %i panels present', (panelCount) => {
+    function createSnapshotFixture(panelCount) {
         const panel = document.querySelector('.filter-panel');
 
         panel.remove();
@@ -282,22 +282,31 @@ describe('ListingPlugin tests', () => {
         listing._setFilterState(filter);
         listing.refreshRegistry();
 
-        expect(snapshot).toHaveBeenCalledTimes(panelCount > 1 ? 2 : 0);
+        return { listing, filter, snapshot };
+    }
 
-        if (panelCount > 1) {
-            expect(listing._filterSnapshots.has(filter)).toBe(true);
-        } else {
-            expect(listing._filterSnapshots).toBeNull();
-            expect(filter.getValues).not.toHaveBeenCalled();
-        }
+    test.each([0, 1])('does not track filter snapshots with %i panel', (panelCount) => {
+        const { listing, filter, snapshot } = createSnapshotFixture(panelCount);
+
+        expect(snapshot).not.toHaveBeenCalled();
+        expect(listing._filterSnapshots).toBeNull();
+        expect(filter.getValues).not.toHaveBeenCalled();
 
         listing.deregisterFilter(filter);
 
         expect(listing._registry).not.toContain(filter);
+    });
 
-        if (panelCount > 1) {
-            expect(listing._filterSnapshots.has(filter)).toBe(false);
-        }
+    test.each([2, 3])('removes tracked filter snapshots on deregistration with %i panels', (panelCount) => {
+        const { listing, filter, snapshot } = createSnapshotFixture(panelCount);
+
+        expect(snapshot).toHaveBeenCalledTimes(2);
+        expect(listing._filterSnapshots.has(filter)).toBe(true);
+
+        listing.deregisterFilter(filter);
+
+        expect(listing._registry).not.toContain(filter);
+        expect(listing._filterSnapshots.has(filter)).toBe(false);
     });
 
     test('updates snapshot tracking when refreshRegistry changes the panel count', () => {

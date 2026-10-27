@@ -2622,6 +2622,7 @@ The following deprecated properties of the `ListingPlugin` class in `listing.plu
 The fallback to `this.activeFilterContainer` in `ListingPlugin.createResetAllButton()` was removed.
 Pass the target active-filter container explicitly with `createResetAllButton(activeFilterContainer)`.
 Update custom overrides to accept the argument and forward it when calling `super.createResetAllButton(activeFilterContainer)`.
+
 ## Removal of deprecated `$offcanvas-zindex` SCSS variable
 
 The custom offcanvas z-index SCSS variable `$offcanvas-zindex` has been removed. To override the offcanvas z-index or calculate your own z-index based on it, use the bootstrap variable `$zindex-offcanvas` instead.

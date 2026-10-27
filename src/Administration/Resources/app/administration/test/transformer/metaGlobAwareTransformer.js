@@ -11,8 +11,21 @@ const path = require('path');
 const babelJest = require('babel-jest').default;
 const swcJest = require('@swc/jest');
 const esModuleLexer = require('es-module-lexer');
+const { isDependencyFile } = require('./isDependencyFile');
 
 esModuleLexer.initSync();
+
+/**
+ * Jest keys its transform cache by `getCacheKey` alone,
+ * so every key carries the code that picks a delegate: this file, its dependency check and the lexer.
+ */
+const ROUTING_FINGERPRINT = digest(
+    ...[
+        __filename,
+        require.resolve('./isDependencyFile'),
+        require.resolve('es-module-lexer'),
+    ].map((file) => fs.readFileSync(file, 'utf8')),
+);
 
 /**
  * @typedef {object} MetaGlobAwareTransformerConfig
@@ -103,16 +116,6 @@ function isEsModule(source, filename) {
 }
 
 /**
- * Whether `filename` belongs to an installed dependency.
- *
- * @param {string} filename
- * @returns {boolean}
- */
-function isDependencyFile(filename) {
-    return filename.replace(/\\/g, '/').includes('/node_modules/');
-}
-
-/**
  * A SHA-256 over `parts`, separated so that adjacent parts cannot run into each other.
  *
  * @example
@@ -160,6 +163,24 @@ function usesMetaGlob(source) {
 function createTransformer({ babel, swc }) {
     const babelTransformer = babelJest.createTransformer(babel);
     const swcTransformer = swcJest.createTransformer(swc);
+    // The TypeScript parser reads plain JS such as `f(a < b, c > (d))` as a generic call and drops the comparison.
+    const javascriptSwcTransformer = swcJest.createTransformer({
+        ...swc,
+        jsc: { ...swc.jsc, parser: { syntax: 'ecmascript' } },
+    });
+
+    /**
+     * The SWC delegate for a dependency: published JavaScript gets the JavaScript parser,
+     * published TypeScript keeps the configured one.
+     *
+     * @example
+     * dependencySwcTransformer('/admin/node_modules/three/build/three.module.js'); // → javascriptSwcTransformer
+     *
+     * @param {string} filename
+     */
+    function dependencySwcTransformer(filename) {
+        return /\.tsx?$/.test(filename) ? swcTransformer : javascriptSwcTransformer;
+    }
 
     /**
      * The delegate for `source`, with the options to hand it.
@@ -174,7 +195,7 @@ function createTransformer({ babel, swc }) {
     function pick(source, filename, options) {
         if (isDependencyFile(filename)) {
             return isEsModule(source, filename)
-                ? { name: 'swc', transformer: swcTransformer, options }
+                ? { name: 'swc', transformer: dependencySwcTransformer(filename), options }
                 : { name: 'pass-through', transformer: passThroughTransformer, options };
         }
 
@@ -209,15 +230,17 @@ function createTransformer({ babel, swc }) {
         getCacheKey(source, filename, options) {
             if (isDependencyFile(filename)) {
                 return digest(
+                    ROUTING_FINGERPRINT,
                     'dependency',
                     nearestPackageType(path.dirname(filename)) ?? '',
-                    swcTransformer.getCacheKey(source, filename, options),
+                    dependencySwcTransformer(filename).getCacheKey(source, filename, options),
                 );
             }
 
             const picked = pick(source, filename, options);
 
             return digest(
+                ROUTING_FINGERPRINT,
                 picked.name,
                 picked.transformer.getCacheKey(source, filename, picked.options),
                 options.instrument ? 'instrument' : '',

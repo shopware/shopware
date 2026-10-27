@@ -223,7 +223,11 @@ The error is logged on the `elasticsearch` channel, and the update continues.
 `bin/console es:mapping:update` still fails on a mapping error when `SHOPWARE_ES_THROW_EXCEPTION` is enabled.
 
 When the mapping update hits a field type conflict, the entity is scheduled for a reindex, and the system update dispatches it.
+Only the indices of the scheduled entities are rebuilt, the other indices stay as they are.
 If the reindex cannot be scheduled, it is retried on the next system update.
+
+`bin/console es:index --only=<entities>` now creates new indices only for the given entities.
+It no longer leaves an empty index for every other entity, and it keeps the pending alias switches of other entities.
 
 The product mapping no longer declares a type for each currency of `product.price`.
 A dynamic template maps a newly indexed price as `double`.

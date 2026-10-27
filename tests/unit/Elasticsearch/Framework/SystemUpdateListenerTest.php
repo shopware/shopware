@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -83,6 +84,52 @@ class SystemUpdateListenerTest extends TestCase
         $listener(static::createStub(UpdatePostFinishEvent::class));
 
         static::assertCount(1, $messageBus->getMessages());
+    }
+
+    /**
+     * @param array<string>|string $stored
+     * @param array<string> $expected
+     */
+    #[DataProvider('storedEntitiesProvider')]
+    public function testReindexesOnlyTheStoredEntities(array|string $stored, array $expected): void
+    {
+        $storage = static::createStub(AbstractKeyValueStorage::class);
+        $storage->method('get')->willReturn($stored);
+
+        $message = static::createStub(ElasticsearchIndexingMessage::class);
+        $message->method('getOffset')
+            ->willReturn(static::createStub(IndexerOffset::class));
+
+        $indexer = $this->createMock(ElasticsearchIndexer::class);
+        $indexer
+            ->expects($this->exactly(2))
+            ->method('iterate')
+            ->willReturnCallback(static function ($offset, array $entities) use ($message, $expected) {
+                static::assertSame($expected, $entities);
+
+                return $offset === null ? $message : null;
+            });
+
+        $listener = new SystemUpdateListener(
+            $storage,
+            $indexer,
+            new CollectingMessageBus(),
+            static::createStub(IndexMappingUpdater::class),
+            new NullLogger(),
+        );
+
+        $listener(static::createStub(UpdatePostFinishEvent::class));
+    }
+
+    /**
+     * @return iterable<string, array{array<string>|string, array<string>}>
+     */
+    public static function storedEntitiesProvider(): iterable
+    {
+        yield 'entity list' => [['product', 'category'], ['product', 'category']];
+        yield 'json encoded entity list' => ['["product"]', ['product']];
+        yield 'wildcard' => [['*'], []];
+        yield 'json encoded wildcard' => ['["*"]', []];
     }
 
     public function testFailedMappingUpdateStillDispatchesReindex(): void

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
@@ -417,6 +418,62 @@ class ElasticsearchIndexerTest extends TestCase
         $entities = ['product', 'category'];
 
         $indexer->iterate(null, $entities);
+    }
+
+    public function testIterateWithEntitiesOnlyRebuildsTheirIndices(): void
+    {
+        $this->registry = new ElasticsearchRegistry([
+            $this->createDefinition('product'),
+            $this->createDefinition('category'),
+        ]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('executeStatement')
+            ->with(
+                'DELETE FROM elasticsearch_index_task WHERE `entity` IN (:entities)',
+                ['entities' => ['product']],
+                ['entities' => ArrayParameterType::STRING],
+            );
+        $connection
+            ->expects($this->once())
+            ->method('insert')
+            ->with('elasticsearch_index_task', static::callback(static fn (array $row) => $row['`entity`'] === 'product'));
+
+        $indexCreator = $this->createMock(IndexCreator::class);
+        $indexCreator->method('aliasExists')->willReturn(true);
+        $indexCreator
+            ->expects($this->once())
+            ->method('createIndex')
+            ->with(static::callback(static fn (AbstractElasticsearchDefinition $definition) => $definition->getEntityDefinition()->getEntityName() === 'product'));
+
+        $indexer = $this->getIndexer(connection: $connection, indexCreator: $indexCreator);
+
+        $indexer->iterate(null, ['product']);
+    }
+
+    public function testIterateWithoutEntitiesRebuildsAllIndices(): void
+    {
+        $this->registry = new ElasticsearchRegistry([
+            $this->createDefinition('product'),
+            $this->createDefinition('category'),
+        ]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('executeStatement')
+            ->with('DELETE FROM elasticsearch_index_task');
+
+        $indexCreator = $this->createMock(IndexCreator::class);
+        $indexCreator
+            ->expects($this->exactly(2))
+            ->method('createIndex');
+
+        $indexer = $this->getIndexer(connection: $connection, indexCreator: $indexCreator);
+
+        $indexer->iterate();
     }
 
     public function testIterateLogErrorForInvalidEntity(): void

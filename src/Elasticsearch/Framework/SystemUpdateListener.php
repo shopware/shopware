@@ -52,13 +52,21 @@ class SystemUpdateListener
     {
         $entitiesToReindex = $this->storage->get(self::CONFIG_KEY, []);
 
+        if (\is_string($entitiesToReindex)) {
+            $entitiesToReindex = \json_decode($entitiesToReindex, true);
+        }
+
         if ($entitiesToReindex === []) {
             return;
         }
 
+        if (!\is_array($entitiesToReindex) || \in_array('*', $entitiesToReindex, true)) {
+            $entitiesToReindex = [];
+        }
+
         $messagesToDispatch = [];
         $offset = null;
-        while ($message = $this->indexer->iterate($offset)) {
+        while ($message = $this->indexer->iterate($offset, $entitiesToReindex)) {
             $offset = $message->getOffset();
 
             $messagesToDispatch[] = $message;

@@ -171,10 +171,56 @@ class MediaFileExtensionWriteValidatorTest extends TestCase
         $this->assertRejected($event, 'zip');
     }
 
+    public function testMakingPrivateOnlyExtensionPublicIsRejected(): void
+    {
+        // No `file_extension` in the payload, the stored extension is only allowed in private media.
+        $event = $this->dispatchUpdate(null, ['private' => 0], isStoredPrivate: true, storedExtension: 'zip');
+
+        $this->assertRejected($event, 'zip');
+    }
+
+    public function testMakingPublicExtensionPublicPasses(): void
+    {
+        $event = $this->dispatchUpdate(null, ['private' => 0], isStoredPrivate: true, storedExtension: 'png');
+
+        static::assertCount(0, $event->getExceptions()->getExceptions());
+    }
+
+    public function testMakingMediaWithoutStoredExtensionPublicPasses(): void
+    {
+        $event = $this->dispatchUpdate(null, ['private' => 0], isStoredPrivate: true, storedExtension: null);
+
+        static::assertCount(0, $event->getExceptions()->getExceptions());
+    }
+
+    public function testMakingMediaPrivateSkipsDatabaseLookup(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchAllAssociativeIndexed');
+
+        $validator = new MediaFileExtensionWriteValidator(
+            new MediaFileExtensionListProvider(new EventDispatcher(), ['png', 'jpg'], ['png', 'jpg', 'zip']),
+            $connection
+        );
+
+        $command = new UpdateCommand(
+            $this->mediaDefinition,
+            ['private' => 1],
+            ['id' => Uuid::randomBytes()],
+            static::createStub(EntityExistence::class),
+            '/0/'
+        );
+
+        $event = new PreWriteValidationEvent($this->context, [$command]);
+        $validator->preValidate($event);
+
+        static::assertCount(0, $event->getExceptions()->getExceptions());
+    }
+
     public function testInsertWithoutPrivateFlagDefaultsToPublicWithoutDatabaseLookup(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('fetchAllKeyValue');
+        $connection->expects($this->never())->method('fetchAllAssociativeIndexed');
 
         $validator = new MediaFileExtensionWriteValidator(
             new MediaFileExtensionListProvider(new EventDispatcher(), ['png', 'jpg'], ['png', 'jpg', 'zip']),
@@ -218,36 +264,38 @@ class MediaFileExtensionWriteValidatorTest extends TestCase
     /**
      * @param array<string, mixed> $extraPayload
      */
-    private function dispatchUpdate(?string $fileExtension, array $extraPayload, ?bool $isStoredPrivate = null): PreWriteValidationEvent
+    private function dispatchUpdate(?string $fileExtension, array $extraPayload, ?bool $isStoredPrivate = null, ?string $storedExtension = 'png'): PreWriteValidationEvent
     {
         $id = Uuid::randomBytes();
 
         $command = new UpdateCommand(
             $this->mediaDefinition,
-            ['file_extension' => $fileExtension, ...$extraPayload],
+            $fileExtension === null && !\array_key_exists('file_extension', $extraPayload)
+                ? $extraPayload
+                : ['file_extension' => $fileExtension, ...$extraPayload],
             ['id' => $id],
             static::createStub(EntityExistence::class),
             '/0/'
         );
 
-        // The validator looks up the stored `private` flag keyed by the media's hex id.
-        $storedMapping = $isStoredPrivate === null
+        // The validator looks up the stored row keyed by the media's hex id.
+        $storedMedia = $isStoredPrivate === null
             ? []
-            : [Uuid::fromBytesToHex($id) => $isStoredPrivate ? '1' : '0'];
+            : [Uuid::fromBytesToHex($id) => ['private' => $isStoredPrivate ? '1' : '0', 'file_extension' => $storedExtension]];
 
         $event = new PreWriteValidationEvent($this->context, [$command]);
-        $this->createValidator($storedMapping)->preValidate($event);
+        $this->createValidator($storedMedia)->preValidate($event);
 
         return $event;
     }
 
     /**
-     * @param array<string, string> $storedPrivateMapping
+     * @param array<string, array{private: string, file_extension: string|null}> $storedMedia
      */
-    private function createValidator(array $storedPrivateMapping = []): MediaFileExtensionWriteValidator
+    private function createValidator(array $storedMedia = []): MediaFileExtensionWriteValidator
     {
         $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllKeyValue')->willReturn($storedPrivateMapping);
+        $connection->method('fetchAllAssociativeIndexed')->willReturn($storedMedia);
 
         return new MediaFileExtensionWriteValidator(
             new MediaFileExtensionListProvider(new EventDispatcher(), ['png', 'jpg'], ['png', 'jpg', 'zip']),

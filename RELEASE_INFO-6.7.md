@@ -1,6 +1,6 @@
-# 6.7.16.1 (upcoming)
+# 6.7.16.1
 
-## Critical Fixes
+## Security Fixes
 
 ### Content Security Policy for Storefront documents
 
@@ -17,6 +17,13 @@ HTML files are still accepted as private media, for example for accessible HTML 
 S3 and other object storages serve a file with the content type stored at upload time, not with the type of its extension. Uploads whose content is HTML, XHTML, SVG or another XML type are therefore rejected with `CONTENT__MEDIA_INVALID_FILE` unless the file extension belongs to that type. This applies to the regular and the presigned upload flow. For example, an HTML document uploaded as `.jpg` or an SVG uploaded as `.png` is no longer accepted.
 
 If your shop needs HTML files as public media, add `html` to `shopware.filesystem.allowed_extensions` in your own configuration and serve these files from a separate domain or with a `Content-Security-Policy: sandbox` header.
+
+Changing a media item from private to public through the Admin API is validated against the public extension list as well.
+A private HTML or XML file can no longer be exposed by only switching its `private` flag; the write fails with `MEDIA_ILLEGAL_FILE_EXTENSION`.
+
+The shipped `public/.htaccess.dist` now sends `X-Content-Type-Options: nosniff` for files under `/media` and `/thumbnail`.
+Browsers then no longer sniff a stored file with an unknown content type into HTML.
+Update your `.htaccess` if you maintain your own copy, and send the same header for stored media on other web servers.
 
 # 6.7.16.0 (upcoming)
 

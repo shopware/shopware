@@ -24,6 +24,10 @@ DirectoryIndex index.php
     RewriteCond %{REQUEST_FILENAME} -f
     RewriteRule ^(?:media|thumbnail)/.*\.(?i:html)$ - [E=SHOPWARE_STATIC_HTML:1]
 
+    # Browsers must not sniff stored media into a scriptable type.
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^(?:media|thumbnail)/ - [E=SHOPWARE_STATIC_MEDIA:1]
+
     # If the requested filename exists, simply serve it.
     # We only want to let Apache serve files and not directories.
     RewriteCond %{REQUEST_FILENAME} -f
@@ -40,6 +44,7 @@ DirectoryIndex index.php
 </IfModule>
 
 <IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff" env=SHOPWARE_STATIC_MEDIA
     Header set Content-Security-Policy "script-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'" env=SHOPWARE_STATIC_HTML
 
     <FilesMatch "\.(?i:svg)$">

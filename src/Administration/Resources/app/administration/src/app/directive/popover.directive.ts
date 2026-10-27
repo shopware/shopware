@@ -132,7 +132,7 @@ function calculateOutsideEdges(el: HTMLElement, vnode: VNode | ComponentPublicIn
 }
 
 function setElementPosition(element: HTMLElement, refElement: Element | undefined, config: PopoverConfig) {
-    const originElement = refElement ? refElement : element;
+    const originElement = refElement ?? element;
     const elementPosition = originElement.getBoundingClientRect();
 
     let targetElement = originElement;

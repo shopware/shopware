@@ -297,6 +297,12 @@ export default [
         ],
     },
 
+    {
+        linterOptions: {
+            reportUnusedDisableDirectives: 'error',
+        },
+    },
+
     { ...js.configs.recommended, ignores: ['**/*.json'] },
 
     // The shared extension factory supplies the typed-lint bootstrap
@@ -466,7 +472,6 @@ export default [
             },
         },
         rules: {
-            'sw-core-rules/require-explicit-emits': 'error',
             'sw-core-rules/enforce-async-component-registers': 'error',
             'vue/require-prop-types': 'error',
             'vue/require-default-prop': 'error',
@@ -533,6 +538,21 @@ export default [
                 'enableFix',
             ],
             'sw-deprecation-rules/no-vue-options-api': 'off',
+        },
+    },
+
+    // Emits of JS and TS components
+    {
+        files: [
+            '**/*.js',
+            '**/*.ts',
+        ],
+        ignores: [
+            '**/*.spec.js',
+            '**/*.spec.ts',
+        ],
+        rules: {
+            'sw-core-rules/require-explicit-emits': 'error',
         },
     },
 
@@ -635,6 +655,7 @@ export default [
                 'enableFix',
             ],
             'sw-deprecation-rules/no-sw-tabs-usage': 'error',
+            'sw-deprecation-rules/no-sw-empty-state-usage': 'error',
             'vue/no-useless-template-attributes': 'error',
             'vue/no-lone-template': 'error',
             'vue/max-template-depth': [
@@ -882,6 +903,41 @@ export default [
         rules: {
             // The codemod emits and documents TODO(sfc-migration) markers by design.
             'no-warning-comments': 'off',
+        },
+    },
+
+    // Runtime code must not import what src/Administration/.gitattributes export-ignores:
+    // a Composer dist install lacks those files, so its Administration build fails.
+    {
+        files: [
+            'src/**/*.js',
+            'src/**/*.ts',
+            'src/**/*.vue',
+        ],
+        ignores: [
+            '**/*.spec.js',
+            '**/*.spec.ts',
+            '**/*.spec/**',
+            'src/meta/**',
+        ],
+        rules: {
+            'no-restricted-imports': [
+                'error',
+                {
+                    patterns: [
+                        {
+                            group: [
+                                'src/meta/*',
+                                '**/meta/*',
+                                'test/*',
+                                '**/test/*',
+                            ],
+                            message:
+                                'Excluded from the Composer package (src/Administration/.gitattributes export-ignore), so a dist install cannot build it.',
+                        },
+                    ],
+                },
+            ],
         },
     },
 

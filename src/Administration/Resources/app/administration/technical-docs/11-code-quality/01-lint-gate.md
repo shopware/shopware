@@ -43,10 +43,11 @@ Those entries would let a new violation of the same rule pass in another file.
 
 ## How a new rule joins
 
-A pull request that turns on a rule with existing violations adds them to the baseline with `npx eslint --suppress-rule <rule>`.
-The growth check lets a rule that has no entries on the base commit in only when the same pull request changes `eslint.config.ts`.
+A pull request that turns on a rule with existing violations adds them to the baseline with `npm run lint -- --suppress-rule <rule>`.
+The growth check lets a rule that has no entries on the base commit in only when the same pull request changes `eslint.config.ts` or `extension-tooling/eslint.mjs`.
+The core config builds on the extension factory, so a rule turned on there also reaches the baseline.
 
-This is a known gap: any change to `eslint.config.ts` lets any new rule into the baseline.
+This is a known gap: any change to one of these files lets any new rule into the baseline.
 Reviewers of such a pull request check the diff of `eslint-suppressions.json`.
 
 ## Rules

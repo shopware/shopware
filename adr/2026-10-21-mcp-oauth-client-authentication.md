@@ -125,6 +125,13 @@ GET /.well-known/oauth-authorization-server/api
       "authorization_response_iss_parameter_supported":true}
 ```
 
+The authorization server metadata lists only the flow meant for clients that configure themselves from it: authorization code with PKCE, refresh tokens and public clients.
+This is deliberate.
+The token endpoint keeps supporting the existing grants `client_credentials`, `password` and `shopware_grant`, and integrations keep authenticating with `client_secret_post`, because OAuth is an additional way in (see 1).
+They are not advertised, so a client that discovers the server is steered to the recommended flow instead of to a shared integration secret or a user password.
+Integrations that use those grants are configured by hand and do not read this metadata.
+RFC 8414 lets the server decide which values it publishes; it does not require listing every grant the token endpoint accepts.
+
 ### 1. Which tokens `/api/_mcp` accepts
 
 Options:

@@ -123,6 +123,7 @@ class WriteOutcome
     private function toOutcomeRow(array $recordCommands, array $storedRow, array $columns): OutcomeRow
     {
         $first = $recordCommands[0];
+        $last = $recordCommands[array_key_last($recordCommands)];
         $isNew = $first instanceof InsertCommand;
 
         $state = array_fill_keys($columns, null);
@@ -133,7 +134,7 @@ class WriteOutcome
         return new OutcomeRow(
             primaryKey: $first->getPrimaryKey(),
             decodedPrimaryKey: $first->getDecodedPrimaryKey(),
-            path: $first->getPath(),
+            path: $last->getPath(),
             isNew: $isNew,
             payload: self::mergedPayload($recordCommands),
             state: $state,

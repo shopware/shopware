@@ -57,14 +57,24 @@ class WriteOutcomeTest extends TestCase
     public function testTheWritesOfARecordAreMergedInOrder(): void
     {
         $rows = (new WriteOutcome(static::createStub(RowLoader::class)))->rows([
-            $this->insertProduct(['product_number' => 'p1', 'stock' => 1], '/insert'),
-            $this->updateProduct(['stock' => 2], '/update'),
+            $this->insertProduct(['product_number' => 'p1', 'stock' => 1]),
+            $this->updateProduct(['stock' => 2]),
         ], ['product_number', 'stock']);
 
         static::assertCount(1, $rows);
         static::assertTrue($rows[0]->isNew);
-        static::assertSame('/insert', $rows[0]->path);
         static::assertSame(['p1', 2], [$rows[0]->getResultingValue('product_number'), $rows[0]->getResultingValue('stock')]);
+    }
+
+    public function testThePathIsTheLastWriteThatSetsARequestedColumn(): void
+    {
+        $rows = (new WriteOutcome(static::createStub(RowLoader::class)))->rows([
+            $this->insertProduct(['product_number' => 'p1', 'stock' => 1], '/0/0'),
+            $this->updateProduct(['stock' => 2], '/1/0'),
+            $this->updateProduct(['product_number' => 'p2'], '/2/0'),
+        ], ['stock']);
+
+        static::assertSame('/1/0', $rows[0]->path);
     }
 
     public function testALaterUpdateDoesNotHideAnEarlierOne(): void
@@ -73,12 +83,12 @@ class WriteOutcomeTest extends TestCase
         $rowLoader->method('load')->willReturn([[...$this->productPrimaryKey, 'stock' => '1']]);
 
         $rows = (new WriteOutcome($rowLoader))->rows([
-            $this->updateProduct(['stock' => 2], '/first'),
-            $this->updateProduct(['product_number' => 'renamed'], '/second'),
+            $this->updateProduct(['stock' => 2], '/0/0'),
+            $this->updateProduct(['product_number' => 'renamed'], '/1/0'),
         ], ['stock']);
 
         static::assertCount(1, $rows);
-        static::assertSame('/first', $rows[0]->path);
+        static::assertSame('/0/0', $rows[0]->path);
         static::assertSame(2, $rows[0]->getResultingValue('stock'));
     }
 

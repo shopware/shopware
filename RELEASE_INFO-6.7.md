@@ -2,14 +2,19 @@
 
 ## Security Fixes
 
-### Templates can no longer change contexts
+### Twig templates only read the request context
 
-Twig templates can no longer call methods that change a `Context`, a `SalesChannelContext` or a context source, such as setters.
-The same applies to methods of the request (`app.request`) that change it or shared request handling, such as setters.
-Reading them stays possible, for example `context.languageId` or `context.getLanguageId()`.
-Such a call now fails with the error code `FRAMEWORK__TWIG_METHOD_CALL_NOT_ALLOWED`.
-This applies to all Twig templates, including App Scripts and mail, product export and SEO URL templates.
-Change the context in PHP instead, for example in an event subscriber.
+Twig templates can no longer call methods that change the request context or the request, such as setters.
+Reading them stays possible, for example `context.languageId`.
+Such a call fails with the error code `FRAMEWORK__TWIG_METHOD_CALL_NOT_ALLOWED`; make the change in PHP instead, for example in an event subscriber.
+
+### User, access key and admin integration writes are restricted
+
+A non-admin may only update or delete their own user and their own access keys through the Admin API.
+Writes to other users or their access keys are rejected with `403` and `USER__USER_CHANGE_NOT_ALLOWED`.
+A non-admin may no longer update or delete an admin integration; these writes are rejected with `403` and `INTEGRATION__ADMIN_INTEGRATION_CHANGE_NOT_ALLOWED`.
+Administrators are unaffected.
+The user of an access key can no longer be changed after the key was created, also not by administrators.
 
 # 6.7.16.0 (upcoming)
 

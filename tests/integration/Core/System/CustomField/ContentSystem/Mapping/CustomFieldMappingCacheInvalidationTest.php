@@ -214,9 +214,16 @@ class CustomFieldMappingCacheInvalidationTest extends TestCase
             $ambient = ['product' => $product];
             $context = new RenderingCacheContext();
             $deliveries = static::getContainer()->get(ContextDeliveryResolver::class)->resolve([$element], [], $ambient, $context, 'product');
-            $expanded = static::getContainer()->get(InlineMappingExpander::class)->expand([$element], $ambient, 'product', $context, inlineMappings: new InlineMappingMetadata([
-                'mapped' => ['text' => (new InlineMappingTokenParser())->parse($text)],
-            ]));
+            $expanded = static::getContainer()->get(InlineMappingExpander::class)->expand(
+                [$element],
+                $ambient,
+                'product',
+                $context,
+                inlineMappings: new InlineMappingMetadata([
+                    'mapped' => ['text' => (new InlineMappingTokenParser())->parse($text)],
+                ]),
+                loaderValues: []
+            );
             $rendered = static::getContainer()->get(RenderedTreeFactory::class)->create($expanded, $deliveries, [], RenderingMode::FULL);
             $response = new Response($rendered->tree[0]->properties['text'] ?? '');
             $response->setPublic()->setMaxAge(3600)->setSharedMaxAge(3600);

@@ -140,7 +140,8 @@ class InlineMappingTokenParserTest extends TestCase
         $replaced = $parser->replaceTokens(
             $text,
             $tokens,
-            static fn (string $path): string => $path === 'product.name' ? 'Shirt' : '9.99'
+            static fn (string $path): string => $path === 'product.name' ? 'Shirt' : '9.99',
+            budget: new InlineMappingExpansionBudget()
         );
 
         static::assertSame('Shirt costs 9.99', $replaced);
@@ -156,7 +157,8 @@ class InlineMappingTokenParserTest extends TestCase
         $replaced = $parser->replaceTokens(
             $text,
             $tokens,
-            static fn (): ?string => null
+            static fn (): ?string => null,
+            budget: new InlineMappingExpansionBudget()
         );
 
         static::assertSame('Buy {{ map:product.unknown }} today', $replaced);
@@ -174,7 +176,7 @@ class InlineMappingTokenParserTest extends TestCase
             return null;
         };
 
-        static::assertSame('Buy  today', $parser->replaceTokens($text, $tokens, $resolve));
+        static::assertSame('Buy  today', $parser->replaceTokens($text, $tokens, $resolve, budget: new InlineMappingExpansionBudget()));
         static::assertFalse($resolverCalled);
     }
 
@@ -186,7 +188,7 @@ class InlineMappingTokenParserTest extends TestCase
 
         static::assertSame(
             '<a href="">link</a>',
-            $parser->replaceTokens($text, $tokens, static fn (): string => 'unused')
+            $parser->replaceTokens($text, $tokens, static fn (): string => 'unused', budget: new InlineMappingExpansionBudget())
         );
     }
 
@@ -196,7 +198,7 @@ class InlineMappingTokenParserTest extends TestCase
         $parser = $this->parser();
         $text = 'Name: {{map:product.name}}.';
 
-        $replaced = $parser->replaceTokens($text, $parser->parse($text), static fn (): string => '');
+        $replaced = $parser->replaceTokens($text, $parser->parse($text), static fn (): string => '', budget: new InlineMappingExpansionBudget());
 
         static::assertSame('Name: .', $replaced);
     }
@@ -210,7 +212,8 @@ class InlineMappingTokenParserTest extends TestCase
         $replaced = $parser->replaceTokens(
             $text,
             $parser->parse($text),
-            static fn (): string => '{{map:product.price}}'
+            static fn (): string => '{{map:product.price}}',
+            budget: new InlineMappingExpansionBudget()
         );
 
         static::assertSame('{{map:product.price}}', $replaced);
@@ -224,7 +227,7 @@ class InlineMappingTokenParserTest extends TestCase
         $tokens = $parser->parse($authored);
         $prepared = 'Buy {{map:product.name}} for {{map:product.price}}';
 
-        $replaced = $parser->replaceTokens($prepared, $tokens, static fn (): string => 'Shirt');
+        $replaced = $parser->replaceTokens($prepared, $tokens, static fn (): string => 'Shirt', budget: new InlineMappingExpansionBudget());
 
         static::assertSame('Buy Shirt for {{map:product.price}}', $replaced);
     }
@@ -265,7 +268,7 @@ class InlineMappingTokenParserTest extends TestCase
         $text = '<a title="a > {{map:product.name}}">{{map:product.name}}</a>';
         $tokens = $parser->parse($text);
 
-        $resolved = $parser->replaceTokens($text, $tokens, static fn (): string => 'Shirt');
+        $resolved = $parser->replaceTokens($text, $tokens, static fn (): string => 'Shirt', budget: new InlineMappingExpansionBudget());
 
         static::assertSame('<a title="a > {{map:product.name}}">Shirt</a>', $resolved);
     }

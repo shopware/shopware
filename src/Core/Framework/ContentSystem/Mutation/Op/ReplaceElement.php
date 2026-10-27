@@ -42,7 +42,7 @@ final class ReplaceElement extends AbstractLayoutMutation
         private readonly string $newType,
         private readonly AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
         private readonly BindingApplicator $bindingApplicator,
-        private readonly ?StoredMappingInspector $mappingInspector = null,
+        private readonly StoredMappingInspector $mappingInspector,
     ) {
     }
 
@@ -226,7 +226,6 @@ final class ReplaceElement extends AbstractLayoutMutation
 
             if (
                 $consumer->source !== null
-                && $this->mappingInspector !== null
                 && $rootSource !== null
                 && isset($newTypeProperties[$propertyKey])
             ) {
@@ -249,7 +248,7 @@ final class ReplaceElement extends AbstractLayoutMutation
 
     private function dropInvalidMappings(StoredElement $replacement, ?string $rootSource): StoredElement
     {
-        if ($this->mappingInspector === null || $rootSource === null) {
+        if ($rootSource === null) {
             return $replacement;
         }
 

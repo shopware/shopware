@@ -231,7 +231,7 @@ class MappingProviderExtensionTest extends TestCase
         foreach ($forest as $element) {
             $tokens[$element->id]['text'] = (new InlineMappingTokenParser())->parse($element->property('text')?->asString() ?? '');
         }
-        $expanded = static::getContainer()->get(InlineMappingExpander::class)->expand($forest, $ambient, 'product', $cache, inlineMappings: new InlineMappingMetadata($tokens));
+        $expanded = static::getContainer()->get(InlineMappingExpander::class)->expand($forest, $ambient, 'product', $cache, inlineMappings: new InlineMappingMetadata($tokens), loaderValues: []);
         $result = static::getContainer()->get(RenderedTreeFactory::class)->create($expanded, $deliveries, [], RenderingMode::FULL);
 
         return array_map(static fn ($element): array => $element->properties, $result->tree);

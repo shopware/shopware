@@ -67,8 +67,8 @@ final readonly class ContextDeliveryResolver
         array $forest,
         array $loaderValues,
         array $ambientContext,
-        ?RenderingCacheContext $cacheContext = null,
-        ?string $rootSource = null,
+        ?RenderingCacheContext $cacheContext,
+        ?string $rootSource,
     ): ContextDeliveryIndex {
         $deliveries = [];
 

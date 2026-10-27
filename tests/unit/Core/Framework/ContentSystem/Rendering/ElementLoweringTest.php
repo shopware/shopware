@@ -198,6 +198,8 @@ class ElementLoweringTest extends TestCase
             $cacheContext,
             [new DataRequirement('language', 'entity', new StubLoaderConfig())],
             $this->virtualRoot(),
+            rootSource: null,
+            inlineMappings: new InlineMappingMetadata(),
         );
 
         $tree = $lowered->tree;
@@ -393,6 +395,8 @@ class ElementLoweringTest extends TestCase
             $cacheContext,
             [new DataRequirement('product', 'entity', new StubLoaderConfig())],
             $wrapper,
+            rootSource: null,
+            inlineMappings: new InlineMappingMetadata(),
         );
 
         static::assertFalse($cacheContext->isDisabled());
@@ -592,7 +596,9 @@ class ElementLoweringTest extends TestCase
                 'entity',
                 new TestNavigationShapedLoaderConfig(entity: 'product', activeProperty: 'productId')
             )],
-            $wrapper
+            $wrapper,
+            rootSource: null,
+            inlineMappings: new InlineMappingMetadata()
         );
 
         static::assertInstanceOf(LoaderInputs::class, $captured);
@@ -615,7 +621,7 @@ class ElementLoweringTest extends TestCase
         array $forest,
         array $pageDataRequirements = [],
         ?StoredElement $virtualRoot = null,
-        ?InlineMappingMetadata $inlineMappings = null,
+        InlineMappingMetadata $inlineMappings = new InlineMappingMetadata(),
         ?string $rootSource = null,
     ): array {
         return $this->lowering($loader)->lower(

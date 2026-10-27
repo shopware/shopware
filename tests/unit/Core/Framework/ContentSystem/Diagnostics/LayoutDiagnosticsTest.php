@@ -843,7 +843,8 @@ class LayoutDiagnosticsTest extends TestCase
         $bindingRegistry->method('all')->willReturn([]);
         $bindingApplicator = new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class));
 
-        $replaced = (new ReplaceElement($this->registry($specs), 'el', 'Sw:New', $bindingRegistry, $bindingApplicator))
+        $registry = $this->registry($specs);
+        $replaced = (new ReplaceElement($registry, 'el', 'Sw:New', $bindingRegistry, $bindingApplicator, $this->mappingInspector($registry, [])))
             ->apply(new StoredTree([new StoredElement('el', 'Sw:Old')]));
 
         $report = $this->diagnostics($specs)->analyze($replaced->roots, [])->report;

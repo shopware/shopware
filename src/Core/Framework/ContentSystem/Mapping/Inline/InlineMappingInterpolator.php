@@ -65,9 +65,9 @@ final class InlineMappingInterpolator
         array $ambient,
         string $rootSource,
         StoredElement $element,
-        ?RenderingCacheContext $cacheContext = null,
-        array $loaderValues = [],
-        ?InlineMappingExpansionBudget $budget = null,
+        ?RenderingCacheContext $cacheContext,
+        array $loaderValues,
+        InlineMappingExpansionBudget $budget,
     ): ?string {
         $resolved = $this->mappingResolver->resolveInline(
             $rootSource,
@@ -84,7 +84,6 @@ final class InlineMappingInterpolator
             return null;
         }
 
-        $budget ??= new InlineMappingExpansionBudget();
         // Reject a large source before escaping can allocate up to six times its size. The escaped result
         // is checked too, so entity expansion cannot bypass either output allowance.
         $budget->assertFits(\strlen($text));

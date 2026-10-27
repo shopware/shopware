@@ -343,7 +343,7 @@ class InlineMappingExpanderTest extends TestCase
         $tokens = [];
         $this->collectTokens($forest, $tokens);
 
-        return $expander->expand($forest, $ambient, $rootSource, inlineMappings: new InlineMappingMetadata($tokens));
+        return $expander->expand($forest, $ambient, $rootSource, inlineMappings: new InlineMappingMetadata($tokens), cacheContext: null, loaderValues: []);
     }
 
     /**

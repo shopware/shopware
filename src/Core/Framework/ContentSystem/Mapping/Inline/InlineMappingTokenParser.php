@@ -106,10 +106,10 @@ final class InlineMappingTokenParser
      * @param list<InlineMappingToken> $tokens
      * @param callable(string): ?string $resolve receives the path, answers the replacement or null
      */
-    public function replaceTokens(string $text, array $tokens, callable $resolve, ?InlineMappingExpansionBudget $budget = null): string
+    public function replaceTokens(string $text, array $tokens, callable $resolve, InlineMappingExpansionBudget $budget): string
     {
         if ($tokens === []) {
-            $budget?->consume(\strlen($text));
+            $budget->consume(\strlen($text));
 
             return $text;
         }
@@ -119,23 +119,23 @@ final class InlineMappingTokenParser
 
         foreach ($tokens as $token) {
             $literalBytes = $token->offset - $cursor;
-            $budget?->consume($literalBytes);
+            $budget->consume($literalBytes);
             $result .= substr($text, $cursor, $literalBytes);
 
             // Do not invoke another provider once the output allowance has been consumed.
             if (!$token->malformed && !$token->insideMarkup) {
-                $budget?->assertFits(1);
+                $budget->assertFits(1);
             }
 
             $replacement = $token->malformed
                 ? ''
                 : ($token->insideMarkup ? $token->match : ($resolve($token->path) ?? $token->match));
-            $budget?->consume(\strlen($replacement));
+            $budget->consume(\strlen($replacement));
             $result .= $replacement;
             $cursor = $token->offset + \strlen($token->match);
         }
 
-        $budget?->consume(\strlen($text) - $cursor);
+        $budget->consume(\strlen($text) - $cursor);
 
         return $result . substr($text, $cursor);
     }

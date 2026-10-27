@@ -90,14 +90,12 @@ final readonly class ElementLowering
         RenderingCacheContext $cacheContext,
         array $pageDataRequirements,
         ?StoredElement $virtualRoot,
-        ?string $rootSource = null,
-        ?InlineMappingMetadata $inlineMappings = null,
+        ?string $rootSource,
+        InlineMappingMetadata $inlineMappings,
     ): LoweringResult {
         if ($mode === RenderingMode::SKELETON) {
             return $this->treeFactory->create($forest, new ContextDeliveryIndex(), [], $mode);
         }
-
-        $inlineMappings ??= new InlineMappingMetadata();
 
         $loaderValues = $this->resolveLoaderValues($forest, $context, $request, $cacheContext);
         $ambient = [];

@@ -197,12 +197,17 @@ class MutationPipelineTest extends TestCase
     #[TestDox('restores the consumer of an unwired element when a replace re-scaffolds its node')]
     public function testReplaceRestoresTheUnwiredConsumer(): void
     {
+        $registry = $this->typeRegistry();
+        $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates->method('forRootSource')->willReturn([]);
+        $inspector = new StoredMappingInspector($registry, $candidates, new MappingTypeCompatibility(), new MappingConsumers(), new InlineMappingTokenParser());
         $replace = new ReplaceElement(
-            $this->typeRegistry(),
+            $registry,
             'el-1',
             'Sw:New',
             static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
             new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
+            $inspector,
         );
 
         $result = $this->pipeline($this->diagnosticsResolvingProduct())->run($replace, $this->unwiredTree(), null);

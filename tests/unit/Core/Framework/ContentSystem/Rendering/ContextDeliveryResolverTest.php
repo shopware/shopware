@@ -71,7 +71,7 @@ class ContextDeliveryResolverTest extends TestCase
             ),
         );
 
-        $index = $resolver->resolve([$root], [], ['product' => $product], rootSource: 'product');
+        $index = $resolver->resolve([$root], [], ['product' => $product], rootSource: 'product', cacheContext: null);
 
         static::assertSame(['cover' => $media], $index->all()['child-1']->context);
     }
@@ -86,7 +86,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], []);
+        $index = $this->resolver()->resolve([$root], [], [], cacheContext: null, rootSource: null);
 
         static::assertSame(['product' => 'product-data'], $index->all()['child-1']->context);
     }
@@ -101,7 +101,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$this->consumer('child-1', 'product'), $bystander])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], []);
+        $index = $this->resolver()->resolve([$root], [], [], cacheContext: null, rootSource: null);
 
         static::assertSame(['root-1', 'child-1', 'child-2'], array_keys($index->all()));
         static::assertTrue($index->all()['root-1']->isEmpty());
@@ -116,7 +116,7 @@ class ContextDeliveryResolverTest extends TestCase
             $this->providerRoot('root-2', 'child-2', 'second-data'),
         ];
 
-        $index = $this->resolver()->resolve($forest, [], []);
+        $index = $this->resolver()->resolve($forest, [], [], cacheContext: null, rootSource: null);
 
         static::assertSame(['product' => 'first-data'], $index->all()['child-1']->context);
         static::assertSame(['product' => 'second-data'], $index->all()['child-2']->context);
@@ -142,7 +142,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$middle])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], []);
+        $index = $this->resolver()->resolve([$root], [], [], cacheContext: null, rootSource: null);
 
         static::assertSame(['product' => 'product-data'], $index->all()['child-1']->context);
         static::assertSame(['product' => 'product-data'], $index->all()['grandchild-1']->context);
@@ -163,7 +163,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('right', [$this->consumer('child-3', 'items')])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], []);
+        $index = $this->resolver()->resolve([$root], [], [], cacheContext: null, rootSource: null);
 
         static::assertSame(['items' => 'first-item'], $index->all()['child-1']->context);
         static::assertSame(['items' => 'second-item'], $index->all()['child-2']->context);
@@ -178,7 +178,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$this->consumer('child-1', 'product')])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], ['root-1' => ['product' => 'loaded-data']], []);
+        $index = $this->resolver()->resolve([$root], ['root-1' => ['product' => 'loaded-data']], [], cacheContext: null, rootSource: null);
 
         static::assertSame(['product' => 'loaded-data'], $index->all()['child-1']->context);
     }
@@ -192,7 +192,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$this->consumer('child-1', 'product')])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], ['root-1' => ['product' => 'loaded-data']], []);
+        $index = $this->resolver()->resolve([$root], ['root-1' => ['product' => 'loaded-data']], [], cacheContext: null, rootSource: null);
 
         static::assertSame(['product' => 'loaded-data'], $index->all()['child-1']->context);
     }
@@ -213,7 +213,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$middle])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], []);
+        $index = $this->resolver()->resolve([$root], [], [], cacheContext: null, rootSource: null);
 
         static::assertSame(['product' => 'inherited-data'], $index->all()['grandchild-1']->context);
     }
@@ -234,7 +234,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$this->consumer('child-1', 'product')])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], ['root-1' => ['product' => null]], []);
+        $index = $this->resolver()->resolve([$root], ['root-1' => ['product' => null]], [], cacheContext: null, rootSource: null);
 
         static::assertSame([], $index->all()['child-1']->context);
     }
@@ -260,7 +260,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], []);
+        $index = $this->resolver()->resolve([$root], [], [], cacheContext: null, rootSource: null);
 
         static::assertSame(['data_key' => 'present', 'items' => null], $index->all()['child-1']->context);
     }
@@ -278,7 +278,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], []);
+        $index = $this->resolver()->resolve([$root], [], [], cacheContext: null, rootSource: null);
 
         static::assertSame(['data_key'], $index->all()['child-1']->distributionReferencedKeys);
     }
@@ -293,7 +293,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        $this->resolver()->resolve([$root], [], []);
+        $this->resolver()->resolve([$root], [], [], cacheContext: null, rootSource: null);
 
         static::assertSame([], $child->properties());
         static::assertSame(['product' => 'product-data'], array_map(
@@ -305,7 +305,7 @@ class ContextDeliveryResolverTest extends TestCase
     #[TestDox('returns an empty index for an empty forest')]
     public function testEmptyForestYieldsAnEmptyIndex(): void
     {
-        $index = $this->resolver()->resolve([], [], []);
+        $index = $this->resolver()->resolve([], [], [], cacheContext: null, rootSource: null);
 
         static::assertSame([], $index->all());
     }
@@ -313,7 +313,7 @@ class ContextDeliveryResolverTest extends TestCase
     #[TestDox('reports an element id it never walked as absent rather than as having received nothing')]
     public function testAnIdOutsideTheForestIsAbsentFromTheIndex(): void
     {
-        $index = $this->resolver()->resolve([$this->providerRoot('root-1', 'child-1', 'product-data')], [], []);
+        $index = $this->resolver()->resolve([$this->providerRoot('root-1', 'child-1', 'product-data')], [], [], cacheContext: null, rootSource: null);
 
         static::assertTrue($index->has('child-1'));
         static::assertFalse($index->has('not-in-this-forest'));
@@ -335,7 +335,7 @@ class ContextDeliveryResolverTest extends TestCase
             ContentSystemException::contextPathNotResolvable('product.name', 'child-1', 'Context data is not a Struct instance')
         );
 
-        $this->resolver()->resolve([$root], [], []);
+        $this->resolver()->resolve([$root], [], [], cacheContext: null, rootSource: null);
     }
 
     /**
@@ -359,7 +359,7 @@ class ContextDeliveryResolverTest extends TestCase
         static::assertSame([], $root->contextDefinitions->getAllProviders());
         static::assertSame([], $middle->contextDefinitions->getAllProviders());
 
-        $index = $this->resolver()->resolve([$root], [], ['language' => 'page-language']);
+        $index = $this->resolver()->resolve([$root], [], ['language' => 'page-language'], cacheContext: null, rootSource: null);
 
         static::assertSame(['language' => 'page-language'], $index->all()['grandchild-1']->context);
         static::assertSame([], $index->all()['child-1']->context);
@@ -379,7 +379,7 @@ class ContextDeliveryResolverTest extends TestCase
             ])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], ['language' => 'page-language']);
+        $index = $this->resolver()->resolve([$root], [], ['language' => 'page-language'], cacheContext: null, rootSource: null);
 
         static::assertSame(['language' => 'page-language'], $index->all()['root-scoped-1']->context);
         static::assertSame([], $index->all()['parent-scoped-1']->context);
@@ -395,7 +395,9 @@ class ContextDeliveryResolverTest extends TestCase
         $index = $this->resolver()->resolve(
             [$root],
             [],
-            ['product' => new StubContextStruct('page-cover')]
+            ['product' => new StubContextStruct('page-cover')],
+            cacheContext: null,
+            rootSource: null
         );
 
         static::assertSame(['product.cover' => 'page-cover'], $index->all()['child-1']->context);
@@ -417,7 +419,7 @@ class ContextDeliveryResolverTest extends TestCase
             'Context data is not a Struct instance'
         ));
 
-        $this->resolver()->resolve([$root], [], ['product' => 'not-a-struct']);
+        $this->resolver()->resolve([$root], [], ['product' => 'not-a-struct'], cacheContext: null, rootSource: null);
     }
 
     /**
@@ -433,7 +435,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], ['product' => 'not-a-struct']);
+        $index = $this->resolver()->resolve([$root], [], ['product' => 'not-a-struct'], cacheContext: null, rootSource: null);
 
         static::assertSame(['product.cover' => null], $index->all()['child-1']->context);
     }
@@ -451,7 +453,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], ['product' => new StubContextStruct()]);
+        $index = $this->resolver()->resolve([$root], [], ['product' => new StubContextStruct()], cacheContext: null, rootSource: null);
 
         static::assertSame(['product.cover' => null], $index->all()['child-1']->context);
     }
@@ -469,7 +471,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$this->rootScopedConsumer('child-1', 'language')])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], ['language' => '']);
+        $index = $this->resolver()->resolve([$root], [], ['language' => ''], cacheContext: null, rootSource: null);
 
         static::assertSame(['language' => ''], $index->all()['child-1']->context);
     }
@@ -486,7 +488,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$this->rootScopedConsumer('child-1', 'language')])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], ['language' => null]);
+        $index = $this->resolver()->resolve([$root], [], ['language' => null], cacheContext: null, rootSource: null);
 
         static::assertSame([], $index->all()['child-1']->context);
     }
@@ -501,7 +503,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], ['language' => 'page-language']);
+        $index = $this->resolver()->resolve([$root], [], ['language' => 'page-language'], cacheContext: null, rootSource: null);
 
         static::assertSame(['pageLanguage' => 'page-language'], $index->all()['child-1']->context);
     }
@@ -529,7 +531,7 @@ class ContextDeliveryResolverTest extends TestCase
         // can hand on is the one the ambient overlay put into its working map.
         static::assertNull($middle->property('language'));
 
-        $index = $this->resolver()->resolve([$root], [], ['language' => 'page-language']);
+        $index = $this->resolver()->resolve([$root], [], ['language' => 'page-language'], cacheContext: null, rootSource: null);
 
         static::assertSame(['language' => 'page-language'], $index->all()['child-1']->context);
         static::assertSame(['language' => 'page-language'], $index->all()['grandchild-1']->context);
@@ -557,7 +559,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        $delivery = $this->resolver()->resolve([$root], [], ['language' => 'page-language'])->all()['child-1'];
+        $delivery = $this->resolver()->resolve([$root], [], ['language' => 'page-language'], cacheContext: null, rootSource: null)->all()['child-1'];
 
         // Fixture guard: the overlay really did run, so the delivery really was replaced.
         static::assertSame(
@@ -620,7 +622,7 @@ class ContextDeliveryResolverTest extends TestCase
             ),
         );
 
-        $delivery = $resolver->resolve([$this->mappedChild()], [], ['product' => new StubContextStruct('page-cover')])->all()['child-1'];
+        $delivery = $resolver->resolve([$this->mappedChild()], [], ['product' => new StubContextStruct('page-cover')], cacheContext: null, rootSource: null)->all()['child-1'];
 
         static::assertSame([], $delivery->context);
         static::assertSame([], $delivery->mappingFallbackKeys);
@@ -649,6 +651,7 @@ class ContextDeliveryResolverTest extends TestCase
             [],
             ['product' => new StubContextStruct('page-cover')],
             rootSource: 'product',
+            cacheContext: null,
         );
     }
 
@@ -669,7 +672,7 @@ class ContextDeliveryResolverTest extends TestCase
             ),
         );
 
-        $index = $resolver->resolve([$child], [], ['product' => $product], rootSource: 'product');
+        $index = $resolver->resolve([$child], [], ['product' => $product], rootSource: 'product', cacheContext: null);
 
         static::assertSame(['text' => 'Inherited storefront name'], $index->all()['child-1']->context);
     }
@@ -762,7 +765,7 @@ class ContextDeliveryResolverTest extends TestCase
             ),
         );
 
-        $delivery = $resolver->resolve([$this->mappedChild()], [], ['product' => new StubContextStruct('page-cover')], rootSource: 'product');
+        $delivery = $resolver->resolve([$this->mappedChild()], [], ['product' => new StubContextStruct('page-cover')], rootSource: 'product', cacheContext: null);
 
         static::assertSame([], $delivery->all()['child-1']->context);
     }
@@ -775,7 +778,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$this->rootScopedConsumer('child-1', 'product')])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], [], ['product' => $ambientValue]);
+        $index = $this->resolver()->resolve([$root], [], ['product' => $ambientValue], cacheContext: null, rootSource: null);
 
         static::assertSame($ambientValue, $index->all()['child-1']->context['product']);
     }
@@ -882,7 +885,13 @@ class ContextDeliveryResolverTest extends TestCase
             ->build();
 
         return $this->resolverWith($candidatePaths, $candidateValueType)
-            ->resolve([$root], [], ['product' => $ambient], rootSource: 'product');
+            ->resolve(
+                [$root],
+                [],
+                ['product' => $ambient],
+                rootSource: 'product',
+                cacheContext: null
+            );
     }
 
     private function mappedChild(): StoredElement

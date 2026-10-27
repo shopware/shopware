@@ -52,11 +52,11 @@ final readonly class InlineMappingExpander
         array $forest,
         array $ambient,
         ?string $rootSource,
-        ?RenderingCacheContext $cacheContext = null,
-        array $loaderValues = [],
-        ?InlineMappingMetadata $inlineMappings = null,
+        ?RenderingCacheContext $cacheContext,
+        array $loaderValues,
+        InlineMappingMetadata $inlineMappings,
     ): array {
-        $inlineMappings ??= new InlineMappingMetadata();
+        // One budget for the complete forest; every property and descendant uses this same instance.
         $budget = new InlineMappingExpansionBudget();
 
         return array_map(

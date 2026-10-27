@@ -442,13 +442,8 @@ class McpAnalysisTestExplicitGroupTool extends McpToolResponse
 class McpAnalysisTestMethodLevelGroupTool extends McpToolResponse
 {
     #[McpTool(name: 'shopware-analysis-method-level-group-tool', description: 'method-level group tool')]
-<<<<<<< HEAD
     #[McpToolGroup('orders', description: 'Manage orders.')]
-    public function __invoke(): string
-=======
-    #[McpToolGroup('orders')]
     public function __invoke(): McpToolResult
->>>>>>> origin/feat/framework/mcp-legacy-string-result-rule
     {
         return McpToolResult::success([]);
     }

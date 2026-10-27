@@ -71,6 +71,16 @@ describe('src/app/component/structure/sw-ui-shell-update-2026-modal - pages', ()
         );
     });
 
+    it('shows the hint of the active page', async () => {
+        const hintKeypath = () => wrapper.getComponent({ name: 'i18n-t' }).props('keypath') as string;
+
+        expect(hintKeypath()).toBe('sw-ui-shell-update-2026-modal.pages.adminNavigation.moduleColorsHint');
+
+        await wrapper.get('.sw-ui-shell-update-2026-modal__footer-right button').trigger('click');
+
+        expect(hintKeypath()).toBe('sw-ui-shell-update-2026-modal.pages.darkMode.themeSelectHint');
+    });
+
     it('renders both theme variants of the shared imagery', () => {
         // CSS picks the variant by data-theme, so both are in the DOM and swap without a request.
         expect(wrapper.get('.sw-ui-shell-update-2026-modal__media-image--light').attributes('src')).toContain(

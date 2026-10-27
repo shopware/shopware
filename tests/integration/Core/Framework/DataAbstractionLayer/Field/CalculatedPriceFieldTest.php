@@ -35,6 +35,7 @@ class CalculatedPriceFieldTest extends TestCase
         $connection = static::getContainer()->get(Connection::class);
 
         $connection->rollBack();
+        $connection->executeStatement('DROP TABLE IF EXISTS calculated_price_field_test');
         $connection->executeStatement(CalculatedPriceFieldTestDefinition::getCreateTable());
         $connection->beginTransaction();
 

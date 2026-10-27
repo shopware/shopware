@@ -24,6 +24,13 @@ A private HTML or XML file can no longer be exposed by only switching its `priva
 The shipped `public/.htaccess.dist` now sends `X-Content-Type-Options: nosniff` for files under `/media` and `/thumbnail`.
 Browsers then no longer sniff a stored file with an unknown content type into HTML.
 Update your `.htaccess` if you maintain your own copy, and send the same header for stored media on other web servers.
+### User, access key and admin integration writes are restricted
+
+A non-admin may only update or delete their own user and their own access keys through the Admin API.
+Writes to other users or their access keys are rejected with `403` and `USER__USER_CHANGE_NOT_ALLOWED`.
+A non-admin may no longer update or delete an admin integration; these writes are rejected with `403` and `INTEGRATION__ADMIN_INTEGRATION_CHANGE_NOT_ALLOWED`.
+Administrators are unaffected.
+The user of an access key can no longer be changed after the key was created, also not by administrators.
 
 # 6.7.16.0 (upcoming)
 
@@ -563,6 +570,12 @@ $lineItem = $lineItemFactoryRegistry->create([
     'referencedId' => $code,
 ], $salesChannelContext);
 ```
+
+### Public constant for the MCP connect-URL toolset selection
+
+`McpToolsetRegistry::QUERY_PARAMETER` now names the `toolsets` query parameter that selects toolsets in the MCP connect URL, on `/api/_mcp` and `/store-api/_mcp`. The parameter exists since 6.7.15.0, the constant since 6.7.16.0. Code that also supports 6.7.15 detects the parameter with `\defined(McpToolsetRegistry::class . '::ALL_TOOLSETS')` and uses the literal `'toolsets'`. Do not probe the internal `McpRequestedToolsetResolver` class, which can be renamed without notice.
+
+`shopware-toolsets-list` now reports the toolsets selected in the connect URL as enabled. A tool group named `all` now belongs to the `other` toolset, because `?toolsets=all` selects every toolset. `McpToolsetRegistry::advertisedTools()` resolves `all` the same way as `advertisedToolsForNames()`.
 
 ## API
 

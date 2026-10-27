@@ -50,6 +50,11 @@ final readonly class McpToolResult
         return new self(error: new McpToolError($message, $code, $details));
     }
 
+    /**
+     * @phpstan-assert-if-true !null $this->error
+     *
+     * @phpstan-assert-if-false null $this->error
+     */
     public function isError(): bool
     {
         return $this->error !== null;

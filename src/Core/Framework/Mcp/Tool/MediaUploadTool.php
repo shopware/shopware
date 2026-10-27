@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -42,7 +43,7 @@ class MediaUploadTool extends McpToolResponse
         string $fileName = '',
         string $mediaFolderId = '',
         string $productId = '',
-    ): string {
+    ): McpToolResult {
         $context = $this->contextProvider->getContext();
 
         $requiredPrivileges = ['media:create'];
@@ -50,7 +51,7 @@ class MediaUploadTool extends McpToolResponse
             $requiredPrivileges[] = 'product:update';
         }
 
-        if ($error = $this->requirePrivilege($context, ...$requiredPrivileges)) {
+        if ($error = $this->requirePrivilegeResult($context, ...$requiredPrivileges)) {
             return $error;
         }
 
@@ -62,7 +63,7 @@ class MediaUploadTool extends McpToolResponse
         try {
             $mediaId = $this->mediaUploadService->uploadFromURL($url, $context, $params);
         } catch (\Throwable $e) {
-            return $this->error('Upload failed: ' . $e->getMessage());
+            return $this->errorResult('Upload failed: ' . $e->getMessage());
         }
 
         $result = ['mediaId' => $mediaId];
@@ -73,11 +74,11 @@ class MediaUploadTool extends McpToolResponse
                 $result['productId'] = $productId;
                 $result['assignedAsCover'] = true;
             } catch (\Throwable $e) {
-                return $this->error('Media uploaded (ID: ' . $mediaId . ') but product assignment failed: ' . $e->getMessage());
+                return $this->errorResult('Media uploaded (ID: ' . $mediaId . ') but product assignment failed: ' . $e->getMessage());
             }
         }
 
-        return $this->success($result);
+        return $this->successResult($result);
     }
 
     private function assignToProduct(string $mediaId, string $productId, Context $context): void

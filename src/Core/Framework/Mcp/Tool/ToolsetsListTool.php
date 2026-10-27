@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\McpRequestedToolsetResolver;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -29,12 +30,12 @@ class ToolsetsListTool extends McpToolResponse
     ) {
     }
 
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
         $enabledToolsets = $this->enabledToolsets();
         $areAllToolsetsEnabled = \in_array(McpToolsetRegistry::ALL_TOOLSETS, $enabledToolsets, true);
 
-        return $this->success([
+        return $this->successResult([
             'toolsets' => array_map(
                 static fn (array $toolset): array => [
                     ...$toolset,

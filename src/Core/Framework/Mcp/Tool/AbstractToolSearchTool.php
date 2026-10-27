@@ -6,6 +6,7 @@ use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\Tool;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\Mcp\Tool\Search\ToolSearch;
 
 /**
@@ -25,10 +26,10 @@ abstract class AbstractToolSearchTool extends McpToolResponse
     ) {
     }
 
-    public function __invoke(string $query, int $maxResults = 3): string
+    public function __invoke(string $query, int $maxResults = 3): McpToolResult
     {
         if ($this->registry === null) {
-            return $this->error('MCP registry is not available.');
+            return $this->errorResult('MCP registry is not available.');
         }
 
         $allowlist = $this->allowlistProvider?->forCurrentRequest();
@@ -69,7 +70,7 @@ abstract class AbstractToolSearchTool extends McpToolResponse
             $meta['usage'] = $usage;
         }
 
-        return $this->success($results, $meta);
+        return $this->successResult($results, $meta);
     }
 
     /**

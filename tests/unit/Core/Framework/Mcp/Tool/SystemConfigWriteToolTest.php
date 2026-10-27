@@ -31,11 +31,10 @@ class SystemConfigWriteToolTest extends TestCase
         $tool = new SystemConfigWriteTool($configService, $contextProvider);
         $output = ($tool)('core.test.key', '"new-value"');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($data['success']);
-        static::assertTrue($data['_meta']['dryRun']);
-        static::assertSame('old-value', $data['data']['oldValue']);
-        static::assertSame('new-value', $data['data']['newValue']);
+        static::assertFalse($output->isError());
+        static::assertTrue($output->meta['dryRun']);
+        static::assertSame('old-value', $output->data['oldValue']);
+        static::assertSame('new-value', $output->data['newValue']);
     }
 
     public function testNonDryRunCallsSetAndReturnsSuccess(): void
@@ -50,9 +49,8 @@ class SystemConfigWriteToolTest extends TestCase
         $tool = new SystemConfigWriteTool($configService, $contextProvider);
         $output = ($tool)('core.test.key', '"new-value"', null, false);
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($data['success']);
-        static::assertFalse($data['_meta']['dryRun']);
+        static::assertFalse($output->isError());
+        static::assertFalse($output->meta['dryRun']);
     }
 
     public function testJsonValueDecoding(): void
@@ -67,8 +65,7 @@ class SystemConfigWriteToolTest extends TestCase
         $tool = new SystemConfigWriteTool($configService, $contextProvider);
         $output = ($tool)('core.bool.key', 'true', null, false);
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($data['data']['newValue']);
+        static::assertTrue($output->data['newValue']);
     }
 
     public function testNonJsonValueIsUsedAsString(): void
@@ -83,9 +80,8 @@ class SystemConfigWriteToolTest extends TestCase
         $tool = new SystemConfigWriteTool($configService, $contextProvider);
         $output = ($tool)('core.text.key', 'plain text value', null, false);
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($data['success']);
-        static::assertSame('plain text value', $data['data']['newValue']);
+        static::assertFalse($output->isError());
+        static::assertSame('plain text value', $output->data['newValue']);
     }
 
     public function testNullJsonValueReturnsError(): void
@@ -100,10 +96,8 @@ class SystemConfigWriteToolTest extends TestCase
         $tool = new SystemConfigWriteTool($configService, $contextProvider);
         $output = ($tool)('core.test.key', 'null', null, false);
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('Setting null is not supported via MCP', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('Setting null is not supported via MCP', $output->error->message);
     }
 
     public function testDeniesAccessWithoutUpdatePermission(): void
@@ -121,10 +115,8 @@ class SystemConfigWriteToolTest extends TestCase
         $tool = new SystemConfigWriteTool($configService, $contextProvider);
         $output = ($tool)('core.test.key', '"value"');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('system_config:update', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('system_config:update', $output->error->message);
     }
 
     public function testWriteWithSalesChannelId(): void
@@ -139,7 +131,6 @@ class SystemConfigWriteToolTest extends TestCase
         $tool = new SystemConfigWriteTool($configService, $contextProvider);
         $output = ($tool)('core.test.key', '"new"', 'sc-1', false);
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame('sc-1', $data['_meta']['salesChannelId']);
+        static::assertSame('sc-1', $output->meta['salesChannelId']);
     }
 }

@@ -110,7 +110,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         const wrapper = await createWrapper('singleProducts', true);
 
         await wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'categories');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('categories');
     });

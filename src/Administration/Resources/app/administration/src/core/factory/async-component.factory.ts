@@ -4,7 +4,7 @@
 
 /* eslint-disable max-len, @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any */
 import { warn } from 'src/core/service/utils/debug.utils';
-import { cloneDeep } from 'src/core/service/utils/object.utils';
+import types from 'src/core/service/utils/types.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
 import type {
     AllowedComponentProps,
@@ -728,12 +728,14 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
     }
 
     if (overrideRegistry.has(componentName)) {
-        // clone the override configuration to prevent side-effects to the config
-        const overrides = cloneDeep(overrideRegistry.get(componentName));
+        // Resolve all override configs in parallel, then separate by type
+        const resolvedEntries = await Promise.all(
+            overrideRegistry.get(componentName)!.map((overrideEntry) => overrideEntry.config()),
+        );
 
-        const convertedOverrides = await convertOverrides(
-            overrides!.map((c) => c.config),
-            config,
+        const standardOverrideConfigs: AwaitedComponentConfig[] = resolvedEntries.map(
+            (resolvedConfig) => () =>
+                Promise.resolve(typeof resolvedConfig === 'boolean' ? resolvedConfig : copyOverrideConfig(resolvedConfig)),
         );
 
         convertedOverrides.forEach((overrideComp) => {
@@ -783,6 +785,33 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
     }
 
     return config;
+}
+
+/**
+ * The resolved config of an override is cached and shared by every build of its component, but `convertOverrides` and
+ * `enrichSuperChain` move and add properties and methods. Each build therefore works on its own copy, so that a later
+ * build cannot take a method or prop away from a component that an earlier build already returned.
+ */
+function copyOverrideConfig(overrideConfig: ComponentConfig): ComponentConfig {
+    const copy = copyOwnProperties(overrideConfig);
+    Reflect.ownKeys(copy).forEach((key) => {
+        const descriptor = Object.getOwnPropertyDescriptor(copy, key);
+        if (descriptor && 'value' in descriptor && types.isPlainObject(descriptor.value)) {
+            Object.defineProperty(copy, key, {
+                ...descriptor,
+                value: copyOwnProperties(descriptor.value as object),
+            });
+        }
+    });
+
+    return copy;
+}
+
+/**
+ * Unlike a spread, this keeps getters unevaluated and keeps non-enumerable properties.
+ */
+function copyOwnProperties<T extends object>(object: T): T {
+    return Object.create(Object.getPrototypeOf(object) as object | null, Object.getOwnPropertyDescriptors(object)) as T;
 }
 
 /**

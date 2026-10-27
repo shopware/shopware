@@ -172,7 +172,7 @@ type PublicProps = VNodeProps & AllowedComponentProps & ComponentCustomProps;
 
 type EmitsToProps<T extends EmitsOptions> = T extends string[]
     ? {
-          // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents,
+          // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
           [K in string & `on${Capitalize<T[number]>}`]?: (...args: any[]) => any;
       }
     : T extends ObjectEmitsOptions

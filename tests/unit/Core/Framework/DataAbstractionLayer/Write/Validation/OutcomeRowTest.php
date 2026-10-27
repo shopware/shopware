@@ -50,7 +50,6 @@ class OutcomeRowTest extends TestCase
     {
         return new OutcomeRow(
             primaryKey: ['id' => 'a'],
-            decodedPrimaryKey: ['id' => 'a'],
             path: '',
             isNew: false,
             payload: $payload,

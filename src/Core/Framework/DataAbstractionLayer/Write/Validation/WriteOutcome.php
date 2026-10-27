@@ -133,7 +133,6 @@ class WriteOutcome
 
         return new OutcomeRow(
             primaryKey: $first->getPrimaryKey(),
-            decodedPrimaryKey: $first->getDecodedPrimaryKey(),
             path: $last->getPath(),
             isNew: $isNew,
             payload: self::mergedPayload($recordCommands),

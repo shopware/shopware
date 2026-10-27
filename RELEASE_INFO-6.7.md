@@ -229,6 +229,12 @@ The profile page now shows company and VAT ID for business customers even when "
 Before, saving the profile without that setting removed the company and the VAT IDs of business customers.
 Themes that override `component_address_personal_company_section`, `component_address_personal_company` or `component_address_personal_vat_id` in `component/address/address-personal.html.twig` should check that the content also suits this case.
 
+### `.btn-link-inline` follows the link decoration variables
+
+`.btn-link-inline` now uses `$link-decoration` and `$link-hover-decoration` for its underline, like regular links, instead of always being underlined.
+The default Storefront looks the same.
+Themes that change these variables now also change the decoration of inline link buttons.
+
 ## Hosting & Configuration
 
 ### Storefront readiness checks skip pages restricted by extensions

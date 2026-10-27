@@ -74,6 +74,8 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
         static::assertNotNull($storeApiToolset, 'store-api toolset should be listed: ' . $toolsets['content'][0]['text']);
         static::assertFalse($storeApiToolset['enabled']);
         static::assertContains('shopware-store-api-context', $storeApiToolset['tools']);
+        static::assertIsString($storeApiToolset['description']);
+        static::assertStringNotContainsString('Tools explicitly assigned', $storeApiToolset['description'], 'the store-api toolset has no authored description');
 
         // Enabling it reports listChanged.
         $enable = $this->callTool($browser, $sessionId, 'shopware-toolset-enable', ['toolset' => 'store-api']);

@@ -124,6 +124,20 @@ Cart and order taxes stay the same, but Rule Builder conditions like "Cart amoun
 
 MCP tools that call `progress()`, `notify()`, `elicit()` or `elicitUrl()` on the SDK's `ClientGateway` now reach the client as a `text/event-stream` with its headers and frames.
 
+### MCP toolsets can carry a description
+
+`#[McpToolGroup]` takes an optional `description` that describes the whole toolset.
+`shopware-toolsets-list` and `shopware-toolset-enable` return it instead of the generated `Tools explicitly assigned to the "<group>" MCP tool group.`, so a model can tell which toolset fits a task.
+All core toolsets now have one.
+Plugins that add their own toolset should set it on one tool of the group:
+
+```php
+#[McpToolGroup('swag-report', description: 'Revenue, bestseller and customer reports for a date range. Enable it for questions about sales figures.')]
+```
+
+Existing `#[McpToolGroup('<group>')]` declarations keep working and keep the generated description.
+Plugins can add tools to a core toolset such as `entity`, but cannot change its description.
+
 ## API
 
 ### MCP clients can log in with OAuth

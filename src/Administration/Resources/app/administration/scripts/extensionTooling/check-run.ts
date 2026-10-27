@@ -613,7 +613,7 @@ export function recordProjectBaseline(
         return {
             baselineUpdates: [
                 `${relativePosix(projectRoot, write.file)} — ${recorded} recorded` +
-                    `${pruned > 0 ? `, ${pruned} pruned` : ''}`,
+                    (pruned > 0 ? `, ${pruned} pruned` : ''),
             ],
             fatalDiagnostics: [],
             warnings,

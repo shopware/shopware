@@ -582,7 +582,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             ],
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.showMediaModal).toBe(false);
         await flushPromises();
@@ -645,7 +645,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         await wrapper.find('.sw-cms-list__actions-mode').trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({
             isLoading: false,
@@ -687,7 +687,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         await wrapper.find('.sw-cms-list__actions-mode').trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({
             isLoading: false,
@@ -728,7 +728,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         await wrapper.find('.sw-cms-list__actions-mode').trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({
             isLoading: false,
@@ -769,7 +769,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         await wrapper.find('.sw-cms-list__actions-mode').trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({
             isLoading: false,
@@ -1139,7 +1139,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             term: 'foo',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -1161,7 +1161,6 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -1187,7 +1186,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             term: 'foo',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -1212,7 +1211,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
             return {};
@@ -1233,7 +1232,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         await wrapper.find('.sw-cms-list__actions-mode').trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({
             isLoading: false,

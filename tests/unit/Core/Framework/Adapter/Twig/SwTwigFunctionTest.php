@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\HttpFoundation\Request;
 use Twig\Environment;
 use Twig\Source;
 use Twig\Template;
@@ -193,6 +194,30 @@ class SwTwigFunctionTest extends TestCase
             'method' => 'lockRules',
         ];
 
+        yield 'process-wide trust configuration on the request' => [
+            'object' => new Request(),
+            'item' => 'setTrustedProxies',
+            'arguments' => [['0.0.0.0/0'], Request::HEADER_X_FORWARDED_FOR],
+            'type' => Template::METHOD_CALL,
+            'method' => 'setTrustedProxies',
+        ];
+
+        yield 'request rebuilt from the globals' => [
+            'object' => new Request(),
+            'item' => 'createFromGlobals',
+            'arguments' => [],
+            'type' => Template::METHOD_CALL,
+            'method' => 'createFromGlobals',
+        ];
+
+        yield 'request copy without parentheses' => [
+            'object' => new Request(),
+            'item' => 'duplicate',
+            'arguments' => [],
+            'type' => Template::ANY_CALL,
+            'method' => 'duplicate',
+        ];
+
         yield 'setter called through attribute() on a Struct' => [
             'object' => Context::createDefaultContext(),
             'item' => 'setRuleIds',
@@ -271,6 +296,20 @@ class SwTwigFunctionTest extends TestCase
             'object' => new AdminApiSource(null),
             'item' => 'admin',
             'type' => Template::ANY_CALL,
+            'expected' => false,
+        ];
+
+        yield 'getter on the request' => [
+            'object' => new Request(),
+            'item' => 'method',
+            'type' => Template::ANY_CALL,
+            'expected' => Request::METHOD_GET,
+        ];
+
+        yield 'read method of the request without a get prefix' => [
+            'object' => new Request(),
+            'item' => 'preferSafeContent',
+            'type' => Template::METHOD_CALL,
             'expected' => false,
         ];
     }

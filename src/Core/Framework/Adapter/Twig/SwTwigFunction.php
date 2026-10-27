@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 use Twig\Environment;
 use Twig\Extension\CoreExtension;
 use Twig\Source;
@@ -21,9 +22,26 @@ use Twig\Template;
 class SwTwigFunction
 {
     /**
-     * Methods of request contexts that change them or run a callback with changed state, next to set/add/remove/lock methods.
+     * Methods that change a request context or run a callback with changed state, next to set/add/remove/lock methods.
      */
     private const DENIED_CONTEXT_METHODS = ['scope', 'state', 'live', 'withPermissions', 'enableInheritance', 'disableInheritance', 'assign', 'assignRecursive'];
+
+    /**
+     * Request methods that rebuild the request or change process-wide state, next to set methods.
+     */
+    private const DENIED_REQUEST_METHODS = ['initialize', 'createFromGlobals', 'create', 'duplicate', 'overrideGlobals', 'enableHttpMethodParameterOverride'];
+
+    /**
+     * Cached instead of a getter name when a template reads a denied method like a property.
+     */
+    private const DENIED_GETTER = ':denied';
+
+    /**
+     * Denied methods by class, keyed by lower-case name as PHP resolves them; empty for unrestricted classes.
+     *
+     * @var array<class-string, array<string, string>>
+     */
+    private static array $deniedMethodsByClass = [];
 
     /**
      * @var array<int, array{returned: bool, value: mixed}>
@@ -85,15 +103,14 @@ class SwTwigFunction
         bool $sandboxed = false,
         int $lineno = -1
     ): mixed {
-        // Checked outside the try block, the fallback below would call the method otherwise.
-        if (\is_object($object)) {
-            self::assertCallAllowed($object, (string) $item, $type);
-        }
-
         try {
             if ($object instanceof Struct) {
                 FieldVisibility::$isInTwigRenderingContext = true;
                 if ($type === Template::METHOD_CALL) {
+                    if ((self::$deniedMethodsByClass[$object::class] ??= self::deniedMethods($object)) !== []) {
+                        self::assertCallAllowed($object, (string) $item, $type);
+                    }
+
                     /** @phpstan-ignore method.dynamicName */
                     return $object->$item(...$arguments);
                 }
@@ -102,63 +119,75 @@ class SwTwigFunction
 
                 $getterMethod = self::$getterCache[$object::class][$item] ??= self::resolveGetter($object, $item);
 
+                if ($getterMethod === self::DENIED_GETTER) {
+                    self::assertCallAllowed($object, $item, $type);
+                }
+
                 if ($getterMethod !== '') {
                     /** @phpstan-ignore method.dynamicName */
                     return $object->$getterMethod();
                 }
+            } elseif (\is_object($object) && (self::$deniedMethodsByClass[$object::class] ??= self::deniedMethods($object)) !== []) {
+                self::assertCallAllowed($object, (string) $item, $type);
             }
 
             return CoreExtension::getAttribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);
-        } catch (\Throwable) {
+        } catch (\Throwable $exception) {
+            // The fallback would call the denied method.
+            if ($exception instanceof AdapterException && $exception->getErrorCode() === AdapterException::TWIG_METHOD_CALL_NOT_ALLOWED) {
+                throw $exception;
+            }
+
             return CoreExtension::getAttribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);
         } finally {
             FieldVisibility::$isInTwigRenderingContext = false;
         }
     }
 
-    /**
-     * Templates must not change request contexts and their sources.
-     */
     private static function assertCallAllowed(object $object, string $item, string $type): void
     {
-        if (!$object instanceof Context && !$object instanceof SalesChannelContext && !$object instanceof ContextSource) {
+        $method = self::$deniedMethodsByClass[$object::class][strtolower($item)] ?? null;
+        if ($method === null) {
             return;
         }
 
-        $method = self::resolveCalledMethod($object, $item, $type);
-        if ($method === null || !self::isDeniedMethod($method)) {
-            return;
+        if ($type !== Template::METHOD_CALL) {
+            // Mirrors the lookup order: Structs prefer get/is accessors, other objects public properties.
+            if ($object instanceof Struct) {
+                if (method_exists($object, 'get' . $item) || method_exists($object, 'is' . $item)) {
+                    return;
+                }
+            } elseif (\array_key_exists($item, get_object_vars($object))) {
+                return;
+            }
         }
 
         throw AdapterException::twigMethodCallNotAllowed($object::class, $method);
     }
 
     /**
-     * Returns the declared name of the method Twig would call, null for a property read.
+     * @return array<string, string>
      */
-    private static function resolveCalledMethod(object $object, string $item, string $type): ?string
+    private static function deniedMethods(object $object): array
     {
-        if ($type !== Template::METHOD_CALL) {
-            // Mirrors the lookup order: Structs prefer get/is accessors, other objects public properties.
-            if ($object instanceof Struct) {
-                if (method_exists($object, 'get' . $item) || method_exists($object, 'is' . $item)) {
-                    return null;
-                }
-            } elseif (\array_key_exists($item, get_object_vars($object))) {
-                return null;
+        if ($object instanceof Context || $object instanceof SalesChannelContext || $object instanceof ContextSource) {
+            $pattern = '/^(set|add|remove|lock)[A-Z]/';
+            $named = self::DENIED_CONTEXT_METHODS;
+        } elseif ($object instanceof Request) {
+            $pattern = '/^set[A-Z]/';
+            $named = self::DENIED_REQUEST_METHODS;
+        } else {
+            return [];
+        }
+
+        $deniedMethods = [];
+        foreach (get_class_methods($object) as $method) {
+            if (preg_match($pattern, $method) === 1 || \in_array($method, $named, true)) {
+                $deniedMethods[strtolower($method)] = $method;
             }
         }
 
-        if (!method_exists($object, $item)) {
-            return null;
-        }
-
-        return (new \ReflectionMethod($object, $item))->getName();
-    }
-
-    private static function isDeniedMethod(string $method): bool
-    {
-        return preg_match('/^(set|add|remove|lock)[A-Z]/', $method) === 1 || \in_array($method, self::DENIED_CONTEXT_METHODS, true);
+        return $deniedMethods;
     }
 
     private static function resolveGetter(Struct $object, string $item): string
@@ -175,7 +204,9 @@ class SwTwigFunction
 
         foreach ($getterMethods as $getterMethod) {
             if (method_exists($object, $getterMethod)) {
-                return $getterMethod;
+                $deniedMethods = self::$deniedMethodsByClass[$object::class] ??= self::deniedMethods($object);
+
+                return isset($deniedMethods[strtolower($getterMethod)]) ? self::DENIED_GETTER : $getterMethod;
             }
         }
 

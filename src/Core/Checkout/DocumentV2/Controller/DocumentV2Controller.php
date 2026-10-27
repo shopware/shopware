@@ -281,6 +281,8 @@ final class DocumentV2Controller extends AbstractController
      */
     private function storeUploadedMedia(Request $request, InputBag $payload, Context $context): string
     {
+        // Media is written under system scope because the route-level document:create
+        // ACL check already authorizes the caller to create document media.
         return $context->scope(
             Context::SYSTEM_SCOPE,
             function (Context $scopedContext) use ($request, $payload): string {
@@ -305,6 +307,10 @@ final class DocumentV2Controller extends AbstractController
 
     private function resolveReferencedMedia(string $mediaId, Context $context): string
     {
+        if (!$context->isAllowed('media:read')) {
+            throw DocumentV2Exception::missingPrivileges(['media:read']);
+        }
+
         $media = $context->scope(
             Context::SYSTEM_SCOPE,
             fn (Context $scoped) => $this->mediaRepository

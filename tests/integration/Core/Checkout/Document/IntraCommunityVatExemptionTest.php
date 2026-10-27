@@ -305,6 +305,24 @@ class IntraCommunityVatExemptionTest extends TestCase
         );
     }
 
+    public function testAnEmptyVatIdEntryKeepsTheNoteOnATaxFreeOrder(): void
+    {
+        $this->setVatIds(['', self::DUTCH_VAT_ID]);
+
+        $this->salesChannelContext = $this->createSalesChannelContext();
+
+        $cart = $this->generateDemoCartWithTaxes([19]);
+        static::assertSame(CartPrice::TAX_STATE_FREE, $cart->getPrice()->getTaxStatus());
+
+        $orderId = $this->persistCart($cart);
+
+        static::assertStringContainsString(
+            self::INTRA_COMMUNITY_NOTE,
+            $this->render(static::getContainer()->get(InvoiceRenderer::class), $orderId)
+        );
+        static::assertTrue($this->getV2InvoiceNote($orderId));
+    }
+
     public function testAShopWithoutASellerCountrySuppliesFromTheSalesChannelsDefaultCountry(): void
     {
         // The test sales channel's default country is Germany, which stands in for the missing setting

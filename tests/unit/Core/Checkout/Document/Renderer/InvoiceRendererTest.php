@@ -46,9 +46,6 @@ use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\Clock\NativeClock;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -99,30 +96,9 @@ class InvoiceRendererTest extends TestCase
         $orderRepositoryMock = static::createStub(EntityRepository::class);
         $orderRepositoryMock->method('search')->willReturn($orderSearchResult);
 
-        $validator = static::createStub(ValidatorInterface::class);
-        if (isset($orderSettings['shouldCheckVatIdPattern']) && $orderSettings['shouldCheckVatIdPattern']) {
-            $validator->method('validate')->willReturnCallback(static function () use ($orderSettings) {
-                if ($orderSettings['validVat'] ?? false) {
-                    return new ConstraintViolationList();
-                }
-
-                return new ConstraintViolationList(
-                    [
-                        new ConstraintViolation(
-                            'VAT ID is invalid',
-                            null,
-                            [],
-                            'vat',
-                            'vatId',
-                            'invalid'
-                        ),
-                    ],
-                );
-            });
-        }
-
         $vatIdPatternProvider = static::createStub(VatIdPatternProvider::class);
         $vatIdPatternProvider->method('isDomesticSupply')->willReturn($orderSettings['domesticSupply'] ?? false);
+        $vatIdPatternProvider->method('acceptsVatId')->willReturn($orderSettings['validVat'] ?? false);
 
         $invoiceRenderer = new InvoiceRenderer(
             $orderRepositoryMock,
@@ -132,7 +108,7 @@ class InvoiceRendererTest extends TestCase
             $connectionMock,
             static::createStub(DocumentFileRendererRegistry::class),
             new NativeClock(),
-            new IntraEuTaxResolver($vatIdPatternProvider, $validator)
+            new IntraEuTaxResolver($vatIdPatternProvider)
         );
 
         $operations = [
@@ -529,6 +505,7 @@ class InvoiceRendererTest extends TestCase
             $address = new OrderAddressEntity();
             $address->setCountry($country);
             $country->setCheckVatIdPattern($orderSettings['shouldCheckVatIdPattern'] ?? false);
+            $country->setVatIdPattern('VAT\\d+');
             $delivery->setShippingOrderAddress($address);
         }
 

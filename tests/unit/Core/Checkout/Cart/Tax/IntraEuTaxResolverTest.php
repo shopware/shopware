@@ -4,14 +4,12 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Tax;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\IntraEuTaxResolver;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
@@ -25,10 +23,6 @@ use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -57,8 +51,6 @@ class IntraEuTaxResolverTest extends TestCase
 
     private VatIdPatternProvider $vatIdPatternProvider;
 
-    private ValidatorInterface&Stub $validator;
-
     private IntraEuTaxResolver $resolver;
 
     protected function setUp(): void
@@ -84,9 +76,7 @@ class IntraEuTaxResolverTest extends TestCase
             new StaticEntityRepository([$euCountries, [self::DE_ID]]),
             $this->systemConfig,
         );
-        $this->validator = static::createStub(ValidatorInterface::class);
-        $this->validator->method('validate')->willReturn(new ConstraintViolationList());
-        $this->resolver = new IntraEuTaxResolver($this->vatIdPatternProvider, $this->validator);
+        $this->resolver = new IntraEuTaxResolver($this->vatIdPatternProvider);
     }
 
     /**
@@ -306,6 +296,7 @@ class IntraEuTaxResolverTest extends TestCase
         yield 'export supply' => [self::CH_ID, [self::FOREIGN_VAT], true];
         yield 'domestic supply' => [self::DE_ID, [self::FOREIGN_VAT], true];
         yield 'seller VAT' => [self::FR_ID, [self::SELLER_VAT], true];
+        yield 'VAT of no member state with pattern checks enabled' => [self::FR_ID, ['INVALID'], true];
         yield 'missing VAT with pattern checks enabled' => [self::FR_ID, null, true];
         yield 'missing VAT with pattern checks disabled' => [self::FR_ID, null, false];
         yield 'empty VAT list with pattern checks enabled' => [self::FR_ID, [], true];
@@ -331,29 +322,13 @@ class IntraEuTaxResolverTest extends TestCase
         static::assertFalse($this->resolver->isIntraCommunityDelivery($order));
     }
 
-    public function testDocumentsRetainTheValidatorVeto(): void
-    {
-        $order = $this->order($this->country(self::FR_ID), [self::FOREIGN_VAT]);
-        $validator = $this->createMock(ValidatorInterface::class);
-        $validator->expects($this->once())->method('validate')->with(
-            [self::FOREIGN_VAT],
-            static::callback(static fn (array $constraints) => $constraints[0] instanceof NotBlank && $constraints[1] instanceof CustomerVatIdentification),
-        )->willReturn(new ConstraintViolationList([new ConstraintViolation('invalid VAT', null, [], null, null, null)]));
-        $resolver = new IntraEuTaxResolver($this->vatIdPatternProvider, $validator);
-
-        static::assertFalse($resolver->isIntraCommunityDelivery($order));
-    }
-
-    public function testDisabledPatternChecksDoNotCallTheDocumentValidator(): void
+    public function testDocumentsIgnoreEmptyVatIdEntriesLikeTheCart(): void
     {
         $country = $this->country(self::FR_ID);
-        $country->setCheckVatIdPattern(false);
-        $order = $this->order($country, [self::FOREIGN_VAT]);
-        $validator = $this->createMock(ValidatorInterface::class);
-        $validator->expects($this->never())->method('validate');
-        $resolver = new IntraEuTaxResolver($this->vatIdPatternProvider, $validator);
+        $vatIds = ['', self::FOREIGN_VAT];
 
-        static::assertTrue($resolver->isIntraCommunityDelivery($order));
+        static::assertTrue($this->resolver->isExempt(CustomerEntity::ACCOUNT_TYPE_BUSINESS, $vatIds, $country, self::CHANNEL_ID));
+        static::assertTrue($this->resolver->isIntraCommunityDelivery($this->order($country, $vatIds)));
     }
 
     private function country(string $id): CountryEntity

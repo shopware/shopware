@@ -4,14 +4,11 @@ namespace Shopware\Core\Checkout\Cart\Tax;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -19,10 +16,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[Package('checkout')]
 class IntraEuTaxResolver
 {
-    public function __construct(
-        private readonly VatIdPatternProvider $vatIdPatternProvider,
-        private readonly ValidatorInterface $validator,
-    ) {
+    public function __construct(private readonly VatIdPatternProvider $vatIdPatternProvider)
+    {
     }
 
     /**
@@ -75,19 +70,7 @@ class IntraEuTaxResolver
             return false;
         }
 
-        $vatIds = $order->getOrderCustomer()?->getVatIds();
-        if (!$this->hasIntraCommunityVatId($vatIds, $country, $order->getSalesChannelId())) {
-            return false;
-        }
-
-        if (!$country->getCheckVatIdPattern()) {
-            return true;
-        }
-
-        return $this->validator->validate($vatIds, [
-            new NotBlank(),
-            new CustomerVatIdentification(countryId: $country->getId(), salesChannelId: $order->getSalesChannelId()),
-        ])->count() === 0;
+        return $this->hasIntraCommunityVatId($order->getOrderCustomer()?->getVatIds(), $country, $order->getSalesChannelId());
     }
 
     /**

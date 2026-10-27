@@ -377,7 +377,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(IntraEuTaxResolver::class)
         ->args([
             service(VatIdPatternProvider::class),
-            service('validator'),
         ]);
 
     $services->set(TaxDetector::class)

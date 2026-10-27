@@ -78,7 +78,7 @@ Independently of the setting:
 For extension developers:
 
 - `CustomerVatIdentification` accepts an optional `salesChannelId`. Given one, it also rejects a VAT ID of the shop's own member state.
-- Custom invoice renderers should call the new `AbstractDocumentRenderer::isDomesticSupply()` next to `isAllowIntraCommunityDelivery()`.
+- Custom invoice renderers using `AbstractDocumentRenderer::isAllowIntraCommunityDelivery()` should only print the note for tax-free orders (`order.price.taxStatus` is `tax-free`).
 - `TaxDetector` has a new constructor argument. Decorate `AbstractTaxDetector` instead of replacing the service.
 - Templates overriding the `document_recipient` block should read `customer.vatIds` instead of `customer.customer.vatIds`.
 - The Storefront form validation reads `data-form-validation-<rule>-message` before `data-form-validation-error-message`. Themes overriding `address-personal-vat-id.html.twig` should switch to `data-form-validation-pattern-message` and keep the new `data-eu-vat-id-patterns` attribute.

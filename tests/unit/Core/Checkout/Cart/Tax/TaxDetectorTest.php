@@ -26,7 +26,6 @@ use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -964,7 +963,6 @@ class TaxDetectorTest extends TestCase
 
         return new TaxDetector(new IntraEuTaxResolver(
             new VatIdPatternProvider($repository, $this->createSystemConfigService($countries, $sellerIso)),
-            static::createStub(ValidatorInterface::class),
         ));
     }
 
@@ -984,7 +982,6 @@ class TaxDetectorTest extends TestCase
 
         return new TaxDetector(new IntraEuTaxResolver(
             new VatIdPatternProvider($repository, $this->createSystemConfigService($countries, $sellerIso)),
-            static::createStub(ValidatorInterface::class),
         ));
     }
 
@@ -1002,7 +999,6 @@ class TaxDetectorTest extends TestCase
 
         return new TaxDetector(new IntraEuTaxResolver(
             new VatIdPatternProvider($repository, $systemConfigService),
-            static::createStub(ValidatorInterface::class),
         ));
     }
 

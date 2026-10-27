@@ -66,7 +66,7 @@ class TrustedUrlResolver implements ResetInterface
      */
     public function resolve(string $url): ResolvedUrl
     {
-        $scheme = parse_url($url, \PHP_URL_SCHEME);
+        $scheme = strtolower((string) parse_url($url, \PHP_URL_SCHEME));
         if (!\in_array($scheme, $this->allowedSchemes, true)) {
             throw MediaException::illegalUrl($url);
         }

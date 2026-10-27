@@ -26,6 +26,6 @@ class FileService
     {
         $fragments = explode(':', $url);
 
-        return \in_array($fragments[0], $this->allowedProtocols, true);
+        return \in_array(strtolower($fragments[0]), $this->allowedProtocols, true);
     }
 }

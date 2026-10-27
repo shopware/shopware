@@ -269,7 +269,8 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
             static::createStub(Connection::class),
-            new EventDispatcher()
+            new EventDispatcher(),
+            static::createStub(GaranLabelResolver::class),
         );
 
         $data = new CartDataCollection();

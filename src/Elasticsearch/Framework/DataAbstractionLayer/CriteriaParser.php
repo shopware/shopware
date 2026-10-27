@@ -1189,6 +1189,10 @@ class CriteriaParser
             return new CountSort($accessor, $sorting->getDirection());
         }
 
+        if ($field instanceof PriceField) {
+            return new FieldSort($accessor, $sorting->getDirection(), null, ['unmapped_type' => 'double']);
+        }
+
         return new FieldSort($accessor, $sorting->getDirection());
     }
 

@@ -170,6 +170,50 @@ class IndexMappingUpdaterTest extends TestCase
         $updater->update(Context::createDefaultContext());
     }
 
+    public function testUpdatePersistsReindexBeforeRethrowing(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper->method('getIndexName')->willReturn('index');
+        $elasticsearchHelper->method('allowIndexing')->willReturn(true);
+        $elasticsearchHelper
+            ->method('logAndThrowException')
+            ->willThrowException(ElasticsearchProductException::cannotChangeFieldType(new BadRequestHttpException('conflict')));
+
+        $definition = static::createStub(ElasticsearchProductDefinition::class);
+        $definition
+            ->method('getEntityDefinition')
+            ->willReturn(new ProductDefinition());
+
+        $indicesNamespace = static::createStub(IndicesNamespace::class);
+        $indicesNamespace
+            ->method('putMapping')
+            ->willThrowException(new BadRequestHttpException('mapper [price.c_b7d2554b0ce847cd82f3ac9bd1c0dfca.gross] cannot be changed from type [float] to [double]'));
+
+        $client = static::createStub(Client::class);
+        $client->method('indices')->willReturn($indicesNamespace);
+
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->method('get')->willReturn(['category']);
+        $storage->expects($this->once())
+            ->method('set')
+            ->with(
+                SystemUpdateListener::CONFIG_KEY,
+                ['category', 'product'],
+            );
+
+        $updater = new IndexMappingUpdater(
+            new ElasticsearchRegistry([$definition]),
+            $elasticsearchHelper,
+            $client,
+            static::createStub(IndexMappingProvider::class),
+            $storage,
+        );
+
+        $this->expectException(ElasticsearchProductException::class);
+
+        $updater->update(Context::createDefaultContext());
+    }
+
     public function testUpdateWithMissingIndexError(): void
     {
         $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);

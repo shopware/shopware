@@ -215,6 +215,16 @@ Shopware now verifies that `APP_URL` reaches this installation before it registe
 
 The verification stores its token in the `cache.app_url_verification` cache pool, which uses `cache.app` by default. With several app servers, this pool must be shared between them, for example on Redis.
 
+### Elasticsearch mapping update no longer fails on an indexed product price
+
+`system:update:finish` failed with `mapper [price.c_<currencyId>.gross] cannot be changed from type [float] to [double]` when a product was indexed between the deployment of 6.7.16.0 and the update.
+The product mapping no longer declares a type for each currency of `product.price`.
+A dynamic template maps a newly indexed price as `double`.
+A price that was already indexed keeps its `float` type until you run `bin/console es:index`.
+A sorting on `product.price` in a currency without any indexed price no longer fails.
+
+When a mapping update fails with a field type conflict, the entity is now scheduled for a reindex before the exception is thrown.
+
 # 6.7.16.0
 
 ## Critical Fixes

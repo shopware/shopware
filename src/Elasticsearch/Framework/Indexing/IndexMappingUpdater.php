@@ -58,37 +58,39 @@ class IndexMappingUpdater
             $entitiesToReindex = [];
         }
 
-        foreach ($this->registry->getDefinitions() as $definition) {
-            $entityDefinition = $definition->getEntityDefinition();
-            $indexName = $this->elasticsearchHelper->getIndexName($entityDefinition);
+        try {
+            foreach ($this->registry->getDefinitions() as $definition) {
+                $entityDefinition = $definition->getEntityDefinition();
+                $indexName = $this->elasticsearchHelper->getIndexName($entityDefinition);
 
-            try {
-                $this->client->indices()->putMapping([
-                    'index' => $indexName,
-                    'body' => $this->indexMappingProvider->build($definition, $context),
-                ]);
-            } catch (BadRequestHttpException $exception) {
-                $errorMessage = $exception->getMessage();
+                try {
+                    $this->client->indices()->putMapping([
+                        'index' => $indexName,
+                        'body' => $this->indexMappingProvider->build($definition, $context),
+                    ]);
+                } catch (BadRequestHttpException $exception) {
+                    $errorMessage = $exception->getMessage();
 
-                // These putMapping errors cannot be resolved on a live index, so the entity is
-                // scheduled for a reindex into a freshly created index.
-                foreach (self::REINDEXABLE_MAPPING_ERRORS as $needle) {
-                    if (str_contains($errorMessage, $needle)) {
-                        $entitiesToReindex[] = $entityDefinition->getEntityName();
-                        $exception = ElasticsearchProductException::cannotChangeFieldType($exception);
+                    // These putMapping errors cannot be resolved on a live index, so the entity is
+                    // scheduled for a reindex into a freshly created index.
+                    foreach (self::REINDEXABLE_MAPPING_ERRORS as $needle) {
+                        if (str_contains($errorMessage, $needle)) {
+                            $entitiesToReindex[] = $entityDefinition->getEntityName();
+                            $exception = ElasticsearchProductException::cannotChangeFieldType($exception);
 
-                        break;
+                            break;
+                        }
                     }
+
+                    $this->elasticsearchHelper->logAndThrowException($exception);
+                } catch (NotFoundHttpException $exception) {
+                    $this->elasticsearchHelper->logAndThrowException($exception);
                 }
-
-                $this->elasticsearchHelper->logAndThrowException($exception);
-            } catch (NotFoundHttpException $exception) {
-                $this->elasticsearchHelper->logAndThrowException($exception);
             }
-        }
-
-        if ($entitiesToReindex !== []) {
-            $this->storage->set(SystemUpdateListener::CONFIG_KEY, \array_values(\array_unique($entitiesToReindex)));
+        } finally {
+            if ($entitiesToReindex !== []) {
+                $this->storage->set(SystemUpdateListener::CONFIG_KEY, \array_values(\array_unique($entitiesToReindex)));
+            }
         }
     }
 }

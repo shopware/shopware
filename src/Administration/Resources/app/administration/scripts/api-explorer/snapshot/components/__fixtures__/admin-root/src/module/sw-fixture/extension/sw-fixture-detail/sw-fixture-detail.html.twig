@@ -1,0 +1,13 @@
+{% block sw_fixture_detail_header %}
+    {% parent %}
+
+    {% block sw_fixture_detail_header_extension %}
+        <span>Extension</span>
+    {% endblock %}
+{% endblock %}
+
+{% block sw_fixture_detail_removed %}
+    {% block sw_fixture_detail_removed_child %}
+        <span>Never rendered</span>
+    {% endblock %}
+{% endblock %}

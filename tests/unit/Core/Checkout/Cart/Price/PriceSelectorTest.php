@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -197,20 +196,6 @@ class PriceSelectorTest extends TestCase
         );
 
         static::assertSame(11.99, $selected->getValue());
-    }
-
-    public function testSelectingWithoutListenersPublishesNothing(): void
-    {
-        $dispatcher = new CollectingEventDispatcher();
-
-        $selected = $this->createSelector($dispatcher)->select(
-            new Price(Defaults::CURRENCY, 10.0, 11.9, false),
-            new TaxRuleCollection([new TaxRule(19)]),
-            $this->createContext(CustomerGroupEntity::PRICE_BASIS_GROSS, CartPrice::TAX_STATE_GROSS)
-        );
-
-        static::assertSame(11.9, $selected->getValue());
-        static::assertSame([], $dispatcher->getEvents());
     }
 
     private function select(Price $price, TaxRuleCollection $taxRules, ?string $basis, string $taxState): SelectedPrice

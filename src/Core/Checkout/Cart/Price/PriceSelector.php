@@ -31,10 +31,6 @@ final class PriceSelector
      */
     public function select(Price $price, TaxRuleCollection $taxRules, SalesChannelContext $context): SelectedPrice
     {
-        if (!$this->extensions->hasListeners(PriceSelectorExtension::NAME)) {
-            return $this->_select($price, $taxRules, $context);
-        }
-
         return $this->extensions->publish(
             name: PriceSelectorExtension::NAME,
             extension: new PriceSelectorExtension($price, $taxRules, $context),

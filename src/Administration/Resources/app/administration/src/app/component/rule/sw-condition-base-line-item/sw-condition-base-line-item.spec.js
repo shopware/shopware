@@ -167,6 +167,35 @@ describe('components/rule/sw-condition-base-line-item', () => {
         expect(wrapper.find(MATCHES_ALL_SELECTOR).exists()).toBe(true);
     });
 
+    it('shows the match-all toggle for cartLineItemCustomField (bespoke component without a generic config)', async () => {
+        setConfig(null);
+
+        const wrapper = await createWrapper({
+            ...conditionFixture,
+            type: 'cartLineItemCustomField',
+            value: { operator: '=', renderedField: {}, selectedField: null, selectedFieldSet: null },
+        });
+        await flushPromises();
+
+        expect(wrapper.find(MATCHES_ALL_SELECTOR).exists()).toBe(true);
+    });
+
+    it('hides the match-all toggle for cartLineItemCustomField outside of the cart scope', async () => {
+        setConfig(null);
+
+        const wrapper = await createWrapper(
+            {
+                ...conditionFixture,
+                type: 'cartLineItemCustomField',
+                value: { operator: '=', renderedField: {}, selectedField: null, selectedFieldSet: null },
+            },
+            { ...defaultProvides, conditionScopes: ['customer'] },
+        );
+        await flushPromises();
+
+        expect(wrapper.find(MATCHES_ALL_SELECTOR).exists()).toBe(false);
+    });
+
     it('hides the match-all toggle for cartLineItemWithQuantity (single product, not match-all capable)', async () => {
         setConfig(null);
 

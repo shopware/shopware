@@ -40,5 +40,13 @@
             <tag name="mcp.tool"/>
             <tag name="shopware.store_api_mcp.tool"/>
         </service>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\StoreApiToolWithAnonymousPrivilegeHelper" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\StoreApiToolWithAnonymousPrivilegeHelper">
+            <tag name="mcp.tool"/>
+            <tag name="shopware.store_api_mcp.tool"/>
+        </service>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\StoreApiToolCallingRequirePrivilegeInClosure" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpStoreApiToolAdminAclRule\StoreApiToolCallingRequirePrivilegeInClosure">
+            <tag name="mcp.tool"/>
+            <tag name="shopware.store_api_mcp.tool"/>
+        </service>
     </services>
 </container>

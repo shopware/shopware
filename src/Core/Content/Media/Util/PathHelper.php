@@ -12,6 +12,8 @@ class PathHelper
 
     private const REGEX_NON_ASCII_AND_CONTROL_BYTE_RANGES = '/[\x00-\x1F\x7F-\xFF]/';
 
+    private const REGEX_URL_CREDENTIALS = '#^([a-z][a-z0-9+.\-]*://)[^/?\#]*@#i';
+
     public static function stripControlAndFormatChars(string $path, string $replace = ''): string
     {
         $stripped = preg_replace(self::REGEX_CONTROL_AND_INVISIBLE_FORMAT_CHARACTERS, $replace, $path);
@@ -32,5 +34,10 @@ class PathHelper
         }
 
         return $stripped;
+    }
+
+    public static function stripCredentials(string $url): string
+    {
+        return (string) preg_replace(self::REGEX_URL_CREDENTIALS, '$1', $url);
     }
 }

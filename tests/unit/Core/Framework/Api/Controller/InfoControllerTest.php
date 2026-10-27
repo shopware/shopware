@@ -14,10 +14,14 @@ use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Url\AppUrlVerifier;
+use Shopware\Core\Framework\App\Url\VerificationState;
+use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Feature;
@@ -30,7 +34,6 @@ use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
-use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -54,6 +57,8 @@ class InfoControllerTest extends TestCase
 
     private MigrationInfo&Stub $migrationInfo;
 
+    private AppUrlVerifier&Stub $appUrlVerifier;
+
     private EventDispatcher $eventDispatcher;
 
     protected function setUp(): void
@@ -62,6 +67,7 @@ class InfoControllerTest extends TestCase
         $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
         $this->statsService = static::createStub(StatsService::class);
         $this->migrationInfo = static::createStub(MigrationInfo::class);
+        $this->appUrlVerifier = static::createStub(AppUrlVerifier::class);
         $this->eventDispatcher = new EventDispatcher();
 
         $shopId = ShopId::v2('shop-id');
@@ -274,6 +280,42 @@ class InfoControllerTest extends TestCase
         static::assertSame('2020-01-01T00:00:00.123+00:00', $data['settings']['firstMigrationDate']);
     }
 
+    public function testConfigReportsTheStatusCodeOfAFailedAppUrlCheck(): void
+    {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
+        $this->appUrlVerifier->method('verifyForAdministration')->willReturn(false);
+        $this->appUrlVerifier->method('getCurrentState')->willReturn(
+            new VerificationState('https://app.url', VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'blocked', 403),
+        );
+
+        $content = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['settings']['appUrlReachable']);
+        static::assertSame(403, $data['settings']['appUrlStatusCode']);
+    }
+
+    public function testConfigReportsNoStatusCodeWhenTheAppUrlCheckPassed(): void
+    {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
+        $this->appUrlVerifier->method('verifyForAdministration')->willReturn(true);
+        $this->appUrlVerifier->method('getCurrentState')->willReturn(
+            new VerificationState('https://app.url', VerificationStatus::PASS, 1, new \DateTimeImmutable(), info: null, statusCode: 204),
+        );
+
+        $content = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($data['settings']['appUrlReachable']);
+        static::assertNull($data['settings']['appUrlStatusCode']);
+    }
+
     public function testConfigReturnsHideUpdateModuleWhenEnabled(): void
     {
         $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
@@ -354,7 +396,8 @@ class InfoControllerTest extends TestCase
             static::createStub(BusinessEventCollector::class),
             static::createStub(IncrementGatewayRegistry::class),
             $this->migrationInfo,
-            static::createStub(AppUrlVerifier::class),
+            $this->appUrlVerifier,
+            static::createStub(ActiveAppsLoader::class),
             static::createStub(FlowActionCollector::class),
             new StaticSystemConfigService(),
             static::createStub(ApiRouteInfoResolver::class),

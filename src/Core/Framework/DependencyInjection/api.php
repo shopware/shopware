@@ -82,7 +82,9 @@ use Shopware\Core\Framework\Api\Serializer\JsonApiDecoder;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Api\Sync\SyncService;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
@@ -104,7 +106,6 @@ use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\SystemCheck\SystemChecker;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\HappyPathValidator;
-use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -327,6 +328,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.increment.gateway.registry'),
             service(MigrationInfo::class),
             service(AppUrlVerifier::class),
+            service(ActiveAppsLoader::class),
             service(FlowActionCollector::class),
             service(SystemConfigService::class),
             service(ApiRouteInfoResolver::class),

@@ -98,6 +98,7 @@ class EntityReadTool extends McpToolResponse { ... }
 - The attribute is **repeatable** — add multiple `#[McpToolRequires]` lines when a tool needs more than one privilege.
 - Use `entityParam` + `operations` for entity tools where the privilege depends on the `$entity` parameter passed at runtime. The Admin UI renders this as `<entity>:read` with a tooltip.
 - Still call `$this->requirePrivilege($context, 'system_config:read')` (or the equivalent) inside `__invoke()` for actual runtime enforcement.
+- A tool that reads no shop data declares `#[McpToolRequiresNoPrivilege(reason: '...')]` instead; it grants nothing at runtime. PHPStan (`shopware.mcpAdminToolMissingRequires`) requires exactly one of the two attributes on every Admin API tool, see `../AGENTS.md`.
 
 ### Current privilege declarations (core tools)
 
@@ -113,6 +114,10 @@ class EntityReadTool extends McpToolResponse { ... }
 | `shopware-entity-upsert` | `<entity>:create`, `<entity>:update` (dynamic) |
 | `shopware-entity-delete` | `<entity>:delete` (dynamic) |
 | `shopware-theme-config` (Storefront) | `theme:read`, `theme:update` |
+| `shopware-entity-schema` | none, `#[McpToolRequiresNoPrivilege]` (reads entity definitions only) |
+| `shopware-tool-search` | none, `#[McpToolRequiresNoPrivilege]` (discovery meta-tool) |
+| `shopware-toolsets-list` | none, `#[McpToolRequiresNoPrivilege]` (discovery meta-tool) |
+| `shopware-toolset-enable` | none, `#[McpToolRequiresNoPrivilege]` (discovery meta-tool) |
 
 ## Response format convention
 All tools must extend the `McpToolResponse` abstract class. It provides two helpers:
@@ -245,7 +250,7 @@ Tools extending `McpToolResponse` benefit from built-in error handling:
 1. Create a class in this directory
 2. Add `#[McpTool(name: 'shopware-{tool-name}', description: '...')]` on the class
 3. If the tool only works after using another tool first, add `#[McpToolDependsOn('other-tool-name')]` (repeatable)
-4. If the tool requires specific ACL privileges, add `#[McpToolRequires('privilege:operation')]` (repeatable); for entity tools use `#[McpToolRequires(entityParam: 'entity', operations: ['read'])]`. Still call `$this->requirePrivilege()` inside `__invoke()` for actual runtime enforcement.
+4. If the tool requires specific ACL privileges, add `#[McpToolRequires('privilege:operation')]` (repeatable); for entity tools use `#[McpToolRequires(entityParam: 'entity', operations: ['read'])]`. Still call `$this->requirePrivilege()` inside `__invoke()` for actual runtime enforcement. If it needs no privilege, add `#[McpToolRequiresNoPrivilege(reason: '...')]` instead.
 5. Extend `McpToolResponse` and return via `$this->success()` / `$this->error()`
 6. For entity tools: validate with `$this->registry->has($entity)` before ACL checks
 7. Register in `src/Core/Framework/DependencyInjection/mcp.php` with the `mcp.tool` tag

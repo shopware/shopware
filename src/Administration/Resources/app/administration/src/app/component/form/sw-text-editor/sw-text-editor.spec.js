@@ -987,6 +987,28 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.vm.getContentValue()).toBe('<span id="anchor">test</span>');
     });
 
+    it('should insert pasted content via execCommand so it is part of the native undo history', async () => {
+        wrapper = await createWrapper();
+
+        await addTextToEditor(wrapper, '<span id="anchor">ware</span>');
+
+        const textNode = document.getElementById('anchor');
+        await addAndCheckSelection(wrapper, textNode, 0, 4, 'ware');
+
+        const execCommandSpy = jest.spyOn(document, 'execCommand');
+        const getData = (type) => (type === 'text/html' ? '<b>test</b>' : 'test');
+
+        wrapper.vm.keyListener({ shiftKey: false });
+        await wrapper.get('.sw-text-editor__content-editor').trigger('paste', { clipboardData: { getData } });
+        expect(execCommandSpy).toHaveBeenCalledWith('insertHTML', false, '<b>test</b>');
+
+        wrapper.vm.keyListener({ shiftKey: true });
+        await wrapper.get('.sw-text-editor__content-editor').trigger('paste', { clipboardData: { getData } });
+        expect(execCommandSpy).toHaveBeenCalledWith('insertText', false, 'test');
+
+        execCommandSpy.mockRestore();
+    });
+
     it('should not render transparent background', async () => {
         wrapper = await createWrapper(false);
 

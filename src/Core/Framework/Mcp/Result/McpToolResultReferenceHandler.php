@@ -62,13 +62,12 @@ class McpToolResultReferenceHandler implements ReferenceHandlerInterface
         if (\is_string($result) && ($parsed = $this->parser->parse($result)) !== null) {
             if ($this->isClassTool($reference)) {
                 Feature::triggerDeprecationOrThrow(
-                    'v6.9.0.0',
+                    'v6.8.0.0',
                     \sprintf(
-                        'MCP tool "%s" returned the legacy {"success": …} JSON string, which is deprecated and will be removed in v6.9.0.0. Return a "%s" instead.',
+                        'MCP tool "%s" returned the legacy {"success": …} JSON string, which is deprecated and will be removed in v6.8.0.0. Return a "%s" instead.',
                         $reference->tool->name,
                         McpToolResult::class,
                     ),
-                    silentUntil: 'v6.8.0.0',
                 );
             }
 

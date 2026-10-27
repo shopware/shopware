@@ -137,9 +137,10 @@ What clients receive is unchanged on every protocol revision.
 The other helpers have a counterpart as well: `requirePrivilegeResult()`, `missingPrivilegesResult()`, `invalidCriteriaResult()`, `decodeJsonOrErrorResult()` and `executeWithDryRunResult()`.
 
 Returning the legacy string from a plugin or bundle tool, built with `success()`, `error()` and the other string helpers or by hand, is deprecated.
-It keeps working in 6.8, including for tools that declare `__invoke(): string`, but it can't carry a summary or error details.
-The string helpers are tagged `@deprecated tag:v6.9.0`.
-Once `v6.8.0.0` is active, each of them and each PHP tool that returns the string report a deprecation notice; nothing throws in 6.8.
+It keeps working in 6.7, including for tools that declare `__invoke(): string`, but it can't carry a summary or error details.
+The string helpers `success()`, `error()`, `requirePrivilege()`, `missingPrivilegesError()`, `invalidCriteriaError()`, `decodeJsonOrError()` and `executeWithDryRun()` are marked `@deprecated tag:v6.8.0`.
+They trigger a deprecation when called and throw once the `v6.8.0.0` feature flag is active, so run your tests with the flag to find the calls that are left.
+A PHP tool that returns the string, built by hand or with the helpers, triggers the same deprecation.
 Switch a tool by declaring `__invoke(): McpToolResult` and using the `…Result` helpers:
 
 ```php

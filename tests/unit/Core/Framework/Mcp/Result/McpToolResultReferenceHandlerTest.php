@@ -22,6 +22,7 @@ use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Feature\Triggerer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Result\McpToolResult;
@@ -152,19 +153,32 @@ class McpToolResultReferenceHandlerTest extends TestCase
         static::assertSame(['tool' => 'app-tool', 'arguments' => ['entity' => 'product']], $result->meta['shopware/query'] ?? null);
     }
 
-    #[TestDox('A PHP tool returning the legacy string reports a deprecation once v6.8.0.0 is active, and is still rendered')]
+    #[TestDox('A PHP tool returning the legacy string reports a deprecation, and is still rendered')]
     public function testReportsTheLegacyStringOfAPhpTool(): void
     {
-        $this->setEnvVars(['TESTS_RUNNING' => false, 'V6_8_0_0' => true]);
+        $this->setEnvVars(['TESTS_RUNNING' => false, 'V6_8_0_0' => false]);
         $triggerer = $this->createMock(Triggerer::class);
         $triggerer->expects($this->once())->method('deprecation')
-            ->with('', '', \sprintf('MCP tool "t" returned the legacy {"success": …} JSON string, which is deprecated and will be removed in v6.9.0.0. Return a "%s" instead.', McpToolResult::class));
+            ->with('', '', \sprintf('MCP tool "t" returned the legacy {"success": …} JSON string, which is deprecated and will be removed in v6.8.0.0. Return a "%s" instead.', McpToolResult::class));
         Feature::$triggerer = $triggerer;
 
         $result = $this->handler('{"success":true,"data":{"id":"a"}}')->handle($this->classToolReference(), []);
 
         static::assertInstanceOf(CallToolResult::class, $result);
         static::assertSame('{"id":"a"}', Json::encode($result->structuredContent));
+    }
+
+    #[TestDox('A PHP tool returning the legacy string throws once v6.8.0.0 is active')]
+    public function testThrowsForTheLegacyStringOfAPhpToolWithTheMajorFlag(): void
+    {
+        $this->setEnvVars(['V6_8_0_0' => true]);
+
+        $this->expectExceptionObject(FeatureException::error(\sprintf(
+            'Tried to access deprecated functionality: MCP tool "t" returned the legacy {"success": …} JSON string, which is deprecated and will be removed in v6.8.0.0. Return a "%s" instead.',
+            McpToolResult::class,
+        )));
+
+        $this->handler('{"success":true,"data":{"id":"a"}}')->handle($this->classToolReference(), []);
     }
 
     /**
@@ -181,7 +195,7 @@ class McpToolResultReferenceHandlerTest extends TestCase
     #[TestDox('No deprecation for the $_dataName')]
     public function testDoesNotReport(mixed $innerResult, bool $classTool): void
     {
-        $this->setEnvVars(['TESTS_RUNNING' => false, 'V6_8_0_0' => true]);
+        $this->setEnvVars(['TESTS_RUNNING' => false, 'V6_8_0_0' => false]);
         $triggerer = $this->createMock(Triggerer::class);
         $triggerer->expects($this->never())->method('deprecation');
         Feature::$triggerer = $triggerer;

@@ -512,6 +512,7 @@
       "tabOptions": "Options",
       "tabCredit": "Credit",
       "buttonPreviewOrder": "Preview order",
+      "messageCancelCartError": "The cart could not be discarded.",
       "customerGrid": {
         "buttonAddNewCustomer": "Add new customer",
         "placeholderSearchCustomer": "Enter the customer name...",

@@ -136,14 +136,14 @@ async function createWrapper(
 describe('src/module/sw-settings-number-range/page/sw-settings-number-range-create', () => {
     it('should be has number range', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.hasProductNumberRange).toBeTruthy();
     });
 
     it('should be not able to filter global number range1', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({
             hasProductNumberRange: true,

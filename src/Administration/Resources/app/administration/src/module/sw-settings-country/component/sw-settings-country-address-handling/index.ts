@@ -61,6 +61,8 @@ export default Component.wrapComponentConfig({
 
     inject: ['acl', 'customSnippetApiService'],
 
+    emits: ['update:country'],
+
     props: {
         country: {
             type: Object as PropType<Entity<'country'>>,

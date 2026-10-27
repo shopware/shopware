@@ -111,7 +111,7 @@ describe('components/utils/sw-duplicated-media-v2', () => {
         await wrapper.setData({ failedUploadTasks: [uploadTaskMock] });
 
         await wrapper.vm.solveDuplicate();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const expectedTask = { ...uploadTaskMock, ...{ targetId: 'foo' } };
 

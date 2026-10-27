@@ -4,6 +4,7 @@
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { VueWrapper } from '@vue/test-utils';
+import type { DeprecationLog } from '../_helper_/deprecations';
 
 declare global {
     var activeFeatureFlags: string[];
@@ -37,6 +38,15 @@ declare global {
 
             /** Activate the given feature flags for the duration of this test. */
             activeFeatureFlags(featureFlags: readonly string[]): FeatureFlagTest;
+        }
+
+        interface Matchers<R, T> {
+            /**
+             * Asserts that the current test ran into a deprecation matching `expected` (a string matches part of
+             * the message, like `toThrow`). It must match exactly one deprecation, which the test may have recorded
+             * several times. Only for `deprecations` from `test/_helper_/deprecations`.
+             */
+            toHaveTriggered(expected: T extends DeprecationLog ? string | RegExp : never): R;
         }
     }
 }

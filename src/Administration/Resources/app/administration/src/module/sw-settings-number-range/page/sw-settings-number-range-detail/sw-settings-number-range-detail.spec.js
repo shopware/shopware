@@ -202,7 +202,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
             isLoading: false,
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const saveButton = wrapper.findComponent('.sw-settings-number-range-detail__save-action');
 

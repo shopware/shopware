@@ -383,7 +383,7 @@ class DocumentV2ControllerTest extends TestCase
 
         $source = new AdminApiSource(Uuid::randomHex());
         $source->setIsAdmin(false);
-        $source->setPermissions(['document:create']);
+        $source->setPermissions(['document:create', 'media:read']);
 
         static::expectExceptionObject(DocumentV2Exception::documentMediaNotAllowed('found-media'));
 
@@ -442,7 +442,7 @@ class DocumentV2ControllerTest extends TestCase
 
         $source = new AdminApiSource(Uuid::randomHex());
         $source->setIsAdmin(false);
-        $source->setPermissions(['document:create']);
+        $source->setPermissions(['document:create', 'media:read']);
 
         static::expectExceptionObject(DocumentV2Exception::mediaNotFound($mediaId));
 
@@ -514,6 +514,52 @@ class DocumentV2ControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode());
         static::assertSame($sentinelId, $this->documentRepository->creates[0][0]['documentTypeId']);
+    }
+
+    public function testUploadRequiresMediaReadWhenExistingMediaIdIsProvided(): void
+    {
+        $orderId = Uuid::randomHex();
+        $orderVersionId = Uuid::randomHex();
+
+        $rendererRegistry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::PDF),
+        ]);
+
+        $controller = new DocumentV2Controller(
+            $this->createGenerator($rendererRegistry, $orderId),
+            $this->createDocumentReader($rendererRegistry),
+            $this->createTypeRegistry(),
+            $this->createArchiveGenerator(static::createStub(MediaService::class)),
+            $this->documentRepository,
+            $this->createDocumentPersister(),
+            static::createStub(MediaService::class),
+            static::createStub(FileNameProvider::class),
+            $this->mediaRepository,
+            $this->createDocumentMediaGuard(),
+            new StaticEntityRepository([]),
+        );
+
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setPermissions(['document:create']);
+
+        static::expectExceptionObject(DocumentV2Exception::missingPrivileges(['media:read']));
+
+        $controller->upload(
+            Request::create(
+                '/api/_action/order/document-v2/upload',
+                Request::METHOD_POST,
+                server: ['CONTENT_TYPE' => 'application/json'],
+                content: json_encode([
+                    'documentNumber' => '1000',
+                    'documentType' => DocumentType::INVOICE->value,
+                    'format' => DocumentFormat::PDF->value,
+                    'mediaId' => Uuid::randomHex(),
+                    'orderId' => $orderId,
+                    'orderVersionId' => $orderVersionId,
+                ], \JSON_THROW_ON_ERROR),
+            ),
+            Context::createDefaultContext($source),
+        );
     }
 
     public function testUploadRejectsUnsupportedFormat(): void

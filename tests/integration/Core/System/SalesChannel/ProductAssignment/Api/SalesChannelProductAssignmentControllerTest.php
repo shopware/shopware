@@ -90,8 +90,8 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
 
         $detail = $this->decodeResponse($this->getBrowser())['errors'][0]['detail'];
         static::assertIsString($detail);
-        static::assertStringContainsString('productIds[0]: ', $detail);
-        static::assertStringContainsString('visibility: ', $detail);
+        static::assertStringContainsString('"not-a-uuid" is not a valid uuid', $detail);
+        static::assertStringContainsString('not a valid choice', $detail);
         static::assertSame(['STREAM-already-visible', 'already-visible'], array_keys($this->visibilitiesOfSalesChannel()));
     }
 
@@ -108,7 +108,10 @@ class SalesChannelProductAssignmentControllerTest extends TestCase
 
         $detail = $this->decodeResponse($this->getBrowser())['errors'][0]['detail'];
         static::assertIsString($detail);
-        static::assertStringStartsWith('productStreamIds: ', $detail);
+        static::assertSame(
+            \sprintf('This collection should contain %d elements or less.', SalesChannelProductAssignmentRequest::MAX_PRODUCT_STREAM_IDS),
+            $detail,
+        );
         static::assertSame(['STREAM-already-visible', 'already-visible'], array_keys($this->visibilitiesOfSalesChannel()));
     }
 

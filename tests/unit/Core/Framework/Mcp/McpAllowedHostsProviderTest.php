@@ -86,6 +86,14 @@ class McpAllowedHostsProviderTest extends TestCase
         yield 'a loopback origin for a loopback request' => ['http://127.0.0.1:6274', 'localhost:8000', [], true];
         yield 'an IPv6 loopback origin for a .localhost request' => ['http://[::1]:6274', 'trunk.localhost:8088', [], true];
         yield 'a loopback origin for a public request' => ['http://localhost:6274', 'shop.example', [], false];
+        yield 'another 127.0.0.0/8 origin for a loopback request' => ['http://127.1.2.3:6274', 'localhost:8000', [], true];
+        yield 'a loopback origin for a 127.0.0.0/8 request' => ['http://localhost:6274', '127.0.0.1:8000', [], true];
+        yield 'a hostname starting with 127. for a loopback request' => ['http://127.attacker.example', 'localhost:8000', [], false];
+        yield 'a hostname starting with 127.0.0.1. for a loopback request' => ['http://127.0.0.1.attacker.example', 'localhost:8000', [], false];
+        yield 'a loopback origin for a request host starting with 127.' => ['http://localhost:6274', '127.attacker.example', [], false];
+        yield 'a non-loopback IPv4 origin for a loopback request' => ['http://128.0.0.1', 'localhost:8000', [], false];
+        yield 'an IPv6 origin other than ::1 for a loopback request' => ['http://[::2]:6274', 'localhost:8000', [], false];
+        yield 'a loopback origin for an IPv6 loopback request' => ['http://localhost:6274', '[::1]:8000', [], true];
         yield 'a configured origin, case and trailing slash ignored' => ['https://Chat.Example/', 'shop.example', ['https://chat.example'], true];
         yield 'a configured origin on another port' => ['https://chat.example:8443', 'shop.example', ['https://chat.example'], false];
         yield 'a configured origin with any port' => ['http://localhost:6274', 'shop.example', ['http://localhost:*'], true];

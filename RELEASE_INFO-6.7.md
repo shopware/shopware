@@ -60,6 +60,13 @@ Sessions opened before the update have no owner and are answered with `404` once
 MCP clients start a new session on `404`, so no action is needed.
 The stateless protocol era and `/store-api/_mcp` are not affected.
 
+### The `/api/_mcp` rate limit counts per user or integration
+
+The `mcp_admin_api` rate limit now counts the requests of a user or integration, no longer of a single access token.
+A new or refreshed access token continues in the same bucket, and all MCP clients of one user share it.
+Clients that requested a new token to get a fresh limit are throttled sooner.
+Requests without a known user or integration are still counted per client IP.
+
 ### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
 
 The new `bin/console sales-channel:file:enable [ids...] [--all]` command switches on `llms.txt` and `AGENTS.md` for Storefront and Headless sales channels.

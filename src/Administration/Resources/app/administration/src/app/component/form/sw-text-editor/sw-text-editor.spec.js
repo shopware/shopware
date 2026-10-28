@@ -89,7 +89,7 @@ async function addAndCheckSelection(wrapper, element, start, end, text) {
 
     // add mouseup event to get selection
     document.dispatchEvent(new Event('mouseup'));
-    await wrapper.vm.$nextTick();
+    await flushPromises();
 
     // check if selection was set
     expect(wrapper.vm.selection).toBe(selection);
@@ -100,7 +100,7 @@ async function clearSelection(wrapper) {
     selection.removeAllRanges();
     document.dispatchEvent(new Event('mouseup'));
     wrapper.vm.selection = null;
-    await wrapper.vm.$nextTick();
+    await flushPromises();
 }
 
 describe('src/app/component/form/sw-text-editor', () => {
@@ -187,7 +187,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         // switch to code editor mode
         await wrapper.find('.mt-icon.icon--regular-code-xs').trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(wrapper.vm.isCodeEdit).toBe(true);
 
         // The placeholder should disappear, but the flag is still set
@@ -196,13 +196,13 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         // input something and expect the placeholderVisible flag to be unset
         wrapper.findComponent('#sw-code-editor').vm.$emit('blur', 'something');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(wrapper.vm.placeholderVisible).toBe(false);
 
         // switch to text editor mode and make sure that the placeholder is not displayed
         await wrapper.find('.mt-icon.icon--regular-code-xs').trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(wrapper.vm.isCodeEdit).toBe(false);
         expect(wrapper.find('.sw-text-editor__content-placeholder').exists()).toBe(false);
     });
@@ -233,7 +233,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         // insert link
         await buttonLink.find('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const expectedValue =
             '<p id="fooBarTest">Go to <a target="_blank" href="https://www.foo-bar.com" rel="noopener">foo-bar</a></p>';
@@ -293,7 +293,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
             // generate link
             wrapper.vm.onSetLink(link.value, link.target, displayAsButton, buttonVariant);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             // check if link was inserted correctly into content editor
             expect(contentEditor.element.innerHTML).toEqual(expectedValue);
@@ -740,7 +740,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         // click on link button
         linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
         await linkButtonIcon.trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // link menu should be opened
         linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
@@ -955,6 +955,28 @@ describe('src/app/component/form/sw-text-editor', () => {
         await wrapper.get('.sw-text-editor__content-editor').trigger('paste', { clipboardData: { getData } });
         expect(getData.mock.calls).toEqual([['text/plain'], ['text/html']]);
         expect(wrapper.vm.getContentValue()).toBe('<span id="anchor">test</span>');
+    });
+
+    it('should insert pasted content via execCommand so it is part of the native undo history', async () => {
+        wrapper = await createWrapper();
+
+        await addTextToEditor(wrapper, '<span id="anchor">ware</span>');
+
+        const textNode = document.getElementById('anchor');
+        await addAndCheckSelection(wrapper, textNode, 0, 4, 'ware');
+
+        const execCommandSpy = jest.spyOn(document, 'execCommand');
+        const getData = (type) => (type === 'text/html' ? '<b>test</b>' : 'test');
+
+        wrapper.vm.keyListener({ shiftKey: false });
+        await wrapper.get('.sw-text-editor__content-editor').trigger('paste', { clipboardData: { getData } });
+        expect(execCommandSpy).toHaveBeenCalledWith('insertHTML', false, '<b>test</b>');
+
+        wrapper.vm.keyListener({ shiftKey: true });
+        await wrapper.get('.sw-text-editor__content-editor').trigger('paste', { clipboardData: { getData } });
+        expect(execCommandSpy).toHaveBeenCalledWith('insertText', false, 'test');
+
+        execCommandSpy.mockRestore();
     });
 
     it('should not render transparent background', async () => {

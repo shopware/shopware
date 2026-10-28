@@ -291,7 +291,7 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         wrapper = await createWrapper();
 
         wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'billingAddress');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('billingAddress');
         expect(wrapper.find('sw-customer-base-form-stub').exists()).toBe(false);
@@ -321,7 +321,7 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
             }),
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.getComponent({ name: 'mt-tabs' }).props('items')).toEqual([
             {
@@ -342,7 +342,7 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         ]);
 
         wrapper.vm.customer.defaultShippingAddressId = 'different-shipping-address-id';
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.getComponent({ name: 'mt-tabs' }).props('items')[2]).toEqual({
             label: 'sw-order.createBase.detailsBody.labelShippingAddress',

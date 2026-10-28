@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ResetOnClone;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -269,8 +270,13 @@ class VersionManager
 
         $keepIds = $newId === $id;
 
-        $data = $this->filterPropertiesForClone($definition, $data, $keepIds, $id, $definition, $context->getContext());
+        $clonedIds = [];
+        $data = $this->filterPropertiesForClone($definition, $data, $keepIds, $id, $definition, $context->getContext(), $clonedIds);
         $data['id'] = $newId;
+
+        if ($clonedIds !== []) {
+            $data = $this->remapForeignKeys($definition, $data, $clonedIds);
+        }
 
         $createdAtField = $definition->getField('createdAt');
         $updatedAtField = $definition->getField('updatedAt');
@@ -345,10 +351,11 @@ class VersionManager
 
     /**
      * @param array<string, array<string, mixed|null>|null> $data
+     * @param array<string, array<string, string>> $clonedIds the new id of every cloned nested row, by entity name and source id
      *
      * @return array<string, array<string, mixed|null>|string|null>
      */
-    private function filterPropertiesForClone(EntityDefinition $definition, array $data, bool $keepIds, string $cloneId, EntityDefinition $cloneDefinition, Context $context): array
+    private function filterPropertiesForClone(EntityDefinition $definition, array $data, bool $keepIds, string $cloneId, EntityDefinition $cloneDefinition, Context $context, array &$clonedIds): array
     {
         $extensions = [];
         $payload = [];
@@ -441,10 +448,10 @@ class VersionManager
 
                 $nested = [];
                 foreach ($value as $item) {
-                    $nestedItem = $this->filterPropertiesForClone($reference, $item, $keepIds, $cloneId, $cloneDefinition, $context);
+                    $nestedItem = $this->filterPropertiesForClone($reference, $item, $keepIds, $cloneId, $cloneDefinition, $context, $clonedIds);
 
                     if (!$keepIds) {
-                        $nestedItem = $this->removePrimaryKey($field, $nestedItem);
+                        $nestedItem = $this->replacePrimaryKey($field, $nestedItem, $clonedIds);
                     }
 
                     $nested[] = $nestedItem;
@@ -479,10 +486,10 @@ class VersionManager
             if ($field instanceof OneToOneAssociationField && $value) {
                 $reference = $field->getReferenceDefinition();
 
-                $nestedItem = $this->filterPropertiesForClone($reference, $value, $keepIds, $cloneId, $cloneDefinition, $context);
+                $nestedItem = $this->filterPropertiesForClone($reference, $value, $keepIds, $cloneId, $cloneDefinition, $context, $clonedIds);
 
                 if (!$keepIds) {
-                    $nestedItem = $this->removePrimaryKey($field, $nestedItem);
+                    $nestedItem = $this->replacePrimaryKey($field, $nestedItem, $clonedIds);
                 }
 
                 $payloadCursor[$field->getPropertyName()] = $nestedItem;
@@ -644,11 +651,20 @@ class VersionManager
      *
      * @return array<string, array<string, mixed>|string|null>
      */
-    private function removePrimaryKey(AssociationField $field, array $nestedItem): array
+    /**
+     * Gives a cloned nested row a new id and records it, so references to the row can be rewritten once the whole
+     * payload is built. Primary keys that are not an id are removed and set by the parent.
+     *
+     * @param array<string, mixed> $nestedItem
+     * @param array<string, array<string, string>> $clonedIds
+     *
+     * @return array<string, mixed>
+     */
+    private function replacePrimaryKey(AssociationField $field, array $nestedItem, array &$clonedIds): array
     {
-        $pkFields = $field->getReferenceDefinition()->getPrimaryKeys();
+        $reference = $field->getReferenceDefinition();
 
-        foreach ($pkFields as $pkField) {
+        foreach ($reference->getPrimaryKeys() as $pkField) {
             /*
              * `EntityTranslationDefinition` doesn't have an `id`; they use a composite primary key consisting of the
              * entity id and the `languageId`. When cloning the entity, we want to copy the `languageId`. The entity id
@@ -662,12 +678,82 @@ class VersionManager
                 continue;
             }
 
-            if (\array_key_exists($pkField->getPropertyName(), $nestedItem)) {
-                unset($nestedItem[$pkField->getPropertyName()]);
+            $property = $pkField->getPropertyName();
+            if (!\array_key_exists($property, $nestedItem)) {
+                continue;
             }
+
+            $sourceId = $nestedItem[$property];
+            if ($pkField instanceof IdField && \is_string($sourceId)) {
+                $nestedItem[$property] = $clonedIds[$reference->getEntityName()][$sourceId] ??= Uuid::randomHex();
+
+                continue;
+            }
+
+            unset($nestedItem[$property]);
         }
 
         return $nestedItem;
+    }
+
+    /**
+     * Points every foreign key that referenced a cloned row at the clone of that row. The source order's
+     * delivery, for example, references the source order's address; the cloned delivery has to reference the
+     * cloned address.
+     *
+     * @param array<string, mixed> $payload
+     * @param array<string, array<string, string>> $clonedIds
+     *
+     * @return array<string, mixed>
+     */
+    private function remapForeignKeys(EntityDefinition $definition, array $payload, array $clonedIds): array
+    {
+        foreach ($definition->getFields() as $field) {
+            $property = $field->getPropertyName();
+
+            $cursor = &$payload;
+            if ($field->is(Extension::class)) {
+                if (!isset($payload['extensions']) || !\is_array($payload['extensions'])) {
+                    continue;
+                }
+                $cursor = &$payload['extensions'];
+            }
+
+            if (!\array_key_exists($property, $cursor)) {
+                continue;
+            }
+
+            $value = $cursor[$property];
+
+            if ($field instanceof FkField && !$field instanceof ReferenceVersionField) {
+                if (\is_string($value)) {
+                    $cursor[$property] = $clonedIds[$field->getReferenceDefinition()->getEntityName()][$value] ?? $value;
+                }
+
+                continue;
+            }
+
+            if (!\is_array($value)) {
+                continue;
+            }
+
+            if ($field instanceof OneToManyAssociationField) {
+                foreach ($value as $key => $item) {
+                    if (\is_array($item)) {
+                        $cursor[$property][$key] = $this->remapForeignKeys($field->getReferenceDefinition(), $item, $clonedIds);
+                    }
+                }
+
+                continue;
+            }
+
+            if ($field instanceof OneToOneAssociationField) {
+                $cursor[$property] = $this->remapForeignKeys($field->getReferenceDefinition(), $value, $clonedIds);
+            }
+        }
+        unset($cursor);
+
+        return $payload;
     }
 
     private function addCloneAssociations(

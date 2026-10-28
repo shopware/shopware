@@ -11,7 +11,6 @@ describe('src/app/init-post/index.ts', () => {
             worker: expect.any(Function),
             telemetry: expect.any(Function),
             productAnalytics: expect.any(Function),
-            ssoReauth: expect.any(Function),
         });
     });
 });

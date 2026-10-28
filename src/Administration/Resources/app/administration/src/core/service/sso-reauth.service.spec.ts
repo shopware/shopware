@@ -3,69 +3,105 @@
  */
 
 import SsoReauthService from './sso-reauth.service';
+import UserVerificationError from './user-verification.error';
+import { SSO_REAUTH_COMPLETE_MESSAGE, SSO_REAUTH_WINDOW_NAME } from '../helper/sso-reauth-window.helper';
 import type { LoginService } from './login.service';
 
 describe('src/core/service/sso-reauth.service.ts', () => {
-    const navigate = jest.fn();
-    let now = 1_000_000;
+    const popup = { closed: false };
+    const openWindow = jest.fn(() => popup as Window);
+    const listeners = new Set<(event: Event) => void>();
+    const windowEvents = {
+        addEventListener: jest.fn((type: string, listener: (event: Event) => void) => listeners.add(listener)),
+        removeEventListener: jest.fn((type: string, listener: (event: Event) => void) => listeners.delete(listener)),
+    } as unknown as Pick<Window, 'addEventListener' | 'removeEventListener'>;
     const loginService = {
         getLoginTemplateConfig: jest.fn(() =>
             Promise.resolve({ useDefault: false, url: 'https://shop.test/api/oauth/sso/auth?rdm=abc' }),
         ),
     } as unknown as LoginService;
 
-    const createService = () => new SsoReauthService(loginService, navigate, () => now);
+    const postMessage = (origin: string, data: unknown) => {
+        listeners.forEach((listener) => listener({ origin, data } as unknown as Event));
+    };
+
+    const createService = () => new SsoReauthService(loginService, openWindow, windowEvents, 'https://shop.test', 10);
 
     beforeEach(() => {
-        sessionStorage.clear();
-        now = 1_000_000;
+        jest.useFakeTimers();
+        popup.closed = false;
+        listeners.clear();
         jest.clearAllMocks();
     });
 
-    it('is not verified without a completed SSO login', () => {
-        expect(createService().isRecentlyVerified()).toBe(false);
+    afterEach(() => {
+        jest.useRealTimers();
     });
 
-    it('counts a completed SSO login as verified inside the window', () => {
-        const service = createService();
+    it('opens the identity provider with a forced login in the re-authentication window', async () => {
+        const result = createService().reauthenticate();
+        await jest.advanceTimersByTimeAsync(0);
 
-        expect(service.complete()).toBeNull();
-        now += SsoReauthService.VERIFICATION_TTL - 1;
+        expect(openWindow).toHaveBeenCalledWith(
+            'https://shop.test/api/oauth/sso/auth?rdm=abc&usePromptLogin=1',
+            SSO_REAUTH_WINDOW_NAME,
+            expect.stringContaining('popup'),
+        );
 
-        expect(service.isRecentlyVerified()).toBe(true);
+        postMessage('https://shop.test', SSO_REAUTH_COMPLETE_MESSAGE);
+
+        await expect(result).resolves.toBeUndefined();
+        expect(windowEvents.removeEventListener).toHaveBeenCalledTimes(1);
     });
 
-    it('forgets the verification once the window has passed', () => {
-        const service = createService();
-        service.complete();
-        now += SsoReauthService.VERIFICATION_TTL;
+    it('ignores messages from other origins and other messages', async () => {
+        const result = createService().reauthenticate();
+        await jest.advanceTimersByTimeAsync(0);
 
-        expect(service.isRecentlyVerified()).toBe(false);
+        postMessage('https://evil.test', SSO_REAUTH_COMPLETE_MESSAGE);
+        postMessage('https://shop.test', 'something-else');
+
+        expect(windowEvents.removeEventListener).not.toHaveBeenCalled();
+
+        postMessage('https://shop.test', SSO_REAUTH_COMPLETE_MESSAGE);
+        await expect(result).resolves.toBeUndefined();
     });
 
-    it('sends the browser to the identity provider with a forced login and remembers the route', async () => {
-        await createService().start('/sw/settings/language-pack');
+    it('rejects as cancelled when the user closes the window', async () => {
+        const result = createService().reauthenticate();
+        const caught = result.catch((error: unknown) => error);
+        await jest.advanceTimersByTimeAsync(0);
 
-        expect(navigate).toHaveBeenCalledWith('https://shop.test/api/oauth/sso/auth?rdm=abc&usePromptLogin=1');
-        expect(sessionStorage.getItem('sw-sso-reauth-return-route')).toBe('/sw/settings/language-pack');
-        expect(sessionStorage.getItem('redirectFromLogin')).toBe('true');
-        expect(sessionStorage.getItem('sw-sso-session')).toBe('true');
+        popup.closed = true;
+        await jest.advanceTimersByTimeAsync(10 + SsoReauthService.CLOSE_GRACE_PERIOD);
+
+        await expect(caught).resolves.toEqual(UserVerificationError.cancelled());
+        expect(windowEvents.removeEventListener).toHaveBeenCalledTimes(1);
     });
 
-    it('refuses to start when the SSO login is not configured', async () => {
+    it('lets a completion posted right before the close win over the cancel', async () => {
+        const result = createService().reauthenticate();
+        await jest.advanceTimersByTimeAsync(0);
+
+        popup.closed = true;
+        await jest.advanceTimersByTimeAsync(10);
+        postMessage('https://shop.test', SSO_REAUTH_COMPLETE_MESSAGE);
+        await jest.advanceTimersByTimeAsync(SsoReauthService.CLOSE_GRACE_PERIOD);
+
+        await expect(result).resolves.toBeUndefined();
+    });
+
+    it('rejects when the browser blocked the window', async () => {
+        openWindow.mockReturnValueOnce(null as unknown as Window);
+
+        await expect(createService().reauthenticate()).rejects.toEqual(UserVerificationError.ssoWindowBlocked());
+        expect(windowEvents.addEventListener).not.toHaveBeenCalled();
+    });
+
+    it('rejects when the SSO login is not configured', async () => {
         (loginService.getLoginTemplateConfig as jest.Mock).mockResolvedValueOnce({ useDefault: true, url: '' });
 
-        await expect(createService().start('/')).rejects.toThrow('The SSO login is not configured');
-        expect(navigate).not.toHaveBeenCalled();
-        expect(sessionStorage.getItem('sw-sso-reauth-return-route')).toBeNull();
-    });
-
-    it('returns the remembered route once and starts the window on completion', async () => {
-        const service = createService();
-        await service.start('/sw/settings/language-pack');
-
-        expect(service.complete()).toBe('/sw/settings/language-pack');
-        expect(service.isRecentlyVerified()).toBe(true);
-        expect(service.complete()).toBeNull();
+        await expect(createService().reauthenticate()).rejects.toEqual(UserVerificationError.ssoNotConfigured());
+        expect(openWindow).not.toHaveBeenCalled();
     });
 });

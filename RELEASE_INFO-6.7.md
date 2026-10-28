@@ -457,6 +457,22 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 
 ## Administration
 
+### User verification before sensitive actions through `userVerificationService`
+
+The new public service `userVerificationService` verifies the current user before a sensitive action, such as changing users, roles or access keys.
+`verify()` returns a promise that resolves with the API context carrying the verified token.
+A password session confirms its password in the verify user modal; an SSO session signs in again at the identity provider in a separate window.
+The promise rejects with a `UserVerificationError` when the user cancels or the verification cannot start.
+
+```ts
+this.userVerificationService.verify()
+    .then((context) => this.repository.save(this.entity, context))
+    .catch(() => {});
+```
+
+Extensions that render `sw-verify-user-modal` themselves should request the verification through the service instead, so SSO sessions are handled.
+The core pages for users, roles and the profile no longer render the modal in their templates; the Twig blocks that held it stay in place.
+
 ### [Internal] Native `<sw-block>` names are isolated per component
 
 Native `<sw-block>` blocks are now identified by `componentName + blockName`, matching how TwigJS identifies a `{% block %}`. Previously they matched on the block name alone, so a `<sw-block extends="foo">` or a legacy Twig override of `foo` could apply to a `<sw-block name="foo">` in an unrelated component. Blocks with the same name in different components are now isolated, and a `name` / `extends` pair only resolves against each other within the same component. No action is required from core or plugin developers.

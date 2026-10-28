@@ -3,72 +3,101 @@
  */
 
 import type { LoginService } from './login.service';
+import UserVerificationError from './user-verification.error';
+import { SSO_REAUTH_COMPLETE_MESSAGE, SSO_REAUTH_WINDOW_NAME } from '../helper/sso-reauth-window.helper';
 
-const VERIFIED_AT_KEY = 'sw-sso-reauth-verified-at';
-const RETURN_ROUTE_KEY = 'sw-sso-reauth-return-route';
+type OpenWindow = (url: string, name: string, features: string) => Window | null;
+type WindowEvents = Pick<Window, 'addEventListener' | 'removeEventListener'>;
 
 /**
- * Re-authenticates an SSO session at the identity provider before a sensitive action.
+ * Re-authenticates an SSO session at the identity provider in a separate window.
  *
- * An SSO session has no Shopware password, so the verify user modal cannot ask for one. Instead the
- * user is sent through the identity provider login again with a forced prompt. Every completed SSO
- * login counts as a verification for {@link SsoReauthService.VERIFICATION_TTL} milliseconds, so the
- * first sensitive action right after signing in does not ask twice.
- *
- * The guarantee is client-side only: the backend does not require the `user-verified` scope from SSO
- * sessions, and the SSO grant cannot be issued that scope.
+ * An SSO session has no Shopware password to verify. The identity provider login runs again with a
+ * forced prompt in a popup, which ends on the administration URL with the new session cookie set and
+ * reports back to this window, see {@link completeSsoReauthWindow}. The page the user works on stays
+ * as it is.
  *
  * @private
  */
 export default class SsoReauthService {
-    static readonly VERIFICATION_TTL = 15 * 60 * 1000;
+    /**
+     * Grace period after the window closed, so a completion message posted right before the close wins.
+     */
+    static readonly CLOSE_GRACE_PERIOD = 250;
 
     constructor(
         private readonly loginService: LoginService,
-        private readonly navigate: (url: string) => void = (url) => {
-            window.location.href = url;
-        },
-        private readonly now: () => number = () => Date.now(),
+        private readonly openWindow: OpenWindow = (url, name, features) => window.open(url, name, features),
+        private readonly windowEvents: WindowEvents = window,
+        private readonly origin: string = window.location.origin,
+        private readonly pollInterval = 500,
     ) {}
 
-    isRecentlyVerified(): boolean {
-        const verifiedAt = Number(sessionStorage.getItem(VERIFIED_AT_KEY));
-
-        return verifiedAt > 0 && this.now() - verifiedAt < SsoReauthService.VERIFICATION_TTL;
-    }
-
     /**
-     * Remembers the route to return to and sends the browser to the identity provider with a forced login.
-     * The page unloads, so the caller has nothing to do after this resolves.
+     * Resolves once the identity provider sent the window back with a new session. Rejects when the
+     * SSO login is not configured, the window was blocked, or the user closed it.
      */
-    async start(returnRoute: string): Promise<void> {
+    async reauthenticate(): Promise<void> {
         const loginConfig = await this.loginService.getLoginTemplateConfig();
 
-        if (loginConfig.useDefault || !loginConfig.url) {
-            throw new Error('The SSO login is not configured');
+        if (!loginConfig.url) {
+            throw UserVerificationError.ssoNotConfigured();
         }
 
         const url = new URL(loginConfig.url);
         url.searchParams.set('usePromptLogin', '1');
 
-        sessionStorage.setItem(RETURN_ROUTE_KEY, returnRoute);
-        // the same markers the login page sets before forwarding to the identity provider
-        sessionStorage.setItem('redirectFromLogin', 'true');
-        sessionStorage.setItem('sw-sso-session', 'true');
+        const popup = this.openWindow(url.toString(), SSO_REAUTH_WINDOW_NAME, 'popup,width=600,height=720');
 
-        this.navigate(url.toString());
+        if (!popup) {
+            throw UserVerificationError.ssoWindowBlocked();
+        }
+
+        return this.waitForCompletion(popup);
     }
 
-    /**
-     * Called once an SSO login completed. Starts the verification window and returns the route a
-     * re-authentication was started from, or null when the login did not come from the modal.
-     */
-    complete(): string | null {
-        sessionStorage.setItem(VERIFIED_AT_KEY, String(this.now()));
+    private waitForCompletion(popup: Window): Promise<void> {
+        return new Promise((resolve, reject) => {
+            let settled = false;
+            const cleanups: Array<() => void> = [];
 
-        const returnRoute = sessionStorage.getItem(RETURN_ROUTE_KEY);
-        sessionStorage.removeItem(RETURN_ROUTE_KEY);
+            const settle = (outcome: () => void) => {
+                if (settled) {
+                    return;
+                }
 
-        return returnRoute;
+                settled = true;
+                cleanups.forEach((cleanup) => cleanup());
+                outcome();
+            };
+
+            const onMessage = (event: Event) => {
+                const { origin, data } = event as MessageEvent<unknown>;
+
+                if (origin !== this.origin || data !== SSO_REAUTH_COMPLETE_MESSAGE) {
+                    return;
+                }
+
+                settle(resolve);
+            };
+
+            const closePoll = setInterval(() => {
+                if (!popup.closed) {
+                    return;
+                }
+
+                clearInterval(closePoll);
+                setTimeout(
+                    () => settle(() => reject(UserVerificationError.cancelled())),
+                    SsoReauthService.CLOSE_GRACE_PERIOD,
+                );
+            }, this.pollInterval);
+
+            cleanups.push(
+                () => clearInterval(closePoll),
+                () => this.windowEvents.removeEventListener('message', onMessage),
+            );
+            this.windowEvents.addEventListener('message', onMessage);
+        });
     }
 }

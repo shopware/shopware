@@ -1,9 +1,12 @@
 {
   "global": {
     "sw-verify-user-modal": {
-      "ssoReauthStartError": "The sign-in at your identity provider could not be started. Please try again.",
-      "ssoReauthCompletedTitle": "Signed in again",
-      "ssoReauthCompletedMessage": "Your identity provider has verified you. Please repeat the action that asked for the verification."
+      "buttonVerifyWithSso": "Verify with single sign-on",
+      "failure": {
+        "sso-not-configured": "The sign-in at your identity provider could not be started. Please try again.",
+        "sso-window-blocked": "Your browser blocked the sign-in window. Please allow pop-ups for the Administration and try again.",
+        "no-session": "The sign-in at your identity provider did not end in a new session. Please try again."
+      }
     },
     "error-codes": {
       "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Missing permissions.",

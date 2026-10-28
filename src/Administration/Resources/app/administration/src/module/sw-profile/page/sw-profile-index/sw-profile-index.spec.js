@@ -11,6 +11,10 @@ import useTheme, { USER_THEME_CONFIG_KEY } from 'src/app/composables/use-theme';
 import useModuleIconColors, { USER_MODULE_ICON_COLORS_CONFIG_KEY } from 'src/app/composables/use-module-icon-colors';
 import 'src/module/sw-profile/store/sw-profile.store';
 
+const userVerificationService = {
+    verify: jest.fn(() => Promise.resolve({ ...Shopware.Context.api })),
+};
+
 async function createWrapper(
     privileges = [],
     isSso = { isSso: false },
@@ -76,7 +80,6 @@ async function createWrapper(
                     },
                 },
                 'sw-skeleton': true,
-                'sw-verify-user-modal': true,
                 'sw-media-modal-v2': true,
             },
             mocks: {
@@ -89,6 +92,7 @@ async function createWrapper(
                 },
             },
             provide: {
+                userVerificationService,
                 acl: {
                     can: (key) => {
                         if (!key) {
@@ -388,18 +392,17 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         expect(wrapper.vm.avatarMediaItem.id).toBe(mediaId);
     });
 
-    it('should show the password confirm modal', async () => {
+    it('should verify the user before saving', async () => {
         const updateFunction = jest.fn(() => Promise.resolve({}));
         const wrapper = await createWrapper(['user.update_profile'], { isSso: false }, updateFunction);
         await flushPromises();
+        userVerificationService.verify.mockReturnValueOnce(new Promise(() => {}));
 
         const saveButton = wrapper.find('.sw-profile__save-action');
         await saveButton.trigger('click');
         await flushPromises();
 
-        const passwordConfirmModal = wrapper.find('sw-verify-user-modal-stub');
-
-        expect(passwordConfirmModal.exists()).toBeTruthy();
+        expect(userVerificationService.verify).toHaveBeenCalledTimes(1);
         expect(updateFunction).not.toHaveBeenCalled();
     });
 

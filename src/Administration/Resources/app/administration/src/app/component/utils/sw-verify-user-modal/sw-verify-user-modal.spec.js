@@ -10,26 +10,11 @@ const loginService = {
     setBearerAuthentication: jest.fn(),
 };
 
-const ssoSettingsService = {
-    isSso: jest.fn(() => Promise.resolve({ isSso: false })),
-};
-
-const ssoReauthService = {
-    isRecentlyVerified: jest.fn(() => false),
-    start: jest.fn(() => Promise.resolve()),
-};
-
-async function createWrapper() {
+async function createWrapper(props = {}) {
     const wrapper = mount(await wrapTestComponent('sw-verify-user-modal', { sync: true }), {
+        props,
         global: {
-            provide: {
-                loginService,
-                ssoSettingsService,
-                ssoReauthService,
-            },
-            mocks: {
-                $router: { currentRoute: { value: { fullPath: '/sw/settings/language-pack' } } },
-            },
+            provide: { loginService },
         },
     });
     await flushPromises();
@@ -45,11 +30,11 @@ describe('src/app/component/utils/sw-verify-user-modal', () => {
         jest.clearAllMocks();
     });
 
-    it('asks for the password and emits the verified context for a non-SSO session', async () => {
+    it('asks for the password and emits the verified context', async () => {
         wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-modal').exists()).toBe(true);
-        expect(wrapper.emitted('verified')).toBeUndefined();
+        expect(wrapper.find('.sw-verify-user-modal__verify-with-sso').exists()).toBe(false);
 
         await wrapper.find('.sw-settings-user-detail__confirm-password input').setValue('secret');
         await wrapper.find('.mt-button--primary').trigger('click');
@@ -61,49 +46,41 @@ describe('src/app/component/utils/sw-verify-user-modal', () => {
         expect(wrapper.emitted('close')).toHaveLength(1);
     });
 
-    it('emits the current context for an SSO session verified at the identity provider recently', async () => {
-        ssoSettingsService.isSso.mockResolvedValueOnce({ isSso: true });
-        ssoReauthService.isRecentlyVerified.mockReturnValueOnce(true);
+    it('shows the password error and closes when the password is wrong', async () => {
+        loginService.verifyUserToken.mockRejectedValueOnce(new Error('wrong password'));
+        wrapper = await createWrapper();
+        const createNotificationError = jest.spyOn(wrapper.vm, 'createNotificationError').mockImplementation(() => {});
 
+        await wrapper.find('.sw-settings-user-detail__confirm-password input').setValue('wrong');
+        await wrapper.find('.mt-button--primary').trigger('click');
+        await flushPromises();
+
+        expect(createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage',
+        });
+        expect(wrapper.emitted('verified')).toBeUndefined();
+        expect(wrapper.emitted('close')).toHaveLength(1);
+    });
+
+    it('emits close without a verification when the user cancels', async () => {
         wrapper = await createWrapper();
 
-        expect(wrapper.find('.sw-modal').exists()).toBe(false);
+        await wrapper.find('.sw-settings-user-detail__confirm-password input').setValue('secret');
+        await wrapper.find('.mt-button--secondary').trigger('click');
+
         expect(loginService.verifyUserToken).not.toHaveBeenCalled();
-        expect(ssoReauthService.start).not.toHaveBeenCalled();
-        expect(wrapper.emitted('verified')).toHaveLength(1);
-        expect(wrapper.emitted('verified')[0][0]).toEqual({ ...Shopware.Context.api });
-        expect(wrapper.emitted('close')).toHaveLength(1);
-    });
-
-    it('sends an SSO session without a recent verification back to the identity provider', async () => {
-        ssoSettingsService.isSso.mockResolvedValueOnce({ isSso: true });
-
-        wrapper = await createWrapper();
-
-        expect(wrapper.find('.sw-modal').exists()).toBe(false);
-        expect(ssoReauthService.start).toHaveBeenCalledWith('/sw/settings/language-pack');
-        expect(wrapper.emitted('verified')).toBeUndefined();
-        expect(wrapper.emitted('close')).toBeUndefined();
-    });
-
-    it('closes with an error when the re-authentication cannot be started', async () => {
-        ssoSettingsService.isSso.mockResolvedValueOnce({ isSso: true });
-        ssoReauthService.start.mockRejectedValueOnce(new Error('not configured'));
-
-        wrapper = await createWrapper();
-
         expect(wrapper.emitted('verified')).toBeUndefined();
         expect(wrapper.emitted('close')).toHaveLength(1);
-        expect(wrapper.vm.createNotificationError).toBeDefined();
+        expect(wrapper.vm.confirmPassword).toBe('');
     });
 
-    it('falls back to the password prompt when the SSO lookup fails', async () => {
-        ssoSettingsService.isSso.mockRejectedValueOnce(new Error('offline'));
+    it('offers the identity provider when the shop has one', async () => {
+        wrapper = await createWrapper({ ssoAvailable: true });
 
-        wrapper = await createWrapper();
+        await wrapper.find('.sw-verify-user-modal__verify-with-sso').trigger('click');
 
-        expect(wrapper.find('.sw-modal').exists()).toBe(true);
-        expect(wrapper.emitted('verified')).toBeUndefined();
+        expect(wrapper.emitted('verify-with-sso')).toHaveLength(1);
         expect(wrapper.emitted('close')).toBeUndefined();
+        expect(loginService.verifyUserToken).not.toHaveBeenCalled();
     });
 });

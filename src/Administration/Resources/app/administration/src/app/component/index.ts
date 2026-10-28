@@ -98,6 +98,10 @@ export default () => {
         'sw-in-app-purchase-checkout',
         () => import('src/app/component/structure/sw-in-app-purchase-checkout/index'),
     );
+    Shopware.Component.register(
+        'sw-user-verification',
+        () => import('src/app/component/structure/sw-user-verification/index'),
+    );
     Shopware.Component.register('sw-hidden-iframes', () => import('src/app/component/structure/sw-hidden-iframes/index'));
     Shopware.Component.register('sw-error', () => import('src/app/component/structure/sw-error/index'));
     Shopware.Component.register(

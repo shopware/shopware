@@ -7,65 +7,41 @@ import template from './sw-verify-user-modal.html.twig';
 const { Mixin } = Shopware;
 
 /**
+ * Asks the user for the password and emits the API context carrying the verified token.
+ * Request a verification through `userVerificationService.verify()` instead of rendering this modal:
+ * the service picks the password prompt or the identity provider for the current session.
+ *
  * @private
  */
 export default {
     template,
 
-    inject: [
-        'loginService',
-        'ssoSettingsService',
-        'ssoReauthService',
+    inject: ['loginService'],
+
+    emits: [
+        'verified',
+        'verify-with-sso',
+        'close',
     ],
 
-    emits: ['verified', 'close'],
-
     mixins: [Mixin.getByName('notification')],
+
+    props: {
+        // offers the identity provider next to the password, for sessions the shop could not tell apart
+        ssoAvailable: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    },
 
     data() {
         return {
             confirmPassword: '',
-            // null until the SSO lookup resolved; the password prompt renders only for non-SSO sessions
-            isSso: null,
         };
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        async createdComponent() {
-            try {
-                this.isSso = (await this.ssoSettingsService.isSso()).isSso === true;
-            } catch {
-                this.isSso = false;
-            }
-
-            if (!this.isSso) {
-                return;
-            }
-
-            // An SSO session has no Shopware password to verify. A recent login at the identity provider
-            // counts as the verification; otherwise the user is sent there again with a forced login
-            // and repeats the action after returning.
-            if (this.ssoReauthService.isRecentlyVerified()) {
-                this.$emit('verified', { ...Shopware.Context.api });
-                this.$emit('close');
-
-                return;
-            }
-
-            try {
-                await this.ssoReauthService.start(this.$router?.currentRoute?.value?.fullPath ?? '/');
-            } catch {
-                this.createNotificationError({
-                    message: this.$t('global.sw-verify-user-modal.ssoReauthStartError'),
-                });
-                this.$emit('close');
-            }
-        },
-
         onSubmitConfirmPassword() {
             return this.loginService
                 .verifyUserToken(this.confirmPassword)
@@ -93,6 +69,11 @@ export default {
                     this.confirmPassword = '';
                     this.$emit('close');
                 });
+        },
+
+        onVerifyWithSso() {
+            this.confirmPassword = '';
+            this.$emit('verify-with-sso');
         },
 
         onCloseConfirmPasswordModal() {

@@ -115,6 +115,10 @@ Shopware.Service().register('timezoneService', () => {
     };
 });
 
+const userVerificationService = {
+    verify: jest.fn(() => Promise.resolve({ ...Shopware.Context.api })),
+};
+
 async function createWrapper(user) {
     const userResult = user || createDefaultUser();
 
@@ -179,6 +183,7 @@ async function createWrapper(user) {
                 },
 
                 provide: {
+                    userVerificationService,
                     acl: {
                         can: () => {
                             return true;
@@ -377,6 +382,31 @@ describe('module/sw-users-permissions/page/sw-sso-users-permission-user-detail',
         wrapper.vm.userTheme = 'light';
         useTheme().setTheme('system');
         expect(wrapper.vm.userTheme).toBe('light');
+    });
+
+    it('should save with the context the user verification returned', async () => {
+        const wrapper = await createWrapper();
+        const verifiedContext = { ...Shopware.Context.api, verified: true };
+        userVerificationService.verify.mockResolvedValueOnce(verifiedContext);
+        const save = jest.spyOn(wrapper.vm.userRepository, 'save').mockResolvedValue();
+
+        await wrapper.vm.onSave();
+        await flushPromises();
+
+        expect(save).toHaveBeenCalledWith(wrapper.vm.user, verifiedContext);
+        expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it('should not save when the user verification is cancelled', async () => {
+        const wrapper = await createWrapper();
+        userVerificationService.verify.mockRejectedValueOnce(new Error('cancelled'));
+        const save = jest.spyOn(wrapper.vm.userRepository, 'save').mockResolvedValue();
+
+        await wrapper.vm.onSave();
+        await flushPromises();
+
+        expect(save).not.toHaveBeenCalled();
+        expect(wrapper.vm.isLoading).toBe(false);
     });
 
     it('should persist the changed theme when saving the own user', async () => {

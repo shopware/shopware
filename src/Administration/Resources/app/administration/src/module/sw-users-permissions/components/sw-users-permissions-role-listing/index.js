@@ -11,7 +11,11 @@ const { Criteria } = Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'ssoSettingsService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'userVerificationService',
+    ],
 
     emits: ['get-list'],
 
@@ -119,20 +123,13 @@ export default {
         },
 
         onConfirmDelete() {
-            this.isLoading = true;
             this.onCloseDeleteModal();
+            this.isConfirmingPasswordModalOpen = true;
 
-            this.ssoSettingsService.isSso().then((response) => {
-                this.isLoading = false;
-
-                if (response.isSso) {
-                    this.deleteRole({ ...Shopware.Context.api });
-
-                    return;
-                }
-
-                this.isConfirmingPasswordModalOpen = true;
-            });
+            return this.userVerificationService
+                .verify()
+                .then((context) => this.deleteRole(context))
+                .catch(() => this.onCloseConfirmPasswordModal());
         },
 
         deleteRole(context) {

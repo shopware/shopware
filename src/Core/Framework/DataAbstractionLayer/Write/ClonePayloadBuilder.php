@@ -121,7 +121,12 @@ final class ClonePayloadBuilder
         });
 
         foreach ($cascades as $cascade) {
-            if ($cascade instanceof AssociationField && $this->isCloneProtected($this->getCloneReferenceDefinition($cascade), $context)) {
+            // the flag only means something on an association
+            if (!$cascade instanceof AssociationField) {
+                continue;
+            }
+
+            if ($this->isCloneProtected($this->getCloneReferenceDefinition($cascade), $context)) {
                 continue;
             }
 
@@ -133,10 +138,6 @@ final class ClonePayloadBuilder
 
             // many to one shouldn't be cascaded
             if ($cascade instanceof ManyToOneAssociationField) {
-                continue;
-            }
-
-            if (!$cascade instanceof AssociationField) {
                 continue;
             }
 

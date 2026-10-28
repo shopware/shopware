@@ -56,7 +56,7 @@ describe('src/app/component/structure/sw-language-info', () => {
 
         Shopware.Store.get('context').api.language = null;
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.text()).toBe('');
 
@@ -73,7 +73,7 @@ describe('src/app/component/structure/sw-language-info', () => {
         Shopware.Store.get('context').api.languageId = '123';
         Shopware.Store.get('context').api.systemLanguageId = '123';
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.text()).toBe('');
     });
@@ -106,7 +106,7 @@ describe('src/app/component/structure/sw-language-info', () => {
             parentId: null,
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw_language-info__info').text()).toBe(
             '|sw-language-info.infoTextRootLanguage|0|entityDescription:|language:undefined|',

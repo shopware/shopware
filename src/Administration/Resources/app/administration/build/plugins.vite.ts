@@ -25,13 +25,7 @@ import AssetCssPostprocessPlugin from './vite-plugins/asset-css-postprocess-plug
 import OverrideComponentRegisterPlugin from './vite-plugins/override-component-register';
 import ShopwareSetupPlugin from './vite-plugins/shopware-setup';
 import VirtualShopwareModulesPlugin from './vite-plugins/virtual-shopware-modules';
-import {
-    createPluginDevJson,
-    loadExtensions,
-    getViteServerPorts,
-    isInsideDockerContainer,
-    runForEachExtension,
-} from './vite-plugins/utils';
+import { createPluginDevJson, loadExtensions, getViteServerPorts, runForEachExtension } from './vite-plugins/utils';
 import type { ExtensionDefinition } from './vite-plugins/utils';
 import injectHtml from './vite-plugins/inject-html';
 import ExtglobCompatPlugin from './vite-plugins/extglob-compat';
@@ -43,7 +37,6 @@ const isDev = VITE_MODE === 'development';
 const adminSrcPath = process.env.ADMIN_ROOT
     ? path.join(process.env.ADMIN_ROOT, 'Resources', 'app', 'administration', 'src')
     : path.join(path.dirname(__dirname), 'src');
-const host = process.env.VITE_HOST || 'localhost';
 
 // Common configuration shared between dev and build
 const getBaseConfig = (
@@ -196,13 +189,14 @@ const getBaseConfig = (
 export const main = async () => {
     const toolchain = await loadViteToolchain();
     const extensionEntries = loadExtensions();
+    const logger = toolchain.vite.createLogger();
 
     if (isDev) {
         const extensionPorts = getViteServerPorts();
         const useBundledDev = isBundledDevActive(isDev);
 
         if (useBundledDev) {
-            console.log(colors.yellow('# Experimental bundled dev mode activated for plugins'));
+            logger.info(colors.yellow('# Experimental bundled dev mode activated for plugins'));
         }
 
         // Write outside of public/administration on purpose: a parallel production
@@ -228,7 +222,7 @@ export const main = async () => {
                     plugins: toolchain.isVite8 ? [ExtglobCompatPlugin({ warnOnRewrite: true })] : [],
                 });
 
-                console.log(colors.green(`# App "${extension.name}": Injected successfully`));
+                logger.info(colors.green(`# App "${extension.name}": Injected successfully`));
             } else {
                 server = await toolchain.vite.createServer({
                     ...getBaseConfig(toolchain, extension, false, useBundledDev),
@@ -240,7 +234,7 @@ export const main = async () => {
                     },
                 });
 
-                console.log(colors.green(`# Plugin "${extension.name}": Injected successfully`));
+                logger.info(colors.green(`# Plugin "${extension.name}": Injected successfully`));
             }
 
             await server.listen();
@@ -252,7 +246,7 @@ export const main = async () => {
 
     const hasFailedBuilds = await runForEachExtension(extensionEntries, 'build', async (extension) => {
         if (extension.isApp) {
-            console.log(colors.green(`# Building app "${extension.name}"`));
+            logger.info(colors.green(`# Building app "${extension.name}"`));
             await toolchain.vite.build({
                 root: extension.path,
                 base: '',
@@ -273,7 +267,7 @@ export const main = async () => {
                 ],
             });
         } else {
-            console.log(colors.green(`# Building plugin "${extension.name}"`));
+            logger.info(colors.green(`# Building plugin "${extension.name}"`));
             await toolchain.vite.build(getBaseConfig(toolchain, extension, true));
         }
     });

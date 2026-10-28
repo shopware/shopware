@@ -7,7 +7,7 @@ import os from 'os';
 import path from 'path';
 
 // The PHP development image and CI provide OpenSSL; other local test environments report these cases as skipped.
-const testWithOpenSsl = spawnSync('openssl', ['version']).status === 0 ? it : it.skip;
+const describeWithOpenSsl = spawnSync('openssl', ['version']).status === 0 ? describe : describe.skip;
 
 // Vite 8 is ESM-only; execute the real server outside Jest's module loader.
 describe('extension listener integration', () => {
@@ -50,21 +50,15 @@ describe('extension listener integration', () => {
         expect(run('startup-failure')).toMatchObject({ recovered: true, shutdown: true });
     }, 120000);
 
-    testWithOpenSsl(
-        'serves modules and isolated HMR over certificate-verified HTTPS and WSS',
-        () => {
+    describeWithOpenSsl('certificate-verified TLS', () => {
+        it('serves modules and isolated HMR over HTTPS and WSS', () => {
             expect(run('https')).toMatchObject({ secure: true, isolated: true, shutdown: true });
-        },
-        120000,
-    );
+        }, 120000);
 
-    testWithOpenSsl(
-        'serves HMR through a TLS reverse proxy with a different public port',
-        () => {
+        it('serves HMR through a reverse proxy with a different public port', () => {
             expect(run('reverse-proxy')).toMatchObject({ secure: true, isolated: true, shutdown: true });
-        },
-        120000,
-    );
+        }, 120000);
+    });
 
     it('serves bundled extension entries and their HMR clients through one listener', () => {
         expect(run('bundled')).toMatchObject({ listenerCount: 1 });

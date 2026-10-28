@@ -27,7 +27,7 @@ export default function viteExternalsPlugin(): Plugin {
                     aliasResult.push({ find: aliasKey, replacement: (configAlias as Record<string, string>)[aliasKey] });
                 });
             } else if (Array.isArray(configAlias)) {
-                aliasResult.push(...configAlias);
+                aliasResult.push(...(configAlias as Alias[]));
             }
 
             // Create cache directory

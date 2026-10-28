@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 import fs from 'fs';
-import os from 'os';
 import path from 'path';
 import * as net from 'net';
 import colors from 'picocolors';
@@ -17,7 +16,7 @@ function isPortFree(port: number): Promise<boolean | Error> {
             });
         });
 
-        server.on('error', () => {
+        server.once('error', function onError() {
             resolve(false);
         });
     });
@@ -130,7 +129,7 @@ export function loadExtensions(): ExtensionDefinition[] {
     };
 
     const apps = Object.entries(extensionDefinitions)
-        .filter(([name, definition]) => {
+        .filter(([, definition]) => {
             const appEntryPath = path.resolve(
                 process.env.PROJECT_ROOT as string,
                 definition.basePath,
@@ -166,7 +165,7 @@ export function loadExtensions(): ExtensionDefinition[] {
 
     const plugins = Object.entries(extensionDefinitions)
         .filter(
-            ([name, definition]) =>
+            ([, definition]) =>
                 !!definition.administration &&
                 !!definition.administration.entryFilePath &&
                 !process.env.hasOwnProperty(`SKIP_${definition.technicalName.toUpperCase().replace(/-/g, '_')}`),
@@ -219,7 +218,6 @@ export async function findAvailablePorts(startPort = 5173, requiredPorts = 1): P
             throw new Error(`No free ports found between ${startPort} and ${maxPort}`);
         }
 
-        // eslint-disable-next-line no-await-in-loop
         const isFree = await isPortFree(currentPort);
         if (isFree) {
             ports.push(currentPort);
@@ -300,7 +298,7 @@ export function getMainViteServerConfig(): {
 
     const proxyConfig: Record<string, { target: string; changeOrigin: boolean; ws: true; rewriteWsOrigin: true }> = {};
 
-    for (const [key, value] of Object.entries(parsedData.extensions)) {
+    for (const value of Object.values(parsedData.extensions)) {
         proxyConfig[value.basePath] = {
             // Extension servers bind to IPv4. localhost can resolve to the main server on IPv6 and proxy back to itself.
             target: `http://127.0.0.1:${value.port}`,

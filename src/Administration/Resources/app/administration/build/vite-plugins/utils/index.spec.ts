@@ -52,7 +52,7 @@ describe('build/vite-plugins/utils', () => {
             const server = {
                 listen: jest.fn((_options, ready: () => void) => ready()),
                 close: jest.fn((closed: () => void) => closed()),
-                on: jest.fn(),
+                once: jest.fn(),
             };
             listen = server.listen;
             jest.mocked(net.createServer).mockReturnValue(server as unknown as net.Server);
@@ -376,7 +376,7 @@ describe('build/vite-plugins/utils', () => {
 
         it('logs rejections that are no errors', async () => {
             await expect(
-                // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
+                // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors -- Verify diagnostics for third-party plugins rejecting with a string.
                 runForEachExtension([brokenPlugin], 'build', () => Promise.reject('timeout')),
             ).resolves.toBe(true);
 

@@ -188,8 +188,8 @@ const getBaseConfig = (
 /** @private */
 export const main = async () => {
     const toolchain = await loadViteToolchain();
-    const extensionEntries = loadExtensions();
     const logger = toolchain.vite.createLogger();
+    const extensionEntries = loadExtensions();
 
     if (isDev) {
         const extensionPorts = getViteServerPorts();

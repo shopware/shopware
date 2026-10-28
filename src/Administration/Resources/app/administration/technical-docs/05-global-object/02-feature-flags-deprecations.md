@@ -174,6 +174,20 @@ Deprecated APIs that stay usable past the next major, like the deprecated `$tc` 
 order, use the major of their removal, e.g. `V6_9_0_0`. Put the caller and the replacement into the message, so
 every call site is reported once and stays actionable. See `src/core/helper/i18n-legacy-syntax.helper.ts`.
 
+`sw-deprecation-rules/require-deprecation-guard` keeps every `@deprecated tag:vX.Y.Z` declaration on this
+lifecycle. What the marker sits on decides what it requires:
+
+| The marker sits on | Required |
+|---|---|
+| a function, method, `computed` accessor, getter or class constructor | `triggerDeprecationOrThrow()` with the tag's major as its **first** statement |
+| a component, in the file header or on its `Component.register()` | the root `deprecated` option |
+| a prop | the prop's `deprecated` option |
+| a value, type, import, `data`, `watch`, `provide`, `inject`, store `state` or `getters`, or a statement inside a body | nothing |
+
+`@private` and `_`-prefixed declarations, functions local to their module, and markers like "Will be private"
+are skipped. A function core runs on its own, like a lifecycle hook, takes an
+`eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- <reason>`.
+
 Pair runtime warnings with an autofixable ESLint rule where the migration is mechanical, like
 `sw-core-rules/no-tc-translation`, and enable it in the extension tooling (`extension-tooling/eslint.mjs`).
 

@@ -67,10 +67,8 @@ export default {
             return this.repositoryFactory.create('document_type');
         },
 
-        /**
-         * @deprecated tag:v6.9.0 - drop this filter when document_type is removed.
-         */
         documentTypeCriteria() {
+            // @deprecated tag:v6.9.0 - drop this filter when document_type is removed.
             return new Criteria(1, 25).addFilter(Criteria.not('AND', [Criteria.equals('technicalName', 'app_provided')]));
         },
 

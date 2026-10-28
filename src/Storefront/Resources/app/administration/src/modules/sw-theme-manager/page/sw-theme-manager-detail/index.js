@@ -773,6 +773,7 @@ export default {
          * @param {string} [fallback=''] - DEPRECATED: The fallback value to return if the snippet is not found.
          * @returns {string}
          */
+        // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- only `fallback` is deprecated, a used fallback triggers the deprecation itself
         getSnippet(key, fallback = '') {
             for (let themeName of this.inheritedSnippetPrefixes) {
                 const snippetKey = `sw-theme.${themeName}.${key}`;
@@ -851,6 +852,7 @@ export default {
         /**
          * @deprecated tag:v6.8.0 - Parameter `fallback` will be removed
          */
+        // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- only `fallback` is deprecated, getSnippet triggers it when a fallback is used
         getTabLabel(key, fallback = '') {
             const snippet = this.getSnippet(key, fallback);
             if (snippet.length >= 1) {

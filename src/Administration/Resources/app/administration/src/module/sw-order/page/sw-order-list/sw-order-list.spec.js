@@ -169,7 +169,6 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         allowDeprecation('sw-order-list.getDelivery() is deprecated');
         allowDeprecation('sw-order-list.transaction() is deprecated');
         allowDeprecation('sw-order-list.getTransactionState() is deprecated');
-        allowDeprecation('sw-order-list.updateCriteria() is deprecated');
     });
 
     let wrapper;

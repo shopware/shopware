@@ -619,6 +619,10 @@ Shopware now verifies that `APP_URL` reaches this installation before it registe
 
 The verification stores its token in the `cache.app_url_verification` cache pool, which uses `cache.app` by default. With several app servers, this pool must be shared between them, for example on Redis.
 
+`bin/console system:check` and the `recurrent` system health check now include an `AppUrlVerification` check.
+It verifies `APP_URL` on every run and reports `ERROR` when `APP_URL` does not reach this installation, which makes the command exit with code 1.
+The `web` and `pre_rollout` contexts skip it.
+
 ### Elasticsearch errors no longer fail `system:update:finish`
 
 `system:update:finish` no longer fails when the Elasticsearch mapping update or the scheduling of a reindex fails.

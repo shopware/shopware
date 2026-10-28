@@ -20,6 +20,8 @@ export default {
     data() {
         return {
             wasModalAlreadyShown: !!localStorage.getItem(STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN),
+            verifyCommand: 'bin/console app:url:verify',
+            commandCopied: false,
             notification: {
                 title: this.$t('sw-app.component.sw-app-wrong-app-url-modal.title'),
                 message: this.$t('sw-app.component.sw-app-wrong-app-url-modal.explanation'),
@@ -37,6 +39,14 @@ export default {
     computed: {
         isAppUrlReachable() {
             return Shopware.Store.get('context').app.config.settings?.appUrlReachable;
+        },
+
+        appUrl() {
+            return Shopware.Store.get('context').app.config.appUrl;
+        },
+
+        appUrlStatusCode() {
+            return Shopware.Store.get('context').app.config.settings?.appUrlStatusCode;
         },
 
         hasAppsThatRequireAppUrl() {
@@ -64,6 +74,11 @@ export default {
     },
 
     methods: {
+        async copyVerifyCommand() {
+            await Shopware.Utils.dom.copyStringToClipboard(this.verifyCommand);
+            this.commandCopied = true;
+        },
+
         closeModal() {
             localStorage.setItem(STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN, 'true');
             this.wasModalAlreadyShown = true;

@@ -201,7 +201,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     it('should render the deprecated tabs when the major feature flag is inactive', async () => {
         const wrapper = await createWrapper(['country.editor']);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const tabs = wrapper.getComponent({ name: 'sw-tabs' });
 
@@ -212,7 +212,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     it('should keep the fallback tab route contract', async () => {
         const wrapper = await createWrapper(['country.editor']);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const tabItems = wrapper.findAllComponents({ name: 'sw-tabs-item' });
 
@@ -233,7 +233,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
             routeName: 'sw.settings.country.detail.state',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
@@ -266,7 +266,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
             routerPush,
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
         const stateTab = tabs.props('items').find((item) => {
@@ -300,7 +300,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     it('should be render tab', async () => {
         const wrapper = await createWrapper(['country.editor']);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const generalTab = wrapper.find('.sw-settings-country__setting-tab');
         const stateTab = wrapper.find('.sw-settings-country__state-tab');
 
@@ -310,7 +310,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
 
     it('should be able to save the country', async () => {
         const wrapper = await createWrapper(['country.editor']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-settings-country-detail__save-action');
 
@@ -319,7 +319,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
 
     it('should not be able to save the country', async () => {
         const wrapper = await createWrapper([]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-settings-country-detail__save-action');
 

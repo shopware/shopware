@@ -104,7 +104,7 @@ function createTaxDetailOptions(repository, props = {}) {
 describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
     it('should be able to save the tax', async () => {
         const wrapper = await createWrapper(['tax.editor']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-settings-tax-detail__save-action');
         const taxNameField = wrapper.find('input[aria-label="sw-settings-tax.detail.labelName"]');
@@ -117,7 +117,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
 
     it('the name should be editable for non default rates', async () => {
         const wrapper = await createWrapper(['tax.editor'], false);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const taxNameField = wrapper.find('input[aria-label="sw-settings-tax.detail.labelName"]');
         expect(taxNameField.attributes().disabled).toBeUndefined();
@@ -125,7 +125,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
 
     it('should not be able to save the tax', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-settings-tax-detail__save-action');
         const taxNameField = wrapper.find('input[aria-label="sw-settings-tax.detail.labelName"]');

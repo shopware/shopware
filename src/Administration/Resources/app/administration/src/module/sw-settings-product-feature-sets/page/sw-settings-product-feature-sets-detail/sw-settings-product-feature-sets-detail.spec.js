@@ -108,10 +108,6 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         await flushPromises();
     });
 
-    it('should be able to instantiate', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('has the correct class', async () => {
         expect(wrapper.classes()).toContain(classes.componentRoot);
     });

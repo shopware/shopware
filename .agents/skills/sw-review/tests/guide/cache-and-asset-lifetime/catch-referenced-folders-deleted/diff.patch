@@ -1,0 +1,880 @@
+diff --git a/RELEASE_INFO-6.7.md b/RELEASE_INFO-6.7.md
+index 69eb5fe9e9a..e1bbf5544b0 100644
+--- a/RELEASE_INFO-6.7.md
++++ b/RELEASE_INFO-6.7.md
+@@ -388,6 +388,13 @@ The dataset updates reactively as the user selects a different media file.
+ 
+ ## Storefront
+ 
++### Theme CLI commands clean up unused theme directories
++
++Each theme compilation writes its CSS/JS into a new seeded directory under `public/theme/<hash>`. Removing the now-unused previous directories was handled exclusively by the daily `theme.delete_files` scheduled task (`Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask`). In environments where that task does not run reliably — e.g. `bin/console theme:compile` during a build/deploy step, or setups relying on the admin worker without an open Administration session — these directories accumulated without bound and could grow to many gigabytes.
++
++`bin/console theme:compile` and `bin/console theme:change` now run the same cleanup once after compilation, deleting unused theme directories whose files are older than 24 hours (recent directories are kept so cached responses still referencing them keep working). Pass `--no-cleanup` to skip this step and preserve the previous behaviour.
++
++The cleanup logic is now provided by the reusable `Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter` service, which the commands and the scheduled task all use. The scheduled task remains unchanged as a fallback.
+ ### `theme:create` gains `--full` and granular scaffold flags
+ 
+ `bin/console theme:create` accepts new options to scaffold more than the default skeleton: `--with-config` generates `src/Resources/config/config.xml`, `--with-snippets` generates storefront snippet files (`src/Resources/snippet/storefront.{de-DE,en-GB}.json`), and `--with-scss` generates a starter SCSS 7-1 folder structure (`abstracts/`, `base/`, `components/`, `layout/`, `pages/`) referenced from `base.scss`. `--full` is shorthand for all three combined. Default `theme:create` output (without any of these flags) is unchanged. The generated `composer.json` also now sets a real package name (`custom/<theme-name>` instead of a hardcoded placeholder) and pins `shopware/core`.
+diff --git a/src/Storefront/DependencyInjection/theme.php b/src/Storefront/DependencyInjection/theme.php
+index 2446d91c8af..ddf28e61547 100644
+--- a/src/Storefront/DependencyInjection/theme.php
++++ b/src/Storefront/DependencyInjection/theme.php
+@@ -77,6 +77,7 @@ use Shopware\Storefront\Theme\ThemeService;
+ use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilder;
+ use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface;
+ use Shopware\Storefront\Theme\Twig\ThemeNamespaceHierarchyBuilder;
++use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
+ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+ use Symfony\Component\Filesystem\Filesystem;
+@@ -274,6 +275,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
+         ])
+         ->tag('messenger.message_handler');
+ 
++    $services->set(UnusedThemeDirectoryDeleter::class)
++        ->args([
++            service(Connection::class),
++            service('shopware.filesystem.theme'),
++            service(AbstractThemePathBuilder::class),
++            service(ClockInterface::class),
++        ]);
++
+     $services->set(DeleteThemeFilesTask::class)
+         ->tag('shopware.scheduled.task');
+ 
+@@ -281,10 +290,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
+         ->args([
+             service('scheduled_task.repository'),
+             service('logger'),
+-            service(Connection::class),
+-            service('shopware.filesystem.theme'),
+-            service(AbstractThemePathBuilder::class),
+-            service(ClockInterface::class),
++            service(UnusedThemeDirectoryDeleter::class),
+         ])
+         ->tag('messenger.message_handler');
+ 
+@@ -369,8 +375,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
+             service(StorefrontPluginRegistry::class),
+             service('sales_channel.repository'),
+             service('theme.repository'),
+-            service('theme_sales_channel.repository'),
+-            service('media_thumbnail.repository'),
++            service(UnusedThemeDirectoryDeleter::class),
+         ])
+         ->tag('console.command');
+ 
+@@ -379,6 +384,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
+             service(ThemeService::class),
+             service(AbstractAvailableThemeProvider::class),
+             service(ClockInterface::class),
++            service(UnusedThemeDirectoryDeleter::class),
+         ])
+         ->tag('console.command');
+ 
+diff --git a/src/Storefront/Theme/Command/ThemeChangeCommand.php b/src/Storefront/Theme/Command/ThemeChangeCommand.php
+index 0fef3715328..38c6b2cd3a5 100644
+--- a/src/Storefront/Theme/Command/ThemeChangeCommand.php
++++ b/src/Storefront/Theme/Command/ThemeChangeCommand.php
+@@ -12,6 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+ use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+ use Shopware\Storefront\Theme\ThemeCollection;
+ use Shopware\Storefront\Theme\ThemeService;
++use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
+ use Symfony\Component\Console\Attribute\AsCommand;
+ use Symfony\Component\Console\Command\Command;
+ use Symfony\Component\Console\Helper\QuestionHelper;
+@@ -43,7 +44,8 @@ class ThemeChangeCommand extends Command
+         private readonly ThemeService $themeService,
+         private readonly StorefrontPluginRegistry $pluginRegistry,
+         private readonly EntityRepository $salesChannelRepository,
+-        private readonly EntityRepository $themeRepository
++        private readonly EntityRepository $themeRepository,
++        private readonly UnusedThemeDirectoryDeleter $unusedThemeDirectoryDeleter
+     ) {
+         parent::__construct();
+         $this->context = Context::createCLIContext();
+@@ -56,6 +58,7 @@ class ThemeChangeCommand extends Command
+         $this->addOption('all', null, InputOption::VALUE_NONE, 'Set theme for all sales channel Can not be used together with -s');
+         $this->addOption('no-compile', null, InputOption::VALUE_NONE, 'Skip theme compiling');
+         $this->addOption('sync', null, InputOption::VALUE_NONE, 'Compile the theme synchronously');
++        $this->addOption('no-cleanup', null, InputOption::VALUE_NONE, 'Do not delete unused theme directories after compilation');
+     }
+ 
+     protected function execute(InputInterface $input, OutputInterface $output): int
+@@ -132,6 +135,11 @@ class ThemeChangeCommand extends Command
+             );
+         }
+ 
++        if (!$input->getOption('no-cleanup')) {
++            $deletedDirectories = $this->unusedThemeDirectoryDeleter->deleteUnusedDirectories();
++            $this->io->note(\sprintf('Deleted %d unused theme %s', $deletedDirectories, $deletedDirectories === 1 ? 'directory' : 'directories'));
++        }
++
+         return self::SUCCESS;
+     }
+ 
+diff --git a/src/Storefront/Theme/Command/ThemeCompileCommand.php b/src/Storefront/Theme/Command/ThemeCompileCommand.php
+index d7d1bd16593..7c5621c1d73 100644
+--- a/src/Storefront/Theme/Command/ThemeCompileCommand.php
++++ b/src/Storefront/Theme/Command/ThemeCompileCommand.php
+@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
+ use Shopware\Core\Framework\Log\Package;
+ use Shopware\Storefront\Theme\ConfigLoader\AbstractAvailableThemeProvider;
+ use Shopware\Storefront\Theme\ThemeService;
++use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
+ use Symfony\Component\Console\Attribute\AsCommand;
+ use Symfony\Component\Console\Command\Command;
+ use Symfony\Component\Console\Input\InputInterface;
+@@ -30,7 +31,8 @@ class ThemeCompileCommand extends Command
+     public function __construct(
+         private readonly ThemeService $themeService,
+         private readonly AbstractAvailableThemeProvider $themeProvider,
+-        private readonly ClockInterface $clock
++        private readonly ClockInterface $clock,
++        private readonly UnusedThemeDirectoryDeleter $unusedThemeDirectoryDeleter
+     ) {
+         parent::__construct();
+     }
+@@ -45,6 +47,7 @@ class ThemeCompileCommand extends Command
+             ->addOption('only-themes', 'O', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Compile only themes for given theme ids')
+             ->addOption('skip-themes', 'S', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Skip compiling themes for given theme ids')
+             ->addOption('sync', null, InputOption::VALUE_NONE, 'Compile the theme synchronously')
++            ->addOption('no-cleanup', null, InputOption::VALUE_NONE, 'Do not delete unused theme directories after compilation')
+         ;
+     }
+ 
+@@ -97,6 +100,11 @@ class ThemeCompileCommand extends Command
+             $this->io->note(\sprintf('Took %f seconds', (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $start));
+         }
+ 
++        if (!$input->getOption('no-cleanup')) {
++            $deletedDirectories = $this->unusedThemeDirectoryDeleter->deleteUnusedDirectories();
++            $this->io->note(\sprintf('Deleted %d unused theme %s', $deletedDirectories, $deletedDirectories === 1 ? 'directory' : 'directories'));
++        }
++
+         return self::SUCCESS;
+     }
+ }
+diff --git a/src/Storefront/Theme/ScheduledTask/DeleteThemeFilesTaskHandler.php b/src/Storefront/Theme/ScheduledTask/DeleteThemeFilesTaskHandler.php
+index 6709889a6af..73c8db5e7a3 100644
+--- a/src/Storefront/Theme/ScheduledTask/DeleteThemeFilesTaskHandler.php
++++ b/src/Storefront/Theme/ScheduledTask/DeleteThemeFilesTaskHandler.php
+@@ -4,16 +4,11 @@ declare(strict_types=1);
+ 
+ namespace Shopware\Storefront\Theme\ScheduledTask;
+ 
+-use Doctrine\DBAL\Connection;
+-use League\Flysystem\FilesystemOperator;
+-use League\Flysystem\FilesystemReader;
+-use League\Flysystem\StorageAttributes;
+-use Psr\Clock\ClockInterface;
+ use Psr\Log\LoggerInterface;
+ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+ use Shopware\Core\Framework\Log\Package;
+ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
+-use Shopware\Storefront\Theme\AbstractThemePathBuilder;
++use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
+ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+ 
+ /**
+@@ -26,83 +21,13 @@ final class DeleteThemeFilesTaskHandler extends ScheduledTaskHandler
+     public function __construct(
+         EntityRepository $scheduledTaskRepository,
+         LoggerInterface $exceptionLogger,
+-        private readonly Connection $connection,
+-        private readonly FilesystemOperator $themeFileSystem,
+-        private readonly AbstractThemePathBuilder $themePathBuilder,
+-        private readonly ClockInterface $clock,
++        private readonly UnusedThemeDirectoryDeleter $unusedThemeDirectoryDeleter,
+     ) {
+         parent::__construct($scheduledTaskRepository, $exceptionLogger);
+     }
+ 
+     public function run(): void
+     {
+-        $usedThemePaths = $this->getUsedThemePaths();
+-
+-        $themeDirectories = $this->themeFileSystem->listContents('theme')->filter(function (StorageAttributes $themeDirectory) use ($usedThemePaths) {
+-            // Only delete unused theme directories
+-            if (\in_array($themeDirectory->path(), $usedThemePaths, true)) {
+-                return false;
+-            }
+-
+-            // Find the first file in the directory, as on some file systems the directories are only virtual and do not have a timestamp
+-            $modifiedTimestampOfFirstFile = $this->getModifiedTimestampOfFirstFile($themeDirectory);
+-
+-            // If no files are found in the directory, delete it
+-            if ($modifiedTimestampOfFirstFile === null) {
+-                return true;
+-            }
+-
+-            // Only delete directories that were last modified more than 24 hours ago, as more recently compiled themes might still be referenced in cached responses
+-            $twentyFourHoursAgo = $this->clock->now()->modify('-24 hours')->getTimestamp();
+-
+-            return $twentyFourHoursAgo > $modifiedTimestampOfFirstFile;
+-        });
+-
+-        foreach ($themeDirectories as $themeDirectory) {
+-            $themePath = $themeDirectory->path();
+-            $this->themeFileSystem->deleteDirectory($themePath);
+-        }
+-    }
+-
+-    /**
+-     * @return list<string>
+-     */
+-    private function getUsedThemePaths(): array
+-    {
+-        $salesChannelThemeMappings = $this->connection->fetchAllAssociative(
+-            'SELECT LOWER(HEX(sales_channel_id)) AS salesChannelId, LOWER(HEX(theme_id)) AS themeId
+-             FROM theme_sales_channel'
+-        );
+-
+-        $themePaths = [];
+-        foreach (array_unique(array_column($salesChannelThemeMappings, 'themeId')) as $themeId) {
+-            // Add path with themeId (for assets)
+-            $themePaths[] = 'theme' . \DIRECTORY_SEPARATOR . $themeId;
+-        }
+-
+-        foreach ($salesChannelThemeMappings as $salesChannelThemeMapping) {
+-            // Add path with themePrefix (for CSS and JS files)
+-            $themePaths[] = 'theme' . \DIRECTORY_SEPARATOR . $this->themePathBuilder->assemblePath($salesChannelThemeMapping['salesChannelId'], $salesChannelThemeMapping['themeId']);
+-        }
+-
+-        return $themePaths;
+-    }
+-
+-    private function getModifiedTimestampOfFirstFile(StorageAttributes $themeDirectory): ?int
+-    {
+-        foreach ($this->themeFileSystem->listContents($themeDirectory->path(), FilesystemReader::LIST_DEEP) as $file) {
+-            if (!$file->isFile()) {
+-                continue;
+-            }
+-
+-            $lastModified = $file->lastModified();
+-            if ($lastModified === null) {
+-                continue;
+-            }
+-
+-            return $lastModified;
+-        }
+-
+-        return null;
++        $this->unusedThemeDirectoryDeleter->deleteUnusedDirectories();
+     }
+ }
+diff --git a/src/Storefront/Theme/UnusedThemeDirectoryDeleter.php b/src/Storefront/Theme/UnusedThemeDirectoryDeleter.php
+new file mode 100644
+index 00000000000..bd9691c850d
+--- /dev/null
++++ b/src/Storefront/Theme/UnusedThemeDirectoryDeleter.php
+@@ -0,0 +1,110 @@
++<?php declare(strict_types=1);
++
++namespace Shopware\Storefront\Theme;
++
++use Doctrine\DBAL\Connection;
++use League\Flysystem\FilesystemOperator;
++use League\Flysystem\FilesystemReader;
++use League\Flysystem\StorageAttributes;
++use Psr\Clock\ClockInterface;
++use Shopware\Core\Framework\Log\Package;
++
++/**
++ * Deletes theme directories that are no longer referenced by any sales channel/theme mapping.
++ *
++ * A directory is only removed when its files have not been modified within the grace period,
++ * so that recently compiled themes still referenced by cached responses are kept long enough
++ * to be served.
++ *
++ * @internal
++ */
++#[Package('discovery')]
++class UnusedThemeDirectoryDeleter
++{
++    private const GRACE_PERIOD_HOURS = 24;
++
++    public function __construct(
++        private readonly Connection $connection,
++        private readonly FilesystemOperator $themeFileSystem,
++        private readonly AbstractThemePathBuilder $themePathBuilder,
++        private readonly ClockInterface $clock,
++    ) {
++    }
++
++    /**
++     * @return int the number of deleted theme directories
++     */
++    public function deleteUnusedDirectories(): int
++    {
++        $usedThemePaths = $this->getUsedThemePaths();
++
++        $themeDirectories = $this->themeFileSystem->listContents('theme')->filter(function (StorageAttributes $themeDirectory) use ($usedThemePaths) {
++            if (\in_array($themeDirectory->path(), $usedThemePaths, true)) {
++                return false;
++            }
++
++            $modifiedTimestampOfFirstFile = $this->getModifiedTimestampOfFirstFile($themeDirectory);
++
++            if ($modifiedTimestampOfFirstFile === null) {
++                return true;
++            }
++
++            $graceBoundary = $this->clock->now()
++                ->modify(\sprintf('-%d hours', self::GRACE_PERIOD_HOURS))
++                ->getTimestamp();
++
++            return $graceBoundary > $modifiedTimestampOfFirstFile;
++        });
++
++        $deletedCount = 0;
++        foreach ($themeDirectories as $themeDirectory) {
++            $this->themeFileSystem->deleteDirectory($themeDirectory->path());
++            ++$deletedCount;
++        }
++
++        return $deletedCount;
++    }
++
++    /**
++     * @return list<string>
++     */
++    private function getUsedThemePaths(): array
++    {
++        $salesChannelThemeMappings = $this->connection->fetchAllAssociative(
++            'SELECT LOWER(HEX(sales_channel_id)) AS salesChannelId, LOWER(HEX(theme_id)) AS themeId
++             FROM theme_sales_channel'
++        );
++
++        $themePaths = [];
++        foreach (array_unique(array_column($salesChannelThemeMappings, 'themeId')) as $themeId) {
++            $themePaths[] = 'theme' . \DIRECTORY_SEPARATOR . $themeId;
++        }
++
++        foreach ($salesChannelThemeMappings as $salesChannelThemeMapping) {
++            $themePaths[] = 'theme' . \DIRECTORY_SEPARATOR . $this->themePathBuilder->assemblePath(
++                $salesChannelThemeMapping['salesChannelId'],
++                $salesChannelThemeMapping['themeId']
++            );
++        }
++
++        return $themePaths;
++    }
++
++    private function getModifiedTimestampOfFirstFile(StorageAttributes $themeDirectory): ?int
++    {
++        foreach ($this->themeFileSystem->listContents($themeDirectory->path(), FilesystemReader::LIST_DEEP) as $file) {
++            if (!$file->isFile()) {
++                continue;
++            }
++
++            $lastModified = $file->lastModified();
++            if ($lastModified === null) {
++                continue;
++            }
++
++            return $lastModified;
++        }
++
++        return null;
++    }
++}
+diff --git a/tests/integration/Storefront/Theme/Command/ThemeChangeCommandTest.php b/tests/integration/Storefront/Theme/Command/ThemeChangeCommandTest.php
+index 20c32c7cd83..6ce75b885c1 100644
+--- a/tests/integration/Storefront/Theme/Command/ThemeChangeCommandTest.php
++++ b/tests/integration/Storefront/Theme/Command/ThemeChangeCommandTest.php
+@@ -20,6 +20,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
+ use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+ use Shopware\Storefront\Theme\ThemeCollection;
+ use Shopware\Storefront\Theme\ThemeService;
++use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
+ use Symfony\Component\Console\Application;
+ use Symfony\Component\Console\Tester\CommandTester;
+ 
+@@ -58,7 +59,8 @@ class ThemeChangeCommandTest extends TestCase
+             $this->themeService,
+             $this->pluginRegistry,
+             $this->salesChannelRepository,
+-            $this->themeRepository
++            $this->themeRepository,
++            static::createStub(UnusedThemeDirectoryDeleter::class)
+         );
+ 
+         $this->commandTester = new CommandTester($themeChangeCommand);
+diff --git a/tests/unit/Storefront/Theme/Command/ThemeChangeCommandTest.php b/tests/unit/Storefront/Theme/Command/ThemeChangeCommandTest.php
+new file mode 100644
+index 00000000000..b87e4d6e8db
+--- /dev/null
++++ b/tests/unit/Storefront/Theme/Command/ThemeChangeCommandTest.php
+@@ -0,0 +1,96 @@
++<?php declare(strict_types=1);
++
++namespace Shopware\Tests\Unit\Storefront\Theme\Command;
++
++use PHPUnit\Framework\Attributes\CoversClass;
++use PHPUnit\Framework\TestCase;
++use Shopware\Core\Framework\Log\Package;
++use Shopware\Core\Framework\Uuid\Uuid;
++use Shopware\Core\System\SalesChannel\SalesChannelCollection;
++use Shopware\Core\System\SalesChannel\SalesChannelEntity;
++use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
++use Shopware\Storefront\Theme\Command\ThemeChangeCommand;
++use Shopware\Storefront\Theme\StorefrontPluginRegistry;
++use Shopware\Storefront\Theme\ThemeCollection;
++use Shopware\Storefront\Theme\ThemeEntity;
++use Shopware\Storefront\Theme\ThemeService;
++use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
++use Symfony\Component\Console\Application;
++use Symfony\Component\Console\Tester\CommandTester;
++
++/**
++ * @internal
++ */
++#[Package('discovery')]
++#[CoversClass(ThemeChangeCommand::class)]
++class ThemeChangeCommandTest extends TestCase
++{
++    public function testItDeletesUnusedDirectoriesAfterChange(): void
++    {
++        $unusedThemeDirectoryDeleter = static::createMock(UnusedThemeDirectoryDeleter::class);
++        $unusedThemeDirectoryDeleter->expects($this->once())
++            ->method('deleteUnusedDirectories')
++            ->willReturn(2);
++
++        $commandTester = new CommandTester($this->createCommand($unusedThemeDirectoryDeleter));
++
++        $commandTester->execute(['theme-name' => 'Storefront', '--all' => true]);
++        $commandTester->assertCommandIsSuccessful();
++    }
++
++    public function testItSkipsCleanupWhenNoCleanupOptionIsPassed(): void
++    {
++        $unusedThemeDirectoryDeleter = static::createMock(UnusedThemeDirectoryDeleter::class);
++        $unusedThemeDirectoryDeleter->expects($this->never())
++            ->method('deleteUnusedDirectories');
++
++        $commandTester = new CommandTester($this->createCommand($unusedThemeDirectoryDeleter));
++
++        $commandTester->execute(['theme-name' => 'Storefront', '--all' => true, '--no-cleanup' => true]);
++        $commandTester->assertCommandIsSuccessful();
++    }
++
++    public function testItCleansUpEvenWhenCompilationIsSkipped(): void
++    {
++        $unusedThemeDirectoryDeleter = static::createMock(UnusedThemeDirectoryDeleter::class);
++        $unusedThemeDirectoryDeleter->expects($this->once())
++            ->method('deleteUnusedDirectories')
++            ->willReturn(0);
++
++        $commandTester = new CommandTester($this->createCommand($unusedThemeDirectoryDeleter));
++
++        $commandTester->execute(['theme-name' => 'Storefront', '--all' => true, '--no-compile' => true]);
++        $commandTester->assertCommandIsSuccessful();
++    }
++
++    private function createCommand(UnusedThemeDirectoryDeleter $unusedThemeDirectoryDeleter): ThemeChangeCommand
++    {
++        $salesChannel = new SalesChannelEntity();
++        $salesChannel->setId(Uuid::randomHex());
++        $salesChannel->setUniqueIdentifier($salesChannel->getId());
++        $salesChannel->setName('Storefront');
++
++        $theme = new ThemeEntity();
++        $theme->setId(Uuid::randomHex());
++        $theme->setUniqueIdentifier($theme->getId());
++        $theme->setTechnicalName('Storefront');
++
++        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
++        $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection([$salesChannel])]);
++        /** @var StaticEntityRepository<ThemeCollection> $themeRepository */
++        $themeRepository = new StaticEntityRepository([new ThemeCollection([$theme])]);
++
++        $command = new ThemeChangeCommand(
++            static::createStub(ThemeService::class),
++            static::createStub(StorefrontPluginRegistry::class),
++            $salesChannelRepository,
++            $themeRepository,
++            $unusedThemeDirectoryDeleter
++        );
++
++        // register the command on an application so the "question" helper set is available
++        (new Application())->addCommand($command);
++
++        return $command;
++    }
++}
+diff --git a/tests/unit/Storefront/Theme/Command/ThemeCompileCommandTest.php b/tests/unit/Storefront/Theme/Command/ThemeCompileCommandTest.php
+index 4d3c5d66ee0..33f9ca2de7d 100644
+--- a/tests/unit/Storefront/Theme/Command/ThemeCompileCommandTest.php
++++ b/tests/unit/Storefront/Theme/Command/ThemeCompileCommandTest.php
+@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
+ use Shopware\Storefront\Theme\Command\ThemeCompileCommand;
+ use Shopware\Storefront\Theme\ConfigLoader\AbstractAvailableThemeProvider;
+ use Shopware\Storefront\Theme\ThemeService;
++use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
+ use Symfony\Component\Clock\NativeClock;
+ use Symfony\Component\Console\Tester\CommandTester;
+ 
+@@ -38,7 +39,7 @@ class ThemeCompileCommandTest extends TestCase
+             ->with(static::anything(), false)
+             ->willReturn([$salesChannelId => $themeId]);
+ 
+-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
++        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), static::createStub(UnusedThemeDirectoryDeleter::class)));
+ 
+         $commandTester->execute(['--keep-assets' => $keepAssetsOption]);
+         $commandTester->assertCommandIsSuccessful();
+@@ -55,7 +56,7 @@ class ThemeCompileCommandTest extends TestCase
+             ->with(static::anything(), $activeOnly)
+             ->willReturn([]);
+ 
+-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
++        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), static::createStub(UnusedThemeDirectoryDeleter::class)));
+ 
+         $commandTester->execute(['--active-only' => $activeOnly]);
+         $commandTester->assertCommandIsSuccessful();
+@@ -80,7 +81,7 @@ class ThemeCompileCommandTest extends TestCase
+             ->with(static::anything(), false)
+             ->willReturn([$salesChannelId => $themeId]);
+ 
+-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
++        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), static::createStub(UnusedThemeDirectoryDeleter::class)));
+ 
+         $commandTester->execute(['--sync' => true]);
+         $commandTester->assertCommandIsSuccessful();
+@@ -125,7 +126,7 @@ class ThemeCompileCommandTest extends TestCase
+                 }
+             );
+ 
+-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
++        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), static::createStub(UnusedThemeDirectoryDeleter::class)));
+ 
+         $commandTester->execute(['--skip' => [$salesChannelIdSkip1, $salesChannelIdSkip2]]);
+         $commandTester->assertCommandIsSuccessful();
+@@ -170,7 +171,7 @@ class ThemeCompileCommandTest extends TestCase
+                 }
+             );
+ 
+-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
++        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), static::createStub(UnusedThemeDirectoryDeleter::class)));
+ 
+         $commandTester->execute(['--only' => [$salesChannelIdIncluded1, $salesChannelIdIncluded2]]);
+         $commandTester->assertCommandIsSuccessful();
+@@ -216,7 +217,7 @@ class ThemeCompileCommandTest extends TestCase
+                 }
+             );
+ 
+-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
++        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), static::createStub(UnusedThemeDirectoryDeleter::class)));
+ 
+         $commandTester->execute(['--skip-themes' => [$themeIdSkip]]);
+         $commandTester->assertCommandIsSuccessful();
+@@ -262,7 +263,7 @@ class ThemeCompileCommandTest extends TestCase
+                 }
+             );
+ 
+-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
++        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), static::createStub(UnusedThemeDirectoryDeleter::class)));
+ 
+         $commandTester->execute(['--only-themes' => [$themeIdIncluded]]);
+         $commandTester->assertCommandIsSuccessful();
+@@ -278,7 +279,7 @@ class ThemeCompileCommandTest extends TestCase
+         $themeService->expects($this->never())
+             ->method('compileTheme');
+ 
+-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
++        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), static::createStub(UnusedThemeDirectoryDeleter::class)));
+ 
+         $salesChannelId = Uuid::randomHex();
+         $commandTester->execute([
+@@ -298,7 +299,7 @@ class ThemeCompileCommandTest extends TestCase
+         $themeService->expects($this->never())
+             ->method('compileTheme');
+ 
+-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
++        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), static::createStub(UnusedThemeDirectoryDeleter::class)));
+ 
+         $themeId = Uuid::randomHex();
+         $commandTester->execute([
+@@ -308,6 +309,45 @@ class ThemeCompileCommandTest extends TestCase
+         static::assertSame(1, $commandTester->getStatusCode());
+     }
+ 
++    public function testItDeletesUnusedThemeFilesAfterCompilation(): void
++    {
++        $themeService = static::createStub(ThemeService::class);
++
++        $themeProvider = static::createMock(AbstractAvailableThemeProvider::class);
++        $themeProvider->expects($this->once())
++            ->method('load')
++            ->willReturn(['sales-channel-id' => 'theme-id']);
++
++        $unusedThemeFilesDeleter = static::createMock(UnusedThemeDirectoryDeleter::class);
++        $unusedThemeFilesDeleter->expects($this->once())
++            ->method('deleteUnusedDirectories')
++            ->willReturn(3);
++
++        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), $unusedThemeFilesDeleter));
++
++        $commandTester->execute([]);
++        $commandTester->assertCommandIsSuccessful();
++    }
++
++    public function testItSkipsCleanupWhenNoCleanupOptionIsPassed(): void
++    {
++        $themeService = static::createStub(ThemeService::class);
++
++        $themeProvider = static::createMock(AbstractAvailableThemeProvider::class);
++        $themeProvider->expects($this->once())
++            ->method('load')
++            ->willReturn(['sales-channel-id' => 'theme-id']);
++
++        $unusedThemeFilesDeleter = static::createMock(UnusedThemeDirectoryDeleter::class);
++        $unusedThemeFilesDeleter->expects($this->never())
++            ->method('deleteUnusedDirectories');
++
++        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), $unusedThemeFilesDeleter));
++
++        $commandTester->execute(['--no-cleanup' => true]);
++        $commandTester->assertCommandIsSuccessful();
++    }
++
+     /**
+      * @return iterable<array<bool>>
+      */
+diff --git a/tests/unit/Storefront/Theme/ScheduledTask/DeleteThemeFilesTaskHandlerTest.php b/tests/unit/Storefront/Theme/ScheduledTask/DeleteThemeFilesTaskHandlerTest.php
+index 06de4bf710b..8c4d9015874 100644
+--- a/tests/unit/Storefront/Theme/ScheduledTask/DeleteThemeFilesTaskHandlerTest.php
++++ b/tests/unit/Storefront/Theme/ScheduledTask/DeleteThemeFilesTaskHandlerTest.php
+@@ -4,20 +4,13 @@ declare(strict_types=1);
+ 
+ namespace Shopware\Tests\Unit\Storefront\Theme\ScheduledTask;
+ 
+-use Doctrine\DBAL\Connection;
+-use League\Flysystem\DirectoryAttributes;
+-use League\Flysystem\DirectoryListing;
+-use League\Flysystem\FileAttributes;
+-use League\Flysystem\FilesystemOperator;
+-use League\Flysystem\FilesystemReader;
+ use PHPUnit\Framework\Attributes\CoversClass;
+ use PHPUnit\Framework\TestCase;
+ use Psr\Log\LoggerInterface;
+ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+ use Shopware\Core\Framework\Log\Package;
+-use Shopware\Storefront\Theme\AbstractThemePathBuilder;
+ use Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTaskHandler;
+-use Symfony\Component\Clock\NativeClock;
++use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
+ 
+ /**
+  * @internal
+@@ -26,88 +19,15 @@ use Symfony\Component\Clock\NativeClock;
+ #[CoversClass(DeleteThemeFilesTaskHandler::class)]
+ class DeleteThemeFilesTaskHandlerTest extends TestCase
+ {
+-    public function testRun(): void
++    public function testRunDelegatesToDeleter(): void
+     {
+-        $connection = $this->createMock(Connection::class);
+-        $connection->expects($this->once())->method('fetchAllAssociative')->willReturn([
+-            ['salesChannelId' => 'salesChannelId1', 'themeId' => 'themeId1'],
+-            ['salesChannelId' => 'salesChannelId2', 'themeId' => 'themeId1'],
+-        ]);
+-
+-        $themeFileSystem = $this->createMock(FilesystemOperator::class);
+-        $themeFileSystem->expects($this->exactly(5))->method('listContents')
+-            ->willReturnMap([
+-                [
+-                    'theme',
+-                    FilesystemReader::LIST_SHALLOW,
+-                    new DirectoryListing([
+-                        new DirectoryAttributes('theme/themeId1'),
+-                        new DirectoryAttributes('theme/themeOldId'),
+-                        new DirectoryAttributes('theme/usedThemePath'),
+-                        new DirectoryAttributes('theme/unusedThemePathWithoutFiles'),
+-                        new DirectoryAttributes('theme/unusedThemePathOlderThanOneDay'),
+-                        new DirectoryAttributes('theme/unusedThemePathNewerThanOneDay'),
+-                    ]),
+-                ],
+-                [
+-                    'theme/unusedThemePathWithoutFiles',
+-                    FilesystemReader::LIST_DEEP,
+-                    new DirectoryListing([
+-                        new DirectoryAttributes('theme/unusedThemePathWithoutFiles/foo'),
+-                    ]),
+-                ],
+-                [
+-                    'theme/unusedThemePathOlderThanOneDay',
+-                    FilesystemReader::LIST_DEEP,
+-                    new DirectoryListing([
+-                        new DirectoryAttributes('theme/unusedThemePathOlderThanOneDay/foo'),
+-                        new FileAttributes('theme/unusedThemePathOlderThanOneDay/fileWithoutTimestamp.txt'),
+-                        new FileAttributes(
+-                            'theme/unusedThemePathOlderThanOneDay/file1.txt',
+-                            lastModified: (new \DateTimeImmutable())->modify('-25 hours')->getTimestamp()
+-                        ),
+-                    ]),
+-                ],
+-                [
+-                    'theme/unusedThemePathNewerThanOneDay',
+-                    FilesystemReader::LIST_DEEP,
+-                    new DirectoryListing([
+-                        new FileAttributes(
+-                            'theme/unusedThemePathNewerThanOneDay/file2.txt',
+-                            lastModified: (new \DateTimeImmutable())->modify('-23 hours')->getTimestamp()
+-                        ),
+-                    ]),
+-                ],
+-                [
+-                    'theme/themeOldId',
+-                    FilesystemReader::LIST_DEEP,
+-                    new DirectoryListing([
+-                        new FileAttributes(
+-                            'theme/themeOldId/assets/file1.txt',
+-                            lastModified: (new \DateTimeImmutable())->modify('-25 hours')->getTimestamp()
+-                        ),
+-                    ]),
+-                ],
+-            ]);
+-        $themeFileSystem->expects($this->exactly(3))->method('deleteDirectory')->willReturnMap([
+-            ['theme/unusedThemePathWithoutFiles'],
+-            ['theme/unusedThemePathOlderThanOneDay'],
+-            ['theme/themeOldId'],
+-        ]);
+-
+-        $themePathBuilder = $this->createMock(AbstractThemePathBuilder::class);
+-        $themePathBuilder->expects($this->exactly(2))->method('assemblePath')->willReturnMap([
+-            ['salesChannelId1', 'themeId1', 'usedThemePath'],
+-            ['salesChannelId2', 'themeId1', 'differentThemePrefix'],
+-        ]);
++        $unusedThemeFilesDeleter = $this->createMock(UnusedThemeDirectoryDeleter::class);
++        $unusedThemeFilesDeleter->expects($this->once())->method('deleteUnusedDirectories')->willReturn(0);
+ 
+         $handler = new DeleteThemeFilesTaskHandler(
+             static::createStub(EntityRepository::class),
+             static::createStub(LoggerInterface::class),
+-            $connection,
+-            $themeFileSystem,
+-            $themePathBuilder,
+-            new NativeClock()
++            $unusedThemeFilesDeleter
+         );
+ 
+         $handler->run();
+diff --git a/tests/unit/Storefront/Theme/UnusedThemeDirectoryDeleterTest.php b/tests/unit/Storefront/Theme/UnusedThemeDirectoryDeleterTest.php
+new file mode 100644
+index 00000000000..5db106192f5
+--- /dev/null
++++ b/tests/unit/Storefront/Theme/UnusedThemeDirectoryDeleterTest.php
+@@ -0,0 +1,109 @@
++<?php declare(strict_types=1);
++
++namespace Shopware\Tests\Unit\Storefront\Theme;
++
++use Doctrine\DBAL\Connection;
++use League\Flysystem\DirectoryAttributes;
++use League\Flysystem\DirectoryListing;
++use League\Flysystem\FileAttributes;
++use League\Flysystem\FilesystemOperator;
++use League\Flysystem\FilesystemReader;
++use PHPUnit\Framework\Attributes\CoversClass;
++use PHPUnit\Framework\TestCase;
++use Shopware\Core\Framework\Log\Package;
++use Shopware\Storefront\Theme\AbstractThemePathBuilder;
++use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
++use Symfony\Component\Clock\NativeClock;
++
++/**
++ * @internal
++ */
++#[Package('discovery')]
++#[CoversClass(UnusedThemeDirectoryDeleter::class)]
++class UnusedThemeDirectoryDeleterTest extends TestCase
++{
++    public function testDeleteUnusedDirectories(): void
++    {
++        $connection = $this->createMock(Connection::class);
++        $connection->expects($this->once())->method('fetchAllAssociative')->willReturn([
++            ['salesChannelId' => 'salesChannelId1', 'themeId' => 'themeId1'],
++            ['salesChannelId' => 'salesChannelId2', 'themeId' => 'themeId1'],
++        ]);
++
++        $themeFileSystem = $this->createMock(FilesystemOperator::class);
++        $themeFileSystem->expects($this->exactly(5))->method('listContents')
++            ->willReturnMap([
++                [
++                    'theme',
++                    FilesystemReader::LIST_SHALLOW,
++                    new DirectoryListing([
++                        new DirectoryAttributes('theme/themeId1'),
++                        new DirectoryAttributes('theme/themeOldId'),
++                        new DirectoryAttributes('theme/usedThemePath'),
++                        new DirectoryAttributes('theme/unusedThemePathWithoutFiles'),
++                        new DirectoryAttributes('theme/unusedThemePathOlderThanOneDay'),
++                        new DirectoryAttributes('theme/unusedThemePathNewerThanOneDay'),
++                    ]),
++                ],
++                [
++                    'theme/unusedThemePathWithoutFiles',
++                    FilesystemReader::LIST_DEEP,
++                    new DirectoryListing([
++                        new DirectoryAttributes('theme/unusedThemePathWithoutFiles/foo'),
++                    ]),
++                ],
++                [
++                    'theme/unusedThemePathOlderThanOneDay',
++                    FilesystemReader::LIST_DEEP,
++                    new DirectoryListing([
++                        new DirectoryAttributes('theme/unusedThemePathOlderThanOneDay/foo'),
++                        new FileAttributes('theme/unusedThemePathOlderThanOneDay/fileWithoutTimestamp.txt'),
++                        new FileAttributes(
++                            'theme/unusedThemePathOlderThanOneDay/file1.txt',
++                            lastModified: (new \DateTimeImmutable())->modify('-25 hours')->getTimestamp()
++                        ),
++                    ]),
++                ],
++                [
++                    'theme/unusedThemePathNewerThanOneDay',
++                    FilesystemReader::LIST_DEEP,
++                    new DirectoryListing([
++                        new FileAttributes(
++                            'theme/unusedThemePathNewerThanOneDay/file2.txt',
++                            lastModified: (new \DateTimeImmutable())->modify('-23 hours')->getTimestamp()
++                        ),
++                    ]),
++                ],
++                [
++                    'theme/themeOldId',
++                    FilesystemReader::LIST_DEEP,
++                    new DirectoryListing([
++                        new FileAttributes(
++                            'theme/themeOldId/assets/file1.txt',
++                            lastModified: (new \DateTimeImmutable())->modify('-25 hours')->getTimestamp()
++                        ),
++                    ]),
++                ],
++            ]);
++        $themeFileSystem->expects($this->exactly(3))->method('deleteDirectory')->willReturnMap([
++            ['theme/unusedThemePathWithoutFiles'],
++            ['theme/unusedThemePathOlderThanOneDay'],
++            ['theme/themeOldId'],
++        ]);
++
++        $themePathBuilder = $this->createMock(AbstractThemePathBuilder::class);
++        $themePathBuilder->expects($this->exactly(2))->method('assemblePath')->willReturnMap([
++            ['salesChannelId1', 'themeId1', 'usedThemePath'],
++            ['salesChannelId2', 'themeId1', 'differentThemePrefix'],
++        ]);
++
++        $deleter = new UnusedThemeDirectoryDeleter(
++            $connection,
++            $themeFileSystem,
++            $themePathBuilder,
++            new NativeClock()
++        );
++
++        static::assertSame(3, $deleter->deleteUnusedDirectories());
++    }
++}

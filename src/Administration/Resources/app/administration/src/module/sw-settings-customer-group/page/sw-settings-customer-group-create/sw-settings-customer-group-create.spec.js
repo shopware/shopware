@@ -205,9 +205,6 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.vm.customerGroup.displayGross).toBe(true);
-        expect(wrapper.vm.customerGroup.priceBasis).toBe('gross');
-
         const taxDisplayOptions = wrapper
             .find('.sw-settings-customer-group-detail__tax-display')
             .findAll('.sw-field__radio-option');

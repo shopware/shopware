@@ -57,6 +57,7 @@ async function createWrapper(privileges = [], customerGroups = defaultCustomerGr
                         props: [
                             'items',
                             'dataSource',
+                            'columns',
                             'allowEdit',
                             'allowDelete',
                             'detailRoute',
@@ -146,15 +147,18 @@ function createDeletableCustomerGroup() {
 describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-list', () => {
     it('should show name, tax display and price basis by default and hide the signup form column', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
-        expect(wrapper.vm.columns).toEqual([
+        const columns = wrapper.findComponent('.sw-settings-customer-group-list-grid').props('columns');
+
+        expect(columns).toEqual([
             expect.objectContaining({ property: 'name' }),
             expect.objectContaining({ property: 'displayGross' }),
             expect.objectContaining({ property: 'priceBasis' }),
             expect.objectContaining({ property: 'registrationActive', visible: false }),
         ]);
 
-        const priceBasisColumn = wrapper.vm.columns.find((column) => column.property === 'priceBasis');
+        const priceBasisColumn = columns.find((column) => column.property === 'priceBasis');
 
         expect(priceBasisColumn.visible).not.toBe(false);
         expect(priceBasisColumn.inlineEdit).toBeUndefined();
@@ -172,18 +176,20 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             'sw-settings-customer-group.detail.priceBasis.netLabel',
         ],
     ])('should label the %s price basis independent of the tax display', async (_basis, customerGroup, expectedLabel) => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm.getPriceBasisLabel(customerGroup)).toBe(expectedLabel);
-    });
-
-    it('should render the price basis in the grid', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper(
+            [],
+            [
+                {
+                    id: '1',
+                    name: 'Customer group',
+                    registrationActive: false,
+                    ...customerGroup,
+                },
+            ],
+        );
         await flushPromises();
 
-        const priceBasisCell = wrapper.find('.sw-entity-listing__column-price-basis');
-
-        expect(priceBasisCell.text()).toBe('sw-settings-customer-group.detail.priceBasis.netLabel');
+        expect(wrapper.find('.sw-entity-listing__column-price-basis').text()).toBe(expectedLabel);
     });
 
     it('should render the signup form column as a boolean column', async () => {

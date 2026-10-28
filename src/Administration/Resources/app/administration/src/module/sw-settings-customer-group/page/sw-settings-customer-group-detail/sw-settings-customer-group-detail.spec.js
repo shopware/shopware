@@ -371,8 +371,14 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         ])(
             'should check the stored values for displayGross %s and price basis %s',
             async (displayGross, priceBasis, checkedTaxDisplay, checkedPriceBasis) => {
-                wrapper.vm.customerGroup.displayGross = displayGross;
-                wrapper.vm.customerGroup.priceBasis = priceBasis;
+                const storedCustomerGroup = await customerGroupRepository.get();
+                jest.spyOn(customerGroupRepository, 'get').mockResolvedValueOnce({
+                    ...storedCustomerGroup,
+                    displayGross,
+                    priceBasis,
+                });
+
+                wrapper = await createWrapper(['customer_groups.editor']);
                 await flushPromises();
 
                 expect(
@@ -392,18 +398,22 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
         it('should write the tax display without touching the basis', async () => {
             await wrapper.findAll('input[name="sw-field--customerGroup-displayGross"]').at(0).setValue();
+            await wrapper.find('.sw-settings-customer-group-detail__save').trigger('click');
             await flushPromises();
 
-            expect(wrapper.vm.customerGroup.displayGross).toBe(true);
-            expect(wrapper.vm.customerGroup.priceBasis).toBe('net');
+            expect(customerGroupRepository.save).toHaveBeenCalledWith(
+                expect.objectContaining({ displayGross: true, priceBasis: 'net' }),
+            );
         });
 
         it('should write the basis without touching the tax display', async () => {
             await wrapper.findAll('input[name="sw-field--customerGroup-priceBasis"]').at(0).setValue();
+            await wrapper.find('.sw-settings-customer-group-detail__save').trigger('click');
             await flushPromises();
 
-            expect(wrapper.vm.customerGroup.priceBasis).toBe('gross');
-            expect(wrapper.vm.customerGroup.displayGross).toBe(false);
+            expect(customerGroupRepository.save).toHaveBeenCalledWith(
+                expect.objectContaining({ priceBasis: 'gross', displayGross: false }),
+            );
         });
 
         it('should only be editable with edit permission', async () => {

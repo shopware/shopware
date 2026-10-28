@@ -4,10 +4,11 @@ namespace Shopware\Tests\Integration\Core\Framework;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -17,20 +18,15 @@ class KernelTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @deprecated tag:v6.7.0 - remove
-     */
-    public function testDatabaseTimeZonesAreEqual(): void
+    public function testPostCannotOverrideItsMethodToGet(): void
     {
-        $env = (bool) EnvironmentHelper::getVariable('SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED', false);
+        $request = Request::create('/api/_info/version', Request::METHOD_POST);
+        $request->headers->set('X-HTTP-Method-Override', Request::METHOD_GET);
 
-        if ($env === false) {
-            static::markTestSkipped('Database does not support timezones');
-        }
+        $response = static::getKernel()->handle($request);
 
-        $c = static::getContainer()->get(Connection::class);
-
-        static::assertSame($c->fetchOne('SELECT @@session.time_zone'), '+00:00');
+        static::assertSame(Response::HTTP_METHOD_NOT_ALLOWED, $response->getStatusCode());
+        static::assertSame(Request::METHOD_POST, $request->getMethod());
     }
 
     public function testUTCIsAlwaysSetToDatabase(): void

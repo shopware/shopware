@@ -1,5 +1,6 @@
 import template from './sw-order-list.html.twig';
 import './sw-order-list.scss';
+import { deprecatedComputed, deprecatedMethods } from './deprecated-members';
 
 /**
  * @sw-package checkout
@@ -70,6 +71,8 @@ export default {
     },
 
     computed: {
+        ...deprecatedComputed,
+
         hasActiveSearchOrFilter() {
             return this.activeFilterNumber > 0 || this.isValidTerm(this.term);
         },
@@ -133,24 +136,6 @@ export default {
         salesChannelCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addSorting(Criteria.sort('name'));
-
-            return criteria;
-        },
-
-        /**
-         * @deprecated tag:v6.8.0 - will be removed without replacement
-         */
-        filterSelectCriteria() {
-            Shopware.Feature.triggerDeprecationOrThrow(
-                'V6_8_0_0',
-                'sw-order-list.filterSelectCriteria is deprecated. Will be removed without replacement.',
-            );
-
-            const criteria = new Criteria(1, 1);
-
-            criteria.addAggregation(Criteria.terms('affiliateCodes', 'affiliateCode', null, null, null));
-            criteria.addAggregation(Criteria.terms('campaignCodes', 'campaignCode', null, null, null));
-            criteria.addAggregation(Criteria.terms('promotionCodes', 'lineItems.payload.code', null, null, null));
 
             return criteria;
         },
@@ -302,18 +287,6 @@ export default {
             return Shopware.Filter.getByName('currency');
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
-         */
-        dateFilter() {
-            Shopware.Feature.triggerDeprecationOrThrow(
-                'V6_8_0_0',
-                'sw-order-list.dateFilter is deprecated and will be removed, because the filter is unused.',
-            );
-
-            return Shopware.Filter.getByName('date');
-        },
-
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
@@ -332,25 +305,9 @@ export default {
     },
 
     methods: {
+        ...deprecatedMethods,
+
         createdComponent() {},
-
-        /**
-         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderDelivery instead
-         */
-        deliveryTooltip(deliveries) {
-            Shopware.Feature.triggerDeprecationOrThrow(
-                'V6_8_0_0',
-                'sw-order-list.deliveryTooltip() is deprecated. Use order.primaryOrderDelivery instead.',
-            );
-
-            return deliveries
-                .map((delivery) => {
-                    return `${delivery.shippingOrderAddress.street},
-                        ${delivery.shippingOrderAddress.zipcode}
-                        ${delivery.shippingOrderAddress.city}`;
-                })
-                .join('<hr style="margin: 8px 0">');
-        },
 
         onEdit(order) {
             if (order?.id) {
@@ -404,20 +361,6 @@ export default {
             } catch {
                 this.isLoading = false;
             }
-        },
-
-        /**
-         * @deprecated tag:v6.8.0 - will be removed, use order.billingAddress instead
-         */
-        getBillingAddress(order) {
-            Shopware.Feature.triggerDeprecationOrThrow(
-                'V6_8_0_0',
-                'sw-order-list.getBillingAddress() is deprecated. Use order.billingAddress instead.',
-            );
-
-            return order.addresses.find((address) => {
-                return address.id === order.billingAddressId;
-            });
         },
 
         disableDeletion(order) {
@@ -545,19 +488,6 @@ export default {
             });
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Use listing mixin implementation directly
-         */
-        updateCriteria(criteria) {
-            Shopware.Feature.triggerDeprecationOrThrow(
-                'V6_8_0_0',
-                'sw-order-list.updateCriteria() is deprecated. Use listing mixin implementation directly.',
-            );
-
-            // Delegate to listing mixin implementation
-            return Mixin.getByName('listing').methods.updateCriteria.call(this, criteria);
-        },
-
         getStatusCriteria(value) {
             const criteria = new Criteria(1, 25);
 
@@ -583,85 +513,6 @@ export default {
                     excludeDelivery,
                 },
             });
-        },
-
-        /**
-         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderTransaction instead
-         */
-        transaction(order) {
-            Shopware.Feature.triggerDeprecationOrThrow(
-                'V6_8_0_0',
-                'sw-order-list.transaction() is deprecated. Use order.primaryOrderTransaction instead.',
-            );
-
-            if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                if (order.primaryOrderTransaction) {
-                    return order.primaryOrderTransaction;
-                }
-
-                const transactions = order.transactions ?? [];
-                for (let i = 0; i < transactions.length; i += 1) {
-                    if (!['cancelled', 'failed'].includes(transactions[i].stateMachineState?.technicalName)) {
-                        return transactions[i];
-                    }
-                }
-
-                return transactions.last?.() ?? transactions[transactions.length - 1] ?? null;
-            }
-
-            return order.primaryOrderTransaction ?? null;
-        },
-
-        /**
-         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderDelivery instead
-         */
-        getDelivery(order) {
-            Shopware.Feature.triggerDeprecationOrThrow(
-                'V6_8_0_0',
-                'sw-order-list.getDelivery() is deprecated. Use order.primaryOrderDelivery instead.',
-            );
-
-            if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                return order.primaryOrderDelivery ?? order.deliveries?.[0] ?? null;
-            }
-
-            return order.primaryOrderDelivery ?? null;
-        },
-
-        /**
-         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderDelivery.shippingOrderAddress instead
-         */
-        getDeliveryAddress(order) {
-            Shopware.Feature.triggerDeprecationOrThrow(
-                'V6_8_0_0',
-                'sw-order-list.getDeliveryAddress() is deprecated. Use order.primaryOrderDelivery.shippingOrderAddress instead.',
-            );
-
-            return this.getDelivery(order)?.shippingOrderAddress ?? null;
-        },
-
-        /**
-         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderDelivery.stateMachineState instead
-         */
-        getDeliveryState(order) {
-            Shopware.Feature.triggerDeprecationOrThrow(
-                'V6_8_0_0',
-                'sw-order-list.getDeliveryState() is deprecated. Use order.primaryOrderDelivery.stateMachineState instead.',
-            );
-
-            return this.getDelivery(order)?.stateMachineState ?? null;
-        },
-
-        /**
-         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderTransaction.stateMachineState instead
-         */
-        getTransactionState(order) {
-            Shopware.Feature.triggerDeprecationOrThrow(
-                'V6_8_0_0',
-                'sw-order-list.getTransactionState() is deprecated. Use order.primaryOrderTransaction.stateMachineState instead.',
-            );
-
-            return this.transaction(order)?.stateMachineState ?? null;
         },
     },
 };

@@ -97,10 +97,6 @@ const createWrapper = async (stubOverrides = {}, priceGroupOverrides = {}) => {
 };
 
 describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matrix', () => {
-    afterEach(() => {
-        wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
-    });
-
     beforeEach(async () => {
         Shopware.Store.get('swShippingDetail').shippingMethod = {
             id: 'shippingMethodId',
@@ -112,6 +108,10 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
             { id: 'euro', isoCode: 'EUR', factor: 1, translated: { name: 'Euro' }, isSystemDefault: true },
             { id: 'dollar', isoCode: 'USD', factor: 2, translated: { name: 'Dollar' }, salesChannels: [{}] },
         ];
+    });
+
+    afterEach(() => {
+        wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
     });
 
     it('should not add conditions association', async () => {

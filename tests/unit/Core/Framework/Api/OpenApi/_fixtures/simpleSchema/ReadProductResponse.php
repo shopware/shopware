@@ -20,8 +20,6 @@ final class ReadProductResponse extends AbstractResponse
 {
     public string $id;
 
-    public string $name;
-
     public float $price;
 
     /**

@@ -25,10 +25,6 @@ final class SendContactMailRequest extends AbstractRequest
     #[Assert\Regex(pattern: '~^[0-9a-f]{32}$~')]
     public string $salutationId;
 
-    public string $firstName;
-
-    public string $lastName;
-
     /**
      * @internal
      */
@@ -38,11 +34,6 @@ final class SendContactMailRequest extends AbstractRequest
          */
         #[Assert\NotNull]
         public string $email,
-        /**
-         * The subject of the contact form.
-         */
-        #[Assert\NotNull]
-        public string $subject,
         /**
          * The message of the contact form
          */

@@ -26,24 +26,11 @@
               "versionId": {
                 "type": "string"
               },
-              "currencyId": {
-                "type": "string"
-              },
-              "currencyFactor": {
-                "type": "integer"
-              },
-              "currencyPrecision": {
-                "type": "integer",
-                "format": "int32"
-              },
               "languageIdChain": {
                 "type": "array",
                 "items": {
                   "type": "string"
                 }
-              },
-              "scope": {
-                "type": "string"
               },
               "source": {
                 "type": "object",
@@ -58,9 +45,6 @@
                   }
                 }
               },
-              "taxState": {
-                "type": "string"
-              },
               "useCache": {
                 "type": "boolean"
               }
@@ -70,10 +54,6 @@
             "description": "Customer group of the current user",
             "type": "object",
             "properties": {
-              "name": {
-                "description": "Name of the group",
-                "type": "string"
-              },
               "displayGross": {
                 "description": "Whether prices are displayed gross",
                 "type": "boolean"
@@ -104,9 +84,6 @@
               "properties": {
                 "taxRate": {
                   "type": "number"
-                },
-                "name": {
-                  "type": "string"
                 }
               }
             }
@@ -116,14 +93,11 @@
       "SalesChannel": {
         "x-dto-namespace": "App\\DTO",
         "type": "object",
-        "required": ["id", "name"],
+        "required": ["id"],
         "properties": {
           "id": {
             "type": "string",
             "pattern": "^[0-9a-f]{32}$"
-          },
-          "name": {
-            "type": "string"
           }
         }
       },
@@ -140,15 +114,9 @@
           "billingAddress": {
             "description": "The billing address",
             "type": "object",
-            "required": ["street", "city", "zipcode"],
+            "required": ["street"],
             "properties": {
               "street": {
-                "type": "string"
-              },
-              "city": {
-                "type": "string"
-              },
-              "zipcode": {
                 "type": "string"
               },
               "country": {
@@ -157,9 +125,6 @@
                 "properties": {
                   "iso": {
                     "description": "ISO 3166-1 alpha-2 code",
-                    "type": "string"
-                  },
-                  "name": {
                     "type": "string"
                   }
                 }

@@ -5,8 +5,6 @@
     "/account/login/imitate-customer": {
       "post": {
       "x-dto-namespace": "App\\DTO",
-        "tags": ["Login & Registration"],
-        "summary": "Imitate the log in as a customer",
         "description": "Imitate the log in as a customer given a generated token.",
         "operationId": "imitateCustomerLogin",
         "requestBody": {
@@ -18,7 +16,6 @@
                   {
                     "title": "LegacyImpersonationPayload",
                     "type": "object",
-                    "additionalProperties": false,
                     "required": ["token", "customerId", "userId"],
                     "properties": {
                       "token": {
@@ -41,7 +38,6 @@
                   {
                     "title": "JwtImpersonationPayload",
                     "type": "object",
-                    "additionalProperties": false,
                     "required": ["token"],
                     "properties": {
                       "token": {

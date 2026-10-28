@@ -24,8 +24,6 @@ final class SalesChannel extends AbstractDto
         #[Assert\NotNull]
         #[Assert\Regex(pattern: '~^[0-9a-f]{32}$~')]
         public string $id,
-        #[Assert\NotNull]
-        public string $name,
     ) {
     }
 }

@@ -23,8 +23,6 @@ final class OrderBillingAddressCountry extends AbstractDto
      */
     public string $iso;
 
-    public string $name;
-
     /**
      * @internal
      */

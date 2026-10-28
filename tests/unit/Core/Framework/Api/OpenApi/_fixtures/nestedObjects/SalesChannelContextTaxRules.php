@@ -17,8 +17,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final class SalesChannelContextTaxRules extends AbstractDto
 {
-    public string $name;
-
     /**
      * @internal
      */

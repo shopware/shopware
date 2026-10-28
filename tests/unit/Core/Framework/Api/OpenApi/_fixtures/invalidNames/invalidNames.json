@@ -50,7 +50,6 @@
       "get": {
       "x-dto-namespace": "App\\DTO",
         "operationId": "api-info",
-        "summary": "Get API info",
         "parameters": [
           {
             "name": "type",

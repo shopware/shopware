@@ -19,11 +19,6 @@ use Shopware\Core\Framework\Api\AbstractDto;
 final class SalesChannelContextCurrentCustomerGroup extends AbstractDto
 {
     /**
-     * Name of the group
-     */
-    public string $name;
-
-    /**
      * Whether prices are displayed gross
      */
     public bool $displayGross;

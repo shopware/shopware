@@ -11,8 +11,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @phpstan-import-type Writes from BeforeVersionMergeEvent
- *
  * @internal
  */
 #[Package('discovery')]
@@ -29,17 +27,27 @@ class CmsVersionMergeSubscriberTest extends TestCase
     }
 
     /**
-     * @param Writes $writes
-     * @param Writes $expectedWrites
+     * @param array<string, mixed> $writes
+     * @param array<string, mixed> $expectedWrites
      */
     #[DataProvider('versionMergeEventDataProvider')]
     public function testOnVersionMerge(array $writes, array $expectedWrites): void
     {
         $subscriber = new CmsVersionMergeSubscriber();
 
+        // some cases deliberately deviate from the typed Writes shape
+        // @phpstan-ignore argument.type
         $event = new BeforeVersionMergeEvent($writes);
 
-        $subscriber->onBeforeVersionMerge($event);
+        set_error_handler(static function (int $severity, string $message, string $file, int $line): never {
+            throw new \ErrorException($message, 0, $severity, $file, $line);
+        });
+
+        try {
+            $subscriber->onBeforeVersionMerge($event);
+        } finally {
+            restore_error_handler();
+        }
 
         static::assertSame($expectedWrites, $event->writes);
     }
@@ -105,6 +113,151 @@ class CmsVersionMergeSubscriberTest extends TestCase
                 'delete' => ['cms_block' => [
                     ['id' => $blockId1, 'versionId' => $versionId2],
                 ]],
+                'update' => [],
+            ],
+        ];
+
+        yield 'Missing delete key leaves writes unchanged' => [
+            'writes' => [
+                'insert' => ['cms_slot' => [['id' => $slotId1, 'blockId' => $blockId1, 'cmsBlockVersionId' => $versionId1]]],
+                'update' => [],
+            ],
+            'expectedWrites' => [
+                'insert' => ['cms_slot' => [['id' => $slotId1, 'blockId' => $blockId1, 'cmsBlockVersionId' => $versionId1]]],
+                'update' => [],
+            ],
+        ];
+
+        yield 'Empty cms_block deletion list leaves slots unchanged' => [
+            'writes' => [
+                'insert' => ['cms_slot' => [['id' => $slotId1, 'blockId' => $blockId1, 'cmsBlockVersionId' => $versionId1]]],
+                'delete' => ['cms_block' => []],
+                'update' => [],
+            ],
+            'expectedWrites' => [
+                'insert' => ['cms_slot' => [['id' => $slotId1, 'blockId' => $blockId1, 'cmsBlockVersionId' => $versionId1]]],
+                'delete' => ['cms_block' => []],
+                'update' => [],
+            ],
+        ];
+
+        yield 'Null cms_block deletion leaves slots unchanged' => [
+            'writes' => [
+                'insert' => ['cms_slot' => [['id' => $slotId1, 'blockId' => $blockId1, 'cmsBlockVersionId' => $versionId1]]],
+                'delete' => ['cms_block' => null],
+                'update' => [],
+            ],
+            'expectedWrites' => [
+                'insert' => ['cms_slot' => [['id' => $slotId1, 'blockId' => $blockId1, 'cmsBlockVersionId' => $versionId1]]],
+                'delete' => ['cms_block' => null],
+                'update' => [],
+            ],
+        ];
+
+        yield 'Block deletion without cms_slot writes leaves writes unchanged' => [
+            'writes' => [
+                'insert' => [],
+                'delete' => ['cms_block' => [['id' => $blockId1, 'versionId' => $versionId1]]],
+                'update' => [],
+            ],
+            'expectedWrites' => [
+                'insert' => [],
+                'delete' => ['cms_block' => [['id' => $blockId1, 'versionId' => $versionId1]]],
+                'update' => [],
+            ],
+        ];
+
+        yield 'Missing insert and update keys leave writes unchanged' => [
+            'writes' => [
+                'delete' => ['cms_block' => [['id' => $blockId1, 'versionId' => $versionId1]]],
+            ],
+            'expectedWrites' => [
+                'delete' => ['cms_block' => [['id' => $blockId1, 'versionId' => $versionId1]]],
+            ],
+        ];
+
+        yield 'Empty and null cms_slot writes are left as they are' => [
+            'writes' => [
+                'insert' => ['cms_slot' => []],
+                'delete' => ['cms_block' => [['id' => $blockId1, 'versionId' => $versionId1]]],
+                'update' => ['cms_slot' => null],
+            ],
+            'expectedWrites' => [
+                'insert' => ['cms_slot' => []],
+                'delete' => ['cms_block' => [['id' => $blockId1, 'versionId' => $versionId1]]],
+                'update' => ['cms_slot' => null],
+            ],
+        ];
+
+        yield 'Slots in update writes referencing deleted blocks are removed' => [
+            'writes' => [
+                'insert' => [],
+                'delete' => ['cms_block' => [['id' => $blockId1, 'versionId' => $versionId1]]],
+                'update' => ['cms_slot' => [
+                    ['id' => $slotId1, 'blockId' => $blockId1, 'cmsBlockVersionId' => $versionId1],
+                    ['id' => $slotId2, 'blockId' => $blockId2, 'cmsBlockVersionId' => $versionId1],
+                ]],
+            ],
+            'expectedWrites' => [
+                'insert' => [],
+                'delete' => ['cms_block' => [['id' => $blockId1, 'versionId' => $versionId1]]],
+                'update' => ['cms_slot' => [
+                    ['id' => $slotId2, 'blockId' => $blockId2, 'cmsBlockVersionId' => $versionId1],
+                ]],
+            ],
+        ];
+
+        yield 'Slots without block reference are kept' => [
+            'writes' => [
+                'insert' => ['cms_slot' => [
+                    ['id' => $slotId1],
+                    ['id' => $slotId2, 'blockId' => null, 'cmsBlockVersionId' => null],
+                ]],
+                'delete' => ['cms_block' => [['id' => $blockId1, 'versionId' => $versionId1]]],
+                'update' => [],
+            ],
+            'expectedWrites' => [
+                'insert' => ['cms_slot' => [
+                    ['id' => $slotId1],
+                    ['id' => $slotId2, 'blockId' => null, 'cmsBlockVersionId' => null],
+                ]],
+                'delete' => ['cms_block' => [['id' => $blockId1, 'versionId' => $versionId1]]],
+                'update' => [],
+            ],
+        ];
+
+        yield 'Slots with block but without version reference are kept' => [
+            'writes' => [
+                'insert' => ['cms_slot' => [
+                    ['id' => $slotId1, 'blockId' => $blockId1],
+                ]],
+                'delete' => ['cms_block' => [['id' => $blockId1, 'versionId' => $versionId1]]],
+                'update' => [],
+            ],
+            'expectedWrites' => [
+                'insert' => ['cms_slot' => [
+                    ['id' => $slotId1, 'blockId' => $blockId1],
+                ]],
+                'delete' => ['cms_block' => [['id' => $blockId1, 'versionId' => $versionId1]]],
+                'update' => [],
+            ],
+        ];
+
+        yield 'Deleted blocks without usable ids remove nothing' => [
+            'writes' => [
+                'insert' => ['cms_slot' => [
+                    ['id' => $slotId1, 'blockId' => '0', 'cmsBlockVersionId' => '0'],
+                    ['id' => $slotId2, 'blockId' => $blockId1, 'cmsBlockVersionId' => $versionId1],
+                ]],
+                'delete' => ['cms_block' => [['id' => '0', 'versionId' => '0'], ['id' => $blockId1], ['versionId' => $versionId1]]],
+                'update' => [],
+            ],
+            'expectedWrites' => [
+                'insert' => ['cms_slot' => [
+                    ['id' => $slotId1, 'blockId' => '0', 'cmsBlockVersionId' => '0'],
+                    ['id' => $slotId2, 'blockId' => $blockId1, 'cmsBlockVersionId' => $versionId1],
+                ]],
+                'delete' => ['cms_block' => [['id' => '0', 'versionId' => '0'], ['id' => $blockId1], ['versionId' => $versionId1]]],
                 'update' => [],
             ],
         ];

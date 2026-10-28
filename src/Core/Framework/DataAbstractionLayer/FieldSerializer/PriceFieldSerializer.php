@@ -124,7 +124,7 @@ class PriceFieldSerializer extends AbstractFieldSerializer
         $collection = new PriceCollection();
 
         foreach ($value as $row) {
-            if (empty($row['currencyId'])) {
+            if (!\is_string($row['currencyId'] ?? null) || $row['currencyId'] === '') {
                 throw DataAbstractionLayerException::missingFieldValue($field);
             }
 

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\CloneProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeVersionMergeEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -30,20 +31,26 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\SharedLockInterface;
@@ -57,6 +64,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(VersionManager::class)]
 class VersionManagerTest extends TestCase
 {
+    private const MERGE_VERSION_ID = 'version-id';
+
     private VersionManager $versionManager;
 
     public function testCloneEntityWithFkAsExtension(): void
@@ -280,6 +289,53 @@ class VersionManagerTest extends TestCase
         $this->expectExceptionObject(DataAbstractionLayerException::versionNotExists($versionId));
 
         $versionManager->merge($versionId, static::createStub(WriteContext::class));
+    }
+
+    /**
+     * @param list<VersionCommitDataEntity> $commitData
+     * @param array<string, array<string, list<array<string, mixed>>>> $expectedWrites
+     */
+    #[DataProvider('mergeWritesProvider')]
+    public function testMergeDispatchesWritesAsLists(array $commitData, array $expectedWrites): void
+    {
+        static::assertSame($expectedWrites, $this->mergeAndCaptureWrites($commitData));
+    }
+
+    /**
+     * @return iterable<string, array{list<VersionCommitDataEntity>, array<string, array<string, list<array<string, mixed>>>>}>
+     */
+    public static function mergeWritesProvider(): iterable
+    {
+        yield 'insert and update writes' => [
+            [
+                self::createCommitData('data-1', 'insert', 'product-1', ['id' => 'product-1']),
+                self::createCommitData('data-2', 'insert', 'product-2', ['id' => 'product-2']),
+                self::createCommitData('data-3', 'update', 'product-3', ['id' => 'product-3']),
+            ],
+            [
+                'insert' => ['product' => [['id' => 'product-1'], ['id' => 'product-2']]],
+                'update' => ['product' => [['id' => 'product-3']]],
+                'delete' => ['version_commit' => [['id' => 'commit-1']]],
+            ],
+        ];
+
+        yield 'delete writes' => [
+            [
+                self::createCommitData('data-1', 'delete', 'product-1', null),
+                self::createCommitData('data-2', 'delete', 'product-2', null),
+            ],
+            [
+                'insert' => [],
+                'update' => [],
+                'delete' => [
+                    'product' => [
+                        ['id' => 'product-1', 'versionId' => self::MERGE_VERSION_ID],
+                        ['id' => 'product-2', 'versionId' => self::MERGE_VERSION_ID],
+                    ],
+                    'version_commit' => [['id' => 'commit-1']],
+                ],
+            ],
+        ];
     }
 
     /**
@@ -639,6 +695,76 @@ class VersionManagerTest extends TestCase
         foreach (array_keys($insertedData[0]) as $key) {
             static::assertContains($key, $allowedKeys, "Unexpected key '$key' found in insertedData");
         }
+    }
+
+    /**
+     * @param array<string, mixed>|null $payload
+     */
+    private static function createCommitData(string $id, string $action, string $entityId, ?array $payload): VersionCommitDataEntity
+    {
+        $data = new VersionCommitDataEntity();
+        $data->setId($id);
+        $data->setEntityName('product');
+        $data->setAction($action);
+        $data->setEntityId(['id' => $entityId, 'versionId' => self::MERGE_VERSION_ID]);
+        $data->setPayload($payload);
+
+        return $data;
+    }
+
+    /**
+     * @param list<VersionCommitDataEntity> $commitData
+     *
+     * @return array<string, array<string, list<array<string, mixed>>>>
+     */
+    private function mergeAndCaptureWrites(array $commitData): array
+    {
+        $commit = new VersionCommitEntity();
+        $commit->setId('commit-1');
+        $commit->setData(new VersionCommitDataCollection($commitData));
+
+        $context = Context::createDefaultContext();
+        $entitySearcher = static::createStub(EntitySearcherInterface::class);
+        $entitySearcher->method('search')->willReturnOnConsecutiveCalls(
+            new IdSearchResult(1, [self::MERGE_VERSION_ID => ['primaryKey' => self::MERGE_VERSION_ID, 'data' => []]], new Criteria(), $context),
+            new IdSearchResult(1, ['commit-1' => ['primaryKey' => 'commit-1', 'data' => []]], new Criteria(), $context),
+        );
+
+        $entityReader = static::createStub(EntityReaderInterface::class);
+        $entityReader->method('read')->willReturn(new VersionCommitCollection([$commit]));
+
+        $entityWriter = static::createStub(EntityWriterInterface::class);
+        $entityWriter->method('sync')->willReturn(new WriteResult([]));
+
+        $lock = static::createStub(SharedLockInterface::class);
+        $lock->method('acquire')->willReturn(true);
+        $lockFactory = static::createStub(LockFactory::class);
+        $lockFactory->method('createLock')->willReturn($lock);
+
+        $dispatched = [];
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(BeforeVersionMergeEvent::class, static function (BeforeVersionMergeEvent $event) use (&$dispatched): void {
+            $dispatched[] = $event->writes;
+        });
+
+        $registry = new StaticDefinitionInstanceRegistry(
+            [VersionManagerTestDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+
+        $this->createVersionManager([
+            'entitySearcher' => $entitySearcher,
+            'entityReader' => $entityReader,
+            'entityWriter' => $entityWriter,
+            'lockFactory' => $lockFactory,
+            'eventDispatcher' => $eventDispatcher,
+            'registry' => $registry,
+        ])->merge(self::MERGE_VERSION_ID, WriteContext::createFromContext($context));
+
+        static::assertCount(1, $dispatched);
+
+        return $dispatched[0];
     }
 
     /**

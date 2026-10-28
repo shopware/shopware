@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
@@ -149,7 +150,7 @@ class ProductSerializer extends EntitySerializer
             yield 'cover' => $this->findCoverProductMediaId($deserialized['id'], $deserialized['cover'], $context);
         }
 
-        if (!empty($deserialized['parentId']) && !empty($deserialized['options'])) {
+        if (\is_string($deserialized['parentId'] ?? null) && $deserialized['parentId'] !== '' && \is_array($deserialized['options'] ?? null) && $deserialized['options'] !== []) {
             yield 'configuratorSettings' => $this->findConfiguratorSettings($deserialized['parentId'], $deserialized['options'], $context);
         }
     }
@@ -246,7 +247,7 @@ class ProductSerializer extends EntitySerializer
     }
 
     /**
-     * @param list<array{id: string}> $options
+     * @param array<mixed> $options
      *
      * @return list<array{optionId: string, product: array{id: string}, id?: string}>
      */
@@ -255,7 +256,7 @@ class ProductSerializer extends EntitySerializer
         $configuratorSettings = [];
 
         foreach ($options as $option) {
-            if (empty($option['id'])) {
+            if (!\is_string($option['id'] ?? null) || $option['id'] === '') {
                 continue;
             }
 
@@ -295,12 +296,18 @@ class ProductSerializer extends EntitySerializer
         array $deserialized,
         Context $context
     ): array {
-        if (empty($entity['media'])) {
+        $media = $entity['media'] ?? null;
+
+        if ($media === null || $media === '') {
             return [];
         }
 
+        if (!\is_string($media)) {
+            throw ImportExportException::deserializationFailed('media', null, 'string');
+        }
+
         $productMedias = [];
-        $urls = explode('|', (string) $entity['media']);
+        $urls = explode('|', $media);
 
         $productMediaField = $definition->getField('media');
 
@@ -372,13 +379,15 @@ class ProductSerializer extends EntitySerializer
         $urls = [];
         $coverUrl = null;
 
-        if ($productMedias !== [] && !empty($entity['cover'])) {
-            $coverMedia = $entity['cover'] instanceof ProductMediaEntity
-                ? $entity['cover']->jsonSerialize()
-                : $entity['cover'];
-            $coverUrl = $coverMedia['media'] instanceof MediaEntity
-                ? $coverMedia['media']->jsonSerialize()['url']
-                : $coverMedia['media']['url'];
+        $cover = $entity['cover'] ?? null;
+        if ($cover instanceof ProductMediaEntity) {
+            $cover = $cover->jsonSerialize();
+        }
+
+        if ($productMedias !== [] && \is_array($cover) && $cover !== []) {
+            $coverUrl = $cover['media'] instanceof MediaEntity
+                ? $cover['media']->jsonSerialize()['url']
+                : $cover['media']['url'];
         }
 
         foreach ($productMedias as $productMedia) {
@@ -386,13 +395,14 @@ class ProductSerializer extends EntitySerializer
                 ? $productMedia->jsonSerialize()
                 : $productMedia;
 
-            if (empty($productMedia['media'])) {
-                continue;
+            $media = $productMedia['media'] ?? null;
+            if ($media instanceof MediaEntity) {
+                $media = $media->jsonSerialize();
             }
 
-            $media = $productMedia['media'] instanceof MediaEntity
-                ? $productMedia['media']->jsonSerialize()
-                : $productMedia['media'];
+            if (!\is_array($media) || $media === []) {
+                continue;
+            }
 
             if ($media['url'] === $coverUrl) {
                 continue;

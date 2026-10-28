@@ -49,7 +49,9 @@ class CustomFieldSubscriber implements EventSubscriberInterface
         $snippets = [];
         $snippetSets = null;
         foreach ($event->getResults()->only(EntityWriteResult::OPERATION_INSERT)->withPayloadProperties('config') as $writeResult) {
-            if (!isset($writeResult->getPayload()['config']['label']) || empty($writeResult->getPayload()['config']['label'])) {
+            $label = $writeResult->getPayload()['config']['label'] ?? null;
+
+            if ($label === null || $label === '' || $label === []) {
                 continue;
             }
 
@@ -61,7 +63,7 @@ class CustomFieldSubscriber implements EventSubscriberInterface
                 return;
             }
 
-            $this->setInsertSnippets($writeResult, $snippetSets, $snippets);
+            $this->setInsertSnippets($writeResult, $label, $snippetSets, $snippets);
         }
 
         if ($snippets === []) {
@@ -92,10 +94,9 @@ class CustomFieldSubscriber implements EventSubscriberInterface
      * @param array<array<string, string>> $snippetSets
      * @param list<array<string, mixed>> $snippets
      */
-    private function setInsertSnippets(EntityWriteResult $writeResult, array $snippetSets, array &$snippets): void
+    private function setInsertSnippets(EntityWriteResult $writeResult, mixed $labels, array $snippetSets, array &$snippets): void
     {
         $name = $writeResult->getPayload()['name'];
-        $labels = $writeResult->getPayload()['config']['label'];
 
         foreach ($snippetSets as $snippetSet) {
             $label = $name;

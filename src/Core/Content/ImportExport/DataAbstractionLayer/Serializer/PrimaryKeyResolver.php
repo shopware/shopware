@@ -161,7 +161,7 @@ class PrimaryKeyResolver
             return implode('.', $updateByFieldPath);
         }
 
-        if (empty($updateByFieldPath[1])) {
+        if (($updateByFieldPath[1] ?? null) === null || $updateByFieldPath[1] === '' || $updateByFieldPath[1] === '0') {
             return null;
         }
 
@@ -206,7 +206,7 @@ class PrimaryKeyResolver
             $updatedBy = $config->getUpdateBy()->get($manyToManyDefinition->getEntityName());
             $record = \is_array($record) ? $record : iterator_to_array($record);
 
-            if (!$updatedBy || empty($record[$field->getPropertyName()])) {
+            if (!$updatedBy || ($record[$field->getPropertyName()] ?? null) === null || $record[$field->getPropertyName()] === '') {
                 continue;
             }
 

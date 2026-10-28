@@ -66,7 +66,7 @@ class ProductCrossSellingSerializer extends EntitySerializer
         $deserialized = parent::deserialize($config, $definition, $entity);
         $deserialized = \is_array($deserialized) ? $deserialized : iterator_to_array($deserialized);
 
-        if (empty($deserialized['assignedProducts'])) {
+        if (!\is_array($deserialized['assignedProducts'] ?? null) || $deserialized['assignedProducts'] === []) {
             return $deserialized;
         }
 

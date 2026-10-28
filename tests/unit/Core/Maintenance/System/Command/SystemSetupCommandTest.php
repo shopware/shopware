@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Maintenance\System\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Command\SystemSetupCommand;
@@ -20,11 +22,106 @@ use Symfony\Component\Dotenv\Dotenv;
 #[CoversClass(SystemSetupCommand::class)]
 class SystemSetupCommandTest extends TestCase
 {
+    private ?string $tempProjectDir = null;
+
+    private bool $hadComposerHomeServerVar = false;
+
+    private mixed $composerHomeServerVar = null;
+
+    private bool $hadComposerHomeEnvVar = false;
+
+    private mixed $composerHomeEnvVar = null;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->hadComposerHomeServerVar = \array_key_exists('COMPOSER_HOME', $_SERVER);
+        $this->composerHomeServerVar = $_SERVER['COMPOSER_HOME'] ?? null;
+        $this->hadComposerHomeEnvVar = \array_key_exists('COMPOSER_HOME', $_ENV);
+        $this->composerHomeEnvVar = $_ENV['COMPOSER_HOME'] ?? null;
+    }
+
     protected function tearDown(): void
     {
+        if ($this->hadComposerHomeServerVar) {
+            $_SERVER['COMPOSER_HOME'] = $this->composerHomeServerVar;
+        } else {
+            unset($_SERVER['COMPOSER_HOME']);
+        }
+
+        if ($this->hadComposerHomeEnvVar) {
+            $_ENV['COMPOSER_HOME'] = $this->composerHomeEnvVar;
+        } else {
+            unset($_ENV['COMPOSER_HOME']);
+        }
+
+        if ($this->tempProjectDir !== null) {
+            @unlink($this->tempProjectDir . '/.env');
+            @rmdir($this->tempProjectDir);
+        }
+
         @unlink(__DIR__ . '/.env');
         @unlink(__DIR__ . '/symfony.lock');
         @unlink(__DIR__ . '/.env.local.php');
+
+        parent::tearDown();
+    }
+
+    #[DataProvider('composerHomeOptionProvider')]
+    #[TestDox('uses the composer home option unless it is falsy')]
+    public function testComposerHomeFromOption(mixed $option, string $expected): void
+    {
+        static::assertSame(
+            str_replace('%projectDir%', $this->tempProjectDir(), $expected),
+            $this->runSetupAndReadComposerHome(['--composer-home' => $option]),
+        );
+    }
+
+    /**
+     * @return iterable<string, array{mixed, string}>
+     */
+    public static function composerHomeOptionProvider(): iterable
+    {
+        yield 'empty string' => ['', '%projectDir%/var/cache/composer'];
+        yield 'zero string' => ['0', '%projectDir%/var/cache/composer'];
+        yield 'boolean false' => [false, '%projectDir%/var/cache/composer'];
+        yield 'boolean true' => [true, '%projectDir%/var/cache/composer'];
+        yield 'path' => ['/custom/composer', '/custom/composer'];
+        yield 'double zero string' => ['00', '00'];
+        yield 'space' => [' ', ' '];
+    }
+
+    public function testComposerHomeFallsBackWithoutOptionOrEnvironment(): void
+    {
+        unset($_SERVER['COMPOSER_HOME'], $_ENV['COMPOSER_HOME']);
+
+        static::assertSame(
+            $this->tempProjectDir() . '/var/cache/composer',
+            $this->runSetupAndReadComposerHome([]),
+        );
+    }
+
+    #[DataProvider('composerHomeEnvironmentProvider')]
+    #[TestDox('uses the composer home environment variable unless it is falsy')]
+    public function testComposerHomeFromEnvironment(string $environment, string $expected): void
+    {
+        $_SERVER['COMPOSER_HOME'] = $environment;
+
+        static::assertSame(
+            str_replace('%projectDir%', $this->tempProjectDir(), $expected),
+            $this->runSetupAndReadComposerHome([]),
+        );
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function composerHomeEnvironmentProvider(): iterable
+    {
+        yield 'empty string' => ['', '%projectDir%/var/cache/composer'];
+        yield 'zero string' => ['0', '%projectDir%/var/cache/composer'];
+        yield 'path' => ['/env/composer', '/env/composer'];
     }
 
     public function testEnvFileGeneration(): void
@@ -181,6 +278,48 @@ class SystemSetupCommandTest extends TestCase
         $tester->assertCommandIsSuccessful();
 
         static::assertStringContainsString('It looks like you have installed Shopware with Symfony Flex', $tester->getDisplay());
+    }
+
+    private function tempProjectDir(): string
+    {
+        if ($this->tempProjectDir === null) {
+            $dir = sys_get_temp_dir() . '/system-setup-' . bin2hex(random_bytes(8));
+            mkdir($dir);
+            $this->tempProjectDir = $dir;
+        }
+
+        return $this->tempProjectDir;
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    private function runSetupAndReadComposerHome(array $options): string
+    {
+        $projectDir = $this->tempProjectDir();
+        $dumpCommand = new DotenvDumpCommand($projectDir);
+
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->addCommand(new SystemSetupCommand($projectDir, $dumpCommand));
+
+        $tester = new ApplicationTester($application);
+        $tester->run([
+            'command' => 'system:setup',
+            '--app-env' => 'test',
+            '--app-url' => 'https://example.com',
+            '--database-url' => 'mysql://localhost:3306/shopware',
+            ...$options,
+        ], ['interactive' => false]);
+
+        $tester->assertCommandIsSuccessful();
+
+        $envContent = file_get_contents($projectDir . '/.env');
+        static::assertIsString($envContent);
+        $env = (new Dotenv())->parse($envContent);
+        static::assertArrayHasKey('COMPOSER_HOME', $env);
+
+        return $env['COMPOSER_HOME'];
     }
 
     private function getApplicationTester(): ApplicationTester

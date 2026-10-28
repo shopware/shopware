@@ -316,7 +316,7 @@ class FlowGenerator implements DemodataGeneratorInterface
      */
     private function getIds(string $table): array
     {
-        if (!empty($this->ids[$table])) {
+        if (($this->ids[$table] ?? []) !== []) {
             return $this->ids[$table];
         }
 

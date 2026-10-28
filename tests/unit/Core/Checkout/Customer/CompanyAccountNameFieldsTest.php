@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
+use Shopware\Core\Framework\Validation\HappyPathValidator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Validator\Constraints\Length;
@@ -118,11 +119,18 @@ class CompanyAccountNameFieldsTest extends TestCase
     public function testCompanyNotBlankRejectsWhitespace(): void
     {
         $constraint = CompanyAccountNameFields::companyNotBlank();
-        $validator = Validation::createValidator();
+        $validator = new HappyPathValidator(Validation::createValidator());
 
         static::assertCount(1, $validator->validate('   ', $constraint));
         static::assertCount(1, $validator->validate(null, $constraint));
         static::assertCount(0, $validator->validate(' Acme GmbH ', $constraint));
+    }
+
+    public function testTrimStringOnlyTrimsStrings(): void
+    {
+        static::assertSame('Acme GmbH', CompanyAccountNameFields::trimString('  Acme GmbH  '));
+        static::assertNull(CompanyAccountNameFields::trimString(null));
+        static::assertSame(5, CompanyAccountNameFields::trimString(5));
     }
 
     /**

@@ -80,7 +80,12 @@ final class CompanyAccountNameFields
 
     public static function companyNotBlank(): NotBlank
     {
-        return new NotBlank(normalizer: 'trim');
+        return new NotBlank(normalizer: [self::class, 'trimString']);
+    }
+
+    public static function trimString(mixed $value): mixed
+    {
+        return \is_string($value) ? trim($value) : $value;
     }
 
     private function isEnabled(string $key, ?string $salesChannelId): bool

@@ -73,8 +73,22 @@ ruleTester.run('require-deprecation-guard', rule, {
             code: `export default { methods: { load() {\n${deprecated}\nreturn this.legacy(); } } };`,
         },
         {
-            name: 'a function local to its module',
-            code: `${deprecated} function helper() { return 1; } export default helper;`,
+            name: 'a class that guards every method instead of its constructor',
+            code: `${deprecated} export class Old { constructor() { this.x = 1; } run() { ${guard} } stop() { ${guard} } }`,
+        },
+        {
+            name: 'a value computed with a callback',
+            code: `${deprecated} export const LEGACY_IDS = items.map((item) => item.id);`,
+        },
+        {
+            name: 'a multi-line computed accessor silenced by the documented disable comment',
+            code: `export default { computed: {
+                ${deprecated}
+                // eslint-disable-next-line rule-to-test/require-deprecation-guard -- core reads it on every render
+                legacy: {
+                    get() { return 1; },
+                },
+            } };`,
         },
         {
             name: 'a private declaration',
@@ -138,9 +152,47 @@ ruleTester.run('require-deprecation-guard', rule, {
             errors: [{ messageId: 'flagMismatch', data: { name: 'oldFunction', flag: 'V6_9_0_0', version: 'v6.9.0' } }],
         },
         {
-            name: 'a class without a constructor',
+            name: 'a class without a guard',
             code: `${deprecated} export class Old { run() {} }`,
-            errors: [{ messageId: 'missingConstructor', data: { name: 'Old', flag: 'V6_8_0_0' } }],
+            errors: [{ messageId: 'missingClassGuard', data: { name: 'Old', flag: 'V6_8_0_0' } }],
+        },
+        {
+            name: 'a class that guards only some of its methods',
+            code: `${deprecated} export class Old { run() { ${guard} } stop() {} }`,
+            errors: [{ messageId: 'missingClassGuard', data: { name: 'Old', flag: 'V6_8_0_0' } }],
+        },
+        {
+            name: 'a function local to its module',
+            code: `${deprecated} function helper() { return 1; } export default helper;`,
+            errors: [{ messageId: 'missingGuard', data: { name: 'helper', flag: 'V6_8_0_0' } }],
+        },
+        {
+            name: 'a function exported through an object',
+            code: `${deprecated} function register() { return 1; } export default { register };`,
+            errors: [{ messageId: 'missingGuard', data: { name: 'register', flag: 'V6_8_0_0' } }],
+        },
+        {
+            name: 'a multi-line computed accessor, reported on its key',
+            code: `export default { computed: {\n${deprecated}\nlegacy: {\nget() { return 1; },\n},\n} };`,
+            errors: [{ messageId: 'missingGuard', line: 3 }],
+        },
+        {
+            name: 'every export of a file deprecated in its header',
+            code: `/**\n * @sw-package framework\n * @deprecated tag:v6.8.0 - x\n */\nimport x from 'x';\nexport function a() { return x; }\nfunction b() { return 2; }\nexport { b };`,
+            errors: [
+                { messageId: 'missingGuard', data: { name: 'a', flag: 'V6_8_0_0' } },
+                { messageId: 'missingGuard', data: { name: 'b', flag: 'V6_8_0_0' } },
+            ],
+        },
+        {
+            name: 'a prop whose deprecated option names another version',
+            code: `export default { props: { ${deprecated} old: { type: String, deprecated: { version: 'v6.9.0.0', comment: 'x' } } } };`,
+            errors: [{ messageId: 'versionMismatch', data: { name: 'old', version: 'v6.8.0.0' } }],
+        },
+        {
+            name: 'a component whose deprecated option names another version',
+            code: `${deprecated} export default { template, deprecated: { version: 'v6.9.0.0', comment: 'x' } };`,
+            errors: [{ messageId: 'versionMismatch', data: { name: 'component', version: 'v6.8.0.0' } }],
         },
         {
             name: 'a default-exported function deprecated in the file header',

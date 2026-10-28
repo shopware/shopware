@@ -9,6 +9,14 @@ const TAG_PATTERN = /@deprecated\s+tag:v(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?/;
 const GUARD_NAME = 'triggerDeprecationOrThrow';
 
 /**
+ * Calls that wrap a method and run the wrapped function on every use, so the guard goes into the wrapped function.
+ *
+ * @example
+ * onSearch: Utils.debounce(function onSearch() { … }, 300)
+ */
+const FUNCTION_WRAPPERS = ['debounce', 'throttle'];
+
+/**
  * A deprecation that only takes something out of the public API, like "Will be private", keeps it working.
  *
  * @example
@@ -160,17 +168,47 @@ function sectionOf(property) {
 }
 
 /**
- * Whether a declaration is local to its module, so no extension can reach it: a top-level function, class or
- * variable that is not exported.
+ * The declarations a file exports, with `export { x }` and `export default x` resolved to the declaration of `x`.
  *
  * @example
- * isModuleLocal(functionDeclaration); // true for `function helper() {}` without `export`
+ * exportedDeclarations(program); // [FunctionDeclaration a, FunctionDeclaration b]
  */
-function isModuleLocal(node) {
-    return (
-        node.parent?.type === 'Program' &&
-        ['FunctionDeclaration', 'ClassDeclaration', 'VariableDeclaration'].includes(node.type)
-    );
+function exportedDeclarations(program) {
+    const topLevel = new Map();
+
+    program.body.forEach((statement) => {
+        const declaration = statement.type.startsWith('Export') ? statement.declaration : statement;
+
+        if (declaration?.type === 'VariableDeclaration') {
+            topLevel.set(keyName(declaration.declarations[0]?.id), declaration);
+        } else if (declaration?.id) {
+            topLevel.set(keyName(declaration.id), declaration);
+        }
+    });
+
+    return program.body
+        .flatMap((statement) => {
+            if (statement.type === 'ExportNamedDeclaration') {
+                if (statement.declaration) {
+                    return [statement.declaration];
+                }
+
+                return statement.source
+                    ? []
+                    : statement.specifiers.map((specifier) => topLevel.get(keyName(specifier.local)));
+            }
+
+            if (statement.type === 'ExportDefaultDeclaration') {
+                return [
+                    statement.declaration.type === 'Identifier'
+                        ? topLevel.get(statement.declaration.name)
+                        : statement.declaration,
+                ];
+            }
+
+            return [];
+        })
+        .filter(Boolean);
 }
 
 /**
@@ -256,9 +294,57 @@ function componentConfigOf(node) {
  * hasDeprecatedOption(propDefinition); // true for { type: String, deprecated: { … } }
  */
 function hasDeprecatedOption(object) {
+    return deprecatedOption(object) !== null;
+}
+
+/**
+ * The `deprecated` option of a component or prop definition, or `null` when it has none.
+ *
+ * @example
+ * deprecatedOption(propDefinition); // the ObjectExpression `{ version: 'v6.8.0.0', comment: '…' }`
+ */
+function deprecatedOption(object) {
+    if (object?.type !== 'ObjectExpression') {
+        return null;
+    }
+
+    const option = object.properties.find(
+        (property) => property.type === 'Property' && keyName(property.key) === 'deprecated',
+    );
+
+    return option?.value ?? null;
+}
+
+/**
+ * Whether the `version` of a `deprecated` option names the version the tag announces. A version that is no string
+ * literal cannot be compared and passes.
+ *
+ * @example
+ * versionMatches(option, TAG_PATTERN.exec('@deprecated tag:v6.8.0')); // true for { version: 'v6.8.0.0' }
+ */
+function versionMatches(option, tag) {
+    const version =
+        option?.type === 'ObjectExpression'
+            ? option.properties.find((property) => property.type === 'Property' && keyName(property.key) === 'version')
+                  ?.value
+            : null;
+
+    if (version?.type !== 'Literal' || typeof version.value !== 'string') {
+        return true;
+    }
+
+    const segments = version.value.replace(/^v/i, '').split('.');
+
     return (
-        object?.type === 'ObjectExpression' &&
-        object.properties.some((property) => property.type === 'Property' && keyName(property.key) === 'deprecated')
+        toVersion(tag) ===
+        `v${[
+            0,
+            1,
+            2,
+            3,
+        ]
+            .map((index) => segments[index] ?? '0')
+            .join('.')}`
     );
 }
 
@@ -327,10 +413,24 @@ function guardedFunctions(node) {
             (member) => member.type === 'MethodDefinition' && member.kind === 'constructor',
         );
 
-        return constructor ? [constructor.value] : [value];
+        if (constructor && leadingGuardFlag(constructor.value) !== null) {
+            return [constructor.value];
+        }
+
+        // A class core creates on its own, like an API service, guards each method instead of its constructor.
+        const methods = value.body.body.filter(
+            (member) =>
+                member.type === 'MethodDefinition' && member.kind !== 'constructor' && !keyName(member.key).startsWith('_'),
+        );
+        const guardsEveryMethod = methods.length > 0 && methods.every((member) => leadingGuardFlag(member.value) !== null);
+
+        return guardsEveryMethod ? methods.map((member) => member.value) : [value];
     }
 
-    if (value?.type === 'CallExpression') {
+    const callee = value?.type === 'CallExpression' ? value.callee : null;
+    const calleeName = callee?.type === 'MemberExpression' ? keyName(callee.property) : keyName(callee);
+
+    if (FUNCTION_WRAPPERS.includes(calleeName)) {
         const wrapped = value.arguments.filter(isFunction);
 
         return wrapped.length > 0 ? wrapped : null;
@@ -384,9 +484,9 @@ function leadingGuardFlag(fn) {
  *   component counts as deprecated by its own annotation, its file header, or the `Component.register()` call.
  *
  * What the marker sits on decides it: a value, a type, an import or a statement inside a body has no use to guard.
- * Neither do `@private` and `_`-prefixed declarations, functions local to their module, and "Will be private"
- * deprecations, which are no public contract, and the functions of `data`, `watch`, `provide`, `inject`, store
- * `state` and `getters`, which core runs for every instance.
+ * Neither do `@private` and `_`-prefixed declarations and "Will be private" deprecations, which are no public
+ * contract, and the functions of `data`, `watch`, `provide`, `inject`, store `state` and `getters`, which core runs
+ * for every instance. A file header covers the component the file exports, or every export of any other file.
  * A function that must not warn on use takes an `eslint-disable-next-line … -- <reason>`.
  */
 /** @type {import('eslint').Rule.RuleModule} */
@@ -407,9 +507,9 @@ module.exports = {
             missingGuard:
                 "The deprecated \"{{name}}\" has to call Shopware.Feature.triggerDeprecationOrThrow('{{flag}}', '…') " +
                 'as its first statement.',
-            missingConstructor:
-                "The deprecated class \"{{name}}\" needs a constructor that calls Shopware.Feature.triggerDeprecationOrThrow('{{flag}}', '…') " +
-                'as its first statement.',
+            missingClassGuard:
+                "The deprecated class \"{{name}}\" has to call Shopware.Feature.triggerDeprecationOrThrow('{{flag}}', '…') " +
+                'as the first statement of its constructor, or of every method.',
             flagMismatch:
                 'The guard of the deprecated "{{name}}" has to use the major flag "{{flag}}" that "@deprecated tag:{{version}}" announces.',
             missingComponentOption:
@@ -418,6 +518,8 @@ module.exports = {
             missingRegisteredComponentOption:
                 "The deprecated component registered here needs a root \"deprecated: { version: '{{version}}', comment: '…' }\" " +
                 'option in {{file}}, so the deprecation plugin triggers it on creation.',
+            versionMismatch:
+                'The "deprecated" option of "{{name}}" has to use the version "{{version}}" that "@deprecated tag:" announces.',
             missingPropOption:
                 'The deprecated prop "{{name}}" needs a "deprecated: { version: \'{{version}}\', comment: \'…\' }" option, ' +
                 'so the deprecation plugin triggers it when a parent passes it.',
@@ -500,7 +602,7 @@ module.exports = {
 
             functions.forEach((fn) => {
                 if (fn.type === 'ClassDeclaration' || fn.type === 'ClassExpression') {
-                    context.report({ node, messageId: 'missingConstructor', data: { name, flag } });
+                    context.report({ node, messageId: 'missingClassGuard', data: { name, flag } });
 
                     return;
                 }
@@ -508,14 +610,14 @@ module.exports = {
                 const guardFlag = leadingGuardFlag(fn);
 
                 if (guardFlag === null) {
-                    context.report({ node: fn, messageId: 'missingGuard', data: { name, flag } });
+                    context.report({ node, messageId: 'missingGuard', data: { name, flag } });
 
                     return;
                 }
 
                 if (guardFlag.toUpperCase().replace(/\./g, '_') !== flag) {
                     context.report({
-                        node: fn,
+                        node,
                         messageId: 'flagMismatch',
                         data: { name, flag, version: `v${tag.slice(1, 5).filter(Boolean).join('.')}` },
                     });
@@ -523,37 +625,8 @@ module.exports = {
             });
         }
 
-        function check(comment) {
-            const tag = TAG_PATTERN.exec(comment.value);
-
-            if (!tag) {
-                return;
-            }
-
-            const annotation = annotationOf(comment);
-
-            if (annotation.some((entry) => entry.value.includes('@private') || VISIBILITY_PATTERN.test(entry.value))) {
-                return;
-            }
-
-            // The file header deprecates the component the file exports.
-            const isFileHeader = annotation.some((entry) => entry.value.includes('@sw-package'));
-            const headerExport = isFileHeader
-                ? sourceCode.ast.body.find((statement) => statement.type === 'ExportDefaultDeclaration')
-                : null;
-
-            if (
-                headerExport &&
-                sourceCode.getCommentsBefore(headerExport).some((entry) => entry.value.includes('@private'))
-            ) {
-                return;
-            }
-            const node =
-                headerExport && !componentConfigOf(headerExport)
-                    ? headerExport.declaration
-                    : (headerExport ?? documentedDeclaration(annotation[annotation.length - 1]));
-
-            if (!node || node.type.startsWith('TS') || isModuleLocal(node)) {
+        function checkDeclaration(node, tag) {
+            if (!node || node.type.startsWith('TS')) {
                 return;
             }
 
@@ -583,9 +656,7 @@ module.exports = {
             const componentConfig = componentConfigOf(node);
 
             if (componentConfig) {
-                if (!hasDeprecatedOption(componentConfig)) {
-                    context.report({ node, messageId: 'missingComponentOption', data: { version: toVersion(tag) } });
-                }
+                checkOption(node, deprecatedOption(componentConfig), 'missingComponentOption', 'component', tag);
 
                 return;
             }
@@ -597,9 +668,7 @@ module.exports = {
             }
 
             if (section === 'props') {
-                if (!hasDeprecatedOption(node.value)) {
-                    context.report({ node, messageId: 'missingPropOption', data: { name, version: toVersion(tag) } });
-                }
+                checkOption(node, deprecatedOption(node.value), 'missingPropOption', name, tag);
 
                 return;
             }
@@ -609,6 +678,64 @@ module.exports = {
             if (functions) {
                 checkFunctions(node, functions, name, tag);
             }
+        }
+
+        function checkOption(node, option, missingMessageId, name, tag) {
+            const version = toVersion(tag);
+
+            if (!option) {
+                context.report({ node, messageId: missingMessageId, data: { name, version } });
+
+                return;
+            }
+
+            if (!versionMatches(option, tag)) {
+                context.report({ node: option, messageId: 'versionMismatch', data: { name, version } });
+            }
+        }
+
+        /**
+         * The declarations a deprecation comment covers. A file header covers the component the file exports, or
+         * every export of a file that exports no component. Any other comment covers the declaration after it.
+         *
+         * @example
+         * coveredDeclarations(fileHeader); // [FunctionDeclaration a, FunctionDeclaration b]
+         */
+        function coveredDeclarations(annotation) {
+            const isFileHeader = annotation.some((entry) => entry.value.includes('@sw-package'));
+
+            if (!isFileHeader) {
+                return [documentedDeclaration(annotation[annotation.length - 1])];
+            }
+
+            const defaultExport = sourceCode.ast.body.find((statement) => statement.type === 'ExportDefaultDeclaration');
+
+            if (defaultExport && componentConfigOf(defaultExport)) {
+                return [defaultExport];
+            }
+
+            return exportedDeclarations(sourceCode.ast).filter(
+                (declaration) =>
+                    !sourceCode
+                        .getCommentsBefore(declaration.parent?.type?.startsWith('Export') ? declaration.parent : declaration)
+                        .some((entry) => entry.value.includes('@private')),
+            );
+        }
+
+        function check(comment) {
+            const tag = TAG_PATTERN.exec(comment.value);
+
+            if (!tag) {
+                return;
+            }
+
+            const annotation = annotationOf(comment);
+
+            if (annotation.some((entry) => entry.value.includes('@private') || VISIBILITY_PATTERN.test(entry.value))) {
+                return;
+            }
+
+            coveredDeclarations(annotation).forEach((node) => checkDeclaration(node, tag));
         }
 
         return {

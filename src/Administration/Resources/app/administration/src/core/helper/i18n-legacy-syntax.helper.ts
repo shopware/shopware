@@ -52,6 +52,7 @@ function isLegacyPluralCall(args: unknown[]): boolean {
  *
  * @deprecated tag:v6.9.0 - Support for the vue-i18n 8 argument order will be removed.
  */
+// eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- runs for every translation, a legacy argument order triggers the deprecation itself
 function normalizeLegacyArguments(instance: ComponentInstance, args: unknown[], apiName: string): unknown[] {
     if (!isLegacyPluralCall(args)) {
         return args;

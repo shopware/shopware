@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -212,6 +213,83 @@ class AccountProfileControllerTest extends TestCase
         static::assertCount(1, $vatIdField);
         static::assertNull($vatIdField->attr('data-validation'));
         static::assertCount(0, $crawler->filter('label[for="vatIds"] .form-required-label'));
+    }
+
+    public function testGuestsSaveTheirVatIdInTheProfileAndReturnToCheckout(): void
+    {
+        $browser = $this->registerBusinessGuest('guest@example.com');
+
+        $browser->request('GET', $_SERVER['APP_URL'] . '/account/profile?redirectTo=frontend.checkout.confirm.page');
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+
+        $browser->request('POST', $_SERVER['APP_URL'] . '/account/profile', [
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'company' => 'shopware AG',
+            'vatIds' => ['DE123456789'],
+            'redirectTo' => 'frontend.checkout.confirm.page',
+        ]);
+
+        $response = $browser->getResponse();
+        static::assertTrue($response->isRedirect('/checkout/confirm'), (string) $response->getContent());
+        static::assertSame(['DE123456789'], $this->getCustomerByEmail('guest@example.com')->getVatIds());
+    }
+
+    public function testGuestsCannotChangeCredentials(): void
+    {
+        $browser = $this->registerBusinessGuest('guest@example.com');
+
+        $browser->request('POST', $_SERVER['APP_URL'] . '/account/profile/email', [
+            'email' => [
+                'email' => 'changed@example.com',
+                'emailConfirmation' => 'changed@example.com',
+                'password' => '',
+            ],
+        ]);
+
+        $response = $browser->getResponse();
+        static::assertTrue($response->isRedirect(), (string) $response->getContent());
+        static::assertStringContainsString('/account/login', (string) $response->headers->get('Location'));
+        static::assertSame('guest@example.com', $this->getCustomerByEmail('guest@example.com')->getEmail());
+    }
+
+    private function registerBusinessGuest(string $email): KernelBrowser
+    {
+        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser->request('POST', $_SERVER['APP_URL'] . '/account/register', [
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'company' => 'shopware AG',
+            'email' => $email,
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'billingAddress' => [
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'countryId' => $this->getValidCountryId(),
+                'street' => 'Musterstraße 1',
+                'zipcode' => '12345',
+                'city' => 'Schöppingen',
+            ],
+        ]);
+
+        static::assertTrue($this->getCustomerByEmail($email)->getGuest());
+
+        return $browser;
+    }
+
+    private function getCustomerByEmail(string $email): CustomerEntity
+    {
+        /** @var EntityRepository<CustomerCollection> $repo */
+        $repo = static::getContainer()->get('customer.repository');
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('email', $email));
+
+        $customer = $repo->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($customer);
+
+        return $customer;
     }
 
     private function login(string $email): KernelBrowser

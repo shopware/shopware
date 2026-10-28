@@ -77,7 +77,7 @@ describe('module/sw-cms/elements/product-listing/component/index', () => {
         const wrapper = await createWrapper();
         Shopware.Store.get('cmsPage').setCurrentDemoProducts(currentDemoProducts);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const productBoxes = wrapper.findAllComponents({
             name: 'sw-cms-el-product-box',
         });
@@ -97,7 +97,7 @@ describe('module/sw-cms/elements/product-listing/component/index', () => {
         const wrapper = await createWrapper();
         Shopware.Store.get('cmsPage').setCurrentDemoProducts([]);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const productBoxes = wrapper.findAllComponents({
             name: 'sw-cms-el-product-box',
         });

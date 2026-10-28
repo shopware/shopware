@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\DependencyInjection\ServicesResetterInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -30,6 +31,7 @@ readonly class SalesChannelDomainUtil
         private KernelInterface $kernel,
         private LoggerInterface $logger,
         private ClockInterface $clock,
+        private ServicesResetterInterface $servicesResetter,
     ) {
     }
 
@@ -113,12 +115,15 @@ readonly class SalesChannelDomainUtil
         while ($redirectCount <= self::MAX_REDIRECTS) {
             $requestStart = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT);
             try {
+                $this->servicesResetter->reset();
                 // don't let the kernel catch errors, so we can handle them ourselves
                 $response = $this->kernel->handle($currentRequest, catch: false);
             } catch (\Exception $e) {
                 $responseTime += (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $requestStart;
 
                 return $this->createExceptionResult($currentRequest->getUri(), $e, $responseTime, $currentRequest);
+            } finally {
+                $this->servicesResetter->reset();
             }
             $responseTime += (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $requestStart;
 

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Mcp;
 use Doctrine\DBAL\Connection;
 use Mcp\Capability\Registry;
 use Mcp\Schema\Enum\ProtocolVersion;
+use Mcp\Schema\ServerCapabilities;
 use Mcp\Server;
 use Mcp\Server\Builder;
 use Mcp\Server\Stateless\RequestMeta;
@@ -176,8 +177,9 @@ class McpListenStreamTest extends TestCase
 
     /**
      * Wires the bus like McpServerBuilderCompilerPass does on `auto`: on the builder, and as the publishing
-     * dispatcher of the registry, which the SDK requires before it announces `listChanged`. A clone, so the
-     * builder of the container stays as it is.
+     * dispatcher of the registry, which the SDK requires before it announces `listChanged`. The capabilities
+     * the container's builder states are those of `legacy`, so they are stated again with `listChanged`. A
+     * clone, so the builder of the container stays as it is.
      */
     private static function server(ContainerInterface $container, string $builderId, ?NotificationBusInterface $bus): Server
     {
@@ -189,7 +191,14 @@ class McpListenStreamTest extends TestCase
             $builder
                 ->setRegistry(new Registry(new PublishingEventDispatcher($bus), new NullLogger()))
                 ->setNotificationBus($bus)
-                ->setSubscriptionLifetime(self::LIFETIME);
+                ->setSubscriptionLifetime(self::LIFETIME)
+                ->setCapabilities(new ServerCapabilities(
+                    toolsListChanged: true,
+                    resourcesListChanged: true,
+                    promptsListChanged: true,
+                    logging: true,
+                    completions: true,
+                ));
         }
 
         return $builder->build();

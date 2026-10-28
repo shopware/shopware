@@ -195,7 +195,7 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
 
     it('should not able to show the tax free from', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const countryNameField = wrapper.find('.mt-text-field input[aria-label="sw-settings-country.detail.labelName"]');
         const countryPositionField = wrapper.find('mt-number-field-stub[label="sw-settings-country.detail.labelPosition"]');

@@ -15,6 +15,8 @@ test(
                 AdminYourProfile.lastNameField,
                 AdminYourProfile.userNameField,
                 AdminYourProfile.emailField,
+                // The timezone label carries the current UTC offset, which flips at every DST switch.
+                AdminYourProfile.page.locator('.sw-profile--timezone .sw-single-select__selection-text'),
             ]);
             await assertScreenshot(AdminYourProfile.page, 'Your-Profile-General-Tab.png');
         });

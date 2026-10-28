@@ -17,12 +17,9 @@ use Shopware\Core\Framework\Rule\Container\XorRule;
  * contributing plugin is reinstalled. Recalculation recomputes the cart, so a discount whose
  * placeholder no longer matches (its match() is always false) may be dropped rather than preserved.
  *
- * `match()` always returns false. Note this only yields a "fail-closed" outcome for a standalone
- * condition or inside an {@see AndRule}: inside an
- * {@see OrRule} or
- * {@see XorRule} the container can still match via its other
- * branches, and inside a {@see NotRule} the result is inverted
- * to always-match.
+ * `match()` always returns false, so an {@see AndRule} containing this placeholder does not match.
+ * A {@see NotRule} with this placeholder as its child also returns false instead of inverting the result.
+ * An {@see OrRule} or {@see XorRule} can still match via its other branches.
  *
  * @internal
  *

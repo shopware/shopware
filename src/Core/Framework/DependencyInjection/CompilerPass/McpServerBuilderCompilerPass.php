@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
+use Mcp\Schema\ServerCapabilities;
 use Mcp\Server\Subscription\PublishingEventDispatcher;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
@@ -30,7 +31,8 @@ use Symfony\Component\DependencyInjection\Reference;
  *    handlers slice with cannot drift from the one the SDK advertises.
  *
  * It also applies the protocol era configured per server in `shopware.mcp.protocol_era`, see
- * {@see self::applyProtocolEra()}.
+ * {@see self::applyProtocolEra()}, and states the capabilities each server announces, see
+ * {@see self::applyCapabilities()}.
  *
  * Must run after McpToolDiscoveryCompilerPass and McpToolAnalysisCompilerPass.
  */
@@ -64,6 +66,15 @@ class McpServerBuilderCompilerPass implements CompilerPassInterface
     ];
 
     /**
+     * Whether a server registers prompts: the Admin API server has core and app prompts, the Store API
+     * server has none.
+     */
+    private const SERVES_PROMPTS = [
+        'admin' => true,
+        'store_api' => false,
+    ];
+
+    /**
      * Seconds a `subscriptions/listen` stream is held before the server closes it and the client reconnects.
      * Each open stream occupies a PHP worker for that time, so it stays below the common `max_execution_time`
      * of 30 seconds, which would otherwise kill the worker instead of closing the stream.
@@ -83,6 +94,7 @@ class McpServerBuilderCompilerPass implements CompilerPassInterface
 
             $this->scopeBuilderCalls($definition, $server, $takesLoaders);
             $this->applyProtocolEra($container, $definition, $server);
+            $this->applyCapabilities($container, $definition, $server);
         }
     }
 
@@ -163,6 +175,8 @@ class McpServerBuilderCompilerPass implements CompilerPassInterface
             return;
         }
 
+        $definition->addMethodCall('setSubscriptionLifetime', [self::SUBSCRIPTION_LIFETIME]);
+
         if ($server !== 'admin') {
             return;
         }
@@ -186,6 +200,32 @@ class McpServerBuilderCompilerPass implements CompilerPassInterface
         }
 
         $definition->addMethodCall('setNotificationBus', [new Reference(self::ADMIN_NOTIFICATION_BUS)]);
-        $definition->addMethodCall('setSubscriptionLifetime', [self::SUBSCRIPTION_LIFETIME]);
+    }
+
+    /**
+     * The SDK detects the capabilities from the registry, and announces `resources.subscribe` for every server
+     * with resources. Nothing in Shopware publishes `notifications/resources/updated`, so a client that
+     * subscribes would wait for updates that never come. The capabilities are therefore stated here, with
+     * `subscribe` off; `initialize` and `server/discover` both read them.
+     *
+     * `listChanged` is announced only where the stateless era delivers list changes, which is the Admin API
+     * server with its notification bus. The handshake era declares it in the `initialize` answer itself, see
+     * {@see \Shopware\Core\Framework\Mcp\Notification\McpHandshakeListChangedSubscriber}.
+     */
+    private function applyCapabilities(ContainerBuilder $container, Definition $definition, string $server): void
+    {
+        $listChanged = $server === 'admin' && self::protocolEras($container)[$server] === self::ERA_AUTO;
+
+        $definition->addMethodCall('setCapabilities', [new Definition(ServerCapabilities::class, [
+            '$tools' => true,
+            '$toolsListChanged' => $listChanged,
+            '$resources' => true,
+            '$resourcesSubscribe' => false,
+            '$resourcesListChanged' => $listChanged,
+            '$prompts' => self::SERVES_PROMPTS[$server],
+            '$promptsListChanged' => $listChanged && self::SERVES_PROMPTS[$server],
+            '$logging' => true,
+            '$completions' => true,
+        ])]);
     }
 }

@@ -107,12 +107,14 @@ Clients learn about changed tool, prompt and resource lists through `notificatio
   `publish()` bumps the version, so the SDK's registry events end up in the same table as `notify()`; `notify()` only bumps and does not publish a second time.
   The Store API server has no bus and does not announce `listChanged` on `server/discover`: its lists only change per session.
   A Store API client that still opens `subscriptions/listen` gets a stream that can carry nothing, and it holds a worker for the full lifetime until the SDK ends such streams at once ([php-sdk#618](https://github.com/modelcontextprotocol/php-sdk/pull/618)).
-- **Each open listen stream holds one PHP-FPM worker** for the subscription lifetime of 25 seconds (`McpServerBuilderCompilerPass::SUBSCRIPTION_LIFETIME`), below the common `max_execution_time` of 30 seconds.
+- **Each open listen stream holds one PHP-FPM worker** for the subscription lifetime of 25 seconds (`McpServerBuilderCompilerPass::SUBSCRIPTION_LIFETIME`), on both servers, below the common `max_execution_time` of 30 seconds. The SDK default of 30 seconds would let the worker be killed before the stream closes.
   The SDK keeps a stream open for the full lifetime even when the client asked for no notification the server offers.
   `McpListenStreamTest` covers the bump from another process and the flushed first frame through the kernel; a real web server needs the manual check below.
 - **Manual check behind PHP-FPM.** Set `protocol_era.admin: auto`, open a stream with `curl -N` (POST `subscriptions/listen` with `notifications.toolsListChanged: true`, the `MCP-Protocol-Version: 2026-07-28` and `Mcp-Method` headers and the `_meta` envelope), then run `bin/console app:install --activate <app with MCP tools>` or `app:deactivate` on the CLI.
   The `notifications/subscriptions/acknowledged` frame must arrive at once, and `notifications/tools/list_changed` within about a second of the command, on the filesystem cache and on Redis.
   If frames only arrive when the stream ends, the web server buffers the response (`X-Accel-Buffering: no` is sent for nginx).
+- **The capabilities are stated, not detected.** `McpServerBuilderCompilerPass::applyCapabilities()` sets them per server, because the SDK announces `resources.subscribe` for every server with resources and nothing in Shopware publishes `notifications/resources/updated`.
+  A server that gains a kind of capability, for example prompts on the Store API, has to be added there.
 - **The `initialize` answer declares `listChanged` for every advertised list, on both servers.**
   mcp/sdk 0.9 strips the flag from every `initialize` answer, because it delivers list changes only through `subscriptions/listen` of the stateless era.
   `McpHandshakeListChangedSubscriber` sets it again on the SDK's `ResponseEvent`.
@@ -332,7 +334,7 @@ Open questions before implementing:
 ### SDK-ready features (no upstream changes needed)
 symfony/mcp-bundle and mcp/sdk (see `composer.json` for the versions in use) already implement the following — Shopware just needs to wire them up:
 
-- **Resource subscriptions** — SDK has `ResourceSubscribeHandler` and `ResourceUnsubscribeHandler` (`vendor/mcp/sdk`). Resource templates (`#[McpResourceTemplate]`) are already wired up in core — see `ToolResultResource` and `Resource/AGENTS.md`. Subscriptions remain to be wired up if clients need push notifications when resources change.
+- **Resource subscriptions** — SDK has `ResourceSubscribeHandler` and `ResourceUnsubscribeHandler` (`vendor/mcp/sdk`). Resource templates (`#[McpResourceTemplate]`) are already wired up in core — see `ToolResultResource` and `Resource/AGENTS.md`. Subscriptions remain to be wired up if clients need push notifications when resources change; until then `McpServerBuilderCompilerPass::applyCapabilities()` keeps `resources.subscribe` off, and wiring them up includes turning it on there.
 - **Protocol-level pagination** — `RegistryInterface::getTools(?int $limit, ?string $cursor)` etc. already support cursor-based pagination; bundle has a `mcp.pagination_limit` config param. Shopware doesn't configure or expose it — relevant once tool/resource counts grow large.
 - **Completion utility** — SDK has `CompletionCompleteHandler` + `CompletionProvider` interface with built-in `EnumCompletionProvider` / `ListCompletionProvider` (`vendor/mcp/sdk/src/Capability/Attribute/CompletionProvider.php`). Register providers on tool/prompt arguments to power autocomplete in MCP clients (e.g. entity name suggestions for the `entity` parameter on entity tools).
 

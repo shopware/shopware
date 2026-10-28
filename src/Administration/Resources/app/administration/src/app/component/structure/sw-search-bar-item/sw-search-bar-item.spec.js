@@ -370,8 +370,10 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
             },
         );
 
-        expect(wrapper.vm.customItemRoute).toEqual({ name: 'custom.detail', params: { id: 'parentId' } });
-        expect(wrapper.findComponent('.sw-router-link').props('to')).toEqual(wrapper.vm.customItemRoute);
+        expect(wrapper.findComponent('.sw-router-link').props('to')).toEqual({
+            name: 'custom.detail',
+            params: { id: 'parentId' },
+        });
 
         await wrapper.find('.sw-router-link').trigger('click');
         expect(spyOnClickSearchResult).toHaveBeenCalledWith('custom_entity', 'itemId');

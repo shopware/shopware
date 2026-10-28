@@ -158,6 +158,12 @@ Live state transitions batch history and state writes. `EntityWriteEvent` subscr
 
 ## API
 
+### HTTP method overrides restricted to form actions
+
+POST requests can now override their method only to PUT, PATCH or DELETE through the `X-HTTP-Method-Override` header or `_method` parameter.
+Send GET and HEAD requests with their actual HTTP method so routing and HTTP caches agree on the request semantics.
+HTML forms can continue to use POST with an override for PUT, PATCH and DELETE actions.
+
 ### Criteria on fields the API does not expose is a bad request
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.

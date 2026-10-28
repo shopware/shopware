@@ -6,6 +6,7 @@ import { mount } from '@vue/test-utils';
 import 'src/app/component/form/select/entity/sw-entity-advanced-selection-modal';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const EntityColumnsFixture = [
     {
@@ -169,6 +170,10 @@ const createAdvancedSelectionModal = async (customOptions, customStubs = {}) => 
 };
 
 describe('components/sw-entity-advanced-selection-modal', () => {
+    beforeEach(() => {
+        allowDeprecation('The prop "emptyImagePath" of the component "sw-entity-advanced-selection-modal" is deprecated');
+    });
+
     it('should respect the entered search term in criteria', async () => {
         const searchModal = await createAdvancedSelectionModal();
 

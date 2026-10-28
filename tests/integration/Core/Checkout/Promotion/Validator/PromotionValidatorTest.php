@@ -5,7 +5,11 @@ namespace Shopware\Tests\Integration\Core\Checkout\Promotion\Validator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Framework\Api\Sync\SyncBehavior;
+use Shopware\Core\Framework\Api\Sync\SyncOperation;
+use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -49,6 +53,16 @@ class PromotionValidatorTest extends TestCase
             'validFrom' => '2030-06-01 00:00:00',
             'validUntil' => '2030-01-01 00:00:00',
         ]));
+    }
+
+    public function testDatesSetByTwoWritesOfOneRequestAreCheckedTogether(): void
+    {
+        $this->createPromotion(['validFrom' => '2030-01-01 00:00:00', 'validUntil' => '2030-12-31 00:00:00']);
+
+        WriteViolations::assertRejected(['PROMOTION_VALID_UNTIL_VIOLATION'], fn () => static::getContainer()->get(SyncService::class)->sync([
+            new SyncOperation('from', 'promotion', SyncOperation::ACTION_UPSERT, [['id' => $this->ids->get('promotion'), 'validFrom' => '2030-06-01 00:00:00']]),
+            new SyncOperation('until', 'promotion', SyncOperation::ACTION_UPSERT, [['id' => $this->ids->get('promotion'), 'validUntil' => '2030-03-01 00:00:00']]),
+        ], Context::createDefaultContext(), new SyncBehavior()));
     }
 
     public function testACodeCannotBeUsedByTwoPromotions(): void
@@ -100,6 +114,16 @@ class PromotionValidatorTest extends TestCase
         yield '100 percentage' => [PromotionDiscountEntity::TYPE_PERCENTAGE, 100.0];
         yield 'zero absolute' => [PromotionDiscountEntity::TYPE_ABSOLUTE, 0.0];
         yield 'absolute over 100' => [PromotionDiscountEntity::TYPE_ABSOLUTE, 260.0];
+    }
+
+    public function testAViolationPointsAtTheFieldOfTheDiscount(): void
+    {
+        try {
+            $this->createPromotion(['discounts' => [$this->discount(PromotionDiscountEntity::TYPE_PERCENTAGE, 120.0)]]);
+            static::fail('Expected the write to be rejected.');
+        } catch (WriteException $exception) {
+            static::assertSame(['/0/discounts/0/value'], array_column(array_column(iterator_to_array($exception->getErrors()), 'source'), 'pointer'));
+        }
     }
 
     /**

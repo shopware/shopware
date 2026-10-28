@@ -40,7 +40,7 @@ class CsvReader extends AbstractReader
     public function read(Config $config, $resource, int $offset): iterable
     {
         if (!\is_resource($resource)) {
-            throw new \InvalidArgumentException('Argument $resource is not a resource');
+            throw ImportExportException::invalidResource('$resource');
         }
 
         $this->loadConfig($config);

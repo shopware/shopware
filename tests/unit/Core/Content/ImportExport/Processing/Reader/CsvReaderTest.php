@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\ImportExport\Processing\Reader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReader;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Log\Package;
@@ -181,6 +182,16 @@ class CsvReaderTest extends TestCase
         static::assertCount(2, $result);
         static::assertSame(['foo' => '1', 'bar' => '2'], $result[0]);
         static::assertSame(['foo' => 'asdf', 'bar' => 'zxcv'], $result[1]);
+    }
+
+    public function testThrowsOnInvalidResource(): void
+    {
+        $reader = new CsvReader();
+
+        $this->expectExceptionObject(ImportExportException::invalidResource('$resource'));
+
+        /** @phpstan-ignore argument.type (invalid argument on purpose) */
+        \iterator_to_array($reader->read(new Config([], [], []), 'not a resource', 0));
     }
 
     public function testUtf8BOMIsRemoved(): void

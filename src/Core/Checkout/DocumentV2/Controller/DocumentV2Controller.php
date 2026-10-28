@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Controller;
 
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentArchiveGenerator;
@@ -20,10 +21,14 @@ use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\NumberRange\NumberRangeCollection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\InputBag;
@@ -52,6 +57,7 @@ final class DocumentV2Controller extends AbstractController
      *
      * @param EntityRepository<DocumentCollection> $documentRepository
      * @param EntityRepository<MediaCollection> $mediaRepository
+     * @param EntityRepository<NumberRangeCollection> $numberRangeRepository
      */
     public function __construct(
         private readonly DocumentGenerator $documentGenerator,
@@ -64,6 +70,7 @@ final class DocumentV2Controller extends AbstractController
         private readonly FileNameProvider $fileNameProvider,
         private readonly EntityRepository $mediaRepository,
         private readonly DocumentMediaGuard $documentMediaGuard,
+        private readonly EntityRepository $numberRangeRepository,
     ) {
     }
 
@@ -248,6 +255,49 @@ final class DocumentV2Controller extends AbstractController
             $archive->getContentType(),
             HeaderUtils::DISPOSITION_ATTACHMENT,
         );
+    }
+
+    #[Route(
+        path: '/api/_action/order/document-v2/number-range-pattern-collisions',
+        name: 'api.action.order.document-v2.number-range-pattern-collisions',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['number_range:read']],
+        methods: [Request::METHOD_GET],
+    )]
+    public function numberRangePatternCollisions(Request $request, Context $context): JsonResponse
+    {
+        $numberRangeTypeId = $request->query->getString('numberRangeTypeId');
+        $pattern = $request->query->getString('pattern');
+        $numberRangeId = $request->query->getString('numberRangeId') ?: null;
+
+        if (!Uuid::isValid($numberRangeTypeId)) {
+            throw DocumentV2Exception::invalidRequestParameter('numberRangeTypeId');
+        } elseif ($pattern === '') {
+            throw DocumentV2Exception::invalidRequestParameter('pattern');
+        } elseif ($numberRangeId !== null && !Uuid::isValid($numberRangeId)) {
+            throw DocumentV2Exception::invalidRequestParameter('numberRangeId');
+        }
+
+        $criteria = (new Criteria())
+            ->setLimit(100)
+            ->addFilter(
+                new EqualsFilter('typeId', $numberRangeTypeId),
+                new EqualsFilter('pattern', $pattern),
+                new PrefixFilter('type.technicalName', DocumentNumberGenerator::NUMBER_RANGE_DOCUMENT_TYPE_PREFIX),
+            );
+
+        if ($numberRangeId !== null) {
+            $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('id', $numberRangeId)]));
+        }
+
+        $collisions = [];
+        foreach ($this->numberRangeRepository->search($criteria, $context)->getEntities() as $numberRange) {
+            $collisions[] = [
+                'id' => $numberRange->getId(),
+                'name' => $numberRange->getTranslation('name') ?? $numberRange->getName(),
+            ];
+        }
+
+        return new JsonResponse(['collisions' => $collisions]);
     }
 
     /**

@@ -29,11 +29,11 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
 
         await resizeHandle.trigger('mousedown', { clientX: 100 });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(wrapper.vm.sidebarDisplayOptions.isResizing).toBe(true);
         document.dispatchEvent(new MouseEvent('mousemove', { clientX }));
         document.dispatchEvent(new MouseEvent('mouseup'));
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(wrapper.vm.sidebarDisplayOptions.isResizing).toBe(false);
     }
 
@@ -132,21 +132,21 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
 
         // Opening from a closed panel plays the open animation.
         store.setActiveSidebar('first-sidebar');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(store.switchedWhileOpen).toBe(false);
         expect(wrapper.find('.sw-sidebar-renderer.is-active').classes()).not.toContain('is-switched');
 
         // Switching while open swaps the content without replaying the animation.
         store.setActiveSidebar('second-sidebar');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(store.switchedWhileOpen).toBe(true);
         expect(wrapper.find('.sw-sidebar-renderer.is-active').classes()).toContain('is-switched');
 
         // Re-selecting the already-active sidebar keeps the panel as-is.
         store.setActiveSidebar('second-sidebar');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(store.switchedWhileOpen).toBe(true);
         expect(wrapper.find('.sw-sidebar-renderer.is-active').classes()).toContain('is-switched');
@@ -154,7 +154,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
         // Reopening after a full close animates again.
         store.closeSidebar('second-sidebar');
         store.setActiveSidebar('first-sidebar');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(store.switchedWhileOpen).toBe(false);
     });
@@ -180,7 +180,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
                 resizable: true,
             });
             Shopware.Store.get('sidebar').sidebars[0].active = true;
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('600px');
             expect(mockLocalStorage.getItem).toHaveBeenCalledWith('sw-sidebar-width');
@@ -197,13 +197,13 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
                 resizable: true,
             });
             Shopware.Store.get('sidebar').sidebars[0].active = true;
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('600px');
 
             Shopware.Store.get('sidebar').sidebars[0].resizable = false;
             await wrapper.vm.$forceUpdate();
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('512px');
             expect(mockLocalStorage.getItem).toHaveBeenCalledWith('sw-sidebar-width');
@@ -220,12 +220,11 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
                 resizable: true,
             });
             Shopware.Store.get('sidebar').sidebars[0].active = true;
-            await wrapper.vm.$nextTick();
+            await flushPromises();
             await dragSidebarToWidth(wrapper, 700);
 
             await wrapper.find('.sw-sidebar-renderer__button-collapse').trigger('click');
-            await wrapper.vm.$nextTick();
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('512px');
             expect(mockLocalStorage.setItem).toHaveBeenCalledWith('sw-sidebar-width', '512');
@@ -240,7 +239,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
                 resizable: false,
             });
             Shopware.Store.get('sidebar').sidebars[0].active = true;
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             const resizeHandle = wrapper.find('.sw-sidebar-renderer__resize-handle');
 
@@ -259,7 +258,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
                 resizable: false,
             });
             Shopware.Store.get('sidebar').sidebars[0].active = true;
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             wrapper.vm.startSidebarResize({ clientX: 100 });
             expect(wrapper.vm.sidebarDisplayOptions.isResizing).toBe(false);
@@ -275,7 +274,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
                 resizable: true,
             });
             Shopware.Store.get('sidebar').sidebars[0].active = true;
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             const resizeHandle = wrapper.find('.sw-sidebar-renderer__resize-handle');
 
@@ -294,7 +293,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
                 resizable: true,
             });
             Shopware.Store.get('sidebar').sidebars[0].active = true;
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             await wrapper.find('.sw-sidebar-renderer__resize-handle').trigger('mousedown', { clientX: 100 });
 
@@ -314,7 +313,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
                 resizable: true,
             });
             Shopware.Store.get('sidebar').sidebars[0].active = true;
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             await dragSidebarToWidth(wrapper, 1300);
 
@@ -333,12 +332,12 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
                 resizable: true,
             });
             Shopware.Store.get('sidebar').sidebars[0].active = true;
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(false);
 
             await dragSidebarToWidth(wrapper, 1200);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(true);
             expect(wrapper.vm.sidebarDisplayOptions.availableWidth).toBe(`${PAGE_WIDTH - MAIN_CONTENT_MIN_SIZE}px`);
@@ -356,7 +355,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
                 resizable: false,
             });
             Shopware.Store.get('sidebar').sidebars[0].active = true;
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(true);
             expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('512px');
@@ -376,7 +375,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
                 resizable: false,
             });
             Shopware.Store.get('sidebar').sidebars[0].active = true;
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(false);
             expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('512px');
@@ -398,7 +397,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
                 resizable: true,
             });
             Shopware.Store.get('sidebar').setActiveSidebar('first-sidebar');
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             await ui.sidebar.add({
                 title: 'Second sidebar',
@@ -406,7 +405,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
                 resizable: false,
             });
             Shopware.Store.get('sidebar').setActiveSidebar('second-sidebar');
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             const activePanel = wrapper.find('.sw-sidebar-renderer.is-active');
             expect(activePanel.classes()).toContain('is-switched');
@@ -438,7 +437,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
                 resizable: true,
             });
             Shopware.Store.get('sidebar').sidebars[0].active = true;
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(wrapper.vm.sidebarDisplayOptions.availableWidth).toBe(`${PAGE_WIDTH - MAIN_CONTENT_MIN_SIZE}px`);
             expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`512px`);
@@ -448,7 +447,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
 
             window.innerWidth = 1400;
             eventListener();
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(wrapper.vm.sidebarDisplayOptions.availableWidth).toBe(`${1400 - MAIN_CONTENT_MIN_SIZE}px`);
             expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`512px`);

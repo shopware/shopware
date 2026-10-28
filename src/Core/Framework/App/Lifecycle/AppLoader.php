@@ -4,12 +4,11 @@ namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Composer\ComposerInfoProvider;
+use Shopware\Core\Framework\App\AppDirectory;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
@@ -20,7 +19,7 @@ class AppLoader
     final public const COMPOSER_TYPE = 'shopware-app';
 
     public function __construct(
-        private readonly string $appDir,
+        private readonly AppDirectory $appDirectory,
         private readonly LoggerInterface $logger
     ) {
     }
@@ -30,7 +29,7 @@ class AppLoader
      */
     public function load(): array
     {
-        return [...$this->loadFromAppDir(), ...$this->loadFromComposer()];
+        return [...$this->appDirectory->load(), ...$this->loadFromComposer()];
     }
 
     public function deleteApp(string $technicalName): void
@@ -47,54 +46,7 @@ class AppLoader
             throw AppException::cannotDeleteManaged($technicalName);
         }
 
-        (new Filesystem())->remove($manifest->getPath());
-    }
-
-    /**
-     * @return array<string, Manifest>
-     */
-    private function loadFromAppDir(): array
-    {
-        if (!\is_dir($this->appDir)) {
-            return [];
-        }
-
-        $finder = new Finder();
-        $finder->in($this->appDir)
-            ->depth('<= 1') // only use manifest files in-app root folders
-            ->followLinks()
-            ->name('manifest.xml');
-
-        $manifests = [];
-        foreach ($finder->files() as $xml) {
-            try {
-                $manifest = Manifest::createFromXmlFile($xml->getPathname());
-
-                $manifests[$manifest->getMetadata()->getName()] = $manifest;
-            } catch (AppXmlParsingException $exception) {
-                $this->logger->error('Manifest XML parsing error. Reason: ' . $exception->getMessage(), ['trace' => $exception->getTrace()]);
-            }
-        }
-
-        // Overriding with local manifests
-        $finder = new Finder();
-
-        $finder->in($this->appDir)
-            ->depth('<= 1') // only use manifest files in-app root folders
-            ->followLinks()
-            ->name('manifest.local.xml');
-
-        foreach ($finder->files() as $xml) {
-            try {
-                $manifest = Manifest::createFromXmlFile($xml->getPathname());
-
-                $manifests[$manifest->getMetadata()->getName()] = $manifest;
-            } catch (AppXmlParsingException $exception) {
-                $this->logger->error('Local manifest XML parsing error. Reason: ' . $exception->getMessage(), ['trace' => $exception->getTrace()]);
-            }
-        }
-
-        return $manifests;
+        $this->appDirectory->delete($technicalName);
     }
 
     /**

@@ -13,17 +13,20 @@ use Shopware\Core\Framework\App\Command\InstallAppCommand;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\LocalAppDirectory;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\ExtensionExtractor;
 use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -314,7 +317,7 @@ class InstallAppCommandTest extends TestCase
     private function createCommand(string $appFolder): InstallAppCommand
     {
         return new InstallAppCommand(
-            new AppLoader($appFolder, new NullLogger()),
+            new AppLoader(new LocalAppDirectory($appFolder, new NullLogger(), new ExtensionExtractor(['app' => $appFolder], new Filesystem())), new NullLogger()),
             static::getContainer()->get(AppLifecycle::class),
             new AppPrinter($this->appRepository),
             static::getContainer()->get(ManifestValidator::class)

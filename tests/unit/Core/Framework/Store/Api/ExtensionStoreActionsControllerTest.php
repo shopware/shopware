@@ -129,11 +129,16 @@ class ExtensionStoreActionsControllerTest extends TestCase
 
     public function testUploadExtensions(): void
     {
+        $pluginManagement = $this->createMock(PluginManagementService::class);
+        $pluginManagement->expects($this->once())
+            ->method('uploadPlugin')
+            ->willReturn('SwagApp');
+
         $controller = new ExtensionStoreActionsController(
             static::createStub(ExtensionLifecycleService::class),
             static::createStub(ExtensionDownloader::class),
             static::createStub(PluginService::class),
-            static::createStub(PluginManagementService::class),
+            $pluginManagement,
             $this->createFileSystemMock(),
             true
         );
@@ -146,7 +151,8 @@ class ExtensionStoreActionsControllerTest extends TestCase
 
         $response = $controller->uploadExtensions($request, Context::createDefaultContext());
 
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame('"SwagApp"', $response->getContent());
     }
 
     public function testUploadExtensionsShallThrowExceptionIfPathToFileIsEmpty(): void

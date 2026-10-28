@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
-use Shopware\Core\Framework\App\Event\AppUploadedEvent;
+use Shopware\Core\Framework\App\AppDirectory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Event\PluginUploadedEvent;
@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\PluginZipDetector;
+use Shopware\Core\Framework\Store\Services\AbstractAppExtensionService;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\File;
@@ -32,13 +33,41 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(PluginManagementService::class)]
 class PluginManagementServiceTest extends TestCase
 {
-    #[DataProvider('uploadProvider')]
-    public function testDispatchesUploadEventOnlyForSuccessfulPluginUploads(string $type, bool $fails, string $archive = 'SwagFashionTheme.zip', string $pluginName = 'SwagFashionTheme', ?string $pluginVersion = 'v1.0.0'): void
+    public function testAppUploadIsDelegatedToAppExtensionService(): void
+    {
+        $context = Context::createDefaultContext();
+        $file = new UploadedFile(__DIR__ . '/_fixtures/archives/App.zip', 'example.zip', null, null, true);
+
+        $appExtensionService = $this->createMock(AbstractAppExtensionService::class);
+        $appExtensionService->expects($this->once())
+            ->method('upload')
+            ->with($file, $context)
+            ->willReturn('SwagApp');
+
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->expects($this->once())->method('remove')->with($file->getPathname());
+
+        $service = new PluginManagementService(
+            '',
+            $this->createDetector(PluginManagementService::APP),
+            static::createStub(ExtensionExtractor::class),
+            static::createStub(PluginService::class),
+            $filesystem,
+            static::createStub(CacheClearer::class),
+            $this->createClient([]),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(AppDirectory::class),
+            $appExtensionService,
+        );
+
+        static::assertSame('SwagApp', $service->uploadPlugin($file, $context));
+    }
+
+    #[DataProvider('pluginUploadProvider')]
+    public function testDispatchesUploadEventOnlyForSuccessfulPluginUploads(bool $fails, string $archive = 'SwagFashionTheme.zip', string $pluginName = 'SwagFashionTheme', ?string $pluginVersion = 'v1.0.0'): void
     {
         $context = Context::createDefaultContext();
         $file = $this->createUploadedFile($archive, 'example.zip');
-        $detector = static::createStub(PluginZipDetector::class);
-        $detector->method('detect')->willReturn($type);
         $extractor = $this->createMock(ExtensionExtractor::class);
         if ($fails) {
             $extractor->expects($this->once())->method('extract')->willThrowException(new \RuntimeException('Extraction failed'));
@@ -48,17 +77,10 @@ class PluginManagementServiceTest extends TestCase
         }
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         if (!$fails) {
-            $dispatcher->expects($this->once())->method('dispatch')->with(static::callback(static function (PluginUploadedEvent|AppUploadedEvent $event) use ($context, $pluginName, $pluginVersion, $type): bool {
+            $dispatcher->expects($this->once())->method('dispatch')->with(static::callback(static function (PluginUploadedEvent $event) use ($context, $pluginName, $pluginVersion): bool {
                 static::assertSame('example.zip', $event->filename);
-                if ($type === PluginManagementService::PLUGIN) {
-                    static::assertInstanceOf(PluginUploadedEvent::class, $event);
-                    static::assertSame($pluginName, $event->pluginName);
-                    static::assertSame($pluginVersion, $event->pluginVersion);
-                } else {
-                    static::assertInstanceOf(AppUploadedEvent::class, $event);
-                    static::assertSame($pluginName, $event->appName);
-                    static::assertSame($pluginVersion, $event->appVersion);
-                }
+                static::assertSame($pluginName, $event->pluginName);
+                static::assertSame($pluginVersion, $event->pluginVersion);
                 static::assertSame($context, $event->context);
 
                 return true;
@@ -67,54 +89,54 @@ class PluginManagementServiceTest extends TestCase
             $dispatcher->expects($this->never())->method('dispatch');
         }
         $pluginService = $this->createMock(PluginService::class);
-        $pluginService->expects($type === PluginManagementService::PLUGIN && !$fails ? $this->once() : $this->never())
+        $pluginService->expects(!$fails ? $this->once() : $this->never())
             ->method('refreshPlugins');
         $service = new PluginManagementService(
             '',
-            $detector,
+            $this->createDetector(PluginManagementService::PLUGIN),
             $extractor,
             $pluginService,
             new Filesystem(),
             static::createStub(CacheClearer::class),
             $this->createClient([]),
-            $dispatcher
+            $dispatcher,
+            static::createStub(AppDirectory::class),
+            static::createStub(AbstractAppExtensionService::class),
         );
 
         $service->uploadPlugin($file, $context);
     }
 
+    public static function pluginUploadProvider(): \Generator
+    {
+        yield 'successful plugin upload' => [false];
+        yield 'plugin class differs from directory and uploaded filename' => [false, 'UploadedPlugin.zip', 'ActualPlugin', '2.0.0'];
+        yield 'plugin version is optional' => [false, 'UploadedPluginWithoutVersion.zip', 'ActualPlugin', null];
+        yield 'failed plugin extraction is not logged' => [true];
+    }
+
     public function testInvalidComposerJsonFailsBeforeExtractionAndLogging(): void
     {
         $file = $this->createUploadedFile('UploadedPluginInvalidJson.zip', 'invalid.zip');
-        $detector = static::createStub(PluginZipDetector::class);
-        $detector->method('detect')->willReturn(PluginManagementService::PLUGIN);
         $extractor = $this->createMock(ExtensionExtractor::class);
         $extractor->expects($this->never())->method('extract');
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher->expects($this->never())->method('dispatch');
         $service = new PluginManagementService(
             '',
-            $detector,
+            $this->createDetector(PluginManagementService::PLUGIN),
             $extractor,
             static::createStub(PluginService::class),
             static::createStub(Filesystem::class),
             static::createStub(CacheClearer::class),
             $this->createClient([]),
-            $dispatcher
+            $dispatcher,
+            static::createStub(AppDirectory::class),
+            static::createStub(AbstractAppExtensionService::class),
         );
         $this->expectExceptionObject(new \JsonException('Syntax error', \JSON_ERROR_SYNTAX));
 
         $service->uploadPlugin($file, Context::createDefaultContext());
-    }
-
-    public static function uploadProvider(): \Generator
-    {
-        yield 'successful plugin upload' => [PluginManagementService::PLUGIN, false];
-        yield 'plugin class differs from directory and uploaded filename' => [PluginManagementService::PLUGIN, false, 'UploadedPlugin.zip', 'ActualPlugin', '2.0.0'];
-        yield 'plugin version is optional' => [PluginManagementService::PLUGIN, false, 'UploadedPluginWithoutVersion.zip', 'ActualPlugin', null];
-        yield 'app upload logs manifest metadata instead of directory name' => [PluginManagementService::APP, false, 'App.zip', 'SwagApp', '1.0.0'];
-        yield 'failed app extraction is not logged' => [PluginManagementService::APP, true, 'App.zip', 'SwagApp', '1.0.0'];
-        yield 'failed plugin extraction is not logged' => [PluginManagementService::PLUGIN, true];
     }
 
     public function testRefreshesPluginsAfterDownloadingFromStore(): void
@@ -136,7 +158,9 @@ class PluginManagementServiceTest extends TestCase
             static::createStub(Filesystem::class),
             static::createStub(CacheClearer::class),
             $client,
-            static::createStub(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(AppDirectory::class),
+            static::createStub(AbstractAppExtensionService::class),
         );
 
         $pluginManagementService->downloadStorePlugin(
@@ -147,16 +171,6 @@ class PluginManagementServiceTest extends TestCase
 
     public function testExtractPluginWithDetectedPlugin(): void
     {
-        $client = $this->createClient([new Response()]);
-
-        $pluginService = static::createStub(PluginService::class);
-
-        $pluginZipDetector = $this->createMock(PluginZipDetector::class);
-        $pluginZipDetector->expects($this->once())
-            ->method('detect')
-            ->with('/some/zip/file.zip')
-            ->willReturn(PluginManagementService::PLUGIN);
-
         $extractor = $this->createMock(ExtensionExtractor::class);
         $extractor->expects($this->once())
             ->method('extract')
@@ -168,60 +182,49 @@ class PluginManagementServiceTest extends TestCase
 
         $pluginManagementService = new PluginManagementService(
             '',
-            $pluginZipDetector,
+            $this->createDetector(PluginManagementService::PLUGIN),
             $extractor,
-            $pluginService,
+            static::createStub(PluginService::class),
             static::createStub(Filesystem::class),
             $cacheClearer,
-            $client,
-            static::createStub(EventDispatcherInterface::class)
+            $this->createClient([]),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(AppDirectory::class),
+            static::createStub(AbstractAppExtensionService::class),
         );
 
-        $pluginManagementService->extractPluginZip(
-            '/some/zip/file.zip',
-        );
+        $pluginManagementService->extractPluginZip('/some/zip/file.zip');
     }
 
-    public function testExtractPluginWithDetectedApp(): void
+    public function testExtractPluginWithDetectedAppStoresApp(): void
     {
-        $client = $this->createClient([new Response()]);
-
-        $pluginService = static::createStub(PluginService::class);
-
-        $pluginZipDetector = $this->createMock(PluginZipDetector::class);
-        $pluginZipDetector->expects($this->once())
-            ->method('detect')
-            ->with('/some/zip/file.zip')
-            ->willReturn(PluginManagementService::APP);
-
-        $extractor = $this->createMock(ExtensionExtractor::class);
-        $extractor->expects($this->once())
-            ->method('extract')
-            ->with('/some/zip/file.zip');
+        $appDirectory = $this->createMock(AppDirectory::class);
+        $appDirectory->expects($this->once())->method('store')->with('/some/zip/file.zip');
 
         $pluginManagementService = new PluginManagementService(
             '',
-            $pluginZipDetector,
-            $extractor,
-            $pluginService,
+            $this->createDetector(PluginManagementService::APP),
+            static::createStub(ExtensionExtractor::class),
+            static::createStub(PluginService::class),
             static::createStub(Filesystem::class),
             static::createStub(CacheClearer::class),
-            $client,
-            static::createStub(EventDispatcherInterface::class)
+            $this->createClient([]),
+            static::createStub(EventDispatcherInterface::class),
+            $appDirectory,
+            static::createStub(AbstractAppExtensionService::class),
         );
 
-        $pluginManagementService->extractPluginZip(
-            '/some/zip/file.zip',
-        );
+        $pluginManagementService->extractPluginZip('/some/zip/file.zip');
     }
 
     public function testDoesNotRefreshPluginsAfterStoreDownloadIfTypeIsNotPlugin(): void
     {
-        $client = $this->createClient([new Response()]);
-
         $pluginService = $this->createMock(PluginService::class);
         $pluginService->expects($this->never())
             ->method('refreshPlugins');
+
+        $appDirectory = $this->createMock(AppDirectory::class);
+        $appDirectory->expects($this->once())->method('store');
 
         $pluginManagementService = new PluginManagementService(
             '',
@@ -230,8 +233,10 @@ class PluginManagementServiceTest extends TestCase
             $pluginService,
             static::createStub(Filesystem::class),
             static::createStub(CacheClearer::class),
-            $client,
-            static::createStub(EventDispatcherInterface::class)
+            $this->createClient([new Response()]),
+            static::createStub(EventDispatcherInterface::class),
+            $appDirectory,
+            static::createStub(AbstractAppExtensionService::class),
         );
 
         $pluginManagementService->downloadStorePlugin(
@@ -245,16 +250,7 @@ class PluginManagementServiceTest extends TestCase
         $fs = $this->createMock(Filesystem::class);
         $fs->expects($this->never())->method('remove');
 
-        $pluginManagementService = new PluginManagementService(
-            '',
-            static::createStub(PluginZipDetector::class),
-            static::createStub(ExtensionExtractor::class),
-            static::createStub(PluginService::class),
-            $fs,
-            static::createStub(CacheClearer::class),
-            new Client(['handler' => new MockHandler()]),
-            static::createStub(EventDispatcherInterface::class)
-        );
+        $pluginManagementService = $this->createService($fs);
 
         $plugin = new PluginEntity();
         $plugin->setManagedByComposer(true);
@@ -270,16 +266,7 @@ class PluginManagementServiceTest extends TestCase
         $fs = $this->createMock(Filesystem::class);
         $fs->expects($this->never())->method('remove');
 
-        $pluginManagementService = new PluginManagementService(
-            '',
-            static::createStub(PluginZipDetector::class),
-            static::createStub(ExtensionExtractor::class),
-            static::createStub(PluginService::class),
-            $fs,
-            static::createStub(CacheClearer::class),
-            new Client(['handler' => new MockHandler()]),
-            static::createStub(EventDispatcherInterface::class)
-        );
+        $pluginManagementService = $this->createService($fs);
 
         $plugin = new PluginEntity();
         $plugin->setManagedByComposer(true);
@@ -295,16 +282,7 @@ class PluginManagementServiceTest extends TestCase
         $fs = $this->createMock(Filesystem::class);
         $fs->expects($this->once())->method('remove');
 
-        $pluginManagementService = new PluginManagementService(
-            '',
-            static::createStub(PluginZipDetector::class),
-            static::createStub(ExtensionExtractor::class),
-            static::createStub(PluginService::class),
-            $fs,
-            static::createStub(CacheClearer::class),
-            new Client(['handler' => new MockHandler()]),
-            static::createStub(EventDispatcherInterface::class)
-        );
+        $pluginManagementService = $this->createService($fs);
 
         $plugin = new PluginEntity();
         $plugin->setManagedByComposer(true);
@@ -312,6 +290,30 @@ class PluginManagementServiceTest extends TestCase
         $plugin->setName('Test');
 
         $pluginManagementService->deletePlugin($plugin, Context::createDefaultContext());
+    }
+
+    private function createService(Filesystem $filesystem): PluginManagementService
+    {
+        return new PluginManagementService(
+            '',
+            static::createStub(PluginZipDetector::class),
+            static::createStub(ExtensionExtractor::class),
+            static::createStub(PluginService::class),
+            $filesystem,
+            static::createStub(CacheClearer::class),
+            new Client(['handler' => new MockHandler()]),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(AppDirectory::class),
+            static::createStub(AbstractAppExtensionService::class),
+        );
+    }
+
+    private function createDetector(string $type): PluginZipDetector
+    {
+        $detector = static::createStub(PluginZipDetector::class);
+        $detector->method('detect')->willReturn($type);
+
+        return $detector;
     }
 
     private function createUploadedFile(string $archive, string $filename): UploadedFile

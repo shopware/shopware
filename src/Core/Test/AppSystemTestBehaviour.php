@@ -12,13 +12,16 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
+use Shopware\Core\Framework\App\LocalAppDirectory;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Plugin\ExtensionExtractor;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 trait AppSystemTestBehaviour
 {
@@ -32,7 +35,7 @@ trait AppSystemTestBehaviour
     protected function getAppLoader(string $appDir): AppLoader
     {
         return new AppLoader(
-            $appDir,
+            new LocalAppDirectory($appDir, new NullLogger(), new ExtensionExtractor(['app' => $appDir], new Filesystem())),
             new NullLogger()
         );
     }

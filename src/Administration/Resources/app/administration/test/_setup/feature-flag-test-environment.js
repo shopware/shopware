@@ -20,9 +20,9 @@
  */
 
 const { TestEnvironment } = require('jest-environment-jsdom');
+const { getDefaultActiveFeatureFlags } = require('../_helper_/defaultActiveFeatureFlags');
 
 const pendingFeatureFlagsSymbol = Symbol.for('shopware.pendingActiveFeatureFlags');
-const defaultActiveFeatureFlagsSymbol = Symbol.for('shopware.defaultActiveFeatureFlags');
 
 class FeatureFlagTestEnvironment extends TestEnvironment {
     activeFeatureFlagsByTest = new WeakMap();
@@ -48,7 +48,7 @@ class FeatureFlagTestEnvironment extends TestEnvironment {
                 return;
             }
 
-            const defaultActiveFeatureFlags = this.global[defaultActiveFeatureFlagsSymbol] ?? [];
+            const defaultActiveFeatureFlags = getDefaultActiveFeatureFlags(this.global);
             const activeFeatureFlags = [...new Set([...defaultActiveFeatureFlags, ...featureFlags])];
 
             // `activeFeatureFlags` is what the feature service mock reads. The extra
@@ -74,7 +74,7 @@ class FeatureFlagTestEnvironment extends TestEnvironment {
             return;
         }
 
-        this.global.activeFeatureFlags = [...(this.global[defaultActiveFeatureFlagsSymbol] ?? [])];
+        this.global.activeFeatureFlags = [...getDefaultActiveFeatureFlags(this.global)];
         delete this.global.activeFeatureFlagsForCurrentTest;
     }
 }

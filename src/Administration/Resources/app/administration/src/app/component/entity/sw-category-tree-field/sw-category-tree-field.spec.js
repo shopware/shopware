@@ -132,7 +132,6 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
 
         wrapper.vm.term = 'some-search-term';
         await wrapper.find('.sw-category-tree__input-field').trigger('focus');
-        await wrapper.vm.$nextTick();
         await flushPromises();
 
         expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(true);
@@ -253,7 +252,6 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
         await flushPromises();
 
         await wrapper.find('.sw-category-tree-field__label-more').trigger('click');
-        await wrapper.vm.$nextTick();
         await flushPromises();
 
         expect(wrapper.emitted('categories-load-more')).toHaveLength(1);
@@ -304,7 +302,6 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
 
         await wrapper.find('.sw-category-tree__input-field').trigger('focus');
 
-        await wrapper.vm.$nextTick();
         await flushPromises();
 
         const documentBody = new DOMWrapper(document.body);

@@ -428,7 +428,7 @@ describe('src/app/component/media/sw-vector-field', () => {
             });
 
             wrapper.vm.onLinkToggle();
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(wrapper.vm.linked).toBe(true);
         });

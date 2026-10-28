@@ -614,7 +614,7 @@ describe('src/app/component/media/sw-model-editor', () => {
                 @typescript-eslint/no-unsafe-member-access
             */
             (wrapper.vm as any).setGizmoMode('rotate');
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             const buttonContainers = wrapper.findAll('.sw-model-editor-canvas-ui__button-container');
             expect(buttonContainers[0].classes()).not.toContain('is--active');

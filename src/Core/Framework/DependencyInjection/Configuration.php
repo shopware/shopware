@@ -234,6 +234,16 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('auth_required')
                     ->defaultTrue()
                 ->end()
+            ->end()
+            ->end()
+            ->arrayNode('user_recovery')
+                ->info('Administration user password recovery ("forgot password") flow. Disable it when passwords are managed externally, e.g. via SSO.')
+                ->addDefaultsIfNotSet()
+                ->children()
+                    ->booleanNode('enabled')
+                        ->defaultTrue()
+                    ->end()
+                ->end()
             ->end();
 
         return $rootNode;

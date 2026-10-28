@@ -271,7 +271,7 @@ describe('sw-integration-mcp-allowlist', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.staleToolNames).toContain('old-tool');
         expect(wrapper.vm.staleToolNames).not.toContain('shopware-entity-search');
@@ -286,7 +286,7 @@ describe('sw-integration-mcp-allowlist', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.staleResourceUris).toContain('shopware://old');
         expect(wrapper.vm.staleResourceUris).not.toContain('shopware://entities');
@@ -301,7 +301,7 @@ describe('sw-integration-mcp-allowlist', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.stalePromptNames).toContain('old-prompt');
         expect(wrapper.vm.stalePromptNames).not.toContain('shopware-context');
@@ -362,7 +362,7 @@ describe('sw-integration-mcp-allowlist', () => {
         mcpToolService.getCapabilities.mockRejectedValue(new Error('Network error'));
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.availableTools).toStrictEqual([]);
         expect(wrapper.vm.availableResources).toStrictEqual([]);
@@ -374,7 +374,7 @@ describe('sw-integration-mcp-allowlist', () => {
             allowlist: { tools: null, resources: [], prompts: null },
             unrestrictedWhenUnset: true,
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.deniedTypes).toContain('resources');
         expect(wrapper.vm.deniedTypes).not.toContain('tools');
@@ -383,7 +383,7 @@ describe('sw-integration-mcp-allowlist', () => {
 
     it('deniedTypes is empty when allCapabilitiesEnabled', async () => {
         const wrapper = await createWrapper({ allowlist: null, unrestrictedWhenUnset: true });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.deniedTypes).toStrictEqual([]);
     });
@@ -393,7 +393,7 @@ describe('sw-integration-mcp-allowlist', () => {
             allowlist: { tools: null, resources: [], prompts: null },
             unrestrictedWhenUnset: true,
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.deniedTypesLabel).toBe('sw-integration.mcp.resourcesSection');
     });
@@ -403,7 +403,7 @@ describe('sw-integration-mcp-allowlist', () => {
             allowlist: { tools: null, resources: [], prompts: [] },
             unrestrictedWhenUnset: true,
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.deniedTypesLabel).toBe(
             'sw-integration.mcp.resourcesSection and sw-integration.mcp.promptsSection',
@@ -412,7 +412,7 @@ describe('sw-integration-mcp-allowlist', () => {
 
     it('missingCapabilitySuggestions returns empty when allCapabilitiesEnabled', async () => {
         const wrapper = await createWrapper({ allowlist: null });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.missingCapabilitySuggestions).toStrictEqual([]);
     });
@@ -421,7 +421,7 @@ describe('sw-integration-mcp-allowlist', () => {
         const wrapper = await createWrapper({
             allowlist: { tools: ['shopware-entity-search'], resources: null, prompts: null },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.missingCapabilitySuggestions).toStrictEqual([]);
     });
@@ -430,7 +430,7 @@ describe('sw-integration-mcp-allowlist', () => {
         const wrapper = await createWrapper({
             allowlist: { tools: ['shopware-entity-search'], resources: [], prompts: null },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // resources allowlist is empty (not fully denied length===0 check skips it) — wait, length===0 means skip
         // so no suggestions when fully denied — verified by deniedTypes banner instead
@@ -449,7 +449,7 @@ describe('sw-integration-mcp-allowlist', () => {
         const wrapper = await createWrapper({
             allowlist: { tools: ['shopware-entity-search'], resources: ['shopware://languages'], prompts: null },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const names = wrapper.vm.missingCapabilitySuggestions.map((s) => s.name);
         expect(names).toContain('shopware://entities');
@@ -460,7 +460,7 @@ describe('sw-integration-mcp-allowlist', () => {
         const wrapper = await createWrapper({
             allowlist: { tools: ['shopware-entity-search'], resources: null, prompts: [] },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // fully-denied prompts (length===0) are skipped — covered by deniedTypes banner
         expect(wrapper.vm.missingCapabilitySuggestions).toStrictEqual([]);
@@ -478,7 +478,7 @@ describe('sw-integration-mcp-allowlist', () => {
         const wrapper = await createWrapper({
             allowlist: { tools: ['shopware-entity-search'], resources: null, prompts: ['shopware-debug'] },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const names = wrapper.vm.missingCapabilitySuggestions.map((s) => s.name);
         expect(names).toContain('shopware-context');

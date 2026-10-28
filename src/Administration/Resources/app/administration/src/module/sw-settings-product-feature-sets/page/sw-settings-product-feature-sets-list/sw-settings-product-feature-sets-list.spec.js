@@ -263,7 +263,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
             { name: 'fooBar' },
         );
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(successNotificationSpy).toHaveBeenCalled();
     });
@@ -285,8 +285,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
             { name: 'fooBar' },
         );
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(errorNotificationSpy).toHaveBeenCalledWith({
             message: 'sw-settings-product-feature-sets.detail.messageSaveError',

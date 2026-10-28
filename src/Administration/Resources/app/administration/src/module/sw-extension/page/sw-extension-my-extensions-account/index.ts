@@ -16,6 +16,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['systemConfigApiService', 'shopwareExtensionService', 'storeService'],
 
+    emits: ['logout-success', 'login-success'],
+
     mixins: [Mixin.getByName('notification')],
 
     data(): {

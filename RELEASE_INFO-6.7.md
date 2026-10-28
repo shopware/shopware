@@ -2,6 +2,16 @@
 
 ## Core
 
+### Missing plugin conditions in stored carts
+
+Stored carts can be recalculated when a rule container references a condition whose PHP class is no longer available, for example an uninstalled plugin.
+Unavailable child conditions are replaced with `UnknownConditionRule`, which evaluates to false.
+A NOT container whose child is an `UnknownConditionRule` also evaluates to false.
+
+`Container` now implements `__unserialize()` and continues to call subclass `__wakeup()` hooks for compatibility while the `v6.8.0.0` feature flag is disabled.
+If your custom rule container relies on `__wakeup()`, move that logic into `__unserialize(array $data): void`, call `parent::__unserialize($data)` before running it, and remove the old `__wakeup()` implementation to avoid running the logic twice.
+The compatibility call is removed in 6.8.
+
 ### Multiple SQL statements restricted in 6.8
 
 With `DISABLE_SQL_MULTI_STATEMENTS=1`, application database connections reject multiple SQL statements in a single call.
@@ -49,6 +59,7 @@ Webhooks created through the Admin API without an app now belong to the user or 
   ```
 
   The list must not be empty or contain empty entries, every role must exist, and every role must be held by the owner unless the owner is an administrator. Otherwise the write is rejected with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `aclRoleIds`. If the event is not covered by the listed roles, `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` is returned, also when an administrator changes somebody else's webhook.
+* **Event log:** `webhook_event_log` entries are only returned to administrators and to the owner of the webhook that wrote them. An app's integration sees the entries of its app's webhooks. Entries written before the update, and entries of deleted webhooks, are only returned to administrators.
 
 ### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
 
@@ -58,14 +69,18 @@ The command always exits with `0`, which makes it suitable for install hooks in 
 
 ### Company tax exemption accepts VAT IDs from other EU member states
 
-The new *Shop owner's country* setting (`core.basicInformation.sellerCountryId`, per sales channel) in Settings > Basic information sets the shop's own member state for *Tax-free (B2B)*.
-While it is empty, the sales channel's default country is used.
-If the country used is not an EU member state, *Tax-free (B2B)* behaves as before.
-Otherwise, the following applies right after the update:
+The new *Shop owner's country* setting (`core.basicInformation.sellerCountryId`, per sales channel, defaults to the sales channel's default country) sets the shop's own EU member state for *Tax-free (B2B)*; for a non-EU country nothing changes.
+A VAT ID of any other EU member state is exempt, one of the shop's own member state is not, and a delivery within the shop's own member state is never exempt; tax rules are still resolved from the delivery country.
+Documents print the intra-community delivery note for exactly the orders the cart exempts.
+A customer counts as a business based on `accountType` instead of a non-empty `company`; with *Check VAT ID pattern* enabled, Store API, Storefront and Administration accept a VAT ID of any EU member state for an EU billing country and reject a missing or malformed one.
+The new `customer.vatIdCountryId` field (association `vatIdCountry`, not in the Store API) holds the country of the first VAT ID and stays `null` for existing customers until their `vatIds` are written again.
+The cart hash also covers the checkout addresses and the customer's account type, company and VAT IDs.
 
 - A VAT ID of any other EU member state is exempt, one of the shop's own member state is not.
 - A delivery within the shop's own member state is never exempt. *Tax-free (B2C)* is unaffected.
 - Digital products follow the same rules as goods. The separate EU rules for them are not implemented yet.
+Extensions: `CustomerVatIdentification` takes an optional `salesChannelId`, document renderers call the new `AbstractDocumentRenderer::isDomesticSupply()`, `TaxDetector` has a new constructor argument (decorate `AbstractTaxDetector` instead), and the `document_recipient` block reads `customer.vatIds` instead of `customer.customer.vatIds`.
+Themes overriding `address-personal-vat-id.html.twig` use `data-form-validation-pattern-message` and the new `data-eu-vat-id-patterns` attribute, filled by the new Twig function `sw_eu_vat_id_patterns()`; `CountryStateSelectPlugin::_getFormFieldToggleInstance()` and `_onFormFieldToggleChange()` are deprecated and removed in 6.8.0.
 
 Invoices, cancellation invoices and credit notes print the intra-community delivery note for exactly the orders the cart exempts.
 
@@ -92,6 +107,25 @@ The new `customer.vatIdCountryId` field (association `vatIdCountry`) holds the c
 ### The cart hash covers the checkout addresses
 
 The cart hash additionally covers the active billing and shipping address (id, country, country state, zip code, city) and the customer's account type, company and VAT IDs.
+
+### Order placement no longer rebuilds the per-customer redemption counter
+
+Placing an order or deleting a promotion line item updates only the entries of the affected customers in `promotion.orders_per_customer_count`, so its cost no longer grows with the number of customers who redeemed the promotion before.
+`promotion.order_count` now also counts orders whose customer was deleted.
+The cart checks `maxRedemptionsPerCustomer` against the customer's orders and no longer reads `orders_per_customer_count`, which is still maintained.
+Saving a promotion no longer recounts its redemptions; `bin/console dal:refresh:index --only=promotion.indexer` rebuilds them.
+
+### Deprecated the per-customer redemption counter of promotions
+
+The per-customer redemption counter of promotions is deprecated and will be removed with Shopware 6.8:
+
+- DAL and Admin API: the promotion field `ordersPerCustomerCount` and its column `promotion.orders_per_customer_count`.
+- `Shopware\Core\Checkout\Promotion\PromotionEntity`: `getOrdersPerCustomerCount()`, `setOrdersPerCustomerCount()` and `isOrderCountPerCustomerCountValid()`.
+
+To find out how often a customer redeemed a promotion, count the customer's orders that contain a line item of the promotion, for example with the filters `orderCustomer.customerId` and `lineItems.promotionId` on the `order` repository.
+Set `PROMOTION_REDEMPTION_OPTIMIZATION=1` to switch to the 6.8 behavior already: the counter is no longer written and `ordersPerCustomerCount` is removed from the promotion entity.
+When `V6_8_0_0=1`, the flag activates unless explicitly disabled.
+
 ### `NotFilter` negates a single filter
 
 `NotFilter::negate()` negates a single filter without an operator and a list of queries, so `NotFilter::negate(new EqualsFilter('parentId', null))` replaces `new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('parentId', null)])`. Both create the same filter. With `v6.8.0`, the `NotFilter` constructor accepts the single filter directly as well.
@@ -129,24 +163,68 @@ With `shopware.media.remote_thumbnails.enable`, SVGs now have an empty `thumbnai
 Before, their `srcset` claimed widths that the returned original file did not have, so browsers rendered small SVG logos far too small.
 Media loaded without the `mediaType` field keep their thumbnail URLs, as the type can't be checked.
 
+### Duplicate document number errors name the document type
+
+When a document cannot be generated because its number is already taken, the error now names the document type, for example `Document number 1000 has already been allocated for document type "invoice".`, and carries `number` and `documentType` as parameters.
+The order document card in the Administration names the document type as well.
+`DocumentException::documentNumberAlreadyExistsException()` is deprecated for v6.8.0, use `DocumentException::documentNumberAlreadyExistsExceptionForType()` instead.
+
 ### Tax-free detection of new sales channel contexts matches the cart
 
 New sales channel contexts now decide tax-free delivery like the cart (`TaxDetector::isNetDelivery()`):
 commercial customers only get "Tax-free (B2B)", all other customers only "Tax-free (B2C)".
 Cart and order taxes stay the same, but Rule Builder conditions like "Cart amount" can match differently than before for customers who only met the other setting.
 
+### Retired services are uninstalled by the daily service reconcile
+
+Shops now uninstall a service once the service registry lists it as `retired` in `GET /api/service/v2`. This happens in the daily service install task, on `bin/console services:install` and on `system:update:finish`, so a retired service no longer stays installed until the shop's next update. A service that is merely missing from the registry's service list is no longer uninstalled on `system:update:finish`; only an explicit `retired` status removes it. Shops now read the service list only from `GET /api/service/v2` and install and update only services listed as `active`; a status they don't know is left alone.
+
+### Extension events are only dispatched when something listens
+
+`ExtensionDispatcher::publish()` now dispatches each of an extension's `.pre`, `.post` and `.error` events only when it has a listener.
+Existing extension listeners keep working unchanged.
+Code that observes every dispatched event, such as APM tracing or a decorator of `event_dispatcher`, no longer sees extension events nobody listens to.
+Unit tests that pass a mocked `EventDispatcherInterface` to `ExtensionDispatcher` and expect `dispatch()` calls need the mock's `hasListeners()` to return `true`.
+
+### Live state transition retries
+
+Live state transitions batch history and state writes. `EntityWriteEvent` subscribers can receive multiple entities: filter with `getCommandsForEntity()` and make pre-write work idempotent or compensate it through `addError()`. `WriteCommandExceptionEvent` and error callbacks can run before SQL executes, and each failed attempt runs its error callbacks before it is retried. Retries stop once success callbacks or written listeners begin, or compensation fails. MariaDB error `1020` is now retryable.
 ## API
 
 ### Criteria on fields the API does not expose is a bad request
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
 
+### Assign products to a sales channel by product group or category
+
+`POST /api/_action/sales-channel/{salesChannelId}/product-assignment` makes products visible in a sales channel.
+Products are given by `productIds`, by `productStreamIds` (dynamic product groups) or by `categoryIds`, and the matching products are resolved on the server.
+Products that are already visible in the sales channel are skipped, and the response reports the number of newly assigned products as `assigned`.
+A single call writes up to 5000 products and answers with `complete: false` when products are left.
+Repeat the same request until `complete` is `true`, every call continues with the products that are not visible yet.
+The optional `visibility` (`10`, `20` or `30`, default `30`) is applied to every assigned product.
+The route requires the `product_visibility:create` and `product:read` privileges, plus `product_stream:read` when `productStreamIds` is given and `category:read` when `categoryIds` is given.
+
+```json
+{ "productStreamIds": ["0193b1c2d3e47f5a8b9c0d1e2f3a4b5c"], "categoryIds": [], "productIds": [] }
+```
 ### Profile updates without `accountType` keep the account type
 
 `/store-api/account/change-profile` now keeps the customer's current account type when the request doesn't contain `accountType`.
 For a business customer, `company` and `vatIds` are then only changed when the request contains them, and they are validated as for `business`.
 Before, such a request cleared both, while the customer stayed a business customer.
 Requests that send `accountType` behave as before.
+
+### Check a document number range pattern for collisions
+
+The new experimental route `GET /api/_action/order/document-v2/number-range-pattern-collisions?numberRangeTypeId=…&pattern=…&numberRangeId=…` returns the number ranges of the given document number range type that use the given pattern, as `{"collisions": [{"id": "…", "name": "…"}]}`.
+Such ranges, for example two `document_invoice` ranges assigned to different sales channels, generate the same document numbers and document generation fails once they meet.
+`numberRangeId` is optional and leaves that number range out of the result, for example to check an existing number range against all others.
+Non-document number range types never collide and return an empty list.
+The route requires the `number_range:read` privilege.
+
+The number range detail page in the Administration uses it to show a warning when it loads or saves a number range with a colliding pattern.
+Saving is not blocked.
 
 ## Features
 
@@ -165,6 +243,19 @@ shopware:
 ```
 
 ## Administration
+
+### Extension tooling reports redundant code
+
+The ESLint config of the Administration extension tooling now enables `no-else-return`, `no-useless-return`, `no-lonely-if` and `no-unneeded-ternary`.
+In TypeScript and Vue files it also enables `@typescript-eslint/no-unnecessary-boolean-literal-compare`, `@typescript-eslint/no-unnecessary-template-expression` and `@typescript-eslint/no-unnecessary-type-conversion`.
+`administration:check-extensions` can therefore report findings for an extension that passed before.
+All of these rules have an autofix:
+
+```bash
+bin/console administration:check-extensions -- --only=MyPlugin --fix
+```
+
+To keep a rule off, set it to `'off'` in the `eslint.config.mjs` of your extension, or record the current findings with `--update-baseline`.
 
 ### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag
 
@@ -199,6 +290,25 @@ They additionally react to domain changes:
 toggling the external storefront flag of a domain (or adding/removing domains) creates or removes the affected rows without re-saving the customer group.
 The storefront rows are untouched by this and keep being maintained by the Storefront bundle.
 
+### Overrides keep their own methods and props across component builds
+
+Repeated `Component.build()` calls no longer remove methods, props or other options that an override defines from components built earlier. Components with three or more overrides, such as the base of a `Component.extend()` that is mounted after other builds, failed with `this.<method> is not a function` or lost props before. No changes to extensions are required.
+
+### Sales channel product assignment is no longer capped at 500 products
+
+Assigning products to a sales channel through the "Categories" or "Product group selection" tab of the product assignment modal now adds every matching product.
+Previously only the first 500 products were assigned, without any notice.
+The Administration sends the selected categories and product groups to the new product assignment route instead of loading the products itself, and shows the number of assigned products afterwards.
+### More Administration components declare their emitted events
+
+About 30 Administration components now list the events they emit in `emits`, for example `sw-datepicker`, `sw-password-field`, `sw-url-field`, `sw-textarea-field` and `sw-string-filter`.
+Listeners for these events are no longer part of the component's `$attrs`, so they fire once per event instead of twice.
+If you override the template of one of these components and render your own field with `v-bind="$attrs"`, forward `update:modelValue` explicitly:
+
+```html
+<mt-text-field v-bind="$attrs" @update:model-value="$emit('update:modelValue', $event)" />
+```
+
 ### Known core deprecations log an error in next-major mode
 
 Core usages that are not migrated yet are listed in `src/Administration/Resources/app/administration/src/core/deprecation-baseline.json`.
@@ -219,6 +329,10 @@ If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ## Storefront
+
+### Deprecation of unused custom `$offcanvas-zindex` SCSS variable
+
+The custom offcanvas z-index SCSS variable `$offcanvas-zindex` is not used anymore and is therefore deprecated. To override the offcanvas z-index or calculate your own z-index based on it, use the bootstrap variable `$zindex-offcanvas` instead. The deprecated `$offcanvas-zindex` SCSS variable and its respective `--offcanvas-zindex` CSS root variable now reflect the actual Bootstrap offcanvas z-index (`1045` instead of `1050`). Additionally, a new `--offcanvas-backdrop-zindex` CSS root variable has been added.
 
 ### Theme compilation completion is notified once
 

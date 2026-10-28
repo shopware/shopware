@@ -4,6 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const orderMock = {
     orderCustomer: {
@@ -176,9 +177,9 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         Shopware.Store.get('swOrderDetail').order = orderMock;
     });
 
-    afterEach(() => {
-        Shopware.Store.get('swOrderDetail').order = orderMock;
-        Shopware.Store.get('swOrderDetail').setOrderAddressIds(null);
+    beforeEach(() => {
+        allowDeprecation('sw-order-detail-details.onShippingChargeEdited() is deprecated');
+        allowDeprecation('sw-order-detail-details.shippingCosts is deprecated');
     });
 
     it('should have a disabled on transaction card', async () => {

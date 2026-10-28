@@ -529,8 +529,8 @@ class MailServiceTest extends TestCase
     public static function mailSensitivityProvider(): \Generator
     {
         yield 'ordinary mail has no sensitive header' => ['checkout.order.placed', false, false];
-        yield 'admin recovery is marked' => ['user.recovery.request', false, true];
-        yield 'customer recovery is marked' => ['customer.recovery.request', false, true];
+        yield 'admin recovery forwards sensitivity' => ['user.recovery.request', true, true];
+        yield 'customer recovery forwards sensitivity' => ['customer.recovery.request', true, true];
         yield 'other mail can opt in' => ['checkout.order.placed', true, true];
     }
 

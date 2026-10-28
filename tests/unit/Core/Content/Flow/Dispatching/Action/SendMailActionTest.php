@@ -488,6 +488,7 @@ class SendMailActionTest extends TestCase
         );
 
         $flow = new StorableFlow('customer.recovery.request', $context);
+        $flow->setData('sensitive', true);
         $flow->setConfig(['mailTemplateId' => $templateId, 'recipient' => ['type' => 'customer']]);
         $flow->setData(MailAware::MAIL_STRUCT, new MailRecipientStruct(['customer@example.com' => 'Customer']));
         $flow->setData(MailAware::SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);

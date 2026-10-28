@@ -65,7 +65,7 @@ class SendMailTemplateTest extends TestCase
             $template->getId(),
             Defaults::LANGUAGE_SYSTEM,
             [new Address('customer@example.com')],
-            ['resetUrl' => 'BODY-SECRET', 'eventName' => 'user.recovery.request'],
+            ['resetUrl' => 'BODY-SECRET', 'sensitive' => true],
         ), $context);
     }
 }

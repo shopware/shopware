@@ -55,8 +55,8 @@ class MailLogDataTest extends TestCase
      */
     public static function mailTypes(): \Generator
     {
-        yield 'admin recovery is sensitive' => ['user.recovery.request', false, true];
-        yield 'customer recovery is sensitive' => ['customer.recovery.request', false, true];
+        yield 'admin recovery name alone does not classify mail' => ['user.recovery.request', false, false];
+        yield 'customer recovery name alone does not classify mail' => ['customer.recovery.request', false, false];
         yield 'explicit sensitivity applies to other events' => ['checkout.order.placed', true, true];
         yield 'ordinary mail keeps content' => ['checkout.order.placed', false, false];
     }

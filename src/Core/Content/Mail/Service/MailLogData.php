@@ -2,9 +2,7 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
-use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 use Symfony\Component\Mime\Header\MailboxListHeader;
 use Symfony\Component\Mime\Message;
 use Symfony\Component\Mime\RawMessage;
@@ -24,8 +22,7 @@ final class MailLogData
     public static function isSensitive(array $data, array $templateData = []): bool
     {
         return ($data['sensitive'] ?? false) === true
-            || ($templateData['sensitive'] ?? false) === true
-            || \in_array($templateData['eventName'] ?? null, [UserRecoveryRequestEvent::EVENT_NAME, CustomerAccountRecoverRequestEvent::EVENT_NAME], true);
+            || ($templateData['sensitive'] ?? false) === true;
     }
 
     public static function isSensitiveMessage(RawMessage $message): bool

@@ -55,7 +55,7 @@ describe('src/app/component/utils/sw-time-ago', () => {
 
         jest.advanceTimersByTime(30000);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.now).toBe(1750777260000);
     });

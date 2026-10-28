@@ -43,7 +43,7 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
                 switch (change.field) {
                     case 'orderTransactions':
                         return this.orderStateMachineService.transitionOrderTransactionState(
-                            order.transactions.first()?.id,
+                            this.getTransactionId(order),
                             change.value,
                             options,
                             {},
@@ -106,9 +106,24 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
             .getAssociation('deliveries')
             .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'))
             .addSorting(Criteria.sort('id', 'ASC'));
-        criteria.getAssociation('transactions');
+        criteria
+            .getAssociation('transactions')
+            .addAssociation('stateMachineState')
+            .addSorting(Criteria.sort('createdAt', 'ASC'));
 
         return criteria;
+    }
+
+    getTransactionId(order) {
+        if (order.primaryOrderTransactionId) {
+            return order.primaryOrderTransactionId;
+        }
+
+        const transaction = order.transactions.find(({ stateMachineState }) => {
+            return !['cancelled', 'failed'].includes(stateMachineState?.technicalName);
+        });
+
+        return (transaction ?? order.transactions.last())?.id;
     }
 }
 

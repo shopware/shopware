@@ -39,7 +39,7 @@ const createWrapper = async (stubOverrides = {}) => {
                             id: 'priceId1',
                             shippingMethodId: 'shippingMethodId',
                             quantityStart: 1,
-                            quantityEnds: 1,
+                            quantityEnd: 1,
                             ruleId: 'ruleId',
                             rule: {},
                             calculation: 1,
@@ -57,7 +57,7 @@ const createWrapper = async (stubOverrides = {}) => {
                             id: 'priceId2',
                             shippingMethodId: 'shippingMethodId',
                             quantityStart: 2,
-                            quantityEnds: null,
+                            quantityEnd: null,
                             ruleId: 'ruleId',
                             rule: {},
                             calculation: 1,
@@ -132,6 +132,75 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         expect(wrapper.vm.showAllPrices).toBeTruthy();
         expect(wrapper.vm.prices).toHaveLength(2);
+    });
+
+    describe('deleting shipping prices', () => {
+        let wrapper;
+        let remove;
+
+        beforeEach(async () => {
+            remove = jest.fn();
+            Shopware.Store.get('swShippingDetail').shippingMethod.prices.remove = remove;
+            wrapper = await createWrapper();
+        });
+
+        afterEach(() => {
+            wrapper.unmount();
+        });
+
+        it.each([
+            [false, 0],
+            [false, 1],
+            [true, 0],
+            [true, 1],
+        ])('deletes a rule price with expanded=%s at index %s without changing other rules', async (expanded, index) => {
+            const prices = wrapper.vm.priceGroup.prices.map((price, priceIndex) => ({
+                ...price,
+                calculation: null,
+                calculationRuleId: `calculationRule${priceIndex}`,
+                quantityStart: null,
+                quantityEnd: null,
+            }));
+            await wrapper.setProps({
+                priceGroup: { ...wrapper.vm.priceGroup, calculation: null, prices },
+            });
+            if (expanded) {
+                wrapper.vm.updateShowAllPrices();
+            }
+            const originalPrices = Shopware.Utils.object.cloneDeep(prices);
+
+            expect(wrapper.vm.prices).toHaveLength(expanded ? 2 : 1);
+            wrapper.vm.onDeleteShippingPrice(wrapper.vm.priceGroup.prices[index]);
+
+            expect(remove).toHaveBeenCalledWith(prices[index].id);
+            expect(wrapper.vm.priceGroup.prices).toEqual(originalPrices);
+        });
+
+        it.each([
+            [0, [[1, null]]],
+            [1, [[1, null]]],
+        ])('keeps quantity ranges contiguous when deleting price %s', (index, expectedRanges) => {
+            const prices = wrapper.vm.priceGroup.prices;
+
+            wrapper.vm.onDeleteShippingPrice(prices[index]);
+
+            expect(remove).toHaveBeenCalledWith(prices[index].id);
+            expect(
+                prices
+                    .filter((price, priceIndex) => priceIndex !== index)
+                    .map((price) => [price.quantityStart, price.quantityEnd]),
+            ).toEqual(expectedRanges);
+        });
+
+        it('keeps the only price in a matrix', async () => {
+            await wrapper.setProps({
+                priceGroup: { ...wrapper.vm.priceGroup, prices: [wrapper.vm.priceGroup.prices[0]] },
+            });
+
+            wrapper.vm.onDeleteShippingPrice(wrapper.vm.priceGroup.prices[0]);
+
+            expect(remove).not.toHaveBeenCalled();
+        });
     });
 
     describe('linked gross/net prices', () => {

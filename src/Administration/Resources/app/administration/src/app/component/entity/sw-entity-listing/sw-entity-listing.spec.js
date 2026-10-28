@@ -228,7 +228,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         });
 
         expect(deprecations).toHaveTriggered(itemsDeprecation);
-        expect(wrapper.vm.records).toHaveLength(1);
+        expect(wrapper.findAll('.sw-data-grid__body .sw-data-grid__row')).toHaveLength(1);
     });
 
     it('should prefer dataSource over items when both are provided', async () => {

@@ -263,8 +263,10 @@ class EntityWriter implements EntityWriterInterface
         }
         $cascades = $this->foreignKeyResolver->getAffectedDeletes($definition, $resolved, $writeContext->getContext());
 
+        $cascadedDeletes = [];
         foreach ($cascades as $affectedDefinitionClass => $keys) {
             $affectedDefinition = $this->registry->getByEntityName($affectedDefinitionClass);
+            $cascadedDeletes[] = [$affectedDefinition, $keys];
 
             foreach ($keys as $key) {
                 if (!\is_array($key)) {
@@ -289,10 +291,14 @@ class EntityWriter implements EntityWriterInterface
                 );
             }
         }
+
+        foreach ($cascadedDeletes as [$affectedDefinition, $keys]) {
+            $this->addSetNullOnDeletesCommands($queue, $affectedDefinition, $writeContext, $keys);
+        }
     }
 
     /**
-     * @param array<array<string, string>> $resolved
+     * @param array<string>|array<array<string, string>> $resolved
      */
     private function addSetNullOnDeletesCommands(WriteCommandQueue $queue, EntityDefinition $definition, WriteContext $writeContext, array $resolved): void
     {

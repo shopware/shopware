@@ -65,7 +65,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
   acceptance:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ github.repository == 'shopware/shopware-private' && format('runs-on={0}/runner=sw-amd64/cpu=4', github.run_id) || 'ubuntu-24.04' }}
     env:
       V6_8_0_0: ${{ matrix.major && '1' || '' }}
     permissions:

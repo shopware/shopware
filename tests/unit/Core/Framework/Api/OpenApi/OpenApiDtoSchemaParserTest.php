@@ -27,9 +27,37 @@ class OpenApiDtoSchemaParserTest extends TestCase
     public function testCyclicRequestBodyReferenceThrowsException(): void
     {
         $schema = $this->loadSchema('invalidSchemas/cyclicRequestBody.json');
-        $this->expectExceptionObject(FrameworkException::invalidArgumentException('Cannot resolve request reference "#/components/requestBodies/InputAlias".'));
+        $this->expectExceptionObject(FrameworkException::invalidArgumentException('Cannot resolve reference "#/components/requestBodies/InputAlias".'));
 
         $this->parser->parse($schema);
+    }
+
+    public function testCyclicMediaTypeReferenceThrowsException(): void
+    {
+        $this->expectExceptionObject(FrameworkException::invalidArgumentException('Cannot resolve reference "#/components/mediaTypes/PayloadAlias".'));
+
+        $this->parser->parse($this->loadSchema('invalidSchemas/cyclicMediaType.json'));
+    }
+
+    public function testMissingMediaTypeReferenceThrowsException(): void
+    {
+        $this->expectExceptionObject(FrameworkException::invalidArgumentException('Cannot resolve reference "#/components/mediaTypes/Missing".'));
+
+        $this->parser->parse($this->loadSchema('invalidSchemas/missingMediaType.json'));
+    }
+
+    public function testExternalMediaTypeReferenceThrowsException(): void
+    {
+        $this->expectExceptionObject(FrameworkException::invalidArgumentException('Cannot resolve reference "payload.json#/components/mediaTypes/Payload".'));
+
+        $this->parser->parse($this->loadSchema('invalidSchemas/externalMediaType.json'));
+    }
+
+    public function testCyclicResponseReferenceThrowsException(): void
+    {
+        $this->expectExceptionObject(FrameworkException::invalidArgumentException('Cannot resolve reference "#/components/responses/PayloadAlias".'));
+
+        $this->parser->parse($this->loadSchema('invalidSchemas/cyclicResponse.json'));
     }
 
     public function testDuplicateNormalizedPropertiesThrowException(): void

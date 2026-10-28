@@ -1,0 +1,36 @@
+{
+  "persona": "architecture",
+  "tier": "balanced",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-bc-api-contracts-catch",
+    "title": "feat(checkout): allow finish URL via header in handle-payment",
+    "body": "Headless clients can pass the finish URL as a header. The response field is renamed for clarity.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/bc-api-contracts-catch",
+    "additions": 5,
+    "deletions": 3,
+    "changed_files": 2
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "src/Core/Checkout/Payment/SalesChannel/HandlePaymentMethodRoute.php",
+    "src/Core/Checkout/Payment/SalesChannel/HandlePaymentMethodRouteResponse.php"
+  ],
+  "guides": [
+    "guides/bc-api-contracts.md"
+  ],
+  "change_profile": {
+    "signals": [
+      "php_src",
+      "php_src_without_tests",
+      "api_contract"
+    ],
+    "guides": [
+      "bc-api-contracts"
+    ]
+  }
+}

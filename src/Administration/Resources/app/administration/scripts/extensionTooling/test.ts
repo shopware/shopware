@@ -60,8 +60,8 @@ export interface TestExtensionsOptions {
      * with a Jest config runs.
      */
     only?: string | string[];
-    /** False leaves vendor/ extensions out of a run without `only`. Defaults to true. */
-    includeVendors?: boolean;
+    /** Lets a failing spec or a Jest config that cannot run in a vendor/ extension fail the run. */
+    strictVendor?: boolean;
     /**
      * Forwarded to every Jest run, e.g. a spec path pattern. `--watch` needs
      * exactly one config; over several configs, `--passWithNoTests` is added.
@@ -82,6 +82,8 @@ export interface JestRun {
     testCount?: number;
     /** Set when the config ran on the extension's own Jest instead of the Administration's. */
     ownJest?: boolean;
+    /** Set when the run failed but does not fail the command: a vendor/ extension without `strictVendor`. */
+    nonFatal?: boolean;
 }
 
 /**
@@ -95,7 +97,10 @@ export interface NotRunnableConfig {
     /** The directory of the package.json that declares Jest, relative to the project root (posix). */
     installDirectory: string;
     installCommand: 'npm ci' | 'npm install';
-    /** Whether the extension was named via --only or the picker, so the config not running fails the run. */
+    /**
+     * Whether the config not running fails the run: its extension was named via --only or the picker,
+     * and is not a vendor/ extension, unless `strictVendor` is set.
+     */
     failsRun: boolean;
 }
 
@@ -104,8 +109,6 @@ export interface TestExtensionsResult {
     notRunnable: NotRunnableConfig[];
     /** Extensions of the selection that have no Jest config, so nothing ran for them. */
     withoutConfig: string[];
-    /** vendor/ extensions with a Jest config that did not run, because of `includeVendors: false`. */
-    vendorNotTested: string[];
     /** Setup warnings of the selected extensions and the project, e.g. a bridge that could not be written. */
     setupWarnings: string[];
     fatalDiagnostics: string[];
@@ -369,18 +372,13 @@ function withPassWithNoTests(jestArgs: string[], configCount: number): string[] 
  * Explains a run without a single Jest config that could run, so it fails instead of passing green.
  *
  * @example
- * nothingTestedDiagnostic(['custom-admin'], []);
- * // → 'Nothing was tested: … Drop --no-vendors to test the vendor extensions: custom-admin.'
+ * nothingTestedDiagnostic([]);
+ * // → 'Nothing was tested: no extension in this run has a Jest config (jest.config.js, …).'
  */
-function nothingTestedDiagnostic(vendorNotTested: string[], notRunnable: NotRunnableConfig[]): string {
-    return [
-        notRunnable.length > 0
-            ? 'Nothing was tested: no Jest config of this run can run yet, see the fixes above.'
-            : `Nothing was tested: no extension in this run has a Jest config (${JEST_CONFIG_FILE_NAMES.join(', ')}).`,
-        ...(vendorNotTested.length > 0
-            ? [`Drop --no-vendors to test the vendor extensions: ${vendorNotTested.join(', ')}.`]
-            : []),
-    ].join(' ');
+function nothingTestedDiagnostic(notRunnable: NotRunnableConfig[]): string {
+    return notRunnable.length > 0
+        ? 'Nothing was tested: no Jest config of this run can run yet, see the fixes above.'
+        : `Nothing was tested: no extension in this run has a Jest config (${JEST_CONFIG_FILE_NAMES.join(', ')}).`;
 }
 
 /**
@@ -436,41 +434,30 @@ interface TestRunPlan {
     ownJestBins: Map<string, string>;
     notRunnable: NotRunnableConfig[];
     withoutConfig: string[];
-    vendorNotTested: string[];
     configCount: number;
 }
 
 /**
- * Decides which extensions of the selection run, which Jest configs they bring,
- * and which Jest runs each config. vendor/ extensions stay out only when the
- * caller excludes them.
+ * Decides which Jest configs the extensions of the selection bring, and which
+ * Jest runs each config.
  *
  * @example
  * planTestRun('/shop', [zeroConfig, customAdmin], false, false);
- * // → { configsByExtension: [{ project: zeroConfig, configs: [...] }], vendorNotTested: ['custom-admin'], … }
+ * // → { configsByExtension: [{ project: zeroConfig, configs: [...] }, { project: customAdmin, configs: [...] }], … }
  */
 function planTestRun(
     projectRoot: string,
     projects: ExtensionToolingProject[],
-    includeVendors: boolean,
     namedOnPurpose: boolean,
+    strictVendor: boolean,
 ): TestRunPlan {
     const configsByExtension: TestRunPlan['configsByExtension'] = [];
     const ownJestBins = new Map<string, string>();
     const notRunnable: NotRunnableConfig[] = [];
     const withoutConfig: string[] = [];
-    const vendorNotTested: string[] = [];
 
     for (const project of projects) {
         const configs = findJestConfigs(projectRoot, project);
-
-        if (!includeVendors && project.vendor) {
-            if (configs.length > 0) {
-                vendorNotTested.push(project.name);
-            }
-
-            continue;
-        }
 
         if (configs.length === 0) {
             withoutConfig.push(project.name);
@@ -485,7 +472,7 @@ function planTestRun(
                     config: relativePosix(projectRoot, config),
                     installDirectory: relativePosix(projectRoot, choice.missingJest.directory),
                     installCommand: choice.missingJest.command,
-                    failsRun: namedOnPurpose,
+                    failsRun: namedOnPurpose && (!project.vendor || strictVendor),
                 });
 
                 return false;
@@ -506,7 +493,6 @@ function planTestRun(
         ownJestBins,
         notRunnable,
         withoutConfig,
-        vendorNotTested,
         configCount: configsByExtension.reduce((count, { configs }) => count + configs.length, 0),
     };
 }
@@ -554,24 +540,19 @@ export async function testExtensions(options: TestExtensionsOptions): Promise<Te
     const setupResult = setupExtensionTooling({ projectRoot, administrationRoot });
     const selection = filterSelectedProjects(setupResult.manifest.projects, selected);
     const namedOnPurpose = selected.length > 0;
-    const plan = planTestRun(
-        projectRoot,
-        selection.projects,
-        namedOnPurpose || options.includeVendors !== false,
-        namedOnPurpose,
-    );
+    const strictVendor = options.strictVendor === true;
+    const plan = planTestRun(projectRoot, selection.projects, namedOnPurpose, strictVendor);
     const testWarnings = setupResult.warnings.filter((warning) => !warning.typeCheckOrLintOnly);
 
     const result = (runs: JestRun[], fatalDiagnostics: string[]): TestExtensionsResult => ({
         runs,
         notRunnable: plan.notRunnable,
         withoutConfig: plan.withoutConfig,
-        vendorNotTested: plan.vendorNotTested,
         setupWarnings: selectedSetupWarnings(testWarnings, setupResult.manifest.projects, selected),
         fatalDiagnostics,
         exitCode:
             fatalDiagnostics.length > 0 ||
-            runs.some((run) => run.exitCode !== 0) ||
+            runs.some((run) => run.exitCode !== 0 && !run.nonFatal) ||
             plan.notRunnable.some((config) => config.failsRun)
                 ? 1
                 : 0,
@@ -588,7 +569,7 @@ export async function testExtensions(options: TestExtensionsOptions): Promise<Te
     }
 
     if (plan.configCount === 0) {
-        return result([], [nothingTestedDiagnostic(plan.vendorNotTested, plan.notRunnable)]);
+        return result([], [nothingTestedDiagnostic(plan.notRunnable)]);
     }
 
     // A Composer update replaces the Administration package and drops the generated map with it.
@@ -612,6 +593,7 @@ export async function testExtensions(options: TestExtensionsOptions): Promise<Te
                 exitCode,
                 ...(testCount === undefined ? {} : { testCount }),
                 ...(ownJestBin === undefined ? {} : { ownJest: true }),
+                ...(exitCode !== 0 && project.vendor && !strictVendor ? { nonFatal: true } : {}),
             });
         }
     }
@@ -633,11 +615,12 @@ export function renderTestReport(result: TestExtensionsResult): string {
     ].join('\n');
 }
 
-/** ✓ passed, ✗ failed, – passed without running a spec. */
+/** ✓ passed, ✗ failed, ! failed without failing the command, – passed without running a spec. */
 function renderRunLine(run: JestRun): string {
-    const mark = run.exitCode !== 0 ? '✗' : run.testCount === 0 ? '–' : '✓';
+    const mark = run.nonFatal ? '!' : run.exitCode !== 0 ? '✗' : run.testCount === 0 ? '–' : '✓';
     const notes = [
         ...(run.ownJest ? ['own Jest'] : []),
+        ...(run.nonFatal ? ['vendor, non-fatal; pass --strict-vendor to fail on it'] : []),
         ...(run.exitCode === 0 && run.testCount === 0 ? ['no matching spec'] : []),
     ];
 
@@ -674,8 +657,8 @@ const TEST_COMMAND: CommandSpec = {
             description: 'Test every extension that has a Jest config (skips the interactive picker).',
         },
         {
-            name: '--no-vendors',
-            description: 'Leave out extensions installed under vendor/, in --all and in the picker.',
+            name: '--strict-vendor',
+            description: 'Fail on failing specs in vendor-installed (read-only) extensions.',
         },
         {
             name: '--project-root',
@@ -728,27 +711,29 @@ async function runTestCommand(argv: string[]): Promise<number> {
     }
 
     let only: string | string[] | undefined = parsed.values['--only'];
-    const includeVendors = !parsed.flags.has('--no-vendors');
 
-    if (only !== undefined && !includeVendors) {
-        throw new CliUsageError('--no-vendors cannot be combined with --only, which names the extensions to test.');
-    }
+    if (only === undefined && !parsed.flags.has('--all')) {
+        if (!process.stdin.isTTY || !process.stdout.isTTY) {
+            console.log(
+                'Not an interactive terminal and no selection given — testing all extensions. ' +
+                    'Pass --only=<name[,name]> or --all to be explicit.',
+            );
+        } else {
+            const picked = await pickExtensionsToTest(projectRoot, administrationRoot);
 
-    if (only === undefined && !parsed.flags.has('--all') && process.stdin.isTTY && process.stdout.isTTY) {
-        const picked = await pickExtensionsToTest(projectRoot, administrationRoot, includeVendors);
+            if (picked === undefined) {
+                return 0;
+            }
 
-        if (picked === undefined) {
-            return 0;
+            only = picked;
         }
-
-        only = picked;
     }
 
     const result = await testExtensions({
         projectRoot,
         administrationRoot,
         only,
-        includeVendors,
+        strictVendor: parsed.flags.has('--strict-vendor'),
         jestArgs,
         onJestRun: (extension, config, ownJest) =>
             console.log(colors.bold(`\n▶ ${extension} · ${config}${ownJest ? ' (own Jest)' : ''}`)),
@@ -761,26 +746,21 @@ async function runTestCommand(argv: string[]): Promise<number> {
 
 /**
  * Asks in the terminal which extensions to test, listing only those with a Jest
- * config, and no vendor ones under --no-vendors. Called when neither --only nor
- * --all is given and a TTY is attached.
+ * config. Called when neither --only nor --all is given and a TTY is attached.
  * Returns the chosen extension names, or undefined when there is nothing to run.
  *
  * @example
- * await pickExtensionsToTest('/shop', '/shop/vendor/shopware/administration/Resources/app/administration', true);
+ * await pickExtensionsToTest('/shop', '/shop/vendor/shopware/administration/Resources/app/administration');
  * // → ['ZeroConfig', 'custom-admin'] when "all" is chosen
  */
-async function pickExtensionsToTest(
-    projectRoot: string,
-    administrationRoot: string,
-    includeVendors: boolean,
-): Promise<string[] | undefined> {
+async function pickExtensionsToTest(projectRoot: string, administrationRoot: string): Promise<string[] | undefined> {
     const resolvedRoot = path.resolve(projectRoot);
     const configsByProject = new Map<ExtensionToolingProject, string[]>();
 
     for (const project of discoverProjects(resolvedRoot, administrationRoot, pluginsConfigPath(resolvedRoot))) {
         const configs = findJestConfigs(resolvedRoot, project);
 
-        if (configs.length > 0 && (includeVendors || !project.vendor)) {
+        if (configs.length > 0) {
             configsByProject.set(project, configs);
         }
     }

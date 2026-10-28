@@ -251,7 +251,9 @@ composer admin:test-extensions -- --only=MyPlugin -- --watch       # Jest option
 It runs every `jest.config.{js,ts,mjs,cjs}` it finds at the extension root, beside an Administration folder, or beside the extension's own tsconfig or ESLint config.
 Without `--only` or `--all`, an interactive terminal offers a picker of the extensions that have a Jest config.
 Elsewhere, and with `--all`, every such extension runs, vendor-installed ones included.
-`--no-vendors` leaves out the extensions under `vendor/`, in `--all` and in the picker; `--only` names extensions by extension or bundle name.
+`--only` names extensions by extension or bundle name.
+As in `check-extensions`, a failing vendor-installed extension does not fail the run: the report marks it with `!`.
+Pass `--strict-vendor` to fail on it.
 Each Jest run starts with a `▶ <extension> · <jest config>` line, and the report ends with one line per Jest config.
 A run in which no spec ran exits 1, so a CI job cannot pass without running a spec.
 Jest's `--watch` and `--watchAll` need exactly one Jest config, so name one extension via `--only`; otherwise the command exits 2.

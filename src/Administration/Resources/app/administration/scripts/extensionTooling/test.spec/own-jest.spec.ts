@@ -10,7 +10,7 @@ import path from 'path';
 import { renderTestReport } from '../test';
 import { cleanupTempProject, writeFile } from '../test-helpers';
 import type { TestFixture } from './helpers';
-import { createTestFixture, zeroConfigAdmin } from './helpers';
+import { createTestFixture, vendorAdmin, zeroConfigAdmin } from './helpers';
 
 const harnessConfig =
     "import { shopwareAdminJestConfig } from './.shopware/jest.mjs';\n\nexport default shopwareAdminJestConfig({});";
@@ -135,6 +135,23 @@ describe('scripts/extensionTooling/test own Jest', () => {
         ]);
         expect(result.exitCode).toBe(1);
     });
+
+    it.each([
+        [false, false],
+        [true, true],
+    ])(
+        'lets a named vendor extension whose config cannot run fail the run only with strictVendor: %s',
+        async (strictVendor, failsRun) => {
+            writeFile(path.join(fixture.projectRoot, vendorAdmin, 'jest.config.js'), 'module.exports = {};');
+            writeFile(path.join(fixture.projectRoot, zeroConfigAdmin, 'jest.config.mjs'), harnessConfig);
+            declareJest(vendorAdmin, true);
+
+            const result = await fixture.run({ only: 'custom-admin,ZeroConfig', strictVendor });
+
+            expect(result.notRunnable.map((config) => config.failsRun)).toEqual([failsRun]);
+            expect(result.exitCode).toBe(failsRun ? 1 : 0);
+        },
+    );
 
     it('fails when no Jest config of the run can run yet, although none was named', async () => {
         writeFile(path.join(fixture.projectRoot, suiteConfig), 'module.exports = {};');

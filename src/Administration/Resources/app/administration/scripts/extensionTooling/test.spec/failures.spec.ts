@@ -20,18 +20,15 @@ describe('scripts/extensionTooling/test failures', () => {
         cleanupTempProject(fixture.projectRoot);
     });
 
-    it('fails when no Jest config runs, naming the vendor extensions it left out', async () => {
-        writeFile(path.join(fixture.projectRoot, vendorAdmin, 'jest.config.mjs'), 'export default {};');
+    it('fails without generating the component import map when no extension has a Jest config', async () => {
         fs.rmSync(path.join(fixture.administrationRoot, componentImportsFile));
 
-        const result = await fixture.run({ includeVendors: false });
+        const result = await fixture.run();
 
         expect(fixture.jestRuns).toEqual([]);
         expect(fixture.generatorRuns).toBe(0);
         expect(result.fatalDiagnostics).toEqual([
-            expect.stringMatching(
-                /^Nothing was tested: .* Drop --no-vendors to test the vendor extensions: custom-admin\.$/,
-            ),
+            expect.stringMatching(/^Nothing was tested: no extension in this run has a Jest config \(/),
         ]);
         expect(result.exitCode).toBe(1);
     });
@@ -48,6 +45,43 @@ describe('scripts/extensionTooling/test failures', () => {
         const report = renderTestReport(result);
         expect(report).toContain(`✗ ZeroConfig · ${zeroConfigAdmin}/jest.config.mjs`);
         expect(report).not.toContain('Suite');
+        expect(result.exitCode).toBe(1);
+    });
+
+    it.each([
+        ['in --all', undefined],
+        ['when named via --only', 'custom-admin'],
+    ])('reports a failing vendor Jest run without failing the run %s', async (_, only) => {
+        writeFile(path.join(fixture.projectRoot, vendorAdmin, 'jest.config.mjs'), 'export default {};');
+        fixture.jestExitCode = 1;
+
+        const result = await fixture.run({ only });
+
+        expect(result.runs).toEqual([
+            {
+                extension: 'custom-admin',
+                config: `${vendorAdmin}/jest.config.mjs`,
+                exitCode: 1,
+                testCount: 1,
+                nonFatal: true,
+            },
+        ]);
+        expect(renderTestReport(result)).toContain(
+            `! custom-admin · ${vendorAdmin}/jest.config.mjs (vendor, non-fatal; pass --strict-vendor to fail on it)`,
+        );
+        expect(result.exitCode).toBe(0);
+    });
+
+    it('fails on a failing vendor Jest run with strictVendor', async () => {
+        writeFile(path.join(fixture.projectRoot, vendorAdmin, 'jest.config.mjs'), 'export default {};');
+        fixture.jestExitCode = 1;
+
+        const result = await fixture.run({ strictVendor: true });
+
+        expect(result.runs).toEqual([
+            { extension: 'custom-admin', config: `${vendorAdmin}/jest.config.mjs`, exitCode: 1, testCount: 1 },
+        ]);
+        expect(renderTestReport(result)).toContain(`✗ custom-admin · ${vendorAdmin}/jest.config.mjs`);
         expect(result.exitCode).toBe(1);
     });
 

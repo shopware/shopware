@@ -241,7 +241,8 @@ export default shopwareAdminJestConfig({
 The harness works in a platform checkout and in a Composer install: the `shopware/administration` package now ships the Administration's Jest setup files (without spec files).
 Before the first run, generate the entity schema with `bin/console administration:generate-entity-schema-types`.
 Run the specs with the Administration's own Jest through `composer admin:test-extensions -- --only=MyPlugin`, or `bin/console administration:test-extensions -- --only=MyPlugin` in a Composer install, so the extension needs no Jest installation of its own.
-`--all` tests every extension with a Jest config, vendor-installed ones included; `--no-vendors` leaves those out.
+`--all` tests every extension with a Jest config, vendor-installed ones included.
+As in `admin:check-extensions`, a failing vendor-installed extension fails the run only with `--strict-vendor`.
 A Jest config that does not build on the harness runs on the Jest the extension installs itself;
 when its `package.json` declares Jest that is not installed, the command skips the config and names the `npm ci` or `npm install` that installs it.
 `admin:test-extensions` generates the component import map when it is missing;

@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper() {
+async function createWrapper(getNumberRangePatternCollisions = () => Promise.resolve({ collisions: [] }), numberRange = {}) {
     return mount(
         await wrapTestComponent('sw-settings-number-range-detail', {
             sync: true,
@@ -22,6 +22,9 @@ async function createWrapper() {
                     numberRangeService: {
                         previewPattern: () => Promise.resolve({ number: 1337 }),
                         previewPatternByNumberRangeId: () => Promise.resolve({ number: 1337 }),
+                    },
+                    documentV2ApiService: {
+                        getNumberRangePatternCollisions,
                     },
                     repositoryFactory: {
                         create: () => ({
@@ -43,8 +46,10 @@ async function createWrapper() {
                                         technicalName: 'document_delivery_note',
                                     },
                                     typeId: '72ea130130404f67a426332f7a8c7277',
+                                    ...numberRange,
                                 }),
                             search: () => Promise.resolve([]),
+                            save: () => Promise.resolve(),
                         }),
                     },
                     customFieldDataProviderService: {
@@ -66,6 +71,9 @@ async function createWrapper() {
                     },
                     'mt-card': {
                         template: '<div class="mt-card"><slot /></div>',
+                    },
+                    'mt-banner': {
+                        template: '<div class="mt-banner"><slot /></div>',
                     },
                     'mt-number-field': true,
                     'sw-text-field': {
@@ -243,5 +251,63 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
 
         const numberRangeType = wrapper.findComponent('#numberRangeTypes');
         expect(numberRangeType.props('disabled')).toBe(true);
+    });
+
+    it('should warn about a colliding pattern on load and hide the warning while the pattern is edited', async () => {
+        global.activeAclRoles = ['number_ranges.editor'];
+        const getNumberRangePatternCollisions = jest.fn(() =>
+            Promise.resolve({ collisions: [{ id: 'other-id', name: 'Invoices (Shop B)' }] }),
+        );
+        const wrapper = await createWrapper(getNumberRangePatternCollisions, { pattern: 'INV{n}' });
+        await flushPromises();
+
+        expect(getNumberRangePatternCollisions).toHaveBeenCalledWith('72ea130130404f67a426332f7a8c7277', 'INV{n}', 'id');
+        expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').text()).toContain(
+            'sw-settings-number-range.detail.patternCollisionWarning',
+        );
+
+        await wrapper.find('input[name="sw-field--prefix"]').setValue('INV-B-');
+        await flushPromises();
+
+        expect(getNumberRangePatternCollisions).toHaveBeenCalledTimes(1);
+        expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').exists()).toBe(false);
+    });
+
+    it('should look for collisions again after saving', async () => {
+        global.activeAclRoles = ['number_ranges.editor'];
+        const getNumberRangePatternCollisions = jest
+            .fn()
+            .mockResolvedValueOnce({ collisions: [{ id: 'other-id', name: 'Invoices (Shop B)' }] })
+            .mockResolvedValue({ collisions: [] });
+        const wrapper = await createWrapper(getNumberRangePatternCollisions, { pattern: 'INV{n}' });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').exists()).toBe(true);
+
+        await wrapper.find('.sw-settings-number-range-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(getNumberRangePatternCollisions).toHaveBeenCalledTimes(2);
+        expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').exists()).toBe(false);
+    });
+
+    it('should not look for collisions while the pattern is still unset', async () => {
+        const getNumberRangePatternCollisions = jest.fn(() => Promise.resolve({ collisions: [] }));
+        await createWrapper(getNumberRangePatternCollisions);
+        await flushPromises();
+
+        expect(getNumberRangePatternCollisions).not.toHaveBeenCalled();
+    });
+
+    it('should finish loading without a warning when the collision check fails', async () => {
+        const debugErrorSpy = jest.spyOn(Shopware.Utils.debug, 'error').mockImplementation(() => {});
+        const wrapper = await createWrapper(() => Promise.reject(new Error('Network error')), { pattern: 'INV{n}' });
+        await flushPromises();
+
+        expect(wrapper.find('sw-skeleton-stub').exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').exists()).toBe(false);
+        expect(debugErrorSpy).toHaveBeenCalled();
+
+        debugErrorSpy.mockRestore();
     });
 });

@@ -96,6 +96,7 @@ A migration adds them to order line items created since the update that introduc
 Order line items without `payload.garanLabel` show no GARAN label, so write it with `guaranteeMonths`, `brand` and `modelIdentifier` if you create orders through the Admin API or the Sync API.
 Headless frontends can read the payload instead of calling `/store-api/product/{productId}/garan-label`.
 The `sw_garan_label_nested` Twig filter is deprecated.
+
 ### Order line items of older orders get their product type
 
 This release fills `payload.productType` for every product and custom order line item that does not have it yet, based on the line item's deprecated `states`.
@@ -116,11 +117,23 @@ That route now validates `vatIds` against the country of the active billing addr
 Headless clients find that address as `customer.activeBillingAddress` in `/store-api/context`.
 The Storefront profile page marks the VAT ID field as required based on the same country.
 
+### Product search and suggest extensions before the criteria are resolved
+
+`ProductSearchResolveCriteriaExtension` (`product-search-route.resolve-criteria`) and `ProductSuggestResolveCriteriaExtension` (`product-suggest-route.resolve-criteria`) wrap the whole product search and suggest, before the listing criteria are resolved from the request.
+
+To work on the resolved criteria instead, use `ProductSearchRouteExtension` and `ProductSuggestRouteExtension`, which run inside these extensions. A result set in `onPre()` skips the listing processing, so it carries no sortings or current filters; to only change the products, use `ProductSearchRouteExtension` instead.
+
 ### Remote thumbnails skip SVGs
 
 With `shopware.media.remote_thumbnails.enable`, SVGs now have an empty `thumbnails` collection, as in local mode.
 Before, their `srcset` claimed widths that the returned original file did not have, so browsers rendered small SVG logos far too small.
 Media loaded without the `mediaType` field keep their thumbnail URLs, as the type can't be checked.
+
+### Duplicate document number errors name the document type
+
+When a document cannot be generated because its number is already taken, the error now names the document type, for example `Document number 1000 has already been allocated for document type "invoice".`, and carries `number` and `documentType` as parameters.
+The order document card in the Administration names the document type as well.
+`DocumentException::documentNumberAlreadyExistsException()` is deprecated for v6.8.0, use `DocumentException::documentNumberAlreadyExistsExceptionForType()` instead.
 
 ### Tax-free detection of new sales channel contexts matches the cart
 
@@ -132,18 +145,53 @@ Cart and order taxes stay the same, but Rule Builder conditions like "Cart amoun
 
 Shops now uninstall a service once the service registry lists it as `retired` in `GET /api/service/v2`. This happens in the daily service install task, on `bin/console services:install` and on `system:update:finish`, so a retired service no longer stays installed until the shop's next update. A service that is merely missing from the registry's service list is no longer uninstalled on `system:update:finish`; only an explicit `retired` status removes it. Shops now read the service list only from `GET /api/service/v2` and install and update only services listed as `active`; a status they don't know is left alone.
 
+### Extension events are only dispatched when something listens
+
+`ExtensionDispatcher::publish()` now dispatches each of an extension's `.pre`, `.post` and `.error` events only when it has a listener.
+Existing extension listeners keep working unchanged.
+Code that observes every dispatched event, such as APM tracing or a decorator of `event_dispatcher`, no longer sees extension events nobody listens to.
+Unit tests that pass a mocked `EventDispatcherInterface` to `ExtensionDispatcher` and expect `dispatch()` calls need the mock's `hasListeners()` to return `true`.
+
+### Live state transition retries
+
+Live state transitions batch history and state writes. `EntityWriteEvent` subscribers can receive multiple entities: filter with `getCommandsForEntity()` and make pre-write work idempotent or compensate it through `addError()`. `WriteCommandExceptionEvent` and error callbacks can run before SQL executes, and each failed attempt runs its error callbacks before it is retried. Retries stop once success callbacks or written listeners begin, or compensation fails. MariaDB error `1020` is now retryable.
+
 ## API
 
 ### Criteria on fields the API does not expose is a bad request
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
 
+### Assign products to a sales channel by product group or category
+
+`POST /api/_action/sales-channel/{salesChannelId}/product-assignment` makes products visible in a sales channel.
+Products are given by `productIds`, by `productStreamIds` (dynamic product groups) or by `categoryIds`, and the matching products are resolved on the server.
+Products that are already visible in the sales channel are skipped, and the response reports the number of newly assigned products as `assigned`.
+A single call writes up to 5000 products and answers with `complete: false` when products are left.
+Repeat the same request until `complete` is `true`, every call continues with the products that are not visible yet.
+The optional `visibility` (`10`, `20` or `30`, default `30`) is applied to every assigned product.
+The route requires the `product_visibility:create` and `product:read` privileges, plus `product_stream:read` when `productStreamIds` is given and `category:read` when `categoryIds` is given.
+
+```json
+{ "productStreamIds": ["0193b1c2d3e47f5a8b9c0d1e2f3a4b5c"], "categoryIds": [], "productIds": [] }
+```
 ### Profile updates without `accountType` keep the account type
 
 `/store-api/account/change-profile` now keeps the customer's current account type when the request doesn't contain `accountType`.
 For a business customer, `company` and `vatIds` are then only changed when the request contains them, and they are validated as for `business`.
 Before, such a request cleared both, while the customer stayed a business customer.
 Requests that send `accountType` behave as before.
+
+### Check a document number range pattern for collisions
+
+The new experimental route `GET /api/_action/order/document-v2/number-range-pattern-collisions?numberRangeTypeId=…&pattern=…&numberRangeId=…` returns the number ranges of the given document number range type that use the given pattern, as `{"collisions": [{"id": "…", "name": "…"}]}`.
+Such ranges, for example two `document_invoice` ranges assigned to different sales channels, generate the same document numbers and document generation fails once they meet.
+`numberRangeId` is optional and leaves that number range out of the result, for example to check an existing number range against all others.
+Non-document number range types never collide and return an empty list.
+The route requires the `number_range:read` privilege.
+
+The number range detail page in the Administration uses it to show a warning when it loads or saves a number range with a colliding pattern.
+Saving is not blocked.
 
 ## Features
 
@@ -209,6 +257,23 @@ They additionally react to domain changes:
 toggling the external storefront flag of a domain (or adding/removing domains) creates or removes the affected rows without re-saving the customer group.
 The storefront rows are untouched by this and keep being maintained by the Storefront bundle.
 
+### Rule Builder: free-text list conditions use `sw-multi-tag-select`
+
+Rule conditions with the field type `tagged` (`RuleConfig::taggedField()`) and the zip code conditions for billing and shipping addresses now render `sw-multi-tag-select` instead of `sw-tagged-field`, as dynamic product groups already do.
+Multi-select values in the Rule Builder now wrap and the condition row grows with them instead of scrolling horizontally.
+A value that was typed but not confirmed with Enter is now added when the field loses focus.
+A component set via `componentName` in the field config of `RuleConfig::taggedField()` is kept.
+If your extension overrides the Twig blocks `sw_condition_billing_zip_code_field_zip_codes` or `sw_condition_shipping_zip_code_field_zip_codes`, or styles `.sw-tagged-field` in these conditions, check your customization.
+
+### Overrides keep their own methods and props across component builds
+
+Repeated `Component.build()` calls no longer remove methods, props or other options that an override defines from components built earlier. Components with three or more overrides, such as the base of a `Component.extend()` that is mounted after other builds, failed with `this.<method> is not a function` or lost props before. No changes to extensions are required.
+
+### Sales channel product assignment is no longer capped at 500 products
+
+Assigning products to a sales channel through the "Categories" or "Product group selection" tab of the product assignment modal now adds every matching product.
+Previously only the first 500 products were assigned, without any notice.
+The Administration sends the selected categories and product groups to the new product assignment route instead of loading the products itself, and shows the number of assigned products afterwards.
 ### More Administration components declare their emitted events
 
 About 30 Administration components now list the events they emit in `emits`, for example `sw-datepicker`, `sw-password-field`, `sw-url-field`, `sw-textarea-field` and `sw-string-filter`.
@@ -218,6 +283,7 @@ If you override the template of one of these components and render your own fiel
 ```html
 <mt-text-field v-bind="$attrs" @update:model-value="$emit('update:modelValue', $event)" />
 ```
+
 ### Known core deprecations log an error in next-major mode
 
 Core usages that are not migrated yet are listed in `src/Administration/Resources/app/administration/src/core/deprecation-baseline.json`.
@@ -225,6 +291,7 @@ In next-major mode, a deprecation with a listed message logs a console error ins
 Any other deprecation still throws.
 
 ## API
+
 To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
 It bundles the Administration and its plugins, but not apps.
 Changes to plugin files reload the page instead of using HMR.
@@ -238,6 +305,25 @@ If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ## Storefront
+
+### Deprecation of `ListingPlugin` properties
+
+The Storefront listing plugin now supports updating multiple filter panels on the same page. Due to these changes, the following properties of the `ListingPlugin` class in `listing.plugin.js` carrying single elements have been deprecated and are replaced respectively by new properties carrying `NodeList`s:
+
+- `_filterPanel` → `_filterPanels`
+- `activeFilterContainer` → `activeFilterContainers`
+- `ariaLiveContainer` → `ariaLiveContainers`
+
+Listing result counts now update only one accessible live region to avoid duplicate screen-reader announcements across filter panels.
+While the mobile filter dialog is open, its live region is preferred over background regions.
+
+`ListingPlugin.createResetAllButton(activeFilterContainer)` now accepts the target active-filter container as an argument.
+Update custom calls and overrides to pass this argument, including calls to `super.createResetAllButton(activeFilterContainer)`.
+Omitting the argument still falls back to `this.activeFilterContainer` in 6.7, but this fallback is deprecated and will be removed in 6.8.
+
+### Deprecation of unused custom `$offcanvas-zindex` SCSS variable
+
+The custom offcanvas z-index SCSS variable `$offcanvas-zindex` is not used anymore and is therefore deprecated. To override the offcanvas z-index or calculate your own z-index based on it, use the bootstrap variable `$zindex-offcanvas` instead. The deprecated `$offcanvas-zindex` SCSS variable and its respective `--offcanvas-zindex` CSS root variable now reflect the actual Bootstrap offcanvas z-index (`1045` instead of `1050`). Additionally, a new `--offcanvas-backdrop-zindex` CSS root variable has been added.
 
 ### Theme compilation completion is notified once
 
@@ -264,6 +350,7 @@ The `ProductDetailReadiness` and `ProductListingReadiness` system checks only pr
 Pages that extensions such as Dynamic Access restrict by rules no longer fail `bin/console system:check --context=pre_rollout`.
 If a sales channel has no visible page, the check reports `SKIPPED`.
 A sales channel whose domain cannot be resolved is now reported as its own failure, and the other sales channels are still checked.
+
 ### App registration requires a verified `APP_URL`
 
 Shopware now verifies that `APP_URL` reaches this installation before it registers the shop with an app server, including the Shopware service registry. This applies in every environment and to every app server. The shop must be able to reach itself under `APP_URL`, including `/api/app-system/shop/verify` when it sits behind HTTP authentication or an IP allowlist. If the verification fails, the app installation, update or secret rotation is aborted with the reason. The error code `FRAMEWORK__APP_URL_FAILED_VERIFICATION` (HTTP 502) means the verification request did not reach this installation; `FRAMEWORK__APP_URL_VERIFICATION_UNAVAILABLE` (HTTP 503) means it failed temporarily, for example on a timeout or rate limit, and can be retried. The shop ID change strategies `move-shop-permanently` and `reinstall-apps` verify the new `APP_URL` first, and leave the shop ID unchanged when it fails. Run `bin/console app:url:verify` to check the configuration.

@@ -382,7 +382,7 @@
       "messageEmptySubline": "Verwaltung von Dokumenten.",
       "notificationDeleteErrorMessage": "Das Dokument konnte nicht gelöscht werden.",
       "error": {
-        "DOCUMENT__NUMBER_ALREADY_EXISTS": "Die Dokumentnummer {number} ist bereits in Verwendung.",
+        "DOCUMENT__NUMBER_ALREADY_EXISTS": "Die Dokumentnummer {number} ist für den Dokumenttyp {documentType} bereits in Verwendung. Prüfe den Nummernkreis, der für diesen Dokumenttyp und Verkaufskanal konfiguriert ist.",
         "createDocument": "Das Erstellen des Dokuments ist fehlgeschlagen.",
         "downloadDocument": "Das Herunterladen des Dokuments ist fehlgeschlagen.",
         "downloadDocumentArchive": "Das Herunterladen des Dokumentarchives ist fehlgeschlagen.",
@@ -394,7 +394,7 @@
         "loadDocumentTypes": "Das Laden der verfügbaren Dokumenttypen ist fehlgeschlagen.",
         "missingCompanyInformation": "Das Feld \"{field}\" in Deinen Unternehmensinformationen (Einstellungen > Stammdaten) ist leer. Stelle bitte sicher, dass das Feld mit Deinen Daten gefüllt ist, bevor Dokumente generiert werden.",
         "noUnprocessedCreditLineItems": "Zu allen Gutschriften in dieser Bestellung sind bereits Gutschriftdokumente erstellt worden.",
-        "duplicateDocumentNumber": "Ein Dokument mit der Nummer \"{documentNumber}\" existiert bereits."
+        "duplicateDocumentNumber": "Ein Dokument mit der Nummer \"{documentNumber}\" existiert bereits für den Dokumenttyp \"{documentType}\"."
       },
       "info": {
         "DOCUMENT__NUMBER_WAS_CHANGED": "Doppelte Dokumentnummer. Eine Folgenummer aus dem entsprechenden Nummernkreis wurde automatisch zugewiesen."

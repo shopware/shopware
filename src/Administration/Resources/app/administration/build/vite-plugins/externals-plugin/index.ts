@@ -1,5 +1,5 @@
 import type { Alias, Plugin } from 'vite';
-import { ensureDir, writeFile } from 'fs-extra';
+import fsExtra from 'fs-extra';
 import fs from 'fs';
 import path from 'path';
 
@@ -32,7 +32,7 @@ export default function viteExternalsPlugin(): Plugin {
 
             // Create cache directory
             const cachePath = path.join(process.cwd(), 'node_modules', '.shopware-vite-plugin-vue-globals');
-            await ensureDir(cachePath);
+            await fsExtra.ensureDir(cachePath);
 
             // Add new alias for Vue
             const vueJsCachePath = path.join(cachePath, `vue.js`);
@@ -42,7 +42,7 @@ export default function viteExternalsPlugin(): Plugin {
             // CommonJS keeps named imports of Vue working, e.g. in the admin SDK of PayPal.
             const vueJsContent = `module.exports = window['Shopware']?.['Vue']`;
             if (!fs.existsSync(vueJsCachePath) || fs.readFileSync(vueJsCachePath, 'utf-8') !== vueJsContent) {
-                await writeFile(vueJsCachePath, vueJsContent);
+                await fsExtra.writeFile(vueJsCachePath, vueJsContent);
             }
 
             return {

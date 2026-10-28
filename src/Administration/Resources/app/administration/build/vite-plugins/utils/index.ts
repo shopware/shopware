@@ -238,8 +238,8 @@ type ViteServerMapping = {
 /**
  * @private
  */
-export async function exportViteServerMapping(): Promise<void> {
-    const extensions = loadExtensions();
+export async function exportViteServerMapping(sharedServer = false): Promise<void> {
+    const extensions = sharedServer ? [] : loadExtensions();
 
     const mapping = new Map<string, ViteServerMapping>();
     const ports = await findAvailablePorts(Number(process.env.ADMIN_PORT) || 5173, extensions.length + 1);
@@ -367,11 +367,15 @@ export type PluginDevJson = { metadata: 'shopware' } & Record<string, { js?: str
  *
  * Builds the content of the sw-plugin-dev.json, which tells the Administration where to load the extensions from.
  */
-export function createPluginDevJson(extensions: ExtensionDefinition[], useBundledDev: boolean): PluginDevJson {
+export function createPluginDevJson(
+    extensions: ExtensionDefinition[],
+    useBundledDev: boolean,
+    sharedServer = false,
+): PluginDevJson {
     const pluginDevJson = { metadata: 'shopware' } as PluginDevJson;
 
     extensions.forEach((extension) => {
-        const base = `/_internal_ext/${extension.technicalName}/`;
+        const base = getExtensionBasePath(extension, sharedServer);
         const entry: PluginDevJson[string] = {};
 
         if (extension.isApp) {
@@ -391,6 +395,11 @@ export function createPluginDevJson(extensions: ExtensionDefinition[], useBundle
     });
 
     return pluginDevJson;
+}
+
+/** @private */
+export function getExtensionBasePath(extension: ExtensionDefinition, sharedServer = false): string {
+    return `/_internal_ext/${extension.technicalName}/${sharedServer && extension.isApp ? 'meteor-app/' : ''}`;
 }
 
 /**

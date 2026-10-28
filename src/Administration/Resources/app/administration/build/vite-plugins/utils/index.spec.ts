@@ -4,10 +4,88 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { createPluginDevJson, getDevServerHttpsConfig, readFeatureFlags, runForEachExtension } from './index';
+import * as net from 'net';
+import {
+    createPluginDevJson,
+    exportViteServerMapping,
+    getDevServerHttpsConfig,
+    readFeatureFlags,
+    runForEachExtension,
+} from './index';
 import type { ExtensionDefinition } from './index';
 
+jest.mock('net', () => ({ createServer: jest.fn() }));
+
 describe('build/vite-plugins/utils', () => {
+    describe('exportViteServerMapping', () => {
+        const originalProjectRoot = process.env.PROJECT_ROOT;
+        const originalAdminPort = process.env.ADMIN_PORT;
+        let projectRoot: string;
+        let write: jest.SpyInstance;
+        let listen: jest.Mock;
+
+        beforeEach(() => {
+            projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'vite-server-mapping-'));
+            process.env.PROJECT_ROOT = projectRoot;
+            process.env.ADMIN_PORT = '5173';
+            fs.mkdirSync(path.join(projectRoot, 'var'));
+            fs.writeFileSync(
+                path.join(projectRoot, 'var/plugins.json'),
+                JSON.stringify(
+                    Object.fromEntries(
+                        Array.from({ length: 40 }, (_, index) => [
+                            `Plugin${index}`,
+                            {
+                                basePath: `custom/plugins/Plugin${index}/src`,
+                                technicalName: `plugin-${index}`,
+                                administration: {
+                                    path: 'Resources/app/administration/src',
+                                    entryFilePath: 'Resources/app/administration/src/main.ts',
+                                },
+                            },
+                        ]),
+                    ),
+                ),
+            );
+            write = jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
+            const server = {
+                listen: jest.fn((_options, ready: () => void) => ready()),
+                close: jest.fn((closed: () => void) => closed()),
+                on: jest.fn(),
+            };
+            listen = server.listen;
+            jest.mocked(net.createServer).mockReturnValue(server as unknown as net.Server);
+        });
+
+        afterEach(() => {
+            jest.restoreAllMocks();
+            fs.rmSync(projectRoot, { recursive: true, force: true });
+            if (originalProjectRoot === undefined) delete process.env.PROJECT_ROOT;
+            else process.env.PROJECT_ROOT = originalProjectRoot;
+            if (originalAdminPort === undefined) delete process.env.ADMIN_PORT;
+            else process.env.ADMIN_PORT = originalAdminPort;
+        });
+
+        it('allocates only the Administration port for 40 extensions on the shared listener', async () => {
+            await exportViteServerMapping(true);
+            expect(listen).toHaveBeenCalledTimes(1);
+            expect(write).toHaveBeenCalledWith(
+                expect.any(String),
+                JSON.stringify({ extensions: {}, vitePort: 5173 }),
+                'utf-8',
+            );
+        });
+
+        it('preserves individual extension ports for the legacy watcher', async () => {
+            await exportViteServerMapping();
+            expect(listen).toHaveBeenCalledTimes(41);
+            const calls = write.mock.calls as [string, string, string][];
+            const mapping = JSON.parse(calls[0][1]) as { extensions: Record<string, { port: number }> };
+            expect(Object.keys(mapping.extensions)).toHaveLength(40);
+            expect(mapping.extensions['plugin-0'].port).toBe(5174);
+        });
+    });
+
     describe('getDevServerHttpsConfig', () => {
         it('serves plain HTTP without a configured certificate', () => {
             expect(getDevServerHttpsConfig({})).toBeUndefined();
@@ -174,6 +252,19 @@ describe('build/vite-plugins/utils', () => {
                     js: '/_internal_ext/swag-example/main.ts',
                     hmrSrc: '/_internal_ext/swag-example/@vite/client',
                     html: '/_internal_ext/swag-example/index.html',
+                },
+            });
+        });
+
+        it('gives a plugin and its Meteor app distinct routes on the shared listener', () => {
+            const appOfPlugin = { ...app, technicalName: plugin.technicalName };
+
+            expect(createPluginDevJson([plugin, appOfPlugin], false, true)).toEqual({
+                metadata: 'shopware',
+                'swag-example': {
+                    js: '/_internal_ext/swag-example/main.ts',
+                    hmrSrc: '/_internal_ext/swag-example/@vite/client',
+                    html: '/_internal_ext/swag-example/meteor-app/index.html',
                 },
             });
         });

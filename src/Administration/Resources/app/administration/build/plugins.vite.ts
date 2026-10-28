@@ -45,8 +45,6 @@ const adminSrcPath = process.env.ADMIN_ROOT
     : path.join(path.dirname(__dirname), 'src');
 const host = process.env.VITE_HOST || 'localhost';
 
-const extensionEntries = loadExtensions();
-
 // Common configuration shared between dev and build
 const getBaseConfig = (
     toolchain: ViteToolchain,
@@ -194,8 +192,10 @@ const getBaseConfig = (
 };
 
 // Main function to handle both dev and build modes
-const main = async () => {
+/** @private */
+export const main = async () => {
     const toolchain = await loadViteToolchain();
+    const extensionEntries = loadExtensions();
 
     if (isDev) {
         const extensionPorts = getViteServerPorts();
@@ -284,11 +284,16 @@ const main = async () => {
     }
 };
 
-main().catch((error) => {
-    console.error(error);
-
-    // In dev mode a non-zero exit would also stop the watcher of the Administration
-    if (!isDev) {
-        process.exit(1);
-    }
-});
+/** @private */
+export function getExtensionDevConfig(
+    toolchain: ViteToolchain,
+    extension: ExtensionDefinition,
+    useBundledDev: boolean,
+): UserConfig {
+    return extension.isApp
+        ? {
+              root: extension.path,
+              plugins: toolchain.isVite8 ? [ExtglobCompatPlugin({ warnOnRewrite: true })] : [],
+          }
+        : getBaseConfig(toolchain, extension, false, useBundledDev);
+}

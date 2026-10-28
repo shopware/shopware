@@ -67,12 +67,9 @@ export const deprecatedMethods = {
 
         return deliveries
             .map((delivery) => {
-                // @ts-expect-error - the listing loads every delivery with its shipping address
-                const { street, zipcode, city } = delivery.shippingOrderAddress;
-
-                return `${street},
-                    ${zipcode}
-                    ${city}`;
+                return `${delivery.shippingOrderAddress?.street},
+                    ${delivery.shippingOrderAddress?.zipcode}
+                    ${delivery.shippingOrderAddress?.city}`;
             })
             .join('<hr style="margin: 8px 0">');
     },
@@ -86,8 +83,7 @@ export const deprecatedMethods = {
             'sw-order-list.getBillingAddress() is deprecated. Use order.billingAddress instead.',
         );
 
-        // @ts-expect-error - the listing loads every order with its addresses
-        return order.addresses.find((address) => {
+        return order.addresses?.find((address) => {
             return address.id === order.billingAddressId;
         });
     },

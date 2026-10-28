@@ -15,7 +15,7 @@ use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Require explicit non-transitional UTS #46 options so IDN conversion stays consistent across ICU and polyfill versions.
+ * Requires explicit non-transitional UTS #46 options so IDN conversion stays consistent across ICU and polyfill versions.
  * Transitional conversion can map distinct domains, such as "straße.de" and "strasse.de", to the same ASCII domain.
  *
  * @internal

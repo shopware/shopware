@@ -55,7 +55,7 @@ async function createWrapperForComponent(componentName) {
                 'sw-entity-multi-select': true,
                 'sw-condition-base': true,
                 'sw-condition-base-line-item': true,
-                'sw-tagged-field': true,
+                'sw-multi-tag-select': true,
                 'sw-context-menu-item': true,
                 'mt-number-field': true,
                 'sw-field-error': true,

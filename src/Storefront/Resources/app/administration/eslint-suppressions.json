@@ -1,5 +1,90 @@
 {
+  "src/core/service/api/theme.api.service.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/extension/sw-sales-channel/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/extension/sw-sales-channel/page/sw-sales-channel-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/extension/sw-sales-channel/view/sw-sales-channel-detail-theme/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/init/api-service.init.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/main.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/modules/sw-settings-storefront/component/sw-settings-storefront-configuration/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/modules/sw-settings-storefront/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/modules/sw-settings-storefront/page/sw-settings-storefront-index/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/modules/sw-theme-manager/acl/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/modules/sw-theme-manager/component/sw-theme-list-item/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/modules/sw-theme-manager/component/sw-theme-modal/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/modules/sw-theme-manager/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "filename-rules/not-match": {
+      "count": 1
+    }
+  },
+  "src/modules/sw-theme-manager/mixin/sw-theme.mixin.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    },
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
+    }
+  },
   "src/modules/sw-theme-manager/page/sw-theme-manager-detail/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
+    },
     "max-lines": {
       "count": 1
     }
@@ -7,6 +92,11 @@
   "src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig": {
     "vue/max-template-depth": {
       "count": 59
+    }
+  },
+  "src/modules/sw-theme-manager/page/sw-theme-manager-list/index.js": {
+    "filename-rules/not-match": {
+      "count": 1
     }
   },
   "src/modules/sw-theme-manager/page/sw-theme-manager-list/sw-theme-manager-list.html.twig": {

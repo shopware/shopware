@@ -72,6 +72,11 @@ Clients learn about changed tool, prompt and resource lists through `notificatio
 - **Both run after `Server::run()`**, because the SDK saves its in-memory session at the end of the run and would otherwise overwrite the queued notification.
 - **Only the Admin API server compares versions.** App capabilities are only registered there, so the Store API notifier has no `McpListVersions` and only handles toolset enables.
 - **The stateless era has no session to queue into.** With `shopware.mcp.protocol_era.admin: auto`, `notify()` also publishes the changed lists to the SDK notification bus, which `subscriptions/listen` streams read. The bus is a PSR-16 view of `cache.app`, so it reaches every worker that shares that pool; on several hosts that needs a shared `cache.app`, for example Redis. A failing bus is logged and never fails the change. The Store API server has no bus: its lists only change per session.
+- **Each `subscriptions/listen` stream closes after 25 seconds, on both servers.**
+  A stream holds one PHP worker for its whole lifetime, and the SDK default of 30 seconds equals the common `max_execution_time`, which kills the worker before the stream closes.
+  `McpServerBuilderCompilerPass::SUBSCRIPTION_LIFETIME` sets it for every server on `auto`, also the Store API server, which has nothing to publish but still answers `subscriptions/listen`.
+- **The capabilities are stated, not detected.** `McpServerBuilderCompilerPass::applyCapabilities()` sets them per server, because the SDK announces `resources.subscribe` for every server with resources and nothing in Shopware publishes `notifications/resources/updated`.
+  A server that gains a kind of capability, for example prompts on the Store API, has to be added there.
 - **The `initialize` answer declares `listChanged` for every advertised list, on both servers.**
   mcp/sdk 0.9 strips the flag from every `initialize` answer, because it delivers list changes only through `subscriptions/listen` of the stateless era.
   `McpHandshakeListChangedSubscriber` sets it again on the SDK's `ResponseEvent`.
@@ -250,7 +255,7 @@ Open questions before implementing:
 ### SDK-ready features (no upstream changes needed)
 symfony/mcp-bundle and mcp/sdk (see `composer.json` for the versions in use) already implement the following — Shopware just needs to wire them up:
 
-- **Resource subscriptions** — SDK has `ResourceSubscribeHandler` and `ResourceUnsubscribeHandler` (`vendor/mcp/sdk`). Resource templates (`#[McpResourceTemplate]`) are already wired up in core — see `ToolResultResource` and `Resource/AGENTS.md`. Subscriptions remain to be wired up if clients need push notifications when resources change.
+- **Resource subscriptions** — SDK has `ResourceSubscribeHandler` and `ResourceUnsubscribeHandler` (`vendor/mcp/sdk`). Resource templates (`#[McpResourceTemplate]`) are already wired up in core — see `ToolResultResource` and `Resource/AGENTS.md`. Subscriptions remain to be wired up if clients need push notifications when resources change; until then `McpServerBuilderCompilerPass::applyCapabilities()` keeps `resources.subscribe` off, and wiring them up includes turning it on there.
 - **Protocol-level pagination** — `RegistryInterface::getTools(?int $limit, ?string $cursor)` etc. already support cursor-based pagination; bundle has a `mcp.pagination_limit` config param. Shopware doesn't configure or expose it — relevant once tool/resource counts grow large.
 - **Completion utility** — SDK has `CompletionCompleteHandler` + `CompletionProvider` interface with built-in `EnumCompletionProvider` / `ListCompletionProvider` (`vendor/mcp/sdk/src/Capability/Attribute/CompletionProvider.php`). Register providers on tool/prompt arguments to power autocomplete in MCP clients (e.g. entity name suggestions for the `entity` parameter on entity tools).
 

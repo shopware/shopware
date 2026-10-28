@@ -18,6 +18,10 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Content\Media\DataAbstractionLayer\MediaFileExtensionWriteValidatorTest
  */
 #[Package('discovery')]
 class MediaFileExtensionWriteValidator implements EventSubscriberInterface

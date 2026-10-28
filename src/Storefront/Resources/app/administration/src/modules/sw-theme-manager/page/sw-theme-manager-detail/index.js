@@ -138,6 +138,11 @@ export default {
          * @deprecated tag:v6.8.0 - This method will be removed.
          */
         hasMoreThanOneTab() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-theme-manager-detail.hasMoreThanOneTab is deprecated and will be removed.',
+            );
+
             return Object.values(this.structuredThemeFields.tabs).length > 1;
         },
 
@@ -286,6 +291,11 @@ export default {
          * @deprecated tag:v6.8.0 - This method will be removed.
          */
         openMediaSidebar() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-theme-manager-detail.openMediaSidebar() is deprecated and will be removed.',
+            );
+
             this.$refs.mediaSidebarItem.openContent();
         },
 
@@ -323,6 +333,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         restoreMediaInheritance(currentValue) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-theme-manager-detail.restoreMediaInheritance() is deprecated and will be removed without replacement.',
+            );
+
             return currentValue;
         },
 

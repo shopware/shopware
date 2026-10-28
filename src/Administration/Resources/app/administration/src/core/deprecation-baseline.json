@@ -34,6 +34,30 @@
             "major"
         ]
     },
+    "The component \"sw-order-document-settings-credit-note-modal\" is deprecated and will be removed in Shopware v6.9.0.0.\nRemoved with document generation v1.": {
+        "sw-order-document-card > sw-order-document-settings-credit-note-modal": [
+            "default",
+            "major"
+        ]
+    },
+    "The component \"sw-order-document-settings-delivery-note-modal\" is deprecated and will be removed in Shopware v6.9.0.0.\nRemoved with document generation v1.": {
+        "sw-order-document-card > sw-order-document-settings-delivery-note-modal": [
+            "default",
+            "major"
+        ]
+    },
+    "The component \"sw-order-document-settings-invoice-modal\" is deprecated and will be removed in Shopware v6.9.0.0.\nRemoved with document generation v1.": {
+        "sw-order-document-card > sw-order-document-settings-invoice-modal": [
+            "default",
+            "major"
+        ]
+    },
+    "The component \"sw-order-document-settings-storno-modal\" is deprecated and will be removed in Shopware v6.9.0.0.\nRemoved with document generation v1.": {
+        "sw-order-document-card > sw-order-document-settings-storno-modal": [
+            "default",
+            "major"
+        ]
+    },
     "The old usage of \"sw-loader\" is deprecated and will be removed in v6.8.0.0. Please use \"mt-loader\" instead.": {
         "sw-extension-card-bought > sw-loader": [
             "default",
@@ -109,12 +133,6 @@
             "major"
         ]
     },
-    "sw-customer-list.updateCriteria() is deprecated. Use listing mixin implementation directly.": {
-        "src/module/sw-customer/page/sw-customer-list/sw-customer-list.spec.js": [
-            "default",
-            "major"
-        ]
-    },
     "sw-mail-template-index.getList() is deprecated. Will be removed together with listing mixin.": {
         "sw-mail-template-index": [
             "default",
@@ -128,36 +146,6 @@
     },
     "sw-order-detail-documents.isV68Active is deprecated. Will be removed without replacement.": {
         "sw-order-detail-documents": [
-            "default",
-            "major"
-        ]
-    },
-    "sw-order-detail.isLoading is deprecated. Use loading.order instead.": {
-        "src/module/sw-order/page/sw-order-detail/sw-order-detail.spec.js": [
-            "default",
-            "major"
-        ]
-    },
-    "sw-order-detail.onChangeLanguage() is deprecated. Will be removed without replacement.": {
-        "src/module/sw-order/page/sw-order-detail/sw-order-detail.spec.js": [
-            "default",
-            "major"
-        ]
-    },
-    "sw-order-detail.onUpdateEditing() is deprecated. Use editing instead.": {
-        "src/module/sw-order/page/sw-order-detail/sw-order-detail.spec.js": [
-            "default",
-            "major"
-        ]
-    },
-    "sw-order-detail.onUpdateLoading() is deprecated. Use loading.order instead.": {
-        "src/module/sw-order/page/sw-order-detail/sw-order-detail.spec.js": [
-            "default",
-            "major"
-        ]
-    },
-    "sw-order-detail.updateCreatedById() is deprecated and createdById will be removed (there is a template usage that needs to be removed as well).": {
-        "src/module/sw-order/page/sw-order-detail/sw-order-detail.spec.js": [
             "default",
             "major"
         ]
@@ -198,12 +186,6 @@
             "major"
         ]
     },
-    "sw-order-list.updateCriteria() is deprecated. Use listing mixin implementation directly.": {
-        "src/module/sw-order/page/sw-order-list/sw-order-list.spec.js": [
-            "default",
-            "major"
-        ]
-    },
     "sw-order-promotion-field.automaticPromotions is deprecated. Will be removed without replacement.": {
         "sw-order-promotion-field": [
             "default",
@@ -236,54 +218,6 @@
     },
     "sw-product-detail-variants.currentProductStates is deprecated. Will be removed, use `currentProductType` instead.": {
         "sw-product-detail-variants": [
-            "default",
-            "major"
-        ]
-    },
-    "sw-product-detail.advancedModeSetting is deprecated. Will be removed without replacement.": {
-        "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": [
-            "default",
-            "major"
-        ]
-    },
-    "sw-product-detail.changeModeSettings() is deprecated. Will be removed without replacement.": {
-        "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": [
-            "default",
-            "major"
-        ]
-    },
-    "sw-product-detail.createUserModeSetting() is deprecated. Will be removed without replacement.": {
-        "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": [
-            "default",
-            "major"
-        ]
-    },
-    "sw-product-detail.getAdvancedModeDefaultSetting() is deprecated. Will be removed without replacement.": {
-        "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": [
-            "default",
-            "major"
-        ]
-    },
-    "sw-product-detail.getAdvancedModeSetting() is deprecated. Will be removed without replacement.": {
-        "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": [
-            "default",
-            "major"
-        ]
-    },
-    "sw-product-detail.getModeSettingGeneralTab is deprecated. Will be removed without replacement.": {
-        "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": [
-            "default",
-            "major"
-        ]
-    },
-    "sw-product-detail.getModeSettingSpecificationsTab is deprecated. Will be removed without replacement.": {
-        "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": [
-            "default",
-            "major"
-        ]
-    },
-    "sw-product-detail.initAdvancedModeSettings() is deprecated. Will be removed without replacement.": {
-        "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": [
             "default",
             "major"
         ]
@@ -405,18 +339,6 @@
     },
     "sw-settings-shipping-price-matrix.shippingRuleFilterCriteria is deprecated and will be removed, use ruleFilterCriteria instead.": {
         "sw-settings-shipping-price-matrix": [
-            "default",
-            "major"
-        ]
-    },
-    "sw-settings-storefront-index.loadstorefrontSettings() is deprecated and will be removed.": {
-        "../../../../Storefront/Resources/app/administration/src/modules/sw-settings-storefront/page/sw-settings-storefront-index/sw-settings-storefront-index.spec.js": [
-            "default",
-            "major"
-        ]
-    },
-    "sw-settings-storefront-index.savestorefrontSettings() is deprecated and will be removed.": {
-        "../../../../Storefront/Resources/app/administration/src/modules/sw-settings-storefront/page/sw-settings-storefront-index/sw-settings-storefront-index.spec.js": [
             "default",
             "major"
         ]

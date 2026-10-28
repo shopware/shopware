@@ -3,10 +3,16 @@
  */
 import { shallowMount } from '@vue/test-utils';
 import swSettingsStorefrontIndex from './index';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 Shopware.Component.register('sw-settings-storefront-index', swSettingsStorefrontIndex);
 
 describe('sw-settings-storefront-index', () => {
+    beforeEach(() => {
+        allowDeprecation('sw-settings-storefront-index.loadstorefrontSettings() is deprecated');
+        allowDeprecation('sw-settings-storefront-index.savestorefrontSettings() is deprecated');
+    });
+
     async function createWrapper({ getValues = null, saveValues = null } = {}) {
         const component = await Shopware.Component.build('sw-settings-storefront-index');
         component.methods.createdComponent = jest.fn();

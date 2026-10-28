@@ -9,13 +9,18 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
@@ -44,6 +49,10 @@ class EntityScoreBuilderTest extends TestCase
 
     private EntityDefinition $circularEntryDefinition;
 
+    private EntityDefinition $selfReferencingDefinition;
+
+    private EntityDefinition $circularManyToManyEntryDefinition;
+
     private Context $context;
 
     protected function setUp(): void
@@ -52,6 +61,12 @@ class EntityScoreBuilderTest extends TestCase
         $this->testDefinitionTranslated = $this->registerDefinition(OnlyTranslatedFieldDefinition::class);
         $this->onlyDateFieldDefinition = $this->registerDefinition(OnlyDateFieldDefinition::class);
         $this->circularEntryDefinition = $this->registerDefinition(CircularEntryDefinition::class, CircularAuthorDefinition::class);
+        $this->selfReferencingDefinition = $this->registerDefinition(SelfReferencingDefinition::class);
+        $this->circularManyToManyEntryDefinition = $this->registerDefinition(
+            CircularManyToManyEntryDefinition::class,
+            CircularManyToManyTagDefinition::class,
+            CircularManyToManyMappingDefinition::class
+        );
         $this->context = Context::createDefaultContext();
     }
 
@@ -151,6 +166,42 @@ class EntityScoreBuilderTest extends TestCase
                 new ScoreQuery(new ContainsFilter('entry.author.name', 'term'), 25),
                 new ScoreQuery(new EqualsFilter('entry.editor.name', 'term'), 50),
                 new ScoreQuery(new ContainsFilter('entry.editor.name', 'term'), 25),
+            ],
+            $queries
+        );
+    }
+
+    public function testSelfReferencingAssociationsAreNotFollowed(): void
+    {
+        $builder = new EntityScoreQueryBuilder();
+
+        $pattern = new SearchPattern(new SearchTerm('term', 1));
+
+        $queries = $builder->buildScoreQueries($pattern, $this->selfReferencingDefinition, 'category', $this->context);
+
+        static::assertEquals(
+            [
+                new ScoreQuery(new EqualsFilter('category.name', 'term'), 100),
+                new ScoreQuery(new ContainsFilter('category.name', 'term'), 50),
+            ],
+            $queries
+        );
+    }
+
+    public function testCircularManyToManyAssociationsAreNotFollowedBackToADefinitionOnThePath(): void
+    {
+        $builder = new EntityScoreQueryBuilder();
+
+        $pattern = new SearchPattern(new SearchTerm('term', 1));
+
+        $queries = $builder->buildScoreQueries($pattern, $this->circularManyToManyEntryDefinition, 'entry', $this->context);
+
+        static::assertEquals(
+            [
+                new ScoreQuery(new EqualsFilter('entry.title', 'term'), 100),
+                new ScoreQuery(new ContainsFilter('entry.title', 'term'), 50),
+                new ScoreQuery(new EqualsFilter('entry.tags.name', 'term'), 50),
+                new ScoreQuery(new ContainsFilter('entry.tags.name', 'term'), 25),
             ],
             $queries
         );
@@ -496,6 +547,105 @@ class CircularAuthorDefinition extends EntityDefinition
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new ApiAware(), new SearchRanking(100)),
             (new OneToManyAssociationField('entries', CircularEntryDefinition::class, 'author_id'))->addFlags(new ApiAware(), new SearchRanking(0.5)),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class SelfReferencingDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'score_self_referencing';
+    }
+
+    public function since(): string
+    {
+        return '6.0.0.0';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new StringField('name', 'name'))->addFlags(new ApiAware(), new SearchRanking(100)),
+            (new ManyToOneAssociationField('parent', 'parent_id', self::class, 'id', true))->addFlags(new ApiAware(), new SearchRanking(0.5)),
+            (new OneToManyAssociationField('children', self::class, 'parent_id'))->addFlags(new ApiAware(), new SearchRanking(0.5)),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class CircularManyToManyEntryDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'score_circular_many_to_many_entry';
+    }
+
+    public function since(): string
+    {
+        return '6.0.0.0';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new StringField('title', 'title'))->addFlags(new ApiAware(), new SearchRanking(100)),
+            (new ManyToManyAssociationField('tags', CircularManyToManyTagDefinition::class, CircularManyToManyMappingDefinition::class, 'entry_id', 'tag_id'))->addFlags(new ApiAware(), new SearchRanking(0.5)),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class CircularManyToManyTagDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'score_circular_many_to_many_tag';
+    }
+
+    public function since(): string
+    {
+        return '6.0.0.0';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new StringField('name', 'name'))->addFlags(new ApiAware(), new SearchRanking(100)),
+            (new ManyToManyAssociationField('entries', CircularManyToManyEntryDefinition::class, CircularManyToManyMappingDefinition::class, 'tag_id', 'entry_id'))->addFlags(new ApiAware(), new SearchRanking(0.5)),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class CircularManyToManyMappingDefinition extends MappingEntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'score_circular_many_to_many_mapping';
+    }
+
+    public function since(): string
+    {
+        return '6.0.0.0';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new FkField('entry_id', 'entryId', CircularManyToManyEntryDefinition::class))->addFlags(new PrimaryKey(), new Required()),
+            (new FkField('tag_id', 'tagId', CircularManyToManyTagDefinition::class))->addFlags(new PrimaryKey(), new Required()),
+            new ManyToOneAssociationField('entry', 'entry_id', CircularManyToManyEntryDefinition::class, 'id', false),
+            new ManyToOneAssociationField('tag', 'tag_id', CircularManyToManyTagDefinition::class, 'id', false),
         ]);
     }
 }

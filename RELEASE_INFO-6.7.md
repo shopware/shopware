@@ -371,6 +371,12 @@ Themes that style `.privacy-notice .legal-guarantee-notice` should target `.lega
 The new setting `core.loginRegistration.showLegalGuaranteeNotice` (enabled by default) hides the notice on the registration form while the checkout keeps it.
 The notice still requires `core.cart.showLegalGuaranteeNotice` as well.
 
+### Legal guarantee notice disabled by default
+
+`core.cart.showLegalGuaranteeNotice` now declares `false` as its default.
+This matches how shops behaved so far: the declared `true` never took effect, so the notice only appeared where it was enabled in the cart settings.
+Shops that sell goods to consumers in the EU should enable "Show legal guarantee notice on checkout page" to show the notice at checkout, on the registration form, in the order confirmation mail and in `/store-api/legal-guarantee-notice`.
+
 ## Hosting & Configuration
 
 ### Readiness checks isolate their virtual requests

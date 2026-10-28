@@ -97,7 +97,7 @@ class CsvReader extends AbstractReader
             $record = $this->mapRecord($record);
 
             // skip empty
-            if ($record === null || array_filter($record) === []) {
+            if ($record === null || array_filter($record, static fn (mixed $value): bool => $value !== null && $value !== '') === []) {
                 continue;
             }
 

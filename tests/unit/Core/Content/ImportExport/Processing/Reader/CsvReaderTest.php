@@ -139,6 +139,27 @@ class CsvReaderTest extends TestCase
         static::assertSame(['foo' => '', 'bar' => 'zxcv'], $result[$i]);
     }
 
+    public function testRowsWithOnlyZeroValuesAreNotSkipped(): void
+    {
+        $content = implode(\PHP_EOL, [
+            'foo;bar',
+            '0;0',
+            '0;',
+            ';',
+        ]);
+
+        $reader = new CsvReader();
+        $resource = fopen('data://text/plain,' . $content, 'r');
+
+        static::assertIsResource($resource);
+        $result = $this->getAll($reader->read(new Config([], [], []), $resource, 0));
+
+        static::assertSame([
+            ['foo' => '0', 'bar' => '0'],
+            ['foo' => '0', 'bar' => ''],
+        ], array_values($result));
+    }
+
     public static function eolProvider(): \Generator
     {
         yield 'windows' => ["\r\n"];

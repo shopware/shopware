@@ -180,12 +180,13 @@ lifecycle. What the marker sits on decides what it requires:
 | The marker sits on | Required |
 |---|---|
 | a function, method, `computed` accessor, getter or class constructor | `triggerDeprecationOrThrow()` with the tag's major as its **first** statement |
-| a component, in the file header or on its `Component.register()` | the root `deprecated` option |
-| a prop | the prop's `deprecated` option |
+| a component, in the file header or on its `Component.register()` | the root `deprecated` option, with the tag's version |
+| a prop | the prop's `deprecated` option, with the tag's version |
 | a value, type, import, `data`, `watch`, `provide`, `inject`, store `state` or `getters`, or a statement inside a body | nothing |
 
-`@private` and `_`-prefixed declarations, functions local to their module, and markers like "Will be private"
-are skipped. A function core runs on its own, like a lifecycle hook, takes an
+A file header without a component covers every export of the file. `@private` and `_`-prefixed declarations
+and markers like "Will be private" are skipped. A class core creates on its own, like an API service, may guard
+each method instead of its constructor. A function core runs on its own, like a lifecycle hook, takes an
 `eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- <reason>`.
 
 Pair runtime warnings with an autofixable ESLint rule where the migration is mechanical, like

@@ -5,7 +5,6 @@
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
-import { allowDeprecation } from 'test/_helper_/deprecations';
 
 async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-customer-list', { sync: true }), {
@@ -134,10 +133,6 @@ Shopware.Service().register('filterService', () => {
 });
 
 describe('module/sw-customer/page/sw-customer-list', () => {
-    beforeEach(() => {
-        allowDeprecation('sw-customer-list.updateCriteria() is deprecated');
-    });
-
     it('should not be able to create a new customer', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

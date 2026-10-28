@@ -64,7 +64,7 @@ describe('components/media/sw-media-list-selection-v2', () => {
         await flushPromises();
 
         await wrapper.vm.onMediaItemDragSort({ id: 2, position: 1 }, { id: 1, position: 2 }, true);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.emitted()['item-sort']).toBeTruthy();
         expect(wrapper.emitted()['item-sort'][0]).toEqual([
@@ -78,7 +78,7 @@ describe('components/media/sw-media-list-selection-v2', () => {
         await flushPromises();
 
         await wrapper.vm.onMediaItemDragSort();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.emitted('item-sort')).not.toBeTruthy();
     });

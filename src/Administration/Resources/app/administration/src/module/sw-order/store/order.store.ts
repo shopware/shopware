@@ -182,8 +182,14 @@ const swOrderStore = Shopware.Store.register({
                 });
         },
 
-        getCart({ salesChannelId, contextToken }: { salesChannelId: EntityKey<'sales_channel'>; contextToken: string }) {
-            if (`${contextToken}`.length !== 32) {
+        getCart({
+            salesChannelId,
+            contextToken,
+        }: {
+            salesChannelId: EntityKey<'sales_channel'>;
+            contextToken: string | null;
+        }) {
+            if (contextToken?.length !== 32) {
                 throw new Error('Invalid context token');
             }
 
@@ -197,8 +203,14 @@ const swOrderStore = Shopware.Store.register({
             ]);
         },
 
-        cancelCart({ salesChannelId, contextToken }: { salesChannelId: EntityKey<'sales_channel'>; contextToken: string }) {
-            if (`${contextToken}`.length !== 32) {
+        cancelCart({
+            salesChannelId,
+            contextToken,
+        }: {
+            salesChannelId: EntityKey<'sales_channel'>;
+            contextToken: string | null;
+        }) {
+            if (contextToken?.length !== 32) {
                 throw new Error('Invalid context token');
             }
 

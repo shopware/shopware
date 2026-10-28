@@ -34,7 +34,7 @@ async function createWrapper() {
 describe('app/component/base/sw-product-image', () => {
     it('should display button to set as cover image if media is not a 3D object and is not already a cover image', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setProps({
             showCoverLabel: true,
@@ -46,7 +46,7 @@ describe('app/component/base/sw-product-image', () => {
 
     it('should not display button to set as cover image if media is not a 3D object and is already a cover image', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setProps({
             showCoverLabel: true,
@@ -70,7 +70,7 @@ describe('app/component/base/sw-product-image', () => {
 
     it('should not show spatial label if media item is not a 3D object', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setProps({
             isSpatial: true,
@@ -82,7 +82,7 @@ describe('app/component/base/sw-product-image', () => {
 
     it('should show spatial label if media item is a 3D object', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setProps({
             isSpatial: true,
@@ -94,7 +94,7 @@ describe('app/component/base/sw-product-image', () => {
 
     it('should should AR ready label if media item is a 3D object and has AR enabled', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setProps({
             isSpatial: true,

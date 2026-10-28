@@ -9,6 +9,7 @@ import {
     createPluginDevJson,
     exportViteServerMapping,
     getDevServerHttpsConfig,
+    getMainViteServerConfig,
     readFeatureFlags,
     runForEachExtension,
 } from './index';
@@ -83,6 +84,43 @@ describe('build/vite-plugins/utils', () => {
             const mapping = JSON.parse(calls[0][1]) as { extensions: Record<string, { port: number }> };
             expect(Object.keys(mapping.extensions)).toHaveLength(40);
             expect(mapping.extensions['plugin-0'].port).toBe(5174);
+        });
+    });
+
+    describe('getMainViteServerConfig', () => {
+        afterEach(() => {
+            jest.restoreAllMocks();
+        });
+
+        it('targets the IPv4 listener of each extension even when localhost resolves to the main server', () => {
+            jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+            jest.spyOn(fs, 'readFileSync').mockReturnValue(
+                JSON.stringify({
+                    vitePort: 5173,
+                    extensions: {
+                        storefront: { basePath: '/_internal_ext/storefront/', port: 5174 },
+                        'example-app': { basePath: '/_internal_ext/example-app/', port: 5175 },
+                    },
+                }),
+            );
+
+            expect(getMainViteServerConfig()).toEqual({
+                port: 5173,
+                proxy: {
+                    '/_internal_ext/storefront/': {
+                        target: 'http://127.0.0.1:5174',
+                        changeOrigin: true,
+                        ws: true,
+                        rewriteWsOrigin: true,
+                    },
+                    '/_internal_ext/example-app/': {
+                        target: 'http://127.0.0.1:5175',
+                        changeOrigin: true,
+                        ws: true,
+                        rewriteWsOrigin: true,
+                    },
+                },
+            });
         });
     });
 

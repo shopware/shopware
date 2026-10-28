@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -42,8 +43,10 @@ class ShippingMethodValidator implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly WriteOutcome $writeOutcome,
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -55,18 +58,11 @@ class ShippingMethodValidator implements EventSubscriberInterface
 
     public function preValidate(PreWriteValidationEvent $event): void
     {
-        foreach ($event->getCommandsForEntity(ShippingMethodDefinition::ENTITY_NAME) as $command) {
-            if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
-                continue;
-            }
-
-            $shippingMethod = $this->findShippingMethod($command->getPrimaryKey()['id']);
-            $payload = $command->getPayload();
-
-            $taxType = $payload['tax_type'] ?? $shippingMethod['tax_type'] ?? null;
+        foreach ($this->writeOutcome->rows($event->getCommandsForEntity(ShippingMethodDefinition::ENTITY_NAME), ['tax_type', 'tax_id']) as $shippingMethod) {
+            $taxType = $shippingMethod->getResultingValue('tax_type');
             \assert($taxType === null || \is_string($taxType));
 
-            $taxId = $payload['tax_id'] ?? $shippingMethod['tax_id'] ?? null;
+            $taxId = $shippingMethod->getResultingValue('tax_id');
             \assert($taxId === null || \is_string($taxId));
 
             $violations = new ConstraintViolationList();
@@ -96,7 +92,7 @@ class ShippingMethodValidator implements EventSubscriberInterface
             }
 
             if ($violations->count() > 0) {
-                $event->getExceptions()->add(new WriteConstraintViolationException($violations, $command->getPath()));
+                $event->getExceptions()->add(new WriteConstraintViolationException($violations, $shippingMethod->path));
             }
         }
 
@@ -376,17 +372,6 @@ class ShippingMethodValidator implements EventSubscriberInterface
         }
 
         return $states;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function findShippingMethod(string $shippingMethodId): array
-    {
-        return $this->connection->executeQuery(
-            'SELECT `tax_type`, `tax_id` FROM `shipping_method` WHERE `id` = :id',
-            ['id' => $shippingMethodId]
-        )->fetchAssociative() ?: [];
     }
 
     /**

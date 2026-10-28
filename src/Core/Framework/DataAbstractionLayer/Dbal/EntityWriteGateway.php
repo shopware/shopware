@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\DBAL\Query\QueryBuilder as DbalQueryBuilderAlias;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
@@ -58,7 +57,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ExceptionHandlerRegistry $exceptionHandlerRegistry,
-        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
+        private readonly RowLoader $rowLoader,
     ) {
     }
 
@@ -535,14 +535,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         $states = [];
         foreach ($primaryKeys as $entity => $ids) {
-            $query = $this->connection->createQueryBuilder();
-
-            $query->addSelect('*');
-            $query->from(EntityDefinitionQueryHelper::escape($entity));
-
-            $this->addPrimaryCondition($query, $ids);
-
-            $states[$entity] = $query->executeQuery()->fetchAllAssociative();
+            $states[$entity] = $this->rowLoader->load($entity, $ids);
         }
 
         foreach ($commands as $command) {
@@ -560,29 +553,6 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 $this->calculateChangeSet($command, $states[$entity])
             );
         }
-    }
-
-    /**
-     * @param list<array<string, string>> $primaryKeys
-     */
-    private function addPrimaryCondition(DbalQueryBuilderAlias $query, array $primaryKeys): void
-    {
-        $all = [];
-        $i = 0;
-        foreach ($primaryKeys as $primaryKey) {
-            $where = [];
-
-            foreach ($primaryKey as $field => $value) {
-                ++$i;
-                $field = EntityDefinitionQueryHelper::escape($field);
-                $where[] = $field . ' = :param' . $i;
-                $query->setParameter('param' . $i, $value);
-            }
-
-            $all[] = implode(' AND ', $where);
-        }
-
-        $query->andWhere(implode(' OR ', $all));
     }
 
     /**

@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\ImportExport\DataAbstractionLayer;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\SystemDefaultValidator;
 use Shopware\Core\Content\ImportExport\Exception\DeleteDefaultProfileException;
@@ -42,7 +41,7 @@ class SystemDefaultValidatorTest extends TestCase
     {
         $this->repository = static::getContainer()->get('import_export_profile.repository');
         $this->context = Context::createDefaultContext();
-        $this->validator = new SystemDefaultValidator(static::getContainer()->get(Connection::class));
+        $this->validator = static::getContainer()->get(SystemDefaultValidator::class);
     }
 
     public function testSystemDefaultProfileDeletionIsRejected(): void

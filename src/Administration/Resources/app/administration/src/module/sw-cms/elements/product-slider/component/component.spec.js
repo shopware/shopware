@@ -47,11 +47,6 @@ describe('src/module/sw-cms/elements/product-slider/component', () => {
         });
     });
 
-    it('mounts the component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeDefined();
-    });
-
     it('observes the product holder to recalculate the box limit', async () => {
         const wrapper = await createWrapper();
 

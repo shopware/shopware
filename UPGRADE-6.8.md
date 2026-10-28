@@ -2936,6 +2936,38 @@ The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id
 {% endfor %}
 ```
 
+## Changed variables in `@Storefront/storefront/layout/breadcrumb.html.twig`
+
+The breadcrumb template only accepts the breadcrumb entries as the `breadcrumb` input.
+The `category` and `categoryId` inputs and the `breadcrumbCollection` input were removed.
+
+Templates that extend the `layout_breadcrumb_list_item` block can rely on these variables:
+
+| Variable | Content |
+|----------|---------|
+| `breadcrumb` | The current `Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb` entry |
+| `categoryId` | The category ID of the current entry |
+| `activeId` | The category ID of the last entry, which is the current page |
+| `breadcrumbCollection` | All entries |
+| `name`, `type`, `categoryUrl`, `shouldOpenInNewTab`, `isActive` | Unchanged |
+
+The following variables were removed:
+
+| Removed variable | Replacement |
+|------------------|-------------|
+| `breadcrumbCategory` | `breadcrumb`, which is a `Breadcrumb` struct instead of a `CategoryEntity`. Use `breadcrumb.name` instead of `breadcrumbCategory.translated.name`, and `breadcrumb.categoryId` instead of `breadcrumbCategory.id`. |
+| `key` | `categoryId` |
+| `breadcrumbCategories` | `breadcrumbCollection` |
+| `breadcrumbKeys` | `loop.last` |
+
+`categoryId` changed its meaning.
+It used to hold the ID of the active category, and now holds the ID of the current entry.
+Use `activeId` to compare against the active category.
+`activeId` is already available in 6.7, so overrides can switch to it before the update.
+
+The `layout_breadcrumb_placeholder` block was removed, because the separator is rendered with CSS.
+Extend `layout_breadcrumb_list_item` to change the separator.
+
 ## Removal of DeleteThemeFilesMessage and its handler
 
 The `\Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage` and its handler `\Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler` are removed.

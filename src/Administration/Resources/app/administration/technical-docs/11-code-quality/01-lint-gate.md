@@ -61,6 +61,13 @@ Reviewers of such a pull request check the diff of `eslint-suppressions.json`.
 | `@typescript-eslint/no-restricted-types` for `$TSFixMe` and `$TSFixMeFunction` | TypeScript | Both are `any` under another name |
 | `@typescript-eslint/no-non-null-assertion`, `no-restricted-syntax` for `as unknown as` | TypeScript, no tests | Types match the runtime values instead of being cast into shape |
 | `sw-core-rules/no-swallowed-errors` | No tests | A `.catch()` that drops the error needs a comment that says why |
+| `filename-rules/not-match` | JavaScript files in `src`, specs are excluded | New source files in `src` are TypeScript |
+| `sw-core-rules/no-new-mixins` | `src`, specs are excluded | Shared logic goes into a composable in `src/app/composables`, using existing mixins stays allowed |
+| `sw-test-rules/no-vm-access` | `*.spec.js`, `*.spec.ts` | Specs assert what a component renders, emits or requests, not its internals through `wrapper.vm` |
+
+`sw-test-rules/no-vm-access` allows `.vm.$emit()`, which is how Vue Test Utils simulates an event from a child or stub.
+It still reports `wrapper.vm.$emit()`, because emitting on the mounted component skips its own code.
+Where a spec has no other way, an inline disable with a reason is allowed, for example `// eslint-disable-next-line sw-test-rules/no-vm-access -- <reason>`.
 
 ## Inline disables
 

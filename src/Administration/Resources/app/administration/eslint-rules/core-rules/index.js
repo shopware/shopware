@@ -19,5 +19,6 @@ module.exports = {
         'valid-shopware-setup': require(path.resolve(__dirname, 'valid-shopware-setup.js')),
         'native-setup-filename': require(path.resolve(__dirname, 'native-setup-filename.js')),
         'no-swallowed-errors': require(path.resolve(__dirname, 'no-swallowed-errors.js')),
+        'no-new-mixins': require(path.resolve(__dirname, 'no-new-mixins.js')),
     },
 };

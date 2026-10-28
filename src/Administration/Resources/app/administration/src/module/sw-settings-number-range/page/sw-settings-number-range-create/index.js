@@ -102,6 +102,10 @@ export default {
             this.$super('onSave');
         },
 
+        checkPatternCollision() {
+            return Promise.resolve();
+        },
+
         async getProductNumberRanges() {
             this.numberRangeRepository.search(this.productNumberRangeCriteria).then((items) => {
                 this.hasProductNumberRange = !!items.total;

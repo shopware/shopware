@@ -2,7 +2,7 @@
  * @sw-package framework
  * @private
  *
- * Keeps `src/meta/deprecation-baseline.json` in step with the specs (see `deprecationBaseline.ts`). After a full,
+ * Keeps `src/core/deprecation-baseline.json` in step with the specs (see `deprecationBaseline.ts`). After a full,
  * green run it fails on usages the baseline lists for this run that no spec needed, or with
  * `DEPRECATION_BASELINE=update` rewrites this run's markings from the usages the workers let pass.
  */

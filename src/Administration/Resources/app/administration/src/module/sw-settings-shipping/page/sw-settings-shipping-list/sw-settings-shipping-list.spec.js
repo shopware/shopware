@@ -79,12 +79,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
-    it('should be a vue js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have all fields disabled', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({ total: 2 });

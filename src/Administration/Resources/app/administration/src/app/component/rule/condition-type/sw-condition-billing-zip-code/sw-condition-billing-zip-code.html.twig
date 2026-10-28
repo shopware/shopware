@@ -20,7 +20,7 @@
     {% endblock %}
 
     {% block sw_condition_billing_zip_code_field_zip_codes %}
-    <sw-tagged-field
+    <sw-multi-tag-select
         v-if="!isNumeric && !isEmpty"
         v-model:value="zipCodes"
         name="sw-field--zipCodes"

@@ -110,6 +110,74 @@ describe('VueAdapter Twig HMR', () => {
         ).resolves.toBe(false);
     });
 
+    it.activeFeatureFlags(['ADMIN_VITE_8'])('declines a template update when its override is unknown', async () => {
+        await expect(
+            vueAdapter.updateComponentTemplateFromHmr('sw-hmr-unknown', '/plugins/unknown.twig', '<p>Changed</p>'),
+        ).resolves.toBe(false);
+        expect(testHmrRuntime.createRecord).not.toHaveBeenCalled();
+        expect(testHmrRuntime.rerender).not.toHaveBeenCalled();
+    });
+
+    it.activeFeatureFlags(['ADMIN_VITE_8'])('declines updates when the Vue HMR runtime is unavailable', async () => {
+        delete (window as Window & { __VUE_HMR_RUNTIME__?: TestHmrRuntime }).__VUE_HMR_RUNTIME__;
+        await expect(
+            vueAdapter.updateComponentTemplateFromHmr('sw-hmr-no-runtime', '/plugins/test.twig', '<p>Changed</p>'),
+        ).resolves.toBe(false);
+        expect(testHmrRuntime.rerender).not.toHaveBeenCalled();
+    });
+
+    it.activeFeatureFlags(['ADMIN_VITE_8'])('declines an update for a component whose initial build failed', async () => {
+        const name = 'sw-hmr-failed-initial-build';
+        const hmrId = '/plugins/failed-initial-build.twig';
+        AsyncComponentFactory.register(name, { template: '<div>{% block content %}Base{% endblock %}</div>' });
+        AsyncComponentFactory.override(name, {
+            template: '{% block content %}Before{% endblock %}',
+            __shopwareTwigHmrId: hmrId,
+        });
+        await AsyncComponentFactory.build(name);
+        jest.spyOn(Shopware.Component, 'build').mockResolvedValueOnce(false);
+        await expect(vueAdapter.componentResolver(name)).resolves.toBe(false);
+        await expect(
+            vueAdapter.updateComponentTemplateFromHmr(name, hmrId, '{% block content %}After{% endblock %}'),
+        ).resolves.toBe(false);
+        expect(testHmrRuntime.rerender).not.toHaveBeenCalled();
+    });
+
+    it.activeFeatureFlags(['ADMIN_VITE_8'])('keeps the mounted definition when rebuilding it fails', async () => {
+        const name = 'sw-hmr-failed-rebuild';
+        const hmrId = '/plugins/failed-rebuild.twig';
+        AsyncComponentFactory.register(name, { template: '<div>{% block content %}Base{% endblock %}</div>' });
+        AsyncComponentFactory.override(name, {
+            template: '{% block content %}Before{% endblock %}',
+            __shopwareTwigHmrId: hmrId,
+        });
+        const config = await vueAdapter.componentResolver(name);
+        jest.spyOn(AsyncComponentFactory, 'build').mockResolvedValueOnce(false);
+        await expect(
+            vueAdapter.updateComponentTemplateFromHmr(name, hmrId, '{% block content %}After{% endblock %}'),
+        ).resolves.toBe(false);
+        expect(config).toHaveProperty('template', expect.stringContaining('Before'));
+        expect(testHmrRuntime.rerender).not.toHaveBeenCalled();
+    });
+
+    it.activeFeatureFlags(['ADMIN_VITE_8'])('declines a rebuilt component definition without a Twig template', async () => {
+        const name = 'sw-hmr-native-render';
+        const hmrId = '/plugins/native-render.twig';
+        const render = jest.fn();
+        AsyncComponentFactory.register(name, { template: '<div>{% block content %}Base{% endblock %}</div>' });
+        AsyncComponentFactory.override(name, {
+            template: '{% block content %}Before{% endblock %}',
+            __shopwareTwigHmrId: hmrId,
+        });
+        const config = await vueAdapter.componentResolver(name);
+        jest.spyOn(AsyncComponentFactory, 'build').mockResolvedValueOnce({ name, render });
+        await expect(
+            vueAdapter.updateComponentTemplateFromHmr(name, hmrId, '{% block content %}After{% endblock %}'),
+        ).resolves.toBe(false);
+        expect(config).toHaveProperty('template', expect.stringContaining('Before'));
+        expect(testHmrRuntime.rerender).not.toHaveBeenCalled();
+    });
+
     it.activeFeatureFlags(['ADMIN_VITE_8'])(
         'preserves eager Twig blocks of other unresolved components during an update',
         async () => {

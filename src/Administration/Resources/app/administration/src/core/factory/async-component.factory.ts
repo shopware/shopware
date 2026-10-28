@@ -619,7 +619,11 @@ function override(
     let config: ComponentConfig;
     let hmrId: string | undefined =
         typeof componentConfiguration === 'function' ? undefined : componentConfiguration.__shopwareTwigHmrId;
-    let overrideEntry: IndexedAwaitedComponentConfig | null = null;
+    const overrideEntry: IndexedAwaitedComponentConfig = {
+        index: overrideIndex !== null ? overrideIndex : 0,
+        config: configResolveMethod,
+        hmrId,
+    };
 
     /**
      * For sync object configs the block index is populated here, before any
@@ -637,7 +641,7 @@ function override(
         indexTwigBlocksFromTemplate(componentName, componentConfiguration.template as string);
     }
 
-    const configResolveMethod = async (): Promise<ComponentConfig> => {
+    async function configResolveMethod(): Promise<ComponentConfig> {
         if (config) {
             return config;
         }
@@ -663,9 +667,7 @@ function override(
 
         hmrId ??= config.__shopwareTwigHmrId;
         delete config.__shopwareTwigHmrId;
-        if (overrideEntry) {
-            overrideEntry.hmrId = hmrId;
-        }
+        overrideEntry.hmrId = hmrId;
 
         config.name = componentName;
 
@@ -689,14 +691,9 @@ function override(
         }
 
         return config;
-    };
+    }
 
     const overrides = overrideRegistry.get(componentName) || [];
-    overrideEntry = {
-        index: overrideIndex !== null ? overrideIndex : 0,
-        config: configResolveMethod,
-        hmrId,
-    };
     overrides.push(overrideEntry);
     overrides.sort((a, b) => a.index - b.index);
     overrideRegistry.set(componentName, overrides);

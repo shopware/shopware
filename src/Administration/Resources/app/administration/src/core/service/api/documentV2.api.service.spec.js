@@ -249,4 +249,25 @@ describe('documentV2ApiService', () => {
         expect(clientMock.history.post[0].url).toBe('/_action/order/document-v2/download-archive');
         expect(JSON.parse(clientMock.history.post[0].data)).toEqual({ documentIds });
     });
+
+    it('loads the number range pattern collisions', async () => {
+        const { documentV2ApiService, clientMock } = createDocumentV2ApiService();
+        const response = { collisions: [{ id: 'other-id', name: 'Invoices shop B' }] };
+
+        clientMock.onGet('/_action/order/document-v2/number-range-pattern-collisions').reply(200, response);
+
+        const collisions = await documentV2ApiService.getNumberRangePatternCollisions(
+            'number-range-type-id',
+            'INV-{n}',
+            'number-range-id',
+        );
+
+        expect(clientMock.history.get[0].url).toBe('/_action/order/document-v2/number-range-pattern-collisions');
+        expect(clientMock.history.get[0].params).toEqual({
+            numberRangeTypeId: 'number-range-type-id',
+            pattern: 'INV-{n}',
+            numberRangeId: 'number-range-id',
+        });
+        expect(collisions).toEqual(response);
+    });
 });

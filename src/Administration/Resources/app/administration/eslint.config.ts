@@ -79,8 +79,36 @@ const testFiles = [
     'test/**/*.ts',
 ];
 
+const limitRules = {
+    complexity: [
+        'error',
+        15,
+    ],
+    'max-lines-per-function': [
+        'error',
+        { max: 80, skipBlankLines: true, skipComments: true },
+    ],
+    'max-params': [
+        'error',
+        4,
+    ],
+    'max-nested-callbacks': [
+        'error',
+        3,
+    ],
+    'max-depth': [
+        'error',
+        4,
+    ],
+    'max-lines': [
+        'error',
+        { max: 500, skipBlankLines: true, skipComments: true },
+    ],
+};
+
 // Inline disables are blocked for these rules, so eslint-suppressions.json is the only way around them
 const rulesWithoutInlineDisable: string[] = [
+    ...Object.keys(limitRules),
     'filename-rules/not-match',
     'sw-core-rules/no-new-mixins',
 ];
@@ -212,6 +240,11 @@ const baseRules = {
     'vue/prefer-import-from-vue': 'off',
     'vue/one-component-per-file': 'off',
 
+    '@eslint-community/eslint-comments/require-description': [
+        'error',
+        { ignore: ['eslint-enable'] },
+    ],
+    '@eslint-community/eslint-comments/no-unlimited-disable': 'error',
     '@eslint-community/eslint-comments/no-restricted-disable': [
         'error',
         ...rulesWithoutInlineDisable,
@@ -430,6 +463,10 @@ export default [
             '@typescript-eslint/no-unused-vars': 'off',
             // If a binding shares the same name as a prop, the binding gets silently undefined. Erroring in ESLint will make that issue loud in most cases (not for imported prop types)
             'vue/no-dupe-keys': 'error',
+            'vue/max-template-depth': [
+                'error',
+                { maxDepth: 10 },
+            ],
         },
     },
 
@@ -630,6 +667,10 @@ export default [
             'sw-deprecation-rules/no-sw-empty-state-usage': 'error',
             'vue/no-useless-template-attributes': 'error',
             'vue/no-lone-template': 'error',
+            'vue/max-template-depth': [
+                'error',
+                { maxDepth: 10 },
+            ],
 
             'eol-last': 'off',
             'max-len': 'off',
@@ -803,6 +844,18 @@ export default [
         },
     },
 
+    // Size and complexity limits for source files
+    {
+        files: [
+            'src/**/*.js',
+            'src/**/*.ts',
+            'src/**/*.tsx',
+            'src/**/*.vue',
+        ],
+        ignores: testFiles,
+        rules: limitRules,
+    },
+
     // TypeScript rules on top of the factory's typed-lint bootstrap. The
     // factory already spreads tseslint recommendedTypeChecked with
     // projectService — `project` must not reappear anywhere: parserOptions
@@ -815,13 +868,24 @@ export default [
         ],
         rules: {
             ...baseRules,
-            '@typescript-eslint/ban-ts-comment': 0,
+            '@typescript-eslint/ban-ts-comment': [
+                'error',
+                { minimumDescriptionLength: 10 },
+            ],
+            '@typescript-eslint/no-restricted-types': [
+                'error',
+                {
+                    types: {
+                        $TSFixMe: 'It is `any` under another name. Use the real type, or `unknown` and narrow it.',
+                        $TSFixMeFunction: 'It is `any` under another name. Use a real function type.',
+                    },
+                },
+            ],
             '@typescript-eslint/no-unsafe-member-access': 'error',
             '@typescript-eslint/no-unsafe-call': 'error',
             '@typescript-eslint/no-unsafe-assignment': 'error',
             '@typescript-eslint/no-unsafe-return': 'error',
             '@typescript-eslint/explicit-module-boundary-types': 0,
-            '@typescript-eslint/prefer-ts-expect-error': 'error',
             'no-shadow': 'off',
             '@typescript-eslint/no-shadow': ['error'],
             '@typescript-eslint/consistent-type-imports': ['error'],
@@ -845,6 +909,38 @@ export default [
                 'enableFix',
             ],
             'sw-deprecation-rules/no-vue-options-api': 'off',
+        },
+    },
+
+    // Source files only, tests may cast mocks and swallow errors
+    {
+        files: [
+            '**/*.js',
+            '**/*.ts',
+            '**/*.tsx',
+            '**/*.vue',
+        ],
+        ignores: testFiles,
+        rules: {
+            'sw-core-rules/no-swallowed-errors': 'error',
+        },
+    },
+    {
+        files: [
+            '**/*.ts',
+            '**/*.tsx',
+        ],
+        ignores: testFiles,
+        rules: {
+            '@typescript-eslint/no-non-null-assertion': 'error',
+            'no-restricted-syntax': [
+                'error',
+                {
+                    selector:
+                        "TSAsExpression[expression.type='TSAsExpression'][expression.typeAnnotation.type='TSUnknownKeyword']",
+                    message: 'Avoid `as unknown as`. Fix the type, or narrow it with a type guard.',
+                },
+            ],
         },
     },
 

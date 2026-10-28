@@ -45,7 +45,7 @@ class CustomerEmailUniqueSubscriber implements EventSubscriberInterface
         $checks = [];
         $paths = [];
 
-        foreach ($this->writeOutcome->rows($event->getCommandsForEntity(CustomerDefinition::ENTITY_NAME), self::UNIQUENESS_COLUMNS) as $customer) {
+        foreach ($this->writeOutcome->resultingRows($event->getCommandsForEntity(CustomerDefinition::ENTITY_NAME), self::UNIQUENESS_COLUMNS) as $customer) {
             $email = $customer->getResultingValue('email');
             if (!\is_string($email)) {
                 continue;

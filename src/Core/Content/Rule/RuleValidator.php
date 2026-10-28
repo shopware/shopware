@@ -32,6 +32,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Content\Rule\RuleValidatorTest
  */
 #[Package('fundamentals@after-sales')]
 class RuleValidator implements EventSubscriberInterface

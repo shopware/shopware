@@ -31,16 +31,20 @@ describe('shared extension listener', () => {
     let parent: ViteDevServer;
     let toolchain: ViteToolchain;
     let resolvedConfigs: ResolvedConfig[];
-    let children: Array<{ close: jest.Mock; middlewares: jest.Mock }>;
+    let children: Array<{ close: jest.Mock; middlewares: jest.Mock & { use: jest.Mock } }>;
+    let failAfterConfigure: boolean;
 
     beforeEach(() => {
         resolvedConfigs = [];
         children = [];
+        failAfterConfigure = false;
         jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
         jest.spyOn(console, 'error').mockImplementation(() => {});
         parent = {
+            environments: { client: {}, ssr: {} },
             httpServer: createServer(),
             config: {
+                root: '/project/src/Administration/Resources/app/administration',
                 server: {
                     host: 'admin.localhost',
                     port: 5190,
@@ -64,8 +68,20 @@ describe('shared extension listener', () => {
                     hook(resolved);
                     resolvedConfigs.push(resolved);
 
-                    const child = { close: jest.fn().mockResolvedValue(undefined), middlewares: jest.fn() };
+                    const child = {
+                        close: jest.fn().mockResolvedValue(undefined),
+                        middlewares: Object.assign(jest.fn(), { use: jest.fn() }),
+                    };
                     children.push(child);
+                    const configure = plugins.at(-1)?.configureServer as {
+                        handler: (server: ViteDevServer) => () => void;
+                    };
+                    const postConfigure = configure.handler(child as unknown as ViteDevServer);
+                    if (failAfterConfigure) {
+                        failAfterConfigure = false;
+                        return Promise.reject(new Error('Extension configureServer failed'));
+                    }
+                    postConfigure();
                     return Promise.resolve(child);
                 }),
             },
@@ -84,7 +100,7 @@ describe('shared extension listener', () => {
     }
 
     function request(url: string) {
-        const response = { writeHead: jest.fn(), end: jest.fn() };
+        const response = { statusCode: 200, writableEnded: false, writeHead: jest.fn(), end: jest.fn() };
         const next = jest.fn();
         middleware({ url } as IncomingMessage, response as unknown as ServerResponse, next);
         return { response, next };
@@ -138,14 +154,83 @@ describe('shared extension listener', () => {
 
     it('closes all extension watchers with the parent and permits a fresh start', async () => {
         const plugin = await start();
-        await (plugin.closeBundle as () => Promise<void>)();
+        await (plugin.closeBundle as () => Promise<void>).call({ environment: parent.environments.client });
         expect(children[0].close).toHaveBeenCalledTimes(1);
 
         await (plugin.configureServer as ConfigureHook)(parent);
         request('/_internal_ext/example/main.ts');
         expect(children[0].middlewares).not.toHaveBeenCalled();
         expect(children[1].middlewares).toHaveBeenCalledTimes(1);
-        await (plugin.closeBundle as () => Promise<void>)();
+        await (plugin.closeBundle as () => Promise<void>).call({ environment: parent.environments.client });
+    });
+
+    it('closes a partially configured extension after startup fails', async () => {
+        failAfterConfigure = true;
+        await start([extension, { ...extension, technicalName: 'healthy' }]);
+
+        expect(children[0].close).toHaveBeenCalledTimes(1);
+        expect(request('/_internal_ext/example/main.ts').response.writeHead).toHaveBeenCalledWith(503, expect.anything());
+        request('/_internal_ext/healthy/main.ts');
+        expect(children[1].middlewares).toHaveBeenCalledTimes(1);
+    });
+
+    it('preserves transform errors and never falls through to the Administration HTML', async () => {
+        await start();
+        const error = new Error('Invalid extension source');
+        const errorHandler = (children[0].middlewares.use.mock.calls as unknown[][])[0][0] as (
+            error: unknown,
+            request: IncomingMessage,
+            response: ServerResponse,
+            next: (error?: unknown) => void,
+        ) => void;
+        const response = { statusCode: 200 };
+        const next = jest.fn();
+        errorHandler(error, {} as IncomingMessage, response as ServerResponse, next);
+        expect(response.statusCode).toBe(500);
+        expect(next).toHaveBeenCalledWith(error);
+
+        children[0].middlewares.mockImplementation((_request: IncomingMessage, result: ServerResponse, done: () => void) => {
+            result.statusCode = response.statusCode;
+            done();
+        });
+        const failed = request('/_internal_ext/example/main.ts');
+        expect(failed.response.writeHead).toHaveBeenCalledWith(500, expect.anything());
+        expect(failed.next).not.toHaveBeenCalled();
+    });
+
+    it('terminates missing extension resources instead of serving the host page', async () => {
+        await start();
+        children[0].middlewares.mockImplementation(
+            (_request: IncomingMessage, _response: ServerResponse, done: () => void) => done(),
+        );
+        const missing = request('/_internal_ext/example/missing.ts');
+        expect(missing.response.writeHead).toHaveBeenCalledWith(404, expect.anything());
+        expect(missing.next).not.toHaveBeenCalled();
+    });
+
+    it('keeps the next server generation alive when the previous generation closes', async () => {
+        const plugin = await start();
+        const previous = parent;
+        parent = {
+            ...parent,
+            environments: { client: {}, ssr: {} },
+            httpServer: createServer(),
+        } as ViteDevServer;
+        try {
+            await (plugin.configureServer as ConfigureHook)(parent);
+            const close = plugin.closeBundle as () => Promise<void>;
+            await close.call({ environment: previous.environments.client });
+            await close.call({ environment: previous.environments.ssr });
+
+            expect(children[0].close).toHaveBeenCalledTimes(1);
+            expect(children[1].close).not.toHaveBeenCalled();
+            request('/_internal_ext/example/main.ts');
+            expect(children[1].middlewares).toHaveBeenCalledTimes(1);
+            await close.call({ environment: parent.environments.client });
+            expect(children[1].close).toHaveBeenCalledTimes(1);
+        } finally {
+            previous.httpServer?.close();
+        }
     });
 
     it('honors a disabled parent WebSocket transport', async () => {

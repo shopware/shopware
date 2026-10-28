@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 
-use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -23,7 +22,7 @@ class PromotionValidator implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
+    public function __construct(private readonly WriteOutcome $writeOutcome)
     {
     }
 
@@ -39,22 +38,10 @@ class PromotionValidator implements EventSubscriberInterface
 
     public function validate(PreWriteValidationEvent $event): void
     {
-        $ids = $event->getDeletedPrimaryKeys(PromotionDefinition::ENTITY_NAME);
-
-        $ids = \array_column($ids, 'id');
-
-        if ($ids === []) {
-            return;
-        }
-
-        $promotionIds = $this->connection->fetchOne(
-            'SELECT id FROM promotion WHERE id IN (:ids) AND order_count > 0',
-            ['ids' => $ids],
-            ['ids' => ArrayParameterType::BINARY]
-        );
-
-        if ($promotionIds !== false) {
-            throw PromotionException::promotionUsedDeleteRestriction();
+        foreach ($this->writeOutcome->touchedRows($event->getCommandsForEntity(PromotionDefinition::ENTITY_NAME), ['order_count']) as $promotion) {
+            if ($promotion->isDeleted && $promotion->getStoredValue('order_count') > 0) {
+                throw PromotionException::promotionUsedDeleteRestriction();
+            }
         }
     }
 }

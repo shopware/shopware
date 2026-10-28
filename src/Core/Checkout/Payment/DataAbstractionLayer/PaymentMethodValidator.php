@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Checkout\Payment\DataAbstractionLayer;
 
-use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -23,7 +22,7 @@ final readonly class PaymentMethodValidator implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private Connection $connection)
+    public function __construct(private WriteOutcome $writeOutcome)
     {
     }
 
@@ -39,22 +38,10 @@ final readonly class PaymentMethodValidator implements EventSubscriberInterface
 
     public function validate(PreWriteValidationEvent $event): void
     {
-        $ids = $event->getDeletedPrimaryKeys(PaymentMethodDefinition::ENTITY_NAME);
-
-        $ids = \array_column($ids, 'id');
-
-        if ($ids === []) {
-            return;
-        }
-
-        $pluginId = $this->connection->fetchOne(
-            'SELECT id FROM payment_method WHERE id IN (:ids) AND plugin_id IS NOT NULL',
-            ['ids' => $ids],
-            ['ids' => ArrayParameterType::BINARY]
-        );
-
-        if ($pluginId !== false) {
-            throw PaymentException::pluginPaymentMethodDeleteRestriction();
+        foreach ($this->writeOutcome->touchedRows($event->getCommandsForEntity(PaymentMethodDefinition::ENTITY_NAME), ['plugin_id']) as $paymentMethod) {
+            if ($paymentMethod->isDeleted && $paymentMethod->getStoredValue('plugin_id') !== null) {
+                throw PaymentException::pluginPaymentMethodDeleteRestriction();
+            }
         }
     }
 }

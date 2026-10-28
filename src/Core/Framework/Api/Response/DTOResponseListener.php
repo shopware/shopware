@@ -5,12 +5,16 @@ namespace Shopware\Core\Framework\Api\Response;
 use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -24,6 +28,7 @@ final class DTOResponseListener
         private readonly EventDispatcherInterface $dispatcher,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
         private readonly MediaUrlPlaceholderHandlerInterface $mediaUrlPlaceholderHandler,
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -42,6 +47,15 @@ final class DTOResponseListener
             if ($event->hasResponse() || !$result instanceof AbstractResponse) {
                 return;
             }
+        }
+
+        $violations = $this->validator->validate($result);
+        if ($violations->count() > 0) {
+            throw new ConstraintViolationException(
+                new ConstraintViolationList($violations),
+                inputData: [],
+                statusCode: Response::HTTP_INTERNAL_SERVER_ERROR,
+            );
         }
 
         $json = $this->serializer->serialize(

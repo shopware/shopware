@@ -1,7 +1,6 @@
 /**
  * @sw-package checkout
  */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import component from './index';
 
 type StatusChange = {
@@ -44,10 +43,6 @@ type ViewModel = {
     };
     getLatestOrderStatus: jest.Mock;
     $t: (key: string) => string;
-    processStatusChunks: (
-        ...args: Parameters<typeof component.methods.processStatusChunks>
-    ) => ReturnType<typeof component.methods.processStatusChunks>;
-    getStatusTransitionFieldLabel: (field: string) => string;
 };
 
 function deferredPromise() {
@@ -86,11 +81,6 @@ function createViewModel({
         getLatestOrderStatus,
         $t: (key: string) => key,
     } as unknown as ViewModel;
-
-    viewModel.processStatusChunks = (...args: Parameters<typeof component.methods.processStatusChunks>) =>
-        component.methods.processStatusChunks.call(viewModel, ...args);
-    viewModel.getStatusTransitionFieldLabel = (field: string) =>
-        component.methods.getStatusTransitionFieldLabel.call(viewModel, field);
 
     return viewModel;
 }

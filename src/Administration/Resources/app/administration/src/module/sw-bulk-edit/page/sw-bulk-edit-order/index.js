@@ -1,5 +1,6 @@
 import template from './sw-bulk-edit-order.html.twig';
 import './sw-bulk-edit-order.scss';
+import { collectStatusTransitionFailures, toFailedStatusItems } from './status-transition-failures';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -526,19 +527,12 @@ export default {
 
             const payloadChunks = chunk(this.selectedIds, this.itemsPerRequest);
             const statusRequest = statusData.length
-                ? this.processStatusChunks(bulkEditOrderHandler, payloadChunks, statusData)
+                ? collectStatusTransitionFailures(bulkEditOrderHandler, payloadChunks, statusData)
                 : Promise.resolve([]);
 
             return statusRequest
                 .then((statusFailures) => {
-                    this.statusTransitionFailures = statusFailures.map((failure) => ({
-                        orderId: failure.orderId,
-                        orderNumber: failure.orderNumber,
-                        field: failure.field,
-                        code: failure.code,
-                        reason: failure.reason ?? 'transition',
-                        fieldLabel: this.getStatusTransitionFieldLabel(failure.field),
-                    }));
+                    this.statusTransitionFailures = toFailedStatusItems(statusFailures, (key) => this.$t(key));
 
                     const syncRequests = syncData.length
                         ? payloadChunks.map((payload) => bulkEditOrderHandler.bulkEdit(payload, syncData))
@@ -560,47 +554,6 @@ export default {
                         this.isLoading = false;
                     });
                 });
-        },
-
-        async processStatusChunks(bulkEditOrderHandler, payloadChunks, statusData) {
-            const failures = [];
-
-            for (const payload of payloadChunks) {
-                try {
-                    await bulkEditOrderHandler.bulkEditStatus(payload, statusData);
-                } catch (error) {
-                    if (Array.isArray(error?.failures)) {
-                        failures.push(...error.failures);
-
-                        continue;
-                    }
-
-                    payload.forEach((orderId) => {
-                        statusData.forEach((change) => {
-                            failures.push({
-                                orderId,
-                                orderNumber: orderId,
-                                field: change.field,
-                                reason: 'unknown',
-                                code: String(error?.response?.data?.errors?.[0]?.code ?? ''),
-                                error,
-                            });
-                        });
-                    });
-                }
-            }
-
-            return failures;
-        },
-
-        getStatusTransitionFieldLabel(field) {
-            const labels = {
-                orderTransactions: 'sw-bulk-edit.order.status.failedFields.orderTransactions',
-                orderDeliveries: 'sw-bulk-edit.order.status.failedFields.orderDeliveries',
-                orders: 'sw-bulk-edit.order.status.failedFields.orders',
-            };
-
-            return labels[field] ? this.$t(labels[field]) : field;
         },
 
         getLatestOrderStatus() {

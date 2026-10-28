@@ -37,24 +37,14 @@ export default class FilterRatingSelectPlugin extends FilterMultiSelectPlugin {
     }
 
     setValuesFromUrl(params) {
-        let stateChanged = false;
-        Object.keys(params).forEach(key => {
-            if (key === this.options.name) {
-                this.currentRating = params[key];
-                this._updateCount();
+        const rating = params[this.options.name] || false;
+        const stateChanged = this.currentRating !== rating;
 
-                const radios =  this.el.querySelectorAll(this.options.checkboxSelector);
-                if (radios) {
-                    radios.forEach((radio) => {
-                        if (radio.value === this.currentRating) {
-                            radio.checked = true;
-                        }
-                    });
-                }
-
-                stateChanged = true;
-            }
+        this.currentRating = rating;
+        this.el.querySelectorAll(this.options.checkboxSelector).forEach((radio) => {
+            radio.checked = radio.value === rating;
         });
+        this._updateCount();
 
         return stateChanged;
     }

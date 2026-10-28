@@ -176,7 +176,7 @@ export default class UserVerificationService {
         const root = Shopware.Application.getApplicationRoot();
 
         void Shopware.Store.get('notification').createNotification({
-            variant: 'error',
+            variant: 'critical',
             title: root ? root.$t('global.default.error') : '',
             message: root ? root.$t(`global.sw-verify-user-modal.failure.${error.reason}`) : error.message,
         });

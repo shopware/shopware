@@ -141,7 +141,7 @@ describe('src/core/service/user-verification.service.ts', () => {
 
         await expect(createService().verify()).rejects.toEqual(UserVerificationError.ssoWindowBlocked());
         expect(createNotification).toHaveBeenCalledWith({
-            variant: 'error',
+            variant: 'critical',
             title: 'global.default.error',
             message: 'global.sw-verify-user-modal.failure.sso-window-blocked',
         });

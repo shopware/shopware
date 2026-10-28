@@ -2,6 +2,28 @@
 
 ## Security Fixes
 
+### Media paths and file names are validated on API writes
+
+Admin API and Sync API writes can no longer set `media.path` or `media_thumbnail.path` to a relative path or reset it to `null`.
+These writes are rejected with `400` and `CONTENT__MEDIA_ILLEGAL_PATH`.
+External media keep working with an absolute `http` or `https` URL.
+The external media link action and the creation of external thumbnails reject URLs that are not a plain absolute `http` or `https` URL with a host.
+`media.fileName` is validated like the file name of an upload and is rejected with `CONTENT__MEDIA_ILLEGAL_FILE_NAME` when it contains characters such as `/` or `\`.
+Writing back the unchanged stored path or file name is still accepted.
+To store a file in the shop's own storage, use the media upload actions or the presigned upload.
+
+`POST /api/_action/clone/{entity}/{id}` validates `path` and `fileName` of `media` and `path` of `media_thumbnail` in `overwrites`, also inside nested associations and `extensions`.
+`path` must be an absolute `http` or `https` URL, and `fileName` follows the rules of an upload file name.
+Invalid values are rejected with `400` and `FRAMEWORK__API_INVALID_CLONE_OVERWRITE`.
+This media check applies to the Admin API clone action only, not to `EntityRepository::clone()` called from code.
+
+Media with an external URL are no longer attached to mails sent with `mediaIds`, because their stored path was read from the public filesystem.
+A warning is logged for each skipped media.
+
+The update does not rewrite values stored before it.
+Check `media.path` and `media_thumbnail.path` for relative values that the configured path strategy does not produce, for example values containing `..` or a backslash, or starting with `/`.
+Correct such paths before deleting or replacing the affected media, because both act on the stored path.
+
 ### User, access key and admin integration writes are restricted
 
 A non-admin may only update or delete their own user and their own access keys through the Admin API.

@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Validation\HappyPathValidator;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Context\ExecutionContext;
@@ -53,10 +52,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
             static::getContainer()->get(TranslatorInterface::class),
         );
 
-        $this->validator = new CustomerVatIdentificationValidator(new VatIdPatternProvider(
-            static::getContainer()->get('country.repository'),
-            static::createStub(SystemConfigService::class),
-        ));
+        $this->validator = new CustomerVatIdentificationValidator(new VatIdPatternProvider(static::getContainer()->get('country.repository')));
 
         $this->validator->initialize($this->executionContext);
     }

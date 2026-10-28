@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
@@ -58,6 +59,16 @@ class SalesChannelContextFactoryTest extends TestCase
 
     private const DEFAULT_CUSTOMER_GROUP_ID = 'default-customer-group-id';
 
+    private IntraCommunityTaxResolver $intraCommunityTaxResolver;
+
+    protected function setUp(): void
+    {
+        $this->intraCommunityTaxResolver = static::createStub(IntraCommunityTaxResolver::class);
+        $this->intraCommunityTaxResolver->method('getTaxCountryId')->willReturnCallback(
+            static fn (mixed $accountType, mixed $vatIds, CountryEntity $country, string $salesChannelId): string => $country->getId()
+        );
+    }
+
     public function testCustomerPaymentMethodIsOnlyUsedIfActive(): void
     {
         $salesChannel = new SalesChannelEntity();
@@ -67,6 +78,7 @@ class SalesChannelContextFactoryTest extends TestCase
         $basePaymentMethod->setId(Uuid::randomHex());
 
         $customer = new CustomerEntity();
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_PRIVATE);
         $customer->setId(Uuid::randomHex());
         $customer->setActive(true);
         $customer->setLastPaymentMethodId(Uuid::randomHex());
@@ -180,6 +192,7 @@ class SalesChannelContextFactoryTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(EntityRepository::class),
             $baseSalesChannelContextFactory,
+            $this->intraCommunityTaxResolver,
             static::createStub(EntityRepository::class),
         );
 
@@ -196,6 +209,7 @@ class SalesChannelContextFactoryTest extends TestCase
         $basePaymentMethod->setId(Uuid::randomHex());
 
         $customer = new CustomerEntity();
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_PRIVATE);
         $customer->setId(Uuid::randomHex());
         $customer->setActive(false);
         $customer->setLastPaymentMethodId(Uuid::randomHex());
@@ -286,6 +300,7 @@ class SalesChannelContextFactoryTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(EntityRepository::class),
             $baseSalesChannelContextFactory,
+            $this->intraCommunityTaxResolver,
             static::createStub(EntityRepository::class),
         );
 
@@ -302,6 +317,7 @@ class SalesChannelContextFactoryTest extends TestCase
         $basePaymentMethod->setId(Uuid::randomHex());
 
         $customer = new CustomerEntity();
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_PRIVATE);
         $customer->setId(Uuid::randomHex());
         $customer->setActive(true);
         $customer->setLastPaymentMethodId(Uuid::randomHex());
@@ -392,6 +408,7 @@ class SalesChannelContextFactoryTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(EntityRepository::class),
             $baseSalesChannelContextFactory,
+            $this->intraCommunityTaxResolver,
             static::createStub(EntityRepository::class),
         );
 
@@ -410,6 +427,7 @@ class SalesChannelContextFactoryTest extends TestCase
         $salesChannel->setId(Uuid::randomHex());
 
         $customer = new CustomerEntity();
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_PRIVATE);
         $customer->setId(Uuid::randomHex());
         $customer->setActive(true);
         $customer->setDefaultBillingAddressId(Uuid::randomHex());
@@ -512,6 +530,7 @@ class SalesChannelContextFactoryTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(EntityRepository::class),
             $baseSalesChannelContextFactory,
+            $this->intraCommunityTaxResolver,
             static::createStub(EntityRepository::class),
         );
 
@@ -799,6 +818,7 @@ class SalesChannelContextFactoryTest extends TestCase
         $salesChannel->setId(Uuid::randomHex());
 
         $customer = new CustomerEntity();
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_PRIVATE);
         $customer->setId(Uuid::randomHex());
         $customer->setActive(true);
         $customer->setDefaultBillingAddressId(self::CUSTOMER_BILLING_ADDRESS_ID);
@@ -855,6 +875,7 @@ class SalesChannelContextFactoryTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(EntityRepository::class),
             $baseSalesChannelContextFactory,
+            $this->intraCommunityTaxResolver,
             $countryRepository ?? static::createStub(EntityRepository::class),
         );
 

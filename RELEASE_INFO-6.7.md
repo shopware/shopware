@@ -14,6 +14,13 @@ The user of an access key can no longer be changed after the key was created, al
 
 ## Critical Fixes
 
+### Clone overwrites enforce field protection and association permissions
+
+The Admin API clone action and `CloneBehavior` validate explicit root, nested association, translation and extension overwrites using the caller's field write protection and create/update permissions.
+Association overwrites remain supported, including partial payloads and `null` values that suppress copying.
+Copied source values retain their existing clone behavior without requiring additional association write privileges.
+Creating the root clone still requires create permission; updating an existing associated entity requires its update permission, while creating a new associated entity requires its create permission.
+
 ### Theme configuration updates reach all descendants
 
 Saving a base theme now updates inherited runtime configuration and recompiles assigned descendant themes at every inheritance level.

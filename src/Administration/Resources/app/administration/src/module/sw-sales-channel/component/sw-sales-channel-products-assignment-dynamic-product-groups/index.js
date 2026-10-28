@@ -56,7 +56,6 @@ export default {
             const criteria = new Criteria(1, 500);
 
             criteria.filters = this.productStreamFilter;
-            criteria.addAssociation('visibilities.salesChannel');
             criteria.addFilter(
                 Criteria.not('AND', [Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id)]),
             );

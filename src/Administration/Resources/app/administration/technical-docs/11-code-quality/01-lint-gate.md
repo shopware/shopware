@@ -61,6 +61,8 @@ Reviewers of such a pull request check the diff of `eslint-suppressions.json`.
 | `@typescript-eslint/no-restricted-types` for `$TSFixMe` and `$TSFixMeFunction` | TypeScript | Both are `any` under another name |
 | `@typescript-eslint/no-non-null-assertion`, `no-restricted-syntax` for `as unknown as` | TypeScript, no tests | Types match the runtime values instead of being cast into shape |
 | `sw-core-rules/no-swallowed-errors` | No tests | A `.catch()` that drops the error needs a comment that says why |
+| `filename-rules/not-match` | JavaScript files in `src`, specs are excluded | New source files in `src` are TypeScript |
+| `sw-core-rules/no-new-mixins` | `src`, specs are excluded | Shared logic goes into a composable in `src/app/composables`, using existing mixins stays allowed |
 
 ## Inline disables
 

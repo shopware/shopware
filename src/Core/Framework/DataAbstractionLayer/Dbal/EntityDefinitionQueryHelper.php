@@ -120,10 +120,6 @@ class EntityDefinitionQueryHelper
         $source = $definition;
 
         foreach ($parts as $part) {
-            if ($part === 'extensions') {
-                continue;
-            }
-
             $fields = $source->getFields();
             $field = $fields->get($part);
 
@@ -290,11 +286,7 @@ class EntityDefinitionQueryHelper
         $parts = explode('.', $fieldName);
         $associationKey = array_shift($parts);
 
-        if ($associationKey === 'extensions') {
-            $associationKey = array_shift($parts);
-        }
-
-        if (!\is_string($associationKey) || !$fields->has($associationKey)) {
+        if (!$fields->has($associationKey)) {
             throw new UnmappedFieldException($original, $definition);
         }
 

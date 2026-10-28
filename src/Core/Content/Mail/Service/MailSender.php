@@ -63,7 +63,6 @@ class MailSender extends AbstractMailSender
                 [
                     'subject' => $email->getSubject(),
                     'receiver' => implode(', ', $receiver),
-                    'content' => $email->getTextBody(),
                 ]
             );
 

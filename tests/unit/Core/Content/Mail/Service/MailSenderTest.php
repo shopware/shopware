@@ -138,10 +138,13 @@ class MailSenderTest extends TestCase
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(true);
         $logger = $this->createMock(LoggerInterface::class);
         $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $logger, 0, $messageBus, false);
-        $mail = new Email();
+        $mail = (new Email())->subject('Recovery')->to('customer@example.com')->text('BODY-SECRET')->html('BODY-SECRET');
 
         $logger->expects($this->once())
-            ->method('info');
+            ->method('info')->with('Tried to send mail but delivery is disabled.', [
+                'subject' => 'Recovery',
+                'receiver' => 'customer@example.com',
+            ]);
 
         $fileSystem
             ->expects($this->never())

@@ -77,13 +77,7 @@ class SendMailTemplate
         try {
             $this->emailService->send($data->all(), $context, $templateData);
         } catch (\Exception $e) {
-            $this->logger->error(
-                "Could not send mail:\n"
-                . $e->getMessage() . "\n"
-                . 'Error Code:' . $e->getCode() . "\n"
-                . "Template data: \n"
-                . json_encode($data->all(), \JSON_THROW_ON_ERROR) . "\n"
-            );
+            $this->logger->error('Could not send mail.', MailLogData::create($data->all(), $e));
         }
     }
 

@@ -77,10 +77,6 @@ class MailSentEventTest extends TestCase
                 'john.doe@example.com' => 'John doe',
                 'jane.doe@example.com' => 'Jane doe',
             ],
-            'contents' => [
-                'text/plain' => 'This is a plain text',
-                'text/html' => 'This is a html text',
-            ],
         ], $event->getLogData());
         static::assertSame('mail.sent', $event->getName());
         static::assertSame($context, $event->getContext());

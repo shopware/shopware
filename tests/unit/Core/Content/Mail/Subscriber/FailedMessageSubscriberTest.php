@@ -4,11 +4,14 @@ namespace Shopware\Tests\Unit\Core\Content\Mail\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Subscriber\FailedMessageSubscriber;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Mailer\Event\FailedMessageEvent;
+use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Message;
 use Symfony\Component\Mime\RawMessage;
 
 /**
@@ -26,7 +29,11 @@ class FailedMessageSubscriberTest extends TestCase
         static::assertSame('logEvent', $events[FailedMessageEvent::class]);
     }
 
-    public function testLogEvent(): void
+    /**
+     * @param array<string, mixed> $metadata
+     */
+    #[DataProvider('messageProvider')]
+    public function testLogEvent(RawMessage $message, array $metadata): void
     {
         $connection = $this->createMock(Connection::class);
 
@@ -34,7 +41,7 @@ class FailedMessageSubscriberTest extends TestCase
             ->method('insert')
             ->with(
                 static::equalTo('log_entry'),
-                static::callback(static function (array $entry) {
+                static::callback(static function (array $entry) use ($metadata) {
                     static::assertArrayHasKey('id', $entry);
                     static::assertArrayHasKey('message', $entry);
                     static::assertArrayHasKey('level', $entry);
@@ -47,13 +54,14 @@ class FailedMessageSubscriberTest extends TestCase
                     static::assertSame('mail', $entry['channel']);
 
                     $context = json_decode($entry['context'], true);
-                    static::assertSame('Test Message', $context['rawMessage']);
-                    static::assertSame('Test Exception', $context['error']);
-
-                    $extra = json_decode($entry['extra'], true);
-                    static::assertIsArray($extra);
-                    static::assertArrayHasKey('exception', $extra);
-                    static::assertArrayHasKey('trace', $extra);
+                    static::assertSame([
+                        ...$metadata,
+                        'exceptionClass' => \Exception::class,
+                        'exceptionCode' => 0,
+                    ], $context);
+                    static::assertNull($entry['extra']);
+                    static::assertStringNotContainsString('Test Message', $entry['context']);
+                    static::assertStringNotContainsString('Test Exception', $entry['context']);
 
                     return true;
                 })
@@ -62,10 +70,24 @@ class FailedMessageSubscriberTest extends TestCase
         $subscriber = new FailedMessageSubscriber($connection, new NativeClock());
 
         $event = new FailedMessageEvent(
-            new RawMessage('Test Message'),
+            $message,
             new \Exception('Test Exception')
         );
 
         $subscriber->logEvent($event);
+    }
+
+    /**
+     * @return \Generator<string, array{RawMessage, array<string, mixed>}>
+     */
+    public static function messageProvider(): \Generator
+    {
+        yield 'raw message logs no content' => [new RawMessage('Test Message'), []];
+
+        $email = (new Email())->subject('Recovery')->to('customer@example.com')->text('Test Message')->html('Test Message');
+        $metadata = ['subject' => 'Recovery', 'recipients' => ['customer@example.com' => '']];
+
+        yield 'email logs metadata only' => [$email, $metadata];
+        yield 'signed MIME message retains header metadata' => [new Message($email->getHeaders(), $email->getBody()), $metadata];
     }
 }

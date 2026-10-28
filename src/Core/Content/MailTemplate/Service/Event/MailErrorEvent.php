@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\MailTemplate\Service\Event;
 use Monolog\Level;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
+use Shopware\Core\Content\Mail\Service\MailLogData;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
@@ -68,29 +69,10 @@ class MailErrorEvent extends Event implements LogAware, ScalarValuesAware, FlowE
 
     public function getLogData(): array
     {
-        $logData = [];
-
-        if ($this->getThrowable()) {
-            $throwable = $this->getThrowable();
-            $logData['exception'] = (string) $throwable;
-        }
-
-        if ($this->message) {
-            $logData['message'] = $this->message;
-        }
-
-        if ($this->template) {
-            $logData['template'] = $this->template;
-        }
-
-        $logData['eventName'] = null;
-
-        if ($this->templateData) {
-            $logData['templateData'] = $this->templateData;
-            $logData['eventName'] = $this->templateData['eventName'] ?? null;
-        }
-
-        return $logData;
+        return MailLogData::create([
+            ...($this->data ?? []),
+            'eventName' => $this->getEventName(),
+        ], $this->throwable);
     }
 
     public function getName(): string

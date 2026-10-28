@@ -6,6 +6,7 @@ use Monolog\Level;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Mail\Service\AbstractMailFactory;
+use Shopware\Core\Content\Mail\Service\MailLogData;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -115,14 +116,10 @@ class MailBeforeValidateEvent extends Event implements LogAware, ScalarValuesAwa
 
     public function getLogData(): array
     {
-        $data = $this->data;
-        unset($data['binAttachments']);
-
-        return [
-            'data' => $data,
+        return MailLogData::create([
+            ...$this->data,
             'eventName' => $this->templateData['eventName'] ?? null,
-            'templateData' => $this->templateData,
-        ];
+        ]);
     }
 
     public function getLogLevel(): Level

@@ -2,6 +2,10 @@
 
 ## Core
 
+### Mail logs contain metadata only
+
+Mail logs no longer include rendered bodies, template source, template data, attachments or complete email objects. Error logs record exception classes and codes instead of exception messages and traces, which can contain email content. Subject, recipients and other delivery metadata remain available. Extensions consuming mail logs must handle the reduced payload. Mail event getters and Flow payloads remain available, and email delivery is unchanged. The Administration log viewer no longer offers HTML or plain-text body previews. Existing log entries are not modified.
+
 ### Missing plugin conditions in stored carts
 
 Stored carts can be recalculated when a rule container references a condition whose PHP class is no longer available, for example an uninstalled plugin.

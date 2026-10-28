@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Mail\Subscriber;
 use Doctrine\DBAL\Connection;
 use Monolog\Level;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Content\Mail\Service\MailLogData;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -35,20 +36,10 @@ class FailedMessageSubscriber implements EventSubscriberInterface
         $context = null;
 
         try {
-            $context = json_encode([
-                'error' => $event->getError()->getMessage(),
-                'rawMessage' => $event->getMessage()->toString(),
-            ], \JSON_THROW_ON_ERROR);
-        } catch (\Throwable) {
-        }
-
-        $extra = null;
-
-        try {
-            $extra = json_encode([
-                'exception' => $event->getError()->__toString(),
-                'trace' => $event->getError()->getTraceAsString(),
-            ], \JSON_THROW_ON_ERROR);
+            $context = json_encode(MailLogData::create(
+                MailLogData::fromMessage($event->getMessage()),
+                $event->getError(),
+            ), \JSON_THROW_ON_ERROR);
         } catch (\Throwable) {
         }
 
@@ -58,7 +49,7 @@ class FailedMessageSubscriber implements EventSubscriberInterface
             'level' => Level::Error->value,
             'channel' => 'mail',
             'context' => $context,
-            'extra' => $extra,
+            'extra' => null,
             'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

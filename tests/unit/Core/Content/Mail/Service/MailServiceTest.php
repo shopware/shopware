@@ -253,7 +253,16 @@ class MailServiceTest extends TestCase
         $mailErrorEvent = null;
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())->method('log')->with(Level::Warning);
+        $logger->expects($this->once())->method('log')->with(
+            Level::Warning,
+            'Could not prepare or send mail.',
+            static::callback(static function (array $context): bool {
+                static::assertStringNotContainsString('BODY-SECRET', json_encode($context, \JSON_THROW_ON_ERROR));
+                static::assertSame(\Exception::class, $context['exceptionClass']);
+
+                return true;
+            }),
+        );
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher->expects($this->exactly(3))
             ->method('dispatch')
@@ -274,7 +283,7 @@ class MailServiceTest extends TestCase
             });
 
         $templateRenderer = $this->createMock(StringTemplateRenderer::class);
-        $templateRenderer->expects($this->once())->method('render')->willThrowException(new \Exception('cannot render'));
+        $templateRenderer->expects($this->once())->method('render')->willThrowException(new \Exception('cannot render BODY-SECRET'));
 
         $email = $this->createMailService(
             templateRenderer: $templateRenderer,
@@ -288,7 +297,7 @@ class MailServiceTest extends TestCase
         static::assertSame(Level::Warning, $mailErrorEvent->getLogLevel());
         static::assertNotNull($mailErrorEvent->getMessage());
 
-        $message = 'Could not render Mail-Subject with error message: cannot render';
+        $message = 'Could not render Mail-Subject with error message: cannot render BODY-SECRET';
 
         static::assertSame($message, $mailErrorEvent->getMessage());
         static::assertSame('Test email', $mailErrorEvent->getTemplate());

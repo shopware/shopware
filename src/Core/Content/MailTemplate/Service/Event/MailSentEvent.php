@@ -140,7 +140,6 @@ class MailSentEvent extends Event implements LogAware, ScalarValuesAware, FlowEv
             'eventName' => $this->eventName,
             'subject' => $this->subject,
             'recipients' => $this->recipients,
-            'contents' => $this->contents,
         ];
     }
 

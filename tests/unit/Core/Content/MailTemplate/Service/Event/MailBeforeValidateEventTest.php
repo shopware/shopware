@@ -73,16 +73,7 @@ class MailBeforeValidateEventTest extends TestCase
             'eventName' => CheckoutOrderPlacedEvent::EVENT_NAME,
         ], $event->getTemplateData());
         static::assertSame([
-            'data' => [
-                'customerId' => $customerId,
-            ],
             'eventName' => CheckoutOrderPlacedEvent::EVENT_NAME,
-            'templateData' => [
-                'user' => 'admin',
-                'recoveryUrl' => 'http://some-url.com',
-                'resetUrl' => 'http://some-url.com',
-                'eventName' => CheckoutOrderPlacedEvent::EVENT_NAME,
-            ],
         ], $event->getLogData());
     }
 

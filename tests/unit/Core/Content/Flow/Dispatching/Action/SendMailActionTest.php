@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
@@ -454,6 +455,46 @@ class SendMailActionTest extends TestCase
         )->handleFlow($flow);
     }
 
+    public function testSendFailureDoesNotLogBodyOrExceptionContent(): void
+    {
+        $context = Context::createDefaultContext();
+        $templateId = Uuid::randomHex();
+        $this->mailTemplate->setId($templateId);
+        $this->mailTemplate->setTranslated([
+            'subject' => 'Recovery',
+            'contentHtml' => 'BODY-SECRET',
+            'contentPlain' => 'BODY-SECRET',
+        ]);
+        $this->mailTemplateRepository->method('search')->willReturn(new EntitySearchResult(
+            'mail_template',
+            1,
+            new MailTemplateCollection([$this->mailTemplate]),
+            null,
+            new Criteria(),
+            $context,
+        ));
+        $this->mailService->method('send')->willThrowException(new \RuntimeException('BODY-SECRET'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('error')->with(
+            'Could not send mail.',
+            static::callback(static function (array $data): bool {
+                static::assertSame('Recovery', $data['subject']);
+                static::assertSame(\RuntimeException::class, $data['exceptionClass']);
+                static::assertStringNotContainsString('BODY-SECRET', json_encode($data, \JSON_THROW_ON_ERROR));
+
+                return true;
+            }),
+        );
+
+        $flow = new StorableFlow('customer.recovery.request', $context);
+        $flow->setConfig(['mailTemplateId' => $templateId, 'recipient' => ['type' => 'customer']]);
+        $flow->setData(MailAware::MAIL_STRUCT, new MailRecipientStruct(['customer@example.com' => 'Customer']));
+        $flow->setData(MailAware::SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
+
+        $this->createAction(logger: $logger, updateMailTemplateType: false)->handleFlow($flow);
+    }
+
     /**
      * @param EntityRepository<MailTemplateCollection>|null $mailTemplateRepository
      * @param EntityRepository<MailTemplateTypeCollection>|null $mailTemplateTypeRepository
@@ -465,11 +506,12 @@ class SendMailActionTest extends TestCase
         ?Connection $connection = null,
         ?JsonEntityEncoder $encoder = null,
         bool $updateMailTemplateType = true,
+        ?LoggerInterface $logger = null,
     ): SendMailAction {
         return new SendMailAction(
             $mailService ?? $this->mailService,
             $mailTemplateRepository ?? $this->mailTemplateRepository,
-            $this->logger,
+            $logger ?? $this->logger,
             static::createStub(EventDispatcherInterface::class),
             $mailTemplateTypeRepository ?? $this->mailTemplateTypeRepository,
             $connection ?? static::createStub(Connection::class),

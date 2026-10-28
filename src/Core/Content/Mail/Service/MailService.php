@@ -367,10 +367,10 @@ class MailService extends AbstractMailService
             new MailErrorEvent($context, $level, $exception, $errorMessage, $template, $templateData, $data, $mail)
         );
 
-        $this->logger->log($level, $errorMessage, array_merge([
-            'template' => $template,
-            'exception' => (string) $exception,
-        ], $templateData));
+        $this->logger->log($level, 'Could not prepare or send mail.', MailLogData::create([
+            ...($data ?? []),
+            'eventName' => $templateData['eventName'] ?? null,
+        ], $exception));
     }
 
     /**

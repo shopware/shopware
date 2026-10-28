@@ -57,6 +57,10 @@ If your plugin or app ships its own `vite.config.*` or Vite plugins, follow the 
 
 # Changed Functionality
 
+## Mail logs contain metadata only
+
+Mail logging payloads were reduced to delivery metadata. Extensions consuming mail logs or `getLogData()` from mail events must no longer expect rendered bodies, templates, template data, complete message objects or exception messages and traces. Use the mail event getters when handling an event that requires its content; do not write that content to logs. Mail delivery and Flow payloads were unchanged.
+
 <details>
 
 ## Reorder form line item blocks removed

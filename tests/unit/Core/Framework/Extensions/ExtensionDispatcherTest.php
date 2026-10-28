@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Extensions\Extension;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -18,6 +19,30 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ExtensionDispatcherTest extends TestCase
 {
     public function testPublishesEventsSuccessfully(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $dispatched = [];
+        $this->recordLifecycleEvents($dispatcher, $dispatched);
+
+        $extension = new class extends Extension {
+            public const NAME = 'test.extension';
+
+            public function getParams(): array
+            {
+                return ['param1' => 'value1', 'param2' => 2];
+            }
+        };
+
+        $function = static fn (string $param1, int $param2) => $param1 . $param2;
+
+        $extensionDispatcher = new ExtensionDispatcher($dispatcher);
+        $result = $extensionDispatcher->publish('eventName', $extension, $function);
+
+        static::assertSame('value12', $result);
+        static::assertSame(['eventName.pre', 'eventName.post'], $dispatched);
+    }
+
+    public function testCallsFunctionWithoutDispatchingWhenNothingListens(): void
     {
         $dispatcher = new CollectingEventDispatcher();
         $extension = new class extends Extension {
@@ -35,11 +60,67 @@ class ExtensionDispatcherTest extends TestCase
         $result = $extensionDispatcher->publish('eventName', $extension, $function);
 
         static::assertSame('value12', $result);
+        static::assertSame([], $dispatcher->getEvents());
+    }
 
-        static::assertSame([
-            'eventName.pre' => $extension,
-            'eventName.post' => $extension,
-        ], $dispatcher->getEvents());
+    public function testDispatchesOnlyEventsWithListeners(): void
+    {
+        $dispatched = [];
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
+        $dispatcher->method('hasListeners')->willReturnCallback(static fn (string $eventName): bool => $eventName === 'eventName.post');
+        $dispatcher->method('dispatch')->willReturnCallback(static function (object $event, string $eventName) use (&$dispatched): object {
+            $dispatched[] = $eventName;
+
+            return $event;
+        });
+
+        $extension = new class extends Extension {
+            public const NAME = 'test.extension';
+
+            public function getParams(): array
+            {
+                return ['param1' => 'value1', 'param2' => 2];
+            }
+        };
+
+        $function = static fn (string $param1, int $param2) => $param1 . $param2;
+
+        $extensionDispatcher = new ExtensionDispatcher($dispatcher);
+        $result = $extensionDispatcher->publish('eventName', $extension, $function);
+
+        static::assertSame('value12', $result);
+        static::assertSame(['eventName.post'], $dispatched);
+    }
+
+    public function testPreListenerCanReplaceTheResult(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('eventName.pre', static function (Extension $extension): void {
+            $extension->result = 'replacedResult';
+            $extension->stopPropagation();
+        });
+
+        $extension = new class extends Extension {
+            public const NAME = 'test.extension';
+
+            public function getParams(): array
+            {
+                return [];
+            }
+        };
+
+        $called = false;
+        $function = static function () use (&$called): string {
+            $called = true;
+
+            return 'originalResult';
+        };
+
+        $extensionDispatcher = new ExtensionDispatcher($dispatcher);
+        $result = $extensionDispatcher->publish('eventName', $extension, $function);
+
+        static::assertSame('replacedResult', $result);
+        static::assertFalse($called);
     }
 
     public function testDetectsListenersForEveryLifecycleEvent(): void
@@ -67,7 +148,13 @@ class ExtensionDispatcherTest extends TestCase
 
     public function testHandlesExceptionGracefully(): void
     {
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher = new EventDispatcher();
+        $dispatched = [];
+        $this->recordLifecycleEvents($dispatcher, $dispatched);
+        $dispatcher->addListener('eventName.error', static function (Extension $extension): void {
+            $extension->result = 'handledResult';
+        });
+
         $extension = new class extends Extension {
             public const NAME = 'test.extension';
 
@@ -77,26 +164,44 @@ class ExtensionDispatcherTest extends TestCase
             }
         };
 
-        $dispatcher->expects($this->exactly(3))->method('dispatch')->with(
-            $extension,
-            static::callback(static function ($eventName) use ($extension) {
-                if ($eventName === 'eventName.error') {
-                    $extension->result = 'handledResult'; // Simulate graceful handling of the exception
-                }
-
-                return \in_array($eventName, ['eventName.pre', 'eventName.post', 'eventName.error'], true);
-            }),
-        );
-
         $function = static fn () => throw new \Exception('Test exception');
 
         $extensionDispatcher = new ExtensionDispatcher($dispatcher);
         $result = $extensionDispatcher->publish('eventName', $extension, $function);
 
         static::assertSame('handledResult', $result);
+        static::assertSame(['eventName.pre', 'eventName.error', 'eventName.post'], $dispatched);
     }
 
     public function testRethrowsExceptionWhenNoResult(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $dispatched = [];
+        $this->recordLifecycleEvents($dispatcher, $dispatched);
+
+        $extension = new class extends Extension {
+            public const NAME = 'test.extension';
+
+            public function getParams(): array
+            {
+                return [];
+            }
+        };
+
+        $function = static fn () => throw new \Exception('Test exception');
+
+        $extensionDispatcher = new ExtensionDispatcher($dispatcher);
+
+        $this->expectExceptionObject(new \Exception('Test exception'));
+
+        try {
+            $extensionDispatcher->publish('eventName', $extension, $function);
+        } finally {
+            static::assertSame(['eventName.pre', 'eventName.error'], $dispatched);
+        }
+    }
+
+    public function testRethrowsExceptionWithoutDispatchingWhenNothingListens(): void
     {
         $dispatcher = new CollectingEventDispatcher();
         $extension = new class extends Extension {
@@ -117,10 +222,21 @@ class ExtensionDispatcherTest extends TestCase
         try {
             $extensionDispatcher->publish('eventName', $extension, $function);
         } finally {
-            static::assertSame([
-                'eventName.pre' => $extension,
-                'eventName.error' => $extension,
-            ], $dispatcher->getEvents());
+            static::assertSame([], $dispatcher->getEvents());
+        }
+    }
+
+    /**
+     * @param list<string> $dispatched
+     *
+     * @param-out list<string> $dispatched
+     */
+    private function recordLifecycleEvents(EventDispatcher $dispatcher, array &$dispatched): void
+    {
+        foreach (['eventName.pre', 'eventName.post', 'eventName.error'] as $lifecycleEvent) {
+            $dispatcher->addListener($lifecycleEvent, static function (Extension $extension, string $eventName) use (&$dispatched): void {
+                $dispatched[] = $eventName;
+            });
         }
     }
 }

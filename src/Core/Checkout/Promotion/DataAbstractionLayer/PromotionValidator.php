@@ -12,6 +12,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Checkout\Promotion\DataAbstractionLayer\PromotionValidatorTest
  */
 #[Package('checkout')]
 class PromotionValidator implements EventSubscriberInterface

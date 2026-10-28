@@ -19,11 +19,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final class ReadCartResponse extends AbstractResponse
 {
-    /**
-     * Name of the cart
-     */
-    public string $name;
-
     #[Assert\Valid]
     public CalculatedPrice $price;
 

@@ -31,10 +31,6 @@ final class OrderBillingAddress extends AbstractDto
     public function __construct(
         #[Assert\NotNull]
         public string $street,
-        #[Assert\NotNull]
-        public string $city,
-        #[Assert\NotNull]
-        public string $zipcode,
     ) {
     }
 }

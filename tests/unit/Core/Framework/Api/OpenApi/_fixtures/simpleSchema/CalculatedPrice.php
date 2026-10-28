@@ -18,8 +18,6 @@ final class CalculatedPrice extends AbstractDto
 {
     public float $unitPrice;
 
-    public float $totalPrice;
-
     /**
      * @internal
      */

@@ -83,7 +83,6 @@
       "post": {
       "x-dto-namespace": "App\\DTO",
         "operationId": "createCart",
-        "summary": "Create a new cart",
         "description": "Creates a new cart with the given payload.",
         "requestBody": {
           "required": true,
@@ -111,7 +110,6 @@
       "get": {
       "x-dto-namespace": "App\\DTO",
         "operationId": "readCart",
-        "summary": "Get the current cart",
         "description": "Returns the full cart entity.",
         "responses": {
           "200": {

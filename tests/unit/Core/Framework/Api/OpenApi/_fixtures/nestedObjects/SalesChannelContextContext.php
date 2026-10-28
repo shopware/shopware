@@ -21,24 +21,14 @@ final class SalesChannelContextContext extends AbstractDto
 {
     public string $versionId;
 
-    public string $currencyId;
-
-    public int $currencyFactor;
-
-    public int $currencyPrecision;
-
     /**
      * @var list<string>
      */
     #[Assert\All(new Assert\Type('string'))]
     public array $languageIdChain;
 
-    public string $scope;
-
     #[Assert\Valid]
     public SalesChannelContextContextSource $source;
-
-    public string $taxState;
 
     public bool $useCache;
 

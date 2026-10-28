@@ -5,8 +5,6 @@
     "/account/register": {
       "post": {
       "x-dto-namespace": "App\\DTO",
-        "tags": ["Registration"],
-        "summary": "Register a customer",
         "operationId": "register",
         "requestBody": {
           "required": true,

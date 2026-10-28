@@ -16,10 +16,6 @@
             "description": "Context token identifying the cart",
             "type": "string"
           },
-          "name": {
-            "description": "Name of the cart",
-            "type": "string"
-          },
           "price": {
             "$ref": "#/components/schemas/CalculatedPrice"
           },
@@ -46,9 +42,6 @@
         "type": "object",
         "properties": {
           "unitPrice": {
-            "type": "number"
-          },
-          "totalPrice": {
             "type": "number"
           }
         }
@@ -154,7 +147,6 @@
       "post": {
       "x-dto-namespace": "App\\DTO",
         "operationId": "sendContactMail",
-        "summary": "Submit a contact form message",
         "description": "Used for submitting contact forms.",
         "parameters": [
           {
@@ -173,14 +165,10 @@
           "content": {
             "application/json": {
               "schema": {
-                "required": ["email", "subject", "comment"],
+                "required": ["email", "comment"],
                 "properties": {
                   "email": {
                     "description": "Email address",
-                    "type": "string"
-                  },
-                  "subject": {
-                    "description": "The subject of the contact form.",
                     "type": "string"
                   },
                   "comment": {
@@ -191,12 +179,6 @@
                     "description": "Identifier of the salutation.",
                     "type": "string",
                     "pattern": "^[0-9a-f]{32}$"
-                  },
-                  "firstName": {
-                    "type": "string"
-                  },
-                  "lastName": {
-                    "type": "string"
                   }
                 },
                 "type": "object"
@@ -215,7 +197,6 @@
       "get": {
       "x-dto-namespace": "App\\DTO",
         "operationId": "readCart",
-        "summary": "Fetch or create a cart",
         "description": "Used to fetch the current cart.",
         "responses": {
           "200": {
@@ -233,7 +214,6 @@
       "delete": {
       "x-dto-namespace": "App\\DTO",
         "operationId": "deleteCart",
-        "summary": "Delete a cart",
         "responses": {
           "200": {
             "description": "Cart deleted"
@@ -245,7 +225,6 @@
       "get": {
       "x-dto-namespace": "App\\DTO",
         "operationId": "readProduct",
-        "summary": "Get a single product",
         "parameters": [
           {
             "name": "productId",
@@ -267,9 +246,6 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string"
-                    },
-                    "name": {
                       "type": "string"
                     },
                     "price": {

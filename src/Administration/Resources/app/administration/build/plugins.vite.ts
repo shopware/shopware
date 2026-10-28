@@ -18,12 +18,14 @@ import debug from 'debug';
 
 // Shopware imports
 import TwigPlugin from './vite-plugins/twigjs-plugin';
+import TwigHmrPlugin from './vite-plugins/twig-hmr';
 import AssetPlugin from './vite-plugins/asset-plugin';
 import AssetPathPlugin from './vite-plugins/asset-path-plugin';
 import ExternalsPlugin from './vite-plugins/externals-plugin';
 import AssetCssPostprocessPlugin from './vite-plugins/asset-css-postprocess-plugin';
 import OverrideComponentRegisterPlugin from './vite-plugins/override-component-register';
 import ShopwareSetupPlugin from './vite-plugins/shopware-setup';
+import ShopwareSetupHmrPlugin from './vite-plugins/shopware-setup-hmr';
 import VirtualShopwareModulesPlugin from './vite-plugins/virtual-shopware-modules';
 import {
     createPluginDevJson,
@@ -82,6 +84,7 @@ const getBaseConfig = (
 
         plugins: [
             TwigPlugin(),
+            ...(toolchain.isVite8 && isDev ? [TwigHmrPlugin()] : []),
             AssetPlugin(!isDev, path.resolve(extension.basePath, 'Resources/app/administration')),
             AssetPathPlugin(extension.technicalFolderName),
             AssetCssPostprocessPlugin(`/bundles/${extension.technicalFolderName}/administration/assets/`),
@@ -106,6 +109,7 @@ const getBaseConfig = (
                     },
                 },
             }),
+            ...(toolchain.isVite8 && isDev ? [ShopwareSetupHmrPlugin()] : []),
             ...(toolchain.isVite8 ? [ExtglobCompatPlugin({ warnOnRewrite: true })] : []),
             ExternalsPlugin(),
 

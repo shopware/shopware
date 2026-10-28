@@ -150,6 +150,9 @@ shopware:
 The new `ADMIN_VITE_8` feature flag builds the Administration and the Administration code of extensions with Vite 8.
 Vite 8 becomes the default with Shopware 6.8, so you can use the flag to test your extensions now:
 
+With the flag enabled in development mode, edits to supported statically imported Twig templates in Administration component overrides update mounted components without a full page reload.
+Template edits in Shopware `<script setup>` Vue component overrides also update mounted components without a full page reload.
+
 ```bash
 ADMIN_VITE_8=1 composer watch:admin
 ADMIN_VITE_8=1 composer build:js:admin

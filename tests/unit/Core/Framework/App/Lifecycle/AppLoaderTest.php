@@ -10,8 +10,10 @@ use Shopware\Core\Framework\Adapter\Composer\ComposerInfoProvider;
 use Shopware\Core\Framework\Adapter\Composer\ComposerPackage;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\LocalAppDirectory;
 use Shopware\Core\Framework\App\Manifest\Xml\Setup\Setup;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\ExtensionExtractor;
 
 /**
  * @internal
@@ -69,10 +71,7 @@ class AppLoaderTest extends TestCase
         $loggerMock = $this->createMock(LoggerInterface::class);
         $loggerMock->expects($this->once())->method('error');
 
-        $appLoader = new AppLoader(
-            __DIR__,
-            $loggerMock
-        );
+        $appLoader = $this->getAppLoader(__DIR__, $loggerMock);
 
         $appLoader->load();
     }
@@ -82,10 +81,7 @@ class AppLoaderTest extends TestCase
         $loggerMock = $this->createMock(LoggerInterface::class);
         $loggerMock->expects($this->exactly(2))->method('error');
 
-        $appLoader = new AppLoader(
-            __DIR__ . '/_fixtures/appDirValidationTest',
-            $loggerMock
-        );
+        $appLoader = $this->getAppLoader(__DIR__ . '/_fixtures/appDirValidationTest', $loggerMock);
 
         $result = $appLoader->load();
 
@@ -99,10 +95,7 @@ class AppLoaderTest extends TestCase
         $loggerMock = $this->createMock(LoggerInterface::class);
         $loggerMock->expects($this->exactly(2))->method('error');
 
-        $appLoader = new AppLoader(
-            __DIR__ . '/_fixtures/appDirValidationTest',
-            $loggerMock
-        );
+        $appLoader = $this->getAppLoader(__DIR__ . '/_fixtures/appDirValidationTest', $loggerMock);
 
         $result = $appLoader->load();
 
@@ -116,11 +109,13 @@ class AppLoaderTest extends TestCase
         static::assertSame($setup->getSecret(), 'APP_SECRET');
     }
 
-    private function getAppLoader(): AppLoader
+    private function getAppLoader(string $appDir = __DIR__, ?LoggerInterface $logger = null): AppLoader
     {
+        $logger ??= new NullLogger();
+
         return new AppLoader(
-            __DIR__,
-            new NullLogger()
+            new LocalAppDirectory($appDir, $logger, static::createStub(ExtensionExtractor::class)),
+            $logger
         );
     }
 }

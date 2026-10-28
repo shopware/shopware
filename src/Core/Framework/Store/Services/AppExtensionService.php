@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Shopware\Core\Framework\App\AppDirectory;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
+use Shopware\Core\Framework\App\Event\AppUploadedEvent;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
@@ -13,26 +15,46 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Plugin\Util\ZipUtils;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
 use Shopware\Core\Framework\Store\StoreException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal - only for use by the app-system
  */
 #[Package('checkout')]
-class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
+class AppExtensionService extends AbstractAppExtensionService
 {
     /**
      * @param iterable<ExtensionRemovalValidatorInterface> $removalValidators
      */
     public function __construct(
-        private readonly StoreClient $storeClient,
         private readonly AppLoader $appLoader,
         private readonly AbstractAppLifecycle $appLifecycle,
         private readonly AppStorage $appStorage,
         private readonly iterable $removalValidators,
-        private readonly AppConfirmationDeltaProvider $appDeltaService
+        private readonly AppConfirmationDeltaProvider $appDeltaService,
+        private readonly AppDirectory $appDirectory,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
+    }
+
+    public function upload(UploadedFile $file, Context $context): string
+    {
+        $metadata = $this->readUploadMetadata($file->getPathname());
+
+        $this->appDirectory->store($file->getPathname());
+
+        $this->eventDispatcher->dispatch(new AppUploadedEvent(
+            $file->getClientOriginalName(),
+            $context,
+            $metadata['name'],
+            $metadata['version']
+        ));
+
+        return $metadata['name'];
     }
 
     public function installExtension(string $technicalName, Context $context): void
@@ -57,20 +79,6 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 
         $this->validateExtensionCanBeRemoved($technicalName, $app->getId(), $context);
         $this->appLifecycle->uninstall($technicalName, ['id' => $app->getId()], $context, $keepUserData);
-    }
-
-    public function removeExtensionAndCancelSubscription(int $licenseId, string $technicalName, string $id, bool $keepUserData, Context $context): void
-    {
-        $this->validateExtensionCanBeRemoved($technicalName, $id, $context);
-        $app = $this->appStorage->findById($id, $context);
-        if (!$app) {
-            throw StoreException::extensionNotFoundFromId($id);
-        }
-        $manifest = $this->findDeletableManifest($technicalName);
-
-        $this->storeClient->cancelSubscription($licenseId, $context);
-        $this->appLifecycle->uninstall($technicalName, ['id' => $id], $context);
-        $this->uninstallAndDeleteFiles($technicalName, $manifest, $keepUserData, $context);
     }
 
     public function deleteExtension(string $technicalName, bool $keepUserData, Context $context): void
@@ -124,7 +132,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
     /**
      * @codeCoverageIgnore
      */
-    protected function getDecorated(): AbstractStoreAppLifecycleService
+    protected function getDecorated(): AbstractAppExtensionService
     {
         throw new DecorationPatternException(self::class);
     }
@@ -164,6 +172,27 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 
         if ($manifest !== null) {
             $this->appLoader->deleteApp($manifest);
+        }
+    }
+
+    /**
+     * @return array{name: string, version: string|null}
+     */
+    private function readUploadMetadata(string $path): array
+    {
+        $archive = ZipUtils::openZip($path);
+
+        try {
+            $entry = $archive->statIndex(0);
+            \assert($entry !== false);
+            $directory = explode('/', (string) $entry['name'])[0];
+            $manifestXml = $archive->getFromName($directory . '/manifest.xml');
+            \assert(\is_string($manifestXml));
+            $metadata = Manifest::createFromXml($manifestXml)->getMetadata();
+
+            return ['name' => $metadata->getName(), 'version' => $metadata->getVersion()];
+        } finally {
+            $archive->close();
         }
     }
 }

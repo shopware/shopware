@@ -22,18 +22,21 @@ use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
+use Shopware\Core\Framework\App\LocalAppDirectory;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\ExtensionExtractor;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Integration\App\TestAppServer;
 use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Exercises the whole app-secret-rotation lifecycle — install, rotation and recovery — against a fake app
@@ -585,7 +588,7 @@ class AppSecretRotationEndToEndTest extends TestCase
     private function createInstallCommand(): InstallAppCommand
     {
         return new InstallAppCommand(
-            new AppLoader(\dirname(self::FIXTURE_APP_DIR), new NullLogger()),
+            new AppLoader(new LocalAppDirectory(\dirname(self::FIXTURE_APP_DIR), new NullLogger(), new ExtensionExtractor(['app' => \dirname(self::FIXTURE_APP_DIR)], new Filesystem())), new NullLogger()),
             static::getContainer()->get(AppLifecycle::class),
             new AppPrinter($this->appRepository),
             static::getContainer()->get(ManifestValidator::class)

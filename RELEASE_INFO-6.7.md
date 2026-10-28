@@ -183,6 +183,7 @@ Requests that send `accountType` behave as before.
 ### Admin API lists the unit codes
 
 The new route `GET /api/_action/unit/unece-codes` returns every code that can be saved as `uneceCode` on a unit, as a list of `{"code": "KGM", "name": "kilogram"}` objects. The names are in English. The route needs the `unit:read` permission.
+
 ### Check a document number range pattern for collisions
 
 The new experimental route `GET /api/_action/order/document-v2/number-range-pattern-collisions?numberRangeTypeId=…&pattern=…&numberRangeId=…` returns the number ranges of the given document number range type that use the given pattern, as `{"collisions": [{"id": "…", "name": "…"}]}`.

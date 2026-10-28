@@ -520,14 +520,13 @@ class PresignedMediaUploadServiceTest extends TestCase
             mimeType: 'text/html',
         );
 
+        $this->expectExceptionObject($exception);
+
         try {
             $service->prepare($payload, Context::createDefaultContext());
-            static::fail('Expected the mismatching content type to be rejected.');
-        } catch (MediaException $e) {
-            static::assertSame($exception, $e);
+        } finally {
+            static::assertSame([], $repo->creates);
         }
-
-        static::assertSame([], $repo->creates);
     }
 
     public function testFinalizeRejectsMismatchingContentTypeWithoutDeletingSubmittedPath(): void

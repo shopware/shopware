@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
+use Shopware\Core\Framework\App\AppDirectory;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
@@ -59,6 +60,7 @@ use Shopware\Core\Framework\Plugin\Telemetry\PluginTelemetrySubscriber;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\PluginIdProvider;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
+use Shopware\Core\Framework\Store\Services\AbstractAppExtensionService;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
@@ -158,6 +160,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CacheClearer::class),
             service('shopware.store_download_client'),
             service('event_dispatcher'),
+            service(AppDirectory::class),
+            service(AbstractAppExtensionService::class),
         ]);
 
     $services->set(ExtensionExtractor::class)

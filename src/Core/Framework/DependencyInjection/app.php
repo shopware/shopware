@@ -44,6 +44,7 @@ use Shopware\Core\Framework\App\Api\ShopIdController;
 use Shopware\Core\Framework\App\Api\VerifyShopController;
 use Shopware\Core\Framework\App\AppArchiveValidator;
 use Shopware\Core\Framework\App\AppDefinition;
+use Shopware\Core\Framework\App\AppDirectory;
 use Shopware\Core\Framework\App\AppDownloader;
 use Shopware\Core\Framework\App\AppExtractor;
 use Shopware\Core\Framework\App\AppLocaleProvider;
@@ -108,6 +109,7 @@ use Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
 use Shopware\Core\Framework\App\Lifecycle\Update\AbstractAppUpdater;
 use Shopware\Core\Framework\App\Lifecycle\Update\AppUpdater;
+use Shopware\Core\Framework\App\LocalAppDirectory;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Manifest\ModuleLoader;
 use Shopware\Core\Framework\App\MessageHandler\RotateAppSecretHandler;
@@ -158,11 +160,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandExecutor;
 use Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry;
 use Shopware\Core\Framework\Log\ExceptionLogger;
+use Shopware\Core\Framework\Plugin\ExtensionExtractor;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
 use Shopware\Core\Framework\Store\InAppPurchase;
+use Shopware\Core\Framework\Store\Services\AbstractAppExtensionService;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
-use Shopware\Core\Framework\Store\Services\AbstractStoreAppLifecycleService;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
@@ -587,7 +590,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AbstractExtensionDataProvider::class),
             service('app.repository'),
             service(ExtensionDownloader::class),
-            service(AbstractStoreAppLifecycleService::class),
+            service(AbstractAppExtensionService::class),
         ]);
 
     $services->set(UpdateAppsTask::class)
@@ -620,9 +623,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('messenger.message_handler');
 
-    $services->set(AppLoader::class)
+    $services->set(LocalAppDirectory::class)
         ->args([
             param('shopware.app_dir'),
+            service('logger'),
+            service(ExtensionExtractor::class),
+        ]);
+
+    $services->alias(AppDirectory::class, LocalAppDirectory::class);
+
+    $services->set(AppLoader::class)
+        ->args([
+            service(AppDirectory::class),
             service('logger'),
         ]);
 

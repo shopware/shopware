@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\Store;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Store\Services\AbstractStoreAppLifecycleService;
+use Shopware\Core\Framework\Store\Services\AbstractAppExtensionService;
 use Symfony\Component\Filesystem\Filesystem;
 
 trait ExtensionBehaviour
@@ -26,7 +26,7 @@ trait ExtensionBehaviour
         $fs->mirror($path, $appDir);
 
         if ($install) {
-            static::getContainer()->get(AbstractStoreAppLifecycleService::class)->installExtension($name, Context::createDefaultContext());
+            static::getContainer()->get(AbstractAppExtensionService::class)->installExtension($name, Context::createDefaultContext());
         }
     }
 

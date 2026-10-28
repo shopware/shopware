@@ -1,5 +1,12 @@
 # 6.7.17.0 (upcoming)
 
+## API
+
+### Extension upload returns the uploaded extension's technical name
+
+`POST /api/_action/extension/upload` now answers with the technical name of the uploaded extension instead of an empty `204`.
+For apps, the upload only stores the archive. Call `POST /api/_action/extension/install/app/{technicalName}` for a new app or `POST /api/_action/extension/update/app/{technicalName}` for an existing app afterwards.
+
 ## Core
 
 ### Missing plugin conditions in stored carts

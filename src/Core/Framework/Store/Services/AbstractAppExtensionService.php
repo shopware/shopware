@@ -4,18 +4,19 @@ namespace Shopware\Core\Framework\Store\Services;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @internal
  */
 #[Package('checkout')]
-abstract class AbstractStoreAppLifecycleService
+abstract class AbstractAppExtensionService
 {
+    abstract public function upload(UploadedFile $file, Context $context): string;
+
     abstract public function installExtension(string $technicalName, Context $context): void;
 
     abstract public function uninstallExtension(string $technicalName, Context $context, bool $keepUserData = false): void;
-
-    abstract public function removeExtensionAndCancelSubscription(int $licenseId, string $technicalName, string $id, bool $keepUserData, Context $context): void;
 
     abstract public function deleteExtension(string $technicalName, bool $keepUserData, Context $context): void;
 
@@ -25,5 +26,5 @@ abstract class AbstractStoreAppLifecycleService
 
     abstract public function updateExtension(string $technicalName, bool $allowNewPermissions, Context $context): void;
 
-    abstract protected function getDecorated(): AbstractStoreAppLifecycleService;
+    abstract protected function getDecorated(): AbstractAppExtensionService;
 }

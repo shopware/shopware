@@ -1630,9 +1630,6 @@
     }
   },
   "src/app/component/modal/sw-image-preview-modal/sw-image-preview-modal.spec.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "sw-test-rules/no-vm-access": {
       "count": 35
     }

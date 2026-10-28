@@ -1,0 +1,118 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Migration\Core\V6_7;
+
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
+use Shopware\Core\Framework\Util\Database\TableHelper;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Migration\V6_7\Migration1787220016AddOwnerAndAclRoleIdsToWebhook;
+use Shopware\Tests\Migration\MigrationTestTrait;
+
+/**
+ * @internal
+ */
+#[Package('framework')]
+#[CoversClass(Migration1787220016AddOwnerAndAclRoleIdsToWebhook::class)]
+class Migration1787220016AddOwnerAndAclRoleIdsToWebhookTest extends TestCase
+{
+    use KernelTestBehaviour;
+    use MigrationTestTrait;
+
+    private Connection $connection;
+
+    protected function setUp(): void
+    {
+        $this->connection = self::getContainer()->get(Connection::class);
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1787220016, (new Migration1787220016AddOwnerAndAclRoleIdsToWebhook())->getCreationTimestamp());
+    }
+
+    public function testMigrationAddsColumns(): void
+    {
+        $migration = new Migration1787220016AddOwnerAndAclRoleIdsToWebhook();
+        $migration->update($this->connection);
+        $migration->update($this->connection);
+
+        static::assertTrue(TableHelper::columnExists($this->connection, 'webhook', 'owner_user_id'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'webhook', 'owner_integration_id'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'webhook', 'acl_role_ids'));
+    }
+
+    public function testMigrationAssignsAppLessWebhooksWithoutOwnerToANewAdminIntegration(): void
+    {
+        (new Migration1787220016AddOwnerAndAclRoleIdsToWebhook())->update($this->connection);
+
+        $userId = TestUser::createNewTestUser($this->connection)->getUserId();
+        $ownerlessId = Uuid::randomBytes();
+        $otherOwnerlessId = Uuid::randomBytes();
+        $ownedByUserId = Uuid::randomBytes();
+
+        $this->insertWebhook($ownerlessId, 'ownerless', null);
+        $this->insertWebhook($otherOwnerlessId, 'other-ownerless', null);
+        $this->insertWebhook($ownedByUserId, 'owned-by-user', $userId);
+
+        (new Migration1787220016AddOwnerAndAclRoleIdsToWebhook())->update($this->connection);
+
+        $webhooks = $this->fetchWebhooks([$ownerlessId, $otherOwnerlessId, $ownedByUserId]);
+        $integrationId = $webhooks[Uuid::fromBytesToHex($ownerlessId)]['owner_integration_id'];
+        static::assertIsString($integrationId);
+
+        static::assertEquals([
+            Uuid::fromBytesToHex($ownerlessId) => ['name' => '[Legacy] ownerless', 'active' => 1, 'owner_user_id' => null, 'owner_integration_id' => $integrationId],
+            Uuid::fromBytesToHex($otherOwnerlessId) => ['name' => '[Legacy] other-ownerless', 'active' => 1, 'owner_user_id' => null, 'owner_integration_id' => $integrationId],
+            Uuid::fromBytesToHex($ownedByUserId) => ['name' => 'owned-by-user', 'active' => 1, 'owner_user_id' => $userId, 'owner_integration_id' => null],
+        ], $webhooks);
+
+        static::assertEquals(
+            ['label' => 'Legacy webhooks', 'admin' => 1],
+            $this->connection->fetchAssociative('SELECT label, admin FROM integration WHERE id = :id', ['id' => Uuid::fromHexToBytes($integrationId)])
+        );
+    }
+
+    public function testMigrationCreatesNoIntegrationWithoutOwnerlessWebhooks(): void
+    {
+        (new Migration1787220016AddOwnerAndAclRoleIdsToWebhook())->update($this->connection);
+        $integrations = $this->connection->fetchOne('SELECT COUNT(*) FROM integration');
+
+        (new Migration1787220016AddOwnerAndAclRoleIdsToWebhook())->update($this->connection);
+
+        static::assertSame($integrations, $this->connection->fetchOne('SELECT COUNT(*) FROM integration'));
+    }
+
+    private function insertWebhook(string $id, string $name, ?string $ownerUserId): void
+    {
+        $this->connection->insert('webhook', [
+            'id' => $id,
+            'name' => $name,
+            'event_name' => 'product.written',
+            'url' => 'https://example.com',
+            'active' => 1,
+            'owner_user_id' => $ownerUserId ? Uuid::fromHexToBytes($ownerUserId) : null,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+    }
+
+    /**
+     * @param list<string> $ids
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function fetchWebhooks(array $ids): array
+    {
+        return $this->connection->fetchAllAssociativeIndexed(
+            'SELECT LOWER(HEX(id)), name, active, LOWER(HEX(owner_user_id)) AS owner_user_id, LOWER(HEX(owner_integration_id)) AS owner_integration_id FROM webhook WHERE id IN (:ids)',
+            ['ids' => $ids],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+    }
+}

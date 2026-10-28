@@ -1117,6 +1117,7 @@
       "theme": "Theme | Themes",
       "unit": "Maßeinheit | Maßeinheiten",
       "user": "Benutzer",
+      "webhook": "Webhook | Webhooks",
       "landing_page": "Landingpage | Landingpages",
       "delivery_time": "Lieferzeit | Lieferzeiten",
       "import_export_profile": "Import/Export-Profil | Import/Export-Profile",
@@ -1381,6 +1382,10 @@
       "messagePlaceholder": "Es ist ein Fehler aufgetreten. Die Seite konnte nicht geladen werden."
     }
   },
+  "sw-not-found": {
+    "title": "Seite nicht gefunden",
+    "description": "Die gesuchte Seite konnte nicht gefunden werden. Möglicherweise wurde sie verschoben oder existiert nicht mehr."
+  },
   "sw-property-search": {
     "placeholderSearch": "Ausprägungen durchsuchen ...",
     "selected": "{count} Ausprägung gewählt | {count} Ausprägungen gewählt",
@@ -1633,6 +1638,7 @@
         "detectedChanges": "Die folgenden Änderungen wurden festgestellt:",
         "success": "Shop-ID erfolgreich aktualisiert.",
         "error": "Aktualisierung der Shop-ID fehlgeschlagen.",
+        "noStrategySelected": "Wähle zuerst eine Option aus.",
         "oldValue": "Alter Wert",
         "newValue": "Neuer Wert",
         "remindMeLater": "Später erinnern",
@@ -1666,10 +1672,15 @@
         }
       },
       "sw-app-wrong-app-url-modal": {
-        "title": "Fehlerhaft konfigurierte APP_URL",
-        "explanationHeader": "Fehler bei der Verbindung mit deinen Erweiterungen.",
-        "explanation": "Erweiterungen können keine Verbindung zu deinem Shop aufbauen, aufgrund einer Fehlkonfiguration in deinem System.",
-        "textDetails": "Technische Details: Die Konfiguration der APP_URL ist fehlerhaft.",
+        "title": "Verifizierung der APP_URL fehlgeschlagen",
+        "explanation": "Shopware konnte nicht bestätigen, dass die APP_URL diesen Shop erreicht. Apps funktionieren daher möglicherweise nicht.",
+        "labelReason": "Grund",
+        "reasonStatusCode": "Die APP_URL hat die Verifizierungsanfrage mit HTTP {statusCode} beantwortet.",
+        "reasonUnknown": "Führe den Befehl unten aus, um Details zu sehen.",
+        "checkIntro": "Prüfe, ob:",
+        "checkPointsToShop": "die APP_URL auf diesen Shop zeigt",
+        "checkNotBlocked": "Anfragen an /api/app-system/shop/verify nicht blockiert werden (Firewall, HTTP-Authentifizierung, IP-Allowlist)",
+        "checkAgain": "Wenn du das Problem behebst, ohne die APP_URL zu ändern, führe diesen Befehl aus, um diese Warnung zu entfernen:",
         "labelLearnMoreButton": "Erfahre mehr",
         "linkToDocsArticle": "https://docs.shopware.com/de/shopware-6-de/tutorials-und-faq/hinweise-zur-app-url"
       }
@@ -1827,16 +1838,17 @@
     "nextButton": "Weiter",
     "finishButton": "Fertig",
     "seenSaveError": "Deine Auswahl konnte nicht gespeichert werden. Dieser Dialog wird Dir möglicherweise erneut angezeigt.",
+    "profileSettingsLink": "Deinen Profileinstellungen",
     "pages": {
       "adminNavigation": {
         "headline": "Eine klarere, übersichtlichere Navigation",
-        "description": "Die Shopware Administration ist gewachsen und damit auch die Anzahl der Funktionen und Navigationselemente. Deshalb haben wir die Navigation neu gestaltet, mit einer besseren Übersicht, klareren aktiven Zuständen, flüssigeren Untermenü-Animationen, verbesserter Lesbarkeit und optimierter Bedienung per Tastatur."
+        "description": "Die Shopware Administration ist gewachsen und damit auch die Anzahl der Funktionen und Navigationselemente. Deshalb haben wir die Navigation neu gestaltet, mit einer besseren Übersicht, klareren aktiven Zuständen, flüssigeren Untermenü-Animationen, verbesserter Lesbarkeit und optimierter Bedienung per Tastatur.",
+        "moduleColorsHint": "Lieber farbige Modul-Icons? Du kannst \"Modul-Farben\" jederzeit in {profileSettingsLink} wieder auf \"Farbig\" stellen."
       },
       "darkMode": {
         "headline": "Dunkles Erscheinungsbild",
         "badge": "Experimentell",
         "description": "Die Administration bietet jetzt ein dunkles Erscheinungsbild der Benutzeroberfläche, für bessere Barrierefreiheit und passend zu Deinen persönlichen Vorlieben.",
-        "profileSettingsLink": "Deinen Profileinstellungen",
         "themeSelectLabel": "Erscheinungsbild",
         "themeSelectHint": "Diese Einstellung kannst Du jederzeit in {profileSettingsLink} ändern.",
         "themeSaveError": "Das Erscheinungsbild konnte nicht gespeichert werden."

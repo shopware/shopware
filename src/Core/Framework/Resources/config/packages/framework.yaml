@@ -32,6 +32,8 @@ framework:
         email_validation_mode: html5
     default_locale:  en_GB
     http_method_override: true
+    # HTML forms submit GET or POST; retain overrides for PUT, PATCH and DELETE form actions.
+    allowed_http_method_override: ['PUT', 'PATCH', 'DELETE']
     mailer:
         message_bus: false
         dsn: '%env(MAILER_DSN)%'
@@ -55,6 +57,8 @@ framework:
             cache.rate_limiter:
                 adapter: cache.app
             cache.double_submit:
+                adapter: cache.app
+            cache.app_url_verification:
                 adapter: cache.app
     messenger:
         failure_transport: failed

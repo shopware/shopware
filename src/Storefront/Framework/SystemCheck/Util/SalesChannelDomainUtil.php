@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\DependencyInjection\ServicesResetterInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -30,6 +31,7 @@ readonly class SalesChannelDomainUtil
         private KernelInterface $kernel,
         private LoggerInterface $logger,
         private ClockInterface $clock,
+        private ServicesResetterInterface $servicesResetter,
     ) {
     }
 
@@ -89,6 +91,17 @@ readonly class SalesChannelDomainUtil
     }
 
     /**
+     * @description Records an exception that prevented a storefront page from being probed as the failed result
+     * of that page, so the check can go on with the other sales channels and still report what went wrong.
+     */
+    public function createExceptionResult(string $url, \Throwable $e, float $responseTime = 0.0, ?Request $request = null): StorefrontHealthCheckResult
+    {
+        $this->logger->error(\sprintf('Error during systemcheck: "%s"', $e->getMessage()), ['exception' => $e, 'url' => $url, 'request' => $request]);
+
+        return StorefrontHealthCheckResult::create($url, Response::HTTP_BAD_REQUEST, $responseTime, $e->getMessage());
+    }
+
+    /**
      * @description Handles a request and follows redirects (e.g. for SEO) if necessary to return the final response.
      */
     public function handleRequest(Request $request): StorefrontHealthCheckResult
@@ -102,14 +115,15 @@ readonly class SalesChannelDomainUtil
         while ($redirectCount <= self::MAX_REDIRECTS) {
             $requestStart = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT);
             try {
+                $this->servicesResetter->reset();
                 // don't let the kernel catch errors, so we can handle them ourselves
                 $response = $this->kernel->handle($currentRequest, catch: false);
             } catch (\Exception $e) {
                 $responseTime += (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $requestStart;
 
-                $this->logger->error(\sprintf('Error during systemcheck: "%s"', $e->getMessage()), ['exception' => $e, 'request' => $currentRequest]);
-
-                return StorefrontHealthCheckResult::create($currentRequest->getUri(), Response::HTTP_BAD_REQUEST, $responseTime, $e->getMessage());
+                return $this->createExceptionResult($currentRequest->getUri(), $e, $responseTime, $currentRequest);
+            } finally {
+                $this->servicesResetter->reset();
             }
             $responseTime += (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $requestStart;
 

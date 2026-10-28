@@ -30,7 +30,7 @@
                 "offline": "Offline"
             },
             "productsLabel": "Produkte",
-            "productsCount": "Produkte | Produkt | Produkte"
+            "productsCount": "Produkt | Produkte"
         },
         "modal": {
             "title": "Verkaufskanal anlegen",
@@ -105,6 +105,7 @@
             "labelInputCurrency": "Währung",
             "labelInputLanguage": "Sprache",
             "labelInputSnippet": "Textbaustein-Set",
+            "snippetSetGroupOther": "Weitere Textbaustein-Sets",
             "labelIsExternalStorefront": "Externes Storefront",
             "helpTextIsExternalStorefront": "SEO-URLs werden nur für Domains generiert, die auf ein externes Storefront verweisen. Pro Sprache kann nur ein externes Storefront für einen einzelnen Verkaufskanal festgelegt werden.",
             "buttonDeleteDomain": "Domain löschen",
@@ -154,6 +155,11 @@
                 "titleEmptyState": "Noch keine Produkte",
                 "titleEmptyStateTable": "Keine passenden Produkte gefunden",
                 "buttonAddProducts": "{productCount} Produkte hinzufügen | {productCount} Produkt hinzufügen | {productCount} Produkte hinzufügen",
+                "messageProductsAssigned": "{count} Produkt dem Verkaufskanal zugewiesen. | {count} Produkte dem Verkaufskanal zugewiesen.",
+                "messageProductsAssignmentIncomplete": "Bisher {count} Produkt dem Verkaufskanal zugewiesen. Füge dieselbe Auswahl erneut hinzu, um die restlichen Produkte zuzuweisen. | Bisher {count} Produkte dem Verkaufskanal zugewiesen. Füge dieselbe Auswahl erneut hinzu, um die restlichen Produkte zuzuweisen.",
+                "messageProductLimitExceeded": "Du kannst maximal {limit} Produkte auf einmal hinzufügen. Verkleinere Deine Auswahl und versuche es erneut.",
+                "messageProductStreamLimitExceeded": "Du kannst maximal {limit} dynamische Produktgruppen auf einmal hinzufügen. Verkleinere Deine Auswahl und versuche es erneut.",
+                "messageCategoryLimitExceeded": "Du kannst maximal {limit} Kategorien auf einmal hinzufügen. Verkleinere Deine Auswahl und versuche es erneut.",
                 "columnProductName": "Produktname",
                 "columnActive": "Aktiv",
                 "columnProductNumber": "Produktnummer",
@@ -410,6 +416,7 @@
             },
             "productAssignmentModal": {
                 "title": "Produkte hinzufügen",
+                "buttonAddProducts": "Bis zu {productCount} Produkt hinzufügen | Bis zu {productCount} Produkte hinzufügen",
                 "singleProducts": "Produkt-Auswahl",
                 "singleProductsEmptyState": "Keine weiteren Produkte gefunden",
                 "categories": {

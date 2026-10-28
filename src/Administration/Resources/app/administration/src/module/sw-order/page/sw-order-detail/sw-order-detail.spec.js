@@ -55,6 +55,7 @@ async function createWrapper(order = {}, { routeName = 'sw.order.detail.general'
                     template: `
                         <div class="sw-page">
                             <slot name="smart-bar-header"></slot>
+                            <slot name="language-switch"></slot>
                             <slot name="smart-bar-actions"></slot>
                             <slot name="content"></slot>
                         </div>`,
@@ -844,6 +845,23 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(createNotificationErrorMock).toHaveBeenCalledWith({
             message: expect.stringContaining('failed'),
         });
+    });
+
+    it('should handle the events the order views and the language switch emit to the page', async () => {
+        wrapper = await createWrapper();
+        Shopware.Store.get('swOrderDetail').order = { orderNumber: 1 };
+        await flushPromises();
+
+        const routerView = wrapper.findComponent({ name: 'router-view' });
+        await routerView.vm.$emit('editing-change', true);
+        await routerView.vm.$emit('created-by-id-change', 'user-id');
+        await wrapper.findComponent({ name: 'sw-language-switch' }).vm.$emit('on-change', 'language-id');
+
+        expect(routerView.attributes('is-editing')).toBe('true');
+
+        await routerView.vm.$emit('loading-change', true);
+
+        expect(routerView.isVisible()).toBe(false);
     });
 });
 

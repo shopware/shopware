@@ -153,8 +153,12 @@ function sectionOf(property) {
         return keyName(object.parent.key);
     }
 
-    // `data() { return { … } }` and `provide() { return { … } }`
-    if (object.parent?.type !== 'ReturnStatement') {
+    // `data() { return { … } }`, `provide() { return { … } }` and the arrow form `state: () => ({ … })`
+    const isReturned =
+        object.parent?.type === 'ReturnStatement' ||
+        (object.parent?.type === 'ArrowFunctionExpression' && object.parent.body === object);
+
+    if (!isReturned) {
         return '';
     }
 

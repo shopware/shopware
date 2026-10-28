@@ -107,6 +107,14 @@ ruleTester.run('require-deprecation-guard', rule, {
             code: `export default { watch: { ${deprecated} value() { return 1; } } };`,
         },
         {
+            name: 'a function in the arrow form of data',
+            code: `export default { data: () => ({ ${deprecated} formatter: (value) => value }) };`,
+        },
+        {
+            name: 'a function in the arrow form of a store state',
+            code: `export default { state: () => ({ ${deprecated} formatter: (value) => value }) };`,
+        },
+        {
             name: 'a provided function',
             code: `export default { provide() { return { ${deprecated} getOld: () => this.old }; } };`,
         },

@@ -156,6 +156,23 @@ Unit tests that pass a mocked `EventDispatcherInterface` to `ExtensionDispatcher
 
 Live state transitions batch history and state writes. `EntityWriteEvent` subscribers can receive multiple entities: filter with `getCommandsForEntity()` and make pre-write work idempotent or compensate it through `addError()`. `WriteCommandExceptionEvent` and error callbacks can run before SQL executes, and each failed attempt runs its error callbacks before it is retried. Retries stop once success callbacks or written listeners begin, or compensation fails. MariaDB error `1020` is now retryable.
 
+### `EntitySearchResult` is no longer `@final`
+
+`EntitySearchResult` can be extended. Its constructor stays `final`, so a subclass sets its own properties after `createFrom($searchResult)`.
+
+### `ProductListingResult` and `ProductReviewResult` keep extending `EntitySearchResult`
+
+6.7.13.0 announced that both classes leave the `EntitySearchResult` hierarchy in v6.8.0. That is cancelled.
+
+For `ProductListingResult`:
+
+- `fromSearchResult()` was added for the cancelled change. It is deprecated and will be removed in v6.8.0. Build the result with `ProductListingResult::createFrom($searchResult)` and the setters instead.
+- 6.7.13.0 listed `setPage()` and `setLimit()` as staying supported. That is withdrawn: they come from `EntitySearchResult` now and will be removed in v6.8.0. Page the criteria in `AbstractListingProcessor::prepare()` instead. `PagingListingProcessor::process()` no longer writes the request page and limit onto the result.
+
+For `ProductReviewResult`:
+
+- 6.7.13.0 announced that its properties become `readonly` in v6.8.0. That is cancelled too. Its setters are still deprecated and will be removed in v6.8.0, so build the result with `ProductReviewResult::fromSearchResult()`.
+
 ## API
 
 ### HTTP method overrides restricted to form actions
@@ -753,23 +770,6 @@ agentic-commerce 1.3.0 and earlier put their UCP tools in `discovery`. Update to
 ### Creating a language no longer fails on a drifted Elasticsearch/OpenSearch mapping
 
 Creating a language could return an uncaught `500` when an Elasticsearch/OpenSearch-indexed entity's live index mapping had drifted from its current definition, for example a sales channel created after the last full reindex. `LanguageSubscriber` now catches the same known-unresolvable mapping conflicts `IndexMappingUpdater` already handles elsewhere, schedules the affected entity for a reindex instead of throwing, and only logs unexpected errors. The language is created successfully; the delayed reindex is picked up by the next indexing run or a manual `es:index`.
-
-### `EntitySearchResult` is no longer `@final`
-
-`EntitySearchResult` can be extended. Its constructor stays `final`, so a subclass sets its own properties after `createFrom($searchResult)`.
-
-### `ProductListingResult` and `ProductReviewResult` keep extending `EntitySearchResult`
-
-6.7.13.0 announced that both classes leave the `EntitySearchResult` hierarchy in v6.8.0. That is cancelled.
-
-For `ProductListingResult`:
-
-- `fromSearchResult()` was added for the cancelled change. It is deprecated and will be removed in v6.8.0.0. Build the result with `ProductListingResult::createFrom($searchResult)` and the setters instead.
-- 6.7.13.0 listed `setPage()` and `setLimit()` as staying supported. That is withdrawn: they come from `EntitySearchResult` now and will be removed in v6.8.0.0. Page the criteria in `AbstractListingProcessor::prepare()` instead. `PagingListingProcessor::process()` no longer writes the request page and limit onto the result.
-
-For `ProductReviewResult`:
-
-- 6.7.13.0 announced that its properties become `readonly` in v6.8.0. That is cancelled too. Its setters are still deprecated and will be removed in v6.8.0.0, so build the result with `ProductReviewResult::fromSearchResult()`.
 
 ### MCP servers run on `symfony/mcp-bundle` 0.14
 

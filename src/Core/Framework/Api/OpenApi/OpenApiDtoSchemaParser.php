@@ -41,7 +41,7 @@ final class OpenApiDtoSchemaParser
      */
     public function parse(array $schema, bool $includeComponentSchemas = true, ?string $namespace = null): array
     {
-        $schema = $this->resolveRequestInputs($schema);
+        $schema = $this->resolveOperationInputs($schema);
         $registry = $this->schemaRegistry($schema);
         $registry = $this->inheritComponentPackages(
             $schema,
@@ -80,7 +80,7 @@ final class OpenApiDtoSchemaParser
      */
     public function parseComponents(array $schema, array $schemaNames, string $namespace): array
     {
-        $schema = $this->resolveRequestInputs($schema);
+        $schema = $this->resolveOperationInputs($schema);
         $registry = $this->schemaRegistry($schema);
         $registry = $this->inheritComponentPackages($schema, $registry, $schemaNames, includePaths: false);
         $componentTypes = $this->componentRootTypes($schema);
@@ -107,7 +107,7 @@ final class OpenApiDtoSchemaParser
      *
      * @return array<string, mixed>
      */
-    private function resolveRequestInputs(array $schema): array
+    private function resolveOperationInputs(array $schema): array
     {
         $paths = $this->arrayAtPath($schema, ['paths']) ?? [];
         foreach ($paths as $path => $pathData) {
@@ -120,7 +120,17 @@ final class OpenApiDtoSchemaParser
 
                 $requestBody = $this->schemaAtKey($operation, 'requestBody');
                 if ($requestBody !== null) {
-                    $operation['requestBody'] = $this->resolveRequestReference($requestBody, $schema, 'requestBodies');
+                    $requestBody = $this->resolveComponentReference($requestBody, $schema, 'requestBodies');
+                    $operation['requestBody'] = $this->resolveJsonContent($requestBody, $schema);
+                }
+
+                foreach ($this->arrayAtKey($operation, 'responses') ?? [] as $statusCode => $response) {
+                    if (preg_match('/^2\d{2}$/D', (string) $statusCode) !== 1 || !\is_array($response)) {
+                        continue;
+                    }
+
+                    $response = $this->resolveComponentReference($response, $schema, 'responses');
+                    $operation['responses'][$statusCode] = $this->resolveJsonContent($response, $schema);
                 }
 
                 $parameters = [];
@@ -129,7 +139,7 @@ final class OpenApiDtoSchemaParser
                         continue;
                     }
 
-                    $parameter = $this->resolveRequestReference($parameter, $schema, 'parameters');
+                    $parameter = $this->resolveComponentReference($parameter, $schema, 'parameters');
                     $name = $parameter['name'] ?? null;
                     $location = $parameter['in'] ?? null;
                     if (!\is_string($name) || !\is_string($location)) {
@@ -162,27 +172,48 @@ final class OpenApiDtoSchemaParser
      *
      * @return array<string, mixed>
      */
-    private function resolveRequestReference(array $input, array $schema, string $section): array
+    private function resolveComponentReference(array $input, array $schema, string $section, bool $allowUnresolved = true): array
     {
         $seen = [];
         while (($reference = $this->refFromSchema($input)) !== null) {
             $prefix = '#/components/' . $section . '/';
             if (!str_starts_with($reference, $prefix) || isset($seen[$reference])) {
-                throw FrameworkException::invalidArgumentException('Cannot resolve request reference "' . $reference . '".');
+                throw FrameworkException::invalidArgumentException('Cannot resolve reference "' . $reference . '".');
             }
             $seen[$reference] = true;
             $name = str_replace(['~1', '~0'], ['/', '~'], substr($reference, \strlen($prefix)));
             $resolved = $this->arrayAtPath($schema, ['components', $section, $name]);
             if ($resolved === null) {
+                if (!$allowUnresolved) {
+                    throw FrameworkException::invalidArgumentException('Cannot resolve reference "' . $reference . '".');
+                }
+
                 // Runtime API generation supplies some components, such as the language header.
                 return $input;
             }
 
             unset($input['$ref']);
-            $input = [...$resolved, ...$input];
+            // Media Type Reference Objects cannot override fields such as schema with siblings.
+            $input = $section === 'mediaTypes' ? $resolved : [...$resolved, ...$input];
         }
 
         return $input;
+    }
+
+    /**
+     * @param array<string, mixed> $container
+     * @param array<string, mixed> $schema
+     *
+     * @return array<string, mixed>
+     */
+    private function resolveJsonContent(array $container, array $schema): array
+    {
+        $mediaType = $this->arrayAtPath($container, ['content', 'application/json']);
+        if ($mediaType !== null) {
+            $container['content']['application/json'] = $this->resolveComponentReference($mediaType, $schema, 'mediaTypes', allowUnresolved: false);
+        }
+
+        return $container;
     }
 
     /**
@@ -340,7 +371,7 @@ final class OpenApiDtoSchemaParser
                 }
 
                 foreach ($operation['responses'] ?? [] as $statusCode => $response) {
-                    if (preg_match('/^2\d{2}$/', (string) $statusCode) !== 1) {
+                    if (preg_match('/^2\d{2}$/D', (string) $statusCode) !== 1) {
                         continue;
                     }
 
@@ -723,8 +754,6 @@ final class OpenApiDtoSchemaParser
             return [];
         }
 
-        $responseRegistry = $this->responseRegistry($schema);
-
         $definitions = [];
         foreach ($paths as $pathData) {
             if (!\is_array($pathData)) {
@@ -739,7 +768,7 @@ final class OpenApiDtoSchemaParser
                     continue;
                 }
 
-                $response = $this->successResponse($operation, $responseRegistry);
+                $response = $this->successResponse($operation);
                 if ($response === null) {
                     continue;
                 }
@@ -770,30 +799,6 @@ final class OpenApiDtoSchemaParser
         }
 
         return $definitions;
-    }
-
-    /**
-     * @param array<string, mixed> $schema
-     *
-     * @return array<string, array<string, mixed>>
-     */
-    private function responseRegistry(array $schema): array
-    {
-        $responses = $this->arrayAtPath($schema, ['components', 'responses']);
-        if ($responses === null) {
-            return [];
-        }
-
-        $registry = [];
-        foreach ($responses as $name => $response) {
-            if (!\is_string($name) || !\is_array($response)) {
-                continue;
-            }
-
-            $registry[$name] = $response;
-        }
-
-        return $registry;
     }
 
     /**
@@ -1340,11 +1345,10 @@ final class OpenApiDtoSchemaParser
 
     /**
      * @param array<string, mixed> $operation
-     * @param array<string, array<string, mixed>> $responseRegistry
      *
      * @return array{response: array<string, mixed>, statusCode: int}|null
      */
-    private function successResponse(array $operation, array $responseRegistry): ?array
+    private function successResponse(array $operation): ?array
     {
         $responses = $this->arrayAtKey($operation, 'responses');
         if ($responses === null) {
@@ -1353,21 +1357,13 @@ final class OpenApiDtoSchemaParser
 
         foreach (array_keys($responses) as $statusCode) {
             $statusCode = (string) $statusCode;
-            if (!preg_match('/^2\\d{2}$/', $statusCode)) {
+            if (!preg_match('/^2\\d{2}$/D', $statusCode)) {
                 continue;
             }
 
             $response = $this->schemaAtKey($responses, $statusCode);
             if ($response === null) {
                 continue;
-            }
-
-            $ref = $this->stringOrNull($response['$ref'] ?? null);
-            if ($ref !== null) {
-                return [
-                    'response' => $responseRegistry[$this->resolveRefName($ref)] ?? $response,
-                    'statusCode' => (int) $statusCode,
-                ];
             }
 
             return ['response' => $response, 'statusCode' => (int) $statusCode];

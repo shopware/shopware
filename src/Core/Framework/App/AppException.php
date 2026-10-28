@@ -79,6 +79,17 @@ class AppException extends HttpException
     final public const RE_REGISTRATION_FAILED = 'FRAMEWORK__APP_RE_REGISTRATION_FAILED';
     final public const CAPABILITY_NOT_GRANTED = 'FRAMEWORK__APP_CAPABILITY_NOT_GRANTED';
     final public const APP_SYSTEM_REQUEST_NOT_ALLOWED = 'FRAMEWORK__APP_SYSTEM_REQUEST_NOT_ALLOWED';
+    final public const APP_UPLOAD_TEMPORARY_FILE_CREATION_FAILED = 'FRAMEWORK__APP_UPLOAD_TEMPORARY_FILE_CREATION_FAILED';
+
+    public static function cannotCreateUploadTemporaryFile(string $directory): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::APP_UPLOAD_TEMPORARY_FILE_CREATION_FAILED,
+            'Could not create a temporary app archive in "{{ directory }}".',
+            ['directory' => $directory]
+        );
+    }
 
     /**
      * @internal will be removed once store extensions are installed over composer

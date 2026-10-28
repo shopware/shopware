@@ -1,5 +1,4 @@
 # 6.7.17.0 (upcoming)
-
 ## Core
 
 ### Webhooks without an app are now authorized against their owner
@@ -47,6 +46,11 @@ The command always exits with `0`, which makes it suitable for install hooks in 
 ### Criteria on fields the API does not expose is a bad request
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.
+
+### Extension upload returns the uploaded extension's technical name
+
+`POST /api/_action/extension/upload` now answers with the technical name of the uploaded extension instead of an empty `204`.
+For apps, the upload only stores the archive. Call `POST /api/_action/extension/install/app/{technicalName}` for a new app or `POST /api/_action/extension/update/app/{technicalName}` for an existing app afterwards.
 
 # 6.7.16.0
 
@@ -494,7 +498,7 @@ The product detail page links the terms below the GARAN label, in the new block 
 - Default metrics prefix was changed from `io.opentelemetry.contrib.php.shopware` to `shopware.platform`.
 - `http.server.request.duration` now shows client-facing latency without post-response processing.
 - `cart.calculation.duration` records failed calculations (added `result=success|failed` label).
-- `Telemetry::instrument()` now collects duration metrics also for failed callbacks. 
+- `Telemetry::instrument()` now collects duration metrics also for failed callbacks.
 - Added support for lazy labels calculation in `DurationMetric` and `ConfiguredMetric` (see instrumentors for usage examples).
 - New methods `Telemetry::isMetricEnabled()` / `Meter::isEnabled()` saying if a metric would be emitted, so expensive calculations may be skipped for disabled metrics.
 - Metrics are flushed after all other terminate tasks.

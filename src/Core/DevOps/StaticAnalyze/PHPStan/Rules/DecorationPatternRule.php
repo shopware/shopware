@@ -20,10 +20,10 @@ use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Store\Services\AbstractAppExtensionService;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionStoreLicensesService;
-use Shopware\Core\Framework\Store\Services\AbstractStoreAppLifecycleService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -38,7 +38,7 @@ class DecorationPatternRule implements Rule
 
     private const SKIP = [
         AbstractExtensionStoreLicensesService::class,
-        AbstractStoreAppLifecycleService::class,
+        AbstractAppExtensionService::class,
         AbstractExtensionLifecycle::class,
         AbstractExtensionDataProvider::class,
         AbstractAppUpdater::class,

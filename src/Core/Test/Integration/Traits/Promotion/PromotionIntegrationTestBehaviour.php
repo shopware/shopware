@@ -5,8 +5,8 @@ namespace Shopware\Core\Test\Integration\Traits\Promotion;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\PromotionLineItemFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscriber;
 use Shopware\Core\Framework\Log\Package;
@@ -54,10 +54,7 @@ trait PromotionIntegrationTestBehaviour
      */
     public function addPromotionCode(string $code, Cart $cart, CartService $cartService, SalesChannelContext $context): Cart
     {
-        $itemBuilder = new PromotionItemBuilder();
-
-        // ??? currencyPrecision is unused
-        $lineItem = $itemBuilder->buildPlaceholderItem($code);
+        $lineItem = (new PromotionLineItemFactory())->create(['referencedId' => $code], $context);
 
         $cart = $cartService->add($cart, $lineItem, $context);
 

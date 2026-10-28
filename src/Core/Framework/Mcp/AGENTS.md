@@ -45,11 +45,11 @@ Static data the AI client can read. Resources are identified by URIs and provide
 
 The Admin API endpoint uses progressive disclosure: `tools/list` advertises only a small set (`shopware-tool-search`, `shopware-toolsets-list`, `shopware-toolset-enable`, plus anything the connection advertises up front or has enabled), not the full catalogue. There are three ways to reach a deferred tool, and they differ in what they demand of the client:
 
-- **Connect-time selection (works on every client).** Naming toolsets in the MCP URL as `?toolsets=order,media` or `?toolsets=all` advertises those tools from the first `tools/list` of the connection. The only client behaviour this relies on is posting to the URL it was configured with, which is the Streamable HTTP transport itself. `McpRequestedToolsetResolver` reads the parameter off the main request, and `McpToolsetRegistry::advertisedToolsForNames()` validates it and resolves `all`. The result is paginated like any other list (`shopware.mcp.pagination_limit`, 50), so a client that ignores `nextCursor` sees the first page only — a constraint `?toolsets=all` can reach once enough apps contribute toolsets.
+- **Connect-time selection (works on every client).** Naming toolsets in the MCP URL as `?toolsets=order,media` or `?toolsets=all`, on `/api/_mcp` and `/store-api/_mcp` alike, advertises those tools from the first `tools/list` of the connection. The only client behaviour this relies on is posting to the URL it was configured with, which is the Streamable HTTP transport itself. `McpRequestedToolsetResolver` reads the parameter off the main request, and `McpToolsetRegistry::advertisedToolsForNames()` validates it and resolves `all`. The result is paginated like any other list (`shopware.mcp.pagination_limit`, 50), so a client that ignores `nextCursor` sees the first page only — a constraint `?toolsets=all` can reach once enough apps contribute toolsets.
 - **`shopware-toolset-enable` + `listChanged` (only for clients that re-read `tools/list`).** Enabling a toolset stores it on the session, advertises its tools, and emits a `tools/listChanged` notification. The notification is advisory: a client MAY refresh, and nothing obliges it to. claude.ai reads `tools/list` once per connection and ignores the notification, so an enable mid-conversation never becomes visible there. Claude Code re-lists but does not re-index its deferred-tool store ([claude-code#66084](https://github.com/anthropics/claude-code/issues/66084)). Treat this path as an optimisation for well-behaved clients.
 - **`shopware-tool-search` inline definitions (only for tool-search-capable clients).** Search returns full tool definitions inline. This requires the client to promote inline results into its callable set. Anthropic expands a `tool_reference` only for tools already present in the request's top-level `tools` array, so a tool that was never advertised cannot be promoted this way. `tools/call` itself never blocks an allowlisted tool for being unadvertised, so the server never dead-ends, though a client that treats `tools/list` as the immutable callable set will loop. The admin `shopware-tool-search` result carries a `_meta.usage` hint pointing at the enable path.
 
-Every registered tool belongs to a group, and group membership is the single source of truth for visibility. The `discovery` group holds the always-advertised meta-tools (`shopware-tool-search`, `shopware-toolsets-list`, `shopware-toolset-enable`) and is never an enable-able toolset; it is the only thing on a fresh `tools/list`. Every other tool is **deferred** — advertised only once its toolset is enabled — so no domain tool can leak into the default surface and the model is forced through discovery. Core and plugin tools declare their group with `#[McpToolGroup]` at compile time (`McpToolDiscoveryCompilerPass` derives `shopware.mcp.advertised_tools` from the `discovery` group); app tools (loaded at runtime, so they carry no attribute) are grouped under their owning app's technical name via `AppMcpPrivilegeProvider::getAppToolGroups()`, so each app forms its own toolset. Anything still without a group falls to the `other` catch-all, which is itself an enable-able toolset so that no allowlisted tool is ever reachable through `shopware-tool-search` alone.
+Every registered tool belongs to a group, and group membership is the single source of truth for visibility. The `discovery` group holds the always-advertised meta-tools (`shopware-tool-search`, `shopware-toolsets-list`, `shopware-toolset-enable`) and is never an enable-able toolset; it is the only thing on a fresh `tools/list` of a connection without `?toolsets=`. Every other tool is **deferred** — advertised only once its toolset is enabled — so no domain tool can leak into the default surface and the model is forced through discovery. Core and plugin tools declare their group with `#[McpToolGroup]` at compile time (`McpToolDiscoveryCompilerPass` derives `shopware.mcp.advertised_tools` from the `discovery` group); app tools (loaded at runtime, so they carry no attribute) are grouped under their owning app's technical name via `AppMcpPrivilegeProvider::getAppToolGroups()`, so each app forms its own toolset. Anything still without a group falls to the `other` catch-all, which is itself an enable-able toolset so that no allowlisted tool is ever reachable through `shopware-tool-search` alone.
 
 The `discovery` group is reserved for the three meta-tools (`McpToolsetRegistry::DISCOVERY_META_TOOLS`). A plugin or bundle tool that claims it is moved to `other` at compile time, `bin/console debug:mcp` lists it with a warning, and the `shopware.mcpReservedToolGroup` PHPStan rule reports it during development. An extension that needs its tools on the first `tools/list`, for example for a proxy endpoint, selects its own toolset with `?toolsets=` instead, as agentic-commerce does on `/ucp/mcp`.
 
@@ -61,6 +61,20 @@ The Store API endpoint (`/store-api/_mcp`) uses the same progressive disclosure 
 - **Tools**: Single-responsibility PHP classes with `#[McpTool]` attributes, registered via PHP service definitions (`mcp.php`)
 - **Tool results**: the wire format of a tool result is decided only in `McpToolResultRenderer`, never in a tool. See "What the client receives" in `Tool/AGENTS.md`
 - **Availability**: always enabled (no feature flag); services are present whenever `symfony/mcp-bundle` is installed
+
+### List change notifications
+
+Clients learn about changed tool, prompt and resource lists through `notifications/*/list_changed`. The notification is never sent live: `McpListChangedNotifier` appends it to the session's outgoing queue in the session store, and the client receives it with its next request.
+
+- **Installation-wide changes are pulled, not pushed.** An app install, update, activation, deactivation or removal calls `McpListChangedNotifier::notify()`, which increments one version per changed list in the `mcp_list_version` table (`McpListVersions`). After every Admin API MCP request, `McpServerController` calls `syncSession()`, which compares those versions with the ones stored in the session data (`shopware_list_versions`) and queues `list_changed` for the lists that moved. A new session starts at the current versions.
+- **Session-local changes are queued directly.** `shopware-toolset-enable` sets `McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE`, and the controller calls `notifySession()` for that session only.
+- **Both run after `Server::run()`**, because the SDK saves its in-memory session at the end of the run and would otherwise overwrite the queued notification.
+- **Only the Admin API server compares versions.** App capabilities are only registered there, so the Store API notifier has no `McpListVersions` and only handles toolset enables.
+
+Invariants:
+- No state per server and no list of session ids. Every server reads the same versions from the database and writes only to the session store the SDK already uses, so this works with any session store and any number of servers, without a shared lock. The registry of session ids that this replaced had to be shared exactly as widely as the session store, which a compiler pass could only guess (#21284).
+- A notification costs one write per change; checking costs one small read per request, plus a session write only when something changed.
+- Don't add a mechanism that pushes to all sessions. It needs the list of sessions again. On the stateless era, clients read the SDK notification bus through `subscriptions/listen`, and the versions feed that bus (see `adr/2026-09-24-mcp-stateless-era-degradation-policy.md`).
 
 ## Naming convention
 All capability names use hyphen-separated prefixes (`a-zA-Z0-9_-` only, no dots):
@@ -77,7 +91,7 @@ All capability names use hyphen-separated prefixes (`a-zA-Z0-9_-` only, no dots)
 - `Context/` -- Context bridging (`McpContextProvider`, `StoreApiMcpContextProvider`)
 - `Controller/` -- HTTP endpoints for MCP protocol (`McpServerController` admin, `StoreApiMcpServerController` store)
 - `RateLimit/` -- `McpRateLimiter` wrapper around the core `RateLimiter` (per-scope keys + throttle translation)
-- `Session/` -- Session helpers: `McpSessionIdValidator` (rejects malformed `mcp-session-id`), `McpSessionCleanupSubscriber` (wipes tool-result cache and toolset rows on session DELETE)
+- `Session/` -- Session helpers: `McpSessionIdValidator` (rejects malformed `mcp-session-id`), `McpSessionCleanupSubscriber` (wipes the tool results a session stored and its toolset rows on session DELETE)
 - `ScheduledTask/` -- Periodic GC: `McpToolsetSessionCleanupTask` (session-store liveness for `mcp_toolset_session`), `McpToolResultCacheCleanupTask` (age TTL for `mcp_tool_result_cache`; does not require a session store)
 - `Tool/` -- Individual MCP tool implementations
 - `Prompt/` -- System prompts for AI context
@@ -139,7 +153,7 @@ Each MCP server declares in `packages/mcp.php` which capabilities it exposes, as
 ## Extensibility
 - **Plugins**: Tag services with `shopware.mcp.tool` -- `McpToolDiscoveryCompilerPass` re-tags them as `mcp.tool` and assigns them to the Admin API server, so they appear in both `debug:mcp` and the HTTP endpoint. Use `McpToolResponse` for consistent error handling and response formatting.
 - **Third-party Symfony bundles**: Same `shopware.mcp.tool` tag mechanism as plugins -- `McpToolDiscoveryCompilerPass` handles it. See `custom/bundles/SwagMcpExampleBundle/` for a worked example.
-- **Apps**: Declare capabilities in `Resources/mcp.xml` -- parsed by `Mcp::createFromXmlFile()` (XXE-safe via `XmlUtils::loadFile()`), persisted by the respective Persister (`McpToolPersister`, `McpPromptPersister`, `McpResourcePersister`), loaded at runtime by the corresponding Loader (`AppMcpToolLoader`, `AppMcpPromptLoader`, `AppMcpResourceLoader`). App tool webhook payloads include `shopId` and `appVersion` in the `source` object. **App tools also support internal dispatch via `/api/script/{path}` -- see the Serverless app tools section below.**
+- **Apps**: Declare capabilities in `Resources/mcp.xml` -- parsed and stored in the generic `app_feature` table by the respective feature definition (`McpToolFeatureDefinition`, `McpPromptFeatureDefinition`, `McpResourceFeatureDefinition`), loaded at runtime by the corresponding Loader (`AppMcpToolLoader`, `AppMcpPromptLoader`, `AppMcpResourceLoader`). App tool webhook payloads include `shopId` and `appVersion` in the `source` object. **App tools also support internal dispatch via `/api/script/{path}` -- see the Serverless app tools section below.**
 - **In-tree Shopware bundles** (Storefront, etc.): Tag with **`mcp.tool`** directly (not `shopware.mcp.tool`), and make sure the class sits under a namespace the Admin API server's `registry` prefixes in `packages/mcp.php` cover -- otherwise add it there.
 - **Reserved prefix**: The `shopware-` prefix is reserved for core tools. App tools with names starting with `shopware-` are skipped during loading.
 
@@ -152,7 +166,7 @@ App MCP tools can use `/api/script/{path}` as their `url` — Shopware dispatche
 1. `AppMcpCapabilityExecutor` detects URLs starting with `/` and dispatches a Symfony subrequest instead of a Guzzle HTTP call.
 2. Arguments are passed as a `POST` form parameter named `arguments` (not JSON body), so Twig scripts can access them via `hook.request.request.all('arguments')`.
 3. Auth headers from the parent MCP request are inherited — the subrequest runs in the integration's authenticated context, so DAL ACL is enforced normally.
-4. `AppMcpToolLoader` SQL includes apps without a secret when their tool URL starts with `/`.
+4. `AppMcpToolLoader` includes apps without a secret when their tool URL starts with `/`.
 
 ### App script pattern
 
@@ -188,7 +202,7 @@ Create the Twig script at `Resources/scripts/api-my-app-my-tool/script.twig`:
 
 `<required-privileges>` in `mcp.xml` is the app-side equivalent of `#[McpToolRequires]` for plugins. It is **informational** — the Admin UI shows the declared privileges as chips in the integration allowlist and warns when the integration role is missing them. Actual enforcement happens via DAL ACL inside the script.
 
-`McpToolPersister` validates at install/update time that every declared privilege appears in the app's manifest `<permissions>`. An app that declares `product:read` as a required privilege but does not have `<read>product</read>` in `<permissions>` will fail to install with a clear error message. An app without a `<permissions>` block has no privileges, so any required privilege fails the same way.
+`McpToolFeatureDefinition` validates at install/update time that every declared privilege appears in the app's manifest `<permissions>`. An app that declares `product:read` as a required privilege but does not have `<read>product</read>` in `<permissions>` will fail to install with a clear error message. An app without a `<permissions>` block has no privileges, so any required privilege fails the same way.
 
 ## Future ideas / backlog
 
@@ -215,9 +229,8 @@ Open questions before implementing:
 - Overlap: when does the admin MCP + store-API proxy (current approach) become insufficient vs. needing a real customer-scoped MCP?
 
 ### SDK-ready features (no upstream changes needed)
-The symfony-mcp-bundle (v0.8.0) and mcp/sdk (v0.4.0) already implement the following — Shopware just needs to wire them up:
+symfony/mcp-bundle and mcp/sdk (see `composer.json` for the versions in use) already implement the following — Shopware just needs to wire them up:
 
-- **`listChanged` notifications** — SDK has `ToolListChangedNotification`, `ResourceListChangedNotification`, `PromptListChangedNotification` in `vendor/mcp/sdk/src/Schema/Notification/`. Call `$protocol->sendNotification()` from an event listener when capabilities change (e.g. after app install/uninstall). Lets AI clients refresh their tool list without reconnecting.
 - **Resource subscriptions** — SDK has `ResourceSubscribeHandler` and `ResourceUnsubscribeHandler` (`vendor/mcp/sdk`). Resource templates (`#[McpResourceTemplate]`) are already wired up in core — see `ToolResultResource` and `Resource/AGENTS.md`. Subscriptions remain to be wired up if clients need push notifications when resources change.
 - **Protocol-level pagination** — `RegistryInterface::getTools(?int $limit, ?string $cursor)` etc. already support cursor-based pagination; bundle has a `mcp.pagination_limit` config param. Shopware doesn't configure or expose it — relevant once tool/resource counts grow large.
 - **Completion utility** — SDK has `CompletionCompleteHandler` + `CompletionProvider` interface with built-in `EnumCompletionProvider` / `ListCompletionProvider` (`vendor/mcp/sdk/src/Capability/Attribute/CompletionProvider.php`). Register providers on tool/prompt arguments to power autocomplete in MCP clients (e.g. entity name suggestions for the `entity` parameter on entity tools).
@@ -241,6 +254,7 @@ Additional safeguards:
 - **Rate limiting**: every request passes through `McpRateLimiter` before the protocol runs. Separate per-scope buckets (`mcp_admin_api`, `mcp_store_api`); exceeding the limit returns HTTP 429 via `McpException::throttled()`. See the Rate limiting section under "Future ideas / backlog" for the keying details and open improvements.
 - **Audit logging**: tool invocations logged via `mcp` Monolog channel
 - **App HMAC**: app tool calls signed with `RequestSigner` using the app secret
+- **Signed result pointers**: `McpToolResultPointerSigner` signs the pointers in tool result links (`<id>.<expiry>.<hmac>`, bound to the principal). Reuse it for any new short-lived signed token instead of calling `hash_hmac` directly; it already has an injected clock, a constant-time compare and validated fields. Sharing it outside MCP is tracked in #21520.
 - **XML parsing**: `mcp.xml` parsed with `XmlUtils::loadFile()` to prevent XXE attacks
 - **Entity validation**: entity tools check `registry->has()` before ACL to give clear "entity not found" errors
 - **Global compile-time allowlist**: `shopware.mcp.allowed_tools` acts as an installation-wide safety switch (secondary to per-integration allowlists)

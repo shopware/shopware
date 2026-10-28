@@ -28,9 +28,57 @@ The PHPUnit version provided by the Shopware platform was upgraded to 13. If you
 
 Alternatively, decouple your test runner from the platform by explicitly requiring the PHPUnit version you expect in your plugin and using that separate installation in your test pipeline. Managing PHPUnit separately can be preferable when testing across multiple Shopware and PHP versions: choose a PHPUnit version compatible with your supported PHP versions and any Shopware test helpers your tests use, rather than adopting PHPUnit 13 for every test run.
 
+## Administration build updated to Vite 8
+
+The Administration and the Administration code of plugins and apps were built with Vite 6 before and are built with Vite 8 now. Vite 8 uses Rolldown and Oxc instead of Rollup and esbuild. Building the Administration requires Node.js `^20.19.0 || >=22.12.0`.
+
+In Shopware 6.7, you can already build with Vite 8 by activating the `ADMIN_VITE_8` feature flag, for example with `ADMIN_VITE_8=1 composer watch:admin`.
+
+Check the Administration code of your plugin or app for these changes:
+
+* `import.meta.glob` with extglob patterns like `!(*.spec)` matches no files in production builds, and depending on the pattern also in the watcher. Replace them with negated patterns:
+
+  ```js
+  // Before
+  import.meta.glob('./**/!(*.spec).{j,t}s', { eager: true });
+  // After
+  import.meta.glob(['./**/*.{j,t}s', '!./**/*.spec.{j,t}s'], { eager: true });
+  ```
+
+  If your Jest setup transforms `import.meta.glob` with `babel-plugin-shopware-vite-meta-glob`, update it to 0.0.6 or newer first. Older versions ignore negated patterns in arrays and exclude nothing. A `^0.0.x` range does not pick up 0.0.6 automatically.
+
+  `composer run admin:code-mods -- --fix -v 6.8 -p YourPlugin` rewrites them for you.
+
+  With the `ADMIN_VITE_8` flag in 6.7, Shopware still rewrites negated extglobs in plugins and apps and logs a warning for each one. 6.8 no longer rewrites them.
+
+* A default import of a CommonJS module resolves to `module.exports` if the importing file is an `.mjs`/`.mts` file, the nearest `package.json` sets `"type": "module"`, or the module does not set `__esModule`. Otherwise it resolves to `module.exports.default`. Check default imports of CommonJS dependencies.
+
+If your plugin or app ships its own `vite.config.*` or Vite plugins, follow the [Vite 7](https://v7.vite.dev/guide/migration) and [Vite 8](https://vite.dev/guide/migration) migration guides.
+
 # Changed Functionality
 
 <details>
+
+## Reorder form line item blocks removed
+
+`frontend.checkout.cart.reorder` resolves the reordered products from the order itself, so the reorder form no longer posts any `lineItems`. These two blocks in `storefront/page/account/order-history/order-item.html.twig` were emptied in 6.7 and are now removed:
+
+- `page_account_order_item_context_menu_reorder_form_line_items_input`
+- `page_account_order_item_context_menu_reorder_form_line_item_input`
+
+From 6.7 on an override still rendered but no longer changed what a reorder adds. To change what a reorder adds, listen to the `checkout.cart.collect-reorder-line-items` extension, which hands you the `OrderEntity` and the built `list<LineItem>`:
+
+```php
+public static function getSubscribedEvents(): array
+{
+    return [CheckoutCartCollectReorderLineItemsExtension::onPost() => 'addMyLineItems'];
+}
+
+public function addMyLineItems(CheckoutCartCollectReorderLineItemsExtension $extension): void
+{
+    $extension->result = [...($extension->result ?? []), $myLineItem];
+}
+```
 
 ## Document generation v2 is the default
 
@@ -286,6 +334,13 @@ The variable `displayCustomerVatIdForDelivery` in `src/Core/Framework/Resources/
 
 The `sw_garan_label_mail` Twig filter and `Shopware\Core\Content\Product\Garan\GaranLabelTwigFilter::resolveMailLabel()` were removed. Mail templates read the GARAN label from the `garanLabels` template variable instead: replace `productId|sw_garan_label_mail(context)` with `garanLabels[productId] ?? null`. Order confirmation mail templates that were never edited had already been migrated.
 
+## GARAN label only from the line item payload
+
+Cart line items show only the GARAN label stored in their `payload.garanLabel`, as order line items do since 6.7.17.0.
+The Storefront no longer looks up the product of line items without that key, they show no GARAN label.
+The `sw_garan_label_nested` Twig filter and `Shopware\Core\Content\Product\Garan\GaranLabelTwigFilter::renderNestedLabel()` were removed.
+Render the label from `lineItem.payload.garanLabel` instead, as `storefront/component/line-item/element/garan-label.html.twig` does.
+
 ## Shipping price matrix ranges use currency conversion
 
 Price-based shipping method price matrix ranges are now compared in the default currency. When a cart is calculated in a currency with a factor, Shopware converts the cart price back to the default currency before matching the configured `quantityStart` and `quantityEnd` range.
@@ -301,6 +356,14 @@ After a customer logs out, the storefront session now holds the context token th
 # API
 
 <details>
+
+## Product reviews require a rating
+
+`POST /store-api/product/{productId}/review` rejects a request without `points`, or with `"points": null`, with `400` and a `VIOLATION::IS_BLANK_ERROR` on `/points`. Before, such a review was saved without a rating. Headless frontends that let customers skip the rating have to send `points` between 1 and 5.
+
+The `product_review` entity marks `externalUser` and `points` as required and only accepts `points` from 1 to 5, so creating a review through the Admin API, the Sync API or a repository without them, or with `points` outside that range, fails. Integrations and imports that create reviews have to send both fields.
+
+The columns `product_review.external_user` and `product_review.points` become `NOT NULL` in the destructive migration step, so code of the previous version keeps working until then. That step fills `external_user` for existing reviews without an author, with the first name of the review's customer or an empty string for reviews without a customer, and sets `points` to `0` for existing reviews without a rating. `0` points now stands for a review without a rating: the rating average ignores these reviews, and integrations, apps and headless frontends that read `points` have to treat `0` the way they treated `null` before.
 
 ## Type-based number range preview Admin API removed
 
@@ -391,7 +454,27 @@ Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new fo
 
 # Core
 
+## Multiple SQL statements restricted to migrations and installation
+
+Application database connections no longer accepted multiple SQL statements in a single call.
+The restriction was controlled by `DISABLE_SQL_MULTI_STATEMENTS`, which was enabled by the 6.8 major flag unless explicitly disabled.
+Replace batches such as `executeStatement('UPDATE ...; DELETE ...')` with separate calls and keep any required transaction around them.
+Separating read and write statements also improved compatibility with SQL proxies that could not route mixed read/write batches in a single query.
+
+Migration execution, discovery, and bookkeeping used a dedicated connection to the primary database.
+Use the connection passed to `MigrationStep::update()` and `MigrationStep::updateDestructive()` for migration queries; these methods and installer schema imports continued to support multiple statements.
+
 <details>
+
+## Rule container `__wakeup()` hooks are no longer called
+
+`Shopware\Core\Framework\Rule\Container\Container::__unserialize()` no longer calls subclass `__wakeup()` hooks.
+Move custom rule container initialization from `__wakeup()` into `__unserialize(array $data): void` and call `parent::__unserialize($data)` before running it.
+Remove the old `__wakeup()` implementation to avoid duplicate initialization when supporting earlier Shopware versions that provide the compatibility call.
+
+## Invalid price definition exceptions
+
+`PriceDefinitionFieldSerializer` now throws `DataAbstractionLayerException` for invalid price-definition types instead of the removed `InvalidPriceFieldTypeException`. Update exception catches and use `DataAbstractionLayerException::invalidPriceFieldType()` to construct this error. Its error code, status, and message remain unchanged.
 
 ## `ReverseProxyCompilerPass` removed
 
@@ -673,6 +756,22 @@ $this->addPromotionNotEligibleError($name, $cart);
 // After
 $cart->addErrors(new \Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError($code));
 $cart->addErrors(new \Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError($name));
+```
+
+## Removal of `PromotionItemBuilder::buildPlaceholderItem()`
+
+`\Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder::buildPlaceholderItem()` was removed.
+Create the promotion placeholder line item through the `LineItemFactoryRegistry` with the `promotion` type, or call `PromotionLineItemFactory::create()` directly:
+
+```php
+// Before
+$lineItem = $promotionItemBuilder->buildPlaceholderItem($code);
+
+// After
+$lineItem = $lineItemFactoryRegistry->create([
+    'type' => LineItem::PROMOTION_LINE_ITEM_TYPE,
+    'referencedId' => $code,
+], $salesChannelContext);
 ```
 
 ## Removal of `$options` parameter in custom validator's constraints
@@ -1014,6 +1113,9 @@ foreach ($entities as $entity) {
 
 The translation of the import/export profile label has been removed.
 Profiles are now identified and displayed only by their technical name.
+
+Direct construction of `ImportExportProfileTranslationDefinition`, `ImportExportProfileTranslationEntity` and `ImportExportProfileTranslationCollection`, including empty collections, already throws when the `v6.8.0.0` feature flag is active. Remove these constructions and use the profile's technical name instead of translated labels.
+
 - The `$label` property and the following methods in `Shopware\Core\Content\ImportExport\ImportExportProfileEntity` have been removed:
   - `getLabel()`
   - `setLabel()`
@@ -1387,6 +1489,18 @@ If your extension extends or decorates `\Shopware\Core\System\NumberRange\ValueG
 
 The method must raise the stored increment state to at least the given value without lowering an existing higher state.
 
+## Removed `DocumentException::documentNumberAlreadyExistsException()`
+
+`Shopware\Core\Checkout\Document\DocumentException::documentNumberAlreadyExistsException()` was removed. Use `documentNumberAlreadyExistsExceptionForType()`, which also names the document type:
+
+```php
+// Before
+throw DocumentException::documentNumberAlreadyExistsException($number);
+
+// After
+throw DocumentException::documentNumberAlreadyExistsExceptionForType($number, $documentType);
+```
+
 ## Removal of `SalesChannelContextRestorer::restoreByOrder()`
 
 `\Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer::restoreByOrder()` and `\Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestorerOrderCriteriaEvent` were removed. Load the order with the `orderCustomer`, `transactions.stateMachineState` and `primaryOrderDelivery` associations and pass it to `\Shopware\Core\Checkout\Cart\Order\OrderConverter::assembleSalesChannelContext()`. Add associations you used to add through `SalesChannelContextRestorerOrderCriteriaEvent` to that criteria directly.
@@ -1408,7 +1522,44 @@ $this->cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior(
 new HreflangLoaderParameter('frontend.home.page', $routeParameters, $salesChannelContext, true);
 ```
 
+## Removal of the per-customer redemption counter of promotions
+
+The per-customer redemption counter of promotions was removed:
+
+* DAL: the promotion field `ordersPerCustomerCount` and the database column `promotion.orders_per_customer_count` were removed.
+* Admin API: promotions no longer contain `ordersPerCustomerCount`.
+* `\Shopware\Core\Checkout\Promotion\PromotionEntity`: `getOrdersPerCustomerCount()`, `setOrdersPerCustomerCount()` and `isOrderCountPerCustomerCountValid()` were removed.
+
+Count the customer's orders that contain a line item of the promotion instead:
+
+```php
+// Before
+$redemptions = $promotion->getOrdersPerCustomerCount()[$customerId] ?? 0;
+
+// After
+$criteria = (new Criteria())
+    ->addFilter(new EqualsFilter('orderCustomer.customerId', $customerId))
+    ->addFilter(new EqualsFilter('lineItems.promotionId', $promotion->getId()));
+
+$redemptions = $this->orderRepository->searchIds($criteria, $context)->getTotal();
+```
+
+## `NotFilter` constructor accepts a single filter
+
+The `$operator` parameter of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter::__construct()` is widened from `string` to `string|Filter`, so `new NotFilter($filter)` negates a single filter like `NotFilter::negate($filter)`. Existing calls keep working unchanged.
+
 # Administration
+
+## `sw-sales-channel-detail-products.saveProductVisibilities()` removed
+
+The `saveProductVisibilities()` method of the `sw-sales-channel-detail-products` component was removed.
+The component assigns products through the `salesChannelProductAssignmentApiService.assign()` service method, which resolves product groups and categories on the server.
+Extensions that called or overrode `saveProductVisibilities()` must use `salesChannelProductAssignmentApiService.assign(salesChannelId, { productIds })` instead.
+The method repeats the request until the server reports the assignment as complete and resolves with `{ assigned, complete }`.
+
+## Import/export profile language tooltip removed
+
+The deprecated snippet key `sw-import-export.profile.addNewProfileTooltipLanguage` was removed without replacement. Remove references to this tooltip from extensions, as profile creation no longer requires the system language.
 
 ## Removal of deprecated `config` data property in `sw-system-config` component
 
@@ -1749,20 +1900,6 @@ Plan to migrate all code to axios v1 as soon as possible.
 
 For detailed migration instructions, see the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
 The architectural rationale is documented in [Keep Administration HTTP transports behind a compatibility facade](adr/2026-07-23-administration-http-client-compatibility-facade.md).
-
-## Removal of "sw-empty-state"
-
-The old `sw-empty-state` component will be removed in the next major version.
-Please use the new `mt-empty-state` component instead.
-
-Before:
-```html
-<sw-empty-state title="short title" subline="longer subline" />
-```
-After:
-```html
-<mt-empty-state title="short title" description="longer description"/>
-```
 
 ## Removed empty state Twig block anchors
 
@@ -2492,6 +2629,38 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 # Storefront
 
 <details>
+
+## Removal of deprecated `ListingPlugin` properties
+
+The following deprecated properties of the `ListingPlugin` class in `listing.plugin.js` carrying single elements have been removed and were replaced respectively by new properties carrying `NodeList`s:
+
+- `_filterPanel` → `_filterPanels`
+- `activeFilterContainer` → `activeFilterContainers`
+- `ariaLiveContainer` → `ariaLiveContainers`
+
+The fallback to `this.activeFilterContainer` in `ListingPlugin.createResetAllButton()` was removed.
+Pass the target active-filter container explicitly with `createResetAllButton(activeFilterContainer)`.
+Update custom overrides to accept the argument and forward it when calling `super.createResetAllButton(activeFilterContainer)`.
+
+## Removal of deprecated `$offcanvas-zindex` SCSS variable
+
+The custom offcanvas z-index SCSS variable `$offcanvas-zindex` has been removed. To override the offcanvas z-index or calculate your own z-index based on it, use the bootstrap variable `$zindex-offcanvas` instead.
+
+## `ThemeService::compileTheme()` received a new optional `$notifyOnAsyncCompletion` parameter
+
+`Shopware\Storefront\Theme\ThemeService::compileTheme()` received a new optional parameter `bool $notifyOnAsyncCompletion = true`. With asynchronous theme compilation, it controls whether the Administration user is notified once the compilation is completed. Call sites are not affected. Classes overriding this method had to add the parameter to keep a compatible signature:
+
+Before:
+
+```php
+public function compileTheme(string $salesChannelId, string $themeId, Context $context, ?StorefrontPluginConfigurationCollection $configurationCollection = null, bool $withAssets = true): void
+```
+
+After:
+
+```php
+public function compileTheme(string $salesChannelId, string $themeId, Context $context, ?StorefrontPluginConfigurationCollection $configurationCollection = null, bool $withAssets = true, bool $notifyOnAsyncCompletion = true): void
+```
 
 ## Removed `--no-cleanup` option of `theme:compile` and `theme:change`
 

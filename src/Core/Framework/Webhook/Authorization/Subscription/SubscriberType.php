@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook\Authorization\Subscription;
 
+use Shopware\Core\Framework\Api\Acl\ApiCaller;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -13,9 +14,15 @@ use Shopware\Core\Framework\Log\Package;
 enum SubscriberType
 {
     case App;
-    case Admin;
     case User;
     case Integration;
-    case AppIntegration;
     case None;
+
+    public static function of(ApiCaller $caller): self
+    {
+        return match ($caller->type) {
+            ApiCaller::USER => self::User,
+            ApiCaller::INTEGRATION => self::Integration,
+        };
+    }
 }

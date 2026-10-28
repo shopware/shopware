@@ -15,6 +15,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -22,8 +24,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Integration\Builder\Customer\CustomerBuilder;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -133,6 +138,84 @@ class CartRuleLoaderTest extends TestCase
             true,
             true,
             CartPrice::TAX_STATE_FREE,
+        ];
+    }
+
+    /**
+     * @param list<string> $vatIds
+     */
+    #[DataProvider('contextTaxStateProvider')]
+    public function testContextTaxStateMatchesCartTaxState(
+        string $accountType,
+        bool $customerTaxFree,
+        bool $companyTaxFree,
+        array $vatIds,
+        string $expectedTaxState,
+    ): void {
+        $countryId = static::getContainer()->get(Connection::class)
+            ->fetchOne('SELECT LOWER(HEX(id)) FROM country WHERE iso = :iso', ['iso' => 'AT']);
+
+        static::getContainer()->get('country.repository')->update([[
+            'id' => $countryId,
+            'customerTax' => ['enabled' => $customerTaxFree, 'currencyId' => Defaults::CURRENCY, 'amount' => 0],
+            'companyTax' => ['enabled' => $companyTaxFree, 'currencyId' => Defaults::CURRENCY, 'amount' => 0],
+        ]], Context::createDefaultContext());
+
+        $customer = (new CustomerBuilder(new IdsCollection(), 'customer'))
+            ->defaultBillingAddress('default-address', ['countryId' => $countryId])
+            ->add('accountType', $accountType)
+            ->add('company', 'Acme GmbH')
+            ->add('vatIds', $vatIds);
+
+        static::getContainer()->get('customer.repository')->create([$customer->build()], Context::createDefaultContext());
+
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(
+            Uuid::randomHex(),
+            TestDefaults::SALES_CHANNEL,
+            [SalesChannelContextService::CUSTOMER_ID => $customer->id],
+        );
+        $contextTaxState = $context->getTaxState();
+
+        $cart = static::getContainer()->get(CartRuleLoader::class)
+            ->loadByCart($context, new Cart($context->getToken()), new CartBehavior())
+            ->getCart();
+
+        static::assertSame($expectedTaxState, $contextTaxState);
+        static::assertSame($expectedTaxState, $cart->getPrice()->getTaxStatus());
+    }
+
+    public static function contextTaxStateProvider(): \Generator
+    {
+        yield 'business account without VAT ID in country with B2C tax-free is taxed in context and cart' => [
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'customerTaxFree' => true,
+            'companyTaxFree' => false,
+            'vatIds' => [],
+            'expectedTaxState' => CartPrice::TAX_STATE_GROSS,
+        ];
+
+        yield 'private account with company and VAT ID in country with B2B tax-free is taxed in context and cart' => [
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
+            'customerTaxFree' => false,
+            'companyTaxFree' => true,
+            'vatIds' => ['ATU12345678'],
+            'expectedTaxState' => CartPrice::TAX_STATE_GROSS,
+        ];
+
+        yield 'business account with VAT ID in country with B2B tax-free is tax-free in context and cart' => [
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'customerTaxFree' => false,
+            'companyTaxFree' => true,
+            'vatIds' => ['ATU12345678'],
+            'expectedTaxState' => CartPrice::TAX_STATE_FREE,
+        ];
+
+        yield 'private account in country with B2C tax-free is tax-free in context and cart' => [
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
+            'customerTaxFree' => true,
+            'companyTaxFree' => false,
+            'vatIds' => [],
+            'expectedTaxState' => CartPrice::TAX_STATE_FREE,
         ];
     }
 

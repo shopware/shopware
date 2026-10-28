@@ -1,0 +1,40 @@
+diff --git a/src/Core/Checkout/Payment/SalesChannel/HandlePaymentMethodRoute.php b/src/Core/Checkout/Payment/SalesChannel/HandlePaymentMethodRoute.php
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Core/Checkout/Payment/SalesChannel/HandlePaymentMethodRoute.php
++++ b/src/Core/Checkout/Payment/SalesChannel/HandlePaymentMethodRoute.php
+@@ -84,11 +84,13 @@
+             );
+         }
+ 
++        $finishUrl = $request->headers->get('sw-payment-finish-url', $data['finishUrl'] ?? null);
++
+         $response = $this->paymentProcessor->pay(
+             $data['orderId'],
+             $request,
+             $context,
+-            $data['finishUrl'] ?? null,
++            $finishUrl,
+             $data['errorUrl'] ?? null,
+         );
+ 
+diff --git a/src/Core/Checkout/Payment/SalesChannel/HandlePaymentMethodRouteResponse.php b/src/Core/Checkout/Payment/SalesChannel/HandlePaymentMethodRouteResponse.php
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Core/Checkout/Payment/SalesChannel/HandlePaymentMethodRouteResponse.php
++++ b/src/Core/Checkout/Payment/SalesChannel/HandlePaymentMethodRouteResponse.php
+@@ -26,14 +26,14 @@
+     }
+ 
+     /**
+-     * @return ArrayStruct<array{redirectUrl: string|null}>
++     * @return ArrayStruct<array{paymentRedirectUrl: string|null}>
+      *
+      * @phpstan-ignore method.childReturnType (it is intended to return a different ArrayStruct)
+      */
+     public function getObject(): ArrayStruct
+     {
+         return new ArrayStruct([
+-            'redirectUrl' => $this->getRedirectResponse()?->getTargetUrl(),
++            'paymentRedirectUrl' => $this->getRedirectResponse()?->getTargetUrl(),
+         ]);
+     }
+ }

@@ -129,6 +129,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Version\Cleanup\CleanupVersionT
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Cleanup\CleanupVersionTaskHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\ClonePayloadBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteResultFactory;
@@ -540,6 +541,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(VersionCommitDataDefinition::class),
             service(VersionDefinition::class),
             service('lock.factory'),
+            service(ClockInterface::class),
+            service(ClonePayloadBuilder::class),
+        ]);
+
+    $services->set(ClonePayloadBuilder::class)
+        ->args([
             service(ClockInterface::class),
         ]);
 

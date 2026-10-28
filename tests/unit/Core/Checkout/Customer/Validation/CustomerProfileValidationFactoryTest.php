@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\Validation;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\NoHtml;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
+use Shopware\Core\Framework\Validation\HappyPathValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Salutation\SalutationDefinition;
@@ -263,7 +265,7 @@ class CustomerProfileValidationFactoryTest extends TestCase
         $notBlank = $definition->getProperty($field)[0] ?? null;
         static::assertInstanceOf(NotBlank::class, $notBlank);
 
-        $validator = Validation::createValidator();
+        $validator = new HappyPathValidator(Validation::createValidator());
         static::assertCount(1, $validator->validate('   ', $notBlank));
         static::assertCount(1, $validator->validate(null, $notBlank));
         static::assertCount(0, $validator->validate('  Ada  ', $notBlank));
@@ -284,8 +286,8 @@ class CustomerProfileValidationFactoryTest extends TestCase
     {
         $definition
             ->add('salutationId', new EntityExists(entity: SalutationDefinition::ENTITY_NAME, context: $context->getContext()))
-            ->add('firstName', new NotBlank(normalizer: 'trim'))
-            ->add('lastName', new NotBlank(normalizer: 'trim'))
+            ->add('firstName', new NotBlank(normalizer: [CompanyAccountNameFields::class, 'trimString']))
+            ->add('lastName', new NotBlank(normalizer: [CompanyAccountNameFields::class, 'trimString']))
             ->add('accountType', new Choice(choices: $this->accountTypes))
             ->add('title', new Length(max: CustomerDefinition::MAX_LENGTH_TITLE))
             ->add('firstName', new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME))

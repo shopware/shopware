@@ -1007,7 +1007,7 @@ class RegisterRouteTest extends TestCase
 
                 $company = $subs['shippingAddress']->getProperties()['company'] ?? [];
 
-                static::assertNotEmpty($company);
+                static::assertContainsEquals(CompanyAccountNameFields::companyNotBlank(), $company);
                 static::assertContainsOnlyInstancesOf(NotBlank::class, $company);
 
                 return true;

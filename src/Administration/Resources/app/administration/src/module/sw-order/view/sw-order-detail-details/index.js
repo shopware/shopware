@@ -9,6 +9,16 @@ const { Component, Store, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
+// Debounced apart from the deprecated `onShippingChargeEdited`, so its guard fires at the call instead of 800ms later.
+const saveShippingCharge = Utils.debounce(function saveShippingCharge(amount) {
+    if (amount >= 0) {
+        this.delivery.shippingCosts.unitPrice = amount;
+        this.delivery.shippingCosts.totalPrice = amount;
+    }
+
+    this.saveAndRecalculate();
+}, 800);
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -238,19 +248,14 @@ export default {
         },
 
         // @deprecated tag:v6.8.0 - Will be removed, change shipping cost on order general view instead.
-        onShippingChargeEdited: Utils.debounce(function onShippingChargeEdited(amount) {
+        onShippingChargeEdited(amount) {
             Shopware.Feature.triggerDeprecationOrThrow(
                 'V6_8_0_0',
                 'sw-order-detail-details.onShippingChargeEdited() is deprecated. Change shipping cost on order general view instead.',
             );
 
-            if (amount >= 0) {
-                this.delivery.shippingCosts.unitPrice = amount;
-                this.delivery.shippingCosts.totalPrice = amount;
-            }
-
-            this.saveAndRecalculate();
-        }, 800),
+            saveShippingCharge.call(this, amount);
+        },
 
         loadingChange(loading) {
             if (this.swOrderDetailOnLoadingChange) {

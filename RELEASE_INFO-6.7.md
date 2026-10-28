@@ -296,6 +296,11 @@ Core usages that are not migrated yet are listed in `src/Administration/Resource
 In next-major mode, a deprecation with a listed message logs a console error instead of throwing, so the Administration stays usable.
 Any other deprecation still throws.
 
+### Empty snippet filter ignores snippets with the value `0`
+
+The "Show empty snippets only" filter in the snippet list now only lists snippets without a value.
+A snippet whose value is `0` counts as translated and is no longer listed.
+
 ## API
 
 To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
@@ -349,6 +354,11 @@ Before, saving the profile without that setting removed the company and the VAT 
 Themes that override `component_address_personal_company_section`, `component_address_personal_company` or `component_address_personal_vat_id` in `component/address/address-personal.html.twig` should check that the content also suits this case.
 
 ## Hosting & Configuration
+
+### Readiness checks isolate their virtual requests
+
+Pre-rollout system checks now reset services between virtual Administration and Storefront requests, including redirects and failed requests.
+This prevents theme and Twig context from leaking between probes and failed probes from leaving a PHP session open for the next check.
 
 ### Storefront readiness checks skip pages restricted by extensions
 

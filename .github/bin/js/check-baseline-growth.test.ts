@@ -9,6 +9,7 @@ import { afterEach, beforeEach, test } from 'node:test';
 const SCRIPT = join(dirname(fileURLToPath(import.meta.url)), 'check-baseline-growth.ts');
 const BASELINE = 'admin/eslint-suppressions.json';
 const CONFIG = 'admin/eslint.config.ts';
+const FALLOW_BASELINE = 'admin/fallow-baseline.json';
 
 let repo: string;
 let baseSha: string;
@@ -28,8 +29,12 @@ const writeBaseline = (suppressions: Record<string, Record<string, number>>): vo
     write(BASELINE, JSON.stringify(Object.fromEntries(entries)));
 };
 
-const check = () => {
-    const result = spawnSync(process.execPath, [SCRIPT, '--base', baseSha, '--config', CONFIG, BASELINE], {
+const writeFallowBaseline = (findings: Record<string, string[]>): void => {
+    write(FALLOW_BASELINE, JSON.stringify({ kind: 'dead-code', unused_files: [], ...findings }));
+};
+
+const check = (baseline = BASELINE) => {
+    const result = spawnSync(process.execPath, [SCRIPT, '--base', baseSha, '--config', CONFIG, baseline], {
         cwd: repo,
         encoding: 'utf8',
     });
@@ -47,6 +52,7 @@ beforeEach(() => {
     write('admin/src/b.js', '');
     write(CONFIG, 'export default [];');
     writeBaseline({ 'src/a.js': { complexity: 2 }, 'src/b.js': { complexity: 1 } });
+    writeFallowBaseline({ unused_exports: ['unused-export:src/a.ts:x', 'unused-export:src/b.ts:y'] });
     git('add', '.');
     git('commit', '--quiet', '-m', 'base');
     baseSha = git('rev-parse', 'HEAD');
@@ -101,4 +107,25 @@ test('fails on entries of a deleted file', () => {
 
     assert.equal(result.status, 1);
     assert.match(result.output, /src\/b.js no longer exists. Run `npm run lint:fix`/);
+});
+
+test('passes when a Fallow baseline shrinks', () => {
+    writeFallowBaseline({ unused_exports: ['unused-export:src/a.ts:x'] });
+
+    const result = check(FALLOW_BASELINE);
+
+    assert.equal(result.status, 0);
+    assert.match(result.output, /unused_exports: 2 -> 1\n/);
+});
+
+test('fails when a Fallow finding category grows', () => {
+    writeFallowBaseline({
+        unused_exports: ['unused-export:src/a.ts:x', 'unused-export:src/b.ts:y'],
+        unused_files: ['unused-file:src/c.ts'],
+    });
+
+    const result = check(FALLOW_BASELINE);
+
+    assert.equal(result.status, 1);
+    assert.match(result.output, /unused_files: 0 -> 1 {2}<-- grew/);
 });

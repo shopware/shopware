@@ -25,6 +25,8 @@ New code has to pass without adding to it.
 - A fixed finding fails the check as well, with "matched no current issue".
   Run `npm run lint:fallow:prune` and commit the smaller baseline.
 - Never run `fallow dead-code --save-baseline` on the existing baseline, it would record new findings as old ones.
+  The CI job "Lint baselines do not grow" catches it: it counts the entries per category and fails when a category grows.
+  A category that is new to the baseline only passes together with a change to `.fallowrc.json`.
 
 The baseline is not a list of code that is safe to delete.
 `@private` keeps its meaning, so every export without it is public API, and removing one follows the deprecation process.

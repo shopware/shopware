@@ -32,12 +32,12 @@ const repositoryMockFactory = () => {
     };
 };
 
-const createWrapper = async (privileges = []) => {
+const createWrapper = async (privileges = [], repository = null) => {
     return mount(await wrapTestComponent('sw-mail-header-footer-detail', { sync: true }), {
         global: {
             provide: {
                 repositoryFactory: {
-                    create: () => repositoryMockFactory(),
+                    create: () => repository ?? repositoryMockFactory(),
                 },
                 mailService: {},
                 entityMappingService: {
@@ -79,6 +79,9 @@ const createWrapper = async (privileges = []) => {
                 'sw-code-editor': true,
                 'sw-skeleton': true,
                 'sw-language-switch': true,
+                'sw-modal': {
+                    template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+                },
             },
         },
     });
@@ -141,23 +144,28 @@ describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
     });
 
     it('should find every selected sales channel that already uses another header and footer, also beyond 25', async () => {
-        wrapper = await createWrapper(['mail_templates.editor']);
-        await flushPromises();
-
         const salesChannels = Array.from({ length: 30 }, (_, index) => ({
             id: `sales-channel-${index}`,
             name: `Sales channel ${index}`,
+            translated: { name: `Sales channel ${index}` },
             mailHeaderFooterId: 'another-header-footer',
         }));
-        wrapper.vm.mailHeaderFooter = { ...mailHeaderFooterMock, salesChannels };
+        const repository = {
+            ...repositoryMockFactory(),
+            get: () => Promise.resolve({ ...mailHeaderFooterMock, salesChannels }),
+            // like the API, only return as many sales channels as the criteria asks for
+            search: jest.fn((criteria) => Promise.resolve(salesChannels.slice(0, criteria.limit ?? undefined))),
+        };
 
-        // like the API, only return as many sales channels as the criteria asks for
-        jest.spyOn(wrapper.vm.salesChannelRepository, 'search').mockImplementation((criteria) =>
-            Promise.resolve(salesChannels.slice(0, criteria.limit ?? undefined)),
-        );
+        wrapper = await createWrapper(['mail_templates.editor'], repository);
+        await flushPromises();
 
-        await wrapper.vm.findAlreadyAssignedSalesChannels();
+        await wrapper.find('.sw-mail-header-footer-detail__save-action').trigger('click');
+        await flushPromises();
 
-        expect(wrapper.vm.alreadyAssignedSalesChannels).toHaveLength(30);
+        expect(repository.search).toHaveBeenCalledTimes(1);
+        expect(
+            wrapper.findAll('.sw-mail-header-footer-detail__sales-channel-list-entry').map((entry) => entry.text()),
+        ).toEqual(salesChannels.map(({ name }) => name));
     });
 });

@@ -73,7 +73,11 @@ const HEADLESS_DEFAULTS = [
 
 const ALL_DEFAULTS = [...STOREFRONT_DEFAULTS, ...HEADLESS_DEFAULTS];
 
-async function createWrapper({ defaultTemplates = ALL_DEFAULTS, salesChannelTemplates = [] } = {}) {
+async function createWrapper({
+    defaultTemplates = ALL_DEFAULTS,
+    salesChannelTemplates = [],
+    initiallyLoadedSalesChannelIds = null,
+} = {}) {
     const seoUrlTemplateService = {
         preview: jest.fn().mockResolvedValue([]),
         getContext: jest.fn().mockResolvedValue({}),
@@ -110,7 +114,11 @@ async function createWrapper({ defaultTemplates = ALL_DEFAULTS, salesChannelTemp
         search: jest.fn(({ ids }) => {
             const result = new EntityCollection('/sales-channel', 'sales_channel', Shopware.Context.api);
             salesChannels
-                .filter(({ id }) => ids.length === 0 || ids.includes(id))
+                .filter(({ id }) =>
+                    ids.length === 0
+                        ? !initiallyLoadedSalesChannelIds || initiallyLoadedSalesChannelIds.includes(id)
+                        : ids.includes(id),
+                )
                 .forEach((salesChannel) => result.add(salesChannel));
 
             return Promise.resolve(result);
@@ -343,15 +351,18 @@ describe('src/module/sw-settings-seo/component/sw-seo-url-template-card', () => 
     });
 
     it('should load a selected sales channel that is not part of the initially loaded sales channels', async () => {
-        const { wrapper } = await createWrapper();
         // with many sales channels, the initially loaded page does not contain every sales channel
-        wrapper.vm.salesChannels = wrapper.vm.salesChannels.filter(({ id }) => id === STOREFRONT_SALES_CHANNEL_ID);
+        const { wrapper } = await createWrapper({ initiallyLoadedSalesChannelIds: [STOREFRONT_SALES_CHANNEL_ID] });
+        expect(wrapper.find('.sw-seo-url-template-card__seo-url').exists()).toBe(true);
 
-        await wrapper.vm.onSalesChannelChanged(HEADLESS_NO_DOMAIN_SALES_CHANNEL_ID);
+        wrapper
+            .findComponent('sw-sales-channel-switch-stub')
+            .vm.$emit('change-sales-channel-id', HEADLESS_NO_DOMAIN_SALES_CHANNEL_ID);
         await flushPromises();
 
         expect(wrapper.emitted('sales-channel-changed').at(-1)).toEqual([true]);
-        expect(wrapper.vm.salesChannelSupportsSeoUrlTemplates).toBe(false);
+        expect(wrapper.find('.sw-seo-url-template-card__seo-url').exists()).toBe(false);
+        expect(wrapper.find('.sw-seo-url-template-card__external-storefront-link').exists()).toBe(true);
     });
 
     it('should keep the storefront default order and reuse a store-api template already saved for the channel', async () => {

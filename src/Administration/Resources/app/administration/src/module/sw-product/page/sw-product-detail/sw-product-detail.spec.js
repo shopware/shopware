@@ -728,7 +728,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         await flushPromises();
         await flushPromises();
-        expect(wrapper.vm.product.visibilities).toHaveLength(30);
+        expect(
+            Shopware.Store.get('swProductDetail').product.visibilities.map(({ salesChannelId }) => salesChannelId),
+        ).toEqual(salesChannels.map(({ id }) => id));
     });
 
     it('should run custom validation service and handle errors', async () => {

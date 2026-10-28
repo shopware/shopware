@@ -215,11 +215,17 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         const manySalesChannels = Array.from({ length: 30 }, (_, index) => ({
             id: `sales-channel-${index}`,
             name: `Sales channel ${index}`,
+            translated: { name: `Sales channel ${index}` },
         }));
         wrapper = await createWrapper(manySalesChannels);
         await flushPromises();
 
-        expect(wrapper.vm.salesChannels).toHaveLength(30);
+        await wrapper.find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.findAll('.sw-select-result').map((option) => option.text())).toEqual(
+            manySalesChannels.map(({ name }) => name),
+        );
     });
 
     it('should show the search box disabled on no sales channel selected', async () => {

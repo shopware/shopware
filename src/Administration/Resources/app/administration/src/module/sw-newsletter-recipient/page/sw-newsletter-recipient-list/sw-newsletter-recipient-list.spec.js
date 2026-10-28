@@ -116,7 +116,7 @@ class MockRepositoryFactory {
 const searchSpy = jest.fn(() => Promise.resolve(mockApiCall('newsletter_recipient')));
 
 async function createWrapper(options = {}) {
-    const { useSearchSpy = false, salesChannels = null } = options;
+    const { useSearchSpy = false, salesChannels = null, stubs = {} } = options;
 
     const repositoryFactory = useSearchSpy
         ? {
@@ -169,6 +169,7 @@ async function createWrapper(options = {}) {
                 'sw-button-group': true,
                 'sw-context-menu-divider': true,
                 'sw-data-grid-skeleton': true,
+                ...stubs,
             },
             provide: {
                 repositoryFactory,
@@ -219,10 +220,28 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list',
             name: `Sales channel ${index}`,
         }));
 
-        const wrapper = await createWrapper({ salesChannels });
+        const wrapper = await createWrapper({
+            salesChannels,
+            stubs: {
+                'sw-sidebar': {
+                    template: '<div class="sw-sidebar"><slot></slot></div>',
+                },
+                'sw-sidebar-item': {
+                    template: '<div class="sw-sidebar-item"><slot></slot></div>',
+                },
+                'sw-sidebar-collapse': {
+                    template: '<div class="sw-sidebar-collapse"><slot name="content"></slot></div>',
+                },
+                'mt-select': {
+                    props: ['options'],
+                    template: '<div class="mt-select"></div>',
+                },
+            },
+        });
         await flushPromises();
 
-        expect(wrapper.vm.salesChannelFilters).toHaveLength(120);
+        const salesChannelFilter = wrapper.findAll('.sw-sidebar-collapse')[2].findComponent('.mt-select');
+        expect(salesChannelFilter.props('options')).toEqual(salesChannels);
     });
 
     it('should open the filter sidebar via the open-filters shortcut', async () => {

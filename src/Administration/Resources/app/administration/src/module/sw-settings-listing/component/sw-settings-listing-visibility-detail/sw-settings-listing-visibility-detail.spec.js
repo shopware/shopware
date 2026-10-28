@@ -130,8 +130,12 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-visibilit
         });
         await flushPromises();
 
-        const config = await wrapper.vm.fetchSalesChannels();
+        const pageButtons = wrapper.findAll('.sw-pagination__list-button');
+        await pageButtons[pageButtons.length - 1].trigger('click');
+        await flushPromises();
 
-        expect(config.map(({ name }) => name)).toEqual(salesChannels.map(({ name }) => name));
+        expect(wrapper.findAll('.sw-product-visibility-detail__name').map((name) => name.text())).toEqual(
+            salesChannels.slice(20).map(({ name }) => name),
+        );
     });
 });

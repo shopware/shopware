@@ -58,7 +58,7 @@ function expectedCurrentSeoUrl({ routeName, pathInfo, salesChannelId, foreignKey
     return { foreignKey, isCanonical: true, languageId: LANGUAGE_ID, pathInfo, routeName, salesChannelId, isModified: true };
 }
 
-async function createWrapper() {
+async function createWrapper(stubs = {}) {
     return mount(await wrapTestComponent('sw-seo-url', { sync: true }), {
         global: {
             renderStubDefaultSlot: true,
@@ -67,6 +67,7 @@ async function createWrapper() {
                 'sw-sales-channel-switch': true,
                 'sw-text-field': true,
                 'sw-inherit-wrapper': true,
+                ...stubs,
             },
             provide: {
                 repositoryFactory: {
@@ -332,14 +333,31 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
     });
 
     it('loads a selected sales channel that is not part of the initially loaded sales channels', async () => {
+        wrapper.unmount();
+        wrapper = await createWrapper({
+            'mt-card': { template: '<div><slot name="toolbar"></slot><slot></slot></div>' },
+            'sw-inherit-wrapper': {
+                template: '<div><slot name="content" v-bind="{ isInherited: false, currentValue: null }"></slot></div>',
+            },
+            'mt-text-field': {
+                props: ['disabled', 'disableInheritanceToggle', 'helpText'],
+                template: '<input class="mt-text-field">',
+            },
+        });
         await flushPromises();
         // with many sales channels, the initially loaded page does not contain every sales channel
         setSalesChannels([SALES_CHANNELS[0]]);
+        await wrapper.setData({ showEmptySeoUrlError: false });
 
-        wrapper.vm.onSalesChannelChanged(PRODUCT_COMPARISON_SALES_CHANNEL_ID);
+        wrapper
+            .findComponent('sw-sales-channel-switch-stub')
+            .vm.$emit('change-sales-channel-id', PRODUCT_COMPARISON_SALES_CHANNEL_ID);
         await flushPromises();
 
-        expect(wrapper.vm.currentSalesChannel?.id).toBe(PRODUCT_COMPARISON_SALES_CHANNEL_ID);
-        expect(wrapper.vm.isUnsupportedSalesChannel).toBe(true);
+        expect(Shopware.Store.get('swSeoUrl').salesChannelCollection.has(PRODUCT_COMPARISON_SALES_CHANNEL_ID)).toBe(true);
+        const seoPathField = wrapper.findComponent('.mt-text-field');
+        expect(seoPathField.props('disabled')).toBe(true);
+        expect(seoPathField.props('disableInheritanceToggle')).toBe(true);
+        expect(seoPathField.props('helpText')).toBe('sw-seo-url.textSeoUrlsNotSupported');
     });
 });

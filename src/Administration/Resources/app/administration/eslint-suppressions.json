@@ -41,7 +41,7 @@
   },
   "src/app/adapter/composition-extension-system/index.spec.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 10
+      "count": 9
     },
     "@typescript-eslint/ban-ts-comment": {
       "count": 2
@@ -54,11 +54,20 @@
     "@typescript-eslint/no-non-null-assertion": {
       "count": 1
     },
+    "complexity": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
     "no-restricted-syntax": {
       "count": 1
     }
   },
   "src/app/adapter/composition-extension-system/options-api-setup-shim.ts": {
+    "max-lines-per-function": {
+      "count": 2
+    },
     "no-restricted-syntax": {
       "count": 3
     }
@@ -80,6 +89,9 @@
     "@typescript-eslint/no-non-null-assertion": {
       "count": 2
     },
+    "max-lines-per-function": {
+      "count": 1
+    },
     "no-restricted-syntax": {
       "count": 4
     }
@@ -90,6 +102,12 @@
     },
     "@typescript-eslint/ban-ts-comment": {
       "count": 3
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
     }
   },
   "src/app/adapter/view/vue.adapter.spec/initialization.spec.js": {
@@ -104,6 +122,9 @@
     "@typescript-eslint/ban-ts-comment": {
       "count": 1
     },
+    "max-lines": {
+      "count": 1
+    },
     "no-restricted-syntax": {
       "count": 2
     }
@@ -113,9 +134,37 @@
       "count": 1
     }
   },
+  "src/app/component/context-menu/sw-context-button/index.js": {
+    "complexity": {
+      "count": 1
+    }
+  },
+  "src/app/component/data-grid/sw-data-grid/index.js": {
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "src/app/component/data-grid/sw-data-grid/sw-data-grid.html.twig": {
+    "vue/max-template-depth": {
+      "count": 6
+    }
+  },
   "src/app/component/data-grid/sw-data-grid/sw-data-grid.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    }
+  },
+  "src/app/component/entity/sw-category-tree-field/index.js": {
+    "complexity": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "src/app/component/entity/sw-many-to-many-assignment-card/sw-many-to-many-assignment-card.html.twig": {
+    "vue/max-template-depth": {
+      "count": 4
     }
   },
   "src/app/component/extension-api/sw-extension-component-section/index.ts": {
@@ -141,6 +190,11 @@
       "count": 1
     }
   },
+  "src/app/component/form/select/entity/sw-entity-single-select/index.js": {
+    "max-lines": {
+      "count": 1
+    }
+  },
   "src/app/component/form/select/entity/sw-entity-single-select/sw-entity-single-select.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -149,11 +203,32 @@
   "src/app/component/form/sw-code-editor/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
+    },
+    "max-params": {
+      "count": 2
+    }
+  },
+  "src/app/component/form/sw-colorpicker-deprecated/index.js": {
+    "complexity": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
     }
   },
   "src/app/component/form/sw-colorpicker-deprecated/sw-colorpicker-deprecated.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    }
+  },
+  "src/app/component/form/sw-custom-field-set-renderer/index.js": {
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig": {
+    "vue/max-template-depth": {
+      "count": 4
     }
   },
   "src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.spec.js": {
@@ -184,6 +259,17 @@
   "src/app/component/form/sw-text-editor/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 3
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-text-editor/sw-text-editor-toolbar/index.js": {
+    "complexity": {
+      "count": 1
     }
   },
   "src/app/component/form/sw-text-editor/sw-text-editor.spec.js": {
@@ -203,6 +289,12 @@
   },
   "src/app/component/index.ts": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
       "count": 1
     }
   },
@@ -269,6 +361,11 @@
       "count": 1
     }
   },
+  "src/app/component/media/sw-media-modal-folder-settings/sw-media-modal-folder-settings.html.twig": {
+    "vue/max-template-depth": {
+      "count": 1
+    }
+  },
   "src/app/component/media/sw-media-modal-move/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -291,6 +388,9 @@
   },
   "src/app/component/media/sw-media-upload-v2/index.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "max-lines": {
       "count": 1
     }
   },
@@ -344,6 +444,11 @@
   },
   "src/app/component/media/sw-vector-field/sw-vector-field.spec.ts": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/meteor-wrapper/mt-datepicker/index.ts": {
+    "complexity": {
       "count": 1
     }
   },
@@ -497,6 +602,11 @@
       "count": 1
     }
   },
+  "src/app/component/rule/sw-condition-unit-menu/index.js": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
   "src/app/component/sidebar/sw-help-sidebar/index.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 4
@@ -522,6 +632,11 @@
       "count": 1
     }
   },
+  "src/app/component/structure/sw-admin-menu/index.js": {
+    "max-lines": {
+      "count": 1
+    }
+  },
   "src/app/component/structure/sw-block-override/shim/twig-block-shim-adapter.spec.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -534,6 +649,11 @@
   },
   "src/app/component/structure/sw-card-view/index.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-desktop/index.js": {
+    "complexity": {
       "count": 1
     }
   },
@@ -590,6 +710,12 @@
   "src/app/component/structure/sw-search-bar/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
     }
   },
   "src/app/component/structure/sw-search-bar/sw-search-bar.spec.js": {
@@ -602,8 +728,27 @@
       "count": 1
     }
   },
+  "src/app/component/structure/sw-sidebar-renderer/index.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "src/app/component/tree/sw-tree-item/index.js": {
+    "max-lines": {
+      "count": 1
+    }
+  },
   "src/app/component/tree/sw-tree/index.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
       "count": 1
     }
   },
@@ -662,6 +807,11 @@
       "count": 1
     }
   },
+  "src/app/component/utils/sw-shortcut-overview/index.js": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
   "src/app/component/utils/sw-step-display/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -687,6 +837,11 @@
       "count": 1
     }
   },
+  "src/app/component/utils/sw-upload-status/index.ts": {
+    "complexity": {
+      "count": 1
+    }
+  },
   "src/app/component/utils/sw-upload-status/sw-upload-status.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -702,6 +857,11 @@
       "count": 1
     }
   },
+  "src/app/composables/use-cms-state.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
   "src/app/composables/use-inline-snippet.ts": {
     "no-restricted-syntax": {
       "count": 2
@@ -711,13 +871,31 @@
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
+    "max-lines-per-function": {
+      "count": 1
+    },
     "no-restricted-syntax": {
       "count": 2
+    }
+  },
+  "src/app/composables/use-media-grid-listener.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-media-sidebar-modal.ts": {
+    "max-lines-per-function": {
+      "count": 1
     }
   },
   "src/app/composables/use-module-icon-colors.spec.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
+    }
+  },
+  "src/app/composables/use-notification.ts": {
+    "max-lines-per-function": {
+      "count": 1
     }
   },
   "src/app/composables/use-placeholder.ts": {
@@ -734,6 +912,9 @@
     },
     "@typescript-eslint/ban-ts-comment": {
       "count": 12
+    },
+    "max-lines-per-function": {
+      "count": 1
     }
   },
   "src/app/composables/use-snackbar.ts": {
@@ -755,12 +936,30 @@
     "@eslint-community/eslint-comments/require-description": {
       "count": 3
     },
+    "max-lines-per-function": {
+      "count": 1
+    },
     "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-video-cover.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "src/app/decorator/condition-type-data-provider.decorator.ts": {
+    "max-lines": {
       "count": 1
     }
   },
   "src/app/decorator/index.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/decorator/state-styling-provider.decorator.ts": {
+    "max-lines-per-function": {
       "count": 1
     }
   },
@@ -799,6 +998,9 @@
     },
     "@typescript-eslint/no-non-null-assertion": {
       "count": 32
+    },
+    "complexity": {
+      "count": 1
     }
   },
   "src/app/filter/index.ts": {
@@ -838,6 +1040,12 @@
     },
     "@typescript-eslint/ban-ts-comment": {
       "count": 2
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "max-params": {
+      "count": 1
     }
   },
   "src/app/init-pre/api-services.init.ts": {
@@ -885,6 +1093,12 @@
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
+    "complexity": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
     "no-restricted-syntax": {
       "count": 2
     }
@@ -902,6 +1116,12 @@
   "src/app/init/extension-data-handling.init.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
+    },
+    "max-depth": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
     },
     "no-restricted-syntax": {
       "count": 1
@@ -1005,6 +1225,12 @@
       "count": 1
     },
     "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-nested-callbacks": {
       "count": 1
     }
   },
@@ -1171,6 +1397,12 @@
   "src/app/plugin/shortcut.plugin.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
     }
   },
   "src/app/plugin/shortcut.plugin.spec.js": {
@@ -1206,8 +1438,16 @@
       "count": 1
     }
   },
+  "src/app/service/criteria-helper.service.js": {
+    "complexity": {
+      "count": 1
+    }
+  },
   "src/app/service/custom-field.service.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "max-lines-per-function": {
       "count": 1
     }
   },
@@ -1224,10 +1464,21 @@
   "src/app/service/file-validation.service.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
     }
   },
   "src/app/service/filter.service.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/service/license-violations.service.js": {
+    "complexity": {
+      "count": 1
+    },
+    "max-lines-per-function": {
       "count": 1
     }
   },
@@ -1265,6 +1516,11 @@
       "count": 1
     }
   },
+  "src/app/service/product-stream-condition.service.js": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
   "src/app/service/product-type.api.service.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -1283,16 +1539,28 @@
   "src/app/service/rule-condition.service.ts": {
     "@typescript-eslint/ban-ts-comment": {
       "count": 1
+    },
+    "max-lines": {
+      "count": 1
     }
   },
   "src/app/service/search-preferences.service.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "max-lines-per-function": {
       "count": 1
     }
   },
   "src/app/service/search-ranking.service.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 3
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "max-params": {
+      "count": 1
     }
   },
   "src/app/service/search-ranking.service.spec.js": {
@@ -1302,6 +1570,9 @@
   },
   "src/app/service/search-type.service.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "max-lines-per-function": {
       "count": 1
     }
   },
@@ -1476,6 +1747,15 @@
   "src/core/data/changeset-generator.data.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "max-params": {
+      "count": 1
     }
   },
   "src/core/data/criteria.data.ts": {
@@ -1496,11 +1776,17 @@
   "src/core/data/entity-factory.data.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-params": {
+      "count": 1
     }
   },
   "src/core/data/entity-hydrator.data.ts": {
     "@typescript-eslint/ban-ts-comment": {
       "count": 1
+    },
+    "max-params": {
+      "count": 6
     },
     "no-restricted-syntax": {
       "count": 3
@@ -1519,6 +1805,11 @@
       "count": 1
     }
   },
+  "src/core/data/error-resolver.data.js": {
+    "max-params": {
+      "count": 1
+    }
+  },
   "src/core/data/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -1527,14 +1818,23 @@
   "src/core/data/repository-factory.data.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
+    },
+    "max-params": {
+      "count": 1
     }
   },
   "src/core/data/repository.data.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 4
+      "count": 3
     },
     "@typescript-eslint/ban-ts-comment": {
       "count": 4
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-params": {
+      "count": 1
     },
     "no-restricted-syntax": {
       "count": 1
@@ -1565,6 +1865,15 @@
     },
     "@typescript-eslint/no-restricted-types": {
       "count": 10
+    },
+    "complexity": {
+      "count": 2
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-params": {
+      "count": 1
     }
   },
   "src/core/factory/cache-adapter.factory.js": {
@@ -1605,6 +1914,12 @@
   "src/core/factory/http.factory.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
     },
     "sw-core-rules/no-swallowed-errors": {
       "count": 1
@@ -1648,6 +1963,12 @@
     },
     "@typescript-eslint/no-restricted-types": {
       "count": 1
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
     }
   },
   "src/core/factory/plugin-boot.factory.js": {
@@ -1657,6 +1978,12 @@
   },
   "src/core/factory/router.factory.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-lines-per-function": {
       "count": 1
     }
   },
@@ -1683,6 +2010,11 @@
       "count": 4
     }
   },
+  "src/core/factory/template.factory.js": {
+    "max-lines": {
+      "count": 1
+    }
+  },
   "src/core/factory/transform-legacy-block-conditionals.spec/fixtures.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -1690,6 +2022,12 @@
   },
   "src/core/factory/transform-legacy-block-conditionals.ts": {
     "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-params": {
       "count": 1
     }
   },
@@ -1731,6 +2069,9 @@
   "src/core/helper/store-loader.helper.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-params": {
+      "count": 1
     }
   },
   "src/core/service/api.service.ts": {
@@ -1771,10 +2112,16 @@
   "src/core/service/api/cart-store-api.api.service.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-params": {
+      "count": 5
     }
   },
   "src/core/service/api/checkout-store.api.service.ts": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "max-params": {
       "count": 1
     }
   },
@@ -1801,6 +2148,14 @@
   "src/core/service/api/document.api.service.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-params": {
+      "count": 3
+    }
+  },
+  "src/core/service/api/documentV2.api.service.ts": {
+    "max-params": {
+      "count": 3
     }
   },
   "src/core/service/api/excludedSearchTerm.api.service.js": {
@@ -1854,6 +2209,12 @@
   "src/core/service/api/mail.api.service.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-params": {
+      "count": 3
     }
   },
   "src/core/service/api/mcp-tool.api.service.js": {
@@ -1874,6 +2235,9 @@
   "src/core/service/api/media.api.service.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
+    },
+    "max-params": {
+      "count": 1
     }
   },
   "src/core/service/api/message-queue.api.service.ts": {
@@ -1899,15 +2263,26 @@
   "src/core/service/api/order-state-machine.api.service.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-params": {
+      "count": 3
     }
   },
   "src/core/service/api/order.api.service.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-params": {
+      "count": 5
     }
   },
   "src/core/service/api/product-export.api.service.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/product-stream-preview.service.js": {
+    "max-params": {
       "count": 1
     }
   },
@@ -1969,11 +2344,17 @@
   "src/core/service/api/state-machine.api.service.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-params": {
+      "count": 2
     }
   },
   "src/core/service/api/store-context.api.service.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-params": {
+      "count": 2
     }
   },
   "src/core/service/api/sync.api.service.js": {
@@ -2069,6 +2450,9 @@
     "@typescript-eslint/no-non-null-assertion": {
       "count": 5
     },
+    "max-lines-per-function": {
+      "count": 1
+    },
     "sw-core-rules/no-swallowed-errors": {
       "count": 3
     }
@@ -2095,6 +2479,12 @@
     },
     "@typescript-eslint/no-non-null-assertion": {
       "count": 6
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
     }
   },
   "src/core/service/plugin-updates-listener.service.ts": {
@@ -2181,6 +2571,9 @@
   "src/core/worker/admin-worker.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-params": {
+      "count": 1
     }
   },
   "src/core/worker/admin-worker.shared-worker.js": {
@@ -2204,6 +2597,9 @@
     },
     "@typescript-eslint/no-restricted-types": {
       "count": 40
+    },
+    "max-lines": {
+      "count": 1
     }
   },
   "src/html-shim.d.ts": {
@@ -2213,6 +2609,11 @@
   },
   "src/index.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/meta/baseline.ts": {
+    "max-lines": {
       "count": 1
     }
   },
@@ -2309,6 +2710,9 @@
   "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "complexity": {
+      "count": 1
     }
   },
   "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success/index.js": {
@@ -2344,6 +2748,9 @@
   "src/module/sw-bulk-edit/page/sw-bulk-edit-order/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "complexity": {
+      "count": 1
     }
   },
   "src/module/sw-bulk-edit/page/sw-bulk-edit-order/sw-bulk-edit-order.spec.js": {
@@ -2354,6 +2761,15 @@
   "src/module/sw-bulk-edit/page/sw-bulk-edit-product/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "complexity": {
+      "count": 2
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
     }
   },
   "src/module/sw-bulk-edit/page/sw-bulk-edit-product/sw-bulk-edit-product.spec.js": {
@@ -2383,6 +2799,9 @@
   },
   "src/module/sw-bulk-edit/service/handler/bulk-edit-product.handler.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "complexity": {
       "count": 1
     }
   },
@@ -2449,6 +2868,9 @@
   "src/module/sw-category/component/sw-landing-page-tree/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-nested-callbacks": {
+      "count": 1
     }
   },
   "src/module/sw-category/component/sw-landing-page-view/index.js": {
@@ -2469,6 +2891,12 @@
   "src/module/sw-category/page/sw-category-detail/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-nested-callbacks": {
+      "count": 3
     }
   },
   "src/module/sw-category/page/sw-category-detail/store.spec.ts": {
@@ -2570,6 +2998,11 @@
       "count": 5
     }
   },
+  "src/module/sw-cms/component/sw-cms-product-assignment/sw-cms-product-assignment.html.twig": {
+    "vue/max-template-depth": {
+      "count": 1
+    }
+  },
   "src/module/sw-cms/component/sw-cms-reset-inheritance/index.ts": {
     "@typescript-eslint/no-non-null-assertion": {
       "count": 1
@@ -2597,6 +3030,9 @@
     "@typescript-eslint/no-non-null-assertion": {
       "count": 33
     },
+    "max-lines": {
+      "count": 1
+    },
     "no-restricted-syntax": {
       "count": 1
     }
@@ -2609,6 +3045,11 @@
   "src/module/sw-cms/component/sw-cms-sidebar/sw-cms-sidebar.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-slot/sw-cms-slot.html.twig": {
+    "vue/max-template-depth": {
+      "count": 3
     }
   },
   "src/module/sw-cms/component/sw-cms-slot/sw-cms-slot.spec.js": {
@@ -2636,6 +3077,16 @@
       "count": 1
     }
   },
+  "src/module/sw-cms/elements/buy-box/config/sw-cms-el-config-buy-box.html.twig": {
+    "vue/max-template-depth": {
+      "count": 2
+    }
+  },
+  "src/module/sw-cms/elements/cross-selling/config/sw-cms-el-config-cross-selling.html.twig": {
+    "vue/max-template-depth": {
+      "count": 2
+    }
+  },
   "src/module/sw-cms/elements/form/component/templates/form-contact/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -2644,6 +3095,11 @@
   "src/module/sw-cms/elements/form/component/templates/form-newsletter/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/image-gallery/config/sw-cms-el-config-image-gallery.html.twig": {
+    "vue/max-template-depth": {
+      "count": 5
     }
   },
   "src/module/sw-cms/elements/image-gallery/index.ts": {
@@ -2656,9 +3112,19 @@
       "count": 3
     }
   },
+  "src/module/sw-cms/elements/image-slider/config/sw-cms-el-config-image-slider.html.twig": {
+    "vue/max-template-depth": {
+      "count": 6
+    }
+  },
   "src/module/sw-cms/elements/image-slider/index.ts": {
     "no-restricted-syntax": {
       "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-description-reviews/config/sw-cms-el-config-product-description-reviews.html.twig": {
+    "vue/max-template-depth": {
+      "count": 2
     }
   },
   "src/module/sw-cms/elements/product-listing/config/config.spec/filter.spec.js": {
@@ -2676,9 +3142,19 @@
       "count": 4
     }
   },
+  "src/module/sw-cms/elements/product-listing/config/sw-cms-el-config-product-listing.html.twig": {
+    "vue/max-template-depth": {
+      "count": 10
+    }
+  },
   "src/module/sw-cms/elements/product-listing/index.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-slider/config/sw-cms-el-config-product-slider.html.twig": {
+    "vue/max-template-depth": {
+      "count": 4
     }
   },
   "src/module/sw-cms/elements/video/component/index.ts": {
@@ -2696,6 +3172,14 @@
       "count": 2
     }
   },
+  "src/module/sw-cms/page/sw-cms-detail/index.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-nested-callbacks": {
+      "count": 2
+    }
+  },
   "src/module/sw-cms/page/sw-cms-detail/sw-cms-detail.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -2705,8 +3189,16 @@
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
+    "max-lines": {
+      "count": 1
+    },
     "sw-core-rules/no-swallowed-errors": {
       "count": 1
+    }
+  },
+  "src/module/sw-cms/page/sw-cms-list/sw-cms-list.html.twig": {
+    "vue/max-template-depth": {
+      "count": 28
     }
   },
   "src/module/sw-cms/page/sw-cms-list/sw-cms-list.spec.js": {
@@ -2733,6 +3225,9 @@
     "@typescript-eslint/no-non-null-assertion": {
       "count": 6
     },
+    "max-params": {
+      "count": 1
+    },
     "no-restricted-syntax": {
       "count": 2
     }
@@ -2743,6 +3238,9 @@
     }
   },
   "src/module/sw-custom-entity/component/sw-generic-cms-page-assignment/index.ts": {
+    "max-nested-callbacks": {
+      "count": 1
+    },
     "no-restricted-syntax": {
       "count": 1
     }
@@ -2757,6 +3255,11 @@
       "count": 2
     },
     "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "src/module/sw-custom-entity/page/sw-generic-custom-entity-detail/sw-generic-custom-entity-detail.html.twig": {
+    "vue/max-template-depth": {
       "count": 1
     }
   },
@@ -2788,6 +3291,11 @@
   "src/module/sw-customer/component/sw-customer-card/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    }
+  },
+  "src/module/sw-customer/component/sw-customer-card/sw-customer-card.html.twig": {
+    "vue/max-template-depth": {
+      "count": 2
     }
   },
   "src/module/sw-customer/component/sw-customer-convert-guest-modal/index.js": {
@@ -2841,6 +3349,9 @@
   "src/module/sw-customer/page/sw-customer-list/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
     }
   },
   "src/module/sw-customer/view/sw-customer-detail-addresses/index.js": {
@@ -2870,6 +3381,11 @@
   },
   "src/module/sw-extension-sdk/index.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-extension-card-base/index.js": {
+    "complexity": {
       "count": 1
     }
   },
@@ -2907,6 +3423,14 @@
       "count": 1
     }
   },
+  "src/module/sw-extension/page/sw-extension-my-extensions-listing/index.js": {
+    "complexity": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    }
+  },
   "src/module/sw-extension/service/extension-store-action.service.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -2928,6 +3452,11 @@
     },
     "@typescript-eslint/no-restricted-types": {
       "count": 3
+    }
+  },
+  "src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal/index.js": {
+    "max-lines-per-function": {
+      "count": 1
     }
   },
   "src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal/sw-first-run-wizard-modal.spec.js": {
@@ -2998,9 +3527,19 @@
       "count": 1
     }
   },
+  "src/module/sw-flow/component/modals/sw-flow-mail-send-modal/index.js": {
+    "max-lines": {
+      "count": 1
+    }
+  },
   "src/module/sw-flow/component/modals/sw-flow-mail-send-modal/sw-flow-mail-send-modal.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    }
+  },
+  "src/module/sw-flow/component/sw-flow-sequence-action/sw-flow-sequence-action.html.twig": {
+    "vue/max-template-depth": {
+      "count": 11
     }
   },
   "src/module/sw-flow/component/sw-flow-sequence-action/sw-flow-sequence-action.spec.js": {
@@ -3013,6 +3552,17 @@
       "count": 1
     }
   },
+  "src/module/sw-flow/component/sw-flow-trigger/index.js": {
+    "complexity": {
+      "count": 2
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
   "src/module/sw-flow/component/sw-flow-trigger/sw-flow-trigger.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -3020,6 +3570,11 @@
   },
   "src/module/sw-flow/index.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/page/sw-flow-detail/index.js": {
+    "max-lines": {
       "count": 1
     }
   },
@@ -3040,6 +3595,12 @@
   },
   "src/module/sw-flow/service/flow-builder.service.ts": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-lines": {
       "count": 1
     }
   },
@@ -3098,6 +3659,14 @@
       "count": 1
     }
   },
+  "src/module/sw-import-export/component/sw-import-export-entity-path-select/index.js": {
+    "complexity": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    }
+  },
   "src/module/sw-import-export/component/sw-import-export-entity-path-select/sw-import-export-entity-path-select.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -3108,9 +3677,20 @@
       "count": 5
     }
   },
+  "src/module/sw-import-export/service/importExport.service.ts": {
+    "max-params": {
+      "count": 1
+    }
+  },
   "src/module/sw-import-export/service/importExportProfileMapping.service.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-params": {
+      "count": 2
     }
   },
   "src/module/sw-import-export/service/importExportUpdateByMapping.service.js": {
@@ -3126,11 +3706,19 @@
   "src/module/sw-integration/component/sw-integration-mcp-allowlist/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-lines": {
+      "count": 1
     }
   },
   "src/module/sw-integration/component/sw-integration-mcp-allowlist/mcp-allowlist.utils.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 3
+    }
+  },
+  "src/module/sw-integration/component/sw-integration-mcp-allowlist/sw-integration-mcp-allowlist.html.twig": {
+    "vue/max-template-depth": {
+      "count": 21
     }
   },
   "src/module/sw-integration/index.js": {
@@ -3220,6 +3808,17 @@
   "src/module/sw-mail-template/page/sw-mail-template-detail/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "src/module/sw-mail-template/page/sw-mail-template-detail/sw-mail-template-detail.html.twig": {
+    "vue/max-template-depth": {
+      "count": 2
     }
   },
   "src/module/sw-mail-template/page/sw-mail-template-detail/sw-mail-template-detail.spec.js": {
@@ -3456,6 +4055,23 @@
   "src/module/sw-order/component/sw-order-document-card/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "complexity": {
+      "count": 2
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "max-params": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-document-card/sw-order-document-card.html.twig": {
+    "vue/max-template-depth": {
+      "count": 7
     }
   },
   "src/module/sw-order/component/sw-order-document-card/sw-order-document-card.spec.js": {
@@ -3616,6 +4232,11 @@
       "count": 1
     }
   },
+  "src/module/sw-order/component/sw-order-user-card/sw-order-user-card.html.twig": {
+    "vue/max-template-depth": {
+      "count": 2
+    }
+  },
   "src/module/sw-order/default-search-configuration.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -3648,6 +4269,9 @@
   "src/module/sw-order/page/sw-order-detail/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-lines": {
+      "count": 1
     }
   },
   "src/module/sw-order/page/sw-order-detail/sw-order-detail.spec.js": {
@@ -3658,6 +4282,9 @@
   "src/module/sw-order/page/sw-order-list/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
     }
   },
   "src/module/sw-order/page/sw-order-list/sw-order-list.spec.js": {
@@ -3686,6 +4313,11 @@
   "src/module/sw-order/view/sw-order-create-base/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    }
+  },
+  "src/module/sw-order/view/sw-order-create-base/sw-order-create-base.html.twig": {
+    "vue/max-template-depth": {
+      "count": 2
     }
   },
   "src/module/sw-order/view/sw-order-create-details/index.ts": {
@@ -3735,6 +4367,11 @@
   },
   "src/module/sw-product-stream/index.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product-stream/page/sw-product-stream-detail/index.js": {
+    "max-nested-callbacks": {
       "count": 1
     }
   },
@@ -3841,6 +4478,9 @@
   "src/module/sw-product/component/sw-product-variant-modal/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-lines": {
+      "count": 1
     }
   },
   "src/module/sw-product/component/sw-product-variant-modal/sw-product-variant-modal.spec.js": {
@@ -3875,6 +4515,9 @@
   },
   "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-restrictions/index.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "max-nested-callbacks": {
       "count": 1
     }
   },
@@ -3916,6 +4559,9 @@
   "src/module/sw-product/component/sw-product-variants/sw-product-variants-overview/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-lines": {
+      "count": 1
     }
   },
   "src/module/sw-product/component/sw-product-variants/sw-product-variants-overview/sw-product-variants-overview.spec.js": {
@@ -3941,6 +4587,15 @@
   "src/module/sw-product/helper/sw-products-variants-generator.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "max-nested-callbacks": {
+      "count": 5
+    },
+    "max-params": {
+      "count": 1
     }
   },
   "src/module/sw-product/helper/sw-products-variants-generator.spec.js": {
@@ -3956,6 +4611,15 @@
   "src/module/sw-product/page/sw-product-detail/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-nested-callbacks": {
+      "count": 2
     }
   },
   "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": {
@@ -3965,6 +4629,9 @@
   },
   "src/module/sw-product/page/sw-product-list/index.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "max-lines-per-function": {
       "count": 1
     }
   },
@@ -4198,6 +4865,11 @@
       "count": 1
     }
   },
+  "src/module/sw-review/page/sw-review-detail/sw-review-detail.html.twig": {
+    "vue/max-template-depth": {
+      "count": 27
+    }
+  },
   "src/module/sw-review/page/sw-review-detail/sw-review-detail.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -4225,6 +4897,9 @@
   },
   "src/module/sw-sales-channel/component/sw-sales-channel-detail-domains/index.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "max-lines": {
       "count": 1
     }
   },
@@ -4296,6 +4971,9 @@
   "src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-lines": {
+      "count": 1
     }
   },
   "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.spec.js": {
@@ -4326,6 +5004,11 @@
       "count": 1
     }
   },
+  "src/module/sw-sales-channel/service/sales-channel-product-assignment.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
   "src/module/sw-sales-channel/view/sw-sales-channel-create-base/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -4348,6 +5031,9 @@
   },
   "src/module/sw-sales-channel/view/sw-sales-channel-detail-base/index.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "max-lines": {
       "count": 1
     }
   },
@@ -4416,6 +5102,11 @@
       "count": 1
     }
   },
+  "src/module/sw-settings-cache/page/sw-settings-cache-index/sw-settings-cache-index.html.twig": {
+    "vue/max-template-depth": {
+      "count": 6
+    }
+  },
   "src/module/sw-settings-cart/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
@@ -4436,6 +5127,9 @@
       "count": 4
     },
     "@typescript-eslint/no-restricted-types": {
+      "count": 1
+    },
+    "complexity": {
       "count": 1
     },
     "no-restricted-syntax": {
@@ -4613,6 +5307,11 @@
       "count": 1
     }
   },
+  "src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-list/sw-settings-custom-field-set-list.html.twig": {
+    "vue/max-template-depth": {
+      "count": 1
+    }
+  },
   "src/module/sw-settings-customer-group/default-search-configuration.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -4666,10 +5365,21 @@
   "src/module/sw-settings-document/page/sw-settings-document-detail/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
     }
   },
   "src/module/sw-settings-document/page/sw-settings-document-list/index.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-document/page/sw-settings-document-list/sw-settings-document-list.html.twig": {
+    "vue/max-template-depth": {
       "count": 1
     }
   },
@@ -4932,6 +5642,9 @@
   "src/module/sw-settings-rule/page/sw-settings-rule-detail/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "max-lines": {
+      "count": 1
     }
   },
   "src/module/sw-settings-rule/page/sw-settings-rule-detail/sw-settings-rule-detail.spec.js": {
@@ -4941,6 +5654,14 @@
   },
   "src/module/sw-settings-rule/page/sw-settings-rule-list/sw-settings-rule-list.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/service/rule-assignment-configuration.service.js": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
       "count": 1
     }
   },
@@ -5001,6 +5722,9 @@
   },
   "src/module/sw-settings-search/component/sw-settings-search-searchable-content/index.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "max-lines-per-function": {
       "count": 1
     }
   },
@@ -5139,6 +5863,11 @@
       "count": 1
     }
   },
+  "src/module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-wizard/sw-settings-shopware-updates-wizard.html.twig": {
+    "vue/max-template-depth": {
+      "count": 3
+    }
+  },
   "src/module/sw-settings-sitemap/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
@@ -5176,6 +5905,9 @@
   },
   "src/module/sw-settings-snippet/page/sw-settings-snippet-list/index.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "max-lines": {
       "count": 1
     }
   },
@@ -5237,6 +5969,11 @@
   "src/module/sw-settings-tag/page/sw-settings-tag-list/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    }
+  },
+  "src/module/sw-settings-tag/page/sw-settings-tag-list/sw-settings-tag-list.html.twig": {
+    "vue/max-template-depth": {
+      "count": 10
     }
   },
   "src/module/sw-settings-tax/component/sw-settings-tax-provider-sorting-modal/index.ts": {
@@ -5302,6 +6039,11 @@
       "count": 1
     }
   },
+  "src/module/sw-settings-tax/page/sw-settings-tax-list/sw-settings-tax-list.html.twig": {
+    "vue/max-template-depth": {
+      "count": 3
+    }
+  },
   "src/module/sw-settings-tax/page/sw-settings-tax-provider-detail/index.ts": {
     "no-restricted-syntax": {
       "count": 1
@@ -5325,6 +6067,17 @@
   "src/module/sw-settings/component/sw-system-config/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings/component/sw-system-config/sw-system-config.html.twig": {
+    "vue/max-template-depth": {
+      "count": 4
     }
   },
   "src/module/sw-settings/component/sw-system-config/sw-system-config.spec.js": {
@@ -5437,6 +6190,11 @@
       "count": 1
     }
   },
+  "src/shopware-virtual-modules.d.ts": {
+    "max-lines": {
+      "count": 1
+    }
+  },
   "test/_helper_/componentWrapper/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 3
@@ -5449,7 +6207,7 @@
   },
   "test/_setup/prepare_environment.js": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 3
+      "count": 4
     }
   },
   "test/_setup/test-utils.d.ts": {

@@ -54,6 +54,8 @@ Reviewers of such a pull request check the diff of `eslint-suppressions.json`.
 
 | Rule | Files | Why |
 |---|---|---|
+| `complexity` (15), `max-lines-per-function` (80), `max-params` (4), `max-nested-callbacks` (3), `max-depth` (4), `max-lines` (500) | Files in `src/` except specs | Small units are easier to read, test and override |
+| `vue/max-template-depth` (10) | Templates | Small units are easier to read, test and override |
 | `@eslint-community/eslint-comments/require-description`, `@eslint-community/eslint-comments/no-unlimited-disable` | All | Every disable comment names its rules and says why |
 | `@typescript-eslint/ban-ts-comment` with `minimumDescriptionLength: 10` | TypeScript | `@ts-expect-error` needs a reason, `@ts-ignore` and `@ts-nocheck` are not allowed |
 | `@typescript-eslint/no-restricted-types` for `$TSFixMe` and `$TSFixMeFunction` | TypeScript | Both are `any` under another name |
@@ -72,6 +74,7 @@ const id = this.$route.params.id!;
 `rulesWithoutInlineDisable` in `eslint.config.ts` lists the rules that can't be disabled with an `eslint-disable` comment.
 For these rules the baseline is the only way around.
 Rules join it in the pull requests that add them.
+`vue/max-template-depth` is not listed, because `eslint-disable` comments have no effect in Twig templates.
 
 Two rules of `@eslint-community/eslint-plugin-eslint-comments` enforce it:
 

@@ -79,8 +79,35 @@ const testFiles = [
     'test/**/*.ts',
 ];
 
+const limitRules = {
+    complexity: [
+        'error',
+        15,
+    ],
+    'max-lines-per-function': [
+        'error',
+        { max: 80, skipBlankLines: true, skipComments: true },
+    ],
+    'max-params': [
+        'error',
+        4,
+    ],
+    'max-nested-callbacks': [
+        'error',
+        3,
+    ],
+    'max-depth': [
+        'error',
+        4,
+    ],
+    'max-lines': [
+        'error',
+        { max: 500, skipBlankLines: true, skipComments: true },
+    ],
+};
+
 // Inline disables are blocked for these rules, so eslint-suppressions.json is the only way around them
-const rulesWithoutInlineDisable: string[] = [];
+const rulesWithoutInlineDisable: string[] = Object.keys(limitRules);
 
 /**
  * Shared rule policy applied to normal source files and TypeScript-specific overrides.
@@ -432,6 +459,10 @@ export default [
             '@typescript-eslint/no-unused-vars': 'off',
             // If a binding shares the same name as a prop, the binding gets silently undefined. Erroring in ESLint will make that issue loud in most cases (not for imported prop types)
             'vue/no-dupe-keys': 'error',
+            'vue/max-template-depth': [
+                'error',
+                { maxDepth: 10 },
+            ],
         },
     },
 
@@ -632,6 +663,10 @@ export default [
             'sw-deprecation-rules/no-sw-empty-state-usage': 'error',
             'vue/no-useless-template-attributes': 'error',
             'vue/no-lone-template': 'error',
+            'vue/max-template-depth': [
+                'error',
+                { maxDepth: 10 },
+            ],
 
             'eol-last': 'off',
             'max-len': 'off',
@@ -781,6 +816,18 @@ export default [
                 { max: 1000 },
             ],
         },
+    },
+
+    // Size and complexity limits for source files
+    {
+        files: [
+            'src/**/*.js',
+            'src/**/*.ts',
+            'src/**/*.tsx',
+            'src/**/*.vue',
+        ],
+        ignores: testFiles,
+        rules: limitRules,
     },
 
     // TypeScript rules on top of the factory's typed-lint bootstrap. The

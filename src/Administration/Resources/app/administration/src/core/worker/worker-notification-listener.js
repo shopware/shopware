@@ -23,6 +23,11 @@ export const POLL_FOREGROUND_INTERVAL = 5000;
  */
 class WorkerNotificationListener {
     constructor(context) {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_8_0_0',
+            'WorkerNotificationListener is deprecated and will be removed with increment-based message queue statistics.',
+        );
+
         this._context = context;
         this._isRunning = false;
         this._isRequestRunning = false;

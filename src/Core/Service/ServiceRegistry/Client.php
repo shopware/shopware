@@ -73,6 +73,9 @@ class Client implements ResetInterface
     }
 
     /**
+     * Every service of the registry's versioned list, including retired ones and ones whose status this version doesn't
+     * know (status null). To act on services, use getActive() or getRetired().
+     *
      * @return array<ServiceEntry>
      */
     public function getAll(): array
@@ -100,12 +103,29 @@ class Client implements ResetInterface
                 $service['label'],
                 $service['host'],
                 $service['app-endpoint'],
-                (bool) ($service['activate-on-install'] ?? true)
+                (bool) $service['activate-on-install'],
+                ServiceStatus::tryFrom($service['status']),
             ),
             $rawServices
         );
 
         return $this->services;
+    }
+
+    /**
+     * @return list<ServiceEntry>
+     */
+    public function getActive(): array
+    {
+        return array_values(array_filter($this->getAll(), static fn (ServiceEntry $entry): bool => $entry->status === ServiceStatus::ACTIVE));
+    }
+
+    /**
+     * @return list<ServiceEntry>
+     */
+    public function getRetired(): array
+    {
+        return array_values(array_filter($this->getAll(), static fn (ServiceEntry $entry): bool => $entry->status === ServiceStatus::RETIRED));
     }
 
     public function reset(): void
@@ -166,14 +186,14 @@ class Client implements ResetInterface
     private function fetchServices(int $page): ?array
     {
         try {
-            $response = $this->client->request('GET', \sprintf('%s/api/service/', $this->registryUrl), [
+            $response = $this->client->request('GET', \sprintf('%s/api/service/v2', $this->registryUrl), [
                 'headers' => [
                     'Referer' => $this->appUrl,
                     'Accept' => 'application/json',
                 ],
                 'query' => [
                     'page' => $page,
-                    'limit' => 10,
+                    'limit' => 100,
                 ],
             ]);
 
@@ -207,7 +227,7 @@ class Client implements ResetInterface
                 return false;
             }
 
-            if (!isset($service['name']) || !isset($service['label']) || !isset($service['host']) || !isset($service['app-endpoint'])) {
+            if (!isset($service['name']) || !isset($service['label']) || !isset($service['host']) || !isset($service['app-endpoint']) || !isset($service['activate-on-install']) || !isset($service['status'])) {
                 return false;
             }
         }

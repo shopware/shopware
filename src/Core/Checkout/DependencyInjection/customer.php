@@ -92,6 +92,7 @@ use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
@@ -673,8 +674,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(CustomerEmailUniqueSubscriber::class)
         ->args([
-            service(Connection::class),
             service(CustomerEmailUniqueChecker::class),
+            service(WriteOutcome::class),
         ])
         ->tag('kernel.event_subscriber');
 

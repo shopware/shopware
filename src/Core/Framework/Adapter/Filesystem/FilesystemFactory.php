@@ -6,27 +6,33 @@ use League\Flysystem\Config;
 use League\Flysystem\Filesystem as LeagueFilesystem;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\Visibility;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\AdapterException;
+use Shopware\Core\Framework\Adapter\Asset\RequestBaseUrlResolver;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\FilesystemOperatorFactoryInterface;
+use Shopware\Core\Framework\Adapter\Filesystem\Adapter\LocalFactory;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\AdapterFactoryNotFoundException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 #[Package('framework')]
 class FilesystemFactory
 {
+    private readonly RequestBaseUrlResolver $baseUrlResolver;
+
     /**
      * @param iterable<AdapterFactoryInterface> $adapterFactories
      *
      * @internal
      */
-    public function __construct(private readonly iterable $adapterFactories)
-    {
+    public function __construct(
+        private readonly iterable $adapterFactories,
+        ?RequestStack $requestStack = null,
+    ) {
         $this->checkDuplicates($adapterFactories);
+        $this->baseUrlResolver = new RequestBaseUrlResolver($requestStack);
     }
 
     /**
@@ -63,8 +69,20 @@ class FilesystemFactory
             Config::OPTION_DIRECTORY_VISIBILITY => $config['visibility'],
         ];
 
-        if (!$config['private']) {
-            $fsOptions['public_url'] = $config['url'] ?? $this->getFallbackUrl();
+        $publicUrlGenerator = null;
+
+        if (!$config['private'] && isset($config['url'])) {
+            $fsOptions['public_url'] = $config['url'];
+        } elseif (!$config['private']) {
+            // Without a configured URL, public URLs follow the current request, also when a long-running worker reuses the filesystem
+            $publicUrlGenerator = new RequestPublicUrlGenerator($this->baseUrlResolver);
+
+            // Factories that cannot take the generator keep the URL of the request that created the filesystem
+            $fsOptions['public_url'] = $this->baseUrlResolver->resolve() . '/';
+        }
+
+        if ($factory instanceof LocalFactory) {
+            return $factory->createFilesystemWithPublicUrlGenerator($config['config'], $fsOptions, $publicUrlGenerator);
         }
 
         if ($factory instanceof FilesystemOperatorFactoryInterface) {
@@ -73,7 +91,8 @@ class FilesystemFactory
 
         return new LeagueFilesystem(
             $factory->create($config['config']),
-            $fsOptions
+            $fsOptions,
+            publicUrlGenerator: $publicUrlGenerator,
         );
     }
 
@@ -131,20 +150,5 @@ class FilesystemFactory
         $options->setAllowedValues('visibility', [Visibility::PUBLIC, Visibility::PRIVATE]);
 
         return $options->resolve($config);
-    }
-
-    private function getFallbackUrl(): string
-    {
-        // Change from use Request::createFromGlobals because files in $_FILES could be deleted
-        $request = new Request(query: $_GET, server: $_SERVER);
-
-        $basePath = $request->getSchemeAndHttpHost() . $request->getBasePath();
-        $requestUrl = rtrim($basePath, '/') . '/';
-
-        if ($request->getHost() === '' && EnvironmentHelper::getVariable('APP_URL')) {
-            $requestUrl = (string) EnvironmentHelper::getVariable('APP_URL');
-        }
-
-        return $requestUrl;
     }
 }

@@ -2,16 +2,16 @@
 
 namespace Shopware\Core\Framework\Adapter\Asset;
 
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 #[Package('framework')]
 class FallbackUrlPackage extends UrlPackage
 {
+    private readonly RequestBaseUrlResolver $baseUrlResolver;
+
     /**
      * @internal
      *
@@ -20,9 +20,11 @@ class FallbackUrlPackage extends UrlPackage
     public function __construct(
         string|array $baseUrls,
         VersionStrategyInterface $versionStrategy,
-        private readonly ?RequestStack $requestStack = null
+        ?RequestStack $requestStack = null
     ) {
         parent::__construct($baseUrls, $versionStrategy);
+
+        $this->baseUrlResolver = new RequestBaseUrlResolver($requestStack);
     }
 
     /**
@@ -36,12 +38,6 @@ class FallbackUrlPackage extends UrlPackage
             return $baseUrl;
         }
 
-        $request = $this->requestStack?->getMainRequest() ?? new Request(server: $_SERVER);
-
-        if ($request->getHost() === '') {
-            return rtrim((string) EnvironmentHelper::getVariable('APP_URL'), '/');
-        }
-
-        return rtrim($request->getSchemeAndHttpHost() . $request->getBasePath(), '/');
+        return $this->baseUrlResolver->resolve();
     }
 }

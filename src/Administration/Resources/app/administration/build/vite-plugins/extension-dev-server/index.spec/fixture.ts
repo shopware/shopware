@@ -62,20 +62,27 @@ export async function until<T>(read: () => Promise<T>, matches: (value: T) => bo
 
 /** @private */
 export function request(url: string, ca?: Buffer): Promise<{ status: number; body: string }> {
+    const target = new URL(url);
+    if (target.hostname !== '127.0.0.1' || !['http:', 'https:'].includes(target.protocol)) {
+        return Promise.reject(new Error('Fixture requests must target a loopback HTTP server.'));
+    }
     return new Promise((resolve, reject) => {
-        const client = url.startsWith('https:') ? https : http;
-        const req = client.get(url, { ca, agent: false }, (response) => {
-            let body = '';
-            response.setEncoding('utf8');
-            function onData(chunk: string) {
-                body += chunk;
-            }
-            response.on('data', onData);
-            response.once('end', () => {
-                response.off('data', onData);
-                resolve({ status: response.statusCode ?? 0, body });
-            });
-        });
+        const client = target.protocol === 'https:' ? https : http;
+        const req = client.get(
+            { hostname: '127.0.0.1', port: target.port, path: target.pathname + target.search, ca, agent: false },
+            (response) => {
+                let body = '';
+                response.setEncoding('utf8');
+                function onData(chunk: string) {
+                    body += chunk;
+                }
+                response.on('data', onData);
+                response.once('end', () => {
+                    response.off('data', onData);
+                    resolve({ status: response.statusCode ?? 0, body });
+                });
+            },
+        );
         req.once('error', reject);
         req.setTimeout(5000, () => req.destroy(new Error(`Request timed out: ${url}`)));
     });

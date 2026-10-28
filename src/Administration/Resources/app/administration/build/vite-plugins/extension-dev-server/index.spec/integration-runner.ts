@@ -31,6 +31,7 @@ async function main(scenario: string): Promise<Record<string, unknown>> {
     const liveServers = () => Array.from(listening).filter((server) => server.listening);
 
     try {
+        await assert.rejects(request('http://example.invalid/'), /loopback HTTP server/);
         if (scenario === 'startup-failure') await config(fixture.extensions[1], 'beta', true);
         const secure = scenario === 'https' || scenario === 'reverse-proxy';
         let certificate: Buffer | undefined;
@@ -76,8 +77,13 @@ async function main(scenario: string): Promise<Record<string, unknown>> {
             const upstream = new URL(origin);
             proxy = https.createServer(tls!, (incoming, response) => {
                 const forwarding = http.request(
-                    new URL(incoming.url!, upstream),
-                    { method: incoming.method, headers: incoming.headers },
+                    {
+                        hostname: '127.0.0.1',
+                        port: upstream.port,
+                        path: incoming.url,
+                        method: incoming.method,
+                        headers: incoming.headers,
+                    },
                     (result) => {
                         response.writeHead(result.statusCode ?? 502, result.headers);
                         result.pipe(response);

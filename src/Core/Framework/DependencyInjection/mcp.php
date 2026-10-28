@@ -43,6 +43,7 @@ use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Shopware\Core\Framework\Mcp\Notification\AppMcpCapabilityDetector;
 use Shopware\Core\Framework\Mcp\Notification\AppMcpCapabilityLifecycleSubscriber;
+use Shopware\Core\Framework\Mcp\Notification\McpAllowlistChangeSubscriber;
 use Shopware\Core\Framework\Mcp\Notification\McpHandshakeListChangedSubscriber;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
 use Shopware\Core\Framework\Mcp\Notification\McpListVersions;
@@ -113,12 +114,15 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.server.admin.session.store')->nullOnInvalid(),
             service(McpListVersions::class),
             service('logger'),
-            service(McpServerBuilderCompilerPass::ADMIN_NOTIFICATION_BUS)->nullOnInvalid(),
         ])
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set(AppMcpCapabilityDetector::class)
         ->args([service(AppFeatureStorage::class)]);
+
+    $services->set(McpAllowlistChangeSubscriber::class)
+        ->args([service(McpListChangedNotifier::class)])
+        ->tag('kernel.event_subscriber');
 
     $services->set(AppMcpCapabilityLifecycleSubscriber::class)
         ->args([

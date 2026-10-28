@@ -108,7 +108,7 @@ class CriteriaQueryBuilder
         foreach ($sortings as $sorting) {
             $this->validateSortingDirection($sorting->getDirection());
 
-            if ($sorting->getField() === Criteria::SCORE_FIELD) {
+            if ($sorting->getField() === '_score') {
                 if ($criteria->getQueries() === []) {
                     continue;
                 }

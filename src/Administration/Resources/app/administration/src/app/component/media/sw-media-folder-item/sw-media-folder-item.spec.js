@@ -3,6 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const { Module } = Shopware;
 
@@ -165,6 +166,10 @@ async function createWrapper(defaultFolderId, privileges = []) {
 }
 
 describe('components/media/sw-media-folder-item', () => {
+    beforeEach(() => {
+        allowDeprecation('sw-media-folder-item.dateFilter is deprecated');
+    });
+
     afterEach(() => {
         useModuleIconColors().enabled.value = false;
     });

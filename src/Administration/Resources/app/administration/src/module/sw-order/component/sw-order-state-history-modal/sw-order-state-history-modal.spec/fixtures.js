@@ -182,7 +182,6 @@ export async function createWrapper(options = {}, order = orderProp, stateHistor
             };
         },
         props: {
-            isLoading: false,
             order,
         },
     });

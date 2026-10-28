@@ -14,7 +14,7 @@ The user of an access key can no longer be changed after the key was created, al
 
 A standard integration that sends the `sw-app-user-id` header keeps its own identity.
 The header only narrows its permissions to those of the named user, and writes are attributed to the integration.
-Naming an inactive or unknown user narrows the permissions to none, and requests of a deactivated app are rejected.
+Naming an inactive or unknown user is rejected with a `403` and the error code `FRAMEWORK__APP_USER_NOT_FOUND`, and requests of a deactivated app are rejected as well.
 An app integration still acts for the named user, except that an inactive user is now treated like a user without the required app privilege.
 
 Routes that act on the signed-in Administration user now require a directly authenticated user and reject every integration, including an app that names a user, with a `403` and the error code `FRAMEWORK__API_EXPECTED_USER`.

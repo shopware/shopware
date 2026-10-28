@@ -1082,7 +1082,7 @@ class ApiRequestContextResolverTest extends TestCase
         static::assertFalse($source->isAllowed('order:read'));
     }
 
-    public function testStandardIntegrationGrantsNothingForAnInactiveNamedUser(): void
+    public function testStandardIntegrationRefusesAnInactiveNamedUser(): void
     {
         $ids = new IdsCollection();
 
@@ -1094,25 +1094,33 @@ class ApiRequestContextResolverTest extends TestCase
 
         $integrationId = $ids->create('integration');
         $integrationAccessKey = $this->createIntegration($integrationId);
-        $this->addRoleToIntegration($integrationId, ['product:read', 'user_change_me']);
+        $this->addRoleToIntegration($integrationId, ['product:read']);
 
         $request = $this->integrationRequest($integrationAccessKey, $admin->getUserId());
 
+        $this->expectExceptionObject(RoutingException::appUserNotFound($admin->getUserId()));
+
         $this->resolver->resolve($request);
-
-        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
-        static::assertInstanceOf(Context::class, $context);
-        static::assertInstanceOf(AdminApiSource::class, $context->getSource());
-
-        $source = $context->getSource();
-
-        static::assertNull($source->getUserId());
-        static::assertFalse($source->isAdmin());
-        static::assertSame([], $source->getPermissions());
-        static::assertFalse($source->isAllowed('product:read'));
     }
 
-    public function testAdminIntegrationDoesNotKeepAdminScopeForAnInactiveNamedAdmin(): void
+    public function testStandardIntegrationRefusesAnUnknownNamedUser(): void
+    {
+        $ids = new IdsCollection();
+
+        $integrationId = $ids->create('integration');
+        $integrationAccessKey = $this->createIntegration($integrationId);
+        $this->addRoleToIntegration($integrationId, ['product:read']);
+
+        $unknownUserId = Uuid::randomHex();
+
+        $request = $this->integrationRequest($integrationAccessKey, $unknownUserId);
+
+        $this->expectExceptionObject(RoutingException::appUserNotFound($unknownUserId));
+
+        $this->resolver->resolve($request);
+    }
+
+    public function testAdminIntegrationRefusesAnInactiveNamedAdmin(): void
     {
         $ids = new IdsCollection();
 
@@ -1127,18 +1135,9 @@ class ApiRequestContextResolverTest extends TestCase
 
         $request = $this->integrationRequest($integrationAccessKey, $admin->getUserId());
 
+        $this->expectExceptionObject(RoutingException::appUserNotFound($admin->getUserId()));
+
         $this->resolver->resolve($request);
-
-        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
-        static::assertInstanceOf(Context::class, $context);
-        static::assertInstanceOf(AdminApiSource::class, $context->getSource());
-
-        $source = $context->getSource();
-
-        static::assertNull($source->getUserId());
-        static::assertFalse($source->isAdmin());
-        static::assertFalse($source->isAllowed('product:read'));
-        static::assertTrue($source->isAllowed('language:read'));
     }
 
     public function testAppCannotDelegateForInactiveAdminUser(): void

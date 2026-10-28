@@ -269,16 +269,16 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         $app = $this->fetchAppByIntegrationId($integrationId);
         if ($integrationId !== null && $app !== null) {
             if (!$app['active']) {
-                // A deactivated app keeps no access, also on a token issued before the deactivation.
                 throw RoutingException::appIntegrationNotFound($integrationId);
             }
 
             $appPermissions = $app['privileges'];
             // If both userId and integrationId are provided (HEADER_APP_USER_ID case), intersect user permissions with app permissions
-            if ($userId !== null && !$this->fetchUserState($userId)['admin']) {
+            $user = $userId !== null ? $this->fetchUserState($userId) : null;
+            if ($user !== null && !$user['admin']) {
                 $appPermissions = array_intersect(
                     $appPermissions,
-                    $this->fetchPermissions($userId)
+                    $user['permissions']
                 );
             }
 
@@ -292,21 +292,23 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             $source = new AdminApiSource(null, $integrationId);
             $user = $this->fetchUserState($userId);
 
+            if (!$user['active']) {
+                throw RoutingException::appUserNotFound($userId);
+            }
+
             if ($this->isAdminIntegration($integrationId)) {
-                $source->setPermissions($this->withDefaultUserPrivileges($user['active'] ? $this->fetchPermissions($userId) : []));
-                $source->setIsAdmin($user['active'] && $user['admin']);
+                $source->setPermissions($this->withDefaultUserPrivileges($user['permissions']));
+                $source->setIsAdmin($user['admin']);
 
                 return $source;
             }
 
             $permissions = $this->fetchIntegrationPermissions($integrationId);
 
-            if (!$user['active']) {
-                $permissions = [];
-            } elseif (!$user['admin']) {
+            if (!$user['admin']) {
                 $permissions = array_intersect(
                     $permissions,
-                    $this->fetchPermissions($userId)
+                    $user['permissions']
                 );
             }
 
@@ -317,8 +319,9 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         if ($userId !== null) {
-            $source->setPermissions($this->withDefaultUserPrivileges($this->fetchPermissions($userId)));
-            $source->setIsAdmin($this->fetchUserState($userId)['admin']);
+            $user = $this->fetchUserState($userId);
+            $source->setPermissions($this->withDefaultUserPrivileges($user['permissions']));
+            $source->setIsAdmin($user['admin']);
 
             return $source;
         }
@@ -347,18 +350,36 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     }
 
     /**
-     * @return array{active: bool, admin: bool}
+     * @return array{active: bool, admin: bool, permissions: string[]}
      */
     private function fetchUserState(string $userId): array
     {
-        $user = $this->connection->fetchAssociative(
-            'SELECT `active`, `admin` FROM `user` WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($userId)]
-        );
+        $rows = $this->connection->fetchAllAssociative('
+            SELECT `user`.`active`, `user`.`admin`, `role`.`privileges`
+            FROM `user`
+            LEFT JOIN `acl_user_role` AS `mapping` ON `mapping`.`user_id` = `user`.`id`
+            LEFT JOIN `acl_role` AS `role` ON `role`.`id` = `mapping`.`acl_role_id`
+            WHERE `user`.`id` = :id
+        ', ['id' => Uuid::fromHexToBytes($userId)]);
+
+        if ($rows === []) {
+            return ['active' => false, 'admin' => false, 'permissions' => []];
+        }
+
+        $list = [];
+        foreach ($rows as $row) {
+            if ($row['privileges'] === null) {
+                continue;
+            }
+
+            $privileges = json_decode((string) $row['privileges'], true, 512, \JSON_THROW_ON_ERROR);
+            $list = array_merge($list, $privileges);
+        }
 
         return [
-            'active' => $user !== false && (bool) $user['active'],
-            'admin' => $user !== false && (bool) $user['admin'],
+            'active' => (bool) $rows[0]['active'],
+            'admin' => (bool) $rows[0]['admin'],
+            'permissions' => array_unique(array_filter($list)),
         ];
     }
 
@@ -368,29 +389,6 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             'SELECT admin FROM `integration` WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($integrationId)]
         );
-    }
-
-    /**
-     * @return string[]
-     */
-    private function fetchPermissions(string $userId): array
-    {
-        $permissions = $this->connection->createQueryBuilder()
-            ->select('role.privileges')
-            ->from('acl_user_role', 'mapping')
-            ->innerJoin('mapping', 'acl_role', 'role', 'mapping.acl_role_id = role.id')
-            ->where('mapping.user_id = :userId')
-            ->setParameter('userId', Uuid::fromHexToBytes($userId))
-            ->executeQuery()
-            ->fetchFirstColumn();
-
-        $list = [];
-        foreach ($permissions as $privileges) {
-            $privileges = json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
-            $list = array_merge($list, $privileges);
-        }
-
-        return array_unique(array_filter($list));
     }
 
     private function getCashRounding(string $currencyId): CashRoundingConfig
@@ -503,14 +501,13 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             throw RoutingException::appIntegrationNotFound($appIntegrationId);
         }
 
-        // An inactive or unknown user holds no privileges, so the check below fails like any user without app access.
         $user = $this->fetchUserState($userId);
 
         if ($user['active'] && $user['admin']) {
             return true;
         }
 
-        $permissions = $user['active'] ? $this->fetchPermissions($userId) : [];
+        $permissions = $user['active'] ? $user['permissions'] : [];
         $allAppsPrivileged = \in_array('app.all', $permissions, true);
         $appPrivilegeName = \sprintf('app.%s', $appName);
         $specificAppPrivileged = \in_array($appPrivilegeName, $permissions, true);

@@ -51,6 +51,11 @@ export default {
 
         // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-customer-detail-addresses.customFieldSetRepository is deprecated. Use customFieldDataProviderService instead.',
+            );
+
             return this.repositoryFactory.create('custom_field_set');
         },
 

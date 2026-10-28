@@ -307,6 +307,13 @@ This covers `sw-tabs`, `sw-loader`, `sw-popover`, `sw-skeleton-bar`, the `items`
 
 Deprecation notices for the legacy Twig override shim and for deprecated extension SDK position identifiers and data sets still only warn and do not throw, because no removal version exists for them yet.
 
+### Deprecated Administration APIs warn when they are used
+
+Deprecated Administration JavaScript APIs now call `Shopware.Feature.triggerDeprecationOrThrow()` when they are used: deprecated `Shopware.*` globals including `Shopware.State`, services, exported functions, component `methods` and `computed` members, also through `this.$super()`, as well as deprecated components and props.
+In development builds, a use logs a warning naming the API and its replacement. With the next major flag active, it throws.
+
+To find the uses in your extension before the major, run its Jest suite with the environment variable `V6_8_0_0=1`.
+
 ## API
 
 To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.

@@ -37,6 +37,10 @@ export default {
             type: Boolean,
             required: false,
             default: false,
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Will be removed without replacement, the select no longer has a rounded style.',
+            },
         },
         placeholder: {
             type: String,
@@ -55,6 +59,10 @@ export default {
             type: String,
             required: false,
             default: '',
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Will be removed without replacement, the state color is derived from `stateName`.',
+            },
         },
         disabled: {
             type: Boolean,
@@ -77,6 +85,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         selectStyle() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-state-select-v2.selectStyle is deprecated and will be removed without replacement.',
+            );
+
             return `sw-order-state-select-v2__field${this.roundedStyle ? '--rounded' : ''}`;
         },
 

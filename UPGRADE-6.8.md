@@ -1002,6 +1002,13 @@ In 6.8, `RequestParamHelper::get()` no longer checks request attributes. Previou
 
 The method `\Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument::getPrice()` was removed, replace calls to `ZugferdDocument::getPrice()` with `ZugferdDocument::getPriceWithFallback()`.
 
+## Removal of the intra-community delivery helpers in `AbstractDocumentRenderer`
+
+`Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer::isAllowIntraCommunityDelivery()` and `isValidVat()` were removed.
+Inject `Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver` and call `isIntraCommunityDelivery($order)` instead.
+It replaces both checks and only returns `true` for tax-free orders (`order.price.taxStatus` is `tax-free`).
+The renderer still reads the `displayAdditionalNoteDelivery` document config itself and passes the result to the templates as `intraCommunityDelivery`.
+
 ## Removed `TaskScheduler::getNextExecutionTime()`
 
 The `\Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler::getNextExecutionTime()` method was not used anymore and was removed.

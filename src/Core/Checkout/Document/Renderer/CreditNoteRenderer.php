@@ -7,7 +7,7 @@ use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\CreditNoteOrdersEvent;
 use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
@@ -30,7 +30,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('after-sales')]
@@ -57,9 +56,8 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         private readonly ReferenceInvoiceLoader $referenceInvoiceLoader,
         private readonly Connection $connection,
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
-        private readonly ValidatorInterface $validator,
         private readonly ClockInterface $clock,
-        private readonly VatIdPatternProvider $vatIdPatternProvider,
+        private readonly IntraCommunityTaxResolver $intraCommunityTaxResolver,
     ) {
     }
 
@@ -174,12 +172,8 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                         'creditNoteNumber' => $number,
                         'invoiceNumber' => $referenceDocumentNumber,
                     ],
-                    'intraCommunityDelivery' => $this->isAllowIntraCommunityDelivery(
-                        $config->jsonSerialize(),
-                        $order,
-                    )
-                        && !$this->isDomesticSupply($order, $this->vatIdPatternProvider)
-                        && $this->isValidVat($order, $this->validator),
+                    'intraCommunityDelivery' => ($config->jsonSerialize()['displayAdditionalNoteDelivery'] ?? false) !== false
+                        && $this->intraCommunityTaxResolver->isIntraCommunityDelivery($order),
                 ]);
 
                 // create version of order to ensure the document stays the same even if the order changes

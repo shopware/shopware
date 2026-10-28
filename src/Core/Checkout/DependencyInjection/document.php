@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use setasign\Fpdi\Tfpdf\Fpdi;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
-use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigValidator;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentTypeTranslation\DocumentTypeTranslationDefinition;
@@ -141,9 +141,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(NumberRangeValueGeneratorInterface::class),
             service(Connection::class),
             service(DocumentFileRendererRegistry::class),
-            service('validator'),
             service(ClockInterface::class),
-            service(VatIdPatternProvider::class),
+            service(IntraCommunityTaxResolver::class),
         ])
         ->tag('document.renderer');
 
@@ -168,9 +167,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ReferenceInvoiceLoader::class),
             service(Connection::class),
             service(DocumentFileRendererRegistry::class),
-            service('validator'),
             service(ClockInterface::class),
-            service(VatIdPatternProvider::class),
+            service(IntraCommunityTaxResolver::class),
         ])
         ->tag('document.renderer');
 
@@ -183,9 +181,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ReferenceInvoiceLoader::class),
             service(Connection::class),
             service(DocumentFileRendererRegistry::class),
-            service('validator'),
             service(ClockInterface::class),
-            service(VatIdPatternProvider::class),
+            service(IntraCommunityTaxResolver::class),
         ])
         ->tag('document.renderer');
 

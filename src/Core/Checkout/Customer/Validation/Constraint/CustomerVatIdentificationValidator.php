@@ -51,7 +51,6 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
                 (string) $vatId,
                 $country['pattern'],
                 $country['isEu'],
-                $constraint->getSalesChannelId()
             );
 
             if ($accepted) {

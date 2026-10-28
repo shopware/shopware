@@ -6,6 +6,10 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
@@ -41,16 +45,14 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Clock\NativeClock;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  *
- * @phpstan-type OrderSettings array{accountType: string, isCountryCompanyTaxFree: bool, setOrderDelivery: bool, setShippingCountry: bool, setEuCountry: bool, shouldCheckVatIdPattern?: bool, validVat?: bool, domesticSupply?: bool}
+ * @phpstan-type OrderSettings array{accountType: string, isCountryCompanyTaxFree: bool, setOrderDelivery: bool, setShippingCountry: bool, setEuCountry: bool, shouldCheckVatIdPattern?: bool, validVat?: bool, domesticSupply?: bool, taxStatus?: string}
  * @phpstan-type InvoiceConfig array{displayAdditionalNoteDelivery: bool, fileTypes: array<string>}
  */
 #[Package('after-sales')]
@@ -95,30 +97,10 @@ class InvoiceRendererTest extends TestCase
         $orderRepositoryMock = static::createStub(EntityRepository::class);
         $orderRepositoryMock->method('search')->willReturn($orderSearchResult);
 
-        $validator = static::createStub(ValidatorInterface::class);
-        if (isset($orderSettings['shouldCheckVatIdPattern']) && $orderSettings['shouldCheckVatIdPattern']) {
-            $validator->method('validate')->willReturnCallback(static function () use ($orderSettings) {
-                if ($orderSettings['validVat'] ?? false) {
-                    return new ConstraintViolationList();
-                }
-
-                return new ConstraintViolationList(
-                    [
-                        new ConstraintViolation(
-                            'VAT ID is invalid',
-                            null,
-                            [],
-                            'vat',
-                            'vatId',
-                            'invalid'
-                        ),
-                    ],
-                );
-            });
-        }
-
         $vatIdPatternProvider = static::createStub(VatIdPatternProvider::class);
-        $vatIdPatternProvider->method('isDomesticSupply')->willReturn($orderSettings['domesticSupply'] ?? false);
+        // The shop supplies from the delivery country only for a domestic supply
+        $vatIdPatternProvider->method('getMemberStateOfCountry')->willReturn(($orderSettings['domesticSupply'] ?? false) ? 'DE' : null);
+        $vatIdPatternProvider->method('matches')->willReturn($orderSettings['validVat'] ?? false);
 
         $invoiceRenderer = new InvoiceRenderer(
             $orderRepositoryMock,
@@ -127,9 +109,8 @@ class InvoiceRendererTest extends TestCase
             static::createStub(NumberRangeValueGeneratorInterface::class),
             $connectionMock,
             static::createStub(DocumentFileRendererRegistry::class),
-            $validator,
             new NativeClock(),
-            $vatIdPatternProvider
+            new IntraCommunityTaxResolver($vatIdPatternProvider, static::createStub(SystemConfigService::class), static::createStub(EntityRepository::class))
         );
 
         $operations = [
@@ -216,9 +197,8 @@ class InvoiceRendererTest extends TestCase
             static::createStub(NumberRangeValueGeneratorInterface::class),
             $connectionMock,
             static::createStub(DocumentFileRendererRegistry::class),
-            static::createStub(ValidatorInterface::class),
             new NativeClock(),
-            static::createStub(VatIdPatternProvider::class)
+            static::createStub(IntraCommunityTaxResolver::class)
         );
 
         $operations = [
@@ -271,9 +251,8 @@ class InvoiceRendererTest extends TestCase
             static::createStub(NumberRangeValueGeneratorInterface::class),
             $connectionMock,
             static::createStub(DocumentFileRendererRegistry::class),
-            static::createStub(ValidatorInterface::class),
             new NativeClock(),
-            static::createStub(VatIdPatternProvider::class)
+            static::createStub(IntraCommunityTaxResolver::class)
         );
 
         $operations = [
@@ -308,6 +287,24 @@ class InvoiceRendererTest extends TestCase
             'expectedResult' => true,
         ];
 
+        foreach ([CartPrice::TAX_STATE_NET, CartPrice::TAX_STATE_GROSS] as $taxStatus) {
+            yield $taxStatus . ' orders do not carry the exemption note' => [
+                'orderSettings' => [
+                    'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+                    'isCountryCompanyTaxFree' => true,
+                    'setOrderDelivery' => true,
+                    'setShippingCountry' => true,
+                    'setEuCountry' => true,
+                    'taxStatus' => $taxStatus,
+                ],
+                'config' => [
+                    'displayAdditionalNoteDelivery' => true,
+                    'fileTypes' => ['pdf', 'html'],
+                ],
+                'expectedResult' => false,
+            ];
+        }
+
         yield 'will return false because customer is no B2B customer' => [
             'orderSettings' => [
                 'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
@@ -323,19 +320,20 @@ class InvoiceRendererTest extends TestCase
             'expectedResult' => false,
         ];
 
-        yield 'will return false because country setting "CompanyTaxFree" is not activated' => [
+        yield 'saved tax-free order keeps the note after company tax is disabled' => [
             'orderSettings' => [
                 'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
                 'isCountryCompanyTaxFree' => false,
                 'setOrderDelivery' => true,
                 'setShippingCountry' => true,
                 'setEuCountry' => true,
+                'taxStatus' => CartPrice::TAX_STATE_FREE,
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => true,
                 'fileTypes' => ['pdf', 'html'],
             ],
-            'expectedResult' => false,
+            'expectedResult' => true,
         ];
 
         yield 'will return false because customer address is not part of "Member countries"' => [
@@ -475,6 +473,9 @@ class InvoiceRendererTest extends TestCase
         $order->setSalesChannelId($salesChannelId);
         $order->setLanguage($language);
         $order->setLanguageId('language-test-id');
+        $taxStatus = $orderSettings['taxStatus'] ?? CartPrice::TAX_STATE_FREE;
+        $order->setTaxStatus($taxStatus);
+        $order->setPrice(new CartPrice(0.0, 0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection(), $taxStatus));
 
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
@@ -497,6 +498,7 @@ class InvoiceRendererTest extends TestCase
         if ($orderSettings['setShippingCountry'] && $orderSettings['setOrderDelivery']) {
             $country = new CountryEntity();
             $country->setId(self::COUNTRY_ID);
+            $country->setIso('DE');
             if ($orderSettings['setEuCountry']) {
                 $country->setIsEu(true);
             } else {
@@ -506,6 +508,7 @@ class InvoiceRendererTest extends TestCase
             $address = new OrderAddressEntity();
             $address->setCountry($country);
             $country->setCheckVatIdPattern($orderSettings['shouldCheckVatIdPattern'] ?? false);
+            $country->setVatIdPattern('VAT\\d+');
             $delivery->setShippingOrderAddress($address);
         }
 

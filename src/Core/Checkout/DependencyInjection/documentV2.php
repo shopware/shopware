@@ -4,8 +4,8 @@ namespace Shopware\Core\Checkout\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
-use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator as LegacyDocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition;
@@ -132,8 +132,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(DocumentConfigLoader::class),
             service(DocumentTypeRegistry::class),
-            service('validator'),
-            service(VatIdPatternProvider::class),
+            service(IntraCommunityTaxResolver::class),
         ])
         ->tag('shopware.document_v2.provider');
 

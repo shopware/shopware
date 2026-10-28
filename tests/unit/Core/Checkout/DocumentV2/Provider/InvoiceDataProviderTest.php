@@ -7,11 +7,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
-use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentificationValidator;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
@@ -37,7 +36,6 @@ use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -48,14 +46,6 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\ConstraintValidatorFactory;
-use Symfony\Component\Validator\ConstraintValidatorFactoryInterface;
-use Symfony\Component\Validator\ConstraintValidatorInterface;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\Validation;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -131,12 +121,8 @@ class InvoiceDataProviderTest extends TestCase
         array $config,
         OrderEntity $order,
         bool $expectedIntraCommunityDelivery,
-        int $vatViolationCount = 0,
     ): void {
-        $provider = $this->createProvider(
-            $config,
-            $this->createValidatorWithViolations($vatViolationCount)
-        );
+        $provider = $this->createProvider($config);
 
         $request = new DocumentGenerationRequest(
             $order->getId(),
@@ -285,6 +271,19 @@ class InvoiceDataProviderTest extends TestCase
             'expectedIntraCommunityDelivery' => false,
         ];
 
+        foreach ([CartPrice::TAX_STATE_NET, CartPrice::TAX_STATE_GROSS] as $taxStatus) {
+            yield $taxStatus . ' orders do not carry the exemption note' => [
+                'config' => $flag,
+                'order' => self::createOrder(
+                    accountType: $business,
+                    country: $validEuCountryNoPatternCheck,
+                    vatIds: ['NL123456789B01'],
+                    taxStatus: $taxStatus,
+                ),
+                'expectedIntraCommunityDelivery' => false,
+            ];
+        }
+
         yield 'intra false - flag set, customer is not business' => [
             'config' => $flag,
             'order' => self::createOrder(),
@@ -330,13 +329,23 @@ class InvoiceDataProviderTest extends TestCase
             'expectedIntraCommunityDelivery' => false,
         ];
 
-        yield 'intra true - country has checkVatIdPattern disabled, validator skipped' => [
+        yield 'intra true - country has checkVatIdPattern disabled' => [
+            'config' => $flag,
+            'order' => self::createOrder(
+                accountType: $business,
+                country: $validEuCountryNoPatternCheck,
+                vatIds: ['NL123456789B01'],
+            ),
+            'expectedIntraCommunityDelivery' => true,
+        ];
+
+        yield 'intra false - unchecked VAT format still requires a stored VAT ID' => [
             'config' => $flag,
             'order' => self::createOrder(
                 accountType: $business,
                 country: $validEuCountryNoPatternCheck,
             ),
-            'expectedIntraCommunityDelivery' => true,
+            'expectedIntraCommunityDelivery' => false,
         ];
 
         yield 'intra false - all preconditions met but customer has no vatIds' => [
@@ -348,17 +357,6 @@ class InvoiceDataProviderTest extends TestCase
             'expectedIntraCommunityDelivery' => false,
         ];
 
-        yield 'intra false - vatIds present but validator finds violations' => [
-            'config' => $flag,
-            'order' => self::createOrder(
-                accountType: $business,
-                country: $validEuCountry,
-                vatIds: ['INVALID']
-            ),
-            'expectedIntraCommunityDelivery' => false,
-            'vatViolationCount' => 1,
-        ];
-
         yield 'intra true - all preconditions met and vatId validates cleanly' => [
             'config' => $flag,
             'order' => self::createOrder(
@@ -367,7 +365,6 @@ class InvoiceDataProviderTest extends TestCase
                 vatIds: ['DE123456789']
             ),
             'expectedIntraCommunityDelivery' => true,
-            'vatViolationCount' => 0,
         ];
     }
 
@@ -391,13 +388,22 @@ class InvoiceDataProviderTest extends TestCase
         static::assertFalse($this->resolveIntraCommunityDelivery(['NL123456789B01', 'INVALID']));
     }
 
+    public function testASellerVatIdDropsTheIntraCommunityNoteWithoutPatternValidation(): void
+    {
+        static::assertFalse($this->resolveIntraCommunityDelivery(['DE123456789'], checkVatIdPattern: false));
+    }
+
+    public function testAForeignVatIdKeepsTheIntraCommunityNoteWithoutPatternValidation(): void
+    {
+        static::assertTrue($this->resolveIntraCommunityDelivery(['NL123456789B01'], checkVatIdPattern: false));
+    }
+
     /**
      * @param array<string, mixed> $config
      */
     private function createProvider(
         array $config = [],
-        ?ValidatorInterface $validator = null,
-        ?VatIdPatternProvider $vatIdPatternProvider = null
+        ?IntraCommunityTaxResolver $intraCommunityTaxResolver = null
     ): InvoiceDataProvider {
         $companyCountry = new CountryEntity();
         $companyCountry->setUniqueIdentifier(self::COMPANY_COUNTRY_ID);
@@ -432,28 +438,32 @@ class InvoiceDataProviderTest extends TestCase
         return new InvoiceDataProvider(
             $configLoader,
             $documentTypeRegistry,
-            $validator ?? static::createStub(ValidatorInterface::class),
-            $vatIdPatternProvider ?? static::createStub(VatIdPatternProvider::class),
+            $intraCommunityTaxResolver ?? new IntraCommunityTaxResolver(
+                static::createStub(VatIdPatternProvider::class),
+                static::createStub(SystemConfigService::class),
+                static::createStub(EntityRepository::class),
+            ),
         );
     }
 
     /**
      * @param list<string> $vatIds
      */
-    private function resolveIntraCommunityDelivery(array $vatIds, ?string $deliveryCountryIso = null): bool
+    private function resolveIntraCommunityDelivery(array $vatIds, ?string $deliveryCountryIso = null, bool $checkVatIdPattern = true): bool
     {
+        // Delivered to Belgium unless another member state is given
+        $country = self::createCountry(companyTaxEnabled: true, isEu: true, checkVatIdPattern: $checkVatIdPattern, iso: $deliveryCountryIso);
+        $country->setVatIdPattern('BE\\d{10}');
+
         $order = self::createOrder(
             accountType: CustomerEntity::ACCOUNT_TYPE_BUSINESS,
-            country: self::createCountry(companyTaxEnabled: true, isEu: true, iso: $deliveryCountryIso),
+            country: $country,
             vatIds: $vatIds,
         );
 
-        $vatIdPatternProvider = $this->createRealVatIdPatternProvider();
-
         $provider = $this->createProvider(
             ['displayAdditionalNoteDelivery' => true],
-            $this->createValidatorWithTheRealVatIdCheck($vatIdPatternProvider),
-            $vatIdPatternProvider
+            $this->createIntraCommunityTaxResolver()
         );
 
         return $provider->provideRenderingData(
@@ -469,10 +479,10 @@ class InvoiceDataProviderTest extends TestCase
     }
 
     /**
-     * The delivery country is Belgium and the shop supplies from Germany, so a Dutch VAT ID is only
-     * accepted through the intra-community fallback.
+     * The shop supplies from Germany, so a Dutch VAT ID is only accepted on a Belgian delivery through
+     * the intra-community fallback.
      */
-    private function createRealVatIdPatternProvider(): VatIdPatternProvider
+    private function createIntraCommunityTaxResolver(): IntraCommunityTaxResolver
     {
         $sellerCountryId = Uuid::randomHex();
 
@@ -481,21 +491,12 @@ class InvoiceDataProviderTest extends TestCase
             $this->createPatternCountry(Uuid::randomHex(), 'NL', 'NL\\d{9}B\\d{2}'),
         ]);
 
-        $repository = static::createStub(EntityRepository::class);
-        $repository->method('search')->willReturnCallback(
-            function (Criteria $criteria, Context $context) use ($euCountries): EntitySearchResult {
-                $countries = $criteria->getIds() === []
-                    ? $euCountries
-                    : new CountryCollection([$this->createPatternCountry((string) $criteria->getIds()[0], 'BE', 'BE\\d{10}')]);
-
-                return new EntitySearchResult(CountryDefinition::ENTITY_NAME, $countries->count(), $countries, null, $criteria, $context);
-            }
-        );
+        $repository = new StaticEntityRepository([$euCountries], new CountryDefinition());
 
         $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('getString')->willReturn($sellerCountryId);
 
-        return new VatIdPatternProvider($repository, $systemConfigService);
+        return new IntraCommunityTaxResolver(new VatIdPatternProvider($repository), $systemConfigService, static::createStub(EntityRepository::class));
     }
 
     private function createPatternCountry(string $id, string $iso, string $vatIdPattern): CountryEntity
@@ -508,29 +509,6 @@ class InvoiceDataProviderTest extends TestCase
         $country->setCheckVatIdPattern(true);
 
         return $country;
-    }
-
-    private function createValidatorWithTheRealVatIdCheck(VatIdPatternProvider $vatIdPatternProvider): ValidatorInterface
-    {
-        $vatIdValidator = new CustomerVatIdentificationValidator($vatIdPatternProvider);
-
-        return Validation::createValidatorBuilder()
-            ->setConstraintValidatorFactory(new class($vatIdValidator) implements ConstraintValidatorFactoryInterface {
-                private readonly ConstraintValidatorFactory $fallback;
-
-                public function __construct(private readonly CustomerVatIdentificationValidator $vatIdValidator)
-                {
-                    $this->fallback = new ConstraintValidatorFactory();
-                }
-
-                public function getInstance(Constraint $constraint): ConstraintValidatorInterface
-                {
-                    return $constraint instanceof CustomerVatIdentification
-                        ? $this->vatIdValidator
-                        : $this->fallback->getInstance($constraint);
-                }
-            })
-            ->getValidator();
     }
 
     /**
@@ -557,28 +535,6 @@ class InvoiceDataProviderTest extends TestCase
         return $entity;
     }
 
-    private function createValidatorWithViolations(int $count): ValidatorInterface
-    {
-        $violations = [];
-
-        for ($i = 0; $i < $count; ++$i) {
-            $violations[] = new ConstraintViolation(
-                'invalid vat id',
-                null,
-                [],
-                null,
-                null,
-                null
-            );
-        }
-
-        $validator = static::createStub(ValidatorInterface::class);
-        $validator->method('validate')
-            ->willReturn(new ConstraintViolationList($violations));
-
-        return $validator;
-    }
-
     /**
      * @param list<string>|null $vatIds
      */
@@ -589,6 +545,7 @@ class InvoiceDataProviderTest extends TestCase
         bool $deliveryWithoutCountry = false,
         ?\DateTimeInterface $shippingDateLatest = null,
         bool $skipPrimaryDelivery = false,
+        string $taxStatus = CartPrice::TAX_STATE_FREE,
     ): OrderEntity {
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());
@@ -597,7 +554,8 @@ class InvoiceDataProviderTest extends TestCase
         $billingAddressId = Uuid::randomHex();
         $order->setBillingAddressId($billingAddressId);
         $order->setLineItems(new OrderLineItemCollection());
-        $order->setPrice(new CartPrice(0.0, 0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET));
+        $order->setPrice(new CartPrice(0.0, 0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection(), $taxStatus));
+        $order->setTaxStatus($taxStatus);
         $order->setAmountTotal(0.0);
         $order->setAmountNet(0.0);
 

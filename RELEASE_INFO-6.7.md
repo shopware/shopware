@@ -76,6 +76,9 @@ A customer counts as a business based on `accountType` instead of a non-empty `c
 The new `customer.vatIdCountryId` field (association `vatIdCountry`, not in the Store API) holds the country of the first VAT ID and stays `null` for existing customers until their `vatIds` are written again.
 The cart hash also covers the checkout addresses and the customer's account type, company and VAT IDs.
 
+- A VAT ID of any other EU member state is exempt, one of the shop's own member state is not.
+- A delivery within the shop's own member state is never exempt. *Tax-free (B2C)* is unaffected.
+- Digital products follow the same rules as goods. The separate EU rules for them are not implemented yet.
 Extensions: `CustomerVatIdentification` takes an optional `salesChannelId`, document renderers call the new `AbstractDocumentRenderer::isDomesticSupply()`, `TaxDetector` has a new constructor argument (decorate `AbstractTaxDetector` instead), and the `document_recipient` block reads `customer.vatIds` instead of `customer.customer.vatIds`.
 Themes overriding `address-personal-vat-id.html.twig` use `data-form-validation-pattern-message` and the new `data-eu-vat-id-patterns` attribute, filled by the new Twig function `sw_eu_vat_id_patterns()`; `CountryStateSelectPlugin::_getFormFieldToggleInstance()` and `_onFormFieldToggleChange()` are deprecated and removed in 6.8.0.
 
@@ -89,8 +92,8 @@ Independently of the setting:
 
 For extension developers:
 
-- `CustomerVatIdentification` accepts an optional `salesChannelId`. Given one, it also rejects a VAT ID of the shop's own member state.
-- Custom invoice renderers should call the new `AbstractDocumentRenderer::isDomesticSupply()` next to `isAllowIntraCommunityDelivery()`.
+- `AbstractDocumentRenderer::isAllowIntraCommunityDelivery()` and `isValidVat()` are deprecated and will be removed in 6.8.0.
+  Custom document renderers should inject the new public service `IntraCommunityTaxResolver` and call `isIntraCommunityDelivery($order)` instead; it only returns `true` for tax-free orders.
 - `TaxDetector` has a new constructor argument. Decorate `AbstractTaxDetector` instead of replacing the service.
 - Templates overriding the `document_recipient` block should read `customer.vatIds` instead of `customer.customer.vatIds`.
 - The Storefront form validation reads `data-form-validation-<rule>-message` before `data-form-validation-error-message`. Themes overriding `address-personal-vat-id.html.twig` should switch to `data-form-validation-pattern-message` and keep the new `data-eu-vat-id-patterns` attribute.

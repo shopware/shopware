@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\Tax;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -562,6 +563,7 @@ class TaxDetectorTest extends TestCase
             ->set('core.basicInformation.sellerCountryId', $countryId);
 
         static::getContainer()->get(VatIdPatternProvider::class)->reset();
+        static::getContainer()->get(IntraCommunityTaxResolver::class)->reset();
     }
 
     private function enableCompanyTaxFree(string $iso): CountryEntity

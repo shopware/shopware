@@ -126,6 +126,8 @@ framework:
             log_level: notice
         Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException:
             log_level: notice
+        Shopware\Core\Framework\Routing\Exception\CustomerNotLoggedInRoutingException:
+            log_level: notice
         Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException:
             log_level: notice
         Shopware\Core\Checkout\Customer\Exception\BadCredentialsException:

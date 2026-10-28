@@ -57,6 +57,16 @@ class MediaFileExtensionWriteValidatorTest extends TestCase
         );
     }
 
+    public function testMediaWithAPrivateOnlyExtensionCannotBeMadePublic(): void
+    {
+        $this->createMedia(['private' => true, 'fileExtension' => 'zip']);
+
+        WriteViolations::assertRejected(
+            [MediaFileExtensionWriteValidator::MEDIA_ILLEGAL_FILE_EXTENSION],
+            fn () => $this->updateMedia(['private' => false]),
+        );
+    }
+
     /**
      * @param array<string, mixed> $values
      */

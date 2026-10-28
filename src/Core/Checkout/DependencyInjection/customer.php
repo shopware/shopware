@@ -669,6 +669,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CustomerLanguageSalesChannelSubscriber::class)
         ->args([
             service('sales_channel.repository'),
+            service(WriteOutcome::class),
         ])
         ->tag('kernel.event_subscriber');
 

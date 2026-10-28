@@ -14,7 +14,7 @@ Follow the general feature-flag rules in [core feature flags](../core/feature-fl
 ## Deprecations
 
 - Mark deprecated Administration APIs with `@deprecated tag:vX.Y.Z - ...` and name the replacement.
-- Guard a deprecated public API at runtime where it is consumed, see [Runtime guards](#runtime-guards).
+- Guard a deprecated public API at runtime where it is consumed, see [Runtime guards](#runtime-guards). `sw-deprecation-rules/require-deprecation-guard` enforces this.
 - Document the migration path when deprecating public Administration extension points.
 - Do not introduce new internal callers of deprecated APIs; move core/Admin code to the replacement.
 - At the major, remove the flag checks, the legacy branch, obsolete tests, and stale documentation in the same change.
@@ -47,7 +47,18 @@ Component.register('sw-example', {
 
 Pass a registered major flag and a version like `v6.8.0.0`. Anything else could never throw, so it logs a console error instead.
 
-`@private` symbols and identifiers starting with `_` are no public contract and need no guard. See the [ADR](../../adr/2026-08-10-administration-javascript-deprecation-guards.md).
+The guard is the first statement, so no early return or condition skips it.
+
+`@private` symbols and identifiers starting with `_` are no public contract and need no guard.
+Neither do values, types, `data`, `watch`, `provide`, `inject`, store `state` and `getters`, which have no use to guard.
+A deprecated function that core itself runs on every instance, like a lifecycle hook, states why it has no guard:
+
+```js
+// eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- Vue runs created() for every instance
+created() {},
+```
+
+See the [ADR](../../adr/2026-08-10-administration-javascript-deprecation-guards.md).
 
 For now, only specs inside the platform's `src/` fail on unasserted deprecations.
 In the Jest run of an extension that reuses core's test setup, they are still recorded, so `toHaveTriggered()` works, and majors a test activates still throw.

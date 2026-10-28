@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -145,20 +144,17 @@ class EntityAggregatorTest extends TestCase
     }
 
     /**
-     * A segment that only contains `extensions` as a substring must stay intact, so a nested
-     * aggregation field cannot resolve past unknown segments to a field off the association path.
-     * The accessor stays unmapped and the query is rejected while it is built.
+     * A segment that only contains `extensions` as a substring stays intact,
+     * so the accessor is unmapped and the query is rejected while it is built.
      */
-    public function testNestedAggregationFieldIsResolvedPerSegment(): void
+    public function testAggregationFieldIsResolvedPerSegment(): void
     {
-        $accessor = 'product.media.media.useextensions.r.email';
+        $accessor = 'product.mediextensions.a.media';
 
         $criteria = new Criteria();
-        $criteria->addAggregation(new TermsAggregation('email', $accessor));
+        $criteria->addAggregation(new TermsAggregation('media', $accessor));
 
-        $this->expectExceptionObject(
-            DataAbstractionLayerException::unmappedField($accessor, static::getContainer()->get(MediaDefinition::class))
-        );
+        $this->expectExceptionObject(DataAbstractionLayerException::unmappedField($accessor, $this->definition));
 
         $this->aggregator->aggregate($this->definition, $criteria, Context::createDefaultContext());
     }

@@ -40,8 +40,6 @@ const adminSrcPath = process.env.ADMIN_ROOT
     ? path.join(process.env.ADMIN_ROOT, 'Resources', 'app', 'administration', 'src')
     : path.join(path.dirname(__dirname), 'src');
 
-const extensionEntries = loadExtensions();
-
 // Common configuration shared between dev and build
 const getBaseConfig = (
     toolchain: ViteToolchain,
@@ -194,6 +192,7 @@ const getBaseConfig = (
 const main = async () => {
     const toolchain = await loadViteToolchain();
     const logger = toolchain.vite.createLogger();
+    const extensionEntries = loadExtensions();
 
     if (isDev) {
         const extensionPorts = getViteServerPorts();

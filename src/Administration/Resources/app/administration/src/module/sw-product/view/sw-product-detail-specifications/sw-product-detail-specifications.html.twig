@@ -42,6 +42,54 @@
     />
     {% endblock %}
 
+    {% block sw_product_detail_specifications_documents %}
+    <sw-inherit-wrapper
+        ref="productDocumentInheritance"
+        v-model:value="product.documents"
+        class="sw-product-detail-specification__documents"
+        :inherited-value="parentProduct.documents"
+        :custom-restore-inheritance-function="documentsRestoreInheritanceFunction"
+        :custom-remove-inheritance-function="documentsRemoveInheritanceFunction"
+        is-association
+    >
+        <template #content="{ isInherited, isInheritField, restoreInheritance, removeInheritance }">
+            <mt-card
+                class="sw-product-detail-specification__documents-card"
+                position-identifier="sw-product-detail-specifications-documents"
+                :title="$t('sw-product.specifications.cardTitleDocuments')"
+                :subtitle="$t('sw-product.specifications.cardSubtitleDocuments')"
+                :class="{ 'sw-card__inherited': isInherited }"
+            >
+                <template #title>
+                    <div
+                        class="sw-inherit-wrapper__card-title"
+                        :class="{ 'sw-inherit-wrapper__card-title--inherited': isInherited }"
+                    >
+                        <sw-inheritance-switch
+                            v-if="isInheritField"
+                            class="sw-inherit-wrapper__inheritance-icon"
+                            :is-inherited="isInherited"
+                            :disabled="!acl.can('product.editor')"
+                            @inheritance-restore="restoreInheritance"
+                            @inheritance-remove="removeInheritance"
+                        />
+                        <h3 class="mt-card__title">
+                            {{ $t('sw-product.specifications.cardTitleDocuments') }}
+                        </h3>
+                    </div>
+                </template>
+
+                <sw-product-document-form
+                    :key="isInherited"
+                    :is-inherited="isInherited"
+                    :disabled="isInherited || !acl.can('product.editor')"
+                    @add-back="onDocumentAddBack"
+                />
+            </mt-card>
+        </template>
+    </sw-inherit-wrapper>
+    {% endblock %}
+
     {% block sw_product_detail_specifications_essential_characteristics %}
     <mt-card
         v-show="showProductCard('essential_characteristics')"

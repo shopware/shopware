@@ -273,6 +273,9 @@ export default {
             criteria.getAssociation('media').addSorting(Criteria.sort('position', 'ASC'));
             criteria.addAssociation('media.media');
 
+            criteria.getAssociation('documents').addSorting(Criteria.sort('position', 'ASC'));
+            criteria.addAssociation('documents.translations.media');
+
             criteria.getAssociation('prices').addSorting(Criteria.sort('quantityStart', 'ASC', true));
 
             criteria.getAssociation('tags').addSorting(Criteria.sort('name', 'ASC'));

@@ -1,0 +1,73 @@
+@import "~scss/variables";
+
+.sw-product-document-form {
+    position: relative;
+    display: grid;
+    gap: var(--scale-size-16);
+
+    .sw-product-document-form__add {
+        display: grid;
+        gap: var(--scale-size-8);
+    }
+
+    .sw-product-document-form__count {
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xs);
+        justify-self: end;
+    }
+
+    .sw-product-document-form__empty {
+        padding: var(--scale-size-24);
+        border: var(--scale-size-1) dashed var(--color-border-primary-default);
+        border-radius: var(--border-radius-xs);
+        color: var(--color-text-secondary-default);
+        text-align: center;
+    }
+
+    .sw-product-document-form__title-cell {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--scale-size-4) var(--scale-size-8);
+    }
+
+    .sw-product-document-form__title {
+        flex: 1 1 140px;
+        min-width: 0;
+        margin-bottom: 0;
+    }
+
+    .sw-product-document-form__variant-only,
+    .sw-product-document-form__removed {
+        flex-shrink: 0;
+        margin: 0;
+    }
+
+    .sw-data-grid__row.is--disabled {
+        .sw-data-grid__cell {
+            color: var(--color-text-secondary-default);
+        }
+
+        .sw-product-document-form__removed-title,
+        .sw-product-document-form__file a,
+        .sw-product-document-form__file span {
+            color: var(--color-text-secondary-default);
+            text-decoration: line-through;
+        }
+    }
+
+    .sw-product-document-form__file {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--scale-size-4);
+        padding-block: var(--scale-size-4);
+        overflow-wrap: anywhere;
+    }
+
+    &.is--disabled .sw-product-document-form__grid {
+        opacity: 0.7;
+    }
+}

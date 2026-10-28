@@ -1,0 +1,215 @@
+{% block sw_product_document_form %}
+<div
+    class="sw-product-document-form"
+    :class="{ 'is--disabled': disabled }"
+>
+    <sw-upload-listener
+        v-if="canAdd"
+        :upload-tag="uploadTag"
+        auto-upload
+        @media-upload-finish="onUploadFinish"
+    />
+
+    {% block sw_product_document_form_add %}
+    <div class="sw-product-document-form__add">
+        <sw-media-upload-v2
+            v-if="canAdd"
+            variant="regular"
+            default-folder="product_document"
+            file-accept="application/pdf"
+            :upload-tag="uploadTag"
+            :max-file-size="maxFileSize"
+            :label="$t('sw-product.documentForm.labelUpload')"
+            @media-upload-sidebar-open="openMediaModal()"
+        />
+
+        <mt-banner
+            v-else-if="canEdit && !isDefaultLanguage"
+            class="sw-product-document-form__hint"
+            variant="info"
+        >
+            {{ $t('sw-product.documentForm.hintOtherLanguage') }}
+        </mt-banner>
+
+        <mt-banner
+            v-else-if="canEdit && isAtLimit"
+            class="sw-product-document-form__hint"
+            variant="attention"
+        >
+            {{ $t('sw-product.documentForm.hintLimit', { max: maxDocuments }) }}
+        </mt-banner>
+
+        <span class="sw-product-document-form__count">
+            {{ $t('sw-product.documentForm.count', { count: sortedDocuments.length, max: maxDocuments }) }}
+        </span>
+    </div>
+    {% endblock %}
+
+    {% block sw_product_document_form_empty %}
+    <p
+        v-if="!rows.length"
+        class="sw-product-document-form__empty"
+    >
+        {{ $t('sw-product.documentForm.emptyState') }}
+    </p>
+    {% endblock %}
+
+    {% block sw_product_document_form_grid %}
+    <sw-data-grid
+        v-else
+        class="sw-product-document-form__grid"
+        :data-source="rows"
+        :columns="columns"
+        :show-selection="false"
+        :show-settings="false"
+        :show-actions="canEdit"
+        :allow-inline-edit="false"
+        :allow-column-edit="false"
+        :compact-mode="true"
+        :plain-appearance="true"
+        :is-record-disabled="isRemoved"
+    >
+        <template #column-title="{ item }">
+            <div class="sw-product-document-form__title-cell">
+                <template v-if="isRemoved(item)">
+                    <span class="sw-product-document-form__removed-title">
+                        {{ effectiveValue(item, 'title') }}
+                    </span>
+
+                    <sw-label
+                        class="sw-product-document-form__removed"
+                        variant="warning"
+                        size="small"
+                        appearance="pill"
+                    >
+                        {{ $t('sw-product.documentForm.labelRemoved') }}
+                    </sw-label>
+                </template>
+
+                <template v-else>
+                    <mt-text-field
+                        class="sw-product-document-form__title"
+                        size="small"
+                        :model-value="ownValue(item, 'title')"
+                        :placeholder="defaultValue(item, 'title') || $t('sw-product.documentForm.placeholderTitle')"
+                        :disabled="!canEdit"
+                        @update:model-value="onTitleInput(item, $event)"
+                        @blur="onTitleBlur(item)"
+                    />
+
+                    <sw-label
+                        v-if="isVariantOnly(item)"
+                        class="sw-product-document-form__variant-only"
+                        variant="info"
+                        size="small"
+                        appearance="pill"
+                    >
+                        {{ $t('sw-product.documentForm.labelVariantOnly') }}
+                    </sw-label>
+                </template>
+            </div>
+        </template>
+
+        <template #column-file="{ item }">
+            <div class="sw-product-document-form__file">
+                <a
+                    v-if="mediaOf(item)?.url"
+                    :href="mediaOf(item).url"
+                    target="_blank"
+                    rel="noopener"
+                >
+                    {{ fileName(mediaOf(item)) }}
+                </a>
+                <span v-else>{{ fileName(mediaOf(item)) }}</span>
+
+                <sw-label
+                    v-if="!isRemoved(item) && isFallback(item, 'mediaId')"
+                    class="sw-product-document-form__fallback"
+                    size="small"
+                    appearance="pill"
+                >
+                    {{ $t('sw-product.documentForm.labelDefaultLanguageFile') }}
+                </sw-label>
+            </div>
+        </template>
+
+        <template #column-type="{ item }">
+            {{ fileType(mediaOf(item)) }}
+        </template>
+
+        <template #column-size="{ item }">
+            {{ fileSize(mediaOf(item)) }}
+        </template>
+
+        <template #column-uploadedAt="{ item }">
+            {{ uploadedAt(mediaOf(item)) }}
+        </template>
+
+        <template #actions="{ item }">
+            <sw-context-menu-item
+                v-if="isRemoved(item)"
+                class="sw-product-document-form__add-back"
+                :disabled="isAtLimit"
+                @click="$emit('add-back', item)"
+            >
+                {{ $t('sw-product.documentForm.actionAddBack') }}
+            </sw-context-menu-item>
+
+            <template v-else>
+                <sw-context-menu-item
+                    class="sw-product-document-form__move-up"
+                    :disabled="sortedDocuments.indexOf(item) === 0"
+                    @click="onMove(item, -1)"
+                >
+                    {{ $t('sw-product.documentForm.actionMoveUp') }}
+                </sw-context-menu-item>
+
+                <sw-context-menu-item
+                    class="sw-product-document-form__move-down"
+                    :disabled="sortedDocuments.indexOf(item) === sortedDocuments.length - 1"
+                    @click="onMove(item, 1)"
+                >
+                    {{ $t('sw-product.documentForm.actionMoveDown') }}
+                </sw-context-menu-item>
+
+                <sw-context-menu-item
+                    class="sw-product-document-form__replace"
+                    @click="openMediaModal(item)"
+                >
+                    {{ $t('sw-product.documentForm.actionReplaceFile') }}
+                </sw-context-menu-item>
+
+                <sw-context-menu-item
+                    v-if="!isDefaultLanguage && ownValue(item, 'mediaId')"
+                    class="sw-product-document-form__use-default-file"
+                    @click="setValue(item, 'mediaId', null)"
+                >
+                    {{ $t('sw-product.documentForm.actionUseDefaultFile') }}
+                </sw-context-menu-item>
+
+                <sw-context-menu-item
+                    v-if="isDefaultLanguage"
+                    class="sw-product-document-form__remove"
+                    variant="danger"
+                    @click="onRemove(item)"
+                >
+                    {{ $t('sw-product.documentForm.actionRemove') }}
+                </sw-context-menu-item>
+            </template>
+        </template>
+    </sw-data-grid>
+    {% endblock %}
+
+    {% block sw_product_document_form_media_modal %}
+    <sw-media-modal-v2
+        v-if="showMediaModal"
+        entity-context="product_document"
+        file-accept="application/pdf"
+        :initial-folder-id="defaultFolderId"
+        :allow-multi-select="!replaceDocumentId"
+        @media-modal-selection-change="onMediaSelection"
+        @modal-close="closeMediaModal"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

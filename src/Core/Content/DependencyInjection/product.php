@@ -153,6 +153,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecode
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
@@ -571,7 +572,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ProductLineItemCommandValidator::class)
         ->args([
-            service(Connection::class),
+            service(WriteOutcome::class),
         ])
         ->tag('kernel.event_subscriber');
 

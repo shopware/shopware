@@ -14,6 +14,9 @@ use Shopware\Core\Content\Product\Exception\ProductLineItemDifferentIdException;
 use Shopware\Core\Content\Product\Exception\ProductLineItemInconsistentException;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Sync\SyncBehavior;
+use Shopware\Core\Framework\Api\Sync\SyncOperation;
+use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -194,6 +197,27 @@ class ProductLineItemCommandValidatorTest extends TestCase
         $this->lineItemRepository->update([
             ['id' => $first->getId(), 'productId' => $secondId, 'referencedId' => $secondId, 'payload' => ['productNumber' => $secondId]],
         ], $context);
+    }
+
+    public function testALineItemCanSwitchProductAcrossTwoWritesInOneRequest(): void
+    {
+        $id = $this->createProduct();
+        $secondId = $this->createProduct();
+        $orderId = $this->orderProduct($id, 1, $this->context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('orderId', $orderId));
+        $lineItem = $this->lineItemRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($lineItem);
+
+        static::getContainer()->get(SyncService::class)->sync([
+            new SyncOperation('ids', 'order_line_item', SyncOperation::ACTION_UPSERT, [['id' => $lineItem->getId(), 'productId' => $secondId, 'referencedId' => $secondId]]),
+            new SyncOperation('payload', 'order_line_item', SyncOperation::ACTION_UPSERT, [['id' => $lineItem->getId(), 'payload' => ['productNumber' => $secondId]]]),
+        ], Context::createDefaultContext(), new SyncBehavior());
+
+        $lineItem = $this->lineItemRepository->search(new Criteria([$lineItem->getId()]), Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($lineItem);
+        static::assertSame($secondId, $lineItem->getProductId());
     }
 
     public function testAnOrderedProductCanBeDeleted(): void

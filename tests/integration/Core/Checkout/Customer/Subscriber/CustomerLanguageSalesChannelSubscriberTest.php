@@ -54,11 +54,34 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         );
     }
 
+    public function testACustomerCannotMoveToASalesChannelWithoutTheirLanguage(): void
+    {
+        $this->createCustomerWithLanguage(Defaults::LANGUAGE_SYSTEM, Context::createDefaultContext());
+        $this->createGermanSalesChannel();
+
+        WriteViolations::assertRejected(
+            [CustomerLanguageSalesChannelSubscriber::VIOLATION_LANGUAGE_NOT_IN_SALES_CHANNEL],
+            fn () => $this->updateCustomer(['salesChannelId' => $this->ids->get('german')]),
+        );
+    }
+
     public function testWritesThroughTheStoreApiAreNotChecked(): void
     {
         WriteViolations::assertAccepted(
             fn () => $this->createCustomerWithLanguage($this->getDeDeLanguageId(), new Context(new SalesChannelApiSource($this->ids->get('english')))),
         );
+    }
+
+    private function createGermanSalesChannel(): void
+    {
+        $germanId = $this->getDeDeLanguageId();
+
+        $this->createSalesChannel([
+            'id' => $this->ids->get('german'),
+            'languageId' => $germanId,
+            'languages' => [['id' => $germanId]],
+            'domains' => [['languageId' => $germanId, 'url' => 'http://german.test']],
+        ]);
     }
 
     private function createCustomerWithLanguage(string $languageId, Context $context): void

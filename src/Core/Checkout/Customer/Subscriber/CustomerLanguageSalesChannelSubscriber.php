@@ -10,10 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -40,6 +38,7 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
      */
     public function __construct(
         private readonly EntityRepository $salesChannelRepository,
+        private readonly WriteOutcome $writeOutcome,
     ) {
     }
 
@@ -59,7 +58,7 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $candidates = $this->collectCandidatesCommands($event);
+        $candidates = $this->collectCandidates($event);
         if ($candidates === []) {
             return;
         }
@@ -67,12 +66,7 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
         $salesChannels = $this->fetchSalesChannels($candidates, $context);
 
         foreach ($candidates as $candidate) {
-            $salesChannelId = $this->findSalesChannelIdForCustomer($candidate, $salesChannels);
-            if ($salesChannelId === null) {
-                continue;
-            }
-
-            if ($this->isLanguageInSalesChannel($salesChannelId, $candidate['languageId'], $salesChannels)) {
+            if ($this->isLanguageInSalesChannel($candidate['salesChannelId'], $candidate['languageId'], $salesChannels)) {
                 continue;
             }
 
@@ -83,28 +77,26 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @return list<array{customerId: string|null, languageId: string, salesChannelId: string|null}>
+     * @return list<array{languageId: string, salesChannelId: string}> each customer's language and sales channel after the write
      */
-    private function collectCandidatesCommands(PreWriteValidationEvent $event): array
+    private function collectCandidates(PreWriteValidationEvent $event): array
     {
+        $customers = $this->writeOutcome->resultingRows(
+            $event->getCommandsForEntity(CustomerDefinition::ENTITY_NAME),
+            ['language_id', 'sales_channel_id']
+        );
+
         $candidates = [];
-
-        foreach ($event->getCommandsForEntity(CustomerDefinition::ENTITY_NAME) as $command) {
-            if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
+        foreach ($customers as $customer) {
+            $languageId = $customer->getResultingValue('language_id');
+            $salesChannelId = $customer->getResultingValue('sales_channel_id');
+            if (!\is_string($languageId) || !\is_string($salesChannelId)) {
                 continue;
             }
-
-            $payload = $command->getPayload();
-            if (!isset($payload['language_id'])) {
-                continue;
-            }
-
-            $pk = $command->getPrimaryKey();
 
             $candidates[] = [
-                'customerId' => $command instanceof UpdateCommand && isset($pk['id']) ? Uuid::fromBytesToHex($pk['id']) : null,
-                'languageId' => Uuid::fromBytesToHex($payload['language_id']),
-                'salesChannelId' => isset($payload['sales_channel_id']) ? Uuid::fromBytesToHex($payload['sales_channel_id']) : null,
+                'languageId' => Uuid::fromBytesToHex($languageId),
+                'salesChannelId' => Uuid::fromBytesToHex($salesChannelId),
             ];
         }
 
@@ -112,59 +104,17 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array{customerId: string|null, languageId: string, salesChannelId: string|null} $candidate
-     * @param EntityCollection<PartialEntity> $salesChannels
-     */
-    private function findSalesChannelIdForCustomer(array $candidate, EntityCollection $salesChannels): ?string
-    {
-        if ($candidate['salesChannelId'] !== null) {
-            return $candidate['salesChannelId'];
-        }
-
-        $customerId = $candidate['customerId'];
-        if ($customerId === null) {
-            return null;
-        }
-
-        foreach ($salesChannels as $salesChannel) {
-            /** @var EntityCollection<PartialEntity>|null $customers */
-            $customers = $salesChannel->get('customers');
-            if ($customers?->has($customerId)) {
-                return $salesChannel->getId();
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param list<array{customerId: string|null, languageId: string, salesChannelId: string|null}> $candidates
+     * @param list<array{languageId: string, salesChannelId: string}> $candidates
      *
      * @return EntityCollection<PartialEntity>
      */
     private function fetchSalesChannels(array $candidates, Context $context): EntityCollection
     {
-        $customerIds = \array_filter(\array_column($candidates, 'customerId'));
-        $salesChannelIds = \array_filter(\array_column($candidates, 'salesChannelId'));
-
-        if ($customerIds === [] && $salesChannelIds === []) {
-            return new EntityCollection();
-        }
-
         $criteria = (new Criteria())->addFields(['id', 'languages.id'])
-            ->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-                new EqualsAnyFilter('id', $salesChannelIds),
-                new EqualsAnyFilter('customers.id', $customerIds),
-            ]));
+            ->addFilter(new EqualsAnyFilter('id', array_column($candidates, 'salesChannelId')));
 
         $criteria->getAssociation('languages')
-            ->addFilter(new EqualsAnyFilter('id', \array_column($candidates, 'languageId')));
-
-        if ($customerIds !== []) {
-            $criteria->addFields(['customers.id']);
-            $criteria->getAssociation('customers')
-                ->addFilter(new EqualsAnyFilter('id', $customerIds));
-        }
+            ->addFilter(new EqualsAnyFilter('id', array_column($candidates, 'languageId')));
 
         return $this->salesChannelRepository->search($criteria, $context)->getEntities();
     }

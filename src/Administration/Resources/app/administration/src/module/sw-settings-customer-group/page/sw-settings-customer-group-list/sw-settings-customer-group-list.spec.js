@@ -131,12 +131,6 @@ function createDeletableCustomerGroup() {
 }
 
 describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-list', () => {
-    it('should be a vue js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should return false if customer group has a customer and/or SalesChannel assigned to it', async () => {
         const wrapper = await createWrapper();
         const customerGroup = createCustomerGroupWithCustomer();

@@ -1,0 +1,63 @@
+diff --git a/src/Administration/Resources/app/administration/src/meta/position-identifiers.json b/src/Administration/Resources/app/administration/src/meta/position-identifiers.json
+index 67243aa..777c6d4 100644
+--- a/src/Administration/Resources/app/administration/src/meta/position-identifiers.json
++++ b/src/Administration/Resources/app/administration/src/meta/position-identifiers.json
+@@ -83,7 +83,6 @@
+  "sw-customer",
+  "sw-customer-create-address-form",
+  "sw-customer-create-base-form",
+- "sw-customer-detail__before-content",
+  "sw-customer-detail-addresses",
+  "sw-customer-detail-base-custom-field-sets",
+  "sw-customer-detail-base-default-addresses",
+diff --git a/src/Administration/Resources/app/administration/src/module/sw-customer/page/sw-customer-detail/index.js b/src/Administration/Resources/app/administration/src/module/sw-customer/page/sw-customer-detail/index.js
+index a5eea65..0c94d63 100644
+--- a/src/Administration/Resources/app/administration/src/module/sw-customer/page/sw-customer-detail/index.js
++++ b/src/Administration/Resources/app/administration/src/module/sw-customer/page/sw-customer-detail/index.js
+@@ -70,6 +70,22 @@ export default {
+             return this.customer !== null ? this.salutation(this.customer) : '';
+         },
+ 
++        showCustomerGroupRegistrationAlert() {
++            if (!this.customer?.requestedGroup) {
++                return false;
++            }
++
++            if (Shopware.Feature.isActive('V6_8_0_0')) {
++                if (Shopware.Feature.isActive('ACCESSIBILITY_TWEAKS')) {
++                    return this.acl.can('customer.editor');
++                }
++
++                return this.customer.active;
++            }
++
++            return true;
++        },
++
+         customerRepository() {
+             return this.repositoryFactory.create('customer');
+         },
+diff --git a/src/Administration/Resources/app/administration/src/module/sw-customer/page/sw-customer-detail/sw-customer-detail.html.twig b/src/Administration/Resources/app/administration/src/module/sw-customer/page/sw-customer-detail/sw-customer-detail.html.twig
+index a43ee1f..f7e94d3 100644
+--- a/src/Administration/Resources/app/administration/src/module/sw-customer/page/sw-customer-detail/sw-customer-detail.html.twig
++++ b/src/Administration/Resources/app/administration/src/module/sw-customer/page/sw-customer-detail/sw-customer-detail.html.twig
+@@ -82,7 +82,7 @@
+             {% block sw_customer_detail_content_customer_group_registration %}
+             <div class="sw-customer-detail__customer-registration-alert">
+                 <mt-banner
+-                    v-if="customer && customer.requestedGroup"
++                    v-if="showCustomerGroupRegistrationAlert"
+                     variant="info"
+                 >
+                     {% block sw_customer_detail_content_customer_group_registration_content %}
+@@ -177,10 +177,6 @@
+             </template>
+             {% endblock %}
+ 
+-            <sw-extension-component-section
+-                position-identifier="sw-customer-detail__before-content"
+-            />
+-
+             {% block sw_customer_detail_content_view %}
+             <template v-if="isLoading">
+                 <sw-skeleton variant="detail-bold" />

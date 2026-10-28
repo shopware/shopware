@@ -104,6 +104,7 @@ export default () => {
     );
     Shopware.Component.register('sw-hidden-iframes', () => import('src/app/component/structure/sw-hidden-iframes/index'));
     Shopware.Component.register('sw-error', () => import('src/app/component/structure/sw-error/index'));
+    Shopware.Component.register('sw-not-found', () => import('src/app/component/structure/sw-not-found/index'));
     Shopware.Component.register(
         'sw-discard-changes-modal',
         () => import('src/app/component/structure/sw-discard-changes-modal/index'),

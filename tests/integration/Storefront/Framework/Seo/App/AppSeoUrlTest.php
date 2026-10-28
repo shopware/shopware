@@ -371,6 +371,8 @@ class AppSeoUrlTest extends TestCase
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'title' => 'excellent',
             'content' => 'Does what it says on the box',
+            'externalUser' => 'Test',
+            'points' => 5,
         ]], $this->context);
         $this->createSalesChannelTemplate(self::PRODUCT_REVIEWS_ROUTE, 'product', 'my-reviews/{{ product.productNumber }}');
         $this->runWorker();
@@ -459,8 +461,6 @@ class AppSeoUrlTest extends TestCase
         $imprintFlags = $this->fetchDeletedFlags(self::IMPRINT_ROUTE);
         $productFlags = $this->fetchDeletedFlags(self::PRODUCT_ROUTE);
 
-        static::assertNotEmpty($imprintFlags);
-        static::assertNotEmpty($productFlags);
         static::assertSame([1], array_values(array_unique($imprintFlags)));
         static::assertSame([1], array_values(array_unique($productFlags)));
         static::assertNotNull($this->fetchDefaultTemplate(self::PRODUCT_ROUTE));
@@ -476,8 +476,6 @@ class AppSeoUrlTest extends TestCase
         $imprintFlags = $this->fetchDeletedFlags(self::IMPRINT_ROUTE);
         $productFlags = $this->fetchDeletedFlags(self::PRODUCT_ROUTE);
 
-        static::assertNotEmpty($imprintFlags);
-        static::assertNotEmpty($productFlags);
         static::assertSame([1], array_values(array_unique($imprintFlags)));
         static::assertSame([1], array_values(array_unique($productFlags)));
         static::assertNull($this->fetchDefaultTemplate(self::PRODUCT_ROUTE));

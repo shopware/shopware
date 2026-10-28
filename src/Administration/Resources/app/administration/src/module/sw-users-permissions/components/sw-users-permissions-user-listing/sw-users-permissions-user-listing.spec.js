@@ -286,7 +286,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
 
     it('the add user button should be enabled', async () => {
         wrapper = await createWrapper(['users_and_permissions.creator']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const addUser = wrapper.find('.sw-users-permissions-user-listing__add-user-button');
         expect(addUser.attributes().disabled).toBeUndefined();
@@ -357,7 +357,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
 
         wrapper.vm.onDelete(user);
         wrapper.vm.onConfirmDelete(user);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(userVerificationService.verify).toHaveBeenCalledTimes(1);
         expect(deleteFunction).not.toHaveBeenCalled();

@@ -20,7 +20,6 @@ async function createWrapper(isLoggedIn, forwardLogout = () => {}, route = 'sw.w
                 'sw-modals-renderer': true,
                 'sw-in-app-purchase-checkout': true,
                 'sw-user-verification': true,
-                'sw-app-wrong-app-url-modal': true,
                 'router-view': true,
                 'sw-skip-link': true,
                 'sw-media-modal-renderer': true,

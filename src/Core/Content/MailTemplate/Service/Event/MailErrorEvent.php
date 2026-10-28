@@ -69,10 +69,36 @@ class MailErrorEvent extends Event implements LogAware, ScalarValuesAware, FlowE
 
     public function getLogData(): array
     {
-        return MailLogData::create([
-            ...($this->data ?? []),
-            'eventName' => $this->getEventName(),
-        ], $this->throwable);
+        if (MailLogData::isSensitive($this->data ?? [], $this->templateData ?? []) || ($this->mail !== null && MailLogData::isSensitiveMessage($this->mail))) {
+            return MailLogData::create([
+                ...($this->data ?? []),
+                'eventName' => $this->getEventName(),
+            ], $this->throwable);
+        }
+
+        $logData = [];
+
+        if ($this->getThrowable()) {
+            $throwable = $this->getThrowable();
+            $logData['exception'] = (string) $throwable;
+        }
+
+        if ($this->message) {
+            $logData['message'] = $this->message;
+        }
+
+        if ($this->template) {
+            $logData['template'] = $this->template;
+        }
+
+        $logData['eventName'] = null;
+
+        if ($this->templateData) {
+            $logData['templateData'] = $this->templateData;
+            $logData['eventName'] = $this->templateData['eventName'] ?? null;
+        }
+
+        return $logData;
     }
 
     public function getName(): string

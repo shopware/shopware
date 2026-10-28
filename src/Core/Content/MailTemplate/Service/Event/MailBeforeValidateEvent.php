@@ -77,7 +77,7 @@ class MailBeforeValidateEvent extends Event implements LogAware, ScalarValuesAwa
     }
 
     /**
-     * @param float|int|string|array<mixed>|object $value
+     * @param bool|float|int|string|array<mixed>|object $value
      */
     public function addData(string $key, $value): void
     {
@@ -116,10 +116,21 @@ class MailBeforeValidateEvent extends Event implements LogAware, ScalarValuesAwa
 
     public function getLogData(): array
     {
-        return MailLogData::create([
-            ...$this->data,
+        if (MailLogData::isSensitive($this->data, $this->templateData)) {
+            return MailLogData::create([
+                ...$this->data,
+                'eventName' => $this->templateData['eventName'] ?? null,
+            ]);
+        }
+
+        $data = $this->data;
+        unset($data['binAttachments']);
+
+        return [
+            'data' => $data,
             'eventName' => $this->templateData['eventName'] ?? null,
-        ]);
+            'templateData' => $this->templateData,
+        ];
     }
 
     public function getLogLevel(): Level

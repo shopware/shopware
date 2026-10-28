@@ -33,14 +33,29 @@ class FailedMessageSubscriber implements EventSubscriberInterface
 
     public function logEvent(FailedMessageEvent $event): void
     {
+        $sensitive = MailLogData::isSensitiveMessage($event->getMessage());
         $context = null;
 
         try {
-            $context = json_encode(MailLogData::create(
+            $context = json_encode($sensitive ? MailLogData::create(
                 MailLogData::fromMessage($event->getMessage()),
                 $event->getError(),
-            ), \JSON_THROW_ON_ERROR);
+            ) : [
+                'error' => $event->getError()->getMessage(),
+                'rawMessage' => $event->getMessage()->toString(),
+            ], \JSON_THROW_ON_ERROR);
         } catch (\Throwable) {
+        }
+
+        $extra = null;
+        if (!$sensitive) {
+            try {
+                $extra = json_encode([
+                    'exception' => (string) $event->getError(),
+                    'trace' => $event->getError()->getTraceAsString(),
+                ], \JSON_THROW_ON_ERROR);
+            } catch (\Throwable) {
+            }
         }
 
         $this->connection->insert('log_entry', [
@@ -49,7 +64,7 @@ class FailedMessageSubscriber implements EventSubscriberInterface
             'level' => Level::Error->value,
             'channel' => 'mail',
             'context' => $context,
-            'extra' => null,
+            'extra' => $extra,
             'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

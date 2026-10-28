@@ -68,9 +68,9 @@ class MailBeforeSentEventTest extends TestCase
             'customerId' => $customerId,
         ], $event->getData());
         static::assertSame([
-            'subject' => 'test subject',
-            'recipients' => ['test@shopware.com' => ''],
+            'data' => ['customerId' => $customerId],
             'eventName' => CheckoutOrderPlacedEvent::EVENT_NAME,
+            'message' => $email,
         ], $event->getLogData());
         static::assertSame($email, $event->getMessage());
     }

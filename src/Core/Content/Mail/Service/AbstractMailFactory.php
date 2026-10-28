@@ -17,6 +17,7 @@ use Symfony\Component\Mime\Part\DataPart;
  *     replyTo?: string|array<string, string|null>,
  *     returnPath?: string|array<string, string|null>,
  *     testMode?: bool,
+ *     sensitive?: bool,
  *     salesChannelId?: string,
  *     senderMail?: string,
  *     senderEmail?: string,

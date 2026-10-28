@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
+use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 use Symfony\Component\Mime\Header\MailboxListHeader;
 use Symfony\Component\Mime\Message;
 use Symfony\Component\Mime\RawMessage;
@@ -13,6 +15,25 @@ use Symfony\Component\Mime\RawMessage;
 #[Package('after-sales')]
 final class MailLogData
 {
+    public const SENSITIVE_HEADER = 'X-Shopware-Sensitive';
+
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $templateData
+     */
+    public static function isSensitive(array $data, array $templateData = []): bool
+    {
+        return ($data['sensitive'] ?? false) === true
+            || ($templateData['sensitive'] ?? false) === true
+            || \in_array($templateData['eventName'] ?? null, [UserRecoveryRequestEvent::EVENT_NAME, CustomerAccountRecoverRequestEvent::EVENT_NAME], true);
+    }
+
+    public static function isSensitiveMessage(RawMessage $message): bool
+    {
+        // Raw messages have no structured headers to classify safely.
+        return !$message instanceof Message || $message->getHeaders()->getHeaderBody(self::SENSITIVE_HEADER) === '1';
+    }
+
     /**
      * @param array<string, mixed> $data
      *

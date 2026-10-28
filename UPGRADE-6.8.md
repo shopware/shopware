@@ -57,9 +57,9 @@ If your plugin or app ships its own `vite.config.*` or Vite plugins, follow the 
 
 # Changed Functionality
 
-## Mail logs contain metadata only
+## Sensitive mail logs contain metadata only
 
-Mail logging payloads were reduced to delivery metadata. Extensions consuming mail logs or `getLogData()` from mail events must no longer expect rendered bodies, templates, template data, complete message objects or exception messages and traces. Use the mail event getters when handling an event that requires its content; do not write that content to logs. Mail delivery and Flow payloads were unchanged.
+Logging payloads for user and customer password recovery emails were reduced to delivery metadata. Extensions consuming these logs or mail event `getLogData()` must handle missing content and exception messages. Other mail types retained their existing log payloads and body previews. Set `sensitive: true` in mail data or template data to suppress content logging for additional emails. Direct senders can use the `X-Shopware-Sensitive: 1` header. Unstructured raw messages were logged as metadata only. Event getters and Flow payloads remained available.
 
 <details>
 

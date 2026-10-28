@@ -76,11 +76,22 @@ class MailBeforeSentEvent extends Event implements LogAware, MessageAware, Scala
 
     public function getLogData(): array
     {
-        return MailLogData::create([
-            ...$this->data,
-            ...MailLogData::fromMessage($this->message),
+        if (MailLogData::isSensitive($this->data, ['eventName' => $this->eventName]) || MailLogData::isSensitiveMessage($this->message)) {
+            return MailLogData::create([
+                ...$this->data,
+                ...MailLogData::fromMessage($this->message),
+                'eventName' => $this->eventName,
+            ]);
+        }
+
+        $data = $this->data;
+        unset($data['binAttachments']);
+
+        return [
+            'data' => $data,
             'eventName' => $this->eventName,
-        ]);
+            'message' => $this->message,
+        ];
     }
 
     public function getLogLevel(): Level

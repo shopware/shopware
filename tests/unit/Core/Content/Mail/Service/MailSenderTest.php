@@ -4,10 +4,12 @@ namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\Mail\Message\SendMailMessage;
+use Shopware\Core\Content\Mail\Service\MailLogData;
 use Shopware\Core\Content\Mail\Service\MailSender;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -128,7 +130,8 @@ class MailSenderTest extends TestCase
         $mailSender->send($mail);
     }
 
-    public function testSendMailWithDisabledDelivery(): void
+    #[DataProvider('disabledMailSensitivity')]
+    public function testSendMailWithDisabledDelivery(bool $sensitive): void
     {
         $mailer = static::createStub(MailerInterface::class);
         $messageBus = $this->createMock(MessageBusInterface::class);
@@ -139,12 +142,16 @@ class MailSenderTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $mailSender = new MailSender($mailer, $fileSystem, $configService, 0, $logger, 0, $messageBus, false);
         $mail = (new Email())->subject('Recovery')->to('customer@example.com')->text('BODY-SECRET')->html('BODY-SECRET');
+        if ($sensitive) {
+            $mail->getHeaders()->addTextHeader(MailLogData::SENSITIVE_HEADER, '1');
+        }
+        $expected = ['subject' => 'Recovery', 'receiver' => 'customer@example.com'];
+        if (!$sensitive) {
+            $expected['content'] = 'BODY-SECRET';
+        }
 
         $logger->expects($this->once())
-            ->method('info')->with('Tried to send mail but delivery is disabled.', [
-                'subject' => 'Recovery',
-                'receiver' => 'customer@example.com',
-            ]);
+            ->method('info')->with('Tried to send mail but delivery is disabled.', $expected);
 
         $fileSystem
             ->expects($this->never())
@@ -155,6 +162,15 @@ class MailSenderTest extends TestCase
             ->method('dispatch');
 
         $mailSender->send($mail);
+    }
+
+    /**
+     * @return \Generator<string, array{bool}>
+     */
+    public static function disabledMailSensitivity(): \Generator
+    {
+        yield 'sensitive mail omits content' => [true];
+        yield 'ordinary mail keeps content' => [false];
     }
 
     public function testSendMailWithDisabledDeliveryInStagingMode(): void

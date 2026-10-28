@@ -2,9 +2,9 @@
 
 ## Core
 
-### Mail logs contain metadata only
+### Sensitive mail logs contain metadata only
 
-Mail logs no longer include rendered bodies, template source, template data, attachments or complete email objects. Error logs record exception classes and codes instead of exception messages and traces, which can contain email content. Subject, recipients and other delivery metadata remain available. Extensions consuming mail logs must handle the reduced payload. Mail event getters and Flow payloads remain available, and email delivery is unchanged. The Administration log viewer no longer offers HTML or plain-text body previews. Existing log entries are not modified.
+Password recovery mail logs contain delivery metadata instead of bodies, template data or complete messages. Sensitive-mail error logs contain exception classes and codes instead of messages and traces. Other mail types retain content logging and Administration body previews. Extensions can opt additional emails into this policy with `sensitive: true` in mail data or template data. Direct mail senders can mark a structured message with the `X-Shopware-Sensitive: 1` header; the marker survives queue serialization. Unstructured raw messages without readable headers are logged as metadata only. Existing log entries are not modified.
 
 ### Missing plugin conditions in stored carts
 

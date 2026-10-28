@@ -58,9 +58,14 @@ class MailErrorEventTest extends TestCase
         static::assertSame('Test', $event->getMessage());
         static::assertSame(Level::Error, $event->getLogLevel());
         static::assertSame([
+            'exception' => (string) $exception,
+            'message' => 'Test',
+            'template' => '{{ subject }}',
             'eventName' => 'checkout.order.placed',
-            'exceptionClass' => \Exception::class,
-            'exceptionCode' => 0,
+            'templateData' => [
+                'eventName' => 'checkout.order.placed',
+                'shopName' => 'Storefront',
+            ],
         ], $event->getLogData());
         static::assertSame('mail.sent.error', $event->getName());
         static::assertSame($context, $event->getContext());

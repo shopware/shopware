@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 
 use Monolog\Level;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\Service\AbstractMailFactory;
 use Shopware\Core\Content\Mail\Service\AbstractMailSender;
+use Shopware\Core\Content\Mail\Service\MailLogData;
 use Shopware\Core\Content\Mail\Service\MailService;
 use Shopware\Core\Content\Mail\Telemetry\MailMetricsInstrumentor;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
@@ -289,7 +291,7 @@ class MailServiceTest extends TestCase
             templateRenderer: $templateRenderer,
             eventDispatcher: $eventDispatcher,
             logger: $logger
-        )->send($data, Context::createDefaultContext());
+        )->send($data, Context::createDefaultContext(), ['sensitive' => true]);
 
         static::assertNull($email);
         static::assertNotNull($beforeValidateEvent);
@@ -302,6 +304,7 @@ class MailServiceTest extends TestCase
         static::assertSame($message, $mailErrorEvent->getMessage());
         static::assertSame('Test email', $mailErrorEvent->getTemplate());
         static::assertSame([
+            'sensitive' => true,
             'salesChannel' => $salesChannel,
             'salesChannelId' => $salesChannelId,
         ], $mailErrorEvent->getTemplateData());
@@ -445,7 +448,8 @@ class MailServiceTest extends TestCase
         static::assertInstanceOf(Email::class, $mailErrorEvent->getMail());
     }
 
-    public function testMailInTestModeHasNoEmptyHeaders(): void
+    #[DataProvider('mailSensitivityProvider')]
+    public function testMailInTestModeHasNoEmptyHeaders(string $eventName, bool $explicitlySensitive, bool $expectedSensitive): void
     {
         $salesChannelId = Uuid::randomHex();
 
@@ -466,6 +470,7 @@ class MailServiceTest extends TestCase
 
         $data = [
             'testMode' => true,
+            'sensitive' => $explicitlySensitive,
             'recipients' => ['me@shopware.com' => 'me'],
             'senderName' => 'me',
             'senderEmail' => 'me@shopware.com',
@@ -476,7 +481,7 @@ class MailServiceTest extends TestCase
         ];
 
         $templateData = [
-            'eventName' => 'checkout.order.placed',
+            'eventName' => $eventName,
         ];
 
         $email = (new Email())->subject($data['subject'])
@@ -508,13 +513,25 @@ class MailServiceTest extends TestCase
         $headers = $email->getHeaders();
         static::assertSame(Defaults::LANGUAGE_SYSTEM, $headers->get('X-Shopware-Language-Id')?->getBody());
         static::assertSame($salesChannelId, $headers->get('X-Shopware-Sales-Channel-Id')?->getBody());
-        static::assertSame('checkout.order.placed', $headers->get('X-Shopware-Event-Name')?->getBody());
+        static::assertSame($eventName, $headers->get('X-Shopware-Event-Name')?->getBody());
+        static::assertSame($expectedSensitive, $headers->has(MailLogData::SENSITIVE_HEADER));
 
         // check that no header is empty (e.g., Amazon SES doesn't like that)
         foreach ($headers->all() as $header) {
             static::assertInstanceOf(HeaderInterface::class, $header);
             static::assertNotSame('', $header->getBodyAsString(), 'mail header ' . $header->getName() . ' should not be empty');
         }
+    }
+
+    /**
+     * @return \Generator<string, array{string, bool, bool}>
+     */
+    public static function mailSensitivityProvider(): \Generator
+    {
+        yield 'ordinary mail has no sensitive header' => ['checkout.order.placed', false, false];
+        yield 'admin recovery is marked' => ['user.recovery.request', false, true];
+        yield 'customer recovery is marked' => ['customer.recovery.request', false, true];
+        yield 'other mail can opt in' => ['checkout.order.placed', true, true];
     }
 
     public function testSendInjectsSalesChannelIntoTranslatorOnlyWhileRendering(): void

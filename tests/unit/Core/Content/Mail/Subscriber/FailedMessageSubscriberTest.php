@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Mail\Service\MailLogData;
 use Shopware\Core\Content\Mail\Subscriber\FailedMessageSubscriber;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\NativeClock;
@@ -77,6 +78,27 @@ class FailedMessageSubscriberTest extends TestCase
         $subscriber->logEvent($event);
     }
 
+    public function testOrdinaryMailRetainsFullFailureLog(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())->method('insert')->with(
+            'log_entry',
+            static::callback(static function (array $entry): bool {
+                $context = json_decode($entry['context'], true, flags: \JSON_THROW_ON_ERROR);
+                static::assertStringContainsString('Ordinary body', $context['rawMessage']);
+                static::assertSame('SMTP error', $context['error']);
+                static::assertStringContainsString('SMTP error', $entry['extra']);
+
+                return true;
+            }),
+        );
+        $mail = (new Email())->from('shop@example.com')->to('customer@example.com')->subject('Order')->text('Ordinary body');
+
+        (new FailedMessageSubscriber($connection, new NativeClock()))->logEvent(
+            new FailedMessageEvent($mail, new \RuntimeException('SMTP error')),
+        );
+    }
+
     /**
      * @return \Generator<string, array{RawMessage, array<string, mixed>}>
      */
@@ -85,6 +107,7 @@ class FailedMessageSubscriberTest extends TestCase
         yield 'raw message logs no content' => [new RawMessage('Test Message'), []];
 
         $email = (new Email())->subject('Recovery')->to('customer@example.com')->text('Test Message')->html('Test Message');
+        $email->getHeaders()->addTextHeader(MailLogData::SENSITIVE_HEADER, '1');
         $metadata = ['subject' => 'Recovery', 'recipients' => ['customer@example.com' => '']];
 
         yield 'email logs metadata only' => [$email, $metadata];

@@ -138,20 +138,54 @@ describe('src/module/sw-settings-logging/component/sw-settings-logging-entry-inf
         expect(wrapper.findComponent({ name: 'mt-textarea' }).exists()).toBe(false);
     });
 
-    it.each([false, true])('should show mail metadata without body preview tabs (major: %s)', async (featureActive) => {
+    it.each([false, true])(
+        'should show sensitive mail metadata without body preview tabs (major: %s)',
+        async (featureActive) => {
+            const wrapper = await createWrapper({
+                componentName: 'sw-settings-logging-mail-sent-info',
+                featureActive,
+                logEntry: mailLogEntry,
+            });
+
+            expect(wrapper.vm.activeTab).toBe('raw');
+            expect(wrapper.html()).not.toContain('sw-settings-logging.mailInfo.tabHTML');
+            expect(wrapper.html()).not.toContain('sw-settings-logging.mailInfo.tabPlain');
+            expect(wrapper.find('.sw-settings-logging-mail-sent-info__mail-content').exists()).toBe(false);
+
+            expect(wrapper.getComponent({ name: 'mt-textarea' }).props('modelValue')).toBe(
+                JSON.stringify(mailLogEntry.context, null, 2),
+            );
+        },
+    );
+
+    it.each([false, true])('should keep ordinary mail body previews (major: %s)', async (featureActive) => {
         const wrapper = await createWrapper({
             componentName: 'sw-settings-logging-mail-sent-info',
             featureActive,
-            logEntry: mailLogEntry,
+            logEntry: {
+                context: {
+                    additionalData: {
+                        ...mailLogEntry.context.additionalData,
+                        contents: {
+                            'text/html': '<strong>Order confirmation</strong>',
+                            'text/plain': 'Order confirmation plain',
+                        },
+                    },
+                },
+            },
         });
 
-        expect(wrapper.vm.activeTab).toBe('raw');
-        expect(wrapper.html()).not.toContain('sw-settings-logging.mailInfo.tabHTML');
-        expect(wrapper.html()).not.toContain('sw-settings-logging.mailInfo.tabPlain');
-        expect(wrapper.find('.sw-settings-logging-mail-sent-info__mail-content').exists()).toBe(false);
+        expect(wrapper.vm.activeTab).toBe('html');
+        expect(wrapper.html()).toContain('<strong>Order confirmation</strong>');
+        expect(wrapper.text()).toContain('shopware@example.com');
 
-        expect(wrapper.getComponent({ name: 'mt-textarea' }).props('modelValue')).toBe(
-            JSON.stringify(mailLogEntry.context, null, 2),
-        );
+        if (featureActive) {
+            await wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'plain');
+        } else {
+            await wrapper.findAllComponents({ name: 'sw-tabs-item' })[1].trigger('click');
+        }
+        await flushPromises();
+
+        expect(wrapper.text()).toContain('Order confirmation plain');
     });
 });

@@ -5,7 +5,7 @@
  */
 
 import { mount } from '@vue/test-utils';
-import SystemConfigApiService from 'src/core/service/api/system-config.api.service';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const mockSave = jest.fn(() => Promise.resolve());
 const mockGet = jest.fn();
@@ -197,6 +197,14 @@ function tabLabels(wrapper) {
 
 describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
     beforeEach(() => {
+        allowDeprecation('sw-sales-channel-detail.defaultAgenticCommerceExportConfig is deprecated');
+        allowDeprecation('sw-sales-channel-detail.hasSwagAgenticCommercePlugin is deprecated');
+        allowDeprecation('sw-sales-channel-detail.isAgenticCommerce is deprecated');
+        allowDeprecation('sw-sales-channel-detail.loadAgenticCommerceExportConfig() is deprecated');
+        allowDeprecation('sw-sales-channel-detail.onClickInstallAgenticCommercePlugin() is deprecated');
+        allowDeprecation('sw-sales-channel-detail.saveAgenticCommerceExportConfig() is deprecated');
+        allowDeprecation('sw-sales-channel-detail.showAgenticCommerceDeprecationBanner is deprecated');
+        allowDeprecation('sw-sales-channel-detail.validateAgenticCommerceExportConfig() is deprecated');
         global.activeAclRoles = [];
         mockSave.mockClear();
         mockGet.mockClear();

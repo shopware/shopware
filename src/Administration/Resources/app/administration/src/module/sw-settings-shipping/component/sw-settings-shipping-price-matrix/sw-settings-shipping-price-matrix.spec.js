@@ -151,15 +151,9 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     it.activeFeatureFlags(['v6.8.0.0'])('should have price filter option', async () => {
         // Where the test itself activates the major, the guard logs the baselined deprecation instead of recording it.
         const error = jest.spyOn(console, 'error').mockImplementation(() => {});
-        const wrapper = await createWrapper(
-            {},
-            { calculation: null, prices: [{ id: 'rule-price', calculationRuleId: 'rule-id', currencyPrice: null }] },
-        );
+        const wrapper = await createWrapper();
 
-        // shippingRuleFilterCriteria is deprecated and will be removed. Use ruleFilterCriteria instead
-        const shippingRuleFilterCriteria = wrapper
-            .findComponent('.sw-settings-shipping-price-matrix__column-calculation-rule-select')
-            .props('ruleFilter');
+        const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;
 
         error.mock.calls.forEach(([label, message]) => {
             expect(label).toBe('[Deprecation]');

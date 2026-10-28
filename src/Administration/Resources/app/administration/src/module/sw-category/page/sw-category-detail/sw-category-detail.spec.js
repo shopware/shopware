@@ -2,7 +2,6 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
-import 'src/module/sw-settings-seo/component/sw-seo-url/store';
 import { allowDeprecation } from 'test/_helper_/deprecations';
 
 describe('src/module/sw-category/page/sw-category-detail', () => {

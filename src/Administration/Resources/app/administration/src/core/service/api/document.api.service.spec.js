@@ -27,7 +27,7 @@ function expectCreateDocumentFailed({ action }) {
 
 describe('documentService', () => {
     beforeEach(() => {
-        allowDeprecation(/^documentService\.\w+\(\) is deprecated/);
+        allowDeprecation('documentService is deprecated');
     });
 
     it('is registered correctly', async () => {

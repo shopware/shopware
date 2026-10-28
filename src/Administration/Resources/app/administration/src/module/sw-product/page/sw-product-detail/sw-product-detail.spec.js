@@ -6,7 +6,7 @@
 
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
-import 'src/module/sw-settings-seo/component/sw-seo-url/store';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const advancedModeSettings = {
     value: {
@@ -236,6 +236,14 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     beforeEach(async () => {
+        allowDeprecation('sw-product-detail.advancedModeSetting is deprecated');
+        allowDeprecation('sw-product-detail.changeModeSettings() is deprecated');
+        allowDeprecation('sw-product-detail.createUserModeSetting() is deprecated');
+        allowDeprecation('sw-product-detail.getAdvancedModeDefaultSetting() is deprecated');
+        allowDeprecation('sw-product-detail.getAdvancedModeSetting() is deprecated');
+        allowDeprecation('sw-product-detail.getModeSettingGeneralTab is deprecated');
+        allowDeprecation('sw-product-detail.getModeSettingSpecificationsTab is deprecated');
+        allowDeprecation('sw-product-detail.initAdvancedModeSettings() is deprecated');
         jest.restoreAllMocks();
         jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
         jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();

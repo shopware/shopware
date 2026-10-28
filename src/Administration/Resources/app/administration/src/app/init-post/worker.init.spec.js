@@ -4,6 +4,7 @@
 import WorkerNotificationFactory from 'src/core/factory/worker-notification.factory';
 import { createPinia, setActivePinia } from 'pinia';
 import initializeWorker from './worker.init';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 describe('src/app/init-post/worker.init.ts', () => {
     let loggedIn = false;
@@ -42,6 +43,8 @@ describe('src/app/init-post/worker.init.ts', () => {
     });
 
     beforeEach(() => {
+        allowDeprecation('enableWorkerNotificationListener() is deprecated');
+        allowDeprecation('registerThumbnailMiddleware() is deprecated');
         const registry = WorkerNotificationFactory.getRegistry();
         registry.clear();
 

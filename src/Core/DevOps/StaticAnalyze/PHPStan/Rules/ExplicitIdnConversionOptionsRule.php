@@ -15,6 +15,9 @@ use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * Require explicit non-transitional UTS #46 options so IDN conversion stays consistent across ICU and polyfill versions.
+ * Transitional conversion can map distinct domains, such as "straße.de" and "strasse.de", to the same ASCII domain.
+ *
  * @internal
  *
  * @implements Rule<FuncCall>
@@ -70,28 +73,30 @@ final class ExplicitIdnConversionOptionsRule implements Rule
         }
 
         if (!isset($arguments[1], $arguments[2])
-            || !self::containsConstant($arguments[1], $flagsName)
-            || !self::isConstant($arguments[2], 'INTL_IDNA_VARIANT_UTS46')) {
+            || !self::containsFlag($arguments[1], $flagsName, $scope)
+            || !self::isConstant($arguments[2], 'INTL_IDNA_VARIANT_UTS46', $scope)) {
             return [RuleErrorBuilder::message(\sprintf('Pass %s and INTL_IDNA_VARIANT_UTS46 explicitly to %s().', $flagsName, $name))
                 ->identifier('shopware.explicitIdnConversionOptions')
+                ->tip(\sprintf('Use %s and INTL_IDNA_VARIANT_UTS46 as the flags and variant arguments.', $flagsName))
                 ->build()];
         }
 
         return [];
     }
 
-    private static function containsConstant(Node\Expr $expression, string $expected): bool
+    private static function containsFlag(Node\Expr $expression, string $expected, Scope $scope): bool
     {
         if ($expression instanceof ConstFetch) {
-            return self::isConstant($expression, $expected);
+            return self::isConstant($expression, $expected, $scope);
         }
 
         return $expression instanceof BitwiseOr
-            && (self::containsConstant($expression->left, $expected) || self::containsConstant($expression->right, $expected));
+            && (self::containsFlag($expression->left, $expected, $scope) || self::containsFlag($expression->right, $expected, $scope));
     }
 
-    private static function isConstant(Node\Expr $expression, string $expected): bool
+    private static function isConstant(Node\Expr $expression, string $expected, Scope $scope): bool
     {
-        return $expression instanceof ConstFetch && strcasecmp(ltrim($expression->name->toString(), '\\'), $expected) === 0;
+        return $expression instanceof ConstFetch
+            && strcasecmp(ltrim($scope->resolveName($expression->name), '\\'), $expected) === 0;
     }
 }

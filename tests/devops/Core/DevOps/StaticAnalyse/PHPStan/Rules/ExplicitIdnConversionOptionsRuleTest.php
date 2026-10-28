@@ -17,18 +17,22 @@ class ExplicitIdnConversionOptionsRuleTest extends RuleTestCase
 {
     private const ERROR = 'Pass IDNA_NONTRANSITIONAL_TO_ASCII and INTL_IDNA_VARIANT_UTS46 explicitly to idn_to_ascii().';
     private const UTF8_ERROR = 'Pass IDNA_NONTRANSITIONAL_TO_UNICODE and INTL_IDNA_VARIANT_UTS46 explicitly to idn_to_utf8().';
+    private const ASCII_TIP = 'Use IDNA_NONTRANSITIONAL_TO_ASCII and INTL_IDNA_VARIANT_UTS46 as the flags and variant arguments.';
+    private const UTF8_TIP = 'Use IDNA_NONTRANSITIONAL_TO_UNICODE and INTL_IDNA_VARIANT_UTS46 as the flags and variant arguments.';
 
     public function testRequiresNonTransitionalFlagsAndUts46Variant(): void
     {
         $this->analyse([__DIR__ . '/data/ExplicitIdnConversionOptionsRule/Conversions.php'], [
-            [self::ERROR, 5],
-            [self::ERROR, 6],
-            [self::ERROR, 7],
-            [self::ERROR, 8],
-            [self::UTF8_ERROR, 11],
-            [self::UTF8_ERROR, 12],
-            [self::UTF8_ERROR, 13],
-            [self::ERROR, 16],
+            [self::ERROR, 9, self::ASCII_TIP],
+            [self::ERROR, 10, self::ASCII_TIP],
+            [self::ERROR, 11, self::ASCII_TIP],
+            [self::ERROR, 12, self::ASCII_TIP],
+            [self::UTF8_ERROR, 15, self::UTF8_TIP],
+            [self::UTF8_ERROR, 16, self::UTF8_TIP],
+            [self::UTF8_ERROR, 17, self::UTF8_TIP],
+            [self::ERROR, 20, self::ASCII_TIP],
+            [self::ERROR, 24, self::ASCII_TIP],
+            [self::UTF8_ERROR, 25, self::UTF8_TIP],
         ]);
     }
 

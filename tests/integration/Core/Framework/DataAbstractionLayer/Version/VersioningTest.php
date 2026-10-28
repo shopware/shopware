@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
@@ -44,6 +45,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Struct\ArrayEntity;
@@ -2082,6 +2084,51 @@ class VersioningTest extends TestCase
             $message = \sprintf('No error expected, got "%s" with: %s', $error->getMessage(), $error->getTraceAsString());
         }
         static::assertNull($error, $message);
+    }
+
+    public function testACloneOfAnOrderOwnsItsAddresses(): void
+    {
+        $context = Context::createDefaultContext();
+        $orderId = $this->createOrder();
+        $cloneId = Uuid::randomHex();
+
+        // Order number and deep link code are unique, so the API clone always overwrites them.
+        $this->orderRepository->clone($orderId, $context, $cloneId, new CloneBehavior([
+            'orderNumber' => Uuid::randomHex(),
+            'deepLinkCode' => Uuid::randomHex(),
+        ]));
+
+        $clone = $this->loadOrderWithAddresses($cloneId, $context);
+        $cloneAddressIds = $clone->getAddresses()?->getIds() ?? [];
+        static::assertNotSame([], $cloneAddressIds);
+        static::assertContains($clone->getBillingAddressId(), $cloneAddressIds);
+
+        $deliveries = $clone->getDeliveries();
+        static::assertNotNull($deliveries);
+        static::assertCount(1, $deliveries);
+        foreach ($deliveries as $delivery) {
+            static::assertContains($delivery->getShippingOrderAddressId(), $cloneAddressIds);
+        }
+
+        // Nothing of the clone hangs on the source order's rows any more.
+        $this->orderRepository->delete([['id' => $orderId]], $context);
+
+        $clone = $this->loadOrderWithAddresses($cloneId, $context);
+        static::assertCount(1, $clone->getDeliveries() ?? []);
+        static::assertNotNull($clone->getBillingAddress());
+    }
+
+    private function loadOrderWithAddresses(string $orderId, Context $context): OrderEntity
+    {
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociation('addresses')
+            ->addAssociation('deliveries')
+            ->addAssociation('billingAddress');
+
+        $order = $this->orderRepository->search($criteria, $context)->getEntities()->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
+
+        return $order;
     }
 
     private function createOrder(): string

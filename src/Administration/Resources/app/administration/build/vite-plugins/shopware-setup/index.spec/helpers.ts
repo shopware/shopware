@@ -26,7 +26,7 @@ type HotUpdateOptions = {
 type CallableSetupPlugin = {
     name: string;
     enforce: string;
-    resolveId(source: string, importer: string): Promise<string | null>;
+    resolveId(source: string, importer: string, options?: { scan?: boolean }): Promise<string | null>;
     load(id: string): Promise<LoadedModule | null>;
     transform(code: string, id: string): Promise<LoadedModule | null>;
     hotUpdate(options: HotUpdateOptions): Promise<HotUpdateModule[] | undefined>;

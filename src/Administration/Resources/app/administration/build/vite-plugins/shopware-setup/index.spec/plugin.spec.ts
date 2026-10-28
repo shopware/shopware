@@ -44,6 +44,16 @@ describe('build/vite-plugins/shopware-setup', () => {
         expect(plugin).toHaveProperty('transform');
     });
 
+    it('leaves authored Vue files available to the dependency scanner', async () => {
+        const plugin = createPlugin();
+        const file = await createVueFile('<script setup>swDefinePublic({});</script>', 'sw-scanned.vue');
+        const resolve = jest.fn().mockResolvedValue({ id: file });
+        await expect(
+            plugin.resolveId.call({ resolve }, './sw-scanned.vue', '/entry.ts', { scan: true }),
+        ).resolves.toBeNull();
+        expect(resolve).not.toHaveBeenCalled();
+    });
+
     it('delegates Shopware setup Vue files to the shared transform', async () => {
         const plugin = createPlugin();
         const source = `<script setup>

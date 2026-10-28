@@ -204,7 +204,10 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
          * bodies claiming the same `sourcesContent`; `generateBundle` collapses the virtual name back out.
          * The transform result is stashed in {@link resolvedTransforms} so the paired `load` need not rerun it.
          */
-        async resolveId(source, importer) {
+        async resolveId(source, importer, resolveOptions) {
+            // The dependency scanner reads Vue scripts from disk instead of using this plugin's load hook.
+            if (resolveOptions && 'scan' in resolveOptions && resolveOptions.scan === true) return null;
+
             if (source.includes('?') || !source.endsWith('.vue')) {
                 return null;
             }

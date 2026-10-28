@@ -30,6 +30,7 @@ class SystemUpdateListener
         private readonly MessageBusInterface $messageBus,
         private readonly IndexMappingUpdater $mappingUpdater,
         private readonly LoggerInterface $logger,
+        private readonly ElasticsearchRegistry $registry,
     ) {
     }
 
@@ -37,13 +38,13 @@ class SystemUpdateListener
     {
         try {
             $this->mappingUpdater->update($event->getContext());
-        } catch (\Throwable $exception) {
+        } catch (\Exception $exception) {
             $this->logger->error('Elasticsearch mapping update failed, the system update continues', ['exception' => $exception]);
         }
 
         try {
             $this->dispatchReindex();
-        } catch (\Throwable $exception) {
+        } catch (\Exception $exception) {
             $this->logger->error('Elasticsearch reindex could not be scheduled, the system update continues', ['exception' => $exception]);
         }
     }
@@ -62,6 +63,18 @@ class SystemUpdateListener
 
         if (!\is_array($entitiesToReindex) || \in_array('*', $entitiesToReindex, true)) {
             $entitiesToReindex = [];
+        } else {
+            $registeredEntities = \is_array($this->registry->getDefinitionNames())
+                ? $this->registry->getDefinitionNames()
+                : iterator_to_array($this->registry->getDefinitionNames());
+
+            $entitiesToReindex = array_values(array_intersect($entitiesToReindex, $registeredEntities));
+
+            if ($entitiesToReindex === []) {
+                $this->storage->remove(self::CONFIG_KEY);
+
+                return;
+            }
         }
 
         $messagesToDispatch = [];

@@ -7,10 +7,14 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
+use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingMessage;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
@@ -39,6 +43,7 @@ class SystemUpdateListenerTest extends TestCase
             $messageBus,
             $mappingUpdater,
             new NullLogger(),
+            $this->createRegistry(),
         );
 
         $listener(static::createStub(UpdatePostFinishEvent::class));
@@ -79,6 +84,7 @@ class SystemUpdateListenerTest extends TestCase
             $messageBus,
             $mappingUpdater,
             new NullLogger(),
+            $this->createRegistry(),
         );
 
         $listener(static::createStub(UpdatePostFinishEvent::class));
@@ -116,6 +122,7 @@ class SystemUpdateListenerTest extends TestCase
             new CollectingMessageBus(),
             static::createStub(IndexMappingUpdater::class),
             new NullLogger(),
+            $this->createRegistry(),
         );
 
         $listener(static::createStub(UpdatePostFinishEvent::class));
@@ -130,6 +137,7 @@ class SystemUpdateListenerTest extends TestCase
         yield 'json encoded entity list' => ['["product"]', ['product']];
         yield 'wildcard' => [['*'], []];
         yield 'json encoded wildcard' => ['["*"]', []];
+        yield 'unregistered entity is dropped' => [['product', 'swag_removed'], ['product']];
     }
 
     public function testFailedMappingUpdateStillDispatchesReindex(): void
@@ -154,6 +162,7 @@ class SystemUpdateListenerTest extends TestCase
             $messageBus,
             $mappingUpdater,
             $logger,
+            $this->createRegistry(),
         );
 
         $listener(static::createStub(UpdatePostFinishEvent::class));
@@ -181,9 +190,63 @@ class SystemUpdateListenerTest extends TestCase
             new CollectingMessageBus(),
             static::createStub(IndexMappingUpdater::class),
             $logger,
+            $this->createRegistry(),
         );
 
         $listener(static::createStub(UpdatePostFinishEvent::class));
+    }
+
+    public function testRemovesScheduleWithoutRegisteredEntities(): void
+    {
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->method('get')->willReturn(['swag_removed']);
+        $storage->expects($this->once())->method('remove')->with(SystemUpdateListener::CONFIG_KEY);
+
+        $indexer = $this->createMock(ElasticsearchIndexer::class);
+        $indexer->expects($this->never())->method('iterate');
+
+        $listener = new SystemUpdateListener(
+            $storage,
+            $indexer,
+            new CollectingMessageBus(),
+            static::createStub(IndexMappingUpdater::class),
+            new NullLogger(),
+            $this->createRegistry(),
+        );
+
+        $listener(static::createStub(UpdatePostFinishEvent::class));
+    }
+
+    public function testErrorsAreNotSwallowed(): void
+    {
+        $mappingUpdater = static::createStub(IndexMappingUpdater::class);
+        $mappingUpdater
+            ->method('update')
+            ->willThrowException(new \TypeError('programming error'));
+
+        $listener = new SystemUpdateListener(
+            static::createStub(AbstractKeyValueStorage::class),
+            static::createStub(ElasticsearchIndexer::class),
+            new CollectingMessageBus(),
+            $mappingUpdater,
+            new NullLogger(),
+            $this->createRegistry(),
+        );
+
+        $this->expectException(\TypeError::class);
+
+        $listener(static::createStub(UpdatePostFinishEvent::class));
+    }
+
+    private function createRegistry(): ElasticsearchRegistry
+    {
+        $product = static::createStub(AbstractElasticsearchDefinition::class);
+        $product->method('getEntityDefinition')->willReturn(new ProductDefinition());
+
+        $category = static::createStub(AbstractElasticsearchDefinition::class);
+        $category->method('getEntityDefinition')->willReturn(new CategoryDefinition());
+
+        return new ElasticsearchRegistry([$product, $category]);
     }
 
     private function createIndexer(): ElasticsearchIndexer

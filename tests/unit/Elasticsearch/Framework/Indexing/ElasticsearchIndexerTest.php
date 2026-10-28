@@ -501,6 +501,17 @@ class ElasticsearchIndexerTest extends TestCase
         $indexer->iterate(null, $entities);
     }
 
+    public function testIterateWithOnlyInvalidEntitiesReturnsNull(): void
+    {
+        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper->method('allowIndexing')->willReturn(true);
+        $helper->expects($this->once())->method('logAndThrowException')->with(ElasticsearchException::definitionNotFound('swag_removed'));
+
+        $indexer = $this->getIndexer(helper: $helper);
+
+        static::assertNull($indexer->iterate(null, ['swag_removed']));
+    }
+
     private function getIndexer(?LoggerInterface $logger = null, ?EventDispatcherInterface $eventDispatcher = null, ?Connection $connection = null, ?ElasticsearchHelper $helper = null, ?IndexCreator $indexCreator = null, ?Client $client = null): ElasticsearchIndexer
     {
         $logger ??= new NullLogger();

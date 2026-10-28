@@ -118,10 +118,14 @@ class ElasticsearchIndexer
 
     private function createIndexingMessage(IndexerOffset $offset): ?ElasticsearchIndexingMessage
     {
-        $definition = $this->registry->get((string) $offset->getDefinition());
+        if ($offset->getDefinition() === null) {
+            return null;
+        }
+
+        $definition = $this->registry->get($offset->getDefinition());
 
         if (!$definition) {
-            throw ElasticsearchException::definitionNotFound((string) $offset->getDefinition());
+            throw ElasticsearchException::definitionNotFound($offset->getDefinition());
         }
 
         $entity = $definition->getEntityDefinition()->getEntityName();

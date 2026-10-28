@@ -224,6 +224,7 @@ The error is logged on the `elasticsearch` channel, and the update continues.
 
 When the mapping update hits a field type conflict, the entity is scheduled for a reindex, and the system update dispatches it.
 If the reindex cannot be scheduled, it is retried on the next system update.
+Entities that are no longer registered, for example because their plugin was uninstalled, are dropped from the scheduled reindex.
 
 ### Elasticsearch reindex is limited to the affected entities
 

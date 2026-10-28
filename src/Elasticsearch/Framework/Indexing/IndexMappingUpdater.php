@@ -58,6 +58,8 @@ class IndexMappingUpdater
             $entitiesToReindex = [];
         }
 
+        $error = null;
+
         foreach ($this->registry->getDefinitions() as $definition) {
             $entityDefinition = $definition->getEntityDefinition();
             $indexName = $this->elasticsearchHelper->getIndexName($entityDefinition);
@@ -82,10 +84,25 @@ class IndexMappingUpdater
                     }
                 }
 
-                $this->elasticsearchHelper->logAndThrowException($exception);
+                $error = $this->logAndCatch($exception, $error);
             } catch (NotFoundHttpException $exception) {
-                $this->elasticsearchHelper->logAndThrowException($exception);
+                $error = $this->logAndCatch($exception, $error);
             }
         }
+
+        if ($error !== null) {
+            throw $error;
+        }
+    }
+
+    private function logAndCatch(\Exception $exception, ?\Throwable $previous): ?\Throwable
+    {
+        try {
+            $this->elasticsearchHelper->logAndThrowException($exception);
+        } catch (\Throwable $thrown) {
+            return $previous ?? $thrown;
+        }
+
+        return $previous;
     }
 }

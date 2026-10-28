@@ -8,9 +8,11 @@ use OpenSearch\Exception\NotFoundHttpException;
 use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
@@ -203,6 +205,55 @@ class IndexMappingUpdaterTest extends TestCase
 
         $updater = new IndexMappingUpdater(
             new ElasticsearchRegistry([$definition]),
+            $elasticsearchHelper,
+            $client,
+            static::createStub(IndexMappingProvider::class),
+            $storage,
+        );
+
+        $this->expectException(ElasticsearchProductException::class);
+
+        $updater->update(Context::createDefaultContext());
+    }
+
+    public function testUpdateFinishesAllEntitiesBeforeRethrowing(): void
+    {
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
+        $elasticsearchHelper->method('allowIndexing')->willReturn(true);
+        $elasticsearchHelper
+            ->method('getIndexName')
+            ->willReturnCallback(static fn (EntityDefinition $definition) => $definition->getEntityName());
+        $elasticsearchHelper
+            ->method('logAndThrowException')
+            ->willReturnCallback(static fn (\Throwable $exception) => throw $exception);
+
+        $product = static::createStub(ElasticsearchProductDefinition::class);
+        $product->method('getEntityDefinition')->willReturn(new ProductDefinition());
+
+        $category = static::createStub(ElasticsearchProductDefinition::class);
+        $category->method('getEntityDefinition')->willReturn(new CategoryDefinition());
+
+        $indicesNamespace = $this->createMock(IndicesNamespace::class);
+        $indicesNamespace
+            ->expects($this->exactly(2))
+            ->method('putMapping')
+            ->willReturnCallback(static function (array $params): array {
+                if ($params['index'] === 'product') {
+                    throw new BadRequestHttpException('mapper [price] cannot be changed from type [float] to [double]');
+                }
+
+                return [];
+            });
+
+        $client = static::createStub(Client::class);
+        $client->method('indices')->willReturn($indicesNamespace);
+
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->method('get')->willReturn([]);
+        $storage->expects($this->once())->method('set')->with(SystemUpdateListener::CONFIG_KEY, ['product']);
+
+        $updater = new IndexMappingUpdater(
+            new ElasticsearchRegistry([$product, $category]),
             $elasticsearchHelper,
             $client,
             static::createStub(IndexMappingProvider::class),

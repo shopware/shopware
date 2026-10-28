@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const PRODUCT_COMPARISON_TYPE_ID = Shopware.Defaults.productComparisonTypeId;
 const AGENTIC_COMMERCE_TYPE_ID = Shopware.Defaults.agenticCommerceTypeId;
@@ -90,6 +91,11 @@ async function createWrapper({ addChannelAction = createAddChannelAction(), prod
 }
 
 describe('sw-sales-channel-modal-grid', () => {
+    beforeEach(() => {
+        allowDeprecation('sw-sales-channel-modal-grid.isAgenticCommerceSalesChannelType() is deprecated');
+        allowDeprecation('sw-sales-channel-modal-grid.showAgenticCommerceType() is deprecated');
+    });
+
     it('renders a button for each sales channel type after loading', async () => {
         const wrapper = await createWrapper();
 

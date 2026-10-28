@@ -6,6 +6,7 @@
 
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/service/sales-channel-favorites.service';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const PRODUCT_COMPARISON_TYPE_ID = 'ed535e5722134ac1aa6524f73e26881b';
 const STOREFRONT_SALES_CHANNEL_TYPE_ID = '8a243080f92e4c719546314b577cf82b';
@@ -122,6 +123,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     beforeEach(async () => {
+        allowDeprecation('sw-sales-channel-detail-base.dateFilter is deprecated');
         Shopware.Store.get('session').setCurrentUser({
             id: '8fe88c269c214ea68badf7ebe678ab96',
         });

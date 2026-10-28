@@ -14,6 +14,7 @@ import initializeRouter from 'src/app/init/router.init';
 import setupShopwareDevtools from 'src/app/adapter/view/sw-vue-devtools';
 import { defineComponent } from 'vue';
 import { createApplication, prepareVueAdapterEnvironment, resetVueAdapterTestState } from './vue-adapter-test-setup';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 jest.mock('src/app/adapter/view/sw-vue-devtools', () => {
     return jest.fn();
@@ -49,6 +50,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js - initialization', () => {
     });
 
     beforeEach(async () => {
+        allowDeprecation('VueAdapter.initModuleLocales() is deprecated');
         prepareVueAdapterEnvironment();
         process.env.NODE_ENV = 'development';
 

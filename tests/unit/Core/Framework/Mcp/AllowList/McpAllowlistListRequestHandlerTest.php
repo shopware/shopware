@@ -6,6 +6,7 @@ use Mcp\Capability\Registry;
 use Mcp\Capability\RegistryInterface;
 use Mcp\Exception\InvalidCursorException;
 use Mcp\Schema\ClientCapabilities;
+use Mcp\Schema\Enum\ProtocolVersion;
 use Mcp\Schema\Implementation;
 use Mcp\Schema\Page;
 use Mcp\Schema\Prompt;
@@ -19,6 +20,7 @@ use Mcp\Schema\Result\ListResourcesResult;
 use Mcp\Schema\Result\ListToolsResult;
 use Mcp\Schema\Tool;
 use Mcp\Server\Session\SessionInterface;
+use Mcp\Server\Stateless\RequestMeta;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -241,6 +243,33 @@ class McpAllowlistListRequestHandlerTest extends TestCase
 
         static::assertSame([McpToolsetRegistry::ENABLE_TOOLSET_TOOL, 'shopware-entity-search'], array_map(static fn (Tool $tool): string => $tool->name, $secondResult->tools));
         static::assertNull($secondResult->nextCursor);
+    }
+
+    public function testStatelessToolsListHidesTheToolsetSessionToolsBeforePagination(): void
+    {
+        $handler = $this->connectUrlHandler('/api/_mcp?toolsets=entity,order', stateless: true);
+
+        $firstPage = $this->handleToolsList($handler, null);
+        static::assertSame(['shopware-tool-search', 'shopware-entity-search'], array_map(static fn (Tool $tool): string => $tool->name, $firstPage->tools));
+        static::assertSame(base64_encode('2'), $firstPage->nextCursor);
+
+        $secondPage = $this->handleToolsList($handler, $firstPage->nextCursor);
+        static::assertSame(['shopware-order-state'], array_map(static fn (Tool $tool): string => $tool->name, $secondPage->tools));
+        static::assertNull($secondPage->nextCursor);
+    }
+
+    public function testStatelessToolsListDoesNotBringBackTheToolsetSessionToolsForARestrictedAllowlist(): void
+    {
+        $handler = $this->connectUrlHandler('/api/_mcp?toolsets=entity', allowlistTools: ['shopware-entity-search'], stateless: true);
+
+        static::assertSame(['shopware-tool-search', 'shopware-entity-search'], $this->allToolNames($handler));
+    }
+
+    public function testHandshakeToolsListWithoutSessionKeepsTheToolsetSessionTools(): void
+    {
+        $names = $this->allToolNames($this->connectUrlHandler('/api/_mcp'));
+
+        static::assertSame($this->metaTools(), $names);
     }
 
     public function testToolsListIncludesToolsetToolsRequestedInTheConnectUrl(): void
@@ -568,6 +597,7 @@ class McpAllowlistListRequestHandlerTest extends TestCase
         ?array $allowlistTools = null,
         ?string $sessionId = null,
         ?McpToolsetSessionStorage $toolsetSessionStorage = null,
+        bool $stateless = false,
     ): McpAllowlistListRequestHandler {
         $registry = new Registry();
         foreach ([...$this->metaTools(), 'shopware-entity-search', 'shopware-order-state'] as $toolName) {
@@ -595,6 +625,12 @@ class McpAllowlistListRequestHandlerTest extends TestCase
             $uri,
             'POST',
             server: $sessionId !== null ? ['HTTP_MCP_SESSION_ID' => $sessionId] : [],
+            content: $stateless ? json_encode([
+                'jsonrpc' => '2.0',
+                'id' => 1,
+                'method' => 'tools/list',
+                'params' => ['_meta' => [RequestMeta::PROTOCOL_VERSION => ProtocolVersion::V2026_07_28->value]],
+            ], \JSON_THROW_ON_ERROR) : null,
         ));
 
         return $this->createHandler(

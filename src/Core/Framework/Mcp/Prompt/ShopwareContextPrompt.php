@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Mcp\Prompt;
 
 use Mcp\Capability\Attribute\McpPrompt;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\McpProtocolEra;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -21,15 +23,7 @@ use Shopware\Core\Framework\Log\Package;
 )]
 class ShopwareContextPrompt
 {
-    /**
-     * @return list<array{role: string, content: string}>
-     */
-    public function __invoke(): array
-    {
-        return [
-            [
-                'role' => 'user',
-                'content' => <<<'PROMPT'
+    private const PROMPT = <<<'PROMPT'
 You are interacting with a Shopware 6 e-commerce platform via MCP tools.
 
 ## Domain tools (deferred — enable the matching toolset first)
@@ -168,7 +162,56 @@ Add with `shopware-entity-upsert` on `product`; remove with `shopware-entity-del
 
 ## Optional extensions
 If a requested tool or workflow is not available, read `shopware://extensions` to discover optional plugins that provide additional capabilities. Each entry includes a description, tool prefix, and the exact install command to give the user.
-PROMPT,
+PROMPT;
+
+    /**
+     * The parts of the prompt that name the toolset session tools. The stateless era (2026-07-28) does not
+     * offer them (see McpProtocolEra::HIDDEN_ON_STATELESS_ERA), so it gets the twins below instead.
+     */
+    private const HANDSHAKE_DOMAIN_TOOLS_HEADING = '## Domain tools (deferred — enable the matching toolset first)';
+
+    private const STATELESS_DOMAIN_TOOLS_HEADING = '## Domain tools (deferred — call them by name, or select their toolset with `?toolsets=`)';
+
+    private const HANDSHAKE_DISCOVERY = <<<'DISCOVERY'
+## Tool discovery (start here)
+- A fresh session advertises the discovery tools `shopware-toolsets-list`, `shopware-toolset-enable` and `shopware-tool-search`, plus any toolsets selected in the connect URL (`?toolsets=`). Domain tools that are not advertised yet become available once you enable their toolset.
+- If an advertised tool fits the task, call it directly. Otherwise call `shopware-toolsets-list`, enable the matching toolset with `shopware-toolset-enable`, then refresh `tools/list` after the server sends a list-changed notification. Use `shopware-tool-search` when you know the capability but not which toolset holds it.
+- Enabling a toolset lasts the whole MCP session and accumulates: enabling another toolset keeps the previously enabled ones. The allowlist and ACL permissions remain the security boundary.
+DISCOVERY;
+
+    private const STATELESS_DISCOVERY = <<<'DISCOVERY'
+## Tool discovery (start here)
+- `tools/list` advertises `shopware-tool-search`, plus the tools of any toolsets selected in the connect URL (`?toolsets=`). Domain tools that are not advertised can still be called.
+- If an advertised tool fits the task, call it directly. Otherwise call `shopware-tool-search` with the capability you need, then call the matched tool by name with `tools/call`.
+- If your client only calls advertised tools, reconnect to the MCP endpoint URL with the toolset of the match in the query, for example `?toolsets=order,media`. Each `shopware-tool-search` match names its toolset. The allowlist and ACL permissions remain the security boundary.
+DISCOVERY;
+
+    /**
+     * @internal
+     */
+    public function __construct(private readonly ?RequestStack $requestStack = null)
+    {
+    }
+
+    /**
+     * @return list<array{role: string, content: string}>
+     */
+    public function __invoke(): array
+    {
+        $content = self::PROMPT;
+
+        if (McpProtocolEra::isStateless($this->requestStack?->getMainRequest())) {
+            $content = str_replace(
+                [self::HANDSHAKE_DOMAIN_TOOLS_HEADING, self::HANDSHAKE_DISCOVERY],
+                [self::STATELESS_DOMAIN_TOOLS_HEADING, self::STATELESS_DISCOVERY],
+                $content,
+            );
+        }
+
+        return [
+            [
+                'role' => 'user',
+                'content' => $content,
             ],
         ];
     }

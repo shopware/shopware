@@ -69,6 +69,33 @@ class DebugMcpCommandTest extends TestCase
         static::assertSame(0, $tester->getStatusCode());
     }
 
+    public function testShowsTheProtocolEraOfEachServer(): void
+    {
+        $registry = new Registry();
+        $storeApiRegistry = new Registry();
+        $command = new DebugMcpCommand(
+            Server::builder()->setRegistry($registry),
+            $registry,
+            static::createStub(McpAllowlistProvider::class),
+            new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider()),
+            Server::builder()->setRegistry($storeApiRegistry),
+            $storeApiRegistry,
+            new McpCapabilityCatalog($storeApiRegistry, $this->stubPrivilegeProvider()),
+            protocolEras: ['admin' => 'auto', 'store_api' => 'legacy'],
+        );
+        $tester = new CommandTester($command);
+        $tester->execute([]);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('Protocol era: auto (handshake revisions up to 2025-11-25 and the stateless 2026-07-28 revision)', $output);
+        static::assertStringContainsString('Protocol era: legacy (handshake revisions up to 2025-11-25)', $output);
+        static::assertLessThan(
+            strpos($output, 'Protocol era: legacy'),
+            strpos($output, 'Protocol era: auto'),
+            'the Admin API server comes first',
+        );
+    }
+
     public function testEmptyRegistryShowsNoCapabilitiesMessages(): void
     {
         $command = $this->makeCommand(new Registry());

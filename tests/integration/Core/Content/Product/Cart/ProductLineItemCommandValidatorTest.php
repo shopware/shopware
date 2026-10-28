@@ -196,6 +196,21 @@ class ProductLineItemCommandValidatorTest extends TestCase
         ], $context);
     }
 
+    public function testAnOrderedProductCanBeDeleted(): void
+    {
+        $id = $this->createProduct();
+        $orderId = $this->orderProduct($id, 1, $this->context);
+
+        $this->repository->delete([['id' => $id]], Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('orderId', $orderId));
+        $lineItem = $this->lineItemRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+
+        static::assertNotNull($lineItem);
+        static::assertNull($lineItem->getProductId());
+    }
+
     private function orderProduct(string $id, int $quantity, SalesChannelContext $context): string
     {
         $factory = new ProductLineItemFactory(new PriceDefinitionFactory());

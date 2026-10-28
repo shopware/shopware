@@ -1060,7 +1060,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         await buttonReset.trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 

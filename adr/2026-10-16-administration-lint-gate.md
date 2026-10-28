@@ -23,7 +23,7 @@ New code has to follow every rule, and the baseline may only shrink.
 
 A CI job compares the per-rule totals of the baseline with the base commit.
 It fails when a total grows, or when the baseline holds entries of a deleted file.
-A rule that is new to the baseline passes only when the same pull request changes `eslint.config.ts`, which has a code owner.
+A rule that is new to the baseline passes only when the same pull request changes `eslint.config.ts` or `extension-tooling/eslint.mjs`, which have a code owner.
 The baseline has no code owner, because shrinking it needs no review.
 
 Rules listed in `rulesWithoutInlineDisable` can't be disabled with a comment, so the baseline is the only way around them.
@@ -38,5 +38,5 @@ The workflow is described in `src/Administration/Resources/app/administration/te
 - Every change that fixes a violation also edits the baseline.
 - Comparing totals allows trading: a fixed violation in one file can pay for a new one of the same rule in another.
   The trade is visible in the diff of the baseline.
-- Any change to `eslint.config.ts` lets new rules into the baseline, so reviewers check the baseline diff of such a change.
+- Any change to `eslint.config.ts` or `extension-tooling/eslint.mjs` lets new rules into the baseline, so reviewers check the baseline diff of such a change.
 - The Storefront's Administration modules share the configuration and have their own baseline.

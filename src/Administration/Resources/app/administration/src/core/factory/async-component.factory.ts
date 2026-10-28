@@ -944,7 +944,7 @@ function buildSuperRegistry(config: ComponentConfig): SuperRegistry {
             // is computed getter/setter definition
             if (methodOrComputed === 'computed' && typeof method === 'object') {
                 Object.entries(method as object).forEach(([cmd, func]) => {
-                    const path = `${String(name)}.${String(cmd)}`;
+                    const path = `${name}.${cmd}`;
 
                     superRegistry = updateSuperRegistry(superRegistry, path, func, methodOrComputed, config);
                 });

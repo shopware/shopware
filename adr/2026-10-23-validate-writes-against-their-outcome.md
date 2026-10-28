@@ -20,17 +20,22 @@ Most checks in core use the second pattern.
 To be correct, a check has to merge all writes to a record in order, on top of the stored values.
 Every check would have to repeat that.
 
+Other checks need a record as it is stored before the write, for example to block deleting a record that is still in use, or to check who owns a record before it is changed.
+They load the stored rows themselves, often with one query per command.
+
 ## Decision
 
-The DAL works out each record as it will be after the write.
+The DAL works out each record as it will be after the write, and as it was stored before it.
 
-A new **WriteOutcome** service does this in its `rows()` method.
+A new **WriteOutcome** service does this.
 You pass it the commands for one entity and the columns your check needs.
-It returns one row per record, with all writes to that record merged in order on top of the stored values.
 It loads the stored values for all records in one query.
 
-* `rows()` only returns records that are new, or whose writes set one of the columns.
-* Records the request deletes are not returned.
+* `resultingRows()` returns one row per record, with all writes to that record merged in order on top of the stored values.
+  It only returns records that are new, or whose writes set one of the columns.
+  Records the request deletes are not returned.
+* `touchedRows()` returns one row for every record the request creates, updates or deletes, whatever columns its writes set.
+  Each row holds the stored values and the values after the write, and says whether the record is new or deleted.
 * Values come back the way they are stored, for example ids as binary.
 
 ## Consequences
@@ -91,13 +96,13 @@ Request B: the first write is checked before the clearance flag is set in the se
 ```php
 $commands = $event->getCommandsForEntity('promotion');
 
-foreach ($this->writeOutcome->rows($commands, ['discount', 'clearance']) as $promotion) {
+foreach ($this->writeOutcome->resultingRows($commands, ['discount', 'clearance']) as $promotion) {
     if ($promotion->getResultingValue('discount') > 50 && !$promotion->getResultingValue('clearance')) {
         $this->reject($promotion->path);
     }
 }
 ```
 
-Request A: `rows()` returns the promotion with a 90% discount and no clearance flag. The request is rejected. **Right.**
+Request A: `resultingRows()` returns the promotion with a 90% discount and no clearance flag. The request is rejected. **Right.**
 
-Request B: `rows()` returns the promotion with a 90% discount and the clearance flag. The request is accepted. **Right.**
+Request B: `resultingRows()` returns the promotion with a 90% discount and the clearance flag. The request is accepted. **Right.**

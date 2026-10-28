@@ -12,6 +12,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodValidatorTest
  */
 #[Package('checkout')]
 final readonly class PaymentMethodValidator implements EventSubscriberInterface

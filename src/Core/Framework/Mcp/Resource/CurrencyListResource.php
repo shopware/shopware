@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Mcp\Resource;
 
 use Mcp\Capability\Attribute\McpResource;
+use Mcp\Schema\Result\ReadResourceResult;
+use Mcp\Server\RequestContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -31,10 +33,7 @@ class CurrencyListResource
     ) {
     }
 
-    /**
-     * @return array{uri: string, mimeType: string, text: string}
-     */
-    public function __invoke(): array
+    public function __invoke(?RequestContext $requestContext = null): ReadResourceResult
     {
         $result = $this->currencyRepository->search(new Criteria(), Context::createDefaultContext());
 
@@ -49,10 +48,10 @@ class CurrencyListResource
             ];
         }
 
-        return [
+        return McpResourceCacheHint::read([
             'uri' => 'shopware://currencies',
             'mimeType' => 'application/json',
             'text' => Json::encode($currencies),
-        ];
+        ], $requestContext, McpResourceCacheHint::SHOP_CONFIGURATION_TTL_MS);
     }
 }

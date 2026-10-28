@@ -150,9 +150,8 @@ describe('module/sw-settings-message-stats/page/sw-settings-message-stats', () =
     });
 
     it('should render the refresh button in the empty state button slot', async () => {
-        const wrapper = await createWrapper({
-            getStatsMock: jest.fn().mockResolvedValue(mockEmptyStats),
-        });
+        const getStatsMock = jest.fn().mockResolvedValue(mockEmptyStats);
+        const wrapper = await createWrapper({ getStatsMock });
 
         await flushPromises();
 
@@ -163,7 +162,7 @@ describe('module/sw-settings-message-stats/page/sw-settings-message-stats', () =
         await refreshButton.trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.messageStatsService.getStats).toHaveBeenCalledTimes(2);
+        expect(getStatsMock).toHaveBeenCalledTimes(2);
 
         wrapper.unmount();
     });

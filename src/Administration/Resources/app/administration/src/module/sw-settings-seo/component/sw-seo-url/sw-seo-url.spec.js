@@ -128,7 +128,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
             salesChannelId: STOREFRONT_SALES_CHANNEL_ID,
         });
         await wrapper.setData({ showEmptySeoUrlError: false, currentSalesChannelId: STOREFRONT_SALES_CHANNEL_ID });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.vm.refreshCurrentSeoUrl();
 
@@ -156,7 +156,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
             salesChannelId: 'a-sales-channel-without-seo-urls',
         });
         await wrapper.setData({ showEmptySeoUrlError: false, currentSalesChannelId: STOREFRONT_SALES_CHANNEL_ID });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.vm.refreshCurrentSeoUrl();
 
@@ -224,7 +224,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
             salesChannelId: STOREFRONT_SALES_CHANNEL_ID,
         });
         await wrapper.setData({ showEmptySeoUrlError: false, currentSalesChannelId: STOREFRONT_SALES_CHANNEL_ID });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.vm.refreshCurrentSeoUrl();
 
@@ -289,7 +289,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
             salesChannelId: STOREFRONT_SALES_CHANNEL_ID,
         });
         await wrapper.setData({ showEmptySeoUrlError: false, currentSalesChannelId: STOREFRONT_SALES_CHANNEL_ID });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.vm.refreshCurrentSeoUrl();
 

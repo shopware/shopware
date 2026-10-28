@@ -304,7 +304,7 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list',
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -324,7 +324,7 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list',
 
     it('should not get search ranking fields when term is null', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -348,7 +348,7 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list',
             term: 'foo',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -371,7 +371,7 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list',
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
             return {};
         });

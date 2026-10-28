@@ -202,6 +202,50 @@ class ClonePayloadBuilderTest extends TestCase
         static::assertSame(self::NOW, $payload['updatedAt']->format('Y-m-d H:i:s'));
     }
 
+    public function testACascadeFlagOnAScalarFieldChangesNothing(): void
+    {
+        $sourceId = Uuid::randomHex();
+
+        $payload = $this->build('clone_order', ['id' => $sourceId, 'comment' => 'copied like any scalar'], $sourceId, Uuid::randomHex());
+        static::assertSame('copied like any scalar', $payload['comment']);
+
+        $criteria = new Criteria();
+        $this->builder->addCloneAssociations($this->registry->getByEntityName('clone_order'), $criteria, true, Context::createDefaultContext());
+        static::assertFalse($criteria->hasAssociation('comment'));
+    }
+
+    public function testANestedListWhoseRowsFilterToNothingIsLeftOut(): void
+    {
+        $sourceId = Uuid::randomHex();
+
+        // The only value of the row is the reference back to the root, which the writer sets itself.
+        $payload = $this->build('clone_order', [
+            'id' => $sourceId,
+            'addresses' => [['orderId' => $sourceId]],
+        ], $sourceId, Uuid::randomHex());
+
+        static::assertArrayNotHasKey('addresses', $payload);
+    }
+
+    public function testATranslationOfANestedRowLosesItsEntityIdToo(): void
+    {
+        $sourceId = Uuid::randomHex();
+        $labelId = Uuid::randomHex();
+        $languageId = Uuid::randomHex();
+
+        $payload = $this->build('clone_order', [
+            'id' => $sourceId,
+            'labels' => [[
+                'id' => $labelId,
+                'orderId' => $sourceId,
+                'translations' => [['cloneTranslatedId' => $labelId, 'languageId' => $languageId, 'name' => 'Label']],
+            ]],
+        ], $sourceId, Uuid::randomHex());
+
+        static::assertNotSame($labelId, $payload['labels'][0]['id']);
+        static::assertEquals([['languageId' => $languageId, 'name' => 'Label']], $payload['labels'][0]['translations']);
+    }
+
     public function testFieldsTheWriterOwnsAreLeftOut(): void
     {
         $sourceId = Uuid::randomHex();
@@ -214,6 +258,7 @@ class ClonePayloadBuilderTest extends TestCase
             'billingAddress' => ['id' => Uuid::randomHex()],
             'notes' => [['id' => Uuid::randomHex(), 'orderId' => $sourceId]],
             'addresses' => [],
+            'tags' => [],
         ], $sourceId, Uuid::randomHex());
 
         static::assertArrayNotHasKey('versionId', $payload, 'version fields are set by the version context');
@@ -222,6 +267,7 @@ class ClonePayloadBuilderTest extends TestCase
         static::assertArrayNotHasKey('billingAddress', $payload, 'many-to-one rows belong to another entity');
         static::assertArrayNotHasKey('notes', $payload, 'not clone relevant');
         static::assertArrayNotHasKey('addresses', $payload, 'an empty list adds nothing');
+        static::assertArrayNotHasKey('tags', $payload, 'an empty many-to-many list adds nothing');
     }
 
     public function testManyToManyRowsAreReferencedByIdOnly(): void
@@ -356,7 +402,7 @@ class ClonePayloadBuilderTest extends TestCase
         sort($associations);
 
         // Every clone-relevant cascade is read, notes is not clone relevant.
-        static::assertSame(['addresses', 'billingAddress', 'deliveries', 'detail', 'extDetails', 'tags'], $associations);
+        static::assertSame(['addresses', 'billingAddress', 'deliveries', 'detail', 'extDetails', 'labels', 'tags'], $associations);
 
         // Only to-many rows are followed further; the address rows are read through the order, not the delivery.
         static::assertSame([], $criteria->getAssociation('billingAddress')->getAssociations());
@@ -714,6 +760,8 @@ class ClonePayloadOrderTestDefinition extends EntityDefinition
             (new OneToOneAssociationField('detail', 'id', 'order_id', ClonePayloadDetailTestDefinition::class, false))->addFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('tags', ClonePayloadTagTestDefinition::class, ClonePayloadOrderTagTestDefinition::class, 'clone_order_id', 'clone_tag_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('extDetails', ClonePayloadDetailTestDefinition::class, 'order_id'))->addFlags(new CascadeDelete(), new Extension()),
+            (new OneToManyAssociationField('labels', ClonePayloadTranslatedTestDefinition::class, 'order_id'))->addFlags(new CascadeDelete()),
+            (new StringField('comment', 'comment'))->addFlags(new CascadeDelete()),
         ]);
     }
 }
@@ -951,6 +999,7 @@ class ClonePayloadTranslatedTestDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            new FkField('order_id', 'orderId', ClonePayloadOrderTestDefinition::class),
             new TranslatedField('name'),
             new TranslationsAssociationField(ClonePayloadTranslationTestDefinition::class, 'clone_translated_id'),
         ]);

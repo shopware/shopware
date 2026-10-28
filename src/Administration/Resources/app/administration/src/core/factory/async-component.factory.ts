@@ -716,14 +716,12 @@ function updateTemplateOverrideFromHmr(componentName: string, hmrId: string, tem
         return false;
     }
 
-    // Rebuild the index so replaced block content cannot accumulate duplicate Twig entries.
-    resetBlockIndex();
-    overrideRegistry.forEach((_, registeredComponentName) => {
-        TemplateFactory.getTemplateOverrides(registeredComponentName).forEach(({ raw }) => {
-            if (typeof raw === 'string') {
-                indexTwigBlocksFromTemplate(registeredComponentName, raw);
-            }
-        });
+    // Other components may have eager block entries whose lazy configs have not reached TemplateFactory yet.
+    resetBlockIndex(componentName);
+    TemplateFactory.getTemplateOverrides(componentName).forEach(({ raw }) => {
+        if (typeof raw === 'string') {
+            indexTwigBlocksFromTemplate(componentName, raw);
+        }
     });
 
     return true;

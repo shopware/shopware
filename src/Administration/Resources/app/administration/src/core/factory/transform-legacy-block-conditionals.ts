@@ -1075,7 +1075,7 @@ export function hasLegacyTwigBlockEntries(componentName: string, blockName: stri
 }
 
 /**
- * Clears all indexed Twig block condition state.
+ * Clears one component's indexed Twig blocks, or all condition state when no component is given.
  * Use it from test teardown or component-factory reset paths that rebuild templates from scratch.
  *
  * @example
@@ -1083,7 +1083,18 @@ export function hasLegacyTwigBlockEntries(componentName: string, blockName: stri
  *
  * @private
  */
-export function resetLegacyTwigBlockConditionIndex(): void {
+export function resetLegacyTwigBlockConditionIndex(componentName?: string): void {
+    if (componentName !== undefined) {
+        for (let index = indexedLegacyTwigBlockEntries.length - 1; index >= 0; index -= 1) {
+            if (indexedLegacyTwigBlockEntries[index].componentName === componentName) {
+                indexedLegacyTwigBlockEntries.splice(index, 1);
+            }
+        }
+
+        legacyTwigBlockIndexDirty = true;
+        return;
+    }
+
     legacyTwigBlockIndex.clear();
     indexedLegacyTwigBlockEntries.length = 0;
     legacyTwigBlockIndexDirty = false;

@@ -8,6 +8,7 @@ import { nextTick } from 'vue';
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
 import AsyncComponentFactory from 'src/core/factory/async-component.factory';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
+import { getBlockEntries } from 'src/core/factory/twig-block-index';
 import { createApplication, prepareVueAdapterEnvironment, resetVueAdapterTestState } from './vue-adapter-test-setup';
 
 type TestHmrRuntime = {
@@ -105,5 +106,34 @@ describe('VueAdapter Twig HMR', () => {
                 '<p>updated</p>',
             ),
         ).resolves.toBe(false);
+    });
+
+    it('preserves eager Twig blocks of other unresolved components during an update', async () => {
+        const hmrId = '/plugins/test/active.twig';
+        AsyncComponentFactory.register('sw-hmr-active', {
+            template: '{% block sw_hmr_active %}<p>Base</p>{% endblock %}',
+        });
+        AsyncComponentFactory.override('sw-hmr-active', {
+            template: '{% block sw_hmr_active %}<p>Before</p>{% endblock %}',
+            __shopwareTwigHmrId: hmrId,
+        });
+        await vueAdapter.componentResolver('sw-hmr-active');
+
+        AsyncComponentFactory.register('sw-hmr-unresolved', { template: '<div />' });
+        AsyncComponentFactory.override('sw-hmr-unresolved', {
+            template: '{% block sw_hmr_unresolved %}<p>Keep this native-block shim</p>{% endblock %}',
+        });
+        const entries = getBlockEntries('sw-hmr-unresolved', 'sw_hmr_unresolved');
+        expect(entries).toHaveLength(1);
+
+        await expect(
+            vueAdapter.updateComponentTemplateFromHmr(
+                'sw-hmr-active',
+                hmrId,
+                '{% block sw_hmr_active %}<p>After</p>{% endblock %}',
+            ),
+        ).resolves.toBe(true);
+
+        expect(getBlockEntries('sw-hmr-unresolved', 'sw_hmr_unresolved')).toEqual(entries);
     });
 });

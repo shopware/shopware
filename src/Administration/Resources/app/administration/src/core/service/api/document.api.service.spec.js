@@ -2,6 +2,7 @@ import DocumentApiService from 'src/core/service/api/document.api.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 /**
  * @sw-package checkout
@@ -25,6 +26,10 @@ function expectCreateDocumentFailed({ action }) {
 }
 
 describe('documentService', () => {
+    beforeEach(() => {
+        allowDeprecation('documentService is deprecated');
+    });
+
     it('is registered correctly', async () => {
         const { documentApiService } = getDocumentApiService();
         expect(documentApiService).toBeInstanceOf(DocumentApiService);
@@ -160,11 +165,6 @@ describe('documentService', () => {
         const { documentApiService, clientMock } = getDocumentApiService();
 
         documentApiService.setListener(expectCreateDocumentFailed);
-
-        const dispatchSpy = jest.fn();
-        Object.defineProperty(Shopware.State, 'dispatch', {
-            value: dispatchSpy,
-        });
 
         const mockCreateDocumentEvent = jest.fn();
         documentApiService.setListener(mockCreateDocumentEvent);

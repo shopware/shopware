@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const selectedOrderIds = ['order-id-1', 'order-id-2'];
 const documentIds = ['document-id-1', 'document-id-2'];
@@ -101,6 +102,9 @@ describe('sw-bulk-edit-save-modal-process', () => {
     let wrapper;
 
     beforeEach(async () => {
+        allowDeprecation('sw-bulk-edit-save-modal-process.createDocument() is deprecated');
+        allowDeprecation('sw-bulk-edit-save-modal-process.getDocumentGenerationResult() is deprecated');
+        allowDeprecation('sw-bulk-edit-save-modal-process.getFailedDocumentGenerationItems() is deprecated');
         global.activeFeatureFlags = [];
         wrapper = await createWrapper();
         await flushPromises();

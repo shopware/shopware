@@ -4,6 +4,7 @@
 import { mount } from '@vue/test-utils';
 import 'src/app/mixin/placeholder.mixin';
 import 'src/app/mixin/salutation.mixin';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 async function createWrapper(reviewOverrides = {}, stubOverrides = {}) {
     return mount(await wrapTestComponent('sw-review-detail', { sync: true }), {
@@ -93,6 +94,7 @@ async function createWrapper(reviewOverrides = {}, stubOverrides = {}) {
 
 describe('module/sw-review/page/sw-review-detail', () => {
     beforeEach(() => {
+        allowDeprecation('sw-review-detail.dateFilter is deprecated');
         global.activeAclRoles = [];
     });
 

@@ -62,6 +62,7 @@ final readonly class UserService
                 ],
                 'expiry' => $tokenResult->getExpiryDateTime(),
                 'email' => $user->getEmail(),
+                'authenticated_at' => $parsedIdToken->authenticatedAt,
             ]);
             $this->insertOAuthUser($oAuthUser);
 
@@ -78,7 +79,7 @@ final readonly class UserService
             $this->updateUserEmail($context, $oAuthUser->userId, $parsedIdToken->email);
         }
 
-        $oAuthUser = $this->updateOAuthUserWithNewToken($oAuthUser, $tokenResult);
+        $oAuthUser = $this->updateOAuthUserWithNewToken($oAuthUser, $tokenResult, $parsedIdToken->authenticatedAt);
         $this->saveOAuthUser($oAuthUser);
 
         return $oAuthUser;
@@ -133,7 +134,7 @@ final readonly class UserService
         return ExternalAuthUser::createFromDatabaseQuery($oAuthUserData);
     }
 
-    public function updateOAuthUserWithNewToken(ExternalAuthUser $externalAuthUser, TokenResult $tokenResult): ExternalAuthUser
+    public function updateOAuthUserWithNewToken(ExternalAuthUser $externalAuthUser, TokenResult $tokenResult, ?\DateTimeImmutable $authenticatedAt = null): ExternalAuthUser
     {
         return ExternalAuthUser::create([
             'id' => $externalAuthUser->id,
@@ -145,6 +146,7 @@ final readonly class UserService
             ],
             'expiry' => $tokenResult->getExpiryDateTime(),
             'email' => $externalAuthUser->email,
+            'authenticated_at' => $authenticatedAt,
         ]);
     }
 

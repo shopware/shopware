@@ -33,6 +33,8 @@ class FakeTokenGenerator
 
     private ?\DateTimeImmutable $expiresAt;
 
+    private ?\DateTimeImmutable $authTime = null;
+
     public function __construct()
     {
         $this->issuedAt = new \DateTimeImmutable();
@@ -64,6 +66,7 @@ class FakeTokenGenerator
             'preferred_username' => $this->preferredUsername,
             'given_name' => $this->givenName,
             'family_name' => $this->familyName,
+            'auth_time' => $this->authTime?->getTimestamp(),
         ], \JSON_THROW_ON_ERROR));
 
         $singing = $this->base64UrlEncode(hash_hmac('sha256', $header . $content, (string) $this->secret, true));
@@ -98,6 +101,13 @@ class FakeTokenGenerator
     public function setIssuedAt(?\DateTimeImmutable $issuedAt): FakeTokenGenerator
     {
         $this->issuedAt = $issuedAt;
+
+        return $this;
+    }
+
+    public function setAuthTime(?\DateTimeImmutable $authTime): FakeTokenGenerator
+    {
+        $this->authTime = $authTime;
 
         return $this;
     }

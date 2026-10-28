@@ -22,6 +22,10 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Checkout\Promotion\Validator\PromotionValidatorTest
  */
 #[Package('checkout')]
 class PromotionValidator implements EventSubscriberInterface

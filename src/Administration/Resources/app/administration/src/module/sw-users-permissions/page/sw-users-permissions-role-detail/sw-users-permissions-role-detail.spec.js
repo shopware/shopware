@@ -41,6 +41,7 @@ async function createWrapper(
         routeName = 'sw.users.permissions.role.detail.general',
         route = null,
         roleGet = null,
+        userService = {},
     } = options;
     const $route = route ?? {
         name: routeName,
@@ -127,7 +128,7 @@ async function createWrapper(
                             save: roleSaveFunction,
                         }),
                     },
-                    userService: {},
+                    userService,
                     privileges: privilegesService,
                     appAclService: appAclService,
                     ssoSettingsService: {
@@ -831,13 +832,15 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         wrapper = await createWrapper({}, { route, roleGet });
         await flushPromises();
 
-        expect(wrapper.vm.role.id).toBe('first-id');
+        expect(roleGet).toHaveBeenLastCalledWith('first-id');
+        expect(wrapper.find('h2').text()).toBe('first-id');
 
         route.params.id = 'second-id';
         await flushPromises();
 
         expect(roleGet).toHaveBeenCalledTimes(2);
-        expect(wrapper.vm.role.id).toBe('second-id');
+        expect(roleGet).toHaveBeenLastCalledWith('second-id');
+        expect(wrapper.find('h2').text()).toBe('second-id');
     });
 
     it('should load a newly created role only once after saving', async () => {
@@ -846,20 +849,32 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
             route.params = params;
         });
         const roleGet = jest.fn((id) => Promise.resolve({ id, isNew, name: id, privileges: [] }));
-        wrapper = await createWrapper({}, { route, roleGet, routerPush });
+        const roleSave = jest.fn((role) => {
+            role.id = 'new-id';
+
+            return Promise.resolve();
+        });
+        const userService = { getUser: () => Promise.resolve({ data: {} }) };
+        wrapper = await createWrapper(
+            { aclPrivileges: ['users_and_permissions.editor'] },
+            { route, roleGet, routerPush, userService },
+            { isSso: true },
+            roleSave,
+        );
         await flushPromises();
 
-        wrapper.vm.role.id = 'new-id';
-        wrapper.vm.updateCurrentUser = jest.fn(() => Promise.resolve());
+        expect(wrapper.find('h2').text()).toBe('sw-users-permissions.roles.general.labelCreateNewRole');
 
-        await wrapper.vm.saveRole({ access: '1a2b3c' });
+        await wrapper.find('.sw-users-permissions-role-detail__button-save').trigger('click');
         await flushPromises();
 
+        expect(roleSave).toHaveBeenCalledTimes(1);
         expect(routerPush).toHaveBeenCalledWith({
             name: 'sw.users.permissions.role.detail',
             params: { id: 'new-id' },
         });
         expect(roleGet).toHaveBeenCalledTimes(1);
-        expect(wrapper.vm.role.id).toBe('new-id');
+        expect(roleGet).toHaveBeenLastCalledWith('new-id');
+        expect(wrapper.find('h2').text()).toBe('new-id');
     });
 });

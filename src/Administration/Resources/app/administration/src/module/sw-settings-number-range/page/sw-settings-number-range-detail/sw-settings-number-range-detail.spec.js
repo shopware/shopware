@@ -333,13 +333,17 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
         const wrapper = await createWrapper({ route, get });
         await flushPromises();
 
-        expect(wrapper.vm.numberRange.id).toBe('first-id');
+        const nameValue = () => wrapper.find('input[name="sw-field--numberRange-name"]').element.value;
+
+        expect(get).toHaveBeenLastCalledWith('first-id', expect.anything(), expect.anything());
+        expect(nameValue()).toBe('first-id');
 
         route.params.id = 'second-id';
         await flushPromises();
 
         expect(get).toHaveBeenCalledTimes(2);
-        expect(wrapper.vm.numberRange.id).toBe('second-id');
+        expect(get).toHaveBeenLastCalledWith('second-id', expect.anything(), expect.anything());
+        expect(nameValue()).toBe('second-id');
     });
 
     it('should drop the pattern parts of the previous number range when the route id changes', async () => {
@@ -355,19 +359,29 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
                 translated: { name: id },
             }),
         );
+        global.activeAclRoles = ['number_ranges.editor'];
         const wrapper = await createWrapper({ route, get });
         await flushPromises();
 
-        expect(wrapper.vm.advanced).toBe(true);
+        const prefixField = () => wrapper.find('input[name="sw-field--prefix"]');
+        const suffixField = () => wrapper.find('input[name="sw-field--suffix"]');
+        const patternField = () => wrapper.find('input[name="sw-field--numberRange-pattern"]');
+
+        expect(patternField().exists()).toBe(true);
+        expect(prefixField().attributes('disabled')).toBeDefined();
         await wrapper.setData({ prefix: 'OLD-', suffix: '-OLD' });
+        expect(prefixField().element.value).toBe('OLD-');
+        expect(suffixField().element.value).toBe('-OLD');
 
         route.params.id = 'second-id';
         await flushPromises();
 
-        expect(wrapper.vm.numberRange.id).toBe('second-id');
-        expect(wrapper.vm.advanced).toBe(false);
-        expect(wrapper.vm.simplePossible).toBe(true);
-        expect(wrapper.vm.prefix).toBe('');
-        expect(wrapper.vm.suffix).toBe('');
+        expect(get).toHaveBeenLastCalledWith('second-id', expect.anything(), expect.anything());
+        expect(wrapper.find('input[name="sw-field--numberRange-name"]').element.value).toBe('second-id');
+        expect(patternField().exists()).toBe(false);
+        expect(prefixField().attributes('disabled')).toBeUndefined();
+        expect(suffixField().attributes('disabled')).toBeUndefined();
+        expect(prefixField().element.value).toBe('');
+        expect(suffixField().element.value).toBe('');
     });
 });

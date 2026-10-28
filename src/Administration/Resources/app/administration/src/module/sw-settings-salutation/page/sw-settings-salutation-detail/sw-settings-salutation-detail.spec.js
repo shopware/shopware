@@ -4,7 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(privileges = [], { repository = null, props = {} } = {}) {
+async function createWrapper(privileges = [], { repository = null, props = {}, router = null } = {}) {
     return mount(
         await wrapTestComponent('sw-settings-salutation-detail', {
             sync: true,
@@ -16,6 +16,7 @@ async function createWrapper(privileges = [], { repository = null, props = {} } 
             },
 
             global: {
+                mocks: router ? { $router: router } : {},
                 provide: {
                     repositoryFactory: {
                         create: () =>
@@ -129,6 +130,12 @@ async function createWrapper(privileges = [], { repository = null, props = {} } 
     );
 }
 
+function createSwitchableSalutationRepository() {
+    return {
+        get: jest.fn((id) => Promise.resolve({ id, salutationKey: `key-${id}`, isNew: () => false })),
+    };
+}
+
 describe('module/sw-settings-salutation/page/sw-settings-salutation-detail', () => {
     it('should be able to save a salutation if have a editor privilege', async () => {
         const wrapper = await createWrapper(['salutation.editor']);
@@ -205,15 +212,18 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-detail', () 
     });
 
     it('should load the new salutation when the salutationId changes', async () => {
-        const wrapper = await createWrapper(['salutation.editor']);
+        const repository = createSwitchableSalutationRepository();
+        const wrapper = await createWrapper(['salutation.editor'], { repository });
         await flushPromises();
 
-        expect(wrapper.vm.salutation.id).toBe('1');
+        expect(repository.get).toHaveBeenLastCalledWith('1');
+        expect(wrapper.find('input[name="sw-field--salutation-salutationKey"]').element.value).toBe('key-1');
 
         await wrapper.setProps({ salutationId: '2' });
         await flushPromises();
 
-        expect(wrapper.vm.salutation.id).toBe('2');
+        expect(repository.get).toHaveBeenLastCalledWith('2');
+        expect(wrapper.find('input[name="sw-field--salutation-salutationKey"]').element.value).toBe('key-2');
     });
 
     it('should drop the key error of the previous salutation when the salutationId changes', async () => {
@@ -222,11 +232,12 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-detail', () 
 
         await wrapper.setData({ invalidKey: true, isKeyChecking: true });
 
+        expect(wrapper.find('.sw-settings-salutation-detail__save').attributes('disabled')).toBeDefined();
+
         await wrapper.setProps({ salutationId: '2' });
         await flushPromises();
 
-        expect(wrapper.vm.invalidKey).toBe(false);
-        expect(wrapper.vm.isKeyChecking).toBe(false);
+        expect(wrapper.find('.sw-settings-salutation-detail__save').attributes('disabled')).toBeUndefined();
     });
 
     it('should load a newly created salutation only once after the redirect to its detail route', async () => {
@@ -235,13 +246,19 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-detail', () 
             save: jest.fn(() => Promise.resolve()),
             get: jest.fn((id) => Promise.resolve({ id, salutationKey: 'new', isNew: () => false })),
         };
-        const wrapper = await createWrapper(['salutation.creator'], { repository, props: { salutationId: null } });
+        const router = { push: jest.fn() };
+        const wrapper = await createWrapper(['salutation.creator'], {
+            repository,
+            router,
+            props: { salutationId: null },
+        });
         await flushPromises();
 
-        await wrapper.vm.onSave();
+        await wrapper.find('.sw-settings-salutation-detail__save').trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+        expect(repository.save).toHaveBeenCalledTimes(1);
+        expect(router.push).toHaveBeenCalledWith({
             name: 'sw.settings.salutation.detail',
             params: { id: 'newSalutationId' },
         });

@@ -324,24 +324,29 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.vm.customerGroup.id).toBe('1');
+        expect(wrapper.find('input[name="sw-field--customerGroup-name"]').element.value).toBe('Net price customer group');
 
         const getSpy = jest.spyOn(customerGroupRepository, 'get').mockImplementation((id) => {
             return Promise.resolve({
                 id,
                 name: 'Gross price customer group',
+                registrationActive: true,
+                registrationTitle: 'Foobar',
                 registrationSalesChannels: [],
                 isNew: () => false,
             });
         });
 
-        await wrapper.setData({ registrationTitleError: { code: 'previous-error' } });
+        await wrapper.setData({ registrationTitleError: { code: 'previous-error', detail: 'Previous error' } });
+
+        expect(wrapper.text()).toContain('Previous error');
 
         await wrapper.setProps({ customerGroupId: '2' });
         await flushPromises();
 
-        expect(wrapper.vm.registrationTitleError).toBeNull();
         expect(getSpy).toHaveBeenCalledWith('2', expect.anything(), expect.anything());
-        expect(wrapper.vm.customerGroup.id).toBe('2');
+        expect(wrapper.find('input[name="sw-field--customerGroup-name"]').element.value).toBe('Gross price customer group');
+        expect(wrapper.find('input[name="sw-field--customerGroup-registrationTitle"]').element.value).toBe('Foobar');
+        expect(wrapper.text()).not.toContain('Previous error');
     });
 });

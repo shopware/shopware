@@ -30,7 +30,17 @@ async function createWrapper(route = reactive({ params: { id: 'set-a' } })) {
                 },
             },
             stubs: {
-                'sw-page': true,
+                'sw-page': {
+                    template: '<div><slot name="smart-bar-actions" /><slot name="content" /></div>',
+                },
+                'sw-custom-field-set-detail-base': {
+                    props: ['set'],
+                    template: '<div class="sw-custom-field-set-detail-base" />',
+                },
+                'sw-custom-field-list': {
+                    props: ['set'],
+                    template: '<div class="sw-custom-field-list" />',
+                },
             },
         },
     });
@@ -47,14 +57,15 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
         const wrapper = await createWrapper(route);
         await flushPromises();
 
-        expect(wrapper.vm.set.id).toBe('set-a');
+        expect(getMock).toHaveBeenLastCalledWith('set-a', expect.anything(), expect.anything());
+        expect(wrapper.findComponent('.sw-custom-field-list').props('set').id).toBe('set-a');
 
         route.params.id = 'set-b';
         await flushPromises();
 
         expect(getMock).toHaveBeenLastCalledWith('set-b', expect.anything(), expect.anything());
-        expect(wrapper.vm.setId).toBe('set-b');
-        expect(wrapper.vm.set.id).toBe('set-b');
+        expect(wrapper.findComponent('.sw-custom-field-set-detail-base').props('set').name).toBe('name-set-b');
+        expect(wrapper.findComponent('.sw-custom-field-list').props('set').id).toBe('set-b');
     });
 
     it('should load the set only once when saving', async () => {
@@ -62,7 +73,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
         await flushPromises();
         getMock.mockClear();
 
-        wrapper.vm.onSave();
+        await wrapper.find('.sw-settings-set-detail__save-action').trigger('click');
         await flushPromises();
 
         expect(saveMock).toHaveBeenCalledTimes(1);

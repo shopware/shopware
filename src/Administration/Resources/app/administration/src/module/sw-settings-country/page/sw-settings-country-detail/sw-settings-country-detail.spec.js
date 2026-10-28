@@ -375,7 +375,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         const countryGet = jest.fn((id) =>
             Promise.resolve({
                 id,
-                name: id,
+                name: `Country ${id}`,
                 isNew: () => false,
                 discardChanges: () => {},
                 states: [],
@@ -384,13 +384,14 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         const wrapper = await createWrapper(['country.editor'], { routeParams, countryGet });
         await flushPromises();
 
-        expect(wrapper.vm.country.id).toBe('first-id');
+        expect(countryGet).toHaveBeenLastCalledWith('first-id');
+        expect(wrapper.find('h2').text()).toBe('Country first-id');
 
         routeParams.id = 'second-id';
         await flushPromises();
 
         expect(countryGet).toHaveBeenCalledTimes(2);
-        expect(wrapper.vm.countryId).toBe('second-id');
-        expect(wrapper.vm.country.id).toBe('second-id');
+        expect(countryGet).toHaveBeenLastCalledWith('second-id');
+        expect(wrapper.find('h2').text()).toBe('Country second-id');
     });
 });

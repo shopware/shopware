@@ -185,13 +185,18 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         wrapper = await detailPage(createRepositoryProvide(repository), [], { productFeatureSetId: 'firstId' });
         await flushPromises();
 
-        expect(wrapper.vm.productFeatureSet.id).toBe('firstId');
+        expect(repository.get).toHaveBeenLastCalledWith('firstId');
+        expect(wrapper.find('.sw-settings-product-feature-sets-detail__name input').element.value).toBe(
+            'Feature set firstId',
+        );
 
         await wrapper.setProps({ productFeatureSetId: 'secondId' });
         await flushPromises();
 
         expect(repository.get).toHaveBeenLastCalledWith('secondId');
-        expect(wrapper.vm.productFeatureSet.id).toBe('secondId');
+        expect(wrapper.find('.sw-settings-product-feature-sets-detail__name input').element.value).toBe(
+            'Feature set secondId',
+        );
     });
 
     it('should load a newly created product feature set only once after the redirect to its detail route', async () => {
@@ -200,13 +205,15 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
             save: jest.fn(() => Promise.resolve()),
             get: jest.fn((id) => Promise.resolve({ id, name: 'New feature set', features: [{}] })),
         };
-        wrapper = await detailPage(createRepositoryProvide(repository));
+        const router = { push: jest.fn() };
+        wrapper = await detailPage({ ...createRepositoryProvide(repository), mocks: { $router: router } });
         await flushPromises();
 
-        await wrapper.vm.onSave();
+        await wrapper.find('.sw-settings-currency-detail__save-action').trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+        expect(repository.save).toHaveBeenCalledTimes(1);
+        expect(router.push).toHaveBeenCalledWith({
             name: 'sw.settings.product.feature.sets.detail',
             params: { id: 'newId' },
         });

@@ -99,7 +99,10 @@ async function createWrapper(
                     'sw-text-field': true,
                     'sw-language-info': true,
                     'sw-upload-listener': true,
-                    'sw-media-upload-v2': true,
+                    'sw-media-upload-v2': {
+                        props: ['source'],
+                        template: '<div></div>',
+                    },
                     'sw-plugin-box': true,
                     'mt-textarea': true,
                     'sw-select-rule-create': true,
@@ -214,7 +217,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
                 first: () =>
                     Promise.resolve({
                         id: criteria.ids[0],
-                        name: 'Test settings-payment',
+                        name: `Payment ${criteria.ids[0]}`,
                         getEntityName: () => 'payment-method',
                     }),
             }),
@@ -222,13 +225,15 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
         const wrapper = await createWrapper([], {}, route, search);
         await flushPromises();
 
-        expect(wrapper.vm.paymentMethod.id).toBe('first-id');
+        expect(search).toHaveBeenLastCalledWith(expect.objectContaining({ ids: ['first-id'] }));
+        expect(wrapper.find('input[name="sw-field--paymentMethod-name"]').element.value).toBe('Payment first-id');
 
         route.params.id = 'second-id';
         await flushPromises();
 
         expect(search).toHaveBeenCalledTimes(2);
-        expect(wrapper.vm.paymentMethod.id).toBe('second-id');
+        expect(search).toHaveBeenLastCalledWith(expect.objectContaining({ ids: ['second-id'] }));
+        expect(wrapper.find('input[name="sw-field--paymentMethod-name"]').element.value).toBe('Payment second-id');
     });
 
     it('should drop the media of the previous payment method when the new one has none', async () => {
@@ -238,7 +243,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
                 first: () =>
                     Promise.resolve({
                         id: criteria.ids[0],
-                        name: 'Test settings-payment',
+                        name: `Payment ${criteria.ids[0]}`,
                         mediaId: null,
                         getEntityName: () => 'payment-method',
                     }),
@@ -249,10 +254,14 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
 
         await wrapper.setData({ mediaItem: { id: 'first-media' } });
 
+        expect(wrapper.findComponent('.sw-settings-payment-detail__logo-image-upload').props('source')).toEqual({
+            id: 'first-media',
+        });
+
         route.params.id = 'second-id';
         await flushPromises();
 
-        expect(wrapper.vm.paymentMethod.id).toBe('second-id');
-        expect(wrapper.vm.mediaItem).toBeNull();
+        expect(wrapper.find('input[name="sw-field--paymentMethod-name"]').element.value).toBe('Payment second-id');
+        expect(wrapper.findComponent('.sw-settings-payment-detail__logo-image-upload').props('source')).toBeNull();
     });
 });

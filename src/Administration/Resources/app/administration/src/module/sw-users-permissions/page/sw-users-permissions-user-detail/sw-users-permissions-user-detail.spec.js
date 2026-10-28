@@ -774,14 +774,17 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         });
         await flushPromises();
 
-        expect(wrapper.vm.user.id).toBe('first-id');
+        const usernameValue = () => wrapper.find('input[name="sw-field--user-username"]').element.value;
+
+        expect(userGet).toHaveBeenLastCalledWith('first-id', expect.anything(), expect.anything());
+        expect(usernameValue()).toBe('first-id');
 
         route.params.id = 'second-id';
         await flushPromises();
 
         expect(userGet).toHaveBeenCalledTimes(2);
-        expect(wrapper.vm.userId).toBe('second-id');
-        expect(wrapper.vm.user.id).toBe('second-id');
+        expect(userGet).toHaveBeenLastCalledWith('second-id', expect.anything(), expect.anything());
+        expect(usernameValue()).toBe('second-id');
     });
 
     it('should drop the avatar and check results of the previous user when the route id changes', async () => {
@@ -799,24 +802,36 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
             }),
         );
         wrapper = await createWrapper('users_and_permissions.editor', {
-            global: { stubs: {} },
+            global: {
+                stubs: {
+                    'sw-media-upload-v2': {
+                        props: ['source'],
+                        template: '<div class="sw-settings-user-detail__grid-profile-picture"></div>',
+                    },
+                },
+            },
             route,
             userGet,
         });
         await flushPromises();
 
+        const avatarSource = () => wrapper.getComponent('.sw-settings-user-detail__grid-profile-picture').props('source');
+        const usernameError = () => wrapper.find('.sw-settings-user-detail__grid-username').attributes('error-message');
+
         await wrapper.setData({
             mediaItem: { id: 'first-avatar' },
-            isEmailAlreadyInUse: true,
             isUsernameUsed: true,
         });
+
+        expect(avatarSource()).toEqual({ id: 'first-avatar' });
+        expect(usernameError()).toBe('sw-users-permissions.users.user-detail.errorUsernameUsed');
 
         route.params.id = 'second-id';
         await flushPromises();
 
-        expect(wrapper.vm.user.id).toBe('second-id');
-        expect(wrapper.vm.mediaItem).toBeNull();
-        expect(wrapper.vm.isEmailAlreadyInUse).toBe(false);
-        expect(wrapper.vm.isUsernameUsed).toBe(false);
+        expect(userGet).toHaveBeenLastCalledWith('second-id', expect.anything(), expect.anything());
+        expect(wrapper.find('input[name="sw-field--user-username"]').element.value).toBe('second-id');
+        expect(avatarSource()).toBeNull();
+        expect(usernameError()).toBe('');
     });
 });

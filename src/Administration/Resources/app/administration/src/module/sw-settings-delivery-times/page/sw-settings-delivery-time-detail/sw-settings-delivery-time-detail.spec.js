@@ -180,16 +180,18 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
 
     it('should load the new delivery time when the route id changes', async () => {
         const route = reactive({ params: { id: 'first-id' } });
-        const get = jest.fn((id) => Promise.resolve({ id, name: id, isNew: () => false }));
+        const get = jest.fn((id) => Promise.resolve({ id, name: `Delivery time ${id}`, isNew: () => false }));
         const wrapper = await createWrapper(['delivery_times.editor'], route, get);
         await flushPromises();
 
-        expect(wrapper.vm.deliveryTime.id).toBe('first-id');
+        expect(get).toHaveBeenLastCalledWith('first-id');
+        expect(wrapper.find('input[name="sw-field--deliveryTime-name"]').element.value).toBe('Delivery time first-id');
 
         route.params.id = 'second-id';
         await flushPromises();
 
         expect(get).toHaveBeenCalledTimes(2);
-        expect(wrapper.vm.deliveryTime.id).toBe('second-id');
+        expect(get).toHaveBeenLastCalledWith('second-id');
+        expect(wrapper.find('input[name="sw-field--deliveryTime-name"]').element.value).toBe('Delivery time second-id');
     });
 });

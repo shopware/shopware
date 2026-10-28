@@ -470,7 +470,16 @@ describe('module/sw-users-permissions/page/sw-sso-users-permission-user-detail',
         });
         const wrapper = await createWrapper(undefined, route);
 
-        expect(wrapper.vm.user.id).toBe('1');
+        const lastSearchedUserId = () =>
+            JSON.parse(
+                global.repositoryFactoryMock.clientMock.history.post
+                    .filter((request) => request.url === '/search/user')
+                    .at(-1).data,
+            ).ids;
+        const firstNameValue = () => wrapper.find('#sw-field--user-firstName').element.value;
+
+        expect(lastSearchedUserId()).toBe('1');
+        expect(firstNameValue()).toBe('foo');
 
         const otherUser = createDefaultUser();
         otherUser.id = '3';
@@ -481,8 +490,7 @@ describe('module/sw-users-permissions/page/sw-sso-users-permission-user-detail',
         route.params.id = '3';
         await flushPromises();
 
-        expect(wrapper.vm.userId).toBe('3');
-        expect(wrapper.vm.user.id).toBe('3');
-        expect(wrapper.vm.user.firstName).toBe('other');
+        expect(lastSearchedUserId()).toBe('3');
+        expect(firstNameValue()).toBe('other');
     });
 });

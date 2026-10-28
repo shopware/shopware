@@ -68,6 +68,7 @@ async function createWrapper() {
                             <td v-for="item in collection">
                                 <slot name="column-lastName" v-bind="{ item }"></slot>
                                 <slot name="actions" v-bind="{ item }"></slot>
+                                <slot name="action-modals" v-bind="{ item }"></slot>
                             </td>
                         </tbody>
                     </table>
@@ -412,29 +413,67 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
             },
         });
 
-        expect(wrapper.vm.activeCustomer.id).toBe('2');
-        expect(wrapper.find('td').text()).toContain('Schmidt');
+        const cells = wrapper.findAll('td');
+        expect(cells).toHaveLength(1);
+        expect(cells.at(0).text()).toContain('Schmidt');
+        expect(cells.at(0).text()).not.toContain('Nguyen');
     });
 
     it('should recreate the address grid and drop the address state of the previous customer when the customer is replaced', async () => {
-        const previousGrid = wrapper.vm.$refs.addressGrid;
-        wrapper.vm.defaultShippingAddressId = 'previous-shipping-address-id';
-        wrapper.vm.defaultBillingAddressId = 'previous-billing-address-id';
-        await wrapper.setData({ showDeleteAddressModal: 'previous-address-id' });
+        const createCustomer = (id, lastName) => ({
+            id,
+            defaultShippingAddressId: `${id}-shipping-address-id`,
+            defaultBillingAddressId: `${id}-billing-address-id`,
+            addresses: [{ id: `${id}-address-id`, lastName }],
+        });
+        const clickContextMenuItem = async (text) => {
+            await wrapper
+                .findAll('.sw-context-menu-item')
+                .find((item) => item.text() === text)
+                .trigger('click');
+        };
 
-        await wrapper.setProps({ customer: { id: '2', addresses: [] } });
+        await wrapper.setProps({ customerEditMode: true, customer: createCustomer('1', 'Nguyen') });
+        const previousGrid = wrapper.find('table').element;
 
-        expect(wrapper.vm.$refs.addressGrid).not.toBe(previousGrid);
-        expect(wrapper.vm.showDeleteAddressModal).toBe(false);
-        expect(wrapper.vm.defaultShippingAddressId).toBeNull();
-        expect(wrapper.vm.defaultBillingAddressId).toBeNull();
+        await clickContextMenuItem('global.default.delete');
+        expect(wrapper.find('.sw-customer-detail-addresses__confirm-delete-text').exists()).toBe(true);
+
+        await clickContextMenuItem('global.default.edit');
+        const formOptions = wrapper.findComponent('.sw-customer-address-form-options');
+        formOptions.vm.$emit('default-address-change', {
+            name: 'shipping-address',
+            id: '1-address-id',
+            value: true,
+        });
+        formOptions.vm.$emit('default-address-change', {
+            name: 'billing-address',
+            id: '1-address-id',
+            value: true,
+        });
+
+        const nextCustomer = createCustomer('2', 'Schmidt');
+        await wrapper.setProps({ customer: nextCustomer });
+
+        expect(wrapper.find('table').element).not.toBe(previousGrid);
+        expect(wrapper.find('.sw-modal').exists()).toBe(false);
+
+        await clickContextMenuItem('global.default.edit');
+        await wrapper.findByText('button', 'global.default.cancel').trigger('click');
+
+        expect(nextCustomer.defaultShippingAddressId).toBe('2-shipping-address-id');
+        expect(nextCustomer.defaultBillingAddressId).toBe('2-billing-address-id');
+
+        await wrapper.setProps({ customer: createCustomer('1', 'Nguyen') });
+
+        expect(wrapper.find('.sw-customer-detail-addresses__confirm-delete-text').exists()).toBe(false);
     });
 
     it('should keep the address grid when the same customer is reloaded', async () => {
-        const previousGrid = wrapper.vm.$refs.addressGrid;
+        const previousGrid = wrapper.find('table').element;
 
         await wrapper.setProps({ customer: { ...wrapper.props('customer') } });
 
-        expect(wrapper.vm.$refs.addressGrid).toBe(previousGrid);
+        expect(wrapper.find('table').element).toBe(previousGrid);
     });
 });

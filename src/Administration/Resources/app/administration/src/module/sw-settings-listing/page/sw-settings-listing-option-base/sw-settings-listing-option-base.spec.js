@@ -159,7 +159,15 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
                             `,
                         },
                         'sw-language-switch': true,
-                        'sw-settings-listing-option-general-info': true,
+                        'sw-settings-listing-option-general-info': {
+                            template: '<div class="sw-settings-listing-option-general-info"></div>',
+                            props: [
+                                'sortingOption',
+                                'isDefaultSorting',
+                                'labelError',
+                                'technicalNameError',
+                            ],
+                        },
                         'sw-settings-listing-option-criteria-grid': true,
                         'sw-settings-listing-delete-modal': true,
                     },
@@ -303,19 +311,24 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
         wrapper = await createWrapper(route);
         await flushPromises();
 
-        expect(wrapper.vm.productSortingEntity.id).toBe(getProductSortings()[0].id);
+        const generalInfo = () => wrapper.findComponent('.sw-settings-listing-option-general-info');
+
+        expect(generalInfo().props('sortingOption').id).toBe(getProductSortings()[0].id);
 
         await wrapper.setData({
             sortingOptionTechnicalNameError: { code: 'previous-error' },
             sortingOptionLabelError: { code: 'previous-error' },
         });
 
+        expect(generalInfo().props('technicalNameError')).toEqual({ code: 'previous-error' });
+        expect(generalInfo().props('labelError')).toEqual({ code: 'previous-error' });
+
         route.params.id = getProductSortings()[1].id;
         await flushPromises();
 
-        expect(wrapper.vm.sortingOptionTechnicalNameError).toBeNull();
-        expect(wrapper.vm.sortingOptionLabelError).toBeNull();
-        expect(wrapper.vm.productSortingEntity.id).toBe(getProductSortings()[1].id);
-        expect(wrapper.vm.productSortingEntity.label).toBe('Price ascending');
+        expect(generalInfo().props('technicalNameError')).toBeNull();
+        expect(generalInfo().props('labelError')).toBeNull();
+        expect(generalInfo().props('sortingOption').id).toBe(getProductSortings()[1].id);
+        expect(generalInfo().props('sortingOption').label).toBe('Price ascending');
     });
 });

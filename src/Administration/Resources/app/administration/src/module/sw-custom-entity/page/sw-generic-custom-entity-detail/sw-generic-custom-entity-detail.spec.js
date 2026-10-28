@@ -122,6 +122,7 @@ async function createWrapper({
     featureActive = false,
     route = null,
     router = null,
+    getDefinitionByName = (name) => (name === testEntityName ? customEntityDefinition : undefined),
 } = {}) {
     return mount(await Shopware.Component.build('sw-generic-custom-entity-detail'), {
         data() {
@@ -200,7 +201,7 @@ async function createWrapper({
             },
             provide: {
                 customEntityDefinitionService: {
-                    getDefinitionByName: (name) => (name === testEntityName ? customEntityDefinition : undefined),
+                    getDefinitionByName,
                 },
                 repositoryFactory: {
                     create(name) {
@@ -430,6 +431,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
         });
 
         it('should load the new entity when the route id changes', async () => {
+            const saveSpy = jest.spyOn(customEntityRepository, 'save');
             const route = createRoute(testEntityData.id);
             const wrapper = await createWrapper({ route });
             await flushPromises();
@@ -440,23 +442,30 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
 
             expect(getSpy).toHaveBeenCalledTimes(1);
             expect(getSpy).toHaveBeenCalledWith('other-id');
-            expect(wrapper.vm.customEntityData.id).toBe('other-id');
-            expect(wrapper.vm.customEntityData.title).toBe('title-other-id');
+            expect(wrapper.get('.sw-generic-custom-entity-detail__title').text()).toBe('title-other-id');
+
+            wrapper.findComponent('.sw-generic-custom-entity-detail__save-action').vm.$emit('click');
+            await flushPromises();
+
+            expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({ id: 'other-id', title: 'title-other-id' }));
+            saveSpy.mockRestore();
         });
 
         it('should load the entity again when the route entityName changes', async () => {
             const route = createRoute(testEntityData.id);
-            const wrapper = await createWrapper({ route });
+            const wrapper = await createWrapper({
+                route,
+                getDefinitionByName: () => customEntityDefinition,
+            });
             await flushPromises();
-            jest.spyOn(wrapper.vm.customEntityDefinitionService, 'getDefinitionByName').mockReturnValue(
-                customEntityDefinition,
-            );
             getSpy.mockClear();
 
             route.params.entityName = 'custom_other_entity';
             await flushPromises();
 
-            expect(wrapper.vm.customEntityName).toBe('custom_other_entity');
+            expect(wrapper.findAll('.sw-generic-custom-entity-detail__tab-item').at(0).text()).toBe(
+                'custom_other_entity.tabs.main',
+            );
             expect(getSpy).toHaveBeenCalledTimes(1);
             expect(getSpy).toHaveBeenCalledWith(testEntityData.id);
         });
@@ -471,7 +480,9 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
             const wrapper = await createWrapper({ route, router });
             await flushPromises();
 
-            await wrapper.vm.onSave();
+            expect(wrapper.get('.sw-generic-custom-entity-detail__title').text()).toBe(testEntityData.title);
+
+            wrapper.findComponent('.sw-generic-custom-entity-detail__save-action').vm.$emit('click');
             await flushPromises();
 
             expect(router.push).toHaveBeenCalledWith({
@@ -480,7 +491,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
             });
             expect(getSpy).toHaveBeenCalledTimes(1);
             expect(getSpy).toHaveBeenCalledWith(testEntityCreateId);
-            expect(wrapper.vm.customEntityData.id).toBe(testEntityCreateId);
+            expect(wrapper.get('.sw-generic-custom-entity-detail__title').text()).toBe(`title-${testEntityCreateId}`);
         });
 
         it('should load the entity only once when saving an existing entity', async () => {
@@ -490,7 +501,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
             await flushPromises();
             getSpy.mockClear();
 
-            await wrapper.vm.onSave();
+            wrapper.findComponent('.sw-generic-custom-entity-detail__save-action').vm.$emit('click');
             await flushPromises();
 
             expect(router.push).not.toHaveBeenCalled();

@@ -13,6 +13,7 @@ async function createWrapper(privileges = [], isShopwareDefaultTax = true, addit
                 renderStubDefaultSlot: true,
                 mocks: {
                     $te: () => isShopwareDefaultTax,
+                    ...additionalOptions.mocks,
                 },
                 provide: {
                     repositoryFactory: {
@@ -88,14 +89,15 @@ async function createWrapper(privileges = [], isShopwareDefaultTax = true, addit
     );
 }
 
-function createTaxDetailOptions(repository, props = {}) {
+function createTaxDetailOptions(repository, props = {}, { saveValues = () => Promise.resolve(), router = null } = {}) {
     return {
         props,
+        mocks: router ? { $router: router } : {},
         provide: {
             repositoryFactory: { create: () => repository },
             systemConfigApiService: {
                 getValues: () => Promise.resolve({}),
-                saveValues: () => Promise.resolve(),
+                saveValues,
             },
         },
     };
@@ -176,33 +178,44 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
         );
         await flushPromises();
 
-        expect(wrapper.vm.tax.id).toBe('firstTaxId');
+        expect(repository.get).toHaveBeenLastCalledWith('firstTaxId');
+        expect(wrapper.find('input[name="sw-field--tax-name"]').element.value).toBe('Tax firstTaxId');
 
         await wrapper.setProps({ taxId: 'secondTaxId' });
         await flushPromises();
 
         expect(repository.get).toHaveBeenLastCalledWith('secondTaxId');
-        expect(wrapper.vm.tax.id).toBe('secondTaxId');
+        expect(wrapper.find('input[name="sw-field--tax-name"]').element.value).toBe('Tax secondTaxId');
     });
 
     it('should drop the default tax rate change of the previous tax when the taxId changes', async () => {
         const repository = {
             get: jest.fn((id) => Promise.resolve({ id, name: `Tax ${id}`, isNew: () => false })),
+            save: jest.fn(() => Promise.resolve()),
         };
+        const saveValues = jest.fn(() => Promise.resolve());
         const wrapper = await createWrapper(
             ['tax.editor'],
             false,
-            createTaxDetailOptions(repository, { taxId: 'firstTaxId' }),
+            createTaxDetailOptions(repository, { taxId: 'firstTaxId' }, { saveValues }),
         );
         await flushPromises();
 
-        wrapper.vm.onChangeDefaultTaxRate();
-        expect(wrapper.vm.config['core.tax.defaultTaxRate']).toBe('firstTaxId');
+        await wrapper.find('.sw-settings-tax-detail__default-tax-rate input').setValue(true);
+        await wrapper.find('.sw-settings-tax-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(saveValues).toHaveBeenLastCalledWith({ 'core.tax.defaultTaxRate': 'firstTaxId' });
 
         await wrapper.setProps({ taxId: 'secondTaxId' });
         await flushPromises();
 
-        expect(wrapper.vm.config).toEqual({});
+        await wrapper.find('.sw-settings-tax-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(repository.save).toHaveBeenLastCalledWith(expect.objectContaining({ id: 'secondTaxId' }));
+        expect(saveValues).toHaveBeenCalledTimes(2);
+        expect(saveValues).toHaveBeenLastCalledWith({});
     });
 
     it('should load a newly created tax only once after the redirect to its detail route', async () => {
@@ -211,13 +224,19 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
             save: jest.fn(() => Promise.resolve()),
             get: jest.fn((id) => Promise.resolve({ id, name: 'New tax', isNew: () => false })),
         };
-        const wrapper = await createWrapper(['tax.creator'], false, createTaxDetailOptions(repository));
+        const router = { push: jest.fn() };
+        const wrapper = await createWrapper(
+            ['tax.creator', 'tax.editor'],
+            false,
+            createTaxDetailOptions(repository, {}, { router }),
+        );
         await flushPromises();
 
-        await wrapper.vm.onSave();
+        await wrapper.find('.sw-settings-tax-detail__save-action').trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+        expect(repository.save).toHaveBeenCalledTimes(1);
+        expect(router.push).toHaveBeenCalledWith({
             name: 'sw.settings.tax.detail',
             params: { id: 'newTaxId' },
         });

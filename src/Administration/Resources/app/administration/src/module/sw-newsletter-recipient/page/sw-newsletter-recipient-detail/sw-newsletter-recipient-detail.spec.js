@@ -143,17 +143,22 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail
         const search = jest.fn((criteria) => {
             const id = criteria.filters.find((filter) => filter.field === 'id').value;
 
-            return Promise.resolve({ first: () => ({ ...recipientMock[0], id }) });
+            return Promise.resolve({ first: () => ({ ...recipientMock[0], id, email: `${id}@example.com` }) });
         });
         const wrapper = await createWrapper(route, search);
         await flushPromises();
 
-        expect(wrapper.vm.newsletterRecipient.id).toBe('first-id');
+        const emailValue = () => wrapper.find('input[aria-label="sw-newsletter-recipient.list.email"]').element.value;
+        const searchedId = (call) => search.mock.calls[call][0].filters.find((filter) => filter.field === 'id').value;
+
+        expect(searchedId(0)).toBe('first-id');
+        expect(emailValue()).toBe('first-id@example.com');
 
         route.params.id = 'second-id';
         await flushPromises();
 
         expect(search).toHaveBeenCalledTimes(2);
-        expect(wrapper.vm.newsletterRecipient.id).toBe('second-id');
+        expect(searchedId(1)).toBe('second-id');
+        expect(emailValue()).toBe('second-id@example.com');
     });
 });

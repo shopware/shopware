@@ -205,13 +205,12 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
         });
         await flushPromises();
 
-        expect(wrapper.vm.taxProvider.id).toBe('taxProviderId');
+        expect(wrapper.find('h2').text()).toBe('Tax provider one');
 
         await wrapper.setProps({ taxProviderId: 'otherTaxProviderId' });
         await flushPromises();
 
-        expect(wrapper.vm.taxProvider.id).toBe('otherTaxProviderId');
-        expect(wrapper.vm.label).toBe('Tax provider two');
+        expect(wrapper.find('h2').text()).toBe('Tax provider two');
     });
 
     it('should handle onDismissRule and set availabilityRuleId to null', async () => {

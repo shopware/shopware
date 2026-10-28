@@ -26,7 +26,16 @@ type TemplateOverride = {
 };
 
 function isAstNode(value: unknown): value is AstNode {
-    return typeof value === 'object' && value !== null && typeof (value as AstNode).type === 'string';
+    return (
+        typeof value === 'object' &&
+        value !== null &&
+        'type' in value &&
+        typeof value.type === 'string' &&
+        'start' in value &&
+        typeof value.start === 'number' &&
+        'end' in value &&
+        typeof value.end === 'number'
+    );
 }
 
 function visit(value: unknown, callback: (node: AstNode) => void): void {
@@ -200,7 +209,7 @@ export default function TwigHmrPlugin(): Plugin {
 
             let ast: AstNode;
             try {
-                ast = parse(code, {
+                const parsed: unknown = parse(code, {
                     sourceType: 'module',
                     plugins: [
                         'decorators-legacy',
@@ -208,7 +217,9 @@ export default function TwigHmrPlugin(): Plugin {
                         'jsx',
                         'typescript',
                     ],
-                }) as unknown as AstNode;
+                });
+                if (!isAstNode(parsed)) return null;
+                ast = parsed;
             } catch {
                 if (code.includes('Component.override') && code.includes('import(')) {
                     this.warn(

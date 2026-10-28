@@ -56,7 +56,7 @@ function isDependencyFile(fileName: string): boolean {
  * by default; if the transform is statically imported there, its `require()` calls are
  * inlined into an ESM config bundle and fail at runtime.
  */
-// eslint-disable-next-line @typescript-eslint/require-await
+// eslint-disable-next-line @typescript-eslint/require-await -- Keep a promise-based loader for the cached transform module.
 async function importShopwareSetupTransform(administrationRoot: string): Promise<typeof transformShopwareSetupSfcRuntime> {
     // `require`, not `import()`: extension builds resolve this plugin as CommonJS, which cannot load the
     // file: URL that `import()` needs on Windows. A plain path works in both.

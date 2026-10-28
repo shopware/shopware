@@ -25,6 +25,17 @@ class McpExceptionTest extends TestCase
         static::assertSame($previous, $e->getPrevious());
     }
 
+    public function testOAuthProtectedResourceMetadataUnavailableIsNotFoundWithTheReason(): void
+    {
+        $previous = new \InvalidArgumentException('must use https');
+        $e = McpException::oauthProtectedResourceMetadataUnavailable('http://shop.example/api/_mcp', $previous);
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $e->getStatusCode());
+        static::assertSame('MCP__OAUTH_PROTECTED_RESOURCE_METADATA_UNAVAILABLE', $e->getErrorCode());
+        static::assertSame('No OAuth protected resource metadata for "http://shop.example/api/_mcp": must use https', $e->getMessage());
+        static::assertSame($previous, $e->getPrevious());
+    }
+
     public function testToolResultNotFoundNamesTheIdWithoutSayingWhoStoredIt(): void
     {
         $e = McpException::toolResultNotFound('abc');

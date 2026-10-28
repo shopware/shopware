@@ -237,11 +237,97 @@ symfony/mcp-bundle and mcp/sdk (see `composer.json` for the versions in use) alr
 
 ---
 
+## Authentication
+
+OAuth is an additional way in.
+Access keys, integration tokens, password grant tokens and authorization code tokens without `resource` keep working unchanged.
+The design is recorded in `adr/2026-10-21-mcp-oauth-client-authentication.md`.
+
+### Discovery
+
+- An unauthenticated or rejected request to `/api/_mcp` gets `401` with the JSON-RPC `-32001` body and `WWW-Authenticate: Bearer resource_metadata="<base>/.well-known/oauth-protected-resource/api/_mcp"`.
+  When credentials were sent, the header adds `error="invalid_token"`.
+  `McpExceptionListener` sets it on the Admin API route `api.mcp.endpoint` only.
+- A query on the MCP URL (`?toolsets=`) is kept as sent: the challenge URL is `.../.well-known/oauth-protected-resource/api/_mcp?<query>` (RFC 9728 §3.1), and the metadata answers with `resource` `<base>/api/_mcp?<query>`.
+  RFC 9728 §3.3 makes clients reject a `resource` that differs from the URL they used.
+  The audience check (`OAuthResource::normalize()`) keeps ignoring the query, so the same token works with and without toolsets.
+- `McpOAuthMetadataController` serves the protected resource metadata (RFC 9728) at `/.well-known/oauth-protected-resource/api/_mcp` and the authorization server metadata (RFC 8414) at `/.well-known/oauth-authorization-server/api`.
+  The issuer is `<base>/api`; the authorization response carries `iss` (RFC 9207).
+- `McpOAuthMetadata` builds the URLs and documents.
+  `<base>` keeps the installation base path.
+  It comes from the request when `McpAllowedHostsProvider` allows the host, otherwise from `APP_URL`.
+  The protected resource metadata is the `mcp/sdk` value object `ProtectedResourceMetadata`; the authorization server metadata (RFC 8414) stays ours, the SDK has no class for it.
+  Only the value object is used, not `ProtectedResourceMetadataHandler` or its middleware: the document depends on the request host, base path and query, and the routes stay Symfony routes.
+  Since `mcp/sdk` 0.9 the class rejects plain http outside loopback hosts (`localhost`, `127.0.0.1`, `::1`); the route then answers `404` with `MCP__OAUTH_PROTECTED_RESOURCE_METADATA_UNAVAILABLE`.
+  Dev lanes on `http://<name>.localhost` are affected until the SDK accepts `*.localhost` as loopback ([php-sdk#620](https://github.com/modelcontextprotocol/php-sdk/pull/620)); use `http://localhost:<port>` meanwhile.
+- The routes have no route scope (`McpOAuthMetadataRouteScopeWhitelist`) and are exempt from the sales channel lookup in `RequestTransformer`.
+- Well-known URIs sit at the host root with the path inserted.
+  An installation in a subdirectory (`https://shop.example/shop`) needs a web server rewrite, for example in nginx:
+
+  ```nginx
+  location = /.well-known/oauth-protected-resource/shop/api/_mcp { rewrite ^ /shop/.well-known/oauth-protected-resource/api/_mcp last; }
+  location = /.well-known/oauth-authorization-server/shop/api { rewrite ^ /shop/.well-known/oauth-authorization-server/api last; }
+  ```
+
+### Tokens bound to the MCP resource
+
+- `resource` (RFC 8707) is accepted on `GET`/`POST /api/oauth/authorize` and `POST /api/oauth/token`.
+  The only accepted value is this shop's MCP resource (`OAuthResource::normalize()` ignores case of scheme and host, default ports, a trailing slash and the query); a fragment or anything else is `invalid_target`.
+  The token request must name the same resource as the authorization request, and a refresh keeps it.
+  A token request without `resource` still gets a token bound to the granted resource, as RFC 8707 allows.
+- The resource is stored in `oauth_auth_code.resource` and `refresh_token.resource`.
+  The JWT keeps the client id as the first `aud` entry and lists the resource after it.
+- `SymfonyBearerTokenValidator` rejects a bound token with `401` unless the caller passes `acceptResourceBoundToken: true`.
+  Only `ApiAuthenticationListener` does, for the main request to `api.mcp.endpoint` and for subrequests carrying `OAuthResource::SUBREQUEST_ATTRIBUTE`.
+  `AppMcpCapabilityExecutor` sets that attribute on the app script subrequests of a request authenticated with a bound token.
+  Any other subrequest rejects the token, because ESI fragments copy the parent's `Authorization` header.
+  Services that validate bearer tokens themselves (system health check, Administration snippets) inherit the rejection.
+  `SymfonyBearerTokenValidatorConsumerTest` lists every service using the validator and fails when one is added; review it for this rule.
+- The binding separates the MCP endpoint from the rest of the Admin API, not one host from another.
+  A token issued for the MCP resource of one allowed host is accepted on the MCP endpoint of every other allowed host of the same installation, because it is the same user with the same permissions.
+  The validator does not compare the bound resource with the requested host; keep it that way unless hosts of one installation get separate principals.
+- The consent page forwards `resource` to `GET /api/oauth/authorize/info` and `POST /api/oauth/authorize`, and the info answer returns it so the page says that access is limited to the MCP endpoint.
+  An Administration built before resource support drops it: the code is stored without resource and the token request fails with `invalid_target` and a hint to rebuild the Administration.
+- A bound token authenticates its user like any other token of that user; MCP sessions and the rate limit treat it no differently.
+  Binding sessions to the principal and keying the rate limit on it are the subject of the related PRs https://github.com/shopware/shopware/pull/21860 and https://github.com/shopware/shopware/pull/21861.
+
+### Adding an OAuth client
+
+There is no dynamic client registration.
+`shopware-cli` is the only default client.
+Redirect URIs on the loopback IP literals `http://127.0.0.1` and `http://[::1]` match any port; every other redirect URI, including `http://localhost:<port>`, must match exactly.
+Web redirect URIs must use `https`.
+Plain `http` is accepted for `localhost` and the loopback IP literals only, or for every host when the kernel runs in the `dev` environment.
+Private-use schemes of native apps (`cursor://`) stay allowed and match exactly.
+`PublicClientRegistry::isTransportAllowed()` holds the rule; `ShopwareAuthCodeGrantType` rejects other redirect URIs on authorize with `FRAMEWORK__OAUTH_INSECURE_REDIRECT_URI` (`400`, not sent to the redirect URI).
+The check runs on authorize and not on container build, because `oauth_clients` already shipped and a single bad entry must not break the whole Admin API.
+An operator adds a client for an MCP client with a configurable client id in `config/packages/shopware.yaml`.
+Claude Code calls back on `http://localhost:<port>/callback`, so register a fixed port and pass it with `--callback-port`:
+
+```yaml
+shopware:
+    api:
+        oauth_clients:
+            claude-code:
+                name: 'Claude Code'
+                redirect_uris:
+                    - 'http://localhost:53682/callback'
+```
+
+```shell
+claude mcp add --transport http --client-id claude-code --callback-port 53682 shopware https://shop.example/api/_mcp
+```
+
+Claude Code refuses plain `http` token endpoints on hosts other than `localhost`, `127.0.0.1` and `::1`, so a dev host such as `trunk.localhost` needs `https`.
+
+Known: the root `/.well-known/oauth-authorization-server` belongs to the UCP SDK (route `ucp_sdk_symfony_oauth_metadata`, `501` while identity linking is disabled).
+MCP clients use the path form `/.well-known/oauth-authorization-server/api` and are not affected.
+
 ## Security
 
 Every MCP request passes through three layers in order:
 
-1. **Authentication** — `sw-access-key` + `sw-secret-access-key` headers required on every request
+1. **Authentication**: every Admin API credential: integration or user access keys (`sw-access-key` + `sw-secret-access-key`), or a bearer token from any grant, including OAuth tokens bound to the MCP resource. See Authentication above.
 2. **Per-principal capability allowlist** — each integration and each user stores a `mcp_allowlist` JSON object with `tools`, `resources`, and `prompts` keys. Configured via Settings → Integrations → Edit MCP Allowlist, and on the user detail page. `tools/list`, `resources/list`, and `prompts/list` responses are filtered; `tools/call`, `resources/read`, and `prompts/get` are rejected early with a clear error. Tool allowlist auto-expands transitive `#[McpToolDependsOn]` dependencies.
    **The selection must be explicit.** `McpAllowlist::restrictedFromJson()` resolves every value that is not an explicit list to an empty list, i.e. deny all: an unset column, an empty column, unparseable JSON, JSON that is not an object, a missing per-type key, an explicit `null` per-type value, and a per-type value that is not a JSON list (a string, or an object — which `json_decode` would otherwise hand over as an associative array of names). The save endpoints reject the object shape outright rather than storing a selection that reads back empty. **The only bypass is an administrator user** (`user.admin = 1`), for whom `McpAllowlistProvider::forUserId()` returns `McpAllowlist::unrestricted()`. An integration never bypasses the allowlist, not even one flagged `admin`; the `admin` flag still bypasses layer 3 (ACL).
    Note that resources are allowlisted by **URI** (`shopware://currencies`) while `resources/list` reports the **name** (`shopware-currencies`). Tools and prompts use the name for both.

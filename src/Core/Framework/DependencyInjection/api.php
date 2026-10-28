@@ -91,6 +91,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Feature\FeatureFlagRegistry;
+use Shopware\Core\Framework\Mcp\Authentication\McpOAuthMetadata;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
@@ -360,6 +361,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PublicClientRegistry::class),
             service('shopware.rate_limiter'),
             service('router'),
+            service(McpOAuthMetadata::class),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -381,6 +383,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(PublicClientRegistry::class)
         ->args([
             param('shopware.api.oauth_clients'),
+            param('kernel.environment'),
         ]);
 
     $services->set(ClientRepository::class)
@@ -481,6 +484,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(UserService::class),
             service(ExternalTokenService::class),
             service(ClockInterface::class),
+            service(PublicClientRegistry::class),
             param('shopware.api.refresh_token_ttl'),
             param('shopware.api.auth_code_ttl'),
         ]);

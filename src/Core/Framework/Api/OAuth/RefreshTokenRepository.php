@@ -41,7 +41,8 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
     public function persistNewRefreshToken(RefreshTokenEntityInterface $refreshTokenEntity): void
     {
         // User identifier is by design null in case of authentication with integration (and no real user)
-        $userIdentifier = $refreshTokenEntity->getAccessToken()->getUserIdentifier();
+        $accessToken = $refreshTokenEntity->getAccessToken();
+        $userIdentifier = $accessToken->getUserIdentifier();
 
         if ($userIdentifier) {
             $familyId = $refreshTokenEntity instanceof RefreshToken ? $refreshTokenEntity->getFamilyId() : null;
@@ -55,6 +56,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
                     'family_id' => ':familyId',
                     'issued_at' => ':issuedAt',
                     'expires_at' => ':expiresAt',
+                    'resource' => ':resource',
                 ])
                 ->setParameters([
                     'id' => Uuid::randomBytes(),
@@ -63,6 +65,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
                     'familyId' => $familyId ?? Uuid::randomBytes(),
                     'issuedAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     'expiresAt' => $refreshTokenEntity->getExpiryDateTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'resource' => $accessToken instanceof AccessToken ? $accessToken->getResource() : null,
                 ])
                 ->executeStatement();
         }
@@ -132,6 +135,21 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
         );
 
         return \is_string($familyId) ? $familyId : null;
+    }
+
+    /**
+     * Returns the RFC 8707 resource the refresh token's grant is bound to.
+     *
+     * @internal
+     */
+    public function getRefreshTokenResource(string $tokenId): ?string
+    {
+        $resource = $this->connection->fetchOne(
+            'SELECT resource FROM refresh_token WHERE token_id = :tokenId',
+            ['tokenId' => $tokenId]
+        );
+
+        return \is_string($resource) ? $resource : null;
     }
 
     public function revokeRefreshTokensForUser(string $userId): void

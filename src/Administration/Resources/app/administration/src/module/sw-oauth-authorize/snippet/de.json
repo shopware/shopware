@@ -9,6 +9,7 @@
       "loggedInAs": "Angemeldet als {username}",
       "permissionTitle": "Diese Anwendung erhält Deine Berechtigungen",
       "permissionHint": "Die Anwendung kann in Deinem Namen auf Daten zugreifen und Aktionen ausführen. Dabei hat sie dieselben Berechtigungen wie Dein Benutzerkonto. Als Administrator gewährst Du ihr damit vollständigen Zugriff auf Deinen Shop.",
+      "permissionHintResource": "Die Anwendung kann in Deinem Namen auf Daten zugreifen und Aktionen ausführen. Dabei hat sie dieselben Berechtigungen wie Dein Benutzerkonto. Als Administrator gewährst Du ihr damit vollständigen Zugriff auf Deinen Shop. Diesen Zugriff kann sie nur über den MCP-Endpunkt unter {resource} nutzen.",
       "trustHint": "Erlaube den Zugriff nur, wenn Du dieser Anwendung vertraust und die Anfrage selbst gestartet hast.",
       "redirectHint": "Du wirst weitergeleitet zu {host}",
       "approve": "Zugriff erlauben",

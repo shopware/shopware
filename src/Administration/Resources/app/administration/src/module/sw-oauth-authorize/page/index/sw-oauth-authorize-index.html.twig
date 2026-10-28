@@ -73,7 +73,20 @@
                         >
                             {{ $t('sw-oauth-authorize.consent.permissionTitle') }}
                         </h2>
-                        <p class="sw-oauth-authorize__description">
+                        <i18n-t
+                            v-if="resource"
+                            keypath="sw-oauth-authorize.consent.permissionHintResource"
+                            tag="p"
+                            class="sw-oauth-authorize__description"
+                        >
+                            <template #resource>
+                                <strong class="sw-oauth-authorize__resource">{{ resource }}</strong>
+                            </template>
+                        </i18n-t>
+                        <p
+                            v-else
+                            class="sw-oauth-authorize__description"
+                        >
                             {{ $t('sw-oauth-authorize.consent.permissionHint') }}
                         </p>
                     </section>

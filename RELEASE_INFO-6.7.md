@@ -150,6 +150,46 @@ Unit tests that pass a mocked `EventDispatcherInterface` to `ExtensionDispatcher
 Live state transitions batch history and state writes. `EntityWriteEvent` subscribers can receive multiple entities: filter with `getCommandsForEntity()` and make pre-write work idempotent or compensate it through `addError()`. `WriteCommandExceptionEvent` and error callbacks can run before SQL executes, and each failed attempt runs its error callbacks before it is retried. Retries stop once success callbacks or written listeners begin, or compensation fails. MariaDB error `1020` is now retryable.
 ## API
 
+### MCP clients can log in with OAuth
+
+MCP clients can now discover how to log in to `/api/_mcp` and get a token that only works there.
+Access keys, integration tokens and all existing OAuth tokens keep working unchanged.
+
+* **Discovery:** A `401` from `/api/_mcp` now carries `WWW-Authenticate: Bearer resource_metadata="..."`, with `error="invalid_token"` when credentials were sent.
+  The protected resource metadata (RFC 9728) is served at `/.well-known/oauth-protected-resource/api/_mcp` and the authorization server metadata (RFC 8414) at `/.well-known/oauth-authorization-server/api`.
+  The issuer is `<shop URL>/api`, and the authorization response now contains `iss` (RFC 9207).
+  The URLs use the request host when it is an allowed MCP host, otherwise `APP_URL`.
+  When the MCP URL has a query, e.g. `/api/_mcp?toolsets=orders`, the metadata URL and the `resource` of the metadata keep it unchanged, as RFC 9728 requires; the token audience ignores it.
+* **Installations in a subdirectory:** The well-known URIs sit at the host root, e.g. `/.well-known/oauth-protected-resource/shop/api/_mcp`.
+  Rewrite them in the web server to `/shop/.well-known/oauth-protected-resource/api/_mcp` and `/shop/.well-known/oauth-authorization-server/api`.
+* **Audience-bound tokens:** `/api/oauth/authorize` and `/api/oauth/token` accept the `resource` parameter (RFC 8707).
+  The only accepted value is the shop's MCP endpoint; any other value is answered with `invalid_target`.
+  A token issued with `resource` is accepted on `/api/_mcp` only and gets `401` on every other Admin API route, including `/api/_info/system-health-check`.
+  A refresh keeps the resource.
+  The JWT keeps the client id as the first `aud` entry and lists the resource after it.
+  Requests without `resource` behave as before.
+* **Consent page:** The Administration consent page forwards `resource` and says that access is limited to the MCP endpoint.
+  Rebuild the Administration when you build it yourself.
+  A build from before this change drops `resource`, and the token request of the MCP client then fails with `invalid_target`.
+* **Clients:** There is no dynamic client registration.
+  To let an MCP client with a configurable client id log in, add it to `shopware.api.oauth_clients`:
+
+  ```yaml
+  shopware:
+      api:
+          oauth_clients:
+              claude-code:
+                  name: 'Claude Code'
+                  redirect_uris:
+                      - 'http://localhost:53682/callback'
+  ```
+
+  Redirect URIs on `http://127.0.0.1` and `http://[::1]` accept any port; all others, including `http://localhost:<port>`, must match exactly.
+  Redirect URIs must now use `https`, or a private-use scheme of a native app such as `cursor://`.
+  Plain `http` is only accepted for `localhost`, `127.0.0.1` and `[::1]`, or for every host when the kernel runs in the `dev` environment.
+  An authorization request to another `http` redirect URI is rejected with `FRAMEWORK__OAUTH_INSECURE_REDIRECT_URI`, so change registered `http` redirect URIs on other hosts to `https`.
+  Claude Code calls back on `http://localhost:<port>/callback`, so register a fixed port and add the server with `claude mcp add --transport http --client-id claude-code --callback-port 53682 shopware <shop URL>/api/_mcp`.
+
 ### Criteria on fields the API does not expose is a bad request
 
 A criteria that filters, sorts, queries or aggregates by a field the API does not expose (`FRAMEWORK__ACCESSOR_NOT_ALLOWED`) or by a runtime field (`FRAMEWORK__RUNTIME_FIELD_IN_CRITERIA`) is now answered with `400 Bad Request` instead of `500 Internal Server Error`.

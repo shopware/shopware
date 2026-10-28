@@ -4,15 +4,19 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Exception\OAuthServerException;
+use League\OAuth2\Server\RequestTypes\AuthorizationRequestInterface;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Http\Message\ServerRequestInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\OAuth\Client\PublicClientRegistry;
+use Shopware\Core\Framework\Api\OAuth\OAuthResource;
+use Shopware\Core\Framework\Api\OAuth\ShopwareAuthorizationRequest;
 use Shopware\Core\Framework\Api\OAuth\User\User;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Authentication\McpOAuthMetadata;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -35,6 +39,9 @@ use Symfony\Component\Routing\RouterInterface;
  * The browser is sent to `GET /api/oauth/authorize`, which validates the request and forwards the user
  * to the Administration. The Administration shows a consent page and, once the logged-in user decided,
  * calls `POST /api/oauth/authorize` with its own bearer token to obtain the redirect back to the client.
+ *
+ * An optional RFC 8707 `resource` binds the tokens to the MCP endpoint; any other value is rejected with
+ * `invalid_target`. Every redirect back to the client carries the issuer as `iss` (RFC 9207).
  *
  * @internal
  */
@@ -61,6 +68,7 @@ class OAuthAuthorizeController extends AbstractController
         private readonly PublicClientRegistry $publicClients,
         private readonly RateLimiter $rateLimiter,
         private readonly RouterInterface $router,
+        private readonly McpOAuthMetadata $mcpOAuthMetadata,
     ) {
     }
 
@@ -79,6 +87,7 @@ class OAuthAuthorizeController extends AbstractController
 
         try {
             $this->authorizationServer->validateAuthorizationRequest($this->psrHttpFactory->createRequest($request));
+            $this->resolveResource($request, $request->query->all());
         } catch (OAuthServerException $exception) {
             return $this->createErrorRedirect($request, $exception);
         }
@@ -97,6 +106,7 @@ class OAuthAuthorizeController extends AbstractController
         $authorizationRequest = $this->authorizationServer->validateAuthorizationRequest(
             $this->createAuthorizationRequest($request->query->all())
         );
+        $resource = $this->resolveResource($request, $request->query->all());
 
         $client = $authorizationRequest->getClient();
 
@@ -110,6 +120,7 @@ class OAuthAuthorizeController extends AbstractController
                 static fn ($scope) => $scope->getIdentifier(),
                 $authorizationRequest->getScopes()
             )),
+            'resource' => $resource,
         ]);
     }
 
@@ -133,6 +144,7 @@ class OAuthAuthorizeController extends AbstractController
         $authorizationRequest = $this->authorizationServer->validateAuthorizationRequest(
             $this->createAuthorizationRequest($request->request->all())
         );
+        $this->bindResource($authorizationRequest, $this->resolveResource($request, $request->request->all()));
         $authorizationRequest->setUser(new User($userId));
         $authorizationRequest->setAuthorizationApproved($request->request->getBoolean('approved'));
 
@@ -149,7 +161,78 @@ class OAuthAuthorizeController extends AbstractController
             $response = $exception->generateHttpResponse($this->psr17Factory->createResponse());
         }
 
-        return new JsonResponse(['redirectUri' => $response->getHeaderLine('Location')]);
+        return new JsonResponse(['redirectUri' => $this->appendIssuer($request, $response->getHeaderLine('Location'))]);
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    private function resolveResource(Request $request, array $parameters): ?string
+    {
+        $requested = $parameters[OAuthResource::PARAMETER] ?? null;
+        if ($requested === null) {
+            return null;
+        }
+
+        $resource = \is_string($requested) ? $this->mcpOAuthMetadata->matchResource($request, $requested) : null;
+        if ($resource === null) {
+            throw ApiException::oauthInvalidTarget('The only supported resource is ' . $this->mcpOAuthMetadata->getResource($request) . '.');
+        }
+
+        return $resource;
+    }
+
+    private function bindResource(AuthorizationRequestInterface $authorizationRequest, ?string $resource): void
+    {
+        if ($resource === null) {
+            return;
+        }
+
+        if (!$authorizationRequest instanceof ShopwareAuthorizationRequest) {
+            throw OAuthServerException::serverError('The authorization request cannot carry a resource.');
+        }
+
+        $authorizationRequest->setResource($resource);
+    }
+
+    private function appendIssuer(Request $request, string $redirectUri): string
+    {
+        if ($redirectUri === '') {
+            return $redirectUri;
+        }
+
+        return $this->withQueryParameters($redirectUri, ['iss' => $this->mcpOAuthMetadata->getIssuer($request)]);
+    }
+
+    /**
+     * Sets the given query parameters on the URI and drops any value the URI already carries for them,
+     * so each parameter appears exactly once. Other query parameters and the fragment stay untouched.
+     *
+     * @param array<string, string> $parameters
+     */
+    private function withQueryParameters(string $uri, array $parameters): string
+    {
+        $fragment = '';
+        $fragmentPosition = strpos($uri, '#');
+        if ($fragmentPosition !== false) {
+            $fragment = substr($uri, $fragmentPosition);
+            $uri = substr($uri, 0, $fragmentPosition);
+        }
+
+        $query = '';
+        $queryPosition = strpos($uri, '?');
+        if ($queryPosition !== false) {
+            $query = substr($uri, $queryPosition + 1);
+            $uri = substr($uri, 0, $queryPosition);
+        }
+
+        $kept = array_filter(
+            explode('&', $query),
+            static fn (string $pair): bool => $pair !== '' && !\array_key_exists(urldecode(explode('=', $pair, 2)[0]), $parameters)
+        );
+        $kept[] = http_build_query($parameters);
+
+        return $uri . '?' . implode('&', $kept) . $fragment;
     }
 
     /**
@@ -176,9 +259,12 @@ class OAuthAuthorizeController extends AbstractController
     private function createErrorRedirect(Request $request, OAuthServerException $exception): Response
     {
         if ($exception->hasRedirect()) {
-            return (new HttpFoundationFactory())->createResponse(
+            $response = (new HttpFoundationFactory())->createResponse(
                 $exception->generateHttpResponse($this->psr17Factory->createResponse())
             );
+            $response->headers->set('Location', $this->appendIssuer($request, (string) $response->headers->get('Location')));
+
+            return $response;
         }
 
         $clientId = $request->query->getString('client_id');
@@ -195,10 +281,9 @@ class OAuthAuthorizeController extends AbstractController
         if ($request->query->has('state')) {
             $parameters['state'] = $request->query->getString('state');
         }
+        $parameters['iss'] = $this->mcpOAuthMetadata->getIssuer($request);
 
-        $separator = str_contains($redirectUri, '?') ? '&' : '?';
-
-        return new RedirectResponse($redirectUri . $separator . http_build_query($parameters));
+        return new RedirectResponse($this->withQueryParameters($redirectUri, $parameters));
     }
 
     private function getAdminUrl(): string

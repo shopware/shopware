@@ -5,6 +5,7 @@ import { findFilesRecursively } from '../utils';
 type Options = {
     root: string;
     pluginEntryFile: string;
+    scriptHmr?: boolean;
 };
 
 /**
@@ -28,6 +29,18 @@ export default function viteOverridePlugin(options: Options): Plugin {
             // differs between machines - and the generated entry numbers its imports in this order, so
             // sorting is what keeps the emitted source byte-stable across builds.
             overrideFiles = findFilesRecursively(root, pattern).sort();
+        },
+
+        hotUpdate({ type, file }) {
+            if (!options.scriptHmr || this.environment.name !== 'client' || type === 'update' || !pattern.test(file)) return;
+            const discovered = findFilesRecursively(root, pattern).sort();
+            if (JSON.stringify(discovered) === JSON.stringify(overrideFiles)) return;
+            overrideFiles = discovered;
+            const entry = this.environment.moduleGraph.getModuleById(pluginEntryFile);
+            if (!entry) return;
+            this.environment.moduleGraph.invalidateModule(entry);
+            this.environment.hot.send({ type: 'full-reload', path: '*' });
+            return [];
         },
 
         transform(code, id) {

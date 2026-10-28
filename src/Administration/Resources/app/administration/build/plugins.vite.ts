@@ -47,6 +47,7 @@ const getBaseConfig = (
     isProd: boolean,
     useBundledDev = false,
 ): UserConfig => {
+    const scriptHmr = toolchain.isVite8 && !isProd && !useBundledDev;
     const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
     const configInfoDebug = debug('vite:config');
     const useSourceMap =
@@ -83,9 +84,11 @@ const getBaseConfig = (
             OverrideComponentRegisterPlugin({
                 root: extension.path,
                 pluginEntryFile: extension.filePath,
+                scriptHmr,
             }),
             ShopwareSetupPlugin({
                 administrationRoot: path.dirname(__dirname),
+                scriptHmr,
             }),
             VirtualShopwareModulesPlugin({
                 administrationRoot: path.dirname(__dirname),

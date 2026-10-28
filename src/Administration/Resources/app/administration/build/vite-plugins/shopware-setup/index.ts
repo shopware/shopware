@@ -23,19 +23,32 @@ type ShopwareSetupTransformResult = NonNullable<ReturnType<typeof transformShopw
 
 type Options = {
     administrationRoot: string;
+    scriptHmr?: boolean;
 };
 
 function withoutQuery(id: string): string {
     return id.split('?')[0];
 }
 
-/** Script changes must rerun Shopware's registration and setup-override replay on a fresh page. */
+/** Distinguishes script replacement from template-only rerenders. */
 function scriptFingerprint(source: string, filename: string): string {
     const { descriptor } = parse(source, { filename, sourceMap: false });
     const scripts = [descriptor.script, descriptor.scriptSetup].map((block) =>
         block ? [block.content, block.attrs] : null,
     );
     return createHash('sha256').update(JSON.stringify(scripts)).digest('hex');
+}
+
+/** Structural changes require the boot-time template and extension-target discovery again. */
+function structureFingerprint(source: string, filename: string, result: ShopwareSetupTransformResult): string {
+    const { descriptor } = parse(source, { filename, sourceMap: false });
+    return JSON.stringify([
+        result.mode,
+        result.componentName,
+        result.ownedBlockNames,
+        result.extendedBlockNames,
+        descriptor.script ? [descriptor.script.content, descriptor.script.attrs] : null,
+    ]);
 }
 
 /**
@@ -102,7 +115,10 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     // predate the user's next edit - reusing it unverified would serve every edit one save late.
     const resolvedTransforms = new Map<string, { source: string; result: ShopwareSetupTransformResult }>();
     const loadedScripts = new Map<string, string>();
-    function hasLoadedSetupImporter(modules: EnvironmentModuleNode[]): boolean {
+    const loadedStructures = new Map<string, string>();
+    const dependencyVersions = new Map<string, number>();
+    function loadedSetupImporters(modules: EnvironmentModuleNode[]): Set<EnvironmentModuleNode> {
+        const setups = new Set<EnvironmentModuleNode>();
         const pending = [...modules];
         const visited = new Set<EnvironmentModuleNode>();
         while (pending.length > 0) {
@@ -112,14 +128,16 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             const id = module.id && withoutQuery(module.id);
             if (
                 id &&
+                module.id === id &&
                 virtualSourcemap.isVirtualFileName(id) &&
                 loadedScripts.has(virtualSourcemap.getOriginalFileName(id))
             ) {
-                return true;
+                setups.add(module);
+                continue;
             }
             pending.push(...module.importers);
         }
-        return false;
+        return setups;
     }
 
     let isDevelopment = false;
@@ -295,11 +313,24 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             assertUniqueBaseComponent(result, originalFileName);
 
             virtualSourcemap.rememberSetupMap(fileName, result.map);
-            if (isDevelopment) loadedScripts.set(originalFileName, scriptFingerprint(source, originalFileName));
+            if (isDevelopment) {
+                loadedScripts.set(originalFileName, scriptFingerprint(source, originalFileName));
+                loadedStructures.set(originalFileName, structureFingerprint(source, originalFileName, result));
+            }
 
             return {
                 code: result.code,
                 map: result.map,
+                meta:
+                    isDevelopment && options.scriptHmr
+                        ? {
+                              shopwareSetupHmr: {
+                                  componentName: result.componentName,
+                                  mode: result.mode,
+                                  version: `${scriptFingerprint(result.code, originalFileName)}:${dependencyVersions.get(originalFileName) ?? 0}`,
+                              },
+                          }
+                        : {},
             };
         },
 
@@ -342,15 +373,26 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             if (
                 this.environment.name === 'client' &&
                 /\.(?:[cm]?[jt]sx?|json)$/.test(file) &&
-                hasLoadedSetupImporter(modules)
+                loadedSetupImporters(modules).size > 0
             ) {
+                const setups = loadedSetupImporters(modules);
                 for (const module of modules) {
                     this.environment.moduleGraph.invalidateModule(module);
                     // Compile first: Vite reports invalid source while the mounted page remains intact.
                     await this.environment.transformRequest(module.url);
                 }
-                this.environment.hot.send({ type: 'full-reload', path: '*' });
-                return [];
+                if (!options.scriptHmr || type === 'delete') {
+                    this.environment.hot.send({ type: 'full-reload', path: '*' });
+                    return [];
+                }
+                for (const module of setups) {
+                    if (!module.id) continue;
+                    const original = virtualSourcemap.getOriginalFileName(withoutQuery(module.id));
+                    dependencyVersions.set(original, (dependencyVersions.get(original) ?? 0) + 1);
+                    this.environment.moduleGraph.invalidateModule(module);
+                }
+                // Retain the original dependency: any unaccepted bootstrap importer still forces a reload.
+                return [...new Set([...modules, ...setups])];
             }
 
             if (!file.endsWith('.vue') || virtualSourcemap.isVirtualFileName(file) || isDependencyFile(file)) {
@@ -377,7 +419,13 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
                 }
 
                 const loadedScript = loadedScripts.get(file);
-                if (virtualModule && loadedScript && loadedScript !== scriptFingerprint(source, file)) {
+                const result = resolvedTransforms.get(file)?.result;
+                const structureChanged = result && loadedStructures.get(file) !== structureFingerprint(source, file, result);
+                if (
+                    virtualModule &&
+                    loadedScript &&
+                    (structureChanged || (!options.scriptHmr && loadedScript !== scriptFingerprint(source, file)))
+                ) {
                     this.environment.moduleGraph.invalidateModule(virtualModule);
                     this.environment.hot.send({ type: 'full-reload', path: '*' });
                     return [];
@@ -386,6 +434,12 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
 
             if (!virtualModule) {
                 return undefined;
+            }
+            if (type === 'delete' && options.scriptHmr && this.environment.name === 'client') {
+                // The discovery plugin refreshes the generated entry before reloading removed overrides.
+                if (file.endsWith('.override.vue')) return undefined;
+                this.environment.hot.send({ type: 'full-reload', path: '*' });
+                return [];
             }
 
             return [...modules, virtualModule];
@@ -397,6 +451,8 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             if (change.event === 'delete') {
                 forgetBaseComponentFile(withoutQuery(id));
                 loadedScripts.delete(withoutQuery(id));
+                loadedStructures.delete(withoutQuery(id));
+                dependencyVersions.delete(withoutQuery(id));
                 resolvedTransforms.delete(withoutQuery(id));
             }
         },

@@ -71,6 +71,7 @@ import {
 } from '@shopware-ag/meteor-component-library';
 
 import { attachSetupOverrideShim } from '../composition-extension-system/options-api-setup-shim';
+import { trackNativeHmrDefinition } from '../composition-extension-system/script-hmr';
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 import useLegacyConditionContext from '../../component/structure/sw-block-override/shim/legacy-condition-context';
 import type { LegacyConditionCaseOptions } from '../../component/structure/sw-block-override/shim/legacy-condition-context';
@@ -557,9 +558,21 @@ export default class VueAdapter extends ViewAdapter {
                             resolve(false);
                         } else {
                             if (this.isVite8HmrEnabled()) {
-                                (componentConfig as ComponentConfigWithHmrId).__hmrId = this.getHmrId(componentName);
+                                const hmrConfig = componentConfig as ComponentConfigWithHmrId;
+                                hmrConfig.__hmrId ??= this.getHmrId(componentName);
+                                const metadata = hmrConfig.__shopwareSetupHmr;
+                                if (metadata?.mode === 'base' && metadata.data) {
+                                    // Vue can replace a plain native definition, but a factory-composed inheritance
+                                    // chain must be built again from its registrations on a fresh page.
+                                    metadata.data.reloadPage ||= Boolean(
+                                        componentConfig.extends || componentConfig.mixins?.length,
+                                    );
+                                }
                             }
 
+                            if (process.env.NODE_ENV !== 'production' && this.isVite8HmrEnabled()) {
+                                trackNativeHmrDefinition(componentConfig);
+                            }
                             attachSetupOverrideShim(componentName, componentConfig);
                             this.resolveMixins(componentConfig);
                         }

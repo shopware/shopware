@@ -236,6 +236,11 @@ const baseRules = {
     'vue/prefer-import-from-vue': 'off',
     'vue/one-component-per-file': 'off',
 
+    '@eslint-community/eslint-comments/require-description': [
+        'error',
+        { ignore: ['eslint-enable'] },
+    ],
+    '@eslint-community/eslint-comments/no-unlimited-disable': 'error',
     '@eslint-community/eslint-comments/no-restricted-disable': [
         'error',
         ...rulesWithoutInlineDisable,
@@ -837,13 +842,24 @@ export default [
         ],
         rules: {
             ...baseRules,
-            '@typescript-eslint/ban-ts-comment': 0,
+            '@typescript-eslint/ban-ts-comment': [
+                'error',
+                { minimumDescriptionLength: 10 },
+            ],
+            '@typescript-eslint/no-restricted-types': [
+                'error',
+                {
+                    types: {
+                        $TSFixMe: 'It is `any` under another name. Use the real type, or `unknown` and narrow it.',
+                        $TSFixMeFunction: 'It is `any` under another name. Use a real function type.',
+                    },
+                },
+            ],
             '@typescript-eslint/no-unsafe-member-access': 'error',
             '@typescript-eslint/no-unsafe-call': 'error',
             '@typescript-eslint/no-unsafe-assignment': 'error',
             '@typescript-eslint/no-unsafe-return': 'error',
             '@typescript-eslint/explicit-module-boundary-types': 0,
-            '@typescript-eslint/prefer-ts-expect-error': 'error',
             'no-shadow': 'off',
             '@typescript-eslint/no-shadow': ['error'],
             '@typescript-eslint/consistent-type-imports': ['error'],
@@ -867,6 +883,38 @@ export default [
                 'enableFix',
             ],
             'sw-deprecation-rules/no-vue-options-api': 'off',
+        },
+    },
+
+    // Source files only, tests may cast mocks and swallow errors
+    {
+        files: [
+            '**/*.js',
+            '**/*.ts',
+            '**/*.tsx',
+            '**/*.vue',
+        ],
+        ignores: testFiles,
+        rules: {
+            'sw-core-rules/no-swallowed-errors': 'error',
+        },
+    },
+    {
+        files: [
+            '**/*.ts',
+            '**/*.tsx',
+        ],
+        ignores: testFiles,
+        rules: {
+            '@typescript-eslint/no-non-null-assertion': 'error',
+            'no-restricted-syntax': [
+                'error',
+                {
+                    selector:
+                        "TSAsExpression[expression.type='TSAsExpression'][expression.typeAnnotation.type='TSUnknownKeyword']",
+                    message: 'Avoid `as unknown as`. Fix the type, or narrow it with a type guard.',
+                },
+            ],
         },
     },
 

@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import type { Plugin } from 'vite';
+import type { EnvironmentModuleNode, Plugin } from 'vite';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createRequire } from 'node:module';
@@ -102,6 +102,26 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     // predate the user's next edit - reusing it unverified would serve every edit one save late.
     const resolvedTransforms = new Map<string, { source: string; result: ShopwareSetupTransformResult }>();
     const loadedScripts = new Map<string, string>();
+    function hasLoadedSetupImporter(modules: EnvironmentModuleNode[]): boolean {
+        const pending = [...modules];
+        const visited = new Set<EnvironmentModuleNode>();
+        while (pending.length > 0) {
+            const module = pending.pop();
+            if (!module || visited.has(module)) continue;
+            visited.add(module);
+            const id = module.id && withoutQuery(module.id);
+            if (
+                id &&
+                virtualSourcemap.isVirtualFileName(id) &&
+                loadedScripts.has(virtualSourcemap.getOriginalFileName(id))
+            ) {
+                return true;
+            }
+            pending.push(...module.importers);
+        }
+        return false;
+    }
+
     let isDevelopment = false;
     // Set from the resolved Vite config; the remap is pointless when the build emits no maps.
     let sourcemapsEnabled = true;
@@ -318,6 +338,21 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
          * would make the client refetch the module, fail again in `load` and get it reported twice.
          */
         async hotUpdate({ type, file, modules, read }) {
+            // Dependencies can change setup behavior without changing the SFC's own script fingerprint.
+            if (
+                this.environment.name === 'client' &&
+                /\.(?:[cm]?[jt]sx?|json)$/.test(file) &&
+                hasLoadedSetupImporter(modules)
+            ) {
+                for (const module of modules) {
+                    this.environment.moduleGraph.invalidateModule(module);
+                    // Compile first: Vite reports invalid source while the mounted page remains intact.
+                    await this.environment.transformRequest(module.url);
+                }
+                this.environment.hot.send({ type: 'full-reload', path: '*' });
+                return [];
+            }
+
             if (!file.endsWith('.vue') || virtualSourcemap.isVirtualFileName(file) || isDependencyFile(file)) {
                 return undefined;
             }

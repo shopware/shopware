@@ -16,7 +16,7 @@ import shopwareSetupPlugin from '../index';
  * are not directly callable through `Plugin`. Narrowing once here keeps the assertion out of each test.
  */
 type LoadedModule = { code: string; map: SourceMap };
-type HotUpdateModule = { id: string };
+type HotUpdateModule = { id: string; url?: string; importers?: Set<HotUpdateModule> };
 type HotUpdateOptions = {
     file: string;
     modules: HotUpdateModule[];

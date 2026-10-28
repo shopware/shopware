@@ -21,6 +21,7 @@ swDefinePublic({});
                 },
                 logger: { error: jest.fn<void, [message: unknown]>() },
                 hot: { send: jest.fn() },
+                transformRequest: jest.fn().mockResolvedValue({ code: 'export const value = 1' }),
             },
         };
     }
@@ -201,6 +202,79 @@ swDefinePublic({ count });
             expect(await plugin.hotUpdate.call(context, createHotUpdateOptions(file, { source }))).toEqual([]);
             expect(context.environment.hot.send).toHaveBeenCalledWith({ type: 'full-reload', path: '*' });
             expect(context.environment.moduleGraph.invalidateModule).toHaveBeenCalledWith({ id: virtualId });
+        });
+
+        type TestModule = HotUpdateOptions['modules'][number];
+
+        function dependencyGraph(
+            virtualId: string,
+            transitive = false,
+        ): TestModule & { url: string; importers: Set<TestModule> } {
+            const component: TestModule = { id: virtualId, url: '/native.vue', importers: new Set<TestModule>() };
+            const intermediate: TestModule = {
+                id: '/example/derived.ts',
+                url: '/derived.ts',
+                importers: new Set([component]),
+            };
+            return {
+                id: '/example/helper.ts',
+                url: '/helper.ts',
+                importers: new Set([transitive ? intermediate : component]),
+            };
+        }
+
+        it.each([false, true])(
+            'reloads loaded setup components after a compiled helper edit (transitive: %s)',
+            async (transitive) => {
+                const { plugin, context, virtualId } = await loadedComponent();
+                const dependency = dependencyGraph(virtualId, transitive);
+                const result = await plugin.hotUpdate.call(
+                    context,
+                    createHotUpdateOptions(dependency.id, { modules: [dependency] }),
+                );
+                expect(result).toEqual([]);
+                expect(context.environment.transformRequest).toHaveBeenCalledWith('/helper.ts');
+                expect(context.environment.hot.send).toHaveBeenCalledTimes(1);
+                expect(context.environment.hot.send).toHaveBeenCalledWith({ type: 'full-reload', path: '*' });
+            },
+        );
+
+        it('does not reload a setup component for an unrelated or style-only dependency', async () => {
+            const { plugin, context, virtualId } = await loadedComponent();
+            const unrelated = dependencyGraph('/unloaded.vue.shopware-setup.vue');
+            expect(
+                await plugin.hotUpdate.call(context, createHotUpdateOptions(unrelated.id, { modules: [unrelated] })),
+            ).toBeUndefined();
+            const style = { ...dependencyGraph(virtualId), id: '/example/style.scss' };
+            expect(
+                await plugin.hotUpdate.call(context, createHotUpdateOptions(style.id, { modules: [style] })),
+            ).toBeUndefined();
+            expect(context.environment.transformRequest).not.toHaveBeenCalled();
+            expect(context.environment.hot.send).not.toHaveBeenCalled();
+        });
+
+        it('leaves the mounted page intact for an invalid helper and reloads when it is repaired', async () => {
+            const { plugin, context, virtualId } = await loadedComponent();
+            const dependency = dependencyGraph(virtualId);
+            const failure = new Error('Invalid helper source');
+            context.environment.transformRequest.mockRejectedValueOnce(failure);
+            await expect(
+                plugin.hotUpdate.call(context, createHotUpdateOptions(dependency.id, { modules: [dependency] })),
+            ).rejects.toThrow('Invalid helper source');
+            expect(context.environment.hot.send).not.toHaveBeenCalled();
+            await plugin.hotUpdate.call(context, createHotUpdateOptions(dependency.id, { modules: [dependency] }));
+            expect(context.environment.hot.send).toHaveBeenCalledTimes(1);
+        });
+
+        it('handles cyclic and shared dependency graphs with one reload', async () => {
+            const { plugin, context, virtualId } = await loadedComponent();
+            const dependency = dependencyGraph(virtualId, true);
+            const secondPath = { id: '/example/second.ts', url: '/second.ts', importers: dependency.importers };
+            dependency.importers.add(secondPath);
+            secondPath.importers.add(dependency);
+            await plugin.hotUpdate.call(context, createHotUpdateOptions(dependency.id, { modules: [dependency] }));
+            expect(context.environment.transformRequest).toHaveBeenCalledTimes(1);
+            expect(context.environment.hot.send).toHaveBeenCalledTimes(1);
         });
 
         it('reports an invalid script and reloads only once a repaired script compiles', async () => {

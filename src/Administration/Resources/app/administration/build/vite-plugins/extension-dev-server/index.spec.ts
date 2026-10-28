@@ -40,7 +40,14 @@ describe('shared extension listener', () => {
         jest.spyOn(console, 'error').mockImplementation(() => {});
         parent = {
             httpServer: createServer(),
-            config: { server: { allowedHosts: ['admin.localhost'], ws: { clientPort: 443, protocol: 'wss' } } },
+            config: {
+                server: {
+                    host: 'admin.localhost',
+                    port: 5190,
+                    allowedHosts: ['admin.localhost'],
+                    ws: { clientPort: 443, protocol: 'wss' },
+                },
+            },
             middlewares: {
                 use: jest.fn((handler: Middleware) => {
                     middleware = handler;
@@ -92,6 +99,8 @@ describe('shared extension listener', () => {
                 middlewareMode: { server: parent.httpServer },
                 ws: { server: parent.httpServer, clientPort: 443, protocol: 'wss', port: undefined, path: undefined },
                 allowedHosts: ['admin.localhost'],
+                host: 'admin.localhost',
+                port: 5190,
             });
         });
 

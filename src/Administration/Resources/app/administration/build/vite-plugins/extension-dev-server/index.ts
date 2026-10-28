@@ -64,6 +64,8 @@ export default function ExtensionDevServerPlugin(
                                 Object.assign(resolved.server, {
                                     middlewareMode: { server: httpServer },
                                     ws: transport,
+                                    host: parent.config.server.host,
+                                    port: parent.config.server.port,
                                     open: false,
                                     allowedHosts: parent.config.server.allowedHosts,
                                     ...(parent.config.server.hmr === false ? { hmr: false } : {}),

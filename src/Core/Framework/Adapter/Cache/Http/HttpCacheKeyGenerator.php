@@ -207,7 +207,7 @@ class HttpCacheKeyGenerator
         // as the request value can be overwritten by the client;
         // however the response cookie is only set if it differs from the request cookie,
         // so callers need to fall back to the request when the response cookie is not set
-        return $responseCookie?->getValue();
+        return $responseCookie !== null ? ($responseCookie->getValue() ?? '') : null;
     }
 
     private function getRequestCookieValue(Request $request, string $cookieName): ?string

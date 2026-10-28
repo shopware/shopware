@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -82,6 +83,46 @@ class HttpCacheKeyGeneratorTest extends TestCase
         $key = $this->cacheKeyGenerator->generate($request);
 
         static::assertFalse($key->isCacheable);
+    }
+
+    #[DataProvider('clearedCacheHashProvider')]
+    public function testClearedResponseCacheHashOverridesRequest(?string $cookieHash, ?string $headerHash): void
+    {
+        $request = Request::create('https://domain.com/method');
+        if ($cookieHash !== null) {
+            $request->cookies->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $cookieHash);
+        }
+        if ($headerHash !== null) {
+            $request->headers->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $headerHash);
+        }
+
+        $response = new Response();
+        $response->headers->clearCookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
+
+        static::assertSame(
+            $this->cacheKeyGenerator->generate(Request::create('https://domain.com/method'))->key,
+            $this->cacheKeyGenerator->generate($request, $response)->key
+        );
+    }
+
+    public static function clearedCacheHashProvider(): \Generator
+    {
+        yield 'cleared cookie overrides stale request cookie' => ['stale-cookie', null];
+        yield 'cleared cookie overrides request header' => [null, 'stale-header'];
+        yield 'cleared cookie overrides both request values' => ['stale-cookie', 'stale-header'];
+    }
+
+    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]
+    public function testClearedResponseCurrencyOverridesRequestCookie(): void
+    {
+        $request = Request::create('https://domain.com/method', cookies: [HttpCacheKeyGenerator::CURRENCY_COOKIE => 'stale-currency']);
+        $response = new Response();
+        $response->headers->clearCookie(HttpCacheKeyGenerator::CURRENCY_COOKIE);
+
+        static::assertSame(
+            $this->cacheKeyGenerator->generate(Request::create('https://domain.com/method'))->key,
+            $this->cacheKeyGenerator->generate($request, $response)->key
+        );
     }
 
     public function testNonCacheableCacheHashHeaderSetsNoCacheOnCacheKey(): void

@@ -52,7 +52,7 @@ final class McpToolResultPrincipal
         $integrationId = $source->getIntegrationId();
         $userId = $source->getUserId();
 
-        if ($userId === null && $integrationId !== null) {
+        if ($userId === null && $integrationId !== null && !self::authenticatedAsUser($request)) {
             $headerUserId = $request->headers->get(PlatformRequest::HEADER_APP_USER_ID);
             if ($headerUserId !== null && Uuid::isValid($headerUserId)) {
                 $userId = $headerUserId;
@@ -64,5 +64,10 @@ final class McpToolResultPrincipal
         }
 
         return 'admin:' . ($integrationId ?? '') . ':' . ($userId ?? '');
+    }
+
+    private static function authenticatedAsUser(Request $request): bool
+    {
+        return (bool) $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID);
     }
 }

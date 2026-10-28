@@ -13,12 +13,15 @@ The user of an access key can no longer be changed after the key was created, al
 ### Integrations no longer act as the user named in `sw-app-user-id`
 
 A standard integration that sends the `sw-app-user-id` header keeps its own identity.
-The header only narrows its permissions to those of the named user, and writes are attributed to the integration.
+The header only narrows its permissions to those of the named user.
+Writes are no longer attributed to that user: `created_by_id` stays empty and `updated_by_id` keeps its previous value.
 Naming an inactive or unknown user is rejected with a `403` and the error code `FRAMEWORK__APP_USER_NOT_FOUND`, and requests of a deactivated app are rejected as well.
 An app integration still acts for the named user, except that an inactive user is now treated like a user without the required app privilege.
 
 Routes that act on the signed-in Administration user now require a directly authenticated user and reject every integration, including an app that names a user, with a `403` and the error code `FRAMEWORK__API_EXPECTED_USER`.
-To read a user, use `GET /api/user/{id}` with `user:read`; to change a user, use `PATCH /api/user/{id}` with `user:update`.
+To read a user, use `GET /api/user/{id}` with `user:read`.
+To change a user, use `PATCH /api/user/{id}` with `user:update`.
+That route requires an admin integration or a directly authenticated user, because a non-admin caller may only change its own user.
 
 # 6.7.16.0 (upcoming)
 

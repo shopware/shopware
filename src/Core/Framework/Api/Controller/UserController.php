@@ -245,7 +245,7 @@ class UserController extends AbstractController
             throw new PermissionDeniedException();
         }
 
-        $isSelfUpdate = $source->isSelf($data['id']);
+        $isSelfUpdate = \is_string($data['id']) && $source->isSelf($data['id']);
         $canUpdateUsers = $source->isAllowed('user:update');
 
         if (!$canUpdateUsers && !$isSelfUpdate) {

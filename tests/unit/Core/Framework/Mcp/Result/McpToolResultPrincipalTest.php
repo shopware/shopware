@@ -46,6 +46,15 @@ class McpToolResultPrincipalTest extends TestCase
         static::assertSame('admin:integration-id:', McpToolResultPrincipal::fromRequest($request));
     }
 
+    public function testTheDelegatedUserHeaderIsIgnoredWhenTheCallerAuthenticatedAsAUser(): void
+    {
+        $request = $this->adminRequest(new AdminApiSource(null, 'integration-id'));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID, Uuid::randomHex());
+        $request->headers->set(PlatformRequest::HEADER_APP_USER_ID, Uuid::randomHex());
+
+        static::assertSame('admin:integration-id:', McpToolResultPrincipal::fromRequest($request));
+    }
+
     public function testTheSourceUserWinsOverTheDelegatedUserHeader(): void
     {
         $request = $this->adminRequest(new AdminApiSource('user-id', 'integration-id'));

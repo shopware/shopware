@@ -183,7 +183,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
         beforeEach(async () => {
             wrapper = await createWrapper();
-            await wrapper.vm.$nextTick();
+            await flushPromises();
         });
 
         [
@@ -246,7 +246,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
         beforeEach(async () => {
             wrapper = await createWrapper(['customer_groups.editor']);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
         });
 
         [
@@ -423,7 +423,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
         beforeEach(async () => {
             wrapper = await createWrapper();
-            await wrapper.vm.$nextTick();
+            await flushPromises();
         });
 
         it('should reload customer group on saved changes', async () => {

@@ -168,4 +168,52 @@ swDefinePublic({ count });
 
         transformSpy.mockRestore();
     });
+    describe('loaded setup components', () => {
+        const initial =
+            '<script setup lang="ts">const count = 1; swDefinePublic({ count });</script><template><p>Before</p></template>';
+
+        async function loadedComponent() {
+            const plugin = createPlugin();
+            plugin.configResolved({ command: 'serve', build: { sourcemap: false } });
+            const file = await createVueFile(initial, 'sw-script-hmr.vue');
+            const virtualId = `${file}.shopware-setup.vue`;
+            await plugin.load.call({ addWatchFile: jest.fn() }, virtualId);
+            const context = createHotUpdateContext([virtualId]);
+            return { plugin, file, context, virtualId };
+        }
+
+        it.each([
+            ['template', initial.replace('Before', 'After')],
+            ['style', `${initial}<style scoped>p { color: red }</style>`],
+        ])('keeps %s edits on the state-preserving HMR path', async (_kind, source) => {
+            const { plugin, file, context, virtualId } = await loadedComponent();
+            expect(await plugin.hotUpdate.call(context, createHotUpdateOptions(file, { source }))).toEqual([
+                { id: virtualId },
+            ]);
+            expect(context.environment.hot.send).not.toHaveBeenCalled();
+        });
+
+        it.each([
+            ['script', initial.replace('count = 1', 'count = 2')],
+            ['script attributes', initial.replace('lang="ts"', 'lang="js"')],
+        ])('reloads the page for %s edits so setup overrides are registered again', async (_kind, source) => {
+            const { plugin, file, context, virtualId } = await loadedComponent();
+            expect(await plugin.hotUpdate.call(context, createHotUpdateOptions(file, { source }))).toEqual([]);
+            expect(context.environment.hot.send).toHaveBeenCalledWith({ type: 'full-reload', path: '*' });
+            expect(context.environment.moduleGraph.invalidateModule).toHaveBeenCalledWith({ id: virtualId });
+        });
+
+        it('reports an invalid script and reloads only once a repaired script compiles', async () => {
+            const { plugin, file, context } = await loadedComponent();
+            await plugin.hotUpdate.call(context, createHotUpdateOptions(file, { source: brokenSource }));
+            expect(context.environment.hot.send).not.toHaveBeenCalledWith({ type: 'full-reload', path: '*' });
+            context.environment.hot.send.mockClear();
+            await plugin.hotUpdate.call(
+                context,
+                createHotUpdateOptions(file, { source: initial.replace('count = 1', 'count = 3') }),
+            );
+            expect(context.environment.hot.send).toHaveBeenCalledTimes(1);
+            expect(context.environment.hot.send).toHaveBeenCalledWith({ type: 'full-reload', path: '*' });
+        });
+    });
 });

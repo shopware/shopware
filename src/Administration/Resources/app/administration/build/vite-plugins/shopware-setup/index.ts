@@ -6,6 +6,8 @@ import type { Plugin } from 'vite';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createRequire } from 'node:module';
+import { createHash } from 'node:crypto';
+import { parse } from '@vue/compiler-sfc';
 import type { transformShopwareSetupSfc as transformShopwareSetupSfcRuntime } from '../../vue-setup-transform';
 import { createVirtualSetupSourcemapContext } from './virtual-sfc-sourcemap';
 
@@ -25,6 +27,15 @@ type Options = {
 
 function withoutQuery(id: string): string {
     return id.split('?')[0];
+}
+
+/** Script changes must rerun Shopware's registration and setup-override replay on a fresh page. */
+function scriptFingerprint(source: string, filename: string): string {
+    const { descriptor } = parse(source, { filename, sourceMap: false });
+    const scripts = [descriptor.script, descriptor.scriptSetup].map((block) =>
+        block ? [block.content, block.attrs] : null,
+    );
+    return createHash('sha256').update(JSON.stringify(scripts)).digest('hex');
 }
 
 /**
@@ -90,6 +101,8 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     // import-analysis re-resolves watched files after every transform and re-stashes, so an entry can
     // predate the user's next edit - reusing it unverified would serve every edit one save late.
     const resolvedTransforms = new Map<string, { source: string; result: ShopwareSetupTransformResult }>();
+    const loadedScripts = new Map<string, string>();
+    let isDevelopment = false;
     // Set from the resolved Vite config; the remap is pointless when the build emits no maps.
     let sourcemapsEnabled = true;
     // caveat: also rejections are cached
@@ -259,6 +272,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             assertUniqueBaseComponent(result, originalFileName);
 
             virtualSourcemap.rememberSetupMap(fileName, result.map);
+            if (isDevelopment) loadedScripts.set(originalFileName, scriptFingerprint(source, originalFileName));
 
             return {
                 code: result.code,
@@ -309,7 +323,8 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
 
             // Vite runs this hook once per environment (client and ssr); report only once.
             if (type !== 'delete' && this.environment.name === 'client') {
-                const failure = await transformChangedFile(file, await read());
+                const source = await read();
+                const failure = await transformChangedFile(file, source);
 
                 if (failure) {
                     this.environment.logger.error(failure);
@@ -320,6 +335,13 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
                         this.environment.moduleGraph.invalidateModule(virtualModule);
                     }
 
+                    return [];
+                }
+
+                const loadedScript = loadedScripts.get(file);
+                if (virtualModule && loadedScript && loadedScript !== scriptFingerprint(source, file)) {
+                    this.environment.moduleGraph.invalidateModule(virtualModule);
+                    this.environment.hot.send({ type: 'full-reload', path: '*' });
                     return [];
                 }
             }
@@ -336,10 +358,13 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             // Not a `buildStart` reset: that runs per environment and would drop live claims.
             if (change.event === 'delete') {
                 forgetBaseComponentFile(withoutQuery(id));
+                loadedScripts.delete(withoutQuery(id));
+                resolvedTransforms.delete(withoutQuery(id));
             }
         },
 
         configResolved(config) {
+            isDevelopment = config.command === 'serve';
             // Sourcemaps follow the build's own setting, which vite.config.mts and plugins.vite.ts derive
             // from GENERATE_SOURCEMAPS / SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION. Reading it here keeps
             // this plugin on par with the rest of the build instead of re-interpreting those variables.

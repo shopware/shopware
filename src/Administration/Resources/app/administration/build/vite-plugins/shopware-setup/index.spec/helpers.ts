@@ -31,6 +31,7 @@ type CallableSetupPlugin = {
     transform(code: string, id: string): Promise<LoadedModule | null>;
     hotUpdate(options: HotUpdateOptions): Promise<HotUpdateModule[] | undefined>;
     watchChange(id: string, change: { event: 'create' | 'delete' | 'update' }): void;
+    configResolved(config: { command: string; build: { sourcemap: boolean } }): void;
     generateBundle: unknown;
 };
 

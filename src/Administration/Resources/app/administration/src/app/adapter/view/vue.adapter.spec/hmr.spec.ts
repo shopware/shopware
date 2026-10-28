@@ -136,4 +136,114 @@ describe('VueAdapter Twig HMR', () => {
 
         expect(getBlockEntries('sw-hmr-unresolved', 'sw_hmr_unresolved')).toEqual(entries);
     });
+    it('refreshes resolved descendants when their inherited Twig override changes', async () => {
+        const base = 'sw-hmr-inherited-base';
+        const hmrId = '/plugins/test/inherited.twig';
+        AsyncComponentFactory.register(base, {
+            template: '<div>{% block inherited %}<span>Base</span>{% endblock %}</div>',
+        });
+        AsyncComponentFactory.override(base, {
+            template: '{% block inherited %}{% parent %}<span>Before</span>{% endblock %}',
+            __shopwareTwigHmrId: hmrId,
+        });
+        AsyncComponentFactory.extend('sw-hmr-child', base, {
+            template: '{% block inherited %}{% parent %}<span>Child</span>{% endblock %}',
+        });
+        AsyncComponentFactory.extend('sw-hmr-grandchild', 'sw-hmr-child');
+        const child = await vueAdapter.componentResolver('sw-hmr-child');
+        const grandchild = await vueAdapter.componentResolver('sw-hmr-grandchild');
+        expect(typeof child).not.toBe('boolean');
+        expect(typeof grandchild).not.toBe('boolean');
+        if (typeof child === 'boolean' || typeof grandchild === 'boolean') return;
+
+        await expect(
+            vueAdapter.updateComponentTemplateFromHmr(
+                base,
+                hmrId,
+                '{% block inherited %}{% parent %}<span>After</span>{% endblock %}',
+            ),
+        ).resolves.toBe(true);
+        expect(child.template).toContain('After');
+        expect(grandchild.template).toContain('After');
+        expect(grandchild.template).toContain('Child');
+        expect(testHmrRuntime.rerender).toHaveBeenCalledWith('shopware-component:sw-hmr-grandchild', expect.any(Function));
+    });
+
+    it('keeps nested parent blocks and override order across consecutive edits', async () => {
+        const name = 'sw-hmr-ordered';
+        const hmrId = '/plugins/first/ordered.twig';
+        AsyncComponentFactory.register(name, {
+            template:
+                '<div>{% block outer %}<section>{% block inner %}<span>Base</span>{% endblock %}</section>{% endblock %}</div>',
+        });
+        AsyncComponentFactory.override(name, {
+            template: '{% block inner %}{% parent %}<span>First</span>{% endblock %}',
+            __shopwareTwigHmrId: hmrId,
+        });
+        AsyncComponentFactory.override(name, {
+            template: '{% block inner %}{% parent %}<span>Second</span>{% endblock %}',
+            __shopwareTwigHmrId: '/plugins/second/ordered.twig',
+        });
+        const config = await vueAdapter.componentResolver(name);
+        if (typeof config === 'boolean') throw new Error('Component was not resolved');
+        for (const value of ['Edited once', 'Edited twice', 'Edited three times']) {
+            await expect(
+                vueAdapter.updateComponentTemplateFromHmr(
+                    name,
+                    hmrId,
+                    `{% block inner %}{% parent %}<span>${value}</span>{% endblock %}`,
+                ),
+            ).resolves.toBe(true);
+            if (typeof config.template !== 'string') throw new Error('Component template was not built');
+            expect(config.template).toContain('Base');
+            expect(config.template).toContain(value);
+            expect(config.template.indexOf(value)).toBeLessThan(config.template.indexOf('Second'));
+            expect(config.template.match(/Second/g)).toHaveLength(1);
+            expect(config.template).not.toContain('First');
+        }
+        expect(AsyncComponentFactory.getOverrideRegistry().get(name)).toHaveLength(2);
+    });
+
+    it('uses an edited prebuilt template when its Vue component is first resolved', async () => {
+        const name = 'sw-hmr-prebuilt';
+        const hmrId = '/plugins/test/prebuilt.twig';
+        AsyncComponentFactory.register(name, { template: '<div>{% block prebuilt %}Before{% endblock %}</div>' });
+        AsyncComponentFactory.override(name, {
+            template: '{% block prebuilt %}Override{% endblock %}',
+            __shopwareTwigHmrId: hmrId,
+        });
+        await AsyncComponentFactory.build(name);
+        await expect(
+            vueAdapter.updateComponentTemplateFromHmr(name, hmrId, '{% block prebuilt %}After{% endblock %}'),
+        ).resolves.toBe(true);
+        const config = await vueAdapter.componentResolver(name);
+        expect(config).toHaveProperty('template', expect.stringContaining('After'));
+    });
+    it('recovers after a malformed Twig override is repaired', async () => {
+        const name = 'sw-hmr-recovery';
+        const hmrId = '/plugins/test/recovery.twig';
+        AsyncComponentFactory.register(name, { template: '<div>{% block recovery %}Base{% endblock %}</div>' });
+        AsyncComponentFactory.override(name, {
+            template: '{% block recovery %}Before{% endblock %}',
+            __shopwareTwigHmrId: hmrId,
+        });
+        const config = await vueAdapter.componentResolver(name);
+        const logError = jest.spyOn(console, 'error').mockImplementation(() => {});
+        const logWarning = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        try {
+            await expect(
+                vueAdapter.updateComponentTemplateFromHmr(name, hmrId, '{% block recovery %}Broken'),
+            ).rejects.toThrow();
+            expect(config).toHaveProperty('template', expect.stringContaining('Before'));
+            testHmrRuntime.rerender.mockClear();
+            await expect(
+                vueAdapter.updateComponentTemplateFromHmr(name, hmrId, '{% block recovery %}Repaired{% endblock %}'),
+            ).resolves.toBe(true);
+            expect(config).toHaveProperty('template', expect.stringContaining('Repaired'));
+            expect(testHmrRuntime.rerender).toHaveBeenCalledTimes(1);
+        } finally {
+            logError.mockRestore();
+            logWarning.mockRestore();
+        }
+    });
 });

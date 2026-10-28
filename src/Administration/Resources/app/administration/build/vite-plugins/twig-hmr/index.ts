@@ -182,7 +182,18 @@ export default function TwigHmrPlugin(): Plugin {
         apply: 'serve',
         enforce: 'pre',
 
+        watchChange(id, change) {
+            if (change.event === 'delete') {
+                const moduleId = normalizeModuleId(id);
+                clearAssociations(moduleId);
+                componentAssociations.delete(moduleId);
+            }
+        },
+
         async transform(code, id) {
+            const moduleId = normalizeModuleId(id);
+            clearAssociations(moduleId);
+
             if (!code.includes('Component.override') && !code.includes('.twig')) {
                 return null;
             }
@@ -230,7 +241,6 @@ export default function TwigHmrPlugin(): Plugin {
                 });
             });
 
-            const moduleId = normalizeModuleId(id);
             const magicString = new MagicString(code);
             const overrides: TemplateOverride[] = [];
             const directConfigAssociations = new Map<number, ComponentAssociation[]>();
@@ -266,7 +276,6 @@ export default function TwigHmrPlugin(): Plugin {
                 }
             });
 
-            clearAssociations(moduleId);
             const currentAssociations: Array<{ moduleId: string; overrideId: string }> = [];
 
             for (const { source, association } of dynamicImports) {

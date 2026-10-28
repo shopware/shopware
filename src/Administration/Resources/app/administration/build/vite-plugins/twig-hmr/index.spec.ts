@@ -108,4 +108,49 @@ Shopware.Component.register('sw-example-detail', { template });
 
         expect(result).toBeNull();
     });
+    it('forgets lazy associations when their registration is removed', async () => {
+        const { transform, resolve } = createTransform();
+        resolve.mockResolvedValue({ id: '/plugins/example/src/component.ts' });
+        await transform(
+            "Shopware.Component.override('sw-before', () => import('./component'));",
+            '/plugins/example/src/main.ts',
+        );
+        await transform('export const removed = true;', '/plugins/example/src/main.ts');
+        expect(
+            await transform(
+                "import template from './view.twig'; export default { template };",
+                '/plugins/example/src/component.ts',
+            ),
+        ).toBeNull();
+    });
+
+    it('replaces renamed lazy registrations without accumulating handlers', async () => {
+        const { transform, resolve } = createTransform();
+        resolve.mockResolvedValue({ id: '/plugins/example/src/component.ts' });
+        await transform("Shopware.Component.override('sw-before', () => import('./component'));");
+        const changed = "Shopware.Component.override('sw-after', () => import('./component'));";
+        await transform(changed);
+        await transform(changed);
+        const result = await transform(
+            "import template from './view.twig'; export default { template };",
+            '/plugins/example/src/component.ts',
+        );
+        expect(result?.code).not.toContain('sw-before');
+        expect(result?.code.match(/updateComponentTemplateFromHmr\(/g)).toHaveLength(1);
+        expect(result?.code).toContain('updateComponentTemplateFromHmr("sw-after"');
+    });
+
+    it('forgets lazy associations when an importer is deleted', async () => {
+        const { plugin, transform, resolve } = createTransform();
+        resolve.mockResolvedValue({ id: '/plugins/example/src/component.ts' });
+        await transform("Shopware.Component.override('sw-before', () => import('./component'));");
+        const watchChange = plugin.watchChange as (id: string, change: { event: string }) => void;
+        watchChange('/plugins/example/src/main.ts', { event: 'delete' });
+        expect(
+            await transform(
+                "import template from './view.twig'; export default { template };",
+                '/plugins/example/src/component.ts',
+            ),
+        ).toBeNull();
+    });
 });

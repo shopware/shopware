@@ -54,6 +54,7 @@ export default {
     resolveComponentTemplates,
     markComponentTemplatesAsNotResolved,
     updateTemplateOverrideFromHmr,
+    getTemplateDependents,
     isSyncComponent,
     markComponentAsSync,
 };
@@ -725,6 +726,23 @@ function updateTemplateOverrideFromHmr(componentName: string, hmrId: string, tem
     });
 
     return true;
+}
+
+/**
+ * Returns the component and its transitive template descendants for development-only invalidation.
+ *
+ * @private
+ */
+function getTemplateDependents(componentName: string): string[] {
+    const templates = TemplateFactory.getTemplateRegistry() as Map<string, { extend?: string }>;
+    const affected = new Set([componentName]);
+    // Iterating the growing set also visits descendants registered before their parent.
+    for (const parent of affected) {
+        templates.forEach((entry, name) => {
+            if (entry.extend === parent) affected.add(name);
+        });
+    }
+    return Array.from(affected);
 }
 
 /**

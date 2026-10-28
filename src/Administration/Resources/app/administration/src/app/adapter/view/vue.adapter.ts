@@ -591,31 +591,23 @@ export default class VueAdapter extends ViewAdapter {
             return false;
         }
 
-        const existingConfigPromise = this.resolvedComponentConfigs.get(componentName);
+        for (const affectedName of this.componentFactory.getTemplateDependents(componentName)) {
+            const existingConfigPromise = this.resolvedComponentConfigs.get(affectedName);
 
-        // Components that have not been resolved yet will use the new template when they are first built.
-        if (!existingConfigPromise) {
-            return true;
+            // Unresolved components will use the new template when first built.
+            if (!existingConfigPromise) continue;
+            const existingConfig = await existingConfigPromise;
+            if (typeof existingConfig === 'boolean') return false;
+
+            const updatedConfig = await this.componentFactory.build(affectedName);
+            if (typeof updatedConfig === 'boolean' || typeof updatedConfig.template !== 'string') return false;
+
+            const hmrId = this.getHmrId(affectedName);
+            const render = compile(updatedConfig.template, this.app.config.compilerOptions);
+            existingConfig.template = updatedConfig.template;
+            runtime.createRecord(hmrId, existingConfig);
+            runtime.rerender(hmrId, render);
         }
-
-        const existingConfig = await existingConfigPromise;
-
-        if (typeof existingConfig === 'boolean') {
-            return false;
-        }
-
-        const updatedConfig = await this.componentFactory.build(componentName);
-
-        if (typeof updatedConfig === 'boolean' || typeof updatedConfig.template !== 'string') {
-            return false;
-        }
-
-        const hmrId = this.getHmrId(componentName);
-        const render = compile(updatedConfig.template, this.app.config.compilerOptions);
-
-        existingConfig.template = updatedConfig.template;
-        runtime.createRecord(hmrId, existingConfig);
-        runtime.rerender(hmrId, render);
 
         return true;
     }

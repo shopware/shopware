@@ -6,6 +6,8 @@ import template from './sw-string-filter.html.twig';
 
 const { Criteria } = Shopware.Data;
 
+type CriteriaFilter = NonNullable<Parameters<typeof Criteria.multi>[1]>[number];
+
 /**
  * @private
  */
@@ -62,6 +64,14 @@ export default Shopware.Component.wrapComponentConfig({
                 filterCriteria = Criteria.equalsAny(this.filter.property, filterValue);
             } else {
                 filterCriteria = Criteria[this.criteriaFilterType](this.filter.property, filterValue);
+            }
+
+            const additionalFilters = (this.filter.additionalFilters ?? []) as CriteriaFilter[];
+            if (additionalFilters.length > 0) {
+                filterCriteria = Criteria.multi('AND', [
+                    ...additionalFilters,
+                    filterCriteria,
+                ]);
             }
 
             this.$emit('filter-update', this.filter.name, [filterCriteria], filterValue);

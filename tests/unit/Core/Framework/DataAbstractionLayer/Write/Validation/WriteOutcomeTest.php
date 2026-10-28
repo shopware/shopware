@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Write\Validation;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -26,7 +26,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(WriteOutcome::class)]
+#[CoversNothing]
 class WriteOutcomeTest extends TestCase
 {
     private EntityDefinition $productDefinition;

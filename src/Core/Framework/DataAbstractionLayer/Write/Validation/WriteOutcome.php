@@ -14,6 +14,10 @@ use Shopware\Core\Framework\Util\Json;
 
 /**
  * @final
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcomeTest
  */
 #[Package('framework')]
 class WriteOutcome

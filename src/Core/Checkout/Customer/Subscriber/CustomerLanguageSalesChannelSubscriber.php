@@ -23,6 +23,10 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Checkout\Customer\Subscriber\CustomerLanguageSalesChannelSubscriberTest
  */
 #[Package('checkout')]
 class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface

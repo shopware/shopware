@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Tax;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Country\CountryEntity;
@@ -24,13 +25,12 @@ class TaxDetector extends AbstractTaxDetector
     public function isNetDelivery(SalesChannelContext $context): bool
     {
         $shippingLocationCountry = $context->getShippingLocation()->getCountry();
-        $countryTaxFree = $shippingLocationCountry->getCustomerTax()->getEnabled();
 
-        if ($countryTaxFree) {
-            return true;
+        if ($context->getCustomer()?->getAccountType() === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            return $this->isCompanyTaxFree($context, $shippingLocationCountry);
         }
 
-        return $this->isCompanyTaxFree($context, $shippingLocationCountry);
+        return $shippingLocationCountry->getCustomerTax()->getEnabled();
     }
 
     public function getTaxState(SalesChannelContext $context): string

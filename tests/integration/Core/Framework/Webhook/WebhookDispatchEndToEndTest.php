@@ -36,6 +36,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\Integration\Builder\Webhook\WebhookBuilder;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 
@@ -987,14 +988,11 @@ class WebhookDispatchEndToEndTest extends TestCase
             'created_at' => $now,
         ]);
 
-        $this->connection->insert('webhook', [
-            'id' => Uuid::fromHexToBytes($webhookId),
-            'name' => $name,
-            'event_name' => $eventName,
-            'url' => $url,
-            'app_id' => $appId,
-            'created_at' => $now,
-        ]);
+        WebhookBuilder::ofApp(Uuid::fromBytesToHex($appId))
+            ->id($webhookId)
+            ->subscribe($eventName, $url)
+            ->name($name)
+            ->insert($this->connection);
     }
 
     /**
@@ -1036,14 +1034,11 @@ class WebhookDispatchEndToEndTest extends TestCase
             'created_at' => $now,
         ]);
 
-        $this->connection->insert('webhook', [
-            'id' => Uuid::fromHexToBytes($webhookId),
-            'name' => $name,
-            'event_name' => $eventName,
-            'url' => $url,
-            'app_id' => $appId,
-            'created_at' => $now,
-        ]);
+        WebhookBuilder::ofApp(Uuid::fromBytesToHex($appId))
+            ->id($webhookId)
+            ->subscribe($eventName, $url)
+            ->name($name)
+            ->insert($this->connection);
 
         return Uuid::fromBytesToHex($appId);
     }
@@ -1054,14 +1049,14 @@ class WebhookDispatchEndToEndTest extends TestCase
      */
     private function createBareWebhook(string $webhookId, string $name, string $eventName, string $url): void
     {
-        $this->connection->insert('webhook', [
-            'id' => Uuid::fromHexToBytes($webhookId),
-            'name' => $name,
-            'event_name' => $eventName,
-            'url' => $url,
-            'owner_user_id' => $this->connection->fetchOne('SELECT id FROM user WHERE username = :username', ['username' => 'admin']),
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        $adminId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM user WHERE username = :username', ['username' => 'admin']);
+        static::assertIsString($adminId);
+
+        WebhookBuilder::ownedByUser($adminId)
+            ->id($webhookId)
+            ->subscribe($eventName, $url)
+            ->name($name)
+            ->insert($this->connection);
     }
 
     private function createCustomerBeforeLoginEvent(): CustomerBeforeLoginEvent

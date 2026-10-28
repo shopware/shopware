@@ -5,7 +5,12 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Health\Util;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
+use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
+use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
@@ -16,8 +21,13 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\DependencyInjection\ServicesResetter;
+use Symfony\Component\HttpKernel\DependencyInjection\ServicesResetterInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Twig\Extension\AbstractExtension;
+use Twig\Extension\GlobalsInterface;
+use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
@@ -168,14 +178,123 @@ class SalesChannelDomainUtilTest extends TestCase
         static::assertSame(Response::HTTP_LOOP_DETECTED, $result->responseCode);
     }
 
-    private function getUtil(?RouterInterface $router = null): SalesChannelDomainUtil
+    public function testHandleRequestRecordsAnExceptionAsFailedResult(): void
+    {
+        $this->kernel->method('handle')->willThrowException(new \RuntimeException('Could not find product'));
+
+        $result = $this->getUtil()->handleRequest(Request::create('http://localhost/product/123'));
+
+        static::assertSame('http://localhost/product/123', $result->storefrontUrl);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $result->responseCode);
+        static::assertSame('Could not find product', $result->errorMessage);
+    }
+
+    public function testCreateExceptionResult(): void
+    {
+        $exception = new \RuntimeException('Currency not found');
+
+        // without a request in the context, the log line has to name the page that could not be probed on its own
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with('Error during systemcheck: "Currency not found"', ['exception' => $exception, 'url' => 'http://localhost', 'request' => null]);
+
+        $result = $this->getUtil(logger: $logger)->createExceptionResult('http://localhost', $exception);
+
+        static::assertSame('http://localhost', $result->storefrontUrl);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $result->responseCode);
+        static::assertSame(0.0, $result->responseTime);
+        static::assertSame('Currency not found', $result->errorMessage);
+    }
+
+    public function testRequestsAndRedirectsUseFreshTwigGlobalsAndPreserveTheOuterRequest(): void
+    {
+        $outerRequest = Request::create('http://localhost/api/_info/system-health-check');
+        $this->requestStack->push($outerRequest);
+        $loader = new ArrayLoader([
+            'page' => '{% include "logo" only %}',
+            'logo' => '{{ themeId }}',
+            '@A/logo' => '{{ themeId }}',
+            '@B/logo' => '{{ themeId }}',
+            '@C/logo' => '{{ themeId }}',
+        ]);
+        $twig = new TwigEnvironment($loader);
+        $twig->addExtension(new class($this->requestStack) extends AbstractExtension implements GlobalsInterface {
+            public function __construct(private readonly RequestStack $requestStack)
+            {
+            }
+
+            public function getGlobals(): array
+            {
+                return ['themeId' => $this->requestStack->getCurrentRequest()?->attributes->get('themeId')];
+            }
+        });
+
+        // An Administration render initializes the same Twig environment without Storefront globals.
+        $twig->render('page');
+
+        $hierarchyBuilder = static::createStub(NamespaceHierarchyBuilder::class);
+        $hierarchyBuilder->method('buildHierarchy')->willReturnCallback(fn (): array => [
+            ltrim($this->requestStack->getCurrentRequest()?->getPathInfo() ?? '', '/') => 0,
+        ]);
+        $finder = new TemplateFinder($twig, $loader, '', $hierarchyBuilder, new TemplateScopeDetector($this->requestStack));
+
+        $renderedThemes = [];
+        $this->kernel->method('handle')->willReturnCallback(function (Request $request) use ($twig, $finder, &$renderedThemes): Response {
+            $request->attributes->set('themeId', $request->getPathInfo());
+            $this->requestStack->push($request);
+            try {
+                static::assertSame('@' . ltrim($request->getPathInfo(), '/') . '/logo', $finder->find('@Storefront/logo'));
+                $renderedThemes[] = $twig->render('page');
+            } finally {
+                $this->requestStack->pop();
+            }
+
+            return $request->getPathInfo() === '/A' ? new RedirectResponse('http://localhost/B') : new Response();
+        });
+
+        $resetter = new ServicesResetter(new \ArrayIterator(['twig' => $twig, 'finder' => $finder]), ['twig' => 'reset', 'finder' => 'reset']);
+        $util = $this->getUtil(servicesResetter: $resetter);
+        $util->handleRequest(Request::create('http://localhost/A'));
+        $util->handleRequest(Request::create('http://localhost/C'));
+
+        static::assertSame(['/A', '/B', '/C'], $renderedThemes);
+        static::assertSame($outerRequest, $this->requestStack->getCurrentRequest());
+        static::assertSame('', $twig->render('page'));
+    }
+
+    public function testHandleRequestResetsServicesAfterAnException(): void
+    {
+        $resets = 0;
+        $resetter = static::createMock(ServicesResetterInterface::class);
+        $resetter->expects($this->exactly(4))->method('reset')->willReturnCallback(static function () use (&$resets): void {
+            ++$resets;
+        });
+        $this->kernel->method('handle')->willReturnCallback(static function () use (&$resets): Response {
+            if ($resets === 1) {
+                throw new \RuntimeException('Rendering failed');
+            }
+
+            static::assertSame(3, $resets);
+
+            return new Response();
+        });
+        $util = $this->getUtil(servicesResetter: $resetter);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $util->handleRequest(Request::create('http://localhost/failing'))->responseCode);
+        static::assertSame(Response::HTTP_OK, $util->handleRequest(Request::create('http://localhost/healthy'))->responseCode);
+        static::assertSame(4, $resets);
+    }
+
+    private function getUtil(?RouterInterface $router = null, ?LoggerInterface $logger = null, ?ServicesResetterInterface $servicesResetter = null): SalesChannelDomainUtil
     {
         return new SalesChannelDomainUtil(
             $router ?? $this->router,
             $this->requestStack,
             $this->kernel,
-            new NullLogger(),
-            new NativeClock()
+            $logger ?? new NullLogger(),
+            new NativeClock(),
+            $servicesResetter ?? static::createStub(ServicesResetterInterface::class)
         );
     }
 }

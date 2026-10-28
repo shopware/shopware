@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Webhook\Authorization;
 
 use Shopware\Core\Framework\Api\Acl\AclRoleLoader;
 use Shopware\Core\Framework\Api\Acl\AclRoles;
-use Shopware\Core\Framework\Api\Acl\ApiCallerType;
+use Shopware\Core\Framework\Api\Acl\ApiCaller;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
@@ -157,8 +157,8 @@ class WriteAuthorizer
      */
     private function getSubscriptionViolations(array $commands, array $stored, Context $context): array
     {
-        $source = $context->getSource();
-        if (!$source instanceof AdminApiSource) {
+        $caller = ApiCaller::of($context->getSource());
+        if ($caller === null) {
             return [];
         }
 
@@ -172,7 +172,7 @@ class WriteAuthorizer
             return [];
         }
 
-        $written = $this->toSubscriptions($commands, $stored, $source);
+        $written = $this->toSubscriptions($commands, $stored, $caller);
         [$webhookRoles, $violations] = $this->resolveRoles($commands, $written);
         $rolePrivileges = $this->aclRoleLoader->getPrivilegesForRoles(array_merge(...array_column($webhookRoles, 'roleIds')));
 
@@ -183,7 +183,7 @@ class WriteAuthorizer
             $privileges[$webhookId] = self::resolvePrivileges($roles, $rolePrivileges);
         }
 
-        $refusals = $this->subscriptionValidator->validate($subscriptions, $privileges, Subscriber::api(ApiCallerType::of($source)), $context);
+        $refusals = $this->subscriptionValidator->validate($subscriptions, $privileges, Subscriber::api($caller), $context);
 
         foreach ([...$refusals->notHookable, ...$refusals->notPermitted] as $webhookId) {
             $violations[$webhookId] = WebhookException::webhookEventNotPermitted($subscriptions[$webhookId]);
@@ -205,7 +205,7 @@ class WriteAuthorizer
      *
      * @return array<string, WebhookSubscription> keyed by webhook id
      */
-    private function toSubscriptions(array $commands, array $stored, AdminApiSource $source): array
+    private function toSubscriptions(array $commands, array $stored, ApiCaller $caller): array
     {
         $written = [];
         foreach ($commands as $webhookId => $command) {
@@ -213,9 +213,8 @@ class WriteAuthorizer
             $ownerType = $current?->ownerType;
             $ownerId = $current?->ownerId;
             if ($command instanceof InsertCommand) {
-                $caller = ApiCallerType::of($source);
                 $ownerType = SubscriberType::of($caller);
-                $ownerId = $caller->idOf($source);
+                $ownerId = $caller->id;
             }
 
             $payload = $command->getPayload();

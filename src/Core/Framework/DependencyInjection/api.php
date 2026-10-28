@@ -166,6 +166,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(SeoUrlPlaceholderHandlerInterface::class),
             service(MediaUrlPlaceholderHandlerInterface::class),
+            service('validator'),
         ])
         ->tag('kernel.event_listener', ['event' => 'kernel.view', 'priority' => 1000]);
 

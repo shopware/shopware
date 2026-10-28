@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Validation\Exception;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -46,16 +47,30 @@ class ConstraintViolationExceptionTest extends TestCase
     }
 
     #[TestDox('getErrors yields one error per violation with the property path as pointer')]
-    public function testGetErrors(): void
+    #[DataProvider('httpStatusCodes')]
+    public function testGetErrors(int $statusCode): void
     {
-        $errors = iterator_to_array(self::createException()->getErrors(), false);
+        $exception = self::createException($statusCode);
+        $errors = iterator_to_array($exception->getErrors(), false);
 
+        static::assertSame($statusCode, $exception->getStatusCode());
         static::assertCount(2, $errors);
+        static::assertSame((string) $statusCode, $errors[0]['status']);
+        static::assertSame((string) $statusCode, $errors[1]['status']);
         // remapped violations are re-added at the end of the list (see testMapErrorCodes)
         static::assertSame('custom-code', $errors[0]['code']);
         static::assertSame('VIOLATION::IS_BLANK_ERROR', $errors[1]['code']);
         static::assertSame('This value should not be blank.', $errors[1]['detail']);
         static::assertSame('/name', $errors[1]['source']['pointer']);
+    }
+
+    /**
+     * @return iterable<string, array{int}>
+     */
+    public static function httpStatusCodes(): iterable
+    {
+        yield 'invalid request keeps HTTP 400' => [Response::HTTP_BAD_REQUEST];
+        yield 'invalid response uses HTTP 500' => [Response::HTTP_INTERNAL_SERVER_ERROR];
     }
 
     /**
@@ -73,7 +88,7 @@ class ConstraintViolationExceptionTest extends TestCase
         static::assertSame('', $root->get(0)->getPropertyPath());
     }
 
-    private static function createException(): ConstraintViolationException
+    private static function createException(int $statusCode = Response::HTTP_BAD_REQUEST): ConstraintViolationException
     {
         $notBlank = new NotBlank();
         $violations = new ConstraintViolationList([
@@ -91,6 +106,6 @@ class ConstraintViolationExceptionTest extends TestCase
             new ConstraintViolation('Root level violation', null, [], null, '', null, null, 'custom-code'),
         ]);
 
-        return new ConstraintViolationException($violations, ['name' => '']);
+        return new ConstraintViolationException($violations, ['name' => ''], $statusCode);
     }
 }

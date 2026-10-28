@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;

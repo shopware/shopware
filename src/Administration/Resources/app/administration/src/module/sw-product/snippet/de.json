@@ -220,7 +220,32 @@
       "cardTitleCustomFields": "Zusatzfelder",
       "cardTitleProperties": "Eigenschaften",
       "cardTitleCustomProduct": "Custom Products",
-      "cardTitleDownloads": "Dateien"
+      "cardTitleDownloads": "Dateien",
+      "cardTitleDocuments": "Dokumente",
+      "cardSubtitleDocuments": "Dateien, die Kunden auf der Produktseite herunterladen können"
+    },
+    "documentForm": {
+      "labelUpload": "Dokumente hochladen",
+      "hintOtherLanguage": "Neue Dokumente legst du in der Standardsprache an. Hier kannst du jedem Dokument einen eigenen Titel und eine eigene Datei für diese Sprache geben.",
+      "hintLimit": "Dieses Produkt hat {max} Dokumente, das Maximum.",
+      "count": "{count} / {max} Dokumente",
+      "emptyState": "Noch keine Dokumente",
+      "columnTitle": "Titel",
+      "columnFile": "Datei",
+      "columnType": "Typ",
+      "columnSize": "Größe",
+      "columnUploadedAt": "Hochgeladen",
+      "placeholderTitle": "Titel in der Storefront",
+      "labelDefaultLanguageFile": "Standardsprache",
+      "labelVariantOnly": "Nur Variante",
+      "labelRemoved": "Entfernt",
+      "actionMoveUp": "Nach oben",
+      "actionMoveDown": "Nach unten",
+      "actionReplaceFile": "Datei ersetzen",
+      "actionUseDefaultFile": "Datei der Standardsprache verwenden",
+      "actionRemove": "Vom Produkt entfernen",
+      "actionAddBack": "Wieder hinzufügen",
+      "errorDuplicate": "{fileName} ist bereits ein Dokument dieses Produkts."
     },
     "seo": {
       "cardTitleSeo": "SEO"

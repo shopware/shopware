@@ -1,7 +1,7 @@
 /**
  * @sw-package checkout
  */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access -- the handler is plain JavaScript and returns untyped values */
 import BulkEditOrderHandler from './bulk-edit-order.handler';
 
 type BulkEditOrderHandlerTestDouble = Omit<BulkEditOrderHandler, 'orderRepository' | 'orderStateMachineService'> & {
@@ -19,6 +19,7 @@ function createOrder(id: string) {
     return {
         id,
         orderNumber: `order-${id}`,
+        primaryOrderTransactionId: `transaction-${id}`,
         transactions: {
             first: () => ({ id: `transaction-${id}` }),
         },

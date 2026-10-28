@@ -35,24 +35,24 @@ function isValueReadPosition(node: BabelNode, parent: BabelNode | null): boolean
 
     // e.g. `source.count` reads `source` but not `count`; `source[count]` reads both.
     if (parent.type === 'MemberExpression' || parent.type === 'OptionalMemberExpression') {
-        return parent.property !== node || Boolean(parent.computed);
+        return parent.property !== node || parent.computed;
     }
 
     // e.g. `{ count: value }` reads `value` but not the static key `count`; `{ [count]: value }` reads both.
     if (parent.type === 'ObjectProperty') {
-        return parent.value === node || Boolean(parent.computed);
+        return parent.value === node || parent.computed;
     }
 
     // e.g. `{ count() {} }` does not read the method name `count`.
     if (parent.type === 'ObjectMethod') {
-        return parent.key !== node || Boolean(parent.computed);
+        return parent.key !== node || parent.computed;
     }
 
     // e.g. `class Thing { count = 0; total() {} }` declares members named `count`/`total`; it does not
     // read bindings of those names. Renaming them would change the class's own API. A member's value or
     // body is still a read, hence the key comparison rather than a blanket false.
     if (parent.type === 'ClassMethod' || parent.type === 'ClassProperty' || parent.type === 'ClassAccessorProperty') {
-        return parent.key !== node || Boolean(parent.computed);
+        return parent.key !== node || parent.computed;
     }
 
     // e.g. `class Thing { #count = 0 }` - `#count` is a class-private name, never a binding reference.
@@ -117,7 +117,7 @@ function isValueReadPosition(node: BabelNode, parent: BabelNode | null): boolean
  * it when it hands over the `ObjectProperty` as the parent instead of the `AssignmentPattern`.
  */
 function isShorthandPropertyValue(node: Identifier, parent: BabelNode | null): boolean {
-    if (parent?.type !== 'ObjectProperty' || parent.shorthand !== true) {
+    if (parent?.type !== 'ObjectProperty' || !parent.shorthand) {
         return false;
     }
 

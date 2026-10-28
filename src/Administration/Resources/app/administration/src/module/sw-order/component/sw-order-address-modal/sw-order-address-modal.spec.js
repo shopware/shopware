@@ -162,7 +162,7 @@ describe('src/module/sw-order/component/sw-order-address-modal', () => {
         });
 
         wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'addresses');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('addresses');
         expect(wrapper.vm.selectedAddressId).toBe(0);

@@ -130,6 +130,14 @@ carries the macro declarations so they type-check. Both flow through the same
 package resolution as the rest of the preset, so a dependency bump can never leave
 a stale hand-copied path behind.
 
+## Code-quality rules
+
+The generated ESLint config reports redundant code with `no-else-return`, `no-useless-return`, `no-lonely-if` and `no-unneeded-ternary`.
+TypeScript and Vue files also get `@typescript-eslint/no-unnecessary-boolean-literal-compare`, `@typescript-eslint/no-unnecessary-template-expression` and `@typescript-eslint/no-unnecessary-type-conversion`.
+The Administration lints its own sources with the same rules.
+All of them have an autofix, so `--fix` resolves the findings.
+To turn one off, set it to `'off'` in your own `eslint.config.mjs` after the `...shopware` spread.
+
 ## Own path aliases (`tsconfig.aliases.json`)
 
 TypeScript replaces `paths` **wholesale** across `extends`, so declaring

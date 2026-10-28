@@ -1,3 +1,6 @@
+/**
+ * @sw-package framework
+ */
 import type { Plugin } from 'vite';
 
 /**

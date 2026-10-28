@@ -312,6 +312,10 @@ Shopware.Service('searchTypeService').upsertType('my_entity', {
 ```
 
 Results with an `itemRoute` use the new Twig block `sw_search_bar_item_custom_route` in `sw-search-bar-item`. Entities without a module manifest no longer break the result label.
+### Empty snippet filter ignores snippets with the value `0`
+
+The "Show empty snippets only" filter in the snippet list now only lists snippets without a value.
+A snippet whose value is `0` counts as translated and is no longer listed.
 
 ## API
 
@@ -366,6 +370,11 @@ Before, saving the profile without that setting removed the company and the VAT 
 Themes that override `component_address_personal_company_section`, `component_address_personal_company` or `component_address_personal_vat_id` in `component/address/address-personal.html.twig` should check that the content also suits this case.
 
 ## Hosting & Configuration
+
+### Readiness checks isolate their virtual requests
+
+Pre-rollout system checks now reset services between virtual Administration and Storefront requests, including redirects and failed requests.
+This prevents theme and Twig context from leaking between probes and failed probes from leaving a PHP session open for the next check.
 
 ### Storefront readiness checks skip pages restricted by extensions
 

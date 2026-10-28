@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use setasign\Fpdi\Tfpdf\Fpdi;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
-use Shopware\Core\Checkout\Cart\Tax\IntraEuTaxResolver;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigValidator;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentTypeTranslation\DocumentTypeTranslationDefinition;
@@ -142,7 +142,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
             service(DocumentFileRendererRegistry::class),
             service(ClockInterface::class),
-            service(IntraEuTaxResolver::class),
+            service(IntraCommunityTaxResolver::class),
         ])
         ->tag('document.renderer');
 
@@ -168,7 +168,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
             service(DocumentFileRendererRegistry::class),
             service(ClockInterface::class),
-            service(IntraEuTaxResolver::class),
+            service(IntraCommunityTaxResolver::class),
         ])
         ->tag('document.renderer');
 
@@ -182,7 +182,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
             service(DocumentFileRendererRegistry::class),
             service(ClockInterface::class),
-            service(IntraEuTaxResolver::class),
+            service(IntraCommunityTaxResolver::class),
         ])
         ->tag('document.renderer');
 

@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Cart\Tax\IntraEuTaxResolver;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
@@ -57,18 +56,14 @@ abstract class AbstractDocumentRenderer
     }
 
     /**
-     * @param array<string, mixed> $config
-     */
-    protected function isIntraCommunityDelivery(array $config, OrderEntity $order, IntraEuTaxResolver $intraEuTaxResolver): bool
-    {
-        return ($config['displayAdditionalNoteDelivery'] ?? false) !== false && $intraEuTaxResolver->isIntraCommunityDelivery($order);
-    }
-
-    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use \Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver::isIntraCommunityDelivery() instead
+     *
      * @param array<string, mixed> $config
      */
     protected function isAllowIntraCommunityDelivery(array $config, OrderEntity $order): bool
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+
         if (($config['displayAdditionalNoteDelivery'] ?? false) === false) {
             return false;
         }
@@ -100,8 +95,13 @@ abstract class AbstractDocumentRenderer
         return $isCompanyTaxFree && $isPartOfEu;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use \Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver::isIntraCommunityDelivery() instead
+     */
     protected function isValidVat(OrderEntity $order, ValidatorInterface $validator): bool
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+
         $customerType = $order->getOrderCustomer()?->getCustomer()?->getAccountType();
         if ($customerType !== CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
             return false;
@@ -132,7 +132,7 @@ abstract class AbstractDocumentRenderer
 
         $violations = $validator->validate($vatIds, [
             new NotBlank(),
-            new CustomerVatIdentification(countryId: $country->getId(), salesChannelId: $order->getSalesChannelId()),
+            new CustomerVatIdentification(countryId: $country->getId()),
         ]);
 
         return $violations->count() === 0;

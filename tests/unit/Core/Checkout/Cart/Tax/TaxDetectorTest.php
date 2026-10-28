@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Cart\Tax\IntraEuTaxResolver;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -961,8 +961,10 @@ class TaxDetectorTest extends TestCase
             static fn (Criteria $criteria, Context $context) => new IdSearchResult(1, [$defaultCountryId => ['primaryKey' => $defaultCountryId, 'data' => []]], $criteria, $context)
         );
 
-        return new TaxDetector(new IntraEuTaxResolver(
-            new VatIdPatternProvider($repository, $this->createSystemConfigService($countries, $sellerIso)),
+        return new TaxDetector(new IntraCommunityTaxResolver(
+            new VatIdPatternProvider($repository),
+            $this->createSystemConfigService($countries, $sellerIso),
+            $repository,
         ));
     }
 
@@ -980,8 +982,10 @@ class TaxDetectorTest extends TestCase
             static fn (Criteria $criteria, Context $context) => new EntitySearchResult(CountryDefinition::ENTITY_NAME, $countries->count(), $countries, null, $criteria, $context)
         );
 
-        return new TaxDetector(new IntraEuTaxResolver(
-            new VatIdPatternProvider($repository, $this->createSystemConfigService($countries, $sellerIso)),
+        return new TaxDetector(new IntraCommunityTaxResolver(
+            new VatIdPatternProvider($repository),
+            $this->createSystemConfigService($countries, $sellerIso),
+            $repository,
         ));
     }
 
@@ -997,9 +1001,7 @@ class TaxDetectorTest extends TestCase
         $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('getString')->willReturn(Uuid::randomHex());
 
-        return new TaxDetector(new IntraEuTaxResolver(
-            new VatIdPatternProvider($repository, $systemConfigService),
-        ));
+        return new TaxDetector(new IntraCommunityTaxResolver(new VatIdPatternProvider($repository), $systemConfigService, $repository));
     }
 
     /**

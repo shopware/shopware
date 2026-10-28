@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
@@ -168,6 +169,7 @@ class IntraCommunityVatExemptionTest extends TestCase
             ],
         ]], $this->context);
         static::getContainer()->get(VatIdPatternProvider::class)->reset();
+        static::getContainer()->get(IntraCommunityTaxResolver::class)->reset();
 
         static::assertSame(CartPrice::TAX_STATE_FREE, $this->getOrderTaxStatus($orderId));
         static::assertTrue($this->getV2InvoiceNote($orderId));
@@ -220,6 +222,7 @@ class IntraCommunityVatExemptionTest extends TestCase
             ],
         ]], $this->context);
         static::getContainer()->get(VatIdPatternProvider::class)->reset();
+        static::getContainer()->get(IntraCommunityTaxResolver::class)->reset();
 
         static::assertSame($taxState, $this->getOrderTaxStatus($orderId));
         static::assertFalse($this->getV2InvoiceNote($orderId));
@@ -392,6 +395,7 @@ class IntraCommunityVatExemptionTest extends TestCase
             'checkVatIdPattern' => false,
         ]], $this->context);
         static::getContainer()->get(VatIdPatternProvider::class)->reset();
+        static::getContainer()->get(IntraCommunityTaxResolver::class)->reset();
         $this->salesChannelContext = $this->createSalesChannelContext();
 
         $cart = $this->generateDemoCartWithTaxes([19]);
@@ -436,7 +440,7 @@ class IntraCommunityVatExemptionTest extends TestCase
             'companyStreet' => 'Example Street 1',
             'companyZipcode' => '12345',
             'companyCity' => 'Berlin',
-            'companyCountryId' => static::getContainer()->get(VatIdPatternProvider::class)->getSellerCountryId(TestDefaults::SALES_CHANNEL),
+            'companyCountryId' => static::getContainer()->get(SystemConfigService::class)->getString('core.basicInformation.sellerCountryId', TestDefaults::SALES_CHANNEL),
         ]), 'invoice');
         static::getContainer()->get(DocumentConfigLoader::class)->reset();
 
@@ -474,6 +478,7 @@ class IntraCommunityVatExemptionTest extends TestCase
             ->set('core.basicInformation.sellerCountryId', $countryId);
 
         static::getContainer()->get(VatIdPatternProvider::class)->reset();
+        static::getContainer()->get(IntraCommunityTaxResolver::class)->reset();
     }
 
     /**

@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute;
@@ -33,7 +34,7 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('discovery')]
-class IntraEuTaxRuleTest extends TestCase
+class IntraCommunityTaxRuleTest extends TestCase
 {
     use CacheTestBehaviour;
     use DatabaseTransactionBehaviour;
@@ -144,24 +145,8 @@ class IntraEuTaxRuleTest extends TestCase
                 'countryStateId' => $this->shippingStateId,
             ],
         ]], $context);
-    }
 
-    public function testSellerStateVatIdUsesSellerTaxRuleForDeliveryToAnotherMemberState(): void
-    {
-        static::getContainer()->get(SystemConfigService::class)->set('core.basicInformation.sellerCountryId', $this->countryIds['DE']);
-        $this->customerRepository->update([[
-            'id' => $this->customerId,
-            'vatIds' => ['DE123456789'],
-        ]], Context::createDefaultContext());
-
-        $context = $this->createContext();
-
-        static::assertSame(19.0, $context->buildTaxRules($this->taxId)->first()?->getTaxRate());
-        static::assertSame(CartPrice::TAX_STATE_GROSS, $context->getTaxState());
-        static::assertSame($this->countryIds['FR'], $context->getShippingLocation()->getCountry()->getId());
-        static::assertSame($this->shippingStateId, $context->getShippingLocation()->getState()?->getId());
-        static::assertSame('75001', $context->getShippingLocation()->getAddress()?->getZipcode());
-        static::assertSame($this->countryIds['NL'], $context->getCustomer()?->getActiveBillingAddress()?->getCountryId());
+        $container->get(SystemConfigService::class)->set('core.basicInformation.sellerCountryId', $this->countryIds['DE']);
     }
 
     public function testConfiguredSellerOverridesSalesChannelDefaultCountryAndDefaultTaxRate(): void
@@ -195,33 +180,8 @@ class IntraEuTaxRuleTest extends TestCase
         static::assertSame($this->countryIds['FR'], $context->getShippingLocation()->getCountry()->getId());
     }
 
-    public function testBusinessCustomerWithoutVatIdUsesDestinationTaxRule(): void
-    {
-        static::getContainer()->get(SystemConfigService::class)->set('core.basicInformation.sellerCountryId', $this->countryIds['DE']);
-
-        $context = $this->createContext();
-
-        static::assertSame(20.0, $context->buildTaxRules($this->taxId)->first()?->getTaxRate());
-        static::assertSame(CartPrice::TAX_STATE_GROSS, $context->getTaxState());
-    }
-
-    public function testBusinessCustomerWithInvalidSellerVatIdUsesDestinationTaxRule(): void
-    {
-        static::getContainer()->get(SystemConfigService::class)->set('core.basicInformation.sellerCountryId', $this->countryIds['DE']);
-        $this->customerRepository->update([[
-            'id' => $this->customerId,
-            'vatIds' => ['DEINVALID'],
-        ]], Context::createDefaultContext());
-
-        $context = $this->createContext();
-
-        static::assertSame(20.0, $context->buildTaxRules($this->taxId)->first()?->getTaxRate());
-        static::assertSame(CartPrice::TAX_STATE_GROSS, $context->getTaxState());
-    }
-
     public function testPrivateCustomerWithSellerVatIdUsesDestinationTaxRule(): void
     {
-        static::getContainer()->get(SystemConfigService::class)->set('core.basicInformation.sellerCountryId', $this->countryIds['DE']);
         $this->customerRepository->update([[
             'id' => $this->customerId,
             'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
@@ -234,30 +194,10 @@ class IntraEuTaxRuleTest extends TestCase
         static::assertSame(CartPrice::TAX_STATE_GROSS, $context->getTaxState());
     }
 
-    public function testSellerVatIdUsesSellerTaxRuleWhenDeliveryCountryDisablesPatternChecks(): void
-    {
-        static::getContainer()->get(SystemConfigService::class)->set('core.basicInformation.sellerCountryId', $this->countryIds['DE']);
-        static::getContainer()->get('country.repository')->update([[
-            'id' => $this->countryIds['FR'],
-            'checkVatIdPattern' => false,
-        ]], Context::createDefaultContext());
-        $this->customerRepository->update([[
-            'id' => $this->customerId,
-            'vatIds' => ['DE123456789'],
-        ]], Context::createDefaultContext());
-
-        $context = $this->createContext();
-
-        static::assertSame(CartPrice::TAX_STATE_GROSS, $context->getTaxState());
-        static::assertSame(19.0, $context->buildTaxRules($this->taxId)->first()?->getTaxRate());
-        static::assertSame($this->countryIds['FR'], $context->getShippingLocation()->getCountry()->getId());
-    }
-
     #[DataProvider('taxableCustomerGroupProvider')]
     public function testSelfSuppliedSellerVatIdKeepsDestinationTaxWhenCompanyTaxFreeIsDisabled(bool $displayGross, string $taxState, float $price): void
     {
         $container = static::getContainer();
-        $container->get(SystemConfigService::class)->set('core.basicInformation.sellerCountryId', $this->countryIds['DE']);
         $container->get('country.repository')->update([
             [
                 'id' => $this->countryIds['FR'],
@@ -325,58 +265,12 @@ class IntraEuTaxRuleTest extends TestCase
         yield 'net customer keeps destination VAT' => [false, CartPrice::TAX_STATE_NET, 100.0];
     }
 
-    public function testDomesticDeliveryWithVatIdOfAnotherMemberStateUsesSellerTaxRule(): void
-    {
-        static::getContainer()->get(SystemConfigService::class)->set('core.basicInformation.sellerCountryId', $this->countryIds['DE']);
-        $this->customerRepository->update([[
-            'id' => $this->customerId,
-            'vatIds' => ['NL123456789B01'],
-        ]], Context::createDefaultContext());
-        static::getContainer()->get('customer_address.repository')->update([[
-            'id' => $this->shippingAddressId,
-            'countryId' => $this->countryIds['DE'],
-            'countryStateId' => null,
-        ]], Context::createDefaultContext());
-
-        $context = $this->createContext();
-
-        static::assertSame(19.0, $context->buildTaxRules($this->taxId)->first()?->getTaxRate());
-        static::assertSame(CartPrice::TAX_STATE_GROSS, $context->getTaxState());
-        static::assertSame($this->countryIds['DE'], $context->getShippingLocation()->getCountry()->getId());
-    }
-
-    public function testExportWithSellerVatIdRemainsTaxExemptAndUsesDeliveryCountry(): void
-    {
-        static::getContainer()->get(SystemConfigService::class)->set('core.basicInformation.sellerCountryId', $this->countryIds['DE']);
-        $this->customerRepository->update([[
-            'id' => $this->customerId,
-            'vatIds' => ['DE123456789'],
-        ]], Context::createDefaultContext());
-        static::getContainer()->get('customer_address.repository')->update([[
-            'id' => $this->shippingAddressId,
-            'countryId' => $this->countryIds['CH'],
-            'countryStateId' => null,
-        ]], Context::createDefaultContext());
-        static::getContainer()->get('country.repository')->update([[
-            'id' => $this->countryIds['CH'],
-            'isEu' => false,
-            'companyTax' => ['enabled' => true, 'currencyId' => Defaults::CURRENCY, 'amount' => 0],
-        ]], Context::createDefaultContext());
-
-        $context = $this->createContext();
-
-        static::assertSame(8.1, $context->buildTaxRules($this->taxId)->first()?->getTaxRate());
-        static::assertSame(CartPrice::TAX_STATE_FREE, $context->getTaxState());
-        static::assertSame($this->countryIds['CH'], $context->getShippingLocation()->getCountry()->getId());
-    }
-
     /**
      * @param list<string> $vatIds
      */
     #[DataProvider('goodsMovementTaxMatrixProvider')]
     public function testGoodsMovementTaxMatrix(array $vatIds, string $deliveryCountry, string $expectedTaxState, float $expectedTaxRule): void
     {
-        static::getContainer()->get(SystemConfigService::class)->set('core.basicInformation.sellerCountryId', $this->countryIds['DE']);
         $this->customerRepository->update([[
             'id' => $this->customerId,
             'vatIds' => $vatIds,
@@ -409,6 +303,7 @@ class IntraEuTaxRuleTest extends TestCase
         yield 'foreign EU VAT ID, export is exempt' => [['NL123456789B01'], 'CH', CartPrice::TAX_STATE_FREE, 8.1];
         yield 'foreign EU VAT ID, intra-community supply is exempt' => [['NL123456789B01'], 'FR', CartPrice::TAX_STATE_FREE, 20.0];
         yield 'foreign EU VAT ID, domestic supply uses seller tax' => [['NL123456789B01'], 'DE', CartPrice::TAX_STATE_GROSS, 19.0];
+        yield 'delivery country VAT ID, intra-community supply is exempt' => [['FRAB123456789'], 'FR', CartPrice::TAX_STATE_FREE, 20.0];
         yield 'seller EU VAT ID, export is exempt' => [['DE123456789'], 'CH', CartPrice::TAX_STATE_FREE, 8.1];
         yield 'seller EU VAT ID, intra-EU supply uses seller tax' => [['DE123456789'], 'FR', CartPrice::TAX_STATE_GROSS, 19.0];
         yield 'seller EU VAT ID, domestic supply uses seller tax' => [['DE123456789'], 'DE', CartPrice::TAX_STATE_GROSS, 19.0];
@@ -420,27 +315,12 @@ class IntraEuTaxRuleTest extends TestCase
         yield 'invalid VAT ID, domestic supply uses seller tax' => [['DEINVALID'], 'DE', CartPrice::TAX_STATE_GROSS, 19.0];
     }
 
-    public function testVatIdMatchingDeliveryCountryAllowsIntraCommunityExemption(): void
-    {
-        static::getContainer()->get(SystemConfigService::class)->set('core.basicInformation.sellerCountryId', $this->countryIds['DE']);
-        $this->customerRepository->update([[
-            'id' => $this->customerId,
-            'vatIds' => ['FRAB123456789'],
-        ]], Context::createDefaultContext());
-
-        $context = $this->createContext();
-
-        static::assertSame(CartPrice::TAX_STATE_FREE, $context->getTaxState());
-        static::assertSame($this->countryIds['FR'], $context->getShippingLocation()->getCountry()->getId());
-    }
-
     /**
      * @param list<string> $vatIds
      */
     #[DataProvider('multipleVatIdsContainingSellerVatIdProvider')]
     public function testAnySellerVatIdKeepsSellerTaxRule(array $vatIds, bool $checkVatIdPattern): void
     {
-        static::getContainer()->get(SystemConfigService::class)->set('core.basicInformation.sellerCountryId', $this->countryIds['DE']);
         static::getContainer()->get('country.repository')->update([[
             'id' => $this->countryIds['FR'],
             'checkVatIdPattern' => $checkVatIdPattern,
@@ -465,20 +345,16 @@ class IntraEuTaxRuleTest extends TestCase
      */
     public static function multipleVatIdsContainingSellerVatIdProvider(): iterable
     {
-        yield 'seller VAT ID precedes another member state' => [['DE123456789', 'NL123456789B01'], true];
-        yield 'another member state precedes seller VAT ID' => [['NL123456789B01', 'DE123456789'], true];
-        yield 'seller VAT ID precedes delivery country VAT ID' => [['DE123456789', 'FRAB123456789'], true];
-        yield 'delivery country VAT ID precedes seller VAT ID' => [['FRAB123456789', 'DE123456789'], true];
+        yield 'another member state VAT ID does not hide the seller VAT ID' => [['NL123456789B01', 'DE123456789'], true];
         yield 'empty entries do not hide the seller VAT ID' => [['', 'DE123456789', 'NL123456789B01'], true];
         yield 'invalid entries do not hide the seller VAT ID' => [['INVALID', 'DE123456789'], true];
-        yield 'unchecked seller VAT ID precedes another member state' => [['DE123456789', 'NL123456789B01'], false];
         yield 'unchecked foreign VAT ID does not hide the seller VAT ID' => [['NL123456789B01', 'DE123456789'], false];
-        yield 'unchecked delivery country VAT ID does not hide the seller VAT ID' => [['FRAB123456789', 'DE123456789'], false];
     }
 
     private function createContext(): SalesChannelContext
     {
         static::getContainer()->get(VatIdPatternProvider::class)->reset();
+        static::getContainer()->get(IntraCommunityTaxResolver::class)->reset();
 
         return static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),

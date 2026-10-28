@@ -30,7 +30,7 @@ test.describe.configure({ mode: 'default' });
 test.beforeAll(async ({ AdminApiContext, IdProvider }) => {
     const countryResponse = await AdminApiContext.post('search/country', {
         data: {
-            filter: [{ type: 'equalsAny', field: 'iso', value: ['DE', 'FR', 'CH'] }],
+            filter: [{ type: 'equalsAny', field: 'iso', value: ['DE', 'FR'] }],
         },
     });
     expect(countryResponse.ok()).toBeTruthy();
@@ -40,7 +40,7 @@ test.beforeAll(async ({ AdminApiContext, IdProvider }) => {
         companyTax: getTaxConfig(country.companyTax),
         customerTax: getTaxConfig(country.customerTax),
     }));
-    expect(countries).toHaveLength(3);
+    expect(countries).toHaveLength(2);
     const france = countries.find((country) => country.iso === 'FR')!;
 
     const ruleTypeResponse = await AdminApiContext.post('search/tax-rule-type', {
@@ -94,87 +94,16 @@ test.afterAll(async ({ AdminApiContext }) => {
     }
 });
 
-interface VatStatus {
-    name: string;
-    vatIds: string[];
-    accountType: 'business' | 'private';
-    taxCategory: 'foreign' | 'seller' | 'none';
-}
-
-const vatStatuses: VatStatus[] = [
-    {
-        name: 'another member state VAT ID',
-        vatIds: ['NL123456789B01'],
-        accountType: 'business',
-        taxCategory: 'foreign',
-    },
-    {
-        name: 'seller-country VAT ID',
-        vatIds: ['DE123456789'],
-        accountType: 'business',
-        taxCategory: 'seller',
-    },
-    { name: 'no VAT ID', vatIds: [], accountType: 'business', taxCategory: 'none' },
-    { name: 'an invalid VAT ID', vatIds: ['INVALID'], accountType: 'business', taxCategory: 'none' },
-    { name: 'a private customer', vatIds: [], accountType: 'private', taxCategory: 'none' },
-];
-
-const destinations = [
-    {
-        iso: 'CH',
-        name: 'Switzerland',
-        city: 'Zurich',
-        zipcode: '8001',
-        isEu: false,
-        taxRates: { foreign: 0, seller: 0, none: 0 },
-    },
-    {
-        iso: 'FR',
-        name: 'France',
-        city: 'Paris',
-        zipcode: '75001',
-        isEu: true,
-        taxRates: { foreign: 0, seller: 19, none: 20 },
-    },
-    {
-        iso: 'DE',
-        name: 'Germany',
-        city: 'Berlin',
-        zipcode: '10115',
-        isEu: true,
-        taxRates: { foreign: 19, seller: 19, none: 19 },
-    },
-];
-
-const matrix = destinations.flatMap((destination) =>
-    vatStatuses.map((vatStatus) => {
-        const taxRate = destination.taxRates[vatStatus.taxCategory];
-
-        return {
-            ...vatStatus,
-            company: vatStatus.accountType === 'business' ? 'EU Business' : '',
-            destination,
-            checkVatIdPattern: true,
-            taxRate,
-            taxAmount: taxRate === 19 ? 1.6 : taxRate === 20 ? 1.67 : 0,
-        };
-    }),
-);
-
+// One case per outcome, the full VAT ID and delivery country matrix is covered by IntraCommunityTaxRuleTest
 const scenarios = [
-    ...matrix,
-    ...matrix
-        .filter((scenario) => scenario.destination.iso === 'FR' && scenario.taxCategory !== 'none')
-        .map((scenario) => ({
-            ...scenario,
-            name: `${scenario.name} with format validation disabled`,
-            checkVatIdPattern: false,
-        })),
+    { name: 'another member state VAT ID', vatIds: ['NL123456789B01'], taxRate: 0, taxAmount: 0 },
+    { name: 'a seller-country VAT ID', vatIds: ['DE123456789'], taxRate: 19, taxAmount: 1.6 },
+    { name: 'no VAT ID', vatIds: [], taxRate: 20, taxAmount: 1.67 },
 ];
 
 for (const scenario of scenarios) {
     test(
-        `A German seller charges ${scenario.taxRate}% VAT for goods delivered to ${scenario.destination.name} with ${scenario.name}.`,
+        `A German seller charges ${scenario.taxRate}% VAT for goods delivered to France with ${scenario.name}.`,
         {
             tag: [
                 '@Checkout',
@@ -201,20 +130,20 @@ for (const scenario of scenarios) {
             testInfo,
         ) => {
             const germany = countries.find((country) => country.iso === 'DE')!;
-            const destinationCountry = countries.find((country) => country.iso === scenario.destination.iso)!;
+            const france = countries.find((country) => country.iso === 'FR')!;
 
             await test.step('Configure seller and destination VAT for the goods delivery', async () => {
                 await TestDataService.setSystemConfig({ 'core.basicInformation.sellerCountryId': germany.id });
-                await TestDataService.assignSalesChannelCountry(DefaultSalesChannel.salesChannel.id, destinationCountry.id);
+                await TestDataService.assignSalesChannelCountry(DefaultSalesChannel.salesChannel.id, france.id);
 
-                const countryResponse = await AdminApiContext.patch(`country/${destinationCountry.id}`, {
+                const countryResponse = await AdminApiContext.patch(`country/${france.id}`, {
                     data: {
                         active: true,
                         shippingAvailable: true,
-                        isEu: scenario.destination.isEu,
-                        checkVatIdPattern: scenario.checkVatIdPattern,
-                        customerTax: { ...destinationCountry.customerTax, enabled: !scenario.destination.isEu },
-                        companyTax: { ...destinationCountry.companyTax, enabled: true },
+                        isEu: true,
+                        checkVatIdPattern: true,
+                        customerTax: { ...france.customerTax, enabled: false },
+                        companyTax: { ...france.companyTax, enabled: true },
                     },
                 });
                 expect(countryResponse.ok()).toBeTruthy();
@@ -225,7 +154,7 @@ for (const scenario of scenarios) {
             const address = {
                 firstName: 'John',
                 lastName: 'Doe',
-                company: scenario.company,
+                company: 'EU Business',
                 street: 'Business street 1',
                 city: 'Berlin',
                 zipcode: '10115',
@@ -233,16 +162,11 @@ for (const scenario of scenarios) {
                 salutationId: salutation.id,
             };
             const customer = await TestDataService.createCustomer({
-                accountType: scenario.accountType,
+                accountType: 'business',
                 company: address.company,
                 vatIds: scenario.vatIds,
                 defaultBillingAddress: address,
-                defaultShippingAddress: {
-                    ...address,
-                    city: scenario.destination.city,
-                    zipcode: scenario.destination.zipcode,
-                    countryId: destinationCountry.id,
-                },
+                defaultShippingAddress: { ...address, city: 'Paris', zipcode: '75001', countryId: france.id },
             });
             const product = await TestDataService.createBasicProduct({}, taxId);
 
@@ -309,7 +233,7 @@ for (const scenario of scenarios) {
                 expect(orderResponse.ok()).toBeTruthy();
                 const { data: orders } = await orderResponse.json();
                 expect(orders[0].price.taxStatus).toBe(scenario.taxRate === 0 ? 'tax-free' : 'gross');
-                expect(orders[0].deliveries[0].shippingOrderAddress.countryId).toBe(destinationCountry.id);
+                expect(orders[0].deliveries[0].shippingOrderAddress.countryId).toBe(france.id);
             });
         },
     );

@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
@@ -751,6 +752,7 @@ class InvoiceRendererTest extends TestCase
             $this->getAnotherEuCountryId('NL')
         );
         static::getContainer()->get(VatIdPatternProvider::class)->reset();
+        static::getContainer()->get(IntraCommunityTaxResolver::class)->reset();
 
         $ruleIds = $this->salesChannelContext->getRuleIds();
         $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
@@ -891,6 +893,7 @@ class InvoiceRendererTest extends TestCase
         );
 
         static::getContainer()->get(VatIdPatternProvider::class)->reset();
+        static::getContainer()->get(IntraCommunityTaxResolver::class)->reset();
         $ruleIds = $this->salesChannelContext->getRuleIds();
         $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),

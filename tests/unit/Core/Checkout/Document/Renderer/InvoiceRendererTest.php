@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Cart\Tax\IntraEuTaxResolver;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -45,6 +45,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -97,8 +98,9 @@ class InvoiceRendererTest extends TestCase
         $orderRepositoryMock->method('search')->willReturn($orderSearchResult);
 
         $vatIdPatternProvider = static::createStub(VatIdPatternProvider::class);
-        $vatIdPatternProvider->method('isDomesticSupply')->willReturn($orderSettings['domesticSupply'] ?? false);
-        $vatIdPatternProvider->method('acceptsVatId')->willReturn($orderSettings['validVat'] ?? false);
+        // The shop supplies from the delivery country only for a domestic supply
+        $vatIdPatternProvider->method('getMemberStateOfCountry')->willReturn(($orderSettings['domesticSupply'] ?? false) ? 'DE' : null);
+        $vatIdPatternProvider->method('matches')->willReturn($orderSettings['validVat'] ?? false);
 
         $invoiceRenderer = new InvoiceRenderer(
             $orderRepositoryMock,
@@ -108,7 +110,7 @@ class InvoiceRendererTest extends TestCase
             $connectionMock,
             static::createStub(DocumentFileRendererRegistry::class),
             new NativeClock(),
-            new IntraEuTaxResolver($vatIdPatternProvider)
+            new IntraCommunityTaxResolver($vatIdPatternProvider, static::createStub(SystemConfigService::class), static::createStub(EntityRepository::class))
         );
 
         $operations = [
@@ -196,7 +198,7 @@ class InvoiceRendererTest extends TestCase
             $connectionMock,
             static::createStub(DocumentFileRendererRegistry::class),
             new NativeClock(),
-            static::createStub(IntraEuTaxResolver::class)
+            static::createStub(IntraCommunityTaxResolver::class)
         );
 
         $operations = [
@@ -250,7 +252,7 @@ class InvoiceRendererTest extends TestCase
             $connectionMock,
             static::createStub(DocumentFileRendererRegistry::class),
             new NativeClock(),
-            static::createStub(IntraEuTaxResolver::class)
+            static::createStub(IntraCommunityTaxResolver::class)
         );
 
         $operations = [
@@ -496,6 +498,7 @@ class InvoiceRendererTest extends TestCase
         if ($orderSettings['setShippingCountry'] && $orderSettings['setOrderDelivery']) {
             $country = new CountryEntity();
             $country->setId(self::COUNTRY_ID);
+            $country->setIso('DE');
             if ($orderSettings['setEuCountry']) {
                 $country->setIsEu(true);
             } else {

@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Cart\Tax\IntraEuTaxResolver;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -184,7 +184,7 @@ class CreditNoteDataProviderTest extends TestCase
         return new InvoiceDataProvider(
             $configLoader,
             $documentTypeRegistry,
-            static::createStub(IntraEuTaxResolver::class),
+            static::createStub(IntraCommunityTaxResolver::class),
         );
     }
 

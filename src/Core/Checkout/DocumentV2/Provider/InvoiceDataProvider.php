@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Provider;
 
-use Shopware\Core\Checkout\Cart\Tax\IntraEuTaxResolver;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
@@ -34,7 +34,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
     public function __construct(
         private DocumentConfigLoader $documentConfigLoader,
         private DocumentTypeRegistry $documentTypeRegistry,
-        private IntraEuTaxResolver $intraEuTaxResolver,
+        private IntraCommunityTaxResolver $intraCommunityTaxResolver,
     ) {
     }
 
@@ -95,7 +95,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
 
         $displayAdditionalNoteDelivery = (bool) ($bundle->legacyConfig['displayAdditionalNoteDelivery'] ?? false);
 
-        $isIntraCommunityDelivery = $displayAdditionalNoteDelivery && $this->intraEuTaxResolver->isIntraCommunityDelivery($order);
+        $isIntraCommunityDelivery = $displayAdditionalNoteDelivery && $this->intraCommunityTaxResolver->isIntraCommunityDelivery($order);
 
         $allowNegative = $this->documentTypeRegistry
             ->getDocumentType($generationRequest->documentType)

@@ -5,7 +5,7 @@ namespace Shopware\Core\System\SalesChannel\Context;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\AbstractTaxDetector;
-use Shopware\Core\Checkout\Cart\Tax\IntraEuTaxResolver;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
@@ -57,7 +57,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly EntityRepository $currencyCountryRepository,
         private readonly AbstractBaseSalesChannelContextFactory $baseSalesChannelContextFactory,
-        private readonly IntraEuTaxResolver $intraEuTaxResolver,
+        private readonly IntraCommunityTaxResolver $intraCommunityTaxResolver,
         private readonly EntityRepository $countryRepository,
     ) {
     }
@@ -161,7 +161,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
     private function getTaxLocation(BaseSalesChannelContext $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): ShippingLocation
     {
-        $taxCountryId = $this->intraEuTaxResolver->getTaxCountryId(
+        $taxCountryId = $this->intraCommunityTaxResolver->getTaxCountryId(
             $customer?->getAccountType(),
             $customer?->getVatIds(),
             $shippingLocation->getCountry(),

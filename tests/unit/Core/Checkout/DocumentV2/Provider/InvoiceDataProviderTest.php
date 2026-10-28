@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Cart\Tax\IntraEuTaxResolver;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -34,6 +34,7 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
 use Shopware\Core\Framework\Log\Package;
@@ -402,7 +403,7 @@ class InvoiceDataProviderTest extends TestCase
      */
     private function createProvider(
         array $config = [],
-        ?VatIdPatternProvider $vatIdPatternProvider = null
+        ?IntraCommunityTaxResolver $intraCommunityTaxResolver = null
     ): InvoiceDataProvider {
         $companyCountry = new CountryEntity();
         $companyCountry->setUniqueIdentifier(self::COMPANY_COUNTRY_ID);
@@ -437,7 +438,11 @@ class InvoiceDataProviderTest extends TestCase
         return new InvoiceDataProvider(
             $configLoader,
             $documentTypeRegistry,
-            new IntraEuTaxResolver($vatIdPatternProvider ?? static::createStub(VatIdPatternProvider::class)),
+            $intraCommunityTaxResolver ?? new IntraCommunityTaxResolver(
+                static::createStub(VatIdPatternProvider::class),
+                static::createStub(SystemConfigService::class),
+                static::createStub(EntityRepository::class),
+            ),
         );
     }
 
@@ -458,7 +463,7 @@ class InvoiceDataProviderTest extends TestCase
 
         $provider = $this->createProvider(
             ['displayAdditionalNoteDelivery' => true],
-            $this->createRealVatIdPatternProvider()
+            $this->createIntraCommunityTaxResolver()
         );
 
         return $provider->provideRenderingData(
@@ -477,7 +482,7 @@ class InvoiceDataProviderTest extends TestCase
      * The shop supplies from Germany, so a Dutch VAT ID is only accepted on a Belgian delivery through
      * the intra-community fallback.
      */
-    private function createRealVatIdPatternProvider(): VatIdPatternProvider
+    private function createIntraCommunityTaxResolver(): IntraCommunityTaxResolver
     {
         $sellerCountryId = Uuid::randomHex();
 
@@ -491,7 +496,7 @@ class InvoiceDataProviderTest extends TestCase
         $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('getString')->willReturn($sellerCountryId);
 
-        return new VatIdPatternProvider($repository, $systemConfigService);
+        return new IntraCommunityTaxResolver(new VatIdPatternProvider($repository), $systemConfigService, static::createStub(EntityRepository::class));
     }
 
     private function createPatternCountry(string $id, string $iso, string $vatIdPattern): CountryEntity

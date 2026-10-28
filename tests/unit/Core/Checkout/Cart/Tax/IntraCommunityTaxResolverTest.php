@@ -6,7 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Cart\Tax\IntraEuTaxResolver;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 
@@ -28,8 +29,8 @@ use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(IntraEuTaxResolver::class)]
-class IntraEuTaxResolverTest extends TestCase
+#[CoversClass(IntraCommunityTaxResolver::class)]
+class IntraCommunityTaxResolverTest extends TestCase
 {
     private const DE_ID = '11111111111111111111111111111111';
 
@@ -49,9 +50,7 @@ class IntraEuTaxResolverTest extends TestCase
 
     private StaticSystemConfigService $systemConfig;
 
-    private VatIdPatternProvider $vatIdPatternProvider;
-
-    private IntraEuTaxResolver $resolver;
+    private IntraCommunityTaxResolver $resolver;
 
     protected function setUp(): void
     {
@@ -72,11 +71,11 @@ class IntraEuTaxResolverTest extends TestCase
 
         $euCountries = $this->countries->filter(static fn (CountryEntity $country) => $country->getIsEu());
         $this->systemConfig = new StaticSystemConfigService(['core.basicInformation.sellerCountryId' => self::DE_ID]);
-        $this->vatIdPatternProvider = new VatIdPatternProvider(
-            new StaticEntityRepository([$euCountries, [self::DE_ID]]),
+        $this->resolver = new IntraCommunityTaxResolver(
+            new VatIdPatternProvider(new StaticEntityRepository([$euCountries])),
             $this->systemConfig,
+            StaticEntityRepository::of(CountryCollection::class, [[self::DE_ID]]),
         );
-        $this->resolver = new IntraEuTaxResolver($this->vatIdPatternProvider);
     }
 
     /**
@@ -111,54 +110,33 @@ class IntraEuTaxResolverTest extends TestCase
      * @param list<string> $vatIds
      */
     #[DataProvider('vatIdsProvider')]
-    public function testVatEligibilityAndTaxCountrySelection(array $vatIds, bool $exempt, string $taxCountryId): void
+    public function testVatEligibilityAndTaxCountrySelection(array $vatIds, bool $checkVatIdPattern, bool $exempt, string $taxCountryId): void
     {
         $country = $this->country(self::FR_ID);
+        $country->setCheckVatIdPattern($checkVatIdPattern);
 
         static::assertSame($exempt, $this->resolver->isExempt(CustomerEntity::ACCOUNT_TYPE_BUSINESS, $vatIds, $country, self::CHANNEL_ID));
         static::assertSame($taxCountryId, $this->resolver->getTaxCountryId(CustomerEntity::ACCOUNT_TYPE_BUSINESS, $vatIds, $country, self::CHANNEL_ID));
     }
 
     /**
-     * @return iterable<string, array{list<string>, bool, string}>
+     * @return iterable<string, array{list<string>, bool, bool, string}>
      */
     public static function vatIdsProvider(): iterable
     {
-        yield 'empty VAT list remains taxable at destination' => [[], false, self::FR_ID];
-        yield 'empty entries remain taxable at destination' => [[''], false, self::FR_ID];
-        yield 'invalid VAT remains taxable at destination' => [['INVALID'], false, self::FR_ID];
-        yield 'VAT matching the delivery country is exempt' => [['FR12345678901'], true, self::FR_ID];
-        yield 'seller VAT before a foreign VAT selects origin' => [[self::SELLER_VAT, self::FOREIGN_VAT], false, self::DE_ID];
-        yield 'foreign VAT before seller VAT selects origin' => [[self::FOREIGN_VAT, self::SELLER_VAT], false, self::DE_ID];
-        yield 'empty entry before seller VAT is ignored' => [['', self::SELLER_VAT], false, self::DE_ID];
-        yield 'invalid VAT before seller VAT selects origin' => [['INVALID', self::SELLER_VAT], false, self::DE_ID];
-        yield 'multiple foreign VAT IDs remain exempt' => [[self::FOREIGN_VAT, 'FR12345678901'], true, self::FR_ID];
-        yield 'reversed foreign VAT IDs remain exempt' => [['FR12345678901', self::FOREIGN_VAT], true, self::FR_ID];
-        yield 'invalid seller VAT does not select origin' => [['DEINVALID', self::FOREIGN_VAT], false, self::FR_ID];
-    }
-
-    /**
-     * @param list<string> $vatIds
-     */
-    #[DataProvider('mixedSellerVatIdsProvider')]
-    public function testSellerVatInAnyPositionKeepsUncheckedDeliveriesTaxable(array $vatIds): void
-    {
-        $country = $this->country(self::FR_ID);
-        $country->setCheckVatIdPattern(false);
-
-        static::assertFalse($this->resolver->isExempt(CustomerEntity::ACCOUNT_TYPE_BUSINESS, $vatIds, $country, self::CHANNEL_ID));
-        static::assertSame(self::DE_ID, $this->resolver->getTaxCountryId(CustomerEntity::ACCOUNT_TYPE_BUSINESS, $vatIds, $country, self::CHANNEL_ID));
-    }
-
-    /**
-     * @return iterable<string, array{list<string>}>
-     */
-    public static function mixedSellerVatIdsProvider(): iterable
-    {
-        yield 'seller VAT before foreign VAT' => [[self::SELLER_VAT, self::FOREIGN_VAT]];
-        yield 'foreign VAT before seller VAT' => [[self::FOREIGN_VAT, self::SELLER_VAT]];
-        yield 'invalid VAT before seller VAT' => [['INVALID', self::SELLER_VAT]];
-        yield 'empty VAT before seller VAT' => [['', self::SELLER_VAT]];
+        yield 'empty VAT list remains taxable at destination' => [[], true, false, self::FR_ID];
+        yield 'empty entries remain taxable at destination' => [[''], true, false, self::FR_ID];
+        yield 'invalid VAT remains taxable at destination' => [['INVALID'], true, false, self::FR_ID];
+        yield 'VAT matching the delivery country is exempt' => [['FR12345678901'], true, true, self::FR_ID];
+        yield 'multiple foreign VAT IDs remain exempt' => [[self::FOREIGN_VAT, 'FR12345678901'], true, true, self::FR_ID];
+        yield 'invalid seller VAT does not select origin' => [['DEINVALID', self::FOREIGN_VAT], true, false, self::FR_ID];
+        yield 'seller VAT next to a foreign VAT selects origin' => [[self::FOREIGN_VAT, self::SELLER_VAT], true, false, self::DE_ID];
+        yield 'empty entry next to seller VAT is ignored' => [['', self::SELLER_VAT], true, false, self::DE_ID];
+        yield 'invalid VAT next to seller VAT selects origin' => [['INVALID', self::SELLER_VAT], true, false, self::DE_ID];
+        yield 'unchecked delivery country still needs a VAT ID' => [[], false, false, self::FR_ID];
+        yield 'unchecked delivery country exempts any VAT' => [['INVALID'], false, true, self::FR_ID];
+        yield 'unchecked delivery country keeps the seller VAT exclusion' => [[self::FOREIGN_VAT, self::SELLER_VAT], false, false, self::DE_ID];
+        yield 'seller VAT behind more IDs than member states selects origin' => [[self::FOREIGN_VAT, self::FOREIGN_VAT, self::FOREIGN_VAT, self::SELLER_VAT], false, false, self::DE_ID];
     }
 
     #[DataProvider('accountTypeProvider')]
@@ -188,17 +166,6 @@ class IntraEuTaxResolverTest extends TestCase
         static::assertSame(self::FR_ID, $this->resolver->getTaxCountryId(CustomerEntity::ACCOUNT_TYPE_BUSINESS, [self::SELLER_VAT], $country, self::CHANNEL_ID));
     }
 
-    public function testDisablingPatternChecksKeepsTheSellerVatExclusion(): void
-    {
-        $country = $this->country(self::FR_ID);
-        $country->setCheckVatIdPattern(false);
-
-        static::assertFalse($this->resolver->isExempt(CustomerEntity::ACCOUNT_TYPE_BUSINESS, [self::SELLER_VAT], $country, self::CHANNEL_ID));
-        static::assertSame(self::DE_ID, $this->resolver->getTaxCountryId(CustomerEntity::ACCOUNT_TYPE_BUSINESS, [self::SELLER_VAT], $country, self::CHANNEL_ID));
-        static::assertTrue($this->resolver->isExempt(CustomerEntity::ACCOUNT_TYPE_BUSINESS, ['INVALID'], $country, self::CHANNEL_ID));
-        static::assertFalse($this->resolver->isExempt(CustomerEntity::ACCOUNT_TYPE_BUSINESS, [], $country, self::CHANNEL_ID));
-    }
-
     public function testConfiguredSellerOverridesTheSalesChannelDefault(): void
     {
         $this->systemConfig->set('core.basicInformation.sellerCountryId', self::NL_ID);
@@ -215,6 +182,51 @@ class IntraEuTaxResolverTest extends TestCase
 
         static::assertSame(self::DE_ID, $this->resolver->getTaxCountryId(CustomerEntity::ACCOUNT_TYPE_BUSINESS, [self::SELLER_VAT], $country, self::CHANNEL_ID));
         static::assertFalse($this->resolver->isExempt(CustomerEntity::ACCOUNT_TYPE_BUSINESS, [self::SELLER_VAT], $country, self::CHANNEL_ID));
+    }
+
+    public function testAnUppercaseSellerCountryIdStillNamesTheSellersMemberState(): void
+    {
+        $this->systemConfig->set('core.basicInformation.sellerCountryId', strtoupper(self::DE_ID));
+        $country = $this->country(self::FR_ID);
+
+        static::assertSame(self::DE_ID, $this->resolver->getTaxCountryId(CustomerEntity::ACCOUNT_TYPE_BUSINESS, [self::SELLER_VAT], $country, self::CHANNEL_ID));
+        static::assertTrue($this->resolver->isExempt(CustomerEntity::ACCOUNT_TYPE_BUSINESS, [self::FOREIGN_VAT], $country, self::CHANNEL_ID));
+    }
+
+    public function testAnEmptySalesChannelHasNoSellerState(): void
+    {
+        $systemConfig = $this->createMock(SystemConfigService::class);
+        $systemConfig->expects($this->never())->method('getString');
+        $resolver = new IntraCommunityTaxResolver(
+            new VatIdPatternProvider(new StaticEntityRepository([$this->countries->filter(static fn (CountryEntity $country) => $country->getIsEu())])),
+            $systemConfig,
+            StaticEntityRepository::of(CountryCollection::class),
+        );
+        $country = $this->country(self::FR_ID);
+
+        static::assertFalse($resolver->isExempt(CustomerEntity::ACCOUNT_TYPE_BUSINESS, [self::FOREIGN_VAT], $country, ''));
+        static::assertSame(self::FR_ID, $resolver->getTaxCountryId(CustomerEntity::ACCOUNT_TYPE_BUSINESS, [self::SELLER_VAT], $country, ''));
+    }
+
+    public function testTheSalesChannelsDefaultCountryIsReadOncePerSalesChannelUntilReset(): void
+    {
+        $this->systemConfig->set('core.basicInformation.sellerCountryId', '');
+        $countryRepository = StaticEntityRepository::of(CountryCollection::class, [[self::DE_ID], [self::DE_ID]]);
+        $resolver = new IntraCommunityTaxResolver(
+            new VatIdPatternProvider(new StaticEntityRepository([$this->countries->filter(static fn (CountryEntity $country) => $country->getIsEu())])),
+            $this->systemConfig,
+            $countryRepository,
+        );
+        $country = $this->country(self::FR_ID);
+
+        // The context factory and the cart ask several times per request
+        $resolver->getTaxCountryId(CustomerEntity::ACCOUNT_TYPE_BUSINESS, [self::SELLER_VAT], $country, self::CHANNEL_ID);
+        $resolver->isExempt(CustomerEntity::ACCOUNT_TYPE_BUSINESS, [self::SELLER_VAT], $country, self::CHANNEL_ID);
+        static::assertCount(1, $countryRepository->searchedCriteria);
+
+        $resolver->reset();
+        $resolver->isExempt(CustomerEntity::ACCOUNT_TYPE_BUSINESS, [self::SELLER_VAT], $country, self::CHANNEL_ID);
+        static::assertCount(2, $countryRepository->searchedCriteria);
     }
 
     public function testUnknownSellerDoesNotGrantAnIntraCommunityExemption(): void

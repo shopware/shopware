@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
@@ -374,7 +375,7 @@ class CartTaxTest extends TestCase
 
     public function testCompanyTaxFreeWithVatIdOfOtherEuMemberState(): void
     {
-        $this->prepareIntraEuDelivery();
+        $this->prepareIntraCommunityDelivery();
         $this->createCrossBorderCustomerAndLogin(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
 
         // 500 net for the product + 10 net for the shipping
@@ -384,7 +385,7 @@ class CartTaxTest extends TestCase
 
     public function testPrivateAccountIsNotCompanyTaxFreeWithVatIdOfOtherEuMemberState(): void
     {
-        $this->prepareIntraEuDelivery();
+        $this->prepareIntraCommunityDelivery();
 
         // Same company and VAT ID as the B2B case; only the account type differs
         $this->createCrossBorderCustomerAndLogin(CustomerEntity::ACCOUNT_TYPE_PRIVATE);
@@ -557,7 +558,7 @@ class CartTaxTest extends TestCase
             ->create($data, Context::createDefaultContext());
     }
 
-    private function prepareIntraEuDelivery(): void
+    private function prepareIntraCommunityDelivery(): void
     {
         $this->createShippingMethod(alwaysAvailable: true);
 
@@ -607,6 +608,7 @@ class CartTaxTest extends TestCase
         );
 
         static::getContainer()->get(VatIdPatternProvider::class)->reset();
+        static::getContainer()->get(IntraCommunityTaxResolver::class)->reset();
     }
 
     private function createCrossBorderCustomerAndLogin(string $accountType): void

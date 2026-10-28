@@ -15,7 +15,7 @@ class TaxDetector extends AbstractTaxDetector
     /**
      * @internal
      */
-    public function __construct(private readonly IntraEuTaxResolver $intraEuTaxResolver)
+    public function __construct(private readonly IntraCommunityTaxResolver $intraCommunityTaxResolver)
     {
     }
 
@@ -57,7 +57,7 @@ class TaxDetector extends AbstractTaxDetector
     {
         $customer = $context->getCustomer();
 
-        return $this->intraEuTaxResolver->isExempt(
+        return $this->intraCommunityTaxResolver->isExempt(
             $customer?->getAccountType(),
             $customer?->getVatIds(),
             $shippingLocationCountry,

@@ -7,7 +7,7 @@ use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Cart\Tax\IntraEuTaxResolver;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\CreditNoteOrdersEvent;
 use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
@@ -57,7 +57,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         private readonly Connection $connection,
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
         private readonly ClockInterface $clock,
-        private readonly IntraEuTaxResolver $intraEuTaxResolver,
+        private readonly IntraCommunityTaxResolver $intraCommunityTaxResolver,
     ) {
     }
 
@@ -172,11 +172,8 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                         'creditNoteNumber' => $number,
                         'invoiceNumber' => $referenceDocumentNumber,
                     ],
-                    'intraCommunityDelivery' => $this->isIntraCommunityDelivery(
-                        $config->jsonSerialize(),
-                        $order,
-                        $this->intraEuTaxResolver,
-                    ),
+                    'intraCommunityDelivery' => ($config->jsonSerialize()['displayAdditionalNoteDelivery'] ?? false) !== false
+                        && $this->intraCommunityTaxResolver->isIntraCommunityDelivery($order),
                 ]);
 
                 // create version of order to ensure the document stays the same even if the order changes

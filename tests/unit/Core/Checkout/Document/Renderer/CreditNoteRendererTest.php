@@ -11,7 +11,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Cart\Tax\IntraEuTaxResolver;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Document\DocumentException;
@@ -476,7 +476,7 @@ class CreditNoteRendererTest extends TestCase
             $connection,
             static::createStub(DocumentFileRendererRegistry::class),
             new NativeClock(),
-            static::createStub(IntraEuTaxResolver::class)
+            static::createStub(IntraCommunityTaxResolver::class)
         );
     }
 }

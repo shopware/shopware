@@ -33,6 +33,11 @@ export const REQUIRES_CREDIT_ITEMS = [
 export default {
     template,
 
+    deprecated: {
+        version: 'v6.9.0.0',
+        comment: 'Removed with document generation v1.',
+    },
+
     inject: ['repositoryFactory'],
 
     emits: ['modal-close', 'update:value'],

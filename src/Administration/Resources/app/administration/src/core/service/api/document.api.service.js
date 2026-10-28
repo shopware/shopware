@@ -17,6 +17,11 @@ const DocumentEvents = {
  */
 class DocumentApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'document') {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_9_0_0',
+            'documentService is deprecated. Removed with document generation v1; use documentV2ApiService instead.',
+        );
+
         super(httpClient, loginService, apiEndpoint);
         this.name = 'documentService';
         this.$listener = () => ({});

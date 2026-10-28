@@ -34,7 +34,6 @@
     "unused-export:src/app/adapter/composition-extension-system/index.ts:getScriptSetupDataScope",
     "unused-export:src/app/component/structure/sw-ui-shell-update-2026-modal/sw-ui-shell-update-2026-modal.spec/create-wrapper.ts:BEFORE_RELEASE",
     "unused-export:src/app/service/app-cms.service.js:BLOCKS_CATEGORIES",
-    "unused-export:src/core/factory/async-component.factory.spec/native-block-condition.fixtures.js:mount",
     "unused-export:src/core/service/util.service.ts:extension",
     "unused-export:src/core/service/util.service.ts:genericRuleCondition",
     "unused-export:src/core/service/util.service.ts:unitConversion",

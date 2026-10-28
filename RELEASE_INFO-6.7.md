@@ -887,15 +887,15 @@ Only rules of the default tax groups that still have their original rate and wer
 Shops that adjusted these rules themselves keep their rules, and should compare them with the current rates.
 ### Company tax exemption accepts VAT IDs from other EU member states
 
-The new *Shop owner's country* setting (`core.basicInformation.sellerCountryId`, per sales channel) in Settings > Basic information sets the shop's own member state for *Tax-free (B2B)*.
-While it is empty, the sales channel's default country is used.
-If the country used is not an EU member state, *Tax-free (B2B)* behaves as before.
-Otherwise, the following applies right after the update:
+The new *Shop owner's country* setting (`core.basicInformation.sellerCountryId`, per sales channel, defaults to the sales channel's default country) sets the shop's own EU member state for *Tax-free (B2B)*; for a non-EU country nothing changes.
+A VAT ID of any other EU member state is exempt, one of the shop's own member state is not, and a delivery within the shop's own member state is never exempt; tax rules are still resolved from the delivery country.
+Documents print the intra-community delivery note for exactly the orders the cart exempts.
+A customer counts as a business based on `accountType` instead of a non-empty `company`; with *Check VAT ID pattern* enabled, Store API, Storefront and Administration accept a VAT ID of any EU member state for an EU billing country and reject a missing or malformed one.
+The new `customer.vatIdCountryId` field (association `vatIdCountry`, not in the Store API) holds the country of the first VAT ID and stays `null` for existing customers until their `vatIds` are written again.
+The cart hash also covers the checkout addresses and the customer's account type, company and VAT IDs.
 
-- A VAT ID of any other EU member state is exempt, one of the shop's own member state is not.
-- A delivery within the shop's own member state is never exempt. *Tax-free (B2C)* is unaffected.
-- Known limitation: a customer with a VAT ID of the shop's own member state is charged the delivery country's rate instead of the shop's when the delivery leaves that state, as tax rules are resolved from the delivery country.
-- Digital products follow the same rules as goods. The separate EU rules for them are not implemented yet.
+Extensions: `CustomerVatIdentification` takes an optional `salesChannelId`, document renderers call the new `AbstractDocumentRenderer::isDomesticSupply()`, `TaxDetector` has a new constructor argument (decorate `AbstractTaxDetector` instead), and the `document_recipient` block reads `customer.vatIds` instead of `customer.customer.vatIds`.
+Themes overriding `address-personal-vat-id.html.twig` use `data-form-validation-pattern-message` and the new `data-eu-vat-id-patterns` attribute, filled by the new Twig function `sw_eu_vat_id_patterns()`; `CountryStateSelectPlugin::_getFormFieldToggleInstance()` and `_onFormFieldToggleChange()` are deprecated and removed in 6.8.0.
 
 Invoices, cancellation invoices and credit notes print the intra-community delivery note for exactly the orders the cart exempts.
 
@@ -922,6 +922,48 @@ The new `customer.vatIdCountryId` field (association `vatIdCountry`) holds the c
 ### The cart hash covers the checkout addresses
 
 The cart hash additionally covers the active billing and shipping address (id, country, country state, zip code, city) and the customer's account type, company and VAT IDs.
+### `NotFilter` negates a single filter
+
+`NotFilter::negate()` negates a single filter without an operator and a list of queries, so `NotFilter::negate(new EqualsFilter('parentId', null))` replaces `new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('parentId', null)])`. Both create the same filter. With `v6.8.0`, the `NotFilter` constructor accepts the single filter directly as well.
+
+### Product line items carry the GARAN label they were shown with
+
+Cart and order product line items now store their GARAN label values in `payload.garanLabel`; editing an order keeps them as is.
+A migration adds them to order line items created since the update that introduced GARAN labels, if their product has one.
+Order line items without `payload.garanLabel` show no GARAN label, so write it with `guaranteeMonths`, `brand` and `modelIdentifier` if you create orders through the Admin API or the Sync API.
+Headless frontends can read the payload instead of calling `/store-api/product/{productId}/garan-label`.
+The `sw_garan_label_nested` Twig filter is deprecated.
+### Order line items of older orders get their product type
+
+This release fills `payload.productType` for every product and custom order line item that does not have it yet, based on the line item's deprecated `states`.
+The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physical line items, so most line items of older orders had no product type.
+Values that are already set are kept.
+Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
+
+### Set null on delete also applies to cascaded deletes
+
+When the DAL deletes an entity, `SetNullOnDelete` associations of the entities removed through `CascadeDelete` are now resolved as well, not only those of the deleted entity itself. For associations without a database constraint (`SetNullOnDelete(false)`) the reference is set to `null` and a write result is dispatched for the updated entity. For example, deleting a media that is used as a product cover now clears `product.coverId`. Entities that are deleted in the same operation are not updated, so deleting a product with a cover still reports the product, and its variants, as deleted.
+
+### Business customers need a VAT ID for countries that require one
+
+If the country of the active billing address has "VAT Reg.No. required" enabled, the cart of a business customer without a VAT ID now carries the blocking error `vat-id-missing`, and the order can't be placed.
+This also covers customers who registered before the setting was enabled or who switched to a billing address in such a country later.
+Store API clients should show the error and let the customer add the VAT ID via `/store-api/account/change-profile`.
+That route now validates `vatIds` against the country of the active billing address instead of the default one, the same country the cart checks.
+Headless clients find that address as `customer.activeBillingAddress` in `/store-api/context`.
+The Storefront profile page marks the VAT ID field as required based on the same country.
+
+### Remote thumbnails skip SVGs
+
+With `shopware.media.remote_thumbnails.enable`, SVGs now have an empty `thumbnails` collection, as in local mode.
+Before, their `srcset` claimed widths that the returned original file did not have, so browsers rendered small SVG logos far too small.
+Media loaded without the `mediaType` field keep their thumbnail URLs, as the type can't be checked.
+
+### Tax-free detection of new sales channel contexts matches the cart
+
+New sales channel contexts now decide tax-free delivery like the cart (`TaxDetector::isNetDelivery()`):
+commercial customers only get "Tax-free (B2B)", all other customers only "Tax-free (B2C)".
+Cart and order taxes stay the same, but Rule Builder conditions like "Cart amount" can match differently than before for customers who only met the other setting.
 
 ## API
 

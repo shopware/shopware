@@ -199,17 +199,6 @@ The route requires the `number_range:read` privilege.
 The number range detail page in the Administration uses it to show a warning when it loads or saves a number range with a colliding pattern.
 Saving is not blocked.
 
-## Storefront
-
-### Breadcrumb template variables prepared for 6.8
-
-Templates that extend `layout_breadcrumb_list_item` in `@Storefront/storefront/layout/breadcrumb.html.twig` can now use `activeId` for the active category in every breadcrumb mode.
-Switch comparisons against `categoryId` to `activeId`, because `categoryId` holds the current entry with the `BREADCRUMB_REWORK` or `v6.8.0.0` flag.
-
-With the `v6.8.0.0` flag active, the template no longer sets the deprecated `breadcrumbCategory` and `breadcrumbKeys` variables and ignores the `breadcrumbCollection` input.
-Use `breadcrumb` and `loop.last` instead, and pass the entries as `breadcrumb`.
-See `UPGRADE-6.8.md` for the full variable mapping.
-
 ## Features
 
 ### Disable the Administration password recovery flow
@@ -363,6 +352,15 @@ Themes that override blocks of the personal data form in `page/account/profile/i
 The profile page now shows company and VAT ID for business customers even when "Show selection between company and customer account" is disabled, and saving it keeps their account type.
 Before, saving the profile without that setting removed the company and the VAT IDs of business customers.
 Themes that override `component_address_personal_company_section`, `component_address_personal_company` or `component_address_personal_vat_id` in `component/address/address-personal.html.twig` should check that the content also suits this case.
+
+### Breadcrumb template variables prepared for 6.8
+
+Templates that extend `layout_breadcrumb_list_item` in `@Storefront/storefront/layout/breadcrumb.html.twig` can now use `activeId` for the active category in every breadcrumb mode.
+Switch comparisons against `categoryId` to `activeId`, because `categoryId` holds the current entry with the `BREADCRUMB_REWORK` or `v6.8.0.0` flag.
+
+With the `v6.8.0.0` flag active, the template no longer sets the deprecated `breadcrumbCategory` and `breadcrumbKeys` variables and ignores the `breadcrumbCollection` input.
+Use `breadcrumb` and `loop.last` instead, and pass the entries as `breadcrumb`.
+See `UPGRADE-6.8.md` for the full variable mapping.
 
 ## Hosting & Configuration
 

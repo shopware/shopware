@@ -8,9 +8,9 @@ use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseC
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -46,6 +46,7 @@ class DocumentBaseConfigValidator implements EventSubscriberInterface
         private readonly Connection $connection,
         private readonly DocumentTypeRegistry $documentTypeRegistry,
         private readonly \Closure $documentRendererRegistry,
+        private readonly WriteOutcome $writeOutcome,
     ) {
     }
 
@@ -60,9 +61,14 @@ class DocumentBaseConfigValidator implements EventSubscriberInterface
     {
         $violations = new ConstraintViolationList();
 
-        foreach ($event->getCommandsForEntity(DocumentBaseConfigDefinition::ENTITY_NAME) as $command) {
-            $this->validatePaymentDueDate($command, $violations);
-            $this->validateFilenameInfixes($command, $violations);
+        $configs = $this->writeOutcome->resultingRows(
+            $event->getCommandsForEntity(DocumentBaseConfigDefinition::ENTITY_NAME),
+            ['type_name', 'global', 'filename_infixes', 'config']
+        );
+
+        foreach ($configs as $config) {
+            $this->validatePaymentDueDate($config, $violations);
+            $this->validateFilenameInfixes($config, $violations);
         }
 
         if ($violations->count() > 0) {
@@ -72,13 +78,9 @@ class DocumentBaseConfigValidator implements EventSubscriberInterface
         }
     }
 
-    private function validatePaymentDueDate(WriteCommand $command, ConstraintViolationList $violations): void
+    private function validatePaymentDueDate(OutcomeRow $documentConfig, ConstraintViolationList $violations): void
     {
-        if (!$command->hasField('config')) {
-            return;
-        }
-
-        $encodedConfig = $command->getPayload()['config'];
+        $encodedConfig = $documentConfig->getPayloadValue('config');
         if (!\is_string($encodedConfig)) {
             return;
         }
@@ -102,7 +104,7 @@ class DocumentBaseConfigValidator implements EventSubscriberInterface
             messageTemplate: $messageTemplate,
             parameters: $parameters,
             root: null,
-            propertyPath: $command->getPath() . '/config/paymentDueDate',
+            propertyPath: $documentConfig->path . '/config/paymentDueDate',
             invalidValue: $paymentDueDate,
             code: self::INVALID_PAYMENT_DUE_DATE,
         ));
@@ -113,20 +115,20 @@ class DocumentBaseConfigValidator implements EventSubscriberInterface
      * filename. A sales-channel config is checked with the global infixes merged in, a global config against the
      * sales-channel configs that inherit from it.
      */
-    private function validateFilenameInfixes(WriteCommand $command, ConstraintViolationList $violations): void
+    private function validateFilenameInfixes(OutcomeRow $documentConfig, ConstraintViolationList $violations): void
     {
-        $writesInfixes = $command->hasField('filename_infixes');
-        if (!$writesInfixes && !$this->changesScope($command)) {
+        $changesScope = !$documentConfig->isNew && $documentConfig->payloadContainsAny(...self::SCOPE_FIELDS);
+        if (!$documentConfig->payloadContainsAny('filename_infixes') && !$changesScope) {
             return;
         }
 
-        $scope = $this->resolveScope($command, needsStoredInfixes: !$writesInfixes);
-        if ($scope === null) {
+        $typeName = $documentConfig->getResultingValue('type_name');
+        $global = $documentConfig->getResultingValue('global');
+        if (!\is_string($typeName) || $global === null) {
             return;
         }
 
-        ['typeName' => $typeName, 'global' => $global, 'storedInfixes' => $storedInfixes] = $scope;
-        $infixes = $this->decodeInfixes($writesInfixes ? $command->getPayload()['filename_infixes'] : $storedInfixes);
+        $infixes = $this->decodeInfixes($documentConfig->getResultingValue('filename_infixes'));
 
         $extensionByFormat = $this->sharedExtensions($typeName);
         if ($extensionByFormat === []) {
@@ -134,11 +136,11 @@ class DocumentBaseConfigValidator implements EventSubscriberInterface
         }
 
         $candidates = $global
-            ? $this->globalCandidates($infixes, $typeName, $command)
-            : [self::candidate(DocumentConfigLoader::mergeFilenameInfixes($this->fetchGlobalInfixes($typeName, $command), $infixes))];
+            ? $this->globalCandidates($infixes, $typeName, $documentConfig)
+            : [self::candidate(DocumentConfigLoader::mergeFilenameInfixes($this->fetchGlobalInfixes($typeName, $documentConfig), $infixes))];
 
         foreach ($this->collisions($candidates, $extensionByFormat) as $format => $collision) {
-            $violations->add($this->duplicateFilenameInfix($command, $format, $collision));
+            $violations->add($this->duplicateFilenameInfix($documentConfig, $format, $collision));
         }
     }
 
@@ -168,11 +170,11 @@ class DocumentBaseConfigValidator implements EventSubscriberInterface
      *
      * @return list<Candidate>
      */
-    private function globalCandidates(array $infixes, string $typeName, WriteCommand $command): array
+    private function globalCandidates(array $infixes, string $typeName, OutcomeRow $documentConfig): array
     {
         $candidates = [self::candidate($infixes)];
 
-        foreach ($this->fetchAssignedSalesChannelConfigs($typeName, $command) as $salesChannelConfig) {
+        foreach ($this->fetchAssignedSalesChannelConfigs($typeName, $documentConfig) as $salesChannelConfig) {
             $overrides = $this->decodeInfixes($salesChannelConfig['filename_infixes']);
 
             $candidates[] = self::candidate(
@@ -250,7 +252,7 @@ class DocumentBaseConfigValidator implements EventSubscriberInterface
     /**
      * @param Collision $collision
      */
-    private function duplicateFilenameInfix(WriteCommand $command, string $format, array $collision): ConstraintViolation
+    private function duplicateFilenameInfix(OutcomeRow $documentConfig, string $format, array $collision): ConstraintViolation
     {
         $parameters = [
             '{{ infix }}' => $collision['infix'],
@@ -271,72 +273,27 @@ class DocumentBaseConfigValidator implements EventSubscriberInterface
             messageTemplate: $messageTemplate . '.',
             parameters: $parameters,
             root: null,
-            propertyPath: $command->getPath() . '/filenameInfixes/' . $format,
+            propertyPath: $documentConfig->path . '/filenameInfixes/' . $format,
             invalidValue: $collision['infix'],
             code: self::DUPLICATE_FILENAME_INFIX,
         );
     }
 
-    private function changesScope(WriteCommand $command): bool
-    {
-        if (!$command instanceof UpdateCommand) {
-            return false;
-        }
-
-        foreach (self::SCOPE_FIELDS as $field) {
-            if ($command->hasField($field)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @return array{typeName: string, global: bool, storedInfixes: string|null}|null
-     */
-    private function resolveScope(WriteCommand $command, bool $needsStoredInfixes): ?array
-    {
-        $payload = $command->getPayload();
-        $typeName = $command->hasField('type_name') ? $payload['type_name'] : null;
-        $global = $command->hasField('global') ? $payload['global'] : null;
-        $storedInfixes = null;
-
-        if ($command instanceof UpdateCommand && ($typeName === null || $global === null || $needsStoredInfixes)) {
-            $existing = $this->connection->fetchAssociative(
-                'SELECT `type_name`, `global`, `filename_infixes` FROM `document_base_config` WHERE `id` = :id',
-                ['id' => $command->getPrimaryKey()['id']],
-            );
-
-            if (\is_array($existing)) {
-                $typeName ??= $existing['type_name'];
-                $global ??= $existing['global'];
-                $storedInfixes = $existing['filename_infixes'];
-            }
-        }
-
-        if (!\is_string($typeName) || $global === null) {
-            return null;
-        }
-
-        return ['typeName' => $typeName, 'global' => (bool) $global, 'storedInfixes' => \is_string($storedInfixes) ? $storedInfixes : null];
-    }
-
     /**
      * @return array<string, string>
      */
-    private function fetchGlobalInfixes(string $typeName, WriteCommand $command): array
+    private function fetchGlobalInfixes(string $typeName, OutcomeRow $documentConfig): array
     {
         return $this->decodeInfixes($this->connection->fetchOne(
             'SELECT `filename_infixes` FROM `document_base_config` WHERE `type_name` = :typeName AND `global` = 1 AND `id` != :id LIMIT 1',
-            ['typeName' => $typeName, 'id' => $command->getPrimaryKey()['id']],
+            ['typeName' => $typeName, 'id' => $documentConfig->primaryKey['id']],
         ));
     }
 
     /**
      * @return list<array<string, mixed>>
      */
-    private function fetchAssignedSalesChannelConfigs(string $typeName, WriteCommand $command): array
+    private function fetchAssignedSalesChannelConfigs(string $typeName, OutcomeRow $documentConfig): array
     {
         return $this->connection->fetchAllAssociative(
             <<<'SQL'
@@ -352,7 +309,7 @@ class DocumentBaseConfigValidator implements EventSubscriberInterface
                   )
                 ORDER BY `config`.`name`
                 SQL,
-            ['typeName' => $typeName, 'id' => $command->getPrimaryKey()['id']],
+            ['typeName' => $typeName, 'id' => $documentConfig->primaryKey['id']],
         );
     }
 

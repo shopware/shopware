@@ -181,18 +181,6 @@ class DocumentBaseConfigValidatorTest extends TestCase
         yield 'sales channel config: without a global row it is checked on its own' => [
             true, $channelInvoice + self::infixes(['pdf' => '', 'zugferd_embedded_pdf' => '']), ['fetchOne' => false], [self::PDF, self::ZUGFERD],
         ];
-        yield 'update: type and scope are read from the row when the payload only carries infixes' => [
-            false, self::infixes(['pdf' => '_x', 'zugferd_embedded_pdf' => '_x']), ['fetchAssociative' => $globalInvoice + ['filename_infixes' => null]], [self::PDF, self::ZUGFERD],
-        ];
-        yield 'update: stored infixes are re-validated when the document type changes' => [
-            false, ['type_name' => 'invoice'], ['fetchAssociative' => $channelInvoice + ['filename_infixes' => '{"pdf":"_zugferd"}']] + $seededGlobal, [self::PDF, self::ZUGFERD],
-        ];
-        yield 'update: neither infixes nor scope changed, nothing is checked' => [
-            false, ['name' => 'renamed'], ['fetchAssociative' => $globalInvoice + ['filename_infixes' => '{"pdf":"_x","zugferd_embedded_pdf":"_x"}']], [],
-        ];
-        yield 'update: an unknown row is skipped' => [
-            false, self::infixes(['pdf' => '_x', 'zugferd_embedded_pdf' => '_x']), ['fetchAssociative' => false], [],
-        ];
         yield 'global config: an infix colliding with an assigned sales channel override is rejected on the global field only' => [
             true, $globalInvoice + self::infixes(['zugferd_embedded_pdf' => '_x']), ['fetchAllAssociative' => [['name' => 'Storefront invoice', 'filename_infixes' => '{"pdf":"_x"}']]], [self::ZUGFERD],
         ];

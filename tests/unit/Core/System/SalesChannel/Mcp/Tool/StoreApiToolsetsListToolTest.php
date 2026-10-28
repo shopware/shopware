@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\Mcp\Tool;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\McpRequestedToolsetResolver;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiToolsetsListTool;
@@ -41,7 +42,7 @@ class StoreApiToolsetsListToolTest extends TestCase
         $request->headers->set('Mcp-Session-Id', 'session-a');
         $requestStack->push($request);
 
-        $tool = new StoreApiToolsetsListTool($registry, $storage, $requestStack);
+        $tool = new StoreApiToolsetsListTool($registry, $storage, $requestStack, new McpRequestedToolsetResolver($requestStack));
         $result = json_decode($tool(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertTrue($result['success']);

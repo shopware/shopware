@@ -8,10 +8,46 @@ Field paths in Store API criteria (filters, sortings, and aggregations) are reso
 A path that uses `extensions` as a whole segment keeps working;
 a segment that only contains the text `extensions` is treated literally and rejected when it is not a real field.
 Integrations that use valid field paths are unaffected.
+### Media paths and file names are validated on API writes
+
+Admin API and Sync API writes can no longer set `media.path` or `media_thumbnail.path` to a relative path or reset it to `null`.
+These writes are rejected with `400` and `CONTENT__MEDIA_ILLEGAL_PATH`.
+External media keep working with an absolute `http` or `https` URL.
+The external media link action and the creation of external thumbnails reject URLs that are not a plain absolute `http` or `https` URL with a host.
+`media.fileName` is validated like the file name of an upload and is rejected with `CONTENT__MEDIA_ILLEGAL_FILE_NAME` when it contains characters such as `/` or `\`.
+Writing back the unchanged stored path or file name is still accepted.
+To store a file in the shop's own storage, use the media upload actions or the presigned upload.
+
+`POST /api/_action/clone/{entity}/{id}` validates `path` and `fileName` of `media` and `path` of `media_thumbnail` in `overwrites`, also inside nested associations and `extensions`.
+`path` must be an absolute `http` or `https` URL, and `fileName` follows the rules of an upload file name.
+Invalid values are rejected with `400` and `FRAMEWORK__API_INVALID_CLONE_OVERWRITE`.
+This media check applies to the Admin API clone action only, not to `EntityRepository::clone()` called from code.
+
+Media with an external URL are no longer attached to mails sent with `mediaIds`, because their stored path was read from the public filesystem.
+A warning is logged for each skipped media.
+
+The update does not rewrite values stored before it.
+Check `media.path` and `media_thumbnail.path` for relative values that the configured path strategy does not produce, for example values containing `..` or a backslash, or starting with `/`.
+Correct such paths before deleting or replacing the affected media, because both act on the stored path.
+
+### User, access key and admin integration writes are restricted
+
+A non-admin may only update or delete their own user and their own access keys through the Admin API.
+Writes to other users or their access keys are rejected with `403` and `USER__USER_CHANGE_NOT_ALLOWED`.
+A non-admin may no longer update or delete an admin integration; these writes are rejected with `403` and `INTEGRATION__ADMIN_INTEGRATION_CHANGE_NOT_ALLOWED`.
+Administrators are unaffected.
+The user of an access key can no longer be changed after the key was created, also not by administrators.
 
 # 6.7.16.0 (upcoming)
 
 ## Critical Fixes
+
+### Clone overwrites enforce field protection and association permissions
+
+The Admin API clone action and `CloneBehavior` validate explicit root, nested association, translation and extension overwrites using the caller's field write protection and create/update permissions.
+Association overwrites remain supported, including partial payloads and `null` values that suppress copying.
+Copied source values retain their existing clone behavior without requiring additional association write privileges.
+Creating the root clone still requires create permission; updating an existing associated entity requires its update permission, while creating a new associated entity requires its create permission.
 
 ### Theme configuration updates reach all descendants
 
@@ -547,6 +583,12 @@ $lineItem = $lineItemFactoryRegistry->create([
     'referencedId' => $code,
 ], $salesChannelContext);
 ```
+
+### Public constant for the MCP connect-URL toolset selection
+
+`McpToolsetRegistry::QUERY_PARAMETER` now names the `toolsets` query parameter that selects toolsets in the MCP connect URL, on `/api/_mcp` and `/store-api/_mcp`. The parameter exists since 6.7.15.0, the constant since 6.7.16.0. Code that also supports 6.7.15 detects the parameter with `\defined(McpToolsetRegistry::class . '::ALL_TOOLSETS')` and uses the literal `'toolsets'`. Do not probe the internal `McpRequestedToolsetResolver` class, which can be renamed without notice.
+
+`shopware-toolsets-list` now reports the toolsets selected in the connect URL as enabled. A tool group named `all` now belongs to the `other` toolset, because `?toolsets=all` selects every toolset. `McpToolsetRegistry::advertisedTools()` resolves `all` the same way as `advertisedToolsForNames()`.
 
 ## API
 

@@ -124,6 +124,15 @@ class MediaExceptionTest extends TestCase
         static::assertSame(['fileName' => $fileName, 'cause' => $cause], $exception->getParameters());
     }
 
+    public function testIllegalPath(): void
+    {
+        $exception = MediaException::illegalPath();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_ILLEGAL_PATH, $exception->getErrorCode());
+        static::assertSame('The media path can only be set to an external http(s) URL.', $exception->getMessage());
+    }
+
     public function testMediaNotFound(): void
     {
         $mediaId = 'media-id';

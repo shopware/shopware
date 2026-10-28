@@ -10,8 +10,8 @@ import { createStore } from 'vuex';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initState() {
-    initVuexState(Shopware.State);
-    initVuexModules(VuexModules, Shopware.State);
+    initVuexState(Shopware._state);
+    initVuexModules(VuexModules, Shopware._state);
 
     return true;
 }

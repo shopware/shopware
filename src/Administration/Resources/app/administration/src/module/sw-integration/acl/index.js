@@ -7,7 +7,10 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
     key: 'integration_mcp',
     roles: {
         editor: {
-            privileges: ['api_action_integration_mcp-allowlist'],
+            privileges: [
+                'api_action_integration_mcp-allowlist',
+                'integration:update',
+            ],
             dependencies: ['integration.viewer'],
         },
     },

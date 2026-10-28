@@ -3218,6 +3218,6 @@ If your extension relied on a restored `SalesChannelContext` (for example, custo
 
 If your extension decorates the `ProductStreamBuilder` service or applies variant grouping manually, `extends AbstractProductStreamBuilder` and respect `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader::STATE_SKIP_ADD_GROUPING` on the `Criteria` to keep matching variants ungrouped.
 
-## `CountryStateSelectPlugin` no longer reacts to the shipping address toggle
+## `CountryStateSelectPlugin` shipping address toggle methods removed
 
-The Storefront `CountryStateSelectPlugin` stopped subscribing to the "different shipping address" toggle of the registration form, because the VAT ID field follows the billing country in every case. Its `_getFormFieldToggleInstance()` and `_onFormFieldToggleChange()` methods were removed. Plugins that overrode them to change the VAT ID rules should override `_updateVatIdField()` instead.
+`CountryStateSelectPlugin::_getFormFieldToggleInstance()` and `_onFormFieldToggleChange()` were removed, as the VAT ID field follows the billing country in every case. Override `_updateVatIdField()` instead.

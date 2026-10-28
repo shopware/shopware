@@ -7,7 +7,7 @@
  *
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- public API for extensions, see RELEASE_INFO
 export type UserVerificationFailure = 'cancelled' | 'sso-not-configured' | 'sso-window-blocked' | 'no-session';
 
 /**
@@ -16,7 +16,7 @@ export type UserVerificationFailure = 'cancelled' | 'sso-not-configured' | 'sso-
  *
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- public API for extensions, see RELEASE_INFO
 export default class UserVerificationError extends Error {
     constructor(readonly reason: UserVerificationFailure) {
         super(`The user verification ended: ${reason}`);

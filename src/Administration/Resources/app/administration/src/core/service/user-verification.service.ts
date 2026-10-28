@@ -25,7 +25,7 @@ const USER_VERIFIED_SCOPE = 'user-verified';
  *
  * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- public API for extensions, see RELEASE_INFO
 export default class UserVerificationService {
     private pending: { resolve: (context: ApiContext) => void; reject: (error: UserVerificationError) => void } | null =
         null;

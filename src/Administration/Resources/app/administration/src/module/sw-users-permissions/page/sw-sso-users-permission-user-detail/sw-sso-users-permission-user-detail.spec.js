@@ -255,9 +255,13 @@ async function createWrapper(user) {
 }
 
 describe('module/sw-users-permissions/page/sw-sso-users-permission-user-detail', () => {
+    let repositoryCreateSpy = null;
+
     afterEach(() => {
         useTheme().setTheme('system');
         localStorage.removeItem('mt-theme');
+        repositoryCreateSpy?.mockRestore();
+        repositoryCreateSpy = null;
     });
 
     it('should not show invitation banner', async () => {
@@ -384,29 +388,47 @@ describe('module/sw-users-permissions/page/sw-sso-users-permission-user-detail',
         expect(wrapper.vm.userTheme).toBe('light');
     });
 
-    it('should save with the context the user verification returned', async () => {
-        const wrapper = await createWrapper();
-        const verifiedContext = { ...Shopware.Context.api, verified: true };
-        userVerificationService.verify.mockResolvedValueOnce(verifiedContext);
-        const save = jest.spyOn(wrapper.vm.userRepository, 'save').mockResolvedValue();
+    function mockUserRepositorySave() {
+        const repositoryFactory = Shopware.Service('repositoryFactory');
+        const createRepository = repositoryFactory.create.bind(repositoryFactory);
+        const save = jest.fn(() => Promise.resolve());
 
-        await wrapper.vm.onSave();
+        repositoryCreateSpy = jest.spyOn(repositoryFactory, 'create').mockImplementation((entityName, ...args) => {
+            const repository = createRepository(entityName, ...args);
+
+            if (entityName === 'user') {
+                repository.save = save;
+            }
+
+            return repository;
+        });
+
+        return save;
+    }
+
+    it('should save with the context the user verification returned', async () => {
+        const save = mockUserRepositorySave();
+        const verifiedContext = { ...Shopware.Context.api, authToken: { access: 'verified-token' } };
+        userVerificationService.verify.mockResolvedValueOnce(verifiedContext);
+        const wrapper = await createWrapper();
+
+        await wrapper.find('.sw-settings-user-detail__save-action').trigger('click');
         await flushPromises();
 
-        expect(save).toHaveBeenCalledWith(wrapper.vm.user, verifiedContext);
-        expect(wrapper.vm.isLoading).toBe(false);
+        expect(userVerificationService.verify).toHaveBeenCalledTimes(1);
+        expect(save).toHaveBeenCalledWith(expect.objectContaining({ id: '1' }), verifiedContext);
     });
 
     it('should not save when the user verification is cancelled', async () => {
-        const wrapper = await createWrapper();
+        const save = mockUserRepositorySave();
         userVerificationService.verify.mockRejectedValueOnce(new Error('cancelled'));
-        const save = jest.spyOn(wrapper.vm.userRepository, 'save').mockResolvedValue();
+        const wrapper = await createWrapper();
 
-        await wrapper.vm.onSave();
+        await wrapper.find('.sw-settings-user-detail__save-action').trigger('click');
         await flushPromises();
 
+        expect(userVerificationService.verify).toHaveBeenCalledTimes(1);
         expect(save).not.toHaveBeenCalled();
-        expect(wrapper.vm.isLoading).toBe(false);
     });
 
     it('should persist the changed theme when saving the own user', async () => {

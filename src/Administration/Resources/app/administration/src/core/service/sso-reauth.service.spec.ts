@@ -25,7 +25,8 @@ describe('src/core/service/sso-reauth.service.ts', () => {
         listeners.forEach((listener) => listener({ origin, data } as unknown as Event));
     };
 
-    const createService = () => new SsoReauthService(loginService, openWindow, windowEvents, 'https://shop.test', 10);
+    const createService = () =>
+        new SsoReauthService(loginService, { openWindow, windowEvents, origin: 'https://shop.test', pollInterval: 10 });
 
     beforeEach(() => {
         jest.useFakeTimers();

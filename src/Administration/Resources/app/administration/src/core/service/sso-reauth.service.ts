@@ -10,6 +10,19 @@ type OpenWindow = (url: string, name: string, features: string) => Window | null
 type WindowEvents = Pick<Window, 'addEventListener' | 'removeEventListener'>;
 
 /**
+ * Browser access of the service, replaceable in tests.
+ *
+ * @private
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- private, see the docblock
+export interface SsoReauthBrowser {
+    openWindow: OpenWindow;
+    windowEvents: WindowEvents;
+    origin: string;
+    pollInterval: number;
+}
+
+/**
  * Re-authenticates an SSO session at the identity provider in a separate window.
  *
  * An SSO session has no Shopware password to verify. The identity provider login runs again with a
@@ -25,13 +38,20 @@ export default class SsoReauthService {
      */
     static readonly CLOSE_GRACE_PERIOD = 250;
 
+    private readonly browser: SsoReauthBrowser;
+
     constructor(
         private readonly loginService: LoginService,
-        private readonly openWindow: OpenWindow = (url, name, features) => window.open(url, name, features),
-        private readonly windowEvents: WindowEvents = window,
-        private readonly origin: string = window.location.origin,
-        private readonly pollInterval = 500,
-    ) {}
+        browser: Partial<SsoReauthBrowser> = {},
+    ) {
+        this.browser = {
+            openWindow: (url, name, features) => window.open(url, name, features),
+            windowEvents: window,
+            origin: window.location.origin,
+            pollInterval: 500,
+            ...browser,
+        };
+    }
 
     /**
      * Resolves once the identity provider sent the window back with a new session. Rejects when the
@@ -47,7 +67,7 @@ export default class SsoReauthService {
         const url = new URL(loginConfig.url);
         url.searchParams.set('usePromptLogin', '1');
 
-        const popup = this.openWindow(url.toString(), SSO_REAUTH_WINDOW_NAME, 'popup,width=600,height=720');
+        const popup = this.browser.openWindow(url.toString(), SSO_REAUTH_WINDOW_NAME, 'popup,width=600,height=720');
 
         if (!popup) {
             throw UserVerificationError.ssoWindowBlocked();
@@ -74,7 +94,7 @@ export default class SsoReauthService {
             const onMessage = (event: Event) => {
                 const { origin, data } = event as MessageEvent<unknown>;
 
-                if (origin !== this.origin || data !== SSO_REAUTH_COMPLETE_MESSAGE) {
+                if (origin !== this.browser.origin || data !== SSO_REAUTH_COMPLETE_MESSAGE) {
                     return;
                 }
 
@@ -91,13 +111,13 @@ export default class SsoReauthService {
                     () => settle(() => reject(UserVerificationError.cancelled())),
                     SsoReauthService.CLOSE_GRACE_PERIOD,
                 );
-            }, this.pollInterval);
+            }, this.browser.pollInterval);
 
             cleanups.push(
                 () => clearInterval(closePoll),
-                () => this.windowEvents.removeEventListener('message', onMessage),
+                () => this.browser.windowEvents.removeEventListener('message', onMessage),
             );
-            this.windowEvents.addEventListener('message', onMessage);
+            this.browser.windowEvents.addEventListener('message', onMessage);
         });
     }
 }

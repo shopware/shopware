@@ -49,15 +49,20 @@ describe('src/app/component/utils/sw-verify-user-modal', () => {
     it('shows the password error and closes when the password is wrong', async () => {
         loginService.verifyUserToken.mockRejectedValueOnce(new Error('wrong password'));
         wrapper = await createWrapper();
-        const createNotificationError = jest.spyOn(wrapper.vm, 'createNotificationError').mockImplementation(() => {});
+        const createNotification = jest
+            .spyOn(Shopware.Store.get('notification'), 'createNotification')
+            .mockResolvedValue(undefined);
 
         await wrapper.find('.sw-settings-user-detail__confirm-password input').setValue('wrong');
         await wrapper.find('.mt-button--primary').trigger('click');
         await flushPromises();
 
-        expect(createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage',
-        });
+        expect(createNotification).toHaveBeenCalledWith(
+            expect.objectContaining({
+                variant: 'error',
+                message: 'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage',
+            }),
+        );
         expect(wrapper.emitted('verified')).toBeUndefined();
         expect(wrapper.emitted('close')).toHaveLength(1);
     });
@@ -71,7 +76,7 @@ describe('src/app/component/utils/sw-verify-user-modal', () => {
         expect(loginService.verifyUserToken).not.toHaveBeenCalled();
         expect(wrapper.emitted('verified')).toBeUndefined();
         expect(wrapper.emitted('close')).toHaveLength(1);
-        expect(wrapper.vm.confirmPassword).toBe('');
+        expect(wrapper.find('.sw-settings-user-detail__confirm-password input').element.value).toBe('');
     });
 
     it('offers the identity provider when the shop has one', async () => {

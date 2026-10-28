@@ -238,13 +238,11 @@ Application.addServiceProvider('feature', () => {
     .addServiceProvider('userActivityService', () => {
         return new UserActivityService();
     })
-    .addServiceProvider('ssoReauthService', (container: $TSFixMe) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-argument
-        return new SsoReauthService(container.loginService);
+    .addServiceProvider('ssoReauthService', () => {
+        return new SsoReauthService(Shopware.Service('loginService'));
     })
-    .addServiceProvider('userVerificationService', (container: $TSFixMe) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-argument
-        return new UserVerificationService(container.loginService, container.ssoReauthService);
+    .addServiceProvider('userVerificationService', () => {
+        return new UserVerificationService(Shopware.Service('loginService'), Shopware.Service('ssoReauthService'));
     })
     .addServiceProvider('fileValidationService', () => {
         return FileValidationService();

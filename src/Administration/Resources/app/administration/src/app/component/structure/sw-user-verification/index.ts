@@ -8,7 +8,7 @@ import template from './sw-user-verification.html.twig';
  *
  * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- private, see the docblock
 export default Shopware.Component.wrapComponentConfig({
     template,
 

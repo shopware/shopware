@@ -18,11 +18,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[CoversClass(CustomerGroupRegistrationAccepted::class)]
 class CustomerGroupRegistrationAcceptedTest extends TestCase
 {
-    use MailRecipientNameTestBehaviour;
-
     public function testTheMailRecipientCarriesTheResolvedName(): void
     {
-        $this->assertRecipientNames(
+        MailRecipientNameFixture::assertRecipientNames(
             fn (CustomerEntity $customer, SalesChannelContext $context) => new CustomerGroupRegistrationAccepted($customer, $this->customerGroup(), Context::createDefaultContext())
         );
     }

@@ -21,8 +21,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 #[CoversClass(CustomerAccountRecoverRequestEvent::class)]
 class CustomerAccountRecoverRequestEventTest extends TestCase
 {
-    use MailRecipientNameTestBehaviour;
-
     public function testRestoreScalarValuesCorrectly(): void
     {
         $salesChannel = new SalesChannelEntity();
@@ -53,7 +51,7 @@ class CustomerAccountRecoverRequestEventTest extends TestCase
 
     public function testTheMailRecipientCarriesTheResolvedName(): void
     {
-        $this->assertRecipientNames(
+        MailRecipientNameFixture::assertRecipientNames(
             fn (CustomerEntity $customer, SalesChannelContext $context) => new CustomerAccountRecoverRequestEvent($context, $this->recovery($customer), 'https://example.com/reset')
         );
     }

@@ -20,8 +20,6 @@ use Shopware\Core\Test\Generator;
 #[CoversClass(CustomerDoubleOptInRegistrationEvent::class)]
 class CustomerDoubleOptInRegistrationEventTest extends TestCase
 {
-    use MailRecipientNameTestBehaviour;
-
     public function testRestoreScalarValuesCorrectly(): void
     {
         $event = new CustomerDoubleOptInRegistrationEvent(
@@ -60,7 +58,7 @@ class CustomerDoubleOptInRegistrationEventTest extends TestCase
 
     public function testTheMailRecipientCarriesTheResolvedName(): void
     {
-        $this->assertRecipientNames(
+        MailRecipientNameFixture::assertRecipientNames(
             fn (CustomerEntity $customer, SalesChannelContext $context) => new CustomerDoubleOptInRegistrationEvent($customer, $context, 'https://example.com/confirm')
         );
     }

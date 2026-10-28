@@ -322,18 +322,6 @@ export default {
     },
 
     methods: {
-        orderCustomerName(customer) {
-            const personName = [
-                customer.lastName,
-                customer.firstName,
-            ]
-                .map((part) => (part ?? '').trim())
-                .filter((part) => part)
-                .join(', ');
-
-            return personName || customer.displayName;
-        },
-
         createdComponent() {},
 
         /**

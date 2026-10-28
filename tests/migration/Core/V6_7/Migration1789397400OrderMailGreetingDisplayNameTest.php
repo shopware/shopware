@@ -146,7 +146,7 @@ class Migration1789397400OrderMailGreetingDisplayNameTest extends TestCase
             ['locales' => ArrayParameterType::STRING]
         );
 
-        static::assertNotEmpty($rows);
+        static::assertNotSame([], $rows);
 
         $contents = [];
         foreach ($rows as $row) {

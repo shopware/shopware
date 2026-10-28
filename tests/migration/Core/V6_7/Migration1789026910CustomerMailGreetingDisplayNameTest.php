@@ -112,7 +112,7 @@ class Migration1789026910CustomerMailGreetingDisplayNameTest extends TestCase
             ['type' => $type]
         );
 
-        static::assertNotEmpty($contents);
+        static::assertNotSame([], $contents);
 
         return $contents;
     }

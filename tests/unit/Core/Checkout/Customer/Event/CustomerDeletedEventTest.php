@@ -16,11 +16,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[CoversClass(CustomerDeletedEvent::class)]
 class CustomerDeletedEventTest extends TestCase
 {
-    use MailRecipientNameTestBehaviour;
-
     public function testTheMailRecipientCarriesTheResolvedName(): void
     {
-        $this->assertRecipientNames(
+        MailRecipientNameFixture::assertRecipientNames(
             fn (CustomerEntity $customer, SalesChannelContext $context) => new CustomerDeletedEvent($context, $customer)
         );
     }

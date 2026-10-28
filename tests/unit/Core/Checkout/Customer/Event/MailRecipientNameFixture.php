@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Event;
 
+use PHPUnit\Framework\Assert;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Log\Package;
@@ -12,33 +13,33 @@ use Shopware\Core\Test\Generator;
  * @internal
  */
 #[Package('checkout')]
-trait MailRecipientNameTestBehaviour
+final class MailRecipientNameFixture
 {
     /**
      * @param \Closure(CustomerEntity, SalesChannelContext): MailAware $build
      */
-    private function assertRecipientNames(\Closure $build): void
+    public static function assertRecipientNames(\Closure $build): void
     {
-        $company = $this->mailCustomer('', '');
+        $company = self::customer('', '');
         $company->setDisplayName('Acme GmbH');
 
-        static::assertSame(
+        Assert::assertSame(
             ['info@acme.example' => 'Acme GmbH'],
-            $build($company, $this->mailSalesChannelContext())->getMailStruct()->getRecipients(),
+            $build($company, self::salesChannelContext())->getMailStruct()->getRecipients(),
             'a company account without a contact person is addressed by its company'
         );
 
-        $person = $this->mailCustomer('Ada', 'Lovelace');
+        $person = self::customer('Ada', 'Lovelace');
         $person->setDisplayName('Ada Lovelace');
 
-        static::assertSame(
+        Assert::assertSame(
             ['info@acme.example' => 'Ada Lovelace'],
-            $build($person, $this->mailSalesChannelContext())->getMailStruct()->getRecipients(),
+            $build($person, self::salesChannelContext())->getMailStruct()->getRecipients(),
             'a contact person is still addressed by name'
         );
     }
 
-    private function mailCustomer(string $firstName, string $lastName): CustomerEntity
+    public static function customer(string $firstName, string $lastName): CustomerEntity
     {
         $customer = new CustomerEntity();
         $customer->setId('customer-id');
@@ -52,7 +53,7 @@ trait MailRecipientNameTestBehaviour
         return $customer;
     }
 
-    private function mailSalesChannelContext(): SalesChannelContext
+    public static function salesChannelContext(): SalesChannelContext
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->getSalesChannel()->setTranslated(['name' => 'Demostore']);

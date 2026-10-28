@@ -193,9 +193,16 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             'Lovelace',
         ],
     ])('should name %s in the list', async (_name, customer, expected) => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
+        jest.spyOn(console, 'warn').mockImplementation();
 
-        expect(wrapper.vm.orderCustomerName(customer)).toBe(expected);
+        await wrapper.setData({
+            orders: [{ ...mockItem, orderCustomer: { customerId: '1', ...customer } }],
+            total: 1,
+        });
+
+        expect(wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--orderCustomer-firstName').text()).toBe(expected);
     });
 
     let wrapper;

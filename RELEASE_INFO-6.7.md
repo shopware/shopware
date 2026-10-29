@@ -321,6 +321,12 @@ For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-
 
 ## Storefront
 
+### CMS section background images use thumbnails
+
+A CMS section background image is now rendered as a responsive `<img class="cms-section-background">` element with the media thumbnails, like a CMS block background, instead of an inline `background-image` style on the `.cms-section` element.
+The new Twig block `page_content_section_background_image` in `storefront/page/content/detail.html.twig` wraps the image.
+Themes that style the section background through the removed inline style or the `sectionBgImg` and `sectionBgImgMode` template variables should target `.cms-section-background` and its `media-mode--cover` and `media-mode--contain` classes instead.
+
 ### Deprecation of `ListingPlugin` properties
 
 The Storefront listing plugin now supports updating multiple filter panels on the same page. Due to these changes, the following properties of the `ListingPlugin` class in `listing.plugin.js` carrying single elements have been deprecated and are replaced respectively by new properties carrying `NodeList`s:

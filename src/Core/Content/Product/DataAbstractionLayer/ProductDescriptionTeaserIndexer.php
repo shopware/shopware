@@ -22,6 +22,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('inventory')]
 class ProductDescriptionTeaserIndexer extends PostUpdateIndexer
 {
+    private const UPDATE_CHUNK_SIZE = 250;
+
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,
         private readonly Connection $connection,
@@ -71,6 +73,7 @@ class ProductDescriptionTeaserIndexer extends PostUpdateIndexer
             ['ids' => ArrayParameterType::BINARY]
         );
 
+        $updates = [];
         foreach ($rows as $row) {
             $teaser = $this->teaserBuilder->build($row['description']);
 
@@ -78,21 +81,18 @@ class ProductDescriptionTeaserIndexer extends PostUpdateIndexer
                 continue;
             }
 
-            $this->connection->executeStatement(
-                <<<'SQL'
-                    UPDATE product_translation
-                    SET description_teaser = :teaser
-                    WHERE product_id = :productId
-                      AND product_version_id = :versionId
-                      AND language_id = :languageId
-                SQL,
-                [
-                    'teaser' => $teaser,
-                    'productId' => $row['product_id'],
-                    'versionId' => $row['product_version_id'],
-                    'languageId' => $row['language_id'],
-                ]
-            );
+            $updates[] = [
+                'teaser' => $teaser,
+                'productId' => $row['product_id'],
+                'versionId' => $row['product_version_id'],
+                'languageId' => $row['language_id'],
+            ];
+        }
+
+        // One statement per chunk instead of one per row: a backfill over a large catalogue otherwise issues
+        // an UPDATE for every translation it rewrites.
+        foreach (array_chunk($updates, self::UPDATE_CHUNK_SIZE) as $chunk) {
+            $this->writeTeasers($chunk);
         }
     }
 
@@ -104,5 +104,33 @@ class ProductDescriptionTeaserIndexer extends PostUpdateIndexer
     public function getDecorated(): EntityIndexer
     {
         throw new DecorationPatternException(self::class);
+    }
+
+    /**
+     * @param list<array{teaser: string|null, productId: mixed, versionId: mixed, languageId: mixed}> $updates
+     */
+    private function writeTeasers(array $updates): void
+    {
+        $cases = [];
+        $keys = [];
+        $params = [];
+
+        foreach ($updates as $i => $update) {
+            $cases[] = "WHEN product_id = :productId{$i} AND product_version_id = :versionId{$i} AND language_id = :languageId{$i} THEN :teaser{$i}";
+            $keys[] = "(:productId{$i}, :versionId{$i}, :languageId{$i})";
+
+            $params["teaser{$i}"] = $update['teaser'];
+            $params["productId{$i}"] = $update['productId'];
+            $params["versionId{$i}"] = $update['versionId'];
+            $params["languageId{$i}"] = $update['languageId'];
+        }
+
+        $this->connection->executeStatement(
+            'UPDATE product_translation SET description_teaser = CASE '
+            . implode(' ', $cases)
+            . ' ELSE description_teaser END'
+            . ' WHERE (product_id, product_version_id, language_id) IN (' . implode(', ', $keys) . ')',
+            $params
+        );
     }
 }

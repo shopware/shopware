@@ -86,12 +86,19 @@ class ProductDescriptionTeaserIndexerTest extends TestCase
             });
 
         $updates = [];
-        $connection->expects($this->exactly(2))
+        // every rewritten row goes out in one statement, so the parameters carry one set per row
+        $connection->expects($this->once())
             ->method('executeStatement')
             ->willReturnCallback(function (string $sql, array $params) use (&$updates): int {
-                $updates[$params['productId']] = $params['teaser'];
+                foreach ($params as $name => $value) {
+                    if (!str_starts_with($name, 'productId')) {
+                        continue;
+                    }
 
-                return 1;
+                    $updates[$value] = $params['teaser' . substr($name, \strlen('productId'))];
+                }
+
+                return \count($updates);
             });
 
         $this->createIndexer(connection: $connection)->handle(new EntityIndexingMessage([Uuid::randomHex()]));

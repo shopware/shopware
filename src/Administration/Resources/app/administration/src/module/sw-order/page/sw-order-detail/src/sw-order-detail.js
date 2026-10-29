@@ -1,7 +1,7 @@
 import template from './sw-order-detail.html.twig';
 import './sw-order-detail.scss';
-import '../../store/order-detail.store';
-import { getCartErrorMessage } from '../../cart-error.helper';
+import '../../../store/order-detail.store';
+import { getCartErrorMessage } from '../../../cart-error.helper';
 
 /**
  * @sw-package checkout
@@ -12,7 +12,6 @@ const { Criteria } = Shopware.Data;
 const { array } = Utils;
 const ApiService = Shopware.Classes.ApiService;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

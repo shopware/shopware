@@ -10,6 +10,16 @@ const ruleTester = new RuleTester({
 ruleTester.run('private-feature-declarations', rule, {
     valid: [
         {
+            name: 'The index of a mini-module is public API',
+            filename: 'src/module/sw-order/page/sw-order-list/index.ts',
+            code: "export { default } from './src/sw-order-list';",
+        },
+        {
+            name: 'The src of a mini-module is private by location',
+            filename: 'src/module/sw-order/page/sw-order-list/src/helper.ts',
+            code: 'export function helper() {}',
+        },
+        {
             name: 'Default exports with private declaration',
             code: `
                 /**
@@ -63,6 +73,12 @@ ruleTester.run('private-feature-declarations', rule, {
         }
     ],
     invalid: [
+        {
+            name: 'The private.ts of a mini-module still needs @private',
+            filename: 'src/module/sw-order/page/sw-order-list/private.ts',
+            code: "export { helper } from './src/helper';",
+            errors: 1,
+        },
         {
             name: 'Default exports without private declaration',
             code: `

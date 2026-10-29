@@ -4,6 +4,27 @@
 
 /* eslint-disable max-len */
 
+const fs = require('fs');
+const path = require('path');
+
+/**
+ * A mini-module is a directory with an `index.ts`, a `src/` and a `tests/` folder.
+ * Its `index.ts` is public API, including for extensions, and its `src/` can only be reached through
+ * `index.ts` or `private.ts`, so neither needs `@private`. Its `private.ts` still does.
+ */
+const isMiniModuleRoot = (directory) => ['index.ts', 'src', 'tests'].every((entry) => fs.existsSync(path.join(directory, entry)));
+
+const isMiniModuleIndexOrSource = (filename) => {
+    if (/^index\.[jt]s$/.test(path.basename(filename)) && isMiniModuleRoot(path.dirname(filename))) {
+        return true;
+    }
+
+    const segments = filename.split(path.sep);
+    const sourceIndex = segments.lastIndexOf('src');
+
+    return sourceIndex > 0 && isMiniModuleRoot(segments.slice(0, sourceIndex).join(path.sep));
+};
+
 const nodeContainsLeadingBlockComment = (node) => {
     const comments = findComments(node);
 
@@ -89,6 +110,10 @@ module.exports = {
         },
     },
     create(context) {
+        if (isMiniModuleIndexOrSource(context.filename ?? context.getFilename())) {
+            return {};
+        }
+
         return {
             ExportDefaultDeclaration(node) {
                 if (nodeContainsLeadingBlockComment(node)) {

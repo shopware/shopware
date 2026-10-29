@@ -16,6 +16,41 @@ sw-[module]/
 └── default-search-configuration.js
 ```
 
+## Mini-Modules
+
+A mini-module is a directory that works like a small library, with a public API and private code behind it:
+
+```
+order-delivery/
+├── index.ts                  # The public API, for other Administration code and for extensions
+├── private.ts                # Optional: an API for Administration code only, every export marked @private
+├── src/                      # The implementation, imported only by index.ts, private.ts and src/ itself
+└── tests/
+    ├── requirements.spec.ts  # What someone decided, from the user's point of view
+    ├── pinned.spec.ts        # The details and edge cases, as they behave today
+    ├── regressions.spec.ts   # Bugs that must not come back
+    └── *.spec.ts             # Tests of internals, which should be rare
+```
+
+Import a mini-module through its directory, which resolves to `index.ts`.
+An import of `.../private` from outside the module fails the lint unless the line disables the rule and says why, so every use of a private API shows up in review.
+`private.ts` never reaches extensions, and its exports still carry `@private`.
+The exports of `index.ts` need no `@private`, because they are public API and changes to them follow the deprecation process.
+
+Requirement tests stay rough.
+They describe what a merchant expects, in a few tests whose titles read like sentences, and each one has a `@requirement` doc comment that says why.
+Details and edge cases go into pinned tests.
+They need no comment, and an agent may write them by freezing the current behaviour.
+Each regression test has a `@regression` doc comment with the issue and what users saw.
+
+Requirements, pinned and regressions specs import the module only through `../index`, so they test what other code sees.
+A change to `index.ts`, a requirement or a regression needs the owning team (`.codeowners`).
+A changed pin only asks whether the change was intended.
+
+Put a requirement into the smallest module that owns it, and let the code that uses the module rely on its requirements.
+Tests describe the code as it is now, so delete an outdated test and give the reason in the commit instead of skipping it.
+`sw-core-rules/mini-module-boundaries` and `sw-test-rules/require-test-origin` check these rules.
+
 ## Registration Pattern
 
 ```js

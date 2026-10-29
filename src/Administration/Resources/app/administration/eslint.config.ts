@@ -129,6 +129,8 @@ const baseRules = {
     // Must be an error: this is the only check on a directory-derived component name, and `npm run lint`
     // has no `--max-warnings`, so at warning level `Bad_Dir/index.vue` would pass CI.
     'sw-core-rules/native-setup-filename': 'error',
+    // Code outside a mini-module may import only its `index.ts`.
+    'sw-core-rules/mini-module-boundaries': 'error',
     'sw-deprecation-rules/private-feature-declarations': 'error',
     'no-restricted-exports': 'off',
     'filename-rules/match': [
@@ -721,6 +723,7 @@ export default [
                 'error',
                 { max: 1000 },
             ],
+            'sw-test-rules/require-test-origin': 'error',
         },
     },
 

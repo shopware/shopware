@@ -54,3 +54,16 @@ src/Core/Framework/Resources/views/documents/** @shopware/product-cc-after-sales
 
 # ctrl-alt-elite
 src/Core/System/UsageData/usage-data-allow-list.json @shopware/st-ctrl-alt-elite
+
+# checkout: Administration mini-modules (`index.ts` + private `src/` + `tests/`)
+# Changes to the public API (`index.ts`), the requirements and the regressions need the owning team.
+# Changes to `src/` and to pinned tests do not.
+src/Administration/Resources/app/administration/src/module/sw-order/page/sw-order-list/index.ts @shopware/product-cc-checkout
+src/Administration/Resources/app/administration/src/module/sw-order/page/sw-order-list/tests/requirements.spec.ts @shopware/product-cc-checkout
+src/Administration/Resources/app/administration/src/module/sw-order/page/sw-order-list/tests/regressions.spec.ts @shopware/product-cc-checkout
+src/Administration/Resources/app/administration/src/module/sw-order/page/sw-order-detail/index.ts @shopware/product-cc-checkout
+src/Administration/Resources/app/administration/src/module/sw-order/page/sw-order-detail/tests/requirements.spec.ts @shopware/product-cc-checkout
+src/Administration/Resources/app/administration/src/module/sw-order/page/sw-order-detail/tests/regressions.spec.ts @shopware/product-cc-checkout
+src/Administration/Resources/app/administration/src/module/sw-bulk-edit/service/handler/bulk-edit-order/index.ts @shopware/product-cc-checkout
+src/Administration/Resources/app/administration/src/module/sw-bulk-edit/service/handler/bulk-edit-order/tests/requirements.spec.ts @shopware/product-cc-checkout
+src/Administration/Resources/app/administration/src/module/sw-bulk-edit/service/handler/bulk-edit-order/tests/regressions.spec.ts @shopware/product-cc-checkout

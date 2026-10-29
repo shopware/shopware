@@ -426,12 +426,6 @@ class ElasticsearchIndexerTest extends TestCase
             $this->createDefinition('category'),
         ]);
 
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->expects($this->once())
-            ->method('insert')
-            ->with('elasticsearch_index_task', static::callback(static fn (array $row) => $row['`entity`'] === 'product'));
-
         $indexCreator = $this->createMock(IndexCreator::class);
         $indexCreator->method('aliasExists')->willReturn(true);
         $indexCreator
@@ -439,7 +433,7 @@ class ElasticsearchIndexerTest extends TestCase
             ->method('createIndex')
             ->with(static::callback(static fn (AbstractElasticsearchDefinition $definition) => $definition->getEntityDefinition()->getEntityName() === 'product'));
 
-        $indexer = $this->getIndexer(connection: $connection, indexCreator: $indexCreator);
+        $indexer = $this->getIndexer(indexCreator: $indexCreator);
 
         $indexer->iterate(null, ['product']);
     }

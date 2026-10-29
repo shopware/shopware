@@ -58,6 +58,9 @@ const vueParser = resolveVueParser();
  *   consume internal APIs may lower this in their own config.
  * - `vite8DeprecationSeverity`: severity of the rules for code that breaks
  *   with Vite 8, the build tool of Shopware 6.8 (defaults to `warn`).
+ * - `loadingPerformanceSeverity`: opt-in findings for eager component imports and
+ *   implementation globs (`off` by default). Required startup side effects may
+ *   use a scoped ESLint disable with a reason.
  * - `ignores`: additional global ignore patterns.
  *
  * Host options — the Administration's own config composes this factory too
@@ -85,6 +88,7 @@ export function shopwareAdminExtension(options = {}) {
         internalApiSeverity = 'error',
         vite8DeprecationSeverity = 'warn',
         ignores = [],
+        loadingPerformanceSeverity = 'off',
         deprecatedApiSeverity = internalApiSeverity,
         templateDeprecationSeverity = internalApiSeverity,
         srcImportBoundary = true,
@@ -218,6 +222,25 @@ export function shopwareAdminExtension(options = {}) {
                 'plugin-rules/no-src-imports': srcImportBoundary ? 'error' : 'off',
                 'no-restricted-imports': srcImportBoundary ? NO_ADMIN_INTERNALS_RULE : 'off',
             },
+        },
+        {
+            name: 'shopware/admin-extension/loading-performance',
+            files: scope([...javascriptFilePatterns, ...typescriptFilePatterns, ...vueFilePatterns]),
+            plugins: { 'plugin-rules': swPluginRules },
+            rules: { 'plugin-rules/no-eager-component-imports': loadingPerformanceSeverity },
+        },
+        {
+            name: 'shopware/admin-extension/loading-performance-startup',
+            files: scope([
+                '**/main.js',
+                '**/main.mjs',
+                '**/main.ts',
+                '**/registration/**/*.js',
+                '**/registration/**/*.mjs',
+                '**/registration/**/*.ts',
+            ]),
+            plugins: { 'plugin-rules': swPluginRules },
+            rules: { 'plugin-rules/no-eager-component-glob': loadingPerformanceSeverity },
         },
         {
             name: 'shopware/admin-extension/api-boundary',

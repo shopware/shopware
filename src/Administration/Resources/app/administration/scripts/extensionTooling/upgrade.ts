@@ -203,18 +203,10 @@ interface CodemodRunContext {
 }
 
 interface CodemodRunResult {
-    /** Keyed by codemod id. */
     tallies: Map<string, CodemodTally>;
     warnings: string[];
     errors: string[];
 }
-
-type CodemodOfKind<Kind extends Codemod['kind']> = Extract<Codemod, { kind: Kind }>;
-
-type CodemodRunner<Kind extends Codemod['kind']> = (
-    context: CodemodRunContext,
-    codemods: CodemodOfKind<Kind>[],
-) => CodemodRunResult | Promise<CodemodRunResult>;
 
 function emptyRunResult(codemods: Codemod[]): CodemodRunResult {
     return {
@@ -299,37 +291,32 @@ function runEslintCodemods(context: CodemodRunContext, codemods: EslintCodemod[]
     }
 }
 
-async function runSfcMigration(context: CodemodRunContext, codemods: SfcMigrationCodemod[]): Promise<CodemodRunResult> {
-    const result: CodemodRunResult = { tallies: new Map(), warnings: [], errors: [] };
+async function runSfcMigration(context: CodemodRunContext, codemod: SfcMigrationCodemod): Promise<CodemodRunResult> {
+    const tally: CodemodTally = { changes: 0, files: new Set(), manual: [] };
+    const result: CodemodRunResult = { tallies: new Map([[codemod.id, tally]]), warnings: [], errors: [] };
 
-    for (const codemod of codemods) {
-        const tally: CodemodTally = { changes: 0, files: new Set(), manual: [] };
+    for (const sourceDirectory of context.sourceDirectories) {
+        const migration = await runMigration(sourceDirectory, { write: context.write });
 
-        result.tallies.set(codemod.id, tally);
+        for (const component of migration.reports) {
+            const componentFile = toPosix(
+                path.relative(context.extensionRoot, path.join(component.dir, `${component.name}.vue`)),
+            );
 
-        for (const sourceDirectory of context.sourceDirectories) {
-            const migration = await runMigration(sourceDirectory, { write: context.write });
+            if (component.outcome === 'error') {
+                result.errors.push(`SFC migration of ${component.name} failed: ${component.reasons.join('; ')}`);
+            }
 
-            for (const component of migration.reports) {
-                const componentFile = toPosix(
-                    path.relative(context.extensionRoot, path.join(component.dir, `${component.name}.vue`)),
-                );
+            if (component.outcome === 'full' || component.outcome === 'partial') {
+                tally.changes += 1;
+                tally.files.add(componentFile);
+            }
 
-                if (component.outcome === 'error') {
-                    result.errors.push(`SFC migration of ${component.name} failed: ${component.reasons.join('; ')}`);
-                }
-
-                if (component.outcome === 'full' || component.outcome === 'partial') {
-                    tally.changes += 1;
-                    tally.files.add(componentFile);
-                }
-
-                if (component.outcome === 'partial') {
-                    tally.manual.push({
-                        file: componentFile,
-                        message: 'Converted with TODO(sfc-migration) comments that need a review.',
-                    });
-                }
+            if (component.outcome === 'partial') {
+                tally.manual.push({
+                    file: componentFile,
+                    message: 'Converted with TODO(sfc-migration) comments that need a review.',
+                });
             }
         }
     }
@@ -337,20 +324,21 @@ async function runSfcMigration(context: CodemodRunContext, codemods: SfcMigratio
     return result;
 }
 
-/** Runs in key order: the SFC migration converts what the ESLint codemods already rewrote. */
-const RUNNERS: { [Kind in Codemod['kind']]: CodemodRunner<Kind> } = {
-    eslint: runEslintCodemods,
-    'sfc-migration': runSfcMigration,
-};
+/** The SFC migration runs last, so it converts what the ESLint codemods already rewrote. */
+async function runCodemods(context: CodemodRunContext, codemods: Codemod[]): Promise<CodemodRunResult[]> {
+    const eslint = codemods.filter((codemod): codemod is EslintCodemod => codemod.kind === 'eslint');
+    const sfc = codemods.find((codemod): codemod is SfcMigrationCodemod => codemod.kind === 'sfc-migration');
+    const results: CodemodRunResult[] = [];
 
-function runCodemodsOfKind<Kind extends Codemod['kind']>(
-    kind: Kind,
-    context: CodemodRunContext,
-    codemods: Codemod[],
-): CodemodRunResult | Promise<CodemodRunResult> | null {
-    const ofKind = codemods.filter((codemod): codemod is CodemodOfKind<Kind> => codemod.kind === kind);
+    if (eslint.length > 0) {
+        results.push(runEslintCodemods(context, eslint));
+    }
 
-    return ofKind.length > 0 ? RUNNERS[kind](context, ofKind) : null;
+    if (sfc) {
+        results.push(await runSfcMigration(context, sfc));
+    }
+
+    return results;
 }
 
 function emptyUpgrade(project: ExtensionToolingProject, skipped?: string): ExtensionUpgrade {
@@ -381,17 +369,14 @@ async function upgradeExtension(
     };
     const tallies = new Map<string, CodemodTally>();
 
-    for (const kind of Object.keys(RUNNERS) as Codemod['kind'][]) {
-        const applied = await runCodemodsOfKind(kind, { ...context, write: options.write }, enabled);
-        const probe = await runCodemodsOfKind(kind, { ...context, write: false }, probed);
+    for (const applied of await runCodemods({ ...context, write: options.write }, enabled)) {
+        applied.tallies.forEach((tally, id) => tallies.set(id, tally));
+        upgrade.warnings.push(...applied.warnings);
+        upgrade.errors.push(...applied.errors);
+    }
 
-        if (applied) {
-            applied.tallies.forEach((tally, id) => tallies.set(id, tally));
-            upgrade.warnings.push(...applied.warnings);
-            upgrade.errors.push(...applied.errors);
-        }
-
-        probe?.tallies.forEach((tally, id) => tallies.set(id, { ...tally, manual: [] }));
+    for (const probe of await runCodemods({ ...context, write: false }, probed)) {
+        probe.tallies.forEach((tally, id) => tallies.set(id, { ...tally, manual: [] }));
     }
 
     upgrade.codemods = options.codemods.map((codemod) => {
@@ -573,9 +558,7 @@ export async function runUpgradeCli(argv: string[]): Promise<number> {
         messages: {
             title: 'Select extensions to upgrade:',
             empty: 'No writable Administration extensions discovered.',
-            fallback:
-                'Not an interactive terminal and no selection given — upgrading all writable extensions. ' +
-                'Pass --only=<name[,name]> or --all to be explicit.',
+            fallback: 'Not an interactive terminal and no selection given — upgrading all writable extensions.',
         },
     });
 

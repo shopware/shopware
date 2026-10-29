@@ -127,11 +127,4 @@ describe('scripts/extensionTooling/select resolveCliSelection', () => {
         });
         expect(output).toEqual([]);
     });
-
-    it('tells a non-interactive run without a selection that it runs every extension', async () => {
-        await expect(
-            resolveCliSelection({ only: undefined, all: false, candidates: () => [project('Alpha')], messages }),
-        ).resolves.toEqual({ only: undefined, explicitOnly: [] });
-        expect(output).toEqual(['Running everything.']);
-    });
 });

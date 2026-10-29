@@ -123,16 +123,13 @@ export async function promptSelection(
 }
 
 export interface CliSelectionOptions {
-    /** The raw --only value. */
     only: string | undefined;
     all: boolean;
     /** The projects the interactive picker offers; only called on a TTY. */
     candidates: () => ExtensionToolingProject[];
     messages: {
         title: string;
-        /** Printed when the picker has nothing to offer. */
         empty: string;
-        /** Printed when a non-interactive run without --only or --all falls back to every extension. */
         fallback: string;
     };
 }
@@ -157,7 +154,7 @@ export async function resolveCliSelection(options: CliSelectionOptions): Promise
     }
 
     if (!process.stdin.isTTY || !process.stdout.isTTY) {
-        console.log(options.messages.fallback);
+        console.log(`${options.messages.fallback} Pass --only=<name[,name]> or --all to be explicit.`);
 
         return { only: undefined, explicitOnly: [] };
     }

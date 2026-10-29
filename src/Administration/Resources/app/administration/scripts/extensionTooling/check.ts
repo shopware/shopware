@@ -287,9 +287,7 @@ export async function runCheckCli(argv: string[]): Promise<number> {
         messages: {
             title: 'Select extensions to check (vue-tsc + ESLint):',
             empty: 'No Administration extensions discovered.',
-            fallback:
-                'Not an interactive terminal and no selection given — checking all extensions. ' +
-                'Pass --only=<name[,name]> or --all to be explicit.',
+            fallback: 'Not an interactive terminal and no selection given — checking all extensions.',
         },
     });
 

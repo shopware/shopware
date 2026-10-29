@@ -240,7 +240,6 @@ class StoreRequestOptionsProviderTest extends TestCase
             'storeToken' => 'sbp-token',
         ]);
 
-        /** @var StaticEntityRepository<UserCollection> $userRepository */
         $userRepository = new StaticEntityRepository([new UserCollection([$user])]);
 
         $provider = new StoreRequestOptionsProvider(

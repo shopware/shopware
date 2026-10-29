@@ -379,7 +379,7 @@ test('postComment posts dead docs links as plain text', async () => {
 
     const body = String(calls.find((c) => c.method === 'createComment')?.params.body);
     assert.ok(body.includes('- **Adjust** Products: a'));
-    assert.equal(body.includes('https://docs.shopware.com'), false);
+    assert.doesNotMatch(body, /\[Products\]\(/);
 });
 
 test('latestEndUserPages keeps the highest article version per page and maps it to its URL', () => {

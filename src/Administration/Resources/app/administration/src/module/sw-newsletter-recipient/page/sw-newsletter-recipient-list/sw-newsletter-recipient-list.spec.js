@@ -116,7 +116,7 @@ class MockRepositoryFactory {
 const searchSpy = jest.fn(() => Promise.resolve(mockApiCall('newsletter_recipient')));
 
 async function createWrapper(options = {}) {
-    const { useSearchSpy = false, salesChannels = null, stubs = {} } = options;
+    const { useSearchSpy = false, repositories = {}, stubs = {} } = options;
 
     const repositoryFactory = useSearchSpy
         ? {
@@ -125,16 +125,7 @@ async function createWrapper(options = {}) {
               })),
           }
         : {
-              create: (type) => {
-                  if (type === 'sales_channel' && salesChannels) {
-                      // like the API, only return as many sales channels as the criteria asks for
-                      return {
-                          search: (criteria) => Promise.resolve(salesChannels.slice(0, criteria.limit ?? undefined)),
-                      };
-                  }
-
-                  return new MockRepositoryFactory(type);
-              },
+              create: (type) => repositories[type] ?? new MockRepositoryFactory(type),
           };
 
     return mount(await wrapTestComponent('sw-newsletter-recipient-list', { sync: true }), {
@@ -214,14 +205,17 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list',
         expect(wrapper.vm.$options.shortcuts.OF).toBe('openFilterSidebar');
     });
 
-    it('should offer every sales channel in the filter, also beyond the first 100', async () => {
-        const salesChannels = Array.from({ length: 120 }, (_, index) => ({
-            id: `sales-channel-${index}`,
-            name: `Sales channel ${index}`,
-        }));
+    it('should filter the recipients by the sales channels picked in the lazy loading select', async () => {
+        const salesChannelRepository = { search: jest.fn(() => Promise.resolve([])) };
+        const newsletterRecipientRepository = {
+            search: jest.fn(() => Promise.resolve(mockApiCall('newsletter_recipient'))),
+        };
 
         const wrapper = await createWrapper({
-            salesChannels,
+            repositories: {
+                sales_channel: salesChannelRepository,
+                newsletter_recipient: newsletterRecipientRepository,
+            },
             stubs: {
                 'sw-sidebar': {
                     template: '<div class="sw-sidebar"><slot></slot></div>',
@@ -232,16 +226,26 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list',
                 'sw-sidebar-collapse': {
                     template: '<div class="sw-sidebar-collapse"><slot name="content"></slot></div>',
                 },
-                'mt-select': {
-                    props: ['options'],
-                    template: '<div class="mt-select"></div>',
+                'sw-entity-multi-id-select': {
+                    props: ['repository', 'value'],
+                    template: '<div class="sw-entity-multi-id-select"></div>',
                 },
             },
         });
         await flushPromises();
 
-        const salesChannelFilter = wrapper.findAll('.sw-sidebar-collapse')[2].findComponent('.mt-select');
-        expect(salesChannelFilter.props('options')).toEqual(salesChannels);
+        const salesChannelFilter = wrapper.findAll('.sw-sidebar-collapse')[2].findComponent('.sw-entity-multi-id-select');
+        expect(salesChannelFilter.props('repository')).toBe(salesChannelRepository);
+
+        await salesChannelFilter.vm.$emit('update:value', ['sales-channel-119']);
+        await flushPromises();
+
+        expect(salesChannelFilter.props('value')).toEqual(['sales-channel-119']);
+        expect(newsletterRecipientRepository.search.mock.lastCall[0].filters).toContainEqual({
+            type: 'equalsAny',
+            field: 'salesChannelId',
+            value: 'sales-channel-119',
+        });
     });
 
     it('should open the filter sidebar via the open-filters shortcut', async () => {

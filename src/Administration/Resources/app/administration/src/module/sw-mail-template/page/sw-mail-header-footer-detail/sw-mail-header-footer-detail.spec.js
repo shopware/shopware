@@ -143,8 +143,8 @@ describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
         });
     });
 
-    it('should find every selected sales channel that already uses another header and footer, also beyond 25', async () => {
-        const salesChannels = Array.from({ length: 30 }, (_, index) => ({
+    it('should find every selected sales channel that already uses another header and footer, also beyond 500', async () => {
+        const salesChannels = Array.from({ length: 501 }, (_, index) => ({
             id: `sales-channel-${index}`,
             name: `Sales channel ${index}`,
             translated: { name: `Sales channel ${index}` },
@@ -153,8 +153,13 @@ describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
         const repository = {
             ...repositoryMockFactory(),
             get: () => Promise.resolve({ ...mailHeaderFooterMock, salesChannels }),
-            // like the API, only return as many sales channels as the criteria asks for
-            search: jest.fn((criteria) => Promise.resolve(salesChannels.slice(0, criteria.limit ?? undefined))),
+            search: jest.fn((criteria) =>
+                Promise.resolve(
+                    criteria.ids.length
+                        ? salesChannels.filter(({ id }) => criteria.ids.includes(id))
+                        : salesChannels.slice(0, criteria.limit),
+                ),
+            ),
         };
 
         wrapper = await createWrapper(['mail_templates.editor'], repository);

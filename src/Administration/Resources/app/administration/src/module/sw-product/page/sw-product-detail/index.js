@@ -1034,9 +1034,9 @@ export default {
         },
 
         fetchSalesChannelByIds(ids) {
-            const criteria = new Criteria(1, null);
+            const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(Criteria.equalsAny('id', ids));
+            criteria.setIds(ids);
 
             return this.salesChannelRepository.search(criteria);
         },

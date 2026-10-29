@@ -69,9 +69,9 @@ export default {
 
         fetchSalesChannels() {
             const salesChannelIds = this.config.map((config) => config.id);
-            const criteria = new Criteria(1, null);
+            const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(Criteria.equalsAny('id', salesChannelIds));
+            criteria.setIds(salesChannelIds);
 
             return this.salesChannelRepository.search(criteria).then((salesChannels) => {
                 return this.config.map((config) => {

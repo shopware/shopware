@@ -704,18 +704,22 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.product.visibilities).toHaveLength(1);
     });
 
-    it('should create a visibility for every default sales channel, also beyond the first 25', async () => {
+    it('should create a visibility for every default sales channel, also beyond the first 500', async () => {
         await flushPromises();
         await wrapper.unmount();
 
-        const salesChannels = Array.from({ length: 30 }, (_, index) => ({
+        const salesChannels = Array.from({ length: 501 }, (_, index) => ({
             id: `sales-channel-${index}`,
             name: `Sales channel ${index}`,
         }));
 
         wrapper = await createWrapper(
-            // like the API, only return as many sales channels as the criteria asks for
-            (criteria) => Promise.resolve(salesChannels.slice(0, criteria?.limit ?? undefined)),
+            (criteria) =>
+                Promise.resolve(
+                    criteria?.ids.length
+                        ? salesChannels.filter(({ id }) => criteria.ids.includes(id))
+                        : salesChannels.slice(0, criteria?.limit),
+                ),
             undefined,
             null,
             {

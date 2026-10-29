@@ -149,7 +149,7 @@ export default {
         },
 
         fetchSalesChannels() {
-            this.salesChannelRepository.search(new Criteria(1, null)).then((response) => {
+            this.salesChannelRepository.search(new Criteria(1, 25)).then((response) => {
                 this.salesChannels = response;
             });
         },

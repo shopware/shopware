@@ -598,6 +598,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(ResolvedCriteriaProductSuggestRoute::class . '.inner'),
             service(CompositeListingProcessor::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ProductSuggestRoute::class)
@@ -622,6 +623,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ResolvedCriteriaProductSearchRoute::class . '.inner'),
             service('event_dispatcher'),
             service(CompositeListingProcessor::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ResolveCriteriaProductListingRoute::class)

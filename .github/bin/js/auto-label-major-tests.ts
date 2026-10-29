@@ -31,7 +31,7 @@ export const FEATURE_REGISTRY_PATH = 'src/Core/Framework/Resources/config/packag
 export const ADMINISTRATION_APP_PATH = 'src/Administration/Resources/app/administration/';
 export const ADMINISTRATION_SOURCE_PATH = `${ADMINISTRATION_APP_PATH}src/`;
 export const ADMINISTRATION_TEST_PATH = `${ADMINISTRATION_APP_PATH}test/`;
-export const ADMINISTRATION_DEPRECATION_BASELINE_PATH = `${ADMINISTRATION_SOURCE_PATH}meta/deprecation-baseline.json`;
+export const ADMINISTRATION_DEPRECATION_BASELINE_PATH = `${ADMINISTRATION_SOURCE_PATH}core/deprecation-baseline.json`;
 
 type PullRequestLabel = {
     name: string;

@@ -57,8 +57,8 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
 
     test('fires add_to_cart event when AddToCart plugin emits beforeFormSubmit', () => {
         document.body.innerHTML = `
-            <meta itemprop="priceCurrency" content="EUR">
-            <meta itemprop="price" content="99.99">
+            <meta property="product:price:currency" content="EUR">
+            <meta property="product:price:amount" content="99.99">
         `;
 
         const addToCartInstance = createMockPluginInstance();
@@ -78,12 +78,15 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', expect.objectContaining({
             'currency': 'EUR',
+            // the value of the added quantity, not the unit price
+            'value': 199.98,
             'items': expect.arrayContaining([
                 expect.objectContaining({
-                    'id': 'product-123',
-                    'name': 'Test Product',
-                    'quantity': '2',
-                    'brand': 'Test Brand',
+                    'item_id': 'product-123',
+                    'item_name': 'Test Product',
+                    'quantity': 2,
+                    'price': 99.99,
+                    'item_brand': 'Test Brand',
                 }),
             ]),
         }));
@@ -169,7 +172,7 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         // Verify it subscribed to the Listing plugin's afterRenderResponse event
         expect(subscribeSpy).toHaveBeenCalledWith(
             'Listing/afterRenderResponse',
-            expect.any(Function)
+            expect.any(Function),
         );
     });
 
@@ -212,7 +215,7 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         expect(window.gtag).toHaveBeenCalledTimes(2);
         expect(window.gtag).toHaveBeenLastCalledWith('event', 'add_to_cart', expect.objectContaining({
             'items': expect.arrayContaining([
-                expect.objectContaining({ 'id': 'product-new' }),
+                expect.objectContaining({ 'item_id': 'product-new' }),
             ]),
         }));
     });
@@ -254,5 +257,47 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
 
         expect(window.gtag).toHaveBeenCalledTimes(1);
+    });
+
+    test('reports no value when the price of the product is unknown', () => {
+        const addToCartInstance = createMockPluginInstance();
+        addToCartInstances.push(addToCartInstance);
+
+        const event = new AddToCartEvent();
+        event.execute();
+
+        const formData = new FormData();
+        formData.append('lineItems[product-123][id]', 'product-123');
+        formData.append('product-name', 'Test Product');
+        formData.append('lineItems[product-123][quantity]', '2');
+
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+        const [, , parameters] = window.gtag.mock.calls[0];
+        expect(parameters).not.toHaveProperty('value');
+        expect(parameters.items[0]).not.toHaveProperty('price');
+        expect(parameters.items[0]).toEqual(expect.objectContaining({ item_id: 'product-123', quantity: 2 }));
+    });
+
+    test('reports the unit price as value without a quantity in the form', () => {
+        document.body.innerHTML = `
+            <meta property="product:price:currency" content="EUR">
+            <meta property="product:price:amount" content="99.99">
+        `;
+
+        const addToCartInstance = createMockPluginInstance();
+        addToCartInstances.push(addToCartInstance);
+
+        const event = new AddToCartEvent();
+        event.execute();
+
+        const formData = new FormData();
+        formData.append('lineItems[product-123][id]', 'product-123');
+
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', expect.objectContaining({
+            'value': 99.99,
+        }));
     });
 });

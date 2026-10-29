@@ -325,7 +325,10 @@ For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-
 
 A CMS section background image is now rendered as a responsive `<img class="cms-section-background">` element with the media thumbnails, like a CMS block background, instead of an inline `background-image` style on the `.cms-section` element.
 The new Twig block `page_content_section_background_image` in `storefront/page/content/detail.html.twig` wraps the image.
-Themes that style the section background through the removed inline style or the `sectionBgImg` and `sectionBgImgMode` template variables should target `.cms-section-background` and its `media-mode--cover` and `media-mode--contain` classes instead.
+Themes that style the section background through the removed inline style should target `.cms-section-background` and its `media-mode--cover` and `media-mode--contain` classes instead.
+The template variables `sectionBgImg` and `sectionBgImgMode` are deprecated and will be removed in 6.8.0.0, use `section.backgroundMedia` and `section.backgroundMediaMode` instead.
+The browser now picks the thumbnail that fits the viewport, so the thumbnail sizes configured for the media folder of the background image matter.
+Check that the folder provides a size large enough for full-width sections, otherwise the background looks pixelated.
 
 ### Deprecation of `ListingPlugin` properties
 

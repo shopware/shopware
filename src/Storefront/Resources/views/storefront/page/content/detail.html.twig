@@ -5,6 +5,10 @@
     <div class="cms-sections">
         {% for section in cmsPage.sections %}
             {% set sectionBgColor = section.backgroundColor %}
+            {# @deprecated tag:v6.8.0 - Variable `sectionBgImg` will be removed, use `section.backgroundMedia` with `sw_thumbnails` instead #}
+            {% set sectionBgImg = section.backgroundMedia|sw_encode_media_url %}
+            {# @deprecated tag:v6.8.0 - Variable `sectionBgImgMode` will be removed, use `section.backgroundMediaMode` instead #}
+            {% set sectionBgImgMode = section.backgroundMediaMode %}
 
             {% set sectionClasses = [section.cssClass, 'pos-' ~ section.position, 'cms-section-' ~ section.type] %}
 
@@ -46,7 +50,8 @@
                                 media: section.backgroundMedia,
                                 autoColumnSizes: false,
                                 attributes: {
-                                    class: 'cms-section-background media-mode--' ~ section.backgroundMediaMode
+                                    class: 'cms-section-background media-mode--' ~ section.backgroundMediaMode,
+                                    alt: section.backgroundMedia.translated.alt|default('')
                                 }
                             } %}
                         {% endif %}

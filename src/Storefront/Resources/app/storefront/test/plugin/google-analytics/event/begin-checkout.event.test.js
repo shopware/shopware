@@ -79,6 +79,33 @@ describe('plugin/google-analytics/events/begin-checkout.event', () => {
         });
     });
 
+    test('reports begin_checkout from the off-canvas cart with the position price and the coupon', () => {
+        document.body.innerHTML = `
+            <button class="begin-checkout-btn"></button>
+            <div class="hidden-line-items-information" data-currency="EUR" data-value="90">
+                <span class="hidden-line-item" data-id="product-123" data-name="Test Product" data-quantity="1" data-price="100"></span>
+                <span class="hidden-line-item-coupon" data-code="SAVE10"></span>
+            </div>
+        `;
+
+        subscribe();
+        openOffCanvas();
+
+        document.querySelector('.begin-checkout-btn').click();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'begin_checkout', {
+            'currency': 'EUR',
+            'value': 90,
+            'coupon': 'SAVE10',
+            'items': [{
+                item_id: 'product-123',
+                item_name: 'Test Product',
+                quantity: 1,
+                price: 100,
+            }],
+        });
+    });
+
     test('reports the applied promotion codes as coupon', () => {
         document.body.innerHTML = `
             <div class="hidden-line-items-information" data-currency="EUR">

@@ -124,6 +124,46 @@ class SyncServiceTest extends TestCase
         static::assertCount(0, $exists);
     }
 
+    public function testDeletingAProductAndThenItsCoverReportsTheProductAsDeleted(): void
+    {
+        $ids = new IdsCollection();
+
+        static::getContainer()->get('product.repository')->create([
+            (new ProductBuilder($ids, 'cover-product'))->price(100)->cover('cover-media')->build(),
+        ], Context::createDefaultContext());
+
+        $result = $this->service->sync([
+            new SyncOperation('delete-product', 'product', SyncOperation::ACTION_DELETE, [['id' => $ids->get('cover-product')]]),
+            new SyncOperation('delete-cover', 'product_media', SyncOperation::ACTION_DELETE, [['id' => $ids->get('cover-media')]]),
+        ], Context::createDefaultContext(), new SyncBehavior());
+
+        static::assertSame([$ids->get('cover-product')], $result->getDeleted()['product'] ?? []);
+        static::assertArrayNotHasKey('product', $result->getData());
+    }
+
+    public function testDeletingAProductAndThenItsPriceReportsTheProductAsDeleted(): void
+    {
+        $ids = new IdsCollection();
+
+        static::getContainer()->get('product.repository')->create([
+            (new ProductBuilder($ids, 'priced-product'))->price(100)->prices('price-rule', 50)->build(),
+        ], Context::createDefaultContext());
+
+        $priceId = $this->connection->fetchOne(
+            'SELECT LOWER(HEX(id)) FROM product_price WHERE product_id = :productId',
+            ['productId' => Uuid::fromHexToBytes($ids->get('priced-product'))]
+        );
+        static::assertIsString($priceId);
+
+        $result = $this->service->sync([
+            new SyncOperation('delete-product', 'product', SyncOperation::ACTION_DELETE, [['id' => $ids->get('priced-product')]]),
+            new SyncOperation('delete-price', 'product_price', SyncOperation::ACTION_DELETE, [['id' => $priceId]]),
+        ], Context::createDefaultContext(), new SyncBehavior());
+
+        static::assertSame([$ids->get('priced-product')], $result->getDeleted()['product'] ?? []);
+        static::assertArrayNotHasKey('product', $result->getData());
+    }
+
     public function testSingleOperationWithDeletesAndWrites(): void
     {
         $ids = new IdsCollection();

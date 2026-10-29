@@ -104,6 +104,10 @@ The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physica
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
 
+### Sync requests report products deleted earlier in the request as deleted
+
+A sync request that deletes a product and then its prices, media, cross-sellings, manufacturer or another entity whose deletion would update that product, for example its inherited data or a reference set to `null`, no longer reports the product as updated. The product now appears in `deleted` of the sync response and triggers `product.deleted` instead of `product.written`.
+
 ### Set null on delete also applies to cascaded deletes
 
 When the DAL deletes an entity, `SetNullOnDelete` associations of the entities removed through `CascadeDelete` are now resolved as well, not only those of the deleted entity itself. For associations without a database constraint (`SetNullOnDelete(false)`) the reference is set to `null` and a write result is dispatched for the updated entity. For example, deleting a media that is used as a product cover now clears `product.coverId`. Entities that are deleted in the same operation are not updated, so deleting a product with a cover still reports the product, and its variants, as deleted.
@@ -217,6 +221,12 @@ shopware:
 
 ## Administration
 
+### CMS layout overview places the page type navigation in a grid
+
+The page type navigation of the Shopping Experiences overview (`sw-cms-list`) is no longer positioned absolutely left of the listing.
+Navigation and listing are grid columns inside `.sw-cms-list__content`, and below a page width of 800px the navigation renders horizontally above the listing with the modifier class `sw-cms-list--compact`.
+Extensions that offset or hide `.sw-cms-list__sidebar` through its former `position`, `left` or `width` values have to adjust their styles.
+
 ### Extension tooling reports redundant code
 
 The ESLint config of the Administration extension tooling now enables `no-else-return`, `no-useless-return`, `no-lonely-if` and `no-unneeded-ternary`.
@@ -317,6 +327,20 @@ For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-
 
 ## Storefront
 
+### CMS buy boxes select the configured variant
+
+Select-style variant configurators in CMS buy boxes now mark the assigned product's option as selected on landing pages and other CMS pages.
+Themes that override `buy_widget_configurator_select_option` can use `selected` to reflect the assigned product.
+
+### CMS section background images use thumbnails
+
+A CMS section background image is now rendered as a responsive `<img class="cms-section-background">` element with the media thumbnails, like a CMS block background, instead of an inline `background-image` style on the `.cms-section` element.
+The new Twig block `page_content_section_background_image` in `storefront/page/content/detail.html.twig` wraps the image.
+Themes that style the section background through the removed inline style should target `.cms-section-background` and its `media-mode--cover` and `media-mode--contain` classes instead.
+The template variables `sectionBgImg` and `sectionBgImgMode` are deprecated and will be removed in 6.8.0.0, use `section.backgroundMedia` and `section.backgroundMediaMode` instead.
+The browser now picks the thumbnail that fits the viewport, so the thumbnail sizes configured for the media folder of the background image matter.
+Check that the folder provides a size large enough for full-width sections, otherwise the background looks pixelated.
+
 ### Storefront analytics send GA4 ecommerce events
 
 Storefront analytics now send ecommerce events in the format Google documents for GA4.
@@ -412,6 +436,21 @@ Themes that override blocks of the personal data form in `page/account/profile/i
 The profile page now shows company and VAT ID for business customers even when "Show selection between company and customer account" is disabled, and saving it keeps their account type.
 Before, saving the profile without that setting removed the company and the VAT IDs of business customers.
 Themes that override `component_address_personal_company_section`, `component_address_personal_company` or `component_address_personal_vat_id` in `component/address/address-personal.html.twig` should check that the content also suits this case.
+
+### `.btn-link-inline` follows the link decoration variables
+
+`.btn-link-inline` now uses `$link-decoration` and `$link-hover-decoration` for its underline, like regular links, instead of always being underlined.
+The default Storefront looks the same.
+Themes that change these variables now also change the decoration of inline link buttons.
+
+### Guests change their account type with their billing address
+
+When a guest saves their active billing address in the checkout address manager, their account type, company, VAT ID and name now follow it.
+Rules on the account type, such as the commercial customer condition, and the tax-free detection then apply to the next cart calculation.
+The save goes through the profile route, so extensions that hook into `ChangeCustomerProfileRoute` or its validation also run for it.
+Other addresses and registered customers behave as before.
+The address manager shows the VAT ID field for that address again, through the block `component_address_form_company_vatId` in `component/address/address-form.html.twig`, which is no longer deprecated.
+Store API clients get the same result by calling `/store-api/account/change-profile` after saving the billing address.
 
 ### Breadcrumb template variables prepared for 6.8
 

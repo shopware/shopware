@@ -1,0 +1,15 @@
+.sw-settings-webhook-list {
+    &__owner-type {
+        margin: 0 var(--scale-size-8) 0 0;
+    }
+
+    &__active-icon {
+        &.is--inactive {
+            color: var(--color-icon-critical-default);
+        }
+
+        &.is--active {
+            color: var(--color-icon-positive-default);
+        }
+    }
+}

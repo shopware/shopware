@@ -84,11 +84,11 @@ const $refsMock = {
 
 let repositoryFactoryCreateResult;
 
+const propertyGroupSearchMock = jest.fn(() => Promise.resolve({ total: 0 }));
+
 async function createWrapper() {
     repositoryFactoryCreateResult = {
-        search: () => {
-            return Promise.resolve({ total: 0 });
-        },
+        search: propertyGroupSearchMock,
         searchIds: () => {
             return Promise.resolve({ total: 0 });
         },
@@ -479,11 +479,13 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
     it('should not limit the property groups of the product', async () => {
         global.activeAclRoles = [];
-        const wrapper = await createWrapper();
+        propertyGroupSearchMock.mockClear();
+
+        await createWrapper();
         await flushPromises();
 
-        // the groups are already narrowed to the ids of the assigned properties, so a limit would drop groups
-        expect(wrapper.vm.propertyGroupCriteria.limit).toBeNull();
+        expect(propertyGroupSearchMock).toHaveBeenCalled();
+        expect(propertyGroupSearchMock.mock.calls.at(-1)[0].limit).toBeNull();
     });
 
     it('should turn on add properties modal', async () => {

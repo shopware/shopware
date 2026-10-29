@@ -93,6 +93,15 @@ An app therefore claims keys per mapping in a dedicated `telemetry.xml`; it neve
 
 Allow lists are not open to apps: widening `payment_method` and friends stays an operator decision in yaml.
 
+#### Known limitation: claims are not ownership-checked
+
+Precedence in the mapping logic stops an app from relabeling a series core already names, but there is no check that a claimed key belongs to the app.
+An app can claim any key that folds into `other`: an unmapped core entity or flow event (e.g. `promotion_discount`, `user.recovery.request`), or another app's identifier.
+Two apps claiming one key resolve by first app name, not by ownership.
+The only protection is the global `accept_app_contributions`, and it disables the whole feature.
+Ownership can be validated at install, but it needs custom code for every mapper and app-extensible class (custom entity, flow event, action).
+There is no simple app-namespace check: namespaces are not enforced, only the shared `ce_` / `custom_entity_` prefix is.
+
 ## Consequences
 
 - The public surface stays declarative: yaml for plugins and projects, no PHP extension points.

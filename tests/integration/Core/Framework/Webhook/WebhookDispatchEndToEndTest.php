@@ -282,6 +282,40 @@ class WebhookDispatchEndToEndTest extends TestCase
 
     /**
      * Steps:
+     * 1. Register a webhook without an app.
+     * 2. Dispatch the event so the message is queued.
+     * 3. Set the webhook's secret before the worker delivers.
+     * 4. Run the worker.
+     *
+     * Expected:
+     * - The outgoing request is signed with the webhook's secret, read when it is sent.
+     */
+    public function testWebhookWithoutAppIsSignedWithItsSecret(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $this->createBareWebhook($webhookId, 'bare-webhook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/bare');
+
+        $this->appendNewResponse(new Response(200));
+
+        $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
+        $event = $this->createCustomerBeforeLoginEvent();
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager, $event, $webhookId): void {
+            $manager->dispatch($event);
+            $this->connection->update('webhook', ['secret' => 'webhook-secret'], ['id' => Uuid::fromHexToBytes($webhookId)]);
+            $this->runWorker();
+        });
+
+        $request = $this->getLastRequest();
+        static::assertNotNull($request, 'Expected an HTTP request to be made');
+        static::assertSame(
+            hash_hmac('sha256', (string) $request->getBody(), 'webhook-secret'),
+            $request->getHeaderLine('shopware-shop-signature')
+        );
+    }
+
+    /**
+     * Steps:
      * 1. Register a webhook without an app, with a secret.
      * 2. Dispatch the event so the message is queued.
      * 3. Delete the webhook before the worker delivers.

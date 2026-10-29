@@ -37,6 +37,11 @@ class WebhookEntity extends Entity
      */
     protected ?string $ownerIntegrationId = null;
 
+    /**
+     * @internal
+     */
+    protected ?string $secret = null;
+
     protected bool $active;
 
     protected int $errorCount;
@@ -142,6 +147,24 @@ class WebhookEntity extends Entity
     public function setOwnerIntegrationId(?string $ownerIntegrationId): void
     {
         $this->ownerIntegrationId = $ownerIntegrationId;
+    }
+
+    /**
+     * @internal
+     */
+    public function getSecret(): ?string
+    {
+        $this->checkIfPropertyAccessIsAllowed('secret');
+
+        return $this->secret;
+    }
+
+    /**
+     * @internal
+     */
+    public function setSecret(#[\SensitiveParameter] ?string $secret): void
+    {
+        $this->secret = $secret;
     }
 
     public function isActive(): bool

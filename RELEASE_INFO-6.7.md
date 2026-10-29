@@ -167,6 +167,17 @@ Live state transitions batch history and state writes. `EntityWriteEvent` subscr
 POST requests can now override their method only to PUT, PATCH or DELETE through the `X-HTTP-Method-Override` header or `_method` parameter.
 Send GET and HEAD requests with their actual HTTP method so routing and HTTP caches agree on the request semantics.
 HTML forms can continue to use POST with an override for PUT, PATCH and DELETE actions.
+### Webhooks without an app can be signed
+
+Webhooks created through the Admin API accept an optional `secret`, which can be written but is never returned.
+When it is set, each delivery carries a `shopware-shop-signature` header with the HMAC-SHA256 of the request body, like app webhooks get with the app secret.
+Deliveries still queued for a deleted webhook without an app are no longer sent.
+Webhooks registered in an app's manifest always use the app secret.
+
+```http
+PATCH /api/webhook/{id}
+{ "secret": "a-long-random-string" }
+```
 
 ### Criteria on fields the API does not expose is a bad request
 

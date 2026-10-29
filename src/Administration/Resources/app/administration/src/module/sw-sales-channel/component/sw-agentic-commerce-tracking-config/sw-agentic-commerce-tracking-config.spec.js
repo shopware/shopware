@@ -4,7 +4,6 @@
 
 import { mount } from '@vue/test-utils';
 import swAgenticCommerceTrackingConfig from './index';
-import { allowDeprecation } from 'test/_helper_/deprecations';
 
 Shopware.Component.register('sw-agentic-commerce-tracking-config', swAgenticCommerceTrackingConfig);
 
@@ -30,10 +29,6 @@ async function createWrapper(salesChannelOverride = {}) {
 }
 
 describe('sw-agentic-commerce-tracking-config', () => {
-    beforeEach(() => {
-        allowDeprecation('The component "sw-agentic-commerce-tracking-config" is deprecated');
-    });
-
     it('renders affiliate and campaign fields enabled by default', async () => {
         const wrapper = await createWrapper();
 

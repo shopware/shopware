@@ -90,7 +90,31 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                         ...mediaRepositoryProvideFunctions,
                     }),
                 },
-                systemConfigApiService: createSystemConfigApiService(),
+                systemConfigApiService: {
+                    getValues: () => {
+                        return Promise.resolve({
+                            'core.store.media.defaultEnableAugmentedReality': 'false',
+                        });
+                    },
+                    getSchema: () => {
+                        return Promise.resolve([
+                            {
+                                cards: [
+                                    {
+                                        elements: [
+                                            {
+                                                name: 'core.media.defaultARPlacement',
+                                                config: {
+                                                    options: arPlacementOptions,
+                                                },
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                        ]);
+                    },
+                },
                 mediaService: {
                     renameMedia: () => Promise.resolve(),
                     prepareDownloadMedia: jest.fn(),

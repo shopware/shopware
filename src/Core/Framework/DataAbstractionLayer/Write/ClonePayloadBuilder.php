@@ -78,16 +78,22 @@ final class ClonePayloadBuilder
      *
      * @return array<string, mixed>
      */
-    public function build(EntityDefinition $definition, array $data, string $sourceId, string $newId, array $overwrites, Context $context): array
-    {
+    public function build(
+        EntityDefinition $definition,
+        array $data,
+        string $sourceId,
+        string $newId,
+        array $overwrites,
+        Context $context
+    ): array {
         // A version of an entity keeps every id; a copy gets new ones.
         $keepIds = $newId === $sourceId;
 
-        $clonedIds = [];
+        $clonedIds = new CloneIdMap();
         $data = $this->filterPropertiesForClone($definition, $data, $keepIds, $sourceId, $definition, $context, $clonedIds);
         $data['id'] = $newId;
 
-        if ($clonedIds !== []) {
+        if (!$clonedIds->isEmpty()) {
             $data = $this->remapForeignKeys($definition, $data, $clonedIds);
         }
 
@@ -213,12 +219,18 @@ final class ClonePayloadBuilder
 
     /**
      * @param array<string, mixed> $data
-     * @param array<string, array<string, string>> $clonedIds the new id of every cloned nested row, by entity name and source id
      *
      * @return array<string, mixed>
      */
-    private function filterPropertiesForClone(EntityDefinition $definition, array $data, bool $keepIds, string $cloneId, EntityDefinition $cloneDefinition, Context $context, array &$clonedIds): array
-    {
+    private function filterPropertiesForClone(
+        EntityDefinition $definition,
+        array $data,
+        bool $keepIds,
+        string $cloneId,
+        EntityDefinition $cloneDefinition,
+        Context $context,
+        CloneIdMap $clonedIds
+    ): array {
         $extensions = [];
         $payload = [];
 
@@ -370,11 +382,10 @@ final class ClonePayloadBuilder
      * payload is built. Primary keys that are not an id are removed and set by the parent.
      *
      * @param array<string, mixed> $nestedItem
-     * @param array<string, array<string, string>> $clonedIds
      *
      * @return array<string, mixed>
      */
-    private function replacePrimaryKey(AssociationField $field, array $nestedItem, array &$clonedIds): array
+    private function replacePrimaryKey(AssociationField $field, array $nestedItem, CloneIdMap $clonedIds): array
     {
         $reference = $field->getReferenceDefinition();
 
@@ -399,7 +410,7 @@ final class ClonePayloadBuilder
 
             $sourceId = $nestedItem[$property];
             if ($pkField instanceof IdField && \is_string($sourceId)) {
-                $nestedItem[$property] = $clonedIds[$reference->getEntityName()][$sourceId] ??= Uuid::randomHex();
+                $nestedItem[$property] = $clonedIds->cloneIdFor($reference->getEntityName(), $sourceId);
 
                 continue;
             }
@@ -416,11 +427,10 @@ final class ClonePayloadBuilder
      * cloned address.
      *
      * @param array<string, mixed> $payload
-     * @param array<string, array<string, string>> $clonedIds
      *
      * @return array<string, mixed>
      */
-    private function remapForeignKeys(EntityDefinition $definition, array $payload, array $clonedIds): array
+    private function remapForeignKeys(EntityDefinition $definition, array $payload, CloneIdMap $clonedIds): array
     {
         foreach ($definition->getFields() as $field) {
             $property = $field->getPropertyName();
@@ -432,7 +442,7 @@ final class ClonePayloadBuilder
 
             if ($field instanceof FkField && !$field instanceof ReferenceVersionField) {
                 if (\is_string($value)) {
-                    $payload[$property] = $clonedIds[$field->getReferenceDefinition()->getEntityName()][$value] ?? $value;
+                    $payload[$property] = $clonedIds->get($field->getReferenceDefinition()->getEntityName(), $value) ?? $value;
                 }
 
                 continue;

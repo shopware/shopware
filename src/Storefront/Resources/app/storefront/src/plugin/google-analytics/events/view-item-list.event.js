@@ -57,7 +57,7 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
     }
 
     getListItems() {
-        const productBoxes = document.querySelectorAll('.product-box');
+        const productBoxes = document.querySelectorAll(ProductPageHelper.PRODUCT_ELEMENT_SELECTOR);
         const lineItems = [];
 
         if (!productBoxes) {

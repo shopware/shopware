@@ -30,7 +30,7 @@ export default class AddToWishlistEvent extends EventAwareAnalyticsEvent
 
         // Try to get product data from product detail/listing page first
         let productData = ProductPageHelper.getProductData(productId);
-        let categories = ProductPageHelper.getCategories();
+        let categories = ProductPageHelper.getCategoriesFor(productId);
 
         // Fallback to line item data (cart/checkout/finish pages)
         if (!productData.name) {

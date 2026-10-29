@@ -45,8 +45,8 @@ class AddressTransformerTest extends TestCase
         static::assertNull($transformed['additionalAddressLine1']);
         static::assertNull($transformed['additionalAddressLine2']);
         static::assertNull($transformed['countryStateId']);
-        static::assertSame('Max', $transformed['firstName'] ?? null);
-        static::assertSame('Musterstraße 1', $transformed['street'] ?? null);
+        static::assertSame('Max', $transformed['firstName']);
+        static::assertSame('Musterstraße 1', $transformed['street']);
         static::assertArrayNotHasKey('customFields', $transformed);
     }
 

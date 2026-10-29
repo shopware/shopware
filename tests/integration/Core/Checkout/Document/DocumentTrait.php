@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -148,8 +149,9 @@ trait DocumentTrait
 
     /**
      * @param array<int|string, int> $taxes
+     * @param array<int|string, string> $productTypes product type per tax key, physical by default
      */
-    private function generateDemoCartWithTaxes(array $taxes): Cart
+    private function generateDemoCartWithTaxes(array $taxes, array $productTypes = []): Cart
     {
         $cartService = static::getContainer()->get(CartService::class);
 
@@ -172,6 +174,7 @@ trait DocumentTrait
                 ->price($price)
                 ->name($name)
                 ->active(true)
+                ->type($productTypes[$index] ?? ProductDefinition::TYPE_PHYSICAL)
                 ->tax('test-' . Uuid::randomHex(), $tax)
                 ->visibility()
                 ->build();

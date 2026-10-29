@@ -23,5 +23,7 @@ trait TaxAddToSalesChannelTestBehaviour
             $taxEntity->setRules(new TaxRuleCollection());
         }
         $salesChannelContext->getTaxRules()->add($taxEntity);
+        // Digital products read the taxes filtered by the billing address
+        $salesChannelContext->getDigitalTaxRules()->add($taxEntity);
     }
 }

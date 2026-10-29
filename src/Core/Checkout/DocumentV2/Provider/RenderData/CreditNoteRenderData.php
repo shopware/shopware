@@ -42,6 +42,7 @@ final readonly class CreditNoteRenderData extends AbstractRenderData
          * @deprecated tag:v6.8.0 - feeds the legacy flat `config.custom.*` template contract
          */
         public array $custom = [],
+        public bool $reverseCharge = false,
     ) {
     }
 
@@ -71,6 +72,7 @@ final readonly class CreditNoteRenderData extends AbstractRenderData
                 'creditNoteNumber' => $creditNoteNumber,
                 'invoiceNumber' => $referencedInvoiceNumber,
             ],
+            reverseCharge: $invoice->reverseCharge,
         );
     }
 }

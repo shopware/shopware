@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -313,6 +314,41 @@ class IntraCommunityTaxRuleTest extends TestCase
         yield 'invalid VAT ID, export is exempt' => [['DEINVALID'], 'CH', CartPrice::TAX_STATE_FREE, 8.1];
         yield 'invalid VAT ID, intra-EU supply uses destination tax' => [['DEINVALID'], 'FR', CartPrice::TAX_STATE_GROSS, 20.0];
         yield 'invalid VAT ID, domestic supply uses seller tax' => [['DEINVALID'], 'DE', CartPrice::TAX_STATE_GROSS, 19.0];
+    }
+
+    /**
+     * @param list<string> $vatIds
+     */
+    #[DataProvider('digitalProductTaxRuleProvider')]
+    public function testDigitalProductsUseTheTaxRuleOfTheBillingCountry(string $accountType, array $vatIds, float $expectedTaxRule): void
+    {
+        static::getContainer()->get('country.repository')->update([[
+            'id' => $this->countryIds['NL'],
+            'isEu' => true,
+            'checkVatIdPattern' => true,
+            'companyTax' => ['enabled' => true, 'currencyId' => Defaults::CURRENCY, 'amount' => 0],
+        ]], Context::createDefaultContext());
+        $this->customerRepository->update([[
+            'id' => $this->customerId,
+            'accountType' => $accountType,
+            'vatIds' => $vatIds,
+        ]], Context::createDefaultContext());
+
+        $context = $this->createContext();
+
+        static::assertSame($this->countryIds['NL'], $context->getBillingLocation()->getCountry()->getId());
+        static::assertSame($expectedTaxRule, $context->buildProductTaxRules($this->taxId, ProductDefinition::TYPE_DIGITAL)->first()?->getTaxRate());
+    }
+
+    /**
+     * @return iterable<string, array{string, list<string>, float}>
+     */
+    public static function digitalProductTaxRuleProvider(): iterable
+    {
+        yield 'consumer pays the VAT of the billing country' => [CustomerEntity::ACCOUNT_TYPE_PRIVATE, [], 21.0];
+        yield 'business without VAT ID pays the VAT of the billing country' => [CustomerEntity::ACCOUNT_TYPE_BUSINESS, [], 21.0];
+        yield 'business with a VAT ID of another member state keeps the billing country rule' => [CustomerEntity::ACCOUNT_TYPE_BUSINESS, ['NL123456789B01'], 21.0];
+        yield 'business with a seller VAT ID pays the seller tax' => [CustomerEntity::ACCOUNT_TYPE_BUSINESS, ['DE123456789'], 19.0];
     }
 
     /**

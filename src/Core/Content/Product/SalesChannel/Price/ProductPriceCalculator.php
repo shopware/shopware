@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
 use Shopware\Core\Content\Product\Extension\ProductPriceCalculationExtension;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -194,31 +195,33 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         ReferencePriceDto $reference,
         int $quantity = 1
     ): QuantityPriceDefinition {
-        $price = $this->getPriceValue($prices, $context);
+        // A partially loaded product without its type is priced like physical goods
+        $productType = $product->get('type') ?? ProductDefinition::TYPE_PHYSICAL;
+        $price = $this->getPriceValue($prices, $context, $productType);
 
         $taxId = $product->get('taxId');
-        $definition = new QuantityPriceDefinition($price, $context->buildTaxRules($taxId), $quantity);
+        $definition = new QuantityPriceDefinition($price, $context->buildProductTaxRules($taxId, $productType), $quantity);
         $definition->setReferencePriceDefinition(
             $this->buildReferencePriceDefinition($reference, $units)
         );
         $definition->setListPrice(
-            $this->getListPrice($prices, $context)
+            $this->getListPrice($prices, $context, $productType)
         );
         $definition->setRegulationPrice(
-            $this->getRegulationPrice($prices, $context)
+            $this->getRegulationPrice($prices, $context, $productType)
         );
 
         return $definition;
     }
 
-    private function getPriceValue(PriceCollection $price, SalesChannelContext $context): float
+    private function getPriceValue(PriceCollection $price, SalesChannelContext $context, string $productType): float
     {
         $currency = $price->getCurrencyPrice($context->getCurrencyId());
         if ($currency === null) {
             throw ProductException::noPriceForCurrency($context->getCurrency());
         }
 
-        $value = $this->getPriceForTaxState($currency, $context);
+        $value = $this->getPriceForTaxState($currency, $context, $productType);
 
         if ($currency->getCurrencyId() !== $context->getCurrencyId()) {
             $value *= $context->getContext()->getCurrencyFactor();
@@ -227,23 +230,23 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         return $value;
     }
 
-    private function getPriceForTaxState(Price $price, SalesChannelContext $context): float
+    private function getPriceForTaxState(Price $price, SalesChannelContext $context, string $productType): float
     {
-        if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
+        if ($context->getProductTaxState($productType) === CartPrice::TAX_STATE_GROSS) {
             return $price->getGross();
         }
 
         return $price->getNet();
     }
 
-    private function getListPrice(PriceCollection $prices, SalesChannelContext $context): ?float
+    private function getListPrice(PriceCollection $prices, SalesChannelContext $context, string $productType): ?float
     {
         $price = $prices->getCurrencyPrice($context->getCurrencyId());
         if ($price === null || $price->getListPrice() === null) {
             return null;
         }
 
-        $value = $this->getPriceForTaxState($price->getListPrice(), $context);
+        $value = $this->getPriceForTaxState($price->getListPrice(), $context, $productType);
 
         if ($price->getCurrencyId() !== $context->getCurrencyId()) {
             $value *= $context->getContext()->getCurrencyFactor();
@@ -252,15 +255,15 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         return $value;
     }
 
-    private function getRegulationPrice(PriceCollection $prices, SalesChannelContext $context): ?float
+    private function getRegulationPrice(PriceCollection $prices, SalesChannelContext $context, string $productType): ?float
     {
         $price = $prices->getCurrencyPrice($context->getCurrencyId());
         if ($price === null || $price->getRegulationPrice() === null) {
             return null;
         }
 
-        $taxPrice = $this->getPriceForTaxState($price, $context);
-        $value = $this->getPriceForTaxState($price->getRegulationPrice(), $context);
+        $taxPrice = $this->getPriceForTaxState($price, $context, $productType);
+        $value = $this->getPriceForTaxState($price->getRegulationPrice(), $context, $productType);
 
         if ($taxPrice === 0.0) {
             return null;

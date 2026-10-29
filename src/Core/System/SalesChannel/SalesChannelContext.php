@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
@@ -11,6 +12,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnitTypeEnum;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;
 use Shopware\Core\Framework\Context;
@@ -46,6 +48,11 @@ class SalesChannelContext extends Struct
     protected MeasurementUnits $measurementSystem;
 
     /**
+     * @var list<string>
+     */
+    protected array $taxFreeProductTypes = [];
+
+    /**
      * @internal
      */
     protected ?LockInterface $cartLock = null;
@@ -72,6 +79,8 @@ class SalesChannelContext extends Struct
         protected LanguageInfo $languageInfo,
         protected array $areaRuleIds = [],
         ?MeasurementUnits $measurementSystem = null,
+        protected ?ShippingLocation $billingLocation = null,
+        protected ?TaxCollection $digitalTaxRules = null,
     ) {
         $this->measurementSystem = $measurementSystem ?? new MeasurementUnits(
             MeasurementUnits::DEFAULT_MEASUREMENT_SYSTEM,
@@ -103,12 +112,33 @@ class SalesChannelContext extends Struct
     }
 
     /**
-     * Get the tax rules depend on the customer billing address
-     * respectively the shippingLocation if there is no customer
+     * Tax rules of digital products, which depend on the billing location
+     */
+    public function getDigitalTaxRules(): TaxCollection
+    {
+        return $this->digitalTaxRules ?? $this->taxRules;
+    }
+
+    /**
+     * Get the tax rules of physical goods, which depend on the shipping location
      */
     public function buildTaxRules(string $taxId): TaxRuleCollection
     {
-        $tax = $this->taxRules->get($taxId);
+        return $this->buildProductTaxRules($taxId, ProductDefinition::TYPE_PHYSICAL);
+    }
+
+    /**
+     * Digital products are taxed by the billing location, every other product type by the shipping location.
+     * A product type that a taxed cart exempts is taxed at 0 %, so tax breakdowns still cover its net amount.
+     */
+    public function buildProductTaxRules(string $taxId, string $productType): TaxRuleCollection
+    {
+        if ($this->isTaxFreeProductType($productType)) {
+            return new TaxRuleCollection([new TaxRule(0.0, 100)]);
+        }
+
+        $taxRules = $productType === ProductDefinition::TYPE_DIGITAL ? $this->getDigitalTaxRules() : $this->taxRules;
+        $tax = $taxRules->get($taxId);
 
         if ($tax?->getRules() === null) {
             throw SalesChannelException::taxNotFound($taxId);
@@ -127,6 +157,40 @@ class SalesChannelContext extends Struct
         return new TaxRuleCollection([
             new TaxRule($tax->getTaxRate(), 100),
         ]);
+    }
+
+    /**
+     * The tax state of a product type, tax-free when a taxed cart exempts it
+     */
+    public function getProductTaxState(string $productType): string
+    {
+        return $this->isTaxFreeProductType($productType) ? CartPrice::TAX_STATE_FREE : $this->getTaxState();
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getTaxFreeProductTypes(): array
+    {
+        return $this->taxFreeProductTypes;
+    }
+
+    /**
+     * @internal
+     *
+     * @param list<string> $productTypes
+     */
+    public function setTaxFreeProductTypes(array $productTypes): void
+    {
+        $this->taxFreeProductTypes = $productTypes;
+    }
+
+    /**
+     * Digital products are taxed by the billing location, which falls back to the shipping location
+     */
+    public function getBillingLocation(): ShippingLocation
+    {
+        return $this->billingLocation ?? $this->shippingLocation;
     }
 
     public function getCustomer(): ?CustomerEntity
@@ -503,5 +567,12 @@ class SalesChannelContext extends Struct
     public function setCartLock(?LockInterface $cartLock): void
     {
         $this->cartLock = $cartLock;
+    }
+
+    private function isTaxFreeProductType(string $productType): bool
+    {
+        $taxProductType = $productType === ProductDefinition::TYPE_DIGITAL ? ProductDefinition::TYPE_DIGITAL : ProductDefinition::TYPE_PHYSICAL;
+
+        return \in_array($taxProductType, $this->taxFreeProductTypes, true);
     }
 }

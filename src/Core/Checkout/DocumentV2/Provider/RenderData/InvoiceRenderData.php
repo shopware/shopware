@@ -46,6 +46,7 @@ final readonly class InvoiceRenderData extends AbstractRenderData
          * @deprecated tag:v6.8.0 - feeds the legacy flat `config.custom.*` template contract
          */
         public array $custom = [],
+        public bool $reverseCharge = false,
     ) {
     }
 }

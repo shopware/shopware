@@ -30,6 +30,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -101,6 +102,11 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $taxLocation = $this->getTaxLocation($base, $customer, $shippingLocation);
         $taxRules = $this->getTaxRules($base, $customer, $taxLocation);
 
+        $billingLocation = $this->getBillingLocation($options, $customer, $shippingLocation);
+        $digitalTaxRules = $billingLocation === $shippingLocation
+            ? $taxRules
+            : $this->getTaxRules($base, $customer, $this->getTaxLocation($base, $customer, $billingLocation));
+
         // detect active payment method, first check if checkout defined other payment method, otherwise validate if customer logged in, at least use shop default
         $payment = $this->getPaymentMethod($options, $base, $customer);
 
@@ -137,6 +143,8 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $itemRounding,
             $totalRounding,
             $base->getLanguageInfo(),
+            billingLocation: $billingLocation,
+            digitalTaxRules: $digitalTaxRules,
         );
 
         $salesChannelContext->setMeasurementSystem($base->getMeasurementSystemInfo());
@@ -179,9 +187,28 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         return $sellerCountry === null ? $shippingLocation : ShippingLocation::createFromCountry($sellerCountry);
     }
 
+    /**
+     * Digital products are taxed by the billing address
+     *
+     * @param array<string, mixed> $options
+     */
+    private function getBillingLocation(array $options, ?CustomerEntity $customer, ShippingLocation $shippingLocation): ShippingLocation
+    {
+        $billingAddress = $customer !== null
+            ? $customer->getActiveBillingAddress()
+            : $this->getInjectedAddress($options, SalesChannelContextService::BILLING_ADDRESS);
+
+        if ($billingAddress === null || $billingAddress->getId() === $shippingLocation->getAddress()?->getId()) {
+            return $shippingLocation;
+        }
+
+        return ShippingLocation::createFromAddress($billingAddress);
+    }
+
     private function getTaxRules(BaseSalesChannelContext $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): TaxCollection
     {
-        $taxes = $context->getTaxRules()->getElements();
+        // The rules are filtered once per tax location, so the base context's taxes must stay unfiltered
+        $taxes = array_map(static fn (TaxEntity $tax) => clone $tax, $context->getTaxRules()->getElements());
 
         foreach ($taxes as $tax) {
             $taxRules = $tax->getRules();

@@ -34,7 +34,7 @@ All blocks of this template are available in the template which renders this tem
 
                 {% block document_line_item_table_head_prices %}
                     {% if config.displayPrices %}
-                        {% set displayVAT = not config.intraCommunityDelivery -%}
+                        {# The VAT labels only show for taxed orders, which can still exempt single items #}{% set displayVAT = true -%}
                         {% set taxStatusGross = order.price.taxStatus == constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_GROSS') %}
                         {% set taxStatusNet = order.price.taxStatus == constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_NET') %}
 

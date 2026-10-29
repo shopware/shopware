@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethod
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
@@ -235,7 +236,8 @@ class DeliveryCalculator
 
     private function getPriceForTaxState(Price $price, SalesChannelContext $context): float
     {
-        if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
+        // Shipping costs belong to the physical goods
+        if ($context->getProductTaxState(ProductDefinition::TYPE_PHYSICAL) === CartPrice::TAX_STATE_GROSS) {
             return $price->getGross();
         }
 

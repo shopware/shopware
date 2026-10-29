@@ -36,6 +36,16 @@ export default Component.wrapComponentConfig({
 
     inject: ['feature'],
 
+    emits: [
+        'drag-start',
+        'drag-enter',
+        'update:value',
+        'drop-end',
+        'add-new-line',
+        'position-move',
+        'open-snippet-modal',
+    ],
+
     props: {
         value: {
             type: Array as PropType<Array<string[]>>,

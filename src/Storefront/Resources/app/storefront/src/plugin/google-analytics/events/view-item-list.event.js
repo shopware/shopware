@@ -84,6 +84,7 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
             try {
                 productData = JSON.parse(item.dataset.productInformation);
             } catch {
+                console.warn('[Google Analytics Plugin] Product information of a product box is not valid JSON. Skipping product.');
                 return;
             }
 

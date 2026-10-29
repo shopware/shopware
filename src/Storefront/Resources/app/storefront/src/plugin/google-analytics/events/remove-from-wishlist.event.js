@@ -53,13 +53,11 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
 
         // The wishlist page removes a product with a plain form submit, which leaves the page before
         // the category path of the product could be requested. The submit is held back until the
-        // event is sent, at most for a second so a slow request never blocks the removal.
+        // event is sent. The category request gives up after `ProductPageHelper.CATEGORY_REQUEST_TIMEOUT`, so a slow
+        // request only sends the event without categories and never blocks the removal.
         event.preventDefault();
 
-        return Promise.race([
-            this._sendEvent(productId, form),
-            new Promise(resolve => setTimeout(resolve, 1000)),
-        ]).finally(() => form.submit());
+        return this._sendEvent(productId, form).finally(() => form.submit());
     }
 
     _onProductRemoved(event) {

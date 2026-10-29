@@ -199,8 +199,6 @@ class InfoController extends AbstractController
         // Calling both would dispatch that event twice per request; the array keys are exactly
         // the allowed extensions (see MediaFileExtensionListProvider::normalizeExtensions()).
         $privateMimeTypesByExtension = $this->mediaFileExtensionListProvider->getMimeTypesByExtension(true, $context);
-        // the same for product documents: the keys are their allowed extensions
-        $productDocumentMimeTypesByExtension = $this->productDocumentLimits->getMimeTypesByExtension($context);
 
         $appUrlReachable = $this->appUrlVerifier->verifyForAdministration();
 
@@ -227,8 +225,8 @@ class InfoController extends AbstractController
                 'hideUpdateModule' => (bool) $this->params->get('shopware.auto_update.hide_module'),
                 'minSearchTermLength' => $this->systemConfigService->getInt('core.search.minSearchTermLength') ?: 2,
                 'productDocuments' => [
-                    'allowedExtensions' => array_keys($productDocumentMimeTypesByExtension),
-                    'allowedMimeTypesByExtension' => $productDocumentMimeTypesByExtension,
+                    'allowedExtensions' => $this->productDocumentLimits->allowedExtensions,
+                    'allowedMimeTypesByExtension' => $this->productDocumentLimits->getMimeTypesByExtension(),
                     'maxPerLanguage' => $this->productDocumentLimits->maxPerLanguage,
                     // what an upload can carry, which is the limit that matters for the Administration
                     'maxFileSize' => $this->productDocumentLimits->getMaxUploadFileSize(),

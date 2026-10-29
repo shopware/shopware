@@ -242,7 +242,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ProductDocumentLimits::class)
         ->args([
-            service('event_dispatcher'),
             param('shopware.product_documents.allowed_extensions'),
             param('shopware.product_documents.max_per_language'),
             param('shopware.product_documents.max_file_size'),

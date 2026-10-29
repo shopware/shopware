@@ -422,7 +422,7 @@ class InfoControllerTest extends TestCase
             $this->eventDispatcher,
             null,
             new MediaFileExtensionListProvider($this->eventDispatcher, [], ['pdf', 'epub']),
-            new ProductDocumentLimits($this->eventDispatcher, ['pdf', 'docx'], maxPerLanguage: 10, maxFileSize: 1024),
+            new ProductDocumentLimits(['pdf', 'docx'], maxPerLanguage: 10, maxFileSize: 1024),
         );
     }
 }

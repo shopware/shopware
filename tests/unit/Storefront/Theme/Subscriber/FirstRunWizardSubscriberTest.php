@@ -46,7 +46,7 @@ class FirstRunWizardSubscriberTest extends TestCase
         $subscriber = $this->createSubscriber($salesChannelIds, $themeSalesChannelRepository);
 
         $this->themeService
-            ->expects($this->exactly(\count($salesChannelIds)))
+            ->expects($this->exactly(3))
             ->method('compileTheme');
 
         $subscriber->frwFinished($this->createEvent());

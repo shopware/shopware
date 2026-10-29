@@ -24,7 +24,7 @@ import path from 'path';
 import { discoverProjects, setupExtensionTooling } from './setup';
 import type { SetupExtensionToolingResult } from './setup';
 import { renderCheckReport } from './report';
-import { promptSelection } from './select';
+import { resolveCliSelection } from './select';
 import {
     filterSelectedProjects,
     matchesProjectName,
@@ -276,51 +276,35 @@ export async function runCheckCli(argv: string[]): Promise<number> {
         return 2;
     }
 
-    const only = parsed.values['--only'];
-    // Resolved once: the same list drives both the run's selection and the
-    // explicit-name set that --fix uses to decide whether a vendor extension
-    // was named on purpose.
-    const explicitOnly = only === undefined ? [] : normalizeSelection(only);
-    let selection: string[] | undefined;
+    const selection = await resolveCliSelection({
+        only: parsed.values['--only'],
+        all: parsed.flags.has('--all'),
+        candidates: () => {
+            const resolvedRoot = path.resolve(projectRoot);
 
-    if (only !== undefined) {
-        selection = explicitOnly;
-    } else if (parsed.flags.has('--all')) {
-        selection = undefined;
-    } else if (process.stdin.isTTY && process.stdout.isTTY) {
-        const resolvedRoot = path.resolve(projectRoot);
-        const projects = discoverProjects(resolvedRoot, administrationRoot, pluginsConfigPath(resolvedRoot));
-
-        if (projects.length === 0) {
-            console.log('No Administration extensions discovered.');
-
-            return 0;
-        }
-
-        const choice = await promptSelection(projects);
-
-        if (choice === 'cancel') {
-            console.log('Nothing selected.');
-
-            return 0;
-        }
-
-        selection = choice === 'all' ? undefined : choice.names;
-    } else {
-        console.log(
-            'Not an interactive terminal and no selection given — checking all extensions. ' +
+            return discoverProjects(resolvedRoot, administrationRoot, pluginsConfigPath(resolvedRoot));
+        },
+        messages: {
+            title: 'Select extensions to check (vue-tsc + ESLint):',
+            empty: 'No Administration extensions discovered.',
+            fallback:
+                'Not an interactive terminal and no selection given — checking all extensions. ' +
                 'Pass --only=<name[,name]> or --all to be explicit.',
-        );
+        },
+    });
+
+    if (!selection) {
+        return 0;
     }
 
     const check = await checkExtensions({
         projectRoot,
         administrationRoot,
-        only: selection,
+        only: selection.only,
         strictVendor: parsed.flags.has('--strict-vendor'),
         maxWorkers,
         fix: parsed.flags.has('--fix'),
-        explicitOnly,
+        explicitOnly: selection.explicitOnly,
         updateBaseline: parsed.flags.has('--update-baseline'),
         failOnSkipped: parsed.flags.has('--fail-on-skipped'),
     });

@@ -350,6 +350,20 @@ describe('scripts/extensionTooling/upgrade', () => {
             );
         });
 
+        it('says so when a non-interactive run upgrades every writable extension', async () => {
+            const exitCode = await runUpgradeCli([
+                `--project-root=${projectRoot}`,
+                `--administration-root=${administrationRoot}`,
+            ]);
+
+            expect(exitCode).toBe(0);
+            expect(output[0]).toBe(
+                'Not an interactive terminal and no selection given — upgrading all writable extensions. ' +
+                    'Pass --only=<name[,name]> or --all to be explicit.',
+            );
+            expect(output.join('\n')).toContain('AcmeUpgrade');
+        });
+
         it('exits with a usage error for an unknown target', async () => {
             const exitCode = await runUpgradeCli([
                 `--project-root=${projectRoot}`,

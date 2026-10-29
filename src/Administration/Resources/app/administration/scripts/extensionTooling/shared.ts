@@ -178,6 +178,15 @@ export function isPlatformProject(project: ExtensionToolingProject): boolean {
     return !project.vendor && !project.basePath.startsWith('custom/plugins/');
 }
 
+/**
+ * Extensions the upgrade codemods rewrite without being named via --only. Unlike
+ * {@link isPlatformProject}, custom/static-plugins and other project folders are
+ * the shop's own code here; only vendor installs and the monorepo's src/ bundles are not.
+ */
+export function isUpgradable(project: ExtensionToolingProject): boolean {
+    return !project.vendor && !project.basePath.startsWith('src/');
+}
+
 /** Normalizes the selection (single value, comma list, or array) to trimmed, non-empty names. */
 export function normalizeSelection(only: string | string[] | undefined): string[] {
     if (!only) {

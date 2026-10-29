@@ -17,9 +17,10 @@ import { spawnSync } from 'child_process';
 import { pathToFileURL } from 'url';
 import { runMigration } from '../codemods/sfc-migration/run-sfc-migration';
 import { discoverProjects } from './setup';
-import { promptSelection } from './select';
+import { resolveCliSelection } from './select';
 import {
     filterSelectedProjects,
+    isUpgradable,
     matchesProjectName,
     normalizeSelection,
     pluginsConfigPath,
@@ -30,7 +31,7 @@ import type { ExtensionToolingProject } from './shared';
 import { CliUsageError, parseCli, renderHelp } from './cli';
 import type { CommandSpec } from './cli';
 import { CODEMODS, CodemodSelectionError, availableTargets, selectCodemods } from './upgrade-codemods';
-import type { Codemod, EslintCodemod } from './upgrade-codemods';
+import type { Codemod, EslintCodemod, SfcMigrationCodemod } from './upgrade-codemods';
 import { renderCodemodList, renderUpgradeReport } from './upgrade-report';
 
 export interface ManualSpot {
@@ -99,11 +100,6 @@ interface EslintMessage {
 interface EslintFileResult {
     filePath: string;
     messages: EslintMessage[];
-}
-
-/** Bundles of the platform itself; custom/static-plugins and other project folders are regular extensions. */
-function isPlatformBundle(project: ExtensionToolingProject): boolean {
-    return !project.vendor && project.basePath.startsWith('src/');
 }
 
 /**
@@ -192,36 +188,103 @@ function runEslint(options: {
     }
 }
 
-function applyEslintCodemods(options: {
+interface CodemodTally {
+    changes: number;
+    /** Relative to the extension root (posix). */
+    files: Set<string>;
+    manual: ManualSpot[];
+}
+
+interface CodemodRunContext {
     administrationRoot: string;
     extensionRoot: string;
     sourceDirectories: string[];
-    codemods: EslintCodemod[];
-    reports: Map<string, CodemodReport>;
     write: boolean;
-    upgrade: ExtensionUpgrade;
-    changedFiles: Set<string>;
-}): void {
-    const { codemods, reports, upgrade } = options;
+}
+
+interface CodemodRunResult {
+    /** Keyed by codemod id. */
+    tallies: Map<string, CodemodTally>;
+    warnings: string[];
+    errors: string[];
+}
+
+type CodemodOfKind<Kind extends Codemod['kind']> = Extract<Codemod, { kind: Kind }>;
+
+type CodemodRunner<Kind extends Codemod['kind']> = (
+    context: CodemodRunContext,
+    codemods: CodemodOfKind<Kind>[],
+) => CodemodRunResult | Promise<CodemodRunResult>;
+
+function emptyRunResult(codemods: Codemod[]): CodemodRunResult {
+    return {
+        tallies: new Map(codemods.map((codemod) => [codemod.id, { changes: 0, files: new Set(), manual: [] }])),
+        warnings: [],
+        errors: [],
+    };
+}
+
+function runEslintCodemods(context: CodemodRunContext, codemods: EslintCodemod[]): CodemodRunResult {
+    const result = emptyRunResult(codemods);
     const codemodByRule = new Map(codemods.map((codemod) => [codemod.rule, codemod]));
-    const configPath = writeCodemodConfig(options.administrationRoot, codemods);
-    const relativeFile = (filePath: string) => toPosix(path.relative(options.extensionRoot, filePath));
+    const configPath = writeCodemodConfig(context.administrationRoot, codemods);
+    const relativeFile = (filePath: string) => toPosix(path.relative(context.extensionRoot, filePath));
+    const tallyOf = (message: EslintMessage) => {
+        const codemod = message.ruleId ? codemodByRule.get(message.ruleId) : undefined;
+
+        return codemod ? result.tallies.get(codemod.id) : undefined;
+    };
     const lint = (fix: boolean) =>
         runEslint({
-            administrationRoot: options.administrationRoot,
+            administrationRoot: context.administrationRoot,
             configPath,
-            extensionRoot: options.extensionRoot,
-            sourceDirectories: options.sourceDirectories,
+            extensionRoot: context.extensionRoot,
+            sourceDirectories: context.sourceDirectories,
             fix,
         });
-    const collectManual = (results: EslintFileResult[]) => {
-        for (const result of results) {
-            for (const message of result.messages) {
-                const codemod = message.ruleId ? codemodByRule.get(message.ruleId) : undefined;
+    const failed = (error: string): CodemodRunResult => ({
+        ...emptyRunResult(codemods),
+        warnings: result.warnings,
+        errors: [error],
+    });
 
-                if (codemod && !message.fix) {
-                    reports.get(codemod.id)?.manual.push({
-                        file: relativeFile(result.filePath),
+    try {
+        const preview = lint(false);
+
+        if ('error' in preview) {
+            return failed(preview.error);
+        }
+
+        for (const file of preview) {
+            for (const message of file.messages) {
+                if (message.fatal) {
+                    result.warnings.push(`Could not parse ${relativeFile(file.filePath)}: ${message.message}`);
+                }
+
+                const tally = tallyOf(message);
+
+                if (tally && message.fix) {
+                    tally.changes += 1;
+                    tally.files.add(relativeFile(file.filePath));
+                }
+            }
+        }
+
+        const hasChanges = [...result.tallies.values()].some((tally) => tally.changes > 0);
+        // What is left after fixing is exactly what needs a human.
+        const remaining = context.write && hasChanges ? lint(true) : preview;
+
+        if ('error' in remaining) {
+            return failed(remaining.error);
+        }
+
+        for (const file of remaining) {
+            for (const message of file.messages) {
+                const tally = tallyOf(message);
+
+                if (tally && !message.fix) {
+                    tally.manual.push({
+                        file: relativeFile(file.filePath),
                         line: message.line,
                         column: message.column,
                         message: message.message,
@@ -229,179 +292,120 @@ function applyEslintCodemods(options: {
                 }
             }
         }
-    };
 
-    try {
-        const preview = lint(false);
-
-        if ('error' in preview) {
-            upgrade.errors.push(preview.error);
-
-            return;
-        }
-
-        const fixableFiles = new Set<string>();
-
-        for (const result of preview) {
-            const fixedRules = new Set<string>();
-
-            for (const message of result.messages) {
-                if (message.fatal) {
-                    upgrade.warnings.push(`Could not parse ${relativeFile(result.filePath)}: ${message.message}`);
-
-                    continue;
-                }
-
-                const codemod = message.ruleId ? codemodByRule.get(message.ruleId) : undefined;
-
-                if (codemod && message.fix) {
-                    const report = reports.get(codemod.id);
-
-                    if (report) {
-                        report.changes += 1;
-                        report.files += fixedRules.has(codemod.id) ? 0 : 1;
-                    }
-
-                    fixedRules.add(codemod.id);
-                    fixableFiles.add(relativeFile(result.filePath));
-                }
-            }
-        }
-
-        const hasChanges = codemods.some((codemod) => (reports.get(codemod.id)?.changes ?? 0) > 0);
-
-        if (!options.write || !hasChanges) {
-            collectManual(preview);
-            fixableFiles.forEach((file) => options.changedFiles.add(file));
-
-            return;
-        }
-
-        // What is left after fixing is exactly what needs a human.
-        const remaining = lint(true);
-
-        if ('error' in remaining) {
-            upgrade.errors.push(remaining.error);
-
-            for (const codemod of codemods) {
-                const report = reports.get(codemod.id);
-
-                if (report) {
-                    report.changes = 0;
-                    report.files = 0;
-                }
-            }
-
-            return;
-        }
-
-        collectManual(remaining);
-        fixableFiles.forEach((file) => options.changedFiles.add(file));
+        return result;
     } finally {
         fs.rmSync(path.dirname(configPath), { recursive: true, force: true });
     }
 }
 
-async function applySfcMigration(options: {
-    extensionRoot: string;
-    sourceDirectories: string[];
-    report: CodemodReport;
-    write: boolean;
-    upgrade: ExtensionUpgrade;
-    changedFiles: Set<string>;
-}): Promise<void> {
-    const { report, upgrade } = options;
+async function runSfcMigration(context: CodemodRunContext, codemods: SfcMigrationCodemod[]): Promise<CodemodRunResult> {
+    const result: CodemodRunResult = { tallies: new Map(), warnings: [], errors: [] };
 
-    for (const sourceDirectory of options.sourceDirectories) {
-        const result = await runMigration(sourceDirectory, { write: options.write && report.enabled });
+    for (const codemod of codemods) {
+        const tally: CodemodTally = { changes: 0, files: new Set(), manual: [] };
 
-        for (const component of result.reports) {
-            const componentFile = toPosix(
-                path.relative(options.extensionRoot, path.join(component.dir, `${component.name}.vue`)),
-            );
+        result.tallies.set(codemod.id, tally);
 
-            if (component.outcome === 'full' || component.outcome === 'partial') {
-                report.changes += 1;
-                report.files += 1;
+        for (const sourceDirectory of context.sourceDirectories) {
+            const migration = await runMigration(sourceDirectory, { write: context.write });
 
-                if (report.enabled) {
-                    options.changedFiles.add(componentFile);
+            for (const component of migration.reports) {
+                const componentFile = toPosix(
+                    path.relative(context.extensionRoot, path.join(component.dir, `${component.name}.vue`)),
+                );
+
+                if (component.outcome === 'error') {
+                    result.errors.push(`SFC migration of ${component.name} failed: ${component.reasons.join('; ')}`);
                 }
-            }
 
-            if (component.outcome === 'partial' && report.enabled) {
-                report.manual.push({
-                    file: componentFile,
-                    message: 'Converted with TODO(sfc-migration) comments that need a review.',
-                });
-            }
+                if (component.outcome === 'full' || component.outcome === 'partial') {
+                    tally.changes += 1;
+                    tally.files.add(componentFile);
+                }
 
-            // A dry probe for an opt-in nobody requested must never fail the run.
-            if (component.outcome === 'error' && report.enabled) {
-                upgrade.errors.push(`SFC migration of ${component.name} failed: ${component.reasons.join('; ')}`);
+                if (component.outcome === 'partial') {
+                    tally.manual.push({
+                        file: componentFile,
+                        message: 'Converted with TODO(sfc-migration) comments that need a review.',
+                    });
+                }
             }
         }
     }
+
+    return result;
+}
+
+/** Runs in key order: the SFC migration converts what the ESLint codemods already rewrote. */
+const RUNNERS: { [Kind in Codemod['kind']]: CodemodRunner<Kind> } = {
+    eslint: runEslintCodemods,
+    'sfc-migration': runSfcMigration,
+};
+
+function runCodemodsOfKind<Kind extends Codemod['kind']>(
+    kind: Kind,
+    context: CodemodRunContext,
+    codemods: Codemod[],
+): CodemodRunResult | Promise<CodemodRunResult> | null {
+    const ofKind = codemods.filter((codemod): codemod is CodemodOfKind<Kind> => codemod.kind === kind);
+
+    return ofKind.length > 0 ? RUNNERS[kind](context, ofKind) : null;
+}
+
+function emptyUpgrade(project: ExtensionToolingProject, skipped?: string): ExtensionUpgrade {
+    return {
+        name: project.name,
+        basePath: project.basePath,
+        skipped,
+        codemods: [],
+        changedFiles: [],
+        warnings: [],
+        errors: [],
+    };
 }
 
 async function upgradeExtension(
     project: ExtensionToolingProject,
     options: { projectRoot: string; administrationRoot: string; codemods: Codemod[]; optIns: string[]; write: boolean },
 ): Promise<ExtensionUpgrade> {
-    const extensionRoot = path.join(options.projectRoot, project.basePath);
-    const sourceDirectories = project.targets.map((target) => path.join(options.projectRoot, target.sourcePath));
-    const reports = new Map<string, CodemodReport>(
-        options.codemods.map((codemod) => [
-            codemod.id,
-            {
-                codemod,
-                enabled: !codemod.optIn || options.optIns.includes(codemod.id),
-                changes: 0,
-                files: 0,
-                manual: [],
-            },
-        ]),
-    );
-    const upgrade: ExtensionUpgrade = {
-        name: project.name,
-        basePath: project.basePath,
-        codemods: [...reports.values()],
-        changedFiles: [],
-        warnings: [],
-        errors: [],
+    const upgrade = emptyUpgrade(project);
+    const isEnabled = (codemod: Codemod) => !codemod.optIn || options.optIns.includes(codemod.id);
+    const enabled = options.codemods.filter(isEnabled);
+    // Opt-ins nobody requested only run as a dry probe that the report points out; it must never fail the run.
+    const probed = options.codemods.filter((codemod) => !isEnabled(codemod));
+    const context = {
+        administrationRoot: options.administrationRoot,
+        extensionRoot: path.join(options.projectRoot, project.basePath),
+        sourceDirectories: project.targets.map((target) => path.join(options.projectRoot, target.sourcePath)),
     };
-    const changedFiles = new Set<string>();
-    const eslintCodemods = options.codemods.filter(
-        (codemod): codemod is EslintCodemod => codemod.kind === 'eslint' && reports.get(codemod.id)?.enabled === true,
-    );
+    const tallies = new Map<string, CodemodTally>();
 
-    if (eslintCodemods.length > 0) {
-        applyEslintCodemods({
-            administrationRoot: options.administrationRoot,
-            extensionRoot,
-            sourceDirectories,
-            codemods: eslintCodemods,
-            reports,
-            write: options.write,
-            upgrade,
-            changedFiles,
-        });
+    for (const kind of Object.keys(RUNNERS) as Codemod['kind'][]) {
+        const applied = await runCodemodsOfKind(kind, { ...context, write: options.write }, enabled);
+        const probe = await runCodemodsOfKind(kind, { ...context, write: false }, probed);
+
+        if (applied) {
+            applied.tallies.forEach((tally, id) => tallies.set(id, tally));
+            upgrade.warnings.push(...applied.warnings);
+            upgrade.errors.push(...applied.errors);
+        }
+
+        probe?.tallies.forEach((tally, id) => tallies.set(id, { ...tally, manual: [] }));
     }
 
-    const sfcReport = upgrade.codemods.find((report) => report.codemod.kind === 'sfc-migration');
+    upgrade.codemods = options.codemods.map((codemod) => {
+        const tally = tallies.get(codemod.id);
 
-    if (sfcReport) {
-        await applySfcMigration({
-            extensionRoot,
-            sourceDirectories,
-            report: sfcReport,
-            write: options.write,
-            upgrade,
-            changedFiles,
-        });
-    }
-
-    upgrade.changedFiles = [...changedFiles].sort();
+        return {
+            codemod,
+            enabled: isEnabled(codemod),
+            changes: tally?.changes ?? 0,
+            files: tally?.files.size ?? 0,
+            manual: tally?.manual ?? [],
+        };
+    });
+    upgrade.changedFiles = [...new Set(enabled.flatMap((codemod) => [...(tallies.get(codemod.id)?.files ?? [])]))].sort();
 
     return upgrade;
 }
@@ -426,20 +430,10 @@ export async function upgradeExtensions(options: UpgradeExtensionsOptions): Prom
     const runnable: ExtensionToolingProject[] = [];
 
     for (const project of selection.projects) {
-        const named = explicitOnly.some((name) => matchesProjectName(project, name));
-
-        if (named || (!project.vendor && !isPlatformBundle(project))) {
+        if (isUpgradable(project) || explicitOnly.some((name) => matchesProjectName(project, name))) {
             runnable.push(project);
         } else if (project.vendor) {
-            result.extensions.push({
-                name: project.name,
-                basePath: project.basePath,
-                skipped: 'vendor-installed, name it via --only to include it',
-                codemods: [],
-                changedFiles: [],
-                warnings: [],
-                errors: [],
-            });
+            result.extensions.push(emptyUpgrade(project, 'vendor-installed, name it via --only to include it'));
         }
     }
 
@@ -568,33 +562,25 @@ export async function runUpgradeCli(argv: string[]): Promise<number> {
         return 2;
     }
 
-    const only = parsed.values['--only'];
-    const explicitOnly = only === undefined ? [] : normalizeSelection(only);
-    let selection: string[] | undefined;
+    const selection = await resolveCliSelection({
+        only: parsed.values['--only'],
+        all: parsed.flags.has('--all'),
+        candidates: () => {
+            const resolvedRoot = path.resolve(projectRoot);
 
-    if (only !== undefined) {
-        selection = explicitOnly;
-    } else if (!parsed.flags.has('--all') && process.stdin.isTTY && process.stdout.isTTY) {
-        const resolvedRoot = path.resolve(projectRoot);
-        const projects = discoverProjects(resolvedRoot, administrationRoot, pluginsConfigPath(resolvedRoot)).filter(
-            (project) => !project.vendor && !isPlatformBundle(project),
-        );
+            return discoverProjects(resolvedRoot, administrationRoot, pluginsConfigPath(resolvedRoot)).filter(isUpgradable);
+        },
+        messages: {
+            title: 'Select extensions to upgrade:',
+            empty: 'No writable Administration extensions discovered.',
+            fallback:
+                'Not an interactive terminal and no selection given — upgrading all writable extensions. ' +
+                'Pass --only=<name[,name]> or --all to be explicit.',
+        },
+    });
 
-        if (projects.length === 0) {
-            console.log('No writable Administration extensions discovered.');
-
-            return 0;
-        }
-
-        const choice = await promptSelection(projects);
-
-        if (choice === 'cancel') {
-            console.log('Nothing selected.');
-
-            return 0;
-        }
-
-        selection = choice === 'all' ? undefined : choice.names;
+    if (!selection) {
+        return 0;
     }
 
     let result;
@@ -604,8 +590,8 @@ export async function runUpgradeCli(argv: string[]): Promise<number> {
             projectRoot,
             administrationRoot,
             target: parsed.values['--target'],
-            only: selection,
-            explicitOnly,
+            only: selection.only,
+            explicitOnly: selection.explicitOnly,
             optIns: normalizeSelection(parsed.values['--with']),
             write: parsed.flags.has('--write'),
             skipGitCheck: parsed.flags.has('--skip-git-check'),

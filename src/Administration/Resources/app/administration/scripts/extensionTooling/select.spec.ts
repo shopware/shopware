@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { parseSelection } from './select';
+import { parseSelection, resolveCliSelection } from './select';
 import type { ExtensionToolingProject } from './shared';
 
 function project(name: string, overrides: Partial<ExtensionToolingProject> = {}): ExtensionToolingProject {
@@ -93,5 +93,45 @@ describe('scripts/extensionTooling/select parseSelection', () => {
         expect(parseSelection('1,x', projects)).toEqual({
             error: expect.stringContaining('not a number') as unknown as string,
         });
+    });
+});
+
+describe('scripts/extensionTooling/select resolveCliSelection', () => {
+    const messages = { title: 'Pick:', empty: 'Nothing to pick.', fallback: 'Running everything.' };
+    let output: string[];
+
+    beforeEach(() => {
+        output = [];
+        jest.spyOn(console, 'log').mockImplementation((line: string) => output.push(line));
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    it('runs the names given via --only and marks them as explicitly named', async () => {
+        const candidates = jest.fn(() => [project('Alpha')]);
+
+        await expect(resolveCliSelection({ only: ' Alpha, Bravo ,', all: false, candidates, messages })).resolves.toEqual({
+            only: ['Alpha', 'Bravo'],
+            explicitOnly: ['Alpha', 'Bravo'],
+        });
+        expect(candidates).not.toHaveBeenCalled();
+        expect(output).toEqual([]);
+    });
+
+    it('runs every extension without a notice when --all is given', async () => {
+        await expect(resolveCliSelection({ only: undefined, all: true, candidates: () => [], messages })).resolves.toEqual({
+            only: undefined,
+            explicitOnly: [],
+        });
+        expect(output).toEqual([]);
+    });
+
+    it('tells a non-interactive run without a selection that it runs every extension', async () => {
+        await expect(
+            resolveCliSelection({ only: undefined, all: false, candidates: () => [project('Alpha')], messages }),
+        ).resolves.toEqual({ only: undefined, explicitOnly: [] });
+        expect(output).toEqual(['Running everything.']);
     });
 });

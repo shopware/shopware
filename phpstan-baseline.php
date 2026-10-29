@@ -767,12 +767,6 @@ $ignoreErrors[] = [
     'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
     'identifier' => 'empty.notAllowed',
     'count' => 1,
-    'path' => __DIR__ . '/src/Core/System/Snippet/Filter/EmptySnippetFilter.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 1,
     'path' => __DIR__ . '/src/Core/System/Snippet/Subscriber/CustomFieldSubscriber.php',
 ];
 $ignoreErrors[] = [

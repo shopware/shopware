@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-10-15 13:43:34
+ * Last generated: 2026-10-29 15:45:47
  */
 
 namespace Shopware\Core\Framework\Api\Request\StoreApi;
@@ -87,9 +87,6 @@ final class NoneFieldsCriteria extends AbstractRequest
     #[Assert\All(new Assert\Type('string'))]
     public array $grouping;
 
-    /**
-     * Whether the total for the total number of hits should be determined for the search query. none = disabled total count, exact = calculate exact total amount (slow), next-pages = calculate only for next page (fast)
-     */
     #[SerializedName('total-count-mode')]
     public TotalCountMode $totalCountMode;
 

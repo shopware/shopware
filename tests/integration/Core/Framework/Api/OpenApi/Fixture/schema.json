@@ -87,6 +87,26 @@
               "null"
             ],
             "default": null
+          },
+          "details": {
+            "$ref": "#/components/schemas/FieldDetails"
+          }
+        }
+      },
+      "FieldDetails": {
+        "description": "@internal",
+        "x-dto-namespace": "Shopware\\Tests\\Integration\\Core\\Framework\\Api\\OpenApi\\Fixture",
+        "x-dto-package": "framework",
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "note": {
+            "type": ["string", "null"],
+            "default": "nested-default"
           }
         }
       }

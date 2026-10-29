@@ -12,6 +12,8 @@ namespace App\DTO;
 use Shopware\Core\Framework\Api\AbstractDto;
 
 /**
+ * Calculated price amounts.
+ *
  * @codeCoverageIgnore
  */
 final class CalculatedPrice extends AbstractDto

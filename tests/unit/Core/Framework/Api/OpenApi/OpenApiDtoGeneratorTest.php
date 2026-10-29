@@ -47,7 +47,7 @@ class OpenApiDtoGeneratorTest extends TestCase
 
         yield 'Store API integration DTOs' => [
             __DIR__ . '/../../../../../integration/Core/Framework/Api/OpenApi/Fixture/schema.json',
-            ['TransformFieldsRequest.php', 'TransformFieldsResponse.php'],
+            ['TransformFieldsRequest.php', 'TransformFieldsResponse.php', 'FieldDetails.php'],
         ];
     }
 

@@ -968,6 +968,20 @@ The new Twig blocks `sw_text_editor_toolbar_button_child_search` and `sw_text_ed
 The page type navigation of the Shopping Experiences overview (`sw-cms-list`) is no longer positioned absolutely left of the listing.
 Navigation and listing are grid columns inside `.sw-cms-list__content`, and below a page width of 800px the navigation renders horizontally above the listing with the modifier class `sw-cms-list--compact`.
 Extensions that offset or hide `.sw-cms-list__sidebar` through its former `position`, `left` or `width` values have to adjust their styles.
+### Experimental: `Feature.branch()` keeps the pre-major path of an extension quiet
+
+`Shopware.Feature.branch()` branches on a major flag and silences the deprecations of that major on the old path.
+Use it to stay compatible with both sides of a major without reporting the deprecated APIs the old path still needs:
+
+```js
+Shopware.Feature.branch('V6_8_0_0', {
+    beforeMajor: () => this.legacyLoad(), // runs while 6.8 is off, its 6.8 deprecations silenced
+    sinceMajor: () => this.load(), // runs once 6.8 is on
+});
+```
+
+`beforeMajor` has to be synchronous: the silencing ends when it returns, so a returned promise throws.
+Calls of the same deprecated APIs outside of a branch still report.
 
 ### Extension tooling reports redundant code
 

@@ -82,7 +82,7 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
     _sendEvent(productId, form = null) {
         // Try to get product data from product detail/listing page first
         let productData = ProductPageHelper.getProductData(productId, form);
-        let categories = ProductPageHelper.getCategories();
+        let categories = ProductPageHelper.getCategoriesFor(productId, form);
 
         // Fallback to line item data (cart/checkout/finish pages)
         const lineItemData = LineItemHelper.getProductData(productId);
@@ -98,6 +98,7 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
                 'item_id': productData.id ?? productId,
                 'item_name': productData.name,
                 'item_brand': productData.brand,
+                'item_variant': productData.variant,
                 'price': productData.value,
                 ...categories,
             }],

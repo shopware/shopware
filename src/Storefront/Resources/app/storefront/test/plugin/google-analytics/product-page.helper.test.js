@@ -153,4 +153,220 @@ describe('plugin/google-analytics/product-page.helper', () => {
 
         expect(ProductPageHelper.getCurrency()).toBe('GBP');
     });
+
+    describe('graduated prices', () => {
+        const tiers = JSON.stringify([
+            { quantity: 10, price: 20 },
+            { quantity: 50, price: 15 },
+            { quantity: 51, price: 10 },
+        ]);
+
+        beforeEach(() => {
+            document.body.innerHTML = `
+                <div class="product-detail-buy" data-product-prices='${tiers}'>
+                    <form class="buy-widget"></form>
+                </div>
+            `;
+        });
+
+        test.each([
+            [1, 20],
+            [10, 20],
+            [11, 15],
+            [50, 15],
+            [51, 10],
+            [500, 10],
+        ])('charges the tier of quantity %i', (quantity, price) => {
+            expect(ProductPageHelper.getGraduatedPrice(document.querySelector('.buy-widget'), quantity)).toBe(price);
+        });
+
+        test('returns undefined without graduated prices', () => {
+            document.body.innerHTML = '<form class="buy-widget"></form>';
+
+            expect(ProductPageHelper.getGraduatedPrice(document.querySelector('.buy-widget'), 5)).toBeUndefined();
+        });
+
+        test('charges the first tier without a quantity', () => {
+            expect(ProductPageHelper.getGraduatedPrice(document.querySelector('.buy-widget'), undefined)).toBe(20);
+        });
+
+        test('returns undefined for an empty list of tiers', () => {
+            document.body.innerHTML = '<div data-product-prices="[]"><form class="buy-widget"></form></div>';
+
+            expect(ProductPageHelper.getGraduatedPrice(document.querySelector('.buy-widget'), 5)).toBeUndefined();
+        });
+
+        test('returns undefined for invalid price data', () => {
+            document.body.innerHTML = '<div data-product-prices="not json"><form class="buy-widget"></form></div>';
+
+            expect(ProductPageHelper.getGraduatedPrice(document.querySelector('.buy-widget'), 5)).toBeUndefined();
+        });
+    });
+
+    describe('variants', () => {
+        test('reads the selected options of the detail page', () => {
+            document.body.innerHTML = `
+                <h1 class="product-detail-name">Shirt</h1>
+                <div class="product-detail-buy" data-product-variant="Red, L"></div>
+            `;
+
+            expect(ProductPageHelper.getVariant()).toBe('Red, L');
+            expect(ProductPageHelper.getProductDetailData().variant).toBe('Red, L');
+        });
+
+        test('reports no variant for a product without options', () => {
+            document.body.innerHTML = '<div class="product-detail-buy" data-product-variant=""></div>';
+
+            expect(ProductPageHelper.getVariant()).toBeUndefined();
+        });
+
+        test('reads the variant of a product element', () => {
+            document.body.innerHTML = `
+                <div class="card product-box" data-product-information='{"id":"product-1","variant":"Blue, M"}'>
+                    <button class="buy"></button>
+                </div>
+            `;
+
+            expect(ProductPageHelper.getProductCardData('product-1', document.querySelector('.buy')).variant).toBe('Blue, M');
+        });
+    });
+
+    describe('product elements', () => {
+        const breadcrumb = `
+            <nav aria-label="breadcrumb">
+                <span class="breadcrumb-title">Clothing</span>
+                <span class="breadcrumb-title">Shirts</span>
+            </nav>
+        `;
+
+        beforeEach(() => {
+            window.activeRoute = 'frontend.navigation.page';
+        });
+
+        afterEach(() => {
+            delete window.activeRoute;
+        });
+
+        test('finds a product element by its data attribute, without the product box class', () => {
+            document.body.innerHTML = `
+                <article class="custom-teaser" data-product-information='{"id":"product-1","sku":"SW1"}'>
+                    <button class="custom-buy">Buy</button>
+                </article>
+            `;
+
+            const card = ProductPageHelper.getProductCard('product-1', document.querySelector('.custom-buy'));
+
+            expect(card).toBe(document.querySelector('.custom-teaser'));
+        });
+
+        test('finds a product element through its wishlist button', () => {
+            document.body.innerHTML = `
+                <div class="card product-box" data-product-information='{"id":"product-1"}'>
+                    <button class="product-wishlist-product-1"></button>
+                </div>
+            `;
+
+            expect(ProductPageHelper.getProductCard('product-1')).toBe(document.querySelector('.product-box'));
+        });
+
+        test('finds no product element for the buy widget of the detail page', () => {
+            document.body.innerHTML = '<form class="buy-widget"><button class="buy"></button></form>';
+
+            expect(ProductPageHelper.getProductCard('product-1', document.querySelector('.buy'))).toBeNull();
+        });
+
+        test('reads the data of a custom product element', () => {
+            document.body.innerHTML = `
+                <article class="custom-teaser" data-product-information='{"id":"product-1","sku":"SW1","name":"Shirt","brand":"Brand","price":19.99}'>
+                    <button class="custom-buy">Buy</button>
+                </article>
+            `;
+
+            expect(ProductPageHelper.getProductCardData('product-1', document.querySelector('.custom-buy'))).toEqual({
+                id: 'SW1',
+                name: 'Shirt',
+                brand: 'Brand',
+                value: 19.99,
+            });
+        });
+
+        test('uses the product element on a detail page instead of the page product', () => {
+            window.activeRoute = 'frontend.detail.page';
+            document.body.innerHTML = `
+                <meta property="product:price:amount" content="99.99">
+                <h1 class="product-detail-name">Page Product</h1>
+                <div class="card product-box" data-product-information='{"id":"product-2","sku":"SW2","name":"Cross Selling Product","price":9.99}'>
+                    <form class="buy-widget"><button class="buy"></button></form>
+                </div>
+            `;
+
+            expect(ProductPageHelper.getProductData('product-2', document.querySelector('.buy'))).toMatchObject({
+                id: 'SW2',
+                name: 'Cross Selling Product',
+                value: 9.99,
+            });
+        });
+
+        test('uses the page product for the buy widget of the detail page', () => {
+            window.activeRoute = 'frontend.detail.page';
+            document.body.innerHTML = `
+                <meta property="product:price:amount" content="99.99">
+                <h1 class="product-detail-name">Page Product</h1>
+                <form class="buy-widget"><button class="buy"></button></form>
+            `;
+
+            expect(ProductPageHelper.getProductData('product-1', document.querySelector('.buy'))).toMatchObject({
+                name: 'Page Product',
+                value: '99.99',
+            });
+        });
+
+        test('reports the breadcrumb categories for a product element on a listing', () => {
+            document.body.innerHTML = `
+                ${breadcrumb}
+                <div class="card product-box" data-product-information='{"id":"product-1"}'>
+                    <button class="buy"></button>
+                </div>
+            `;
+
+            expect(ProductPageHelper.getCategoriesFor('product-1', document.querySelector('.buy'))).toEqual({
+                item_category: 'Clothing',
+                item_category2: 'Shirts',
+            });
+        });
+
+        test('reports the breadcrumb categories without the element of the interaction', () => {
+            document.body.innerHTML = breadcrumb;
+
+            expect(ProductPageHelper.getCategoriesFor('product-1')).toEqual({
+                item_category: 'Clothing',
+                item_category2: 'Shirts',
+            });
+        });
+
+        test('reports no categories for a product element on a detail page', () => {
+            window.activeRoute = 'frontend.detail.page';
+            document.body.innerHTML = `
+                ${breadcrumb}
+                <div class="card product-box" data-product-information='{"id":"product-2"}'>
+                    <button class="buy"></button>
+                </div>
+            `;
+
+            expect(ProductPageHelper.getCategoriesFor('product-2', document.querySelector('.buy'))).toEqual({});
+        });
+
+        test('reports the breadcrumb categories for the page product of a detail page', () => {
+            window.activeRoute = 'frontend.detail.page';
+            document.body.innerHTML = `
+                ${breadcrumb}
+                <form class="buy-widget"><button class="buy"></button></form>
+            `;
+
+            expect(ProductPageHelper.getCategoriesFor('product-1', document.querySelector('.buy'))).toEqual({
+                item_category: 'Clothing',
+                item_category2: 'Shirts',
+            });
+        });
+    });
 });

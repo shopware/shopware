@@ -57,7 +57,7 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
     }
 
     getListItems() {
-        const productBoxes = document.querySelectorAll('.product-box');
+        const productBoxes = document.querySelectorAll(ProductPageHelper.PRODUCT_ELEMENT_SELECTOR);
         const lineItems = [];
 
         if (!productBoxes) {
@@ -87,6 +87,7 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
                 item_id: productData.sku ?? productData.id,
                 item_name: productData.name,
                 item_brand: productData.brand,
+                item_variant: productData.variant,
                 price: productData.price,
                 ...categories,
             });

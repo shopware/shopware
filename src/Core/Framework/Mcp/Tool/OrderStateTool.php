@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Doctrine\DBAL\Connection;
 use Mcp\Capability\Attribute\McpTool;
+use Mcp\Schema\ToolAnnotations;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
@@ -29,6 +30,7 @@ use Shopware\Core\System\StateMachine\Transition;
 #[McpTool(
     name: 'shopware-order-state',
     title: 'Order State',
+    annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false),
     description: 'Change the state of an order, its transactions, and/or its deliveries in one call. Looks up the order by orderNumber or orderId. Provide at least one of orderAction, transactionAction, or deliveryAction. Common actions: cancel, process, complete, reopen, paid, refund, ship, retour. Always use dryRun=true (default) to preview available transitions before executing with dryRun=false. See shopware://state-machines resource for all valid states and transitions.'
 )]
 #[McpToolGroup('order')]

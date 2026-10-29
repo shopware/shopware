@@ -122,6 +122,7 @@ Avoid adding a new PHP attribute for every MCP tool hint. Choose the smallest re
 
 - Use `#[McpTool(..., meta: [...])]` for lightweight MCP descriptor hints that are simple scalar values, experimental, client-facing, or only consumed near tool discovery/advertisement. Examples: ranking/search hints, visibility hints. (Advertisement visibility itself is **not** a `meta` hint — it is derived from the `#[McpToolGroup]`; the `discovery` group is advertised, everything else is deferred.)
 - Use a dedicated Shopware attribute only when the concept is first-class in Shopware, needs structured typing or validation, is repeatable, is consumed by several subsystems, or should be discoverable without parsing arbitrary string keys. Examples: `#[McpToolDependsOn]` and `#[McpToolRequires]`.
+- Behaviour hints for clients (`readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint`) go into the SDK's `annotations:` argument of `#[McpTool]` (`ToolAnnotations`), neither `meta` nor a Shopware attribute. Every core tool declares them; the rules and the table are in `Tool/AGENTS.md`.
 - Do not duplicate the same concept in both places. If `meta` grows validation rules, multiple consumers, or cross-cutting behavior, consider promoting it to an attribute in a follow-up. If an attribute is just a single optional scalar with one consumer, prefer `meta` instead.
 - Before adding a new attribute, document why `meta` is not enough in the PR description or nearby tests. Attribute sprawl makes tool declarations harder to scan.
 

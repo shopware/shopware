@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
 use Mcp\Capability\Attribute\Schema;
+use Mcp\Schema\ToolAnnotations;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -24,6 +25,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 #[McpTool(
     name: 'shopware-entity-read',
     title: 'Entity Read',
+    annotations: new ToolAnnotations(readOnlyHint: true, openWorldHint: false),
     description: 'Read a single Shopware entity by its UUID. Use when you already have an entity ID. For searching by other fields, use shopware-entity-search instead. Returns {success, data: {id, ...fields}, _meta: {}}. Pass criteria JSON to include associations or select fields.'
 )]
 #[McpToolDependsOn('shopware-entity-schema')]

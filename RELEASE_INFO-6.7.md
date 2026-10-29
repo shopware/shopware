@@ -110,6 +110,10 @@ Deleting an entity whose cascade reaches the same entity on several levels, for 
 Before, the levels between the root and the deepest level were deleted without a delete result, so no `EntityDeletedEvent`, no `*.deleted` webhook and no entry in the `deleted` part of the sync response was created for them.
 Webhook and app consumers now receive these additional deletes.
 
+### Sync requests report products deleted earlier in the request as deleted
+
+A sync request that deletes a product and then its prices, media, cross-sellings, manufacturer or another entity whose deletion would update that product, for example its inherited data or a reference set to `null`, no longer reports the product as updated. The product now appears in `deleted` of the sync response and triggers `product.deleted` instead of `product.written`.
+
 ### Set null on delete also applies to cascaded deletes
 
 When the DAL deletes an entity, `SetNullOnDelete` associations of the entities removed through `CascadeDelete` are now resolved as well, not only those of the deleted entity itself. For associations without a database constraint (`SetNullOnDelete(false)`) the reference is set to `null` and a write result is dispatched for the updated entity. For example, deleting a media that is used as a product cover now clears `product.coverId`. Entities that are deleted in the same operation are not updated, so deleting a product with a cover still reports the product, and its variants, as deleted.
@@ -322,6 +326,33 @@ If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ## Storefront
+
+### Storefront analytics send GA4 ecommerce events
+
+Storefront analytics now send ecommerce events in the format Google documents for GA4.
+Tracking setups have to adapt to these changes:
+
+* With a `GTM-` tracking ID, ecommerce events are pushed to the data layer as `{ event, ecommerce }`.
+  Google Tag Manager setups that read parameters from `eventModel` must use the `ecommerce` data layer variables instead.
+* Items use `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`, and numeric values are numbers instead of strings.
+  Amounts keep the decimals of the currency.
+* The event `value` of cart, checkout and `purchase` events is the position price including promotion discounts, and the applied promotion codes are reported as `coupon`.
+  Discounts are no longer reported as items.
+* `login` and `sign_up` are reported again, and adding a product by its number on the cart page reports `add_to_cart`.
+  `login` is now reported on the page after the login and only for a successful login, so a wrong password no longer counts as a login.
+  The same holds for `sign_up`, which a guest checkout no longer reports.
+  A guest who creates an account with "Create account" on the checkout finish page reports `sign_up` as well.
+
+The `.hidden-line-items-information` element is only rendered for a sales channel with active analytics.
+Its block `component_hidden_line_item_information` is only rendered for product line items, and `LineItemHelper.getLineItems()` returns items with the GA4 keys `item_id`, `item_name` and `item_brand`.
+The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html) describes the full payload.
+
+### Storefront analytics recognize product elements of extensions
+
+Storefront analytics now treat every element with a `data-product-information` attribute as a product, not only the `.product-box`.
+Products that extensions render in their own markup are reported as well.
+The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#products) describes the expected attribute.
+The product box now reports the price of a matching price rule or the first graduated price, the same price as the product detail page, instead of the default price.
 
 ### Deprecation of `ListingPlugin` properties
 

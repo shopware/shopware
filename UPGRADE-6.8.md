@@ -2878,9 +2878,6 @@ The navbar is cached as an ESI fragment and shared across pages, so the key held
 
 Read the path of the current page from `shopware.navigation.pathIdList` in Twig, or from `window.activeNavigationPathIdList` in JavaScript.
 
-The `pathIdList` option of the `NavbarPlugin` was not removed.
-Templates that still pass it through `data-navbar-options` keep working, but `window.activeNavigationPathIdList` takes precedence.
-
 ## Refactor of providing cookies
 
 The `\Shopware\Storefront\Framework\Cookie\CookieProviderInterface` and all its implementations were removed.

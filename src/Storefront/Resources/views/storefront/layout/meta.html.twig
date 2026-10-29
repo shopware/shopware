@@ -214,18 +214,12 @@
             {% endblock %}
         {% endif %}
 
-        {% block layout_head_javascript_navigation %}
-            {# Navigation variables are set here instead of in navbar.html.twig because the navbar #}
-            {# is ESI-cached and shared across pages, while this template is rendered per request. #}
-            <script>
-                window.activeNavigationId = '{{ shopware.navigation.id }}';
-                window.activeNavigationPathIdList = JSON.parse('{{ (shopware.navigation.pathIdList ?? [])|json_encode|escape('js') }}');
-            </script>
-        {% endblock %}
-
         {% block layout_head_javascript_router %}
             {# Register all routes that will be needed in JavaScript to the window.router object #}
             <script>
+                {# Keep these assignments here for themes overriding the router block. #}
+                window.activeNavigationId = '{{ shopware.navigation.id }}';
+                window.activeNavigationPathIdList = JSON.parse('{{ (shopware.navigation.pathIdList ?? [])|json_encode|escape('js') }}');
                 window.activeRoute = '{{ activeRoute }}';
                 window.activeRouteParameters = '{{ (app.request.attributes.get('_route_params') ?? {})|json_encode|escape('js') }}';
                 window.router = {
@@ -246,6 +240,19 @@
                 window.salesChannelId = '{{ context.salesChannelId }}';
                 window.currencyIsoCode = '{{ context.currency.isoCode }}';
                 window.openOffcanvasAfterAddToCart = '{{ config('core.cart.openOffcanvasAfterAddToCart') ? '1' : '0' }}';
+            </script>
+        {% endblock %}
+
+        {% block layout_head_javascript_navigation %}
+            {# Older router block overrides may omit navigation variables. Preserve any values they provide. #}
+            {# These values must come from the page, because the navbar is a shared ESI fragment. #}
+            <script>
+                if (typeof window.activeNavigationId === 'undefined') {
+                    window.activeNavigationId = '{{ shopware.navigation.id }}';
+                }
+                if (typeof window.activeNavigationPathIdList === 'undefined') {
+                    window.activeNavigationPathIdList = JSON.parse('{{ (shopware.navigation.pathIdList ?? [])|json_encode|escape('js') }}');
+                }
             </script>
         {% endblock %}
 

@@ -292,6 +292,12 @@ describe('NavbarPlugin', () => {
     });
 
     describe('active path resolution', () => {
+        let warningSpy;
+
+        beforeEach(() => {
+            warningSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        });
+
         /**
          * Builds a navbar with one top level item, whose dropdown contains the given flyout category.
          */
@@ -319,6 +325,7 @@ describe('NavbarPlugin', () => {
         }
 
         afterEach(() => {
+            warningSpy.mockRestore();
             delete window.activeNavigationId;
             delete window.activeNavigationPathIdList;
         });
@@ -336,6 +343,17 @@ describe('NavbarPlugin', () => {
 
             expect(navbar.querySelector('.nav-item-top-link').classList.contains('active')).toBe(true);
             expect(otherLink.classList.contains('active')).toBe(false);
+            expect(warningSpy).not.toHaveBeenCalled();
+        });
+
+        test('the option fallback warns and highlights a parent absent from the current link DOM', () => {
+            const navbar = createNavbar('top', 'flyout');
+            window.activeNavigationId = 'deep-category';
+
+            createPlugin(navbar, { pathIdList: ['top'] })._setCurrentPage();
+
+            expect(navbar.querySelector('.nav-item-top-link').classList.contains('active')).toBe(true);
+            expect(warningSpy).toHaveBeenCalledWith(expect.stringContaining('Using the pathIdList option'));
         });
 
         test('an empty window.activeNavigationPathIdList disables the fallbacks', () => {
@@ -347,6 +365,7 @@ describe('NavbarPlugin', () => {
             createPlugin(navbar, { pathIdList: ['top'] })._setCurrentPage();
 
             expect(navbar.querySelector('.nav-item-top-link').classList.contains('active')).toBe(false);
+            expect(warningSpy).not.toHaveBeenCalled();
         });
 
         test('the top level link containing the current page is derived from the DOM without any path list', () => {
@@ -363,6 +382,7 @@ describe('NavbarPlugin', () => {
             expect(flyoutLink.getAttribute('aria-current')).toBe('page');
             expect(topLevelLink.classList.contains('active')).toBe(true);
             expect(topLevelLink.getAttribute('aria-current')).toBeNull();
+            expect(warningSpy).toHaveBeenCalledWith(expect.stringContaining('Deriving the active navigation from the DOM'));
         });
 
         test('nothing is marked active when the current page is not part of the navbar', () => {

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardFinishedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Storefront\Theme\ThemeService;
@@ -65,7 +66,7 @@ class FirstRunWizardSubscriber implements EventSubscriberInterface
 
         $theme = $this->themeRepository->search($themeCriteria, $context)->getEntities()->first();
         if (!$theme) {
-            throw new \RuntimeException('Default theme not found');
+            throw ThemeException::couldNotFindThemeByName('Storefront');
         }
 
         $themeSalesChannels = $theme->getSalesChannels();

@@ -90,7 +90,7 @@ class FirstRunWizardSubscriberTest extends TestCase
 
         return new FirstRunWizardSubscriber(
             $this->themeService,
-            $this->createMock(ThemeLifecycleService::class),
+            static::createStub(ThemeLifecycleService::class),
             $themeRepository,
             $themeSalesChannelRepository,
             $salesChannelRepository

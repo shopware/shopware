@@ -327,6 +327,11 @@ For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-
 
 ## Storefront
 
+### CMS buy boxes select the configured variant
+
+Select-style variant configurators in CMS buy boxes now mark the assigned product's option as selected on landing pages and other CMS pages.
+Themes that override `buy_widget_configurator_select_option` can use `selected` to reflect the assigned product.
+
 ### CMS section background images use thumbnails
 
 A CMS section background image is now rendered as a responsive `<img class="cms-section-background">` element with the media thumbnails, like a CMS block background, instead of an inline `background-image` style on the `.cms-section` element.
@@ -335,6 +340,7 @@ Themes that style the section background through the removed inline style should
 The template variables `sectionBgImg` and `sectionBgImgMode` are deprecated and will be removed in 6.8.0.0, use `section.backgroundMedia` and `section.backgroundMediaMode` instead.
 The browser now picks the thumbnail that fits the viewport, so the thumbnail sizes configured for the media folder of the background image matter.
 Check that the folder provides a size large enough for full-width sections, otherwise the background looks pixelated.
+
 ### Storefront analytics send GA4 ecommerce events
 
 Storefront analytics now send ecommerce events in the format Google documents for GA4.

@@ -37,6 +37,9 @@ final class TransformFieldsRequest extends AbstractRequest
 
     public ?string $optionalNullableWithDefault;
 
+    #[Assert\Valid]
+    public FieldDetails $details;
+
     /**
      * @internal
      */

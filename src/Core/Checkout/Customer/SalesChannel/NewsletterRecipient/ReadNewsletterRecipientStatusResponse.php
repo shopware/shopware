@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-09-16 14:46:07
+ * Last generated: 2026-10-29 15:45:47
  */
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel\NewsletterRecipient;
@@ -25,9 +25,6 @@ final class ReadNewsletterRecipientStatusResponse extends AbstractResponse
      * @internal
      */
     public function __construct(
-        /**
-         * The subscription status. Possible values are: notSet, optIn, optOut, direct, undefined.
-         */
         #[Assert\NotNull]
         public NewsletterStatus $status,
     ) {

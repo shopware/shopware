@@ -23,6 +23,12 @@ final class Cart extends AbstractResponse
     public CalculatedPrice $price;
 
     /**
+     * Price after cart discounts.
+     */
+    #[Assert\Valid]
+    public CalculatedPrice $discountedPrice;
+
+    /**
      * @var list<LineItem> All items within the cart
      */
     #[Assert\Valid]

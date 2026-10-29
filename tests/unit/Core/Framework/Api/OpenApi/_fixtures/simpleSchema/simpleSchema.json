@@ -19,6 +19,10 @@
           "price": {
             "$ref": "#/components/schemas/CalculatedPrice"
           },
+          "discountedPrice": {
+            "$ref": "#/components/schemas/CalculatedPrice",
+            "description": "Price after cart discounts."
+          },
           "lineItems": {
             "description": "All items within the cart",
             "type": "array",
@@ -40,6 +44,7 @@
       "CalculatedPrice": {
         "x-dto-namespace": "App\\DTO",
         "type": "object",
+        "description": "Calculated price amounts.",
         "properties": {
           "unitPrice": {
             "type": "number"

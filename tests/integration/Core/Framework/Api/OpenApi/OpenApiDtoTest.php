@@ -46,7 +46,7 @@ class OpenApiDtoTest extends TestCase
 
     /**
      * @param array<string, mixed> $payload
-     * @param array<string, string|null> $expected
+     * @param array<string, string|array<string, string|null>|null> $expected
      */
     #[DataProvider('fieldValues')]
     public function testGeneratedDtosThroughStoreApi(array $payload, array $expected, int $status = Response::HTTP_OK): void
@@ -73,13 +73,14 @@ class OpenApiDtoTest extends TestCase
         $before = null;
         $after = null;
         $extension = null;
+        $serializer = $container->get('serializer');
         $hooks = EventHookDispatcher::fromContainer($container);
-        $hooks->on(DtoFieldsRouteExtension::onPre(), static function (DtoFieldsRouteExtension $event) use (&$before, &$extension): void {
+        $hooks->on(DtoFieldsRouteExtension::onPre(), static function (DtoFieldsRouteExtension $event) use (&$before, &$extension, $serializer): void {
             $extension = $event;
-            $before = get_object_vars($event->payload);
+            $before = $serializer->serialize($event->payload, 'json');
         });
-        $hooks->on(DtoFieldsRouteExtension::onPost(), static function (DtoFieldsRouteExtension $event) use (&$after): void {
-            $after = get_object_vars($event->payload);
+        $hooks->on(DtoFieldsRouteExtension::onPost(), static function (DtoFieldsRouteExtension $event) use (&$after, $serializer): void {
+            $after = $serializer->serialize($event->payload, 'json');
         });
 
         $response = static::getKernel()->handle($request);
@@ -99,13 +100,14 @@ class OpenApiDtoTest extends TestCase
         static::assertInstanceOf(DtoFieldsRouteExtension::class, $extension);
         static::assertSame($request, $extension->request);
         static::assertSame(TestDefaults::SALES_CHANNEL, $extension->context->getSalesChannelId());
-        static::assertEquals($payload, $before);
+        static::assertIsString($before);
+        static::assertJsonStringEqualsJsonString(json_encode($payload, \JSON_THROW_ON_ERROR), $before);
         static::assertSame($before, $after, 'The route must not change request properties.');
         static::assertJsonStringEqualsJsonString(json_encode($expected, \JSON_THROW_ON_ERROR), $content);
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>, array<string, string|null>, 2?: int}>
+     * @return iterable<string, array{array<string, mixed>, array<string, string|array<string, string|null>|null>, 2?: int}>
      */
     public static function fieldValues(): iterable
     {
@@ -167,6 +169,45 @@ class OpenApiDtoTest extends TestCase
         ];
 
         yield 'empty strings stay values' => [array_fill_keys(array_keys($all), ''), array_fill_keys(array_keys($all), '')];
+
+        yield 'nested fields are mapped and transformed into a new response object' => [
+            [...$all, 'details' => ['name' => 'nested', 'note' => 'a note']],
+            [...$transformed, 'details' => ['name' => 'NESTED', 'note' => 'A NOTE']],
+        ];
+
+        yield 'omitted nested note uses its default constant' => [
+            [...$all, 'details' => ['name' => 'nested']],
+            [...$transformed, 'details' => ['name' => 'NESTED', 'note' => 'NESTED-DEFAULT']],
+        ];
+
+        yield 'explicit null in a nested field overrides its default' => [
+            [...$all, 'details' => ['name' => 'nested', 'note' => null]],
+            [...$transformed, 'details' => ['name' => 'NESTED', 'note' => null]],
+        ];
+
+        yield 'nested required field cannot be omitted' => [
+            [...$all, 'details' => ['note' => 'a note']],
+            [],
+            Response::HTTP_UNPROCESSABLE_ENTITY,
+        ];
+
+        yield 'nested string constraints are validated recursively' => [
+            [...$all, 'details' => ['name' => '']],
+            [],
+            Response::HTTP_UNPROCESSABLE_ENTITY,
+        ];
+
+        yield 'nested note rejects an object instead of a string' => [
+            [...$all, 'details' => ['name' => 'nested', 'note' => ['invalid' => true]]],
+            [],
+            Response::HTTP_UNPROCESSABLE_ENTITY,
+        ];
+
+        yield 'nested object cannot be null' => [
+            [...$all, 'details' => null],
+            [],
+            Response::HTTP_UNPROCESSABLE_ENTITY,
+        ];
 
         foreach (array_keys($required) as $field) {
             $payload = $all;

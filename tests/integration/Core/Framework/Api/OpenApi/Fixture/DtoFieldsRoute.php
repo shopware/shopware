@@ -45,6 +45,7 @@ final class DtoFieldsRoute
         $response = $this->createResponseFromRequiredFields($payload);
         $this->fillOptionalScalarFields($payload, $response);
         $this->fillOptionalNullableFields($payload, $response);
+        $this->fillNestedDetails($payload, $response);
 
         return $response;
     }
@@ -93,5 +94,22 @@ final class DtoFieldsRoute
         $optionalNullableWithDefault = $payload->has('optionalNullableWithDefault') ? $payload->optionalNullableWithDefault : TransformFieldsRequest::DEFAULT_OPTIONAL_NULLABLE_WITH_DEFAULT;
         $optionalNullableWithDefault = $optionalNullableWithDefault === null ? null : strtoupper($optionalNullableWithDefault);
         $response->optionalNullableWithDefault = $optionalNullableWithDefault;
+    }
+
+    private function fillNestedDetails(TransformFieldsRequest $payload, TransformFieldsResponse $response): void
+    {
+        if (!$payload->has('details')) {
+            return;
+        }
+
+        $details = $payload->details;
+        $name = $details->name;
+        $name = strtoupper($name);
+        $note = $details->has('note') ? $details->note : FieldDetails::DEFAULT_NOTE;
+        $note = $note === null ? null : strtoupper($note);
+
+        $responseDetails = new FieldDetails($name);
+        $responseDetails->note = $note;
+        $response->details = $responseDetails;
     }
 }

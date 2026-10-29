@@ -37,6 +37,9 @@ final class TransformFieldsResponse extends AbstractResponse
 
     public ?string $optionalNullableWithDefault;
 
+    #[Assert\Valid]
+    public FieldDetails $details;
+
     /**
      * @internal
      */

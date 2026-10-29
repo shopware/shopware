@@ -1056,7 +1056,7 @@ final class OpenApiDtoSchemaParser
             required: $required,
             nullable: $nullable ?? $this->hasTypeNull($schema),
             arrayItemType: $arrayItemType,
-            description: $this->stringOrNull($schema['description'] ?? null) ?? $this->stringOrNull($constraintSchema['description'] ?? null),
+            description: $this->stringOrNull($schema['description'] ?? null),
             format: $this->stringOrNull($constraintSchema['format'] ?? null),
             pattern: $this->stringOrNull($constraintSchema['pattern'] ?? null),
             enum: $this->isNativeEnumReference($schema, $registry) ? null : $this->scalarEnum($constraintSchema['enum'] ?? null),

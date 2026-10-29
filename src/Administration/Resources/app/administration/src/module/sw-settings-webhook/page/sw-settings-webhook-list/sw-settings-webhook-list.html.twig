@@ -1,0 +1,173 @@
+{% block sw_settings_webhook_list %}
+<sw-page class="sw-settings-webhook-list">
+
+    {% block sw_settings_webhook_list_search_bar %}
+    <template #search-bar>
+        <sw-search-bar
+            initial-search-type="webhook"
+            :placeholder="$t('sw-settings-webhook.list.placeholderSearchBar')"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_webhook_list_smart_bar_header %}
+    <template #smart-bar-header>
+        <h2>
+            {{ $t('sw-settings.index.title') }}
+            <mt-icon
+                name="regular-chevron-right-xs"
+                size="12px"
+            />
+            {{ $t('sw-settings-webhook.general.mainMenuItemGeneral') }}
+        </h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_webhook_list_content %}
+    <template #content>
+        {% block sw_settings_webhook_list_grid %}
+        <sw-entity-listing
+            v-if="webhooks && !showEmptyState"
+            ref="listing"
+            class="sw-settings-webhook-list__grid"
+            identifier="sw-settings-webhook-list"
+            :repository="webhookRepository"
+            :data-source="webhooks"
+            :columns="columns"
+            :is-loading="isLoading"
+            :full-page="true"
+            :show-selection="false"
+            :allow-inline-edit="acl.can('webhook.editor')"
+            :allow-delete="acl.can('webhook.deleter')"
+            :disable-data-fetching="true"
+            :sort-by="sortBy"
+            :sort-direction="sortDirection"
+            @column-sort="onSortColumn"
+            @page-change="onPageChange"
+            @update-records="onListingSearched"
+            @inline-edit-save="onInlineEditSave"
+            @delete-item-failed="onDeleteFailed"
+        >
+            <template #column-owner="{ item }">
+                <span class="sw-data-grid__cell-value">
+                    <mt-badge
+                        v-if="ownerTypeLabel(item)"
+                        class="sw-settings-webhook-list__owner-type"
+                    >
+                        {{ ownerTypeLabel(item) }}
+                    </mt-badge>
+
+                    <router-link
+                        v-if="ownerRoute(item)"
+                        :to="ownerRoute(item)"
+                    >
+                        {{ ownerName(item) }}
+                    </router-link>
+
+                    <template v-else>
+                        {{ ownerName(item) }}
+                    </template>
+                </span>
+            </template>
+
+            <template #column-roles="{ item }">
+                <span class="sw-data-grid__cell-value">
+                    <template
+                        v-for="(roleId, index) in limitedRoleIds(item)"
+                        :key="roleId"
+                    >
+                        <template v-if="index > 0">
+                            {{ ', ' }}
+                        </template>
+                        <router-link
+                            v-if="roleRoute(roleId)"
+                            :to="roleRoute(roleId)"
+                        >
+                            {{ roleName(roleId) }}
+                        </router-link>
+
+                        <template v-else>
+                            {{ roleName(roleId) }}
+                        </template>
+                    </template>
+                </span>
+            </template>
+
+            <template #column-active="{ item, isInlineEdit }">
+                <mt-checkbox
+                    v-if="isInlineEdit"
+                    v-model:checked="item.active"
+                />
+
+                <template v-else>
+                    <mt-icon
+                        v-if="isSent(item)"
+                        name="regular-checkmark-xs"
+                        size="16px"
+                        class="sw-settings-webhook-list__active-icon is--active"
+                    />
+                    <mt-icon
+                        v-else
+                        v-tooltip="inactiveTooltip(item)"
+                        name="regular-times-s"
+                        size="16px"
+                        class="sw-settings-webhook-list__active-icon is--inactive"
+                    />
+                </template>
+            </template>
+
+            <template #more-actions="{ item }">
+                <sw-context-menu-item @click="openDeliveries(item)">
+                    {{ $t('sw-settings-webhook.list.actionShowDeliveries') }}
+                </sw-context-menu-item>
+            </template>
+
+            <template #delete-action="{ item, showDelete, allowDelete }">
+                <sw-context-menu-item
+                    v-tooltip.bottom="deleteTooltip(item, allowDelete)"
+                    class="sw-settings-webhook-list__delete-action"
+                    variant="danger"
+                    :disabled="!canDelete(item, allowDelete)"
+                    @click="showDelete(item.id)"
+                >
+                    {{ $t('global.default.delete') }}
+                </sw-context-menu-item>
+            </template>
+        </sw-entity-listing>
+        {% endblock %}
+
+        {% block sw_settings_webhook_list_deliveries_modal %}
+        <sw-settings-webhook-deliveries-modal
+            v-if="deliveriesWebhook"
+            :webhook="deliveriesWebhook"
+            @modal-close="closeDeliveries"
+        />
+        {% endblock %}
+
+        {% block sw_settings_webhook_list_empty_state %}
+        <mt-empty-state
+            v-if="showEmptyState"
+            centered
+            icon="regular-bolt"
+            :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-settings-webhook.list.emptyStateHeadline')"
+            :description="isValidTerm(term) ? $t('sw-empty-state.messageNoResultSublineSimple') : $t('sw-settings-webhook.list.emptyStateDescription')"
+        />
+        {% endblock %}
+
+        {% block sw_settings_webhook_list_load_error %}
+        <mt-empty-state
+            v-if="hasLoadError"
+            class="sw-settings-webhook-list__load-error"
+            centered
+            icon="regular-exclamation-triangle"
+            :headline="$t('sw-settings-webhook.list.loadErrorHeadline')"
+            :description="$t('sw-settings-webhook.list.loadErrorDescription')"
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+</sw-page>
+{% endblock %}

@@ -28,10 +28,9 @@ export default function initializeWorker() {
     const context = Shopware.Context.app;
     const configService = Shopware.Service('configService');
 
-    if (!Shopware.Feature.isActive('v6.8.0.0')) {
-        const workerNotificationFactory = Shopware.Application.getContainer('factory').workerNotification;
-        registerThumbnailMiddleware(workerNotificationFactory);
-    }
+    Shopware.Feature.branch('V6_8_0_0', {
+        beforeMajor: () => registerThumbnailMiddleware(Shopware.Application.getContainer('factory').workerNotification),
+    });
 
     function getConfig() {
         return configService.getConfig().then((response) => {
@@ -42,9 +41,9 @@ export default function initializeWorker() {
                 });
             });
 
-            if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                enableWorkerNotificationListener(loginService, Shopware.Context.api);
-            }
+            Shopware.Feature.branch('V6_8_0_0', {
+                beforeMajor: () => enableWorkerNotificationListener(loginService, Shopware.Context.api),
+            });
 
             // Enable worker notification listener regardless of the config
             if (!enabledNotification) {

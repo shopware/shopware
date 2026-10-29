@@ -14,6 +14,7 @@ use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -62,6 +63,14 @@ class DownloadResponseGenerator
         $fileSystem = $this->getFileSystem($media);
 
         $path = $media->getPath();
+
+        if (MediaUploadService::isExternalUrl($path)) {
+            if ($media->isPrivate()) {
+                throw MediaException::missingFile($media->getId());
+            }
+
+            return $this->getDefaultResponse($media, $context, $fileSystem);
+        }
 
         try {
             $url = $fileSystem->temporaryUrl($path, $this->clock->now()->modify($expiration));

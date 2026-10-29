@@ -48,6 +48,16 @@ class MediaExceptionTest extends TestCase
         static::assertSame(['url' => $url], $exception->getParameters());
     }
 
+    public function testUrlExceptionsOmitCredentials(): void
+    {
+        $url = 'ftp://user:s3cret@ftp.example.com/file.jpg';
+        $expected = ['url' => 'ftp://ftp.example.com/file.jpg'];
+
+        static::assertSame($expected, MediaException::invalidUrl($url)->getParameters());
+        static::assertSame($expected, MediaException::illegalUrl($url)->getParameters());
+        static::assertSame($expected, MediaException::cannotOpenSourceStreamToRead($url)->getParameters());
+    }
+
     public function testDisableUrlUploadFeature(): void
     {
         $exception = MediaException::disableUrlUploadFeature();
@@ -122,6 +132,15 @@ class MediaExceptionTest extends TestCase
         static::assertSame(MediaException::MEDIA_ILLEGAL_FILE_NAME, $exception->getErrorCode());
         static::assertSame('Provided filename "illegal-filename" is not permitted: cause', $exception->getMessage());
         static::assertSame(['fileName' => $fileName, 'cause' => $cause], $exception->getParameters());
+    }
+
+    public function testIllegalPath(): void
+    {
+        $exception = MediaException::illegalPath();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_ILLEGAL_PATH, $exception->getErrorCode());
+        static::assertSame('The media path can only be set to an external http(s) URL.', $exception->getMessage());
     }
 
     public function testMediaNotFound(): void

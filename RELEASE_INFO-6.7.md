@@ -344,6 +344,25 @@ Products that extensions render in their own markup are reported as well.
 The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#products) describes the expected attribute.
 The product box now reports the price of a matching price rule or the first graduated price, the same price as the product detail page, instead of the default price.
 
+### Deprecation of `ListingPlugin` properties
+
+The Storefront listing plugin now supports updating multiple filter panels on the same page. Due to these changes, the following properties of the `ListingPlugin` class in `listing.plugin.js` carrying single elements have been deprecated and are replaced respectively by new properties carrying `NodeList`s:
+
+- `_filterPanel` → `_filterPanels`
+- `activeFilterContainer` → `activeFilterContainers`
+- `ariaLiveContainer` → `ariaLiveContainers`
+
+Listing result counts now update only one accessible live region to avoid duplicate screen-reader announcements across filter panels.
+While the mobile filter dialog is open, its live region is preferred over background regions.
+
+`ListingPlugin.createResetAllButton(activeFilterContainer)` now accepts the target active-filter container as an argument.
+Update custom calls and overrides to pass this argument, including calls to `super.createResetAllButton(activeFilterContainer)`.
+Omitting the argument still falls back to `this.activeFilterContainer` in 6.7, but this fallback is deprecated and will be removed in 6.8.
+
+### Deprecation of unused custom `$offcanvas-zindex` SCSS variable
+
+The custom offcanvas z-index SCSS variable `$offcanvas-zindex` is not used anymore and is therefore deprecated. To override the offcanvas z-index or calculate your own z-index based on it, use the bootstrap variable `$zindex-offcanvas` instead. The deprecated `$offcanvas-zindex` SCSS variable and its respective `--offcanvas-zindex` CSS root variable now reflect the actual Bootstrap offcanvas z-index (`1045` instead of `1050`). Additionally, a new `--offcanvas-backdrop-zindex` CSS root variable has been added.
+
 ### Storefront analytics report brand and category of products added from a product box
 
 With active analytics, adding a product from a product box now posts its brand and categories in the line item payload, like the buy widget does.
@@ -376,24 +395,6 @@ Storefront analytics now report `select_item`, and `view_item_list`, `select_ite
 The list IDs, such as `category:<id>` or `search`, are a contract that Google Tag Manager triggers can rely on.
 For the search result, these events also report the query as `search_term`, so GA4 shows which products a search found.
 The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#lists) lists them and shows how extensions identify their own lists.
-### Deprecation of `ListingPlugin` properties
-
-The Storefront listing plugin now supports updating multiple filter panels on the same page. Due to these changes, the following properties of the `ListingPlugin` class in `listing.plugin.js` carrying single elements have been deprecated and are replaced respectively by new properties carrying `NodeList`s:
-
-- `_filterPanel` → `_filterPanels`
-- `activeFilterContainer` → `activeFilterContainers`
-- `ariaLiveContainer` → `ariaLiveContainers`
-
-Listing result counts now update only one accessible live region to avoid duplicate screen-reader announcements across filter panels.
-While the mobile filter dialog is open, its live region is preferred over background regions.
-
-`ListingPlugin.createResetAllButton(activeFilterContainer)` now accepts the target active-filter container as an argument.
-Update custom calls and overrides to pass this argument, including calls to `super.createResetAllButton(activeFilterContainer)`.
-Omitting the argument still falls back to `this.activeFilterContainer` in 6.7, but this fallback is deprecated and will be removed in 6.8.
-
-### Deprecation of unused custom `$offcanvas-zindex` SCSS variable
-
-The custom offcanvas z-index SCSS variable `$offcanvas-zindex` is not used anymore and is therefore deprecated. To override the offcanvas z-index or calculate your own z-index based on it, use the bootstrap variable `$zindex-offcanvas` instead. The deprecated `$offcanvas-zindex` SCSS variable and its respective `--offcanvas-zindex` CSS root variable now reflect the actual Bootstrap offcanvas z-index (`1045` instead of `1050`). Additionally, a new `--offcanvas-backdrop-zindex` CSS root variable has been added.
 
 ### Theme compilation completion is notified once
 

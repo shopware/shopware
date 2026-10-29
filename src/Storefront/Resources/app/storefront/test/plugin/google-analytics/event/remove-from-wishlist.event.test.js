@@ -272,6 +272,37 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
         delete global.fetch;
     });
 
+    // the removal must not wait for a categories request that does not answer
+    test('removes the product without categories when the categories request times out', async () => {
+        jest.useFakeTimers();
+        window.router = { 'frontend.analytics.product-categories': '/widgets/analytics/product-categories' };
+        global.fetch = jest.fn((url, { signal }) => new Promise((resolve, reject) => {
+            signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+        }));
+        document.body.innerHTML = `
+            <div class="card product-box" data-product-information='{"id":"abc123","name":"Shirt","sku":"SW1"}'>
+                <form class="product-wishlist-form" action="/wishlist/product/delete/abc123"></form>
+            </div>
+        `;
+        const form = document.querySelector('form');
+        form.submit = jest.fn();
+
+        const submitted = removeFromWishlistEvent._onFormSubmit({ target: form, defaultPrevented: false, preventDefault: jest.fn() });
+        expect(form.submit).not.toHaveBeenCalled();
+
+        jest.advanceTimersByTime(1000);
+        await submitted;
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'remove_from_wishlist', expect.objectContaining({
+            'items': [expect.not.objectContaining({ 'item_category': expect.anything() })],
+        }));
+        expect(form.submit).toHaveBeenCalled();
+
+        jest.useRealTimers();
+        delete window.router;
+        delete global.fetch;
+    });
+
     // the categories request only answers after the shopper revoked the tracking consent
     function revokeConsentDuringCategoryRequest(event) {
         window.router = { 'frontend.analytics.product-categories': '/widgets/analytics/product-categories' };

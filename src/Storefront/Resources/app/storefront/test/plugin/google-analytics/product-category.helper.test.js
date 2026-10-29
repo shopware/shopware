@@ -60,6 +60,14 @@ describe('plugin/google-analytics/product-category.helper', () => {
         expect(ProductCategoryHelper.get('product-1')).toEqual(shirts);
     });
 
+    test('keeps the categories when the page names no sales channel', () => {
+        delete window.salesChannelId;
+
+        ProductCategoryHelper.remember('product-1', shirts);
+
+        expect(ProductCategoryHelper.get('product-1')).toEqual(shirts);
+    });
+
     test('returns no categories for an unknown product', () => {
         ProductCategoryHelper.remember('product-1', shirts);
 

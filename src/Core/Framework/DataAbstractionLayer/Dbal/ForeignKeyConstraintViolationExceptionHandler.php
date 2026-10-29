@@ -62,17 +62,18 @@ class ForeignKeyConstraintViolationExceptionHandler implements ExceptionHandlerI
 
     private function createGenericException(string $originalMessage): InvalidForeignKeyReferenceException
     {
-        $message = 'A referenced entity or version does not exist.';
+        $template = 'A referenced entity or version does not exist. Original error: {{ originalMessage }}';
+        $message = \sprintf('A referenced entity or version does not exist. Original error: %s', $originalMessage);
 
         return new InvalidForeignKeyReferenceException(new ConstraintViolationList([
-            new ConstraintViolation($message, $message, ['{{ originalMessage }}' => $originalMessage], null, '', null, null, 'FRAMEWORK__INVALID_FOREIGN_KEY_REFERENCE'),
+            new ConstraintViolation($message, $template, ['{{ originalMessage }}' => $originalMessage], null, '', null, null, 'FRAMEWORK__INVALID_FOREIGN_KEY_REFERENCE'),
         ]));
     }
 
     private function createSpecificException(string $entity, string $field, string $referencedEntity, string $originalMessage): InvalidForeignKeyReferenceException
     {
-        $message = \sprintf('The field "%s" on "%s" references a missing "%s" entity or version.', $field, $entity, $referencedEntity);
-        $template = 'The field "{{ field }}" on "{{ entity }}" references a missing "{{ reference }}" entity or version.';
+        $template = 'The field "{{ field }}" on "{{ entity }}" references a missing "{{ reference }}" entity or version. Original error: {{ originalMessage }}';
+        $message = \sprintf('The field "%s" on "%s" references a missing "%s" entity or version. Original error: %s', $field, $entity, $referencedEntity, $originalMessage);
         $parameters = [
             '{{ field }}' => $field,
             '{{ entity }}' => $entity,

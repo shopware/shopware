@@ -1,9 +1,4 @@
 {
-    "ModuleFactory.getModuleSnippets() is deprecated and will be removed together with the module manifest \"snippets\" property.": {
-        "src/app/adapter/view/vue.adapter.ts": [
-            "default"
-        ]
-    },
     "The \"sw-tabs\" wrapper is deprecated and will be removed in v6.9.0.0. Please use \"mt-tabs\" instead.": {
         "sw-bulk-edit-custom-fields > sw-tabs": [
             "default",
@@ -50,6 +45,12 @@
         ],
         "sw-settings-usage-data > sw-tabs": [
             "default"
+        ]
+    },
+    "The component \"sw-agentic-commerce-tracking-config\" is deprecated and will be removed in Shopware v6.8.0.0.\nWill be removed.": {
+        "sw-agentic-commerce-tracking-config": [
+            "default",
+            "major"
         ]
     },
     "The component \"sw-order-document-settings-credit-note-modal\" is deprecated and will be removed in Shopware v6.9.0.0.\nRemoved with document generation v1.": {
@@ -118,9 +119,10 @@
             "major"
         ]
     },
-    "WorkerNotificationListener is deprecated and will be removed with increment-based message queue statistics.": {
-        "src/app/init-post/worker.init.ts": [
-            "default"
+    "The prop \"productStates\" of the component \"sw-product-variants-overview\" is deprecated and will be removed in Shopware v6.8.0.0.\nUse `productType` prop instead.": {
+        "sw-product-variants-overview": [
+            "default",
+            "major"
         ]
     },
     "messageQueueNotification() is deprecated. The increment-based message queue statistics are deprecated.": {
@@ -235,6 +237,10 @@
         ]
     },
     "sw-order-promotion-field.automaticPromotions is deprecated. Will be removed without replacement.": {
+        "src/module/sw-order/component/sw-order-promotion-field/sw-order-promotion-field.spec.js": [
+            "default",
+            "major"
+        ],
         "sw-order-promotion-field": [
             "default",
             "major"
@@ -246,8 +252,36 @@
             "major"
         ]
     },
+    "sw-order-promotion-field.deleteAutomaticPromotions() is deprecated. Will be removed without replacement. See `applyAutomaticPromotions` for an alternative.": {
+        "src/module/sw-order/component/sw-order-promotion-field/sw-order-promotion-field.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-promotion-field.emitLoadingChange() is deprecated. Will be removed without replacement.": {
+        "src/module/sw-order/component/sw-order-promotion-field/sw-order-promotion-field.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-promotion-field.handleUnsavedOrderChangesResponse() is deprecated. Will be removed without replacement.": {
+        "src/module/sw-order/component/sw-order-promotion-field/sw-order-promotion-field.spec.js": [
+            "default",
+            "major"
+        ]
+    },
     "sw-order-promotion-field.hasAutomaticPromotions is deprecated. Will be removed without replacement.": {
+        "src/module/sw-order/component/sw-order-promotion-field/sw-order-promotion-field.spec.js": [
+            "default",
+            "major"
+        ],
         "sw-order-promotion-field": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-promotion-field.toggleAutomaticPromotions() is deprecated. Will be removed without replacement. See `applyAutomaticPromotions` for an alternative.": {
+        "src/module/sw-order/component/sw-order-promotion-field/sw-order-promotion-field.spec.js": [
             "default",
             "major"
         ]
@@ -347,6 +381,12 @@
             "major"
         ]
     },
+    "sw-sales-channel-create-base.prefillAgenticCommerceDefaults() is deprecated. Will be removed.": {
+        "sw-sales-channel-create-base": [
+            "default",
+            "major"
+        ]
+    },
     "sw-sales-channel-detail-base.getAgenticCommerceExportCardTitle() is deprecated. Will be removed.": {
         "sw-sales-channel-detail-base": [
             "default",
@@ -360,12 +400,26 @@
         ]
     },
     "sw-sales-channel-detail-base.isAgenticCommerce is deprecated. Will be removed.": {
+        "sw-sales-channel-create-base": [
+            "default",
+            "major"
+        ],
         "sw-sales-channel-detail-base": [
             "default",
             "major"
         ]
     },
+    "sw-sales-channel-detail-base.onAgenticCommerceExportFieldUpdate() is deprecated. Will be removed.": {
+        "src/module/sw-sales-channel/view/sw-sales-channel-detail-base/sw-sales-channel-detail-base.spec.js": [
+            "default",
+            "major"
+        ]
+    },
     "sw-sales-channel-detail-base.resolvedAgenticCommerceExportConfig is deprecated. Will be removed.": {
+        "sw-sales-channel-create-base": [
+            "default",
+            "major"
+        ],
         "sw-sales-channel-detail-base": [
             "default",
             "major"
@@ -381,9 +435,21 @@
         "src/module/sw-sales-channel/page/sw-sales-channel-create/index.js": [
             "default",
             "major"
+        ],
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail-tabs.spec.js": [
+            "default",
+            "major"
+        ],
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.spec.js": [
+            "default",
+            "major"
         ]
     },
     "sw-sales-channel-detail.hasSwagAgenticCommercePlugin is deprecated. Will be removed.": {
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.spec.js": [
+            "default",
+            "major"
+        ],
         "sw-sales-channel-detail": [
             "default",
             "major"
@@ -391,6 +457,14 @@
     },
     "sw-sales-channel-detail.isAgenticCommerce is deprecated. Will be removed.": {
         "src/module/sw-sales-channel/page/sw-sales-channel-create/index.js": [
+            "default",
+            "major"
+        ],
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail-tabs.spec.js": [
+            "default",
+            "major"
+        ],
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.spec.js": [
             "default",
             "major"
         ],
@@ -403,22 +477,66 @@
         "src/module/sw-sales-channel/page/sw-sales-channel-create/index.js": [
             "default",
             "major"
+        ],
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail-tabs.spec.js": [
+            "default",
+            "major"
+        ],
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-sales-channel-detail.onClickInstallAgenticCommercePlugin() is deprecated. Will be removed.": {
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-sales-channel-detail.saveAgenticCommerceExportConfig() is deprecated. Will be removed.": {
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.spec.js": [
+            "default",
+            "major"
         ]
     },
     "sw-sales-channel-detail.showAgenticCommerceDeprecationBanner is deprecated. Will be removed.": {
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.spec.js": [
+            "default",
+            "major"
+        ],
         "sw-sales-channel-detail": [
             "default",
             "major"
         ]
     },
+    "sw-sales-channel-detail.validateAgenticCommerceExportConfig() is deprecated. Will be removed.": {
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
     "sw-sales-channel-modal-grid.isAgenticCommerceSalesChannelType() is deprecated. Will be removed.": {
+        "src/module/sw-sales-channel/component/sw-sales-channel-modal-grid/sw-sales-channel-modal-grid.spec.js": [
+            "default",
+            "major"
+        ],
         "sw-sales-channel-modal-grid": [
             "default",
             "major"
         ]
     },
     "sw-sales-channel-modal-grid.showAgenticCommerceType() is deprecated. Will be removed.": {
+        "src/module/sw-sales-channel/component/sw-sales-channel-modal-grid/sw-sales-channel-modal-grid.spec.js": [
+            "default",
+            "major"
+        ],
         "sw-sales-channel-modal-grid": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-settings-document-detail.documentBaseConfigSalesChannelRepository is deprecated. Will be removed without replacement.": {
+        "src/module/sw-settings-document/page/sw-settings-document-detail/sw-settings-document-detail.spec.js": [
             "default",
             "major"
         ]

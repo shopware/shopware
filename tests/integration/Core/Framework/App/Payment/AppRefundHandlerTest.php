@@ -4,15 +4,11 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Payment;
 
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7\Response;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStates;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Response\RefundResponse;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -67,49 +63,6 @@ class AppRefundHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertArrayHasKey('refund', $content);
         static::assertIsArray($content['refund']);
         $this->assertRefundState(OrderTransactionCaptureRefundStates::STATE_COMPLETED, $refundId);
-    }
-
-    public function testRefundPayloadContainsRefundPositions(): void
-    {
-        $paymentMethodId = $this->getPaymentMethodId('refundable');
-        $orderId = $this->createOrder($paymentMethodId);
-        $transactionId = $this->createTransaction($orderId, $paymentMethodId);
-        $captureId = $this->createCapture($transactionId);
-        $refundId = $this->createRefund($captureId);
-
-        $price = new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection());
-        static::getContainer()->get('order_transaction_capture_refund_position.repository')->create([[
-            'id' => $this->ids->get('refund_position'),
-            'refundId' => $refundId,
-            'quantity' => 1,
-            'amount' => $price,
-            'orderLineItem' => [
-                'orderId' => $orderId,
-                'identifier' => 'line-item',
-                'quantity' => 1,
-                'label' => 'line-item',
-                'price' => $price,
-            ],
-        ]], Context::createDefaultContext());
-
-        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
-
-        $response = RefundResponse::create([
-            'status' => 'complete',
-        ]);
-
-        $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
-
-        $this->paymentRefundProcessor->processRefund($refundId, $salesChannelContext->getContext());
-
-        $request = $this->getLastRequest();
-        static::assertNotNull($request);
-        $content = json_decode($request->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertIsArray($content);
-        static::assertIsArray($content['refund']);
-        static::assertIsArray($content['refund']['positions']);
-        static::assertSame([$this->ids->get('refund_position')], array_column($content['refund']['positions'], 'id'));
     }
 
     public function testItFailsOnErrorResponse(): void

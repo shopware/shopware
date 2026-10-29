@@ -456,13 +456,6 @@ Shopware now verifies that `APP_URL` reaches this installation before it registe
 
 The verification stores its token in the `cache.app_url_verification` cache pool, which uses `cache.app` by default. With several app servers, this pool must be shared between them, for example on Redis.
 
-## App System
-
-### Refund requests to payment apps contain the refund positions
-
-Requests to the refund URL of a payment app now include the positions of the refund in `refund.positions`.
-Before, the field was always `null`, even when the refund had positions.
-
 # 6.7.16.0
 
 ## Critical Fixes

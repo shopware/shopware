@@ -115,6 +115,32 @@ class DatabaseCookieConsentLogStorageTest extends TestCase
         static::assertSame(['in-range'], $this->consentIds($oneChannel));
     }
 
+    public function testDatesWithAnotherTimezoneAreConvertedToUtc(): void
+    {
+        // 14:30 in Berlin is 12:30 UTC
+        $this->storage->log($this->record('berlin', new \DateTimeImmutable('2026-07-13 14:30:00', new \DateTimeZone('Europe/Berlin'))));
+        $this->storage->log($this->record('utc', new \DateTimeImmutable('2026-07-13 13:30:00', new \DateTimeZone('UTC'))));
+
+        static::assertSame(
+            ['berlin' => '2026-07-13 12:30:00.000', 'utc' => '2026-07-13 13:30:00.000'],
+            $this->connection->fetchAllKeyValue('SELECT `consent_id`, `created_at` FROM `cookie_consent_log` ORDER BY `created_at`'),
+        );
+
+        // 14:00 to 15:00 in Berlin is 12:00 to 13:00 UTC
+        $from = new \DateTime('2026-07-13 14:00:00', new \DateTimeZone('Europe/Berlin'));
+        $to = new \DateTime('2026-07-13 15:00:00', new \DateTimeZone('Europe/Berlin'));
+
+        $records = [...$this->storage->iterate($from, $to)];
+        static::assertSame(['berlin'], $this->consentIds($records));
+        static::assertSame('2026-07-13T12:30:00+00:00', $records[0]->createdAt->format(\DATE_ATOM));
+
+        // 15:00 in Berlin is 13:00 UTC, so only the earlier decision is deleted
+        $this->storage->cleanup($to);
+        static::assertSame(['utc'], $this->connection->fetchFirstColumn('SELECT `consent_id` FROM `cookie_consent_log`'));
+
+        static::assertSame('2026-07-13 14:00:00 Europe/Berlin', $from->format('Y-m-d H:i:s e'));
+    }
+
     public function testIteratePagesThroughMoreThanOneBatchWithoutSkippingOrRepeating(): void
     {
         // Same timestamp for every row, so the id tie-breaker of the keyset pagination is exercised

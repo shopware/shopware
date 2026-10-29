@@ -64,7 +64,7 @@ final class DatabaseCookieConsentLogStorage implements CookieConsentLogStorageIn
             'config_hash' => $record->configHash,
             'sales_channel_id' => Uuid::fromHexToBytes($record->salesChannelId),
             'language_id' => Uuid::fromHexToBytes($record->languageId),
-            'created_at' => $record->createdAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => $this->toStorageDate($record->createdAt),
         ]);
     }
 
@@ -82,7 +82,7 @@ final class DatabaseCookieConsentLogStorage implements CookieConsentLogStorageIn
                 'id' => Uuid::randomBytes(),
                 'configHash' => $snapshot->configHash,
                 'cookieGroups' => json_encode($snapshot->cookieGroups, \JSON_THROW_ON_ERROR),
-                'createdAt' => $snapshot->createdAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'createdAt' => $this->toStorageDate($snapshot->createdAt),
             ],
         );
     }
@@ -95,7 +95,7 @@ final class DatabaseCookieConsentLogStorage implements CookieConsentLogStorageIn
         do {
             $deleted = (int) $this->connection->executeStatement(
                 'DELETE FROM `cookie_consent_log` WHERE `created_at` < :before LIMIT ' . self::DELETE_BATCH_SIZE,
-                ['before' => $before->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
+                ['before' => $this->toStorageDate($before)],
             );
         } while ($deleted === self::DELETE_BATCH_SIZE);
     }
@@ -107,8 +107,8 @@ final class DatabaseCookieConsentLogStorage implements CookieConsentLogStorageIn
     public function iterate(\DateTimeInterface $from, \DateTimeInterface $to, ?string $salesChannelId = null): iterable
     {
         $parameters = [
-            'from' => $from->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            'to' => $to->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'from' => $this->toStorageDate($from),
+            'to' => $this->toStorageDate($to),
         ];
         $conditions = ['`created_at` >= :from', '`created_at` < :to'];
 
@@ -141,6 +141,17 @@ final class DatabaseCookieConsentLogStorage implements CookieConsentLogStorageIn
     }
 
     /**
+     * The columns hold UTC, so a date with another timezone is converted first. Works on a copy,
+     * so a mutable `DateTime` of the caller keeps its timezone.
+     */
+    private function toStorageDate(\DateTimeInterface $dateTime): string
+    {
+        return \DateTimeImmutable::createFromInterface($dateTime)
+            ->setTimezone(new \DateTimeZone('UTC'))
+            ->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+    }
+
+    /**
      * @param LogRow $row
      */
     private function hydrate(array $row): CookieConsentRecord
@@ -158,7 +169,7 @@ final class DatabaseCookieConsentLogStorage implements CookieConsentLogStorageIn
             configHash: $row['config_hash'],
             salesChannelId: $row['sales_channel_id'],
             languageId: $row['language_id'],
-            createdAt: new \DateTimeImmutable($row['created_at']),
+            createdAt: new \DateTimeImmutable($row['created_at'], new \DateTimeZone('UTC')),
         );
     }
 }

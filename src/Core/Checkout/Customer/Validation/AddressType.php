@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Customer\Validation;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 enum AddressType: string
 {

@@ -416,6 +416,7 @@ See `UPGRADE-6.8.md` for the full variable mapping.
 
 Pre-rollout system checks now reset services between virtual Administration and Storefront requests, including redirects and failed requests.
 This prevents theme and Twig context from leaking between probes and failed probes from leaving a PHP session open for the next check.
+
 ### FTP sources for media upload by URL are accepted again
 
 `POST /api/_action/media/{mediaId}/upload` and `POST /api/_action/media/upload_by_url` accept `ftp://` URLs again, which were rejected since 6.7.13.1.
@@ -883,7 +884,7 @@ The product detail page links the terms below the GARAN label, in the new block 
 - Default metrics prefix was changed from `io.opentelemetry.contrib.php.shopware` to `shopware.platform`.
 - `http.server.request.duration` now shows client-facing latency without post-response processing.
 - `cart.calculation.duration` records failed calculations (added `result=success|failed` label).
-- `Telemetry::instrument()` now collects duration metrics also for failed callbacks. 
+- `Telemetry::instrument()` now collects duration metrics also for failed callbacks.
 - Added support for lazy labels calculation in `DurationMetric` and `ConfiguredMetric` (see instrumentors for usage examples).
 - New methods `Telemetry::isMetricEnabled()` / `Meter::isEnabled()` saying if a metric would be emitted, so expensive calculations may be skipped for disabled metrics.
 - Metrics are flushed after all other terminate tasks.

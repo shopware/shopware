@@ -30,6 +30,15 @@ Existing log entries and stored sample data are not modified.
 Previously queued flows retain their original classification.
 Previously queued Shopware mails without a stored flag keep the default non-sensitive classification.
 
+### Shared customer authentication exception interface
+
+`CustomerNotLoggedInException` and `CustomerNotLoggedInRoutingException` now implement `Shopware\Core\Framework\CustomerAuthenticationRequiredExceptionInterface`.
+Extensions can implement this interface on their own exceptions to use the same `notice` logging level and login redirect handling for non-AJAX storefront requests.
+The existing exception classes, error codes, and HTTP statuses are preserved, as is the precedence of existing per-class logging overrides.
+
+The per-class `framework.exceptions` mappings of both exceptions are deprecated and will be removed in 6.8.
+If you override the log level of one of them, override the interface instead.
+
 ### Missing plugin conditions in stored carts
 
 Stored carts can be recalculated when a rule container references a condition whose PHP class is no longer available, for example an uninstalled plugin.

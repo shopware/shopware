@@ -2,9 +2,8 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Framework\CustomerAuthenticationRequiredExceptionInterface;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\CustomerNotLoggedInRoutingException;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\PlatformRequest;
@@ -135,7 +134,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return false;
         }
 
-        return $ex instanceof CustomerNotLoggedInRoutingException || $ex instanceof CustomerNotLoggedInException;
+        return $ex instanceof CustomerAuthenticationRequiredExceptionInterface;
     }
 
     /**

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Framework\CustomerAuthenticationRequiredExceptionInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -208,6 +209,20 @@ class StorefrontSubscriberTest extends TestCase
 
         yield 'cart exception does not redirect XHR request' => [
             'exception' => CartException::customerNotLoggedIn(),
+            'isXmlHttpRequest' => true,
+            'expectRedirect' => false,
+        ];
+
+        $customException = new class extends \RuntimeException implements CustomerAuthenticationRequiredExceptionInterface {};
+
+        yield 'custom authentication exception redirects regular request' => [
+            'exception' => $customException,
+            'isXmlHttpRequest' => false,
+            'expectRedirect' => true,
+        ];
+
+        yield 'custom authentication exception does not redirect XHR request' => [
+            'exception' => $customException,
             'isXmlHttpRequest' => true,
             'expectRedirect' => false,
         ];

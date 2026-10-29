@@ -3350,3 +3350,21 @@ If your extension relied on a restored `SalesChannelContext` (for example, custo
 `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` and its `buildFilters()` method have been removed. Use `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder::enrichCriteria()` instead, which applies both the stream filters and the grouping state to the passed `Criteria`.
 
 If your extension decorates the `ProductStreamBuilder` service or applies variant grouping manually, `extends AbstractProductStreamBuilder` and respect `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader::STATE_SKIP_ADD_GROUPING` on the `Criteria` to keep matching variants ungrouped.
+
+## Removed per-class log level mappings for customer authentication exceptions
+
+The `framework.exceptions` mappings for `Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException` and `Shopware\Core\Framework\Routing\Exception\CustomerNotLoggedInRoutingException` were removed.
+Both exceptions are now only mapped through `Shopware\Core\Framework\CustomerAuthenticationRequiredExceptionInterface`.
+
+Symfony uses the first matching mapping, so project overrides for the concrete classes were ignored.
+Override the interface instead:
+
+```diff
+ framework:
+     exceptions:
+-        Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException:
++        Shopware\Core\Framework\CustomerAuthenticationRequiredExceptionInterface:
+             log_level: warning
+```
+
+The interface mapping also applies to extension exceptions that implement the interface.

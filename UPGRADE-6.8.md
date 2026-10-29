@@ -2873,10 +2873,8 @@ The following variables were removed:
 
 ## Removal of `pathIdList` from `navbarOptions` in `navbar.html.twig`
 
-The `pathIdList` key of the `navbarOptions` Twig variable in `layout/navbar/navbar.html.twig` was removed, so `navbarOptions` is now an empty object.
-The navbar is cached as an ESI fragment and shared across pages, so the key held the path of another page.
-
-Read the path of the current page from `shopware.navigation.pathIdList` in Twig, or from `window.activeNavigationPathIdList` in JavaScript.
+The `pathIdList` key was removed from `navbarOptions` in `layout/navbar/navbar.html.twig`.
+Use `shopware.navigation.pathIdList` in Twig or `window.activeNavigationPathIdList` in JavaScript.
 
 ## Refactor of providing cookies
 

@@ -1,7 +1,7 @@
 ---
-title: Deny context changes from templates
+title: Harden the context handling of templates and app scripts
 issue:
 ---
 # Core
-* Changed Twig templates: they can no longer call methods that change the request context or the request, such as setters. Reading them stays possible, for example `context.languageId`. Such a call now fails with the error code `FRAMEWORK__TWIG_METHOD_CALL_NOT_ALLOWED`; make the change in PHP instead, for example in an event subscriber.
-* Changed the `repository` and `writer` app script services: every call runs with its own app context, so a context changed by a script is not reused by later calls.
+* Changed Twig templates to only read the request context. A method call that would change it now fails with the error code `FRAMEWORK__TWIG_METHOD_CALL_NOT_ALLOWED`.
+* Changed the `repository` and `writer` app script services to use their own context for every call.

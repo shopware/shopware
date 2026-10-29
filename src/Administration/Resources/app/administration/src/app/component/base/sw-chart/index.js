@@ -239,7 +239,7 @@ export default {
                     },
 
                     defaultLocale: this.localeConfig?.name ?? 'en',
-                    locales: [...(this.localeConfig ? [this.localeConfig] : [])],
+                    ...(this.localeConfig ? { locales: [this.localeConfig] } : {}),
                     zoom: false,
                 },
 

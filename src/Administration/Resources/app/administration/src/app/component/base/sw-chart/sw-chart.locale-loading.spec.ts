@@ -16,7 +16,7 @@ const chart = {
     name: 'apexchart',
     props: ['options', 'type'],
     template:
-        '<output :data-locale="options.chart.defaultLocale" :data-month="options.chart.locales[0]?.options.months[0]" :data-locale-count="options.chart.locales.length" />',
+        '<output :data-locale="options.chart.defaultLocale" :data-month="options.chart.locales?.[0]?.options.months[0]" :data-locale-count="options.chart.locales?.length ?? 0" :data-has-locales="Object.hasOwn(options.chart, `locales`)" />',
 };
 
 describe('chart locale loading', () => {
@@ -93,6 +93,7 @@ describe('chart locale loading', () => {
         expect(wrapper.find('.sw-chart').exists()).toBe(true);
         expect(wrapper.get('output').attributes('data-locale')).toBe('en');
         expect(wrapper.get('output').attributes('data-locale-count')).toBe('0');
+        expect(wrapper.get('output').attributes('data-has-locales')).toBe('false');
     });
 
     it('renders with built-in English if both locale downloads fail', async () => {
@@ -109,6 +110,7 @@ describe('chart locale loading', () => {
         expect(wrapper.find('.sw-chart').exists()).toBe(true);
         expect(wrapper.get('output').attributes('data-locale')).toBe('en');
         expect(wrapper.get('output').attributes('data-locale-count')).toBe('0');
+        expect(wrapper.get('output').attributes('data-has-locales')).toBe('false');
     });
 
     it('loads English directly for an unsupported Administration language', async () => {

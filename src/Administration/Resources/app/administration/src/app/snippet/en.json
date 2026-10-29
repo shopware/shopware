@@ -16,6 +16,7 @@
       "FRAMEWORK__ROUTE_BLOCKED_MESSAGE": "The URL {path} conflicts with the existing route {blockedSegment} and cannot be used.",
       "DUPLICATED_URL": "This URL is already in use. Please choose another URL.",
       "DUPLICATED_NAME": "This name is already in use.",
+      "USER__USERNAME_WHITESPACE": "The username must not contain leading or trailing whitespace.",
       "CONTENT__MEDIA_EMPTY_FILE": "A valid filename must be provided.",
       "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Field type cannot be rendered. Please contact your administrator.",
       "FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE": "The selected sales channel is in maintenance mode and your IP address is not allowlisted. Disable maintenance mode or add your IP address to the allowlist.",

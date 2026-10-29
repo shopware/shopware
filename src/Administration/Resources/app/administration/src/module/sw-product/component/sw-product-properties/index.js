@@ -64,7 +64,7 @@ export default {
         },
 
         propertyGroupCriteria() {
-            const criteria = new Criteria(1, 10);
+            const criteria = new Criteria(1, null);
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
             criteria.addFilter(Criteria.equalsAny('id', this.groupIds));

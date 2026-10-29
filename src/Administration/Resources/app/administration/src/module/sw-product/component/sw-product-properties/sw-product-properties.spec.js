@@ -477,6 +477,15 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         expect(wrapper.vm.propertyGroupCriteria.term).toBe('textile');
     });
 
+    it('should not limit the property groups of the product', async () => {
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        // the groups are already narrowed to the ids of the assigned properties, so a limit would drop groups
+        expect(wrapper.vm.propertyGroupCriteria.limit).toBeNull();
+    });
+
     it('should turn on add properties modal', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();

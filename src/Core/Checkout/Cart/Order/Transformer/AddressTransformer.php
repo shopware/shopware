@@ -26,10 +26,43 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *     countryStateId?: non-empty-string,
  *     customFields?: array<string, mixed>
  * }
+ * @phpstan-type TransformedAddressUpdateArray array{
+ *     id: non-empty-string,
+ *     company: non-empty-string|null,
+ *     department: non-empty-string|null,
+ *     salutationId: non-empty-string|null,
+ *     title: non-empty-string|null,
+ *     firstName?: non-empty-string,
+ *     lastName?: non-empty-string,
+ *     street?: non-empty-string,
+ *     zipcode: non-empty-string|null,
+ *     city?: non-empty-string,
+ *     phoneNumber: non-empty-string|null,
+ *     additionalAddressLine1: non-empty-string|null,
+ *     additionalAddressLine2: non-empty-string|null,
+ *     countryId?: non-empty-string,
+ *     countryStateId: non-empty-string|null,
+ *     customFields?: array<string, mixed>
+ * }
  */
 #[Package('checkout')]
 class AddressTransformer
 {
+    /**
+     * Custom fields are left out, as extensions often write them on the order address and the DAL merges them on update.
+     */
+    private const EMPTY_OPTIONAL_FIELDS = [
+        'company' => null,
+        'department' => null,
+        'salutationId' => null,
+        'title' => null,
+        'zipcode' => null,
+        'phoneNumber' => null,
+        'additionalAddressLine1' => null,
+        'additionalAddressLine2' => null,
+        'countryStateId' => null,
+    ];
+
     /**
      * @return ($useIdAsKey is false ? list<TransformedAddressArray>: array<string, TransformedAddressArray>)
      */
@@ -82,5 +115,16 @@ class AddressTransformer
         }
 
         return $addressArray;
+    }
+
+    /**
+     * Use this instead of `transform()` to overwrite an existing order address.
+     * Empty optional fields are `null` instead of left out, so the order address doesn't keep their old values.
+     *
+     * @return TransformedAddressUpdateArray
+     */
+    public static function transformForUpdate(CustomerAddressEntity $address): array
+    {
+        return [...self::EMPTY_OPTIONAL_FIELDS, ...self::transform($address)];
     }
 }

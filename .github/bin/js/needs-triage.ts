@@ -14,25 +14,63 @@
 
 export const NEEDS_TRIAGE_LABEL = 'needs-triage';
 
-export type Decision = 'add' | 'remove' | 'keep';
+export type NeedsTriageVerdict =
+    | { action: 'add' }
+    | { action: 'remove' }
+    | { action: 'keep' }
+    | { action: 'skip'; reason: string };
 
-type Label = {
-    name: string;
+export type NeedsTriageInput = {
+    /** The label of a `labeled` event, absent for every other action. */
+    addedLabel?: string;
+    labels: string[];
+    isDraft: boolean;
+    isClosed: boolean;
+    title: string;
 };
+
+export function isDomainLabel(name: string): boolean {
+    return name.startsWith('domain/') || name.startsWith('service/');
+}
+
+export function evaluateNeedsTriage({ addedLabel, labels, isDraft, isClosed, title }: NeedsTriageInput): NeedsTriageVerdict {
+    if (addedLabel !== undefined && !isDomainLabel(addedLabel)) {
+        return { action: 'skip', reason: `label ${addedLabel} is no domain label` };
+    }
+
+    const hasDomainLabel = labels.some(isDomainLabel);
+    const hasNeedsTriage = labels.includes(NEEDS_TRIAGE_LABEL);
+
+    if (hasDomainLabel) {
+        return { action: hasNeedsTriage ? 'remove' : 'keep' };
+    }
+
+    if (isDraft) {
+        return { action: 'skip', reason: 'pull request is a draft' };
+    }
+
+    if (isClosed) {
+        return { action: 'skip', reason: 'item is closed' };
+    }
+
+    if (title.startsWith('[Test Plan]')) {
+        return { action: 'skip', reason: 'test plan issues are not triaged' };
+    }
+
+    return { action: hasNeedsTriage ? 'keep' : 'add' };
+}
+
+type Label = { name: string };
 
 type Item = {
     number: number;
-    state?: string;
-    title?: string;
+    state: string;
+    title: string;
     draft?: boolean;
 };
 
-export type NeedsTriageContext = {
-    eventName: string;
-    repo: {
-        owner: string;
-        repo: string;
-    };
+type NeedsTriageContext = {
+    repo: { owner: string; repo: string };
     payload: {
         action?: string;
         label?: Label;
@@ -41,13 +79,9 @@ export type NeedsTriageContext = {
     };
 };
 
-type LabelOptions = {
-    owner: string;
-    repo: string;
-    issue_number: number;
-};
+type LabelOptions = { owner: string; repo: string; issue_number: number };
 
-type GitHubRestClient = {
+type IssuesClient = {
     rest: {
         issues: {
             listLabelsOnIssue(options: LabelOptions): Promise<{ data: Label[] }>;
@@ -57,86 +91,40 @@ type GitHubRestClient = {
     };
 };
 
-type CoreLogger = {
-    info(message: string): void;
-};
+type Logger = { info(message: string): void };
 
-export function isDomainLabel(name: string): boolean {
-    return name.startsWith('domain/') || name.startsWith('service/');
-}
+type Toolkit = { github: IssuesClient; core: Logger; context: NeedsTriageContext };
 
-/** Whether this event can change the triage state at all; the reason is returned for the log. */
-export function shouldHandle(context: NeedsTriageContext): string | null {
-    const { action, label, issue, pull_request: pullRequest } = context.payload;
-    const item = issue ?? pullRequest;
-
+function itemOf(context: NeedsTriageContext): Item {
+    const item = context.payload.issue ?? context.payload.pull_request;
     if (!item) {
-        return 'no issue or pull request in the payload';
+        throw new Error('The event carries neither an issue nor a pull request.');
     }
 
-    if (action === 'labeled') {
-        return label && isDomainLabel(label.name) ? null : `label ${label?.name ?? '?'} is no domain label`;
-    }
-
-    if (pullRequest?.draft) {
-        return 'pull request is a draft';
-    }
-
-    if (item.state === 'closed') {
-        return 'item is closed';
-    }
-
-    if (issue?.title?.startsWith('[Test Plan]')) {
-        return 'test plan issues are not triaged';
-    }
-
-    return null;
+    return item;
 }
 
-export function decide(labels: string[]): Decision {
-    const hasDomainLabel = labels.some(isDomainLabel);
-    const hasNeedsTriage = labels.includes(NEEDS_TRIAGE_LABEL);
-
-    if (hasDomainLabel && hasNeedsTriage) {
-        return 'remove';
-    }
-
-    if (!hasDomainLabel && !hasNeedsTriage) {
-        return 'add';
-    }
-
-    return 'keep';
-}
-
-export async function manageNeedsTriage({
-    github,
-    core,
-    context,
-}: {
-    github: GitHubRestClient;
-    core: CoreLogger;
-    context: NeedsTriageContext;
-}): Promise<Decision | null> {
-    const reason = shouldHandle(context);
-    if (reason !== null) {
-        core.info(`Skipping: ${reason}`);
-        return null;
-    }
-
-    const item = (context.payload.issue ?? context.payload.pull_request) as Item;
+export async function manageNeedsTriage({ github, core, context }: Toolkit): Promise<NeedsTriageVerdict> {
+    const item = itemOf(context);
     const options = { owner: context.repo.owner, repo: context.repo.repo, issue_number: item.number };
 
     // The payload carries labels too, but the API answer reflects what the labeler did meanwhile.
-    const labels = await github.rest.issues.listLabelsOnIssue(options);
-    const decision = decide(labels.data.map((label) => label.name));
+    const { data } = await github.rest.issues.listLabelsOnIssue(options);
+    const verdict = evaluateNeedsTriage({
+        addedLabel: context.payload.action === 'labeled' ? context.payload.label?.name : undefined,
+        labels: data.map((label) => label.name),
+        isDraft: item.draft ?? false,
+        isClosed: item.state === 'closed',
+        title: item.title,
+    });
 
-    if (decision === 'add') {
+    if (verdict.action === 'add') {
         await github.rest.issues.addLabels({ ...options, labels: [NEEDS_TRIAGE_LABEL] });
-    } else if (decision === 'remove') {
+    } else if (verdict.action === 'remove') {
         await github.rest.issues.removeLabel({ ...options, name: NEEDS_TRIAGE_LABEL });
     }
 
-    core.info(`#${item.number}: ${decision} ${NEEDS_TRIAGE_LABEL}`);
+    core.info(verdict.action === 'skip' ? `#${item.number}: skipped, ${verdict.reason}` : `#${item.number}: ${verdict.action} ${NEEDS_TRIAGE_LABEL}`);
 
-    return decision;
+    return verdict;
 }

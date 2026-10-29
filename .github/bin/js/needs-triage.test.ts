@@ -1,68 +1,53 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { NEEDS_TRIAGE_LABEL, decide, manageNeedsTriage, shouldHandle } from './needs-triage.ts';
+import { NEEDS_TRIAGE_LABEL, type NeedsTriageInput, evaluateNeedsTriage, manageNeedsTriage } from './needs-triage.ts';
 
-type Item = { number: number; state?: string; title?: string; draft?: boolean };
-
-const contextFor = (
-    eventName: 'issues' | 'pull_request_target',
-    action: string,
-    item: Item,
-    label?: string,
-) => ({
-    eventName,
-    repo: { owner: 'shopware', repo: 'shopware' },
-    payload: {
-        action,
-        ...(label === undefined ? {} : { label: { name: label } }),
-        ...(eventName === 'issues' ? { issue: item } : { pull_request: item }),
-    },
+const openItem = (overrides: Partial<NeedsTriageInput> = {}): NeedsTriageInput => ({
+    labels: [],
+    isDraft: false,
+    isClosed: false,
+    title: 'Bug',
+    ...overrides,
 });
 
-test('decide: a domain label next to needs-triage removes needs-triage', () => {
-    assert.equal(decide(['domain/framework', NEEDS_TRIAGE_LABEL]), 'remove');
-    assert.equal(decide(['service/storefront', 'bug', NEEDS_TRIAGE_LABEL]), 'remove');
+test('a domain or service label next to needs-triage removes needs-triage', () => {
+    assert.deepEqual(evaluateNeedsTriage(openItem({ labels: ['domain/framework', NEEDS_TRIAGE_LABEL] })), { action: 'remove' });
+    assert.deepEqual(evaluateNeedsTriage(openItem({ labels: ['service/storefront', 'bug', NEEDS_TRIAGE_LABEL] })), { action: 'remove' });
 });
 
-test('decide: no domain label and no needs-triage adds needs-triage', () => {
-    assert.equal(decide([]), 'add');
-    assert.equal(decide(['bug', 'external-contribution']), 'add');
+test('assigning a domain label removes needs-triage from drafts and closed items too', () => {
+    const labels = ['domain/framework', NEEDS_TRIAGE_LABEL];
+
+    assert.deepEqual(evaluateNeedsTriage(openItem({ addedLabel: 'domain/framework', labels, isDraft: true })), { action: 'remove' });
+    assert.deepEqual(evaluateNeedsTriage(openItem({ addedLabel: 'domain/framework', labels, isClosed: true })), { action: 'remove' });
 });
 
-test('decide: an item already in the right state is kept', () => {
-    assert.equal(decide(['domain/framework']), 'keep');
-    assert.equal(decide([NEEDS_TRIAGE_LABEL]), 'keep');
+test('an open item without a domain label gets needs-triage', () => {
+    assert.deepEqual(evaluateNeedsTriage(openItem()), { action: 'add' });
+    assert.deepEqual(evaluateNeedsTriage(openItem({ labels: ['bug', 'external-contribution'] })), { action: 'add' });
 });
 
-test('shouldHandle: a labeled event only counts for domain and service labels', () => {
-    assert.equal(shouldHandle(contextFor('issues', 'labeled', { number: 1 }, 'domain/framework')), null);
-    assert.equal(shouldHandle(contextFor('pull_request_target', 'labeled', { number: 1 }, 'service/sbp')), null);
-    assert.match(shouldHandle(contextFor('issues', 'labeled', { number: 1 }, 'bug')) ?? '', /no domain label/);
+test('an item already in the right state is kept', () => {
+    assert.deepEqual(evaluateNeedsTriage(openItem({ labels: ['domain/framework'] })), { action: 'keep' });
+    assert.deepEqual(evaluateNeedsTriage(openItem({ labels: [NEEDS_TRIAGE_LABEL] })), { action: 'keep' });
 });
 
-test('shouldHandle: a domain label removes needs-triage from drafts and closed items too', () => {
-    assert.equal(
-        shouldHandle(contextFor('pull_request_target', 'labeled', { number: 1, draft: true }, 'domain/framework')),
-        null,
-    );
-    assert.equal(
-        shouldHandle(contextFor('issues', 'labeled', { number: 1, state: 'closed' }, 'domain/framework')),
-        null,
-    );
+test('a label that is no domain label changes nothing', () => {
+    assert.deepEqual(evaluateNeedsTriage(openItem({ addedLabel: 'bug', labels: ['bug'] })), {
+        action: 'skip',
+        reason: 'label bug is no domain label',
+    });
 });
 
-test('shouldHandle: opened drafts, closed items and test plans are not triaged', () => {
-    assert.match(shouldHandle(contextFor('pull_request_target', 'opened', { number: 1, draft: true })) ?? '', /draft/);
-    assert.match(shouldHandle(contextFor('issues', 'opened', { number: 1, state: 'closed' })) ?? '', /closed/);
-    assert.match(
-        shouldHandle(contextFor('issues', 'opened', { number: 1, title: '[Test Plan] 6.7.17.0' })) ?? '',
-        /test plan/,
-    );
-    assert.equal(shouldHandle(contextFor('issues', 'opened', { number: 1, state: 'open', title: 'Bug' })), null);
-    assert.equal(shouldHandle(contextFor('pull_request_target', 'ready_for_review', { number: 1, draft: false })), null);
+test('drafts, closed items and test plans are not triaged', () => {
+    assert.equal(evaluateNeedsTriage(openItem({ isDraft: true })).action, 'skip');
+    assert.equal(evaluateNeedsTriage(openItem({ isClosed: true })).action, 'skip');
+    assert.equal(evaluateNeedsTriage(openItem({ title: '[Test Plan] 6.7.17.0' })).action, 'skip');
 });
 
-function fakeGitHub(labels: string[]) {
+type Item = { number: number; state: string; title: string; draft?: boolean };
+
+function toolkitFor(action: string, labels: string[], payload: { issue?: Item; pull_request?: Item; label?: { name: string } }) {
     const calls: string[] = [];
     const github = {
         rest: {
@@ -79,31 +64,34 @@ function fakeGitHub(labels: string[]) {
             },
         },
     };
-    const core = { info() {} };
+    const context = { repo: { owner: 'shopware', repo: 'shopware' }, payload: { action, ...payload } };
 
-    return { github, core, calls };
+    return { toolkit: { github, core: { info() {} }, context }, calls };
 }
 
-test('manageNeedsTriage: assigning a domain label removes needs-triage', async () => {
-    const { github, core, calls } = fakeGitHub(['domain/framework', NEEDS_TRIAGE_LABEL]);
-    const context = contextFor('pull_request_target', 'labeled', { number: 22233 }, 'domain/framework');
+test('assigning a domain label to a pull request removes needs-triage', async () => {
+    const { toolkit, calls } = toolkitFor('labeled', ['domain/framework', NEEDS_TRIAGE_LABEL], {
+        pull_request: { number: 22233, state: 'open', title: 'feat: something', draft: false },
+        label: { name: 'domain/framework' },
+    });
 
-    assert.equal(await manageNeedsTriage({ github, core, context }), 'remove');
+    assert.deepEqual(await manageNeedsTriage(toolkit), { action: 'remove' });
     assert.deepEqual(calls, ['remove needs-triage from #22233']);
 });
 
-test('manageNeedsTriage: an opened issue without a domain label gets needs-triage', async () => {
-    const { github, core, calls } = fakeGitHub(['bug']);
-    const context = contextFor('issues', 'opened', { number: 7, state: 'open', title: 'Bug' });
+test('an opened issue without a domain label gets needs-triage', async () => {
+    const { toolkit, calls } = toolkitFor('opened', ['bug'], { issue: { number: 7, state: 'open', title: 'Bug' } });
 
-    assert.equal(await manageNeedsTriage({ github, core, context }), 'add');
+    assert.deepEqual(await manageNeedsTriage(toolkit), { action: 'add' });
     assert.deepEqual(calls, ['add needs-triage to #7']);
 });
 
-test('manageNeedsTriage: a skipped event touches no label', async () => {
-    const { github, core, calls } = fakeGitHub([]);
-    const context = contextFor('issues', 'labeled', { number: 7 }, 'bug');
+test('a skipped event touches no label', async () => {
+    const { toolkit, calls } = toolkitFor('labeled', ['bug'], {
+        issue: { number: 7, state: 'open', title: 'Bug' },
+        label: { name: 'bug' },
+    });
 
-    assert.equal(await manageNeedsTriage({ github, core, context }), null);
+    assert.equal((await manageNeedsTriage(toolkit)).action, 'skip');
     assert.deepEqual(calls, []);
 });

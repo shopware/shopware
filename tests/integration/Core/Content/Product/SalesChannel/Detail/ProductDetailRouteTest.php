@@ -145,6 +145,36 @@ class ProductDetailRouteTest extends TestCase
         static::assertNotEmpty($response['product']['manufacturer']);
     }
 
+    public function testProtectedReviewCustomerAssociationCannotBeExposedThroughIncludes(): void
+    {
+        $this->browser->request(
+            'POST',
+            $this->getUrl($this->ids->get('product')),
+            [
+                'associations' => [
+                    'productReviews' => [
+                        'associations' => [
+                            'customer' => [
+                                'associations' => [
+                                    'defaultBillingAddress' => [],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'includes' => [
+                    'product_review' => ['id', 'customer.id'],
+                ],
+            ]
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+        static::assertArrayNotHasKey('product', $response);
+        static::assertSame('FRAMEWORK__ACCESSOR_NOT_ALLOWED', $response['errors'][0]['code']);
+    }
+
     public function testIncludeForCustomFields(): void
     {
         $product = (new ProductBuilder($this->ids, 'custom-fields-product'))

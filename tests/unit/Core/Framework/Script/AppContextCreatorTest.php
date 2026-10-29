@@ -77,7 +77,7 @@ class AppContextCreatorTest extends TestCase
 
         $secondSource = $second->getSource();
         static::assertInstanceOf(AdminApiSource::class, $secondSource);
-        // Escalating one source must not leak into a context built afterwards.
+        // A change to one source must not reach a context built afterwards.
         static::assertFalse($secondSource->isAdmin());
     }
 

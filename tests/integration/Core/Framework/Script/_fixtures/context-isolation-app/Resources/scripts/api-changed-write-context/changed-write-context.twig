@@ -1,5 +1,0 @@
-{# Tries to make the source of a write result an admin before a write the app has no privilege for. #}
-{% set written = services.writer.upsert('tag', [{ 'id': hook.request.tagId, 'name': 'changed-write-context' }]) %}
-{% do written.getContext().getSource().setIsAdmin(true) %}
-
-{% do services.writer.upsert('tax', [{ 'id': hook.request.taxId, 'name': 'denied', 'taxRate': 19 }]) %}

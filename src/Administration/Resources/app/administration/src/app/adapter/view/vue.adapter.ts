@@ -43,7 +43,6 @@ import MtPagination from '@shopware-ag/meteor-component-library/dist/esm/MtPagin
 import MtSkeletonBar from '@shopware-ag/meteor-component-library/dist/esm/MtSkeletonBar';
 import MtToast from '@shopware-ag/meteor-component-library/dist/esm/MtToast';
 import MtFloatingUi from '@shopware-ag/meteor-component-library/dist/esm/MtFloatingUi';
-import MtTextEditorToolbarButton from '@shopware-ag/meteor-component-library/dist/esm/MtTextEditorToolbarButton';
 import MtModal from '@shopware-ag/meteor-component-library/dist/esm/MtModal';
 import MtModalRoot from '@shopware-ag/meteor-component-library/dist/esm/MtModalRoot';
 import MtModalClose from '@shopware-ag/meteor-component-library/dist/esm/MtModalClose';
@@ -335,16 +334,10 @@ export default class VueAdapter extends ViewAdapter {
              * They should be removed from the list in the future
              * when their async problems got fixed.
              */
-            'sw-sales-channel-products-assignment-single-products',
-            'sw-sales-channel-product-assignment-categories',
-            'sw-sales-channel-products-assignment-dynamic-product-groups',
             'sw-upload-listener',
             'sw-media-list-selection-v2',
             'sw-media-list-selection-item-v2',
-            'sw-settings-document-detail',
-            'sw-settings-product-feature-sets-detail',
             'sw-system-config',
-            'sw-settings-search-searchable-content',
             // base
             'sw-icon',
         ];
@@ -437,7 +430,6 @@ export default class VueAdapter extends ViewAdapter {
             MtSkeletonBar,
             MtToast,
             MtFloatingUi,
-            MtTextEditorToolbarButton,
             MtModal,
             MtModalRoot,
             MtModalClose,
@@ -464,6 +456,8 @@ export default class VueAdapter extends ViewAdapter {
         } as const;
 
         const lazyMeteorComponents = {
+            MtTextEditorToolbarButton: () =>
+                import('@shopware-ag/meteor-component-library/dist/esm/MtTextEditorToolbarButton'),
             MtDataTable: () => import('@shopware-ag/meteor-component-library/dist/esm/MtDataTable'),
             MtColorpicker: () => import('@shopware-ag/meteor-component-library/dist/esm/MtColorpicker'),
             MtPopover: () => import('@shopware-ag/meteor-component-library/dist/esm/MtPopover'),

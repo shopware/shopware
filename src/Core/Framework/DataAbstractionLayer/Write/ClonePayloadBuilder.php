@@ -46,6 +46,13 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[Package('framework')]
 final class ClonePayloadBuilder
 {
+    /**
+     * How many levels of a parent-child tree (product variants, category children) a clone reads along.
+     * The walk recurses over the definition, so a self-referencing children association needs a stop;
+     * the number is arbitrary, taken over from NEXT-1398 as deep enough for any real tree.
+     */
+    private const MAX_CHILDREN_DEPTH = 30;
+
     public function __construct(private readonly ClockInterface $clock)
     {
     }
@@ -152,8 +159,7 @@ final class ClonePayloadBuilder
             }
 
             if ($cascade instanceof ChildrenAssociationField) {
-                // break endless loop
-                if ($childCounter >= 30 || !$cloneChildren) {
+                if ($childCounter >= self::MAX_CHILDREN_DEPTH || !$cloneChildren) {
                     $criteria->removeAssociation($cascade->getPropertyName());
 
                     continue;

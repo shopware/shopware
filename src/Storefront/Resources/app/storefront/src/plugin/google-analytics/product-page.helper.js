@@ -17,8 +17,9 @@ export default class ProductPageHelper {
     static LISTING_SELECTOR = '.cms-element-product-listing-wrapper';
 
     /**
-     * `add_to_cart` waits for the requested categories, so a slow request reports it without them
-     * instead of holding it back until the shopper may have left the page.
+     * `add_to_cart` and the wishlist removal wait for the requested categories, so a slow request
+     * reports them without categories instead of holding them back until the shopper may have left
+     * the page.
      */
     static CATEGORY_REQUEST_TIMEOUT = 1000;
 

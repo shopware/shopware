@@ -74,7 +74,7 @@ export default class ProductCategoryHelper
      * @private
      */
     static _context() {
-        return `${window.salesChannelId ?? ''}:${document.documentElement.lang ?? ''}`;
+        return `${window.salesChannelId ?? ''}:${document.documentElement.lang}`;
     }
 
     /**

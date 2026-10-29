@@ -27,6 +27,7 @@ import { runNpmAudit } from '../../../.github/bin/js/run-npm-audit.ts';
  */
 runNpmAudit({
     ignoredGHSAs: [
+        'https://github.com/advisories/GHSA-mrhx-c7xc-m3w5', // zod oversized collection DoS, test-only (chromium-bidi via Lighthouse/Puppeteer); browser automation uses developer-controlled inputs, no patched zod 3 release exists, and upgrading Lighthouse requires dropping Node 20 support
         'https://github.com/advisories/GHSA-jmr9-qjv8-65gv', // extract-zip symlink traversal via Lighthouse/Puppeteer browser downloads, test-only; fixed Lighthouse requires Node 22.19+ while this package still supports Node 20
         'https://github.com/advisories/GHSA-7pqw-9j4j-h8q3', // extract-zip arbitrary file writes via symlink archive entries, test-only; no fix in extract-zip itself and the fixed Lighthouse requires Node 22.19+ while this package still supports Node 20
     ],

@@ -292,16 +292,6 @@ function componentConfigOf(node) {
 }
 
 /**
- * Whether an object literal has a `deprecated` option, as the deprecation plugin reads it from components and props.
- *
- * @example
- * hasDeprecatedOption(propDefinition); // true for { type: String, deprecated: { … } }
- */
-function hasDeprecatedOption(object) {
-    return deprecatedOption(object) !== null;
-}
-
-/**
  * The `deprecated` option of a component or prop definition, or `null` when it has none.
  *
  * @example
@@ -486,6 +476,9 @@ function leadingGuardFlag(fn) {
  *   or condition can skip it.
  * - A component and a prop carry the `deprecated: { version, comment }` option the deprecation plugin reads. A
  *   component counts as deprecated by its own annotation, its file header, or the `Component.register()` call.
+ * - The other way round, every `triggerDeprecationOrThrow('<flag>', …)` call has a `@deprecated tag:` marker: on a
+ *   declaration or statement that encloses it, like a `// @deprecated tag:` comment right above it, or in the file
+ *   header. Calls that forward a flag they get passed, like the deprecation plugin, are no guard of their own.
  *
  * What the marker sits on decides it: a value, a type, an import or a statement inside a body has no use to guard.
  * Neither do `@private` and `_`-prefixed declarations and "Will be private" deprecations, which are no public
@@ -524,6 +517,9 @@ module.exports = {
                 'option in {{file}}, so the deprecation plugin triggers it on creation.',
             versionMismatch:
                 'The "deprecated" option of "{{name}}" has to use the version "{{version}}" that "@deprecated tag:" announces.',
+            missingDeprecationMarker:
+                'This triggerDeprecationOrThrow() call needs a "@deprecated tag:" marker on the declaration it guards, ' +
+                'or on a comment right above it.',
             missingPropOption:
                 'The deprecated prop "{{name}}" needs a "deprecated: { version: \'{{version}}\', comment: \'…\' }" option, ' +
                 'so the deprecation plugin triggers it when a parent passes it.',
@@ -726,6 +722,38 @@ module.exports = {
             );
         }
 
+        /**
+         * Whether a `@deprecated tag:` marker covers `node`: on any node that encloses it, or in the file header.
+         *
+         * @example
+         * hasDeprecationMarker(guardCall); // true inside `/** @deprecated tag:v6.8.0 *\/ oldMethod() { … }`
+         */
+        function hasDeprecationMarker(node) {
+            for (let current = node; current && current.type !== 'Program'; current = current.parent) {
+                if (sourceCode.getCommentsBefore(current).some((comment) => TAG_PATTERN.test(comment.value))) {
+                    return true;
+                }
+            }
+
+            return comments.some((comment) => comment.value.includes('@sw-package') && TAG_PATTERN.test(comment.value));
+        }
+
+        function checkGuardCall(call) {
+            if (call.callee.type !== 'MemberExpression' || keyName(call.callee.property) !== GUARD_NAME) {
+                return;
+            }
+
+            const flag = call.arguments[0];
+
+            if (flag?.type !== 'Literal' || typeof flag.value !== 'string') {
+                return;
+            }
+
+            if (!hasDeprecationMarker(call)) {
+                context.report({ node: call, messageId: 'missingDeprecationMarker' });
+            }
+        }
+
         function check(comment) {
             const tag = TAG_PATTERN.exec(comment.value);
 
@@ -746,6 +774,7 @@ module.exports = {
             Program() {
                 comments.forEach(check);
             },
+            CallExpression: checkGuardCall,
         };
     },
 };

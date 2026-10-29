@@ -126,6 +126,27 @@ ruleTester.run('require-deprecation-guard', rule, {
             name: 'a marker without a tag',
             code: 'export default { methods: { /** @deprecated */ oldMethod() { return 1; } } };',
         },
+        {
+            name: 'a guard of a deprecated argument shape with a marker comment right above it',
+            code: `export function format(value) {
+                if (typeof value === 'string') {
+                    // @deprecated tag:v6.8.0 - Pass an object.
+                    ${guard}
+                }
+                return value;
+            }`,
+        },
+        {
+            name: 'a guard below a statement-level marker',
+            code: `export function format(value) {
+                // @deprecated tag:v6.8.0 - Remove the string form.
+                if (typeof value === 'string') { ${guard} }
+            }`,
+        },
+        {
+            name: 'a call that forwards the flag it gets passed',
+            code: 'export function guardProp(flag, message) { Shopware.Feature.triggerDeprecationOrThrow(flag, message); }',
+        },
     ],
 
     invalid: [
@@ -232,6 +253,16 @@ ruleTester.run('require-deprecation-guard', rule, {
                     data: { version: 'v6.8.0.0', file: path.join('unguarded-component', 'index.js') },
                 },
             ],
+        },
+        {
+            name: 'a guard without any deprecation marker',
+            code: `export function format(value) { if (typeof value === 'string') { ${guard} } return value; }`,
+            errors: [{ messageId: 'missingDeprecationMarker' }],
+        },
+        {
+            name: 'a guard in an undeprecated method of a component',
+            code: `export default { methods: { current() { ${guard} } } };`,
+            errors: [{ messageId: 'missingDeprecationMarker' }],
         },
     ],
 });

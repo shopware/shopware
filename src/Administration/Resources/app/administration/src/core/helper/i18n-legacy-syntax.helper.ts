@@ -30,6 +30,7 @@ function inComponent(componentName: string | undefined): string {
 
 // The messages contain the API, component and snippet key, so `triggerDeprecationOrThrow` reports every call site once.
 function reportDeprecation(message: string): void {
+    // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- reports the deprecated call shapes the callers detect
     Feature.triggerDeprecationOrThrow('V6_9_0_0', message);
 }
 

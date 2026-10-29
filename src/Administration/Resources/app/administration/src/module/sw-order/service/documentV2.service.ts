@@ -262,6 +262,7 @@ export default class DocumentV2Service {
             case 'DOCUMENT_V2__DOCUMENT_NUMBER_ALREADY_EXISTS':
                 return app.$t('sw-order.documentCard.error.duplicateDocumentNumber', {
                     documentNumber: errorParams.documentNumber,
+                    documentType: this.getDocumentTypeLabel(errorParams.documentType as string),
                 });
             default:
                 return null;

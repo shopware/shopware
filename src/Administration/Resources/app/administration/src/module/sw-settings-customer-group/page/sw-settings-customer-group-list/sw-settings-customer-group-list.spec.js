@@ -131,12 +131,6 @@ function createDeletableCustomerGroup() {
 }
 
 describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-list', () => {
-    it('should be a vue js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should return false if customer group has a customer and/or SalesChannel assigned to it', async () => {
         const wrapper = await createWrapper();
         const customerGroup = createCustomerGroupWithCustomer();
@@ -153,7 +147,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
     it('should not be able to create without create permission', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-customer-group-list__create');
 
@@ -162,7 +156,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
     it('should be able to create with create permission', async () => {
         const wrapper = await createWrapper(['customer_groups.creator']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-customer-group-list__create');
 
@@ -187,7 +181,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
     it('should not be able to inline edit', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityList = wrapper.find('.sw-settings-customer-group-list-grid');
 
@@ -197,7 +191,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
     it('should be able to inline edit', async () => {
         const wrapper = await createWrapper(['customer_groups.editor']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityList = wrapper.find('.sw-settings-customer-group-list-grid');
 
@@ -223,7 +217,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
     it('should hide item selection if user does not have delete permission', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityList = wrapper.find('.sw-settings-customer-group-list-grid');
 
@@ -233,7 +227,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
     it('should show item selection if user has delete permission', async () => {
         const wrapper = await createWrapper(['customer_groups.deleter']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityList = wrapper.find('.sw-settings-customer-group-list-grid');
 
@@ -246,7 +240,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -266,7 +260,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
     it('should not get search ranking fields when term is null', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -290,7 +284,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             term: 'foo',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -313,7 +307,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
             return {};
         });

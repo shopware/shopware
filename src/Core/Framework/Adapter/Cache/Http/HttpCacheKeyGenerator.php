@@ -203,9 +203,12 @@ class HttpCacheKeyGenerator
 
         $responseCookie = $responseCookies[$cookie->getDomain() ?? ''][$cookie->getPath()][$cookieName] ?? null;
 
-        // Response cookies take precedence over client-controlled request values.
-        // Return null only when the response cookie is absent, allowing callers to fall back to the request.
-        // A cleared cookie must return an empty string to prevent falling back to a stale request value.
+        // if the response contains the cookie, we use it instead of the request value
+        // as the request value can be overwritten by the client;
+        // however the response cookie is only set if it differs from the request cookie,
+        // so callers need to fall back to the request when the response cookie is not set
+        // If the cookie was cleared during the request, return an explicit empty string and preserve it
+        // instead of falling back to the outdated request value.
         return $responseCookie !== null ? ($responseCookie->getValue() ?? '') : null;
     }
 

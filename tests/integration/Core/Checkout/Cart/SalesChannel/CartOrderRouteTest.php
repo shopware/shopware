@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -33,6 +34,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -516,6 +518,41 @@ class CartOrderRouteTest extends TestCase
         static::assertNull($response['orderCustomer']['salutationId']);
     }
 
+    public function testBusinessCustomerNeedsVatIdWhenBillingCountryRequiresOne(): void
+    {
+        static::getContainer()->get('country.repository')->update([
+            ['id' => $this->validCountryId, 'vatIdRequired' => true],
+        ], Context::createDefaultContext());
+
+        $email = Uuid::randomHex() . '@example.com';
+        $customerId = $this->createCustomer('shopware', $email);
+        $this->customerRepository->update([
+            ['id' => $customerId, 'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS, 'company' => 'Example Inc.'],
+        ], Context::createDefaultContext());
+
+        $this->login($email, 'shopware');
+        $this->addProductToCart();
+
+        $this->browser->request('POST', '/store-api/checkout/order');
+
+        static::assertNotFalse($this->browser->getResponse()->getContent());
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(CartException::CART_INVALID_CODE, $response['errors'][0]['code']);
+        static::assertStringContainsString('vat-id-missing', $response['errors'][0]['detail']);
+
+        $this->customerRepository->update([
+            ['id' => $customerId, 'vatIds' => ['DE123456789']],
+        ], Context::createDefaultContext());
+
+        $this->browser->request('POST', '/store-api/checkout/order');
+
+        static::assertNotFalse($this->browser->getResponse()->getContent());
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('order', $response['apiAlias']);
+    }
+
     public function testOrderLockedWhenAlreadyInProgress(): void
     {
         $token = $this->createCustomerAndLogin();
@@ -571,7 +608,7 @@ class CartOrderRouteTest extends TestCase
 
     protected function catchEvent(string $eventName, ?Event &$eventResult): void
     {
-        $this->addEventListener(static::getContainer()->get('event_dispatcher'), $eventName, static function (Event $event) use (&$eventResult): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on($eventName, static function (Event $event) use (&$eventResult): void {
             $eventResult = $event;
         });
     }

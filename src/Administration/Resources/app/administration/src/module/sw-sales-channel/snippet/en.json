@@ -30,7 +30,7 @@
                 "offline": "Offline"
             },
             "productsLabel": "Products",
-            "productsCount": "products | product | products"
+            "productsCount": "product | products"
         },
         "modal": {
             "title": "Add Sales Channel",
@@ -105,6 +105,7 @@
             "labelInputCurrency": "Currency",
             "labelInputLanguage": "Language",
             "labelInputSnippet": "Snippet",
+            "snippetSetGroupOther": "Other snippet sets",
             "labelIsExternalStorefront": "External storefront",
             "helpTextIsExternalStorefront": "SEO URLs are only generated for domains that point to an external storefront. Per language, only one external storefront can be set for a single sales channel.",
             "buttonDeleteDomain": "Delete domain",
@@ -154,6 +155,11 @@
                 "titleEmptyState": "No products yet",
                 "titleEmptyStateTable": "No matching products found",
                 "buttonAddProducts": "Add {productCount} products | Add {productCount} product | Add {productCount} products",
+                "messageProductsAssigned": "{count} product assigned to the sales channel. | {count} products assigned to the sales channel.",
+                "messageProductsAssignmentIncomplete": "{count} product assigned to the sales channel so far. Add the same selection again to assign the remaining products. | {count} products assigned to the sales channel so far. Add the same selection again to assign the remaining products.",
+                "messageProductLimitExceeded": "You can add up to {limit} products at once. Reduce your selection and try again.",
+                "messageProductStreamLimitExceeded": "You can add up to {limit} dynamic product groups at once. Reduce your selection and try again.",
+                "messageCategoryLimitExceeded": "You can add up to {limit} categories at once. Reduce your selection and try again.",
                 "columnProductName": "Product name",
                 "columnActive": "Active",
                 "columnProductNumber": "Product number",
@@ -410,6 +416,7 @@
             },
             "productAssignmentModal": {
                 "title": "Add products",
+                "buttonAddProducts": "Add up to {productCount} product | Add up to {productCount} products",
                 "singleProducts": "Product selection",
                 "singleProductsEmptyState": "No more products found",
                 "categories": {

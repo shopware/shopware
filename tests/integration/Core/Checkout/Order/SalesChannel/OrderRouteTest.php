@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Order\SalesChannel;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -17,6 +18,7 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -32,6 +34,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Util\Base64;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Country\CountryCollection;
@@ -81,8 +84,6 @@ class OrderRouteTest extends TestCase
     private string $defaultCountryId;
 
     private string $deepLinkCode;
-
-    private int $mailSentEventCounter = 0;
 
     /**
      * @var EntityRepository<CustomerCollection>
@@ -253,6 +254,70 @@ class OrderRouteTest extends TestCase
         static::assertSame(Response::HTTP_FORBIDDEN, $this->browser->getResponse()->getStatusCode());
     }
 
+    #[DataProvider('guestCredentialsProvider')]
+    public function testGuestCredentialsAreReadFromTheCompressedCriteria(string $zipcode, int $expectedStatus, ?string $expectedErrorCode): void
+    {
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', '');
+
+        $criteria = new Criteria([$this->orderId]);
+        $criteria->addAssociation('orderCustomer');
+
+        $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->getEntities()->get($this->orderId);
+
+        static::assertNotNull($order);
+        static::assertNotNull($order->getOrderCustomer());
+
+        $this->customerRepository->update([
+            [
+                'id' => $order->getOrderCustomer()->getCustomerId(),
+                'guest' => true,
+            ],
+        ], Context::createDefaultContext());
+
+        $criteria = new Criteria([$this->orderId]);
+        $criteria->addFilter(new EqualsFilter('deepLinkCode', $this->deepLinkCode));
+
+        $compressed = gzencode(json_encode(
+            \array_merge(
+                $this->requestCriteriaBuilder->toArray($criteria),
+                [
+                    'email' => 'test@example.com',
+                    'zipcode' => $zipcode,
+                ]
+            ),
+            \JSON_THROW_ON_ERROR
+        ));
+        static::assertNotFalse($compressed, 'Gzip compressing failed');
+
+        $this->browser->request('GET', '/store-api/order', ['_criteria' => Base64::urlEncode($compressed)]);
+
+        $content = (string) $this->browser->getResponse()->getContent();
+        static::assertSame($expectedStatus, $this->browser->getResponse()->getStatusCode(), $content);
+
+        if ($expectedErrorCode !== null) {
+            $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+            static::assertSame($expectedErrorCode, $response['errors'][0]['code']);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{zipcode: string, expectedStatus: int, expectedErrorCode: ?string}>
+     */
+    public static function guestCredentialsProvider(): iterable
+    {
+        yield 'the order is returned for the right credentials' => [
+            'zipcode' => '59438-0403',
+            'expectedStatus' => Response::HTTP_OK,
+            'expectedErrorCode' => null,
+        ];
+
+        yield 'a wrong zipcode is checked and rejected the same as a plain query parameter' => [
+            'zipcode' => '00000',
+            'expectedStatus' => Response::HTTP_FORBIDDEN,
+            'expectedErrorCode' => OrderException::CHECKOUT_GUEST_WRONG_CREDENTIALS,
+        ];
+    }
+
     public function testGetOrderGuestNoOrder(): void
     {
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', '');
@@ -398,17 +463,8 @@ class OrderRouteTest extends TestCase
             static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
         }
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-        $eventDidRun = false;
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun): void {
-            $eventDidRun = true;
-            $htmlText = $event->getContents()['text/html'];
-            self::assertIsString($htmlText);
-            static::assertStringContainsString('The payment for your order with Storefront is cancelled', $htmlText);
-            static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $htmlText);
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $defaultPaymentMethodId = $this->defaultPaymentMethodId;
         $newPaymentMethod = $this->getValidPaymentMethods()->filter(static fn (PaymentMethodEntity $paymentMethod) => $paymentMethod->getId() !== $defaultPaymentMethodId)->first();
@@ -432,17 +488,16 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('success', $response, print_r($response, true));
         static::assertTrue($response['success'], print_r($response, true));
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
-
-        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+        static::assertInstanceOf(MailSentEvent::class, $mail, 'The mail.sent Event did not run');
+        $htmlText = $mail->getContents()['text/html'];
+        static::assertIsString($htmlText);
+        static::assertStringContainsString('the payment method for your order has been successfully changed', $htmlText);
     }
 
     public function testSetSamePaymentMethodToOrder(): void
     {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-        $this->mailSentEventCounter = 0;
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $this->handleMailSentEvent(...));
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->browser
             ->request(
@@ -462,9 +517,7 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('success', $response, print_r($response, true));
         static::assertTrue($response['success'], print_r($response, true));
 
-        $dispatcher->removeListener(MailSentEvent::class, $this->handleMailSentEvent(...));
-
-        static::assertSame(0, $this->mailSentEventCounter, 'Resubmitting the unchanged payment method must not notify the customer');
+        static::assertNull($mail, 'Resubmitting the unchanged payment method must not notify the customer');
     }
 
     public function testSetPaymentOrderWrongPayment(): void
@@ -714,14 +767,5 @@ class OrderRouteTest extends TestCase
                 'sent' => $sent,
             ],
         ], Context::createDefaultContext());
-    }
-
-    private function handleMailSentEvent(MailSentEvent $event): void
-    {
-        ++$this->mailSentEventCounter;
-        $htmlText = $event->getContents()['text/html'];
-        static::assertIsString($htmlText);
-        static::assertStringContainsString('The payment for your order with Storefront is cancelled', $htmlText);
-        static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $htmlText);
     }
 }

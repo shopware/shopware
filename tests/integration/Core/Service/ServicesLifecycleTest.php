@@ -24,6 +24,7 @@ use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceSourceResolver;
 use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -39,7 +40,7 @@ class ServicesLifecycleTest extends TestCase
 
     private const REGISTRY_URL = 'https://registry.services.example.com';
 
-    private const SERVICES_ENDPOINT = self::REGISTRY_URL . '/api/service/';
+    private const SERVICES_ENDPOINT = self::REGISTRY_URL . '/api/service/v2';
 
     private const SELECT_APP_ENDPOINT = self::REGISTRY_URL . '/api/distribution/service/select-app/';
 
@@ -391,9 +392,8 @@ class ServicesLifecycleTest extends TestCase
         $one = $this->assertInstalled(self::ONE, '1.0.0');
         $two = $this->assertInstalled(self::TWO, '1.2.0');
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
         $permissionEvents = 0;
-        $this->addEventListener($dispatcher, AppPermissionsUpdated::class, static function () use (&$permissionEvents): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AppPermissionsUpdated::class, static function () use (&$permissionEvents): void {
             ++$permissionEvents;
         });
 
@@ -434,7 +434,7 @@ class ServicesLifecycleTest extends TestCase
         $this->responses = [
             self::SERVICES_ENDPOINT => fn () => new JsonMockResponse([
                 'services' => $this->listed,
-                'pagination' => ['page' => 1, 'total-pages' => 1, 'pages' => 1, 'total' => \count($this->listed), 'limit' => 10],
+                'pagination' => ['page' => 1, 'total-pages' => 1, 'pages' => 1, 'total' => \count($this->listed), 'limit' => 100],
             ]),
             self::SELECT_APP_ENDPOINT . self::ONE => fn () => new JsonMockResponse($this->appInfo[self::ONE]),
             self::SELECT_APP_ENDPOINT . self::TWO => fn () => new JsonMockResponse($this->appInfo[self::TWO]),
@@ -521,6 +521,7 @@ class ServicesLifecycleTest extends TestCase
             'app-endpoint' => self::SELECT_APP_ENDPOINT . $name,
             'license-sync-endpoint' => '/api/service/license/commercial/sync',
             'activate-on-install' => true,
+            'status' => 'active',
         ];
     }
 

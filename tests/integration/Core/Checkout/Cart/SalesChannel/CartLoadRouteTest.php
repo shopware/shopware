@@ -23,9 +23,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Util\Base64;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -86,6 +88,19 @@ class CartLoadRouteTest extends TestCase
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(0, $response['price']['totalPrice']);
         static::assertCount(0, $response['errors']);
+    }
+
+    public function testIncludesOfTheCompressedCriteriaAreApplied(): void
+    {
+        $compressed = gzencode(json_encode(['includes' => ['cart' => ['token']]], \JSON_THROW_ON_ERROR));
+        static::assertNotFalse($compressed, 'Gzip compressing failed');
+
+        $this->browser->request('GET', '/store-api/checkout/cart', ['_criteria' => Base64::urlEncode($compressed)]);
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('token', $response);
+        static::assertArrayNotHasKey('price', $response, 'The includes of the compressed criteria are applied');
     }
 
     /**
@@ -166,14 +181,9 @@ class CartLoadRouteTest extends TestCase
             $loadedCarts[] = $event->getCart()->getToken();
         };
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-        $dispatcher->addListener(CartLoadedEvent::class, $tracker);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CartLoadedEvent::class, $tracker);
 
-        try {
-            $this->browser->request('GET', '/store-api/checkout/cart');
-        } finally {
-            $dispatcher->removeListener(CartLoadedEvent::class, $tracker);
-        }
+        $this->browser->request('GET', '/store-api/checkout/cart');
 
         static::assertSame([$this->ids->get('token')], $loadedCarts);
 

@@ -49,7 +49,7 @@ class CookieControllerTest extends TestCase
 
         static::assertSame('@Storefront/storefront/layout/cookie/cookie-configuration.html.twig', $controller->recorder()->renderStorefrontView);
         static::assertArrayHasKey('cookieGroups', $controller->recorder()->renderStorefrontParameters);
-        static::assertNotEmpty($controller->recorder()->renderStorefrontParameters['cookieGroups']);
+        static::assertNotCount(0, $controller->recorder()->renderStorefrontParameters['cookieGroups']);
         static::assertSame('noindex,follow', $response->headers->get('x-robots-tag'));
     }
 
@@ -93,7 +93,7 @@ class CookieControllerTest extends TestCase
 
         static::assertSame('@Storefront/storefront/layout/cookie/cookie-permission.html.twig', $controller->recorder()->renderStorefrontView);
         static::assertArrayHasKey('cookieGroups', $controller->recorder()->renderStorefrontParameters);
-        static::assertNotEmpty($controller->recorder()->renderStorefrontParameters['cookieGroups']);
+        static::assertNotCount(0, $controller->recorder()->renderStorefrontParameters['cookieGroups']);
         static::assertSame('noindex,follow', $response->headers->get('x-robots-tag'));
     }
 
@@ -129,7 +129,7 @@ class CookieControllerTest extends TestCase
         $cookieRoute = static::createStub(AbstractCookieRoute::class);
         $controller = new CookieControllerStub($cookieRoute, static::createStub(CookieConsentLogRoute::class));
 
-        $response = $controller->cookieConsentOffcanvas($request, $salesChannelContext);
+        $controller->cookieConsentOffcanvas($request, $salesChannelContext);
 
         static::assertSame('@Storefront/storefront/layout/cookie/cookie-consent-offcanvas.html.twig', $controller->recorder()->renderStorefrontView);
         static::assertArrayHasKey('featureName', $controller->recorder()->renderStorefrontParameters);
@@ -146,7 +146,7 @@ class CookieControllerTest extends TestCase
         $cookieRoute = static::createStub(AbstractCookieRoute::class);
         $controller = new CookieControllerStub($cookieRoute, static::createStub(CookieConsentLogRoute::class));
 
-        $response = $controller->cookieConsentOffcanvas($request, $salesChannelContext);
+        $controller->cookieConsentOffcanvas($request, $salesChannelContext);
 
         static::assertSame('@Storefront/storefront/layout/cookie/cookie-consent-offcanvas.html.twig', $controller->recorder()->renderStorefrontView);
         static::assertArrayHasKey('featureName', $controller->recorder()->renderStorefrontParameters);
@@ -180,7 +180,7 @@ class CookieControllerTest extends TestCase
             return new JsonResponse($data);
         };
 
-        $response = $controller->groups($request, $salesChannelContext);
+        $controller->groups($request, $salesChannelContext);
 
         static::assertNotNull($jsonData);
         static::assertArrayHasKey('elements', $jsonData);

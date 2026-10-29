@@ -1,0 +1,3 @@
+src/Administration/Resources/app/administration/src/meta/position-identifiers.json
+src/Administration/Resources/app/administration/src/module/sw-customer/page/sw-customer-detail/index.js
+src/Administration/Resources/app/administration/src/module/sw-customer/page/sw-customer-detail/sw-customer-detail.html.twig

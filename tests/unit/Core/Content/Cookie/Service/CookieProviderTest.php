@@ -14,9 +14,12 @@ use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\Triggerer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
@@ -33,6 +36,21 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[CoversClass(CookieProvider::class)]
 class CookieProviderTest extends TestCase
 {
+    use EnvTestBehaviour;
+
+    private ?Triggerer $triggererBackup;
+
+    protected function setUp(): void
+    {
+        $this->triggererBackup = Feature::$triggerer;
+    }
+
+    protected function tearDown(): void
+    {
+        Feature::$triggerer = $this->triggererBackup;
+        parent::tearDown();
+    }
+
     public function testConsentIdCookieIsListedWhileConsentLoggingIsOn(): void
     {
         $translator = static::createStub(TranslatorInterface::class);
@@ -258,7 +276,11 @@ class CookieProviderTest extends TestCase
         $legacyCookieProvider = new LegacyCookieProviderForTesting(['name' => 'test-session-name-']);
         $legacyCookieProvider->setTestCookieGroups([$invalidGroup]);
 
-        $this->expectExceptionObject(CookieException::invalidLegacyCookieGroupProvided($invalidGroup));
+        $this->expectExceptionObject(Feature::silent('v6.8.0.0', static fn () => CookieException::invalidLegacyCookieGroupProvided($invalidGroup)));
+        $this->setEnvVars(['TESTS_RUNNING' => false]);
+        $triggerer = $this->createMock(Triggerer::class);
+        $triggerer->expects($this->never())->method('deprecation');
+        Feature::$triggerer = $triggerer;
         (new CookieProvider(
             new EventDispatcher(),
             $translator,
@@ -282,7 +304,7 @@ class CookieProviderTest extends TestCase
         /** @phpstan-ignore argument.type (Intentionally test not allowed values on purpose) */
         $legacyCookieProvider->setTestCookieGroups([$invalidGroup]);
 
-        $this->expectExceptionObject(CookieException::invalidLegacyCookieGroupProvided($invalidGroup));
+        $this->expectExceptionObject(Feature::silent('v6.8.0.0', static fn () => CookieException::invalidLegacyCookieGroupProvided($invalidGroup)));
         (new CookieProvider(
             new EventDispatcher(),
             $translator,
@@ -309,7 +331,11 @@ class CookieProviderTest extends TestCase
             ],
         ]);
 
-        $this->expectExceptionObject(CookieException::invalidLegacyCookieEntryProvided($invalidEntry));
+        $this->expectExceptionObject(Feature::silent('v6.8.0.0', static fn () => CookieException::invalidLegacyCookieEntryProvided($invalidEntry)));
+        $this->setEnvVars(['TESTS_RUNNING' => false]);
+        $triggerer = $this->createMock(Triggerer::class);
+        $triggerer->expects($this->never())->method('deprecation');
+        Feature::$triggerer = $triggerer;
         (new CookieProvider(
             new EventDispatcher(),
             $translator,
@@ -338,7 +364,7 @@ class CookieProviderTest extends TestCase
             ],
         ]);
 
-        $this->expectExceptionObject(CookieException::invalidLegacyCookieEntryProvided($invalidEntry));
+        $this->expectExceptionObject(Feature::silent('v6.8.0.0', static fn () => CookieException::invalidLegacyCookieEntryProvided($invalidEntry)));
         (new CookieProvider(
             new EventDispatcher(),
             $translator,

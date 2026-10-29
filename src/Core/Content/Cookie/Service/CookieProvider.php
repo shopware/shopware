@@ -245,7 +245,7 @@ class CookieProvider
         foreach ($legacyCookieGroups as $legacyCookieGroup) {
             $snippetName = $legacyCookieGroup['snippet_name'] ?? null;
             if (!\is_string($snippetName)) {
-                throw CookieException::invalidLegacyCookieGroupProvided($legacyCookieGroup);
+                Feature::silent('v6.8.0.0', static fn () => throw CookieException::invalidLegacyCookieGroupProvided($legacyCookieGroup));
             }
 
             $cookieGroup = $cookieGroupCollection->get($snippetName);
@@ -287,7 +287,7 @@ class CookieProvider
                 foreach ($legacyCookieGroup['entries'] as $entry) {
                     $cookie = $entry['cookie'] ?? null;
                     if (!\is_string($cookie)) {
-                        throw CookieException::invalidLegacyCookieEntryProvided($entry);
+                        Feature::silent('v6.8.0.0', static fn () => throw CookieException::invalidLegacyCookieEntryProvided($entry));
                     }
                     $cookieEntry = new CookieEntry($cookie);
 

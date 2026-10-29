@@ -343,6 +343,7 @@ Storefront analytics now treat every element with a `data-product-information` a
 Products that extensions render in their own markup are reported as well.
 The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#products) describes the expected attribute.
 The product box now reports the price of a matching price rule or the first graduated price, the same price as the product detail page, instead of the default price.
+
 ### Deprecation of `ListingPlugin` properties
 
 The Storefront listing plugin now supports updating multiple filter panels on the same page. Due to these changes, the following properties of the `ListingPlugin` class in `listing.plugin.js` carrying single elements have been deprecated and are replaced respectively by new properties carrying `NodeList`s:

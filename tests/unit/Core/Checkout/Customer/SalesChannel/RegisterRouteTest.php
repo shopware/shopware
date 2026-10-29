@@ -890,6 +890,27 @@ class RegisterRouteTest extends TestCase
         }
     }
 
+    public function testShippingAddressWithoutBillingAddressIsValidatedForBothTypes(): void
+    {
+        $events = $this->registerCollectingAddressValidationEvents($this->createRegistrationData([
+            'billingAddress' => null,
+            'shippingAddress' => [
+                'street' => 'Shipping Street 2',
+                'countryId' => Uuid::randomHex(),
+            ],
+        ]));
+
+        static::assertCount(1, $events['framework.validation.address.create']);
+        $definition = $events['framework.validation.address.create'][0]->getDefinition();
+
+        foreach (['billing', 'shipping'] as $addressType) {
+            static::assertCount(1, $events['framework.validation.address.create.' . $addressType]);
+            $event = $events['framework.validation.address.create.' . $addressType][0];
+            static::assertSame('Shipping Street 2', $event->getData()->get('street'));
+            static::assertSame($definition, $event->getDefinition());
+        }
+    }
+
     public function testRegisterWithoutBillingAddressCountryViolation(): void
     {
         $systemConfigService = new StaticSystemConfigService([

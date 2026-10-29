@@ -269,13 +269,15 @@ class UpsertAddressRouteTest extends TestCase
         $upsert->upsert(null, $data, static::createStub(SalesChannelContext::class), $customer);
     }
 
-    public function testAddressIdIsAddedToTheValidationDataOnUpdate(): void
+    public function testAddressIdFromTheUrlIsInTheValidationDataOnUpdate(): void
     {
         $events = [];
-        $upsert = $this->createRouteCollectingValidationEvents('framework.validation.address.update', $events);
+        $ids = [];
+        $upsert = $this->createRouteCollectingValidationEvents('framework.validation.address.update', $events, $ids);
 
         $addressId = Uuid::randomHex();
         $data = new RequestDataBag([
+            'id' => Uuid::randomHex(),
             'salutationId' => Uuid::randomHex(),
             'street' => 'Main Street 1',
         ]);
@@ -284,13 +286,14 @@ class UpsertAddressRouteTest extends TestCase
 
         static::assertCount(1, $events);
         static::assertSame($data, $events[0]->getData());
-        static::assertSame($addressId, $data->get('id'));
+        static::assertSame([$addressId], $ids);
     }
 
     public function testNoAddressIdIsAddedToTheValidationDataOnCreate(): void
     {
         $events = [];
-        $upsert = $this->createRouteCollectingValidationEvents('framework.validation.address.create', $events);
+        $ids = [];
+        $upsert = $this->createRouteCollectingValidationEvents('framework.validation.address.create', $events, $ids);
 
         $data = new RequestDataBag([
             'salutationId' => Uuid::randomHex(),
@@ -301,6 +304,7 @@ class UpsertAddressRouteTest extends TestCase
 
         static::assertCount(1, $events);
         static::assertSame($data, $events[0]->getData());
+        static::assertSame([null], $ids);
         static::assertFalse($data->has('id'));
     }
 
@@ -337,8 +341,9 @@ class UpsertAddressRouteTest extends TestCase
 
     /**
      * @param list<BuildValidationEvent> $events
+     * @param list<mixed> $ids the address id each event carried while it was dispatched
      */
-    private function createRouteCollectingValidationEvents(string $eventName, array &$events): UpsertAddressRoute
+    private function createRouteCollectingValidationEvents(string $eventName, array &$events, array &$ids): UpsertAddressRoute
     {
         $address = new CustomerAddressEntity();
         $address->setId(Uuid::randomHex());
@@ -365,8 +370,9 @@ class UpsertAddressRouteTest extends TestCase
         $addressValidationFactory->method('update')->willReturn(new DataValidationDefinition('address.update'));
 
         $eventDispatcher = new EventDispatcher();
-        $eventDispatcher->addListener($eventName, static function (BuildValidationEvent $event) use (&$events): void {
+        $eventDispatcher->addListener($eventName, static function (BuildValidationEvent $event) use (&$events, &$ids): void {
             $events[] = $event;
+            $ids[] = $event->getData()->get('id');
         });
 
         return new UpsertAddressRoute(

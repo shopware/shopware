@@ -111,10 +111,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         } else {
             $this->validateAddress($addressId, $context, $customer);
             $isCreate = false;
-
-            if (!$data->has('id')) {
-                $data->set('id', $addressId);
-            }
+            $data->set('id', $addressId);
         }
 
         if (!$data->get('salutationId')) {

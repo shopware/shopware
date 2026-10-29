@@ -351,7 +351,7 @@ class RegisterRoute extends AbstractRegisterRoute
                 $shippingAccountType,
                 $shippingAddress,
                 $context,
-                isBillingAddress: false,
+                isBillingAddress: !$billingAddress instanceof DataBag,
                 isShippingAddress: true,
             ));
         }

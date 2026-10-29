@@ -19,6 +19,14 @@ Shopware.Component.register(
 /**
  * @private
  */
+Shopware.Component.register(
+    'sw-settings-webhook-secret-modal',
+    () => import('./component/sw-settings-webhook-secret-modal'),
+);
+
+/**
+ * @private
+ */
 Shopware.Module.register('sw-settings-webhook', {
     type: 'core',
     name: 'settings-webhook',

@@ -27,7 +27,19 @@
       "actionShowDeliveries": "Show deliveries",
       "messageSaveSuccess": "Webhook \"{name}\" has been saved.",
       "placeholderSearchBar": "Search webhooks...",
+      "actionSetSecret": "Set signing secret",
       "deletedRole": "Deleted role"
+    },
+    "secret": {
+      "title": "Signing secret of \"{name}\"",
+      "description": "Each delivery gets a shopware-shop-signature header with the HMAC-SHA256 of the request body, made with this secret. The receiver uses it to check that the request came from this shop. Saving replaces the current secret right away, so the receiver has to be updated with the new one.",
+      "labelSecret": "Secret",
+      "placeholderSecret": "Enter the receiver's secret or generate one",
+      "buttonGenerate": "Generate",
+      "hintShownOnce": "Copy the secret before you save. It can't be shown again.",
+      "messageSaveSuccess": "The signing secret of \"{name}\" has been saved.",
+      "messageSaveError": "The signing secret of \"{name}\" could not be saved.",
+      "errorTooLong": "The secret can have at most {max} characters."
     },
     "deliveries": {
       "title": "Deliveries of \"{name}\"",

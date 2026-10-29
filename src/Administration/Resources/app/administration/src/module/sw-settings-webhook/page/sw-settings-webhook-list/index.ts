@@ -30,6 +30,7 @@ export default Component.wrapComponentConfig({
         isLoading: boolean;
         hasLoadError: boolean;
         deliveriesWebhook: Entity<'webhook'> | null;
+        secretWebhook: Entity<'webhook'> | null;
         sortBy: string;
         sortDirection: 'ASC' | 'DESC';
     } {
@@ -40,6 +41,7 @@ export default Component.wrapComponentConfig({
             isLoading: false,
             hasLoadError: false,
             deliveriesWebhook: null,
+            secretWebhook: null,
             sortBy: 'name',
             sortDirection: 'ASC',
         };
@@ -328,6 +330,18 @@ export default Component.wrapComponentConfig({
 
         closeDeliveries(): void {
             this.deliveriesWebhook = null;
+        },
+
+        canHaveOwnSecret(webhook: Entity<'webhook'>): boolean {
+            return !this.ownerApp(webhook);
+        },
+
+        openSecret(webhook: Entity<'webhook'>): void {
+            this.secretWebhook = webhook;
+        },
+
+        closeSecret(): void {
+            this.secretWebhook = null;
         },
 
         onDeleteFailed(): void {

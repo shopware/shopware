@@ -166,15 +166,15 @@ class ConfigurationTest extends TestCase
         ], $config['product_documents']);
     }
 
-    public function testAShopAddsFileTypesAndReplacesTheOtherProductDocumentLimits(): void
+    public function testAShopReplacesTheProductDocumentLimits(): void
     {
         $config = (new Processor())->processConfiguration(new Configuration(), [
             ['product_documents' => ['allowed_extensions' => ['pdf', 'docx', 'jpg', 'jpeg', 'png'], 'max_per_language' => 10, 'max_file_size' => '20MB']],
-            ['product_documents' => ['allowed_extensions' => ['xlsx'], 'max_per_language' => 3, 'max_file_size' => '5M']],
+            ['product_documents' => ['allowed_extensions' => ['pdf'], 'max_per_language' => 3, 'max_file_size' => '5M']],
         ]);
 
         static::assertSame([
-            'allowed_extensions' => ['pdf', 'docx', 'jpg', 'jpeg', 'png', 'xlsx'],
+            'allowed_extensions' => ['pdf'],
             'max_per_language' => 3,
             'max_file_size' => 5 * 1024 * 1024,
         ], $config['product_documents']);

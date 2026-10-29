@@ -22,6 +22,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\System\User\UserEntity;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
@@ -239,27 +240,11 @@ class StoreRequestOptionsProviderTest extends TestCase
             'storeToken' => 'sbp-token',
         ]);
 
-        $usedCriteria = null;
-
-        $entityRepository = $this->createMock(EntityRepository::class);
-        $entityRepository->expects($this->once())
-            ->method('search')
-            ->willReturnCallback(function (Criteria $criteria) use (&$usedCriteria, $user): EntitySearchResult {
-                $usedCriteria = $criteria;
-                $collection = new UserCollection([$user]);
-
-                return new EntitySearchResult(
-                    UserDefinition::ENTITY_NAME,
-                    $collection->count(),
-                    $collection,
-                    null,
-                    $criteria,
-                    Context::createDefaultContext(),
-                );
-            });
+        /** @var StaticEntityRepository<UserCollection> $userRepository */
+        $userRepository = new StaticEntityRepository([new UserCollection([$user])]);
 
         $provider = new StoreRequestOptionsProvider(
-            $entityRepository,
+            $userRepository,
             static::createStub(SystemConfigService::class),
             new InstanceService('sw-version', 'instance-id'),
             static::createStub(LocaleProvider::class)
@@ -267,8 +252,7 @@ class StoreRequestOptionsProviderTest extends TestCase
 
         $provider->getAuthenticationHeader(Context::createDefaultContext(new SystemSource()));
 
-        static::assertInstanceOf(Criteria::class, $usedCriteria);
-        static::assertSame(1, $usedCriteria->getLimit());
+        static::assertSame(1, $userRepository->searchedCriteria[0]->getLimit());
     }
 
     /**

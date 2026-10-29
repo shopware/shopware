@@ -25,22 +25,21 @@ import { discoverProjects, setupExtensionTooling } from './setup';
 import type { SetupExtensionToolingResult } from './setup';
 import { renderCheckReport } from './report';
 import { promptSelection } from './select';
-import { pluginsConfigPath, readEslintMajorVersion, relativePosix, resolveToolingCommands } from './shared';
+import {
+    filterSelectedProjects,
+    matchesProjectName,
+    normalizeSelection,
+    pluginsConfigPath,
+    readEslintMajorVersion,
+    relativePosix,
+    resolveToolingCommands,
+} from './shared';
 import type { ExtensionToolingProject, SetupWarning, ToolingCommands } from './shared';
 import { CliUsageError, parseCli, renderHelp } from './cli';
 import type { CommandSpec } from './cli';
 import { createLimiter, runPool } from './check-pipeline';
 import { checkProject, computeExitCode, probeExtensionModes, recordProjectBaseline } from './check-run';
 import type { CheckExtensionsOptions, CheckExtensionsResult } from './check-types';
-
-/** Normalizes the selection (single value, comma list, or array) to trimmed, non-empty names. */
-export function normalizeSelection(only: string | string[] | undefined): string[] {
-    if (!only) {
-        return [];
-    }
-
-    return (Array.isArray(only) ? only : only.split(',')).map((value) => value.trim()).filter((value) => value !== '');
-}
 
 /** The fatal, run-blocking diagnostics that setup itself surfaces (missing schema, user-owned root configs). */
 function collectSetupDiagnostics(setupResult: SetupExtensionToolingResult, commands: ToolingCommands): string[] {
@@ -70,11 +69,6 @@ function collectSetupDiagnostics(setupResult: SetupExtensionToolingResult, comma
     return diagnostics;
 }
 
-/** Whether a --only entry names this project, by extension name or by one of its bundle technical names. */
-function matches(project: ExtensionToolingProject, name: string): boolean {
-    return project.name === name || project.technicalNames.includes(name);
-}
-
 /**
  * Setup runs over every installed extension, so its per-extension warnings
  * would report extensions this run does not check. Project-global warnings
@@ -88,36 +82,11 @@ function selectedSetupWarnings(warnings: SetupWarning[], projects: ExtensionTool
                 warning.extension === undefined ||
                 selected.length === 0 ||
                 projects.some(
-                    (project) => project.name === warning.extension && selected.some((name) => matches(project, name)),
+                    (project) =>
+                        project.name === warning.extension && selected.some((name) => matchesProjectName(project, name)),
                 ),
         )
         .map((warning) => warning.message);
-}
-
-/** Restricts the discovered projects to a --only selection; an unknown name is a fatal, run-blocking diagnostic. */
-function filterSelectedProjects(
-    projects: ExtensionToolingProject[],
-    selected: string[],
-): { projects: ExtensionToolingProject[]; fatalDiagnostic?: string } {
-    if (selected.length === 0) {
-        return { projects };
-    }
-
-    // Resolve every requested name independently. A single unknown name fails
-    // the whole run before any tool executes — a renamed/removed target must
-    // never leave CI green while it is silently unchecked.
-    const unmatched = selected.filter((name) => !projects.some((project) => matches(project, name)));
-
-    if (unmatched.length > 0) {
-        const available = projects.map((project) => project.name).join(', ');
-
-        return {
-            projects: [],
-            fatalDiagnostic: `--only names unknown extension(s): ${unmatched.join(', ')}. Discovered: ${available || '(none)'}.`,
-        };
-    }
-
-    return { projects: projects.filter((project) => selected.some((name) => matches(project, name))) };
 }
 
 export async function checkExtensions(options: CheckExtensionsOptions): Promise<CheckExtensionsResult> {

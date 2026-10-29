@@ -265,6 +265,7 @@
         "admin:unit": "Launches the jest unit test-suite for the Admin",
         "admin:unit:major": "Launches the jest unit test-suite for the Admin with the upcoming major feature flag enabled",
         "admin:unit:watch": "Launches the interactive jest unit test-suite watcher for the Admin",
+        "admin:upgrade-extensions": "[EXPERIMENTAL] Applies the codemods that prepare Administration extensions for a Shopware major (dry run; -- --help for flags)",
         "bc-check": "Checks for backwards compatibility breaks in the current branch",
         "build:js": "Builds Administration & Storefront",
         "build:js:admin": "Builds the Administration",
@@ -388,6 +389,7 @@
             "@npm:admin run unit-setup",
             "@npm:admin run unit-watch"
         ],
+        "admin:upgrade-extensions": "@npm:admin:bin npm run extension-tooling:upgrade --",
         "bc-check": [
             "@php vendor-bin/roave-backward-compatibility-check/bin/verify-version.php",
             "STREAM=\"${GITHUB_REF_NAME:-$(git branch --show-current)}\"; case \"$STREAM\" in *.x) BASE=$(git tag -l --sort -version:refname | grep \"^v${STREAM%.x}\\.\" | head -n 1);; esac; roave-backward-compatibility-check --install-development-dependencies --from=\"${BASE:-$(git tag -l --sort -version:refname | grep \"^v$(sed -n 's/.*\"dev-trunk\": \"\\([0-9]*\\.[0-9]*\\).*\"/\\1/p' composer.json).\" | head -n 1)}\""

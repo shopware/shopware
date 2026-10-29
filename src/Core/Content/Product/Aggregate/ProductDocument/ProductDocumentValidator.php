@@ -6,7 +6,6 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
@@ -70,7 +69,7 @@ class ProductDocumentValidator implements EventSubscriberInterface
 
         $violations = new ConstraintViolationList();
         $this->validateFiles($translationCommands, $violations);
-        $this->validateDefaultVersions($event, $documentCommands, $translationCommands, $violations);
+        $this->validateDefaultVersions($documentCommands, $translationCommands, $violations);
         $this->validateNumberOfDocuments($documentCommands, $violations);
 
         if ($violations->count() > 0) {
@@ -169,7 +168,7 @@ class ProductDocumentValidator implements EventSubscriberInterface
      * @param list<WriteCommand> $documentCommands
      * @param list<WriteCommand> $translationCommands
      */
-    private function validateDefaultVersions(PostWriteValidationEvent $event, array $documentCommands, array $translationCommands, ConstraintViolationList $violations): void
+    private function validateDefaultVersions(array $documentCommands, array $translationCommands, ConstraintViolationList $violations): void
     {
         // written documents by id and version id, pointing to the document or else to its first written version
         $documents = [];
@@ -182,18 +181,11 @@ class ProductDocumentValidator implements EventSubscriberInterface
             $documents[$primaryKey['product_document_id'] . $primaryKey['product_document_version_id']] ??= [$primaryKey['product_document_id'], $primaryKey['product_document_version_id'], $command->getPath()];
         }
 
-        // deleting the default version deletes the whole document afterwards, see ProductDocumentCleanupSubscriber
-        $systemLanguageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        foreach ($event->getCommandsForEntity(ProductDocumentTranslationDefinition::ENTITY_NAME) as $command) {
-            $primaryKey = $command->getPrimaryKey();
-            if ($command instanceof DeleteCommand && $primaryKey['language_id'] === $systemLanguageId) {
-                unset($documents[$primaryKey['product_document_id'] . $primaryKey['product_document_version_id']]);
-            }
-        }
-
         if ($documents === []) {
             return;
         }
+
+        $systemLanguageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
         $withoutDefaultVersion = $this->connection->fetchAllAssociative(
             'SELECT `document`.`id`, `document`.`version_id`

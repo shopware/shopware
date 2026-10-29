@@ -15,9 +15,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
+use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('fundamentals@after-sales')]
-class TranslationsSerializer extends FieldSerializer
+class TranslationsSerializer extends FieldSerializer implements ResetInterface
 {
     /**
      * @var array<string, string>
@@ -108,6 +109,11 @@ class TranslationsSerializer extends FieldSerializer
     public function supports(Field $field): bool
     {
         return $field instanceof TranslationsAssociationField;
+    }
+
+    public function reset(): void
+    {
+        $this->translationCodeCache = [];
     }
 
     private function mapToTranslationCode(string $languageId): string

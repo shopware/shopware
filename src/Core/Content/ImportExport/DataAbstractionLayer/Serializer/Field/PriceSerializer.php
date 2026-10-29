@@ -17,9 +17,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyCollection;
+use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('fundamentals@after-sales')]
-class PriceSerializer extends FieldSerializer
+class PriceSerializer extends FieldSerializer implements ResetInterface
 {
     /**
      * @var array<string, string>
@@ -110,6 +111,11 @@ class PriceSerializer extends FieldSerializer
 
     public function setRegistry(SerializerRegistry $serializerRegistry): void
     {
+    }
+
+    public function reset(): void
+    {
+        $this->currencyIsoCache = [];
     }
 
     /**

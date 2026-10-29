@@ -193,6 +193,7 @@ function registerModule(moduleId: string, module: ModuleManifest): false | Modul
     }
 
     if (hasOwnProperty(module, 'snippets')) {
+        // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- deprecates an option, not a declaration
         Shopware.Feature.triggerDeprecationOrThrow(
             'V6_8_0_0',
             `Module "${moduleId}": the "snippets" property is deprecated and will be removed in v6.8.0. Snippets are loaded from the "snippet" folders automatically.`,

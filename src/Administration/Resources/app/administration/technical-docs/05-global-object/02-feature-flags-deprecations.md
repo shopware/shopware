@@ -189,6 +189,10 @@ and markers like "Will be private" are skipped. A class core creates on its own,
 each method instead of its constructor. A function core runs on its own, like a lifecycle hook, takes an
 `eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- <reason>`.
 
+The rule also checks the other way round: every `triggerDeprecationOrThrow('<flag>', …)` call needs a
+`@deprecated tag:` marker on a declaration or statement that encloses it, or in the file header. A guard of a
+deprecated argument or usage pattern takes a `// @deprecated tag:vX.Y.Z - …` comment right above it.
+
 Pair runtime warnings with an autofixable ESLint rule where the migration is mechanical, like
 `sw-core-rules/no-tc-translation`, and enable it in the extension tooling (`extension-tooling/eslint.mjs`).
 

@@ -14,7 +14,7 @@ Follow the general feature-flag rules in [core feature flags](../core/feature-fl
 ## Deprecations
 
 - Mark deprecated Administration APIs with `@deprecated tag:vX.Y.Z - ...` and name the replacement.
-- Guard a deprecated public API at runtime where it is consumed, see [Runtime guards](#runtime-guards). `sw-deprecation-rules/require-deprecation-guard` enforces this.
+- Guard a deprecated public API at runtime where it is consumed, see [Runtime guards](#runtime-guards). `sw-deprecation-rules/require-deprecation-guard` enforces this, and that every runtime guard has a `@deprecated tag:` marker.
 - Document the migration path when deprecating public Administration extension points.
 - Do not introduce new internal callers of deprecated APIs; move core/Admin code to the replacement.
 - At the major, remove the flag checks, the legacy branch, obsolete tests, and stale documentation in the same change.

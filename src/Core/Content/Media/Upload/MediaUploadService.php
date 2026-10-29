@@ -331,7 +331,7 @@ readonly class MediaUploadService
             $options['max_duration'] = $this->externalLinkTimeout;
         }
 
-        if ($this->enableUrlValidation) {
+        if ($this->enableUrlValidation && !$this->trustedUrlResolver->isAllowedPrivateIp($resolved->ip)) {
             $client = new NoPrivateNetworkHttpClient($client, TrustedUrlResolver::BLOCKED_SUBNETS);
         }
 

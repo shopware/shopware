@@ -160,9 +160,8 @@ class FileFetcher
     {
         $resolved = $this->trustedUrlResolver->resolve($url);
 
-        $scheme = strtolower((string) parse_url($url, \PHP_URL_SCHEME));
-        if ($scheme === 'ftp' || $scheme === 'sftp') {
-            return $this->downloadWithCurl($url, $scheme, $fileName, $resolved);
+        if (strtolower((string) parse_url($url, \PHP_URL_SCHEME)) === 'ftp') {
+            return $this->downloadWithCurl($url, $fileName, $resolved);
         }
 
         $client = $this->httpClient;
@@ -176,7 +175,7 @@ class FileFetcher
             $options['max_duration'] = $this->urlUploadTimeout;
         }
 
-        if ($this->enableUrlValidation) {
+        if ($this->enableUrlValidation && !$this->trustedUrlResolver->isAllowedPrivateIp($resolved->ip)) {
             $client = new NoPrivateNetworkHttpClient($client, TrustedUrlResolver::BLOCKED_SUBNETS);
         }
 
@@ -214,7 +213,7 @@ class FileFetcher
     /**
      * @throws MediaException
      */
-    private function downloadWithCurl(string $url, string $scheme, string $fileName, ResolvedUrl $resolved): int
+    private function downloadWithCurl(string $url, string $fileName, ResolvedUrl $resolved): int
     {
         // CURLOPT_CONNECT_TO separates fields by ":", so IPv6 needs brackets
         $ip = str_contains($resolved->ip, ':') ? '[' . $resolved->ip . ']' : $resolved->ip;
@@ -223,16 +222,14 @@ class FileFetcher
         $error = null;
 
         $handle = curl_init($url);
-        curl_setopt_array($handle, [
-            // CURLOPT_PROTOCOLS_STR needs PHP 8.3
-            \CURLOPT_PROTOCOLS => $scheme === 'ftp' ? \CURLPROTO_FTP : \CURLPROTO_SFTP,
+        // curl_setopt_array() stops at the first option it fails to set
+        $optionsSet = curl_setopt_array($handle, [
+            \CURLOPT_PROTOCOLS => \CURLPROTO_FTP,
             \CURLOPT_CONNECT_TO => ['::' . $ip . ':'],
             // a proxy from the environment would bypass the pinned address
             \CURLOPT_PROXY => '',
             \CURLOPT_FTP_USE_EPSV => true,
             \CURLOPT_FTP_SKIP_PASV_IP => true,
-            // never log in with the server's own SSH keys or agent
-            \CURLOPT_SSH_AUTH_TYPES => \CURLSSH_AUTH_PASSWORD | \CURLSSH_AUTH_KEYBOARD,
             \CURLOPT_TIMEOUT_MS => (int) ($this->urlUploadTimeout * 1000),
             // abort stalled transfers like HttpClient's idle timeout
             \CURLOPT_LOW_SPEED_LIMIT => 1,
@@ -255,6 +252,12 @@ class FileFetcher
                 return $bytes;
             },
         ]);
+
+        if (!$optionsSet) {
+            fclose($destStream);
+
+            throw MediaException::cannotOpenSourceStreamToRead($url);
+        }
 
         try {
             $success = curl_exec($handle);

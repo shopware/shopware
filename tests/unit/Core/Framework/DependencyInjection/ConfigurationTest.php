@@ -538,12 +538,12 @@ class ConfigurationTest extends TestCase
     {
         $config = (new Processor())->processConfiguration(new Configuration(), [['media' => []]]);
 
-        static::assertSame(['http', 'https', 'ftp', 'sftp'], $config['media']['allowed_protocols']);
+        static::assertSame(['http', 'https', 'ftp'], $config['media']['allowed_protocols']);
     }
 
     public function testMediaAllowedProtocolsRejectUnsupportedProtocol(): void
     {
-        $this->expectExceptionObject(new InvalidConfigurationException('The value "gopher" is not allowed for path "shopware.media.allowed_protocols.1". Permissible values: "http", "https", "ftp", "sftp".'));
+        $this->expectExceptionObject(new InvalidConfigurationException('The value "gopher" is not allowed for path "shopware.media.allowed_protocols.1". Permissible values: "http", "https", "ftp".'));
 
         (new Processor())->processConfiguration(new Configuration(), [
             ['media' => ['allowed_protocols' => ['https', 'gopher']]],

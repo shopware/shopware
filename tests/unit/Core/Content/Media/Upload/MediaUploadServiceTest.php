@@ -631,6 +631,20 @@ class MediaUploadServiceTest extends TestCase
         $service->linkURL('https://media.example.com/image.jpg', $this->context, $params);
     }
 
+    public function testLinkUrlReachesAllowedPrivateAddress(): void
+    {
+        $resolver = new TrustedUrlResolver(static fn (string $host): array => ['10.0.0.5'], allowedPrivateIps: ['10.0.0.5']);
+        $httpClient = new MockHttpClient(new MockResponse('', ['response_headers' => ['content-length' => '1024'], 'primary_ip' => '10.0.0.5']));
+
+        $params = new MediaUploadParameters();
+        $params->mimeType = 'image/jpeg';
+
+        $this->buildService(httpClient: $httpClient, trustedUrlResolver: $resolver)
+            ->linkURL('https://media.example.com/image.jpg', $this->context, $params);
+
+        static::assertCount(1, $this->mediaRepository->creates);
+    }
+
     public function testLinkUrlSkipsIpValidationWhenValidationDisabled(): void
     {
         $fileUrlValidator = $this->createMock(FileUrlValidatorInterface::class);

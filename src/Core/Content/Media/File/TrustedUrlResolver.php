@@ -34,7 +34,7 @@ class TrustedUrlResolver implements ResetInterface
         ?\Closure $dnsResolver = null,
         private readonly bool $rejectPrivateRanges = true,
         private readonly array $allowedPrivateIps = [],
-        private readonly array $allowedSchemes = ['http', 'https', 'ftp', 'sftp'],
+        private readonly array $allowedSchemes = ['http', 'https'],
     ) {
         $this->dnsResolver = $dnsResolver ?? static function (string $host): array {
             $ips = [];
@@ -85,13 +85,18 @@ class TrustedUrlResolver implements ResetInterface
 
         if ($this->rejectPrivateRanges) {
             foreach ($addresses as $ip) {
-                if (IpUtils::checkIp($ip, self::BLOCKED_SUBNETS) && !\in_array($ip, $this->allowedPrivateIps, true)) {
+                if (IpUtils::checkIp($ip, self::BLOCKED_SUBNETS) && !$this->isAllowedPrivateIp($ip)) {
                     throw MediaException::illegalUrl($url);
                 }
             }
         }
 
         return new ResolvedUrl($host, $addresses[0]);
+    }
+
+    public function isAllowedPrivateIp(string $ip): bool
+    {
+        return \in_array($ip, $this->allowedPrivateIps, true);
     }
 
     public function isValid(string $url): bool

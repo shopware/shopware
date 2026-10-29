@@ -84,13 +84,6 @@ The per-customer redemption counter of promotions is deprecated and will be remo
 To find out how often a customer redeemed a promotion, count the customer's orders that contain a line item of the promotion, for example with the filters `orderCustomer.customerId` and `lineItems.promotionId` on the `order` repository.
 Set `PROMOTION_REDEMPTION_OPTIMIZATION=1` to switch to the 6.8 behavior already: the counter is no longer written and `ordersPerCustomerCount` is removed from the promotion entity.
 When `V6_8_0_0=1`, the flag activates unless explicitly disabled.
-### FTP and SFTP sources for media upload by URL are accepted again
-
-`POST /api/_action/media/{mediaId}/upload` and `POST /api/_action/media/upload_by_url` accept `ftp://` and `sftp://` URLs again, which were rejected since 6.7.13.1.
-All connections of the download go to the checked address, so `shopware.media.enable_url_validation` and `shopware.media.url_upload_max_size` apply to FTP and SFTP as they do to HTTP.
-FTP transfers credentials unencrypted, so HTTPS or SFTP remain the recommended sources.
-The accepted schemes are configured with `shopware.media.allowed_protocols`, which defaults to `['http', 'https', 'ftp', 'sftp']`.
-Private IP addresses that media uploads by URL may reach can be allowed with `shopware.media.allowed_private_ips`.
 
 ### `NotFilter` negates a single filter
 
@@ -423,6 +416,13 @@ See `UPGRADE-6.8.md` for the full variable mapping.
 
 Pre-rollout system checks now reset services between virtual Administration and Storefront requests, including redirects and failed requests.
 This prevents theme and Twig context from leaking between probes and failed probes from leaving a PHP session open for the next check.
+### FTP sources for media upload by URL are accepted again
+
+`POST /api/_action/media/{mediaId}/upload` and `POST /api/_action/media/upload_by_url` accept `ftp://` URLs again, which were rejected since 6.7.13.1.
+All connections of the download go to the checked address, so `shopware.media.enable_url_validation` and `shopware.media.url_upload_max_size` apply to FTP as they do to HTTP.
+FTP transfers credentials unencrypted, so HTTPS remains the recommended source.
+The accepted schemes are configured with `shopware.media.allowed_protocols`, which defaults to `['http', 'https', 'ftp']`.
+Private IP addresses that media uploads by URL and external media links may reach can be allowed with `shopware.media.allowed_private_ip_addresses`.
 
 ### Storefront readiness checks skip pages restricted by extensions
 

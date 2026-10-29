@@ -22,12 +22,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
- * Forbids an inline `@var StaticEntityRepository<...>` annotation on the construction of the stub in tests.
- * The generic is inferred from a search that carries the collection type; where no search does, the template is bound with
- * `StaticEntityRepository::of(FooCollection::class, ...)`. The annotations are noise for the reader and the reviewer and hide
- * which of the two situations the test is in. A `@var` on a property stays, that is the property's type declaration.
- * An annotation with `EntityCollection` itself as collection, with or without its entity type, is left alone as well:
- * `::of()` cannot express it.
+ * No `@var StaticEntityRepository<...>` on the construction of the stub: the generic is inferred from a search that carries
+ * the collection, otherwise bound with `StaticEntityRepository::of()`. Properties and `EntityCollection` annotations are left alone.
  *
  * @implements Rule<Expression>
  *
@@ -57,69 +53,42 @@ class StaticEntityRepositoryVarAnnotationRule implements Rule
             return [];
         }
 
-        if (!$node->expr instanceof Assign || !$node->expr->expr instanceof New_) {
+        $assign = $node->expr;
+        if (!$assign instanceof Assign || !$assign->expr instanceof New_) {
             return [];
         }
 
-        $construction = $node->expr->expr;
-        if (!$construction->class instanceof Name || $scope->resolveName($construction->class) !== StaticEntityRepository::class) {
+        $construction = $assign->expr;
+        $class = $construction->class;
+        if (!$class instanceof Name || $scope->resolveName($class) !== StaticEntityRepository::class) {
             return [];
         }
 
-        $annotatedType = $this->annotatedType($node, $scope);
-        if ($annotatedType === null) {
+        $variable = $assign->var instanceof Variable && \is_string($assign->var->name) ? $assign->var->name : null;
+        $collection = $this->annotatedType($node, $scope, $variable)?->getTemplateType(StaticEntityRepository::class, 'TEntityCollection');
+        $classes = $collection?->getObjectClassNames() ?? [];
+        if ($classes === [] || $classes === [EntityCollection::class]) {
             return [];
         }
 
-        $collection = $annotatedType->getTemplateType(StaticEntityRepository::class, 'TEntityCollection');
-        $collectionClasses = $collection->getObjectClassNames();
-        if ($collectionClasses === [] || $collectionClasses === [EntityCollection::class]) {
-            return [];
-        }
+        $message = $this->searchesCarryACollection($construction, $scope)
+            ? 'Drop the @var annotation: a search carries the collection type, the generic is inferred from it.'
+            : \sprintf('Use StaticEntityRepository::of(%s::class, ...) instead of the @var annotation: no search carries the collection type.', basename(str_replace('\\', '/', $classes[0])));
 
-        if ($this->searchesCarryACollection($construction, $scope)) {
-            $message = 'Drop the @var annotation on this StaticEntityRepository: a search carries the collection type, the generic is inferred from it.';
-        } else {
-            $message = \sprintf(
-                'Bind this StaticEntityRepository with StaticEntityRepository::of(%s::class, ...) instead of a @var annotation: no search carries the collection type.',
-                basename(str_replace('\\', '/', $collectionClasses[0]))
-            );
-        }
-
-        return [
-            RuleErrorBuilder::message($message)
-                ->identifier('shopware.staticEntityRepositoryVarAnnotation')
-                ->line($node->getStartLine())
-                ->build(),
-        ];
+        return [RuleErrorBuilder::message($message)->identifier('shopware.staticEntityRepositoryVarAnnotation')->line($node->getStartLine())->build()];
     }
 
-    /**
-     * The type of the `@var` tag on the statement for the assigned variable, if it names the stub
-     */
-    private function annotatedType(Expression $node, Scope $scope): ?Type
+    private function annotatedType(Expression $node, Scope $scope, ?string $variable): ?Type
     {
-        $docComment = $node->getDocComment();
-        if ($docComment === null || !str_contains($docComment->getText(), 'StaticEntityRepository')) {
+        $docComment = $node->getDocComment()?->getText();
+        if ($docComment === null || !str_contains($docComment, 'StaticEntityRepository')) {
             return null;
         }
 
-        $resolved = $this->fileTypeMapper->getResolvedPhpDoc(
-            $scope->getFile(),
-            $scope->getClassReflection()?->getName(),
-            $scope->getTraitReflection()?->getName(),
-            $scope->getFunctionName(),
-            $docComment->getText()
-        );
-
-        \assert($node->expr instanceof Assign);
-        $variable = $node->expr->var instanceof Variable && \is_string($node->expr->var->name) ? $node->expr->var->name : null;
-
-        foreach ($resolved->getVarTags() as $name => $varTag) {
+        $varTags = $this->fileTypeMapper->getResolvedPhpDoc($scope->getFile(), $scope->getClassReflection()?->getName(), $scope->getTraitReflection()?->getName(), $scope->getFunctionName(), $docComment)->getVarTags();
+        foreach ($varTags as $name => $varTag) {
             if (\is_int($name) || $name === $variable) {
-                $type = $varTag->getType();
-
-                return \in_array(StaticEntityRepository::class, $type->getObjectClassNames(), true) ? $type : null;
+                return $varTag->getType();
             }
         }
 
@@ -127,9 +96,8 @@ class StaticEntityRepositoryVarAnnotationRule implements Rule
     }
 
     /**
-     * What the constructor would infer without the annotation: a concrete collection passed as a search, or carried by a
-     * search result. Empty searches, id lists and the generic EntityCollection bind nothing.
-     * The annotated statement is analysed with its annotation applied, so the construction's own type cannot be asked.
+     * A concrete collection passed as a search, or inside a search result, binds the generic; empty searches, id lists and the
+     * generic EntityCollection do not. The statement's own type cannot be asked, it already carries the annotation.
      */
     private function searchesCarryACollection(New_ $construction, Scope $scope): bool
     {
@@ -138,32 +106,18 @@ class StaticEntityRepositoryVarAnnotationRule implements Rule
             return false;
         }
 
-        $types = [];
-        if ($searches instanceof Array_) {
-            foreach ($searches->items as $item) {
-                if ($item !== null) {
-                    $types[] = $scope->getType($item->value);
-                }
-            }
-        } else {
-            $type = $scope->getType($searches);
-            foreach ($type->getConstantArrays() as $constantArray) {
-                array_push($types, ...$constantArray->getValueTypes());
-            }
-            $types[] = $type->getIterableValueType();
-        }
+        $types = $searches instanceof Array_
+            ? array_map(static fn ($item) => $scope->getType($item->value), array_filter($searches->items))
+            : [$scope->getType($searches)->getIterableValueType()];
 
-        $collection = new ObjectType(EntityCollection::class);
-        $searchResult = new ObjectType(EntitySearchResult::class);
         foreach ($types as $type) {
-            if ($searchResult->isSuperTypeOf($type)->yes()) {
+            if ((new ObjectType(EntitySearchResult::class))->isSuperTypeOf($type)->yes()) {
                 $type = $type->getTemplateType(EntitySearchResult::class, 'TEntityCollection');
-            } elseif (!$collection->isSuperTypeOf($type)->yes()) {
+            } elseif (!(new ObjectType(EntityCollection::class))->isSuperTypeOf($type)->yes()) {
                 continue;
             }
 
-            $classes = $type->getObjectClassNames();
-            if ($classes !== [] && $classes !== [EntityCollection::class]) {
+            if ($type->getObjectClassNames() !== [] && $type->getObjectClassNames() !== [EntityCollection::class]) {
                 return true;
             }
         }

@@ -22,23 +22,23 @@ class StaticEntityRepositoryVarAnnotationRuleTest extends RuleTestCase
             [__DIR__ . '/../data/StaticEntityRepositoryVarAnnotation/static-entity-repository-var-annotation-cases.php'],
             [
                 [
-                    'Drop the @var annotation on this StaticEntityRepository: a search carries the collection type, the generic is inferred from it.',
+                    'Drop the @var annotation: a search carries the collection type, the generic is inferred from it.',
                     28,
                 ],
                 [
-                    'Drop the @var annotation on this StaticEntityRepository: a search carries the collection type, the generic is inferred from it.',
+                    'Drop the @var annotation: a search carries the collection type, the generic is inferred from it.',
                     38,
                 ],
                 [
-                    'Bind this StaticEntityRepository with StaticEntityRepository::of(ProductCollection::class, ...) instead of a @var annotation: no search carries the collection type.',
+                    'Use StaticEntityRepository::of(ProductCollection::class, ...) instead of the @var annotation: no search carries the collection type.',
                     46,
                 ],
                 [
-                    'Bind this StaticEntityRepository with StaticEntityRepository::of(ProductCollection::class, ...) instead of a @var annotation: no search carries the collection type.',
+                    'Use StaticEntityRepository::of(ProductCollection::class, ...) instead of the @var annotation: no search carries the collection type.',
                     54,
                 ],
                 [
-                    'Bind this StaticEntityRepository with StaticEntityRepository::of(ProductCollection::class, ...) instead of a @var annotation: no search carries the collection type.',
+                    'Use StaticEntityRepository::of(ProductCollection::class, ...) instead of the @var annotation: no search carries the collection type.',
                     62,
                 ],
             ],

@@ -43,6 +43,7 @@ export default class LineItemHelper
                 quantity: itemEl.getAttribute('data-quantity'),
                 price: itemEl.getAttribute('data-price'),
                 item_brand: itemEl.getAttribute('data-brand'),
+                item_variant: itemEl.getAttribute('data-variant') || undefined,
             };
 
             lineItems.push({
@@ -116,6 +117,7 @@ export default class LineItemHelper
             id: lineItem.item_id,
             name: lineItem.item_name,
             brand: lineItem.item_brand,
+            variant: lineItem.item_variant,
             value: lineItem.price,
             currency: additionalProperties.currency,
             categories,

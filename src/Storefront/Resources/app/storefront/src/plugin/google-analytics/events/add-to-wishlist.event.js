@@ -48,6 +48,7 @@ export default class AddToWishlistEvent extends EventAwareAnalyticsEvent
                 'item_id': productData.id ?? productId,
                 'item_name': productData.name,
                 'item_brand': productData.brand,
+                'item_variant': productData.variant,
                 'price': productData.value,
                 ...categories,
             }],

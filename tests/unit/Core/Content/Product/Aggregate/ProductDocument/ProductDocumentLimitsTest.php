@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentLimits;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
+use Shopware\Tests\Unit\Common\Stubs\IniMock;
 
 /**
  * @internal
@@ -15,6 +16,24 @@ use Shopware\Core\Framework\Util\MemorySizeCalculator;
 #[CoversClass(ProductDocumentLimits::class)]
 class ProductDocumentLimitsTest extends TestCase
 {
+    public static function setUpBeforeClass(): void
+    {
+        IniMock::register(MemorySizeCalculator::class);
+    }
+
+    protected function setUp(): void
+    {
+        IniMock::withIniMock([
+            'upload_max_filesize' => '8M',
+            'post_max_size' => '16M',
+        ]);
+    }
+
+    protected function tearDown(): void
+    {
+        IniMock::withIniMock([]);
+    }
+
     public function testFileTypesAreComparedWithoutCaseAndLeadingDot(): void
     {
         $limits = new ProductDocumentLimits(['PDF', ' .docx', 'pdf'], maxPerLanguage: 10, maxFileSize: 1024);
@@ -35,9 +54,9 @@ class ProductDocumentLimitsTest extends TestCase
 
     public function testThePhpLimitsLowerALargerConfiguredSizeForUploadsOnly(): void
     {
-        $limits = new ProductDocumentLimits(['pdf'], maxPerLanguage: 10, maxFileSize: \PHP_INT_MAX);
+        $limits = new ProductDocumentLimits(['pdf'], maxPerLanguage: 10, maxFileSize: 20 * 1024 * 1024);
 
-        static::assertSame(MemorySizeCalculator::getMaxUploadSize(), $limits->getMaxUploadFileSize());
-        static::assertSame(\PHP_INT_MAX, $limits->maxFileSize);
+        static::assertSame(8 * 1024 * 1024, $limits->getMaxUploadFileSize());
+        static::assertSame(20 * 1024 * 1024, $limits->maxFileSize);
     }
 }

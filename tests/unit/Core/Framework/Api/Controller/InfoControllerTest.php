@@ -35,9 +35,11 @@ use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Shopware\Tests\Unit\Common\Stubs\IniMock;
 use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -61,6 +63,12 @@ class InfoControllerTest extends TestCase
     private AppUrlVerifier&Stub $appUrlVerifier;
 
     private EventDispatcher $eventDispatcher;
+
+    public static function setUpBeforeClass(): void
+    {
+        // the config reads PHP's upload limits; registering first keeps the ini mocks of later tests working
+        IniMock::register(MemorySizeCalculator::class);
+    }
 
     protected function setUp(): void
     {

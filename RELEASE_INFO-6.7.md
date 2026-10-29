@@ -156,17 +156,21 @@ Unit tests that pass a mocked `EventDispatcherInterface` to `ExtensionDispatcher
 
 Live state transitions batch history and state writes. `EntityWriteEvent` subscribers can receive multiple entities: filter with `getCommandsForEntity()` and make pre-write work idempotent or compensate it through `addError()`. `WriteCommandExceptionEvent` and error callbacks can run before SQL executes, and each failed attempt runs its error callbacks before it is retried. Retries stop once success callbacks or written listeners begin, or compensation fails. MariaDB error `1020` is now retryable.
 
-### Address validation events carry the validated address
+### Address validation per billing and shipping address
 
-Core now dispatches `framework.validation.address.create` and `framework.validation.address.update` as `BuildAddressValidationEvent`, a subclass of `BuildValidationEvent`.
-`getAddress()` returns the address the definition is validated against, and `getAddressType()` returns `AddressType::BILLING`, `AddressType::SHIPPING`, or `null` in the address book.
-`getData()` is unchanged: during registration it holds the whole registration data, and on the checkout confirm page it is empty.
+During registration and on the checkout confirm page, the address validation definition is now also dispatched as `framework.validation.address.create.billing` and `framework.validation.address.create.shipping`, after `framework.validation.address.create`.
+Their `getData()` holds the validated address, while `framework.validation.address.create` keeps the whole registration data during registration and an empty bag on the confirm page.
+An address that is both the billing and the shipping address gets both events on the same definition.
+`getName()` of these events still returns `framework.validation.address.create`, so code that observes every dispatched event and filters by `getName()` sees them as that event.
 
 ```php
-if ($event instanceof BuildAddressValidationEvent && $event->getAddressType() === AddressType::BILLING) {
-    $countryId = $event->getAddress()->get('countryId');
+public static function getSubscribedEvents(): array
+{
+    return ['framework.validation.address.create.shipping' => 'addShippingRules'];
 }
 ```
+
+On `PATCH /store-api/account/address/{addressId}`, `getData()` of `framework.validation.address.update` now contains the address `id`.
 
 At checkout, only the Storefront confirm page checks these rules and shows their violations.
 Neither `POST /store-api/checkout/order` nor the Storefront order request checks them, so a rule that must block an order needs a cart validator (`CartValidatorInterface`).

@@ -16,8 +16,6 @@ use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Extension\RegisterRouteExtension;
 use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
-use Shopware\Core\Checkout\Customer\Validation\AddressType;
-use Shopware\Core\Checkout\Customer\Validation\BuildAddressValidationEvent;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
@@ -336,12 +334,26 @@ class RegisterRoute extends AbstractRegisterRoute
         // The billing address validation must not be added if the data is neither a data bag nor valid because the validation building will fail.
         // Using a null value must be possible to allow the event based modification (see BuildValidationEvent).
         if ($billingAddress instanceof DataBag || (!$shippingAddress instanceof DataBag && $billingAddress === null)) {
-            $definition->addSub('billingAddress', $this->getCreateAddressValidationDefinition($data, $accountType, $billingAddress ?? new RequestDataBag(), AddressType::BILLING, $context));
+            $definition->addSub('billingAddress', $this->getCreateAddressValidationDefinition(
+                $data,
+                $accountType,
+                $billingAddress ?? new RequestDataBag(),
+                $context,
+                isBillingAddress: true,
+                isShippingAddress: !$shippingAddress instanceof DataBag,
+            ));
         }
 
         if ($shippingAddress instanceof DataBag) {
             $shippingAccountType = $shippingAddress->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
-            $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($data, $shippingAccountType, $shippingAddress, AddressType::SHIPPING, $context));
+            $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition(
+                $data,
+                $shippingAccountType,
+                $shippingAddress,
+                $context,
+                isBillingAddress: false,
+                isShippingAddress: true,
+            ));
         }
 
         if ($this->systemConfigService->get('core.loginRegistration.requireDataProtectionCheckbox', $context->getSalesChannelId())) {
@@ -432,8 +444,9 @@ class RegisterRoute extends AbstractRegisterRoute
         DataBag $data,
         ?string $accountType,
         DataBag $address,
-        AddressType $addressType,
-        SalesChannelContext $context
+        SalesChannelContext $context,
+        bool $isBillingAddress,
+        bool $isShippingAddress
     ): DataValidationDefinition {
         $validation = $this->addressValidationFactory->create($context);
 
@@ -445,8 +458,22 @@ class RegisterRoute extends AbstractRegisterRoute
         $validation->set('zipcode', new CustomerZipCode(countryId: $address->get('countryId')));
         $validation->add('zipcode', new Length(max: 50));
 
-        $validationEvent = new BuildAddressValidationEvent($validation, $data, $context->getContext(), $address, $addressType);
+        $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
+
+        if ($isBillingAddress) {
+            $this->eventDispatcher->dispatch(
+                new BuildValidationEvent($validation, $address, $context->getContext()),
+                $validationEvent->getName() . '.billing'
+            );
+        }
+
+        if ($isShippingAddress) {
+            $this->eventDispatcher->dispatch(
+                new BuildValidationEvent($validation, $address, $context->getContext()),
+                $validationEvent->getName() . '.shipping'
+            );
+        }
 
         return $validation;
     }

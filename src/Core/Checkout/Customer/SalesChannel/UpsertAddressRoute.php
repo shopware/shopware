@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDef
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Extension\UpsertAddressRouteExtension;
-use Shopware\Core\Checkout\Customer\Validation\BuildAddressValidationEvent;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -18,6 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -111,6 +111,10 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         } else {
             $this->validateAddress($addressId, $context, $customer);
             $isCreate = false;
+
+            if (!$data->has('id')) {
+                $data->set('id', $addressId);
+            }
         }
 
         if (!$data->get('salutationId')) {
@@ -118,7 +122,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         }
 
         $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
-        $definition = $this->getValidationDefinition($addressId, $data, $accountType, $isCreate, $context);
+        $definition = $this->getValidationDefinition($data, $accountType, $isCreate, $context);
         $this->validator->validate(array_merge(['id' => $addressId], $data->all()), $definition);
 
         $addressData = [
@@ -166,7 +170,6 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
     }
 
     private function getValidationDefinition(
-        string $addressId,
         DataBag $data,
         string $accountType,
         bool $isCreate,
@@ -186,8 +189,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
 
         $validation->set('zipcode', new CustomerZipCode(countryId: $data->get('countryId')));
 
-        $address = new DataBag(array_merge(['id' => $addressId], $data->all()));
-        $validationEvent = new BuildAddressValidationEvent($validation, $data, $context->getContext(), $address);
+        $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;

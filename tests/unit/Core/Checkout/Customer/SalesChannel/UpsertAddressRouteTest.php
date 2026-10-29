@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Extension\UpsertAddressRouteExtension;
 use Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRouteResponse;
-use Shopware\Core\Checkout\Customer\Validation\BuildAddressValidationEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -270,31 +269,10 @@ class UpsertAddressRouteTest extends TestCase
         $upsert->upsert(null, $data, static::createStub(SalesChannelContext::class), $customer);
     }
 
-    public function testAddressValidationEventCarriesTheAddressWithItsNewId(): void
+    public function testAddressIdIsAddedToTheValidationDataOnUpdate(): void
     {
         $events = [];
-        $upsert = $this->createRouteCollectingAddressEvents('framework.validation.address.create', $events);
-
-        $data = new RequestDataBag([
-            'salutationId' => Uuid::randomHex(),
-            'street' => 'Main Street 1',
-        ]);
-
-        $upsert->upsert(null, $data, Generator::generateSalesChannelContext(), $this->createCustomer());
-
-        static::assertCount(1, $events);
-        static::assertInstanceOf(BuildAddressValidationEvent::class, $events[0]);
-        static::assertTrue(Uuid::isValid((string) $events[0]->getAddress()->get('id')));
-        static::assertSame('Main Street 1', $events[0]->getAddress()->get('street'));
-        static::assertSame($data, $events[0]->getData());
-        static::assertFalse($data->has('id'));
-        static::assertNull($events[0]->getAddressType());
-    }
-
-    public function testAddressValidationEventCarriesTheIdOfTheUpdatedAddress(): void
-    {
-        $events = [];
-        $upsert = $this->createRouteCollectingAddressEvents('framework.validation.address.update', $events);
+        $upsert = $this->createRouteCollectingValidationEvents('framework.validation.address.update', $events);
 
         $addressId = Uuid::randomHex();
         $data = new RequestDataBag([
@@ -305,11 +283,25 @@ class UpsertAddressRouteTest extends TestCase
         $upsert->upsert($addressId, $data, Generator::generateSalesChannelContext(), $this->createCustomer());
 
         static::assertCount(1, $events);
-        static::assertInstanceOf(BuildAddressValidationEvent::class, $events[0]);
-        static::assertSame($addressId, $events[0]->getAddress()->get('id'));
-        static::assertSame('Main Street 1', $events[0]->getAddress()->get('street'));
         static::assertSame($data, $events[0]->getData());
-        static::assertNull($events[0]->getAddressType());
+        static::assertSame($addressId, $data->get('id'));
+    }
+
+    public function testNoAddressIdIsAddedToTheValidationDataOnCreate(): void
+    {
+        $events = [];
+        $upsert = $this->createRouteCollectingValidationEvents('framework.validation.address.create', $events);
+
+        $data = new RequestDataBag([
+            'salutationId' => Uuid::randomHex(),
+            'street' => 'Main Street 1',
+        ]);
+
+        $upsert->upsert(null, $data, Generator::generateSalesChannelContext(), $this->createCustomer());
+
+        static::assertCount(1, $events);
+        static::assertSame($data, $events[0]->getData());
+        static::assertFalse($data->has('id'));
     }
 
     public function testPublishesExtension(): void
@@ -346,7 +338,7 @@ class UpsertAddressRouteTest extends TestCase
     /**
      * @param list<BuildValidationEvent> $events
      */
-    private function createRouteCollectingAddressEvents(string $eventName, array &$events): UpsertAddressRoute
+    private function createRouteCollectingValidationEvents(string $eventName, array &$events): UpsertAddressRoute
     {
         $address = new CustomerAddressEntity();
         $address->setId(Uuid::randomHex());

@@ -37,7 +37,7 @@ class StaticEntityRepositoryVarAnnotationRuleTest extends RuleTestCase
                     53,
                 ],
                 [
-                    'Replace the generic EntityCollection in the searches of this StaticEntityRepository with ProductCollection, the collection the test expects, and drop the @var annotation.',
+                    'Bind this StaticEntityRepository with StaticEntityRepository::of(ProductCollection::class, ...) instead of a @var annotation: no search carries the collection type.',
                     61,
                 ],
             ],

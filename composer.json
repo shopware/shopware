@@ -250,7 +250,7 @@
     ],
     "scripts-descriptions": {
         "admin:check-extensions": "[EXPERIMENTAL] Type-checks and lints Administration extensions (interactive; -- --help for flags)",
-        "admin:code-mods": "Run admin code mods",
+        "admin:code-mods": "[DEPRECATED] Run admin code mods, use admin:upgrade-extensions instead",
         "admin:codemod:sfc-migration": "Convert Options API Administration components into native setup SFCs (-- <path> [--write] [--replace-originals])",
         "admin:create:test": "Create a admin test blueprint",
         "admin:generate-blocks-list": "Generate the list of all blocks. Used to track block changes in the administration.",

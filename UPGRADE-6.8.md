@@ -2626,6 +2626,18 @@ After:
 const isInside = event.target instanceof Node && this.$el.contains(event.target);
 ```
 
+## Removed `composer run admin:code-mods`
+
+The `admin:code-mods` Composer script, the `code-mods` npm script and `code-mods.js` of the Administration have been removed.
+Use `administration:upgrade-extensions` instead:
+
+```bash
+bin/console administration:upgrade-extensions -- --only=YourPlugin --target=6.8          # preview
+bin/console administration:upgrade-extensions -- --only=YourPlugin --target=6.8 --write  # apply
+```
+
+The old options map to the new ones like this: `-p`/`--plugin-name` becomes `--only`, `-v`/`--shopware-version` becomes `--target`, `--fix` becomes `--write`, and `-G`/`--ignore-git` becomes `--skip-git-check`.
+
 # Storefront
 
 <details>

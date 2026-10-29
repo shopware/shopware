@@ -235,6 +235,9 @@ bin/console administration:upgrade-extensions -- --only=MyPlugin --target=6.8 --
 `--write` refuses extensions that are not committed to git.
 `--with=sfc-migration` additionally converts Options API components into native setup SFCs.
 
+`composer run admin:code-mods` is deprecated and will be removed with Shopware 6.8.
+It now prints a deprecation warning.
+
 ### Extension tooling reports redundant code
 
 The ESLint config of the Administration extension tooling now enables `no-else-return`, `no-useless-return`, `no-lonely-if` and `no-unneeded-ternary`.

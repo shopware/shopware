@@ -1,10 +1,11 @@
 name: Add or remove needs-triage label
+# Rule and reasoning: .github/bin/js/needs-triage.ts
 
 on:
   pull_request_target:
-    types: [opened, ready_for_review]
+    types: [opened, ready_for_review, labeled]
   issues:
-    types: [opened]
+    types: [opened, labeled]
 
 permissions:
   contents: read
@@ -15,58 +16,16 @@ jobs:
   needs-triage:
     runs-on: ubuntu-24.04
     steps:
+      # Give the labeler time to apply a domain label; a label it adds with the workflow token
+      # fires no `labeled` event. A domain label assigned by hand needs no wait.
       - name: Wait 5 minutes
-        if: ${{ github.event_name == 'issues' || (github.event_name == 'pull_request_target' && !github.event.action != 'ready_for_review') }}
+        if: github.event.action != 'labeled'
         run: sleep 5m
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: .github/bin/js
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
-            console.debug(context.payload);
-
-            if (context.eventName == "pull_request_target" && context.payload.pull_request.draft) {
-              console.debug("PR is a draft. Skipping label management.");
-              return;
-            }
-
-            const issue = context.payload.issue || context.payload.pull_request;
-            if (issue && issue.state === "closed") {
-              console.debug("Issue or PR is closed. Skipping label management.");
-              return;
-            }
-
-            if (context.eventName === "issues" && context.payload.issue?.title?.startsWith("[Test Plan]")) {
-              console.debug("Test plan issue detected. Skipping needs-triage label management.");
-              return;
-            }
-
-            const issue_number = context.payload.number ?? context.payload.issue.number;
-
-            // get labels via api
-            const labels = await github.rest.issues.listLabelsOnIssue({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number,
-            });
-
-            if (labels.status !== 200) {
-              throw new Error(`Failed to fetch labels for issue #${issue_number}`);
-            }
-
-            // Check if the issue has either a domain/ label or a service/ label
-            const hasRequiredLabel = labels.data.some(label => label.name.startsWith('domain/') || label.name.startsWith('service/'));
-            const hasNeedsTriageLabel = labels.data.some(label => label.name === 'needs-triage');
-
-            // if no required label and no needs-triage label, add needs-triage
-            if (!hasRequiredLabel && !hasNeedsTriageLabel) {
-              console.debug('add needs-triage label');
-              const addResponse = await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number,
-                labels: ["needs-triage"],
-              });
-
-              if (addResponse.status !== 200) {
-                throw new Error(`Failed to add label needs-triage to issue #${issue_number}`);
-              }
-            }
+            const { manageNeedsTriage } = await import('${{ github.workspace }}/.github/bin/js/needs-triage.ts')
+            await manageNeedsTriage({ github, core, context })

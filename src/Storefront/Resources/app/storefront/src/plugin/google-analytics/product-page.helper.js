@@ -3,8 +3,16 @@ import Feature from 'src/helper/feature.helper';
 /**
  * Helper for extracting product data from DOM on product pages (detail, listing, wishlist)
  * For cart/checkout data, use LineItemHelper instead.
+ *
+ * A product element is any element with a `data-product-information` attribute holding a JSON
+ * object with at least the product `id`, and optionally `sku`, `name`, `brand` and `price`. Core's
+ * product box renders it, and an extension that renders products with its own markup adds the
+ * attribute to be reported the same way. The attribute is the contract, not the `.product-box`
+ * class.
  */
 export default class ProductPageHelper {
+    static PRODUCT_ELEMENT_SELECTOR = '[data-product-information]';
+
     /**
      * Gets product data from available sources (detail page or product card)
      * @param {string} productId
@@ -14,7 +22,9 @@ export default class ProductPageHelper {
     static getProductData(productId, fallbackElement = null) {
         const detailData = ProductPageHelper.getProductDetailData();
 
-        if (detailData.name) {
+        // A product element on the detail page, such as cross selling or a product slider, shows
+        // another product than the page, so only the product the page is about uses its data.
+        if (detailData.name && !ProductPageHelper.getProductCard(productId, fallbackElement)) {
             return detailData;
         }
 
@@ -55,18 +65,28 @@ export default class ProductPageHelper {
     }
 
     /**
+     * The product element a product is shown in, found through the element the interaction started
+     * from, such as the buy form of a product box, or through its wishlist button. The buy widget of
+     * the detail page is not a product element.
+     *
+     * @param {string} productId
+     * @param {HTMLElement|null} fallbackElement
+     * @returns {HTMLElement|null}
+     */
+    static getProductCard(productId, fallbackElement = null) {
+        return fallbackElement?.closest?.(ProductPageHelper.PRODUCT_ELEMENT_SELECTOR)
+            ?? document.querySelector(`.product-wishlist-${productId}`)?.closest(ProductPageHelper.PRODUCT_ELEMENT_SELECTOR)
+            ?? null;
+    }
+
+    /**
      * Gets product data from product card (listing page)
      * @param {string} productId
      * @param {HTMLElement|null} fallbackElement - Optional element to search for product card
      * @returns {{id: string|undefined, name: string|undefined, brand: string|undefined, value: string|undefined}}
      */
     static getProductCardData(productId, fallbackElement = null) {
-        let productCard = document.querySelector(`.product-wishlist-${productId}`)?.closest('.product-box');
-
-        // Fallback: find product card from provided element (e.g., form on wishlist page)
-        if (!productCard && fallbackElement) {
-            productCard = fallbackElement.closest('.product-box');
-        }
+        const productCard = ProductPageHelper.getProductCard(productId, fallbackElement);
 
         if (!productCard?.dataset.productInformation) {
             return {};
@@ -173,20 +193,44 @@ export default class ProductPageHelper {
     }
 
     /**
+     * The breadcrumb categories for a product, if the breadcrumb is about it. On the product
+     * detail page the breadcrumb is the path of the page product, so a product element there, such
+     * as cross selling, reports none rather than the path of another product.
+     *
+     * @param {string} productId
+     * @param {HTMLElement|null} element the element the interaction started from, if any
+     * @returns {Object}
+     */
+    static getCategoriesFor(productId, element = null) {
+        if (window.activeRoute === 'frontend.detail.page' && ProductPageHelper.getProductCard(productId, element)) {
+            return {};
+        }
+
+        return ProductPageHelper.getCategories();
+    }
+
+    /**
      * Gets category hierarchy from breadcrumbs (GA4 supports up to 5 levels)
      * @returns {Object}
      */
     static getCategories() {
-        const breadcrumbNodes = document.querySelectorAll('[aria-label="breadcrumb"] .breadcrumb-title');
         const categories = {};
 
-        breadcrumbNodes.forEach((node, index) => {
-            if (index < 5) {
-                const key = index === 0 ? 'item_category' : `item_category${index + 1}`;
-                categories[key] = node.textContent.trim();
-            }
+        ProductPageHelper.getCategoryNames().forEach((name, index) => {
+            const key = index === 0 ? 'item_category' : `item_category${index + 1}`;
+            categories[key] = name;
         });
 
         return categories;
+    }
+
+    /**
+     * Gets the names of the breadcrumb categories, at most 5 levels as GA4 supports
+     * @returns {string[]}
+     */
+    static getCategoryNames() {
+        const breadcrumbNodes = document.querySelectorAll('[aria-label="breadcrumb"] .breadcrumb-title');
+
+        return [...breadcrumbNodes].slice(0, 5).map(node => node.textContent.trim());
     }
 }

@@ -105,7 +105,6 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
         await shopwareIdField.setValue('max@muster.com');
         await passwordField.setValue('v3ryS3cret');
 
-        await wrapper.vm.$nextTick();
         await flushPromises();
 
         // login
@@ -123,8 +122,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
 
         // create component with logged in view
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // check if layout shows the logged in information
         const loginStatus = wrapper.find('.sw-extension-my-extensions-account__wrapper-content-login-status-id');
@@ -137,8 +135,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
 
         // create component with logged in view
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // check if logout button exists
         let logoutButton = wrapper.find('.sw-extension-my-extensions-account__logout-button');

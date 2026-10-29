@@ -336,6 +336,7 @@ Tracking setups have to adapt to these changes:
 The `.hidden-line-items-information` element is only rendered for a sales channel with active analytics.
 Its block `component_hidden_line_item_information` is only rendered for product line items, and `LineItemHelper.getLineItems()` returns items with the GA4 keys `item_id`, `item_name` and `item_brand`.
 The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html) describes the full payload.
+
 ### Deprecation of `ListingPlugin` properties
 
 The Storefront listing plugin now supports updating multiple filter panels on the same page. Due to these changes, the following properties of the `ListingPlugin` class in `listing.plugin.js` carrying single elements have been deprecated and are replaced respectively by new properties carrying `NodeList`s:

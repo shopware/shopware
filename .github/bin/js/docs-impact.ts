@@ -100,7 +100,11 @@ export function buildComment(summary: string): string {
     ].join('\n');
 }
 
-export function isDryRun(context: Context): boolean {
+export function isDryRun(context: Context, env: Record<string, string | undefined> = process.env): boolean {
+    if (context.eventName === 'push') {
+        return env.SW_DOCS_IMPACT_POST !== 'true';
+    }
+
     const raw = context.payload.inputs?.dry_run;
 
     return raw === true || raw === 'true';

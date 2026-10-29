@@ -209,6 +209,8 @@ safe-outputs:
             persist-credentials: false
             sparse-checkout: .github/bin/js
         - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+          env:
+            SW_DOCS_IMPACT_POST: ${{ vars.SW_DOCS_IMPACT_POST }}
           with:
             retries: 3
             script: |

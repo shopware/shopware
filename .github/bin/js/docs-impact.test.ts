@@ -321,7 +321,13 @@ test('isDryRun accepts the boolean and string forms of the dispatch input', () =
     assert.equal(isDryRun(pushContext({ pr_number: '9', dry_run: true })), true);
     assert.equal(isDryRun(pushContext({ pr_number: '9', dry_run: 'true' })), true);
     assert.equal(isDryRun(pushContext({ pr_number: '9', dry_run: 'false' })), false);
-    assert.equal(isDryRun(pushContext()), false);
+    assert.equal(isDryRun(pushContext({ pr_number: '9' }), {}), false);
+});
+
+test('isDryRun keeps push runs in the run summary until posting is enabled', () => {
+    assert.equal(isDryRun(pushContext(), {}), true);
+    assert.equal(isDryRun(pushContext(), { SW_DOCS_IMPACT_POST: 'false' }), true);
+    assert.equal(isDryRun(pushContext(), { SW_DOCS_IMPACT_POST: 'true' }), false);
 });
 
 test('postComment in a dry run writes the comment to the step summary only', async () => {

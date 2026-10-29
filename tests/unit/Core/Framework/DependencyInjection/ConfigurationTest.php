@@ -158,22 +158,23 @@ class ConfigurationTest extends TestCase
     {
         $config = (new Processor())->processConfiguration(new Configuration(), [['product_documents' => []]]);
 
+        // like filesystem.allowed_extensions, the core list of file types is in shopware.yaml
         static::assertSame([
-            'allowed_extensions' => ['pdf', 'docx', 'jpg', 'jpeg', 'png'],
+            'allowed_extensions' => [],
             'max_per_language' => 10,
             'max_file_size' => 20 * 1024 * 1024,
         ], $config['product_documents']);
     }
 
-    public function testAShopReplacesTheProductDocumentLimits(): void
+    public function testAShopAddsFileTypesAndReplacesTheOtherProductDocumentLimits(): void
     {
         $config = (new Processor())->processConfiguration(new Configuration(), [
             ['product_documents' => ['allowed_extensions' => ['pdf', 'docx', 'jpg', 'jpeg', 'png'], 'max_per_language' => 10, 'max_file_size' => '20MB']],
-            ['product_documents' => ['allowed_extensions' => ['pdf'], 'max_per_language' => 3, 'max_file_size' => '5M']],
+            ['product_documents' => ['allowed_extensions' => ['xlsx'], 'max_per_language' => 3, 'max_file_size' => '5M']],
         ]);
 
         static::assertSame([
-            'allowed_extensions' => ['pdf'],
+            'allowed_extensions' => ['pdf', 'docx', 'jpg', 'jpeg', 'png', 'xlsx'],
             'max_per_language' => 3,
             'max_file_size' => 5 * 1024 * 1024,
         ], $config['product_documents']);

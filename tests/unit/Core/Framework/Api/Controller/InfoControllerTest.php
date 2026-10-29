@@ -146,10 +146,12 @@ class InfoControllerTest extends TestCase
         static::assertSame(2, $settings['minSearchTermLength']);
         static::assertArrayHasKey('hideUpdateModule', $settings);
         static::assertFalse($settings['hideUpdateModule']);
-        static::assertSame(
-            ['allowedExtensions' => ['pdf', 'docx'], 'maxPerLanguage' => 10, 'maxFileSize' => 1024],
-            $settings['productDocuments'] ?? null,
-        );
+        static::assertArrayHasKey('productDocuments', $settings);
+        $productDocuments = $settings['productDocuments'];
+        static::assertSame(['pdf', 'docx'], $productDocuments['allowedExtensions']);
+        static::assertContains('application/pdf', $productDocuments['allowedMimeTypesByExtension']['pdf']);
+        static::assertSame(10, $productDocuments['maxPerLanguage']);
+        static::assertSame(1024, $productDocuments['maxFileSize']);
 
         static::assertArrayHasKey('inAppPurchases', $data);
         $inAppPurchases = $data['inAppPurchases'];
@@ -420,7 +422,7 @@ class InfoControllerTest extends TestCase
             $this->eventDispatcher,
             null,
             new MediaFileExtensionListProvider($this->eventDispatcher, [], ['pdf', 'epub']),
-            new ProductDocumentLimits(['pdf', 'docx'], maxPerLanguage: 10, maxFileSize: 1024),
+            new ProductDocumentLimits($this->eventDispatcher, ['pdf', 'docx'], maxPerLanguage: 10, maxFileSize: 1024),
         );
     }
 }

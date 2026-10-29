@@ -141,7 +141,9 @@ use Shopware\Core\Framework\App\Subscriber\AppScriptConditionConstraintsSubscrib
 use Shopware\Core\Framework\App\Subscriber\CustomFieldProtectionSubscriber;
 use Shopware\Core\Framework\App\Subscriber\DiscardUnconfirmedAppSecretsListener;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
+use Shopware\Core\Framework\App\Telemetry\AppTelemetryConfigChecker;
 use Shopware\Core\Framework\App\Telemetry\AppTelemetrySubscriber;
+use Shopware\Core\Framework\App\Telemetry\TelemetryAppFeatureDefinition;
 use Shopware\Core\Framework\App\Template\TemplateDefinition;
 use Shopware\Core\Framework\App\Template\TemplateLoader;
 use Shopware\Core\Framework\App\Url\AppUrlVerificationPrinter;
@@ -232,6 +234,19 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(AppNameValidator::class)
         ->tag('shopware.app_manifest.validator');
+
+    $services->set(AppTelemetryConfigChecker::class)
+        ->args([
+            param('shopware.telemetry.metrics.definitions'),
+            param('shopware.telemetry.metrics.mappings'),
+        ]);
+
+    $services->set(TelemetryAppFeatureDefinition::class)
+        ->args([
+            service(AppTelemetryConfigChecker::class),
+            service('logger'),
+        ])
+        ->tag('shopware.app_feature.definition');
 
     $services->set(ManifestValidator::class)
         ->args([

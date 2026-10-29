@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="telemetry">
+        <xs:annotation>
+            <xs:documentation>
+                App contributions to the telemetry metric label configuration. `label-values` widens an
+                extensible allow list (a label core ships with `add_allowed_values`); `mapping` adds entries
+                to a named mapping table. Entries referencing unknown metrics, labels, or mappings are
+                skipped at install time and logged as a warning, without failing the installation; a file
+                that violates this schema fails the installation.
+
+                Contributions are suggestions: the operator's configuration decides whether they take
+                effect. Installations may restrict the channel via `accept_app_contributions` —
+                `no-new-values` keeps only entries whose label value already exists in the operator's
+                config (grouping into the existing taxonomy), `none` ignores all contributions. Entries
+                that introduce new label values (all `label-values`, mapping entries with novel values)
+                are dropped on such installations; everything else still applies.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="label-values">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="value" type="xs:string" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                        <xs:attribute name="metric" type="xs:string" use="required"/>
+                        <xs:attribute name="label" type="xs:string" use="required"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="mapping">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="entry" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:simpleContent>
+                                        <xs:extension base="xs:string">
+                                            <xs:attribute name="key" type="xs:string" use="required"/>
+                                        </xs:extension>
+                                    </xs:simpleContent>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                        <xs:attribute name="name" type="xs:string" use="required"/>
+                    </xs:complexType>
+                </xs:element>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

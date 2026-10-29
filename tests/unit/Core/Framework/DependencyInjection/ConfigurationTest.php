@@ -834,6 +834,24 @@ class ConfigurationTest extends TestCase
         $this->processTelemetryLabel([]);
     }
 
+    public function testTelemetryAcceptAppContributionsDefaultsToAll(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            ['telemetry' => ['metrics' => []]],
+        ]);
+
+        static::assertSame('all', $config['telemetry']['metrics']['accept_app_contributions']);
+    }
+
+    public function testTelemetryAcceptAppContributionsRejectsUnknownPolicy(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [
+            ['telemetry' => ['metrics' => ['accept_app_contributions' => 'some-apps']]],
+        ]);
+    }
+
     public function testTelemetryMappingsMergePerKey(): void
     {
         $config = (new Processor())->processConfiguration(new Configuration(), [

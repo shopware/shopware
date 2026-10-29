@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentLimits;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
@@ -63,6 +64,7 @@ class InfoController extends AbstractController
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
         private readonly MediaFileExtensionListProvider $mediaFileExtensionListProvider,
+        private readonly ProductDocumentLimits $productDocumentLimits,
     ) {
     }
 
@@ -222,6 +224,12 @@ class InfoController extends AbstractController
                 'disableExtensionManagement' => !$this->params->get('shopware.deployment.runtime_extension_management'),
                 'hideUpdateModule' => (bool) $this->params->get('shopware.auto_update.hide_module'),
                 'minSearchTermLength' => $this->systemConfigService->getInt('core.search.minSearchTermLength') ?: 2,
+                'productDocuments' => [
+                    'allowedExtensions' => $this->productDocumentLimits->allowedExtensions,
+                    'maxPerLanguage' => $this->productDocumentLimits->maxPerLanguage,
+                    // what an upload can carry, which is the limit that matters for the Administration
+                    'maxFileSize' => $this->productDocumentLimits->getMaxUploadFileSize(),
+                ],
             ],
             'inAppPurchases' => $this->inAppPurchase->all(),
         ];

@@ -154,6 +154,40 @@ class ConfigurationTest extends TestCase
         static::assertTrue($config['cdn']['path_cache_buster']);
     }
 
+    public function testProductDocumentLimitsHaveDefaults(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [['product_documents' => []]]);
+
+        static::assertSame([
+            'allowed_extensions' => ['pdf', 'docx', 'jpg', 'jpeg', 'png'],
+            'max_per_language' => 10,
+            'max_file_size' => 20 * 1024 * 1024,
+        ], $config['product_documents']);
+    }
+
+    public function testAShopReplacesTheProductDocumentLimits(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            ['product_documents' => ['allowed_extensions' => ['pdf', 'docx', 'jpg', 'jpeg', 'png'], 'max_per_language' => 10, 'max_file_size' => '20MB']],
+            ['product_documents' => ['allowed_extensions' => ['pdf'], 'max_per_language' => 3, 'max_file_size' => '5M']],
+        ]);
+
+        static::assertSame([
+            'allowed_extensions' => ['pdf'],
+            'max_per_language' => 3,
+            'max_file_size' => 5 * 1024 * 1024,
+        ], $config['product_documents']);
+    }
+
+    public function testTheMaximumFileSizeOfProductDocumentsMustBeASize(): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException(
+            'Invalid configuration for path "shopware.product_documents.max_file_size": The maximum file size of product documents must be a size like "20MB", got 0 bytes.'
+        ));
+
+        (new Processor())->processConfiguration(new Configuration(), [['product_documents' => ['max_file_size' => 'big']]]);
+    }
+
     public function testTranslationConfigTreeNode(): void
     {
         $configuration = new Configuration();

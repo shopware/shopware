@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -139,6 +140,11 @@ class InfoControllerTest extends TestCase
                 'disableExtensionManagement' => false,
                 'hideUpdateModule' => false,
                 'minSearchTermLength' => 2,
+                'productDocuments' => [
+                    'allowedExtensions' => ['pdf', 'docx', 'jpg', 'jpeg', 'png'],
+                    'maxPerLanguage' => 10,
+                    'maxFileSize' => MemorySizeCalculator::getMaxUploadSize(20 * 1024 * 1024),
+                ],
             ],
             'inAppPurchases' => [],
         ];

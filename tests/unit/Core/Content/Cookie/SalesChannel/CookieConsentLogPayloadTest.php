@@ -55,6 +55,7 @@ class CookieConsentLogPayloadTest extends TestCase
         yield 'empty consent id' => ['', [], 'consentId'];
         yield 'consent id with forbidden characters' => ['a b/c', [], 'consentId'];
         yield 'consent id too long' => [str_repeat('a', 65), [], 'consentId'];
+        yield 'consent id with a trailing newline' => ["visitor-a\n", [], 'consentId'];
         yield 'accepted cookies no list' => ['visitor-a', ['key' => 'value'], 'acceptedCookies'];
         yield 'accepted cookies with non strings' => ['visitor-a', ['lorem', 42], 'acceptedCookies'];
         yield 'accepted cookies with an empty name' => ['visitor-a', [''], 'acceptedCookies'];

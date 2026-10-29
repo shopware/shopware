@@ -30,7 +30,7 @@ final readonly class CookieConsentRecord implements \JsonSerializable
      * A lookup handle, not a secret. Restricted so it is safe as a CLI argument and as
      * part of a file name, and long enough for a UUID or a similar client-generated token.
      */
-    public const CONSENT_ID_PATTERN = '/^[A-Za-z0-9_-]{1,64}$/';
+    public const CONSENT_ID_PATTERN = '/^[A-Za-z0-9_-]{1,64}$/D';
 
     /**
      * @param array<string, CookieConsentDecision> $groupDecisions verdict per cookie group, keyed by technical name

@@ -104,7 +104,7 @@ class CookieExceptionTest extends TestCase
         $exception = CookieException::invalidConsentId('../etc/passwd');
 
         static::assertSame('CONTENT__COOKIE_INVALID_CONSENT_ID', $exception->getErrorCode());
-        static::assertSame('The cookie consent id "../etc/passwd" does not match the pattern /^[A-Za-z0-9_-]{1,64}$/', $exception->getMessage());
+        static::assertSame('The cookie consent id "../etc/passwd" does not match the pattern /^[A-Za-z0-9_-]{1,64}$/D', $exception->getMessage());
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
     }
 }

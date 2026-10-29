@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Cookie\ConsentLog;
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentConfigSnapshot;
@@ -46,11 +47,13 @@ class FilesystemCookieConsentLogStorageTest extends TestCase
         static::assertEquals([$record], [...$this->storage->iterate(new \DateTimeImmutable('2026-07-13'), new \DateTimeImmutable('2026-07-14'))]);
     }
 
-    public function testAConsentIdThatIsNotFileSafeIsRejected(): void
+    #[TestWith(['../etc/passwd'])]
+    #[TestWith(["visitor-a\n"])]
+    public function testAConsentIdThatIsNotFileSafeIsRejected(string $consentId): void
     {
-        $this->expectExceptionObject(CookieException::invalidConsentId('../etc/passwd'));
+        $this->expectExceptionObject(CookieException::invalidConsentId($consentId));
 
-        $this->storage->log($this->record('../etc/passwd', new \DateTimeImmutable('2026-07-13 12:00:00')));
+        $this->storage->log($this->record($consentId, new \DateTimeImmutable('2026-07-13 12:00:00')));
     }
 
     public function testASnapshotIsStoredOncePerHash(): void

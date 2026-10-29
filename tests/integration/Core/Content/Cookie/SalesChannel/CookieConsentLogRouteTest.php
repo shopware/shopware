@@ -71,7 +71,6 @@ class CookieConsentLogRouteTest extends TestCase
 
         $groupDecisions = json_decode((string) $logs[0]['group_decisions'], true);
         static::assertIsArray($groupDecisions);
-        static::assertNotEmpty($groupDecisions);
         static::assertSame(['accepted'], array_values(array_unique($groupDecisions)));
 
         // The banner snapshot exists for the hash the log entry references

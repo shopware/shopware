@@ -347,14 +347,16 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             const wrapper = await createWrapper();
             await flushPromises();
 
-            expect(observeMock).toHaveBeenCalledWith(wrapper.vm.$el);
-            expect(wrapper.vm.isCompactLayout).toBe(false);
+            expect(observeMock).toHaveBeenCalledWith(wrapper.element);
+            expect(wrapper.classes()).not.toContain('sw-cms-list--compact');
 
             resizeCallback([{ contentRect: { width: 799 } }]);
-            expect(wrapper.vm.isCompactLayout).toBe(true);
+            await flushPromises();
+            expect(wrapper.classes()).toContain('sw-cms-list--compact');
 
             resizeCallback([{ contentRect: { width: 800 } }]);
-            expect(wrapper.vm.isCompactLayout).toBe(false);
+            await flushPromises();
+            expect(wrapper.classes()).not.toContain('sw-cms-list--compact');
         });
 
         it('renders the meteor tabs horizontally on top of the listing in the compact layout', async () => {

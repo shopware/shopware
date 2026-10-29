@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 class CleanupCookieConsentLogTask extends ScheduledTask
 {

@@ -48,7 +48,7 @@
           "Cookies"
         ],
         "summary": "Log a cookie consent decision",
-        "description": "Records a visitor's cookie consent decision together with a snapshot of the current cookie configuration, so shop operators can demonstrate that consent was obtained (GDPR Art. 7(1)). The per-group verdict (`accepted`, `partial`, `rejected`) is derived server-side from the reported cookie names. The record is pseudonymous: apart from the client-generated `consentId` no visitor identifier is stored.",
+        "description": "Records a visitor's cookie consent decision together with a snapshot of the current cookie configuration, so shop operators can demonstrate that consent was obtained (GDPR Art. 7(1)). The per-group verdict (`accepted`, `partial`, `rejected`) is derived server-side from the reported cookie names. The record is pseudonymous: apart from the client-generated `consentId` no visitor identifier is stored. While consent logging is off, the request is accepted and nothing is stored. `/cookie-groups` lists the `cookie-consent-id` entry only while logging is on, so clients can skip the request otherwise.",
         "operationId": "logCookieConsent",
         "requestBody": {
           "required": true,
@@ -92,7 +92,7 @@
         },
         "responses": {
           "204": {
-            "description": "The consent decision was logged."
+            "description": "The consent decision was accepted. It is not stored while consent logging is off."
           },
           "400": {
             "$ref": "#/components/responses/400"

@@ -22,6 +22,11 @@ use Shopware\Core\System\Currency\CurrencyCollection;
 class PriceSerializer extends FieldSerializer
 {
     /**
+     * @var array<string, string>
+     */
+    private array $currencyIsoCache = [];
+
+    /**
      * @param EntityRepository<CurrencyCollection> $currencyRepository
      *
      * @internal
@@ -118,12 +123,16 @@ class PriceSerializer extends FieldSerializer
 
     private function mapToCurrencyIso(string $currencyId, Context $context): string
     {
+        if (isset($this->currencyIsoCache[$currencyId])) {
+            return $this->currencyIsoCache[$currencyId];
+        }
+
         $currency = $this->currencyRepository
             ->search(new Criteria([$currencyId]), $context)
             ->getEntities()
             ->first();
 
-        return $currency ? $currency->getIsoCode() : $currencyId;
+        return $this->currencyIsoCache[$currencyId] = $currency ? $currency->getIsoCode() : $currencyId;
     }
 
     private function getCurrencyIdFromIso(string $iso, Context $context): ?string

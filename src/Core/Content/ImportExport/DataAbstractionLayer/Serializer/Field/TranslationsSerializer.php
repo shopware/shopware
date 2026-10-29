@@ -20,6 +20,11 @@ use Shopware\Core\System\Language\LanguageCollection;
 class TranslationsSerializer extends FieldSerializer
 {
     /**
+     * @var array<string, string>
+     */
+    private array $translationCodeCache = [];
+
+    /**
      * @param EntityRepository<LanguageCollection> $languageRepository
      *
      * @internal
@@ -111,12 +116,18 @@ class TranslationsSerializer extends FieldSerializer
             return $languageId;
         }
 
+        if (isset($this->translationCodeCache[$languageId])) {
+            return $this->translationCodeCache[$languageId];
+        }
+
         $criteria = (new Criteria([$languageId]))->addAssociation('translationCode');
 
         $language = $this->languageRepository
             ->search($criteria, Context::createDefaultContext())->getEntities()
             ->first();
 
-        return $language && $language->getTranslationCode() ? $language->getTranslationCode()->getCode() : $languageId;
+        return $this->translationCodeCache[$languageId] = $language && $language->getTranslationCode()
+            ? $language->getTranslationCode()->getCode()
+            : $languageId;
     }
 }

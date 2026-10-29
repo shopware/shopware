@@ -199,7 +199,7 @@ const main = async () => {
 
     if (isDev) {
         const extensionPorts = getViteServerPorts();
-        const useBundledDev = isBundledDevActive(isDev);
+        const useBundledDev = isBundledDevActive(isDev, 'extensions');
 
         if (useBundledDev) {
             console.log(colors.yellow('# Experimental bundled dev mode activated for plugins'));

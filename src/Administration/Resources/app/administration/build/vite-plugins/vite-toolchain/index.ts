@@ -43,10 +43,13 @@ export function isVite8ToolchainActive(): boolean {
 /**
  * @private
  *
- * Extension bundles need the `__rolldown_runtime__` of the bundled core, so the core and the plugins use the same condition.
+ * Bundled extensions need the host's `__rolldown_runtime__`. The host can also bundle on its own while extensions use ESM.
  */
-export function isBundledDevActive(isDev: boolean): boolean {
-    return isDev && process.env.SHOPWARE_ADMIN_BUNDLED_DEV === '1' && isVite8ToolchainActive();
+export function isBundledDevActive(isDev: boolean, target: 'core' | 'extensions' = 'core'): boolean {
+    const mode = process.env.SHOPWARE_ADMIN_BUNDLED_DEV;
+    const enabled = mode === '1' || (mode === 'core' && target === 'core');
+
+    return isDev && enabled && isVite8ToolchainActive();
 }
 
 /** @private */

@@ -359,6 +359,7 @@ class SyncServiceTest extends TestCase
         static::assertSame('/categoryId', $error['source']['pointer']);
         static::assertStringContainsString('product_category', (string) $error['detail']);
         static::assertStringContainsString('category', (string) $error['detail']);
+        static::assertStringContainsString('Integrity constraint violation: 1452', (string) $error['meta']['parameters']['{{ originalMessage }}']);
     }
 
     public function testDeleteWithWildCards(): void

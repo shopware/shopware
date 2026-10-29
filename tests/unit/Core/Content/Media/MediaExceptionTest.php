@@ -48,6 +48,16 @@ class MediaExceptionTest extends TestCase
         static::assertSame(['url' => $url], $exception->getParameters());
     }
 
+    public function testUrlExceptionsOmitCredentials(): void
+    {
+        $url = 'ftp://user:s3cret@ftp.example.com/file.jpg';
+        $expected = ['url' => 'ftp://ftp.example.com/file.jpg'];
+
+        static::assertSame($expected, MediaException::invalidUrl($url)->getParameters());
+        static::assertSame($expected, MediaException::illegalUrl($url)->getParameters());
+        static::assertSame($expected, MediaException::cannotOpenSourceStreamToRead($url)->getParameters());
+    }
+
     public function testDisableUrlUploadFeature(): void
     {
         $exception = MediaException::disableUrlUploadFeature();

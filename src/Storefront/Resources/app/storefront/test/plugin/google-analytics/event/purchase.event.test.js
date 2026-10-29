@@ -76,7 +76,7 @@ describe('plugin/google-analytics/events/purchase.event', () => {
         });
     });
 
-    test('fires purchase event with the applied coupon', () => {
+    test('fires purchase event with the applied coupon and the item variant', () => {
         document.body.innerHTML = `
             <div class="finish-ordernumber" data-order-number="10001"></div>
             <div class="hidden-line-items-information" data-currency="EUR" data-value="99.99" data-tax="15.96" data-shipping="0">
@@ -86,7 +86,8 @@ describe('plugin/google-analytics/events/purchase.event', () => {
                     data-sku="SW10000.1"
                     data-name="Test Product"
                     data-quantity="1"
-                    data-price="99.99">
+                    data-price="99.99"
+                    data-variant="Red, L">
                 </span>
             </div>
         `;
@@ -106,6 +107,7 @@ describe('plugin/google-analytics/events/purchase.event', () => {
                     item_name: 'Test Product',
                     quantity: 1,
                     price: 99.99,
+                    item_variant: 'Red, L',
                 },
             ],
         });

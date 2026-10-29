@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media;
 
+use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -79,7 +80,7 @@ class MediaException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::MEDIA_INVALID_URL,
             'Provided URL "{{ url }}" is invalid.',
-            ['url' => $url]
+            ['url' => PathHelper::stripCredentials($url)]
         );
     }
 
@@ -89,7 +90,7 @@ class MediaException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::MEDIA_ILLEGAL_URL,
             'Provided URL "{{ url }}" is not allowed.',
-            ['url' => $url]
+            ['url' => PathHelper::stripCredentials($url)]
         );
     }
 
@@ -108,7 +109,7 @@ class MediaException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::MEDIA_CANNOT_OPEN_SOURCE_STREAM_TO_READ,
             'Cannot open source stream to read from {{ url }}.',
-            ['url' => $url]
+            ['url' => PathHelper::stripCredentials($url)]
         );
     }
 
@@ -385,7 +386,7 @@ class MediaException extends HttpException
             Response::HTTP_NOT_FOUND,
             self::MEDIA_FILE_NOT_FOUND,
             'The file "{{ path }}" does not exist',
-            ['path' => $path]
+            ['path' => PathHelper::stripCredentials($path)]
         );
     }
 

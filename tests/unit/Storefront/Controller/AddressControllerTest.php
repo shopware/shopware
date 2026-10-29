@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
@@ -493,6 +494,28 @@ class AddressControllerTest extends TestCase
             '@Storefront/storefront/component/address/address-manager-modal.html.twig',
             $this->controller->recorder()->renderStorefrontView
         );
+    }
+
+    /**
+     * @param string|array<string, string> $redirectParameters
+     */
+    #[DataProvider('redirectParametersProvider')]
+    public function testAddressManagerPassesRedirectParameters(string|array $redirectParameters): void
+    {
+        $request = new Request(['redirectParameters' => $redirectParameters]);
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        $this->controller->addressManager($request, Generator::generateSalesChannelContext(), $customer);
+
+        static::assertSame($redirectParameters, $this->controller->recorder()->renderStorefrontParameters['redirectParameters']);
+    }
+
+    public static function redirectParametersProvider(): \Generator
+    {
+        yield 'JSON string is passed on as is' => ['{"redirected":0}'];
+        yield 'array, as extensions set it or bracket query keys send it, is passed on' => [['subscriptionToken' => 'token']];
     }
 
     public function testAddressManagerWithoutType(): void

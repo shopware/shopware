@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ResetOnClone;
@@ -35,11 +36,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('checkout')]
 class PromotionDefinition extends EntityDefinition
 {
@@ -86,7 +85,7 @@ class PromotionDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of promotion.'),
             new TranslatedField('name'),
             (new BoolField('active', 'active'))->addFlags(new Required())->setDescription('When boolean value is `true`, the promotions are available for selection in the storefront for purchase.'),
@@ -105,7 +104,6 @@ class PromotionDefinition extends EntityDefinition
             (new BoolField('prevent_combination', 'preventCombination'))->addFlags(new Required())->setDescription('Indicates which combination of codes are allowed.'),
 
             (new IntField('order_count', 'orderCount'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE), new ResetOnClone())->setDescription('The number of times the promotion was used.'),
-            (new JsonField('orders_per_customer_count', 'ordersPerCustomerCount'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE), new ResetOnClone())->setDescription('The number of times the customer has used the code.'),
 
             (new OneToManyAssociationField('setgroups', PromotionSetGroupDefinition::class, 'promotion_id'))->addFlags(new CascadeDelete()),
 
@@ -124,5 +122,13 @@ class PromotionDefinition extends EntityDefinition
             (new ListField('exclusion_ids', 'exclusionIds', IdField::class))->setDescription('Unique identity of exclusion.'),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
         ]);
+
+        if (!Feature::isActive('PROMOTION_REDEMPTION_OPTIMIZATION')) {
+            $fields->add(
+                (new JsonField('orders_per_customer_count', 'ordersPerCustomerCount'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE), new ResetOnClone(), new Deprecated('v6.7.17.0', 'v6.8.0.0'))->setDescription('The number of times the customer has used the code.'),
+            );
+        }
+
+        return $fields;
     }
 }

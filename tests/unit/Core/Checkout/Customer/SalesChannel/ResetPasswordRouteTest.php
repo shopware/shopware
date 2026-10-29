@@ -124,7 +124,7 @@ class ResetPasswordRouteTest extends TestCase
 
         static::assertSame([
             [RateLimiter::LOGIN_ROUTE, $expectedCombinedKey],
-            [RateLimiter::RESET_PASSWORD, strtolower($email) . '-' . $ip],
+            [RateLimiter::RESET_PASSWORD, $expectedCombinedKey],
         ], $resetCalls);
 
         static::assertSame([

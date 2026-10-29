@@ -59,7 +59,7 @@ function isBaselined(message: string): boolean {
 /**
  * The two sides of a major's feature-flag branch, for `Feature.branch()`.
  *
- * @experimental stableVersion:v6.8.0 feature:ADMIN_FEATURE_BRANCH
+ * @private
  * @example
  * const options: MajorBranches<string, string> = { beforeMajor: () => legacyLabel(), sinceMajor: () => label() };
  */

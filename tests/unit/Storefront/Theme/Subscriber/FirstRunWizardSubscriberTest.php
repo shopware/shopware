@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Store\Struct\FrwState;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\Subscriber\FirstRunWizardSubscriber;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeEntity;
@@ -72,18 +73,38 @@ class FirstRunWizardSubscriberTest extends TestCase
         static::assertSame([], $themeSalesChannelRepository->upserts);
     }
 
+    public function testFrwFinishedThrowsWhenTheDefaultThemeIsMissing(): void
+    {
+        $subscriber = $this->createSubscriber([Uuid::randomHex()], new StaticEntityRepository([]), false);
+
+        $this->themeService->expects($this->never())->method('compileTheme');
+
+        $this->expectExceptionObject(ThemeException::couldNotFindThemeByName('Storefront'));
+
+        $subscriber->frwFinished($this->createEvent());
+    }
+
     /**
      * @param list<string> $salesChannelIds
      * @param StaticEntityRepository<EntityCollection<Entity>> $themeSalesChannelRepository
      */
-    private function createSubscriber(array $salesChannelIds, StaticEntityRepository $themeSalesChannelRepository): FirstRunWizardSubscriber
-    {
-        $theme = new ThemeEntity();
-        $theme->setUniqueIdentifier($this->themeId);
-        $theme->setId($this->themeId);
+    private function createSubscriber(
+        array $salesChannelIds,
+        StaticEntityRepository $themeSalesChannelRepository,
+        bool $withDefaultTheme = true
+    ): FirstRunWizardSubscriber {
+        $themes = [];
+
+        if ($withDefaultTheme) {
+            $theme = new ThemeEntity();
+            $theme->setUniqueIdentifier($this->themeId);
+            $theme->setId($this->themeId);
+
+            $themes[] = $theme;
+        }
 
         /** @var StaticEntityRepository<ThemeCollection> $themeRepository */
-        $themeRepository = new StaticEntityRepository([new ThemeCollection([$theme])]);
+        $themeRepository = new StaticEntityRepository([new ThemeCollection($themes)]);
 
         /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([$salesChannelIds]);

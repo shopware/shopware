@@ -22,10 +22,10 @@ class UserRecoveryControllerTest extends TestCase
 {
     public function testUpdateUserPasswordResetsAllRateLimiters(): void
     {
-        $username = 'Admin';
+        $username = ' Admin  ';
         $email = 'admin@example.com';
         $ip = '10.0.0.1';
-        $expectedUsernameKey = strtolower($username);
+        $expectedUsernameKey = 'admin';
 
         $user = new UserEntity();
         $user->setUsername($username);

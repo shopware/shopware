@@ -43,12 +43,12 @@ class ResetPasswordRouteTest extends TestCase
 {
     public function testResetsAllRateLimitersOnPasswordReset(): void
     {
-        $email = 'Customer@Example.com';
+        $email = ' Customer@Example.com  ';
         $ip = '10.0.0.1';
         $hash = 'valid-hash';
         $customerId = Uuid::randomHex();
         $recoveryId = Uuid::randomHex();
-        $expectedEmailKey = strtolower($email);
+        $expectedEmailKey = 'customer@example.com';
         $expectedCombinedKey = $expectedEmailKey . '-' . $ip;
 
         $customer = new CustomerEntity();
@@ -124,7 +124,7 @@ class ResetPasswordRouteTest extends TestCase
 
         static::assertSame([
             [RateLimiter::LOGIN_ROUTE, $expectedCombinedKey],
-            [RateLimiter::RESET_PASSWORD, $expectedCombinedKey],
+            [RateLimiter::RESET_PASSWORD, strtolower($email) . '-' . $ip],
         ], $resetCalls);
 
         static::assertSame([

@@ -27,9 +27,9 @@ class AuthControllerTest extends TestCase
 {
     public function testRateLimiterIsCalledWithCorrectKeys(): void
     {
-        $username = 'Admin';
+        $username = ' Admin  ';
         $ip = '10.0.0.1';
-        $expectedUsernameKey = strtolower($username);
+        $expectedUsernameKey = 'admin';
         $expectedCombinedKey = $expectedUsernameKey . '-' . $ip;
 
         $ensureAcceptedCalls = [];
@@ -71,9 +71,9 @@ class AuthControllerTest extends TestCase
 
     public function testRateLimitersAreResetOnSuccess(): void
     {
-        $username = 'admin';
+        $username = ' admin  ';
         $ip = '10.0.0.1';
-        $combinedKey = $username . '-' . $ip;
+        $combinedKey = 'admin-' . $ip;
 
         $resetCalls = [];
         $resetIfConfiguredCalls = [];
@@ -107,7 +107,7 @@ class AuthControllerTest extends TestCase
 
         static::assertSame([[RateLimiter::OAUTH, $combinedKey]], $resetCalls);
         static::assertSame([
-            [RateLimiter::OAUTH_USER, $username],
+            [RateLimiter::OAUTH_USER, 'admin'],
             [RateLimiter::OAUTH_CLIENT, $ip],
         ], $resetIfConfiguredCalls);
     }

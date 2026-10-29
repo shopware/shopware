@@ -59,7 +59,7 @@ class LoginRoute extends AbstractLoginRoute
 
         if ($this->requestStack->getMainRequest() !== null) {
             $clientIpKey = (string) $this->requestStack->getMainRequest()->getClientIp();
-            $emailKey = strtolower($email);
+            $emailKey = strtolower(trim($email));
             $combinedKey = $emailKey . '-' . $clientIpKey;
 
             try {

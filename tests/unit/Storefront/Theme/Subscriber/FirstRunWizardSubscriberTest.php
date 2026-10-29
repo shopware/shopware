@@ -103,11 +103,9 @@ class FirstRunWizardSubscriberTest extends TestCase
             $themes[] = $theme;
         }
 
-        /** @var StaticEntityRepository<ThemeCollection> $themeRepository */
         $themeRepository = new StaticEntityRepository([new ThemeCollection($themes)]);
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
-        $salesChannelRepository = new StaticEntityRepository([$salesChannelIds]);
+        $salesChannelRepository = StaticEntityRepository::of(SalesChannelCollection::class, [$salesChannelIds]);
 
         return new FirstRunWizardSubscriber(
             $this->themeService,

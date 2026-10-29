@@ -11,6 +11,13 @@ const EntityCollection = Shopware.Data.EntityCollection;
 const Criteria = Shopware.Data.Criteria;
 const utils = Shopware.Utils;
 
+// FRAMEWORK__ is only used before v6.8.0.0
+const SEO_URL_ROUTE_NOT_FOUND_CODES = ['FRAMEWORK__SEO_URL_ROUTE_NOT_FOUND', 'CONTENT__SEO_URL_ROUTE_NOT_FOUND'];
+
+function isSeoUrlRouteNotFoundError(error) {
+    return SEO_URL_ROUTE_NOT_FOUND_CODES.includes(error?.response?.data?.errors?.[0]?.code);
+}
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -146,9 +153,16 @@ export default {
 
                     // Create stores for the possible variables
                     if (!this.variableStores.hasOwnProperty(seoUrlTemplate.id)) {
-                        this.seoUrlTemplateService.getContext(seoUrlTemplate).then((data) => {
-                            this.createVariableOptions(seoUrlTemplate.id, data);
-                        });
+                        this.seoUrlTemplateService
+                            .getContext(seoUrlTemplate)
+                            .then((data) => {
+                                this.createVariableOptions(seoUrlTemplate.id, data);
+                            })
+                            .catch((error) => {
+                                if (!isSeoUrlRouteNotFoundError(error)) {
+                                    throw error;
+                                }
+                            });
                     }
                 });
             });
@@ -342,12 +356,33 @@ export default {
                     this.previewLoadingStates[entity.id] = false;
                 })
                 .catch((err) => {
+                    if (isSeoUrlRouteNotFoundError(err)) {
+                        this.previewLoadingStates[entity.id] = false;
+                        this.removeSeoUrlTemplatesOfRoute(entity.routeName);
+
+                        return;
+                    }
+
                     this.setErrorMessagesForEntity(entity, err.response.data.errors[0].detail);
 
                     this.previews[entity.id] = [];
 
                     this.previewLoadingStates[entity.id] = false;
                 });
+        },
+        removeSeoUrlTemplatesOfRoute(routeName) {
+            // Only hidden, so the templates are back once their extension is reactivated
+            [
+                this.seoUrlTemplates,
+                this.defaultSeoUrlTemplates,
+            ].forEach((collection) => {
+                collection
+                    .filter((entity) => entity.routeName === routeName)
+                    .forEach((entity) => {
+                        collection.remove(entity.id);
+                        delete this.errorMessages[entity.id];
+                    });
+            });
         },
         fetchSalesChannels() {
             const criteria = new Criteria(1, 25);

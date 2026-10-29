@@ -59,7 +59,7 @@ function isBaselined(message: string): boolean {
 /**
  * The two sides of a major's feature-flag branch, for `Feature.branch()`.
  *
- * @private
+ * @experimental stableVersion:v6.8.0 feature:ADMIN_FEATURE_BRANCH
  * @example
  * const options: MajorBranches<string, string> = { beforeMajor: () => legacyLabel(), sinceMajor: () => label() };
  */
@@ -124,13 +124,14 @@ export default class Feature {
 
     /**
      * Branches on a major: runs `beforeMajor` while `majorFlag` is inactive, `sinceMajor` once it is active,
-     * and returns what the branch returns. Core uses it where it still has to call its own deprecated API until
-     * the major, like the PHP `Feature::silent()`: `beforeMajor` runs with the deprecations of `majorFlag`
-     * silenced, so core does not report itself. An extension calling the same API still gets the deprecation.
+     * and returns what the branch returns. Use it to stay backward compatible until the major, like the PHP
+     * `Feature::silent()`: `beforeMajor` keeps the old path, which may still call deprecated APIs, and runs with
+     * the deprecations of `majorFlag` silenced, as the branch already handles them. Calls of the same APIs outside
+     * of a branch still report.
      *
      * Silencing ends when `beforeMajor` returns, so it must be synchronous: a returned promise throws.
      *
-     * @private
+     * @experimental stableVersion:v6.8.0 feature:ADMIN_FEATURE_BRANCH
      * @example
      * Shopware.Feature.branch('V6_8_0_0', {
      *     beforeMajor: () => this.initModuleLocales(),

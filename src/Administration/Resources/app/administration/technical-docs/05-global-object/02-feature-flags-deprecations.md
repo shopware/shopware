@@ -157,10 +157,11 @@ This rule ensures proper handling of deprecated features and prevents inappropri
 Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'oldMethod() is deprecated. Use newMethod() instead.');
 ```
 
-Where core itself still has to call a deprecated API until the major, it branches with `Feature.branch()`
-instead of an `if (Feature.isActive(...))`. `beforeMajor` runs while the flag is inactive, with the
-deprecations of that major silenced, `sinceMajor` once it is active. Core does not report itself, while an
-extension calling the same API still gets the deprecation, like with the PHP `Feature::silent()`:
+Code that has to stay backward compatible until the major, in core or in an extension, branches with the
+experimental `Feature.branch()` instead of an `if (Feature.isActive(...))`. `beforeMajor` runs while the flag
+is inactive, with the deprecations of that major silenced, `sinceMajor` once it is active. The old path may
+still call deprecated APIs without reporting them, while calls outside of a branch still report, like with
+the PHP `Feature::silent()`:
 
 ```typescript
 Shopware.Feature.branch('V6_8_0_0', {

@@ -190,7 +190,7 @@ export default class NavbarPlugin extends Plugin {
         }
 
         if (Array.isArray(this.options.pathIdList) && this.options.pathIdList.length > 0) {
-            console.warn('[NavbarPlugin] Using the pathIdList option because window.activeNavigationPathIdList is missing. Render window.activeNavigationPathIdList in the page head to provide a path that is safe with ESI caching.');
+            console.warn('[NavbarPlugin] Using the pathIdList option. Set window.activeNavigationPathIdList for ESI-safe navigation.');
 
             return this.options.pathIdList;
         }
@@ -210,7 +210,7 @@ export default class NavbarPlugin extends Plugin {
             return;
         }
 
-        console.warn('[NavbarPlugin] Deriving the active navigation from the DOM because no navigation path is available. Render window.activeNavigationPathIdList in the page head to include categories outside the rendered navbar.');
+        console.warn('[NavbarPlugin] Deriving the active navigation from the DOM. Set window.activeNavigationPathIdList for the full path.');
 
         const topLevelLink = Array.from(this._topLevelLinks).find((link) => {
             return link !== activeNavItem && link.closest(this.options.navItemSelector)?.contains(activeNavItem);

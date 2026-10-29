@@ -31,7 +31,14 @@ export default class AddToCartByNumberEvent extends AnalyticsEvent
             return;
         }
 
+        // The listener sits on the form, so the lookup only sees this form's fields. The field name
+        // is what the add by number controller reads, which makes it a more stable hook than a
+        // styling class a theme may change.
         const input = event.currentTarget.querySelector('input[name="number"]');
+        if (!input?.value) {
+            return;
+        }
+
         const additionalProperties = LineItemHelper.getAdditionalProperties();
 
         this.pushEvent('add_to_cart', {

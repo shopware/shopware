@@ -133,11 +133,17 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
             </div>
         `;
 
+        const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
         new ViewItemListEvent().execute();
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', expect.objectContaining({
             'value': 20,
             'items': [expect.objectContaining({ item_id: 'SW10000' })],
         }));
+        expect(warn).toHaveBeenCalledTimes(1);
+        expect(warn).toHaveBeenCalledWith('[Google Analytics Plugin] Product information of a product box is not valid JSON. Skipping product.');
+
+        warn.mockRestore();
     });
 });

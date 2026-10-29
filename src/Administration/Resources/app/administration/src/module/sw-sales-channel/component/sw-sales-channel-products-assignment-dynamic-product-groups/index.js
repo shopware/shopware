@@ -53,15 +53,7 @@ export default {
         },
 
         productCriteria() {
-            const criteria = new Criteria(1, 500);
-
-            criteria.filters = this.productStreamFilter;
-            criteria.addAssociation('visibilities.salesChannel');
-            criteria.addFilter(
-                Criteria.not('AND', [Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id)]),
-            );
-
-            return criteria;
+            return this.createProductCriteria(this.productStreamFilter);
         },
 
         productStreamCriteria() {
@@ -151,7 +143,10 @@ export default {
 
             try {
                 const products = await this.getProductsFromProductStreams(productStreams);
-                this.$emit('selection-change', products, 'groupProducts');
+                this.$emit('selection-change', products, 'groupProducts', {
+                    ids: Object.keys(productStreams),
+                    total: products.total,
+                });
             } catch (error) {
                 this.createNotificationError({ message: error.message });
             }
@@ -159,7 +154,9 @@ export default {
 
         getProductsFromProductStreams(productStreams) {
             const promises = Object.keys(productStreams).map((id) => {
-                return this.getProductStreamFilter(id).then(() => this.getProducts());
+                return this.getProductStreamFilter(id).then((filter) => {
+                    return this.getProducts(Array.isArray(filter) ? filter : this.productStreamFilter);
+                });
             });
 
             this.$emit('product-loading', true);
@@ -168,6 +165,8 @@ export default {
             return Promise.all(promises)
                 .then((values) => {
                     const products = values.flat();
+                    products.total = values.reduce((sum, { total }) => sum + total, 0);
+
                     return products;
                 })
                 .finally(() => {
@@ -179,8 +178,10 @@ export default {
         getProductStreamFilter(id) {
             return this.productStreamRepository
                 .get(id)
-                .then((productStreamFilter) => {
-                    this.productStreamFilter = productStreamFilter.apiFilter;
+                .then((productStream) => {
+                    this.productStreamFilter = productStream.apiFilter;
+
+                    return this.productStreamFilter;
                 })
                 .catch((error) => {
                     this.productStreamFilter = [];
@@ -188,8 +189,19 @@ export default {
                 });
         },
 
-        getProducts() {
-            return this.productRepository.search(this.productCriteria).then((products) => {
+        createProductCriteria(filter) {
+            const criteria = new Criteria(1, 500);
+
+            criteria.filters = filter;
+            criteria.addFilter(
+                Criteria.not('AND', [Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id)]),
+            );
+
+            return criteria;
+        },
+
+        getProducts(filter = this.productStreamFilter) {
+            return this.productRepository.search(this.createProductCriteria(filter)).then((products) => {
                 return products;
             });
         },

@@ -20,6 +20,12 @@ export default class AnalyticsEvent
     }
 
     /**
+     * Ecommerce parameters are normalized here, so every event and every extension event sends
+     * the format GA4 documents without repeating the conversion at each call site.
+     * Most values are read from `data-*` attributes and arrive as strings, while GA4 expects
+     * numbers for amounts and quantities. Empty optional values are dropped instead of being
+     * sent as empty properties, and amounts summed up in the browser lose their floating point noise.
+     *
      * @param {string} name
      * @param {Object} parameters
      * @param {Object} options

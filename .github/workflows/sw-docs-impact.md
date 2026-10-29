@@ -129,7 +129,7 @@ steps:
     continue-on-error: true
     uses: shopware/octo-sts-action@main
     with:
-      scope: shopware/enduser-docs
+      scope: shopware/enduser-docs-sbp-sync
       identity: sw-docs-impact
   - name: Check out the end-user documentation
     id: enduser_docs_checkout
@@ -137,7 +137,7 @@ steps:
     continue-on-error: true
     uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
     with:
-      repository: shopware/enduser-docs
+      repository: shopware/enduser-docs-sbp-sync
       path: .sw-docs-impact-enduser-docs-src
       token: ${{ steps.enduser_docs_token.outputs.token }}
       persist-credentials: false

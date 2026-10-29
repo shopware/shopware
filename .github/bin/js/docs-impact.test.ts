@@ -385,18 +385,20 @@ test('postComment posts dead docs links as plain text', async () => {
 test('latestEndUserPages keeps the highest article version per page and maps it to its URL', () => {
     assert.deepEqual(
         latestEndUserPages([
-            'shopware-6/configuration/settings/countries/v1-6-0-0.md',
-            'shopware-6/configuration/settings/countries/v1-10-0-0.md',
-            'shopware-6/configuration/settings/countries/v1-5-0-1.md',
-            'shopware-6/configuration/settings/index.md',
+            'shopware-6/settings/countries/v1-6-0-0.md',
+            'shopware-6/settings/countries/v1-10-0-0.md',
+            'shopware-6/settings/countries/v1-5-0-1.md',
+            'shopware-6/settings/index.md',
             'shopware-account/settings/user/v1-0-0.md',
-            'shopware-6/configuration/settings/countries/notes.md',
-            'v1-0-0-0.md',
+            'shopware-6/migration-en/magento/v1-0-0-0.md',
+            'shopware-6/settings/countries/notes.md',
+            'other/page/v1-0-0-0.md',
         ]),
         [
-            { source: 'shopware-6/configuration/settings/index.md', target: 'shopware-6/configuration/settings.md', url: 'https://docs.shopware.com/en/shopware-6/configuration/settings' },
-            { source: 'shopware-6/configuration/settings/countries/v1-10-0-0.md', target: 'shopware-6/configuration/settings/countries.md', url: 'https://docs.shopware.com/en/shopware-6/configuration/settings/countries' },
-            { source: 'shopware-account/settings/user/v1-0-0.md', target: 'shopware-account/settings/user.md', url: 'https://docs.shopware.com/en/shopware-account/settings/user' },
+            { source: 'shopware-6/migration-en/magento/v1-0-0-0.md', target: 'shopware-6/migration-en/magento.md', url: 'https://docs.shopware.com/en/migration-en/magento' },
+            { source: 'shopware-6/settings/index.md', target: 'shopware-6/settings.md', url: 'https://docs.shopware.com/en/shopware-6-en/settings' },
+            { source: 'shopware-6/settings/countries/v1-10-0-0.md', target: 'shopware-6/settings/countries.md', url: 'https://docs.shopware.com/en/shopware-6-en/settings/countries' },
+            { source: 'shopware-account/settings/user/v1-0-0.md', target: 'shopware-account/settings/user.md', url: 'https://docs.shopware.com/en/account-en/settings/user' },
         ],
     );
 });
@@ -411,7 +413,7 @@ test('buildEndUserDocs writes one file per page with its URL on the first line',
     }
 
     assert.equal(buildEndUserDocs(content, out), 100);
-    assert.equal(readFileSync(join(out, 'shopware-6', 'page-7.md'), 'utf8'), 'URL: https://docs.shopware.com/en/shopware-6/page-7\n\nnew 7');
+    assert.equal(readFileSync(join(out, 'shopware-6', 'page-7.md'), 'utf8'), 'URL: https://docs.shopware.com/en/shopware-6-en/page-7\n\nnew 7');
 });
 
 test('buildEndUserDocs refuses a suspiciously small content tree', () => {

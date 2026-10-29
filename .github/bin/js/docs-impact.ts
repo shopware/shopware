@@ -275,7 +275,17 @@ export async function postComment(
     core.info(`Posted documentation-impact comment on #${number}`);
 }
 
-const END_USER_DOCS_URL = 'https://docs.shopware.com/en/';
+export const END_USER_DOCS_SECTIONS: Record<string, string> = {
+    'shopware-6/migration-en': 'https://docs.shopware.com/en/migration-en',
+    'shopware-6': 'https://docs.shopware.com/en/shopware-6-en',
+    'shopware-account': 'https://docs.shopware.com/en/account-en',
+};
+
+function endUserUrl(page: string): string {
+    const prefix = Object.keys(END_USER_DOCS_SECTIONS).find((section) => page === section || page.startsWith(`${section}/`)) as string;
+
+    return END_USER_DOCS_SECTIONS[prefix] + page.slice(prefix.length);
+}
 
 const MIN_END_USER_PAGES = 100;
 
@@ -300,9 +310,9 @@ export function latestEndUserPages(files: string[]): EndUserPage[] {
     const latest = new Map<string, { file: string; version: string | null }>();
 
     for (const file of files) {
-        const parts = file.split('/');
-        const name = parts.pop() as string;
-        if (parts.length === 0) {
+        const [section, ...rest] = file.split('/');
+        const name = rest.pop();
+        if (!name || !(section in END_USER_DOCS_SECTIONS)) {
             continue;
         }
 
@@ -311,7 +321,7 @@ export function latestEndUserPages(files: string[]): EndUserPage[] {
             continue;
         }
 
-        const page = parts.join('/');
+        const page = [section, ...rest].join('/');
         const current = latest.get(page);
         if (!current || (version !== null && (current.version === null || compareArticleVersions(version, current.version) > 0))) {
             latest.set(page, { file, version });
@@ -319,7 +329,7 @@ export function latestEndUserPages(files: string[]): EndUserPage[] {
     }
 
     return [...latest]
-        .map(([page, { file }]) => ({ source: file, target: `${page}.md`, url: END_USER_DOCS_URL + page }))
+        .map(([page, { file }]) => ({ source: file, target: `${page}.md`, url: endUserUrl(page) }))
         .sort((a, b) => a.target.localeCompare(b.target));
 }
 

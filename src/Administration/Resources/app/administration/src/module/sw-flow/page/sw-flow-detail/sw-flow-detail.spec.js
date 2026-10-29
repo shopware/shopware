@@ -294,16 +294,45 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         });
     });
 
-    it.each([
-        'mailTemplateIdsCriteria',
-        'customFieldSetCriteria',
-        'customFieldCriteria',
-    ])('should not limit the entities a flow references in %s', async (criteriaName) => {
-        const wrapper = await createWrapper();
+    it('should not limit the entities a flow references', async () => {
+        global.activeAclRoles = ['flow.editor'];
+
+        const criteriaByEntity = {};
+
+        const recordingRepositoryFactoryMock = {
+            create: (entity) => {
+                if (entity === 'flow') {
+                    return {
+                        get: () =>
+                            Promise.resolve({
+                                id: ID_FLOW,
+                                name: 'Flow 1',
+                                eventName: 'checkout.customer',
+                                sequences: getSequencesCollection([
+                                    { ...sequenceFixture, id: '1', actionName: 'action.mail.send' },
+                                    { ...sequenceFixture, id: '2', actionName: 'action.set.order.custom.field' },
+                                ]),
+                            }),
+                    };
+                }
+
+                return {
+                    create: () => ({}),
+                    search: (criteria) => {
+                        criteriaByEntity[entity] = criteria;
+
+                        return Promise.resolve([]);
+                    },
+                };
+            },
+        };
+
+        await createWrapper({}, {}, ID_FLOW, true, {}, { repositoryFactory: recordingRepositoryFactoryMock });
         await flushPromises();
 
-        // the criteria is already narrowed to the ids the sequences reference, so a limit would drop references
-        expect(wrapper.vm[criteriaName].limit).toBeNull();
+        expect(criteriaByEntity.mail_template.limit).toBeNull();
+        expect(criteriaByEntity.custom_field_set.limit).toBeNull();
+        expect(criteriaByEntity.custom_field.limit).toBeNull();
     });
 
     it('should not be able to save a flow', async () => {

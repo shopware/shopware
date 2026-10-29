@@ -128,6 +128,11 @@ class DocumentApiService extends ApiService {
     }
 
     createDocumentEvent(action, payload) {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_9_0_0',
+            'documentService.createDocumentEvent() is deprecated. Removed with document generation v1; use documentV2ApiService instead.',
+        );
+
         return { action, payload };
     }
 

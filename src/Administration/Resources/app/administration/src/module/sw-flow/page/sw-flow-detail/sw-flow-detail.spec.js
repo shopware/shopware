@@ -294,6 +294,18 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         });
     });
 
+    it.each([
+        'mailTemplateIdsCriteria',
+        'customFieldSetCriteria',
+        'customFieldCriteria',
+    ])('should not limit the entities a flow references in %s', async (criteriaName) => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        // the criteria is already narrowed to the ids the sequences reference, so a limit would drop references
+        expect(wrapper.vm[criteriaName].limit).toBeNull();
+    });
+
     it('should not be able to save a flow', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();

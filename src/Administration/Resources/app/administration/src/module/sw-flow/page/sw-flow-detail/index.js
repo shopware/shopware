@@ -114,7 +114,7 @@ export default {
         },
 
         mailTemplateIdsCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, null);
             criteria.addAssociation('mailTemplateType');
             criteria.addFilter(Criteria.equalsAny('id', this.mailTemplateIds));
 
@@ -159,14 +159,14 @@ export default {
         },
 
         customFieldSetCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equalsAny('id', this.customFieldSetIds));
 
             return criteria;
         },
 
         customFieldCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equalsAny('id', this.customFieldIds));
 
             return criteria;
@@ -723,7 +723,7 @@ export default {
                 return;
             }
 
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equalsAny('id', ruleIds));
 
             this.ruleRepository.search(criteria).then((rules) => {

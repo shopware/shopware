@@ -821,7 +821,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
                 taxStatus: 'gross',
             },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         let deleteItemModal = wrapper.find('.sw-order-line-items-grid__delete-item-modal');
         expect(deleteItemModal.exists()).toBeFalsy();

@@ -5,7 +5,7 @@
  */
 
 import { error, warn } from 'src/core/service/utils/debug.utils';
-import deprecationBaseline from 'src/meta/deprecation-baseline.json';
+import deprecationBaseline from 'src/core/deprecation-baseline.json';
 
 /**
  * Majors the Administration already deprecates for, while the backend does not register their flag yet.
@@ -34,7 +34,7 @@ export type DeprecationOptions = {
 };
 
 /**
- * The key of a deprecation in `src/meta/deprecation-baseline.json`: the message without the component path the
+ * The key of a deprecation in `src/core/deprecation-baseline.json`: the message without the component path the
  * deprecation plugin appends (`Used in: …`), so one key covers every place the deprecated API is used.
  *
  * @private
@@ -46,7 +46,7 @@ export function deprecationBaselineKey(message: string): string {
 }
 
 /**
- * Whether `message` is in `src/meta/deprecation-baseline.json`, the known core debt that logs an error instead of
+ * Whether `message` is in `src/core/deprecation-baseline.json`, the known core debt that logs an error instead of
  * throwing once its major is active. Matched per message, as the running Administration does not know the usage site.
  *
  * @example
@@ -108,7 +108,7 @@ export default class Feature {
     /**
      * Guards a deprecated API where it is used, like the PHP `Feature::triggerDeprecationOrThrow()`:
      * warns while `majorFlag` is inactive, throws once it is active. A message listed in
-     * `src/meta/deprecation-baseline.json` is known core debt, so it logs an error instead of throwing.
+     * `src/core/deprecation-baseline.json` is known core debt, so it logs an error instead of throwing.
      * An unregistered flag can never become active, so it logs an error instead of the warning, unless it is
      * an upcoming major the backend does not register yet.
      *

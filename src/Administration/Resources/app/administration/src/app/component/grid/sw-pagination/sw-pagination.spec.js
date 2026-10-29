@@ -36,11 +36,11 @@ describe('src/component/grid/sw-pagination', () => {
 
             // visit next page
             await nextPageButton.trigger('click');
-            await wrapper.vm.$nextTick();
+            await flushPromises();
         } else {
             // visit next page
             await arrowButton.trigger('click');
-            await wrapper.vm.$nextTick();
+            await flushPromises();
         }
 
         if (direction === 'right') {

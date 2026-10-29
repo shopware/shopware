@@ -13,6 +13,14 @@ abstract class AbstractDto
     public ?array $extensions;
 
     /**
+     * Checks whether a property is initialized, including an explicit null value.
+     */
+    public function has(string $property): bool
+    {
+        return \array_key_exists($property, get_object_vars($this));
+    }
+
+    /**
      * @param array<string, mixed> $extension
      */
     public function addExtension(string $name, array $extension): void

@@ -1,4 +1,5 @@
-import { writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 
 export const AUDIENCES = ['end-user', 'developer'] as const;
 
@@ -205,9 +206,30 @@ export function candidateItems(agentOutput: { items?: AgentOutputItem[] }): Agen
     return (agentOutput.items ?? []).filter((item) => item.type === 'docs_candidate');
 }
 
+const DOCS_LINK = /\[([^\]]+)\]\((https:\/\/(?:docs|developer)\.shopware\.com\/[^\s)]*)\)/g;
+
+export async function isDeadLink(url: string): Promise<boolean> {
+    try {
+        const response = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(10000) });
+        await response.body?.cancel();
+
+        return response.status === 404 || response.status === 410;
+    } catch {
+        return false;
+    }
+}
+
+export async function unlinkDeadDocsLinks(summary: string, isDead: (url: string) => Promise<boolean>): Promise<string> {
+    const urls = [...new Set([...summary.matchAll(DOCS_LINK)].map((match) => match[2]))];
+    const dead = new Set((await Promise.all(urls.map(async (url) => ((await isDead(url)) ? url : null)))).filter((url) => url !== null));
+
+    return summary.replace(DOCS_LINK, (link, text: string, url: string) => (dead.has(url) ? text : link));
+}
+
 export async function postComment(
     { github, context, core }: { github: GitHub; context: Context; core: Core },
     agentOutput: { items?: AgentOutputItem[] },
+    isDead: (url: string) => Promise<boolean> = isDeadLink,
 ): Promise<void> {
     const items = candidateItems(agentOutput);
     if (items.length === 0) {
@@ -229,7 +251,7 @@ export async function postComment(
     }
 
     parseAudiences(item.audiences ?? '');
-    const body = buildComment(item.summary);
+    const body = buildComment(await unlinkDeadDocsLinks(item.summary, isDead));
     if (isDryRun(context)) {
         core.info(`Dry run: not commenting on #${number}`);
         await core.summary?.addRaw(`## Dry run: comment for #${number}\n\n${body}`, true).write();
@@ -251,4 +273,68 @@ export async function postComment(
 
     await github.rest.issues.createComment({ ...context.repo, issue_number: number, body });
     core.info(`Posted documentation-impact comment on #${number}`);
+}
+
+const END_USER_DOCS_URL = 'https://docs.shopware.com/en/';
+
+const MIN_END_USER_PAGES = 100;
+
+const ARTICLE_VERSION = /^v(\d+(?:-\d+)*)\.md$/;
+
+export type EndUserPage = { source: string; target: string; url: string };
+
+function compareArticleVersions(a: string, b: string): number {
+    const left = a.split('-').map(Number);
+    const right = b.split('-').map(Number);
+    for (let i = 0; i < Math.max(left.length, right.length); i++) {
+        const diff = (left[i] ?? 0) - (right[i] ?? 0);
+        if (diff !== 0) {
+            return diff;
+        }
+    }
+
+    return 0;
+}
+
+export function latestEndUserPages(files: string[]): EndUserPage[] {
+    const latest = new Map<string, { file: string; version: string | null }>();
+
+    for (const file of files) {
+        const parts = file.split('/');
+        const name = parts.pop() as string;
+        if (parts.length === 0) {
+            continue;
+        }
+
+        const version = name === 'index.md' ? null : name.match(ARTICLE_VERSION)?.[1];
+        if (version === undefined) {
+            continue;
+        }
+
+        const page = parts.join('/');
+        const current = latest.get(page);
+        if (!current || (version !== null && (current.version === null || compareArticleVersions(version, current.version) > 0))) {
+            latest.set(page, { file, version });
+        }
+    }
+
+    return [...latest]
+        .map(([page, { file }]) => ({ source: file, target: `${page}.md`, url: END_USER_DOCS_URL + page }))
+        .sort((a, b) => a.target.localeCompare(b.target));
+}
+
+export function buildEndUserDocs(contentDir: string, outDir: string): number {
+    const files = (readdirSync(contentDir, { recursive: true }) as string[]).filter((file) => file.endsWith('.md'));
+    const pages = latestEndUserPages(files);
+    if (pages.length < MIN_END_USER_PAGES) {
+        throw new Error(`Only ${pages.length} end-user pages found in ${contentDir}; expected at least ${MIN_END_USER_PAGES}`);
+    }
+
+    for (const page of pages) {
+        const target = join(outDir, page.target);
+        mkdirSync(dirname(target), { recursive: true });
+        writeFileSync(target, `URL: ${page.url}\n\n${readFileSync(join(contentDir, page.source), 'utf8')}`);
+    }
+
+    return pages.length;
 }

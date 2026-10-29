@@ -1,18 +1,21 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, existsSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, existsSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import {
     COMMENT_MARKER,
     buildComment,
+    buildEndUserDocs,
     collectAgentInput,
+    latestEndUserPages,
     isDryRun,
     neutraliseMentions,
     parseAudiences,
     postComment,
     resolvePullRequestNumber,
     shouldCheck,
+    unlinkDeadDocsLinks,
 } from './docs-impact.ts';
 
 type Call = { method: string; params: Record<string, unknown> };
@@ -336,4 +339,85 @@ test('postComment in a dry run writes the comment to the step summary only', asy
     assert.equal(written.length, 1);
     assert.ok(written[0].includes('Dry run: comment for #9'));
     assert.ok(written[0].includes('New event'));
+});
+
+test('unlinkDeadDocsLinks turns dead docs links into plain text and checks each URL once', async () => {
+    const checked: string[] = [];
+    const isDead = async (url: string) => {
+        checked.push(url);
+        return url.endsWith('/gone');
+    };
+
+    const summary = [
+        '- **Adjust** [Products](https://docs.shopware.com/en/gone): a',
+        '- **Adjust** [Products again](https://docs.shopware.com/en/gone): b',
+        '- **Add** [Rate limiter](https://developer.shopware.com/docs/rate-limiter.html): c',
+        '- See [the PR](https://github.com/shopware/shopware/pull/1)',
+    ].join('\n');
+
+    assert.equal(
+        await unlinkDeadDocsLinks(summary, isDead),
+        [
+            '- **Adjust** Products: a',
+            '- **Adjust** Products again: b',
+            '- **Add** [Rate limiter](https://developer.shopware.com/docs/rate-limiter.html): c',
+            '- See [the PR](https://github.com/shopware/shopware/pull/1)',
+        ].join('\n'),
+    );
+    assert.deepEqual(checked, ['https://docs.shopware.com/en/gone', 'https://developer.shopware.com/docs/rate-limiter.html']);
+});
+
+test('postComment posts dead docs links as plain text', async () => {
+    const { github, calls } = fakeGitHub();
+    const { core } = fakeCore();
+
+    await postComment(
+        { github, context: pushContext({ pr_number: '9' }), core },
+        { items: [{ type: 'docs_candidate', audiences: 'end-user', summary: '- **Adjust** [Products](https://docs.shopware.com/en/gone): a' }] },
+        async () => true,
+    );
+
+    const body = String(calls.find((c) => c.method === 'createComment')?.params.body);
+    assert.ok(body.includes('- **Adjust** Products: a'));
+    assert.equal(body.includes('https://docs.shopware.com'), false);
+});
+
+test('latestEndUserPages keeps the highest article version per page and maps it to its URL', () => {
+    assert.deepEqual(
+        latestEndUserPages([
+            'shopware-6/configuration/settings/countries/v1-6-0-0.md',
+            'shopware-6/configuration/settings/countries/v1-10-0-0.md',
+            'shopware-6/configuration/settings/countries/v1-5-0-1.md',
+            'shopware-6/configuration/settings/index.md',
+            'shopware-account/settings/user/v1-0-0.md',
+            'shopware-6/configuration/settings/countries/notes.md',
+            'v1-0-0-0.md',
+        ]),
+        [
+            { source: 'shopware-6/configuration/settings/index.md', target: 'shopware-6/configuration/settings.md', url: 'https://docs.shopware.com/en/shopware-6/configuration/settings' },
+            { source: 'shopware-6/configuration/settings/countries/v1-10-0-0.md', target: 'shopware-6/configuration/settings/countries.md', url: 'https://docs.shopware.com/en/shopware-6/configuration/settings/countries' },
+            { source: 'shopware-account/settings/user/v1-0-0.md', target: 'shopware-account/settings/user.md', url: 'https://docs.shopware.com/en/shopware-account/settings/user' },
+        ],
+    );
+});
+
+test('buildEndUserDocs writes one file per page with its URL on the first line', () => {
+    const content = mkdtempSync(join(tmpdir(), 'enduser-src-'));
+    const out = mkdtempSync(join(tmpdir(), 'enduser-out-'));
+    for (let i = 0; i < 100; i++) {
+        mkdirSync(join(content, 'shopware-6', `page-${i}`), { recursive: true });
+        writeFileSync(join(content, 'shopware-6', `page-${i}`, 'v1-0-0-0.md'), `old ${i}`);
+        writeFileSync(join(content, 'shopware-6', `page-${i}`, 'v1-1-0-0.md'), `new ${i}`);
+    }
+
+    assert.equal(buildEndUserDocs(content, out), 100);
+    assert.equal(readFileSync(join(out, 'shopware-6', 'page-7.md'), 'utf8'), 'URL: https://docs.shopware.com/en/shopware-6/page-7\n\nnew 7');
+});
+
+test('buildEndUserDocs refuses a suspiciously small content tree', () => {
+    const content = mkdtempSync(join(tmpdir(), 'enduser-src-'));
+    mkdirSync(join(content, 'shopware-6', 'only'), { recursive: true });
+    writeFileSync(join(content, 'shopware-6', 'only', 'v1-0-0-0.md'), 'x');
+
+    assert.throws(() => buildEndUserDocs(content, mkdtempSync(join(tmpdir(), 'enduser-out-'))), /Only 1 end-user pages/);
 });

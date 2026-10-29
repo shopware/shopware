@@ -125,6 +125,35 @@ steps:
       repository: shopware/docs
       path: .sw-docs-impact/docs
       persist-credentials: false
+  - id: enduser_docs_token
+    continue-on-error: true
+    uses: shopware/octo-sts-action@main
+    with:
+      scope: shopware/enduser-docs
+      identity: sw-docs-impact
+  - name: Check out the end-user documentation
+    id: enduser_docs_checkout
+    if: steps.enduser_docs_token.outputs.token != ''
+    continue-on-error: true
+    uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+    with:
+      repository: shopware/enduser-docs
+      path: .sw-docs-impact-enduser-docs-src
+      token: ${{ steps.enduser_docs_token.outputs.token }}
+      persist-credentials: false
+      sparse-checkout: content/en
+      filter: blob:none
+  - name: Index the end-user documentation
+    if: steps.enduser_docs_checkout.outcome == 'success'
+    continue-on-error: true
+    uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+    with:
+      script: |
+        const { rmSync } = await import('node:fs')
+        const { buildEndUserDocs } = await import('${{ github.workspace }}/.github/bin/js/docs-impact.ts')
+        const src = '${{ github.workspace }}/.sw-docs-impact-enduser-docs-src'
+        core.info(`Indexed ${buildEndUserDocs(`${src}/content/en`, '${{ github.workspace }}/.sw-docs-impact/enduser-docs')} end-user pages`)
+        rmSync(src, { recursive: true, force: true })
 
 engine:
   id: claude
@@ -136,6 +165,7 @@ engine:
 
 permissions:
   contents: read
+  id-token: write
   pull-requests: read
 network: defaults
 timeout-minutes: 15
@@ -200,5 +230,5 @@ safe-outputs:
 
 - Event: `${{ github.event_name }}`
 
-Read `.sw-docs-impact/pr.json` and `.sw-docs-impact/pr.diff`, check `.sw-docs-impact/docs`,
-decide per the policy above, and finish with exactly one `docs_candidate` or `noop` call.
+Read `.sw-docs-impact/pr.json` and `.sw-docs-impact/pr.diff`, check `.sw-docs-impact/docs`
+and `.sw-docs-impact/enduser-docs`, decide per the policy above, and finish with exactly one `docs_candidate` or `noop` call.

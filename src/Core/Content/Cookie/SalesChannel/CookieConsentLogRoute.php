@@ -45,10 +45,12 @@ class CookieConsentLogRoute
 
     /**
      * @internal
+     *
+     * @param \Closure(): CookieConsentLogStorageInterface $storage resolved per decision, so a wrong storage config only breaks the logging
      */
     public function __construct(
         private readonly AbstractCookieRoute $cookieRoute,
-        private readonly CookieConsentLogStorageInterface $storage,
+        private readonly \Closure $storage,
         private readonly ClockInterface $clock,
         private readonly RateLimiter $rateLimiter,
         private readonly CacheInterface $cache,
@@ -97,10 +99,12 @@ class CookieConsentLogRoute
             createdAt: $now,
         );
 
+        $storage = ($this->storage)();
+
         // The snapshot goes first, so a stored decision always resolves to the banner it was given on.
         // A known banner already has its snapshot, so the storage is only asked once per hash.
-        $this->cache->get(self::SNAPSHOT_CACHE_KEY_PREFIX . $configuration->getHash(), function () use ($configuration, $cookieGroups, $now): bool {
-            $this->storage->snapshot(new CookieConsentConfigSnapshot(
+        $this->cache->get(self::SNAPSHOT_CACHE_KEY_PREFIX . $configuration->getHash(), static function () use ($storage, $configuration, $cookieGroups, $now): bool {
+            $storage->snapshot(new CookieConsentConfigSnapshot(
                 configHash: $configuration->getHash(),
                 cookieGroups: $cookieGroups,
                 createdAt: $now,
@@ -108,7 +112,7 @@ class CookieConsentLogRoute
 
             return true;
         });
-        $this->storage->log($record);
+        $storage->log($record);
 
         return new NoContentResponse();
     }

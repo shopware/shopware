@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * The record is pseudonymous: `consentId` is an opaque token the visitor's client
  * generated and keeps in its own cookie storage. It links the decisions of one
- * visitor and lets a data subject retrieve their own records, but it is neither an
+ * visitor, so their records can be found in an export, but it is neither an
  * IP address, a session id nor a customer id.
  *
  * @phpstan-type CookieConsentRecordJson array{

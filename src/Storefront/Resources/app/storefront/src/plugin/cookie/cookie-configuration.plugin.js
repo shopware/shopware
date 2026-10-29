@@ -586,7 +586,7 @@ export default class CookieConfiguration extends Plugin {
 
     /**
      * Opaque token that links the consent decisions of this browser in the server-side
-     * log, so a visitor can retrieve their own records. Generated on the first decision
+     * log, so the records of one visitor can be found in an export. Generated on the first decision
      * and kept in its own cookie. The lifetime comes from the cookie configuration, where
      * the server sets it to the retention period of the log, and every decision refreshes it.
      *

@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentConfigSnapshot;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentDecision;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentLogStorageInterface;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
+use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Content\Cookie\Extension\CookieConsentLogRouteExtension;
 use Shopware\Core\Content\Cookie\SalesChannel\AbstractCookieRoute;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieConsentLogPayload;
@@ -256,6 +257,27 @@ class CookieConsentLogRouteTest extends TestCase
         $this->createRoute($rateLimiter)->log($this->payload(['consentAction' => 'accept_all']), $this->request('203.0.113.7'), Generator::generateSalesChannelContext());
     }
 
+    public function testTheStorageIsOnlyResolvedWhenADecisionIsLogged(): void
+    {
+        $cookieRoute = static::createStub(AbstractCookieRoute::class);
+        $cookieRoute->method('getCookieGroups')
+            ->willReturn(new CookieRouteResponse($this->cookieGroups(), 'server-hash', 'language-id'));
+
+        // Building the route must not fail, the routes that depend on it stay usable
+        $route = new CookieConsentLogRoute(
+            $cookieRoute,
+            static fn () => throw CookieException::consentLogStorageNotFound('databse', ['database', 'none']),
+            new MockClock('2026-07-13 12:00:00'),
+            $this->rateLimiter,
+            new ArrayAdapter(),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $this->expectExceptionObject(CookieException::consentLogStorageNotFound('databse', ['database', 'none']));
+
+        $route->log($this->payload(['consentAction' => 'accept_all']), new Request(), Generator::generateSalesChannelContext());
+    }
+
     public function testAnExceededRateLimitStoresNothing(): void
     {
         $this->rateLimiter->method('ensureAccepted')
@@ -291,7 +313,7 @@ class CookieConsentLogRouteTest extends TestCase
 
         return new CookieConsentLogRoute(
             $cookieRoute,
-            $this->storage,
+            fn () => $this->storage,
             new MockClock('2026-07-13 12:00:00'),
             $rateLimiter,
             new ArrayAdapter(),

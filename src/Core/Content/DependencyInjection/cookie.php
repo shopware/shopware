@@ -24,6 +24,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service_closure;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_locator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
@@ -76,7 +77,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(CookieRoute::class),
-            service(CookieConsentLogStorageInterface::class),
+            service_closure(CookieConsentLogStorageInterface::class),
             service(ClockInterface::class),
             service(RateLimiter::class),
             service('cache.object'),

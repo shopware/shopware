@@ -46,9 +46,10 @@ class CookieConsentLogRouteTest extends TestCase
     {
         $this->connection = static::getContainer()->get(Connection::class);
 
+        $storage = new DatabaseCookieConsentLogStorage($this->connection);
         $this->route = new CookieConsentLogRoute(
             static::getContainer()->get(CookieRoute::class),
-            new DatabaseCookieConsentLogStorage($this->connection),
+            static fn () => $storage,
             new NativeClock(),
             static::createStub(RateLimiter::class),
             new ArrayAdapter(),

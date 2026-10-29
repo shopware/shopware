@@ -20,6 +20,10 @@ use Shopware\Core\Checkout\Cart\RuleLoaderResult;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -463,6 +467,48 @@ class RecalculationServiceTest extends TestCase
         );
 
         $recalculationService->recalculate($orderEntity->getId(), $this->context);
+    }
+
+    public function testReplaceOrderAddressWithCustomerAddressClearsFieldsTheCustomerAddressLeavesEmpty(): void
+    {
+        $orderAddress = new OrderAddressEntity();
+        $orderAddress->setId(Uuid::randomHex());
+        $orderAddress->setVersionId(Uuid::randomHex());
+        $orderAddress->setCompany('ACME Corp');
+
+        $customerAddress = new CustomerAddressEntity();
+        $customerAddress->setId(Uuid::randomHex());
+        $customerAddress->setFirstName('Max');
+        $customerAddress->setLastName('Mustermann');
+        $customerAddress->setStreet('Musterstraße 1');
+        $customerAddress->setCity('Musterstadt');
+        $customerAddress->setCountryId(Uuid::randomHex());
+
+        $orderAddressRepository = new StaticEntityRepository([new OrderAddressCollection([$orderAddress])]);
+
+        $recalculationService = new RecalculationService(
+            $this->createMock(EntityRepository::class),
+            $this->orderConverter,
+            $this->createMock(CartService::class),
+            $this->createMock(EntityRepository::class),
+            $orderAddressRepository,
+            new StaticEntityRepository([new CustomerAddressCollection([$customerAddress])]),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(Processor::class),
+            $this->cartRuleLoader,
+            $this->createMock(PromotionItemBuilder::class)
+        );
+
+        $recalculationService->replaceOrderAddressWithCustomerAddress($orderAddress->getId(), $customerAddress->getId(), $this->context);
+
+        static::assertCount(1, $orderAddressRepository->upserts);
+        $upsert = $orderAddressRepository->upserts[0][0];
+        static::assertIsArray($upsert);
+        static::assertSame($orderAddress->getId(), $upsert['id']);
+        static::assertSame('Musterstraße 1', $upsert['street']);
+        static::assertArrayHasKey('company', $upsert);
+        static::assertNull($upsert['company']);
     }
 
     private function orderEntity(): OrderEntity

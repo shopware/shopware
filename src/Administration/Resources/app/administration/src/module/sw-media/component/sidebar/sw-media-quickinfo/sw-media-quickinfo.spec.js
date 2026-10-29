@@ -64,15 +64,19 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                             'core.store.media.defaultEnableAugmentedReality': 'false',
                         });
                     },
-                    getConfig: () => {
+                    getSchema: () => {
                         return Promise.resolve([
                             {
-                                elements: [
+                                cards: [
                                     {
-                                        name: 'core.media.defaultARPlacement',
-                                        config: {
-                                            options: arPlacementOptions,
-                                        },
+                                        elements: [
+                                            {
+                                                name: 'core.media.defaultARPlacement',
+                                                config: {
+                                                    options: arPlacementOptions,
+                                                },
+                                            },
+                                        ],
                                     },
                                 ],
                             },

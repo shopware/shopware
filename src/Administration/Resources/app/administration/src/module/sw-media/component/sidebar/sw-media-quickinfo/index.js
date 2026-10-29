@@ -182,10 +182,11 @@ export default {
                 this.defaultArPlacement = values['core.media.defaultARPlacement'];
             });
 
-            this.systemConfigApiService.getConfig('core.media').then((config) => {
-                config
-                    .flat()[0]
-                    .elements.filter((element) => element.name === 'core.media.defaultARPlacement')
+            this.systemConfigApiService.getSchema('core.media').then((schema) => {
+                schema
+                    .flatMap((tab) => tab.cards)
+                    .flatMap((card) => card.elements)
+                    .filter((element) => element.name === 'core.media.defaultARPlacement')
                     .forEach((element) => {
                         this.arPlacementOptions = element.config.options.map((option) => {
                             return {

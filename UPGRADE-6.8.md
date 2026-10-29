@@ -2630,6 +2630,12 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 <details>
 
+## Removal of CMS section background template variables
+
+The Twig variables `sectionBgImg` and `sectionBgImgMode` in `storefront/page/content/detail.html.twig` were deprecated and are removed in 6.8.0.0.
+The section background image is rendered through the `page_content_section_background_image` block.
+Use `section.backgroundMedia` with `sw_thumbnails` and `section.backgroundMediaMode` instead.
+
 ## Removal of deprecated `ListingPlugin` properties
 
 The following deprecated properties of the `ListingPlugin` class in `listing.plugin.js` carrying single elements have been removed and were replaced respectively by new properties carrying `NodeList`s:
@@ -2935,6 +2941,38 @@ The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id
     {{ category.name }}
 {% endfor %}
 ```
+
+## Changed variables in `@Storefront/storefront/layout/breadcrumb.html.twig`
+
+The breadcrumb template only accepts the breadcrumb entries as the `breadcrumb` input.
+The `category` and `categoryId` inputs and the `breadcrumbCollection` input were removed.
+
+Templates that extend the `layout_breadcrumb_list_item` block can rely on these variables:
+
+| Variable | Content |
+|----------|---------|
+| `breadcrumb` | The current `Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb` entry |
+| `categoryId` | The category ID of the current entry |
+| `activeId` | The category ID of the last entry, which is the current page |
+| `breadcrumbCollection` | All entries |
+| `name`, `type`, `categoryUrl`, `shouldOpenInNewTab`, `isActive` | Unchanged |
+
+The following variables were removed:
+
+| Removed variable | Replacement |
+|------------------|-------------|
+| `breadcrumbCategory` | `breadcrumb`, which is a `Breadcrumb` struct instead of a `CategoryEntity`. Use `breadcrumb.name` instead of `breadcrumbCategory.translated.name`, and `breadcrumb.categoryId` instead of `breadcrumbCategory.id`. |
+| `key` | `categoryId` |
+| `breadcrumbCategories` | `breadcrumbCollection` |
+| `breadcrumbKeys` | `loop.last` |
+
+`categoryId` changed its meaning.
+It used to hold the ID of the active category, and now holds the ID of the current entry.
+Use `activeId` to compare against the active category.
+`activeId` is already available in 6.7, so overrides can switch to it before the update.
+
+The `layout_breadcrumb_placeholder` block was removed, because the separator is rendered with CSS.
+Extend `layout_breadcrumb_list_item` to change the separator.
 
 ## Removal of DeleteThemeFilesMessage and its handler
 

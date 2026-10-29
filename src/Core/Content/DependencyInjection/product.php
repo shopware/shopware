@@ -24,6 +24,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCustomFieldSet\ProductCustomFieldSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentLimits;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentValidator;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
@@ -140,6 +142,8 @@ use Shopware\Core\Content\Product\Stock\OrderStockSubscriber;
 use Shopware\Core\Content\Product\Stock\StockStorage;
 use Shopware\Core\Content\Product\Subscriber\CustomFieldSearchableSubscriber;
 use Shopware\Core\Content\Product\Subscriber\ProductDescriptionTeaserSubscriber;
+use Shopware\Core\Content\Product\Subscriber\ProductDocumentCleanupSubscriber;
+use Shopware\Core\Content\Product\Subscriber\ProductDocumentTitleSubscriber;
 use Shopware\Core\Content\Product\Subscriber\ProductSubscriber;
 use Shopware\Core\Content\Product\Subscriber\RepairDigitalProductStatesSubscriber;
 use Shopware\Core\Content\Product\Util\VariantCombinationLoader;
@@ -237,6 +241,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ProductDocumentTranslationDefinition::class)
         ->tag('shopware.entity.definition');
+
+    $services->set(ProductDocumentLimits::class)
+        ->args([
+            param('shopware.product_documents.allowed_extensions'),
+            param('shopware.product_documents.max_per_language'),
+            param('shopware.product_documents.max_file_size'),
+        ]);
+
+    $services->set(ProductDocumentValidator::class)
+        ->args([
+            service(Connection::class),
+            service(ProductDocumentLimits::class),
+        ])
+        ->tag('kernel.event_subscriber');
 
     $services->set(ProductTranslationDefinition::class)
         ->tag('shopware.entity.definition');
@@ -383,6 +401,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ProductDescriptionTeaserSubscriber::class)
         ->args([
             service(ProductDescriptionTeaserBuilder::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(ProductDocumentTitleSubscriber::class)
+        ->args([
+            service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(ProductDocumentCleanupSubscriber::class)
+        ->args([
+            service('product_document.repository'),
         ])
         ->tag('kernel.event_subscriber');
 

@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentLimits;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
@@ -137,6 +138,10 @@ class InfoControllerTest extends TestCase
         static::assertSame(2, $settings['minSearchTermLength']);
         static::assertArrayHasKey('hideUpdateModule', $settings);
         static::assertFalse($settings['hideUpdateModule']);
+        static::assertSame(
+            ['allowedExtensions' => ['pdf', 'docx'], 'maxPerLanguage' => 10, 'maxFileSize' => 1024],
+            $settings['productDocuments'] ?? null,
+        );
 
         static::assertArrayHasKey('inAppPurchases', $data);
         $inAppPurchases = $data['inAppPurchases'];
@@ -407,6 +412,7 @@ class InfoControllerTest extends TestCase
             $this->eventDispatcher,
             null,
             new MediaFileExtensionListProvider($this->eventDispatcher, [], ['pdf', 'epub']),
+            new ProductDocumentLimits(['pdf', 'docx'], maxPerLanguage: 10, maxFileSize: 1024),
         );
     }
 }

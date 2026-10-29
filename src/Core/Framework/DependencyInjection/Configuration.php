@@ -63,6 +63,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createProductExportSection())
                 ->append($this->createSsoLoginSection())
                 ->append($this->createProductTypesSection())
+                ->append($this->createProductDocumentsSection())
                 ->append($this->createMcpSection())
                 ->append($this->createAppSystemSection())
                 ->append($this->createWebhookSection())
@@ -1048,6 +1049,38 @@ class Configuration implements ConfigurationInterface
                     ->integerNode('relevant_keyword_count')
                         ->min(1)
                         ->defaultValue(8)
+                    ->end()
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createProductDocumentsSection(): ArrayNodeDefinition
+    {
+        $rootNode = (new TreeBuilder('product_documents'))->getRootNode();
+        $rootNode
+            ->info('Limits for the documents of products, such as manuals or datasheets. Saving a document checks them.')
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->arrayNode('allowed_extensions')
+                    ->info('File types a document can have. A list in your own configuration replaces this one.')
+                    ->defaultValue(['pdf', 'docx', 'jpg', 'jpeg', 'png'])
+                    ->performNoDeepMerging()
+                    ->scalarPrototype()->cannotBeEmpty()->end()
+                ->end()
+                ->integerNode('max_per_language')
+                    ->info('How many documents a product can have in one language.')
+                    ->min(1)
+                    ->defaultValue(10)
+                ->end()
+                ->scalarNode('max_file_size')
+                    ->info('How big the file of a document can be, for example "20MB". PHP\'s upload_max_filesize and post_max_size can lower it for uploads.')
+                    ->defaultValue(20 * 1024 * 1024)
+                    ->validate()->always(static fn ($value) => MemorySizeCalculator::convertToBytes((string) $value))->end()
+                    ->validate()
+                        ->ifTrue(static fn (int $value) => $value < 1)
+                        ->thenInvalid('The maximum file size of product documents must be a size like "20MB", got %s bytes.')
                     ->end()
                 ->end()
             ->end();

@@ -743,6 +743,10 @@ shopware:
         search_keyword:
             indexing: true
             relevant_keyword_count: 8
+    product_documents:
+        allowed_extensions: ["pdf", "docx", "jpg", "jpeg", "png"]
+        max_per_language: 10
+        max_file_size: 20MB
 
     webhook:
         #@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation

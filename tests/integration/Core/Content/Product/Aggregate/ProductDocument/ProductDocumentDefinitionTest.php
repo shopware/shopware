@@ -267,6 +267,25 @@ class ProductDocumentDefinitionTest extends TestCase
         static::assertSame([$this->ids->get('certificate-en')], $this->translated($german, 'mediaId'));
     }
 
+    public function testDeletingTheFileOfTheDefaultVersionDeletesTheDocument(): void
+    {
+        $germanId = $this->getDeDeLanguageId();
+        $this->createProduct('drill', documents: [
+            [
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => ['title' => 'Certificate', 'mediaId' => $this->createMedia('certificate-en')],
+                    $germanId => ['title' => 'Zertifikat', 'mediaId' => $this->createMedia('certificate-de')],
+                ],
+            ],
+            ['title' => 'Manual', 'mediaId' => $this->createMedia('manual-en')],
+        ]);
+
+        $this->mediaRepository->delete([['id' => $this->ids->get('certificate-en')]], $this->context);
+
+        static::assertSame(['Manual'], $this->translated($this->loadDocuments('drill'), 'title'));
+        static::assertSame([$this->ids->get('certificate-de')], $this->mediaRepository->searchIds(new Criteria([$this->ids->get('certificate-de')]), $this->context)->getIds());
+    }
+
     public function testCloningAProductCopiesItsDocumentsWithTheirVersions(): void
     {
         $germanId = $this->getDeDeLanguageId();
@@ -407,6 +426,7 @@ class ProductDocumentDefinitionTest extends TestCase
             'fileName' => $key,
             'fileExtension' => 'pdf',
             'mimeType' => 'application/pdf',
+            'fileSize' => 1024,
         ]], $this->context);
 
         return $this->ids->get($key);

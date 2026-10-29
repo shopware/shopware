@@ -71,8 +71,7 @@ class ImportExportTest extends TestCase
         $importExportService = static::createStub(ImportExportService::class);
         $importExportService->method('findLog')->willReturn($logEntity);
 
-        /** @var StaticEntityRepository<OrderCollection> */
-        $repository = new StaticEntityRepository([], new OrderDefinition());
+        $repository = StaticEntityRepository::of(OrderCollection::class, [], new OrderDefinition());
 
         $importExport = new ImportExport(
             $importExportService,
@@ -162,8 +161,7 @@ class ImportExportTest extends TestCase
         $importStrategyService->method('import')->willReturn(new ImportResult([], []));
         $importStrategyService->method('commit')->willReturn(new ImportResult([], []));
 
-        /** @var StaticEntityRepository<CustomerCollection> */
-        $repository = new StaticEntityRepository([], new CustomerDefinition());
+        $repository = StaticEntityRepository::of(CustomerCollection::class, [], new CustomerDefinition());
 
         $importExport = new ImportExport(
             $importExportService,
@@ -220,8 +218,7 @@ class ImportExportTest extends TestCase
         $writer = $this->createMock(AbstractWriter::class);
         $writer->expects($this->never())->method('append');
 
-        /** @var StaticEntityRepository<CustomerCollection> */
-        $repository = new StaticEntityRepository([], new CustomerDefinition());
+        $repository = StaticEntityRepository::of(CustomerCollection::class, [], new CustomerDefinition());
 
         $importExport = new ImportExport(
             $importExportService,
@@ -291,8 +288,8 @@ class ImportExportTest extends TestCase
 
         $orderId = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<OrderCollection> */
-        $repository = new StaticEntityRepository(
+        $repository = StaticEntityRepository::of(
+            OrderCollection::class,
             [new EntitySearchResult(
                 OrderDefinition::ENTITY_NAME,
                 1,
@@ -402,8 +399,8 @@ class ImportExportTest extends TestCase
 
         $dictId = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<OrderCollection> */
-        $repository = new StaticEntityRepository(
+        $repository = StaticEntityRepository::of(
+            OrderCollection::class,
             [
                 static function (Criteria $criteria, Context $ctx) use ($dictId): EntitySearchResult {
                     $sortings = $criteria->getSorting();
@@ -554,8 +551,8 @@ class ImportExportTest extends TestCase
             }
         );
 
-        /** @var StaticEntityRepository<OrderCollection> */
-        $repository = new StaticEntityRepository(
+        $repository = StaticEntityRepository::of(
+            OrderCollection::class,
             [new EntitySearchResult(
                 OrderDefinition::ENTITY_NAME,
                 1,
@@ -707,8 +704,7 @@ class ImportExportTest extends TestCase
         $writer->expects($this->exactly(1))->method('flush');
         $writer->expects($this->exactly(1))->method('finish');
 
-        /** @var StaticEntityRepository<OrderCollection> */
-        $repository = new StaticEntityRepository([], new OrderDefinition());
+        $repository = StaticEntityRepository::of(OrderCollection::class, [], new OrderDefinition());
 
         $importExport = new ImportExport(
             $importExportService,

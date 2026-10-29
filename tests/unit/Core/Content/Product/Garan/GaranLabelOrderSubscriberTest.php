@@ -105,8 +105,7 @@ class GaranLabelOrderSubscriberTest extends TestCase
      */
     private function createSubscriber(array $searchResults): GaranLabelOrderSubscriber
     {
-        /** @var StaticEntityRepository<ProductCollection> $productRepository */
-        $productRepository = new StaticEntityRepository($searchResults, new ProductDefinition());
+        $productRepository = StaticEntityRepository::of(ProductCollection::class, $searchResults, new ProductDefinition());
 
         return new GaranLabelOrderSubscriber($productRepository, GaranLabelFixtures::createResolver());
     }

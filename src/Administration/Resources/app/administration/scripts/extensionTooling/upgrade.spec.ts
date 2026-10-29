@@ -15,6 +15,7 @@ import {
     writeFile,
     writePluginsConfig,
 } from './test-helpers';
+import { stripAnsi } from './report.spec/helpers';
 
 jest.setTimeout(120_000);
 
@@ -249,6 +250,33 @@ describe('scripts/extensionTooling/upgrade', () => {
         expect(result.extensions[0].skipped).toBeUndefined();
     });
 
+    it('still runs the codemods when one source folder has nothing to lint', async () => {
+        writeFile(path.join(projectRoot, PLUGIN, 'src/Snippets/Resources/app/administration/src/snippet/en.json'), [
+            '{}',
+        ]);
+        writePluginsConfig(projectRoot, [
+            {
+                technicalName: 'AcmeUpgrade',
+                basePath: `${PLUGIN}/src`,
+                administrationPath: 'Resources/app/administration/src',
+            },
+            {
+                technicalName: 'AcmeSnippets',
+                basePath: `${PLUGIN}/src/Snippets`,
+                administrationPath: 'Resources/app/administration/src',
+            },
+        ]);
+
+        const result = await upgradeExtensions({ projectRoot, administrationRoot });
+        const [extension] = result.extensions;
+
+        expect(result.exitCode).toBe(0);
+        expect(extension.errors).toEqual([]);
+        expect(extension.codemods.find((report) => report.codemod.id === 'tc-translation')).toMatchObject({
+            changes: 1,
+        });
+    });
+
     it('leaves vendor extensions alone unless they are named via --only', async () => {
         writePlugin(projectRoot, 'vendor/acme/vendor-upgrade');
         writePluginsConfig(projectRoot, [
@@ -299,8 +327,8 @@ describe('scripts/extensionTooling/upgrade', () => {
 
         beforeEach(() => {
             output = [];
-            jest.spyOn(console, 'log').mockImplementation((line: string) => output.push(line));
-            jest.spyOn(console, 'error').mockImplementation((line: string) => output.push(line));
+            jest.spyOn(console, 'log').mockImplementation((line: string) => output.push(stripAnsi(line)));
+            jest.spyOn(console, 'error').mockImplementation((line: string) => output.push(stripAnsi(line)));
         });
 
         afterEach(() => {

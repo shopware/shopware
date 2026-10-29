@@ -172,6 +172,8 @@ function runEslint(options: {
             '--format',
             'json',
             '--no-warn-ignored',
+            // A source folder with only snippets or styles must not abort the run for the other folders.
+            '--no-error-on-unmatched-pattern',
             ...(options.fix ? ['--fix'] : []),
             ...options.sourceDirectories.map((directory) => path.relative(options.extensionRoot, directory) || '.'),
         ],

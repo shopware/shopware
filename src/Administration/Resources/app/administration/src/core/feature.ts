@@ -57,6 +57,20 @@ function isBaselined(message: string): boolean {
 }
 
 /**
+ * The two sides of a major's feature-flag branch, for `Feature.branch()`.
+ *
+ * @private
+ * @example
+ * const options: MajorBranches<string, string> = { beforeMajor: () => legacyLabel(), sinceMajor: () => label() };
+ */
+export type MajorBranches<TBefore, TSince> = {
+    /** Runs while the major is inactive, with that major's deprecations silenced. Must be synchronous. */
+    beforeMajor: () => TBefore;
+    /** Runs once the major is active. Its deprecations report as usual. */
+    sinceMajor?: () => TSince;
+};
+
+/**
  * A static registry containing a list of all registered flags and the associated activation state
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -64,6 +78,9 @@ export default class Feature {
     static flags: { [featureName: string]: boolean } = {};
 
     private static reportedDeprecations = new Set<string>();
+
+    /** How deep each major's `Feature.branch()` calls are nested, by normalized flag name. */
+    private static silencedMajors = new Map<string, number>();
 
     static init(flagConfig: { [featureName: string]: boolean }): void {
         Object.entries(flagConfig).forEach(([flagName, isActive]) => {
@@ -106,17 +123,80 @@ export default class Feature {
     }
 
     /**
+     * Branches on a major: runs `beforeMajor` while `majorFlag` is inactive, `sinceMajor` once it is active,
+     * and returns what the branch returns. Core uses it where it still has to call its own deprecated API until
+     * the major, like the PHP `Feature::silent()`: `beforeMajor` runs with the deprecations of `majorFlag`
+     * silenced, so core does not report itself. An extension calling the same API still gets the deprecation.
+     *
+     * Silencing ends when `beforeMajor` returns, so it must be synchronous: a returned promise throws.
+     *
+     * @private
+     * @example
+     * Shopware.Feature.branch('V6_8_0_0', {
+     *     beforeMajor: () => this.initModuleLocales(),
+     *     sinceMajor: () => registerModuleLocales(),
+     * });
+     */
+    static branch<TBefore, TSince = undefined>(
+        majorFlag: string,
+        { beforeMajor, sinceMajor }: MajorBranches<TBefore, TSince>,
+    ): TBefore | TSince | undefined {
+        if (this.isActive(majorFlag)) {
+            return sinceMajor?.();
+        }
+
+        const flag = majorFlag.toUpperCase();
+        this.silencedMajors.set(flag, (this.silencedMajors.get(flag) ?? 0) + 1);
+
+        try {
+            const result = beforeMajor();
+
+            if (result instanceof Promise) {
+                throw new Error(
+                    `Feature.branch('${majorFlag}') silences only synchronous code: await outside of \`beforeMajor\`.`,
+                );
+            }
+
+            return result;
+        } finally {
+            const depth = (this.silencedMajors.get(flag) ?? 1) - 1;
+
+            if (depth === 0) {
+                this.silencedMajors.delete(flag);
+            } else {
+                this.silencedMajors.set(flag, depth);
+            }
+        }
+    }
+
+    /**
+     * Whether a `Feature.branch()` currently runs its `beforeMajor` for `majorFlag`, which silences its deprecations.
+     *
+     * @private
+     * @example
+     * Feature.isSilenced('V6_8_0_0'); // true inside `Feature.branch('V6_8_0_0', { beforeMajor })`
+     */
+    static isSilenced(majorFlag: string): boolean {
+        return this.silencedMajors.has(majorFlag.toUpperCase());
+    }
+
+    /**
      * Guards a deprecated API where it is used, like the PHP `Feature::triggerDeprecationOrThrow()`:
      * warns while `majorFlag` is inactive, throws once it is active. A message listed in
      * `src/core/deprecation-baseline.json` is known core debt, so it logs an error instead of throwing.
      * An unregistered flag can never become active, so it logs an error instead of the warning, unless it is
-     * an upcoming major the backend does not register yet.
+     * an upcoming major the backend does not register yet. Inside the `beforeMajor` of a `Feature.branch()`
+     * for `majorFlag` it does nothing.
      *
      * @example
      * Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'oldMethod() is deprecated. Use newMethod() instead.');
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars -- only the Jest deprecation recorder reads `options`
     static triggerDeprecationOrThrow(majorFlag: string, message: string, options?: DeprecationOptions): void {
+        if (this.isSilenced(majorFlag)) {
+            return;
+        }
+
         const isMajorActive = this.isActive(majorFlag);
 
         if (isMajorActive && !isBaselined(message)) {

@@ -339,7 +339,9 @@ export default {
             }
 
             // @deprecated tag:v6.9.0 - Removed with document generation v1.
-            this.documentService.setListener(this.convertStoreEventToVueEvent);
+            Shopware.Feature.branch('V6_9_0_0', {
+                beforeMajor: () => this.documentService.setListener(this.convertStoreEventToVueEvent),
+            });
         },
 
         documentTypeLabel(document) {

@@ -430,7 +430,6 @@ const missingTests = [
     'src/module/sw-sales-channel/product-export-templates/index.js',
     'src/module/sw-sales-channel/service/domain-link.service.js',
     'src/module/sw-sales-channel/service/export-template.service.js',
-    'src/module/sw-sales-channel/view/sw-sales-channel-create-base/index.js',
     'src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison-preview/index.js',
     'src/module/sw-settings/component/sw-settings-item/index.js',
     'src/module/sw-settings-basic-information/component/sw-settings-captcha-select-v2/index.js',

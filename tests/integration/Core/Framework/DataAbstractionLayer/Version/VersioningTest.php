@@ -2118,6 +2118,37 @@ class VersioningTest extends TestCase
         static::assertNotNull($clone->getBillingAddress());
     }
 
+    public function testACloneOfAProductOwnsItsCover(): void
+    {
+        $context = Context::createDefaultContext();
+        $productId = Uuid::randomHex();
+        $coverId = Uuid::randomHex();
+        $cloneId = Uuid::randomHex();
+
+        $this->productRepository->create([[
+            'id' => $productId,
+            'productNumber' => $productId,
+            'stock' => 1,
+            'name' => 'with cover',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8, 'linked' => false]],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'media' => [
+                ['id' => $coverId, 'position' => 0, 'media' => ['id' => Uuid::randomHex()]],
+                ['id' => Uuid::randomHex(), 'position' => 1, 'media' => ['id' => Uuid::randomHex()]],
+            ],
+            'coverId' => $coverId,
+        ]], $context);
+
+        // The product number is unique, so the Administration's duplicate always overwrites it and leaves the variants out.
+        $this->productRepository->clone($productId, $context, $cloneId, new CloneBehavior(['productNumber' => Uuid::randomHex()], cloneChildren: false));
+
+        $clone = $this->loadProductWithMedia($cloneId, $context);
+        $cloneMediaIds = $clone->getMedia()?->getIds() ?? [];
+        static::assertCount(2, $cloneMediaIds);
+        static::assertNotContains($coverId, $cloneMediaIds);
+        static::assertContains($clone->getCoverId(), $cloneMediaIds);
+    }
+
     private function loadOrderWithAddresses(string $orderId, Context $context): OrderEntity
     {
         $criteria = (new Criteria([$orderId]))
@@ -2129,6 +2160,16 @@ class VersioningTest extends TestCase
         static::assertInstanceOf(OrderEntity::class, $order);
 
         return $order;
+    }
+
+    private function loadProductWithMedia(string $productId, Context $context): ProductEntity
+    {
+        $criteria = (new Criteria([$productId]))->addAssociation('media');
+
+        $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
+
+        return $product;
     }
 
     private function createOrder(): string

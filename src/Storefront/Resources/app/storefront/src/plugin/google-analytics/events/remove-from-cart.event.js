@@ -29,39 +29,43 @@ export default class RemoveFromCart extends AnalyticsEvent
             return;
         }
 
-        const productId = removeButton.getAttribute('data-product-id');
-        if (!productId) {
+        // despite its name, the attribute holds the line item id, which a Store API client or an
+        // extension can set to something other than the product id
+        const lineItemId = removeButton.getAttribute('data-product-id');
+        if (!lineItemId) {
             return;
         }
 
-        const additionalProperties = LineItemHelper.getAdditionalProperties();
-
-        // Find the product data from the hidden line items container
-        const hiddenLineItem = document.querySelector(`.hidden-line-item[data-id="${productId}"]`);
+        // Only product line items are rendered in the hidden line items, so a remove button
+        // without a match belongs to a discount or another line item that is not a product. GA4
+        // does not report those as items. A theme that renders the hidden line item without the
+        // line item id still matches by the product id. The ids are compared instead of put into a
+        // selector, as a line item id from an API client can contain characters a selector would
+        // have to escape.
+        const hiddenLineItems = [...document.querySelectorAll('.hidden-line-item')];
+        const hiddenLineItem = hiddenLineItems.find(element => element.getAttribute('data-line-item-id') === lineItemId)
+            ?? hiddenLineItems.find(element => element.getAttribute('data-id') === lineItemId);
         if (!hiddenLineItem) {
-            // Fallback: send event with just the product ID
-            gtag('event', 'remove_from_cart', {
-                'currency': additionalProperties.currency,
-                'items': [{ 'id': productId }],
-            });
             return;
         }
 
+        const productId = hiddenLineItem.getAttribute('data-id');
+        const additionalProperties = LineItemHelper.getAdditionalProperties();
         const categories = LineItemHelper.getCategoriesFromElement(hiddenLineItem);
         const price = hiddenLineItem.getAttribute('data-price');
         const quantity = hiddenLineItem.getAttribute('data-quantity');
         const sku = hiddenLineItem.getAttribute('data-sku');
         const value = (parseFloat(price) || 0) * (parseInt(quantity, 10) || 1);
 
-        gtag('event', 'remove_from_cart', {
+        this.pushEvent('remove_from_cart', {
             'currency': additionalProperties.currency,
-            'value': value.toFixed(2),
+            'value': value,
             'items': [{
-                'id': sku ?? productId,
-                'name': hiddenLineItem.getAttribute('data-name'),
+                'item_id': sku ?? productId,
+                'item_name': hiddenLineItem.getAttribute('data-name'),
                 'quantity': quantity,
                 'price': price,
-                'brand': hiddenLineItem.getAttribute('data-brand'),
+                'item_brand': hiddenLineItem.getAttribute('data-brand'),
                 ...categories,
             }],
         });

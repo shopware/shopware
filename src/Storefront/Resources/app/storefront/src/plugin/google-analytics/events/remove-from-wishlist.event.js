@@ -91,13 +91,14 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
             categories = lineItemData.categories || {};
         }
 
-        gtag('event', 'remove_from_wishlist', {
+        this.pushEvent('remove_from_wishlist', {
             'currency': productData.currency,
             'value': productData.value,
             'items': [{
-                'id': productData.id ?? productId,
-                'name': productData.name,
-                'brand': productData.brand,
+                'item_id': productData.id ?? productId,
+                'item_name': productData.name,
+                'item_brand': productData.brand,
+                'price': productData.value,
                 ...categories,
             }],
         });

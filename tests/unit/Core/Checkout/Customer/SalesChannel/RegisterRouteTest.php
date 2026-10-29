@@ -18,6 +18,8 @@ use Shopware\Core\Checkout\Customer\Extension\RegisterRouteExtension;
 use Shopware\Core\Checkout\Customer\SalesChannel\CustomerResponse;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
+use Shopware\Core\Checkout\Customer\Validation\AddressType;
+use Shopware\Core\Checkout\Customer\Validation\BuildAddressValidationEvent;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
@@ -839,6 +841,51 @@ class RegisterRouteTest extends TestCase
         static::assertInstanceOf(NotBlank::class, $vatIdConstraintsOnDispatch[0]);
         static::assertInstanceOf(Type::class, $vatIdConstraintsOnDispatch[1]);
         static::assertInstanceOf(CustomerVatIdentification::class, $vatIdConstraintsOnDispatch[2]);
+    }
+
+    public function testAddressValidationEventsCarryTheValidatedAddress(): void
+    {
+        $addressValidationFactory = static::createStub(DataValidationFactoryInterface::class);
+        $addressValidationFactory
+            ->method('create')
+            ->willReturnCallback(static fn (): DataValidationDefinition => new DataValidationDefinition('address.create'));
+
+        $events = [];
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener('framework.validation.address.create', static function (BuildValidationEvent $event) use (&$events): void {
+            $events[] = $event;
+        });
+
+        $register = $this->createRegisterRoute(
+            eventDispatcher: $eventDispatcher,
+            addressValidationFactory: $addressValidationFactory,
+        );
+
+        $data = $this->createRegistrationData([
+            'billingAddress' => [
+                'street' => 'Billing Street 1',
+                'countryId' => Uuid::randomHex(),
+            ],
+            'shippingAddress' => [
+                'street' => 'Shipping Street 2',
+                'countryId' => Uuid::randomHex(),
+            ],
+        ]);
+
+        $register->register(new RequestDataBag($data), Generator::generateSalesChannelContext(), false);
+
+        static::assertCount(2, $events);
+        [$billing, $shipping] = $events;
+
+        static::assertInstanceOf(BuildAddressValidationEvent::class, $billing);
+        static::assertSame(AddressType::BILLING, $billing->getAddressType());
+        static::assertSame('Billing Street 1', $billing->getAddress()->get('street'));
+        static::assertSame('test@example.com', $billing->getData()->get('email'));
+
+        static::assertInstanceOf(BuildAddressValidationEvent::class, $shipping);
+        static::assertSame(AddressType::SHIPPING, $shipping->getAddressType());
+        static::assertSame('Shipping Street 2', $shipping->getAddress()->get('street'));
+        static::assertSame('test@example.com', $shipping->getData()->get('email'));
     }
 
     public function testRegisterWithoutBillingAddressCountryViolation(): void

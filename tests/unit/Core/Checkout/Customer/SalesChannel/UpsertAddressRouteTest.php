@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Extension\UpsertAddressRouteExtension;
 use Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRouteResponse;
+use Shopware\Core\Checkout\Customer\Validation\BuildAddressValidationEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
@@ -266,6 +268,63 @@ class UpsertAddressRouteTest extends TestCase
         ]);
 
         $upsert->upsert(null, $data, static::createStub(SalesChannelContext::class), $customer);
+    }
+
+    public function testAddressValidationEventCarriesTheAddress(): void
+    {
+        $address = new CustomerAddressEntity();
+        $address->setId(Uuid::randomHex());
+
+        $salesChannelAddressRepository = static::createStub(SalesChannelRepository::class);
+        $salesChannelAddressRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                CustomerAddressDefinition::ENTITY_NAME,
+                1,
+                new CustomerAddressCollection([$address]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        $addressValidationFactory = static::createStub(DataValidationFactoryInterface::class);
+        $addressValidationFactory
+            ->method('create')
+            ->willReturn(new DataValidationDefinition('address.create'));
+
+        $events = [];
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener('framework.validation.address.create', static function (BuildValidationEvent $event) use (&$events): void {
+            $events[] = $event;
+        });
+
+        $upsert = new UpsertAddressRoute(
+            static::createStub(EntityRepository::class),
+            $salesChannelAddressRepository,
+            static::createStub(DataValidator::class),
+            $eventDispatcher,
+            $addressValidationFactory,
+            static::createStub(SystemConfigService::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        $data = new RequestDataBag([
+            'salutationId' => Uuid::randomHex(),
+            'street' => 'Main Street 1',
+        ]);
+
+        $upsert->upsert(null, $data, Generator::generateSalesChannelContext(), $customer);
+
+        static::assertCount(1, $events);
+        static::assertInstanceOf(BuildAddressValidationEvent::class, $events[0]);
+        static::assertSame($data, $events[0]->getAddress());
+        static::assertSame($data, $events[0]->getData());
+        static::assertNull($events[0]->getAddressType());
     }
 
     public function testPublishesExtension(): void

@@ -7,6 +7,8 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\Validation\AddressType;
+use Shopware\Core\Checkout\Customer\Validation\BuildAddressValidationEvent;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
@@ -14,7 +16,6 @@ use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -114,18 +115,20 @@ class CheckoutConfirmPageLoader
         SalesChannelContext $context
     ): void {
         $validation = $this->addressValidationFactory->create($context);
+        $addressData = [];
         if ($billingAddress) {
             $validation->set('zipcode', new CustomerZipCode(countryId: $billingAddress->getCountryId()));
+            $addressData = $billingAddress->jsonSerialize();
         }
 
-        $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
+        $validationEvent = new BuildAddressValidationEvent($validation, new DataBag(), $context->getContext(), new DataBag($addressData), AddressType::BILLING);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         if ($billingAddress === null) {
             return;
         }
 
-        $violations = $this->validator->getViolations($billingAddress->jsonSerialize(), $validation);
+        $violations = $this->validator->getViolations($addressData, $validation);
 
         if ($violations->count() > 0) {
             $cart->getErrors()->add(new AddressValidationError(true, $violations, $billingAddress->getId()));
@@ -139,11 +142,13 @@ class CheckoutConfirmPageLoader
         SalesChannelContext $context
     ): void {
         $validation = $this->addressValidationFactory->create($context);
+        $addressData = [];
         if ($shippingAddress) {
             $validation->set('zipcode', new CustomerZipCode(countryId: $shippingAddress->getCountryId()));
+            $addressData = $shippingAddress->jsonSerialize();
         }
 
-        $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
+        $validationEvent = new BuildAddressValidationEvent($validation, new DataBag(), $context->getContext(), new DataBag($addressData), AddressType::SHIPPING);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         if ($shippingAddress === null) {
@@ -154,7 +159,7 @@ class CheckoutConfirmPageLoader
             return;
         }
 
-        $violations = $this->validator->getViolations($shippingAddress->jsonSerialize(), $validation);
+        $violations = $this->validator->getViolations($addressData, $validation);
         if ($violations->count() > 0) {
             $cart->getErrors()->add(new AddressValidationError(false, $violations, $shippingAddress->getId()));
         }

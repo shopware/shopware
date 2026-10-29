@@ -156,6 +156,18 @@ Unit tests that pass a mocked `EventDispatcherInterface` to `ExtensionDispatcher
 
 Live state transitions batch history and state writes. `EntityWriteEvent` subscribers can receive multiple entities: filter with `getCommandsForEntity()` and make pre-write work idempotent or compensate it through `addError()`. `WriteCommandExceptionEvent` and error callbacks can run before SQL executes, and each failed attempt runs its error callbacks before it is retried. Retries stop once success callbacks or written listeners begin, or compensation fails. MariaDB error `1020` is now retryable.
 
+### Address validation events carry the validated address
+
+Core now dispatches `framework.validation.address.create` and `framework.validation.address.update` as `BuildAddressValidationEvent`, a subclass of `BuildValidationEvent`.
+`getAddress()` returns the address the definition is validated against, and `getAddressType()` returns `AddressType::BILLING`, `AddressType::SHIPPING`, or `null` in the address book.
+`getData()` is unchanged: during registration it holds the whole registration data, and on the checkout confirm page it is empty.
+
+```php
+if ($event instanceof BuildAddressValidationEvent && $event->getAddressType() === AddressType::BILLING) {
+    $countryId = $event->getAddress()->get('countryId');
+}
+```
+
 ## API
 
 ### HTTP method overrides restricted to form actions

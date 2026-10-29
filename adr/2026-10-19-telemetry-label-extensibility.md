@@ -71,13 +71,46 @@ At feature stabilization, the following join the BC promise and change only in m
 The shipped group values (the right-hand side of the mapping tables and the core `add_allowed_values`) are not part of the promise.
 Core may regroup, rename or add values in minors.
 
+### 4. Apps claim identifiers via `Resources/config/telemetry.xml`
+
+Apps cannot ship yaml, and they cannot observe the shop's metrics either, so they have no stake in how their series are grouped.
+What they know and the operator does not is which identifiers (custom entities, flow events, routes, ...) belong to them.
+An app therefore claims keys per mapping in a dedicated `telemetry.xml`; it never declares label values.
+
+- A claimed key resolves to a label value derived from the app's technical name (snake case, `SwagBlog` → `swag_blog`).
+  Cardinality grows by at most one value per installed app that opts in, never by what an app declares.
+- Resolution order per key: configured entry → the resolver's code-level rule → app claim → the replacement value.
+  Configured entries and code-level rules win, so an app can label its own identifiers but never relabel a series core already produces;
+  declaring a key or a covering prefix in project config also neutralizes an unwanted claim.
+- `shopware.telemetry.metrics.accept_app_contributions: false` ignores all claims.
+  Fleet operators whose tenants upload arbitrary apps set it in project config; label space is then bounded by operator-controlled config regardless of what tenants install.
+- Accepted claims are persisted through the app feature system (one `app_feature` row of type `telemetry` per app) at install and update, no dedicated storage.
+  They are read lazily once per process with a fail-soft read: a storage failure is logged once as a warning and the process keeps the compiled config, telemetry must never add a failure mode to the paths it observes.
+  There is no per-request reset, so long-running processes (workers) pick up changed claims on restart.
+- Install validation is lenient: a key for an unknown mapping, a bare `*`, or a key already declared in config is skipped and logged once as a warning, never failing the install.
+  A file that does not parse or violates the schema fails the install, like the other app configuration files.
+  A key claimed by more than one app keeps the first app by name, logged at debug level.
+
+Allow lists are not open to apps: widening `payment_method` and friends stays an operator decision in yaml.
+
+#### Known limitation: claims are not ownership-checked
+
+Precedence in the mapping logic stops an app from relabeling a series core already names, but there is no check that a claimed key belongs to the app.
+An app can claim any key that folds into `other`: an unmapped core entity or flow event (e.g. `promotion_discount`, `user.recovery.request`), or another app's identifier.
+Two apps claiming one key resolve by first app name, not by ownership.
+The only protection is the global `accept_app_contributions`, and it disables the whole feature.
+Ownership can be validated at install, but it needs custom code for every mapper and app-extensible class (custom entity, flow event, action).
+There is no simple app-namespace check: namespaces are not enforced, only the shared `ce_` / `custom_entity_` prefix is.
+
 ## Consequences
 
 - The public surface stays declarative: yaml for plugins and projects, no PHP extension points.
-- Plugins and projects widen allow lists with `add_allowed_values` and contribute mapping entries in yaml.
+- Plugins and projects widen allow lists with `add_allowed_values` and contribute mapping entries in yaml; apps claim mapping keys in `telemetry.xml`.
   Extensions that do not opt in keep folding into `other`, silently.
 - Operators close an allow list with `allowed_values` (which also locks it against further contributions) and reshape mapped labels per key or prefix in project config.
-  `debug:config shopware` shows the effective state.
+  `debug:config shopware` shows the effective yaml state; app claims live in the `app_feature` table.
+- Operators may set `accept_app_contributions: false` in project config; label space is then bounded by operator-controlled config regardless of installed apps.
+  Collector-level cardinality guards (relabeling, processors) remain the infrastructure backstop.
 - What folded into `other` is not reconstructable from the emitted series.
   If the need arises, an opt-in debug flag that logs replacements can be added without breaks.
 - Developers must choose a label's mechanism consciously: allow lists for sets where the raw value is desired and subtraction is rare, mappings for open, growing populations where folding into limited list of values is required.

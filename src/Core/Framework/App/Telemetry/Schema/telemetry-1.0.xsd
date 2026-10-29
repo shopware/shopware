@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="telemetry">
+        <xs:annotation>
+            <xs:documentation>
+                The identifiers an app claims for the telemetry label mappings. Each `mapping` names a
+                core mapping table (`entity_group`, `flow_trigger_group`, ...); each `key` is an identifier
+                of that table's keyspace, exact or a prefix with a trailing `*`. A claimed key resolves to
+                a label value derived from the app's technical name (`SwagBlog` → `swag_blog`); apps never
+                declare label values themselves.
+
+                Claims are suggestions: entries declared in the operator's configuration and the resolver's
+                code-level rules always win, and installations may ignore all claims via
+                `shopware.telemetry.metrics.accept_app_contributions: false`. Keys referencing an unknown
+                mapping, a bare `*`, or a key already declared in config are skipped at install time and
+                logged as a warning, without failing the installation; a file that violates this schema
+                fails the installation.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="mapping" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="key" type="xs:string" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                        <xs:attribute name="name" type="xs:string" use="required"/>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

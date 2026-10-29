@@ -834,6 +834,21 @@ class ConfigurationTest extends TestCase
         $this->processTelemetryLabel([]);
     }
 
+    public function testTelemetryAcceptAppContributionsDefaultsToTrue(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            ['telemetry' => ['metrics' => []]],
+        ]);
+
+        static::assertTrue($config['telemetry']['metrics']['accept_app_contributions']);
+
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            ['telemetry' => ['metrics' => ['accept_app_contributions' => false]]],
+        ]);
+
+        static::assertFalse($config['telemetry']['metrics']['accept_app_contributions']);
+    }
+
     public function testTelemetryMappingsMergePerKey(): void
     {
         $config = (new Processor())->processConfiguration(new Configuration(), [

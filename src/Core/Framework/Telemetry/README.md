@@ -107,6 +107,43 @@ cannot be changed through config; an integration test pins that the resolver con
   names are reserved for core.
 - Keys containing backslashes (message class FQCNs) must be single-quoted: `'Swag\Blog\Message\*': blog`.
 
+### App claims
+
+Apps cannot ship yaml, and they cannot observe the shop's metrics either, so they have no stake in how their
+series are grouped. What they know and the operator does not is which identifiers belong to them. An app
+therefore claims keys per mapping in `Resources/config/telemetry.xml`; it never declares label values:
+
+```xml
+<telemetry>
+    <mapping name="entity_group">
+        <key>ce_swag_blog_*</key>
+    </mapping>
+    <mapping name="flow_trigger_group">
+        <key>swag.blog.published</key>
+    </mapping>
+</telemetry>
+```
+
+- A claimed key resolves to the app's technical name in snake case (`SwagBlog` → `swag_blog`). Cardinality
+  grows by at most one value per installed app that opts in, never by what an app declares.
+- Resolution order per key: configured entry → the resolver's code-level rule → app claim → `other`.
+  Configured entries and code-level rules win, so an app can label its own identifiers but never relabel a
+  series core already produces. Declaring a key or a covering prefix in project config neutralizes an
+  unwanted claim.
+- `shopware.telemetry.metrics.accept_app_contributions: false` ignores all claims. Fleet operators whose
+  tenants upload arbitrary apps set it in project config; label space is then bounded by operator-controlled
+  config regardless of what tenants install.
+- Accepted claims are persisted as one `telemetry` app-feature row per app (`app_feature` table) at install
+  and update, and read once per process with a lazy, fail-soft read: a storage failure is logged once as a
+  warning and the process keeps the compiled config. There is no per-request reset, so long-running
+  processes (workers) pick up changed claims on restart.
+- Install validation is lenient: a key for an unknown mapping, a bare `*`, or a key already declared in
+  config is skipped and logged as a warning, never failing the install. A file that does not parse or
+  violates the schema fails the install, like the other app configuration files. A key claimed by more
+  than one app keeps the first app by name.
+
+Allow lists are not open to apps: widening `payment_method` and friends stays an operator decision in yaml.
+
 ### Transports
 
 The telemetry component provides a way to emit metrics to different transports. The transport is responsible for sending the metrics to the monitoring backend. Each transport is created as an external library that implements the telemetry abstraction layer specification.

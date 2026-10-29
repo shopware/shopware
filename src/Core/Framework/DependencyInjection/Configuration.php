@@ -1584,6 +1584,7 @@ class Configuration implements ConfigurationInterface
                     ->end()
                     ->booleanNode('enabled')->defaultFalse()->end()
                     ->scalarNode('replace_unknown_label_values_with')->defaultValue('other')->end()
+                    ->booleanNode('accept_app_contributions')->defaultTrue()->end()
                     ->arrayNode('mappings')
                         ->useAttributeAsKey('name')
                         // keys are free-form identifiers (route names, FQCN prefixes, ...): the default key

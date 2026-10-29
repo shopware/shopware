@@ -17,13 +17,6 @@ type Customer = {
     addresses?: { get: (id: string) => Address | null };
 };
 
-type DetailVm = {
-    customer: Customer;
-    onSave: () => Promise<boolean>;
-    createNotificationError: jest.Mock;
-    createNotificationSuccess: jest.Mock;
-};
-
 const germany: VatIdCountry = {
     isEu: true,
     vatIdRequired: true,
@@ -53,6 +46,9 @@ async function createWrapper(customer: Customer) {
             customerId: 'customerId',
         },
         global: {
+            stubs: {
+                'sw-page': { template: '<div><slot name="smart-bar-actions"></slot></div>' },
+            },
             mocks: {
                 $route: { name: 'sw.customer.detail.base', query: { edit: true } },
                 $router: { push: jest.fn() },
@@ -70,13 +66,14 @@ async function createWrapper(customer: Customer) {
         },
     });
     await flushPromises();
-
-    const vm = wrapper.vm as unknown as DetailVm;
-    vm.createNotificationError = jest.fn();
-    vm.createNotificationSuccess = jest.fn();
     await wrapper.setData({ editMode: true, customer: { id: '1', company: 'Shopware AG', ...customer } });
 
-    return { wrapper, vm };
+    return wrapper;
+}
+
+async function clickSave(wrapper: Awaited<ReturnType<typeof createWrapper>>) {
+    await wrapper.find('.sw-customer-detail__save-action').trigger('click');
+    await flushPromises();
 }
 
 function businessCustomer(vatIds: string[], country: VatIdCountry = germany): Customer {
@@ -93,17 +90,19 @@ describe('module/sw-customer/page/sw-customer-detail/vat-id-validation', () => {
         { label: 'a missing required VAT ID', vatIds: [''], code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3' },
         { label: 'a malformed VAT ID', vatIds: ['DE12345'], code: '463d3548-1caf-11eb-adc1-0242ac120002' },
     ])('should not save a business customer with $label', async ({ vatIds, code }) => {
-        const { vm } = await createWrapper(businessCustomer(vatIds));
+        const createNotification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        const wrapper = await createWrapper(businessCustomer(vatIds));
 
-        await expect(vm.onSave()).resolves.toBe(false);
+        await clickSave(wrapper);
 
         expect(saveMock).not.toHaveBeenCalled();
         expect(Shopware.Store.get('error').getApiErrorFromPath('customer', '1', ['vatIds'])).toEqual(
             expect.objectContaining({ code }),
         );
-        expect(vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-customer.detail.messageSaveError',
-        });
+        expect(createNotification).toHaveBeenCalledWith(
+            expect.objectContaining({ variant: 'error', message: 'sw-customer.detail.messageSaveError' }),
+        );
+        createNotification.mockRestore();
     });
 
     it.each([
@@ -133,21 +132,21 @@ describe('module/sw-customer/page/sw-customer-detail/vat-id-validation', () => {
         },
         { label: 'no billing country', customer: { accountType: 'business', vatIds: [] }, saved: [] },
     ])('should save a business customer with $label', async ({ customer, saved }) => {
-        const { vm } = await createWrapper(customer);
+        const wrapper = await createWrapper(customer);
 
-        await vm.onSave();
+        await clickSave(wrapper);
 
         expect(saveMock).toHaveBeenCalledTimes(1);
-        expect(vm.customer.vatIds).toEqual(saved);
+        expect(saveMock).toHaveBeenCalledWith(expect.objectContaining({ vatIds: saved }));
     });
 
     it('should ignore the VAT ID rules of the billing country for a private customer', async () => {
-        const { vm } = await createWrapper({ ...businessCustomer(['DE12345']), accountType: 'private' });
+        const wrapper = await createWrapper({ ...businessCustomer(['DE12345']), accountType: 'private' });
 
-        await vm.onSave();
+        await clickSave(wrapper);
 
         expect(saveMock).toHaveBeenCalledTimes(1);
-        expect(vm.customer.vatIds).toEqual([]);
+        expect(saveMock).toHaveBeenCalledWith(expect.objectContaining({ vatIds: [] }));
     });
 
     it.each([
@@ -166,7 +165,7 @@ describe('module/sw-customer/page/sw-customer-detail/vat-id-validation', () => {
     ])(
         'should validate against the address made the default billing address, which $label',
         async ({ loadedCountry, newCountry, saved }) => {
-            const { vm } = await createWrapper({
+            const wrapper = await createWrapper({
                 accountType: 'business',
                 vatIds: [],
                 defaultBillingAddressId: 'address-b',
@@ -174,14 +173,14 @@ describe('module/sw-customer/page/sw-customer-detail/vat-id-validation', () => {
                 addresses: { get: (id) => (id === 'address-b' ? { id, country: newCountry } : null) },
             });
 
-            await expect(vm.onSave()).resolves.toBe(saved ? undefined : false);
+            await clickSave(wrapper);
 
             expect(saveMock).toHaveBeenCalledTimes(saved ? 1 : 0);
         },
     );
 
     it('should remove a stale VAT ID error once the VAT IDs pass', async () => {
-        const { vm } = await createWrapper(businessCustomer(['ATU12345678']));
+        const wrapper = await createWrapper(businessCustomer(['ATU12345678']));
         const errorStore = Shopware.Store.get('error');
 
         errorStore.addApiError({
@@ -189,7 +188,7 @@ describe('module/sw-customer/page/sw-customer-detail/vat-id-validation', () => {
             error: new Shopware.Classes.ShopwareError({ code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3' }),
         });
 
-        await vm.onSave();
+        await clickSave(wrapper);
 
         expect(saveMock).toHaveBeenCalledTimes(1);
         expect(errorStore.getApiErrorFromPath('customer', '1', ['vatIds'])).toBeNull();

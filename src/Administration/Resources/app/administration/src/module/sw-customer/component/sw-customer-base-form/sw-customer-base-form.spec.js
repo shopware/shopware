@@ -31,6 +31,10 @@ async function createWrapper(props = {}) {
     });
 }
 
+function findVatIdField(wrapper) {
+    return wrapper.findAllComponents({ name: 'MtTextField' }).find((field) => field.props('name') === 'vatId');
+}
+
 describe('module/sw-customer/page/sw-customer-base-form', () => {
     it('should exclude the default salutation from selectable salutations', async () => {
         const wrapper = await createWrapper();
@@ -98,11 +102,7 @@ describe('module/sw-customer/page/sw-customer-base-form', () => {
             isVatIdRequired,
         });
 
-        const vatIdField = wrapper
-            .findAllComponents({ name: 'MtTextField' })
-            .find((field) => field.props('name') === 'vatId');
-
-        expect(vatIdField.props('required')).toBe(expected);
+        expect(findVatIdField(wrapper).props('required')).toBe(expected);
     });
 
     it('should remove the VAT ID error once the VAT ID changes', async () => {
@@ -115,11 +115,11 @@ describe('module/sw-customer/page/sw-customer-base-form', () => {
             error: new Shopware.Classes.ShopwareError({ code: '463d3548-1caf-11eb-adc1-0242ac120002' }),
         });
         await flushPromises();
-        expect(wrapper.vm.customerVatIdsError).toBeTruthy();
+        expect(findVatIdField(wrapper).props('error')).not.toBeNull();
 
-        wrapper.vm.customer.vatIds.push('ATU12345678');
+        await findVatIdField(wrapper).vm.$emit('update:modelValue', 'ATU12345678');
         await flushPromises();
 
-        expect(wrapper.vm.customerVatIdsError).toBeNull();
+        expect(findVatIdField(wrapper).props('error')).toBeNull();
     });
 });

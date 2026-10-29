@@ -68,8 +68,9 @@ What a test order changes, all keyed on `order.isTest`:
   Plugin handlers reach it through the transaction's order, apps through the order in the payment payload.
   Each provider decides what sandbox means for it.
   The PayPal plugin uses its configured sandbox credentials.
-* **Flows.** A new rule "order is a test order".
+* **Flows and mails.** A new rule "order is a test order".
   Default flows stay as they are, so test mails go out and merchants can test them.
+  Mail templates get the flag and print a test marker.
 * **Admin.** Badge and filter in the order list, a banner in the detail, the dashboard statistics exclude test orders, and sales channels get an "open storefront in test mode" button.
 * **Analytics.** Usage data collection skips test orders.
 

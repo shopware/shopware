@@ -274,28 +274,49 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
         await flushPromises();
 
         expect(wrapper.vm.selectedPageObject).toEqual(expected);
-        expect(wrapper.vm.gridPreSelection).toStrictEqual({
-            [expected.id]: expected,
-        });
+
+        const radios = wrapper.findAll('.sw-cms-layout-modal__content-item input[type="radio"]');
+        expect(radios.map((radio) => radio.element.checked)).toEqual(productMocks.map((page) => page.id === expected.id));
     });
 
-    it.each(productMocks)(
-        'should set and unset the selectedPageObject correctly, when selecting a column',
-        async (product) => {
-            const wrapper = await createWrapper();
-            await wrapper.setData({
-                isLoading: false,
-            });
+    it.each(productMocks)('should select a layout with its radio button in the grid view', async (product) => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            isLoading: false,
+        });
 
-            const productIndex = productMocks.indexOf(product);
-            const expected = productMocks[productIndex];
+        const productIndex = productMocks.indexOf(product);
+        const expected = productMocks[productIndex];
 
-            const checkbox = wrapper
-                .findAll('.sw-cms-layout-modal__content-item .mt-field--checkbox__container input')
-                .at(productIndex);
+        expect(wrapper.findAll('.sw-cms-layout-modal__content-item input[type="checkbox"]')).toHaveLength(0);
 
-            await checkbox.setChecked(true);
-            expect(wrapper.vm.selectedPageObject).toEqual(expected);
-        },
-    );
+        const radio = wrapper.findAll('.sw-cms-layout-modal__content-item input[type="radio"]').at(productIndex);
+        await radio.setChecked(true);
+
+        expect(wrapper.vm.selectedPageObject).toEqual(expected);
+    });
+
+    it.each(productMocks)('should select a layout with its radio button in the list view', async (product) => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            isLoading: false,
+            listMode: 'list',
+        });
+        await flushPromises();
+
+        const productIndex = productMocks.indexOf(product);
+        const expected = productMocks[productIndex];
+
+        expect(wrapper.findAll('.sw-data-grid input[type="checkbox"]')).toHaveLength(0);
+
+        const radios = wrapper.findAll('.sw-data-grid__cell--name input[type="radio"]');
+        expect(radios).toHaveLength(productMocks.length);
+
+        await radios.at(productIndex).setChecked(true);
+
+        expect(wrapper.vm.selectedPageObject).toEqual(expected);
+        expect(
+            wrapper.findAll('.sw-data-grid__cell--name input[type="radio"]').map((radio) => radio.element.checked),
+        ).toEqual(productMocks.map((page) => page.id === expected.id));
+    });
 });

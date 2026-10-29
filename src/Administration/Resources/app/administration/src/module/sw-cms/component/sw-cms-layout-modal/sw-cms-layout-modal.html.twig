@@ -87,11 +87,16 @@
                     {% block sw_cms_layout_modal_content_listing_item %}
 
                     {% block sw_cms_layout_modal_content_listing_item_checkbox %}
-                    <mt-checkbox
-                        :checked="cmsPage.id === selectedPageObject?.id"
-                        class="sw-cms-layout-modal__content-checkbox"
-                        @update:checked="selectItem(cmsPage)"
-                    />
+                    <div class="sw-field__radio-input sw-cms-layout-modal__content-radio">
+                        <input
+                            type="radio"
+                            name="sw-cms-layout-modal-page"
+                            :checked="cmsPage.id === selectedPageObject?.id"
+                            :aria-label="cmsPage.translated?.name"
+                            @change="selectItem(cmsPage)"
+                        >
+                        <div class="sw-field__radio-state"></div>
+                    </div>
                     {% endblock %}
 
                     {% block sw_cms_layout_modal_content_listing_item_inner %}
@@ -136,22 +141,32 @@
             :allow-column-edit="false"
             :show-settings="false"
             :show-actions="false"
-            :show-selection="true"
-            :maximum-select-items="1"
-            :pre-selection="gridPreSelection"
-            @selection-change="selectInGrid"
+            :show-selection="false"
             @column-sort="onSortColumn"
         >
 
             {% block sw_cms_list_listing_list_data_grid_column_name %}
             <template #column-name="{ item }">
-                <div
-                    role="button"
-                    tabindex="0"
-                    @click="selectItem(item)"
-                    @keydown.enter="selectItem(item)"
-                >
-                    {{ item.translated.name }}
+                <div class="sw-cms-layout-modal__list-item-name">
+                    <div class="sw-field__radio-input">
+                        <input
+                            type="radio"
+                            name="sw-cms-layout-modal-page"
+                            :checked="item.id === selectedPageObject?.id"
+                            :aria-label="item.translated?.name"
+                            @change="selectItem(item)"
+                        >
+                        <div class="sw-field__radio-state"></div>
+                    </div>
+
+                    <div
+                        role="button"
+                        tabindex="0"
+                        @click="selectItem(item)"
+                        @keydown.enter="selectItem(item)"
+                    >
+                        {{ item.translated.name }}
+                    </div>
                 </div>
             </template>
             {% endblock %}

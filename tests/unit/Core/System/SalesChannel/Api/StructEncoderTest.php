@@ -7,6 +7,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
+use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
+use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
@@ -270,6 +275,173 @@ class StructEncoderTest extends TestCase
         static::assertArrayHasKey('customFields', $encoded);
         static::assertEquals($expectedCustomFields, $encoded['customFields']);
         static::assertEquals($expectedCustomFields, $encoded['translated']['customFields']);
+    }
+
+    public function testProtectedAssociationIsNotExposedByNestedInclude(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+        $product->setId('1');
+        $product->setName('test');
+
+        $lineItem = new OrderLineItemEntity();
+        $lineItem->setId('line-item');
+        $product->setOrderLineItems(new OrderLineItemCollection([$lineItem]));
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
+
+        $encoded = $structEncoder->encode($product, new ResponseFields(['product' => ['id', 'orderLineItems.id']]));
+
+        static::assertSame(['id' => '1', 'apiAlias' => 'product'], $encoded);
+    }
+
+    public function testProtectedScalarIsNotExposedByNestedInclude(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+        $product->setId('1');
+        $product->setPurchasePrices(new PriceCollection());
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
+
+        $encoded = $structEncoder->encode($product, new ResponseFields(['product' => ['id', 'purchasePrices.foo']]));
+
+        static::assertSame(['id' => '1', 'apiAlias' => 'product'], $encoded);
+    }
+
+    public function testNestedIncludeKeepsApiAwareAssociation(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+        $product->setId('1');
+        $product->setName('test');
+        $product->setManufacturer((new ProductManufacturerEntity())->assign(['id' => '2', 'name' => 'foo']));
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
+
+        $encoded = $structEncoder->encode($product, new ResponseFields(['product' => ['id', 'manufacturer.name']]));
+
+        static::assertArrayNotHasKey('name', $encoded);
+        static::assertArrayHasKey('manufacturer', $encoded);
+        static::assertIsArray($encoded['manufacturer']);
+        static::assertSame('foo', $encoded['manufacturer']['name']);
+    }
+
+    public function testNestedIncludesForTranslatedAndCustomFieldsStillWork(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+        $product->setId('1');
+        $product->setName('test');
+        $product->setDescription('description');
+        $product->setTranslated(['name' => 'translated name', 'description' => 'translated description']);
+        $product->setCustomFields(['foo' => 'visible', 'bar' => 'hidden']);
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
+
+        $encoded = $structEncoder->encode($product, new ResponseFields(['product' => ['name', 'translated.name', 'customFields.foo']]));
+
+        static::assertSame('test', $encoded['name']);
+        static::assertArrayNotHasKey('description', $encoded);
+        static::assertSame(['name' => 'translated name'], $encoded['translated']);
+        static::assertArrayNotHasKey('description', $encoded['translated']);
+        static::assertSame(['foo' => 'visible'], $encoded['customFields']);
+        static::assertArrayNotHasKey('bar', $encoded['customFields']);
+    }
+
+    public function testTranslatedFieldsWithoutApiAwareAreRemoved(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+        $product->setId('1');
+        $product->setTranslated([
+            'name' => 'translated name',
+            'slotConfig' => ['slot' => ['config' => 'value']],
+            'customSearchKeywords' => ['keyword'],
+        ]);
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
+
+        $encoded = $structEncoder->encode($product, new ResponseFields(null));
+
+        static::assertSame(['name' => 'translated name'], $encoded['translated']);
+    }
+
+    public function testTranslatedFieldsWithoutApiAwareAreNotExposedByIncludes(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+        $product->setId('1');
+        $product->setTranslated([
+            'name' => 'translated name',
+            'slotConfig' => ['slot' => ['config' => 'value']],
+        ]);
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
+
+        $encoded = $structEncoder->encode($product, new ResponseFields(['product' => ['translated', 'name', 'slotConfig', 'slotConfig.slot']]));
+
+        static::assertArrayNotHasKey('slotConfig', $encoded);
+        static::assertSame(['name' => 'translated name'], $encoded['translated']);
+    }
+
+    public function testBreadcrumbTranslatedFieldsFollowTheCategoryDefinition(): void
+    {
+        $breadcrumb = new Breadcrumb(
+            'Category',
+            '1',
+            CategoryDefinition::TYPE_LINK,
+            [
+                'linkNewTab' => true,
+                'slotConfig' => ['slot' => ['config' => 'value']],
+                'customFields' => ['visible' => 'test', 'category_only' => 'test', 'global' => 'test'],
+            ],
+            'navigation/1',
+        );
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                ['entity_name' => 'category', 'name' => 'category_only'],
+                ['entity_name' => 'global', 'name' => 'global'],
+            ]);
+
+        $structEncoder = $this->createStructEncoder([CategoryDefinition::class], $connection);
+
+        $encoded = $structEncoder->encode(new BreadcrumbCollection([$breadcrumb]), new ResponseFields(null));
+
+        static::assertCount(1, $encoded);
+        static::assertSame('Category', $encoded[0]['name']);
+        static::assertSame('1', $encoded[0]['categoryId']);
+        static::assertSame('navigation/1', $encoded[0]['path']);
+        static::assertSame('breadcrumb', $encoded[0]['apiAlias']);
+        static::assertSame(
+            ['linkNewTab' => true, 'customFields' => ['visible' => 'test']],
+            $encoded[0]['translated']
+        );
+    }
+
+    public function testBreadcrumbIncludesStillApplyToTranslatedFields(): void
+    {
+        $breadcrumb = new Breadcrumb(
+            'Category',
+            '1',
+            CategoryDefinition::TYPE_LINK,
+            ['linkNewTab' => true, 'linkType' => 'external'],
+        );
+
+        $structEncoder = $this->createStructEncoder([CategoryDefinition::class]);
+
+        $encoded = $structEncoder->encode(
+            new BreadcrumbCollection([$breadcrumb]),
+            new ResponseFields(['breadcrumb' => ['name', 'translated', 'linkNewTab']])
+        );
+
+        static::assertSame(
+            [['name' => 'Category', 'translated' => ['linkNewTab' => true], 'apiAlias' => 'breadcrumb']],
+            $encoded
+        );
     }
 
     /**

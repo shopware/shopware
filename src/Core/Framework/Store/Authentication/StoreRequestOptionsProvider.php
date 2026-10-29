@@ -89,6 +89,7 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
 
         $criteria = new Criteria();
         $criteria->addFilter(new NotEqualsFilter('storeToken', null));
+        $criteria->setLimit(1);
 
         return $this->fetchUserStoreToken($criteria, $context);
     }

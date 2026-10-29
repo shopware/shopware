@@ -231,6 +231,46 @@ class StoreRequestOptionsProviderTest extends TestCase
         static::assertSame('locale-from-provider', $queries['language']);
     }
 
+    public function testGetAuthenticationHeaderLimitsTheSystemUserLookupToASingleRow(): void
+    {
+        $user = (new UserEntity())->assign([
+            '_uniqueIdentifier' => 'user-id',
+            'id' => 'user-id',
+            'storeToken' => 'sbp-token',
+        ]);
+
+        $usedCriteria = null;
+
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $entityRepository->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(function (Criteria $criteria) use (&$usedCriteria, $user): EntitySearchResult {
+                $usedCriteria = $criteria;
+                $collection = new UserCollection([$user]);
+
+                return new EntitySearchResult(
+                    UserDefinition::ENTITY_NAME,
+                    $collection->count(),
+                    $collection,
+                    null,
+                    $criteria,
+                    Context::createDefaultContext(),
+                );
+            });
+
+        $provider = new StoreRequestOptionsProvider(
+            $entityRepository,
+            static::createStub(SystemConfigService::class),
+            new InstanceService('sw-version', 'instance-id'),
+            static::createStub(LocaleProvider::class)
+        );
+
+        $provider->getAuthenticationHeader(Context::createDefaultContext(new SystemSource()));
+
+        static::assertInstanceOf(Criteria::class, $usedCriteria);
+        static::assertSame(1, $usedCriteria->getLimit());
+    }
+
     /**
      * @return EntityRepository<UserCollection>&MockObject
      */

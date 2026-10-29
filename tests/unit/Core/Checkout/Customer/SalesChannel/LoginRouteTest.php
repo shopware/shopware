@@ -29,7 +29,7 @@ class LoginRouteTest extends TestCase
 {
     public function testRateLimiterIsCalledWithCorrectKeys(): void
     {
-        $email = ' Test@Example.COM  ';
+        $email = " \u{00A0}Test@Example.COM\u{3000}  ";
         $ip = '192.168.0.1';
         $expectedEmailKey = 'test@example.com';
         $expectedCombinedKey = $expectedEmailKey . '-' . $ip;
@@ -67,7 +67,7 @@ class LoginRouteTest extends TestCase
 
     public function testRateLimitersAreResetOnSuccessfulLogin(): void
     {
-        $email = ' user@example.com  ';
+        $email = " \u{00A0}user@example.com\u{3000}  ";
         $ip = '10.0.0.1';
         $combinedKey = 'user@example.com-' . $ip;
 

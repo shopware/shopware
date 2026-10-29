@@ -27,7 +27,7 @@ class AuthControllerTest extends TestCase
 {
     public function testRateLimiterIsCalledWithCorrectKeys(): void
     {
-        $username = ' Admin  ';
+        $username = " \u{00A0}Admin\u{3000}  ";
         $ip = '10.0.0.1';
         $expectedUsernameKey = 'admin';
         $expectedCombinedKey = $expectedUsernameKey . '-' . $ip;
@@ -71,7 +71,7 @@ class AuthControllerTest extends TestCase
 
     public function testRateLimitersAreResetOnSuccess(): void
     {
-        $username = ' admin  ';
+        $username = " \u{00A0}admin\u{3000}  ";
         $ip = '10.0.0.1';
         $combinedKey = 'admin-' . $ip;
 

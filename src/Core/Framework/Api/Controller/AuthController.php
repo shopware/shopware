@@ -40,7 +40,7 @@ class AuthController extends AbstractController
     {
         $response = new Response();
 
-        $usernameKey = strtolower(trim($request->request->getString('username')));
+        $usernameKey = strtolower(mb_trim($request->request->getString('username')));
         $clientIpKey = (string) $request->getClientIp();
         $combinedKey = $usernameKey . '-' . $clientIpKey;
 

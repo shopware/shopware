@@ -54,15 +54,21 @@ export default class ListingPlugin extends Plugin {
 
         this._urlFilterParams = Object.fromEntries(new URLSearchParams(window.location.search).entries());
 
-        this._filterPanel = document.querySelector(this.options.filterPanelSelector);
-        this._filterPanelActive = !!this._filterPanel;
+        this._filterPanels = document.querySelectorAll(this.options.filterPanelSelector);
+        /** @deprecated tag:v6.8.0 - _filterPanel is deprecated. Use _filterPanels instead. */
+        this._filterPanel = this._filterPanels[0] ?? null;
+        this._filterPanelActive = this._filterPanels.length > 0;
+        this._filterSnapshots = this._filterPanels.length > 1 ? new WeakMap() : null;
 
         // Init functionality for the filter panel
         if (this._filterPanelActive) {
             this._showResetAll = false;
-            this.activeFilterContainer = document.querySelector(this.options.activeFilterContainerSelector,
-            );
-            this.ariaLiveContainer = document.querySelector(this.options.ariaLiveSelector);
+            this.activeFilterContainers = document.querySelectorAll(this.options.activeFilterContainerSelector);
+            /** @deprecated tag:v6.8.0 - activeFilterContainer is deprecated. Use activeFilterContainers instead. */
+            this.activeFilterContainer = this.activeFilterContainers[0] ?? null;
+            this.ariaLiveContainers = document.querySelectorAll(this.options.ariaLiveSelector);
+            /** @deprecated tag:v6.8.0 - ariaLiveContainer is deprecated. Use ariaLiveContainers instead. */
+            this.ariaLiveContainer = this.ariaLiveContainers[0] ?? null;
         }
 
         this._cmsProductListingWrapper = document.querySelector(this.options.cmsProductListingWrapperSelector);
@@ -82,12 +88,23 @@ export default class ListingPlugin extends Plugin {
     refreshRegistry() {
         // get only the registrations which are visible in the document
         const visibleRegistrations = this._registry.filter((entry) => document.body.contains(entry.el));
+        const snapshots = this._filterSnapshots;
 
         // reinitialize the listing plugin
         this.init();
 
         // replace empty registry with existing visible registries
         this._registry = visibleRegistrations;
+
+        if (this._filterSnapshots) {
+            if (snapshots) {
+                this._filterSnapshots = snapshots;
+            } else {
+                visibleRegistrations.forEach(filter => {
+                    this._filterSnapshots.set(filter, this._getFilterSnapshot(filter));
+                });
+            }
+        }
 
         // initialize plugins which are not registered yet
         window.PluginManager.initializePlugins();
@@ -99,6 +116,7 @@ export default class ListingPlugin extends Plugin {
      * @public
      */
     changeListing(pushHistory = true, overrideParams = {}) {
+        this._syncChangedFilters();
         this._buildRequest(pushHistory, overrideParams);
 
         if (this._filterPanelActive) {
@@ -114,6 +132,7 @@ export default class ListingPlugin extends Plugin {
         this._registry.push(filterItem);
 
         this._setFilterState(filterItem);
+        this._filterSnapshots?.set(filterItem, this._getFilterSnapshot(filterItem));
 
         if (this.options.disableEmptyFilter) {
             this._allFiltersInitializedDebounce();
@@ -123,6 +142,8 @@ export default class ListingPlugin extends Plugin {
     _setFilterState(filterItem) {
         if (Object.keys(this._urlFilterParams).length > 0 && typeof filterItem.setValuesFromUrl === 'function' ) {
             const stateChanged = filterItem.setValuesFromUrl(this._urlFilterParams);
+
+            this._filterSnapshots?.set(filterItem, this._getFilterSnapshot(filterItem));
 
             // Return if state of filter has not changed or filter panel is not active
             if (!stateChanged || !this._filterPanelActive) return;
@@ -137,8 +158,89 @@ export default class ListingPlugin extends Plugin {
      * @public
      */
     deregisterFilter(filterItem) {
+        this._filterSnapshots?.delete(filterItem);
+
         this._registry = this._registry.filter((item) => {
             return (item !== filterItem);
+        });
+    }
+
+    /**
+     * @private
+     */
+    _getFilterSnapshot(filterPlugin) {
+        const values = this._callFilterPlugin(filterPlugin, 'getValues', null);
+
+        if (!values) {
+            return {};
+        }
+
+        return Object.fromEntries(Object.entries(values).map(([key, value]) => [
+            key,
+            value !== null && typeof value === 'object' ? Object.values(value) : value,
+        ]));
+    }
+
+    /**
+     * Compare each instance with its own snapshot so stale panels cannot restore removed values.
+     * Array deltas preserve other property groups sharing the same query parameter.
+     *
+     * @private
+     */
+    _syncChangedFilters() {
+        if (this._filterSnapshots === null) {
+            return;
+        }
+
+        const changes = new Map();
+        const filters = this._getPrioritisedRegistry()
+            .filter(filter => typeof filter.setValuesFromUrl === 'function')
+            .map(filter => ({ filter, values: this._getFilterSnapshot(filter) }));
+
+        filters.forEach(({ filter, values }) => {
+            const previous = this._filterSnapshots.get(filter) ?? values;
+
+            Object.entries(values).forEach(([key, value]) => {
+                if (Array.isArray(value)) {
+                    const before = Array.isArray(previous[key]) ? previous[key] : [];
+                    const added = value.filter(item => !before.includes(item));
+                    const removed = before.filter(item => !value.includes(item));
+
+                    if (added.length || removed.length) {
+                        const change = changes.get(key) ?? { added: [], removed: [] };
+
+                        change.added.push(...added);
+                        change.removed.push(...removed);
+                        changes.set(key, change);
+                    }
+                } else if (value !== previous[key]) {
+                    changes.set(key, { value, added: [], removed: [] });
+                }
+            });
+        });
+
+        filters.forEach(({ filter, values }) => {
+            let changed = false;
+            const params = {};
+
+            Object.entries(values).forEach(([key, value]) => {
+                const change = changes.get(key);
+
+                if (change) {
+                    changed = true;
+                    value = Array.isArray(value)
+                        ? [...new Set([...value.filter(item => !change.removed.includes(item)), ...change.added])]
+                        : change.value;
+                }
+
+                params[key] = Array.isArray(value) ? value.join('|') : (value ?? '');
+            });
+
+            if (changed) {
+                this._callFilterPlugin(filter, 'setValuesFromUrl', undefined, params);
+            }
+
+            this._filterSnapshots.set(filter, this._getFilterSnapshot(filter));
         });
     }
 
@@ -268,7 +370,7 @@ export default class ListingPlugin extends Plugin {
                     const last = value[value.length - 1];
                     resolved = last === null || last === undefined ? '' : String(last);
                 } else {
-                    resolved = value.join('|');
+                    resolved = [...new Set(value)].join('|');
                 }
             } else if (value !== null && value !== undefined) {
                 resolved = singleValuedKeys.has(key) ? String(value) : value;
@@ -316,6 +418,8 @@ export default class ListingPlugin extends Plugin {
         delete mapped['only-aggregations'];
         queryParams = new URLSearchParams(mapped);
 
+        this._urlFilterParams = { ...mapped };
+
         if (pushHistory) {
             this._updateHistory(queryParams);
         }
@@ -340,7 +444,7 @@ export default class ListingPlugin extends Plugin {
 
     /**
      * @private
-     * @returns {URLSearchParams} 
+     * @returns {URLSearchParams}
      */
     _getDisabledFiltersParamsFromParams(params) {
         const filterParams = Object.assign({}, {'only-aggregations': 1, 'reduce-aggregations': 1}, params);
@@ -368,25 +472,44 @@ export default class ListingPlugin extends Plugin {
      * Build all labels for the currently active filters.
      */
     _buildLabels() {
+        const labels = [];
         let labelHtml = '';
 
         this._registry.forEach((filterPlugin) => {
-            const labels = this._callFilterPlugin(filterPlugin, 'getLabels', []);
+            this._callFilterPlugin(filterPlugin, 'getLabels', []).forEach(label => {
+                if (!labels.find(l => l.id === label.id)) {
+                    labels.push(label);
+                }
+            });
+        });
 
-            if (labels.length) {
-                labels.forEach((label) => {
-                    labelHtml += this.getLabelTemplate(label);
-                });
+        if (labels.length) {
+            labels.forEach((label) => {
+                labelHtml += this.getLabelTemplate(label);
+            });
+        }
+
+        this.activeFilterContainers.forEach(activeFilterContainer => {
+            activeFilterContainer.innerHTML = labelHtml;
+
+            const resetButtons = activeFilterContainer.querySelectorAll(this.options.activeFilterLabelSelector);
+
+            if (labelHtml.length) {
+                this._registerLabelEvents(resetButtons);
+                this.createResetAllButton(activeFilterContainer);
             }
         });
 
-        this.activeFilterContainer.innerHTML = labelHtml;
+        /** @deprecated tag:v6.8.0 - Backwards compatibility for activeFilterContainer which can be reassigned. Remove the following if statement in v6.8.0 together with activeFilterContainer. */
+        if (this.activeFilterContainer && !Array.from(this.activeFilterContainers).includes(this.activeFilterContainer)) {
+            this.activeFilterContainer.innerHTML = labelHtml;
 
-        const resetButtons = this.activeFilterContainer.querySelectorAll(this.options.activeFilterLabelSelector);
+            const resetButtons = this.activeFilterContainer.querySelectorAll(this.options.activeFilterLabelSelector);
 
-        if (labelHtml.length) {
-            this._registerLabelEvents(resetButtons);
-            this.createResetAllButton();
+            if (labelHtml.length) {
+                this._registerLabelEvents(resetButtons);
+                this.createResetAllButton(this.activeFilterContainer);
+            }
         }
     }
 
@@ -400,11 +523,15 @@ export default class ListingPlugin extends Plugin {
      * Create the button to reset all active filters.
      * Register event listener to remove a single filter.
      */
-    createResetAllButton() {
-        this.activeFilterContainer.insertAdjacentHTML('beforeend', this.getResetAllButtonTemplate());
+    createResetAllButton(activeFilterContainer) {
+        /** @deprecated tag:v6.8.0 - remove this if block */
+        if (!activeFilterContainer) {
+            activeFilterContainer = this.activeFilterContainer;
+        }
 
-        const resetAllButtonEl = this.activeFilterContainer.querySelector(this.options.resetAllFilterButtonSelector,
-        );
+        activeFilterContainer.insertAdjacentHTML('beforeend', this.getResetAllButtonTemplate());
+
+        const resetAllButtonEl = activeFilterContainer.querySelector(this.options.resetAllFilterButtonSelector);
 
         if (!this._boundResetAllFilter) {
             this._boundResetAllFilter = this.resetAllFilter.bind(this);
@@ -428,8 +555,7 @@ export default class ListingPlugin extends Plugin {
             this._callFilterPlugin(filterPlugin, 'reset', undefined, label.dataset.id);
         });
 
-        this._buildRequest();
-        this._buildLabels();
+        this.changeListing();
     }
 
     /**
@@ -440,8 +566,7 @@ export default class ListingPlugin extends Plugin {
             this._callFilterPlugin(filterPlugin, 'resetAll', undefined);
         });
 
-        this._buildRequest();
-        this._buildLabels();
+        this.changeListing();
     }
 
     /**
@@ -495,14 +620,20 @@ export default class ListingPlugin extends Plugin {
      * Prevents the user from clicking filter labels during filter request.
      */
     addLoadingIndicatorClass() {
-        this._filterPanel.classList.add(this.options.loadingIndicatorClass);
+        this._filterPanels.forEach((filterPanel) => filterPanel.classList.add(this.options.loadingIndicatorClass));
+
+        /** @deprecated tag:v6.8.0 - Backwards compatibility for _filterPanel which can be reassigned. Remove next line in v6.8.0 together with _filterPanel. */
+        this._filterPanel?.classList.add(this.options.loadingIndicatorClass);
     }
 
     /**
      * Remove loading styling classes.
      */
     removeLoadingIndicatorClass() {
-        this._filterPanel.classList.remove(this.options.loadingIndicatorClass);
+        this._filterPanels.forEach((filterPanel) => filterPanel.classList.remove(this.options.loadingIndicatorClass));
+
+        /** @deprecated tag:v6.8.0 - Backwards compatibility for _filterPanel which can be reassigned. Remove next line in v6.8.0 together with _filterPanel. */
+        this._filterPanel?.classList.remove(this.options.loadingIndicatorClass);
     }
 
     /**
@@ -640,12 +771,49 @@ export default class ListingPlugin extends Plugin {
             return;
         }
 
-        if (!this.ariaLiveContainer) {
+        const containers = new Set();
+
+        /** @deprecated tag:v6.8.0 - Remove the legacy ariaLiveContainer candidate together with the property. */
+        if (this.ariaLiveContainer) {
+            containers.add(this.ariaLiveContainer);
+        }
+
+        this.ariaLiveContainers.forEach(container => containers.add(container));
+
+        const exposedContainers = [...containers].filter(container => this._isAriaLiveContainerExposed(container));
+        const target = exposedContainers.find(container => container.closest('[role="dialog"][aria-modal="true"], dialog[open]'))
+            ?? exposedContainers[0];
+
+        if (!target) {
             return;
         }
 
         const listingResultsEl = this.el.querySelector(this.options.cmsProductListingResultsSelector);
-        this.ariaLiveContainer.innerHTML = listingResultsEl.dataset.ariaLiveText;
+        target.innerHTML = listingResultsEl.dataset.ariaLiveText;
+    }
+
+    /**
+     * Visually hidden live regions remain accessible, unlike inert or hidden ancestors.
+     *
+     * @private
+     */
+    _isAriaLiveContainerExposed(container) {
+        if (!container.isConnected) {
+            return false;
+        }
+
+        for (let element = container; element; element = element.parentElement) {
+            if (element.inert || element.hasAttribute('inert') || element.hidden || element.getAttribute('aria-hidden') === 'true') {
+                return false;
+            }
+
+            const style = window.getComputedStyle(element);
+            if (style.display === 'none' || style.visibility === 'hidden' || style.visibility === 'collapse' || style.contentVisibility === 'hidden') {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

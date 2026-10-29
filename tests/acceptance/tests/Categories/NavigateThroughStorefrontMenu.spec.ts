@@ -57,6 +57,15 @@ test(
                 el.tagName.toLowerCase(),
             );
             await ShopCustomer.expects(breadcrumbNavigationItemTagName).toBe('span');
+
+            const breadcrumbItems = StorefrontHome.page.locator('.cms-breadcrumb .breadcrumb-item');
+            await ShopCustomer.expects(breadcrumbItems.filter({ hasText: category2.name })).not.toHaveAttribute(
+                'aria-current',
+            );
+            await ShopCustomer.expects(breadcrumbItems.filter({ hasText: subCategory2.name })).toHaveAttribute(
+                'aria-current',
+                'page',
+            );
         });
 
         await test.step('Verify if link category has a sub category and the link category in breadcrumb is a link element.', async () => {

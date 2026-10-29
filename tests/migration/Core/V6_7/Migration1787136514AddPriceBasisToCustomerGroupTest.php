@@ -84,6 +84,27 @@ class Migration1787136514AddPriceBasisToCustomerGroupTest extends TestCase
         static::assertSame('gross', $this->priceBasisOf($this->netDisplayGroupId));
     }
 
+    public function testASecondRunFinishesAnAbortedBackfill(): void
+    {
+        $this->rollback();
+        $this->insertGroup($this->netDisplayGroupId, displayGross: false);
+        $this->insertGroup($this->grossDisplayGroupId, displayGross: true);
+
+        $this->connection->executeStatement('ALTER TABLE `customer_group` ADD COLUMN `price_basis` VARCHAR(255) NULL');
+
+        (new Migration1787136514AddPriceBasisToCustomerGroup())->update($this->connection);
+
+        $column = $this->connection
+            ->createSchemaManager()
+            ->introspectTableByUnquotedName(CustomerGroupDefinition::ENTITY_NAME)
+            ->getColumn('price_basis');
+
+        static::assertTrue($column->getNotnull());
+        static::assertSame('gross', $column->getDefault());
+        static::assertSame('net', $this->priceBasisOf($this->netDisplayGroupId));
+        static::assertSame('gross', $this->priceBasisOf($this->grossDisplayGroupId));
+    }
+
     public function testGetCreationTimestamp(): void
     {
         static::assertSame(

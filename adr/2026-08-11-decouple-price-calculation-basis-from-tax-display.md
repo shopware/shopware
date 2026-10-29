@@ -33,14 +33,13 @@ current meaning (tax math flavor + labels), so `display_gross` finally means wha
 fields are independent and all four combinations are supported.
 
 - New field `customer_group.price_basis`: `'net'` or `'gross'`, never empty.
-  - Existing groups get the basis matching their display mode, so every price stays the same on update. A
-    group created without a basis derives it the same way. From then on the display mode is display only.
-  - `'net'`: the stored net value is always used. With gross display the price definition is passed with
-    `isCalculated = false`, so `GrossPriceCalculator` derives the gross from the shipping country's tax
-    rules.
-  - `'gross'`: the stored gross value is always used. With net display the net is derived in the selection
-    layer (gross minus the tax it contains at the applicable rules) and handed over as an already
-    calculated value, so `NetPriceCalculator` only rounds it and stays untouched.
+  - The basis only applies where it differs from the display mode, and only in the tax state of that display mode.
+    Everywhere else the tax state picks the stored value as before, also where an extension or an order edit sets another tax state.
+  - Existing groups get the basis matching their display mode, so every price stays the same on update.
+    A group created without a basis derives it the same way.
+    From then on, changing the display mode keeps the basis.
+  - `'net'` with gross display: the stored net value is used, and the price definition is passed with `isCalculated = false`, so `GrossPriceCalculator` derives the gross from the shipping country's tax rules.
+  - `'gross'` with net display: the stored gross value is used, and the net is derived in the selection layer (gross minus the tax it contains at the applicable rules) and handed over as an already calculated value, so `NetPriceCalculator` only rounds it and stays untouched.
   - Tax-free deliveries always charge the stored net value, on every basis. Nothing is derived at 0%.
 - A new internal `PriceSelector` service replaces the four duplicated gross-vs-net branches
   (`ProductPriceCalculator`, `DeliveryCalculator`, `CurrencyPriceCalculator`, the app-script price
@@ -61,12 +60,11 @@ value survives the round trip.
 
 Loose ends handled:
 
-- **Caching**: derived prices depend on the country's tax rates, not just the tax state. The HTTP cache
-  cookie and the entity cache hash additionally include a fingerprint of the context's tax rules exactly
-  when the basis flavor differs from the display flavor (`net` basis with gross display, `gross` basis
-  with net display). A basis matching its display state and every tax-free context do not fragment the
-  cache. A visitor who picks a state gets a cache hash in that case as well, because state tax rules change
-  the derived value.
+- **Caching**: derived prices depend on the country's tax rates, not just the tax state.
+  The HTTP cache cookie and the entity cache hash additionally include a fingerprint of the context's tax rules exactly when prices are derived (`net` basis with gross display in the gross state, `gross` basis with net display in the net state).
+  The selector decides with the same check, so both can't drift apart.
+  A basis matching its display mode, any other tax state and every tax-free context do not fragment the cache.
+  A visitor who picks a state gets a cache hash in that case as well, because state tax rules change the derived value.
 - **Sorting and filtering** keep using the stored value of the display flavor, because `Context` only
   knows the tax state, not the price basis. The same gap decides which variant or rule price becomes a
   listing's cheapest price. With linked prices that matches the derived value at the product's home tax
@@ -86,9 +84,8 @@ Loose ends handled:
 The column is `NOT NULL DEFAULT 'gross'` from the start, so inserts by old core during blue-green still get
 a value. End state: with v6.8 the basis is part of every create payload. Both fields are required, with
 entity defaults (gross display, gross basis), and the write subscriber deriving the basis from the display
-mode goes away, together with the selector's fallback for a missing basis. With v6.8 the price basis also
-moves onto `Context` next to the tax state, so the DAL and Elasticsearch price accessors and the cheapest
-price resolution key on the authoritative stored column instead of the display flavor.
+mode goes away.
+With v6.8 the price basis also moves onto `Context` next to the tax state, so the DAL and Elasticsearch price accessors and the cheapest price resolution key on the authoritative stored column instead of the display flavor.
 
 ## Alternatives considered
 
@@ -105,7 +102,8 @@ both on a fixed net basis), and the display toggle already lives on the customer
 
 **D) Keep `price_basis` nullable, `NULL` meaning "follows the display mode".** Rejected: an extra state with
 its own API contract (nullable field, schema, admin fallbacks) for a single case, a field-unaware writer
-flipping `display_gross` later. We stay opinionated instead: the display mode is display only.
+flipping `display_gross` later.
+A basis that matches the display mode already gives today's behavior without that extra state.
 
 ## Consequences
 
@@ -127,25 +125,22 @@ flipping `display_gross` later. We stay opinionated instead: the display mode is
 // PriceSelector::select(Price $price, TaxRuleCollection $taxRules, SalesChannelContext $context): SelectedPrice
 $taxState = $context->getTaxState();
 
-return match ($context->getCurrentCustomerGroup()->getPriceBasis()) {
-    // net is authoritative, gross display derives the gross via GrossPriceCalculator
-    CustomerGroupEntity::PRICE_BASIS_NET => new SelectedPrice(
-        $price->getNet(),
-        isCalculated: $taxState !== CartPrice::TAX_STATE_GROSS
-    ),
-    // gross is authoritative, net display takes out the contained tax here, tax-free charges the stored net
-    CustomerGroupEntity::PRICE_BASIS_GROSS => match ($taxState) {
-        CartPrice::TAX_STATE_GROSS => new SelectedPrice($price->getGross(), isCalculated: true),
-        CartPrice::TAX_STATE_FREE => new SelectedPrice($price->getNet(), isCalculated: true),
-        default => new SelectedPrice(
-            $price->getGross() - $taxCalculator->calculateGrossTaxes($price->getGross(), $taxRules)->getAmount(),
-            isCalculated: true
-        ),
-    },
-    // a missing basis follows the tax state
-    default => new SelectedPrice(
+// a basis matching the display mode, any other tax state and tax-free deliveries take the stored value of the tax state
+if (!TaxRuleFingerprint::derivesPricesFromTaxRates($context)) {
+    return new SelectedPrice(
         $taxState === CartPrice::TAX_STATE_GROSS ? $price->getGross() : $price->getNet(),
         isCalculated: true
-    ),
-};
+    );
+}
+
+// net basis with gross display: GrossPriceCalculator derives the gross from the stored net
+if ($taxState === CartPrice::TAX_STATE_GROSS) {
+    return new SelectedPrice($price->getNet(), isCalculated: false);
+}
+
+// gross basis with net display: the contained tax is taken out of the stored gross here
+return new SelectedPrice(
+    $price->getGross() - $taxCalculator->calculateGrossTaxes($price->getGross(), $taxRules)->getAmount(),
+    isCalculated: true
+);
 ```

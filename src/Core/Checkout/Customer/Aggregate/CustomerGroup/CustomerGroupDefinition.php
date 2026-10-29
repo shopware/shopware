@@ -65,7 +65,7 @@ class CustomerGroupDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         $displayGross = (new BoolField('display_gross', 'displayGross'))->addFlags(new ApiAware())->setDescription('If boolean value is `true` gross value is displayed else, net value will be displayed to the customer.');
-        $priceBasis = (new StringField('price_basis', 'priceBasis'))->addFlags(new ApiAware(), new Since('6.7.17.0'), new Choice([CustomerGroupEntity::PRICE_BASIS_NET, CustomerGroupEntity::PRICE_BASIS_GROSS], strict: true))->setDescription('Defines which stored price value is authoritative for the price calculation. With `net` the stored net value is always used, with `gross` the stored gross value.');
+        $priceBasis = (new StringField('price_basis', 'priceBasis'))->addFlags(new ApiAware(), new Since('6.7.17.0'), new Choice([CustomerGroupEntity::PRICE_BASIS_NET, CustomerGroupEntity::PRICE_BASIS_GROSS], strict: true))->setDescription('Defines which stored price value is authoritative when the tax display shows the other one. With `net` the gross is derived from the stored net value, with `gross` the net is derived from the stored gross value.');
 
         if (Feature::isActive('v6.8.0.0')) {
             $displayGross->addFlags(new Required());

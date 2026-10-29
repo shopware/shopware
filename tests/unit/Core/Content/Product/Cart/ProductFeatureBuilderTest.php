@@ -461,7 +461,7 @@ class ProductFeatureBuilderTest extends TestCase
         $tax->setRules(new TaxRuleEntityCollection());
 
         $context = Generator::generateSalesChannelContext(
-            currentCustomerGroup: (new CustomerGroupEntity())->assign(['id' => Uuid::randomHex(), 'priceBasis' => CustomerGroupEntity::PRICE_BASIS_NET]),
+            currentCustomerGroup: (new CustomerGroupEntity())->assign(['id' => Uuid::randomHex(), 'priceBasis' => CustomerGroupEntity::PRICE_BASIS_NET, 'displayGross' => true]),
             taxRules: new TaxCollection([$tax]),
         );
 
@@ -490,7 +490,7 @@ class ProductFeatureBuilderTest extends TestCase
                 languageIdChain: self::LANGUAGE_CHAIN,
                 currencyFactor: 1.5,
             ),
-            currentCustomerGroup: (new CustomerGroupEntity())->assign(['id' => Uuid::randomHex(), 'priceBasis' => CustomerGroupEntity::PRICE_BASIS_NET]),
+            currentCustomerGroup: (new CustomerGroupEntity())->assign(['id' => Uuid::randomHex(), 'priceBasis' => CustomerGroupEntity::PRICE_BASIS_NET, 'displayGross' => true]),
             taxRules: new TaxCollection([$tax]),
         );
 

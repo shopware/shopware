@@ -115,6 +115,52 @@ class PriceSelectorTest extends TestCase
         ];
     }
 
+    #[DataProvider('taxStateOtherThanTheDisplayModeProvider')]
+    public function testATaxStateOtherThanTheDisplayModeTakesItsStoredValue(string $basis, bool $displayGross, string $taxState, float $expectedValue): void
+    {
+        $selected = $this->select(
+            new Price(Defaults::CURRENCY, 100.0, 119.0, false),
+            new TaxRuleCollection([new TaxRule(20)]),
+            $basis,
+            $taxState,
+            $displayGross
+        );
+
+        static::assertSame($expectedValue, $selected->getValue());
+        static::assertTrue($selected->isCalculated());
+    }
+
+    public static function taxStateOtherThanTheDisplayModeProvider(): \Generator
+    {
+        yield 'gross basis matching the gross display keeps the stored net where an extension forces the net state' => [
+            CustomerGroupEntity::PRICE_BASIS_GROSS,
+            true,
+            CartPrice::TAX_STATE_NET,
+            100.0,
+        ];
+
+        yield 'net basis matching the net display keeps the stored gross where an order edit runs in the gross state' => [
+            CustomerGroupEntity::PRICE_BASIS_NET,
+            false,
+            CartPrice::TAX_STATE_GROSS,
+            119.0,
+        ];
+
+        yield 'net basis with gross display keeps the stored net in the net state' => [
+            CustomerGroupEntity::PRICE_BASIS_NET,
+            true,
+            CartPrice::TAX_STATE_NET,
+            100.0,
+        ];
+
+        yield 'gross basis with net display keeps the stored gross in the gross state' => [
+            CustomerGroupEntity::PRICE_BASIS_GROSS,
+            false,
+            CartPrice::TAX_STATE_GROSS,
+            119.0,
+        ];
+    }
+
     public function testGrossBasisDerivesTheNetWithTheCountryTaxRate(): void
     {
         $price = new Price(Defaults::CURRENCY, 10.0, 11.9, false);
@@ -198,9 +244,9 @@ class PriceSelectorTest extends TestCase
         static::assertSame(11.99, $selected->getValue());
     }
 
-    private function select(Price $price, TaxRuleCollection $taxRules, ?string $basis, string $taxState): SelectedPrice
+    private function select(Price $price, TaxRuleCollection $taxRules, ?string $basis, string $taxState, ?bool $displayGross = null): SelectedPrice
     {
-        return $this->createSelector(new EventDispatcher())->select($price, $taxRules, $this->createContext($basis, $taxState));
+        return $this->createSelector(new EventDispatcher())->select($price, $taxRules, $this->createContext($basis, $taxState, $displayGross));
     }
 
     private function createSelector(EventDispatcherInterface $dispatcher): PriceSelector
@@ -208,10 +254,13 @@ class PriceSelectorTest extends TestCase
         return new PriceSelector(new TaxCalculator(), new ExtensionDispatcher($dispatcher));
     }
 
-    private function createContext(?string $basis, string $taxState): SalesChannelContext
+    private function createContext(?string $basis, string $taxState, ?bool $displayGross = null): SalesChannelContext
     {
         $context = static::createStub(SalesChannelContext::class);
-        $context->method('getCurrentCustomerGroup')->willReturn((new CustomerGroupEntity())->assign(['priceBasis' => $basis]));
+        $context->method('getCurrentCustomerGroup')->willReturn((new CustomerGroupEntity())->assign([
+            'priceBasis' => $basis,
+            'displayGross' => $displayGross ?? $taxState === CartPrice::TAX_STATE_GROSS,
+        ]));
         $context->method('getTaxState')->willReturn($taxState);
 
         return $context;

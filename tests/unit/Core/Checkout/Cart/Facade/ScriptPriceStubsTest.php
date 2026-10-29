@@ -70,7 +70,7 @@ class ScriptPriceStubsTest extends TestCase
         $context = static::createStub(SalesChannelContext::class);
         $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
         $context->method('getCurrentCustomerGroup')->willReturn(
-            (new CustomerGroupEntity())->assign(['priceBasis' => CustomerGroupEntity::PRICE_BASIS_NET])
+            (new CustomerGroupEntity())->assign(['priceBasis' => CustomerGroupEntity::PRICE_BASIS_NET, 'displayGross' => true])
         );
 
         $selected = $stubs->select(

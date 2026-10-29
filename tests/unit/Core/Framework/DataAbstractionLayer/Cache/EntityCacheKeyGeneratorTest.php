@@ -189,12 +189,12 @@ class EntityCacheKeyGeneratorTest extends TestCase
         $generator = new EntityCacheKeyGenerator();
 
         $germany = (new DummyContext())
-            ->setPriceBasisFluent(CustomerGroupEntity::PRICE_BASIS_GROSS)
+            ->setPriceBasisFluent(CustomerGroupEntity::PRICE_BASIS_GROSS, displayGross: false)
             ->setTaxStateFluent(CartPrice::TAX_STATE_NET)
             ->setTaxRulesFluent(self::taxes(19.0));
 
         $austria = (new DummyContext())
-            ->setPriceBasisFluent(CustomerGroupEntity::PRICE_BASIS_GROSS)
+            ->setPriceBasisFluent(CustomerGroupEntity::PRICE_BASIS_GROSS, displayGross: false)
             ->setTaxStateFluent(CartPrice::TAX_STATE_NET)
             ->setTaxRulesFluent(self::taxes(20.0));
 
@@ -310,9 +310,9 @@ class DummyContext extends SalesChannelContext
         return $this;
     }
 
-    public function setPriceBasisFluent(?string $priceBasis): self
+    public function setPriceBasisFluent(?string $priceBasis, bool $displayGross = true): self
     {
-        $this->currentCustomerGroup = (new CustomerGroupEntity())->assign(['priceBasis' => $priceBasis]);
+        $this->currentCustomerGroup = (new CustomerGroupEntity())->assign(['priceBasis' => $priceBasis, 'displayGross' => $displayGross]);
 
         return $this;
     }

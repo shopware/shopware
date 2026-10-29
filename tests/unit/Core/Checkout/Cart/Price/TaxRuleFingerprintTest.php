@@ -80,6 +80,34 @@ class TaxRuleFingerprintTest extends TestCase
         ];
     }
 
+    #[DataProvider('taxStateOtherThanTheDisplayModeProvider')]
+    public function testATaxStateOtherThanTheDisplayModeDerivesNothing(string $basis, bool $displayGross, string $taxState): void
+    {
+        $context = self::context($basis, $taxState, self::taxes(19.0), $displayGross);
+
+        static::assertFalse(TaxRuleFingerprint::derivesPricesFromTaxRates($context));
+        static::assertNull(TaxRuleFingerprint::build($context));
+    }
+
+    public static function taxStateOtherThanTheDisplayModeProvider(): \Generator
+    {
+        yield 'gross basis matching the gross display prints the stored net where an extension forces the net state' => [
+            CustomerGroupEntity::PRICE_BASIS_GROSS, true, CartPrice::TAX_STATE_NET,
+        ];
+
+        yield 'net basis matching the net display prints the stored gross where an order edit runs in the gross state' => [
+            CustomerGroupEntity::PRICE_BASIS_NET, false, CartPrice::TAX_STATE_GROSS,
+        ];
+
+        yield 'net basis with gross display prints the stored net in the net state' => [
+            CustomerGroupEntity::PRICE_BASIS_NET, true, CartPrice::TAX_STATE_NET,
+        ];
+
+        yield 'gross basis with net display prints the stored gross in the gross state' => [
+            CustomerGroupEntity::PRICE_BASIS_GROSS, false, CartPrice::TAX_STATE_GROSS,
+        ];
+    }
+
     public function testFingerprintPrefersTheCountrySpecificTaxRuleOverTheBaseRate(): void
     {
         $shippedToAustria = self::context(CustomerGroupEntity::PRICE_BASIS_NET, CartPrice::TAX_STATE_GROSS, self::taxes(19.0, countryRate: 20.0));
@@ -91,10 +119,14 @@ class TaxRuleFingerprintTest extends TestCase
         );
     }
 
-    private static function context(?string $basis, string $taxState, TaxCollection $taxes): SalesChannelContext
+    private static function context(?string $basis, string $taxState, TaxCollection $taxes, ?bool $displayGross = null): SalesChannelContext
     {
         $context = Generator::generateSalesChannelContext(
-            currentCustomerGroup: (new CustomerGroupEntity())->assign(['id' => Uuid::randomHex(), 'priceBasis' => $basis]),
+            currentCustomerGroup: (new CustomerGroupEntity())->assign([
+                'id' => Uuid::randomHex(),
+                'priceBasis' => $basis,
+                'displayGross' => $displayGross ?? $taxState === CartPrice::TAX_STATE_GROSS,
+            ]),
             taxRules: $taxes,
         );
         $context->setTaxState($taxState);

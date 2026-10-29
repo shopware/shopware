@@ -35,11 +35,12 @@ final class TaxRuleFingerprint
 
     public static function derivesPricesFromTaxRates(SalesChannelContext $context): bool
     {
-        $basis = $context->getCurrentCustomerGroup()->getPriceBasis();
+        $customerGroup = $context->getCurrentCustomerGroup();
+        $basis = $customerGroup->getPriceBasis();
 
         return match ($context->getTaxState()) {
-            CartPrice::TAX_STATE_GROSS => $basis === CustomerGroupEntity::PRICE_BASIS_NET,
-            CartPrice::TAX_STATE_NET => $basis === CustomerGroupEntity::PRICE_BASIS_GROSS,
+            CartPrice::TAX_STATE_GROSS => $basis === CustomerGroupEntity::PRICE_BASIS_NET && $customerGroup->getDisplayGross(),
+            CartPrice::TAX_STATE_NET => $basis === CustomerGroupEntity::PRICE_BASIS_GROSS && !$customerGroup->getDisplayGross(),
             default => false,
         };
     }

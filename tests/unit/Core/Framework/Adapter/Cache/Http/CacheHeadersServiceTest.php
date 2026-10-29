@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -565,7 +566,10 @@ class CacheHeadersServiceTest extends TestCase
         $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
         $context->method('getTaxState')->willReturn($taxState);
         $context->method('getCurrentCustomerGroup')->willReturn(
-            (new CustomerGroupEntity())->assign(['priceBasis' => $priceBasis])
+            (new CustomerGroupEntity())->assign([
+                'priceBasis' => $priceBasis,
+                'displayGross' => $taxState === CartPrice::TAX_STATE_GROSS,
+            ])
         );
         $context->method('getTaxRules')->willReturn(new TaxCollection([
             (new TaxEntity())->assign([
@@ -629,7 +633,10 @@ class CacheHeadersServiceTest extends TestCase
         $context->method('getLanguageId')->willReturn(Defaults::LANGUAGE_SYSTEM);
         $context->method('getTaxState')->willReturn($taxState);
         $context->method('getCurrentCustomerGroup')->willReturn(
-            (new CustomerGroupEntity())->assign(['priceBasis' => $priceBasis])
+            (new CustomerGroupEntity())->assign([
+                'priceBasis' => $priceBasis,
+                'displayGross' => $taxState === CartPrice::TAX_STATE_GROSS,
+            ])
         );
         $context->method('getTaxRules')->willReturn(new TaxCollection([
             (new TaxEntity())->assign([

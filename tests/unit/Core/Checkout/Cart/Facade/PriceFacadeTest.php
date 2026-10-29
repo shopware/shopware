@@ -290,7 +290,10 @@ class PriceFacadeTest extends TestCase
         $context->method('getTaxState')->willReturn($taxState);
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
         $context->method('getCurrentCustomerGroup')->willReturn(
-            (new CustomerGroupEntity())->assign(['priceBasis' => $priceBasis])
+            (new CustomerGroupEntity())->assign([
+                'priceBasis' => $priceBasis,
+                'displayGross' => $taxState === CartPrice::TAX_STATE_GROSS,
+            ])
         );
 
         return new PriceFacade($entity, $original, $stubs, $context);

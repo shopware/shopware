@@ -58,6 +58,7 @@ export default (async ({ command }) => {
         (isProd && process.env.GENERATE_SOURCEMAPS === 'true');
     const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1' && !isInsideDockerContainer();
     const useBundledDev = isBundledDevActive(isDev);
+    const useBundledExtensions = useBundledDev && process.env.SHOPWARE_ADMIN_BUNDLED_DEV === '1';
 
     if (isProd) {
         console.log(colors.yellow('# Production mode activated 🚀'));
@@ -155,7 +156,7 @@ export default (async ({ command }) => {
                 return [
                     ...sharedPlugins,
 
-                    ...(toolchain.isVite8 ? [ExtensionDevServerPlugin(toolchain, extensions, useBundledDev)] : []),
+                    ...(toolchain.isVite8 ? [ExtensionDevServerPlugin(toolchain, extensions, useBundledExtensions)] : []),
 
                     ...(useBundledDev ? [NodeEnvDefinePlugin()] : []),
 

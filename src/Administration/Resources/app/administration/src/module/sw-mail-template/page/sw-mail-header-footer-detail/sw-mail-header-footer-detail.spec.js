@@ -16,9 +16,11 @@ const mailHeaderFooterMock = {
     isNew: () => false,
 };
 
+const searchMock = jest.fn(() => Promise.resolve([]));
+
 const repositoryMockFactory = () => {
     return {
-        search: () => Promise.resolve({}),
+        search: searchMock,
         get: () => {
             return Promise.resolve(mailHeaderFooterMock);
         },
@@ -87,6 +89,10 @@ const createWrapper = async (privileges = []) => {
 describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
     let wrapper;
 
+    beforeEach(() => {
+        searchMock.mockClear();
+    });
+
     it('all fields should be disabled without edit permission', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -138,5 +144,16 @@ describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
             message: 'CTRL + S',
             appearance: 'light',
         });
+    });
+
+    it('should not limit the sales channels when looking for already assigned ones', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.vm.findAlreadyAssignedSalesChannels();
+
+        const criteria = searchMock.mock.calls.at(-1)[0];
+
+        expect(criteria.limit).toBeNull();
     });
 });

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Content\Cookie;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;

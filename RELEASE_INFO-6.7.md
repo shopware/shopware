@@ -219,6 +219,15 @@ shopware:
             enabled: false
 ```
 
+### Server-side cookie consent logging
+
+The built-in cookie banner can now record consent decisions on the server, as proof that consent was given. It is off by default. Enable it with `shopware.cookie_consent.log_storage`: `database` or `filesystem`, or your own storage implementing `CookieConsentLogStorageInterface`.
+
+- While logging is on, a new technically required cookie `cookie-consent-id` is set, and visitors see the banner once more.
+- Export the log with `bin/console cookie:consent:export`. Old records are deleted after `shopware.cookie_consent.retention_days` (default: 120).
+- Behind a proxy or CDN, configure `framework.trusted_proxies`, otherwise decisions can get lost because of the rate limit.
+- Headless frontends log decisions via `POST /store-api/cookie-consent-log`.
+
 ## Administration
 
 ### Extension tooling reports redundant code
@@ -425,14 +434,6 @@ If you used "Is equal to 0" to target line items without a list price, use "Is e
 
 ## Features
 
-### Server-side cookie consent logging
-
-The built-in cookie banner can now record consent decisions on the server, as proof that consent was given. It is off by default. Enable it with `shopware.cookie_consent.log_storage`: `database` or `filesystem`, or your own storage implementing `CookieConsentLogStorageInterface`.
-
-- While logging is on, a new technically required cookie `cookie-consent-id` is set, and visitors see the banner once more.
-- Export the log with `bin/console cookie:consent:export`. Old records are deleted after `shopware.cookie_consent.retention_days` (default: 120).
-- Behind a proxy or CDN, configure `framework.trusted_proxies`, otherwise decisions can get lost because of the rate limit.
-- Headless frontends log decisions via `POST /store-api/cookie-consent-log`.
 ### Digital products can use external file assignment
 
 In the Administration, digital products can be saved without uploaded files when file assignment is handled externally. When editing a product, the option is enabled by default if it has no downloads and disabled if it has downloads.

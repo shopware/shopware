@@ -19,5 +19,6 @@ module.exports = {
         'no-vue-options-api': require(path.resolve(__dirname, 'no-vue-options-api.js')),
         'no-import-meta-glob-extglob': require(path.resolve(__dirname, 'no-import-meta-glob-extglob.js')),
         'no-manual-deprecation-notices': require(path.resolve(__dirname, 'no-manual-deprecation-notices.js')),
+        'require-deprecation-guard': require(path.resolve(__dirname, 'require-deprecation-guard.js')),
     },
 };

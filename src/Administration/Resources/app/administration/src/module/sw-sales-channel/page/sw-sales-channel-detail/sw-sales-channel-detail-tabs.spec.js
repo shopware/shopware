@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const mockGet = jest.fn();
 
@@ -121,6 +122,9 @@ async function createWrapper({
 
 describe('src/module/sw-sales-channel/page/sw-sales-channel-detail tabs', () => {
     beforeEach(() => {
+        allowDeprecation('sw-sales-channel-detail.defaultAgenticCommerceExportConfig is deprecated');
+        allowDeprecation('sw-sales-channel-detail.isAgenticCommerce is deprecated');
+        allowDeprecation('sw-sales-channel-detail.loadAgenticCommerceExportConfig() is deprecated');
         mockGet.mockClear();
     });
 

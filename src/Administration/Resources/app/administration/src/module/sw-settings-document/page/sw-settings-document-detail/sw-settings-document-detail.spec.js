@@ -1,6 +1,7 @@
 import { config, mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
 import { COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY } from './index';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 /**
  * @sw-package after-sales
@@ -193,6 +194,7 @@ const createWrapper = async (customOptions, privileges = [], isDocumentGeneratio
 
 describe('src/module/sw-settings-document/page/sw-settings-document-detail', () => {
     beforeEach(async () => {
+        allowDeprecation('sw-settings-document-detail.documentBaseConfigSalesChannelRepository is deprecated');
         documentBaseConfigSalesChannelsRepositoryMock.counter = 1;
         documentBaseConfigRepositoryMock.save.mockReset();
         documentBaseConfigRepositoryMock.save.mockResolvedValue();

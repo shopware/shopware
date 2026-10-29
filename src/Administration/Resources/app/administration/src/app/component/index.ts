@@ -534,6 +534,7 @@ export default () => {
     );
     Shopware.Component.register('sw-request-consent-modal', () => import('./structure/sw-request-consent-modal'));
     // @deprecated tag:v6.9.0 - Will be removed together with the one-time ui-shell-update-2026 announcement modal
+    // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- the announcement modal stays in use until its removal
     Shopware.Component.register('sw-ui-shell-update-2026-modal', () => import('./structure/sw-ui-shell-update-2026-modal'));
     Shopware.Component.extend('sw-sidebar-collapse', 'sw-collapse', () => import('./sidebar/sw-sidebar-collapse/index'));
     Shopware.Component.extend(

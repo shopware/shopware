@@ -7,6 +7,10 @@ import template from './sw-verify-user-modal.html.twig';
 const { Mixin } = Shopware;
 
 /**
+ * Asks the user for the password and emits the API context carrying the verified token.
+ * Request a verification through `userVerificationService.verify()` instead of rendering this modal:
+ * the service picks the password prompt or the identity provider for the current session.
+ *
  * @private
  */
 export default {
@@ -14,9 +18,22 @@ export default {
 
     inject: ['loginService'],
 
-    emits: ['verified', 'close'],
+    emits: [
+        'verified',
+        'verify-with-sso',
+        'close',
+    ],
 
     mixins: [Mixin.getByName('notification')],
+
+    props: {
+        // offers the identity provider next to the password, for sessions the shop could not tell apart
+        ssoAvailable: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    },
 
     data() {
         return {
@@ -24,13 +41,7 @@ export default {
         };
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {},
-
         onSubmitConfirmPassword() {
             return this.loginService
                 .verifyUserToken(this.confirmPassword)
@@ -58,6 +69,11 @@ export default {
                     this.confirmPassword = '';
                     this.$emit('close');
                 });
+        },
+
+        onVerifyWithSso() {
+            this.confirmPassword = '';
+            this.$emit('verify-with-sso');
         },
 
         onCloseConfirmPasswordModal() {

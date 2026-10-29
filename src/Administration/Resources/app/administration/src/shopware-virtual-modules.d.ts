@@ -729,6 +729,13 @@ declare module 'shopware:stores/inAppPurchaseCheckout' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:stores/userVerification' {
+    const useStore: () => PiniaRootState['userVerification'];
+
+    export default useStore;
+}
+
+/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:stores/extensionComponentSections' {
     const useStore: () => PiniaRootState['extensionComponentSections'];
 

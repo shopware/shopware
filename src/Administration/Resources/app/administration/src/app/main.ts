@@ -16,6 +16,8 @@ import MenuService from 'src/app/service/menu.service';
 import PrivilegesService from 'src/app/service/privileges.service';
 import AclService from 'src/app/service/acl.service';
 import LoginService from 'src/core/service/login.service';
+import SsoReauthService from 'src/core/service/sso-reauth.service';
+import UserVerificationService from 'src/core/service/user-verification.service';
 import EntityMappingService from 'src/core/service/entity-mapping.service';
 import JsonApiParser from 'src/core/service/jsonapi-parser.service';
 import ValidationService from 'src/core/service/validation.service';
@@ -235,6 +237,12 @@ Application.addServiceProvider('feature', () => {
     })
     .addServiceProvider('userActivityService', () => {
         return new UserActivityService();
+    })
+    .addServiceProvider('ssoReauthService', () => {
+        return new SsoReauthService(Shopware.Service('loginService'));
+    })
+    .addServiceProvider('userVerificationService', () => {
+        return new UserVerificationService(Shopware.Service('loginService'), Shopware.Service('ssoReauthService'));
     })
     .addServiceProvider('fileValidationService', () => {
         return FileValidationService();

@@ -18,6 +18,7 @@ export default {
         'repositoryFactory',
         'acl',
         'ssoSettingsService',
+        'userVerificationService',
     ],
 
     emits: ['get-list'],
@@ -204,14 +205,12 @@ export default {
             }
 
             this.isConfirmDeleteModalOpen = false;
-
-            if (this.isSso) {
-                this.deleteUser({ ...Shopware.Context.api });
-
-                return;
-            }
-
             this.isConfirmingPasswordModalOpen = true;
+
+            return this.userVerificationService
+                .verify()
+                .then((context) => this.deleteUser(context))
+                .catch(() => this.onCloseConfirmPasswordModal());
         },
 
         deleteUser(context) {

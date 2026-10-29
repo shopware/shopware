@@ -16,6 +16,10 @@ const mockedLoginService = {
     setBearerAuthentication: jest.fn(),
 };
 
+const userVerificationService = {
+    verify: jest.fn(() => Promise.resolve({ ...Shopware.Context.api })),
+};
+
 async function createWrapper(
     privileges = [],
     options = {
@@ -48,6 +52,7 @@ async function createWrapper(
                 },
                 renderStubDefaultSlot: true,
                 provide: {
+                    userVerificationService,
                     acl: {
                         can: (identifier) => {
                             if (!identifier) {
@@ -172,7 +177,6 @@ async function createWrapper(
                     'sw-context-menu-item': true,
                     'sw-skeleton': true,
                     'sw-loader': true,
-                    'sw-verify-user-modal': true,
                     'sw-media-modal-v2': true,
 
                     'sw-text-field-deprecated': true,

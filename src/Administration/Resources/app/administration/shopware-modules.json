@@ -216,6 +216,7 @@
             "teaserPopover": [],
             "adminMenu": [],
             "inAppPurchaseCheckout": [],
+            "userVerification": [],
             "extensionComponentSections": [],
             "blockOverride": [],
             "extensionEntryRoutes": [],

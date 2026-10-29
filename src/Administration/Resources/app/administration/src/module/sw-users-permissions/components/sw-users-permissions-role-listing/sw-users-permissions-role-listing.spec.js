@@ -3,6 +3,10 @@
  */
 import { mount } from '@vue/test-utils';
 
+const userVerificationService = {
+    verify: jest.fn(() => Promise.resolve({ ...Shopware.Context.api })),
+};
+
 async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFunction = () => {}) {
     return mount(
         await wrapTestComponent('sw-users-permissions-role-listing', {
@@ -12,6 +16,7 @@ async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFu
             global: {
                 renderStubDefaultSlot: true,
                 provide: {
+                    userVerificationService,
                     repositoryFactory: {
                         create: () => ({
                             search: () => Promise.resolve([]),
@@ -63,7 +68,6 @@ async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFu
 `,
                     },
                     'sw-context-menu-item': true,
-                    'sw-verify-user-modal': true,
                     'router-link': true,
                     'sw-pagination': true,
                     'sw-modal': {
@@ -149,13 +153,14 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
         expect(emittedGetList.length).toBeGreaterThan(0);
     });
 
-    it('should open password confirm modal', async () => {
+    it('should verify the user before deleting a role', async () => {
         const deleteFunction = jest.fn().mockReturnValue(Promise.resolve());
         wrapper = await createWrapper(
             ['users_and_permissions.deleter', 'users_and_permissions.editor'],
             { isSso: false },
             deleteFunction,
         );
+        userVerificationService.verify.mockReturnValueOnce(new Promise(() => {}));
 
         await wrapper.setData({
             roles: [
@@ -176,7 +181,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
         await confirmButton.trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('sw-verify-user-modal-stub').exists()).toBeTruthy();
+        expect(userVerificationService.verify).toHaveBeenCalledTimes(1);
         expect(deleteFunction).not.toHaveBeenCalled();
     });
 

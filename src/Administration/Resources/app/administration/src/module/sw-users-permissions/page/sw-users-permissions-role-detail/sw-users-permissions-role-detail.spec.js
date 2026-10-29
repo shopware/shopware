@@ -25,6 +25,10 @@ function isNew() {
     return false;
 }
 
+const userVerificationService = {
+    verify: jest.fn(() => Promise.resolve({ ...Shopware.Context.api })),
+};
+
 async function createWrapper(
     { privileges = [], privilegeMappingEntries = [], aclPrivileges = [] } = {},
     options = {},
@@ -67,7 +71,6 @@ async function createWrapper(
                     'sw-field': true,
                     'sw-users-permissions-permissions-grid': true,
                     'sw-users-permissions-additional-permissions': true,
-                    'sw-verify-user-modal': true,
                     'sw-tabs': {
                         name: 'sw-tabs',
                         props: ['defaultItem', 'positionIdentifier'],
@@ -94,6 +97,7 @@ async function createWrapper(
                     },
                 },
                 provide: {
+                    userVerificationService,
                     feature: {
                         isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
                     },
@@ -661,7 +665,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         );
     });
 
-    it('should open the confirm password modal on save', async () => {
+    it('should verify the user on save', async () => {
         wrapper = await createWrapper({
             aclPrivileges: ['users_and_permissions.editor'],
         });
@@ -669,15 +673,14 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
             isLoading: false,
         });
 
-        let verifyUserModal = wrapper.find('sw-verify-user-modal-stub');
-        expect(verifyUserModal.exists()).toBeFalsy();
+        userVerificationService.verify.mockReturnValueOnce(new Promise(() => {}));
+        expect(userVerificationService.verify).not.toHaveBeenCalled();
 
         const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');
         await saveButton.trigger('click.prevent');
         await flushPromises();
 
-        verifyUserModal = wrapper.find('sw-verify-user-modal-stub');
-        expect(verifyUserModal.exists()).toBeTruthy();
+        expect(userVerificationService.verify).toHaveBeenCalledTimes(1);
     });
 
     it('should show the name of the role as the title', async () => {
@@ -768,7 +771,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         expect(saveButton.attributes().disabled).toBeUndefined();
     });
 
-    it('should open password confirm modal', async () => {
+    it('should verify the user before saving a new role', async () => {
         const saveFunction = jest.fn().mockReturnValue(Promise.resolve());
         wrapper = await createWrapper(
             {
@@ -783,17 +786,16 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
             saveFunction,
         );
         await flushPromises();
+        userVerificationService.verify.mockReturnValueOnce(new Promise(() => {}));
 
         const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');
         await saveButton.trigger('click');
         await flushPromises();
 
-        const passwordConfirmModal = wrapper.find('sw-verify-user-modal-stub');
-
         expect(saveButton.attributes().disabled).toBeUndefined();
         expect(wrapper.find('.sw-skeleton').exists()).toBe(false);
 
-        expect(passwordConfirmModal.exists()).toBeTruthy();
+        expect(userVerificationService.verify).toHaveBeenCalledTimes(1);
         expect(saveFunction).not.toHaveBeenCalled();
     });
 

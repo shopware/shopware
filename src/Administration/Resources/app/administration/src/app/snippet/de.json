@@ -1,5 +1,13 @@
 {
   "global": {
+    "sw-verify-user-modal": {
+      "buttonVerifyWithSso": "Mit Single Sign-on bestätigen",
+      "failure": {
+        "sso-not-configured": "Die Anmeldung bei Deinem Identity Provider konnte nicht gestartet werden. Bitte versuche es erneut.",
+        "sso-window-blocked": "Dein Browser hat das Anmeldefenster blockiert. Bitte erlaube Pop-ups für die Administration und versuche es erneut.",
+        "no-session": "Die Anmeldung bei Deinem Identity Provider hat keine neue Sitzung ergeben. Bitte versuche es erneut."
+      }
+    },
     "error-codes": {
       "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Fehlende Berechtigungen.",
       "FRAMEWORK__DELETE_RESTRICTED": "Löschen fehlgeschlagen.",

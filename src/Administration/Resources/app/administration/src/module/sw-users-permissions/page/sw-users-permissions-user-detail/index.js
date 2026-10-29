@@ -25,6 +25,7 @@ export default {
         'repositoryFactory',
         'acl',
         'feature',
+        'userVerificationService',
     ],
 
     mixins: [Mixin.getByName('notification'), Mixin.getByName('salutation')],
@@ -438,6 +439,11 @@ export default {
 
         onSave() {
             this.confirmPasswordModal = true;
+
+            return this.userVerificationService
+                .verify()
+                .then((context) => this.saveUser(context))
+                .catch(() => this.onCloseConfirmPasswordModal());
         },
 
         async saveUser(context) {

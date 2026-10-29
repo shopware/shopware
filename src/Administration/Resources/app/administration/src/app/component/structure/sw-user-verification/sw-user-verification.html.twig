@@ -1,0 +1,9 @@
+{% block sw_user_verification %}
+<sw-verify-user-modal
+    v-if="requested"
+    :sso-available="ssoAvailable"
+    @verified="onVerified"
+    @verify-with-sso="onVerifyWithSso"
+    @close="onClose"
+/>
+{% endblock %}

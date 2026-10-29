@@ -51,6 +51,10 @@ function businessCustomer(vatIds, country = germany) {
     };
 }
 
+function findVatIdField(wrapper) {
+    return wrapper.findAllComponents({ name: 'MtTextField' }).find((field) => field.props('name') === 'vatId');
+}
+
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-customer-card', { sync: true }), {
         props: {
@@ -157,13 +161,13 @@ describe('module/sw-customer/page/sw-customer-card', () => {
             customer: businessCustomer(['DE123456789']),
         });
 
-        expect(wrapper.vm.isVatIdRequired).toBe(true);
+        expect(findVatIdField(wrapper).props('required')).toBe(true);
 
         await wrapper.setProps({
             customer: businessCustomer(['DE123456789'], { ...germany, vatIdRequired: false }),
         });
 
-        expect(wrapper.vm.isVatIdRequired).toBe(false);
+        expect(findVatIdField(wrapper).props('required')).toBe(false);
     });
 
     it.each([
@@ -224,12 +228,12 @@ describe('module/sw-customer/page/sw-customer-card', () => {
             error: new Shopware.Classes.ShopwareError({ code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3' }),
         });
         await flushPromises();
-        expect(wrapper.vm.customerVatIdsError).toBeTruthy();
+        expect(findVatIdField(wrapper).props('error')).not.toBeNull();
 
-        wrapper.vm.customer.vatIds.push('DE123456789');
+        await findVatIdField(wrapper).vm.$emit('update:modelValue', 'DE123456789');
         await flushPromises();
 
-        expect(wrapper.vm.customerVatIdsError).toBeNull();
+        expect(findVatIdField(wrapper).props('error')).toBeNull();
     });
 
     it('should not warn about a VAT ID of another member state while the EU patterns are unknown', async () => {
@@ -239,13 +243,13 @@ describe('module/sw-customer/page/sw-customer-card', () => {
         await wrapper.setProps({ customer: businessCustomer(['ATU12345678']) });
         await flushPromises();
 
-        expect(wrapper.vm.euVatIdPatterns).toBeNull();
         expect(wrapper.find('.sw-customer-card__vat-id-warning').exists()).toBe(false);
     });
 
     it('should follow the address made the default billing address', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
+            editMode: true,
             customer: {
                 ...businessCustomer([], { ...germany, vatIdRequired: false }),
                 defaultBillingAddressId: 'address-b',
@@ -255,7 +259,7 @@ describe('module/sw-customer/page/sw-customer-card', () => {
         });
         await flushPromises();
 
-        expect(wrapper.vm.isVatIdRequired).toBe(true);
+        expect(findVatIdField(wrapper).props('required')).toBe(true);
         expect(wrapper.find('.sw-customer-card__vat-id-warning').text()).toBe('sw-customer.card.warningVatIdRequired');
     });
 });

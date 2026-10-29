@@ -82,7 +82,7 @@ async function createWrapper({ customerRepositorySaveMock, languageRepositorySea
                 'sw-language-switch': true,
                 'sw-customer-address-form': true,
                 'sw-customer-base-form': true,
-                'sw-card-view': true,
+                'sw-card-view': { template: '<div><slot></slot></div>' },
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
                 'sw-loader': true,
                 'router-link': true,
@@ -101,6 +101,24 @@ async function createWrapper({ customerRepositorySaveMock, languageRepositorySea
             },
         },
     });
+}
+
+async function createBusinessCustomer({ vatIds, country, countryId = 'countryId' }) {
+    const customerRepositorySaveMock = jest.fn(() => Promise.resolve());
+    const wrapper = await createWrapper({ country, customerRepositorySaveMock });
+    await flushPromises();
+
+    await wrapper.setData({
+        customer: { id: '1', accountType: 'business', vatIds },
+        address: { id: '2', countryId, company: 'Shopware AG' },
+    });
+
+    return { wrapper, customerRepositorySaveMock };
+}
+
+async function clickSave(wrapper) {
+    await wrapper.find('.sw-customer-create__save-action').trigger('click');
+    await flushPromises();
 }
 
 describe('module/sw-customer/page/sw-customer-create', () => {
@@ -167,22 +185,14 @@ describe('module/sw-customer/page/sw-customer-create', () => {
             '463d3548-1caf-11eb-adc1-0242ac120002',
         ],
     ])('should reject %s of a business customer', async (_, vatIds, country, expectedCode) => {
-        const wrapper = await createWrapper({ country });
-        await flushPromises();
-        const addApiErrorSpy = jest.spyOn(Shopware.Store.get('error'), 'addApiError');
+        const { wrapper, customerRepositorySaveMock } = await createBusinessCustomer({ vatIds, country });
 
-        await wrapper.setData({
-            customer: { id: '1', accountType: 'business', vatIds },
-            address: { id: '2', countryId: 'countryId', company: 'Shopware AG' },
-        });
+        await clickSave(wrapper);
 
-        await expect(wrapper.vm.validVatIdField()).resolves.toBe(false);
-        expect(addApiErrorSpy).toHaveBeenCalledWith({
-            expression: 'customer.1.vatIds',
-            error: expect.objectContaining({ code: expectedCode }),
-        });
-
-        addApiErrorSpy.mockRestore();
+        expect(customerRepositorySaveMock).not.toHaveBeenCalled();
+        expect(Shopware.Store.get('error').getApiErrorFromPath('customer', '1', ['vatIds'])).toEqual(
+            expect.objectContaining({ code: expectedCode }),
+        );
     });
 
     it.each([
@@ -197,45 +207,30 @@ describe('module/sw-customer/page/sw-customer-create', () => {
             { ...germany, checkVatIdPattern: false },
         ],
     ])('should accept %s of a business customer', async (_, vatIds, country) => {
-        const wrapper = await createWrapper({ country });
-        await flushPromises();
+        const { wrapper, customerRepositorySaveMock } = await createBusinessCustomer({ vatIds, country });
 
-        await wrapper.setData({
-            customer: { id: '1', accountType: 'business', vatIds },
-            address: { id: '2', countryId: 'countryId', company: 'Shopware AG' },
-        });
+        await clickSave(wrapper);
 
-        await expect(wrapper.vm.validVatIdField()).resolves.toBe(true);
+        expect(customerRepositorySaveMock).toHaveBeenCalledTimes(1);
     });
 
     it('should not validate the VAT ID without a billing country', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
+        const { wrapper, customerRepositorySaveMock } = await createBusinessCustomer({ vatIds: [], countryId: null });
 
-        await wrapper.setData({
-            customer: { id: '1', accountType: 'business', vatIds: [] },
-            address: { id: '2', countryId: null, company: 'Shopware AG' },
-        });
+        await clickSave(wrapper);
 
-        await expect(wrapper.vm.validVatIdField()).resolves.toBe(true);
+        expect(customerRepositorySaveMock).toHaveBeenCalledTimes(1);
     });
 
     it('should remove a stale VAT ID error once the VAT IDs pass', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
+        const { wrapper } = await createBusinessCustomer({ vatIds: [] });
         const errorStore = Shopware.Store.get('error');
 
-        await wrapper.setData({
-            customer: { id: '1', accountType: 'business', vatIds: [] },
-            address: { id: '2', countryId: 'countryId', company: 'Shopware AG' },
-        });
-        await expect(wrapper.vm.validVatIdField()).resolves.toBe(false);
+        await clickSave(wrapper);
         expect(errorStore.getApiErrorFromPath('customer', '1', ['vatIds'])).not.toBeNull();
 
-        await wrapper.setData({
-            customer: { id: '1', accountType: 'business', vatIds: ['ATU12345678'] },
-        });
-        await expect(wrapper.vm.validVatIdField()).resolves.toBe(true);
+        await wrapper.setData({ customer: { vatIds: ['ATU12345678'] } });
+        await clickSave(wrapper);
 
         expect(errorStore.getApiErrorFromPath('customer', '1', ['vatIds'])).toBeNull();
     });
@@ -245,16 +240,11 @@ describe('module/sw-customer/page/sw-customer-create', () => {
         { accountType: 'business', country: { ...germany, vatIdRequired: false }, expected: false },
         { accountType: 'private', country: germany, expected: false },
     ])('should require the VAT ID of a $accountType customer: $expected', async ({ accountType, country, expected }) => {
-        const wrapper = await createWrapper({ country });
+        const { wrapper } = await createBusinessCustomer({ vatIds: [], country });
+        await wrapper.setData({ customer: { accountType } });
         await flushPromises();
 
-        await wrapper.setData({
-            customer: { id: '1', accountType, vatIds: [] },
-            address: { id: '2', countryId: 'countryId' },
-        });
-        await flushPromises();
-
-        expect(wrapper.vm.isVatIdRequired).toBe(expected);
+        expect(wrapper.find('sw-customer-base-form-stub').attributes('is-vat-id-required')).toBe(String(expected));
     });
 
     it('should override context when the sales channel does not exist language compared to the API language', async () => {

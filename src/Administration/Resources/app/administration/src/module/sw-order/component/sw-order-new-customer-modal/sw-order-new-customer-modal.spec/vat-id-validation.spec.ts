@@ -8,23 +8,14 @@ import CustomerVatIdService, { type VatIdCountry } from 'src/app/service/custome
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-type ModalVm = {
-    customer: { id: string; accountType?: string; vatIds?: string[]; company?: string };
-    billingAddress: { countryId: string | null };
-    isVatIdRequired: boolean;
-    validVatIdField: () => Promise<boolean>;
-    validateEmail: jest.Mock;
-    createNotificationError: jest.Mock;
-    saveCustomer: () => Promise<unknown>;
-    onSave: () => Promise<boolean>;
-};
-
 const germany: VatIdCountry = {
     isEu: true,
     vatIdRequired: true,
     checkVatIdPattern: true,
     vatIdPattern: 'DE\\d{9}',
 };
+
+const saveMock = jest.fn(() => Promise.resolve());
 
 async function createWrapper() {
     const repositoryFactory = {
@@ -35,6 +26,7 @@ async function createWrapper() {
                         id: '1',
                         addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
                     }),
+                    save: saveMock,
                 };
             }
 
@@ -49,11 +41,11 @@ async function createWrapper() {
                 };
             }
 
-            if (entity === 'salutation') {
-                return { searchIds: () => Promise.resolve({ total: 1, data: ['salutationId'] }) };
+            if (entity === 'salutation' || entity === 'language') {
+                return { searchIds: () => Promise.resolve({ total: 1, data: ['1'] }) };
             }
 
-            return { create: () => ({ id: 'billing-address-id' }) };
+            return { create: () => ({ id: 'billing-address-id', countryId: 'countryId' }) };
         },
     };
 
@@ -61,7 +53,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-modal': { template: '<div><slot></slot><slot name="modal-footer"></slot></div>' },
-                'sw-tabs': { template: '<div><slot name="content" active="customer"></slot></div>' },
+                'sw-tabs': { template: '<div><slot name="content" active="details"></slot></div>' },
                 'mt-tabs': true,
                 'sw-customer-address-form': true,
                 'sw-customer-base-form': true,
@@ -85,69 +77,66 @@ async function createWrapper() {
 async function createBusinessCustomer(vatIds: string[]) {
     const wrapper = await createWrapper();
     await flushPromises();
+    await wrapper.setData({ customer: { accountType: 'business', vatIds, company: 'Shopware AG' } });
 
-    const vm = wrapper.vm as unknown as ModalVm;
-    Object.assign(vm.customer, { accountType: 'business', vatIds });
-    vm.billingAddress.countryId = 'countryId';
+    return wrapper;
+}
 
-    return vm;
+async function clickSave(wrapper: Awaited<ReturnType<typeof createWrapper>>) {
+    await wrapper.find('[data-analytics-id="sw-order-new-customer-modal.save"]').trigger('click');
+    await flushPromises();
 }
 
 describe('src/module/sw-order/component/sw-order-new-customer-modal/vat-id-validation', () => {
     beforeEach(() => {
+        saveMock.mockClear();
         Shopware.Store.get('error').resetApiErrors();
     });
 
     it.each([
         { vatIds: [''], code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3' },
         { vatIds: ['DE12345'], code: '463d3548-1caf-11eb-adc1-0242ac120002' },
-    ])('should reject the VAT IDs $vatIds of a business customer', async ({ vatIds, code }) => {
-        const vm = await createBusinessCustomer(vatIds);
+    ])('should not save a business customer with the VAT IDs $vatIds', async ({ vatIds, code }) => {
+        const wrapper = await createBusinessCustomer(vatIds);
 
-        await expect(vm.validVatIdField()).resolves.toBe(false);
+        await clickSave(wrapper);
+
+        expect(saveMock).not.toHaveBeenCalled();
         expect(Shopware.Store.get('error').getApiErrorFromPath('customer', '1', ['vatIds'])).toEqual(
             expect.objectContaining({ code }),
         );
     });
 
     it('should require the VAT ID when the billing country requires it', async () => {
-        const vm = await createBusinessCustomer([]);
+        const wrapper = await createBusinessCustomer([]);
         await flushPromises();
 
-        expect(vm.isVatIdRequired).toBe(true);
+        expect(wrapper.find('sw-customer-base-form-stub').attributes('is-vat-id-required')).toBe('true');
 
-        vm.customer.accountType = 'private';
+        await wrapper.setData({ customer: { accountType: 'private' } });
 
-        expect(vm.isVatIdRequired).toBe(false);
+        expect(wrapper.find('sw-customer-base-form-stub').attributes('is-vat-id-required')).toBe('false');
     });
 
-    it('should accept a VAT ID of another member state for a business customer', async () => {
-        const vm = await createBusinessCustomer(['ATU12345678']);
+    it('should save a business customer with a VAT ID of another member state', async () => {
+        const wrapper = await createBusinessCustomer(['ATU12345678']);
 
-        await expect(vm.validVatIdField()).resolves.toBe(true);
+        await clickSave(wrapper);
+
+        expect(saveMock).toHaveBeenCalledTimes(1);
     });
 
     it('should remove a stale VAT ID error once the VAT IDs pass', async () => {
-        const vm = await createBusinessCustomer([]);
+        const wrapper = await createBusinessCustomer([]);
         const errorStore = Shopware.Store.get('error');
 
-        await expect(vm.validVatIdField()).resolves.toBe(false);
+        await clickSave(wrapper);
         expect(errorStore.getApiErrorFromPath('customer', '1', ['vatIds'])).not.toBeNull();
 
-        vm.customer.vatIds = ['ATU12345678'];
-        await expect(vm.validVatIdField()).resolves.toBe(true);
+        await wrapper.setData({ customer: { vatIds: ['ATU12345678'] } });
+        await clickSave(wrapper);
 
+        expect(saveMock).toHaveBeenCalledTimes(1);
         expect(errorStore.getApiErrorFromPath('customer', '1', ['vatIds'])).toBeNull();
-    });
-
-    it('should not save a business customer with a malformed VAT ID', async () => {
-        const vm = await createBusinessCustomer(['DE12345']);
-        vm.createNotificationError = jest.fn();
-        vm.validateEmail = jest.fn(() => Promise.resolve({ isValid: true }));
-        vm.customer.company = 'Shopware AG';
-        const saveCustomerSpy = jest.spyOn(vm, 'saveCustomer');
-
-        await expect(vm.onSave()).resolves.toBe(false);
-        expect(saveCustomerSpy).not.toHaveBeenCalled();
     });
 });

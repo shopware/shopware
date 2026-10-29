@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<telemetry>
+    <mapping name="entity_group">
+        <key>ce_swag_blog_*</key>
+        <key>product</key>
+    </mapping>
+    <mapping name="flow_trigger_group">
+        <key>swag.blog.published</key>
+    </mapping>
+    <mapping name="swag_unknown_mapping">
+        <key>anything</key>
+    </mapping>
+</telemetry>

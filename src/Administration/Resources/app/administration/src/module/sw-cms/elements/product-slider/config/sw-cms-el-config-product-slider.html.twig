@@ -50,7 +50,6 @@
                         class="sw-cms-el-config-product-slider__tab-content-product-assignment-type-select"
                         :options="productAssignmentTypes"
                         :disabled="isInherited"
-                        show-clearable-button
                         @update:value="onChangeAssignmentType"
                     />
                 </template>
@@ -218,6 +217,7 @@
                     <template #default="{ isInherited }">
                         <mt-select
                             v-model="element.config.displayMode.value"
+                            :hide-clearable-button="true"
                             class="sw-cms-el-config-product-slider__tab-settings-display-mode"
                             :help-text="$t('sw-cms.elements.productSlider.config.helpText.displayMode')"
                             :options="displayModeOptions"
@@ -276,6 +276,7 @@
                     <template #default="{ isInherited }">
                         <mt-select
                             v-model="element.config.boxLayout.value"
+                            :hide-clearable-button="true"
                             class="sw-cms-el-config-product-slider__tab-settings-layout-type"
                             :options="boxLayoutOptions"
                             :disabled="isInherited"
@@ -311,6 +312,7 @@
                     <template #default="{ isInherited }">
                         <mt-select
                             v-model="element.config.navigationArrows.value"
+                            :hide-clearable-button="true"
                             class="sw-cms-el-config-product-slider__tab-settings-navigation-arrows"
                             :label="$t('sw-cms.elements.productSlider.config.label.navigationArrows')"
                             :options="arrowOptions"
@@ -461,7 +463,6 @@
                                 class="sw-cms-el-config-product-slider__tab-content-product-assignment-type-select"
                                 :options="productAssignmentTypes"
                                 :disabled="isInherited"
-                                show-clearable-button
                                 @update:value="onChangeAssignmentType"
                             />
                         </template>
@@ -637,6 +638,7 @@
                             <template #default="{ isInherited }">
                                 <mt-select
                                     v-model="element.config.displayMode.value"
+                                    :hide-clearable-button="true"
                                     class="sw-cms-el-config-product-slider__tab-settings-display-mode"
                                     :help-text="$t('sw-cms.elements.productSlider.config.helpText.displayMode')"
                                     :options="displayModeOptions"
@@ -695,6 +697,7 @@
                             <template #default="{ isInherited }">
                                 <mt-select
                                     v-model="element.config.boxLayout.value"
+                                    :hide-clearable-button="true"
                                     class="sw-cms-el-config-product-slider__tab-settings-layout-type"
                                     :options="boxLayoutOptions"
                                     :disabled="isInherited"
@@ -730,6 +733,7 @@
                             <template #default="{ isInherited }">
                                 <mt-select
                                     v-model="element.config.navigationArrows.value"
+                                    :hide-clearable-button="true"
                                     class="sw-cms-el-config-product-slider__tab-settings-navigation-arrows"
                                     :label="$t('sw-cms.elements.productSlider.config.label.navigationArrows')"
                                     :options="arrowOptions"

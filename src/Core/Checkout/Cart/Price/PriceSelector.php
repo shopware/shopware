@@ -53,7 +53,7 @@ final class PriceSelector
         }
 
         $containedTax = $this->taxCalculator
-            ->calculateGrossTaxes($price->getGross(), TaxRuleShares::ofTheGross($taxRules))
+            ->calculateGrossTaxes($price->getGross(), TaxRuleShares::ofGross($taxRules))
             ->getAmount();
 
         return new SelectedPrice($price->getGross() - $containedTax, isCalculated: true);

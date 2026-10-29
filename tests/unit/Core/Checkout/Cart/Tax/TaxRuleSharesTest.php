@@ -19,7 +19,7 @@ class TaxRuleSharesTest extends TestCase
 {
     public function testEqualNetSharesTurnIntoTheGrossSharesOfTheirTaxedAmounts(): void
     {
-        $shares = TaxRuleShares::ofTheGross(new TaxRuleCollection([new TaxRule(19, 50), new TaxRule(7, 50)]));
+        $shares = TaxRuleShares::ofGross(new TaxRuleCollection([new TaxRule(19, 50), new TaxRule(7, 50)]));
 
         static::assertEqualsWithDelta(59.5 / 113 * 100, $shares->get(19)?->getPercentage(), 0.000001);
         static::assertEqualsWithDelta(53.5 / 113 * 100, $shares->get(7)?->getPercentage(), 0.000001);
@@ -27,7 +27,7 @@ class TaxRuleSharesTest extends TestCase
 
     public function testEqualGrossSharesTurnIntoTheNetSharesTheirTaxesLeave(): void
     {
-        $shares = TaxRuleShares::ofTheNet(new TaxRuleCollection([new TaxRule(19, 50), new TaxRule(7, 50)]));
+        $shares = TaxRuleShares::ofNet(new TaxRuleCollection([new TaxRule(19, 50), new TaxRule(7, 50)]));
 
         $net19 = 50 / 1.19;
         $net7 = 50 / 1.07;
@@ -42,7 +42,7 @@ class TaxRuleSharesTest extends TestCase
         $netShares = new TaxRuleCollection([new TaxRule(19, 30), new TaxRule(7, 60)]);
 
         $gross = $calculator->calculateGross(100.0, $netShares);
-        $containedTax = $calculator->calculateGrossTaxes($gross, TaxRuleShares::ofTheGross($netShares))->getAmount();
+        $containedTax = $calculator->calculateGrossTaxes($gross, TaxRuleShares::ofGross($netShares))->getAmount();
 
         static::assertEqualsWithDelta(100.0, $gross - $containedTax, 0.000001);
     }
@@ -51,7 +51,7 @@ class TaxRuleSharesTest extends TestCase
     {
         $netShares = new TaxRuleCollection([new TaxRule(19, 30), new TaxRule(7, 60)]);
 
-        $restored = TaxRuleShares::ofTheNet(TaxRuleShares::ofTheGross($netShares));
+        $restored = TaxRuleShares::ofNet(TaxRuleShares::ofGross($netShares));
 
         static::assertEqualsWithDelta(30.0, $restored->get(19)?->getPercentage(), 0.000001);
         static::assertEqualsWithDelta(60.0, $restored->get(7)?->getPercentage(), 0.000001);
@@ -59,7 +59,7 @@ class TaxRuleSharesTest extends TestCase
 
     public function testTheUntaxedRemainderKeepsItsPartOfThePrice(): void
     {
-        $grossShares = TaxRuleShares::ofTheGross(new TaxRuleCollection([new TaxRule(19, 50)]));
+        $grossShares = TaxRuleShares::ofGross(new TaxRuleCollection([new TaxRule(19, 50)]));
 
         static::assertEqualsWithDelta(59.5 / 109.5 * 100, $grossShares->get(19)?->getPercentage(), 0.000001);
     }
@@ -68,13 +68,13 @@ class TaxRuleSharesTest extends TestCase
     {
         $rules = new TaxRuleCollection([new TaxRule(7.7)]);
 
-        static::assertSame(100.0, TaxRuleShares::ofTheGross($rules)->get('7.7')?->getPercentage());
-        static::assertSame(100.0, TaxRuleShares::ofTheNet($rules)->get('7.7')?->getPercentage());
+        static::assertSame(100.0, TaxRuleShares::ofGross($rules)->get('7.7')?->getPercentage());
+        static::assertSame(100.0, TaxRuleShares::ofNet($rules)->get('7.7')?->getPercentage());
     }
 
     public function testNoRulesStayNoRules(): void
     {
-        static::assertCount(0, TaxRuleShares::ofTheGross(new TaxRuleCollection()));
-        static::assertCount(0, TaxRuleShares::ofTheNet(new TaxRuleCollection()));
+        static::assertCount(0, TaxRuleShares::ofGross(new TaxRuleCollection()));
+        static::assertCount(0, TaxRuleShares::ofNet(new TaxRuleCollection()));
     }
 }

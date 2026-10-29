@@ -15,7 +15,7 @@ final class TaxRuleShares
     /**
      * Converts rule percentages that are shares of the net price into the matching shares of the gross price
      */
-    public static function ofTheGross(TaxRuleCollection $netShares): TaxRuleCollection
+    public static function ofGross(TaxRuleCollection $netShares): TaxRuleCollection
     {
         return self::reweigh(
             $netShares,
@@ -26,7 +26,7 @@ final class TaxRuleShares
     /**
      * Converts rule percentages that are shares of the gross price into the matching shares of the net price
      */
-    public static function ofTheNet(TaxRuleCollection $grossShares): TaxRuleCollection
+    public static function ofNet(TaxRuleCollection $grossShares): TaxRuleCollection
     {
         return self::reweigh(
             $grossShares,

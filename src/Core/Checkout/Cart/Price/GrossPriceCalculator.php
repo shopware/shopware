@@ -113,7 +113,7 @@ class GrossPriceCalculator
 
     private function grossUp(float $net, TaxRuleCollection $rules): float
     {
-        return $this->taxCalculator->calculateGross($net, TaxRuleShares::ofTheNet($rules));
+        return $this->taxCalculator->calculateGross($net, TaxRuleShares::ofNet($rules));
     }
 
     private function calculateReferencePrice(float $price, ?ReferencePriceDefinition $definition, CashRoundingConfig $config): ?ReferencePrice

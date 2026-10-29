@@ -405,6 +405,14 @@ A new customer reports `add_shipping_info` when registering in the checkout.
 Storefront analytics now report the selected options of a variant as `item_variant`.
 `add_to_cart` on the product detail page reports the graduated price of the quantity the cart holds after the add.
 
+### Storefront analytics request the categories of products outside a category
+
+For a product the page breadcrumb does not describe, such as on the homepage or the wishlist, or in a product slider of a category page, `add_to_cart` and the wishlist events now report the categories of the product.
+They are requested from the new HTTP cached route `frontend.analytics.product-categories`, which returns a 404 for a sales channel without active analytics.
+The cart, checkout and purchase events report these categories as well, without requesting them again.
+
+The wishlist page holds the removal of a product back for at most one second, until `remove_from_wishlist` is sent.
+
 ### Theme compilation completion is notified once
 
 With asynchronous theme compilation, saving a theme or activating an extension notifies the Administration user once when the compilation is completed, instead of once per sales channel. Code that compiles several themes or sales channels at once can do the same by passing `false` as the new sixth argument `$notifyOnAsyncCompletion` of `ThemeService::compileTheme()` for all but the last call. Classes overriding `compileTheme()` should add the parameter `bool $notifyOnAsyncCompletion = true`; it becomes part of the signature in 6.8.0.0.

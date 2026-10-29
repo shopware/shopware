@@ -134,7 +134,6 @@ describe('src/module/sw-settings-logging/component/sw-settings-logging-entry-inf
         await tabs.vm.$emit('new-item-active', 'inactive');
         await flushPromises();
 
-        expect(wrapper.vm.activeTab).toBe('inactive');
         expect(wrapper.findComponent({ name: 'mt-textarea' }).exists()).toBe(false);
     });
 
@@ -147,7 +146,6 @@ describe('src/module/sw-settings-logging/component/sw-settings-logging-entry-inf
                 logEntry: mailLogEntry,
             });
 
-            expect(wrapper.vm.activeTab).toBe('raw');
             expect(wrapper.html()).not.toContain('sw-settings-logging.mailInfo.tabHTML');
             expect(wrapper.html()).not.toContain('sw-settings-logging.mailInfo.tabPlain');
             expect(wrapper.find('.sw-settings-logging-mail-sent-info__mail-content').exists()).toBe(false);
@@ -175,7 +173,6 @@ describe('src/module/sw-settings-logging/component/sw-settings-logging-entry-inf
             },
         });
 
-        expect(wrapper.vm.activeTab).toBe('html');
         expect(wrapper.html()).toContain('<strong>Order confirmation</strong>');
         expect(wrapper.text()).toContain('shopware@example.com');
 

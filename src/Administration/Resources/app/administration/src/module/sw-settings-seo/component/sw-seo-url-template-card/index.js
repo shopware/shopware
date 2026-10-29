@@ -37,6 +37,11 @@ export default {
             salesChannelId: null,
             salesChannels: [],
             selectedProperty: null,
+            seoUrlRouteNotFoundErrorCodes: [
+                // @deprecated tag:v6.8.0 - Will be removed. The backend only returns CONTENT__SEO_URL_ROUTE_NOT_FOUND
+                'FRAMEWORK__SEO_URL_ROUTE_NOT_FOUND',
+                'CONTENT__SEO_URL_ROUTE_NOT_FOUND',
+            ],
         };
     },
 
@@ -342,12 +347,30 @@ export default {
                     this.previewLoadingStates[entity.id] = false;
                 })
                 .catch((err) => {
-                    this.setErrorMessagesForEntity(entity, err.response.data.errors[0].detail);
+                    const error = err.response.data.errors[0];
+
+                    if (this.seoUrlRouteNotFoundErrorCodes.includes(error.code)) {
+                        this.removeSeoUrlTemplatesOfRoute(entity.routeName);
+
+                        return;
+                    }
+
+                    this.setErrorMessagesForEntity(entity, error.detail);
 
                     this.previews[entity.id] = [];
 
                     this.previewLoadingStates[entity.id] = false;
                 });
+        },
+        removeSeoUrlTemplatesOfRoute(routeName) {
+            [
+                this.seoUrlTemplates,
+                this.defaultSeoUrlTemplates,
+            ].forEach((collection) => {
+                collection
+                    .filter((seoUrlTemplate) => seoUrlTemplate.routeName === routeName)
+                    .forEach((seoUrlTemplate) => collection.remove(seoUrlTemplate.id));
+            });
         },
         fetchSalesChannels() {
             const criteria = new Criteria(1, 25);

@@ -142,6 +142,37 @@ class LabelMappingRegistryTest extends TestCase
         static::assertSame('customer', $registry->resolve('groups', 'frontend.account.special'));
     }
 
+    public function testNoNewValuesPolicyFiltersPerEntry(): void
+    {
+        $registry = new LabelMappingRegistry(
+            ['groups' => ['core_key' => 'product']],
+            'other',
+            $this->appLoader(['groups' => [
+                'swag_bundle_*' => 'product', // groups into the declared taxonomy → accepted
+                'swag_blog_*' => 'blog',      // introduces a new label value → dropped
+            ]]),
+            null,
+            'no-new-values',
+        );
+
+        static::assertSame('product', $registry->resolve('groups', 'swag_bundle_thing'));
+        static::assertSame('other', $registry->resolve('groups', 'swag_blog_post'));
+    }
+
+    public function testNonePolicyIgnoresAppEntries(): void
+    {
+        $registry = new LabelMappingRegistry(
+            ['groups' => ['core_key' => 'product']],
+            'other',
+            $this->appLoader(['groups' => ['swag_bundle_*' => 'product']]),
+            null,
+            'none',
+        );
+
+        static::assertSame('product', $registry->resolve('groups', 'core_key'));
+        static::assertSame('other', $registry->resolve('groups', 'swag_bundle_thing'));
+    }
+
     /**
      * @param array<string, array<string, string>> $mappings
      *

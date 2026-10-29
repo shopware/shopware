@@ -22,6 +22,8 @@ class MetricConfigProvider
 
     private bool $appValuesApplied = false;
 
+    private readonly AppContributionPolicy $appContributionPolicy;
+
     /**
      * @param array<string, MetricDefinition> $definitions
      * @param (\Closure(): AppTelemetryConfigLoader)|null $appConfigLoader injected as a service closure:
@@ -31,7 +33,9 @@ class MetricConfigProvider
         private readonly array $definitions,
         private readonly ?\Closure $appConfigLoader = null,
         private readonly ?LoggerInterface $logger = null,
+        string $acceptAppContributions = 'all',
     ) {
+        $this->appContributionPolicy = AppContributionPolicy::from($acceptAppContributions);
         $metricsByName = [];
         foreach ($definitions as $name => $definition) {
             $metricsByName[$name] = MetricConfig::fromDefinition($name, $definition);
@@ -70,6 +74,12 @@ class MetricConfigProvider
         }
 
         $this->appValuesApplied = true;
+
+        // allow-list contributions introduce new label values by definition (already-present values are
+        // no-ops), so any policy below `all` reduces to skipping the union — see AppContributionPolicy
+        if ($this->appContributionPolicy !== AppContributionPolicy::ALL) {
+            return;
+        }
 
         foreach (($this->appConfigLoader)()->load()['labelValues'] as $metricName => $labels) {
             foreach ($labels as $labelName => $values) {

@@ -8,6 +8,13 @@
                 to a named mapping table. Entries referencing unknown metrics, labels, or mappings are
                 skipped at install time and logged as a warning, without failing the installation; a file
                 that violates this schema fails the installation.
+
+                Contributions are suggestions: the operator's configuration decides whether they take
+                effect. Installations may restrict the channel via `accept_app_contributions` —
+                `no-new-values` keeps only entries whose label value already exists in the operator's
+                config (grouping into the existing taxonomy), `none` ignores all contributions. Entries
+                that introduce new label values (all `label-values`, mapping entries with novel values)
+                are dropped on such installations; everything else still applies.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>

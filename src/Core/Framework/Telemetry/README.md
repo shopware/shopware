@@ -122,6 +122,23 @@ Install validation is lenient — invalid entries are skipped and logged as a wa
 install. A file that does not parse or violates the schema fails the install, like the other app
 configuration files.
 
+App contributions are suggestions: the operator's configuration decides whether they take effect, and an
+app cannot observe the shop's metrics, so nothing in the app behaves differently either way. The
+`accept_app_contributions` setting gates the channel per installation:
+
+- `all` (default) — contributions apply as declared.
+- `no-new-values` — one per-entry predicate: an entry is accepted iff it does not introduce a label value
+  the operator-declared config does not already contain. Mapping entries that group into the existing
+  taxonomy still apply (zero cardinality impact); `label-values` and mapping entries with novel values are
+  dropped. The reference set of a mapping is the values present in its configured table: never other apps'
+  contributions, so the outcome is independent of app installation order, and not values that only a
+  resolver's code-level rule produces.
+- `none` — all app contributions are ignored.
+
+Fleet operators whose tenants upload arbitrary apps set `no-new-values` or `none` in project config: label
+space is then bounded by operator-controlled config regardless of what tenants install. This is the
+application-level guarantee; cardinality guards at the collector/relabeling layer still apply.
+
 ### Transports
 
 The telemetry component provides a way to emit metrics to different transports. The transport is responsible for sending the metrics to the monitoring backend. Each transport is created as an external library that implements the telemetry abstraction layer specification.

@@ -94,6 +94,23 @@ class MetricConfigProviderTest extends TestCase
         static::assertSame(['success', 'failed'], $label->allowedValues);
     }
 
+    public function testRestrictivePoliciesSkipAppValues(): void
+    {
+        foreach (['no-new-values', 'none'] as $policy) {
+            $provider = new MetricConfigProvider(
+                $this->extensibleDefinitions(),
+                $this->appLoader(['test_metric' => ['payment_method' => ['swag_method']]]),
+                null,
+                $policy,
+            );
+
+            $label = $provider->get('test_metric')->labels['payment_method'];
+
+            // allow-list contributions introduce new values by definition, so both policies reject them
+            static::assertSame(['core_method', 'other'], $label->allowedValues, 'policy: ' . $policy);
+        }
+    }
+
     public function testAppValuesForUnknownMetricOrLabelAreIgnored(): void
     {
         $provider = new MetricConfigProvider($this->extensibleDefinitions(), $this->appLoader([

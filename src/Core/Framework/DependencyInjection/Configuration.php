@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\AppContributionPolicy;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelPolicy;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
@@ -1584,6 +1585,10 @@ class Configuration implements ConfigurationInterface
                     ->end()
                     ->booleanNode('enabled')->defaultFalse()->end()
                     ->scalarNode('replace_unknown_label_values_with')->defaultValue('other')->end()
+                    ->enumNode('accept_app_contributions')
+                        ->values(AppContributionPolicy::values())
+                        ->defaultValue(AppContributionPolicy::ALL->value)
+                    ->end()
                     ->arrayNode('mappings')
                         ->useAttributeAsKey('name')
                         // keys are free-form identifiers (route names, FQCN prefixes, ...): the default key

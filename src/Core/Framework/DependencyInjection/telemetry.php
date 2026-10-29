@@ -57,6 +57,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.telemetry.metrics.replace_unknown_label_values_with'),
             service_closure(AppTelemetryConfigLoader::class),
             service('logger'),
+            param('shopware.telemetry.metrics.accept_app_contributions'),
         ]);
 
     $services->set(AppTelemetryConfigLoader::class)
@@ -70,6 +71,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.telemetry.metrics.definitions'),
             service_closure(AppTelemetryConfigLoader::class),
             service('logger'),
+            param('shopware.telemetry.metrics.accept_app_contributions'),
         ]);
 
     $services->set(TransportConfigProvider::class)

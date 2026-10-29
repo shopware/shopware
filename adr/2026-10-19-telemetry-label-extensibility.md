@@ -78,6 +78,11 @@ Accepted entries are persisted through the app feature system (one `app_feature`
 The runtime read is lazy and fail-soft: on a storage failure the loader logs a warning once and the process keeps the compiled config — telemetry must never add a failure mode to the paths it observes.
 
 App entries add, never override: locked labels ignore app values, and app mapping entries are consulted only after declared config and the resolver's code-level rules, so an app can label its own identifiers but never relabel a series core already produces.
+The operator additionally gates the whole channel with `accept_app_contributions`: `all` (default), `no-new-values`, or `none`.
+The middle policy is one per-entry predicate — an entry is accepted iff it does not introduce a label value absent from the operator-declared config — so apps may always group into the operator's taxonomy (zero cardinality impact), while minting new values is the operator's call.
+This is the fleet-level guarantee for multi-tenant operators whose customers upload arbitrary apps.
+The reference set of a mapping is the values present in its configured table: never other apps' contributions, and not values that only a resolver's code-level rule produces.
+Contributions are documented as suggestions: an app cannot observe the shop's metrics, so no app-visible behavior differs between installations that accept or fold them.
 Install validation is lenient — an unknown metric, unknown label, locked label, or colliding key is skipped and logged once as a warning, never failing the install.
 A file that does not parse or violates the schema fails the install, like the other app configuration files.
 There is no `app:validate` check: the install-time warning is the feedback channel.
@@ -94,6 +99,8 @@ The merged app config is memoized per process without a per-request reset, so lo
 - What folded into `other` is not reconstructable from the emitted series.
   If the need arises, an opt-in debug flag that logs replacements can be added without breaks.
 - Developers must choose a label's mechanism consciously: allow lists for sets where the raw value is desired and subtraction is rare, mappings for open, growing populations where folding into limited list of values is required.
+- Operators may set `accept_app_contributions: no-new-values` (or `none`) in project config; label space is then bounded by operator-controlled config regardless of installed apps.
+  Collector-level cardinality guards (relabeling, processors) remain the infrastructure backstop.
 - Resolvers keep their signatures and `@internal` status; their job shrinks to key extraction, registry lookup, and code-level fallback.
 
 ## Considered alternatives

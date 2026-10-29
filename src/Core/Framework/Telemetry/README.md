@@ -99,13 +99,28 @@ There is deliberately no label-level `mapping:` key - the binding lives in the r
 cannot be changed through config; an integration test pins that the resolver constants and the shipped tables match.
 
 - A key is exact, or a prefix when it ends with `*`. Exact beats prefix; the longest prefix wins.
-- Resolution order per key: configured entry → the resolver's code-level rule → `other`. Configured entries win,
-  so an extension or operator can always correct a heuristic — including folding core values
-  (`'swag_paypal_*': other`).
+- Resolution order per key: configured entry → the resolver's code-level rule → app-contributed entry → `other`.
+  Configured entries win, so an extension or operator can always correct a heuristic — including folding core
+  values (`'swag_paypal_*': other`).
 - Entries merge per key: a later config source overrides the same key, so project config overrides core and
   plugin entries. Extension-defined mapping names carry a vendor prefix (`swag_paypal_refund_kind`); bare
   names are reserved for core.
 - Keys containing backslashes (message class FQCNs) must be single-quoted: `'Swag\Blog\Message\*': blog`.
+
+### App contributions
+
+Apps contribute through `Resources/config/telemetry.xml` (`label-values` widens an extensible allow list,
+`mapping` adds mapping entries). Accepted entries are persisted as one `telemetry` app-feature row per app
+(`app_feature` table) at install and update and unioned into the compiled config at runtime, once per
+process, with a lazy, fail-soft read: a storage failure is logged once as a warning and the process keeps
+the compiled config. There is no per-request reset, so long-running processes (workers) pick up changed
+app contributions on restart. Apps add, never override: locked labels ignore app values, and app mapping
+entries are consulted only for keys neither declared config nor the resolver's code-level rules claim — an
+app can label its own identifiers, but never relabel a series core already produces.
+
+Install validation is lenient — invalid entries are skipped and logged as a warning, never failing the
+install. A file that does not parse or violates the schema fails the install, like the other app
+configuration files.
 
 ### Transports
 

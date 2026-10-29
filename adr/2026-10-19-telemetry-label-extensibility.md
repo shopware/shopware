@@ -24,7 +24,7 @@ A label declares its values through two sibling keys with different merge semant
 
 - `add_allowed_values` contributes values: later sources append (native Symfony list merge).
 - `allowed_values` declares the complete, final list: it keeps `performNoDeepMerging`, the last source to set it wins.
-  When present, every `add_allowed_values` contribution is ignored - setting `allowed_values` is both replace and lock.
+  When present, every `add_allowed_values` contribution and every app contribution is ignored - setting `allowed_values` is both replace and lock.
 
 Core ships extensible labels (like `payment_method`) with `add_allowed_values`, structurally closed labels (`result`, `status_class`, ...) keep `allowed_values` and stay locked.
 
@@ -71,10 +71,23 @@ At feature stabilization, the following join the BC promise and change only in m
 The shipped group values (the right-hand side of the mapping tables and the core `add_allowed_values`) are not part of the promise.
 Core may regroup, rename or add values in minors.
 
+### 4. Apps contribute via `Resources/config/telemetry.xml`
+
+Apps ship a dedicated `telemetry.xml` with `label-values` (allow-list contributions) and `mapping` (mapping entries) elements; there is no inline `manifest.xml` section.
+Accepted entries are persisted through the app feature system (one `app_feature` row of type `telemetry` per app) at install and update — no dedicated storage — and unioned into the compiled config at runtime once per process.
+The runtime read is lazy and fail-soft: on a storage failure the loader logs a warning once and the process keeps the compiled config — telemetry must never add a failure mode to the paths it observes.
+
+App entries add, never override: locked labels ignore app values, and app mapping entries are consulted only after declared config and the resolver's code-level rules, so an app can label its own identifiers but never relabel a series core already produces.
+Install validation is lenient — an unknown metric, unknown label, locked label, or colliding key is skipped and logged once as a warning, never failing the install.
+A file that does not parse or violates the schema fails the install, like the other app configuration files.
+There is no `app:validate` check: the install-time warning is the feedback channel.
+Entries dropped at runtime (platform upgraded underneath an installed app, late collisions) are logged at debug level.
+The merged app config is memoized per process without a per-request reset, so long-running processes (workers) pick up changed app contributions on restart.
+
 ## Consequences
 
 - The public surface stays declarative: yaml for plugins and projects, no PHP extension points.
-- Plugins and projects widen allow lists with `add_allowed_values` and contribute mapping entries in yaml.
+- Plugins and projects widen allow lists with `add_allowed_values` and contribute mapping entries in yaml; apps use `telemetry.xml`.
   Extensions that do not opt in keep folding into `other`, silently.
 - Operators close an allow list with `allowed_values` (which also locks it against further contributions) and reshape mapped labels per key or prefix in project config.
   `debug:config shopware` shows the effective state.

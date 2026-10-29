@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\AppContextFactory;
 
 /**
  * The `repository` service allows you to query data, that is stored inside shopware.
@@ -29,7 +30,7 @@ class RepositoryFacade
         private readonly DefinitionInstanceRegistry $registry,
         private readonly RequestCriteriaBuilder $criteriaBuilder,
         private readonly AclCriteriaValidator $criteriaValidator,
-        private readonly Context $context
+        private readonly AppContextFactory $contextFactory
     ) {
     }
 
@@ -47,9 +48,10 @@ class RepositoryFacade
      */
     public function search(string $entityName, array $criteria): EntitySearchResult
     {
-        $criteriaObject = $this->prepareCriteria($entityName, $criteria);
+        $context = $this->contextFactory->create();
+        $criteriaObject = $this->prepareCriteria($entityName, $criteria, $context);
 
-        return $this->registry->getRepository($entityName)->search($criteriaObject, $this->context);
+        return $this->registry->getRepository($entityName)->search($criteriaObject, $context);
     }
 
     /**
@@ -64,9 +66,10 @@ class RepositoryFacade
      */
     public function ids(string $entityName, array $criteria): IdSearchResult
     {
-        $criteriaObject = $this->prepareCriteria($entityName, $criteria);
+        $context = $this->contextFactory->create();
+        $criteriaObject = $this->prepareCriteria($entityName, $criteria, $context);
 
-        return $this->registry->getRepository($entityName)->searchIds($criteriaObject, $this->context);
+        return $this->registry->getRepository($entityName)->searchIds($criteriaObject, $context);
     }
 
     /**
@@ -81,22 +84,23 @@ class RepositoryFacade
      */
     public function aggregate(string $entityName, array $criteria): AggregationResultCollection
     {
-        $criteriaObject = $this->prepareCriteria($entityName, $criteria);
+        $context = $this->contextFactory->create();
+        $criteriaObject = $this->prepareCriteria($entityName, $criteria, $context);
 
-        return $this->registry->getRepository($entityName)->aggregate($criteriaObject, $this->context);
+        return $this->registry->getRepository($entityName)->aggregate($criteriaObject, $context);
     }
 
     /**
      * @param array<string, mixed> $criteria
      */
-    private function prepareCriteria(string $entityName, array $criteria): Criteria
+    private function prepareCriteria(string $entityName, array $criteria, Context $context): Criteria
     {
         $definition = $this->registry->getByEntityName($entityName);
         $criteriaObject = new Criteria();
 
-        $this->criteriaBuilder->fromArray($criteria, $criteriaObject, $definition, $this->context);
+        $this->criteriaBuilder->fromArray($criteria, $criteriaObject, $definition, $context);
 
-        $missingPermissions = $this->criteriaValidator->validate($entityName, $criteriaObject, $this->context);
+        $missingPermissions = $this->criteriaValidator->validate($entityName, $criteriaObject, $context);
 
         if (!empty($missingPermissions)) {
             throw new MissingPrivilegeException($missingPermissions);

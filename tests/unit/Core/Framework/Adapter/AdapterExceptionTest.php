@@ -91,6 +91,16 @@ class AdapterExceptionTest extends TestCase
         static::assertEmpty($exception->getParameters());
     }
 
+    public function testTwigMethodCallNotAllowed(): void
+    {
+        $exception = AdapterException::twigMethodCallNotAllowed('Shopware\\Core\\Framework\\Context', 'setRuleIds');
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
+        static::assertSame(AdapterException::TWIG_METHOD_CALL_NOT_ALLOWED, $exception->getErrorCode());
+        static::assertSame('Calling "Shopware\\Core\\Framework\\Context::setRuleIds()" from a template is not allowed', $exception->getMessage());
+        static::assertSame(['class' => 'Shopware\\Core\\Framework\\Context', 'method' => 'setRuleIds'], $exception->getParameters());
+    }
+
     /**
      * @deprecated tag:v6.7.0 - reason: see AdapterException::invalidArgument - to be removed
      */

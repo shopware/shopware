@@ -18,5 +18,6 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\UseHasherRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PropertyNativeTypeRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoManualSalesChannelContextCreationRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ScriptServiceContextPropertyRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoDelayStampRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoRouteOverrideInDecoratorsRule

@@ -15490,10 +15490,19 @@
                 "sw_settings_webhook_list_grid",
                 "sw_settings_webhook_list_load_error",
                 "sw_settings_webhook_list_search_bar",
+                "sw_settings_webhook_list_secret_modal",
                 "sw_settings_webhook_list_sidebar",
                 "sw_settings_webhook_list_sidebar_filter",
                 "sw_settings_webhook_list_sidebar_filter_owner",
                 "sw_settings_webhook_list_smart_bar_header"
+            ]
+        },
+        "sw-settings-webhook-secret-modal": {
+            "file": "module/sw-settings-webhook/component/sw-settings-webhook-secret-modal",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_webhook_secret_modal"
             ]
         },
         "sw-shortcut-overview": {

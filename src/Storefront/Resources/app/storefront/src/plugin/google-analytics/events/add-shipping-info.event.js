@@ -40,9 +40,10 @@ export default class AddShippingInfoEvent extends AnalyticsEvent
         const shippingTier = this._getShippingTier();
         const additionalProperties = LineItemHelper.getAdditionalProperties();
 
-        gtag('event', 'add_shipping_info', {
+        this.pushEvent('add_shipping_info', {
             'currency': additionalProperties.currency,
             'value': additionalProperties.value,
+            'coupon': additionalProperties.coupon,
             'shipping_tier': shippingTier,
             'items': lineItems,
         });

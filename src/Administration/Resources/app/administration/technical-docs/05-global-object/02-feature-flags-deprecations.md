@@ -157,6 +157,22 @@ This rule ensures proper handling of deprecated features and prevents inappropri
 Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'oldMethod() is deprecated. Use newMethod() instead.');
 ```
 
+Code that has to stay backward compatible until the major, in core or in an extension, branches with the
+experimental `Feature.branch()` instead of an `if (Feature.isActive(...))`. `beforeMajor` runs while the flag
+is inactive, with the deprecations of that major silenced, `sinceMajor` once it is active. The old path may
+still call deprecated APIs without reporting them, while calls outside of a branch still report, like with
+the PHP `Feature::silent()`:
+
+```typescript
+Shopware.Feature.branch('V6_8_0_0', {
+    beforeMajor: () => this.initModuleLocales(),
+    sinceMajor: () => registerModuleLocales(),
+});
+```
+
+The silencing ends when `beforeMajor` returns, so it only covers synchronous code; a returned promise throws.
+It cannot reach templates either: a deprecated prop or component a template uses is reported by Vue's render.
+
 Components and props carry a `deprecated` option instead, which `src/app/plugin/deprecation.plugin.ts`
 checks in a global `beforeCreate()` hook: a deprecated component on every creation, a deprecated prop
 whenever the parent supplies it. The message names the path of components that use it. As the error is

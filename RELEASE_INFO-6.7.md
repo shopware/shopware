@@ -168,6 +168,9 @@ if ($event instanceof BuildAddressValidationEvent && $event->getAddressType() ==
 }
 ```
 
+At checkout, only the Storefront confirm page checks these rules and shows their violations.
+Neither `POST /store-api/checkout/order` nor the Storefront order request checks them, so a rule that must block an order needs a cart validator (`CartValidatorInterface`).
+
 ## API
 
 ### HTTP method overrides restricted to form actions

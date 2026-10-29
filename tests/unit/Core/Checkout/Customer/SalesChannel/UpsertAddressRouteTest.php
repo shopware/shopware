@@ -270,59 +270,44 @@ class UpsertAddressRouteTest extends TestCase
         $upsert->upsert(null, $data, static::createStub(SalesChannelContext::class), $customer);
     }
 
-    public function testAddressValidationEventCarriesTheAddress(): void
+    public function testAddressValidationEventCarriesTheAddressWithItsNewId(): void
     {
-        $address = new CustomerAddressEntity();
-        $address->setId(Uuid::randomHex());
-
-        $salesChannelAddressRepository = static::createStub(SalesChannelRepository::class);
-        $salesChannelAddressRepository->method('search')->willReturn(
-            new EntitySearchResult(
-                CustomerAddressDefinition::ENTITY_NAME,
-                1,
-                new CustomerAddressCollection([$address]),
-                null,
-                new Criteria(),
-                Context::createDefaultContext()
-            )
-        );
-
-        $addressValidationFactory = static::createStub(DataValidationFactoryInterface::class);
-        $addressValidationFactory
-            ->method('create')
-            ->willReturn(new DataValidationDefinition('address.create'));
-
         $events = [];
-        $eventDispatcher = new EventDispatcher();
-        $eventDispatcher->addListener('framework.validation.address.create', static function (BuildValidationEvent $event) use (&$events): void {
-            $events[] = $event;
-        });
-
-        $upsert = new UpsertAddressRoute(
-            static::createStub(EntityRepository::class),
-            $salesChannelAddressRepository,
-            static::createStub(DataValidator::class),
-            $eventDispatcher,
-            $addressValidationFactory,
-            static::createStub(SystemConfigService::class),
-            static::createStub(StoreApiCustomFieldMapper::class),
-            static::createStub(EntityRepository::class),
-            new ExtensionDispatcher(new EventDispatcher()),
-        );
-
-        $customer = new CustomerEntity();
-        $customer->setId(Uuid::randomHex());
+        $upsert = $this->createRouteCollectingAddressEvents('framework.validation.address.create', $events);
 
         $data = new RequestDataBag([
             'salutationId' => Uuid::randomHex(),
             'street' => 'Main Street 1',
         ]);
 
-        $upsert->upsert(null, $data, Generator::generateSalesChannelContext(), $customer);
+        $upsert->upsert(null, $data, Generator::generateSalesChannelContext(), $this->createCustomer());
 
         static::assertCount(1, $events);
         static::assertInstanceOf(BuildAddressValidationEvent::class, $events[0]);
-        static::assertSame($data, $events[0]->getAddress());
+        static::assertTrue(Uuid::isValid((string) $events[0]->getAddress()->get('id')));
+        static::assertSame('Main Street 1', $events[0]->getAddress()->get('street'));
+        static::assertSame($data, $events[0]->getData());
+        static::assertFalse($data->has('id'));
+        static::assertNull($events[0]->getAddressType());
+    }
+
+    public function testAddressValidationEventCarriesTheIdOfTheUpdatedAddress(): void
+    {
+        $events = [];
+        $upsert = $this->createRouteCollectingAddressEvents('framework.validation.address.update', $events);
+
+        $addressId = Uuid::randomHex();
+        $data = new RequestDataBag([
+            'salutationId' => Uuid::randomHex(),
+            'street' => 'Main Street 1',
+        ]);
+
+        $upsert->upsert($addressId, $data, Generator::generateSalesChannelContext(), $this->createCustomer());
+
+        static::assertCount(1, $events);
+        static::assertInstanceOf(BuildAddressValidationEvent::class, $events[0]);
+        static::assertSame($addressId, $events[0]->getAddress()->get('id'));
+        static::assertSame('Main Street 1', $events[0]->getAddress()->get('street'));
         static::assertSame($data, $events[0]->getData());
         static::assertNull($events[0]->getAddressType());
     }
@@ -356,5 +341,60 @@ class UpsertAddressRouteTest extends TestCase
         );
 
         static::assertSame($response, $route->upsert($addressId, $data, $context, $customer));
+    }
+
+    /**
+     * @param list<BuildValidationEvent> $events
+     */
+    private function createRouteCollectingAddressEvents(string $eventName, array &$events): UpsertAddressRoute
+    {
+        $address = new CustomerAddressEntity();
+        $address->setId(Uuid::randomHex());
+
+        $salesChannelAddressRepository = static::createStub(SalesChannelRepository::class);
+        $salesChannelAddressRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                CustomerAddressDefinition::ENTITY_NAME,
+                1,
+                new CustomerAddressCollection([$address]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        $addressRepository = static::createStub(EntityRepository::class);
+        $addressRepository->method('searchIds')->willReturn(
+            new IdSearchResult(1, [], new Criteria(), Context::createDefaultContext())
+        );
+
+        $addressValidationFactory = static::createStub(DataValidationFactoryInterface::class);
+        $addressValidationFactory->method('create')->willReturn(new DataValidationDefinition('address.create'));
+        $addressValidationFactory->method('update')->willReturn(new DataValidationDefinition('address.update'));
+
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener($eventName, static function (BuildValidationEvent $event) use (&$events): void {
+            $events[] = $event;
+        });
+
+        return new UpsertAddressRoute(
+            $addressRepository,
+            $salesChannelAddressRepository,
+            static::createStub(DataValidator::class),
+            $eventDispatcher,
+            $addressValidationFactory,
+            static::createStub(SystemConfigService::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+    }
+
+    private function createCustomer(): CustomerEntity
+    {
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        return $customer;
     }
 }

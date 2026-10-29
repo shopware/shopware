@@ -118,7 +118,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         }
 
         $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
-        $definition = $this->getValidationDefinition($data, $accountType, $isCreate, $context);
+        $definition = $this->getValidationDefinition($addressId, $data, $accountType, $isCreate, $context);
         $this->validator->validate(array_merge(['id' => $addressId], $data->all()), $definition);
 
         $addressData = [
@@ -166,6 +166,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
     }
 
     private function getValidationDefinition(
+        string $addressId,
         DataBag $data,
         string $accountType,
         bool $isCreate,
@@ -185,7 +186,8 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
 
         $validation->set('zipcode', new CustomerZipCode(countryId: $data->get('countryId')));
 
-        $validationEvent = new BuildAddressValidationEvent($validation, $data, $context->getContext(), $data);
+        $address = new DataBag(array_merge(['id' => $addressId], $data->all()));
+        $validationEvent = new BuildAddressValidationEvent($validation, $data, $context->getContext(), $address);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;

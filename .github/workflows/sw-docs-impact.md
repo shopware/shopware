@@ -108,6 +108,11 @@ concurrency:
 # Runs on the host before the agent. The checkout is a trunk commit (push) or a ref a
 # maintainer dispatched, so the script is trusted.
 steps:
+  - name: Check out the merge commit
+    uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+    with:
+      ref: ${{ github.sha }}
+      persist-credentials: false
   - name: Collect the merged pull request
     uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
     with:

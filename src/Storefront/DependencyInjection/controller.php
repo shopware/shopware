@@ -197,6 +197,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DeleteAddressRoute::class),
             service(ContextSwitchRoute::class),
             service(SalesChannelContextService::class),
+            service(ChangeCustomerProfileRoute::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

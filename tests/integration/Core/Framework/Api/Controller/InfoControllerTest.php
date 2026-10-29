@@ -167,12 +167,13 @@ class InfoControllerTest extends TestCase
         static::assertArrayHasKey('private_allowed_mime_types_by_extension', $decodedResponse['settings']);
         static::assertIsArray($decodedResponse['settings']['private_allowed_mime_types_by_extension']);
         static::assertContains('application/pdf', $decodedResponse['settings']['private_allowed_mime_types_by_extension']['pdf']);
+        static::assertContains('application/pdf', $decodedResponse['settings']['productDocuments']['allowedMimeTypesByExtension']['pdf']);
 
         // reset environment-based mismatch
         $decodedResponse['bundles'] = [];
         $decodedResponse['versionRevision'] = $expected['versionRevision'];
         $expected['settings']['firstMigrationDate'] = $decodedResponse['settings']['firstMigrationDate'];
-        unset($decodedResponse['settings']['private_allowed_mime_types_by_extension']);
+        unset($decodedResponse['settings']['private_allowed_mime_types_by_extension'], $decodedResponse['settings']['productDocuments']['allowedMimeTypesByExtension']);
 
         static::assertSame($expected, $decodedResponse);
     }

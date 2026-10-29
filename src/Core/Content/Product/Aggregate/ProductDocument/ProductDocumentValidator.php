@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
@@ -68,7 +69,7 @@ class ProductDocumentValidator implements EventSubscriberInterface
         }
 
         $violations = new ConstraintViolationList();
-        $this->validateFiles($translationCommands, $violations);
+        $this->validateFiles($translationCommands, $violations, $event->getContext());
         $this->validateDefaultVersions($documentCommands, $translationCommands, $violations);
         $this->validateNumberOfDocuments($documentCommands, $violations);
 
@@ -91,7 +92,7 @@ class ProductDocumentValidator implements EventSubscriberInterface
     /**
      * @param list<WriteCommand> $translationCommands
      */
-    private function validateFiles(array $translationCommands, ConstraintViolationList $violations): void
+    private function validateFiles(array $translationCommands, ConstraintViolationList $violations, Context $context): void
     {
         // versions that get a file with this write, with the file's id
         $versions = [];
@@ -105,6 +106,8 @@ class ProductDocumentValidator implements EventSubscriberInterface
         if ($versions === []) {
             return;
         }
+
+        $allowedExtensions = $this->limits->getAllowedExtensions($context);
 
         /** @var array<string, array{file_extension: string|null, file_size: string|null, private: string}> $files */
         $files = $this->connection->fetchAllAssociativeIndexed(
@@ -142,11 +145,11 @@ class ProductDocumentValidator implements EventSubscriberInterface
                 continue;
             }
 
-            if (!$this->limits->isAllowedExtension($file['file_extension'])) {
+            if (!\in_array(mb_strtolower((string) $file['file_extension']), $allowedExtensions, true)) {
                 $violations->add($this->violation(
                     self::VIOLATION_FILE_EXTENSION_NOT_ALLOWED,
                     'The file type "{{ extension }}" is not allowed for product documents. Allowed are: {{ allowed }}.',
-                    ['{{ extension }}' => (string) $file['file_extension'], '{{ allowed }}' => implode(', ', $this->limits->allowedExtensions)],
+                    ['{{ extension }}' => (string) $file['file_extension'], '{{ allowed }}' => implode(', ', $allowedExtensions)],
                     $path,
                 ));
             }

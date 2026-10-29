@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Twig;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Cookie\ConsentLog\NullCookieConsentLogStorage;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\Feature;
@@ -26,6 +27,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         private readonly RequestStack $requestStack,
         private readonly bool $showStagingBanner,
         private readonly Connection $connection,
+        private readonly string $cookieConsentLogStorage = NullCookieConsentLogStorage::NAME,
     ) {
     }
 
@@ -73,6 +75,8 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                 'navigation' => $navigationInfo,
                 'minSearchLength' => $this->minSearchLength($context),
                 'showStagingBanner' => $this->showStagingBanner,
+                // Lets the storefront skip the consent beacon while no decision is recorded
+                'cookieConsentLogEnabled' => $this->cookieConsentLogStorage !== NullCookieConsentLogStorage::NAME,
             ],
             'themeId' => $themeId, /** Not used in Twig template directly, but in @see \Shopware\Storefront\Framework\Twig\Extension\ConfigExtension::getThemeId */
             'context' => $context,

@@ -38,6 +38,8 @@ class RateLimiter
 
     final public const PROMOTION_CODE = 'promotion_code';
 
+    final public const COOKIE_CONSENT_LOG = 'cookie_consent_log';
+
     final public const MCP_ADMIN_API = 'mcp_admin_api';
 
     final public const MCP_STORE_API = 'mcp_store_api';

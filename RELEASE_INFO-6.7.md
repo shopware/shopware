@@ -221,6 +221,12 @@ shopware:
 
 ## Administration
 
+### CMS layout overview places the page type navigation in a grid
+
+The page type navigation of the Shopping Experiences overview (`sw-cms-list`) is no longer positioned absolutely left of the listing.
+Navigation and listing are grid columns inside `.sw-cms-list__content`, and below a page width of 800px the navigation renders horizontally above the listing with the modifier class `sw-cms-list--compact`.
+Extensions that offset or hide `.sw-cms-list__sidebar` through its former `position`, `left` or `width` values have to adjust their styles.
+
 ### Extension tooling reports redundant code
 
 The ESLint config of the Administration extension tooling now enables `no-else-return`, `no-useless-return`, `no-lonely-if` and `no-unneeded-ternary`.

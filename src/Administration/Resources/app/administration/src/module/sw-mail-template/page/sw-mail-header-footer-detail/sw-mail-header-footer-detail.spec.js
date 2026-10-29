@@ -21,6 +21,7 @@ const searchMock = jest.fn(() => Promise.resolve([]));
 const repositoryMockFactory = () => {
     return {
         search: searchMock,
+        save: () => Promise.resolve(),
         get: () => {
             return Promise.resolve(mailHeaderFooterMock);
         },
@@ -34,7 +35,7 @@ const repositoryMockFactory = () => {
     };
 };
 
-const createWrapper = async (privileges = []) => {
+const createWrapper = async (privileges = [], stubs = {}) => {
     return mount(await wrapTestComponent('sw-mail-header-footer-detail', { sync: true }), {
         global: {
             provide: {
@@ -81,6 +82,7 @@ const createWrapper = async (privileges = []) => {
                 'sw-code-editor': true,
                 'sw-skeleton': true,
                 'sw-language-switch': true,
+                ...stubs,
             },
         },
     });
@@ -147,13 +149,17 @@ describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
     });
 
     it('should not limit the sales channels when looking for already assigned ones', async () => {
-        wrapper = await createWrapper();
+        wrapper = await createWrapper(['mail_templates.editor'], {
+            'sw-button-process': {
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+            },
+        });
         await flushPromises();
 
-        await wrapper.vm.findAlreadyAssignedSalesChannels();
+        await wrapper.find('.sw-mail-header-footer-detail__save-action').trigger('click');
+        await flushPromises();
 
-        const criteria = searchMock.mock.calls.at(-1)[0];
-
-        expect(criteria.limit).toBeNull();
+        expect(searchMock).toHaveBeenCalled();
+        expect(searchMock.mock.calls.at(-1)[0].limit).toBeNull();
     });
 });

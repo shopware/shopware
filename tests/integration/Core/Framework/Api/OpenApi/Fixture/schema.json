@@ -1,0 +1,95 @@
+{
+  "openapi": "3.2.0",
+  "info": {
+    "title": "DTO field integration fixture",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/test/dto-fields": {
+      "post": {
+        "operationId": "transformFields",
+        "description": "@internal",
+        "x-dto-namespace": "Shopware\\Tests\\Integration\\Core\\Framework\\Api\\OpenApi\\Fixture",
+        "x-dto-package": "framework",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fields"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "@internal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fields"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Fields": {
+        "x-dto-inline": true,
+        "type": "object",
+        "required": [
+          "requiredScalar",
+          "requiredScalarWithDefault",
+          "requiredNullable",
+          "requiredNullableWithDefault"
+        ],
+        "properties": {
+          "requiredScalar": {
+            "type": "string"
+          },
+          "requiredScalarWithDefault": {
+            "type": "string",
+            "default": "schema-default"
+          },
+          "requiredNullable": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "requiredNullableWithDefault": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "default": "schema-default"
+          },
+          "optionalScalar": {
+            "type": "string"
+          },
+          "optionalScalarWithDefault": {
+            "type": "string",
+            "default": "schema-default"
+          },
+          "optionalNullable": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "optionalNullableWithDefault": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "default": null
+          }
+        }
+      }
+    }
+  }
+}

@@ -37,17 +37,25 @@ class OpenApiDtoGeneratorTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string}>
+     * @return iterable<string, array{string, 1?: list<string>}>
      */
     public static function openApiFixtures(): iterable
     {
         foreach (Finder::create()->files()->name('*.json')->notPath('invalidSchemas')->sortByName()->in(__DIR__ . '/_fixtures') as $schemaFile) {
             yield $schemaFile->getRelativePathname() => [$schemaFile->getPathname()];
         }
+
+        yield 'Store API integration DTOs' => [
+            __DIR__ . '/../../../../../integration/Core/Framework/Api/OpenApi/Fixture/schema.json',
+            ['TransformFieldsRequest.php', 'TransformFieldsResponse.php'],
+        ];
     }
 
+    /**
+     * @param list<string> $fixtureFiles
+     */
     #[DataProvider('openApiFixtures')]
-    public function testGeneratedFilesMatchAdjacentFixtures(string $schemaFile): void
+    public function testGeneratedFilesMatchAdjacentFixtures(string $schemaFile, array $fixtureFiles = ['*.php']): void
     {
         $fixtureDirectory = \dirname($schemaFile);
         $frameworkPath = $this->projectDirectory . '/src/Core/Framework';
@@ -66,7 +74,7 @@ class OpenApiDtoGeneratorTest extends TestCase
         $result = $generator->generate();
 
         $expectedPaths = [];
-        foreach (Finder::create()->files()->depth(0)->name('*.php')->sortByName()->in($fixtureDirectory) as $fixtureFile) {
+        foreach (Finder::create()->files()->depth(0)->name($fixtureFiles)->sortByName()->in($fixtureDirectory) as $fixtureFile) {
             $expected = $this->filesystem->readFile($fixtureFile->getPathname());
             static::assertSame(1, preg_match('/^namespace ([^;]+);/m', $expected, $matches));
             $relativePath = str_replace('\\', '/', $matches[1]) . '/' . $fixtureFile->getBasename();

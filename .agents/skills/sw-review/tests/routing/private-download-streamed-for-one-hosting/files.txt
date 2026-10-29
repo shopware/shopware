@@ -1,0 +1,12 @@
+RELEASE_INFO-6.7.md
+src/Core/Content/DependencyInjection/import_export.php
+src/Core/Content/DependencyInjection/media.php
+src/Core/Content/ImportExport/Service/DownloadService.php
+src/Core/Content/Media/Api/MediaDownloadController.php
+src/Core/Content/Media/File/DownloadResponseGenerator.php
+src/Core/Content/Media/File/PrivateFileDownloadResponseGenerator.php
+tests/integration/Core/Content/ImportExport/Service/DownloadServiceTest.php
+tests/unit/Core/Content/ImportExport/Service/DownloadServiceTest.php
+tests/unit/Core/Content/Media/Api/MediaDownloadControllerTest.php
+tests/unit/Core/Content/Media/File/DownloadResponseGeneratorTest.php
+tests/unit/Core/Content/Media/File/PrivateFileDownloadResponseGeneratorTest.php

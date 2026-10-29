@@ -231,7 +231,7 @@ describe('module/sw-flow/component/sw-flow-rule-modal', () => {
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
         await tabs.vm.$emit('new-item-active', 'rule');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('rule');
         expect(wrapper.find('.sw-flow-rule-modal__name').exists()).toBe(false);

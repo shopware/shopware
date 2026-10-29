@@ -1,0 +1,22 @@
+diff --git a/coding-guidelines/core/http-cache-and-assets.md b/coding-guidelines/core/http-cache-and-assets.md
+index 1111111..2222222 100644
+--- a/coding-guidelines/core/http-cache-and-assets.md
++++ b/coding-guidelines/core/http-cache-and-assets.md
+@@ -10,3 +10,6 @@
+ ## Invalidate what you change
+ 
+ A write that changes cached output calls `CacheInvalidator::invalidate()` on the matching tags.
++Cleanup of referenced files belongs in a `ScheduledTask` or `MessageHandler`, never in a command
++with `#[AsCommand(` or a controller with `#[Route(` and `_acl`, and never through `deleteDirectory(`
++right after `theme:compile`; `{% block ` overrides keep working because the HttpCache serves old pages.
+diff --git a/UPGRADE-6.8.md b/UPGRADE-6.8.md
+index 3333333..4444444 100644
+--- a/UPGRADE-6.8.md
++++ b/UPGRADE-6.8.md
+@@ -1,3 +1,6 @@
+ # 6.8
+ 
+ ## Storefront
++
++* The `HttpCache` listener that disabled caching for logged-in customers is removed; `@deprecated` since 6.7.
++* `Request $request` is no longer passed to `ThemeCompiler::compile()`; `triggerDeprecationOrThrow(` warned since 6.7.

@@ -36,7 +36,7 @@ class PathHelperTest extends TestCase
         yield 'credentials are removed from unparsable url' => ['https://user:pw@example.com:99999/file.jpg', 'https://example.com:99999/file.jpg'];
         yield 'at sign in the query of url is kept' => ['https://example.com:8000/file.jpg?mail=a@b.com', 'https://example.com:8000/file.jpg?mail=a@b.com'];
         yield 'credentials are removed from scheme relative url' => ['//user:pw@host/file.jpg', '//host/file.jpg'];
-        yield 'rest of the url is kept unchanged' => ['HTTP://User:Pw@Host:80/a b/ä.jpg?x=1 2', 'http://host/a%20b/%C3%A4.jpg?x=1%202'];
+        yield 'credentials are removed and the url is normalised' => ['HTTP://User:Pw@Host:80/a b/ä.jpg?x=1 2', 'http://host/a%20b/%C3%A4.jpg?x=1%202'];
         yield 'credentials are removed from url with missing slash' => ['http:/user:pw@host/x', 'http:/host/x'];
         yield 'credentials are removed from url with extra slash' => ['http:///user:pw@host/x', 'http://host/x'];
         yield 'numeric password with raw fragment sign is removed' => ['ftp://user:12#3@host/x', 'ftp://host/x'];

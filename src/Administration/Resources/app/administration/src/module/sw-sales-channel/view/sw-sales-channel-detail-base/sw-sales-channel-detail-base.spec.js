@@ -1648,6 +1648,33 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(wrapper.findAll('sw-form-field-renderer-stub')).toHaveLength(1);
     });
 
+    it('should store an edited agentic commerce export field in its config entry', async () => {
+        const configEntry = {
+            provider: 'open-ai',
+            elements: [{ name: 'core.openAiProductExport.returnPolicyUrl', type: 'text', config: {} }],
+            values: {},
+            isLoading: false,
+        };
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
+                },
+            },
+            provide: {
+                swSalesChannelDetailGetAgenticCommerceExportConfig: () => [configEntry],
+            },
+        });
+
+        wrapper
+            .getComponent({ name: 'sw-form-field-renderer' })
+            .vm.$emit('update:value', 'https://example.com/returns');
+
+        expect(configEntry.values).toEqual({
+            'core.openAiProductExport.returnPolicyUrl': 'https://example.com/returns',
+        });
+    });
+
     it('should not require a theme when activating an agentic commerce sales channel', async () => {
         const wrapper = await createWrapper();
 

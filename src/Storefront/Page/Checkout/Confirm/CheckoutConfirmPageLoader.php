@@ -105,13 +105,17 @@ class CheckoutConfirmPageLoader
         $billingAddress = $customer->getActiveBillingAddress();
         $shippingAddress = $customer->getActiveShippingAddress();
 
-        $this->validateBillingAddress($billingAddress, $shippingAddress, $cart, $context);
-        $this->validateShippingAddress($shippingAddress, $billingAddress, $cart, $context);
+        $isSameAddress = $billingAddress !== null
+            && $shippingAddress !== null
+            && $billingAddress->getId() === $shippingAddress->getId();
+
+        $this->validateBillingAddress($billingAddress, $isSameAddress, $cart, $context);
+        $this->validateShippingAddress($shippingAddress, $isSameAddress, $cart, $context);
     }
 
     private function validateBillingAddress(
         ?CustomerAddressEntity $billingAddress,
-        ?CustomerAddressEntity $shippingAddress,
+        bool $isSameAddress,
         Cart $cart,
         SalesChannelContext $context
     ): void {
@@ -130,7 +134,7 @@ class CheckoutConfirmPageLoader
         $addressData = $billingAddress->jsonSerialize();
         $this->dispatchAddressValidationEvent($validation, $addressData, 'billing', $context);
 
-        if ($shippingAddress !== null && $shippingAddress->getId() === $billingAddress->getId()) {
+        if ($isSameAddress) {
             $this->dispatchAddressValidationEvent($validation, $addressData, 'shipping', $context);
         }
 
@@ -143,7 +147,7 @@ class CheckoutConfirmPageLoader
 
     private function validateShippingAddress(
         ?CustomerAddressEntity $shippingAddress,
-        ?CustomerAddressEntity $billingAddress,
+        bool $isSameAddress,
         Cart $cart,
         SalesChannelContext $context
     ): void {
@@ -155,11 +159,7 @@ class CheckoutConfirmPageLoader
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
-        if ($shippingAddress === null) {
-            return;
-        }
-
-        if ($billingAddress !== null && $shippingAddress->getId() === $billingAddress->getId()) {
+        if ($shippingAddress === null || $isSameAddress) {
             return;
         }
 

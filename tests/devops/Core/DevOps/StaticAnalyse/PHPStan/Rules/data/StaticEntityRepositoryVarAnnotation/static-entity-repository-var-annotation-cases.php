@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -75,6 +76,14 @@ class StaticEntityRepositoryVarAnnotationCases extends TestCase
         $repository = new StaticEntityRepository([new ProductCollection()]);
 
         static::assertCount(0, $repository->search(new Criteria(), Context::createDefaultContext()));
+    }
+
+    public function testEntityCollectionItselfIsLeftAlone(): void
+    {
+        /** @var StaticEntityRepository<EntityCollection<Entity>> $repository */
+        $repository = new StaticEntityRepository([]);
+
+        static::assertSame([], $repository->upserts);
     }
 
     public function testPropertyDeclarationKeepsItsType(): void

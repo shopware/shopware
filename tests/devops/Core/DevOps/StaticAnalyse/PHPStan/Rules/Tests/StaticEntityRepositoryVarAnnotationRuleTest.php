@@ -4,6 +4,7 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\Tests;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
+use PHPStan\Type\FileTypeMapper;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\StaticEntityRepositoryVarAnnotationRule;
 use Shopware\Core\Framework\Log\Package;
 
@@ -22,23 +23,23 @@ class StaticEntityRepositoryVarAnnotationRuleTest extends RuleTestCase
             [
                 [
                     'Drop the @var annotation on this StaticEntityRepository: a search carries the collection type, the generic is inferred from it.',
-                    27,
+                    28,
                 ],
                 [
                     'Drop the @var annotation on this StaticEntityRepository: a search carries the collection type, the generic is inferred from it.',
-                    37,
+                    38,
                 ],
                 [
                     'Bind this StaticEntityRepository with StaticEntityRepository::of(ProductCollection::class, ...) instead of a @var annotation: no search carries the collection type.',
-                    45,
+                    46,
                 ],
                 [
                     'Bind this StaticEntityRepository with StaticEntityRepository::of(ProductCollection::class, ...) instead of a @var annotation: no search carries the collection type.',
-                    53,
+                    54,
                 ],
                 [
                     'Bind this StaticEntityRepository with StaticEntityRepository::of(ProductCollection::class, ...) instead of a @var annotation: no search carries the collection type.',
-                    61,
+                    62,
                 ],
             ],
         );
@@ -46,6 +47,6 @@ class StaticEntityRepositoryVarAnnotationRuleTest extends RuleTestCase
 
     protected function getRule(): Rule
     {
-        return new StaticEntityRepositoryVarAnnotationRule();
+        return new StaticEntityRepositoryVarAnnotationRule(self::getContainer()->getByType(FileTypeMapper::class));
     }
 }

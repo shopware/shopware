@@ -182,10 +182,11 @@ export default {
                 this.defaultArPlacement = values['core.media.defaultARPlacement'];
             });
 
-            this.systemConfigApiService.getConfig('core.media').then((config) => {
-                config
-                    .flat()[0]
-                    .elements.filter((element) => element.name === 'core.media.defaultARPlacement')
+            this.systemConfigApiService.getSchema('core.media').then((schema) => {
+                schema
+                    .flatMap((tab) => tab.cards)
+                    .flatMap((card) => card.elements)
+                    .filter((element) => element.name === 'core.media.defaultARPlacement')
                     .forEach((element) => {
                         this.arPlacementOptions = element.config.options.map((option) => {
                             return {
@@ -244,6 +245,11 @@ export default {
          * @deprecated tag:v6.8.0 - Use `onSave` instead
          */
         async onSaveCustomFields(item) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-media-quickinfo.onSaveCustomFields() is deprecated. Use `onSave` instead.',
+            );
+
             this.isSaveSuccessful = false;
             this.isLoading = true;
 

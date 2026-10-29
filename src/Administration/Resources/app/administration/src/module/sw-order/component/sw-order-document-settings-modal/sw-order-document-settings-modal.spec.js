@@ -4,6 +4,7 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import FileValidationService from 'src/app/service/file-validation.service';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const orderFixture = {
     id: '1234',
@@ -117,6 +118,7 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
     let wrapper;
 
     beforeEach(async () => {
+        allowDeprecation('The component "sw-order-document-settings-modal" is deprecated');
         wrapper = await createWrapper();
         await flushPromises();
     });

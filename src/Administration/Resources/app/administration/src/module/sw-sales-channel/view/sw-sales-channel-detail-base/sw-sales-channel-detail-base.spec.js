@@ -6,6 +6,7 @@
 
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/service/sales-channel-favorites.service';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const PRODUCT_COMPARISON_TYPE_ID = 'ed535e5722134ac1aa6524f73e26881b';
 const STOREFRONT_SALES_CHANNEL_TYPE_ID = '8a243080f92e4c719546314b577cf82b';
@@ -122,6 +123,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     beforeEach(async () => {
+        allowDeprecation('sw-sales-channel-detail-base.dateFilter is deprecated');
         Shopware.Store.get('session').setCurrentUser({
             id: '8fe88c269c214ea68badf7ebe678ab96',
         });
@@ -1644,6 +1646,33 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         );
         expect(card.exists()).toBe(true);
         expect(wrapper.findAll('sw-form-field-renderer-stub')).toHaveLength(1);
+    });
+
+    it('should store an edited agentic commerce export field in its config entry', async () => {
+        const configEntry = {
+            provider: 'open-ai',
+            elements: [{ name: 'core.openAiProductExport.returnPolicyUrl', type: 'text', config: {} }],
+            values: {},
+            isLoading: false,
+        };
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
+                },
+            },
+            provide: {
+                swSalesChannelDetailGetAgenticCommerceExportConfig: () => [configEntry],
+            },
+        });
+
+        wrapper
+            .getComponent({ name: 'sw-form-field-renderer' })
+            .vm.$emit('update:value', 'https://example.com/returns');
+
+        expect(configEntry.values).toEqual({
+            'core.openAiProductExport.returnPolicyUrl': 'https://example.com/returns',
+        });
     });
 
     it('should not require a theme when activating an agentic commerce sales channel', async () => {

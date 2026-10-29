@@ -47,6 +47,36 @@
             "default"
         ]
     },
+    "The component \"sw-agentic-commerce-tracking-config\" is deprecated and will be removed in Shopware v6.8.0.0.\nWill be removed.": {
+        "sw-agentic-commerce-tracking-config": [
+            "default",
+            "major"
+        ]
+    },
+    "The component \"sw-order-document-settings-credit-note-modal\" is deprecated and will be removed in Shopware v6.9.0.0.\nRemoved with document generation v1.": {
+        "sw-order-document-card > sw-order-document-settings-credit-note-modal": [
+            "default",
+            "major"
+        ]
+    },
+    "The component \"sw-order-document-settings-delivery-note-modal\" is deprecated and will be removed in Shopware v6.9.0.0.\nRemoved with document generation v1.": {
+        "sw-order-document-card > sw-order-document-settings-delivery-note-modal": [
+            "default",
+            "major"
+        ]
+    },
+    "The component \"sw-order-document-settings-invoice-modal\" is deprecated and will be removed in Shopware v6.9.0.0.\nRemoved with document generation v1.": {
+        "sw-order-document-card > sw-order-document-settings-invoice-modal": [
+            "default",
+            "major"
+        ]
+    },
+    "The component \"sw-order-document-settings-storno-modal\" is deprecated and will be removed in Shopware v6.9.0.0.\nRemoved with document generation v1.": {
+        "sw-order-document-card > sw-order-document-settings-storno-modal": [
+            "default",
+            "major"
+        ]
+    },
     "The old usage of \"sw-loader\" is deprecated and will be removed in v6.8.0.0. Please use \"mt-loader\" instead.": {
         "sw-extension-card-bought > sw-loader": [
             "default",
@@ -85,6 +115,456 @@
     },
     "The prop \"items\" of the component \"sw-entity-advanced-selection-modal-grid\" is deprecated and will be removed in Shopware v6.8.0.0.\nUse \"dataSource\" instead. Migration: Change :items=\"data\" to :data-source=\"data\"": {
         "sw-entity-advanced-selection-modal > sw-entity-advanced-selection-modal-grid": [
+            "default",
+            "major"
+        ]
+    },
+    "The prop \"productStates\" of the component \"sw-product-variants-overview\" is deprecated and will be removed in Shopware v6.8.0.0.\nUse `productType` prop instead.": {
+        "sw-product-variants-overview": [
+            "default",
+            "major"
+        ]
+    },
+    "messageQueueNotification() is deprecated. The increment-based message queue statistics are deprecated.": {
+        "src/core/factory/worker-notification.factory.ts": [
+            "default"
+        ]
+    },
+    "sw-bulk-edit-save-modal-process.createDocument() is deprecated. Removed with document generation v1.": {
+        "sw-bulk-edit-save-modal-process": [
+            "default"
+        ]
+    },
+    "sw-customer-list.createdComponent() is deprecated. Will be removed without replacement.": {
+        "sw-customer-list": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-customer-list.updateCriteria() is deprecated. Use listing mixin implementation directly.": {
+        "src/module/sw-customer/page/sw-customer-list/sw-customer-list.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-mail-template-index.getList() is deprecated. Will be removed together with listing mixin.": {
+        "sw-mail-template-index": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-detail-details.shippingCosts is deprecated. Change shipping cost on order general view instead.": {
+        "sw-order-detail-details": [
+            "default"
+        ]
+    },
+    "sw-order-detail-documents.isV68Active is deprecated. Will be removed without replacement.": {
+        "sw-order-detail-documents": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-detail.isLoading is deprecated. Use loading.order instead.": {
+        "src/module/sw-order/page/sw-order-detail/sw-order-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-detail.onChangeLanguage() is deprecated. Will be removed without replacement.": {
+        "src/module/sw-order/page/sw-order-detail/sw-order-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-detail.onUpdateEditing() is deprecated. Use editing instead.": {
+        "src/module/sw-order/page/sw-order-detail/sw-order-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-detail.onUpdateLoading() is deprecated. Use loading.order instead.": {
+        "src/module/sw-order/page/sw-order-detail/sw-order-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-detail.updateCreatedById() is deprecated and createdById will be removed (there is a template usage that needs to be removed as well).": {
+        "src/module/sw-order/page/sw-order-detail/sw-order-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-document-card.documentModal is deprecated. Removed with document generation v1.": {
+        "sw-order-document-card": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-list.getDelivery() is deprecated. Use order.primaryOrderDelivery instead.": {
+        "sw-order-list": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-list.getDeliveryAddress() is deprecated. Use order.primaryOrderDelivery.shippingOrderAddress instead.": {
+        "sw-order-list": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-list.getDeliveryState() is deprecated. Use order.primaryOrderDelivery.stateMachineState instead.": {
+        "sw-order-list": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-list.getTransactionState() is deprecated. Use order.primaryOrderTransaction.stateMachineState instead.": {
+        "sw-order-list": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-list.transaction() is deprecated. Use order.primaryOrderTransaction instead.": {
+        "sw-order-list": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-list.updateCriteria() is deprecated. Use listing mixin implementation directly.": {
+        "src/module/sw-order/page/sw-order-list/sw-order-list.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-promotion-field.automaticPromotions is deprecated. Will be removed without replacement.": {
+        "src/module/sw-order/component/sw-order-promotion-field/sw-order-promotion-field.spec.js": [
+            "default",
+            "major"
+        ],
+        "sw-order-promotion-field": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-promotion-field.createdComponent() is deprecated. Will be removed without replacement.": {
+        "sw-order-promotion-field": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-promotion-field.deleteAutomaticPromotions() is deprecated. Will be removed without replacement. See `applyAutomaticPromotions` for an alternative.": {
+        "src/module/sw-order/component/sw-order-promotion-field/sw-order-promotion-field.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-promotion-field.emitLoadingChange() is deprecated. Will be removed without replacement.": {
+        "src/module/sw-order/component/sw-order-promotion-field/sw-order-promotion-field.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-promotion-field.handleUnsavedOrderChangesResponse() is deprecated. Will be removed without replacement.": {
+        "src/module/sw-order/component/sw-order-promotion-field/sw-order-promotion-field.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-promotion-field.hasAutomaticPromotions is deprecated. Will be removed without replacement.": {
+        "src/module/sw-order/component/sw-order-promotion-field/sw-order-promotion-field.spec.js": [
+            "default",
+            "major"
+        ],
+        "sw-order-promotion-field": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-order-promotion-field.toggleAutomaticPromotions() is deprecated. Will be removed without replacement. See `applyAutomaticPromotions` for an alternative.": {
+        "src/module/sw-order/component/sw-order-promotion-field/sw-order-promotion-field.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-product-detail-base.productStates is deprecated. Will be removed, use `productType` instead.": {
+        "sw-product-detail-base": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-product-detail-specifications.productStates is deprecated. Will be removed, use `productType` instead.": {
+        "sw-product-detail-specifications": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-product-detail-variants.currentProductStates is deprecated. Will be removed, use `currentProductType` instead.": {
+        "sw-product-detail-variants": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-product-detail.advancedModeSetting is deprecated. Will be removed without replacement.": {
+        "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-product-detail.changeModeSettings() is deprecated. Will be removed without replacement.": {
+        "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-product-detail.createUserModeSetting() is deprecated. Will be removed without replacement.": {
+        "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-product-detail.getAdvancedModeDefaultSetting() is deprecated. Will be removed without replacement.": {
+        "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-product-detail.getAdvancedModeSetting() is deprecated. Will be removed without replacement.": {
+        "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-product-detail.getModeSettingGeneralTab is deprecated. Will be removed without replacement.": {
+        "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-product-detail.getModeSettingSpecificationsTab is deprecated. Will be removed without replacement.": {
+        "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-product-detail.initAdvancedModeSettings() is deprecated. Will be removed without replacement.": {
+        "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-product-stream-value.productStateOptions is deprecated. Will be removed, product.states will be replaced by productType.": {
+        "sw-product-stream-value": [
+            "default"
+        ]
+    },
+    "sw-promotion-discount-component.ruleFilter is deprecated. Will be removed, does not offer additional filtering compared to default ruleFilter.": {
+        "sw-promotion-discount-component": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-promotion-v2-cart-condition-form.ruleFilter is deprecated. Will be removed, does not offer additional filtering compared to default ruleFilter.": {
+        "sw-promotion-v2-cart-condition-form": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-promotion-v2-conditions.orderConditionsFilter is deprecated. Will be removed, does not offer additional filtering compared to default ruleFilter.": {
+        "sw-promotion-v2-conditions": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-promotion-v2-conditions.personaRuleFilter is deprecated. Will be removed, does not offer additional filtering compared to default ruleFilter.": {
+        "sw-promotion-v2-conditions": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-sales-channel-create-base.prefillAgenticCommerceDefaults() is deprecated. Will be removed.": {
+        "sw-sales-channel-create-base": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-sales-channel-detail-base.getAgenticCommerceExportCardTitle() is deprecated. Will be removed.": {
+        "sw-sales-channel-detail-base": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-sales-channel-detail-base.getAgenticCommerceExportElementBind() is deprecated. Will be removed.": {
+        "sw-sales-channel-detail-base": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-sales-channel-detail-base.isAgenticCommerce is deprecated. Will be removed.": {
+        "sw-sales-channel-create-base": [
+            "default",
+            "major"
+        ],
+        "sw-sales-channel-detail-base": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-sales-channel-detail-base.onAgenticCommerceExportFieldUpdate() is deprecated. Will be removed.": {
+        "src/module/sw-sales-channel/view/sw-sales-channel-detail-base/sw-sales-channel-detail-base.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-sales-channel-detail-base.resolvedAgenticCommerceExportConfig is deprecated. Will be removed.": {
+        "sw-sales-channel-create-base": [
+            "default",
+            "major"
+        ],
+        "sw-sales-channel-detail-base": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-sales-channel-detail-product-comparison.isAgenticCommerce is deprecated. Will be removed.": {
+        "sw-sales-channel-detail-product-comparison": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-sales-channel-detail.defaultAgenticCommerceExportConfig is deprecated. Will be removed.": {
+        "src/module/sw-sales-channel/page/sw-sales-channel-create/index.js": [
+            "default",
+            "major"
+        ],
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail-tabs.spec.js": [
+            "default",
+            "major"
+        ],
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-sales-channel-detail.hasSwagAgenticCommercePlugin is deprecated. Will be removed.": {
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.spec.js": [
+            "default",
+            "major"
+        ],
+        "sw-sales-channel-detail": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-sales-channel-detail.isAgenticCommerce is deprecated. Will be removed.": {
+        "src/module/sw-sales-channel/page/sw-sales-channel-create/index.js": [
+            "default",
+            "major"
+        ],
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail-tabs.spec.js": [
+            "default",
+            "major"
+        ],
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.spec.js": [
+            "default",
+            "major"
+        ],
+        "sw-sales-channel-detail": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-sales-channel-detail.loadAgenticCommerceExportConfig() is deprecated. Will be removed.": {
+        "src/module/sw-sales-channel/page/sw-sales-channel-create/index.js": [
+            "default",
+            "major"
+        ],
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail-tabs.spec.js": [
+            "default",
+            "major"
+        ],
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-sales-channel-detail.onClickInstallAgenticCommercePlugin() is deprecated. Will be removed.": {
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-sales-channel-detail.saveAgenticCommerceExportConfig() is deprecated. Will be removed.": {
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-sales-channel-detail.showAgenticCommerceDeprecationBanner is deprecated. Will be removed.": {
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.spec.js": [
+            "default",
+            "major"
+        ],
+        "sw-sales-channel-detail": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-sales-channel-detail.validateAgenticCommerceExportConfig() is deprecated. Will be removed.": {
+        "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-sales-channel-modal-grid.isAgenticCommerceSalesChannelType() is deprecated. Will be removed.": {
+        "src/module/sw-sales-channel/component/sw-sales-channel-modal-grid/sw-sales-channel-modal-grid.spec.js": [
+            "default",
+            "major"
+        ],
+        "sw-sales-channel-modal-grid": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-sales-channel-modal-grid.showAgenticCommerceType() is deprecated. Will be removed.": {
+        "src/module/sw-sales-channel/component/sw-sales-channel-modal-grid/sw-sales-channel-modal-grid.spec.js": [
+            "default",
+            "major"
+        ],
+        "sw-sales-channel-modal-grid": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-settings-document-detail.documentBaseConfigSalesChannelRepository is deprecated. Will be removed without replacement.": {
+        "src/module/sw-settings-document/page/sw-settings-document-detail/sw-settings-document-detail.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-settings-index.getUserConfig() is deprecated. Will be removed without replacement.": {
+        "sw-settings-index": [
+            "default"
+        ]
+    },
+    "sw-settings-number-range-detail.loadSalesChannels() is deprecated and will be removed, use buildSelectedSalesChannelsCollection instead.": {
+        "src/module/sw-settings-number-range/page/sw-settings-number-range-create/index.js": [
+            "default"
+        ]
+    },
+    "sw-settings-shipping-price-matrix.shippingRuleFilterCriteria is deprecated and will be removed, use ruleFilterCriteria instead.": {
+        "sw-settings-shipping-price-matrix": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-settings-storefront-index.loadstorefrontSettings() is deprecated and will be removed.": {
+        "../../../../Storefront/Resources/app/administration/src/modules/sw-settings-storefront/page/sw-settings-storefront-index/sw-settings-storefront-index.spec.js": [
+            "default",
+            "major"
+        ]
+    },
+    "sw-settings-storefront-index.savestorefrontSettings() is deprecated and will be removed.": {
+        "../../../../Storefront/Resources/app/administration/src/modules/sw-settings-storefront/page/sw-settings-storefront-index/sw-settings-storefront-index.spec.js": [
             "default",
             "major"
         ]

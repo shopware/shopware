@@ -1,5 +1,6 @@
 import template from './sw-order-list.html.twig';
 import './sw-order-list.scss';
+import { deprecatedComputed, deprecatedMethods } from './deprecated-members';
 
 /**
  * @sw-package checkout
@@ -70,6 +71,8 @@ export default {
     },
 
     computed: {
+        ...deprecatedComputed,
+
         hasActiveSearchOrFilter() {
             return this.activeFilterNumber > 0 || this.isValidTerm(this.term);
         },
@@ -133,19 +136,6 @@ export default {
         salesChannelCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addSorting(Criteria.sort('name'));
-
-            return criteria;
-        },
-
-        /**
-         * @deprecated tag:v6.8.0 - will be removed without replacement
-         */
-        filterSelectCriteria() {
-            const criteria = new Criteria(1, 1);
-
-            criteria.addAggregation(Criteria.terms('affiliateCodes', 'affiliateCode', null, null, null));
-            criteria.addAggregation(Criteria.terms('campaignCodes', 'campaignCode', null, null, null));
-            criteria.addAggregation(Criteria.terms('promotionCodes', 'lineItems.payload.code', null, null, null));
 
             return criteria;
         },
@@ -297,13 +287,6 @@ export default {
             return Shopware.Filter.getByName('currency');
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
-         */
-        dateFilter() {
-            return Shopware.Filter.getByName('date');
-        },
-
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
@@ -322,20 +305,9 @@ export default {
     },
 
     methods: {
-        createdComponent() {},
+        ...deprecatedMethods,
 
-        /**
-         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderDelivery instead
-         */
-        deliveryTooltip(deliveries) {
-            return deliveries
-                .map((delivery) => {
-                    return `${delivery.shippingOrderAddress.street},
-                        ${delivery.shippingOrderAddress.zipcode}
-                        ${delivery.shippingOrderAddress.city}`;
-                })
-                .join('<hr style="margin: 8px 0">');
-        },
+        createdComponent() {},
 
         onEdit(order) {
             if (order?.id) {
@@ -389,15 +361,6 @@ export default {
             } catch {
                 this.isLoading = false;
             }
-        },
-
-        /**
-         * @deprecated tag:v6.8.0 - will be removed, use order.billingAddress instead
-         */
-        getBillingAddress(order) {
-            return order.addresses.find((address) => {
-                return address.id === order.billingAddressId;
-            });
         },
 
         disableDeletion(order) {
@@ -525,14 +488,6 @@ export default {
             });
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Use listing mixin implementation directly
-         */
-        updateCriteria(criteria) {
-            // Delegate to listing mixin implementation
-            return Mixin.getByName('listing').methods.updateCriteria.call(this, criteria);
-        },
-
         getStatusCriteria(value) {
             const criteria = new Criteria(1, 25);
 
@@ -558,60 +513,6 @@ export default {
                     excludeDelivery,
                 },
             });
-        },
-
-        /**
-         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderTransaction instead
-         */
-        transaction(order) {
-            if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                if (order.primaryOrderTransaction) {
-                    return order.primaryOrderTransaction;
-                }
-
-                const transactions = order.transactions ?? [];
-                for (let i = 0; i < transactions.length; i += 1) {
-                    if (!['cancelled', 'failed'].includes(transactions[i].stateMachineState?.technicalName)) {
-                        return transactions[i];
-                    }
-                }
-
-                return transactions.last?.() ?? transactions[transactions.length - 1] ?? null;
-            }
-
-            return order.primaryOrderTransaction ?? null;
-        },
-
-        /**
-         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderDelivery instead
-         */
-        getDelivery(order) {
-            if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                return order.primaryOrderDelivery ?? order.deliveries?.[0] ?? null;
-            }
-
-            return order.primaryOrderDelivery ?? null;
-        },
-
-        /**
-         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderDelivery.shippingOrderAddress instead
-         */
-        getDeliveryAddress(order) {
-            return this.getDelivery(order)?.shippingOrderAddress ?? null;
-        },
-
-        /**
-         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderDelivery.stateMachineState instead
-         */
-        getDeliveryState(order) {
-            return this.getDelivery(order)?.stateMachineState ?? null;
-        },
-
-        /**
-         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderTransaction.stateMachineState instead
-         */
-        getTransactionState(order) {
-            return this.transaction(order)?.stateMachineState ?? null;
         },
     },
 };

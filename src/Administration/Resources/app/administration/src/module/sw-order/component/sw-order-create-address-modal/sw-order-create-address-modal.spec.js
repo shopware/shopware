@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import findByText from '../../../../../test/_helper_/find-by-text';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 /**
  * @sw-package checkout
@@ -71,6 +72,7 @@ describe('src/module/sw-order/component/sw-order-create-address-modal', () => {
     let wrapper;
 
     beforeEach(async () => {
+        allowDeprecation('The component "sw-order-create-address-modal" is deprecated');
         wrapper = await createWrapper();
     });
 

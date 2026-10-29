@@ -5,6 +5,7 @@
 import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 import path from 'path';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const conditionTypesRootPath = 'src/app/component/rule/condition-type/';
 const conditionTypesApplyIsEmpty = [
@@ -93,6 +94,11 @@ async function createWrapperForComponent(componentName) {
 describe('src/app/component/rule/condition-type/*.js', () => {
     beforeAll(() => {
         return importAllConditionTypes();
+    });
+
+    beforeEach(() => {
+        allowDeprecation('The component "sw-condition-line-item-in-category" is deprecated');
+        allowDeprecation('The component "sw-condition-line-item-purchase-price" is deprecated');
     });
 
     it.each(conditionTypesApplyIsEmpty)('The component %s should be a mounted successfully', async (conditionType) => {

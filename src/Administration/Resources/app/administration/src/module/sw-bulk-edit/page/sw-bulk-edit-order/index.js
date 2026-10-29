@@ -1,5 +1,6 @@
 import template from './sw-bulk-edit-order.html.twig';
 import './sw-bulk-edit-order.scss';
+import { deprecatedComputed } from './deprecated-members';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -48,6 +49,8 @@ export default {
     },
 
     computed: {
+        ...deprecatedComputed,
+
         selectedIds() {
             return Shopware.Store.get('swBulkEdit').selectedIds;
         },
@@ -58,20 +61,6 @@ export default {
 
         orderRepository() {
             return this.repositoryFactory.create('order');
-        },
-
-        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
-        customFieldSetRepository() {
-            return this.repositoryFactory.create('custom_field_set');
-        },
-
-        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
-        customFieldSetCriteria() {
-            const criteria = new Criteria(1, null);
-
-            criteria.addFilter(Criteria.equals('relations.entityName', 'order'));
-
-            return criteria;
         },
 
         hasChanges() {

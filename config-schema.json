@@ -1205,11 +1205,11 @@
                     "uniqueItems": true,
                     "items": {
                         "type": "string",
-                        "enum": ["http", "https", "ftp", "sftp"]
+                        "enum": ["http", "https", "ftp"]
                     },
                     "title": "URL schemes accepted for media upload by URL."
                 },
-                "allowed_private_ips": {
+                "allowed_private_ip_addresses": {
                     "type": "array",
                     "uniqueItems": true,
                     "items": {

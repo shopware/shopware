@@ -83,7 +83,7 @@
         <service id="Shopware\Core\Content\Media\File\TrustedUrlResolver">
             <argument>null</argument>
             <argument>%shopware.media.enable_url_validation%</argument>
-            <argument>%shopware.media.allowed_private_ips%</argument>
+            <argument>%shopware.media.allowed_private_ip_addresses%</argument>
             <argument>%shopware.media.allowed_protocols%</argument>
 
             <tag name="kernel.reset" method="reset"/>

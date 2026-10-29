@@ -92,6 +92,7 @@ class TrustedUrlResolverTest extends TestCase
     public static function schemeProvider(): iterable
     {
         yield 'file' => ['file:///etc/passwd'];
+        yield 'ftp' => ['ftp://example.com/x'];
         yield 'gopher' => ['gopher://example.com/x'];
         yield 'no scheme' => ['example.com/x'];
     }
@@ -105,6 +106,14 @@ class TrustedUrlResolverTest extends TestCase
 
         static::assertSame('93.184.216.34', $resolver->resolve('ftp://example.com/x')->ip);
         static::assertFalse($resolver->isValid('https://example.com/x'));
+    }
+
+    public function testIsAllowedPrivateIpMatchesConfiguredAddressesOnly(): void
+    {
+        $resolver = new TrustedUrlResolver(allowedPrivateIps: ['10.0.0.5']);
+
+        static::assertTrue($resolver->isAllowedPrivateIp('10.0.0.5'));
+        static::assertFalse($resolver->isAllowedPrivateIp('10.0.0.6'));
     }
 
     public function testResolveValidatesPublicIpLiteralWithoutDns(): void

@@ -52,7 +52,7 @@ class FileFetcherTest extends TestCase
 
     public function testFetchRequestData(): void
     {
-        $fileFetcher = $this->createFileFetcher(fileService: new FileService(['http', 'https', 'ftp', 'sftp']));
+        $fileFetcher = $this->createFileFetcher(fileService: new FileService(['http', 'https', 'ftp']));
 
         $content = fopen(self::IMAGE_URL_WITHOUT_EXTENSION, 'r');
         static::assertIsResource($content);
@@ -74,7 +74,7 @@ class FileFetcherTest extends TestCase
         string $extension,
         \Exception $expectedException
     ): void {
-        $fileFetcher = $this->createFileFetcher(fileService: new FileService(['http', 'https', 'ftp', 'sftp']));
+        $fileFetcher = $this->createFileFetcher(fileService: new FileService(['http', 'https', 'ftp']));
 
         $content = fopen(self::IMAGE_URL_WITH_EXTENSION, 'r');
         static::assertIsResource($content);
@@ -222,6 +222,20 @@ class FileFetcherTest extends TestCase
         $fileFetcher->fetchFileFromURL($request, self::TEMP_FILE);
     }
 
+    public function testFetchFileFromURLReachesAllowedPrivateAddress(): void
+    {
+        $httpClient = new MockHttpClient(
+            new MockResponse((string) file_get_contents(self::IMAGE_URL_WITH_EXTENSION), ['primary_ip' => '10.0.0.5'])
+        );
+
+        $resolver = new TrustedUrlResolver(static fn (string $host): array => ['10.0.0.5'], allowedPrivateIps: ['10.0.0.5']);
+
+        $this->createFileFetcher(resolver: $resolver, httpClient: $httpClient)
+            ->fetchFileFromURL($this->createUrlRequest('https://media.example.com/image.png'), self::TEMP_FILE);
+
+        static::assertFileEquals(self::IMAGE_URL_WITH_EXTENSION, self::TEMP_FILE);
+    }
+
     #[DataProvider('fetchFileFromUrlExceptionsDataProvider')]
     public function testFetchFileFromURLWillThrowException(
         bool $enableUploadFeature,
@@ -364,29 +378,6 @@ class FileFetcherTest extends TestCase
         static::assertFileEquals(self::IMAGE_URL_WITH_EXTENSION, self::TEMP_FILE);
     }
 
-    public function testFetchFileFromURLConnectsSftpToTheCheckedAddress(): void
-    {
-        $this->server = new Process([
-            (string) (new PhpExecutableFinder())->find(),
-            '-r',
-            '$s = stream_socket_server("tcp://127.0.0.1:0"); echo substr(strrchr(stream_socket_get_name($s, false), ":"), 1), PHP_EOL; echo stream_socket_accept($s, 10) ? "connected" : "timeout";',
-        ]);
-        $this->server->start();
-        $this->server->waitUntil(static fn (string $type, string $output): bool => str_contains($output, \PHP_EOL));
-        $url = 'sftp://user:secret@sftp.example.com:' . trim($this->server->getOutput()) . '/image1x1.png';
-
-        try {
-            $this->createFileFetcher(resolver: $this->createLoopbackResolver())->fetchFileFromURL($this->createUrlRequest($url), self::TEMP_FILE);
-            static::fail('The download from a server without SSH should fail.');
-        } catch (MediaException $exception) {
-            static::assertEquals(MediaException::cannotOpenSourceStreamToRead($url), $exception);
-        }
-
-        static::assertInstanceOf(Process::class, $this->server);
-        $this->server->wait();
-        static::assertStringEndsWith('connected', $this->server->getOutput());
-    }
-
     private function createUrlRequest(string $url): Request
     {
         $request = new Request();
@@ -416,7 +407,7 @@ class FileFetcherTest extends TestCase
      */
     private function createLoopbackResolver(array $allowedPrivateIps = ['127.0.0.1']): TrustedUrlResolver
     {
-        return new TrustedUrlResolver(static fn (string $host): array => ['127.0.0.1'], allowedPrivateIps: $allowedPrivateIps);
+        return new TrustedUrlResolver(static fn (string $host): array => ['127.0.0.1'], allowedPrivateIps: $allowedPrivateIps, allowedSchemes: ['ftp']);
     }
 
     private function createFileFetcher(

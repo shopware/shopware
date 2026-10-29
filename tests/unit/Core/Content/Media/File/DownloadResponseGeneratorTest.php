@@ -98,6 +98,37 @@ class DownloadResponseGeneratorTest extends TestCase
         $this->downloadResponseGenerator->getResponseByContext($media, Context::createDefaultContext());
     }
 
+    public function testPrivateExternalMediaIsNotResolvedOnTheFilesystem(): void
+    {
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->expects($this->never())->method('temporaryUrl');
+        $filesystem->expects($this->never())->method('readStream');
+
+        $media = $this->externalMedia(private: true);
+
+        $this->expectExceptionObject(MediaException::missingFile($media->getId()));
+
+        $this->createGenerator($filesystem, static::createStub(AbstractMediaUrlGenerator::class))
+            ->getResponseByContext($media, Context::createDefaultContext());
+    }
+
+    public function testPublicExternalMediaRedirectsToItsUrl(): void
+    {
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->expects($this->never())->method('temporaryUrl');
+
+        $media = $this->externalMedia(private: false);
+
+        $urlGenerator = static::createStub(AbstractMediaUrlGenerator::class);
+        $urlGenerator->method('generate')->willReturn([$media->getId() => 'https://cdn.example.com/photo.jpg']);
+
+        $response = $this->createGenerator($filesystem, $urlGenerator)
+            ->getResponseByContext($media, Context::createDefaultContext());
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('https://cdn.example.com/photo.jpg', $response->getTargetUrl());
+    }
+
     #[DataProvider('filesystemProvider')]
     public function testGetResponse(bool $private, string $type, Response $expectedResponse, ?string $strategy = null, string $privateLocalPathPrefix = ''): void
     {
@@ -241,6 +272,32 @@ class DownloadResponseGeneratorTest extends TestCase
         $fileSystem->method('temporaryUrl')->willReturn('foobar.txt');
 
         return $fileSystem;
+    }
+
+    private function createGenerator(FilesystemOperator $filesystem, AbstractMediaUrlGenerator $urlGenerator): DownloadResponseGenerator
+    {
+        return new DownloadResponseGenerator(
+            static::createStub(LoggerInterface::class),
+            $filesystem,
+            $filesystem,
+            $this->mediaService,
+            DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY,
+            $urlGenerator,
+            new NativeClock(),
+            ''
+        );
+    }
+
+    private function externalMedia(bool $private): MediaEntity
+    {
+        $media = new MediaEntity();
+        $media->setId(Uuid::randomHex());
+        $media->setFileName('photo');
+        $media->setFileExtension('jpg');
+        $media->setPrivate($private);
+        $media->setPath('https://cdn.example.com/../../document/invoice.pdf');
+
+        return $media;
     }
 
     private static function getExpectedStreamResponse(?string $strategy = null, string $privateLocalPathPrefix = ''): Response

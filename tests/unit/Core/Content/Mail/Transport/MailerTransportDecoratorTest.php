@@ -88,6 +88,24 @@ class MailerTransportDecoratorTest extends TestCase
         static::assertSame('bar', $attachments[1]->getBody());
     }
 
+    public function testMailerTransportDecoratorSkipsExternalUrlAttachments(): void
+    {
+        $mail = new Mail();
+        $envelope = static::createStub(Envelope::class);
+        $mail->addAttachmentUrl('https://cdn.example.com/../../victim.txt');
+        $mail->addAttachmentUrl('foo');
+
+        $this->filesystem->write('victim.txt', 'confidential');
+        $this->filesystem->write('foo', 'foo');
+
+        $this->decorated->expects($this->once())->method('send')->with($mail, $envelope);
+
+        $this->decorator->send($mail, $envelope);
+        $attachments = $mail->getAttachments();
+        static::assertCount(1, $attachments);
+        static::assertSame('foo', $attachments[0]->getBody());
+    }
+
     public function testMailerTransportDecoratorWithBuildAttachments(): void
     {
         $mail = new Mail();

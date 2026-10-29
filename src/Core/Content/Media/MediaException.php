@@ -25,6 +25,7 @@ class MediaException extends HttpException
     public const MEDIA_INVALID_FILE = 'CONTENT__MEDIA_INVALID_FILE';
     public const MEDIA_EMPTY_FILE_NAME = 'CONTENT__MEDIA_EMPTY_FILE_NAME';
     public const MEDIA_EMPTY_PATH = 'CONTENT__MEDIA_EMPTY_PATH';
+    public const MEDIA_ILLEGAL_PATH = 'CONTENT__MEDIA_ILLEGAL_PATH';
     public const MEDIA_INVALID_THUMBNAIL_ID = 'CONTENT__MEDIA_INVALID_THUMBNAIL_ID';
     public const MEDIA_INVALID_THUMBNAIL_DATA = 'CONTENT__MEDIA_INVALID_THUMBNAIL_DATA';
     public const MEDIA_INVALID_DIMENSION = 'CONTENT__MEDIA_INVALID_DIMENSION';
@@ -230,6 +231,15 @@ class MediaException extends HttpException
             self::MEDIA_EMPTY_PATH,
             self::$couldNotFindMessage,
             ['entity' => 'path', 'field' => 'entity', 'value' => $mediaId]
+        );
+    }
+
+    public static function illegalPath(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_ILLEGAL_PATH,
+            'The media path can only be set to an external http(s) URL.'
         );
     }
 

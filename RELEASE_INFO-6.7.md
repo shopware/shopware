@@ -317,6 +317,33 @@ For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-
 
 ## Storefront
 
+### Storefront analytics send GA4 ecommerce events
+
+Storefront analytics now send ecommerce events in the format Google documents for GA4.
+Tracking setups have to adapt to these changes:
+
+* With a `GTM-` tracking ID, ecommerce events are pushed to the data layer as `{ event, ecommerce }`.
+  Google Tag Manager setups that read parameters from `eventModel` must use the `ecommerce` data layer variables instead.
+* Items use `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`, and numeric values are numbers instead of strings.
+  Amounts keep the decimals of the currency.
+* The event `value` of cart, checkout and `purchase` events is the position price including promotion discounts, and the applied promotion codes are reported as `coupon`.
+  Discounts are no longer reported as items.
+* `login` and `sign_up` are reported again, and adding a product by its number on the cart page reports `add_to_cart`.
+  `login` is now reported on the page after the login and only for a successful login, so a wrong password no longer counts as a login.
+  The same holds for `sign_up`, which a guest checkout no longer reports.
+  A guest who creates an account with "Create account" on the checkout finish page reports `sign_up` as well.
+
+The `.hidden-line-items-information` element is only rendered for a sales channel with active analytics.
+Its block `component_hidden_line_item_information` is only rendered for product line items, and `LineItemHelper.getLineItems()` returns items with the GA4 keys `item_id`, `item_name` and `item_brand`.
+The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html) describes the full payload.
+
+### Storefront analytics recognize product elements of extensions
+
+Storefront analytics now treat every element with a `data-product-information` attribute as a product, not only the `.product-box`.
+Products that extensions render in their own markup are reported as well.
+The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#products) describes the expected attribute.
+The product box now reports the price of a matching price rule or the first graduated price, the same price as the product detail page, instead of the default price.
+
 ### Deprecation of `ListingPlugin` properties
 
 The Storefront listing plugin now supports updating multiple filter panels on the same page. Due to these changes, the following properties of the `ListingPlugin` class in `listing.plugin.js` carrying single elements have been deprecated and are replaced respectively by new properties carrying `NodeList`s:
@@ -335,6 +362,39 @@ Omitting the argument still falls back to `this.activeFilterContainer` in 6.7, b
 ### Deprecation of unused custom `$offcanvas-zindex` SCSS variable
 
 The custom offcanvas z-index SCSS variable `$offcanvas-zindex` is not used anymore and is therefore deprecated. To override the offcanvas z-index or calculate your own z-index based on it, use the bootstrap variable `$zindex-offcanvas` instead. The deprecated `$offcanvas-zindex` SCSS variable and its respective `--offcanvas-zindex` CSS root variable now reflect the actual Bootstrap offcanvas z-index (`1045` instead of `1050`). Additionally, a new `--offcanvas-backdrop-zindex` CSS root variable has been added.
+
+### Storefront analytics report brand and category of products added from a product box
+
+With active analytics, adding a product from a product box now posts its brand and categories in the line item payload, like the buy widget does.
+Cart, checkout and purchase events report them as `item_brand` and `item_category`.
+
+The reorder of an order in the account now reports one `add_to_cart` with the products it added, priced with the current prices and the currency of the cart it returns.
+The reorder form posts only the order, so product number, quantity, brand and categories of the ordered products are rendered into the form as `[data-analytics-line-item]` elements while analytics is active.
+
+### Storefront analytics report each checkout step once
+
+`add_shipping_info` and `add_payment_info` are now reported once per selected method of a checkout, instead of on every reload of the confirm page.
+A new customer reports `add_shipping_info` when registering in the checkout.
+
+### Storefront analytics report item variants and graduated prices
+
+Storefront analytics now report the selected options of a variant as `item_variant`.
+`add_to_cart` on the product detail page reports the graduated price of the quantity the cart holds after the add.
+
+### Storefront analytics request the categories of products outside a category
+
+For a product the page breadcrumb does not describe, such as on the homepage or the wishlist, or in a product slider of a category page, `add_to_cart` and the wishlist events now report the categories of the product.
+They are requested from the new HTTP cached route `frontend.analytics.product-categories`, which returns a 404 for a sales channel without active analytics.
+The cart, checkout and purchase events report these categories as well, without requesting them again.
+
+The wishlist page holds the removal of a product back for at most one second, until `remove_from_wishlist` is sent.
+
+### Storefront analytics report `select_item` and the list of a product
+
+Storefront analytics now report `select_item`, and `view_item_list`, `select_item` and `view_item` report the list of a product as `item_list_id`, `item_list_name` and `index`.
+The list IDs, such as `category:<id>` or `search`, are a contract that Google Tag Manager triggers can rely on.
+For the search result, these events also report the query as `search_term`, so GA4 shows which products a search found.
+The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#lists) lists them and shows how extensions identify their own lists.
 
 ### Theme compilation completion is notified once
 

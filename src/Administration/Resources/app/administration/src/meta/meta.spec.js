@@ -17,16 +17,23 @@ import { isTemplateSourceFile, isDataSetSourceFile } from '../../scripts/public-
 const allFiles = globSync(path.join(adminPath, 'src/**/*.*'));
 
 /**
- * A mini-module is a directory with `index.ts`, an optional `private.ts`, a `src/` and a `tests/` folder.
- * @return true for its index, its private.ts and every file in its `src/` or `tests/`
+ * A mini-module is a directory with `index.ts`, an optional `private.ts`, `register.ts` and `dependencies.ts`, a `src/` and a `tests/` folder.
+ * @return true for its index, private.ts, register.ts, dependencies.ts and every file in its `src/` or `tests/`
  */
 const isInMiniModule = (file) => {
-    // eslint-disable-next-line no-undef
+    // eslint-disable-next-line no-undef -- adminPath is a global of the Jest environment
     if (/^src\/.+?\/(src|tests)\//.test(path.relative(adminPath, file))) {
         return true;
     }
 
-    return ['index.ts', 'private.ts'].includes(path.basename(file)) && fs.existsSync(path.join(path.dirname(file), 'tests'));
+    return (
+        [
+            'index.ts',
+            'private.ts',
+            'register.ts',
+            'dependencies.ts',
+        ].includes(path.basename(file)) && fs.existsSync(path.join(path.dirname(file), 'tests'))
+    );
 };
 
 /**
@@ -46,7 +53,7 @@ const isTestAbleFile = (file) => {
         return false;
     }
 
-    // A mini-module's tests/ folder covers its index, its private.ts and everything in its src/.
+    // A mini-module's tests/ folder covers its index, private.ts, register.ts, dependencies.ts and everything in its src/.
     if (isInMiniModule(file)) {
         return false;
     }

@@ -63,7 +63,12 @@ describe('module/sw-product/page/sw-product-detail', () => {
             return Promise.resolve({ variation: [] });
         },
         productId = '1234',
-        { featureActive = false, routeName = 'sw.product.detail.base', routerPush = jest.fn() } = {},
+        {
+            featureActive = false,
+            routeName = 'sw.product.detail.base',
+            routerPush = jest.fn(),
+            systemConfigValues = defaultSalesChannelData,
+        } = {},
     ) {
         return mount(await wrapTestComponent('sw-product-detail', { sync: true }), {
             global: {
@@ -126,7 +131,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                             Promise.resolve({
                                 'core.tax.defaultTaxRate': '',
                             }),
-                        getValues: () => Promise.resolve(defaultSalesChannelData),
+                        getValues: () => Promise.resolve(systemConfigValues),
                     },
                     customFieldDataProviderService: {
                         getCustomFieldSets: () => Promise.resolve([]),
@@ -697,6 +702,39 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
         await flushPromises();
         expect(wrapper.vm.product.visibilities).toHaveLength(1);
+    });
+
+    it('should create a visibility for every default sales channel, also beyond the first 500', async () => {
+        await flushPromises();
+        await wrapper.unmount();
+
+        const salesChannels = Array.from({ length: 501 }, (_, index) => ({
+            id: `sales-channel-${index}`,
+            name: `Sales channel ${index}`,
+        }));
+
+        wrapper = await createWrapper(
+            (criteria) =>
+                Promise.resolve(
+                    criteria?.ids.length
+                        ? salesChannels.filter(({ id }) => criteria.ids.includes(id))
+                        : salesChannels.slice(0, criteria?.limit),
+                ),
+            undefined,
+            null,
+            {
+                systemConfigValues: {
+                    ...defaultSalesChannelData,
+                    'core.defaultSalesChannel.salesChannel': salesChannels.map(({ id }) => id),
+                },
+            },
+        );
+
+        await flushPromises();
+        await flushPromises();
+        expect(
+            Shopware.Store.get('swProductDetail').product.visibilities.map(({ salesChannelId }) => salesChannelId),
+        ).toEqual(salesChannels.map(({ id }) => id));
     });
 
     it('should run custom validation service and handle errors', async () => {

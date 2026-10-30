@@ -37,8 +37,12 @@ async function createWrapper(props = defaultProps) {
                 provide: {
                     repositoryFactory: {
                         create: () => ({
-                            search: () => {
-                                return Promise.resolve(createEntityCollection([...props.salesChannels]));
+                            search: (criteria) => {
+                                const salesChannels = criteria.ids.length
+                                    ? props.salesChannels.filter(({ id }) => criteria.ids.includes(id))
+                                    : props.salesChannels.slice(0, criteria.limit);
+
+                                return Promise.resolve(createEntityCollection(salesChannels));
                             },
                         }),
                     },
@@ -113,5 +117,26 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-visibilit
         expect(nameElement.exists()).toBe(true);
         expect(nameElement.text().endsWith('...')).toBe(true);
         expect(nameElement.attributes()['tooltip-mock-message']).toBe(name);
+    });
+
+    it('should show the name of every configured sales channel, also beyond the first 500', async () => {
+        const salesChannels = Array.from({ length: 501 }, (_, index) => ({
+            id: `sales-channel-${index}`,
+            name: `Sales channel ${index}`,
+        }));
+
+        const wrapper = await createWrapper({
+            salesChannels,
+            config: salesChannels.map(({ id }) => ({ id, visibility: 30 })),
+        });
+        await flushPromises();
+
+        const pageButtons = wrapper.findAll('.sw-pagination__list-button');
+        await pageButtons[pageButtons.length - 1].trigger('click');
+        await flushPromises();
+
+        expect(wrapper.findAll('.sw-product-visibility-detail__name').map((name) => name.text())).toEqual(
+            salesChannels.slice(500).map(({ name }) => name),
+        );
     });
 });

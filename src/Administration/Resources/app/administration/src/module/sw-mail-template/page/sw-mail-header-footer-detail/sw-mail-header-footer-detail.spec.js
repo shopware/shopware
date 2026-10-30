@@ -32,12 +32,12 @@ const repositoryMockFactory = () => {
     };
 };
 
-const createWrapper = async (privileges = []) => {
+const createWrapper = async (privileges = [], repository = null) => {
     return mount(await wrapTestComponent('sw-mail-header-footer-detail', { sync: true }), {
         global: {
             provide: {
                 repositoryFactory: {
-                    create: () => repositoryMockFactory(),
+                    create: () => repository ?? repositoryMockFactory(),
                 },
                 mailService: {},
                 entityMappingService: {
@@ -79,6 +79,9 @@ const createWrapper = async (privileges = []) => {
                 'sw-code-editor': true,
                 'sw-skeleton': true,
                 'sw-language-switch': true,
+                'sw-modal': {
+                    template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+                },
             },
         },
     });
@@ -138,5 +141,36 @@ describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
             message: 'CTRL + S',
             appearance: 'light',
         });
+    });
+
+    it('should find every selected sales channel that already uses another header and footer, also beyond 500', async () => {
+        const salesChannels = Array.from({ length: 501 }, (_, index) => ({
+            id: `sales-channel-${index}`,
+            name: `Sales channel ${index}`,
+            translated: { name: `Sales channel ${index}` },
+            mailHeaderFooterId: 'another-header-footer',
+        }));
+        const repository = {
+            ...repositoryMockFactory(),
+            get: () => Promise.resolve({ ...mailHeaderFooterMock, salesChannels }),
+            search: jest.fn((criteria) =>
+                Promise.resolve(
+                    criteria.ids.length
+                        ? salesChannels.filter(({ id }) => criteria.ids.includes(id))
+                        : salesChannels.slice(0, criteria.limit),
+                ),
+            ),
+        };
+
+        wrapper = await createWrapper(['mail_templates.editor'], repository);
+        await flushPromises();
+
+        await wrapper.find('.sw-mail-header-footer-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(repository.search).toHaveBeenCalledTimes(1);
+        expect(
+            wrapper.findAll('.sw-mail-header-footer-detail__sales-channel-list-entry').map((entry) => entry.text()),
+        ).toEqual(salesChannels.map(({ name }) => name));
     });
 });

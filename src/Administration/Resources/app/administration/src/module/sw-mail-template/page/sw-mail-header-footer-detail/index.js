@@ -221,7 +221,7 @@ export default {
                 salesChannelIds.push(salesChannel.id);
             });
 
-            criteria.addFilter(Criteria.equalsAny('id', salesChannelIds));
+            criteria.setIds(salesChannelIds);
 
             const items = await this.salesChannelRepository.search(criteria);
             this.alreadyAssignedSalesChannels = items.reduce((assignedSalesChannels, currentSalesChannel) => {

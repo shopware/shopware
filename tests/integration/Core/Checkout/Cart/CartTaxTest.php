@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -25,6 +26,7 @@ use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\Tax\TaxRuleType\EntireCountryRuleTypeFilter;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -395,12 +397,77 @@ class CartTaxTest extends TestCase
         static::assertSame(['gross', 561.0], $this->placeOrderAndReadPrice());
     }
 
-    private function createProduct(): void
+    /**
+     * @param list<string> $productKeys
+     * @param array<string, list<float>> $expectedTaxRates product key => tax rates of its line item
+     */
+    #[DataProvider('digitalProductProvider')]
+    public function testDigitalProductsAreExemptedByTheBillingCountry(
+        array $productKeys,
+        bool $billingCountryExempts,
+        bool $shippingCountryExempts,
+        string $taxStatus,
+        float $totalPrice,
+        array $expectedTaxRates,
+    ): void {
+        $this->prepareIntraCommunityDelivery();
+        $this->createProduct('digital', ProductDefinition::TYPE_DIGITAL);
+        // Billed in NL, shipped to BE, with an NL VAT ID
+        $this->countryRepository->update([
+            ['id' => $this->ids->get('country-nl'), 'companyTax' => ['enabled' => $billingCountryExempts, 'currencyId' => Defaults::CURRENCY, 'amount' => 0]],
+            ['id' => $this->ids->get('country-be'), 'companyTax' => ['enabled' => $shippingCountryExempts, 'currencyId' => Defaults::CURRENCY, 'amount' => 0]],
+        ], Context::createDefaultContext());
+        $this->createCrossBorderCustomerAndLogin(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+
+        $cart = $this->addProductsAndReadCart($productKeys);
+
+        static::assertSame([$taxStatus, $totalPrice], [$cart['price']['taxStatus'], (float) $cart['price']['totalPrice']]);
+        static::assertSame($expectedTaxRates, $this->getLineItemTaxRates($cart));
+        static::assertSame([$taxStatus, $totalPrice], $this->placeOrderAndReadPrice());
+    }
+
+    /**
+     * @return iterable<string, array{list<string>, bool, bool, string, float, array<string, list<float>>}>
+     */
+    public static function digitalProductProvider(): iterable
+    {
+        // 500 net / 550 gross per product, 10 net / 11 gross shipping for physical goods only
+        yield 'digital product is exempt by the billing country' => [['digital'], true, false, 'tax-free', 500.0, ['digital' => []]];
+        yield 'digital product ignores the exempting shipping country' => [['digital'], false, true, 'gross', 550.0, ['digital' => [10.0]]];
+        yield 'mixed cart exempts the physical product by the shipping country' => [['p1', 'digital'], false, true, 'gross', 1060.0, ['p1' => [0.0], 'digital' => [10.0]]];
+        yield 'mixed cart exempts the digital product by the billing country' => [['p1', 'digital'], true, false, 'gross', 1061.0, ['p1' => [10.0], 'digital' => [0.0]]];
+        yield 'mixed cart with both items exempt is tax-free' => [['p1', 'digital'], true, true, 'tax-free', 1010.0, ['p1' => [], 'digital' => []]];
+    }
+
+    public function testConsumerPaysTheVatOfTheBillingCountryForDigitalProducts(): void
+    {
+        $this->prepareIntraCommunityDelivery();
+        $this->createProduct('digital', ProductDefinition::TYPE_DIGITAL);
+        static::getContainer()->get('tax_rule.repository')->create([[
+            'taxId' => $this->ids->get('tax'),
+            'countryId' => $this->ids->get('country-nl'),
+            'taxRate' => 21.0,
+            'taxRuleTypeId' => $this->connection->fetchOne(
+                'SELECT LOWER(HEX(id)) FROM tax_rule_type WHERE technical_name = :name',
+                ['name' => EntireCountryRuleTypeFilter::TECHNICAL_NAME]
+            ),
+        ]], Context::createDefaultContext());
+        $this->createCrossBorderCustomerAndLogin(CustomerEntity::ACCOUNT_TYPE_PRIVATE);
+
+        $cart = $this->addProductsAndReadCart(['p1', 'digital']);
+
+        // The digital product is taxed in NL (billing), the physical one by the default rate of BE (shipping)
+        static::assertSame(['p1' => [10.0], 'digital' => [21.0]], $this->getLineItemTaxRates($cart));
+        static::assertSame(['gross', 1111.0], [$cart['price']['taxStatus'], (float) $cart['price']['totalPrice']]);
+    }
+
+    private function createProduct(string $key = 'p1', string $type = ProductDefinition::TYPE_PHYSICAL): void
     {
         $this->productRepository->create([
             [
-                'id' => $this->ids->create('p1'),
-                'productNumber' => $this->ids->get('p1'),
+                'id' => $this->ids->create($key),
+                'type' => $type,
+                'productNumber' => $this->ids->get($key),
                 'stock' => 10,
                 'name' => 'Test',
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 550, 'net' => 500, 'linked' => false]],
@@ -658,6 +725,18 @@ class CartTaxTest extends TestCase
      */
     private function addProductAndReadCartPrice(): array
     {
+        $response = $this->addProductsAndReadCart(['p1']);
+
+        return [$response['price']['taxStatus'], (float) $response['price']['totalPrice']];
+    }
+
+    /**
+     * @param list<string> $productKeys
+     *
+     * @return array<string, mixed> the cart
+     */
+    private function addProductsAndReadCart(array $productKeys): array
+    {
         $this->browser->request(
             'POST',
             '/store-api/checkout/cart/line-item',
@@ -665,22 +744,35 @@ class CartTaxTest extends TestCase
             [],
             ['CONTENT_TYPE' => 'application/json'],
             (string) json_encode([
-                'items' => [
-                    [
-                        'id' => $this->ids->get('p1'),
-                        'type' => 'product',
-                        'referencedId' => $this->ids->get('p1'),
-                        'quantity' => 1,
-                    ],
-                ],
+                'items' => array_map(fn (string $key) => [
+                    'id' => $this->ids->get($key),
+                    'type' => 'product',
+                    'referencedId' => $this->ids->get($key),
+                    'quantity' => 1,
+                ], $productKeys),
             ], \JSON_THROW_ON_ERROR)
         );
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        return json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+    }
 
-        return [$response['price']['taxStatus'], (float) $response['price']['totalPrice']];
+    /**
+     * @param array<string, mixed> $cart
+     *
+     * @return array<string, list<float>> product key => tax rates of its line item
+     */
+    private function getLineItemTaxRates(array $cart): array
+    {
+        $taxRates = [];
+        foreach ($cart['lineItems'] as $lineItem) {
+            $key = array_search($lineItem['referencedId'], $this->ids->all(), true);
+            static::assertIsString($key);
+            $taxRates[$key] = array_values(array_map(static fn (array $tax) => (float) $tax['taxRate'], $lineItem['price']['calculatedTaxes']));
+        }
+
+        return $taxRates;
     }
 
     /**

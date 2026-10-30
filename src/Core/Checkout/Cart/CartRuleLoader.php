@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\AbstractTaxDetector;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Defaults;
@@ -216,31 +217,14 @@ class CartRuleLoader implements ResetInterface
             || $previousLineItems->getTypes() !== $currentLineItems->getTypes();
     }
 
-    private function detectTaxType(SalesChannelContext $context, float $cartNetAmount = 0): string
+    private function detectTaxType(SalesChannelContext $context, float $cartNetAmount, bool $isTaxFree): string
     {
         $currency = $context->getCurrency();
         $currencyTaxFreeAmount = $currency->getTaxFreeFrom();
         $isReachedCurrencyTaxFreeAmount = $currencyTaxFreeAmount > 0 && $cartNetAmount >= $currencyTaxFreeAmount;
 
-        if ($isReachedCurrencyTaxFreeAmount) {
+        if ($isReachedCurrencyTaxFreeAmount || $isTaxFree) {
             return CartPrice::TAX_STATE_FREE;
-        }
-
-        $country = $context->getShippingLocation()->getCountry();
-
-        if ($context->getCustomer()?->getAccountType() === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
-            $isReachedCompanyTaxFreeAmount = $this->taxDetector->isCompanyTaxFree($context, $country)
-                && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount, CountryDefinition::TYPE_COMPANY_TAX_FREE);
-
-            if ($isReachedCompanyTaxFreeAmount) {
-                return CartPrice::TAX_STATE_FREE;
-            }
-        } else {
-            $isReachedCustomerTaxFreeAmount = $country->getCustomerTax()->getEnabled() && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount);
-
-            if ($isReachedCustomerTaxFreeAmount) {
-                return CartPrice::TAX_STATE_FREE;
-            }
         }
 
         if ($this->taxDetector->useGross($context)) {
@@ -276,6 +260,39 @@ class CartRuleLoader implements ResetInterface
         }
 
         return \count($timestamps) !== $cart->getLineItems()->count();
+    }
+
+    /**
+     * Digital products are exempted by the billing country, all other products by the delivery country
+     */
+    private function isTaxFree(SalesChannelContext $context, string $productType, float $cartNetAmount): bool
+    {
+        $country = $productType === ProductDefinition::TYPE_DIGITAL
+            ? $context->getBillingLocation()->getCountry()
+            : $context->getShippingLocation()->getCountry();
+
+        if ($context->getCustomer()?->getAccountType() === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            return $this->taxDetector->isCompanyTaxFree($context, $country)
+                && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount, CountryDefinition::TYPE_COMPANY_TAX_FREE);
+        }
+
+        return $country->getCustomerTax()->getEnabled() && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount);
+    }
+
+    /**
+     * @return list<string> sorted product types of the cart's products, physical for a cart without products
+     */
+    private function getProductTypes(Cart $cart): array
+    {
+        $productTypes = [];
+        foreach ($cart->getLineItems()->filterFlatByType(LineItem::PRODUCT_LINE_ITEM_TYPE) as $lineItem) {
+            $productType = $lineItem->isProductType(ProductDefinition::TYPE_DIGITAL) ? ProductDefinition::TYPE_DIGITAL : ProductDefinition::TYPE_PHYSICAL;
+            $productTypes[$productType] = $productType;
+        }
+
+        \ksort($productTypes);
+
+        return array_values($productTypes) ?: [ProductDefinition::TYPE_PHYSICAL];
     }
 
     private function isReachedCountryTaxFreeAmount(
@@ -332,13 +349,25 @@ class CartRuleLoader implements ResetInterface
         if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
             $totalCartNetAmount -= $cart->getLineItems()->getPrices()->getCalculatedTaxes()->getAmount();
         }
-        $taxState = $this->detectTaxType($context, $totalCartNetAmount);
+        $productTypes = $this->getProductTypes($cart);
+        $taxFreeProductTypes = array_values(array_filter(
+            $productTypes,
+            fn (string $productType) => $this->isTaxFree($context, $productType, $totalCartNetAmount),
+        ));
+
+        $taxState = $this->detectTaxType($context, $totalCartNetAmount, $taxFreeProductTypes === $productTypes);
+        // A tax-free cart exempts every item, so only a taxed cart exempts single product types
+        if ($taxState === CartPrice::TAX_STATE_FREE) {
+            $taxFreeProductTypes = [];
+        }
+
         $previous = $context->getTaxState();
-        if ($taxState === $previous) {
+        if ($taxState === $previous && $taxFreeProductTypes === $context->getTaxFreeProductTypes()) {
             return $cart;
         }
 
         $context->setTaxState($taxState);
+        $context->setTaxFreeProductTypes($taxFreeProductTypes);
         $cart->setData(null);
         $cart = $this->processor->process($cart, $context, $behaviorContext);
         if ($previous !== CartPrice::TAX_STATE_FREE) {

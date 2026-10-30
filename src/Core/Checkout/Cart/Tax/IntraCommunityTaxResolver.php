@@ -2,10 +2,14 @@
 
 namespace Shopware\Core\Checkout\Cart\Tax;
 
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -20,6 +24,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * Decides the intra-Eu B2B exemption and the tax country by the seller's member state. The seller's
  * country is set in Settings > Basic information and falls back to the sales channel's default country.
+ * Physical goods are decided by the delivery country, digital products by the billing country.
  *
  * @final
  */
@@ -50,33 +55,33 @@ class IntraCommunityTaxResolver implements ResetInterface
      *
      * @param array<string>|null $vatIds
      */
-    public function isExempt(?string $accountType, ?array $vatIds, CountryEntity $deliveryCountry, string $salesChannelId): bool
+    public function isExempt(?string $accountType, ?array $vatIds, CountryEntity $country, string $salesChannelId): bool
     {
-        if (!$this->appliesTo($accountType, $deliveryCountry)) {
+        if (!$this->appliesTo($accountType, $country)) {
             return false;
         }
 
-        if (!$deliveryCountry->getIsEu()) {
+        if (!$country->getIsEu()) {
             return true;
         }
 
-        return $this->hasIntraCommunityVatId($vatIds, $deliveryCountry, $salesChannelId);
+        return $this->hasIntraCommunityVatId($vatIds, $country, $salesChannelId);
     }
 
     /**
      * @param array<string>|null $vatIds
      */
-    public function getTaxCountryId(?string $accountType, ?array $vatIds, CountryEntity $deliveryCountry, string $salesChannelId): string
+    public function getTaxCountryId(?string $accountType, ?array $vatIds, CountryEntity $country, string $salesChannelId): string
     {
         $vatIds = array_filter($vatIds ?? []);
 
         // Keep VAT-based country selection opt-in through the destination's B2B setting.
-        if (!$this->appliesTo($accountType, $deliveryCountry)
-            || !$deliveryCountry->getIsEu()
+        if (!$this->appliesTo($accountType, $country)
+            || !$country->getIsEu()
             || $vatIds === []
             || !$this->hasSellerStateVatId($vatIds, $this->getSellerState($salesChannelId))
         ) {
-            return $deliveryCountry->getId();
+            return $country->getId();
         }
 
         return $this->getSellerCountryId($salesChannelId);
@@ -84,21 +89,22 @@ class IntraCommunityTaxResolver implements ResetInterface
 
     public function isIntraCommunityDelivery(OrderEntity $order): bool
     {
-        $accountType = $order->getOrderCustomer()?->getCustomer()?->getAccountType();
-        if ($accountType !== CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
-            return false;
-        }
-
         $delivery = Feature::isActive('v6.8.0.0')
             ? $order->getPrimaryOrderDelivery()
             : $order->getDeliveries()?->first();
-        $country = $delivery?->getShippingOrderAddress()?->getCountry();
 
-        if ($country === null || !$country->getIsEu() || $order->getPrice()->getTaxStatus() !== CartPrice::TAX_STATE_FREE) {
-            return false;
-        }
+        return $this->isIntraCommunitySupply($order, $delivery?->getShippingOrderAddress()?->getCountry(), ProductDefinition::TYPE_PHYSICAL);
+    }
 
-        return $this->hasIntraCommunityVatId($order->getOrderCustomer()?->getVatIds(), $country, $order->getSalesChannelId());
+    /**
+     * Digital products sold to a business of another member state are taxed by the buyer, which the invoice has to state.
+     */
+    public function isReverseCharge(OrderEntity $order): bool
+    {
+        $billingAddress = $order->getBillingAddress() ?? $order->getAddresses()?->get($order->getBillingAddressId());
+
+        return $this->getProductLineItems($order, ProductDefinition::TYPE_DIGITAL)->count() > 0
+            && $this->isIntraCommunitySupply($order, $billingAddress?->getCountry(), ProductDefinition::TYPE_DIGITAL);
     }
 
     public function reset(): void
@@ -107,9 +113,60 @@ class IntraCommunityTaxResolver implements ResetInterface
     }
 
     /**
+     * Saved orders keep their note when the B2B exemption is disabled later
+     */
+    private function isIntraCommunitySupply(OrderEntity $order, ?CountryEntity $country, string $productType): bool
+    {
+        $accountType = $order->getOrderCustomer()?->getCustomer()?->getAccountType();
+        if ($accountType !== CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            return false;
+        }
+
+        if ($country === null || !$country->getIsEu() || !$this->isTaxFree($order, $productType)) {
+            return false;
+        }
+
+        return $this->hasIntraCommunityVatId($order->getOrderCustomer()?->getVatIds(), $country, $order->getSalesChannelId());
+    }
+
+    /**
+     * A taxed order exempts a product type by taxing its line items at 0 %.
+     */
+    private function isTaxFree(OrderEntity $order, string $productType): bool
+    {
+        if ($order->getPrice()->getTaxStatus() === CartPrice::TAX_STATE_FREE) {
+            return true;
+        }
+
+        $lineItems = $this->getProductLineItems($order, $productType);
+        foreach ($lineItems as $lineItem) {
+            foreach ($lineItem->getPrice()?->getCalculatedTaxes() ?? [] as $calculatedTax) {
+                if ($calculatedTax->getTaxRate() > 0.0) {
+                    return false;
+                }
+            }
+        }
+
+        return $lineItems->count() > 0;
+    }
+
+    /**
+     * Every product type other than digital is taxed like physical goods
+     */
+    private function getProductLineItems(OrderEntity $order, string $productType): OrderLineItemCollection
+    {
+        return ($order->getLineItems() ?? new OrderLineItemCollection())->filter(static function (OrderLineItemEntity $lineItem) use ($productType): bool {
+            $lineItemType = ($lineItem->getPayload() ?? [])[LineItem::PAYLOAD_PRODUCT_TYPE] ?? null;
+            $taxProductType = $lineItemType === ProductDefinition::TYPE_DIGITAL ? ProductDefinition::TYPE_DIGITAL : ProductDefinition::TYPE_PHYSICAL;
+
+            return $lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE && $taxProductType === $productType;
+        });
+    }
+
+    /**
      * @param array<string>|null $vatIds
      */
-    private function hasIntraCommunityVatId(?array $vatIds, CountryEntity $deliveryCountry, string $salesChannelId): bool
+    private function hasIntraCommunityVatId(?array $vatIds, CountryEntity $country, string $salesChannelId): bool
     {
         $vatIds = array_filter($vatIds ?? []);
         if ($vatIds === []) {
@@ -117,12 +174,12 @@ class IntraCommunityTaxResolver implements ResetInterface
         }
 
         $sellerState = $this->getSellerState($salesChannelId);
-        if (($sellerState !== null && $deliveryCountry->getIso() === $sellerState) || $this->hasSellerStateVatId($vatIds, $sellerState)) {
+        if (($sellerState !== null && $country->getIso() === $sellerState) || $this->hasSellerStateVatId($vatIds, $sellerState)) {
             return false;
         }
 
-        $pattern = (string) $deliveryCountry->getVatIdPattern();
-        if ($pattern === '' || !$deliveryCountry->getCheckVatIdPattern()) {
+        $pattern = (string) $country->getVatIdPattern();
+        if ($pattern === '' || !$country->getCheckVatIdPattern()) {
             return true;
         }
 
@@ -156,9 +213,9 @@ class IntraCommunityTaxResolver implements ResetInterface
         return false;
     }
 
-    private function appliesTo(?string $accountType, CountryEntity $deliveryCountry): bool
+    private function appliesTo(?string $accountType, CountryEntity $country): bool
     {
-        return $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && $deliveryCountry->getCompanyTax()->getEnabled();
+        return $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && $country->getCompanyTax()->getEnabled();
     }
 
     /**

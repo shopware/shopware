@@ -20,6 +20,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
 use Shopware\Core\Content\Product\Extension\ProductPriceCalculationExtension;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -118,8 +119,8 @@ class ProductPriceCalculatorTest extends TestCase
         $context = static::createStub(SalesChannelContext::class);
         $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
-        $context->method('getTaxState')->willReturn($state);
-        $context->method('buildTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(10)]));
+        $context->method('getProductTaxState')->willReturn($state);
+        $context->method('buildProductTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(10)]));
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
         $this->calculator->calculate([$product], $context);
@@ -145,6 +146,44 @@ class ProductPriceCalculatorTest extends TestCase
         yield 'Net price will be used for net price state' => [$product, CartPrice::TAX_STATE_NET, 10];
 
         yield 'Net price will be used for tax free state' => [$product, CartPrice::TAX_STATE_FREE, 10];
+    }
+
+    public function testProductIsPricedByTheTaxStateAndRulesOfItsType(): void
+    {
+        $digital = (new PartialEntity())->assign([
+            'taxId' => Uuid::randomHex(),
+            'type' => ProductDefinition::TYPE_DIGITAL,
+            'price' => new PriceCollection([new Price(Defaults::CURRENCY, 10, 20, false)]),
+        ]);
+        $physical = (new PartialEntity())->assign([
+            'taxId' => Uuid::randomHex(),
+            'price' => new PriceCollection([new Price(Defaults::CURRENCY, 10, 20, false)]),
+        ]);
+
+        // the cart is taxed, but exempts its digital products
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
+        $context->method('getContext')->willReturn(Context::createDefaultContext());
+        $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
+        $context->method('getProductTaxState')->willReturnCallback(
+            static fn (string $productType) => $productType === ProductDefinition::TYPE_DIGITAL ? CartPrice::TAX_STATE_FREE : CartPrice::TAX_STATE_GROSS
+        );
+        $context->method('buildProductTaxRules')->willReturnCallback(
+            static fn (string $taxId, string $productType) => new TaxRuleCollection([new TaxRule($productType === ProductDefinition::TYPE_DIGITAL ? 0.0 : 19.0)])
+        );
+        $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+
+        $this->calculator->calculate([$digital, $physical], $context);
+
+        $digitalPrice = $digital->get('calculatedPrice');
+        static::assertInstanceOf(CalculatedPrice::class, $digitalPrice);
+        static::assertSame(10.0, $digitalPrice->getTotalPrice(), 'an exempt product is charged its net price');
+        static::assertEquals(new TaxRuleCollection([new TaxRule(0.0)]), $digitalPrice->getTaxRules());
+
+        $physicalPrice = $physical->get('calculatedPrice');
+        static::assertInstanceOf(CalculatedPrice::class, $physicalPrice);
+        static::assertSame(20.0, $physicalPrice->getTotalPrice(), 'a product without a loaded type is priced like physical goods');
+        static::assertEquals(new TaxRuleCollection([new TaxRule(19.0)]), $physicalPrice->getTaxRules());
     }
 
     public function testUnitsAreLoadedOnceUntilReset(): void
@@ -279,7 +318,7 @@ class ProductPriceCalculatorTest extends TestCase
         $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
         $context->method('getRuleIds')->willReturn([Defaults::CURRENCY]);
-        $context->method('buildTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(19)]));
+        $context->method('buildProductTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(19)]));
 
         $this->calculator->calculate([$product], $context);
 
@@ -314,7 +353,7 @@ class ProductPriceCalculatorTest extends TestCase
         $context->method('getContext')->willReturn(Context::createDefaultContext());
         // ruleA takes precedence because it is listed first in the context rule ids
         $context->method('getRuleIds')->willReturn([$ruleA, $ruleB]);
-        $context->method('buildTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(19)]));
+        $context->method('buildProductTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(19)]));
 
         $product = (new PartialEntity())->assign([
             'id' => Uuid::randomHex(),
@@ -359,7 +398,7 @@ class ProductPriceCalculatorTest extends TestCase
         $context->method('getContext')->willReturn(Context::createDefaultContext());
         // the first context rule has no price, the calculator must fall through to the next
         $context->method('getRuleIds')->willReturn([$ruleWithoutPrices, $ruleWithPrices]);
-        $context->method('buildTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(19)]));
+        $context->method('buildProductTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(19)]));
 
         $product = (new PartialEntity())->assign([
             'id' => Uuid::randomHex(),

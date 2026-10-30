@@ -65,6 +65,7 @@
         "serviceDateNotice": "Service date equivalent to invoice date",
         "placeOfFulfillment": "<strong>Place of fulfillment:</strong> %placeOfFulfillment%",
         "intraCommunity": "Intra-community delivery (EU)",
+        "reverseCharge": "Reverse charge",
         "shippingAddress": "Shipping address",
         "phoneNumber": "Phone %phoneNumber%",
         "email": "Email address: %email%",

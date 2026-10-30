@@ -3,14 +3,24 @@
 namespace Shopware\Tests\Unit\Core\System\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
+use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection as TaxRuleEntityCollection;
+use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\Test\Generator;
 
 /**
@@ -180,5 +190,90 @@ class SalesChannelContextTest extends TestCase
 
         $this->expectExceptionObject(SalesChannelException::contextTokenNotAccessible());
         $salesChannelContext->getToken();
+    }
+
+    public function testDigitalProductsUseTheDigitalTaxRules(): void
+    {
+        $context = $this->createContext(digitalTaxRules: $this->createTaxes(21.0));
+
+        static::assertEquals(new TaxRuleCollection([new TaxRule(19.0)]), $context->buildTaxRules(Generator::TAX));
+        static::assertEquals(new TaxRuleCollection([new TaxRule(19.0)]), $context->buildProductTaxRules(Generator::TAX, ProductDefinition::TYPE_PHYSICAL));
+        static::assertEquals(new TaxRuleCollection([new TaxRule(19.0)]), $context->buildProductTaxRules(Generator::TAX, 'custom-type'));
+        static::assertEquals(new TaxRuleCollection([new TaxRule(21.0)]), $context->buildProductTaxRules(Generator::TAX, ProductDefinition::TYPE_DIGITAL));
+    }
+
+    public function testDigitalProductsFallBackToTheShippingLocation(): void
+    {
+        $context = $this->createContext();
+
+        static::assertSame($context->getShippingLocation(), $context->getBillingLocation());
+        static::assertSame($context->getTaxRules(), $context->getDigitalTaxRules());
+    }
+
+    public function testBillingLocationIsUsedWhenGiven(): void
+    {
+        $billingLocation = ShippingLocation::createFromCountry(new CountryEntity());
+
+        static::assertSame($billingLocation, $this->createContext(billingLocation: $billingLocation)->getBillingLocation());
+    }
+
+    /**
+     * @param list<string> $taxFreeProductTypes
+     */
+    #[DataProvider('taxFreeProductTypeProvider')]
+    public function testTaxFreeProductTypeIsTaxedAtZeroPercent(array $taxFreeProductTypes, string $productType, bool $isTaxFree): void
+    {
+        $context = $this->createContext(digitalTaxRules: $this->createTaxes(21.0));
+        $context->setTaxState(CartPrice::TAX_STATE_GROSS);
+        $context->setTaxFreeProductTypes($taxFreeProductTypes);
+
+        static::assertSame($taxFreeProductTypes, $context->getTaxFreeProductTypes());
+        static::assertSame($isTaxFree ? CartPrice::TAX_STATE_FREE : CartPrice::TAX_STATE_GROSS, $context->getProductTaxState($productType));
+
+        $taxRate = $productType === ProductDefinition::TYPE_DIGITAL ? 21.0 : 19.0;
+        static::assertEquals(
+            new TaxRuleCollection([new TaxRule($isTaxFree ? 0.0 : $taxRate)]),
+            $context->buildProductTaxRules(Generator::TAX, $productType),
+        );
+    }
+
+    /**
+     * @return iterable<string, array{list<string>, string, bool}>
+     */
+    public static function taxFreeProductTypeProvider(): iterable
+    {
+        yield 'exempt digital product' => [[ProductDefinition::TYPE_DIGITAL], ProductDefinition::TYPE_DIGITAL, true];
+        yield 'physical product next to exempt digital products' => [[ProductDefinition::TYPE_DIGITAL], ProductDefinition::TYPE_PHYSICAL, false];
+        yield 'exempt physical product' => [[ProductDefinition::TYPE_PHYSICAL], ProductDefinition::TYPE_PHYSICAL, true];
+        yield 'custom product type is exempted like physical goods' => [[ProductDefinition::TYPE_PHYSICAL], 'custom-type', true];
+        yield 'digital product next to exempt physical products' => [[ProductDefinition::TYPE_PHYSICAL], ProductDefinition::TYPE_DIGITAL, false];
+        yield 'nothing exempt' => [[], ProductDefinition::TYPE_DIGITAL, false];
+    }
+
+    public function testTaxFreeCartKeepsTheTaxRules(): void
+    {
+        $context = $this->createContext();
+        $context->setTaxState(CartPrice::TAX_STATE_FREE);
+
+        static::assertSame(CartPrice::TAX_STATE_FREE, $context->getProductTaxState(ProductDefinition::TYPE_DIGITAL));
+        static::assertEquals(new TaxRuleCollection([new TaxRule(19.0)]), $context->buildProductTaxRules(Generator::TAX, ProductDefinition::TYPE_DIGITAL));
+    }
+
+    private function createContext(?ShippingLocation $billingLocation = null, ?TaxCollection $digitalTaxRules = null): SalesChannelContext
+    {
+        return Generator::generateSalesChannelContext(
+            taxRules: $this->createTaxes(19.0),
+            overrides: ['billingLocation' => $billingLocation, 'digitalTaxRules' => $digitalTaxRules],
+        );
+    }
+
+    private function createTaxes(float $taxRate): TaxCollection
+    {
+        $tax = new TaxEntity();
+        $tax->setId(Generator::TAX);
+        $tax->setTaxRate($taxRate);
+        $tax->setRules(new TaxRuleEntityCollection());
+
+        return new TaxCollection([$tax]);
     }
 }

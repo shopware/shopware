@@ -34,6 +34,11 @@ All blocks of this template are available in the template which renders this tem
                         {{ 'document.intraCommunity'|trans|sw_sanitize(null, true) }}<br>
                     {% endif %}
                 {% endblock %}
+                {%- block document_reverse_charge -%}
+                    {%- if config.reverseCharge %}
+                        {{ 'document.reverseCharge'|trans|sw_sanitize(null, true) }}<br>
+                    {%- endif -%}
+                {%- endblock %}
             {% endblock %}
         </div>
     {% endblock %}

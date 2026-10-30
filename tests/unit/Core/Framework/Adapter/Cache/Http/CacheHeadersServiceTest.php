@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheHeadersService;
@@ -169,6 +170,28 @@ class CacheHeadersServiceTest extends TestCase
         static::assertSame('language-a', $storefront->get(HttpCacheCookieEvent::LANGUAGE_ID));
         static::assertSame('language-a', $storeApi->get(HttpCacheCookieEvent::LANGUAGE_ID));
         static::assertSame($storefront->getHash(), $storeApi->getHash());
+    }
+
+    public function testTaxFreeProductTypesChangeTheCacheHash(): void
+    {
+        $taxed = $this->cacheHeadersService->applyCacheHash(
+            new Request(),
+            $this->createCacheHashContext('language-a'),
+            $this->createFilledCart(),
+            new Response()
+        );
+
+        $exempt = $this->cacheHeadersService->applyCacheHash(
+            new Request(),
+            $this->createCacheHashContext('language-a', taxFreeProductTypes: [ProductDefinition::TYPE_DIGITAL]),
+            $this->createFilledCart(),
+            new Response()
+        );
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $taxed);
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $exempt);
+        static::assertSame('gross', $taxed->get(HttpCacheCookieEvent::TAX_STATE));
+        static::assertNotSame($taxed->getHash(), $exempt->getHash());
     }
 
     public function testStoreNonDefaultLanguageRequiresCacheHash(): void
@@ -479,11 +502,15 @@ class CacheHeadersServiceTest extends TestCase
         static::assertNotSame($firstHash, $secondHash);
     }
 
+    /**
+     * @param list<string> $taxFreeProductTypes
+     */
     private function createCacheHashContext(
         string $languageId,
         string $shippingCountryId = 'country-default',
         string $paymentMethodId = 'payment-default',
-        string $shippingMethodId = 'shipping-default'
+        string $shippingMethodId = 'shipping-default',
+        array $taxFreeProductTypes = []
     ): SalesChannelContext {
         $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getCustomer')->willReturn(null);
@@ -493,6 +520,7 @@ class CacheHeadersServiceTest extends TestCase
         $salesChannelContext->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
         $salesChannelContext->method('getLanguageId')->willReturn($languageId);
         $salesChannelContext->method('getTaxState')->willReturn('gross');
+        $salesChannelContext->method('getTaxFreeProductTypes')->willReturn($taxFreeProductTypes);
         $salesChannelContext->method('getShippingLocation')->willReturn(self::createShippingLocation($shippingCountryId));
         $salesChannelContext->method('getPaymentMethod')->willReturn((new PaymentMethodEntity())->assign(['id' => $paymentMethodId]));
         $salesChannelContext->method('getShippingMethod')->willReturn((new ShippingMethodEntity())->assign(['id' => $shippingMethodId]));

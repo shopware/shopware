@@ -96,7 +96,8 @@ class CacheHeadersService
             HttpCacheCookieEvent::RULE_IDS => $ruleIds,
             HttpCacheCookieEvent::VERSION_ID => $context->getVersionId(),
             HttpCacheCookieEvent::CURRENCY_ID => $context->getCurrencyId(),
-            HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),
+            // Exempt product types are priced net in a gross context
+            HttpCacheCookieEvent::TAX_STATE => implode(',', [$context->getTaxState(), ...$context->getTaxFreeProductTypes()]),
             HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
             HttpCacheCookieEvent::LANGUAGE_ID => $context->getLanguageId(),
         ];

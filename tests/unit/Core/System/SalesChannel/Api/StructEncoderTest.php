@@ -277,6 +277,44 @@ class StructEncoderTest extends TestCase
         static::assertEquals($expectedCustomFields, $encoded['translated']['customFields']);
     }
 
+    public function testResetReloadsBlockedCustomFields(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+
+        $product->setName('test');
+        $product->setCustomFields(['visible' => 'test', 'blocked' => 'test']);
+
+        $connection = $this->createMock(Connection::class);
+
+        $connection->expects($this->exactly(2))
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                [
+                    'entity_name' => 'product',
+                    'name' => 'blocked',
+                ],
+            ]);
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class], $connection);
+
+        $expectedCustomFields = [
+            'visible' => 'test',
+        ];
+
+        $encoded = $structEncoder->encode($product, new ResponseFields(null));
+
+        static::assertArrayHasKey('customFields', $encoded);
+        static::assertSame($expectedCustomFields, $encoded['customFields']);
+
+        $structEncoder->reset();
+
+        $encoded = $structEncoder->encode($product, new ResponseFields(null));
+
+        static::assertArrayHasKey('customFields', $encoded);
+        static::assertSame($expectedCustomFields, $encoded['customFields']);
+    }
+
     public function testProtectedAssociationIsNotExposedByNestedInclude(): void
     {
         $product = new ProductEntity();

@@ -57,18 +57,14 @@ function isBaselined(message: string): boolean {
 }
 
 /**
- * The two sides of a major's feature-flag branch, for `Feature.branch()`.
+ * The spelling-independent key of a major flag, so `v6.8.0.0` and `V6_8_0_0` silence the same deprecations.
  *
- * @private
  * @example
- * const options: MajorBranches<string, string> = { beforeMajor: () => legacyLabel(), sinceMajor: () => label() };
+ * silenceKey('v6.8.0.0'); // 'V6_8_0_0'
  */
-export type MajorBranches<TBefore, TSince> = {
-    /** Runs while the major is inactive, with that major's deprecations silenced. Must be synchronous. */
-    beforeMajor: () => TBefore;
-    /** Runs once the major is active. Its deprecations report as usual. */
-    sinceMajor?: () => TSince;
-};
+function silenceKey(majorFlag: string): string {
+    return majorFlag.toUpperCase().replace(/\./g, '_');
+}
 
 /**
  * A static registry containing a list of all registered flags and the associated activation state
@@ -79,8 +75,10 @@ export default class Feature {
 
     private static reportedDeprecations = new Set<string>();
 
-    /** How deep each major's `Feature.branch()` calls are nested, by normalized flag name. */
+    /** How deep the `Feature.silence()` calls of each major are nested, by `silenceKey()`. */
     private static silencedMajors = new Map<string, number>();
+
+    private static silenceChecks: Array<(majorFlag: string) => boolean> = [];
 
     static init(flagConfig: { [featureName: string]: boolean }): void {
         Object.entries(flagConfig).forEach(([flagName, isActive]) => {
@@ -123,38 +121,35 @@ export default class Feature {
     }
 
     /**
-     * Branches on a major: runs `beforeMajor` while `majorFlag` is inactive, `sinceMajor` once it is active,
-     * and returns what the branch returns. Use it to stay backward compatible until the major, like the PHP
-     * `Feature::silent()`: `beforeMajor` keeps the old path, which may still call deprecated APIs, and runs with
-     * the deprecations of `majorFlag` silenced, as the branch already handles them. Calls of the same APIs outside
-     * of a branch still report.
+     * Runs `callback` with the deprecations of `majorFlag` silenced and returns its result, like the PHP
+     * `Feature::silent()`. Use it on the pre-major side of a feature-flag branch, where the old path still calls
+     * deprecated APIs on purpose. Calls of the same APIs outside of it still report.
      *
-     * Silencing ends when `beforeMajor` returns, so it must be synchronous: a returned promise throws.
+     * Silencing ends when `callback` returns, so it must be synchronous: a returned promise throws. Once
+     * `majorFlag` is active nothing is silenced, so a call outside of its branch still throws.
      *
-     * @experimental stableVersion:v6.8.0 feature:ADMIN_FEATURE_BRANCH
+     * @experimental stableVersion:v6.8.0 feature:ADMIN_DEPRECATION_SILENCE
      * @example
-     * Shopware.Feature.branch('V6_8_0_0', {
-     *     beforeMajor: () => this.initModuleLocales(),
-     *     sinceMajor: () => registerModuleLocales(),
-     * });
+     * if (!Shopware.Feature.isActive('V6_8_0_0')) {
+     *     Shopware.Feature.silence('V6_8_0_0', () => this.initModuleLocales());
+     * } else {
+     *     registerModuleLocales();
+     * }
      */
-    static branch<TBefore, TSince = undefined>(
-        majorFlag: string,
-        { beforeMajor, sinceMajor }: MajorBranches<TBefore, TSince>,
-    ): TBefore | TSince | undefined {
+    static silence<TResult>(majorFlag: string, callback: () => TResult): TResult {
         if (this.isActive(majorFlag)) {
-            return sinceMajor?.();
+            return callback();
         }
 
-        const flag = majorFlag.toUpperCase();
+        const flag = silenceKey(majorFlag);
         this.silencedMajors.set(flag, (this.silencedMajors.get(flag) ?? 0) + 1);
 
         try {
-            const result = beforeMajor();
+            const result = callback();
 
             if (result instanceof Promise) {
                 throw new Error(
-                    `Feature.branch('${majorFlag}') silences only synchronous code: await outside of \`beforeMajor\`.`,
+                    `Feature.silence('${majorFlag}') silences only synchronous code: await outside of the callback.`,
                 );
             }
 
@@ -171,14 +166,27 @@ export default class Feature {
     }
 
     /**
-     * Whether a `Feature.branch()` currently runs its `beforeMajor` for `majorFlag`, which silences its deprecations.
+     * Adds a check that silences deprecations beyond `Feature.silence()`. The app layer registers the one of the
+     * `v-silence-flag` directive here, as `src/core` does not know Vue.
      *
      * @private
      * @example
-     * Feature.isSilenced('V6_8_0_0'); // true inside `Feature.branch('V6_8_0_0', { beforeMajor })`
+     * Feature.addSilenceCheck((majorFlag) => isSilencedByTemplate(majorFlag));
+     */
+    static addSilenceCheck(check: (majorFlag: string) => boolean): void {
+        this.silenceChecks.push(check);
+    }
+
+    /**
+     * Whether the deprecations of `majorFlag` are silenced right now: inside a `Feature.silence()` callback, or
+     * by a registered check like the `v-silence-flag` directive.
+     *
+     * @private
+     * @example
+     * Feature.isSilenced('V6_8_0_0'); // true inside `Feature.silence('V6_8_0_0', callback)`
      */
     static isSilenced(majorFlag: string): boolean {
-        return this.silencedMajors.has(majorFlag.toUpperCase());
+        return this.silencedMajors.has(silenceKey(majorFlag)) || this.silenceChecks.some((check) => check(majorFlag));
     }
 
     /**
@@ -186,8 +194,8 @@ export default class Feature {
      * warns while `majorFlag` is inactive, throws once it is active. A message listed in
      * `src/core/deprecation-baseline.json` is known core debt, so it logs an error instead of throwing.
      * An unregistered flag can never become active, so it logs an error instead of the warning, unless it is
-     * an upcoming major the backend does not register yet. Inside the `beforeMajor` of a `Feature.branch()`
-     * for `majorFlag` it does nothing.
+     * an upcoming major the backend does not register yet. While `Feature.silence()` or `v-silence-flag`
+     * silence `majorFlag` it does nothing.
      *
      * @example
      * Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'oldMethod() is deprecated. Use newMethod() instead.');

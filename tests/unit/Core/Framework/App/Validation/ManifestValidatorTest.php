@@ -6,7 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Validation\AbstractManifestValidator;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
-use Shopware\Core\Framework\App\Validation\Error\NotHookableError;
+use Shopware\Core\Framework\App\Validation\Error\IncompatibleAppError;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -21,30 +21,30 @@ class ManifestValidatorTest extends TestCase
 {
     public function testValidateReturnsEveryError(): void
     {
-        $notHookable = static::createStub(AbstractManifestValidator::class);
-        $notHookable->method('validate')->willReturn([new NotHookableError(['hook: test.event'])]);
+        $incompatible = static::createStub(AbstractManifestValidator::class);
+        $incompatible->method('validate')->willReturn([new IncompatibleAppError('test')]);
 
         $badName = static::createStub(AbstractManifestValidator::class);
         $badName->method('validate')->willReturn([new AppNameError('test')]);
 
-        $result = (new ManifestValidator([$notHookable, $badName]))
+        $result = (new ManifestValidator([$incompatible, $badName]))
             ->validate(ManifestFixture::empty(), Context::createDefaultContext());
 
         static::assertFalse($result->isOk());
         static::assertCount(2, $result->errors);
-        static::assertInstanceOf(NotHookableError::class, $result->errors[0]);
+        static::assertInstanceOf(IncompatibleAppError::class, $result->errors[0]);
         static::assertInstanceOf(AppNameError::class, $result->errors[1]);
     }
 
     public function testValidateRunsEveryValidator(): void
     {
-        $notHookable = static::createStub(AbstractManifestValidator::class);
-        $notHookable->method('validate')->willReturn([new NotHookableError(['hook: test.event'])]);
+        $incompatible = static::createStub(AbstractManifestValidator::class);
+        $incompatible->method('validate')->willReturn([new IncompatibleAppError('test')]);
 
         $later = $this->createMock(AbstractManifestValidator::class);
         $later->expects($this->once())->method('validate')->willReturn([]);
 
-        (new ManifestValidator([$notHookable, $later]))
+        (new ManifestValidator([$incompatible, $later]))
             ->validate(ManifestFixture::empty(), Context::createDefaultContext());
     }
 

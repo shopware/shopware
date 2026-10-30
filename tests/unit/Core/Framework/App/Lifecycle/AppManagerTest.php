@@ -32,7 +32,9 @@ use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Url\VerificationState;
 use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
+use Shopware\Core\Framework\App\Validation\CompatibilityValidator;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
+use Shopware\Core\Framework\App\Validation\Error\UnmetRequirementError;
 use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -144,7 +146,7 @@ class AppManagerTest extends TestCase
         $requirementsValidator->expects($this->once())
             ->method('validate')
             ->with($manifest)
-            ->willReturn([$violation]);
+            ->willReturn([new UnmetRequirementError($violation)]);
 
         $this->expectExceptionObject(AppException::requirementsNotMet($violation));
 
@@ -164,7 +166,7 @@ class AppManagerTest extends TestCase
         $requirementsValidator->expects($this->once())
             ->method('validate')
             ->with($manifest)
-            ->willReturn([$violation]);
+            ->willReturn([new UnmetRequirementError($violation)]);
 
         $this->expectExceptionObject(AppException::requirementsNotMet($violation));
 
@@ -426,7 +428,7 @@ class AppManagerTest extends TestCase
         $this->requirementsValidator->expects($this->once())
             ->method('validate')
             ->with($manifest)
-            ->willReturn([$violation]);
+            ->willReturn([new UnmetRequirementError($violation)]);
 
         $this->appSecretRotationService->expects($this->never())->method('rotateNow');
 
@@ -1155,7 +1157,7 @@ XML,
             $this->scriptExecutor,
             __DIR__,
             $this->customEntityLifecycleService,
-            '6.5.0.0',
+            new CompatibilityValidator('6.5.0.0'),
             static::createStub(AppFeatureValidator::class),
             $this->sourceResolver,
             $this->configReader,

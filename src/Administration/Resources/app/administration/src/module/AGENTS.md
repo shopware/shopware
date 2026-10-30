@@ -22,9 +22,9 @@ A mini-module is a directory that works like a small library, with a public API 
 
 ```
 order-delivery/
-├── index.ts                  # The public API, for other Administration code and for extensions
+├── index.ts                  # The public API, for other Administration code and for extensions, every export marked @public
 ├── private.ts                # Optional: an API for Administration code only, every export marked @private
-├── src/                      # The implementation, imported only by index.ts, private.ts and src/ itself
+├── src/                      # The implementation, imported only by index.ts, private.ts and src/ itself, no markers
 └── tests/
     ├── requirements.spec.ts  # What someone decided, from the user's point of view
     ├── pinned.spec.ts        # The details and edge cases, as they behave today
@@ -34,8 +34,10 @@ order-delivery/
 
 Import a mini-module through its directory, which resolves to `index.ts`.
 An import of `.../private` from outside the module fails the lint unless the line disables the rule and says why, so every use of a private API shows up in review.
-`private.ts` never reaches extensions, and its exports still carry `@private`.
-The exports of `index.ts` need no `@private`, because they are public API and changes to them follow the deprecation process.
+Every export of `index.ts` is marked `@public`, and changes to it follow the deprecation process.
+Every export of `private.ts` is marked `@private`, and `private.ts` never reaches extensions.
+Exports in `src/` carry no marker, because the location already says they are private.
+A marker anywhere else in a mini-module means the export is in the wrong file, and `@public` outside a mini-module's `index.ts` is not allowed at all.
 
 Requirement tests stay rough.
 They describe what a merchant expects, in a few tests whose titles read like sentences, and each one has a `@requirement` doc comment that says why.

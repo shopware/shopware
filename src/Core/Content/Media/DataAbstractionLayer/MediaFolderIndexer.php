@@ -10,6 +10,7 @@ use Shopware\Core\Content\Media\Event\MediaFolderIndexerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
@@ -74,8 +75,27 @@ class MediaFolderIndexer extends EntityIndexer
         }
 
         $idsWithChangedParentIds = [];
-        foreach ($event->getResults(MediaFolderDefinition::ENTITY_NAME)->withPayloadProperties('parentId') as $result) {
-            $idsWithChangedParentIds[] = $result->getProperty('id');
+        $previousParentIds = [];
+        foreach ($event->getResults(MediaFolderDefinition::ENTITY_NAME) as $result) {
+            $parentIdChanged = \array_key_exists('parentId', $result->getPayload());
+
+            if ($parentIdChanged) {
+                $idsWithChangedParentIds[] = $result->getProperty('id');
+            }
+
+            $existence = $result->getExistence();
+            if ($existence === null) {
+                continue;
+            }
+
+            $childCountAffected = $parentIdChanged
+                || $result->getOperation() === EntityWriteResult::OPERATION_INSERT
+                || $result->getOperation() === EntityWriteResult::OPERATION_DELETE;
+
+            $state = $existence->getState();
+            if ($childCountAffected && isset($state['parent_id'])) {
+                $previousParentIds[] = Uuid::fromBytesToHex($state['parent_id']);
+            }
         }
 
         if ($idsWithChangedParentIds !== []) {
@@ -87,7 +107,7 @@ class MediaFolderIndexer extends EntityIndexer
             );
         }
 
-        $updates = array_values(array_merge($updates, $this->fetchChildren($updates), $this->getParentIds($updates)));
+        $updates = array_values(array_unique(array_merge($updates, $this->fetchChildren($updates), $this->getParentIds($updates), $previousParentIds)));
 
         return new MediaIndexingMessage($updates, null, $event->getContext());
     }

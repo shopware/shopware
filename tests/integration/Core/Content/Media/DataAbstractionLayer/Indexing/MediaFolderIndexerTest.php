@@ -113,6 +113,59 @@ class MediaFolderIndexerTest extends TestCase
         static::assertSame(1, $folder->getChildCount());
     }
 
+    public function testChildCountOfTheOldParentIsUpdatedWhenAFolderMoves(): void
+    {
+        $oldParentId = Uuid::randomHex();
+        $newParentId = Uuid::randomHex();
+        $childId = Uuid::randomHex();
+
+        $this->mediaFolderRepository->create([
+            [
+                'id' => $oldParentId,
+                'name' => 'old-parent',
+                'configurationId' => Uuid::randomHex(),
+                'children' => [
+                    ['id' => $childId, 'name' => 'child', 'configurationId' => Uuid::randomHex()],
+                ],
+            ],
+            [
+                'id' => $newParentId,
+                'name' => 'new-parent',
+                'configurationId' => Uuid::randomHex(),
+            ],
+        ], $this->context);
+
+        $this->mediaFolderRepository->update([
+            ['id' => $childId, 'parentId' => $newParentId],
+        ], $this->context);
+
+        static::assertSame(0, $this->getMediaFolderEntityFromId($oldParentId)->getChildCount());
+        static::assertSame(1, $this->getMediaFolderEntityFromId($newParentId)->getChildCount());
+    }
+
+    public function testChildCountOfTheParentIsUpdatedWhenAFolderIsDeleted(): void
+    {
+        $parentId = Uuid::randomHex();
+        $childId = Uuid::randomHex();
+
+        $this->mediaFolderRepository->create([
+            [
+                'id' => $parentId,
+                'name' => 'parent',
+                'configurationId' => Uuid::randomHex(),
+                'children' => [
+                    ['id' => $childId, 'name' => 'child', 'configurationId' => Uuid::randomHex()],
+                ],
+            ],
+        ], $this->context);
+
+        static::assertSame(1, $this->getMediaFolderEntityFromId($parentId)->getChildCount());
+
+        $this->mediaFolderRepository->delete([['id' => $childId]], $this->context);
+
+        static::assertSame(0, $this->getMediaFolderEntityFromId($parentId)->getChildCount());
+    }
+
     /**
      * @param list<array<string, list<array<string, list<array<string, list<array<string, string>>|string>>|string>>|string>> $data
      * @param list<string> $ids

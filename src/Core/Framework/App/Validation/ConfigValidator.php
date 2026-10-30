@@ -58,7 +58,7 @@ class ConfigValidator extends AbstractManifestValidator
             return [];
         }
 
-        return [new ConfigurationError($invalids)];
+        return [new ConfigurationError($invalids, $manifest->getMetadata()->getName())];
     }
 
     /**

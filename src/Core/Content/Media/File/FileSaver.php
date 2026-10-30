@@ -29,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Mime\MimeTypes;
 
 #[Package('discovery')]
 class FileSaver
@@ -80,6 +81,7 @@ class FileSaver
         );
 
         $this->validateFileExtension($mediaFile, $mediaId, $currentMedia->isPrivate());
+        $this->validateContentType($mediaFile);
         $this->fileContentValidationStrategy->validate($mediaFile);
 
         $this->removeOldMediaData($currentMedia, $context);
@@ -377,6 +379,37 @@ class FileSaver
         $this->fileNameValidator->validateFileName($destination);
 
         return $destination;
+    }
+
+    /**
+     * @throws MediaException
+     */
+    private function validateContentType(MediaFile $mediaFile): void
+    {
+        if ($this->isContentTypeAllowed($mediaFile)) {
+            return;
+        }
+
+        $contentType = mb_strtolower(trim(explode(';', $mediaFile->getMimeType(), 2)[0]));
+
+        throw MediaException::invalidFile(\sprintf('The content type "%s" does not match the file extension "%s"', $contentType, $mediaFile->getFileExtension()));
+    }
+
+    private function isContentTypeAllowed(MediaFile $mediaFile): bool
+    {
+        $contentType = mb_strtolower(trim(explode(';', $mediaFile->getMimeType(), 2)[0]));
+        if (!\in_array($contentType, ['text/html', 'application/xhtml+xml', 'text/xml', 'application/xml'], true) && !str_ends_with($contentType, '+xml')) {
+            return true;
+        }
+
+        $extension = mb_strtolower($mediaFile->getFileExtension());
+        $allowedContentTypes = MimeTypes::getDefault()->getMimeTypes($extension);
+        if ($extension === 'svg') {
+            // SVG content validation also checks files detected as generic XML.
+            $allowedContentTypes = [...$allowedContentTypes, 'text/xml', 'application/xml'];
+        }
+
+        return \in_array($contentType, $allowedContentTypes, true);
     }
 
     /**

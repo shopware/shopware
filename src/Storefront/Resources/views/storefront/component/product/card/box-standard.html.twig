@@ -30,7 +30,7 @@
             {% set productInformation = productInformation|merge({ variant: displayParent ? '' : variation|map(option => option.option)|join(', ') }) %}
         {% endif %}
 
-        <div class="card product-box box-{{ layout }}" data-product-information="{{ productInformation|json_encode }}">
+        <div class="card product-box box-{{ layout }}" data-product-information="{% block component_product_box_product_information %}{{ productInformation|json_encode }}{% endblock %}">
             {% block component_product_box_content %}
                 <div class="card-body">
                     {% block component_product_box_badges %}

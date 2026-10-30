@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media;
 
+use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,6 +24,7 @@ class MediaException extends HttpException
     public const MEDIA_EMPTY_FILE = 'CONTENT__MEDIA_EMPTY_FILE';
     public const MEDIA_INVALID_FILE = 'CONTENT__MEDIA_INVALID_FILE';
     public const MEDIA_EMPTY_FILE_NAME = 'CONTENT__MEDIA_EMPTY_FILE_NAME';
+    public const MEDIA_ILLEGAL_PATH = 'CONTENT__MEDIA_ILLEGAL_PATH';
     public const MEDIA_FOLDER_NOT_FOUND = 'CONTENT__MEDIA_FOLDER_NOT_FOUND';
     public const MEDIA_FOLDER_NAME_NOT_FOUND = 'CONTENT__MEDIA_FOLDER_NAME_NOT_FOUND';
     public const MEDIA_DEFAULT_FOLDER_ENTITY_NOT_FOUND = 'CONTENT__MEDIA_DEFAULT_FOLDER_ENTITY_NOT_FOUND';
@@ -79,7 +81,7 @@ class MediaException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::MEDIA_INVALID_URL,
             'Provided URL "{{ url }}" is invalid.',
-            ['url' => $url]
+            ['url' => PathHelper::stripCredentials($url)]
         );
     }
 
@@ -89,7 +91,7 @@ class MediaException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::MEDIA_ILLEGAL_URL,
             'Provided URL "{{ url }}" is not allowed.',
-            ['url' => $url]
+            ['url' => PathHelper::stripCredentials($url)]
         );
     }
 
@@ -108,7 +110,7 @@ class MediaException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::MEDIA_CANNOT_OPEN_SOURCE_STREAM_TO_READ,
             'Cannot open source stream to read from {{ url }}.',
-            ['url' => $url]
+            ['url' => PathHelper::stripCredentials($url)]
         );
     }
 
@@ -185,6 +187,15 @@ class MediaException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::MEDIA_EMPTY_FILE_NAME,
             'A valid filename must be provided.'
+        );
+    }
+
+    public static function illegalPath(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_ILLEGAL_PATH,
+            'The media path can only be set to an external http(s) URL.'
         );
     }
 
@@ -385,7 +396,7 @@ class MediaException extends HttpException
             Response::HTTP_NOT_FOUND,
             self::MEDIA_FILE_NOT_FOUND,
             'The file "{{ path }}" does not exist',
-            ['path' => $path]
+            ['path' => PathHelper::stripCredentials($path)]
         );
     }
 

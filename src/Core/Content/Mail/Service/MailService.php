@@ -4,12 +4,13 @@ namespace Shopware\Core\Content\Mail\Service;
 
 use Monolog\Level;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
+use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\Util\ExternalMediaUrl;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -88,7 +89,7 @@ class MailService extends AbstractMailService
 
             $salesChannel = $this->salesChannelRepository->search($criteria, $context)->getEntities()->get($salesChannelId);
             if ($salesChannel === null) {
-                throw new SalesChannelNotFoundException($salesChannelId);
+                throw MailException::salesChannelNotFound($salesChannelId);
             }
 
             $templateData['salesChannel'] = $salesChannel;
@@ -322,6 +323,15 @@ class MailService extends AbstractMailService
 
         $urls = [];
         foreach ($media as $mediaItem) {
+            if (ExternalMediaUrl::isExternal($mediaItem->getPath())) {
+                $this->logger->warning(
+                    'Media with an external URL cannot be attached to a mail and was skipped',
+                    ['mediaId' => $mediaItem->getId()]
+                );
+
+                continue;
+            }
+
             $urls[] = $mediaItem->getPath();
         }
 

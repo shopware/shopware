@@ -14,20 +14,26 @@ describe('core/factory/async-component.factory.ts: components declared with defi
     });
 
     it('registers the component under its declared name without loading it', () => {
+        // ARRANGE
         const load = jest.fn(() => Promise.resolve({ default: { template } }));
 
+        // ACT
         ComponentFactory.register(definePublicComponent({ name: 'sw-example', load }));
 
+        // ASSERT
         expect(ComponentFactory.getComponentRegistry().has('sw-example')).toBe(true);
         expect(load).not.toHaveBeenCalled();
     });
 
     it('loads the component when it is resolved', async () => {
+        // ARRANGE
         const load = jest.fn(() => Promise.resolve({ default: { template } }));
         ComponentFactory.register(definePublicComponent({ name: 'sw-example', load }));
 
+        // ACT
         const component = await ComponentFactory.getComponentRegistry().get('sw-example')();
 
+        // ASSERT
         expect(component).toEqual(expect.objectContaining({ name: 'sw-example' }));
         expect(load).toHaveBeenCalledTimes(1);
     });

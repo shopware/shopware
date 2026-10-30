@@ -31,6 +31,8 @@ function blocksOf(template: string | undefined): string[] {
  *
  * @example
  * findMissingPublicNames({ methods: ['save'] }, { methods: {} }); // → ['methods:save']
+ *
+ * @private
  */
 export function findMissingPublicNames(api: PublicComponentApi, component: ComponentConfig): string[] {
     const existing: Record<string, string[]> = {

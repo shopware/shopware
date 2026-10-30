@@ -61,7 +61,7 @@ ruleTester.run('private-feature-declarations', rule, {
                     });
                 };
             `,
-        }
+        },
     ],
     invalid: [
         {
@@ -69,14 +69,24 @@ ruleTester.run('private-feature-declarations', rule, {
             code: `
                 export default function testFunction() {}            
             `,
-            errors: [{ message: 'New exports need to be private. Old exports should be @deprecated tag:v6.X.0 - Will be private' }]
+            errors: [
+                {
+                    message:
+                        'New exports need to be private. Old exports should be @deprecated tag:v6.X.0 - Will be private',
+                },
+            ],
         },
         {
             name: 'Named export with private declaration',
             code: `
                 export const testFunction = () => {};
             `,
-            errors: [{ message: 'New exports need to be private. Old exports should be @deprecated tag:v6.X.0 - Will be private' }]
+            errors: [
+                {
+                    message:
+                        'New exports need to be private. Old exports should be @deprecated tag:v6.X.0 - Will be private',
+                },
+            ],
         },
         {
             name: 'Named exports with private declaration',
@@ -86,14 +96,24 @@ ruleTester.run('private-feature-declarations', rule, {
             
                 export { testFunction, TestClass }            
             `,
-            errors: [{ message: 'New exports need to be private. Old exports should be @deprecated tag:v6.X.0 - Will be private' }]
+            errors: [
+                {
+                    message:
+                        'New exports need to be private. Old exports should be @deprecated tag:v6.X.0 - Will be private',
+                },
+            ],
         },
         {
             name: 'Register calls with private declaration',
             code: `
                 Shopware.Component.register('my-component', {})
             `,
-            errors: [{ message: 'New features need to be private. Old features should be @deprecated tag:v6.X.0 - Will be private',}]
+            errors: [
+                {
+                    message:
+                        'New features need to be private. Old features should be @deprecated tag:v6.X.0 - Will be private',
+                },
+            ],
         },
         {
             name: 'Nested Register calls with private declaration',
@@ -104,19 +124,34 @@ ruleTester.run('private-feature-declarations', rule, {
                     });
                 };
             `,
-            errors: [{ message: 'New features need to be private. Old features should be @deprecated tag:v6.X.0 - Will be private',}]
-        }
-    ]
+            errors: [
+                {
+                    message:
+                        'New features need to be private. Old features should be @deprecated tag:v6.X.0 - Will be private',
+                },
+            ],
+        },
+    ],
 });
 
 // A made-up mini-module, so the rule finds the `index.ts`, `src/` and `tests/` it looks for on disk.
 const moduleRoot = 'src/core/example-module';
 const realExistsSync = fs.existsSync;
+const realReadFileSync = fs.readFileSync;
+const exampleIndex = `
+/** @public */
+export { helper } from './src/helper';
+/** @public */
+export default definePublicComponent({ name: 'sw-example', load: () => import('./src/sw-example') });
+`;
 
 describe('private-feature-declarations in mini-modules', () => {
     beforeEach(() => {
         jest.spyOn(fs, 'existsSync').mockImplementation(
             (file) => /(^|\/)src\/core\/example-module\/(index\.ts|src|tests)$/.test(file) || realExistsSync(file),
+        );
+        jest.spyOn(fs, 'readFileSync').mockImplementation((file, ...options) =>
+            /src\/core\/example-module\/index\.ts$/.test(file) ? exampleIndex : realReadFileSync(file, ...options),
         );
     });
 
@@ -144,9 +179,36 @@ describe('private-feature-declarations in mini-modules', () => {
                 code: "import SwExample from './index';\nShopware.Component.register(SwExample);",
             },
             {
-                name: 'The src of a mini-module needs no marker',
+                name: 'A src export that index.ts exposes is @public',
                 filename: `${moduleRoot}/src/helper.ts`,
-                code: 'export function helper() {}',
+                code: `
+                    /** @public */
+                    export function helper() {}
+                `,
+            },
+            {
+                name: 'The component that index.ts loads is @public',
+                filename: `${moduleRoot}/src/sw-example.js`,
+                code: `
+                    /** @public */
+                    export default {};
+                `,
+            },
+            {
+                name: 'A src export that index.ts does not expose is @private',
+                filename: `${moduleRoot}/src/helper.ts`,
+                code: `
+                    /** @private */
+                    export function format() {}
+                `,
+            },
+            {
+                name: 'The exports of dependencies.ts are @private',
+                filename: `${moduleRoot}/dependencies.ts`,
+                code: `
+                    /** @private */
+                    export const getApiContext = () => Shopware.Context.api;
+                `,
             },
         ],
         invalid: [
@@ -181,13 +243,28 @@ describe('private-feature-declarations in mini-modules', () => {
                 errors: 1,
             },
             {
-                name: 'A marker in the src of a mini-module',
+                name: 'A src export that index.ts exposes, marked @private',
                 filename: `${moduleRoot}/src/helper.ts`,
                 code: `
                     /** @private */
                     export function helper() {}
                 `,
-                errors: 1,
+                errors: [{ message: 'index.ts exposes this export, so mark it @public.' }],
+            },
+            {
+                name: 'A src export that index.ts does not expose, marked @public',
+                filename: `${moduleRoot}/src/helper.ts`,
+                code: `
+                    /** @public */
+                    export function format() {}
+                `,
+                errors: [{ message: 'index.ts does not expose this export, so mark it @private.' }],
+            },
+            {
+                name: 'A src export without a marker',
+                filename: `${moduleRoot}/src/helper.ts`,
+                code: 'export function helper() {}',
+                errors: [{ message: 'index.ts exposes this export, so mark it @public.' }],
             },
             {
                 name: '@public outside a mini-module',

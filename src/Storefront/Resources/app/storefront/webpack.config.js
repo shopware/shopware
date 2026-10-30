@@ -72,7 +72,7 @@ const watchFilePaths = isHotMode ? getTwigWatchPaths(projectRootPath, pluginDefi
 const pluginEntries = (() => {
 
     return Object.entries(pluginDefinition)
-        .filter(([, definition]) => definition.technicalName !== 'storefront' && !!definition.storefront && !!definition.storefront.entryFilePath && !process.env.hasOwnProperty('SKIP_' + definition.technicalName.toUpperCase().replace(/-/g, '_')))
+        .filter(([, definition]) => definition.technicalName !== 'storefront' && !!definition.storefront && !!definition.storefront.entryFilePath && !Object.hasOwn(process.env, 'SKIP_' + definition.technicalName.toUpperCase().replace(/-/g, '_')))
         .map(([name, definition]) => {
             console.log(chalk.bgGreenBright.black(`# Plugin "${name}": Injected successfully`));
 
@@ -462,7 +462,7 @@ if (isHotMode) {
         console.log(chalk.bgHex('#b30000').white(
             '\n# No custom theme-variables found. Execute ' +
             chalk.bold('bin/console theme:compile') +
-            ' to create these files'
+            ' to create these files',
         ));
         console.log(chalk.bgHex('#b30000').white('# Styling can be wrong in HotMode. Falling back to default var/theme-variables.scss\n'));
     }

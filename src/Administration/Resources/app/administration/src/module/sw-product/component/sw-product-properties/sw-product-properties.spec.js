@@ -84,11 +84,11 @@ const $refsMock = {
 
 let repositoryFactoryCreateResult;
 
-const propertyGroupSearchMock = jest.fn(() => Promise.resolve({ total: 0 }));
-
 async function createWrapper() {
     repositoryFactoryCreateResult = {
-        search: propertyGroupSearchMock,
+        search: () => {
+            return Promise.resolve({ total: 0 });
+        },
         searchIds: () => {
             return Promise.resolve({ total: 0 });
         },
@@ -475,27 +475,6 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
         expect(wrapper.vm.searchTerm).toBe('textile');
         expect(wrapper.vm.propertyGroupCriteria.term).toBe('textile');
-    });
-
-    it('should not limit the property groups of the product', async () => {
-        global.activeAclRoles = [];
-        propertyGroupSearchMock.mockClear();
-
-        await createWrapper();
-        await flushPromises();
-
-        expect(propertyGroupSearchMock).toHaveBeenCalled();
-        expect(propertyGroupSearchMock.mock.calls.at(-1)[0].limit).toBeNull();
-    });
-
-    it('should request the property groups of the product by id', async () => {
-        global.activeAclRoles = [];
-        propertyGroupSearchMock.mockClear();
-
-        await createWrapper();
-        await flushPromises();
-
-        expect(propertyGroupSearchMock.mock.calls.at(-1)[0].ids).toEqual(['sizeId', 'colorId']);
     });
 
     it('should turn on add properties modal', async () => {

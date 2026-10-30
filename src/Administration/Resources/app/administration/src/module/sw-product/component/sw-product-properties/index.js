@@ -64,10 +64,10 @@ export default {
         },
 
         propertyGroupCriteria() {
-            const criteria = new Criteria(1, null);
+            const criteria = new Criteria(1, 10);
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
-            criteria.setIds(this.groupIds);
+            criteria.addFilter(Criteria.equalsAny('id', this.groupIds));
 
             if (this.searchTerm) {
                 criteria.setTerm(this.searchTerm);

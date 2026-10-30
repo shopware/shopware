@@ -99,7 +99,7 @@ class NotFoundSubscriberTest extends TestCase
     public function testCookiesAreNotPersistedToNotFoundPages(): void
     {
         $httpKernel = $this->createMock(HttpKernelInterface::class);
-        $response = new Response();
+        $response = new Response('', Response::HTTP_NOT_FOUND);
         $response->headers->setCookie(new Cookie('extension-cookie', '1'));
         $response->headers->setCookie(new Cookie(PlatformRequest::FALLBACK_SESSION_NAME, '1'));
         $httpKernel
@@ -143,6 +143,37 @@ class NotFoundSubscriberTest extends TestCase
         static::assertCount(1, $cookies);
 
         static::assertSame('extension-cookie', $cookies[0]->getName());
+    }
+
+    public function testFailedNotFoundPageRenderingIsNotCached(): void
+    {
+        $httpKernel = $this->createMock(HttpKernelInterface::class);
+        $httpKernel
+            ->expects($this->once())
+            ->method('handle')
+            ->willReturn(new Response('', Response::HTTP_INTERNAL_SERVER_ERROR));
+
+        $arrayAdapter = new ArrayAdapter();
+        $subscriber = new NotFoundSubscriber(
+            $httpKernel,
+            $this->createContextRestorer(),
+            false,
+            new TagAwareAdapter($arrayAdapter, $arrayAdapter),
+            static::createStub(EntityCacheKeyGenerator::class),
+            static::createStub(CacheInvalidator::class),
+            new EventDispatcher()
+        );
+
+        $event = new ExceptionEvent(
+            static::createStub(Kernel::class),
+            new Request(),
+            0,
+            new HttpException(Response::HTTP_NOT_FOUND)
+        );
+        $subscriber->onError($event);
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $event->getResponse()?->getStatusCode());
+        static::assertSame([], array_filter($arrayAdapter->getValues()));
     }
 
     public function testOtherExceptionsDoNotGetCached(): void

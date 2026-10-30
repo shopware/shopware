@@ -62,4 +62,25 @@ describe('native script HMR during component composition', () => {
         await ComponentFactory.build(config.name);
         expect(config.__shopwareSetupHmr.data?.reloadPage).toBe(true);
     });
+
+    it.activeFeatureFlags(['ADMIN_VITE_8']).each(['override', 'inheritance'])(
+        'composes %s in production without setting a development reload flag',
+        async (composition) => {
+            const environment = jest.replaceProperty(process.env, 'NODE_ENV', 'production');
+            const config = nativeConfig(`sw-native-production-${composition}`);
+            try {
+                ComponentFactory.register(config.name, config);
+                if (composition === 'override') {
+                    ComponentFactory.override(config.name, { render: jest.fn() });
+                    await expect(ComponentFactory.build(config.name)).resolves.toHaveProperty('render');
+                } else {
+                    ComponentFactory.extend('sw-native-production-child', config.name, { render: jest.fn() });
+                    await expect(ComponentFactory.build('sw-native-production-child')).resolves.toHaveProperty('render');
+                }
+                expect(config.__shopwareSetupHmr.data?.reloadPage).toBe(false);
+            } finally {
+                environment.restore();
+            }
+        },
+    );
 });

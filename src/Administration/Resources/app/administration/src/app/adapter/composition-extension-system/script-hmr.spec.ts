@@ -4,11 +4,22 @@
 import { mount, flushPromises } from '@vue/test-utils';
 import type { VueWrapper } from '@vue/test-utils';
 import { computed, defineComponent, h, nextTick, ref, watch } from 'vue';
-import type { ComponentOptions } from 'vue';
+import type { App, ComponentOptions } from 'vue';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import type { OverrideFn } from '../options-composition-shim';
 import { _overridesMap, createExtendableSetup, overrideComponentSetup } from './index';
 import { attachSetupOverrideShim } from './options-api-setup-shim';
+import * as ScriptHmr from './script-hmr';
+
+jest.mock('./script-hmr', () => {
+    const actual = jest.requireActual<typeof ScriptHmr>('./script-hmr');
+    return {
+        ...actual,
+        trackSetupHmrComponent: jest.fn(),
+        registerSetupOverrideForHmr: jest.fn(),
+        invalidateFailedSetupHmr: jest.fn(),
+    };
+});
 
 type HmrRuntime = {
     createRecord: (id: string, component: unknown) => boolean;
@@ -70,6 +81,10 @@ describe('native component script HMR', () => {
     let name: string;
     beforeEach(() => {
         name = `sw-script-hmr-${++sequence}`;
+        const actual = jest.requireActual<typeof ScriptHmr>('./script-hmr');
+        jest.mocked(ScriptHmr.trackSetupHmrComponent).mockImplementation(actual.trackSetupHmrComponent);
+        jest.mocked(ScriptHmr.registerSetupOverrideForHmr).mockImplementation(actual.registerSetupOverrideForHmr);
+        jest.mocked(ScriptHmr.invalidateFailedSetupHmr).mockImplementation(actual.invalidateFailedSetupHmr);
     });
     afterEach(() => {
         wrappers.reverse().forEach((wrapper) => wrapper.unmount());
@@ -330,4 +345,64 @@ describe('native component script HMR', () => {
         wrappers.push(mount(registration(name, `${name}:owner`, '2', add(2))));
         expect(_overridesMap[name]).toHaveLength(2);
     });
+
+    it.activeFeatureFlags(['ADMIN_VITE_8']).each([false, true])(
+        'applies both overrides without HMR bookkeeping in production (Options API: %s)',
+        (optionsApi) => {
+            const environment = jest.replaceProperty(process.env, 'NODE_ENV', 'production');
+            const track = jest.mocked(ScriptHmr.trackSetupHmrComponent);
+            const register = jest.mocked(ScriptHmr.registerSetupOverrideForHmr);
+            try {
+                const owner = `${name}:owner`;
+                wrappers.push(mount(registration(name, owner, '1', add(1))));
+                wrappers.push(mount(registration(name, owner, '2', add(2))));
+                const wrapper = mount(base(name, optionsApi));
+                wrappers.push(wrapper);
+                expect(wrapper.find('p').text()).toBe('13');
+                expect(_overridesMap[name]).toHaveLength(2);
+                expect(track).not.toHaveBeenCalled();
+                expect(register).not.toHaveBeenCalled();
+            } finally {
+                environment.restore();
+            }
+        },
+    );
+
+    it.activeFeatureFlags(['ADMIN_VITE_8']).each([false, true])(
+        'forwards a production override error to Vue without HMR invalidation (Options API: %s)',
+        (optionsApi) => {
+            const environment = jest.replaceProperty(process.env, 'NODE_ENV', 'production');
+            const invalidate = jest.mocked(ScriptHmr.invalidateFailedSetupHmr);
+            const error = new Error('Production override failed');
+            const errorHandler = jest.fn<void, [unknown]>();
+            let app: App | undefined;
+            try {
+                wrappers.push(
+                    mount(
+                        registration(name, `${name}:owner`, '1', () => {
+                            throw error;
+                        }),
+                    ),
+                );
+                expect(() =>
+                    mount(base(name, optionsApi), {
+                        global: {
+                            config: { errorHandler },
+                            plugins: [
+                                (mountedApp: App) => {
+                                    app = mountedApp;
+                                },
+                            ],
+                        },
+                    }),
+                ).toThrow(error);
+                expect(errorHandler.mock.calls[0]?.[0]).toBe(error);
+                expect(invalidate).not.toHaveBeenCalled();
+                expect(_overridesMap[name]).toHaveLength(1);
+            } finally {
+                app?.unmount();
+                environment.restore();
+            }
+        },
+    );
 });

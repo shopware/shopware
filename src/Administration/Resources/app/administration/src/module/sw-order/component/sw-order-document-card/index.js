@@ -339,9 +339,11 @@ export default {
             }
 
             // @deprecated tag:v6.9.0 - Removed with document generation v1.
-            Shopware.Feature.branch('V6_9_0_0', {
-                beforeMajor: () => this.documentService.setListener(this.convertStoreEventToVueEvent),
-            });
+            if (!Shopware.Feature.isActive('V6_9_0_0')) {
+                Shopware.Feature.silence('V6_9_0_0', () =>
+                    this.documentService.setListener(this.convertStoreEventToVueEvent),
+                );
+            }
         },
 
         documentTypeLabel(document) {

@@ -14,6 +14,8 @@ export { default as RetryHelper } from 'src/core/helper/retry.helper';
 export { default as Criteria } from 'src/core/data/criteria.data';
 /** @private */
 export { types } from 'src/core/service/util.service';
+/** @private */
+export { getPrimaryDelivery } from 'src/core/order/primary-delivery';
 
 /** The settings of the bulk edit in progress, such as whether it triggers flows. @private */
 export const useBulkEditStore = () => Shopware.Store.get(swBulkEditStoreId);

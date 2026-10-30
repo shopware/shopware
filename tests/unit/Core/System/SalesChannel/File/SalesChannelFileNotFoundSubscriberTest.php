@@ -4,15 +4,18 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\File;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRequestRestorer;
 use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileLoader;
 use Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileRenderResult;
+use Shopware\Core\System\SalesChannel\File\SalesChannel\SalesChannelFileRoute;
 use Shopware\Core\System\SalesChannel\File\SalesChannelFileNotFoundSubscriber;
 use Shopware\Core\System\SalesChannel\File\SalesChannelFileRequestPathResolver;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -127,6 +130,32 @@ class SalesChannelFileNotFoundSubscriberTest extends TestCase
         static::assertSame('Merchant llms', $event->getResponse()?->getContent());
     }
 
+    public function testItReturnsEarlyForMissingOrDisabledFile(): void
+    {
+        $context = static::createStub(SalesChannelContext::class);
+        $request = Request::create('/llms.txt');
+
+        $loader = $this->createMock(SalesChannelFileLoader::class);
+        $loader
+            ->expects($this->once())
+            ->method('load')
+            ->with('files/agentic/llms.txt.twig', $context)
+            ->willReturn(null);
+
+        $event = $this->createExceptionEvent($request);
+
+        $contextRestorer = $this->createMock(SalesChannelContextRequestRestorer::class);
+        $contextRestorer
+            ->expects($this->once())
+            ->method('restore')
+            ->willReturn($context);
+
+        $this->createSubscriber($loader, $contextRestorer)->onNotFound($event);
+
+        static::assertNull($event->getResponse());
+        static::assertFalse($request->attributes->has(PlatformRequest::ATTRIBUTE_HTTP_CACHE));
+    }
+
     public function testItReturnsEarlyWithoutSalesChannelContext(): void
     {
         $loader = $this->createMock(SalesChannelFileLoader::class);
@@ -218,9 +247,11 @@ class SalesChannelFileNotFoundSubscriberTest extends TestCase
                 ->method('restore');
         }
 
+        $requestPathResolver = new SalesChannelFileRequestPathResolver();
+
         return new SalesChannelFileNotFoundSubscriber(
-            $loader,
-            new SalesChannelFileRequestPathResolver(),
+            new SalesChannelFileRoute($loader, $requestPathResolver, new ExtensionDispatcher(new EventDispatcher())),
+            $requestPathResolver,
             $contextRestorer,
         );
     }

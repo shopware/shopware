@@ -20,7 +20,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
 
 .product-slider-controls-prev,
 .product-slider-controls-next {
-    border: 0;
+    border-color: transparent;
     background: none;
 
     &.is-nav-prev-inside,

@@ -11698,11 +11698,6 @@
       "count": 1
     }
   },
-  "src/module/sw-settings-logging/component/sw-settings-logging-entry-info/sw-settings-logging-entry-info.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 1
-    }
-  },
   "src/module/sw-settings-logging/component/sw-settings-logging-mail-sent-info/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1

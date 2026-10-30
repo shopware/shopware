@@ -306,8 +306,7 @@ class GaranLabelMailSubscriberTest extends TestCase
             new GaranLabelRenderer(static::createStub(Environment::class)),
         );
 
-        /** @var StaticEntityRepository<ProductCollection> $productRepository */
-        $productRepository = new StaticEntityRepository($searchResults, new ProductDefinition());
+        $productRepository = StaticEntityRepository::of(ProductCollection::class, $searchResults, new ProductDefinition());
 
         return new GaranLabelMailSubscriber(new GaranLabelInlineImage(), $productRepository, $resolver);
     }

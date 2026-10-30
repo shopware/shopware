@@ -104,8 +104,7 @@ class CancelOrderRouteTest extends TestCase
             ->method('getCustomerId')
             ->willReturn($customer->getId());
 
-        /** @var StaticEntityRepository<OrderCollection> */
-        $orderRepository = new StaticEntityRepository([[]]);
+        $orderRepository = StaticEntityRepository::of(OrderCollection::class, [[]]);
 
         $route = new CancelOrderRoute(
             static::createStub(OrderService::class),
@@ -145,8 +144,7 @@ class CancelOrderRouteTest extends TestCase
             ->with($orderId, 'cancel', new ParameterBag(), Context::createDefaultContext())
             ->willReturn(new StateMachineStateEntity());
 
-        /** @var StaticEntityRepository<OrderCollection> */
-        $orderRepository = new StaticEntityRepository([[Uuid::randomHex()]]);
+        $orderRepository = StaticEntityRepository::of(OrderCollection::class, [[Uuid::randomHex()]]);
 
         $route = new CancelOrderRoute(
             $orderService,

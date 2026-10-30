@@ -120,6 +120,103 @@ describe('dev/twig-hmr', () => {
         expect(offCanvas.style.visibility).toBe('visible');
     });
 
+    it('morphs the root element of an open AJAX modal', async () => {
+        document.body.innerHTML = `
+            <div class="js-pseudo-modal">
+                <div class="modal show" data-sw-source-url="/widgets/quickview">
+                    <div class="js-pseudo-modal-template-root-element"><p class="part">Version 1</p></div>
+                </div>
+            </div>
+        `;
+        pages['http://localhost/'] = { html: page('') };
+        pages['/widgets/quickview'] = {
+            html: '<div class="js-pseudo-modal-template-root-element"><p class="part">Version 2</p></div>',
+        };
+
+        await refresh(['quickview.html.twig']);
+
+        expect(document.querySelector('.js-pseudo-modal .part').textContent).toBe('Version 2');
+        expect(document.querySelectorAll('.js-pseudo-modal-template-root-element')).toHaveLength(1);
+    });
+
+    it('moves the title of an AJAX modal response into the modal title', async () => {
+        document.body.innerHTML = `
+            <div class="js-pseudo-modal">
+                <div class="modal show" data-sw-source-url="/widgets/cms/abc">
+                    <h5 class="js-pseudo-modal-template-title-element">Title 1</h5>
+                    <div class="js-pseudo-modal-template-content-element"><p class="part">Version 1</p></div>
+                </div>
+            </div>
+        `;
+        pages['http://localhost/'] = { html: page('') };
+        pages['/widgets/cms/abc'] = {
+            html: '<span class="js-pseudo-modal-template-title-element">Title 2</span><p class="part">Version 2</p>',
+        };
+
+        await refresh(['cms.html.twig']);
+
+        const modal = document.querySelector('.js-pseudo-modal .modal');
+        expect(modal.querySelector('.js-pseudo-modal-template-title-element').textContent).toBe('Title 2');
+        expect(modal.querySelectorAll('.js-pseudo-modal-template-title-element')).toHaveLength(1);
+        expect(modal.querySelector('.part').textContent).toBe('Version 2');
+    });
+
+    it('keeps elements that scripts added at runtime', async () => {
+        document.body.innerHTML = `
+            <main>
+                <p class="text">Version 1</p>
+                <div class="toast" data-sw-twig-hmr-preserve>Added to cart</div>
+            </main>
+            <div class="script-root">Appended by a plugin</div>
+        `;
+        pages['http://localhost/'] = { html: page('<main><p class="text">Version 2</p></main>') };
+
+        await refresh(['page.html.twig']);
+
+        expect(document.querySelector('.text').textContent).toBe('Version 2');
+        expect(document.querySelector('[data-sw-twig-hmr-preserve]')).not.toBeNull();
+        expect(document.querySelector('.script-root')).not.toBeNull();
+    });
+
+    it('keeps the state of collapse elements, toggles and checkboxes', async () => {
+        document.body.innerHTML = `
+            <main>
+                <button class="btn" data-bs-toggle="collapse" aria-expanded="true">Filter</button>
+                <div class="collapse show" id="filter"><input type="checkbox" class="option"> Old</div>
+            </main>
+        `;
+        const checkbox = document.querySelector('.option');
+        checkbox.checked = true;
+        pages['http://localhost/'] = {
+            html: page(`
+                <main>
+                    <button class="btn btn-primary" data-bs-toggle="collapse" aria-expanded="false">Filter</button>
+                    <div class="collapse" id="filter"><input type="checkbox" class="option"> New</div>
+                </main>
+            `),
+        };
+
+        await refresh(['filter.html.twig']);
+
+        const toggle = document.querySelector('[data-bs-toggle]');
+        expect(toggle.classList.contains('btn-primary')).toBe(true);
+        expect(toggle.getAttribute('aria-expanded')).toBe('true');
+        expect(document.getElementById('filter').classList.contains('show')).toBe(true);
+        expect(document.getElementById('filter').textContent).toContain('New');
+        expect(document.querySelector('.option')).toBe(checkbox);
+        expect(checkbox.checked).toBe(true);
+    });
+
+    it('keeps the current DOM when the request fails', async () => {
+        document.body.innerHTML = '<main><p class="text">Version 1</p></main>';
+        global.fetch = jest.fn(() => Promise.reject(new Error('Failed to fetch')));
+
+        await refresh(['page.html.twig']);
+
+        expect(document.querySelector('.text').textContent).toBe('Version 1');
+        expect(console.error).toHaveBeenCalledWith('Failed to fetch');
+    });
+
     it('keeps the current DOM when the server answers with an error', async () => {
         document.body.innerHTML = '<main><p class="text">Version 1</p></main>';
         pages['http://localhost/'] = {

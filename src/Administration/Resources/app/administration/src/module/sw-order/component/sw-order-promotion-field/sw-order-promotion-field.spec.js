@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import { allowDeprecation } from 'test/_helper_/deprecations';
 
 /**
  * @sw-package checkout
@@ -155,15 +154,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-order/component/sw-order-promotion-field', () => {
-    beforeEach(() => {
-        allowDeprecation('sw-order-promotion-field.automaticPromotions is deprecated');
-        allowDeprecation('sw-order-promotion-field.deleteAutomaticPromotions() is deprecated');
-        allowDeprecation('sw-order-promotion-field.emitLoadingChange() is deprecated');
-        allowDeprecation('sw-order-promotion-field.handleUnsavedOrderChangesResponse() is deprecated');
-        allowDeprecation('sw-order-promotion-field.hasAutomaticPromotions is deprecated');
-        allowDeprecation('sw-order-promotion-field.toggleAutomaticPromotions() is deprecated');
-    });
-
     it('should filter manual Promotions', async () => {
         createStateMapper();
 

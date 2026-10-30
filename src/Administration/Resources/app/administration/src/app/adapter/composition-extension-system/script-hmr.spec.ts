@@ -9,17 +9,6 @@ import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import type { OverrideFn } from '../options-composition-shim';
 import { _overridesMap, createExtendableSetup, overrideComponentSetup } from './index';
 import { attachSetupOverrideShim } from './options-api-setup-shim';
-import * as ScriptHmr from './script-hmr';
-
-jest.mock('./script-hmr', () => {
-    const actual = jest.requireActual<typeof ScriptHmr>('./script-hmr');
-    return {
-        ...actual,
-        trackSetupHmrComponent: jest.fn(),
-        registerSetupOverrideForHmr: jest.fn(),
-        invalidateFailedSetupHmr: jest.fn(),
-    };
-});
 
 type HmrRuntime = {
     createRecord: (id: string, component: unknown) => boolean;
@@ -81,10 +70,6 @@ describe('native component script HMR', () => {
     let name: string;
     beforeEach(() => {
         name = `sw-script-hmr-${++sequence}`;
-        const actual = jest.requireActual<typeof ScriptHmr>('./script-hmr');
-        jest.mocked(ScriptHmr.trackSetupHmrComponent).mockImplementation(actual.trackSetupHmrComponent);
-        jest.mocked(ScriptHmr.registerSetupOverrideForHmr).mockImplementation(actual.registerSetupOverrideForHmr);
-        jest.mocked(ScriptHmr.invalidateFailedSetupHmr).mockImplementation(actual.invalidateFailedSetupHmr);
     });
     afterEach(() => {
         wrappers.reverse().forEach((wrapper) => wrapper.unmount());
@@ -350,8 +335,7 @@ describe('native component script HMR', () => {
         'applies both overrides without HMR bookkeeping in production (Options API: %s)',
         (optionsApi) => {
             const environment = jest.replaceProperty(process.env, 'NODE_ENV', 'production');
-            const track = jest.mocked(ScriptHmr.trackSetupHmrComponent);
-            const register = jest.mocked(ScriptHmr.registerSetupOverrideForHmr);
+            const createRecord = jest.spyOn(runtime, 'createRecord');
             try {
                 const owner = `${name}:owner`;
                 wrappers.push(mount(registration(name, owner, '1', add(1))));
@@ -360,10 +344,10 @@ describe('native component script HMR', () => {
                 wrappers.push(wrapper);
                 expect(wrapper.find('p').text()).toBe('13');
                 expect(_overridesMap[name]).toHaveLength(2);
-                expect(track).not.toHaveBeenCalled();
-                expect(register).not.toHaveBeenCalled();
+                expect(createRecord).not.toHaveBeenCalled();
             } finally {
                 environment.restore();
+                createRecord.mockRestore();
             }
         },
     );
@@ -372,16 +356,23 @@ describe('native component script HMR', () => {
         'forwards a production override error to Vue without HMR invalidation (Options API: %s)',
         (optionsApi) => {
             const environment = jest.replaceProperty(process.env, 'NODE_ENV', 'production');
-            const invalidate = jest.mocked(ScriptHmr.invalidateFailedSetupHmr);
+            const invalidate = jest.fn();
+            const reload = jest.spyOn(runtime, 'reload');
             const error = new Error('Production override failed');
             const errorHandler = jest.fn<void, [unknown]>();
             let app: App | undefined;
             try {
                 wrappers.push(
                     mount(
-                        registration(name, `${name}:owner`, '1', () => {
-                            throw error;
-                        }),
+                        registration(
+                            name,
+                            `${name}:owner`,
+                            '1',
+                            () => {
+                                throw error;
+                            },
+                            invalidate,
+                        ),
                     ),
                 );
                 expect(() =>
@@ -398,10 +389,12 @@ describe('native component script HMR', () => {
                 ).toThrow(error);
                 expect(errorHandler.mock.calls[0]?.[0]).toBe(error);
                 expect(invalidate).not.toHaveBeenCalled();
+                expect(reload).not.toHaveBeenCalled();
                 expect(_overridesMap[name]).toHaveLength(1);
             } finally {
                 app?.unmount();
                 environment.restore();
+                reload.mockRestore();
             }
         },
     );

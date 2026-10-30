@@ -313,6 +313,25 @@ bin/console administration:check-extensions -- --only=MyPlugin --fix
 
 To keep a rule off, set it to `'off'` in the `eslint.config.mjs` of your extension, or record the current findings with `--update-baseline`.
 
+### Extension Jest configs can compose the Administration test harness (experimental)
+
+The Administration extension tooling now ships a Jest config factory, `extension-tooling/jest.mjs`, next to its TypeScript and ESLint presets.
+It carries the harness the Administration's own specs run on: the `shopware:*` virtual modules, the feature flag registry behind `Shopware.Feature.triggerDeprecationOrThrow()`, `it.deprecated()` and `it.activeFeatureFlags()`, the global `Shopware` setup and the transforms.
+An extension Jest config that composes it picks up every later change to the harness without editing its own config:
+
+```js
+// jest.config.mjs, beside the generated .shopware/ bridge
+import { shopwareAdminJestConfig } from './.shopware/jest.mjs';
+
+export default shopwareAdminJestConfig({
+    moduleNameMapper: { '^MyPlugin/(.*)$': '<rootDir>/src/$1' },
+});
+```
+
+`composer admin:setup-extension-tooling` (or `bin/console administration:setup-extension-tooling` in a Composer install) generates the `.shopware/jest.mjs` bridge for every extension.
+Before the first run, generate the entity schema with `bin/console administration:generate-entity-schema-types` and the component import map with `npm run unit-setup` in the Administration directory.
+The factory is part of the experimental extension tooling, so the terms of [Opt-in TypeScript and ESLint configuration for Administration extensions](#opt-in-typescript-and-eslint-configuration-for-administration-extensions-experimental) apply to it as well.
+
 ### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag
 
 The new `ADMIN_VITE_8` feature flag builds the Administration and the Administration code of extensions with Vite 8.

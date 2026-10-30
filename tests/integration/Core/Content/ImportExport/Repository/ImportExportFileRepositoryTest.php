@@ -122,8 +122,8 @@ class ImportExportFileRepositoryTest extends TestCase
             static::assertCount(\count($requiredProperties), $e->getExceptions());
             $foundViolations = [];
 
-            /** @var WriteConstraintViolationException $violations */
             foreach ($e->getExceptions() as $violations) {
+                static::assertInstanceOf(WriteConstraintViolationException::class, $violations);
                 foreach ($violations->getViolations() as $violation) {
                     $foundViolations[] = $violation->getPropertyPath();
                 }

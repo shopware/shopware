@@ -2,6 +2,8 @@
  * @sw-package framework
  */
 
+const { isTestDeclaration } = require('./test-declaration');
+
 /**
  * The doc tag a test needs in each kind of spec file.
  * Pinned specs need none, because their file name already says that nobody decided the behaviour.
@@ -24,29 +26,6 @@ const REQUIRED_TAGS = [
         hint: 'the issue (#1234 or a link) and what users saw',
     },
 ];
-
-/**
- * Returns true for the call that declares a test: `it(...)`, `it.only(...)`
- * and the curried helpers such as `it.deprecated('v6.8.0.0')(...)`.
- *
- * @param {import('estree').CallExpression} node
- * @returns {boolean}
- */
-function isTestDeclaration(node) {
-    const callee = node.callee;
-
-    if (callee.type === 'Identifier') {
-        return callee.name === 'it';
-    }
-
-    if (callee.type === 'MemberExpression') {
-        return callee.object.type === 'Identifier' && callee.object.name === 'it' && node.parent.type !== 'CallExpression';
-    }
-
-    return (
-        callee.type === 'CallExpression' && callee.callee.type === 'MemberExpression' && callee.callee.object.name === 'it'
-    );
-}
 
 /**
  * Returns true for a test that the next major removes: `it.deprecated('v6.8.0.0')(...)`.

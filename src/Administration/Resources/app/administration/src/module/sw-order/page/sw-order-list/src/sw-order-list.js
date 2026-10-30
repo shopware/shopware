@@ -21,6 +21,7 @@ import {
  * @sw-package checkout
  */
 
+/** @public */
 export default {
     template,
 

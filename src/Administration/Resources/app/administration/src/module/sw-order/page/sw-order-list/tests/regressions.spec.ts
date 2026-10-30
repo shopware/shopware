@@ -13,6 +13,7 @@ describe('sw-order-list', () => {
      * @deprecated tag:v6.8.0 - Removed with the 6.7 fallback.
      */
     it.deprecated('v6.8.0.0')('shows the same delivery as the order detail page', async () => {
+        // ARRANGE
         const getDeliveryState = await createDeliveryStateGetter();
         const shipped = { name: 'Shipped' };
         const order = {
@@ -23,8 +24,10 @@ describe('sw-order-list', () => {
             ],
         };
 
+        // ACT
         const shown = getDeliveryState(order);
 
+        // ASSERT
         expect(shown).toBe(shipped);
     });
 });

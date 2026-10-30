@@ -11,6 +11,7 @@ describe('bulk-edit-order', () => {
      * Merchants select orders by the state they see in the list, see #21760.
      */
     it('changes the state of the delivery the order list shows', async () => {
+        // ARRANGE
         const transitionOrderDeliveryState = jest.fn(() => Promise.resolve());
         const order = {
             id: 'order-id',
@@ -25,8 +26,10 @@ describe('bulk-edit-order', () => {
             orderStateMachineService: { transitionOrderDeliveryState },
         });
 
+        // ACT
         await handler.bulkEditStatus(['order-id'], [{ field: 'orderDeliveries', value: 'ship' }]);
 
+        // ASSERT
         expect(transitionOrderDeliveryState).toHaveBeenCalledWith(
             'primary-delivery',
             'ship',

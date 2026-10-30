@@ -10,12 +10,17 @@ describe('public-component', () => {
      * The component factory and the meta tests read the declaration, so it must not change on the way.
      */
     it('keeps the declaration as written', () => {
+        // ARRANGE
         const declaration = {
             name: 'sw-example',
             load: () => Promise.resolve({}),
             public: { props: ['value'], blocks: ['sw_example'] },
         };
 
-        expect(definePublicComponent(declaration)).toBe(declaration);
+        // ACT
+        const declared = definePublicComponent(declaration);
+
+        // ASSERT
+        expect(declared).toBe(declaration);
     });
 });

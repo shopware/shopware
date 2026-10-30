@@ -10,7 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Expands authored `{{map:path}}` tokens in eligible text positions of a forest's `inlineMappable` string properties,
- * producing the forest the mint then reads. Valid tokens inside HTML markup, including attributes, stay literal.
+ * producing the forest context delivery and the mint read. Valid tokens inside HTML markup, including attributes,
+ * stay literal.
  *
  * WHY THIS IS A STORED-TREE REWRITE rather than a step inside `Rendering/RenderedElementFactory`. The factory mints
  * a property from four tiers in a fixed lowest-first order, and provenance is recorded per tier. An inline token

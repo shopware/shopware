@@ -25,6 +25,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolv
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
@@ -40,6 +41,7 @@ use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingRuntimeResolver;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
@@ -79,6 +81,122 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ElementLowering::class)]
 class ElementLoweringTest extends TestCase
 {
+    public function testInlineProviderDistributesExpandedTextAfterAllLoading(): void
+    {
+        $text = 'Hello {{map:product.name}}';
+        $child = StoredElementBuilder::create('Sw:Box', 'child-1')
+            ->withConsumer('text', ContextType::Single)
+            ->build();
+        $parent = StoredElementBuilder::create('Sw:InlineProvider', 'parent-1')
+            ->withProperty('text', $text)
+            ->withDataRequirement('settings', 'entity', new StubLoaderConfig())
+            ->withProvider('text', BroadcastDistributionConfig::simple())
+            ->withSlot('main', [$child])
+            ->build();
+        $settings = new StubStruct();
+        $product = new StubStruct();
+        $loader = $this->loader();
+        $loader->expects($this->exactly(2))->method('load')->willReturnOnConsecutiveCalls(
+            ContentDataLoaderResult::cached($settings),
+            ContentDataLoaderResult::cached($product),
+        );
+        $candidate = new MappingCandidate('product.name', 'Product name', '', 'basic', 'string');
+        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates->method('forRootSource')->willReturn(['product.name' => $candidate]);
+        $candidates->expects($this->once())->method('resolveSource')->willReturnCallback(
+            static function (string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context) use ($settings, $product): MappingSourceResolution {
+                static::assertSame('product', $rootSource);
+                static::assertSame(['settings' => $settings], $context->loaderValues);
+                static::assertSame(['product' => $product], $context->rootValues);
+
+                return MappingSourceResolution::resolved('Shoe & {{map:product.stock}}');
+            },
+        );
+
+        $result = $this->lowering($loader, candidates: $candidates)->lower(
+            [$parent],
+            RenderingMode::FULL,
+            Generator::generateSalesChannelContext(),
+            new Request(),
+            new RenderingCacheContext(),
+            [new DataRequirement('product', 'entity', new StubLoaderConfig())],
+            $this->virtualRoot($parent),
+            rootSource: 'product',
+            inlineMappings: new InlineMappingMetadata([
+                'parent-1' => ['text' => (new InlineMappingTokenParser())->parse($text)],
+            ]),
+        );
+
+        $expected = 'Hello Shoe &amp; {{map:product.stock}}';
+        static::assertSame($expected, $result->tree[0]->properties['text']);
+        static::assertSame(['text' => $expected], $result->tree[0]->slots['main'][0]->properties);
+        static::assertSame($text, $parent->property('text')?->asString());
+        static::assertNull($child->property('text'));
+    }
+
+    public function testKeyedDistributionUsesTheExpandedChildKey(): void
+    {
+        $text = '{{map:product.name}}';
+        $child = StoredElementBuilder::create('Sw:InlineSelector', 'child-1')
+            ->withProperty('data_key', $text)
+            ->withConsumer('items', ContextType::Single)
+            ->build();
+        $parent = StoredElementBuilder::create('Sw:Section', 'parent-1')
+            ->withProperty('items', ['blue' => 'Selected item', $text => 'Wrong literal selection'])
+            ->withProvider('items', KeyedDistributionConfig::simple())
+            ->withSlot('main', [$child])
+            ->build();
+        $candidate = new MappingCandidate('product.name', 'Product name', '', 'basic', 'string');
+        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates->method('forRootSource')->willReturn(['product.name' => $candidate]);
+        $candidates->expects($this->once())->method('resolveSource')->willReturn(MappingSourceResolution::resolved('blue'));
+        $loader = $this->loader();
+        $loader->expects($this->never())->method('load');
+
+        $result = $this->lowering($loader, candidates: $candidates)->lower(
+            [$parent],
+            RenderingMode::FULL,
+            Generator::generateSalesChannelContext(),
+            new Request(),
+            new RenderingCacheContext(),
+            [],
+            virtualRoot: null,
+            rootSource: 'product',
+            inlineMappings: new InlineMappingMetadata([
+                'child-1' => ['data_key' => (new InlineMappingTokenParser())->parse($text)],
+            ]),
+        );
+
+        static::assertSame(['data_key' => 'blue', 'items' => 'Selected item'], $result->tree[0]->slots['main'][0]->properties);
+        static::assertSame($text, $child->property('data_key')?->asString());
+    }
+
+    public function testInlineProviderRemovesUnboundTokensBeforeDistribution(): void
+    {
+        $text = 'Hello {{map:product.name}}';
+        $child = StoredElementBuilder::create('Sw:Box', 'child-1')
+            ->withConsumer('text', ContextType::Single)
+            ->build();
+        $parent = StoredElementBuilder::create('Sw:InlineProvider', 'parent-1')
+            ->withProperty('text', $text)
+            ->withProvider('text', BroadcastDistributionConfig::simple())
+            ->withSlot('main', [$child])
+            ->build();
+        $loader = $this->loader();
+        $loader->expects($this->never())->method('load');
+
+        $tree = $this->lower(
+            $loader,
+            [$parent],
+            inlineMappings: new InlineMappingMetadata([
+                'parent-1' => ['text' => (new InlineMappingTokenParser())->parse($text)],
+            ]),
+        );
+
+        static::assertSame('Hello ', $tree[0]->properties['text']);
+        static::assertSame(['text' => 'Hello '], $tree[0]->slots['main'][0]->properties);
+    }
+
     /**
      * @param array<string, mixed> $expectedWholeField
      */
@@ -777,6 +895,12 @@ class ElementLoweringTest extends TestCase
         $specs = [
             'Sw:Section' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Section')->build(),
             'Sw:Box' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Box')->build(),
+            'Sw:InlineProvider' => ContentSystemElementTypeSpecificationBuilder::create('Sw:InlineProvider')
+                ->primitive('text', 'string', inlineMappable: true)
+                ->build(),
+            'Sw:InlineSelector' => ContentSystemElementTypeSpecificationBuilder::create('Sw:InlineSelector')
+                ->primitive('data_key', 'string', inlineMappable: true)
+                ->build(),
             'Sw:Product' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Product')
                 ->reference('product', StubStruct::class)
                 ->build(),

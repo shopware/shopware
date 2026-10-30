@@ -30,6 +30,8 @@ use Symfony\Component\HttpFoundation\Request;
  * distribution before a later element has loaded, and the value that element was going to provide is not
  * there yet. That is why {@see ContextDeliveryResolver::resolve()} takes the loader values as an argument
  * rather than resolving them itself, and this class is what fills that argument.
+ * Inline text is expanded after loading and before distribution, so providers and keyed selection read the
+ * same expanded authored values that the rendered tree receives.
  *
  * THE PAGE-LEVEL DATA IS RESOLVED HERE TOO, and separately. It belongs to the rendering specification rather
  * than to any element, so it arrives as an argument beside the forest and is run against the
@@ -37,10 +39,9 @@ use Symfony\Component\HttpFoundation\Request;
  * dereference against. Only requirements referenced by a root-scoped context consumer, a stored mapping's source
  * path, or an inline mapping token in an opted-in string property are resolved: an unreferenced requirement never
  * loads, so it runs no query and contributes no cache tag. Consumption is judged over the wrapper's pre-prune
- * forest, so a partial render resolves the same set as the full render. The resulting map is handed to
- * {@see ContextDeliveryResolver::resolve()} as the root-ambient context, which is the only route
- * by which it reaches an element. It is an explicit input on that call rather than something read off the tree,
- * so the partial prune cannot take root context with it. The same map is also filed into the forest's loader
+ * forest, so a partial render resolves the same set as the full render. The resulting root-ambient map is an
+ * explicit input to inline expansion and {@see ContextDeliveryResolver::resolve()}, rather than something read
+ * off the tree, so the partial prune cannot take root context with it. The same map is also filed into the forest's loader
  * values under the wrapper's own id, which on a partial render that pruned the wrapper away addresses no
  * element of that forest and is read by nothing.
  *
@@ -124,23 +125,10 @@ final readonly class ElementLowering
 
         $plainAmbient = array_map(static fn (ResolvedLoaderValue $resolved): mixed => $resolved->value, $ambient);
 
-        // Context distribution is about dataflow, not about where a value came from, so it sees the plain
-        // values: a provider hands a child what it renders, and the identity beside it means nothing there.
         $plainLoaderValues = $this->plainValues($loaderValues);
-        $deliveries = $this->deliveryResolver->resolve(
-            $forest,
-            $plainLoaderValues,
-            $plainAmbient,
-            $cacheContext,
-            $rootSource,
-        );
 
-        // Inline mapping expansion sits between delivery and the mint, and that is the only window it fits in: it
-        // needs the ambient values, which the page-level resolution above produces, and it must finish before the
-        // mint reads a property, because what it rewrites is an authored property's text. Delivery is unaffected
-        // either way — it reads context wiring and loader values, never an authored string — so the deliveries
-        // computed from the pre-expansion forest stay valid against the expanded one: expansion changes property
-        // VALUES and no element id, and the delivery index is keyed by id.
+        // Expand captured authored spans after loading, before providers and keyed distribution read properties.
+        // The original stored forest stays unchanged; only this render uses the expanded values.
         $forest = $this->inlineMappingExpander->expand(
             $forest,
             $plainAmbient,
@@ -148,6 +136,15 @@ final readonly class ElementLowering
             $cacheContext,
             $plainLoaderValues,
             $inlineMappings,
+        );
+
+        // Distribution sees plain values: a provider hands a child what it renders, without loader identity.
+        $deliveries = $this->deliveryResolver->resolve(
+            $forest,
+            $plainLoaderValues,
+            $plainAmbient,
+            $cacheContext,
+            $rootSource,
         );
 
         return $this->treeFactory->create($forest, $deliveries, $loaderValues, $mode);

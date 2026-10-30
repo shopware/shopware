@@ -93,6 +93,16 @@ Webhooks created through the Admin API without an app now belong to the user or 
 * **Refused deliveries are logged:** When a webhook's roles do not permit an event it subscribes to, the event is not sent and a `webhook_event_log` entry with the delivery status `not_permitted` and no request content is written instead.
   These entries are removed after the same lifetime as successful and failed ones.
 
+### MCP sessions on `/api/_mcp` are bound to the principal that opened them
+
+A session on the Admin API MCP endpoint now belongs to the user or integration that sent `initialize`.
+A request with the `Mcp-Session-Id` of a session opened by someone else gets the same `404` as an unknown session.
+The session stays valid when the client gets a new access token for the same user or integration.
+
+Sessions opened before the update have no owner and are answered with `404` once.
+MCP clients start a new session on `404`, so no action is needed.
+The stateless protocol era and `/store-api/_mcp` are not affected.
+
 ### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
 
 The new `bin/console sales-channel:file:enable [ids...] [--all]` command switches on `llms.txt` and `AGENTS.md` for Storefront and Headless sales channels.

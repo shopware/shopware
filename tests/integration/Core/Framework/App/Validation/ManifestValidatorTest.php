@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Validation;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
 use Shopware\Core\Framework\App\Validation\Error\ConfigurationError;
@@ -50,8 +51,14 @@ class ManifestValidatorTest extends TestCase
 
         static::assertNotNull($result->errors);
         static::assertSame(
-            [MissingTranslationError::class, AppNameError::class, ConfigurationError::class, NotHookableError::class, MissingPermissionError::class],
-            array_map(static fn (Error $error): string => $error::class, $result->errors)
+            [
+                [MissingTranslationError::class, AppException::VALIDATION_FAILED, false],
+                [AppNameError::class, AppException::VALIDATION_FAILED, true],
+                [ConfigurationError::class, AppException::INVALID_CONFIGURATION, true],
+                [NotHookableError::class, AppException::VALIDATION_FAILED, false],
+                [MissingPermissionError::class, AppException::VALIDATION_FAILED, true],
+            ],
+            array_map(static fn (Error $error): array => [$error::class, $error->getErrorCode(), $error->isBlocking()], $result->errors)
         );
     }
 }

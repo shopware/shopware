@@ -2,12 +2,15 @@
 
 namespace Shopware\Core\Framework\App\Validation\Error;
 
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
  *
  * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\App\Validation\HookableValidatorTest
  */
 #[Package('framework')]
 class WebhookNotPermittedError implements Error
@@ -28,5 +31,20 @@ class WebhookNotPermittedError implements Error
     public function getMessage(): string
     {
         return $this->message;
+    }
+
+    public function getErrorCode(): string
+    {
+        return AppException::VALIDATION_FAILED;
+    }
+
+    public function getParameters(): array
+    {
+        return [];
+    }
+
+    public function isBlocking(): bool
+    {
+        return true;
     }
 }

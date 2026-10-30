@@ -84,12 +84,14 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
     test('returns early from init when no video element is present', () => {
         document.body.innerHTML = '<div class="cms-video-element"></div>';
 
-        const plugin = initPlugin();
-        const applyStoredVolumeSpy = jest.spyOn(plugin, '_applyStoredVolume');
+        const applyStoredVolumeSpy = jest.spyOn(CmsVideoPlugin.prototype, '_applyStoredVolume');
+        const registerVolumeEventsSpy = jest.spyOn(CmsVideoPlugin.prototype, '_registerVolumeEvents');
 
-        expect(() => plugin.init()).not.toThrow();
+        const plugin = initPlugin();
+
         expect(plugin._video).toBeNull();
         expect(applyStoredVolumeSpy).not.toHaveBeenCalled();
+        expect(registerVolumeEventsSpy).not.toHaveBeenCalled();
     });
 
     test('applies default volume of 1 when no stored preference exists', () => {
@@ -181,6 +183,24 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         video.dispatchEvent(new Event('volumechange'));
 
         expect(setItemSpy).toHaveBeenCalledWith('sw-cms-video-volume', '0.7');
+    });
+
+    test('handles localStorage write errors gracefully when persisting volume', () => {
+        const video = document.querySelector('video');
+        defineMediaProperties(video, { volume: 1, muted: false });
+        defineReadyState(video, 2);
+
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        jest.spyOn(window.localStorage.__proto__, 'setItem').mockImplementation(() => {
+            throw new Error('QuotaExceededError');
+        });
+
+        initPlugin();
+
+        video.volume = 0.8;
+        video.dispatchEvent(new Event('volumechange'));
+
+        expect(warnSpy).toHaveBeenCalledWith('Failed to write to localStorage:', expect.any(Error));
     });
 
     test('restores default volume on muted-to-unmuted transition when volume is zero', () => {

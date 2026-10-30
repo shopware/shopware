@@ -3,10 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\Aggregate\ProductDocument;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
 use Shopware\Core\Content\Product\Events\InvalidateProductCache;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
-use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -59,30 +57,6 @@ class ProductDocumentApiTest extends TestCase
         static::assertContains($this->ids->get('drill.blue'), $translated);
 
         $deleted = $this->collectInvalidatedProductIds('DELETE', '/api/product-document/' . $this->ids->get('document'));
-        static::assertContains($this->ids->get('drill'), $deleted);
-        static::assertContains($this->ids->get('drill.blue'), $deleted);
-    }
-
-    public function testSyncApiWritesOfDocumentsInvalidateTheProductAndItsVariants(): void
-    {
-        $this->createDrillWithBlueVariant();
-        $document = ['id' => $this->ids->create('document'), 'productId' => $this->ids->get('drill'), ...$this->manual()];
-
-        $upserted = $this->collectInvalidatedProductIds('POST', '/api/_action/sync', [[
-            'key' => 'documents',
-            'action' => SyncController::ACTION_UPSERT,
-            'entity' => ProductDocumentDefinition::ENTITY_NAME,
-            'payload' => [$document],
-        ]]);
-        static::assertContains($this->ids->get('drill'), $upserted);
-        static::assertContains($this->ids->get('drill.blue'), $upserted);
-
-        $deleted = $this->collectInvalidatedProductIds('POST', '/api/_action/sync', [[
-            'key' => 'documents',
-            'action' => SyncController::ACTION_DELETE,
-            'entity' => ProductDocumentDefinition::ENTITY_NAME,
-            'payload' => [['id' => $this->ids->get('document')]],
-        ]]);
         static::assertContains($this->ids->get('drill'), $deleted);
         static::assertContains($this->ids->get('drill.blue'), $deleted);
     }

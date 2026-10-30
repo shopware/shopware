@@ -334,6 +334,8 @@ shopware:
         enable_url_upload_feature: true
         enable_url_validation: true
         url_upload_max_size: 0
+        allowed_protocols: ['http', 'https', 'ftp']
+        allowed_private_ip_addresses: []
         remote_thumbnails:
             enable: false
             pattern: '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'

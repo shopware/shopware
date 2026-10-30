@@ -7,9 +7,15 @@ const { currency } = Shopware.Utils.format;
 
 /**
  * @private
+ * The name the filter is registered under, for code that looks it up with `Shopware.Filter.getByName()`.
+ */
+export const currencyFilterName = 'currency';
+
+/**
+ * @private
  */
 Shopware.Filter.register(
-    'currency',
+    currencyFilterName,
     (value: string | boolean, format: string, decimalPlaces: number, additionalOptions: CurrencyOptions) => {
         if (
             (!value || value === true) &&

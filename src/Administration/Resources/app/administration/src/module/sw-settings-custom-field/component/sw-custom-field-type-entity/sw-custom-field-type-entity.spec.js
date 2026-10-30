@@ -76,9 +76,9 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-ent
     it('should label a customer entity field by the display name', async () => {
         const wrapper = await createWrapper();
 
-        const customer = wrapper.vm.entityTypes.find((entityType) => entityType.value === 'customer');
+        wrapper.findComponent('sw-single-select-stub').vm.$emit('update:value', 'customer');
 
-        expect(customer.config.labelProperty).toBe('displayName');
+        expect(wrapper.props('currentCustomField').config.labelProperty).toBe('displayName');
     });
 
     it('should allow entity type selection on new custom field', async () => {

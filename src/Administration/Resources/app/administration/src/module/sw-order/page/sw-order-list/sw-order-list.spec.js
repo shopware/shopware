@@ -164,9 +164,12 @@ Shopware.Service().register('filterService', () => {
 
 describe('src/module/sw-order/page/sw-order-list', () => {
     it('should sort the name column by the company after the person name', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
+        await wrapper.setData({ orders: [mockItem], total: 1 });
 
-        expect(wrapper.vm.getOrderColumns().find((column) => column.property === 'orderCustomer.firstName').dataIndex).toBe(
+        const columns = wrapper.findComponent('.sw-data-grid').props('columns');
+        expect(columns.find((column) => column.property === 'orderCustomer.firstName').dataIndex).toBe(
             'orderCustomer.lastName,orderCustomer.firstName,orderCustomer.company',
         );
     });

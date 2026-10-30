@@ -88,7 +88,6 @@ describe('module/sw-customer-imitate-customer-modal', () => {
     });
 
     it('should pass the display name and the legacy name parameters to the title and description', async () => {
-        mockSalesChannelDomains([]);
         const $t = jest.fn((key) => key);
         const wrapper = await createWrapper({}, { $t });
         await wrapper.setProps({
@@ -102,8 +101,12 @@ describe('module/sw-customer-imitate-customer-modal', () => {
             },
         });
 
-        expect(wrapper.vm.modalTitle).toBe('sw-customer.imitateCustomerModal.modalTitle');
-        expect(wrapper.vm.modalDescription).toBe('sw-customer.imitateCustomerModal.modalDescription');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-modal__title').text()).toBe('sw-customer.imitateCustomerModal.modalTitle');
+        expect(wrapper.find('.imitate-customer-modal-description').text()).toBe(
+            'sw-customer.imitateCustomerModal.modalDescription',
+        );
 
         const expectedParameters = { name: 'Ada Lovelace', firstname: 'Ada', lastname: 'Lovelace' };
         expect($t).toHaveBeenCalledWith('sw-customer.imitateCustomerModal.modalTitle', expectedParameters);

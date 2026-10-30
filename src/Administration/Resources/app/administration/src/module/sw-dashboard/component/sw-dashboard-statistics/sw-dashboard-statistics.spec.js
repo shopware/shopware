@@ -3,7 +3,7 @@ import dictionary from 'src/module/sw-dashboard/snippet/en.json';
 
 const hasOrderTodayMock = [{}];
 
-async function createWrapper(privileges = [], repository = {}) {
+async function createWrapper(privileges = [], repository = {}, stubs = {}) {
     const repositoryMock = {
         search: () => Promise.resolve([]),
         buildHeaders: () => {},
@@ -37,6 +37,7 @@ async function createWrapper(privileges = [], repository = {}) {
                 'sw-context-button': true,
                 'sw-inheritance-switch': true,
                 'sw-time-ago': true,
+                ...stubs,
             },
             mocks: {
                 $t: (...args) => JSON.stringify([...args]),
@@ -93,9 +94,16 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
     });
 
     it('should sort the customer column by the company after the person name', async () => {
-        const wrapper = await createWrapper();
+        const listing = {
+            props: ['columns'],
+            template: '<div></div>',
+        };
+        const wrapper = await createWrapper(['order.viewer'], {}, { 'sw-entity-listing': listing });
+        await flushPromises();
+        await wrapper.setData({ todayOrderData: hasOrderTodayMock });
 
-        expect(wrapper.vm.orderGridColumns().find((column) => column.property === 'orderCustomer.firstName').dataIndex).toBe(
+        const columns = wrapper.findComponent(listing).props('columns');
+        expect(columns.find((column) => column.property === 'orderCustomer.firstName').dataIndex).toBe(
             'orderCustomer.lastName,orderCustomer.firstName,orderCustomer.company',
         );
     });

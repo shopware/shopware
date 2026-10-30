@@ -119,7 +119,9 @@ describe('module/sw-customer/page/sw-customer-card', () => {
             },
         });
 
-        expect(wrapper.vm.avatarName).toEqual({ firstName: 'Ada', lastName: 'van Halen' });
+        const avatar = wrapper.find('mt-avatar');
+        expect(avatar.attributes('first-name')).toBe('Ada');
+        expect(avatar.attributes('last-name')).toBe('van Halen');
     });
 
     it('should split the resolved name for the avatar of a nameless company account', async () => {
@@ -134,7 +136,9 @@ describe('module/sw-customer/page/sw-customer-card', () => {
             },
         });
 
-        expect(wrapper.vm.avatarName).toEqual({ firstName: 'Acme', lastName: 'GmbH' });
+        const avatar = wrapper.find('mt-avatar');
+        expect(avatar.attributes('first-name')).toBe('Acme');
+        expect(avatar.attributes('last-name')).toBe('GmbH');
     });
 
     it('should keep the contact person in the card title', async () => {
@@ -142,7 +146,7 @@ describe('module/sw-customer/page/sw-customer-card', () => {
             customer: { ...customer, accountType: 'business', firstName: 'Ada', lastName: 'Lovelace', company: 'Acme GmbH' },
         });
 
-        expect(wrapper.vm.fullName).toBe('Ada Lovelace - Acme GmbH');
+        expect(wrapper.find('.sw-customer-card__metadata-customer-name span').text()).toBe('Ada Lovelace - Acme GmbH');
     });
 
     it('should use the resolved name as the card title without a contact person', async () => {
@@ -158,7 +162,7 @@ describe('module/sw-customer/page/sw-customer-card', () => {
             },
         });
 
-        expect(wrapper.vm.fullName).toBe('Acme GmbH');
+        expect(wrapper.find('.sw-customer-card__metadata-customer-name span').text()).toBe('Acme GmbH');
     });
 
     it('should keep the contact person required for a private account', async () => {

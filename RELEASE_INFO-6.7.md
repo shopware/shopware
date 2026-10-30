@@ -505,11 +505,17 @@ List the affected categories with:
 bin/console seo:repair:link-category-takeover
 ```
 
-A category whose SEO URL was set manually can appear in the list as well, so compare the creation dates of both URLs.
-Then repair all listed categories, or only the given ones:
+A category whose SEO URL was set manually can appear in the list as well.
+With `--apply`, the command asks for each listed category whether it should get its URL back:
 
 ```bash
-bin/console seo:repair:link-category-takeover --apply [<category-id>...]
+bin/console seo:repair:link-category-takeover --apply
+```
+
+To repair without being asked, for example in a script, pass the ids of the categories to repair:
+
+```bash
+bin/console seo:repair:link-category-takeover --apply --no-interaction <category-id>...
 ```
 
 The categories get their SEO URLs back, and their fallback URLs redirect to them.

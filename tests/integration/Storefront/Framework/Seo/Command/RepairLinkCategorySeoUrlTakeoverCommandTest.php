@@ -76,27 +76,54 @@ class RepairLinkCategorySeoUrlTakeoverCommandTest extends TestCase
         static::assertSame(['Old-Guide/' => '1'], $this->getCanonicalSeoPaths($targetId));
     }
 
-    public function testApplyGivesTheTargetItsSeoUrlBack(): void
+    public function testApplyGivesTheTargetItsSeoUrlBackWhenConfirmed(): void
     {
         $targetId = $this->createTakenOverTarget('Guide');
 
+        $this->commandTester->setInputs(['yes']);
         static::assertSame(Command::SUCCESS, $this->commandTester->execute(['--apply' => true]));
 
+        static::assertStringContainsString(\sprintf('Give "Guide/" back to "Guide" (%s) instead of "Old-Guide/"?', $targetId), $this->commandTester->getDisplay());
         static::assertSame(['Guide/' => '0'], $this->getCanonicalSeoPaths($targetId));
 
         static::assertSame(Command::SUCCESS, $this->commandTester->execute([]));
         static::assertStringContainsString('No category is affected.', $this->commandTester->getDisplay());
     }
 
-    public function testApplyOnlyRepairsTheGivenCategories(): void
+    public function testApplyKeepsCategoriesThatAreNotConfirmed(): void
+    {
+        $keptId = $this->createTakenOverTarget('Blog');
+        $repairedId = $this->createTakenOverTarget('Guide');
+
+        $this->commandTester->setInputs(['no', 'yes']);
+        static::assertSame(Command::SUCCESS, $this->commandTester->execute(['--apply' => true]));
+
+        static::assertSame(['Old-Blog/' => '1'], $this->getCanonicalSeoPaths($keptId));
+        static::assertSame(['Guide/' => '0'], $this->getCanonicalSeoPaths($repairedId));
+    }
+
+    public function testApplyRepairsTheGivenCategoriesWithoutAsking(): void
     {
         $repairedId = $this->createTakenOverTarget('Guide');
         $skippedId = $this->createTakenOverTarget('Blog');
 
-        static::assertSame(Command::SUCCESS, $this->commandTester->execute(['--apply' => true, 'category-ids' => [$repairedId]]));
+        static::assertSame(Command::SUCCESS, $this->commandTester->execute(
+            ['--apply' => true, 'category-ids' => [$repairedId]],
+            ['interactive' => false],
+        ));
 
         static::assertSame(['Guide/' => '0'], $this->getCanonicalSeoPaths($repairedId));
         static::assertSame(['Old-Blog/' => '1'], $this->getCanonicalSeoPaths($skippedId));
+    }
+
+    public function testApplyRequiresCategoryIdsWhenNotInteractive(): void
+    {
+        $targetId = $this->createTakenOverTarget('Guide');
+
+        static::assertSame(Command::INVALID, $this->commandTester->execute(['--apply' => true], ['interactive' => false]));
+
+        static::assertStringContainsString('Run interactively or pass the ids of the categories to repair.', $this->commandTester->getDisplay());
+        static::assertSame(['Old-Guide/' => '1'], $this->getCanonicalSeoPaths($targetId));
     }
 
     public function testApplyRepairsLanguagesWithoutTheirOwnCategoryTranslation(): void
@@ -104,6 +131,7 @@ class RepairLinkCategorySeoUrlTakeoverCommandTest extends TestCase
         $targetId = $this->createTakenOverTarget('Guide');
         static::assertSame(['Old-Guide/' => '1'], $this->getCanonicalSeoPaths($targetId, $this->getDeDeLanguageId()));
 
+        $this->commandTester->setInputs(['yes']);
         static::assertSame(Command::SUCCESS, $this->commandTester->execute(['--apply' => true]));
 
         static::assertSame(['Guide/' => '0'], $this->getCanonicalSeoPaths($targetId, $this->getDeDeLanguageId()));

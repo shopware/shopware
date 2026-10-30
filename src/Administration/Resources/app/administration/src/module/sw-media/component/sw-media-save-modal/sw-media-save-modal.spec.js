@@ -52,7 +52,7 @@ describe('src/module/sw-media/component/sw-media-save-modal', () => {
         });
 
         // Wait for component to be fully mounted
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // Mock mediaRepository.create to have been called
         const spyMediaRepositoryCreate = jest.spyOn(wrapper.vm.mediaRepository, 'create');

@@ -16,6 +16,13 @@ const { Criteria } = Shopware.Data;
 export default Component.wrapComponentConfig({
     template,
 
+    emits: [
+        'auto-promotion-toggle',
+        'send-order-confirmation-mail-toggle',
+        'promotions-change',
+        'shipping-cost-change',
+    ],
+
     props: {
         promotionCodes: {
             type: Array as PropType<string[]>,

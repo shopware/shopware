@@ -37,6 +37,10 @@ export default {
             return Shopware.Store.get('swProductDetail').product;
         },
 
+        isDownloadExternallyManaged() {
+            return Shopware.Store.get('swProductDetail').isDownloadExternallyManaged;
+        },
+
         parentProduct() {
             return Shopware.Store.get('swProductDetail').parentProduct;
         },
@@ -108,6 +112,34 @@ export default {
         createdComponent() {
             this.getMediaDefaultFolderId().then((mediaDefaultFolderId) => {
                 this.mediaDefaultFolderId = mediaDefaultFolderId;
+            });
+        },
+
+        onDownloadExternalManagementChange(value) {
+            Shopware.Store.get('swProductDetail').isDownloadExternallyManaged = value;
+            const errorPath = `product.${this.product.id}.downloads`;
+
+            if (value) {
+                const error = Shopware.Store.get('error').getApiError(this.product, 'downloads');
+
+                if (error?.code === 'SW_PRODUCT_DOWNLOADS_EXTERNAL_MANAGEMENT_REQUIRED') {
+                    Shopware.Store.get('error').removeApiError(errorPath);
+                }
+                return;
+            }
+
+            if (this.productType === 'digital' && !this.product.downloads?.length) {
+                this.showRequiredDownloadsError();
+            }
+        },
+
+        showRequiredDownloadsError() {
+            Shopware.Store.get('error').addApiError({
+                expression: `product.${this.product.id}.downloads`,
+                error: new Shopware.Classes.ShopwareError({
+                    code: 'SW_PRODUCT_DOWNLOADS_EXTERNAL_MANAGEMENT_REQUIRED',
+                    detail: this.$t('sw-product.detailBase.downloadsExternalManagementRequired'),
+                }),
             });
         },
 

@@ -167,11 +167,6 @@ const createWrapper = async (privileges = []) => {
 };
 
 describe('src/module/sw-settings-measurement/component/sw-settings-measurement-default-units', () => {
-    it('should be a Vue component', async () => {
-        const wrapper = await createWrapper(['measurement.editor']);
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render the component properly', async () => {
         const wrapper = await createWrapper(['measurement.editor']);
 

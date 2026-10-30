@@ -132,10 +132,6 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
         await flushPromises();
     });
 
-    it('should be able to instantiate', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('has the correct class', async () => {
         expect(wrapper.classes()).toContain(classes.componentRoot);
     });

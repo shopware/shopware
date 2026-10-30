@@ -837,6 +837,34 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
             expect(newProduct.variantListingConfig).toEqual({ displayParent: true });
         });
 
+        it('should apply the main product default when nothing was saved for a product created in the administration', async () => {
+            const newProduct = JSON.parse(JSON.stringify(product));
+            newProduct.variantListingConfig = { displayParent: null, mainVariantId: null, configuratorGroupConfig: null };
+
+            await new Promise((resolve) => {
+                variantsGenerator.once('queues', resolve);
+                variantsGenerator.generateVariants(currencies, newProduct);
+            });
+
+            expect(newProduct.variantListingConfig).toEqual({ displayParent: true });
+        });
+
+        it.each([
+            ['a variant', { displayParent: false, mainVariantId: null, configuratorGroupConfig: null }],
+            ['a main variant', { displayParent: null, mainVariantId: 'variant-id', configuratorGroupConfig: null }],
+            ['expanded variants', { displayParent: null, mainVariantId: null, configuratorGroupConfig: [] }],
+        ])('should keep the saved presentation of %s when generating variants', async (_, variantListingConfig) => {
+            const existingProduct = JSON.parse(JSON.stringify(product));
+            existingProduct.variantListingConfig = { ...variantListingConfig };
+
+            await new Promise((resolve) => {
+                variantsGenerator.once('queues', resolve);
+                variantsGenerator.generateVariants(currencies, existingProduct);
+            });
+
+            expect(existingProduct.variantListingConfig).toEqual(variantListingConfig);
+        });
+
         it('should resolve immediately when product is missing', async () => {
             variantsGenerator.product = null;
             const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync');

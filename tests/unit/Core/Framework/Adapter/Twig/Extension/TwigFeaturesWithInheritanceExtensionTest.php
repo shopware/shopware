@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\TwigFeaturesWithInheritanceExtension;
-use Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Log\Package;
@@ -23,7 +22,6 @@ use Twig\TwigFunction;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(SwTwigFunction::class)]
 #[CoversClass(TwigFeaturesWithInheritanceExtension::class)]
 class TwigFeaturesWithInheritanceExtensionTest extends TestCase
 {

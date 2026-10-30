@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Checkout\Order\OrderProductAvailabilityResolver;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Shopware\Storefront\Page\MetaInformation;
@@ -38,7 +39,8 @@ class AccountOverviewPageLoader
         private readonly AbstractOrderRoute $orderRoute,
         private readonly AbstractCustomerRoute $customerRoute,
         private readonly NewsletterAccountPageletLoader $newsletterAccountPageletLoader,
-        private readonly AbstractTranslator $translator
+        private readonly AbstractTranslator $translator,
+        private readonly OrderProductAvailabilityResolver $productAvailabilityResolver
     ) {
     }
 
@@ -59,6 +61,8 @@ class AccountOverviewPageLoader
         $order = $this->loadNewestOrder($salesChannelContext, $request);
 
         if ($order !== null) {
+            $this->productAvailabilityResolver->addAvailability([$order], $salesChannelContext);
+
             $page->setNewestOrder($order);
         }
 

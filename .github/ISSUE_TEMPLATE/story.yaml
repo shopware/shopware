@@ -1,4 +1,4 @@
-name: Story 
+name: Story
 description: Use this template to draft user stories.
 type: Story
 body:
@@ -33,7 +33,7 @@ body:
           - label: Observability—includes monitoring, alerting, and logging; incident response handbooks updated.
           - label: Documentation—developer docs are written or updated, including information on how the feature or change is adopted and tested. If new functionality, end user documentation is written or updated.
           - label: (conditional) All new API endpoints have a defined API schema.
-          - label: (conditional) If the change affects the Storefront, it has been tested in the latest three versions of Firefox, Chrome, Edge, IE11, and Safari, as well as the different viewports and devices (Desktop / Tablet / Mobile). 
+          - label: (conditional) If the change affects the Storefront, it has been tested in the latest three versions of Firefox, Chrome, Edge, and Safari, as well as the different viewports and devices (Desktop / Tablet / Mobile).
           - label: (conditional) If the change affects the Administration, it has been tested in current versions of Firefox, Chrome, and Edge.
           - label: (conditional) Functionality that includes new API routes are callable via the Store-API (/store-api/[version]/).
           - label: (conditional) If a new Admin module is created, the access control layer is provided, and permissions can be managed via the Users & Permissions module.

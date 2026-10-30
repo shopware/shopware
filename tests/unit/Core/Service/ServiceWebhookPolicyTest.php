@@ -4,6 +4,9 @@ namespace Shopware\Tests\Unit\Core\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Acl\AclRoles;
+use Shopware\Core\Framework\Api\Acl\ApiCaller;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
@@ -63,7 +66,10 @@ class ServiceWebhookPolicyTest extends TestCase
 
     public function testASubscriberWithoutAManifestMayNotSubscribe(): void
     {
-        static::assertFalse($this->createPolicy()->permitsSubscription(CommercialLicenseProvidedEvent::NAME, Subscriber::user()));
+        $caller = ApiCaller::of(new AdminApiSource('user-id'));
+        static::assertNotNull($caller);
+
+        static::assertFalse($this->createPolicy()->permitsSubscription(CommercialLicenseProvidedEvent::NAME, Subscriber::api($caller)));
     }
 
     private function createPolicy(bool $appIsSelfManaged = false): ServiceWebhookPolicy
@@ -93,7 +99,7 @@ class ServiceWebhookPolicyTest extends TestCase
             appActive: true,
             appVersion: null,
             appSecret: null,
-            appAclRoleId: null,
+            roles: new AclRoles(false, []),
         );
     }
 

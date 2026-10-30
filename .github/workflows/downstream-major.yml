@@ -1,0 +1,51 @@
+name: Downstream (major)
+
+# Keep label-triggered major runs separate from the required ordinary downstream check.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  commercial-major:
+    name: Commercial (major)
+    if: >-
+      (github.repository == 'shopware/shopware' || github.repository == 'shopware/shopware-private') && (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-tests')) && (github.event.action != 'labeled' || github.event.label.name == 'major-tests')
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
+    runs-on: ubuntu-24.04
+    steps:
+      - id: sts
+        uses: shopware/octo-sts-action@main
+        with:
+          scope: shopware
+          identity: ShopwareDownstream
+      - name: Commercial major tests
+        uses: shopware/github-actions/downstream@main
+        env:
+          NEW_LOGIC: 1
+        with:
+          repo: shopware/SwagCommercial
+          workflow: integration-major.yaml
+          ref: .auto
+          timeout: 60m
+          poll_interval: 1m
+          token: ${{ steps.sts.outputs.token }}
+          upstream-token: ${{ github.token }}
+
+  downstream-major-check:
+    if: >-
+      always() && (github.repository == 'shopware/shopware' || github.repository == 'shopware/shopware-private') && (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-tests')) && (github.event.action != 'labeled' || github.event.label.name == 'major-tests')
+    needs:
+      - commercial-major
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # v1.3.0
+        with:
+          jobs: ${{ toJSON(needs) }}

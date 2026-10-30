@@ -8,10 +8,11 @@ When writing unit tests, the following is important:
 
 - **"100% coverage "** - This does not mean that simply a high code coverage should be generated, but that all use cases of each individual service is tested.
 - **Package ownership** - Every test class must declare `#[Package('…')]` with the same package as its covered production domain so CI failures can be routed to the owning team.
-- **One covered class per test file** - Declare exactly one `#[CoversClass]`. The covered class decides which domain owns the test; several covered classes make the ownership ambiguous and usually mean several subjects share one file. Split it. A Danger rule fails new test files covering more than one class.
+- **One covered class per test file** - Declare exactly one `#[CoversClass]`. The covered class decides which domain owns the test; several covered classes make the ownership ambiguous and usually mean several subjects share one file. Split it. A Danger rule fails every added or modified test file covering more than one class.
 - **No traits in unit test classes** - A new unit test class does not compose helpers through a trait. Fixture builders go into a static fixture class such as `Shopware\Core\Test\Checkout\CartRuleFixture`, doubles of the class under test into a `Stub/` folder next to the test, and behaviours that boot the kernel stay out of the unit suite. The only traits a unit test class may use are lifecycle behaviours that must restore state after the test, such as `EnvTestBehaviour`, `EventDispatcherBehaviour` or Symfony's `ClockSensitiveTrait`. A Danger rule fails new unit test files composing any other trait; a stub class declared further down in the same file may still use a production trait it exercises.
 - **Source-file coverage** - New source files should either have focused unit-test coverage or be explicitly marked with `@codeCoverageIgnore` when they are intentionally covered by integration tests. Add a separate `@see \Shopware\Tests\Integration\…\DedicatedIntegrationTest` line in the class docblock. Use the fully qualified class name with a leading `\`; do not import a test class solely for the annotation. The referenced test must be dedicated to that production class; do not point to an unrelated test that only covers the class incidentally. Extract or add a focused integration test first. `CodeCoverageIgnoreEvaluationRule` rejects the annotation on any method that does more than pass a value through: branching and error paths, value mutation (`unset`, compound assignment such as `+=` or `.=`, increments, a second write to the same local), discarded calls on `$this`, `self::` or `static::` such as access guards or hooks, discarded calls on a parameter (`$criteria->addFilter(...)`, the method shaping its input; `EntityExtension::extendFields()` is exempt as schema declaration, like `defineFields()`), and constructors that configure their parent (a literal handed to `parent::__construct()`, or a parameter default the parent does not share). A `@see` to a dedicated `\Shopware\Tests\Integration\…` or `\Shopware\Tests\DevOps\…` test lifts that check.
 - **No process termination** - A test must never let code under test call `exit()` or `die()`. PHPUnit dies with it and every later test silently does not run. When testing a Symfony console `Application`, call `$application->setAutoExit(false)` before running it, or use `CommandTester`, which invokes the command directly. `Shopware\Core\Test\PHPUnit\CompletionGuard` fails such a run instead of letting it pass green — see [issue #18661](https://github.com/shopware/shopware/issues/18661) and [`ci-workflows.md`](ci-workflows.md).
+- **No process isolation** - A unit or devops test runs in the shared PHPUnit process. `#[RunInSeparateProcess]`, `#[RunTestsInSeparateProcesses]` and `#[RunClassInSeparateProcess]` re-bootstrap per test, run outside the PHPUnit extensions, and hide global state the test should restore itself. A Danger rule fails every added or modified unit or devops test file using them.
 - **Performance** - As we grow more and more it is advisable to pay attention to the speed of the tests.
 - **Mocking and stubbing** - Use mocks and stubs intentionally to keep unit tests fast and focused. Simple stubs such as `createStub()` or concrete test doubles like `StaticEntityRepository` are fine when a dependency only needs to return data. Do not behavior-mock Doctrine DBAL `Connection` by asserting SQL calls or parameters; isolate SQL/DBAL work in database adapters and cover those adapters with integration tests. When the behaviour under test has no observable effect other than the write itself, see "Asserting writes when there is no other seam" below.
 - **createMock() only with expectations** - A double that never receives `->expects()` is a stub, so create it with `createStub()`. `NoCreateMockWithoutExpectationsRule` reports the ones that are provably never expected, including doubles handed to a fixture helper that only forwards them into the subject under test. Two API details matter when converting: `->with()` exists on mocks only, so a stub asserts its arguments inside `willReturnCallback()` instead, and a fixture helper receiving a stub must type that parameter as `Stub` (`Foo&Stub`) rather than `MockObject`. Both slip past PHPUnit at runtime and only fail in PHPStan.
@@ -83,6 +84,38 @@ Option 3 is acceptable when the first two do not fit, under these conditions:
 - Keep the statement capture in a single helper, so a query refactor touches one place instead of every test.
 - Make sure the transaction wrapper actually invokes its closure. A `Connection` double whose `transactional()` ignores its argument executes nothing, so every test in the file passes without proving anything.
 - Confirm each test fails when the decision under test is flipped, before trusting it.
+
+## Observing events in tests
+
+Never add or remove listeners on the shared `event_dispatcher` in a test. Symfony 8.2 compiles that dispatcher and deprecates runtime changes to it; `NoRuntimeListenerOnSharedEventDispatcherRule` reports them in the integration suite.
+
+A test that needs an event has two legitimate shapes. Prefer them in this order:
+
+1. **Unit test with a dispatcher the test owns.** When the behaviour under test is "this service dispatches this event with this payload" and the service can be built without the container, construct it with a `CollectingEventDispatcher` or a mock dispatcher and assert on what was dispatched. The event is the contract of that service, and the test proves it without a kernel.
+2. **Integration test with a hook.** When the point is the wiring, that the real system dispatches the event as a consequence of a write, a request or a flow, get the hook dispatcher from the container and capture the event:
+
+   ```php
+   $written = null;
+   EventHookDispatcher::fromContainer(static::getContainer())->on(ProductEvents::PRODUCT_WRITTEN_EVENT, function (EntityWrittenEvent $event) use (&$written): void {
+       $written = $event;
+   });
+
+   $this->productRepository->create([$product], $this->context);
+
+   static::assertNotNull($written);
+   static::assertSame([$id], $written->getIds());
+   ```
+
+   Hooks run after the dispatcher's own listeners, respect stopped propagation and are cleared before each test.
+
+Whichever shape, keep these conditions:
+
+- **Capture in the hook, assert after the code under test ran.** Never put an assertion inside the hook; `NoAssertionInEventHookRule` reports one. Code that catches and logs exceptions around a dispatch (`SendMailAction` around `MailSentEvent`, flow actions, message handlers) swallows the assertion failure and the test stays green. The reference incident is #21105. `fail()` included: it fails the test it is called in, and a listener is not the test. For "nothing was dispatched", give the code under test a `CollectingEventDispatcher` and assert on `getEvents()` after the call instead of a sentinel listener.
+- **Assert that the hook fired.** A captured value that stays `null` must fail the test (`assertNotNull`, `assertCount`), otherwise a renamed event or a changed dispatch path passes silently.
+- **A hook that changes behaviour (alters the event, stops propagation, throws) is a last resort.** It means the test depends on listener order. Say so in a comment, and prefer a test-only service registered in `services_test.php` when the same intervention is needed in more than one test.
+- **`subscribe()` for a whole subscriber only when the test is about that subscriber's wiring.** For one event, `on()` with a closure reads better.
+
+When an integration test uses a hook only to assert a payload that a unit test could assert just as well, move it; the hook is the signal that the test is at the wrong level.
 
 ## Focus on behavior, not implementation: Effective unit testing principles
 

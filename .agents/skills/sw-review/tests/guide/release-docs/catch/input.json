@@ -1,0 +1,41 @@
+{
+  "persona": "maintainer",
+  "tier": "balanced",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-release-docs-catch",
+    "title": "feat(core): make the number of URLs per sitemap file configurable",
+    "body": "Adds `shopware.sitemap.max_urls_per_file` (default 49999, as before). Release info and upgrade notes are included.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/release-docs-catch",
+    "additions": 24,
+    "deletions": 4,
+    "changed_files": 7
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "RELEASE_INFO-6.7.md",
+    "UPGRADE-6.8.md",
+    "src/Core/Content/DependencyInjection/sitemap.php",
+    "src/Core/Content/Sitemap/Service/SitemapHandle.php",
+    "src/Core/Content/Sitemap/Service/SitemapHandleFactory.php",
+    "src/Core/Framework/DependencyInjection/Configuration.php",
+    "src/Core/Framework/Resources/config/packages/shopware.yaml"
+  ],
+  "guides": [
+    "guides/release-docs.md"
+  ],
+  "change_profile": {
+    "signals": [
+      "config",
+      "php_src",
+      "release_docs"
+    ],
+    "guides": [
+      "release-docs"
+    ]
+  }
+}

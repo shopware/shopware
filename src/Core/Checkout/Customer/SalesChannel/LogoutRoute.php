@@ -59,11 +59,11 @@ class LogoutRoute extends AbstractLogoutRoute
         return $this->extensions->publish(
             name: LogoutRouteExtension::NAME,
             extension: new LogoutRouteExtension($context, $data),
-            function: $this->_logout(...),
+            function: fn (SalesChannelContext $context, RequestDataBag $data): ContextTokenResponse => $this->_logout($context),
         );
     }
 
-    private function _logout(SalesChannelContext $context, RequestDataBag $data): ContextTokenResponse
+    private function _logout(SalesChannelContext $context): ContextTokenResponse
     {
         /** @var CustomerEntity $customer */
         $customer = $context->getCustomer();

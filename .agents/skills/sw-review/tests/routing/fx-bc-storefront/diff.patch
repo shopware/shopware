@@ -1,0 +1,34 @@
+diff --git a/src/Storefront/Resources/views/storefront/component/pagination.html.twig b/src/Storefront/Resources/views/storefront/component/pagination.html.twig
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Storefront/Resources/views/storefront/component/pagination.html.twig
++++ b/src/Storefront/Resources/views/storefront/component/pagination.html.twig
+@@ -76,7 +76,7 @@
+                             <li class="page-item{% if isActive %} active{% endif %}"{% if isActive %} aria-current="page"{% endif %}>
+                                     {% block component_pagination_item_link_element %}
+                                         <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ page ~ searchQuery : '#' }}" class="page-link" data-page="{{ page }}" data-focus-id="{{ page }}">
+-                                            {% block component_pagination_item_link_text %}
++                                            {% block component_pagination_item_label %}
+                                                 <span class="visually-hidden">{{ 'general.pagination.page'|trans|sw_sanitize }}</span> {{ page }}
+                                             {% endblock %}
+                                         </a>
+diff --git a/src/Storefront/Resources/app/storefront/src/plugin/listing/listing-pagination.plugin.js b/src/Storefront/Resources/app/storefront/src/plugin/listing/listing-pagination.plugin.js
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Storefront/Resources/app/storefront/src/plugin/listing/listing-pagination.plugin.js
++++ b/src/Storefront/Resources/app/storefront/src/plugin/listing/listing-pagination.plugin.js
+@@ -10,7 +10,6 @@
+     static options = deepmerge(FilterBasePlugin.options, {
+         page: 1,
+         paginationItemSelector: '.pagination .page-link',
+-        paginationNavSelector: '.pagination-nav',
+     });
+ 
+     init() {
+@@ -62,7 +61,7 @@
+      * @private
+      */
+     _saveFocusState(clickedPaginationEl) {
+-        let paginationLocation = clickedPaginationEl.closest(this.options.paginationNavSelector).dataset.paginationLocation;
++        let paginationLocation = clickedPaginationEl.closest('.pagination-nav').dataset.paginationLocation;
+ 
+         // If scroll to top option is true in the `Listing` plugin, we always focus the top pagination
+         if (this.listing.options.scrollTopListingWrapper) {

@@ -99,12 +99,13 @@ class ScriptResponseFactoryFacade
             'Rendering Storefront templates via the script `response` service is only supported in Storefront script hooks. The `render()` method will be removed from the core `response` service.'
         );
 
+        $method = __METHOD__;
         if ($this->scriptController === null) {
-            throw ScriptException::storefrontBundleMissingForHookMethod(__METHOD__);
+            Feature::silent('v6.8.0.0', static fn () => throw ScriptException::storefrontBundleMissingForHookMethod($method));
         }
 
         if ($this->salesChannelContext === null) {
-            throw ScriptException::hookMethodOutsideOfSalesChannelContext(__METHOD__);
+            Feature::silent('v6.8.0.0', static fn () => throw ScriptException::hookMethodOutsideOfSalesChannelContext($method));
         }
 
         $inner = $this->scriptController->renderStorefrontForScript($view, $parameters);

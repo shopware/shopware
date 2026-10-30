@@ -39,6 +39,9 @@ async function createWrapper(items = [createMediaItem()]) {
                 'sw-media-modal-folder-dissolve': true,
                 'sw-media-modal-move': true,
                 'mt-icon': true,
+                'mt-button': {
+                    template: '<button class="mt-button"><slot></slot></button>',
+                },
             },
             provide: {
                 acl: {
@@ -194,5 +197,13 @@ describe('module/sw-media/component/sidebar/sw-media-quickinfo-multiple', () => 
         const wrapper = await createWrapper();
 
         expect(() => wrapper.vm.runAppAction({ id: 'button-1', entity: 'media', view: 'list' })).not.toThrow();
+    });
+
+    it('should emit media-item-selection-clear when clicking the unselect all button', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.find('.sw-media-quickinfo-multiple__unselect-all').trigger('click');
+
+        expect(wrapper.emitted('media-item-selection-clear')).toHaveLength(1);
     });
 });

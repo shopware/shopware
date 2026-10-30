@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -146,6 +147,24 @@ class ApiRequestContextResolverTest extends TestCase
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
         static::assertInstanceOf(Context::class, $context);
         static::assertInstanceOf(AdminApiSource::class, $context->getSource());
+    }
+
+    public function testTheAppIntegrationIdHeaderIsLowercased(): void
+    {
+        $integrationId = (new AppFixture(static::getContainer()->get('app.repository')))->createAppFromData()->getIntegrationId();
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID, $this->createUser([], true)->getUserId());
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
+        $request->headers->set(PlatformRequest::HEADER_APP_INTEGRATION_ID, strtoupper($integrationId));
+
+        $this->resolver->resolve($request);
+
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
+        $source = $context->getSource();
+        static::assertInstanceOf(AdminApiSource::class, $source);
+        static::assertSame($integrationId, $source->getIntegrationId());
     }
 
     public function testEmptyAppUserIdHeaderIsIgnoredForIntegrationAuth(): void

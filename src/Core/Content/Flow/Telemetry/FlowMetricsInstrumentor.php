@@ -4,9 +4,9 @@ namespace Shopware\Core\Content\Flow\Telemetry;
 
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Telemetry\Instrumentation\ElapsedTimer;
-use Shopware\Core\Framework\Telemetry\Metrics\Meter;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
+use Shopware\Core\Framework\Telemetry\Instrumentation\DurationMetric;
+use Shopware\Core\Framework\Telemetry\Instrumentation\OperationResult;
+use Shopware\Core\Framework\Telemetry\Telemetry;
 
 /**
  * Telemetry collaborator for {@see \Shopware\Core\Content\Flow\Dispatching\FlowExecutor}: emits
@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
  * This is the flow engine's end-to-end wall time (orchestration plus the in-process actions). Heavy actions
  * that offload to queue, like mail and app webhooks - are timed by the message queue metrics.
  *
- * Merely-hot path: relies on `Meter::emit`'s early-return when telemetry is disabled, no compiler-pass gating.
+ * Merely-hot path: relies on the Meter's early-return when telemetry is disabled, no compiler-pass gating.
  *
  * @internal
  *
@@ -28,11 +28,8 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 #[Package('after-sales')]
 class FlowMetricsInstrumentor
 {
-    private const RESULT_SUCCESS = 'success';
-    private const RESULT_FAILED = 'failed';
-
     public function __construct(
-        private readonly Meter $meter,
+        private readonly Telemetry $telemetry,
         private readonly TriggerGroupResolver $triggerGroupResolver,
     ) {
     }
@@ -42,24 +39,12 @@ class FlowMetricsInstrumentor
      */
     public function measureExecution(StorableFlow $event, \Closure $callback): void
     {
-        $result = self::RESULT_SUCCESS;
-        $timer = ElapsedTimer::start();
-
-        try {
-            $callback();
-        } catch (\Throwable $e) {
-            $result = self::RESULT_FAILED;
-
-            throw $e;
-        } finally {
-            $this->meter->emit(new ConfiguredMetric(
-                name: 'flow.execution.duration',
-                value: $timer->getElapsedMs(),
-                labels: [
-                    'trigger_group' => $this->triggerGroupResolver->resolve($event->getName()),
-                    'result' => $result,
-                ],
-            ));
-        }
+        $this->telemetry->instrument($callback, new DurationMetric(
+            name: 'flow.execution.duration',
+            labels: fn (mixed $result, ?\Throwable $e): array => [
+                'trigger_group' => $this->triggerGroupResolver->resolve($event->getName()),
+                'result' => OperationResult::fromOutcome($e),
+            ],
+        ));
     }
 }

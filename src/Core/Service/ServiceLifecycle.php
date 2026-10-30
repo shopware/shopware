@@ -25,6 +25,7 @@ use Shopware\Core\Service\Requirement\Gate;
 use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
+use Shopware\Core\Service\ServiceRegistry\ServiceStatus;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -88,6 +89,11 @@ class ServiceLifecycle
     {
         try {
             $entry = $this->serviceRegistryClient->get($name);
+            // only an active service is updated; a retired one is uninstalled by the reconcile instead
+            if ($entry->status !== ServiceStatus::ACTIVE) {
+                return;
+            }
+
             $appInfo = $this->serviceClientFactory->newFor($entry)->latestAppInfo();
         } catch (ServiceException $e) {
             // registry unavailable or no longer lists the service; nothing to do, the service retries later

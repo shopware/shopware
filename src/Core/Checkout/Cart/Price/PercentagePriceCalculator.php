@@ -40,7 +40,7 @@ class PercentagePriceCalculator
 
         $rules = $this->percentageTaxRuleBuilder->buildCollectionRules($prices->getCalculatedTaxes(), $totalPrice);
 
-        if (Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('PROPORTIONAL_CART_TAXES')) {
             $taxes = $context->getTaxState() !== CartPrice::TAX_STATE_FREE ? $prices->getCalculatedTaxes() : new CalculatedTaxCollection();
             foreach ($taxes as $tax) {
                 $tax->setTax($this->round($tax->getTax() / 100 * $percentage, $context));

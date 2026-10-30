@@ -34,7 +34,7 @@ enum AnnotationTagVersionSchema: string
 
     public function pattern(): string
     {
-        return \sprintf('/^v%s$/', $this->value);
+        return \sprintf('/^v%s$/D', $this->value);
     }
 
     public function invalidMessage(): string

@@ -38,6 +38,24 @@ class EntityScoreQueryBuilder
         static $counter = 0;
         ++$counter;
 
+        return $this->buildScoreQueriesForPath($term, $definition, $root, $context, $multiplier, []);
+    }
+
+    /**
+     * @param array<string, true> $path
+     *
+     * @return ScoreQuery[]
+     */
+    private function buildScoreQueriesForPath(
+        SearchPattern $term,
+        EntityDefinition $definition,
+        string $root,
+        Context $context,
+        float $multiplier,
+        array $path
+    ): array {
+        $path[$definition->getEntityName()] = true;
+
         $fields = $this->getQueryFields($definition, $context);
 
         $queries = [];
@@ -57,19 +75,18 @@ class EntityScoreQueryBuilder
 
             $select = $root . '.' . $field->getPropertyName();
 
-            if ($field instanceof ManyToManyAssociationField) {
-                $queries = array_merge(
-                    $queries,
-                    $this->buildScoreQueries($term, $field->getToManyReferenceDefinition(), $select, $context, $ranking)
-                );
-
-                continue;
-            }
-
             if ($field instanceof AssociationField) {
+                $referenceDefinition = $field instanceof ManyToManyAssociationField
+                    ? $field->getToManyReferenceDefinition()
+                    : $field->getReferenceDefinition();
+
+                if (isset($path[$referenceDefinition->getEntityName()])) {
+                    continue;
+                }
+
                 $queries = array_merge(
                     $queries,
-                    $this->buildScoreQueries($term, $field->getReferenceDefinition(), $select, $context, $ranking)
+                    $this->buildScoreQueriesForPath($term, $referenceDefinition, $select, $context, $ranking, $path)
                 );
 
                 continue;
@@ -107,28 +124,27 @@ class EntityScoreQueryBuilder
 
     private function getQueryFields(EntityDefinition $definition, Context $context): FieldCollection
     {
-        $fields = $definition->getFields()->filterByFlag(SearchRanking::class);
-
         // exclude read protected fields which are not allowed for the current scope
-        $fields = $fields->filter(static function (Field $field) use ($context) {
+        $isAllowed = static function (Field $field) use ($context) {
             $flag = $field->getFlag(ApiAware::class);
             if ($flag === null) {
                 return false;
             }
 
             return $flag->isSourceAllowed($context->getSource()::class);
-        });
+        };
 
+        $fields = $definition->getFields()->filterByFlag(SearchRanking::class)->filter($isAllowed);
         if ($fields->count() > 0) {
             return $fields;
         }
 
-        $fields = $definition->getFields()->filterInstance(TranslatedField::class);
+        $fields = $definition->getFields()->filterInstance(TranslatedField::class)->filter($isAllowed);
         if ($fields->count() > 0) {
             return $fields;
         }
 
-        return $definition->getFields()->filterInstance(StringField::class);
+        return $definition->getFields()->filterInstance(StringField::class)->filter($isAllowed);
     }
 
     private function validateDateFormat(string $format, string $date): bool

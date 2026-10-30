@@ -55,7 +55,7 @@ class CreateMigrationCommand extends Command
         $name = $input->getOption('name') ?? '';
         $package = $input->getOption('package') ?? 'framework';
 
-        if (!preg_match('/^[a-zA-Z0-9\_]*$/', (string) $name)) {
+        if (!preg_match('/^[a-zA-Z0-9\_]*$/D', (string) $name)) {
             throw MigrationException::invalidArgument('Migration name contains forbidden characters!');
         }
 

@@ -46,7 +46,7 @@ async function createWrapper(privileges = []) {
 describe('module/sw-settings-tax/component/sw-settings-tax-provider-sorting-modal', () => {
     it("should be handle onClose and emit 'modal-close'", async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.closeModal();
 
@@ -55,7 +55,7 @@ describe('module/sw-settings-tax/component/sw-settings-tax-provider-sorting-moda
 
     it('should handle applyChanges', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.closeModal();
 
@@ -72,7 +72,7 @@ describe('module/sw-settings-tax/component/sw-settings-tax-provider-sorting-moda
 
     it('should handle onSort', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const sortedItems = ['item-1', 'item-2', 'item-3'];
         wrapper.vm.onSort(sortedItems);

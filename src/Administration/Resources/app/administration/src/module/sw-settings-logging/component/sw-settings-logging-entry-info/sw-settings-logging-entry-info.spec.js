@@ -135,7 +135,7 @@ describe('src/module/sw-settings-logging/component/sw-settings-logging-entry-inf
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
         await tabs.vm.$emit('new-item-active', 'inactive');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('inactive');
         expect(wrapper.findComponent({ name: 'mt-textarea' }).exists()).toBe(false);
@@ -168,12 +168,12 @@ describe('src/module/sw-settings-logging/component/sw-settings-logging-entry-inf
         expect(wrapper.html()).toContain('<strong>HTML mail body</strong>');
 
         await tabs.vm.$emit('new-item-active', 'plain');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.text()).toContain('Plain mail body');
 
         await tabs.vm.$emit('new-item-active', 'raw');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.getComponent({ name: 'mt-textarea' }).props('modelValue')).toBe(
             JSON.stringify(mailLogEntry.context, null, 2),

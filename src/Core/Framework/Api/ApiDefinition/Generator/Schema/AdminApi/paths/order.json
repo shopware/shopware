@@ -747,6 +747,81 @@
         }
       }
     },
+    "/_action/order/document-v2/number-range-pattern-collisions": {
+      "get": {
+        "tags": ["Document Management", "Experimental"],
+        "summary": "List document number ranges whose pattern collides",
+        "description": "Lists the number ranges of the given document number range type that use exactly the given pattern. Document numbers are unique per document type, so two such ranges generate colliding numbers once they reach the same value. Only number range types whose technical name starts with `document_` are considered, for any other type the list is empty. Pass `numberRangeId` to leave that number range out of the result, for example to check the pattern of an existing number range against all others. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+        "operationId": "documentV2NumberRangePatternCollisions",
+        "parameters": [
+          {
+            "name": "numberRangeTypeId",
+            "in": "query",
+            "description": "Identifier of the number range type.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$"
+            }
+          },
+          {
+            "name": "pattern",
+            "in": "query",
+            "description": "The pattern to check, for example `INV-{n}`.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "numberRangeId",
+            "in": "query",
+            "description": "Identifier of a number range to leave out of the result.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The colliding number ranges.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["collisions"],
+                  "properties": {
+                    "collisions": {
+                      "description": "Number ranges of the given document number range type that use the pattern.",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["id", "name"],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                          },
+                          "name": {
+                            "description": "Translated name of the number range.",
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A required query parameter is missing or invalid."
+          }
+        }
+      }
+    },
     "/_action/order/{orderId}/state/{transition}": {
       "post": {
         "tags": [

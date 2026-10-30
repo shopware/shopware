@@ -3,3 +3,6 @@ framework:
         enabled: true
     cache:
         app: cache.adapter.array
+        pools:
+            cache.app_url_verification:
+                adapter: cache.adapter.filesystem

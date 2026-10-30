@@ -2,10 +2,13 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media\Subscriber;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
 use Shopware\Core\Content\Media\Subscriber\CustomFieldsUnusedMediaSubscriber;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -23,5 +26,24 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
             ],
             CustomFieldsUnusedMediaSubscriber::getSubscribedEvents()
         );
+    }
+
+    public function testNothingIsQueriedWhenTheBatchIsEmpty(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchAllAssociative');
+        $connection->expects($this->never())->method('fetchFirstColumn');
+        $connection->expects($this->never())->method('executeQuery');
+
+        $subscriber = new CustomFieldsUnusedMediaSubscriber(
+            $connection,
+            static::createStub(DefinitionInstanceRegistry::class)
+        );
+
+        $event = new UnusedMediaSearchEvent([], Context::createDefaultContext());
+
+        $subscriber->removeUsedMedia($event);
+
+        static::assertSame([], $event->getUnusedIds());
     }
 }

@@ -49,7 +49,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 #[Package('framework')]
 #[CoversClass(CacheResponseSubscriber::class)]
-#[CoversClass(HttpCacheCookieEvent::class)]
 class CacheResponseSubscriberTest extends TestCase
 {
     private const IP = '127.0.0.1';

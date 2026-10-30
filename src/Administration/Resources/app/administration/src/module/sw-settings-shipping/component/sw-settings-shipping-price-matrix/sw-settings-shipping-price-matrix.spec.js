@@ -3,8 +3,9 @@ import { mount } from '@vue/test-utils';
 /**
  * @sw-package checkout
  */
-const createWrapper = async (stubOverrides = {}) => {
-    return mount(
+const wrappers = [];
+const createWrapper = async (stubOverrides = {}, priceGroupOverrides = {}) => {
+    const wrapper = mount(
         await wrapTestComponent('sw-settings-shipping-price-matrix', {
             sync: true,
         }),
@@ -13,16 +14,30 @@ const createWrapper = async (stubOverrides = {}) => {
                 renderStubDefaultSlot: true,
                 stubs: {
                     'sw-container': true,
-                    'sw-select-rule-create': true,
+                    'sw-select-rule-create': {
+                        props: ['ruleFilter'],
+                        template: '<div />',
+                    },
                     'sw-context-button': true,
-                    'sw-data-grid': true,
-                    'sw-context-menu-item': true,
+                    'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
+                    'sw-context-menu-item': {
+                        props: ['disabled'],
+                        template: '<button :disabled="disabled"><slot /></button>',
+                    },
 
                     'sw-price-rule-modal': true,
                     'mt-number-field': true,
-                    'sw-price-field': true,
+                    'sw-price-field': {
+                        props: [
+                            'value',
+                            'currency',
+                            'taxRate',
+                            'inherited',
+                        ],
+                        template: '<div class="sw-price-field" />',
+                    },
                     'sw-inheritance-switch': true,
-                    'sw-inherit-wrapper': true,
+                    'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper', { sync: true }),
                     'sw-single-select': true,
                     ...stubOverrides,
                 },
@@ -39,7 +54,7 @@ const createWrapper = async (stubOverrides = {}) => {
                             id: 'priceId1',
                             shippingMethodId: 'shippingMethodId',
                             quantityStart: 1,
-                            quantityEnds: 1,
+                            quantityEnd: 1,
                             ruleId: 'ruleId',
                             rule: {},
                             calculation: 1,
@@ -57,7 +72,7 @@ const createWrapper = async (stubOverrides = {}) => {
                             id: 'priceId2',
                             shippingMethodId: 'shippingMethodId',
                             quantityStart: 2,
-                            quantityEnds: null,
+                            quantityEnd: null,
                             ruleId: 'ruleId',
                             rule: {},
                             calculation: 1,
@@ -71,10 +86,14 @@ const createWrapper = async (stubOverrides = {}) => {
                             ],
                         },
                     ],
+                    ...priceGroupOverrides,
                 },
             },
         },
     );
+    wrappers.push(wrapper);
+    await flushPromises();
+    return wrapper;
 };
 
 describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matrix', () => {
@@ -91,10 +110,21 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         ];
     });
 
+    afterEach(() => {
+        wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
+    });
+
     it('should not add conditions association', async () => {
-        const wrapper = await createWrapper();
-        const ruleFilterCriteria = wrapper.vm.ruleFilterCriteria;
-        const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;
+        const wrapper = await createWrapper(
+            {},
+            { calculation: null, prices: [{ id: 'rule-price', calculationRuleId: 'rule-id', currencyPrice: null }] },
+        );
+        const ruleFilterCriteria = wrapper
+            .findComponent('.sw-settings-shipping-price-matrix__top-container-rule-select')
+            .props('ruleFilter');
+        const shippingRuleFilterCriteria = wrapper
+            .findComponent('.sw-settings-shipping-price-matrix__column-calculation-rule-select')
+            .props('ruleFilter');
 
         expect(ruleFilterCriteria.hasAssociation('conditions')).toBeFalsy();
         expect(shippingRuleFilterCriteria.hasAssociation('conditions')).toBeFalsy();
@@ -102,8 +132,13 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
     // @deprecated tag:v6.8.0 - The test will be removed with the shippingRuleFilterCriteria shipping option.
     it.deprecated('v6.8.0.0')('should have price and deprecated shipping filter option', async () => {
-        const wrapper = await createWrapper();
-        const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;
+        const wrapper = await createWrapper(
+            {},
+            { calculation: null, prices: [{ id: 'rule-price', calculationRuleId: 'rule-id', currencyPrice: null }] },
+        );
+        const shippingRuleFilterCriteria = wrapper
+            .findComponent('.sw-settings-shipping-price-matrix__column-calculation-rule-select')
+            .props('ruleFilter');
 
         expect(shippingRuleFilterCriteria.filters[0].queries).toHaveLength(3);
         expect(shippingRuleFilterCriteria.filters[0].queries[0].value).toBe('shipping');
@@ -112,10 +147,15 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     it.activeFeatureFlags(['v6.8.0.0'])('should have price filter option', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper(
+            {},
+            { calculation: null, prices: [{ id: 'rule-price', calculationRuleId: 'rule-id', currencyPrice: null }] },
+        );
 
         // shippingRuleFilterCriteria is deprecated and will be removed. Use ruleFilterCriteria instead
-        const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;
+        const shippingRuleFilterCriteria = wrapper
+            .findComponent('.sw-settings-shipping-price-matrix__column-calculation-rule-select')
+            .props('ruleFilter');
 
         expect(shippingRuleFilterCriteria.filters[0].queries).toHaveLength(2);
         expect(shippingRuleFilterCriteria.filters[0].queries[0].value).toBe('price');
@@ -125,13 +165,76 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     it('should show all prices', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.showAllPrices).toBeFalsy();
-        expect(wrapper.vm.prices).toHaveLength(1);
+        expect(wrapper.findAll('tbody .sw-data-grid__row')).toHaveLength(1);
+        await wrapper.find('.sw-settings-shipping-price-matrix__price-load-all-button').trigger('click');
+        expect(wrapper.findAll('tbody .sw-data-grid__row')).toHaveLength(2);
+        expect(wrapper.find('.sw-settings-shipping-price-matrix__price-load-all-button').exists()).toBe(false);
+    });
 
-        wrapper.vm.updateShowAllPrices();
+    describe('deleting shipping prices', () => {
+        let wrapper;
+        let remove;
 
-        expect(wrapper.vm.showAllPrices).toBeTruthy();
-        expect(wrapper.vm.prices).toHaveLength(2);
+        beforeEach(async () => {
+            remove = jest.fn();
+            Shopware.Store.get('swShippingDetail').shippingMethod.prices.remove = remove;
+            wrapper = await createWrapper();
+        });
+
+        it.each([
+            [false, 0],
+            [true, 0],
+            [true, 1],
+        ])('deletes a rule price with expanded=%s at index %s without changing other rules', async (expanded, index) => {
+            const prices = wrapper.props('priceGroup').prices.map((price, priceIndex) => ({
+                ...price,
+                calculation: null,
+                calculationRuleId: `calculationRule${priceIndex}`,
+                quantityStart: null,
+                quantityEnd: null,
+            }));
+            await wrapper.setProps({
+                priceGroup: { ...wrapper.props('priceGroup'), calculation: null, prices },
+            });
+            if (expanded) {
+                await wrapper.find('.sw-settings-shipping-price-matrix__price-load-all-button').trigger('click');
+            }
+            const originalPrices = Shopware.Utils.object.cloneDeep(prices);
+
+            expect(wrapper.findAll('tbody .sw-data-grid__row')).toHaveLength(expanded ? 2 : 1);
+            await wrapper.findAll('tbody .sw-data-grid__row')[index].find('button').trigger('click');
+
+            expect(remove).toHaveBeenCalledWith(prices[index].id);
+            expect(wrapper.props('priceGroup').prices).toEqual(originalPrices);
+        });
+
+        it.each([
+            [0, [[1, null]]],
+            [1, [[1, null]]],
+        ])('keeps quantity ranges contiguous when deleting price %s', async (index, expectedRanges) => {
+            const prices = wrapper.props('priceGroup').prices;
+
+            await wrapper.find('.sw-settings-shipping-price-matrix__price-load-all-button').trigger('click');
+            await wrapper.findAll('tbody .sw-data-grid__row')[index].find('button').trigger('click');
+
+            expect(remove).toHaveBeenCalledWith(prices[index].id);
+            expect(
+                prices
+                    .filter((price, priceIndex) => priceIndex !== index)
+                    .map((price) => [price.quantityStart, price.quantityEnd]),
+            ).toEqual(expectedRanges);
+        });
+
+        it('keeps the only price in a matrix', async () => {
+            await wrapper.setProps({
+                priceGroup: { ...wrapper.props('priceGroup'), prices: [wrapper.props('priceGroup').prices[0]] },
+            });
+
+            expect(wrapper.find('tbody .sw-data-grid__row button').attributes('disabled')).toBeDefined();
+            await wrapper.find('tbody .sw-data-grid__row button').trigger('click');
+
+            expect(remove).not.toHaveBeenCalled();
+        });
     });
 
     describe('linked gross/net prices', () => {
@@ -141,9 +244,9 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
             shippingMethod.taxType = 'fixed';
             shippingMethod.taxId = 'taxId';
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
-            expect(wrapper.vm.taxRateId).toBe('taxId');
+            expect(wrapper.findComponent('.sw-price-field').props('taxRate')).toEqual({ id: 'taxId' });
         });
 
         it.each([['auto'], ['highest']])('should not expose a tax rate id for the "%s" tax type', async (taxType) => {
@@ -152,16 +255,17 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
             shippingMethod.taxType = taxType;
             shippingMethod.taxId = 'taxId';
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
-            expect(wrapper.vm.taxRateId).toBeNull();
+            expect(wrapper.findComponent('.sw-price-field').props('taxRate')).toEqual({ id: null });
         });
 
         it('should link gross and net for a newly initialised currency price', async () => {
             const wrapper = await createWrapper();
-            const shippingPrice = {};
-
-            wrapper.vm.initCurrencyPrice(shippingPrice);
+            const shippingPrice = wrapper.props('priceGroup').prices[0];
+            shippingPrice.currencyPrice = null;
+            await wrapper.setProps({ priceGroup: { ...wrapper.props('priceGroup'), prices: [shippingPrice] } });
+            await flushPromises();
 
             expect(shippingPrice.currencyPrice).toEqual([
                 {
@@ -175,10 +279,11 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         it('should keep the linked state when inheritance is removed for a currency', async () => {
             const wrapper = await createWrapper();
-            const shippingPrice = wrapper.vm.priceGroup.prices[0];
-            const dollar = { id: 'dollar', factor: 2 };
-
-            wrapper.vm.setPrice(shippingPrice, dollar, { gross: 30, net: 28.04, linked: true });
+            const shippingPrice = wrapper.props('priceGroup').prices[0];
+            await wrapper
+                .findComponent('.sw-settings-shipping-price-matrix__price-inherit-icon')
+                .vm.$emit('inheritance-remove', { gross: 30, net: 28.04, linked: true });
+            await flushPromises();
 
             expect(shippingPrice.currencyPrice).toContainEqual({
                 currencyId: 'dollar',
@@ -190,10 +295,11 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         it('should default to unlinked when the removed inheritance carries no linked state', async () => {
             const wrapper = await createWrapper();
-            const shippingPrice = wrapper.vm.priceGroup.prices[0];
-            const dollar = { id: 'dollar', factor: 2 };
-
-            wrapper.vm.setPrice(shippingPrice, dollar, { gross: 30, net: 28.04 });
+            const shippingPrice = wrapper.props('priceGroup').prices[0];
+            await wrapper
+                .findComponent('.sw-settings-shipping-price-matrix__price-inherit-icon')
+                .vm.$emit('inheritance-remove', { gross: 30, net: 28.04 });
+            await flushPromises();
 
             expect(shippingPrice.currencyPrice).toContainEqual({
                 currencyId: 'dollar',
@@ -203,23 +309,24 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
             });
         });
 
-        it('should carry the linked state over to converted currency prices', async () => {
+        it.each([true, false])('should carry linked=%s over to inherited currency prices', async (linked) => {
             const wrapper = await createWrapper();
-            const dollar = { id: 'dollar', factor: 2 };
+            const shippingPrice = wrapper.props('priceGroup').prices[0];
+            shippingPrice.currencyPrice = [{ currencyId: 'euro', gross: 30, net: 28.04, linked }];
+            await wrapper.setProps({ priceGroup: { ...wrapper.props('priceGroup'), prices: [shippingPrice] } });
+            await flushPromises();
 
-            expect(wrapper.vm.convertPrice({ gross: 30, net: 28.04, linked: true }, dollar)).toEqual({
-                currencyId: 'dollar',
-                gross: 60,
-                net: 56.08,
-                linked: true,
-            });
-
-            expect(wrapper.vm.convertPrice({ gross: 30, net: 28.04, linked: false }, dollar)).toEqual({
-                currencyId: 'dollar',
-                gross: 60,
-                net: 56.08,
-                linked: false,
-            });
+            const dollarPrice = wrapper
+                .findAllComponents('.sw-price-field')
+                .find((field) => field.props('currency').id === 'dollar');
+            expect(dollarPrice.props('value')).toEqual([
+                {
+                    currencyId: 'dollar',
+                    gross: 60,
+                    net: 56.08,
+                    linked,
+                },
+            ]);
         });
 
         it('should render a linkable price field per currency wired to the tax rate', async () => {
@@ -260,15 +367,12 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     it('should add new price', async () => {
         const wrapper = await createWrapper();
 
-        if (!wrapper.vm.shippingMethod.hasOwnProperty('prices')) {
-            wrapper.vm.shippingMethod.prices = [];
-        }
+        const prices = Shopware.Store.get('swShippingDetail').shippingMethod.prices;
+        const length = prices.length;
 
-        const length = wrapper.vm.shippingMethod.prices.length;
-
-        expect(wrapper.vm.showAllPrices).toBeFalsy();
-        wrapper.vm.onAddNewShippingPrice();
-        expect(wrapper.vm.showAllPrices).toBeTruthy();
-        expect(wrapper.vm.shippingMethod.prices).toHaveLength(length + 1);
+        expect(wrapper.findAll('tbody .sw-data-grid__row')).toHaveLength(1);
+        await wrapper.find('.sw-settings-shipping-price-matrix__top-container-add-new-rule').trigger('click');
+        expect(wrapper.find('.sw-settings-shipping-price-matrix__price-load-all-button').exists()).toBe(false);
+        expect(prices).toHaveLength(length + 1);
     });
 });

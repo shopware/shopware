@@ -6,15 +6,17 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Exception\ComparatorException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  *
- * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use UtilException::operatorNotSupported()
+ * @deprecated tag:v6.8.0 - Will be removed, use UtilException::operatorNotSupported()
  */
 #[Package('framework')]
 #[CoversClass(ComparatorException::class)]
+#[DisabledFeatures(['v6.8.0.0'])]
 class ComparatorExceptionTest extends TestCase
 {
     public function testOperatorNotSupported(): void

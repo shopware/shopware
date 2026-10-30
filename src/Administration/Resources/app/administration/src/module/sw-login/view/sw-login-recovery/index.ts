@@ -17,6 +17,23 @@ export default Component.wrapComponentConfig({
 
     inject: ['validationApiService'],
 
+    beforeRouteEnter(to, from, next) {
+        void Shopware.Service('loginService')
+            .getLoginTemplateConfig()
+            .then((config) => {
+                if (config.passwordRecoveryEnabled === false) {
+                    next({ name: 'sw.login.index.login' });
+                    return;
+                }
+
+                next();
+            })
+            .catch(() => {
+                // Keep recovery accessible when the login configuration cannot be loaded.
+                next();
+            });
+    },
+
     data(): {
         email: string;
         isEmailValid: boolean;

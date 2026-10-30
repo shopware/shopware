@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Address\Error\AddressErrorInterface;
+use Shopware\Core\Checkout\Cart\Address\Error\VatIdMissingError;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
@@ -256,6 +257,12 @@ abstract class StorefrontController extends AbstractController
                     $parameters['%url%'] = $this->generateUrl('frontend.account.address.edit.page', [
                         'addressId' => $error->getAddressId(),
                         'redirectTo' => $request?->attributes->get('_route'),
+                    ]);
+                }
+
+                if ($error instanceof VatIdMissingError) {
+                    $parameters['%url%'] = $this->generateUrl('frontend.account.profile.page', [
+                        'redirectTo' => 'frontend.checkout.confirm.page',
                     ]);
                 }
 

@@ -21,8 +21,7 @@
          role="listitem"
          aria-busy="true"
          data-{{ pluginSelector }}="true"
-         data-{{ pluginSelector }}-options='{{ dataPluginSelectorOptions|json_encode }}'>
-
+         data-{{ pluginSelector }}-options="{{ dataPluginSelectorOptions|json_encode }}">
         {% block component_filter_multi_select_toggle %}
             <button class="filter-panel-item-toggle btn"
                     aria-expanded="false"
@@ -38,7 +37,6 @@
                     data-bs-toggle="dropdown"
                     data-boundary="viewport"
                     {% endif %}>
-
                 {% block component_filter_multi_select_display_name %}
                     {{ displayName }}
                 {% endblock %}
@@ -49,7 +47,7 @@
 
                 {% block component_filter_multi_select_toggle_icon %}
                     {% sw_icon 'arrow-medium-down' style {
-                        'pack': 'solid', 'size': 'xs', 'class': 'filter-panel-item-toggle'
+                        pack: 'solid', size: 'xs', class: 'filter-panel-item-toggle'
                     } %}
                 {% endblock %}
             </button>

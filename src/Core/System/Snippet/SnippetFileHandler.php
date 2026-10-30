@@ -94,7 +94,7 @@ class SnippetFileHandler
      */
     public function findAdministrationSnippetFilesBelow(string $directory): array
     {
-        return $this->findSnippetFilesBelow($directory, '#(^|/)Resources/app/administration/(.+/)?snippet/[^/]+$#', SnippetPatterns::ADMIN_SNIPPET_FILE_PATTERN);
+        return $this->findSnippetFilesBelow($directory, '#(^|/)Resources/app/administration/(.+/)?snippet/[^/]+$#D', SnippetPatterns::ADMIN_SNIPPET_FILE_PATTERN);
     }
 
     /**
@@ -104,7 +104,7 @@ class SnippetFileHandler
      */
     public function findStorefrontSnippetFilesBelow(string $directory): array
     {
-        return $this->findSnippetFilesBelow($directory, '#(^|/)Resources/snippet/[^/]+$#', SnippetPatterns::CORE_SNIPPET_FILE_PATTERN);
+        return $this->findSnippetFilesBelow($directory, '#(^|/)Resources/snippet/[^/]+$#D', SnippetPatterns::CORE_SNIPPET_FILE_PATTERN);
     }
 
     public function exists(string $path): bool

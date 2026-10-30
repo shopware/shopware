@@ -10,10 +10,13 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheKey;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
+use Shopware\Core\Framework\Adapter\Cache\Message\RefreshHttpCacheMessage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
+use Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Message\RefreshHttpCacheMessageTest;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Clock\MockClock;
@@ -356,9 +359,18 @@ class CacheStoreTest extends TestCase
         static::assertCount(1, $bus->getMessages());
     }
 
+    /**
+     * Only checks that the refresh message is built from the request. What it keeps and drops is covered here:
+     *
+     * @see RefreshHttpCacheMessageTest
+     */
     public function testLookupWithSoftPurgeAndStaleCache(): void
     {
-        $request = new Request();
+        $leakedValue = 'leaked-environment-value';
+        $request = new Request(
+            cookies: [PlatformRequest::FALLBACK_SESSION_NAME => $leakedValue],
+            server: ['HTTP_HOST' => 'shop.example', 'REQUEST_URI' => '/detail/1', 'DATABASE_URL' => $leakedValue],
+        );
         $response = new Response();
         $response->headers->set('date', date('Y-m-d H:i:s', time() - 3600)); // 1 hour ago
 
@@ -403,7 +415,13 @@ class CacheStoreTest extends TestCase
 
         static::assertInstanceOf(Response::class, $result);
 
-        static::assertCount(1, $bus->getMessages());
+        $messages = $bus->getMessages();
+        static::assertCount(1, $messages);
+
+        $message = $messages[0]->getMessage();
+        static::assertInstanceOf(RefreshHttpCacheMessage::class, $message);
+        static::assertSame(['HTTP_HOST' => 'shop.example', 'REQUEST_URI' => '/detail/1'], $message->server);
+        static::assertStringNotContainsString($leakedValue, serialize($message));
     }
 
     #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]

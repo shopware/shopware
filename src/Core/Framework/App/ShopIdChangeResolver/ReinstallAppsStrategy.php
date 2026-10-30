@@ -7,6 +7,8 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Url\AppUrlVerifier;
+use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -34,7 +36,8 @@ class ReinstallAppsStrategy implements ShopIdChangeStrategy
         private readonly EntityRepository $appRepository,
         private readonly AppManager $appManager,
         private readonly ShopIdProvider $shopIdProvider,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly AppUrlVerifier $appUrlVerifier,
     ) {
     }
 
@@ -50,6 +53,14 @@ class ReinstallAppsStrategy implements ShopIdChangeStrategy
 
     public function resolve(Context $context): void
     {
+        // Verify APP_URL before deleting the shop ID: the delete cannot be undone, and every
+        // re-registration below would fail on the same check.
+        $state = $this->appUrlVerifier->forceVerify();
+
+        if (!$state->is(VerificationStatus::PASS)) {
+            throw AppException::appUrlFailedVerification($state);
+        }
+
         $this->shopIdProvider->deleteShopId();
 
         // Re-registering contacts external app servers. If one app is unreachable we still want the

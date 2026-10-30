@@ -120,6 +120,37 @@ class ProductRatingAverageIndexerTest extends TestCase
         static::assertSame($pointsOnBReview, $product->getRatingAverage());
     }
 
+    #[Group('reviews')]
+    public function testReviewsWithoutRatingAreNotCalculated(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $this->createProduct($productId);
+
+        $this->createReviewWithoutRating($productId);
+        $this->createReview(Uuid::randomHex(), 4.0, $productId, true);
+
+        $products = $this->productRepository->search(new Criteria([$productId]), $this->salesChannel->getContext());
+
+        static::assertInstanceOf(ProductEntity::class, $product = $products->getEntities()->get($productId));
+        static::assertSame(4.0, $product->getRatingAverage());
+    }
+
+    #[Group('reviews')]
+    public function testProductWithOnlyReviewsWithoutRatingHasNoAverage(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $this->createProduct($productId);
+
+        $this->createReviewWithoutRating($productId);
+
+        $products = $this->productRepository->search(new Criteria([$productId]), $this->salesChannel->getContext());
+
+        static::assertInstanceOf(ProductEntity::class, $product = $products->getEntities()->get($productId));
+        static::assertNull($product->getRatingAverage());
+    }
+
     /**
      * tests that a deactivating/activating reviews are considered correctly
      */
@@ -366,9 +397,26 @@ SQL;
             'points' => $points,
             'content' => 'Lorem',
             'title' => $title,
+            'externalUser' => 'Test',
         ];
 
         $this->reviewRepository->upsert([$data], $this->salesChannel->getContext());
+    }
+
+    /**
+     * creates a review in database that has no rating
+     */
+    private function createReviewWithoutRating(string $productId): void
+    {
+        $id = Uuid::randomHex();
+        $this->createReview($id, 1.0, $productId, true);
+
+        $this->connection->executeStatement(
+            'UPDATE product_review SET points = 0 WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($id)]
+        );
+
+        $this->productIndexer->handle(new EntityIndexingMessage([$productId]));
     }
 
     /**

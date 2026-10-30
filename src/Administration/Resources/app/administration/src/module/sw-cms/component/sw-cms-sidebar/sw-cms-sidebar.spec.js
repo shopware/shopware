@@ -418,7 +418,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     it('should correctly adjust the sectionId when drag sorting', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const blockDrag = {
             block: getBlockData(0, '1a2b'),
@@ -586,7 +586,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         wrapper.findComponent('.sw-cms-sidebar__layout-assignment-open').vm.$emit('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.emitted('open-layout-assignment')).toBeTruthy();
     });
@@ -675,7 +675,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.cmsBlocksBySelectedBlockCategory.map((block) => block.name)).toStrictEqual(['product_list_block']);
     });
@@ -725,7 +725,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
             tablet: true,
         });
         wrapper.findComponent('.sw-cms-sidebar__visibility-config-block').vm.$emit('visibility-change', 'desktop', false);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.selectedBlock.visibility).toStrictEqual({
             desktop: false,
@@ -743,7 +743,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
             tablet: true,
         });
         wrapper.findComponent('.sw-cms-sidebar__visibility-config-section').vm.$emit('visibility-change', 'desktop', false);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.selectedSection.visibility).toStrictEqual({
             desktop: false,

@@ -1,0 +1,37 @@
+{
+  "persona": "architecture",
+  "tier": "balanced",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-bc-php-catch",
+    "title": "refactor(checkout): rename LineItemQuantitySplitter::split() and round split taxes",
+    "body": "Renames `split()` to `splitQuantity()` because the old name was ambiguous, and rounds split line item taxes with the item rounding behind the 6.8 flag. Core callers are updated.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/bc-php-catch",
+    "additions": 15,
+    "deletions": 6,
+    "changed_files": 4
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "src/Core/Checkout/Cart/LineItem/LineItemQuantitySplitter.php",
+    "src/Core/Checkout/DependencyInjection/cart.php",
+    "src/Core/Checkout/Promotion/Cart/PromotionCalculator.php",
+    "src/Core/Checkout/Cart/LineItem/Group/LineItemGroupBuilder.php"
+  ],
+  "guides": [
+    "guides/bc-php.md"
+  ],
+  "change_profile": {
+    "signals": [
+      "php_src",
+      "php_src_without_tests"
+    ],
+    "guides": [
+      "bc-php"
+    ]
+  }
+}

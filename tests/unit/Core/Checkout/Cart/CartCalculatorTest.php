@@ -18,6 +18,7 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
+use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\System\SalesChannel\Telemetry\SalesChannelTypeResolver;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -49,7 +50,7 @@ class CartCalculatorTest extends TestCase
         $calculator = new CartCalculator(
             $cartRuleLoader,
             new CartContextHasher(new EventDispatcher()),
-            new CartMetricsInstrumentor(static::createStub(Meter::class), new SalesChannelTypeResolver()),
+            new CartMetricsInstrumentor(new Telemetry(static::createStub(Meter::class), 'test'), new SalesChannelTypeResolver()),
         );
         $calculatedCart = $calculator->calculate($cart, $context);
 
@@ -89,7 +90,7 @@ class CartCalculatorTest extends TestCase
         $calculator = new CartCalculator(
             $cartRuleLoader,
             new CartContextHasher(new EventDispatcher()),
-            new CartMetricsInstrumentor(static::createStub(Meter::class), new SalesChannelTypeResolver()),
+            new CartMetricsInstrumentor(new Telemetry(static::createStub(Meter::class), 'test'), new SalesChannelTypeResolver()),
         );
         $calculatedCart = $calculator->calculate($cart, $context);
 
@@ -123,7 +124,7 @@ class CartCalculatorTest extends TestCase
         $calculator = new CartCalculator(
             $cartRuleLoader,
             new CartContextHasher(new EventDispatcher()),
-            new CartMetricsInstrumentor(static::createStub(Meter::class), new SalesChannelTypeResolver()),
+            new CartMetricsInstrumentor(new Telemetry(static::createStub(Meter::class), 'test'), new SalesChannelTypeResolver()),
         );
 
         $calculatedCart = $calculator->calculateByToken('hatoken', $context);

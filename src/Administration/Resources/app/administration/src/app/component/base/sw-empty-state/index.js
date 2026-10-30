@@ -6,10 +6,12 @@ import './sw-empty-state.scss';
  *
  * @private
  *
- * @deprecated tag:v6.8.0 - Will be removed
+ * @deprecated tag:v6.9.0 - Will be removed. Use `mt-empty-state` instead.
  */
 export default {
     template,
+
+    deprecated: { version: 'v6.9.0.0', comment: 'Use "mt-empty-state" instead.' },
 
     props: {
         title: {

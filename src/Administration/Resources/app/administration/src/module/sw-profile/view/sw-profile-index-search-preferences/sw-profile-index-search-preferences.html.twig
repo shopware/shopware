@@ -101,7 +101,7 @@
                         <mt-checkbox
                             v-model:checked="searchPreference._searchable"
                             :label="getModuleTitle(searchPreference.entityName)"
-                            name="sw-field--searchPreference-_searchable"
+                            :name="`sw-field--searchPreference-${searchPreference.entityName}-_searchable`"
                             @update:checked="onChangeSearchPreference(searchPreference)"
                         />
                         <ul class="sw-profile-index-search-preferences-searchable-elements__entity">
@@ -112,7 +112,7 @@
                             >
                                 <mt-checkbox
                                     v-model:checked="field._searchable"
-                                    name="sw-field--field-_searchable"
+                                    :name="`sw-field--field-${searchPreference.entityName}-${field.fieldName}-_searchable`"
                                     :label="$t(`sw-profile.tabSearchPreferences.modules.${searchPreference.entityName}.${field.fieldName}`)"
                                     :disabled="adminEsEnable || !searchPreference._searchable"
                                 />

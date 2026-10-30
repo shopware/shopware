@@ -144,6 +144,7 @@ class CmsSlotsDataResolverTest extends TestCase
 
         $dispatcher = $this->createMock(EventDispatcher::class);
         $this->extensions = new ExtensionDispatcher($dispatcher);
+        $dispatcher->method('hasListeners')->willReturn(true);
         $dispatcher
             // 3 extensions, each dispatched as pre- and post-event
             ->expects($this->exactly(6))

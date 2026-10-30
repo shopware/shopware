@@ -16,6 +16,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['repositoryFactory'],
 
+    emits: ['update:og-image-id', 'update:og-title', 'update:og-description'],
+
     props: {
         ogTitle: {
             type: String as PropType<string | null>,

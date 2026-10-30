@@ -7,8 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Telemetry\MailGroupResolver;
 use Shopware\Core\Content\Mail\Telemetry\MailMetricsInstrumentor;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Telemetry\Metrics\Meter;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
+use Shopware\Core\Test\Stub\Telemetry\CollectingMeter;
 
 /**
  * @internal
@@ -17,23 +16,18 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 #[CoversClass(MailMetricsInstrumentor::class)]
 class MailMetricsInstrumentorTest extends TestCase
 {
-    /**
-     * @var list<ConfiguredMetric>
-     */
-    private array $emitted = [];
+    private CollectingMeter $meter;
 
     public function testSuccessfulSendEmitsDurationAndCountWithResolvedGroup(): void
     {
         $this->createInstrumentor()->measureSend('checkout.order.placed', fn () => null);
 
-        $duration = $this->getMetric('mail.send.duration');
-        static::assertInstanceOf(ConfiguredMetric::class, $duration);
+        $duration = $this->meter->getMetric('mail.send.duration');
         static::assertIsFloat($duration->value);
         static::assertGreaterThanOrEqual(0.0, $duration->value);
         static::assertSame(['result' => 'sent'], $duration->labels);
 
-        $count = $this->getMetric('mail.send.count');
-        static::assertInstanceOf(ConfiguredMetric::class, $count);
+        $count = $this->meter->getMetric('mail.send.count');
         static::assertSame(1, $count->value);
         static::assertSame(['mail_group' => 'mail_group_label:checkout.order.placed', 'result' => 'sent'], $count->labels);
     }
@@ -44,9 +38,10 @@ class MailMetricsInstrumentorTest extends TestCase
         // and labels with its output; mapping the event to a bounded group is MailGroupResolver's job.
         $this->createInstrumentor()->measureSend(null, fn () => null);
 
-        $count = $this->getMetric('mail.send.count');
-        static::assertInstanceOf(ConfiguredMetric::class, $count);
-        static::assertSame('mail_group_label:', $count->labels['mail_group']);
+        $count = $this->meter->getMetric('mail.send.count');
+        $labels = $count->labels;
+        static::assertIsArray($labels);
+        static::assertSame('mail_group_label:', $labels['mail_group']);
     }
 
     public function testSendClosureIsInvokedExactlyOnce(): void
@@ -66,42 +61,30 @@ class MailMetricsInstrumentorTest extends TestCase
 
         try {
             $this->createInstrumentor()->measureSend('checkout.order.placed', function (): void {
-                throw new \RuntimeException('boom');
+                throw new \RuntimeException('mail send failed');
             });
         } catch (\RuntimeException $e) {
             $thrown = $e;
         }
 
         static::assertNotNull($thrown, 'the original exception must propagate');
-        static::assertSame('boom', $thrown->getMessage());
+        static::assertSame('mail send failed', $thrown->getMessage());
 
-        $duration = $this->getMetric('mail.send.duration');
-        static::assertInstanceOf(ConfiguredMetric::class, $duration);
-        static::assertSame('failed', $duration->labels['result']);
+        $duration = $this->meter->getMetric('mail.send.duration');
+        $labels = $duration->labels;
+        static::assertIsArray($labels);
+        static::assertSame('failed', $labels['result']);
 
-        $count = $this->getMetric('mail.send.count');
-        static::assertInstanceOf(ConfiguredMetric::class, $count);
-        static::assertSame('failed', $count->labels['result']);
-        static::assertSame('mail_group_label:checkout.order.placed', $count->labels['mail_group']);
-    }
-
-    private function getMetric(string $name): ?ConfiguredMetric
-    {
-        foreach ($this->emitted as $metric) {
-            if ($metric->name === $name) {
-                return $metric;
-            }
-        }
-
-        return null;
+        $count = $this->meter->getMetric('mail.send.count');
+        $labels = $count->labels;
+        static::assertIsArray($labels);
+        static::assertSame('failed', $labels['result']);
+        static::assertSame('mail_group_label:checkout.order.placed', $labels['mail_group']);
     }
 
     private function createInstrumentor(): MailMetricsInstrumentor
     {
-        $meter = static::createStub(Meter::class);
-        $meter->method('emit')->willReturnCallback(function (ConfiguredMetric $metric): void {
-            $this->emitted[] = $metric;
-        });
+        $this->meter = new CollectingMeter();
 
         // Pass-through resolver stub: echoes the event name back with a fixed prefix, so it's easy to validate
         $mailGroupResolver = static::createStub(MailGroupResolver::class);
@@ -109,6 +92,6 @@ class MailMetricsInstrumentorTest extends TestCase
             static fn (?string $eventName): string => 'mail_group_label:' . $eventName
         );
 
-        return new MailMetricsInstrumentor($meter, $mailGroupResolver);
+        return new MailMetricsInstrumentor($this->meter, $mailGroupResolver);
     }
 }

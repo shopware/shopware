@@ -300,8 +300,6 @@ class WriteCommandExtractor
      */
     private function map(array $fields, DataStack $stack, EntityExistence $existence, WriteParameterBag $parameters): array
     {
-        $isCreate = !$existence->exists() || $existence->childChangedToParent();
-
         foreach ($fields as $field) {
             $kvPair = $this->getKeyValuePair($field, $stack, $existence);
             if ($kvPair === null) {
@@ -565,13 +563,13 @@ class WriteCommandExtractor
                     $allowedOrigins,
                 ],
                 $data->getValue(),
-                $data->getKey(),
+                '/' . $data->getKey(),
                 $data->getValue()
             )
         );
 
         $parameters->getContext()->getExceptions()->add(
-            new WriteConstraintViolationException($violationList, $parameters->getPath() . '/' . $data->getKey())
+            new WriteConstraintViolationException($violationList, $parameters->getPath())
         );
     }
 

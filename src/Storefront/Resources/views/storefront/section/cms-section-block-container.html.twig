@@ -63,15 +63,11 @@
                     }
                 } %}
             {% elseif (block.type == 'text-on-image') %}
-                {% set defaultMediaUrl = null %}
+                {% set mediaSlot = block.slots.elements|find(slot => slot.slot == 'content' and slot.config.media and slot.config.media.value) %}
 
-                {% for slot in block.slots.elements %}
-                    {% if slot.slot == 'content' and slot.config.media and slot.config.media.value %}
-                        {% set defaultMediaUrl = slot.config.media.value %}
-                        {% set backgroundImageUrl = asset(defaultMediaUrl) %}
-                        {% break %}
-                    {% endif %}
-                {% endfor %}
+                {% if mediaSlot %}
+                    {% set backgroundImageUrl = asset(mediaSlot.config.media.value) %}
+                {% endif %}
 
                 {% if backgroundImageUrl %}
                     <img src="{{ backgroundImageUrl }}"

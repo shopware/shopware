@@ -63,7 +63,8 @@ class ProductSuggestRouteTest extends TestCase
             static::createStub(ProductSearchBuilderInterface::class),
             new EventDispatcher(),
             static::createStub(AbstractProductSuggestRoute::class),
-            new CompositeListingProcessor([])
+            new CompositeListingProcessor([]),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $route->load(

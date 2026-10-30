@@ -65,24 +65,20 @@
             opacity: 0.7;
         }
 
-        .sw-context-button__button {
-            visibility: visible;
-            border: none;
+        .sw-product-image__context-button {
+            opacity: 1;
         }
     }
 
     .sw-product-image__context-button {
+        opacity: 0;
         position: absolute;
         top: 5px;
         right: 5px;
-    }
 
-    .sw-context-button__button {
-        visibility: hidden;
-
-        .mt-icon {
-            color: var(--color-static-white);
-            height: 100%;
+        &.is--active,
+        &:focus-within {
+            opacity: 1;
         }
     }
 

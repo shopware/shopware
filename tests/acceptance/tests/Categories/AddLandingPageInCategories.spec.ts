@@ -57,3 +57,72 @@ test(
         });
     },
 );
+
+test(
+    'Storefront should display the landing page name as a heading.',
+    { tag: '@Categories' },
+    async ({ ShopCustomer, IdProvider, TestDataService, StorefrontPage }) => {
+        const layoutUuid = IdProvider.getIdPair().uuid;
+        const layoutName = `00_landingPageLayout_${layoutUuid}`;
+        const landingPageName = `00_landingPage_${layoutUuid}`;
+        const sectionUuid = IdProvider.getIdPair().uuid;
+        const blockUuid = IdProvider.getIdPair().uuid;
+        const slotUuid = IdProvider.getIdPair().uuid;
+
+        const layout = await TestDataService.createBasicPageLayout('landingpage', {
+            id: layoutUuid,
+            name: layoutName,
+            type: 'landingpage',
+            sections: [
+                {
+                    id: sectionUuid,
+                    pageId: layoutUuid,
+                    position: 0,
+                    type: 'default',
+                    blocks: [
+                        {
+                            id: blockUuid,
+                            sectionId: sectionUuid,
+                            type: 'text',
+                            position: 0,
+                            slots: [
+                                {
+                                    id: slotUuid,
+                                    type: 'text',
+                                    blockId: blockUuid,
+                                    slot: 'content',
+                                    config: {
+                                        content: {
+                                            source: 'static',
+                                            value: `<h1>${landingPageName}</h1>`,
+                                        },
+                                    },
+                                    translated: {
+                                        blockId: blockUuid,
+                                        cmsBlockVersionId: '',
+                                        slot: 'content',
+                                        type: 'text',
+                                        versionId: '',
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+
+        const landingPage = await TestDataService.createLandingPage();
+
+        await TestDataService.assignLandingPageLayout(landingPage.id, layout.id);
+
+        await ShopCustomer.goesTo(landingPage.url);
+        await ShopCustomer.expects(
+            StorefrontPage.getByRole('heading', {
+                name: landingPageName,
+                level: 1,
+                exact: true,
+            }),
+        ).toBeVisible();
+    },
+);

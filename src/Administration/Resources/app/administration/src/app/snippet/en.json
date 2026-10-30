@@ -1117,6 +1117,7 @@
       "theme": "Theme | Themes",
       "unit": "Unit | Units",
       "user": "User | Users",
+      "webhook": "Webhook | Webhooks",
       "landing_page": "Landing page | Landing pages",
       "delivery_time": "Delivery time | Delivery times",
       "import_export_profile": "Import/export profile | Import/export profiles",
@@ -1381,6 +1382,10 @@
       "messagePlaceholder": "Oops, something went terribly wrong."
     }
   },
+  "sw-not-found": {
+    "title": "Page not found",
+    "description": "The page you were looking for could not be found. It may have been moved or no longer exists."
+  },
   "sw-property-search": {
     "placeholderSearch": "Search values...",
     "selected": "{count} value selected | {count} values selected",
@@ -1633,6 +1638,7 @@
         "detectedChanges": "The following changes were detected:",
         "success": "Shop identifier updated successfully.",
         "error": "Shop identifier update failed.",
+        "noStrategySelected": "Select an option first.",
         "oldValue": "Old value",
         "newValue": "New value",
         "remindMeLater": "Remind me later",
@@ -1666,10 +1672,15 @@
         }
       },
       "sw-app-wrong-app-url-modal": {
-        "title": "Wrongly configured APP_URL",
-        "explanationHeader": "Error with the connection to your extensions.",
-        "explanation": "Extensions are not able to establish a connection to your shop, due to a wrong configuration in your system.",
-        "textDetails": "Technical details: Wrong APP_URL configuration.",
+        "title": "APP_URL verification failed",
+        "explanation": "Shopware could not confirm that APP_URL reaches this shop, so apps may not work.",
+        "labelReason": "Reason",
+        "reasonStatusCode": "APP_URL answered the verification request with HTTP {statusCode}.",
+        "reasonUnknown": "Run the command below for details.",
+        "checkIntro": "Check that:",
+        "checkPointsToShop": "APP_URL points to this shop",
+        "checkNotBlocked": "requests to /api/app-system/shop/verify are not blocked (firewall, HTTP authentication, IP allowlist)",
+        "checkAgain": "If you fix the problem without changing APP_URL, run this command to remove this warning:",
         "labelLearnMoreButton": "Learn more",
         "linkToDocsArticle": "https://docs.shopware.com/en/shopware-6-en/tutorials-and-faq/notes-to-the-APP-URL"
       }
@@ -1827,16 +1838,17 @@
     "nextButton": "Next",
     "finishButton": "Got it",
     "seenSaveError": "Your preference could not be saved. This dialog may appear again.",
+    "profileSettingsLink": "profile settings",
     "pages": {
       "adminNavigation": {
         "headline": "A clearer, more streamlined navigation",
-        "description": "As the Shopware Administration has grown, so has the number of features and navigation items. We redesigned the navigation to improve density and make everything easier to find, with clearer active states, smoother submenu animations, better readability and improved keyboard accessibility."
+        "description": "As the Shopware Administration has grown, so has the number of features and navigation items. We redesigned the navigation to improve density and make everything easier to find, with clearer active states, smoother submenu animations, better readability and improved keyboard accessibility.",
+        "moduleColorsHint": "Prefer coloured module icons? You can switch \"Module colours\" back to \"Coloured\" at any time in your {profileSettingsLink}."
       },
       "darkMode": {
         "headline": "Dark appearance",
         "badge": "Experimental",
         "description": "The Administration now offers a dark appearance for the user interface, for better accessibility and to match your personal preferences.",
-        "profileSettingsLink": "profile settings",
         "themeSelectLabel": "Appearance",
         "themeSelectHint": "You can change this setting at any time in your {profileSettingsLink}.",
         "themeSaveError": "The appearance could not be saved."

@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Framework\Store\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
- * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed with the next major as it is unused
+ * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
  */
 #[Package('checkout')]
 class LicenseDomainVerificationException extends ShopwareHttpException
@@ -15,6 +16,8 @@ class LicenseDomainVerificationException extends ShopwareHttpException
         string $domain,
         string $reason = ''
     ) {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));
+
         $reason = $reason ? (' ' . $reason) : '';
         $message = 'License host verification failed for domain "{{ domain }}.{{ reason }}"';
         parent::__construct($message, ['domain' => $domain, 'reason' => $reason]);

@@ -173,7 +173,7 @@ export default Component.wrapComponentConfig({
 
             return [...new Set(referencedDocumentNumbers)].sort().map((documentNumber) => {
                 return {
-                    label: String(documentNumber),
+                    label: documentNumber,
                     value: documentNumber,
                 };
             });

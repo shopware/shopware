@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Url\AppUrlVerificationPrinter;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
@@ -37,16 +38,13 @@ class AppUrlVerifyCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $shopId = $this->shopIdProvider->getShopId();
-        $this->appUrlVerifier->forceVerify($shopId, true);
-
-        $state = $this->appUrlVerifier->getCurrentState();
-
-        if ($state === null) {
-            $io->warning('No verification state found. Check your cache configuration.');
-
-            return Command::SUCCESS;
+        try {
+            $this->shopIdProvider->getShopId();
+        } catch (ShopIdChangeSuggestedException) {
+            $io->warning('Shop ID change suggested. Run "bin/console app:shop-id:change" to change the shop ID.');
         }
+
+        $state = $this->appUrlVerifier->forceVerify();
 
         $this->printer->print($io, $state, true);
 

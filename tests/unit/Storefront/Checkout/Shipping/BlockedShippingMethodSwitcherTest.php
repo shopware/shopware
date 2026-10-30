@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
@@ -263,6 +264,61 @@ class BlockedShippingMethodSwitcherTest extends TestCase
         );
 
         static::assertCount(0, $errorCollectionFiltered);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testSwitchBlockedOriginalToMethodWithSameName(): void
+    {
+        $this->shippingMethodCollection->remove('any-other-shipping-method-id');
+        $this->shippingMethodCollection->remove('default-shipping-method-id');
+        $this->shippingMethodCollection->add((new ShippingMethodEntity())->assign([
+            'id' => 'same-name-shipping-method-id',
+            'name' => 'original-shipping-method-name',
+            'translated' => ['name' => 'original-shipping-method-name'],
+        ]));
+
+        $errorCollection = $this->getErrorCollection([
+            ['id' => 'original-shipping-method-id', 'name' => 'original-shipping-method-name'],
+        ]);
+        $newShippingMethod = $this->switcher->switch($errorCollection, $this->salesChannelContext);
+
+        static::assertSame('same-name-shipping-method-id', $newShippingMethod->getId());
+
+        // Assert notices
+        $errorCollectionFiltered = $errorCollection->filter(
+            static fn ($error) => $error instanceof ShippingMethodChangedError
+        );
+        static::assertCount(1, $errorCollectionFiltered);
+        $error = $errorCollectionFiltered->first();
+        static::assertInstanceOf(ShippingMethodChangedError::class, $error);
+        static::assertSame([
+            'oldShippingMethodId' => 'original-shipping-method-id',
+            'oldShippingMethodName' => 'original-shipping-method-name',
+            'newShippingMethodId' => 'same-name-shipping-method-id',
+            'newShippingMethodName' => 'original-shipping-method-name',
+            'reason' => 'Shipping method blocked',
+        ], $error->getParameters());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - remove together with the name fallback, the blocked error always carries the id
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testSwitchBlockedErrorWithoutIdBlocksByName(): void
+    {
+        $errorCollection = new ErrorCollection();
+        $errorCollection->add(new ShippingMethodBlockedError(
+            name: 'original-shipping-method-name',
+            reason: 'Shipping method blocked',
+        ));
+        $errorCollection->add(new ShippingMethodBlockedError(
+            name: 'default-shipping-method-name',
+            reason: 'Shipping method blocked',
+        ));
+
+        $newShippingMethod = $this->switcher->switch($errorCollection, $this->salesChannelContext);
+
+        static::assertSame('any-other-shipping-method-id', $newShippingMethod->getId());
     }
 
     public function callbackLoadShippingMethods(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse

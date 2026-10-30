@@ -4,6 +4,7 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
+import { deprecations, useProductionDeprecationGuard } from 'test/_helper_/deprecations';
 
 function mockCriteria() {
     return {
@@ -95,9 +96,11 @@ const productMock = {
 };
 
 let repositoryFactoryDeleteMock;
+let assignMock;
 
 async function createWrapper({ salesChannel, products } = {}) {
     repositoryFactoryDeleteMock = jest.fn(async () => {});
+    assignMock = jest.fn(async () => ({ assigned: 1, complete: true }));
 
     const wrapper = mount(
         await wrapTestComponent('sw-sales-channel-detail-products', {
@@ -167,6 +170,9 @@ async function createWrapper({ salesChannel, products } = {}) {
                     'sw-product-variant-info': true,
                 },
                 provide: {
+                    salesChannelProductAssignmentApiService: {
+                        assign: assignMock,
+                    },
                     repositoryFactory: {
                         create: (entity) => {
                             return {
@@ -411,29 +417,126 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     it('should add products successful', async () => {
         const { wrapper } = await createWrapper();
         await flushPromises();
-        wrapper.vm.saveProductVisibilities = jest.fn(() => Promise.resolve());
+        assignMock.mockResolvedValue({ assigned: 1, complete: true });
+        wrapper.vm.createNotificationSuccess = jest.fn();
+        wrapper.vm.getProducts = jest.fn(() => Promise.resolve());
 
-        await wrapper.setData({ products: productsMock });
+        await wrapper.setData({ products: productsMock, showProductsModal: true });
         await wrapper.vm.onAddProducts([{ id: '103', active: true, productNumber: '003' }]);
 
-        expect(wrapper.vm.saveProductVisibilities).toHaveBeenCalledWith(
-            expect.arrayContaining([expect.objectContaining({ productId: '103' })]),
-        );
+        expect(assignMock).toHaveBeenCalledWith('storefrontSalesChannelTypeId', {
+            productIds: ['103'],
+            productStreamIds: [],
+            categoryIds: [],
+        });
+        expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledWith({
+            message: 'sw-sales-channel.detail.products.messageProductsAssigned',
+        });
+        expect(wrapper.vm.getProducts).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.showProductsModal).toBe(false);
+        expect(wrapper.vm.isAssignProductLoading).toBe(false);
 
-        wrapper.vm.saveProductVisibilities.mockRestore();
+        wrapper.vm.createNotificationSuccess.mockRestore();
+        wrapper.vm.getProducts.mockRestore();
+    });
+
+    it('should warn instead of celebrating when the assignment stopped before every product was assigned', async () => {
+        const { wrapper } = await createWrapper();
+        await flushPromises();
+        assignMock.mockResolvedValue({ assigned: 200, complete: false });
+        wrapper.vm.createNotificationSuccess = jest.fn();
+        wrapper.vm.createNotificationWarning = jest.fn();
+        wrapper.vm.getProducts = jest.fn(() => Promise.resolve());
+
+        await wrapper.setData({ products: productsMock, showProductsModal: true });
+        await wrapper.vm.onAddProducts([], { productStreamIds: ['stream-1'] });
+
+        expect(wrapper.vm.createNotificationSuccess).not.toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationWarning).toHaveBeenCalledWith({
+            message: 'sw-sales-channel.detail.products.messageProductsAssignmentIncomplete',
+        });
+        expect(wrapper.vm.getProducts).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.showProductsModal).toBe(false);
+        expect(wrapper.vm.isAssignProductLoading).toBe(false);
+
+        wrapper.vm.createNotificationSuccess.mockRestore();
+        wrapper.vm.createNotificationWarning.mockRestore();
+        wrapper.vm.getProducts.mockRestore();
+    });
+
+    it('should pass categories and product groups of the selection to the assignment action', async () => {
+        const { wrapper } = await createWrapper();
+        await flushPromises();
+        wrapper.vm.createNotificationSuccess = jest.fn();
+        wrapper.vm.getProducts = jest.fn(() => Promise.resolve());
+
+        await wrapper.vm.onAddProducts([], {
+            productIds: [],
+            productStreamIds: ['stream-1'],
+            categoryIds: ['category-1'],
+        });
+
+        expect(assignMock).toHaveBeenCalledWith('storefrontSalesChannelTypeId', {
+            productIds: [],
+            productStreamIds: ['stream-1'],
+            categoryIds: ['category-1'],
+        });
+
+        wrapper.vm.createNotificationSuccess.mockRestore();
+        wrapper.vm.getProducts.mockRestore();
     });
 
     it('should add products failed', async () => {
         const { wrapper } = await createWrapper();
         await flushPromises();
-        wrapper.vm.saveProductVisibilities = jest.fn(() => Promise.resolve());
 
         await expect(wrapper.vm.onAddProducts([])).rejects.toEqual();
 
         expect(wrapper.vm.showProductsModal).toBe(false);
-        expect(wrapper.vm.saveProductVisibilities).not.toHaveBeenCalled();
+        expect(assignMock).not.toHaveBeenCalled();
+    });
 
-        wrapper.vm.saveProductVisibilities.mockRestore();
+    it.each([
+        ['productIds', 1000, 'sw-sales-channel.detail.products.messageProductLimitExceeded'],
+        ['productStreamIds', 25, 'sw-sales-channel.detail.products.messageProductStreamLimitExceeded'],
+        ['categoryIds', 50, 'sw-sales-channel.detail.products.messageCategoryLimitExceeded'],
+    ])('should not call the assignment action when %s exceed their limit of %i', async (key, limit, message) => {
+        const { wrapper } = await createWrapper();
+        await flushPromises();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.setData({ showProductsModal: true });
+        await wrapper.vm.onAddProducts([], {
+            productIds: [],
+            productStreamIds: [],
+            categoryIds: [],
+            [key]: Array.from({ length: limit + 1 }, (_, index) => `${key}-${index}`),
+        });
+
+        expect(assignMock).not.toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({ message });
+        expect(wrapper.vm.showProductsModal).toBe(true);
+        expect(wrapper.vm.isAssignProductLoading).toBe(false);
+
+        wrapper.vm.createNotificationError.mockRestore();
+    });
+
+    it('should show an error notification when the assignment action fails', async () => {
+        const { wrapper } = await createWrapper();
+        await flushPromises();
+        assignMock.mockRejectedValue(new Error('Whoops!'));
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.getProducts = jest.fn(() => Promise.resolve());
+
+        await wrapper.vm.onAddProducts([{ id: '103' }]);
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({ message: 'Whoops!' });
+        expect(wrapper.vm.getProducts).not.toHaveBeenCalled();
+        expect(wrapper.vm.showProductsModal).toBe(false);
+        expect(wrapper.vm.isAssignProductLoading).toBe(false);
+
+        wrapper.vm.createNotificationError.mockRestore();
+        wrapper.vm.getProducts.mockRestore();
     });
 
     it('should save product visibilities successful', async () => {
@@ -444,9 +547,21 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         await wrapper.vm.saveProductVisibilities([]);
 
         expect(wrapper.vm.productVisibilityRepository.saveAll).not.toHaveBeenCalled();
+        expect(deprecations).toHaveTriggered('saveProductVisibilities() is deprecated');
 
         wrapper.vm.productVisibilityRepository.saveAll.mockRestore();
     });
+
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should throw from saveProductVisibilities once the 6.8 major is active',
+        async () => {
+            useProductionDeprecationGuard();
+            const { wrapper } = await createWrapper();
+            await flushPromises();
+
+            expect(() => wrapper.vm.saveProductVisibilities([])).toThrow('saveProductVisibilities() is deprecated');
+        },
+    );
 
     it('should save product visibilities failed', async () => {
         const { wrapper } = await createWrapper();
@@ -474,6 +589,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         };
 
         expect((await getError()).message).toBe('Whoops!');
+        expect(deprecations).toHaveTriggered('saveProductVisibilities() is deprecated');
 
         wrapper.vm.productVisibilityRepository.saveAll.mockRestore();
     });

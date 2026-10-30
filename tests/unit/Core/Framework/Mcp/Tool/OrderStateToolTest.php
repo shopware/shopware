@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Result\McpToolError;
 use Shopware\Core\Framework\Mcp\Tool\OrderStateTool;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateCollection;
@@ -174,6 +175,7 @@ class OrderStateToolTest extends TestCase
 
         static::assertFalse($data['success']);
         static::assertSame('Order not found.', $data['error']);
+        static::assertSame(McpToolError::NOT_FOUND, $data['code']);
     }
 
     public function testLookupByOrderId(): void

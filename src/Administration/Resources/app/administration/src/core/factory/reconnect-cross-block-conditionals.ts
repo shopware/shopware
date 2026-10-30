@@ -114,7 +114,7 @@ function getConditionDirective(node: ElementNode): ConditionDirective | undefine
 
     return {
         name: prop.name as ConditionDirective['name'],
-        expression: prop.exp && 'content' in prop.exp ? String(prop.exp.content).trim() : '',
+        expression: prop.exp && 'content' in prop.exp ? prop.exp.content.trim() : '',
     };
 }
 

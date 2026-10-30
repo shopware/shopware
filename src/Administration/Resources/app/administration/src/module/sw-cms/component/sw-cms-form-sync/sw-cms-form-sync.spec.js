@@ -94,7 +94,7 @@ describe('src/module/sw-cms/component/sw-cms-form-sync', () => {
         wrapper.vm.createWatcher = jest.fn();
 
         set(wrapper.vm.element.config, 'content.value', 'updated content');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.contentEntity).toBeNull();
         expect(wrapper.vm.createWatcher).toHaveBeenCalledTimes(0);
@@ -108,7 +108,7 @@ describe('src/module/sw-cms/component/sw-cms-form-sync', () => {
         const wrapper = await createWrapper();
 
         set(wrapper.vm.element.config, 'content.value', 'updated content');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(contentEntity.slotConfig[defaultElementId]).toBeDefined();
         expect(contentEntity.slotConfig[defaultElementId].content).toStrictEqual({
@@ -128,7 +128,7 @@ describe('src/module/sw-cms/component/sw-cms-form-sync', () => {
             value: 'new content',
             source: 'static',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(contentEntity.slotConfig[wrapper.vm.element.id].content).toStrictEqual({
             value: 'new content',
@@ -186,7 +186,7 @@ describe('src/module/sw-cms/component/sw-cms-form-sync', () => {
         const wrapper = await createWrapper();
 
         set(wrapper.vm.element.config, 'content.value', 'new value');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(contentEntity.slotConfig).toBeDefined();
         expect(contentEntity.slotConfig[defaultElementId].content.value).toBe('new value');
@@ -246,7 +246,7 @@ describe('src/module/sw-cms/component/sw-cms-form-sync', () => {
         });
 
         set(wrapper.vm.element.config, 'content.value', 'child content');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // The base config is the diff reference of the field watcher, so editing must not touch it.
         expect(wrapper.vm.element.translated.config.content.value).toBe('base content');

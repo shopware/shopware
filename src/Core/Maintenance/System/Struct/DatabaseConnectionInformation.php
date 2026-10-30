@@ -99,6 +99,7 @@ class DatabaseConnectionInformation extends Struct
             'driver' => 'pdo_mysql',
             'driverOptions' => [
                 \PDO::ATTR_STRINGIFY_FETCHES => true,
+                Mysql::ATTR_MULTI_STATEMENTS => true,
             ],
         ];
 

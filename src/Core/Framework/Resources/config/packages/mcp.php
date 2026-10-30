@@ -51,7 +51,10 @@ return static function (ContainerConfigurator $container, ContainerBuilder $buil
                 'description' => 'Shopware Store API MCP server for sales-channel and customer-context operations.',
                 'instructions' => 'This MCP server exposes Store API capabilities. All operations run in the current sales-channel context and use Store API authentication headers. The advertised tool list is not the full catalogue: if no advertised tool matches the requested action, call shopware-tool-search first instead of assuming the action is unsupported, then use shopware-toolsets-list and shopware-toolset-enable to make a matched tool callable if your client cannot invoke it inline.',
                 'transports' => ['http' => false, 'stdio' => false],
-                'registry' => ['tools' => ['Shopware\\Core\\System\\SalesChannel\\Mcp\\']],
+                'registry' => [
+                    'tools' => ['Shopware\\Core\\System\\SalesChannel\\Mcp\\'],
+                    'resource_templates' => ['Shopware\\Core\\System\\SalesChannel\\Mcp\\Resource\\'],
+                ],
             ],
         ],
     ]);

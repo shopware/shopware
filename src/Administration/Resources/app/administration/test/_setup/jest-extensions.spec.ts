@@ -4,11 +4,11 @@
 
 import { mount } from '@vue/test-utils';
 import { createActiveFeatureFlagsTest, createDeprecatedTest } from './jest-extensions';
+import { getDefaultActiveFeatureFlags } from '../_helper_/defaultActiveFeatureFlags';
 
 const pendingFeatureFlagsSymbol = Symbol.for('shopware.pendingActiveFeatureFlags');
 
-const defaultActiveFeatureFlags =
-    (Reflect.get(globalThis, Symbol.for('shopware.defaultActiveFeatureFlags')) as string[] | undefined) ?? [];
+const defaultActiveFeatureFlags = getDefaultActiveFeatureFlags();
 
 function readPendingFeatureFlags(): string[] {
     const featureFlags: unknown = Reflect.get(globalThis, pendingFeatureFlagsSymbol);

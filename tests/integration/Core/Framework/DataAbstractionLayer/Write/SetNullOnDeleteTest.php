@@ -75,11 +75,7 @@ class SetNullOnDeleteTest extends TestCase
 
         $this->connection->rollBack();
 
-        $this->connection->executeStatement(
-            'DROP TABLE IF EXISTS set_null_on_delete_child;
-             DROP TABLE IF EXISTS set_null_on_delete_parent;
-             DROP TABLE IF EXISTS set_null_on_delete_many_to_one;'
-        );
+        $this->connection->executeStatement('DROP TABLE IF EXISTS set_null_on_delete_child, set_null_on_delete_parent, set_null_on_delete_many_to_one');
 
         $this->connection->executeStatement(
             'CREATE TABLE `set_null_on_delete_parent` (
@@ -130,11 +126,7 @@ class SetNullOnDeleteTest extends TestCase
     {
         $this->connection->rollBack();
 
-        $this->connection->executeStatement(
-            'DROP TABLE IF EXISTS set_null_on_delete_child;
-             DROP TABLE IF EXISTS set_null_on_delete_parent;
-             DROP TABLE IF EXISTS set_null_on_delete_many_to_one;'
-        );
+        $this->connection->executeStatement('DROP TABLE IF EXISTS set_null_on_delete_child, set_null_on_delete_parent, set_null_on_delete_many_to_one');
 
         $this->connection->beginTransaction();
     }

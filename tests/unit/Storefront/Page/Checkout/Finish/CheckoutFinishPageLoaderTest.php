@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Shopware\Storefront\Checkout\Order\OrderProductAvailabilityResolver;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPage;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader;
 use Shopware\Storefront\Page\GenericPageLoader;
@@ -218,17 +219,49 @@ class CheckoutFinishPageLoaderTest extends TestCase
         yield 'Guest customer, setting on' => [true, true, true];
     }
 
+    public function testTheProductAvailabilityOfTheOrderIsResolved(): void
+    {
+        $orderId = Uuid::randomHex();
+
+        $pageLoader = static::createStub(GenericPageLoader::class);
+        $pageLoader->method('load')->willReturn(new Page());
+
+        $resolver = static::createMock(OrderProductAvailabilityResolver::class);
+        $resolver
+            ->expects($this->once())
+            ->method('addAvailability')
+            ->with(static::callback(static function (array $orders) use ($orderId): bool {
+                static::assertCount(1, $orders);
+
+                $order = $orders[0];
+                static::assertInstanceOf(OrderEntity::class, $order);
+                static::assertSame($orderId, $order->getId());
+
+                return true;
+            }));
+
+        $this->createLoader($pageLoader, $this->getOrderRouteWithValidOrder($orderId), [], $resolver)->load(
+            new Request(['orderId' => $orderId]),
+            Generator::generateSalesChannelContext(),
+        );
+    }
+
     /**
      * @param array<string, mixed> $systemConfig
      */
-    private function createLoader(GenericPageLoader $pageLoader, OrderRoute $getOrderRouteWithValidOrder, array $systemConfig = []): CheckoutFinishPageLoader
-    {
+    private function createLoader(
+        GenericPageLoader $pageLoader,
+        OrderRoute $getOrderRouteWithValidOrder,
+        array $systemConfig = [],
+        ?OrderProductAvailabilityResolver $productAvailabilityResolver = null
+    ): CheckoutFinishPageLoader {
         return new CheckoutFinishPageLoader(
             static::createStub(EventDispatcher::class),
             $pageLoader,
             $getOrderRouteWithValidOrder,
             static::createStub(AbstractTranslator::class),
             new StaticSystemConfigService($systemConfig),
+            $productAvailabilityResolver ?? static::createStub(OrderProductAvailabilityResolver::class),
         );
     }
 

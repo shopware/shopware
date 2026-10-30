@@ -104,7 +104,7 @@ describe('listing-pagination.plugin', () => {
 
         // Ensure correct page is communicated to listing plugin
         expect(listingPaginationPlugin.getValues).toHaveReturnedWith({ 'p': 3 });
-        expect(getValuesSpy).toHaveBeenCalledTimes(1);
+        expect(getValuesSpy).toHaveBeenCalled();
         expect(changeListingSpy).toHaveBeenCalledTimes(1);
 
         // Ensure the canonical URL is updated

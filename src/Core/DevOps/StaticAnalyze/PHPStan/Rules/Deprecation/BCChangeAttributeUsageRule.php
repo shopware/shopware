@@ -58,9 +58,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class BCChangeAttributeUsageRule implements Rule
 {
-    private const VERSION_PATTERN = '/^v\d+\.\d+\.\d+$/';
+    private const VERSION_PATTERN = '/^v\d+\.\d+\.\d+$/D';
 
-    private const FEATURE_FLAG_PATTERN = '/^[A-Z]+(_[A-Z]+)*$/';
+    private const FEATURE_FLAG_PATTERN = '/^[A-Z]+(_[A-Z]+)*$/D';
 
     private const BC_CHANGE_NAMESPACE_PREFIX = 'Shopware\\Core\\Framework\\Deprecation\\BCChange\\';
 

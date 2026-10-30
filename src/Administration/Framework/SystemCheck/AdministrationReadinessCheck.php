@@ -15,6 +15,7 @@ use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\DependencyInjection\ServicesResetterInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -35,6 +36,7 @@ class AdministrationReadinessCheck extends BaseCheck
         private readonly ViteFileAccessorDecorator $viteFileAccessorDecorator,
         private readonly Filesystem $filesystem,
         private readonly ClockInterface $clock,
+        private readonly ServicesResetterInterface $servicesResetter,
     ) {
     }
 
@@ -54,7 +56,12 @@ class AdministrationReadinessCheck extends BaseCheck
         $indexRoute = $this->router->generate('administration.index');
         $indexRequest = Request::create($indexRoute);
         $indexRequestStart = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT);
-        $indexResponse = $this->kernel->handle($indexRequest);
+        $this->servicesResetter->reset();
+        try {
+            $indexResponse = $this->kernel->handle($indexRequest);
+        } finally {
+            $this->servicesResetter->reset();
+        }
         $indexResponseTime = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $indexRequestStart;
 
         // Looks for JS modules injected in the body

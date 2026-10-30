@@ -10,10 +10,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -143,112 +141,48 @@ class ThemeLifecycleHandlerTest extends TestCase
     public function testAssignmentException(): void
     {
         $themeConfig = new StorefrontPluginConfiguration('SimpleTheme');
-        $themeConfig->setStyleFiles(new FileCollection());
-        $themeConfig->setScriptFiles(new FileCollection());
-        $themeConfig->setName('Simple Theme');
         $themeConfig->setIsTheme(true);
-
         $themeId = Uuid::randomHex();
-
-        $this->connectionMock->method('fetchAllAssociative')->willReturnOnConsecutiveCalls(
-            [
-                [
-                    'id' => $themeId,
-                    'dependentId' => Uuid::randomHex(),
-                ],
-                [
-                    'id' => $themeId,
-                    'dependentId' => Uuid::randomHex(),
-                ],
-            ],
-            [
-                [
-                    'id' => $themeId,
-                    'themeName' => 'Simple Theme',
-                    'dthemeName' => 'Dependent On Simple Theme',
-                    'dependentId' => Uuid::randomHex(),
-                    'saleschannelId' => Uuid::randomHex(),
-                    'saleschannelName' => 'SalesChannelName1',
-                    'dsaleschannelId' => Uuid::randomHex(),
-                    'dsaleschannelName' => 'SalesChannelName2',
-                ],
-                [
-                    'id' => $themeId,
-                    'themeName' => 'Simple Theme',
-                    'dthemeName' => 'Dependent On Simple Theme',
-                    'dependentId' => Uuid::randomHex(),
-                    'saleschannelId' => Uuid::randomHex(),
-                    'saleschannelName' => 'SalesChannelName1',
-                    'dsaleschannelId' => Uuid::randomHex(),
-                    'dsaleschannelName' => 'SalesChannelName2',
-                ],
-            ]
+        $childId = Uuid::randomHex();
+        $salesChannelId = Uuid::randomHex();
+        $childSalesChannelId = Uuid::randomHex();
+        $this->connectionMock->method('fetchAllAssociative')->willReturn([
+            ['id' => $themeId, 'dependentId' => $childId],
+        ]);
+        $this->connectionMock->method('fetchAllKeyValue')->willReturnOnConsecutiveCalls(
+            [$themeId => 'Simple Theme', $childId => 'Dependent On Simple Theme'],
+            [$salesChannelId => 'Storefront DE', $childSalesChannelId => 'Storefront EN'],
         );
+        $this->themeServiceMock->method('getThemeDependencyMapping')->willReturn(new ThemeSalesChannelCollection([
+            new ThemeSalesChannel($themeId, $salesChannelId),
+            new ThemeSalesChannel($childId, $childSalesChannelId),
+        ]));
+        $this->expectExceptionObject(ThemeException::themeAssignmentException(
+            'Simple Theme',
+            ['Simple Theme' => [$salesChannelId]],
+            ['Dependent On Simple Theme' => [$childSalesChannelId]],
+            [$salesChannelId => 'Storefront DE', $childSalesChannelId => 'Storefront EN'],
+        ));
 
-        $this->themeServiceMock->method('getThemeDependencyMapping')->willReturn(
-            new ThemeSalesChannelCollection(
-                [
-                    new ThemeSalesChannel(Uuid::randomHex(), Uuid::randomHex()),
-                ]
-            )
-        );
-
-        if (!Feature::isActive('v6.8.0.0')) {
-            $this->expectException(ThemeAssignmentException::class);
-        } else {
-            $this->expectException(ThemeException::class);
-        }
-        $this->expectExceptionMessageMatches('/^Unable to deactivate or uninstall theme/');
-
-        $this->themeLifecycleHandler->handleThemeUninstall(
-            $themeConfig,
-            $this->context
-        );
+        $this->themeLifecycleHandler->handleThemeUninstall($themeConfig, $this->context);
     }
 
     public function testAssignmentExceptionInException(): void
     {
         $themeConfig = new StorefrontPluginConfiguration('SimpleTheme');
-        $themeConfig->setStyleFiles(new FileCollection());
-        $themeConfig->setScriptFiles(new FileCollection());
-        $themeConfig->setName('Simple Theme');
         $themeConfig->setIsTheme(true);
-
         $themeId = Uuid::randomHex();
+        $this->connectionMock->method('fetchAllAssociative')->willReturn([
+            ['id' => $themeId, 'dependentId' => Uuid::randomHex()],
+        ]);
+        $failure = new \RuntimeException('Cannot load assignment names');
+        $this->connectionMock->method('fetchAllKeyValue')->willThrowException($failure);
+        $this->themeServiceMock->method('getThemeDependencyMapping')->willReturn(new ThemeSalesChannelCollection([
+            new ThemeSalesChannel($themeId, Uuid::randomHex()),
+        ]));
+        $this->expectExceptionObject(ThemeException::themeAssignmentException($themeId, [], [], [], $failure));
 
-        $this->connectionMock->method('fetchAllAssociative')->willReturnOnConsecutiveCalls(
-            [
-                [
-                    'id' => $themeId,
-                    'dependentId' => Uuid::randomHex(),
-                ],
-                [
-                    'id' => $themeId,
-                    'dependentId' => Uuid::randomHex(),
-                ],
-            ],
-            null // will throw excepetion to provoke a db exception
-        );
-
-        $this->themeServiceMock->method('getThemeDependencyMapping')->willReturn(
-            new ThemeSalesChannelCollection(
-                [
-                    new ThemeSalesChannel(Uuid::randomHex(), Uuid::randomHex()),
-                ]
-            )
-        );
-
-        if (!Feature::isActive('v6.8.0.0')) {
-            $this->expectException(ThemeAssignmentException::class);
-        } else {
-            $this->expectException(ThemeException::class);
-        }
-        $this->expectExceptionMessageMatches('/^Unable to deactivate or uninstall theme/');
-
-        $this->themeLifecycleHandler->handleThemeUninstall(
-            $themeConfig,
-            $this->context
-        );
+        $this->themeLifecycleHandler->handleThemeUninstall($themeConfig, $this->context);
     }
 
     public function testSkipThemeCompilationIfContextStateIsSet(): void
@@ -308,6 +242,34 @@ class ThemeLifecycleHandlerTest extends TestCase
             themeService: $themeServiceMock,
             connection: $connectionMock
         )->refreshAllActiveThemeImportMaps($this->context, $configurationCollection);
+    }
+
+    public function testRecompileAllActiveThemesNotifiesAsyncCompletionOnlyForTheLastCompilation(): void
+    {
+        $firstThemeId = Uuid::randomHex();
+        $lastThemeId = Uuid::randomHex();
+
+        $connectionMock = static::createStub(Connection::class);
+        $connectionMock->method('fetchAllAssociative')->willReturn([
+            ['sales_channel_id' => Uuid::randomHex(), 'theme_id' => $firstThemeId],
+            ['sales_channel_id' => Uuid::randomHex(), 'theme_id' => $lastThemeId],
+        ]);
+
+        $notifyOnAsyncCompletion = [];
+        $themeServiceMock = $this->createMock(ThemeService::class);
+        $themeServiceMock
+            ->expects($this->exactly(2))
+            ->method('compileTheme')
+            ->willReturnCallback(static function (string $salesChannelId, string $themeId) use (&$notifyOnAsyncCompletion): void {
+                $notifyOnAsyncCompletion[$themeId] = \func_get_args()[5] ?? true;
+            });
+
+        $this->buildHandler(
+            themeService: $themeServiceMock,
+            connection: $connectionMock
+        )->recompileAllActiveThemes($this->context);
+
+        static::assertSame([$firstThemeId => false, $lastThemeId => true], $notifyOnAsyncCompletion);
     }
 
     /**

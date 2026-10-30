@@ -73,12 +73,12 @@ describe('components/form/sw-radio-field', () => {
         const customSlot = wrapper.find('#custom-slot');
 
         await wrapper.setData({ currentValue: 1 });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(customSlot.wrapperElement).toBeEnabled();
 
         await wrapper.setData({ currentValue: 2 });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(customSlot.wrapperElement).toBeDisabled();
     });

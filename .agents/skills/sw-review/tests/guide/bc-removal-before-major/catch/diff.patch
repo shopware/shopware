@@ -1,0 +1,79 @@
+diff --git a/UPGRADE-6.8.md b/UPGRADE-6.8.md
+index 0e6ec3c..686a35c 100644
+--- a/UPGRADE-6.8.md
++++ b/UPGRADE-6.8.md
+@@ -2462,6 +2462,10 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
+ 
+ The `--no-cleanup` option was removed from both commands. The commands no longer delete unused theme directories themselves, the `theme.delete_files` scheduled task does. Passing the option now fails with an unknown-option error, so drop it from deploy scripts.
+ 
++## `sw_cover_url` Twig function removed
++
++The deprecated `sw_cover_url` Twig function and `Shopware\Storefront\Framework\Twig\Extension\ProductCoverUrlExtension` were removed. Replace `sw_cover_url(product)` with `product.cover.media.url` in your templates.
++
+ ## Footer collapse headlines and columns now use semantic elements
+ 
+ In `layout/footer/footer.html.twig`, the following nodes changed to semantic elements.
+diff --git a/src/Storefront/DependencyInjection/services.php b/src/Storefront/DependencyInjection/services.php
+index 5db251b..09d02ab 100644
+--- a/src/Storefront/DependencyInjection/services.php
++++ b/src/Storefront/DependencyInjection/services.php
+@@ -114,7 +114,6 @@ use Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListen
+ use Shopware\Storefront\Framework\Twig\ErrorTemplateResolver;
+ use Shopware\Storefront\Framework\Twig\Extension\ConfigExtension;
+ use Shopware\Storefront\Framework\Twig\Extension\IconCacheTwigFilter;
+-use Shopware\Storefront\Framework\Twig\Extension\ProductCoverUrlExtension;
+ use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;
+ use Shopware\Storefront\Framework\Twig\IconExtension;
+ use Shopware\Storefront\Framework\Twig\TemplateConfigAccessor;
+@@ -393,9 +392,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
+     $services->set(IconCacheTwigFilter::class)
+         ->tag('twig.extension');
+ 
+-    $services->set(ProductCoverUrlExtension::class)
+-        ->tag('twig.extension');
+-
+     $services->set(StorefrontMediaUploader::class)
+         ->args([
+             service(MediaService::class),
+diff --git a/src/Storefront/Framework/Twig/Extension/ProductCoverUrlExtension.php b/src/Storefront/Framework/Twig/Extension/ProductCoverUrlExtension.php
+deleted file mode 100644
+index c69beb8..0000000
+--- a/src/Storefront/Framework/Twig/Extension/ProductCoverUrlExtension.php
++++ /dev/null
+@@ -1,36 +0,0 @@
+-<?php declare(strict_types=1);
+-
+-namespace Shopware\Storefront\Framework\Twig\Extension;
+-
+-use Shopware\Core\Content\Product\ProductEntity;
+-use Shopware\Core\Framework\Feature;
+-use Shopware\Core\Framework\Log\Package;
+-use Twig\Extension\AbstractExtension;
+-use Twig\TwigFunction;
+-
+-/**
+- * @deprecated tag:v6.8.0 - Will be removed. Use `product.cover.media.url` in templates instead.
+- */
+-#[Package('discovery')]
+-class ProductCoverUrlExtension extends AbstractExtension
+-{
+-    public function getFunctions(): array
+-    {
+-        return [
+-            new TwigFunction('sw_cover_url', $this->getCoverUrl(...)),
+-        ];
+-    }
+-
+-    /**
+-     * @deprecated tag:v6.8.0 - Will be removed. Use `product.cover.media.url` in templates instead.
+-     */
+-    public function getCoverUrl(?ProductEntity $product): ?string
+-    {
+-        Feature::triggerDeprecationOrThrow(
+-            'v6.8.0.0',
+-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'product.cover.media.url')
+-        );
+-
+-        return $product?->getCover()?->getMedia()?->getUrl();
+-    }
+-}

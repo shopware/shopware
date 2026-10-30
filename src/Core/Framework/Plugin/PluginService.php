@@ -20,14 +20,20 @@ use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\Language\LanguageCollection;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
  */
 #[Package('framework')]
-class PluginService
+class PluginService implements ResetInterface
 {
     final public const COMPOSER_AUTHOR_ROLE_MANUFACTURER = 'Manufacturer';
+
+    /**
+     * @var array<string, string>
+     */
+    private array $languageIdsByLocale = [];
 
     /**
      * @param EntityRepository<PluginCollection> $pluginRepo
@@ -46,6 +52,7 @@ class PluginService
     public function refreshPlugins(Context $shopwareContext, IOInterface $composerIO): ExceptionCollection
     {
         $errors = new ExceptionCollection();
+        $this->reset();
         $pluginsFromFileSystem = $this->pluginFinder->findPlugins($this->pluginDir, $this->projectDir, $errors, $composerIO);
 
         $installedPlugins = $this->getPlugins(new Criteria(), $shopwareContext);
@@ -144,6 +151,11 @@ class PluginService
         return $errors;
     }
 
+    public function reset(): void
+    {
+        $this->languageIdsByLocale = [];
+    }
+
     /**
      * @throws PluginNotFoundException
      */
@@ -172,15 +184,14 @@ class PluginService
 
     private function getLanguageIdForLocale(string $locale, Context $context): string
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('language.translationCode.code', $locale));
-        $languageEntity = $this->languageRepo->search($criteria, $context)->getEntities()->first();
-
-        if ($languageEntity === null) {
-            return '';
+        if (\array_key_exists($locale, $this->languageIdsByLocale)) {
+            return $this->languageIdsByLocale[$locale];
         }
 
-        return $languageEntity->getId();
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('language.translationCode.code', $locale));
+
+        return $this->languageIdsByLocale[$locale] = $this->languageRepo->searchIds($criteria, $context)->firstId() ?? '';
     }
 
     private function getPluginIconRaw(string $pluginIconPath): ?string

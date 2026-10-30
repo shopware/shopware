@@ -1,13 +1,11 @@
 name: Label major relevance
-# Rule and reasoning: .github/bin/js/major-label.ts
+# Rule and reasoning: .github/bin/js/major-label.ts (major/<version> bookkeeping labels)
+# and .github/bin/js/auto-label-major-tests.ts (major-php / major-js / major-acceptance).
 #
-# pull_request_target, not pull_request: a fork PR's GITHUB_TOKEN is read-only on
-# pull_request no matter the permissions block, and 11% of the pull requests carrying
-# major markers come from forks. Safe here because the job never checks out or executes
-# the PR head — only the base ref and the diff, fetched as data through the API.
-#
-# No app token: unlike major-php, neither label triggers another workflow, so the
-# GITHUB_TOKEN write granted by pull_request_target is enough.
+# pull_request_target, not pull_request: a fork PR's GITHUB_TOKEN is read-only and OIDC is
+# unavailable on pull_request no matter the permissions block, and 11% of the pull requests
+# carrying major markers come from forks. Safe here because the job never checks out or
+# executes the PR head — only the base ref and the diff, fetched as data through the API.
 
 on:
   pull_request_target:
@@ -25,6 +23,10 @@ jobs:
   label:
     name: Major label
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
     steps:
       # The base ref, never the PR head: a fork must not be able to edit the registry or
       # the path map that judge it.
@@ -47,3 +49,38 @@ jobs:
             const readFile = (path) => readFileSync(`${{ github.workspace }}/${path}`, 'utf8')
             const labels = await detectMajorLabels({ github, core, context }, readFile)
             await applyMajorLabels({ github, context }, labels)
+      # Auto-apply major-test labels for feature-flag changes and acceptance spec changes, so the
+      # matching integration-major or acceptance-major arm runs where it matters.
+      # All further run conditions (action, existing labels) live in the module's `shouldDetect`.
+      - id: detect-major
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const { detectMajorTestArms, labelsForMajorTestArms } = await import(
+              '${{ github.workspace }}/.github/bin/js/auto-label-major-tests.ts'
+            )
+            const arms = await detectMajorTestArms({ github, core, context })
+            const labels = labelsForMajorTestArms(arms, context.payload.pull_request.labels)
+            core.setOutput('labels', labels.join(','))
+      # Unlike the major/<version> labels, these must trigger the major workflows' `labeled` runs,
+      # which a GITHUB_TOKEN-added label does not; if minting fails the label still lands and the
+      # matrix starts on the next push.
+      - id: sts-major
+        if: steps.detect-major.outputs.labels != ''
+        continue-on-error: true
+        uses: shopware/octo-sts-action@main
+        with:
+          scope: shopware
+          identity: CreatePR
+      - if: steps.detect-major.outputs.labels != ''
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          LABELS: ${{ steps.detect-major.outputs.labels }}
+        with:
+          github-token: ${{ steps.sts-major.outputs.token || secrets.GITHUB_TOKEN }}
+          script: |
+            const { addMajorTestLabels } = await import(
+              '${{ github.workspace }}/.github/bin/js/auto-label-major-tests.ts'
+            )
+            const labels = process.env.LABELS.split(',').filter(Boolean)
+            await addMajorTestLabels({ github, context, labels })

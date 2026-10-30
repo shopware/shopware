@@ -287,7 +287,7 @@ this.app = createApp({
 3. **I18n Setup**: Configures internationalization with fallback handling
 4. **Router Integration**: Adds Vue Router
 5. **State Management**: Integrates Vuex store
-6. **Global Properties**: Sets up `$t`, `$tc` translation functions
+6. **Global Properties**: Sets up the `$t` translation function and the deprecated `$tc` alias
 7. **Service Injection**: Makes services available to components
 
 ### Component Synchronization

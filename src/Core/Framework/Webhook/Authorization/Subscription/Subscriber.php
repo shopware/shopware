@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook\Authorization\Subscription;
 
+use Shopware\Core\Framework\Api\Acl\ApiCaller;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
 
@@ -29,35 +30,11 @@ final class Subscriber
     }
 
     /**
-     * An admin user creating a webhook through the Admin API.
+     * A user or integration creating a webhook through the Admin API.
      */
-    public static function admin(): self
+    public static function api(ApiCaller $caller): self
     {
-        return new self(SubscriberType::Admin, null);
-    }
-
-    /**
-     * A non-admin user creating a webhook through the Admin API.
-     */
-    public static function user(): self
-    {
-        return new self(SubscriberType::User, null);
-    }
-
-    /**
-     * An integration creating a webhook through the Admin API.
-     */
-    public static function integration(): self
-    {
-        return new self(SubscriberType::Integration, null);
-    }
-
-    /**
-     * An app's integration creating a webhook through the Admin API.
-     */
-    public static function appIntegration(): self
-    {
-        return new self(SubscriberType::AppIntegration, null);
+        return new self(SubscriberType::of($caller), null);
     }
 
     /**

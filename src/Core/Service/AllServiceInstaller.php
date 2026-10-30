@@ -35,17 +35,27 @@ class AllServiceInstaller
     public function reconcile(Context $context): array
     {
         $existingServices = $this->serviceStorage->findAll($context);
-        $registryServices = $this->serviceRegistryClient->getAll();
+        $activeServices = $this->serviceRegistryClient->getActive();
 
-        $installedServices = $this->installNewServices($existingServices, $registryServices, $context);
+        $installedServices = $this->installNewServices($existingServices, $activeServices, $context);
 
-        $this->updateServices($existingServices, $registryServices, $context);
+        $this->updateServices($existingServices, $activeServices, $context);
+
+        $this->uninstallRetiredServices($existingServices, $context);
 
         if ($installedServices !== []) {
             $this->eventDispatcher->dispatch(new NewServicesInstalledEvent());
         }
 
         return $installedServices;
+    }
+
+    /**
+     * Uninstalls only what the registry explicitly lists as retired, never a service merely missing from its list.
+     */
+    public function uninstallRetired(Context $context): void
+    {
+        $this->uninstallRetiredServices($this->serviceStorage->findAll($context), $context);
     }
 
     public function scheduleInstall(): void
@@ -97,6 +107,29 @@ class AllServiceInstaller
                 $this->serviceLifecycle->update($service->name, $context);
             } catch (\Throwable $exception) {
                 $this->logger->warning('Cannot update service', ['service' => $service->name, 'exception' => $exception]);
+            }
+        }
+    }
+
+    /**
+     * @param list<Service> $existingServices
+     */
+    private function uninstallRetiredServices(array $existingServices, Context $context): void
+    {
+        $retiredServiceNames = array_flip(array_map(
+            static fn (ServiceEntry $entry): string => $entry->name,
+            $this->serviceRegistryClient->getRetired()
+        ));
+
+        foreach ($existingServices as $service) {
+            if (!isset($retiredServiceNames[$service->name])) {
+                continue;
+            }
+
+            try {
+                $this->serviceLifecycle->uninstall($service->name, $context);
+            } catch (\Throwable $exception) {
+                $this->logger->warning('Cannot uninstall retired service', ['service' => $service->name, 'exception' => $exception]);
             }
         }
     }

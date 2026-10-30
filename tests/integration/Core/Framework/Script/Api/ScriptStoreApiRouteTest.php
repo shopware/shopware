@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Util\Base64;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -75,6 +76,32 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertArrayHasKey('foo', $response);
         static::assertSame('bar', $response['foo']);
         static::assertSame('store_api_simple_script_response', $response['apiAlias']);
+    }
+
+    public function testIncludesThatAreNotAnArrayAreRejected(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $this->browser->request('POST', '/store-api/script/simple-script', ['includes' => 'foo']);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+    }
+
+    public function testIncludesOfTheCompressedCriteriaAreApplied(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $compressed = gzencode(json_encode(['includes' => ['store_api_simple_script_response' => ['apiAlias']]], \JSON_THROW_ON_ERROR));
+        static::assertNotFalse($compressed, 'Gzip compressing failed');
+
+        $this->browser->request('GET', '/store-api/script/simple-script', ['_criteria' => Base64::urlEncode($compressed)]);
+
+        $content = (string) $this->browser->getResponse()->getContent();
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $content);
+
+        $response = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('store_api_simple_script_response', $response['apiAlias']);
+        static::assertArrayNotHasKey('foo', $response, 'The includes of the compressed criteria are applied');
     }
 
     public function testRepositoryCall(): void

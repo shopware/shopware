@@ -5,11 +5,11 @@ on:
     paths:
       - ".github/workflows/*.md"
       - ".github/workflows/*.lock.yml"
-      - ".github/workflows/agentics-maintenance.yml"
       - ".github/workflows/agentic-workflow-consistency.yml"
       - ".github/aw/**"
       - ".github/dependabot.yml"
       - ".gitattributes"
+      - ".agents/skills/sw-review/**"
   workflow_dispatch:
 
 permissions:
@@ -25,20 +25,50 @@ jobs:
         with:
           persist-credentials: false
 
+      # Keep this pin equal to the `gh aw` version in .github/aw/README.md: a different
+      # compiler produces different lock files and this check fails on every PR.
       - name: Install gh-aw
-        uses: github/gh-aw-actions/setup-cli@b5cde6c5013569c8b0229dd2d7ffd63eaf2c9ad2 # v0.81.2
+        uses: github/gh-aw-actions/setup-cli@924af5fdc64061cfbf66fb584c8b07e2ac230c60 # v0.89.21
         with:
-          version: v0.81.2
+          version: v0.89.21
 
       - name: Compile agentic workflows
         run: gh aw compile
 
+      # `git status` instead of `git diff`: a file the compiler newly generates (such as
+      # agentics-maintenance.yml once a workflow opts in) is untracked and invisible to diff.
       - name: Check generated files are up to date
         run: |
-          git diff --exit-code -- \
-            .gitattributes \
-            .github/workflows/agentics-maintenance.yml \
-            .github/workflows/sw-bugfixer.lock.yml \
-            .github/workflows/sw-triage.lock.yml \
-            .github/workflows/sw-review.lock.yml \
-            .github/aw/actions-lock.json
+          set -euo pipefail
+          changes="$(git status --porcelain -- .gitattributes .github/workflows .github/aw/actions-lock.json .github/dependabot.yml)"
+          if [ -n "$changes" ]; then
+            echo "$changes"
+            echo "::error::gh aw compile output differs from the committed files. Run 'gh aw compile' with the pinned version and commit the result."
+            exit 1
+          fi
+
+  review-routing:
+    name: sw-review routing cases
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Same Node as the sw-review workflow pins for its change-profile step, so the
+      # tests prove the scripts on the version that runs them.
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      # Deterministic classification of real PR diffs and the eval graders (no LLM). Node
+      # runs the TypeScript directly (type stripping, no build step). The routing test fails
+      # on an empty fixture directory, so it cannot pass without evaluating cases. The grader
+      # test runs every eval grader once, so a grader that does not load fails here.
+      - name: Run classifier unit tests, routing cases and grader tests
+        run: |
+          set -euo pipefail
+          node --test .agents/skills/sw-review/scripts/*.test.ts .agents/skills/sw-review/tests/*.test.ts .agents/skills/sw-review/tests/routing/*.test.ts

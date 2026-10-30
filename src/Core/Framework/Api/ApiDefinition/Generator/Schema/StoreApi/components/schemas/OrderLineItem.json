@@ -79,123 +79,10 @@
                         "type": "string"
                     },
                     "payload": {
-                        "description": "Snapshot data of the referenced item. Product line items contain the product data listed below; other line item types may carry different keys or an empty array.",
+                        "description": "Data owned by the line item type. `product` and `promotion` line items carry `ProductLineItemPayload` and `PromotionLineItemPayload`. Core defines no payload for `credit`, `custom`, `container` and `discount` line items, theirs holds whatever their creator set, for example the admin, an integration or an app script. Types added by extensions carry their own keys, and extensions can add keys to the core payloads too. An empty payload is an empty array.",
                         "type": ["object", "array"],
                         "maxItems": 0,
-                        "properties": {
-                            "categoryIds": {
-                                "type": ["array", "null"],
-                                "items": {
-                                    "type": "string",
-                                    "pattern": "^[0-9a-f]{32}$"
-                                },
-                                "readOnly": true
-                            },
-                            "createdAt": {
-                                "type": ["string", "null"],
-                                "description": "Date in the storage format `Y-m-d H:i:s.v`, not RFC 3339.",
-                                "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}$",
-                                "readOnly": true
-                            },
-                            "customFields": {
-                                "anyOf": [
-                                    {
-                                        "type": "object"
-                                    },
-                                    {
-                                        "type": "array",
-                                        "maxItems": 0
-                                    }
-                                ]
-                            },
-                            "features": {
-                                "type": "array"
-                            },
-                            "isCloseout": {
-                                "type": "boolean"
-                            },
-                            "isNew": {
-                                "type": "boolean"
-                            },
-                            "manufacturerId": {
-                                "type": ["string", "null"],
-                                "pattern": "^[0-9a-f]{32}$"
-                            },
-                            "markAsTopseller": {
-                                "type": "boolean"
-                            },
-                            "optionIds": {
-                                "type": ["array", "null"],
-                                "items": {
-                                    "type": "string",
-                                    "pattern": "^[0-9a-f]{32}$"
-                                },
-                                "readOnly": true
-                            },
-                            "options": {
-                                "description": "Variant options of the product as group and option name pairs.",
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "group": {
-                                            "type": "string"
-                                        },
-                                        "option": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": ["group", "option"]
-                                }
-                            },
-                            "parentId": {
-                                "type": ["string", "null"],
-                                "pattern": "^[0-9a-f]{32}$"
-                            },
-                            "productNumber": {
-                                "type": "string"
-                            },
-                            "propertyIds": {
-                                "type": ["array", "null"],
-                                "items": {
-                                    "type": "string",
-                                    "pattern": "^[0-9a-f]{32}$"
-                                },
-                                "readOnly": true
-                            },
-                            "releaseDate": {
-                                "type": ["string", "null"],
-                                "description": "Date in the storage format `Y-m-d H:i:s.v`, not RFC 3339.",
-                                "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}$"
-                            },
-                            "stock": {
-                                "type": "integer",
-                                "format": "int64"
-                            },
-                            "streamIds": {
-                                "type": ["array", "null"],
-                                "items": {
-                                    "type": "string",
-                                    "pattern": "^[0-9a-f]{32}$"
-                                },
-                                "readOnly": true
-                            },
-                            "tagIds": {
-                                "type": ["array", "null"],
-                                "items": {
-                                    "type": "string",
-                                    "pattern": "^[0-9a-f]{32}$"
-                                },
-                                "readOnly": true
-                            },
-                            "taxId": {
-                                "type": "string",
-                                "pattern": "^[0-9a-f]{32}$"
-                            },
-                            "productType": {
-                                "$ref": "#/components/schemas/Product/properties/type"
-                            }
-                        }
+                        "additionalProperties": true
                     },
                     "good": {
                         "description": "When set to true, it indicates the line item is physical else it is virtual.",
@@ -233,16 +120,23 @@
                         "type": "string"
                     },
                     "type": {
-                        "description": "Type refers to the entity type of an item whether it is product or promotion for instance.",
-                        "type": "string",
-                        "enum": [
-                            "product",
-                            "credit",
-                            "custom",
-                            "promotion",
-                            "container",
-                            "discount",
-                            "quantity"
+                        "description": "Type of the line item, which decides what `payload` contains. Core uses the listed values. Extensions add their own types, so expect any string. Show a type you don't know from the fields every line item has, such as `label`, `quantity` and the price, and ignore its `payload`.",
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "enum": [
+                                    "product",
+                                    "credit",
+                                    "custom",
+                                    "promotion",
+                                    "container",
+                                    "discount",
+                                    "quantity"
+                                ]
+                            },
+                            {
+                                "type": "string"
+                            }
                         ]
                     },
                     "customFields": {
@@ -309,7 +203,43 @@
                         "maxItems": 0
                     }
                 },
-                "type": "object"
+                "type": "object",
+                "allOf": [
+                    {
+                        "if": {
+                            "required": ["type"],
+                            "properties": {
+                                "type": {
+                                    "const": "product"
+                                }
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "payload": {
+                                    "$ref": "#/components/schemas/ProductLineItemPayload"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "if": {
+                            "required": ["type"],
+                            "properties": {
+                                "type": {
+                                    "const": "promotion"
+                                }
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "payload": {
+                                    "$ref": "#/components/schemas/PromotionLineItemPayload"
+                                }
+                            }
+                        }
+                    }
+                ]
             }
         }
     }

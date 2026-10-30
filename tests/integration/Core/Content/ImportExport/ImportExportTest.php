@@ -93,6 +93,7 @@ use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Unit\UnitCollection;
 use Shopware\Core\System\Unit\UnitDefinition;
 use Shopware\Core\System\Unit\UnitEntity;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\Traits\OrderFixture;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Filesystem\Filesystem;
@@ -139,19 +140,19 @@ class ImportExportTest extends AbstractImportExportTestCase
 
     public function testExportEvents(): void
     {
-        $this->listener->addSubscriber(new StockSubscriber());
+        EventHookDispatcher::fromContainer(static::getContainer())->subscribe(new StockSubscriber());
 
         $enrichExportCriteriaCalled = false;
         $beforeExportRecordCalled = false;
         $exceptionExportRecordCalled = false;
 
-        $this->addEventListener($this->listener, EnrichExportCriteriaEvent::class, static function () use (&$enrichExportCriteriaCalled): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(EnrichExportCriteriaEvent::class, static function () use (&$enrichExportCriteriaCalled): void {
             $enrichExportCriteriaCalled = true;
         });
-        $this->addEventListener($this->listener, ImportExportBeforeExportRecordEvent::class, static function () use (&$beforeExportRecordCalled): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(ImportExportBeforeExportRecordEvent::class, static function () use (&$beforeExportRecordCalled): void {
             $beforeExportRecordCalled = true;
         });
-        $this->addEventListener($this->listener, ImportExportExceptionExportRecordEvent::class, static function () use (&$exceptionExportRecordCalled): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(ImportExportExceptionExportRecordEvent::class, static function () use (&$exceptionExportRecordCalled): void {
             $exceptionExportRecordCalled = true;
         });
 
@@ -176,13 +177,13 @@ class ImportExportTest extends AbstractImportExportTestCase
         $afterImportRecordCalled = false;
         $exceptionImportRecordCalled = false;
 
-        $this->addEventListener($this->listener, ImportExportBeforeImportRecordEvent::class, static function () use (&$beforeImportRecordCalled): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(ImportExportBeforeImportRecordEvent::class, static function () use (&$beforeImportRecordCalled): void {
             $beforeImportRecordCalled = true;
         });
-        $this->addEventListener($this->listener, ImportExportAfterImportRecordEvent::class, static function () use (&$afterImportRecordCalled): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(ImportExportAfterImportRecordEvent::class, static function () use (&$afterImportRecordCalled): void {
             $afterImportRecordCalled = true;
         });
-        $this->addEventListener($this->listener, ImportExportExceptionImportRecordEvent::class, static function () use (&$exceptionImportRecordCalled): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(ImportExportExceptionImportRecordEvent::class, static function () use (&$exceptionImportRecordCalled): void {
             $exceptionImportRecordCalled = true;
         });
 
@@ -1318,7 +1319,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
             $mailSent = true;
         };
 
-        $this->addEventListener($this->listener, MailSentEvent::class, $listenerClosure);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(MailSentEvent::class, $listenerClosure);
 
         $profile = $this->cloneDefaultProfile(CustomerDefinition::ENTITY_NAME);
         $mapping = $profile->getMapping();

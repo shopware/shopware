@@ -49,7 +49,6 @@ class PriceFieldTest extends TestCase
         $this->connection = static::getContainer()->get(Connection::class);
 
         $nullableTable = <<<EOF
-DROP TABLE IF EXISTS _test_nullable;
 CREATE TABLE `_test_nullable` (
   `id` varbinary(16) NOT NULL,
   `data` longtext NULL,
@@ -59,6 +58,7 @@ CREATE TABLE `_test_nullable` (
 );
 EOF;
         $this->connection->rollBack();
+        $this->connection->executeStatement('DROP TABLE IF EXISTS _test_nullable');
         $this->connection->executeStatement($nullableTable);
         $this->connection->beginTransaction();
     }

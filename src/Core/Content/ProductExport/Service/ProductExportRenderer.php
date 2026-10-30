@@ -111,7 +111,7 @@ class ProductExportRenderer implements ProductExportRendererInterface
             throw ProductExportException::templateBodyNotSet();
         }
 
-        if (!Feature::isActive('v6.8.0.0')) {
+        if (!Feature::isActive('MEDIA_URL_PATH_ENCODING')) {
             // @deprecated tag:v6.8.0 - MediaUrlGenerator encodes media paths.
             $data = $this->encodeMediaUrls($data);
         }

@@ -51,6 +51,9 @@ export default {
             defaultProductId: '',
             newDefaultLayout: undefined,
             maxVisibleAssignedPages: 3,
+            isCompactLayout: false,
+            compactLayoutBreakpoint: 800,
+            layoutResizeObserver: null,
         };
     },
 
@@ -186,7 +189,44 @@ export default {
         this.createdComponent();
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
+    beforeUnmount() {
+        this.beforeUnmountComponent();
+    },
+
     methods: {
+        mountedComponent() {
+            this.registerLayoutResizeObserver();
+        },
+
+        beforeUnmountComponent() {
+            if (this.layoutResizeObserver) {
+                this.layoutResizeObserver.disconnect();
+                this.layoutResizeObserver = null;
+            }
+        },
+
+        /**
+         * The page type navigation needs the width of the page, not of the viewport, because the
+         * admin menu takes a different share of the viewport depending on its collapsed state.
+         */
+        registerLayoutResizeObserver() {
+            if (!(this.$el instanceof HTMLElement) || typeof ResizeObserver === 'undefined') {
+                return;
+            }
+
+            this.layoutResizeObserver = new ResizeObserver((entries) => {
+                entries.forEach((entry) => {
+                    this.isCompactLayout = entry.contentRect.width < this.compactLayoutBreakpoint;
+                });
+            });
+
+            this.layoutResizeObserver.observe(this.$el);
+        },
+
         async createdComponent() {
             if (this.acl.can('user_config:read')) {
                 await this.loadGridUserSettings().catch(() => {});

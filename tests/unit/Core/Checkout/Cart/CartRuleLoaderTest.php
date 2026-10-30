@@ -85,6 +85,7 @@ class CartRuleLoaderTest extends TestCase
             ->willReturn(new RuleCollection());
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->method('hasListeners')->willReturn(true);
         $dispatcher
             ->expects($this->exactly(2))
             ->method('dispatch')
@@ -166,6 +167,7 @@ class CartRuleLoaderTest extends TestCase
         ;
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->method('hasListeners')->willReturn(true);
         $dispatcher
             ->expects($this->exactly(2))
             ->method('dispatch')

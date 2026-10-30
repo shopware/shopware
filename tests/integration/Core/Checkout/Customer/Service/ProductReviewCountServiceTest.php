@@ -103,6 +103,7 @@ class ProductReviewCountServiceTest extends TestCase
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'title' => 'foo',
                 'content' => 'bar',
+                'externalUser' => 'Test',
                 'points' => 3,
             ],
         ], Context::createDefaultContext());

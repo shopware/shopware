@@ -14,11 +14,19 @@ class SalesChannelDomain extends Struct
     private function __construct(
         public readonly string $salesChannelId,
         public readonly string $url,
+        public readonly string $id,
+        public readonly string $languageId,
+        public readonly string $currencyId,
     ) {
     }
 
-    public static function create(string $salesChannelId, string $url): self
-    {
-        return new self($salesChannelId, $url);
+    public static function create(
+        string $salesChannelId,
+        string $url,
+        string $id,
+        string $languageId,
+        string $currencyId,
+    ): self {
+        return new self($salesChannelId, $url, $id, $languageId, $currencyId);
     }
 }

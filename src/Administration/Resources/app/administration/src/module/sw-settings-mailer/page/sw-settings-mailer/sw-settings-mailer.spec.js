@@ -45,12 +45,6 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
         );
     };
 
-    it('should be a vue js component', async () => {
-        const settingsMailer = await createSettingsMailer();
-
-        expect(settingsMailer.vm).toBeTruthy();
-    });
-
     it('should load the mailerSettings on creation', async () => {
         const settingsMailer = await createSettingsMailer();
         const spyLoadMailer = jest.spyOn(settingsMailer.vm, 'loadMailerSettings');

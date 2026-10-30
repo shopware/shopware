@@ -263,7 +263,7 @@ class MigrationCommandTest extends TestCase
 
     private function getConnection(): Connection
     {
-        return static::getContainer()->get(Connection::class);
+        return static::getContainer()->get('doctrine.dbal.migration_connection');
     }
 
     private function getMigrationCount(bool $executed = false, bool $destructive = false): int

@@ -54,6 +54,8 @@ class ComposerVersionConstraintsTest extends TestCase
         yield 'phpstan with caret fails' => ['phpstan/phpstan', '^2.1', 'pinned to a specific version'];
         yield 'cs-fixer with tilde fails' => ['friendsofphp/php-cs-fixer', '~3.1.0', 'pinned to a specific version'];
         yield 'shopware/conflicts star constraint passes' => ['shopware/conflicts', '*', null];
+        yield 'package name with a trailing newline is no tilde exception' => ["php\n", '~8.2.0', 'caret version range'];
+        yield 'package name with a trailing newline is no strict exception' => ["phpstan/phpstan\n", '2.1.30', 'caret version range'];
         yield 'php extension star constraint passes' => ['ext-json', '*', null];
         yield 'polyfills are exempt from the policy' => ['symfony/polyfill-php84', '1.0.0', null];
     }

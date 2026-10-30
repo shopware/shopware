@@ -1,0 +1,16 @@
+{
+  "name": "@shopware-ag/administration-vite-8-toolchain",
+  "description": "Vite 8 toolchain of the Administration, used while the ADMIN_VITE_8 feature flag is active",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@vitejs/plugin-vue": "6.0.9",
+    "vite": "8.3.3",
+    "vite-plugin-node-polyfills": "0.28.0",
+    "vite-plugin-symfony": "8.2.4"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0",
+    "npm": ">=10.0.0"
+  }
+}

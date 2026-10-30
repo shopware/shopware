@@ -30,6 +30,7 @@
             {% if config.verticalAlign.value and not isCover %}
                 <div class="cms-element-alignment {{ alignmentClass }}">
             {% endif %}
+
             {% block element_image_inner %}
                 {% set imageElement %}
                     {% block element_image_container %}
@@ -38,9 +39,9 @@
                                 {% if isCover %} style="min-height: {{ element.translated.config.minHeight.value ?: '340px' }};"{% endif %}>
                                 {% block element_image_media %}
                                     {% set attributes = {
-                                        'class': 'cms-image',
-                                        'alt': element.translated.config.isDecorative.value ? '' : (element.data.media.translated.alt ?: ''),
-                                        'title': element.translated.config.isDecorative.value ? '' : (element.data.media.translated.title ?: ''),
+                                        class: 'cms-image',
+                                        alt: element.translated.config.isDecorative.value ? '' : (element.data.media.translated.alt ?: ''),
+                                        title: element.translated.config.isDecorative.value ? '' : (element.data.media.translated.title ?: ''),
                                     } %}
 
                                     {% if isCover or element.translated.config.displayMode.value == 'contain' %}
@@ -48,9 +49,9 @@
                                     {% endif %}
 
                                     {% if element.translated.config.fetchPriorityHigh is defined and element.translated.config.fetchPriorityHigh.value %}
-                                        {% set attributes = attributes|merge({ 'fetchpriority': 'high' }) %}
+                                        {% set attributes = attributes|merge({ fetchpriority: 'high' }) %}
                                     {% else %}
-                                        {% set attributes = attributes|merge({ 'loading': 'lazy' }) %}
+                                        {% set attributes = attributes|merge({ loading: 'lazy' }) %}
                                     {% endif %}
 
                                     {% if displayMode == 'standard' and element.data.media.metaData.width is defined %}
@@ -82,6 +83,7 @@
                     {{ imageElement }}
                 {% endif %}
             {% endblock %}
+
             {% if config.verticalAlign.value and not isCover %}
                 </div>
             {% endif %}

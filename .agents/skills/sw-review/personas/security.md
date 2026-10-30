@@ -27,7 +27,7 @@ Read like an attacker. Ask: what became reachable, trusted, or exposed?
 
 - Style → `code-style`;
 - Performance/non-security tests → `architecture`;
-- Docs phrasing → `open-source`;
+- Docs phrasing → `maintainer`;
 - a11y/brand/copy → `ux`.
 
 ## Severity Anchors

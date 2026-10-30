@@ -52,7 +52,8 @@ final readonly class RefreshHttpCacheMessageHandler
              */
             $request->setSession(new Session(new MockArraySessionStorage()));
 
-            $response = $this->kernel->handle($request, HttpKernelInterface::MAIN_REQUEST, false);
+            // the kernel gets a copy, like in the HttpCache, because listeners can change the query parameters the cache key is built from
+            $response = $this->kernel->handle(clone $request, HttpKernelInterface::MAIN_REQUEST, false);
             $this->store->write($request, $response);
 
             $this->cache->delete($msg->lockKey);

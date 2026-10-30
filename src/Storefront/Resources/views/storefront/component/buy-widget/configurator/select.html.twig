@@ -13,7 +13,7 @@
                     {% set selected = false %}
                     {% set optionName = option.translated.name %}
 
-                    {% if option.id in page.product.optionIds %}
+                    {% if option.id in product.optionIds %}
                         {% set selected = true %}
                     {% endif %}
 

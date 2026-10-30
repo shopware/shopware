@@ -2,9 +2,15 @@
  * @sw-package framework
  */
 
+import { useProductionDeprecationGuard } from 'test/_helper_/deprecations';
+
 describe('src/app/service/feature.service', () => {
     beforeAll(() => {
         Shopware.Feature.init({ V7_0_0_0: false });
+    });
+
+    beforeEach(() => {
+        useProductionDeprecationGuard();
     });
 
     afterEach(() => {
@@ -35,6 +41,16 @@ describe('src/app/service/feature.service', () => {
                 '[Deprecation]',
                 'typoService() is deprecated.\nNote: this deprecation has a typo: "V6_8_0" is an unknown feature flag. Please fix it.',
             );
+        });
+
+        it('passes on whom the deprecation blames', () => {
+            const trigger = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow').mockImplementation(() => {});
+
+            Shopware.Service('feature').triggerDeprecationOrThrow('V7_0_0_0', 'blamedService() is deprecated.', {
+                _blame: 'author',
+            });
+
+            expect(trigger).toHaveBeenCalledWith('V7_0_0_0', 'blamedService() is deprecated.', { _blame: 'author' });
         });
     });
 });

@@ -25,7 +25,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             expect(card.props('bulkLoading')).toBe(false);
 
             wrapper.vm.bulkProcessingNames = ['A'];
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(card.props('bulkLoading')).toBe(true);
         });
@@ -37,7 +37,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             await flushPromises();
 
             wrapper.vm.onSelectChange({ name: 'A' }, true);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(wrapper.findComponent('.sw-self-maintained-extension-card').props('selected')).toBe(true);
         });
@@ -51,11 +51,11 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             const card = wrapper.findComponent('.sw-self-maintained-extension-card');
 
             card.vm.$emit('select-change', true);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
             expect(wrapper.vm.selectedNames).toEqual(['A']);
 
             card.vm.$emit('select-change', false);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
             expect(wrapper.vm.selectedNames).toEqual([]);
         });
 
@@ -74,7 +74,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             await flushPromises();
 
             wrapper.vm.onSelectChange({ name: 'A' }, true);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             const bar = wrapper.findComponent('.sw-extension-bulk-actions-bar');
             expect(bar.exists()).toBe(true);
@@ -93,16 +93,16 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             await flushPromises();
 
             wrapper.vm.onSelectChange({ name: 'A' }, true);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             const bar = wrapper.findComponent('.sw-extension-bulk-actions-bar');
 
             bar.vm.$emit('select-all');
-            await wrapper.vm.$nextTick();
+            await flushPromises();
             expect(wrapper.vm.selectedNames).toEqual(['A', 'B']);
 
             bar.vm.$emit('clear');
-            await wrapper.vm.$nextTick();
+            await flushPromises();
             expect(wrapper.vm.selectedNames).toEqual([]);
         });
 
@@ -114,7 +114,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
 
             wrapper.vm.onSelectChange({ name: 'A' }, true);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             const bar = wrapper.findComponent('.sw-extension-bulk-actions-bar');
             bar.vm.$emit('run-action', 'install');
@@ -156,7 +156,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             wrapper.vm.onSelectChange({ name: 'Rented' }, true);
             wrapper.vm.onSelectChange({ name: 'Free' }, true);
             await wrapper.vm.runBulkAction('deactivate');
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             const modal = wrapper.findComponent('.sw-extension-bulk-deactivation-modal');
             expect(modal.exists()).toBe(true);
@@ -169,7 +169,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             expect(wrapper.vm.isBulkRunning).toBe(false);
 
             await wrapper.vm.runBulkAction('deactivate');
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             wrapper.findComponent('.sw-extension-bulk-deactivation-modal').vm.$emit('confirm');
             await flushPromises();
@@ -190,7 +190,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             shopwareService.updateExtensionData.mockClear();
 
             await wrapper.vm.$router.push(routes[1]);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(wrapper.vm.selectedNames).toEqual([]);
             expect(wrapper.vm.filterByActiveState).toBe(false);
@@ -275,7 +275,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
             wrapper.vm.onSelectChange({ name: 'A' }, true);
             wrapper.vm.changeActiveState(true);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(wrapper.vm.selectedNames).toEqual([]);
             expect(wrapper.vm.filterByActiveState).toBe(true);

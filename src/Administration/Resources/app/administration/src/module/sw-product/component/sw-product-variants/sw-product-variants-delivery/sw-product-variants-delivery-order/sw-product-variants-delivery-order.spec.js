@@ -76,7 +76,7 @@ async function createWrapper() {
 describe('src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order', () => {
     it('should show the translated name of a property group', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const textileGroup = wrapper.vm.orderObjects.find((group) => {
             return group.id === '0ccea31f2d774b06bb6459c64cd334ce';

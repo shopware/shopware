@@ -2,11 +2,13 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Loader;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
+use Shopware\Core\Framework\App\Feature\AppFeature;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
+use Shopware\Core\Framework\App\Feature\TranslatedString;
+use Shopware\Core\Framework\App\Mcp\Feature\McpToolConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 
@@ -17,95 +19,39 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 #[CoversClass(AppMcpPrivilegeProvider::class)]
 class AppMcpPrivilegeProviderTest extends TestCase
 {
-    public function testReturnsEmptyMapWhenNoRows(): void
+    private AppFeatureStorage&Stub $storage;
+
+    private AppMcpPrivilegeProvider $provider;
+
+    protected function setUp(): void
     {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([]);
-
-        $provider = new AppMcpPrivilegeProvider($connection, new NullLogger());
-
-        static::assertSame([], $provider->getAppToolPrivileges());
+        $this->storage = static::createStub(AppFeatureStorage::class);
+        $this->provider = new AppMcpPrivilegeProvider($this->storage);
     }
 
-    public function testDecodesJsonPrivilegesIntoMap(): void
+    public function testEachToolMapsToItsRequiredPrivileges(): void
     {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            [
-                'tool_name' => 'my-erp-sync-orders',
-                'required_privileges' => '["order:read","order:update"]',
-            ],
-            [
-                'tool_name' => 'my-erp-erp-status',
-                'required_privileges' => '["system:read"]',
-            ],
+        $this->storage->method('forActiveApps')->willReturn([
+            $this->feature('sync-orders', ['order:read', 'order:update'], 'my-erp'),
+            $this->feature('erp-status', [], 'my-erp'),
         ]);
-
-        $provider = new AppMcpPrivilegeProvider($connection, new NullLogger());
 
         static::assertSame(
             [
                 'my-erp-sync-orders' => ['order:read', 'order:update'],
-                'my-erp-erp-status' => ['system:read'],
+                'my-erp-erp-status' => [],
             ],
-            $provider->getAppToolPrivileges(),
+            $this->provider->getAppToolPrivileges(),
         );
     }
 
-    public function testSkipsRowsWithInvalidJson(): void
+    public function testEachToolIsGroupedUnderItsApp(): void
     {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['tool_name' => 'broken-tool', 'required_privileges' => 'not-json'],
-            ['tool_name' => 'good-tool', 'required_privileges' => '["entity:read"]'],
-            ['tool_name' => 'scalar-json', 'required_privileges' => '"plain-string"'],
+        $this->storage->method('forActiveApps')->willReturn([
+            $this->feature('sync-orders', [], 'my-erp'),
+            $this->feature('read-stock', [], 'my-erp'),
+            $this->feature('do-thing', [], 'other-app'),
         ]);
-
-        $provider = new AppMcpPrivilegeProvider($connection, new NullLogger());
-
-        static::assertSame(
-            ['good-tool' => ['entity:read']],
-            $provider->getAppToolPrivileges(),
-        );
-    }
-
-    public function testReturnsEmptyMapAndLogsErrorWhenDbThrows(): void
-    {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willThrowException(new \RuntimeException('DB down'));
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
-            ->method('error')
-            ->with('Failed to load app MCP tool privileges', static::arrayHasKey('exception'));
-
-        $provider = new AppMcpPrivilegeProvider($connection, $logger);
-
-        static::assertSame([], $provider->getAppToolPrivileges());
-    }
-
-    public function testReindexesNumericArrays(): void
-    {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['tool_name' => 'tool', 'required_privileges' => '{"0":"a","1":"b"}'],
-        ]);
-
-        $provider = new AppMcpPrivilegeProvider($connection, new NullLogger());
-
-        static::assertSame(['tool' => ['a', 'b']], $provider->getAppToolPrivileges());
-    }
-
-    public function testMapsAppToolsToTheirOwningAppGroup(): void
-    {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['tool_name' => 'my-erp-sync-orders', 'group_name' => 'my-erp'],
-            ['tool_name' => 'my-erp-read-stock', 'group_name' => 'my-erp'],
-            ['tool_name' => 'other-app-do-thing', 'group_name' => 'other-app'],
-        ]);
-
-        $provider = new AppMcpPrivilegeProvider($connection, new NullLogger());
 
         static::assertSame(
             [
@@ -113,22 +59,19 @@ class AppMcpPrivilegeProviderTest extends TestCase
                 'my-erp-read-stock' => 'my-erp',
                 'other-app-do-thing' => 'other-app',
             ],
-            $provider->getAppToolGroups(),
+            $this->provider->getAppToolGroups(),
         );
     }
 
-    public function testReturnsEmptyGroupMapAndLogsErrorWhenDbThrows(): void
+    /**
+     * @param list<string> $requiredPrivileges
+     *
+     * @return AppFeature<McpToolConfig>
+     */
+    private function feature(string $name, array $requiredPrivileges, string $appName): AppFeature
     {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willThrowException(new \RuntimeException('DB down'));
+        $config = new McpToolConfig($name, 'https://app.example.com/mcp/' . $name, $requiredPrivileges, null, new TranslatedString([]), new TranslatedString([]));
 
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
-            ->method('error')
-            ->with('Failed to load app MCP tool groups', static::arrayHasKey('exception'));
-
-        $provider = new AppMcpPrivilegeProvider($connection, $logger);
-
-        static::assertSame([], $provider->getAppToolGroups());
+        return new AppFeature('0189aaaabbbbcccc0000000000000001', $appName, true, '0.0.0', true, new \DateTimeImmutable(), $config);
     }
 }

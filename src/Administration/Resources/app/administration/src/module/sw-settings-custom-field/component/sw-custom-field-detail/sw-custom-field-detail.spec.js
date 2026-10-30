@@ -210,6 +210,30 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         );
     });
 
+    it('should drop type-specific config when switching the type of a new custom field', async () => {
+        const newField = { ...customFieldFixture, config: { ...customFieldFixture.config } };
+        const wrapper = await createWrapper({ currentCustomField: newField, set: {} }, ['custom_field.editor']);
+        await flushPromises();
+
+        await selectMtSelectOptionByText(wrapper, 'sw-settings-custom-field.types.select');
+        Object.assign(wrapper.vm.currentCustomField.config, {
+            componentName: 'sw-single-select',
+            options: [{ value: '', label: {} }],
+        });
+
+        await selectMtSelectOptionByText(wrapper, 'sw-settings-custom-field.types.checkbox');
+        await flushPromises();
+
+        expect(wrapper.vm.currentCustomField.type).toBe('bool');
+        expect(wrapper.vm.currentCustomField.config).toEqual({
+            customFieldType: 'checkbox',
+            customFieldPosition: 1,
+            componentName: 'sw-field',
+            type: 'checkbox',
+            label: { 'en-GB': 'Special field 1' },
+        });
+    });
+
     it('should show error if custom field name is invalid', async () => {
         const wrapper = await createWrapper(defaultProps, ['custom_field.editor']);
         await flushPromises();

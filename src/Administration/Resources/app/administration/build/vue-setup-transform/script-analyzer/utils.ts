@@ -11,7 +11,11 @@
 
 import { parse, type ParserPlugin } from '@babel/parser';
 import type { File as BabelFile, Node as BabelNode } from '@babel/types';
-import { ShopwareSetupTransformError, type ShopwareSetupErrorPosition } from '../utils/transform-error';
+import {
+    ShopwareSetupInternalError,
+    ShopwareSetupTransformError,
+    type ShopwareSetupErrorPosition,
+} from '../utils/transform-error';
 import { childBabelNodes } from '../utils/ast-traversal';
 import type { SourceRange } from '../utils/source-range';
 
@@ -25,7 +29,7 @@ type AstVisitor = (node: BabelNode, ancestors: BabelNode[]) => void;
  */
 function getNodeRange(node: BabelNode): SourceRange {
     if (typeof node.start !== 'number' || typeof node.end !== 'number') {
-        throw new ShopwareSetupTransformError('Missing source range metadata while transforming Shopware setup.');
+        throw new ShopwareSetupInternalError('Missing source range metadata while transforming Shopware setup.');
     }
 
     return {

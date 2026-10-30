@@ -166,7 +166,7 @@ class OpenAiProductExportValidator extends AbstractProviderValidator
     {
         $value = $row[$field] ?? null;
 
-        if (!\is_string($value) || preg_match('/^\d+(?:\.\d+)? [A-Z]{3}$/', $value) !== 1) {
+        if (!\is_string($value) || preg_match('/^\d+(?:\.\d+)? [A-Z]{3}$/D', $value) !== 1) {
             $errors->add(new ProviderValidationError(
                 $productExportEntity->getId(),
                 $this->getProviderTechnicalName(),
@@ -200,7 +200,7 @@ class OpenAiProductExportValidator extends AbstractProviderValidator
     {
         $value = $row[$field] ?? null;
 
-        if (!\is_string($value) || preg_match('/^[A-Z]{2}$/', $value) !== 1) {
+        if (!\is_string($value) || preg_match('/^[A-Z]{2}$/D', $value) !== 1) {
             $errors->add(new ProviderValidationError(
                 $productExportEntity->getId(),
                 $this->getProviderTechnicalName(),
@@ -231,7 +231,7 @@ class OpenAiProductExportValidator extends AbstractProviderValidator
         }
 
         foreach ($value as $countryCode) {
-            if (!\is_string($countryCode) || preg_match('/^[A-Z]{2}$/', $countryCode) !== 1) {
+            if (!\is_string($countryCode) || preg_match('/^[A-Z]{2}$/D', $countryCode) !== 1) {
                 $errors->add(new ProviderValidationError(
                     $productExportEntity->getId(),
                     $this->getProviderTechnicalName(),

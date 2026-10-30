@@ -63,6 +63,13 @@ class StaticEntityRepository extends EntityRepository
     public array $deletes = [];
 
     /**
+     * Each `search()` and `searchIds()` call appends a clone of the criteria it was given.
+     *
+     * @var list<Criteria>
+     */
+    public array $searchedCriteria = [];
+
+    /**
      * @param array<SearchCallable|ResultTypes> $searches
      */
     public function __construct(
@@ -109,6 +116,7 @@ class StaticEntityRepository extends EntityRepository
      */
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
+        $this->searchedCriteria[] = clone $criteria;
         $result = \array_shift($this->searches);
         $callable = $result;
 
@@ -142,6 +150,7 @@ class StaticEntityRepository extends EntityRepository
 
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
+        $this->searchedCriteria[] = clone $criteria;
         $result = \array_shift($this->searches);
         $callable = $result;
 

@@ -68,8 +68,7 @@ describe('src/module/sw-extension/page/sw-extension-store-landing-page', () => {
         expect(wrapper.vm._reloadPage).toHaveBeenCalled();
 
         // wait for rerender
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // check if success message is shown
         const activationHeading = wrapper.find('.sw-extension-store-landing-page__wrapper-activated h2');
@@ -95,8 +94,7 @@ describe('src/module/sw-extension/page/sw-extension-store-landing-page', () => {
         expect(wrapper.vm._reloadPage).not.toHaveBeenCalled();
 
         // wait for rerender
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // check if error message is shown
         const activationHeading = wrapper.find('.sw-extension-store-landing-page__wrapper-activated h2');
@@ -117,8 +115,7 @@ describe('src/module/sw-extension/page/sw-extension-store-landing-page', () => {
 
         const activationButton = wrapper.find('.sw-extension-store-landing-page__activate_button');
         await activationButton.trigger('click');
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // the second failure has no error payload, so the generic snippets show instead of the stale error
         const activationHeading = wrapper.find('.sw-extension-store-landing-page__wrapper-activated h2');

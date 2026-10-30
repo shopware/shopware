@@ -39,7 +39,7 @@ class DeprecatedMethods
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:remove-subscriber - Subscribers are still called for BC
+     * @deprecated tag:v6.8.0 - reason:remove-subscriber reason:remove-rule - Neither reason exempts ordinary APIs
      */
     public function deprecatedWithExceptedReason(): void
     {

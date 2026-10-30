@@ -6,12 +6,9 @@ use Psr\Cache\CacheItemPoolInterface;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
-use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Lock\Exception\LockAcquiringException;
-use Symfony\Component\Lock\Exception\LockConflictedException;
+use Symfony\Component\Lock\Exception\ExceptionInterface as LockException;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\LockInterface;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -20,12 +17,13 @@ use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
  */
 #[Package('framework')]
-class AppUrlVerifier
+class AppUrlVerifier implements ResetInterface
 {
     public const VERIFICATION_RESULT_CACHE_KEY = 'app_url_verification_result';
     private const VERIFICATION_CACHE_KEY_PREFIX = 'app_url_verify-';
@@ -35,6 +33,8 @@ class AppUrlVerifier
     private const MAX_SOFT_FAIL_BACKOFF = 60 * 60; // 1 hour
     private const VERIFY_PATH = '/api/app-system/shop/verify';
 
+    private ?VerificationState $pass = null;
+
     public function __construct(
         private readonly string $appEnv,
         private readonly string $shopwareVersion,
@@ -43,6 +43,8 @@ class AppUrlVerifier
         private readonly LockFactory $lockFactory,
         private readonly LoggerInterface $logger,
         private readonly ClockInterface $clock,
+        private readonly string $appUrl,
+        private readonly bool $appUrlCheckDisabled,
     ) {
     }
 
@@ -58,21 +60,34 @@ class AppUrlVerifier
     }
 
     /**
-     * Force verification of the shops APP_URL, ignoring any previous verification attempts.
-     *
-     * Note: for non-prod environments we skip the verification entirely
-     *
-     * @param bool $skipEnvCheck Normally verification should only run in production, use this to run in any environment
+     * Verify the shops APP_URL in any environment, ignoring the stored result of previous verification attempts.
+     * A pass is reused until the service is reset.
      */
-    public function forceVerify(ShopId $shopId, bool $skipEnvCheck = false): bool
+    public function forceVerify(): VerificationState
     {
-        if ($skipEnvCheck === false && $this->appEnv !== 'prod') {
-            return true;
+        if ($this->pass !== null) {
+            return $this->pass;
         }
 
-        $this->cache->deleteItem(self::VERIFICATION_RESULT_CACHE_KEY);
+        $lock = $this->lockFactory->createLock('app-url-verification-force', 10);
 
-        return $this->doVerify($shopId, true);
+        try {
+            $lock->acquire(true);
+        } catch (LockException $e) {
+            return $this->recordLockFailure($e);
+        }
+
+        try {
+            $state = $this->performVerification();
+        } finally {
+            $this->releaseLock($lock);
+        }
+
+        if ($state->is(VerificationStatus::PASS)) {
+            $this->pass = $state;
+        }
+
+        return $state;
     }
 
     /**
@@ -81,13 +96,53 @@ class AppUrlVerifier
      *
      * Note: for non-prod environments we skip the verification entirely
      */
-    public function verify(ShopId $shopId): bool
+    public function verify(): bool
     {
         if ($this->appEnv !== 'prod') {
             return true;
         }
 
-        return $this->doVerify($shopId, false);
+        $lock = $this->lockFactory->createLock('app-url-verification', 10);
+
+        try {
+            if (!$lock->acquire()) {
+                // another verification is running, let app communications continue
+                return true;
+            }
+        } catch (LockException $e) {
+            return $this->recordLockFailure($e)->isNotHardFail();
+        }
+
+        try {
+            $state = $this->getCurrentState();
+
+            if ($state === null) {
+                // first attempt
+                $state = $this->performVerification();
+
+                return $state->isNotHardFail();
+            }
+
+            return match ($state->status) {
+                VerificationStatus::PASS => true,
+                VerificationStatus::HARD_FAIL => false,
+                VerificationStatus::SOFT_FAIL => $this->handleSoftFail($state),
+            };
+        } catch (\Exception) {
+            // we should not blow up here on any account
+            return true;
+        } finally {
+            $this->releaseLock($lock);
+        }
+    }
+
+    public function verifyForAdministration(): bool
+    {
+        if ($this->appUrlCheckDisabled) {
+            return true;
+        }
+
+        return $this->verify();
     }
 
     /**
@@ -112,46 +167,12 @@ class AppUrlVerifier
         return hash_equals($storedToken, $token);
     }
 
-    private function doVerify(ShopId $shopId, bool $force): bool
+    public function reset(): void
     {
-        $lockKey = $force ? 'app-url-verification-force' : 'app-url-verification';
-
-        $appUrl = $shopId->getFingerprint(AppUrl::IDENTIFIER);
-
-        if ($appUrl === null) {
-            return false;
-        }
-
-        $lock = $this->acquireLock($lockKey);
-        if ($lock === null) {
-            // if we can't get a lock, just return true - so app communications can continue
-            return true;
-        }
-
-        try {
-            $state = $this->getCurrentState();
-
-            if ($state === null) {
-                // first attempt
-                $state = $this->performVerification($appUrl);
-
-                return $state->isNotHardFail();
-            }
-
-            return match ($state->status) {
-                VerificationStatus::PASS => true,
-                VerificationStatus::HARD_FAIL => false,
-                VerificationStatus::SOFT_FAIL => $this->handleSoftFail($appUrl, $state),
-            };
-        } catch (\Exception) {
-            // we should not blow up here on any account
-            return true;
-        } finally {
-            $lock->release();
-        }
+        $this->pass = null;
     }
 
-    private function handleSoftFail(string $appUrl, VerificationState $previousState): bool
+    private function handleSoftFail(VerificationState $previousState): bool
     {
         $wait = $this->backoffForTry($previousState->numTries);
         if ($previousState->isInBackoff($this->clock->now(), $wait)) {
@@ -159,7 +180,7 @@ class AppUrlVerifier
             return true;
         }
 
-        $state = $this->performVerification($appUrl, $previousState->numTries + 1);
+        $state = $this->performVerification($previousState->numTries + 1);
 
         return $state->isNotHardFail();
     }
@@ -172,26 +193,28 @@ class AppUrlVerifier
         return min(self::MAX_SOFT_FAIL_BACKOFF, $wait);
     }
 
-    private function acquireLock(string $lockKey): ?LockInterface
+    private function recordLockFailure(LockException $e): VerificationState
     {
-        $lock = $this->lockFactory->createLock($lockKey, 10);
-
-        try {
-            if ($lock->acquire()) {
-                return $lock;
-            }
-        } catch (LockConflictedException|LockAcquiringException) {
-        }
-
-        return null;
+        return $this->record(new VerificationState($this->appUrl, VerificationStatus::SOFT_FAIL, 1, $this->clock->now(), 'Could not acquire the verification lock: ' . $e->getMessage(), statusCode: null));
     }
 
-    private function performVerification(string $appUrl, int $tries = 1): VerificationState
+    private function releaseLock(LockInterface $lock): void
     {
-        [$status, $info] = $this->executeVerify($appUrl);
+        try {
+            $lock->release();
+        } catch (LockException) {
+        }
+    }
 
-        $state = new VerificationState($status, $tries, $this->clock->now(), $info);
+    private function performVerification(int $tries = 1): VerificationState
+    {
+        [$status, $info, $statusCode] = $this->executeVerify();
 
+        return $this->record(new VerificationState($this->appUrl, $status, $tries, $this->clock->now(), $info, $statusCode));
+    }
+
+    private function record(VerificationState $state): VerificationState
+    {
         $this->persist($state);
 
         if (!$state->is(VerificationStatus::PASS)) {
@@ -219,14 +242,14 @@ class AppUrlVerifier
     }
 
     /**
-     * @return array{0: VerificationStatus, 1: string|null}
+     * @return array{0: VerificationStatus, 1: string|null, 2: int|null}
      */
-    private function executeVerify(string $appUrl): array
+    private function executeVerify(): array
     {
         try {
-            $url = $this->buildVerificationUrl($appUrl);
+            $url = $this->buildVerificationUrl();
         } catch (AppException $e) {
-            return [VerificationStatus::HARD_FAIL, $e->getMessage()];
+            return [VerificationStatus::HARD_FAIL, $e->getMessage(), null];
         }
 
         $runId = bin2hex(random_bytes(8));
@@ -246,13 +269,13 @@ class AppUrlVerifier
             $status = $response->getStatusCode();
 
             if ($status === Response::HTTP_NO_CONTENT) {
-                return [VerificationStatus::PASS, null];
+                return [VerificationStatus::PASS, null, $status];
             }
 
             // Treat any unexpected non-204 success as hard fail
             $info = $this->extractInfo($response);
 
-            return [VerificationStatus::HARD_FAIL, $info];
+            return [VerificationStatus::HARD_FAIL, $info, $status];
         } catch (HttpExceptionInterface $e) {
             // 300-599
             $info = $this->extractInfo($e->getResponse());
@@ -262,15 +285,15 @@ class AppUrlVerifier
                 || $e->getResponse()->getStatusCode() === Response::HTTP_TOO_MANY_REQUESTS
             ) {
                 // Server errors and rate-limiting are often transient, soft fail
-                return [VerificationStatus::SOFT_FAIL, $info];
+                return [VerificationStatus::SOFT_FAIL, $info, $e->getResponse()->getStatusCode()];
             }
 
             // 3xx and 4xx are treated as hard fails
-            return [VerificationStatus::HARD_FAIL, $info];
+            return [VerificationStatus::HARD_FAIL, $info, $e->getResponse()->getStatusCode()];
         } catch (TransportExceptionInterface $e) {
-            return [VerificationStatus::SOFT_FAIL, 'Failed to connect to APP_URL: ' . $e->getMessage()];
+            return [VerificationStatus::SOFT_FAIL, 'Failed to connect to APP_URL: ' . $e->getMessage(), null];
         } catch (\Throwable $e) {
-            return [VerificationStatus::HARD_FAIL, $e->getMessage()];
+            return [VerificationStatus::HARD_FAIL, $e->getMessage(), null];
         } finally {
             $this->cache->deleteItem($cacheKey);
         }
@@ -315,9 +338,9 @@ class AppUrlVerifier
         return $result;
     }
 
-    private function buildVerificationUrl(string $appUrl): string
+    private function buildVerificationUrl(): string
     {
-        $trimmed = rtrim($appUrl, '/');
+        $trimmed = rtrim($this->appUrl, '/');
 
         if (!filter_var($trimmed, \FILTER_VALIDATE_URL)) {
             throw AppException::invalidAppUrl('Invalid URL format.');
@@ -326,10 +349,6 @@ class AppUrlVerifier
         $parts = parse_url($trimmed);
         if (!isset($parts['scheme'], $parts['host'])) {
             throw AppException::invalidAppUrl('Invalid URL format.');
-        }
-
-        if (strtolower($parts['scheme']) !== 'https') {
-            throw AppException::invalidAppUrl('HTTPS is required.');
         }
 
         return $trimmed . self::VERIFY_PATH;

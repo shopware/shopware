@@ -67,7 +67,7 @@ function guard(component: ComponentPublicInstance, deprecation: Deprecation, sub
         .filter(Boolean)
         .join('\n');
 
-    Shopware.Feature.triggerDeprecationOrThrow(toMajorFlag(version), message);
+    Shopware.Feature.triggerDeprecationOrThrow(toMajorFlag(version), message, { _blame: 'author' });
 }
 
 /**

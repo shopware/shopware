@@ -38,7 +38,6 @@ use Twig\Loader\FilesystemLoader;
  */
 #[Package('discovery')]
 #[CoversClass(IconCacheTwigFilter::class)]
-#[CoversClass(IconExtension::class)]
 class IconCacheTwigFilterTest extends TestCase
 {
     public function testStorefrontRenderIconCacheEnabled(): void

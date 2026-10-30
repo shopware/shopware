@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\Subscriber\SalesChannelMaintenanceIpAllowlistSyncSubscriber;
@@ -26,6 +27,13 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 #[DisabledFeatures(['v6.8.0.0'])]
 class SalesChannelMaintenanceIpAllowlistSyncSubscriberTest extends TestCase
 {
+    public function testNoSubscribersInMajorMode(): void
+    {
+        Feature::withFeatureEnabled('v6.8.0.0', static function (): void {
+            static::assertSame([], SalesChannelMaintenanceIpAllowlistSyncSubscriber::getSubscribedEvents());
+        });
+    }
+
     public function testSubscribesToEntityWriteEvent(): void
     {
         static::assertSame(
@@ -90,9 +98,13 @@ class SalesChannelMaintenanceIpAllowlistSyncSubscriberTest extends TestCase
         $this->dispatch($command);
     }
 
-    public function testIsNoOpWhenMajorIsActive(): void
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the major feature flag.
+     */
+    public function testThrowsWhenMajorIsActive(): void
     {
-        Feature::fake(['v6.8.0.0'], function (): void {
+        Feature::withFeatureEnabled('v6.8.0.0', function (): void {
+            $this->expectException(FeatureException::class);
             $command = $this->createMock(InsertCommand::class);
             $this->configureCommand($command, [
                 'maintenance_ip_allowlist' => json_encode(['127.0.0.1'], \JSON_THROW_ON_ERROR),

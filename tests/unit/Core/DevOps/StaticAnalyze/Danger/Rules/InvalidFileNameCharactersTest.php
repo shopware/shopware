@@ -45,6 +45,7 @@ class InvalidFileNameCharactersTest extends TestCase
         yield 'space in file name fails' => ['src/Core/My File.php', File::STATUS_ADDED, true];
         yield 'parentheses fail' => ['docs/adr/decision(1).md', File::STATUS_ADDED, true];
         yield 'umlauts fail' => ['src/Core/Überschrift.php', File::STATUS_ADDED, true];
+        yield 'trailing newline fails' => ["src/Core/Framework/Framework.php\n", File::STATUS_ADDED, true];
         yield 'invalid name in a removed file passes, deletions clean up' => ['src/Core/My File.php', File::STATUS_REMOVED, false];
         yield 'the .run directory is exempt' => ['.run/My Run Config.run.xml', File::STATUS_ADDED, false];
     }

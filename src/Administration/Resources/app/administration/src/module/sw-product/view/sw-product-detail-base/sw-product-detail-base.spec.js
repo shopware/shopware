@@ -33,7 +33,11 @@ async function createWrapper() {
                 'sw-product-category-form': true,
                 'sw-product-deliverability-form': true,
                 'sw-product-deliverability-downloadable-form': true,
-                'sw-product-download-form': true,
+                'sw-product-download-form': {
+                    name: 'sw-product-download-form',
+                    props: ['required'],
+                    template: '<div class="sw-product-download-form-stub"></div>',
+                },
                 'sw-product-price-form': true,
                 'sw-product-basic-form': await wrapTestComponent('sw-product-basic-form', { sync: true }),
                 'sw-product-feature-set-form': true,
@@ -255,6 +259,83 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         expect(cardTitle.text()).toBe('sw-product.detailBase.cardTitleDownloads');
     });
 
+    it('shows the missing-download error when external assignment is turned off without a file', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.product.type = 'digital';
+        store.product.downloads = [];
+        store.isDownloadExternallyManaged = true;
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.onDownloadExternalManagementChange(false);
+
+        expect(store.isDownloadExternallyManaged).toBe(false);
+
+        const error = Shopware.Store.get('error').getApiError(Shopware.Store.get('swProductDetail').product, 'downloads');
+
+        expect(error.code).toBe('SW_PRODUCT_DOWNLOADS_EXTERNAL_MANAGEMENT_REQUIRED');
+        expect(error.detail).toBe('sw-product.detailBase.downloadsExternalManagementRequired');
+
+        wrapper.vm.onDownloadExternalManagementChange(true);
+
+        expect(
+            Shopware.Store.get('error').getApiError(Shopware.Store.get('swProductDetail').product, 'downloads'),
+        ).toBeNull();
+    });
+
+    it('keeps the external assignment choice when an existing product base view is reopened', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.product = {
+            ...store.product,
+            id: 'existing-product',
+            type: 'digital',
+            downloads: [],
+        };
+        store.isDownloadExternallyManaged = true;
+
+        const firstView = await createWrapper();
+        firstView.vm.onDownloadExternalManagementChange(false);
+        firstView.unmount();
+
+        const reopenedView = await createWrapper();
+
+        expect(reopenedView.vm.isDownloadExternallyManaged).toBe(false);
+    });
+
+    it('keeps external assignment on with uploaded files', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.product = {
+            ...store.product,
+            id: 'existing-product',
+            type: 'digital',
+            downloads: [{ id: 'download-id' }],
+        };
+        store.isDownloadExternallyManaged = true;
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.isDownloadExternallyManaged).toBe(true);
+    });
+
+    it('marks the upload as optional when external download management is on', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        store.product.type = 'digital';
+        store.product.states = ['is-download'];
+        store.isDownloadExternallyManaged = true;
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.getComponent({ name: 'sw-product-download-form' }).props('required')).toBe(false);
+
+        wrapper.vm.onDownloadExternalManagementChange(false);
+        await flushPromises();
+
+        expect(wrapper.getComponent({ name: 'sw-product-download-form' }).props('required')).toBe(true);
+    });
+
     it('should render media card title as mt-card title', async () => {
         const wrapper = await createWrapper();
 
@@ -277,7 +358,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             states: ['is-download'],
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const physicalCardElement = wrapper.find('.sw-product-detail-base__deliverability');
         expect(physicalCardElement.exists()).toBeFalsy();
@@ -426,7 +507,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
     it('should set media as cover when product media is empty and media is not glb file', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const media = { id: 'id', fileName: 'fileName', fileSize: 101 };
 
@@ -474,7 +555,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             },
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const promotionSwitch = wrapper.find('.sw-product-basic-form__promotion-switch');
         expect(promotionSwitch.attributes().style).toBe('display: none;');
@@ -494,7 +575,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             },
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const labellingCardElement = wrapper.find('.sw-product-detail-base__labelling-card');
         expect(labellingCardElement.attributes().style).toBe('display: none;');
@@ -506,7 +587,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         Shopware.Store.get('swProductDetail').modeSettings = [...modeSettings.filter((item) => item !== 'media')];
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const mediaCardElement = wrapper.find('.sw-product-detail-base__media');
         expect(mediaCardElement.attributes().style).toBe('display: none;');
@@ -520,7 +601,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             ...modeSettings.filter((item) => item !== 'general_information'),
         ];
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const infoCardElement = wrapper.find('.sw-product-detail-base__info');
         expect(infoCardElement.attributes().style).toBe('display: none;');
@@ -532,7 +613,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         Shopware.Store.get('swProductDetail').modeSettings = [...modeSettings.filter((item) => item !== 'prices')];
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const infoCardElement = wrapper.find('.sw-product-detail-base__prices');
         expect(infoCardElement.attributes().style).toBe('display: none;');
@@ -544,7 +625,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         Shopware.Store.get('swProductDetail').modeSettings = [...modeSettings.filter((item) => item !== 'deliverability')];
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const infoCardElement = wrapper.find('.sw-product-detail-base__deliverability');
         expect(infoCardElement.attributes().style).toBe('display: none;');
@@ -558,7 +639,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             ...modeSettings.filter((item) => item !== 'visibility_structure'),
         ];
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const infoCardElement = wrapper.find('.sw-product-detail-base__visibility-structure');
         expect(infoCardElement.attributes().style).toBe('display: none;');

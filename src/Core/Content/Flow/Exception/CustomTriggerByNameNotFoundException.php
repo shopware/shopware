@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
@@ -9,13 +10,15 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  *
- * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use FlowException::customTriggerByNameNotFound() instead
+ * @deprecated tag:v6.8.0 - Will be removed, use FlowException::customTriggerByNameNotFound() instead
  */
 #[Package('after-sales')]
 class CustomTriggerByNameNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $eventName)
     {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));
+
         parent::__construct(
             'The provided event name {{ eventName }} is invalid or uninstalled and no custom trigger could be found.',
             ['eventName' => $eventName]

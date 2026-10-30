@@ -19,8 +19,8 @@ export default class ViewSearchResults extends AnalyticsEvent
 
         const searchInput = document.querySelector('.header-search-input');
 
-        gtag('event', 'view_search_results', {
+        this.pushEvent('view_search_results', {
             'search_term': searchInput.value,
-        });
+        }, { ecommerce: false });
     }
 }

@@ -53,6 +53,11 @@ export const EXPECTED_PACKAGE_JSON_FILES: readonly PackageInfo[] = [
     hasCustomAuditScript: true
   },
   {
+    path: './src/Administration/Resources/app/administration/build/vite-8/package.json',
+    name: 'Administration Vite 8 Toolchain',
+    hasCustomAuditScript: true
+  },
+  {
     path: './src/Administration/Resources/app/administration/twigVuePlugin/package.json',
     name: 'Administration Twig Vue Plugin'
   },

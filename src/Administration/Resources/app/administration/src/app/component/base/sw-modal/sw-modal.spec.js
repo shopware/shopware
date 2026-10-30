@@ -185,7 +185,7 @@ describe('src/app/component/base/sw-modal/index.js', () => {
         expect(wrapper.get('.sw-modal').classes('sw-modal--has-sidebar')).toBe(false);
 
         Shopware.Store.get('adminHelpCenter').showHelpSidebar = true;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.get('.sw-modal').classes('sw-modal--has-sidebar')).toBe(true);
     });

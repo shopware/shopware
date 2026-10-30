@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import getMajorFeatureFlags from './majorFeatureFlags';
+import getMajorFeatureFlags, { isMajorRun } from './majorFeatureFlags';
 
 const config = {
     shopware: {
@@ -89,5 +89,14 @@ describe('majorFeatureFlags', () => {
         '0',
     ])('activates nothing outside a major run: %s', (featureAll) => {
         expect(getMajorFeatureFlags(config, { FEATURE_ALL: featureAll })).toEqual([]);
+    });
+
+    it.each([
+        ['the major flag', { V6_8_0_0: '1' }, true],
+        ['FEATURE_ALL', { FEATURE_ALL: '1' }, true],
+        ['no flag', {}, false],
+        ['a flag other than a major', { MINOR_FEATURE: '1' }, false],
+    ])('tells a major run from the environment with %s', (_, environment: Record<string, string>, majorRun: boolean) => {
+        expect(isMajorRun(config, environment)).toBe(majorRun);
     });
 });

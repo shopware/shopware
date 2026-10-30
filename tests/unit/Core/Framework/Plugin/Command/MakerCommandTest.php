@@ -21,7 +21,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\NullOutput;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -190,12 +190,37 @@ class ExamplePlugin extends Plugin
  */
 class DummyScaffoldingGenerator implements ScaffoldingGenerator
 {
-    public function getCommandOption(): InputOption
+    public function hasCommandOption(): bool
     {
-        return new InputOption('plugin-name', null, InputOption::VALUE_NONE, 'Plugin Name');
+        return true;
     }
 
-    public function addScaffoldConfig(PluginScaffoldConfiguration $config, InputInterface $input, SymfonyStyle $io): void
+    public function getCommandOption(): ?InputOption
+    {
+        return null;
+    }
+
+    public function getCommandOptionName(): string
+    {
+        return 'plugin-name';
+    }
+
+    public function getCommandOptionDescription(): string
+    {
+        return 'Plugin Name';
+    }
+
+    public function getCommandOptionTitle(): string
+    {
+        return '';
+    }
+
+    public function getCommandOptionDescriptionLong(): string
+    {
+        return '';
+    }
+
+    public function addScaffoldConfig(PluginScaffoldConfiguration $config, InputInterface $input, OutputInterface $output): void
     {
         $config->addOption('foo', true);
     }

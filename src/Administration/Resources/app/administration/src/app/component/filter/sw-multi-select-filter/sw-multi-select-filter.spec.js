@@ -162,7 +162,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
                 filterCriteria: null,
             },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.selected-label').exists()).toBeTruthy();
     });

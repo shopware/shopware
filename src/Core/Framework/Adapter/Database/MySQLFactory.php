@@ -10,6 +10,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Tools\DsnParser;
 use Pdo\Mysql;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\Util\XmlUtils;
 
@@ -39,6 +40,48 @@ class MySQLFactory
         $config = (new Configuration())
             ->setMiddlewares($middlewares);
 
+        $parameters = self::getConnectionParameters();
+        $disableMultiStatements = Feature::isActive('DISABLE_SQL_MULTI_STATEMENTS');
+
+        // The first connection is created before the feature registry can resolve the parent major.
+        if (Feature::getRegisteredFeatures() === []
+            && !EnvironmentHelper::hasVariable('DISABLE_SQL_MULTI_STATEMENTS')
+            && !EnvironmentHelper::hasVariable('disable_sql_multi_statements')
+        ) {
+            $disableMultiStatements = $disableMultiStatements || Feature::isActive('v6.8.0.0');
+        }
+
+        if ($disableMultiStatements) {
+            $parameters['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] = false;
+        }
+
+        $parameters = self::addReplicaParameters($parameters);
+
+        return DriverManager::getConnection($parameters, $config);
+    }
+
+    public static function createMigrationConnection(Connection $connection): Connection
+    {
+        $parameters = self::getConnectionParameters();
+        unset($parameters['primary'], $parameters['replica'], $parameters['keepReplica']);
+
+        if (is_a($parameters['wrapperClass'] ?? Connection::class, PrimaryReadReplicaConnection::class, true)) {
+            unset($parameters['wrapperClass']);
+        }
+
+        $parameters['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] = true;
+        // Persistent PDO handles can be reused across connections with different driver options.
+        $parameters['driverOptions'][\PDO::ATTR_PERSISTENT] = false;
+        $parameters['persistent'] = false;
+
+        return DriverManager::getConnection($parameters, $connection->getConfiguration());
+    }
+
+    /**
+     * @return Params&array{charset: string, driverOptions: array<mixed>, ...}
+     */
+    private static function getConnectionParameters(): array
+    {
         $url = (string) EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL'));
         if ($url === '') {
             $url = 'mysql://root:shopware@127.0.0.1:3306/shopware';
@@ -58,13 +101,10 @@ class MySQLFactory
             \PDO::ATTR_TIMEOUT => 5,
         ] + ($dsnParameters['driverOptions'] ?? []);
 
-        $initCommands = [
-            'SET @@session.time_zone = \'+00:00\'',
-            'SET @@group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED)',
-            'SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'))',
-        ];
-
-        $parameters['driverOptions'][Mysql::ATTR_INIT_COMMAND] = \implode(';', $initCommands);
+        $parameters['driverOptions'][Mysql::ATTR_INIT_COMMAND] = 'SET
+            @@session.time_zone = \'+00:00\',
+            @@session.group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED),
+            @@session.sql_mode = (SELECT REPLACE(@@sql_mode, \'ONLY_FULL_GROUP_BY\', \'\'))';
 
         if ($sslCa = EnvironmentHelper::getVariable('DATABASE_SSL_CA')) {
             $parameters['driverOptions'][Mysql::ATTR_SSL_CA] = $sslCa;
@@ -90,6 +130,18 @@ class MySQLFactory
             $parameters['driverOptions'][Mysql::ATTR_COMPRESS] = true;
         }
 
+        return $parameters;
+    }
+
+    /**
+     * Only application connections use replicas; migrations must immediately read their own writes and schema changes on the primary.
+     *
+     * @param Params&array{charset: string, driverOptions: array<mixed>, ...} $parameters
+     *
+     * @return Params
+     */
+    private static function addReplicaParameters(array $parameters): array
+    {
         $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_0_URL');
         if ($replicaUrl !== '') {
             if (!isset($parameters['wrapperClass'])) {
@@ -108,14 +160,11 @@ class MySQLFactory
                 $parameters['keepReplica'] = (bool) self::castValue($parameters['keepReplica']);
             }
 
-            // Primary connection should use parameters from the main url
-            $parameters['primary'] = array_merge([
-                'charset' => $parameters['charset'],
-            ], $dsnParameters);
-            unset($parameters['primary']['primary'], $parameters['primary']['replica'], $parameters['primary']['keepReplica']);
-            $parameters['primary']['driverOptions'] = $parameters['driverOptions'] + ($dsnParameters['driverOptions'] ?? []);
+            $parameters['primary'] = $parameters;
+            unset($parameters['primary']['wrapperClass'], $parameters['primary']['primary'], $parameters['primary']['replica'], $parameters['primary']['keepReplica']);
 
             $parameters['replica'] = [];
+            $dsnParser = new DsnParser(['mysql' => 'pdo_mysql']);
 
             for ($i = 0; $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_' . $i . '_URL'); ++$i) {
                 $replicaParams = self::parseDsn($dsnParser, $replicaUrl);
@@ -128,7 +177,7 @@ class MySQLFactory
             }
         }
 
-        return DriverManager::getConnection($parameters, $config);
+        return $parameters;
     }
 
     /**

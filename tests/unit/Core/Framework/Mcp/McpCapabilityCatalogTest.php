@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 
 /**
  * @internal
@@ -147,6 +148,31 @@ class McpCapabilityCatalogTest extends TestCase
         );
 
         static::assertSame('catalogue', $catalog->enrichedTools()[0]['group']);
+    }
+
+    public function testAGroupNamedLikeTheAllSelectorResolvesToTheFallbackGroup(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'swag-report', 'Report');
+        $this->registerTool($registry, 'my-erp-sync-orders', 'Sync orders');
+        $this->registerTool($registry, 'all-stock', 'Stock');
+
+        $catalog = new McpCapabilityCatalog(
+            $registry,
+            $this->stubPrivilegeProvider([], ['my-erp-sync-orders' => McpToolsetRegistry::ALL_TOOLSETS]),
+            [],
+            [],
+            ['swag-report' => McpToolsetRegistry::ALL_TOOLSETS],
+        );
+
+        static::assertSame(
+            [
+                'all-stock' => McpToolsetRegistry::FALLBACK_GROUP,
+                'my-erp-sync-orders' => McpToolsetRegistry::FALLBACK_GROUP,
+                'swag-report' => McpToolsetRegistry::FALLBACK_GROUP,
+            ],
+            array_column($catalog->enrichedTools(), 'group', 'name'),
+        );
     }
 
     public function testEnrichedToolsFallsBackToAppPrivilegesWhenNoCorePrivilegesDeclared(): void

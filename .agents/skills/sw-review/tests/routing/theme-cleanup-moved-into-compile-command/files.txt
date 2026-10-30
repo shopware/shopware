@@ -1,0 +1,11 @@
+RELEASE_INFO-6.7.md
+src/Storefront/DependencyInjection/theme.php
+src/Storefront/Theme/Command/ThemeChangeCommand.php
+src/Storefront/Theme/Command/ThemeCompileCommand.php
+src/Storefront/Theme/ScheduledTask/DeleteThemeFilesTaskHandler.php
+src/Storefront/Theme/UnusedThemeDirectoryDeleter.php
+tests/integration/Storefront/Theme/Command/ThemeChangeCommandTest.php
+tests/unit/Storefront/Theme/Command/ThemeChangeCommandTest.php
+tests/unit/Storefront/Theme/Command/ThemeCompileCommandTest.php
+tests/unit/Storefront/Theme/ScheduledTask/DeleteThemeFilesTaskHandlerTest.php
+tests/unit/Storefront/Theme/UnusedThemeDirectoryDeleterTest.php

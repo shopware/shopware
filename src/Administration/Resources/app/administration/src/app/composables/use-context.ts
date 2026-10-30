@@ -34,6 +34,7 @@ export interface ContextState {
             };
             settings?: {
                 appUrlReachable: boolean;
+                appUrlStatusCode?: number | null;
                 appsRequireAppUrl: boolean;
                 disableExtensionManagement: boolean;
                 firstMigrationDate?: string | null;

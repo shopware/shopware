@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\DaysSinceLastOrderRule;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Container\DaysSinceRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -23,7 +22,6 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 #[Package('fundamentals@after-sales')]
 #[CoversClass(DaysSinceLastOrderRule::class)]
-#[CoversClass(DaysSinceRule::class)]
 #[Group('rules')]
 class DaysSinceLastOrderRuleTest extends TestCase
 {

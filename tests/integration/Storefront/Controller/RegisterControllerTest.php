@@ -50,6 +50,7 @@ use Shopware\Storefront\Pagelet\Footer\FooterPageletLoader;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
@@ -524,6 +525,25 @@ class RegisterControllerTest extends TestCase
         // Error shown on the checkout register page, with the login panel expanded.
         static::assertStringContainsString('Could not find an account', $content);
         static::assertStringContainsString('class="collapse show" id="loginCollapse"', $content);
+    }
+
+    public function testMismatchedEmailConfirmationShowsErrorOnConfirmationField(): void
+    {
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.loginRegistration.requireEmailConfirmation', true, $this->getSalesChannelId());
+
+        $data = $this->getRegistrationData()->all();
+        $data['emailConfirmation'] = 'erika.musterfrau@example.com';
+        $data['errorRoute'] = 'frontend.account.register.page';
+
+        $response = $this->request('POST', '/account/register', $this->tokenize('frontend.account.register.save', $data));
+
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
+        $crawler = new Crawler((string) $response->getContent());
+        static::assertCount(
+            1,
+            $crawler->filterXPath('//div[@id="personalMailConfirmation-feedback"]/div[contains(@class, "invalid-feedback")]')
+        );
     }
 
     /**

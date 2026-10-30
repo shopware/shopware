@@ -92,7 +92,7 @@ final readonly class CompileThemeHandler
             );
         }
 
-        if ($message->getContext()->getScope() !== Context::USER_SCOPE) {
+        if (!$message->isNotifyOnCompletion() || $message->getContext()->getScope() !== Context::USER_SCOPE) {
             return;
         }
 

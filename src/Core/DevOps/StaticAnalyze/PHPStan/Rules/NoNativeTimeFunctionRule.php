@@ -29,7 +29,7 @@ class NoNativeTimeFunctionRule implements Rule
      *   - Profilers and the telemetry facade measure real elapsed time by definition.
      *   - Dev tooling (PHPStan rules, CLI commands) runs outside the app domain.
      */
-    protected const EXEMPT_PATH_PATTERN = '#(/Migration/|Hydrator\.php$|/Test/|/tests/|/Profiling/|Profiler|Telemetry|/DevOps/)#';
+    protected const EXEMPT_PATH_PATTERN = '#(/Migration/|Hydrator\.php$|/Test/|/tests/|/Profiling/|Profiler|Telemetry|/DevOps/)#D';
 
     private const ERROR_MESSAGE = 'Do not use native time reads. They cannot be frozen in tests. Use Psr\Clock\ClockInterface to inject a controllable clock.';
 
@@ -85,7 +85,7 @@ class NoNativeTimeFunctionRule implements Rule
         }
 
         if ($functionName === 'date_create' || $functionName === 'date_create_immutable') {
-            return $this->checkDateTimeFactory($node, $scope);
+            return $this->checkDateTimeFactory($node);
         }
 
         return $this->buildError();
@@ -108,7 +108,7 @@ class NoNativeTimeFunctionRule implements Rule
      *
      * @return list<IdentifierRuleError>
      */
-    private function checkDateTimeFactory(FuncCall $node, Scope $scope): array
+    private function checkDateTimeFactory(FuncCall $node): array
     {
         $args = $node->getArgs();
 

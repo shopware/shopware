@@ -796,7 +796,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
             'appFlowAction',
         );
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const description = wrapper.find('.sw-flow-sequence-action__action-description');
         expect(description.exists()).toBeTruthy();
         expect(description.text()).toBe('message: message');

@@ -72,7 +72,7 @@ The list view shows five columns: **Name**, **Group**, **Source**, **Dependencie
 - `Dependencies` shows tools declared via `#[McpToolDependsOn]` (comma-separated). Empty means no declared dependencies.
 - `Privileges` shows ACL privileges declared via `#[McpToolRequires]` (comma-separated). Static privileges appear as-is (e.g. `system_config:read`); dynamic entity privileges appear as `<entity>:read`. Empty means no declared privileges (informational only — runtime enforcement via `requirePrivilege()` still applies).
 
-If a tool appears under a scope in `debug:mcp`, it is in that endpoint's registry and reachable via `tools/call` there. Whether it is advertised in a bare `tools/list` is a separate question, decided by progressive disclosure: only the `discovery` group is advertised until a client enables the tool's toolset.
+If a tool appears under a scope in `debug:mcp`, it is in that endpoint's registry and reachable via `tools/call` there. Whether it is advertised in a bare `tools/list` is a separate question, decided by progressive disclosure: only the `discovery` group and the toolsets selected with `?toolsets=` in the connect URL are advertised until a client enables the tool's toolset.
 
 ## Setting up an MCP client
 Use the built-in `integration:create` command to create credentials, then configure your MCP client manually. See `docs/setup.md` for details.

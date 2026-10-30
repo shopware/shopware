@@ -148,7 +148,7 @@ class MissingUnitTests
         }
 
         // DependencyInjection service-wiring files (PHP closures using ContainerConfigurator) need no unit tests.
-        if ((str_contains($file->name, '/DependencyInjection/') || preg_match('#/Resources/config/services(?:_[^/]*)?\.php$#', $file->name) === 1) && str_contains($content, 'ContainerConfigurator')) {
+        if ((str_contains($file->name, '/DependencyInjection/') || preg_match('#/Resources/config/services(?:_[^/]*)?\.php$#D', $file->name) === 1) && str_contains($content, 'ContainerConfigurator')) {
             return true;
         }
 

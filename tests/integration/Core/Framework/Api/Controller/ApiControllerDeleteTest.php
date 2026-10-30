@@ -154,10 +154,7 @@ class ApiControllerDeleteTest extends TestCase
 
     public function testDeleteManyToOne(): void
     {
-        $dropStatement = <<<EOF
-DROP TABLE IF EXISTS `named`;
-DROP TABLE IF EXISTS `named_optional_group`;
-EOF;
+        $dropStatement = 'DROP TABLE IF EXISTS `named`, `named_optional_group`';
 
         $namedOptionalGroupStatement = <<<EOF
 CREATE TABLE `named_optional_group` (

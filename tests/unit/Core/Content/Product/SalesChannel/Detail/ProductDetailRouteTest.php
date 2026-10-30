@@ -674,6 +674,65 @@ class ProductDetailRouteTest extends TestCase
         $this->route->load('1', new Request(), $this->context, new Criteria());
     }
 
+    public function testLoadParentWithoutAvailableVariantThrowsNotFound(): void
+    {
+        $parentId = $this->idsCollection->create('parent');
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAssociative')->willReturn([
+            'variantListingConfig' => null,
+            'parentId' => null,
+        ]);
+
+        $parent = new SalesChannelProductEntity();
+        $parent->setId($parentId);
+        $parent->setChildCount(2);
+        $parent->internalSetEntityData('product', new FieldVisibility([]));
+
+        $productRepository = $this->createMock(SalesChannelRepository::class);
+        $productRepository->expects($this->once())
+            ->method('searchIds')
+            ->willReturn(new IdSearchResult(0, [], new Criteria(), $this->context->getContext()));
+        $productRepository->expects($this->once())
+            ->method('search')
+            ->with(static::callback(static fn (Criteria $criteria): bool => $criteria->getIds() === [$parentId]))
+            ->willReturn(new EntitySearchResult('product', 1, new ProductCollection([$parent]), null, new Criteria(), $this->context->getContext()));
+
+        $this->expectExceptionObject(ProductException::productNotFound($parentId));
+
+        $this->buildRoute($productRepository, $connection)->load($parentId, new Request(), $this->context, new Criteria());
+    }
+
+    public function testLoadParentResolvedByEventIsNotRejected(): void
+    {
+        $parentId = $this->idsCollection->create('parent');
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAssociative')->willReturn([
+            'variantListingConfig' => null,
+            'parentId' => null,
+        ]);
+
+        $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, static function (ResolveVariantIdEvent $event) use ($parentId): void {
+            $event->setResolvedVariantId($parentId);
+        });
+
+        $parent = new SalesChannelProductEntity();
+        $parent->setId($parentId);
+        $parent->setChildCount(2);
+        $parent->internalSetEntityData('product', new FieldVisibility([]));
+
+        $productRepository = $this->createMock(SalesChannelRepository::class);
+        $productRepository->expects($this->never())->method('searchIds');
+        $productRepository->expects($this->once())
+            ->method('search')
+            ->willReturn(new EntitySearchResult('product', 1, new ProductCollection([$parent]), null, new Criteria(), $this->context->getContext()));
+
+        $result = $this->buildRoute($productRepository, $connection)->load($parentId, new Request(), $this->context, new Criteria());
+
+        static::assertSame($parentId, $result->getProduct()->getId());
+    }
+
     public function testGetDecorated(): void
     {
         $this->expectException(DecorationPatternException::class);

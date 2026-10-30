@@ -151,7 +151,7 @@ class ProductListRouteTest extends TestCase
             ->visibility($this->ids->get('sales-channel'))
             ->price(10)
             ->review('test public review', 'this is a public review', 3, $this->ids->get('sales-channel'))
-            ->review('test hidden review', 'this is a hidden review', 0, $this->ids->get('sales-channel'), Defaults::LANGUAGE_SYSTEM, false)
+            ->review('test hidden review', 'this is a hidden review', 1, $this->ids->get('sales-channel'), Defaults::LANGUAGE_SYSTEM, false)
             ->build();
 
         static::getContainer()->get('product.repository')
@@ -191,7 +191,7 @@ class ProductListRouteTest extends TestCase
             ->visibility($this->ids->get('sales-channel'))
             ->price(10)
             ->review('test public review', 'this is a public review', 3, $this->ids->get('sales-channel'))
-            ->review('test hidden own review', 'this is a hidden review', 0, $this->ids->get('sales-channel'), Defaults::LANGUAGE_SYSTEM, false, $customerId)
+            ->review('test hidden own review', 'this is a hidden review', 1, $this->ids->get('sales-channel'), Defaults::LANGUAGE_SYSTEM, false, $customerId)
             ->build();
 
         static::getContainer()->get('product.repository')
@@ -252,7 +252,7 @@ class ProductListRouteTest extends TestCase
                     ->review(
                         title: 'test pending review',
                         content: 'this is a pending review',
-                        points: 0,
+                        points: 1,
                         salesChannelId: $this->ids->get('sales-channel'),
                         status: false,
                         customerId: $reviewOwnerId,

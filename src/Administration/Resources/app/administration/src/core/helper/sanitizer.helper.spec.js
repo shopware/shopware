@@ -7,6 +7,7 @@ import { mount } from '@vue/test-utils';
 import Sanitizer from 'src/core/helper/sanitizer.helper';
 import 'src/app/component/base/sw-empty-state';
 import SanitizePlugin from 'src/app/plugin/sanitize.plugin';
+import { deprecations } from 'test/_helper_/deprecations';
 
 describe('core/helper/sanitizer.helper.js', () => {
     // See for payload list: https://github.com/s0md3v/AwesomeXSS
@@ -128,5 +129,6 @@ describe('core/helper/sanitizer.helper.js', () => {
 
         expect(wrapper.html()).not.toContain(unsanitized);
         expect(wrapper.html()).toContain(sanitized);
+        expect(deprecations).toHaveTriggered('The component "sw-empty-state" is deprecated');
     });
 });

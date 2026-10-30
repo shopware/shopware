@@ -21,7 +21,6 @@ class CalculatedPriceFieldTestDefinition extends EntityDefinition
     public static function getCreateTable(): string
     {
         return '
-DROP TABLE IF EXISTS calculated_price_field_test;
 CREATE TABLE `calculated_price_field_test` (
   `id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,

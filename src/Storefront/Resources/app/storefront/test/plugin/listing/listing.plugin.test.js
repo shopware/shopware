@@ -1,5 +1,10 @@
 import ListingPlugin from 'src/plugin/listing/listing.plugin';
 import ListingPaginationPlugin from 'src/plugin/listing/listing-pagination.plugin';
+import FilterMultiSelectPlugin from 'src/plugin/listing/filter-multi-select.plugin';
+import FilterPropertySelectPlugin from 'src/plugin/listing/filter-property-select.plugin';
+import FilterRangePlugin from 'src/plugin/listing/filter-range.plugin';
+import FilterBooleanPlugin from 'src/plugin/listing/filter-boolean.plugin';
+import FilterRatingSelectPlugin from 'src/plugin/listing/filter-rating-select.plugin';
 
 describe('ListingPlugin tests', () => {
     let listingPlugin = undefined;
@@ -55,6 +60,405 @@ describe('ListingPlugin tests', () => {
 
     test('listing plugin exists', () => {
         expect(typeof listingPlugin).toBe('object');
+    });
+
+    test('initializes without an active-filter container', () => {
+        document.querySelectorAll('.filter-panel-active-container').forEach(container => container.remove());
+        const listing = new ListingPlugin(document.querySelector('[data-listing="true"]'));
+
+        expect(listing.activeFilterContainers).toHaveLength(0);
+        expect(listing.activeFilterContainer).toBeNull();
+        expect(() => listing._buildLabels()).not.toThrow();
+    });
+
+    describe('_getFilterSnapshot', () => {
+        test.each([null, undefined])('returns an empty snapshot when a filter returns %s', (values) => {
+            expect(listingPlugin._getFilterSnapshot({ getValues: () => values })).toEqual({});
+        });
+
+        test('returns an empty snapshot when a filter does not provide getValues', () => {
+            expect(listingPlugin._getFilterSnapshot({})).toEqual({});
+        });
+    });
+
+    describe('accessible result announcements', () => {
+        let regions;
+
+        beforeEach(() => {
+            const panel = document.querySelector('.cms-element-sidebar-filter');
+
+            document.body.append(panel.cloneNode(true), panel.cloneNode(true));
+            listingPlugin = new ListingPlugin(document.querySelector('[data-listing="true"]'));
+            regions = [...listingPlugin.ariaLiveContainers];
+            listingPlugin.el.querySelector('.js-listing-wrapper').dataset.ariaLiveText = 'Showing 2 products.';
+
+            expect(regions).toHaveLength(3);
+        });
+
+        test('writes to only one visually hidden live region across three panels', () => {
+            const setters = regions.map(region => jest.spyOn(region, 'innerHTML', 'set'));
+
+            listingPlugin._updateAriaLive();
+
+            expect(regions[0].textContent).toBe('Showing 2 products.');
+            expect(regions[1].textContent).toBe('');
+            expect(regions[2].textContent).toBe('');
+            expect(setters.reduce((count, setter) => count + setter.mock.calls.length, 0)).toBe(1);
+        });
+
+        test.each([
+            ['inert attribute', element => element.setAttribute('inert', '')],
+            ['inert property', element => { element.inert = true; }],
+            ['aria-hidden', element => element.setAttribute('aria-hidden', 'true')],
+            ['hidden attribute', element => { element.hidden = true; }],
+            ['display none', element => { element.style.display = 'none'; }],
+            ['visibility hidden', element => { element.style.visibility = 'hidden'; }],
+            ['visibility collapse', element => { element.style.visibility = 'collapse'; }],
+            ['content visibility hidden', element => { element.style.contentVisibility = 'hidden'; }],
+        ])('skips regions inside ancestors with %s', (_name, hide) => {
+            hide(regions[0].closest('.cms-element-sidebar-filter'));
+
+            listingPlugin._updateAriaLive();
+
+            expect(regions[0].textContent).toBe('');
+            expect(regions[1].textContent).toBe('Showing 2 products.');
+            expect(regions[2].textContent).toBe('');
+        });
+
+        test('ignores a detached legacy region and selects an exposed region', () => {
+            regions[0].remove();
+
+            listingPlugin._updateAriaLive();
+
+            expect(regions[0].textContent).toBe('');
+            expect(regions[1].textContent).toBe('Showing 2 products.');
+            expect(regions[2].textContent).toBe('');
+        });
+
+        test.each([
+            '<div role="dialog" aria-modal="true"></div>',
+            '<dialog open></dialog>',
+        ])('prefers the exposed modal region in %s', (markup) => {
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = markup;
+            const dialog = wrapper.firstElementChild;
+            document.body.append(dialog);
+            dialog.append(regions[2]);
+
+            listingPlugin._updateAriaLive();
+
+            expect(regions[0].textContent).toBe('');
+            expect(regions[1].textContent).toBe('');
+            expect(regions[2].textContent).toBe('Showing 2 products.');
+        });
+
+        test('selects the accessible region at results-change time when the mobile dialog opens and closes', () => {
+            const dialog = document.createElement('div');
+            dialog.setAttribute('role', 'dialog');
+            dialog.setAttribute('aria-modal', 'true');
+            document.body.append(dialog);
+            const mobilePanel = regions[2].closest('.cms-element-sidebar-filter');
+            dialog.append(mobilePanel);
+            const backgroundPanels = regions.slice(0, 2).map(region => region.closest('.cms-element-sidebar-filter'));
+            backgroundPanels.forEach(panel => {
+                panel.inert = true;
+                panel.setAttribute('aria-hidden', 'true');
+            });
+
+            listingPlugin._updateAriaLive();
+
+            expect(regions[2].textContent).toBe('Showing 2 products.');
+            expect(regions[0].textContent).toBe('');
+            expect(regions[1].textContent).toBe('');
+
+            document.body.append(mobilePanel);
+            dialog.remove();
+            backgroundPanels.forEach(panel => {
+                panel.inert = false;
+                panel.removeAttribute('aria-hidden');
+            });
+            listingPlugin.el.querySelector('.js-listing-wrapper').dataset.ariaLiveText = 'Showing 3 products.';
+
+            listingPlugin._updateAriaLive();
+
+            expect(regions[0].textContent).toBe('Showing 3 products.');
+            expect(regions[1].textContent).toBe('');
+            expect(regions[2].textContent).toBe('Showing 2 products.');
+        });
+
+        test('does not mutate live regions when none is exposed', () => {
+            const setters = regions.map(region => jest.spyOn(region, 'innerHTML', 'set'));
+            regions.forEach(region => region.setAttribute('aria-hidden', 'true'));
+
+            listingPlugin._updateAriaLive();
+
+            setters.forEach(setter => expect(setter).not.toHaveBeenCalled());
+        });
+    });
+
+    /** @deprecated tag:v6.8.0 - Tests for legacy filter panel properties. Remove in v6.8.0 */
+    describe('legacy filter panel properties', () => {
+        beforeEach(() => {
+            document.body.append(document.querySelector('.cms-element-sidebar-filter').cloneNode(true));
+            listingPlugin = new ListingPlugin(document.querySelector('[data-listing="true"]'));
+        });
+
+        test('initializes the legacy properties with the first matching elements', () => {
+            expect(listingPlugin._filterPanel).toBe(listingPlugin._filterPanels[0]);
+            expect(listingPlugin.activeFilterContainer).toBe(listingPlugin.activeFilterContainers[0]);
+            expect(listingPlugin.ariaLiveContainer).toBe(listingPlugin.ariaLiveContainers[0]);
+        });
+
+        test.each(['external', 'existing', 'null'])('updates only one aria-live region after %s container reassignment', (target) => {
+            const replacement = target === 'external'
+                ? document.createElement('div')
+                : target === 'existing' ? listingPlugin.ariaLiveContainers[1] : null;
+            listingPlugin.ariaLiveContainer = replacement;
+            const containers = new Set(listingPlugin.ariaLiveContainers);
+
+            if (replacement) {
+                containers.add(replacement);
+                if (target === 'external') {
+                    document.body.append(replacement);
+                }
+            }
+
+            const setters = [...containers].map(container => jest.spyOn(container, 'innerHTML', 'set'));
+            listingPlugin.el.querySelector('.js-listing-wrapper').dataset.ariaLiveText = 'Showing 2 products.';
+
+            listingPlugin._updateAriaLive();
+
+            const expected = replacement ?? listingPlugin.ariaLiveContainers[0];
+            expect(expected.textContent).toBe('Showing 2 products.');
+            expect(setters.reduce((count, setter) => count + setter.mock.calls.length, 0)).toBe(1);
+            containers.forEach(container => {
+                if (container !== expected) {
+                    expect(container.textContent).toBe('');
+                }
+            });
+        });
+
+        test('updates a reassigned aria-live container when no matching regions exist', () => {
+            document.querySelectorAll('.filter-panel-aria-live').forEach(container => container.remove());
+            listingPlugin = new ListingPlugin(document.querySelector('[data-listing="true"]'));
+
+            expect(listingPlugin.ariaLiveContainers).toHaveLength(0);
+            expect(listingPlugin.ariaLiveContainer).toBeNull();
+            expect(() => listingPlugin._updateAriaLive()).not.toThrow();
+
+            const replacement = document.createElement('div');
+            document.body.append(replacement);
+            listingPlugin.ariaLiveContainer = replacement;
+            listingPlugin.el.querySelector('.js-listing-wrapper').dataset.ariaLiveText = 'Showing 2 products.';
+
+            listingPlugin._updateAriaLive();
+
+            expect(replacement.textContent).toBe('Showing 2 products.');
+        });
+
+        test('does not update reassigned or existing aria-live containers when updates are disabled', () => {
+            const replacement = document.createElement('div');
+            replacement.textContent = 'Previous results';
+            listingPlugin.ariaLiveContainer = replacement;
+            listingPlugin.options.ariaLiveUpdates = false;
+            listingPlugin.ariaLiveContainers.forEach(container => {
+                container.textContent = 'Previous results';
+            });
+
+            listingPlugin._updateAriaLive();
+
+            expect(replacement.textContent).toBe('Previous results');
+            listingPlugin.ariaLiveContainers.forEach(container => {
+                expect(container.textContent).toBe('Previous results');
+            });
+        });
+
+        test.each(['external', 'existing', 'null'])('updates loading indicators after %s panel reassignment', (target) => {
+            const replacement = target === 'external'
+                ? document.createElement('div')
+                : target === 'existing' ? listingPlugin._filterPanels[1] : null;
+            listingPlugin._filterPanel = replacement;
+
+            listingPlugin.addLoadingIndicatorClass();
+
+            listingPlugin._filterPanels.forEach(panel => {
+                expect(panel.classList.contains('is-loading')).toBe(true);
+            });
+
+            if (replacement) {
+                expect(replacement.classList.contains('is-loading')).toBe(true);
+            }
+
+            listingPlugin.removeLoadingIndicatorClass();
+
+            listingPlugin._filterPanels.forEach(panel => {
+                expect(panel.classList.contains('is-loading')).toBe(false);
+            });
+
+            if (replacement) {
+                expect(replacement.classList.contains('is-loading')).toBe(false);
+            }
+        });
+
+        test('loading indicator methods are safe when no filter panel exists', () => {
+            document.querySelectorAll('.filter-panel').forEach(panel => panel.remove());
+            listingPlugin = new ListingPlugin(document.querySelector('[data-listing="true"]'));
+
+            expect(listingPlugin._filterPanel).toBeNull();
+            expect(() => listingPlugin.addLoadingIndicatorClass()).not.toThrow();
+            expect(() => listingPlugin.removeLoadingIndicatorClass()).not.toThrow();
+        });
+
+        test.each(['external', 'existing', 'null'])('renders labels and binds resets after %s container reassignment', (target) => {
+            const replacement = target === 'external'
+                ? document.createElement('div')
+                : target === 'existing' ? listingPlugin.activeFilterContainers[1] : null;
+            listingPlugin.activeFilterContainer = replacement;
+            listingPlugin._registry = [{
+                getLabels: () => [{ id: 'brand', label: 'Brand' }],
+            }];
+            listingPlugin._showResetAll = true;
+            const reset = jest.spyOn(listingPlugin, 'resetFilter').mockImplementation(() => {});
+            const resetAll = jest.spyOn(listingPlugin, 'resetAllFilter').mockImplementation(() => {});
+            const containers = new Set(listingPlugin.activeFilterContainers);
+
+            if (replacement) {
+                containers.add(replacement);
+            }
+
+            listingPlugin._buildLabels();
+            listingPlugin._buildLabels();
+
+            containers.forEach(container => {
+                expect(container.querySelectorAll('.filter-active')).toHaveLength(1);
+                expect(container.querySelectorAll('.filter-reset-all')).toHaveLength(1);
+
+                const label = container.querySelector('.filter-active');
+
+                label.click();
+
+                expect(reset).toHaveBeenLastCalledWith(label);
+
+                container.querySelector('.filter-reset-all').click();
+            });
+
+            expect(reset).toHaveBeenCalledTimes(containers.size);
+            expect(resetAll).toHaveBeenCalledTimes(containers.size);
+
+            listingPlugin._registry = [];
+            listingPlugin._buildLabels();
+
+            containers.forEach(container => expect(container.innerHTML).toBe(''));
+        });
+
+        test('supports createResetAllButton without an argument after container reassignment', () => {
+            const replacement = document.createElement('div');
+            listingPlugin.activeFilterContainer = replacement;
+            listingPlugin._showResetAll = true;
+            const resetAll = jest.spyOn(listingPlugin, 'resetAllFilter').mockImplementation(() => {});
+
+            listingPlugin.createResetAllButton();
+            replacement.querySelector('.filter-reset-all').click();
+
+            expect(resetAll).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    test.each([0, 1, 2, 3])('only synchronizes multiple filter panels with %i panels present', (panelCount) => {
+        const panel = document.querySelector('.filter-panel');
+
+        panel.remove();
+
+        for (let index = 0; index < panelCount; index++) {
+            document.body.append(panel.cloneNode(true));
+        }
+
+        const listing = new ListingPlugin(document.querySelector('[data-listing="true"]'));
+        const registry = jest.spyOn(listing, '_getPrioritisedRegistry');
+        const buildRequest = jest.spyOn(listing, '_buildRequest').mockImplementation(() => {});
+        const buildLabels = jest.spyOn(listing, '_buildLabels').mockImplementation(() => {});
+
+        listing.changeListing(false, { p: 1 });
+
+        expect(registry).toHaveBeenCalledTimes(panelCount > 1 ? 1 : 0);
+        expect(buildRequest).toHaveBeenCalledWith(false, { p: 1 });
+        expect(buildLabels).toHaveBeenCalledTimes(panelCount > 0 ? 1 : 0);
+    });
+
+    function createSnapshotFixture(panelCount) {
+        const panel = document.querySelector('.filter-panel');
+
+        panel.remove();
+
+        for (let index = 0; index < panelCount; index++) {
+            document.body.append(panel.cloneNode(true));
+        }
+
+        const listing = new ListingPlugin(document.querySelector('[data-listing="true"]'));
+        const snapshot = jest.spyOn(listing, '_getFilterSnapshot');
+        const filter = {
+            el: document.querySelector('[data-listing="true"]'),
+            getValues: jest.fn(() => ({ manufacturer: [] })),
+            setValuesFromUrl: jest.fn(() => false),
+        };
+
+        listing.registerFilter(filter);
+        listing._urlFilterParams = { manufacturer: 'brand' };
+        listing._setFilterState(filter);
+        listing.refreshRegistry();
+
+        return { listing, filter, snapshot };
+    }
+
+    test.each([0, 1])('does not track filter snapshots with %i panel', (panelCount) => {
+        const { listing, filter, snapshot } = createSnapshotFixture(panelCount);
+
+        expect(snapshot).not.toHaveBeenCalled();
+        expect(listing._filterSnapshots).toBeNull();
+        expect(filter.getValues).not.toHaveBeenCalled();
+
+        listing.deregisterFilter(filter);
+
+        expect(listing._registry).not.toContain(filter);
+    });
+
+    test.each([2, 3])('removes tracked filter snapshots on deregistration with %i panels', (panelCount) => {
+        const { listing, filter, snapshot } = createSnapshotFixture(panelCount);
+
+        expect(snapshot).toHaveBeenCalledTimes(2);
+        expect(listing._filterSnapshots.has(filter)).toBe(true);
+
+        listing.deregisterFilter(filter);
+
+        expect(listing._registry).not.toContain(filter);
+        expect(listing._filterSnapshots.has(filter)).toBe(false);
+    });
+
+    test('updates snapshot tracking when refreshRegistry changes the panel count', () => {
+        const listing = new ListingPlugin(document.querySelector('[data-listing="true"]'));
+        const filter = {
+            el: document.querySelector('[data-listing="true"]'),
+            getValues: jest.fn(() => ({ manufacturer: [] })),
+        };
+
+        listing.registerFilter(filter);
+
+        expect(filter.getValues).not.toHaveBeenCalled();
+
+        const panel = document.querySelector('.filter-panel').cloneNode(true);
+
+        document.body.append(panel);
+
+        listing.refreshRegistry();
+
+        expect(listing._filterSnapshots.get(filter)).toEqual({ manufacturer: [] });
+
+        panel.remove();
+        filter.getValues.mockClear();
+        listing.refreshRegistry();
+
+        expect(listing._filterSnapshots).toBeNull();
+        expect(filter.getValues).not.toHaveBeenCalled();
     });
 
     test('listing plugin has the function refreshRegistry', () => {
@@ -313,6 +717,441 @@ describe('ListingPlugin tests', () => {
         expect(document.querySelector('.filter-panel-aria-live').textContent).toBe('Showing 2 products.');
     });
 
+    describe('multiple filter panels', () => {
+        let sendDataRequest;
+
+        beforeEach(() => {
+            document.body.append(document.querySelector('.cms-element-sidebar-filter').cloneNode(true));
+            listingPlugin = new ListingPlugin(document.querySelector('[data-listing="true"]'), {
+                scrollTopListingWrapper: false,
+            });
+            sendDataRequest = jest.spyOn(listingPlugin, 'sendDataRequest').mockImplementation(() => {});
+            jest.spyOn(window.PluginManager, 'getPluginInstanceFromElement').mockReturnValue(listingPlugin);
+        });
+
+        function createFilter(name, ids, PluginClass = FilterMultiSelectPlugin, panelIndex = 0) {
+            const element = document.createElement('div');
+            element.innerHTML = `
+                <button class="filter-panel-item-toggle">
+                    <span class="filter-multi-select-count"></span>
+                </button>
+                ${ids.map(id => `
+                    <input type="checkbox" class="filter-multi-select-checkbox"
+                        id="${id}" data-label="${id}">
+                `).join('')}
+            `;
+
+            document.querySelectorAll('.filter-panel-items-container')[panelIndex].append(element);
+
+            return new PluginClass(element, {
+                name,
+                snippets: {
+                    ariaLabel: 'Filter',
+                    ariaLabelCount: '%count% selected',
+                },
+            });
+        }
+
+        function createRangeFilter(panelIndex = 0, options = {}) {
+            const element = document.createElement('div');
+            element.innerHTML = `
+                <div class="filter-range-container">
+                    <input type="number" class="min-input">
+                    <input type="number" class="max-input">
+                </div>
+            `;
+
+            document.querySelectorAll('.filter-panel-items-container')[panelIndex].append(element);
+
+            return new FilterRangePlugin(element, options);
+        }
+
+        test('establishes a baseline for a filter without a snapshot without treating its values as changes', () => {
+            const filter = {
+                getValues: () => ({ properties: ['red'] }),
+                setValuesFromUrl: jest.fn(),
+            };
+            listingPlugin._registry.push(filter);
+
+            listingPlugin.changeListing();
+
+            expect(filter.setValuesFromUrl).not.toHaveBeenCalled();
+            expect(listingPlugin._filterSnapshots.get(filter)).toEqual({ properties: ['red'] });
+            expect(sendDataRequest.mock.calls[0][0].get('properties')).toBe('red');
+        });
+
+        test('synchronizes array values when a filter previously reported a scalar', () => {
+            let values = { properties: '' };
+            const filter = {
+                getValues: () => values,
+                setValuesFromUrl: jest.fn(),
+            };
+            listingPlugin.registerFilter(filter);
+            const other = createFilter('properties', ['red'], FilterPropertySelectPlugin, 1);
+            values = { properties: ['red'] };
+
+            listingPlugin.changeListing();
+
+            expect(filter.setValuesFromUrl).toHaveBeenCalledWith({ properties: 'red' });
+            expect(other.getValues()).toEqual({ properties: ['red'] });
+            expect(sendDataRequest.mock.calls[0][0].get('properties')).toBe('red');
+        });
+
+        test.each([null, undefined])('serializes a cleared scalar value of %s as an empty string', (value) => {
+            let values = { 'min-price': '10' };
+            const filter = {
+                getValues: () => values,
+                setValuesFromUrl: jest.fn(),
+            };
+            listingPlugin.registerFilter(filter);
+            values = { 'min-price': value };
+
+            listingPlugin.changeListing();
+
+            expect(filter.setValuesFromUrl).toHaveBeenCalledWith({ 'min-price': '' });
+            expect(sendDataRequest.mock.calls[0][0].has('min-price')).toBe(false);
+            expect(listingPlugin._filterSnapshots.get(filter)).toEqual({ 'min-price': value });
+        });
+
+        test('synchronizes boolean filters including clearing the checked state', () => {
+            const filters = [0, 1].map((panelIndex) => {
+                const element = document.createElement('div');
+                element.innerHTML = '<input type="checkbox" class="filter-boolean-input">';
+
+                document.querySelectorAll('.filter-panel-items-container')[panelIndex].append(element);
+
+                return new FilterBooleanPlugin(element, { name: 'shipping-free' });
+            });
+
+            filters[0].checkbox.click();
+
+            filters.forEach(filter => expect(filter.checkbox.checked).toBe(true));
+
+            filters[1].checkbox.click();
+
+            filters.forEach(filter => expect(filter.checkbox.checked).toBe(false));
+            expect(sendDataRequest).toHaveBeenCalledTimes(2);
+            expect(sendDataRequest.mock.calls[1][0].has('shipping-free')).toBe(false);
+        });
+
+        test('synchronizes ratings by value and clears them on reset', () => {
+            const filters = [0, 1].map((panelIndex) => {
+                const element = document.createElement('div');
+                element.innerHTML = `
+                    <button class="filter-panel-item-toggle"><span class="filter-multi-select-count"></span></button>
+                    <input type="radio" class="filter-multi-select-checkbox" name="rating-${panelIndex}" value="3" id="rating-${panelIndex}-3">
+                    <input type="radio" class="filter-multi-select-checkbox" name="rating-${panelIndex}" value="4" id="rating-${panelIndex}-4">
+                `;
+
+                document.querySelectorAll('.filter-panel-items-container')[panelIndex].append(element);
+
+                return new FilterRatingSelectPlugin(element, { name: 'rating' });
+            });
+
+            filters[0].el.querySelector('[value="3"]').click();
+
+            filters.forEach(filter => expect(filter.getValues()).toEqual({ rating: '3' }));
+
+            filters[1].el.querySelector('[value="4"]').click();
+
+            filters.forEach((filter) => {
+                expect(filter.getValues()).toEqual({ rating: '4' });
+                expect(filter.el.querySelectorAll(':checked')).toHaveLength(1);
+            });
+
+            listingPlugin.resetAllFilter();
+
+            filters.forEach((filter) => {
+                expect(filter.getValues()).toEqual({ rating: '' });
+                expect(filter.counter.textContent).toBe('');
+            });
+            expect(sendDataRequest).toHaveBeenCalledTimes(3);
+        });
+
+        test('keeps snapshots aligned after resets and registration of another panel', () => {
+            const filters = [createFilter('manufacturer', ['brand'])];
+
+            filters[0].el.querySelector('input').click();
+
+            filters.push(createFilter('manufacturer', ['brand'], FilterMultiSelectPlugin, 1));
+
+            expect(filters[1].el.querySelector('input').checked).toBe(true);
+
+            listingPlugin.resetAllFilter();
+
+            filters[1].el.querySelector('input').click();
+
+            filters.forEach(filter => expect(filter.el.querySelector('input').checked).toBe(true));
+
+            filters[0].el.querySelector('input').click();
+
+            filters.forEach(filter => expect(filter.el.querySelector('input').checked).toBe(false));
+        });
+
+        test('keeps snapshots aligned after browser history navigation', () => {
+            const filters = [
+                createFilter('manufacturer', ['brand', 'other']),
+                createFilter('manufacturer', ['brand', 'other'], FilterMultiSelectPlugin, 1),
+            ];
+            const ranges = [createRangeFilter(), createRangeFilter(1)];
+
+            filters[0].el.querySelector('input').click();
+
+            window.history.replaceState({}, '', '/?manufacturer=other&min-price=10');
+            listingPlugin._onWindowPopstate();
+
+            filters.forEach(filter => expect(filter.getValues()).toEqual({ manufacturer: ['other'] }));
+            ranges.forEach(filter => expect(filter.getValues()).toEqual({ 'min-price': '10', 'max-price': '' }));
+
+            window.history.replaceState({}, '', '/');
+            listingPlugin._onWindowPopstate();
+
+            filters.forEach(filter => expect(filter.getValues()).toEqual({ manufacturer: [] }));
+            ranges.forEach(filter => expect(filter.getValues()).toEqual({ 'min-price': '', 'max-price': '' }));
+
+            filters[1].el.querySelector('input').click();
+
+            filters.forEach(filter => expect(filter.getValues()).toEqual({ manufacturer: ['brand'] }));
+        });
+
+        describe('range filters', () => {
+            beforeEach(() => {
+                jest.useFakeTimers();
+            });
+
+            afterEach(() => {
+                jest.clearAllTimers();
+                jest.useRealTimers();
+            });
+
+            function changeInput(filter, selector, value) {
+                const input = filter.el.querySelector(selector);
+                input.value = value;
+
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+
+            test.each(['.min-input', '.max-input'])('synchronizes lower-bound validation for %s and clears it after correction', (selector) => {
+                const options = {
+                    snippets: {
+                        filterRangeLowerBoundErrorMessage: 'Price must not be negative',
+                    },
+                };
+                const filters = [createRangeFilter(0, options), createRangeFilter(1, options)];
+
+                changeInput(filters[0], selector, '-1');
+                jest.advanceTimersByTime(500);
+
+                filters.forEach((filter) => {
+                    expect(filter.el.querySelectorAll('.is-invalid')).toHaveLength(2);
+                    expect(filter.el.querySelector('.filter-range-error').textContent).toBe('Price must not be negative');
+                });
+
+                changeInput(filters[1], selector, '0');
+                jest.advanceTimersByTime(500);
+
+                filters.forEach((filter) => {
+                    expect(filter.el.querySelectorAll('.is-invalid')).toHaveLength(0);
+                    expect(filter.el.querySelector('.filter-range-error')).toBeNull();
+                });
+                expect(sendDataRequest).toHaveBeenCalledTimes(2);
+            });
+
+            test.each([0, 1])('synchronizes and clears both bounds from panel %i', (sourceIndex) => {
+                const filters = [createRangeFilter(), createRangeFilter(1)];
+
+                changeInput(filters[sourceIndex], '.min-input', '10');
+                changeInput(filters[sourceIndex], '.max-input', '100');
+
+                expect(sendDataRequest).not.toHaveBeenCalled();
+
+                jest.advanceTimersByTime(500);
+
+                filters.forEach((filter) => {
+                    expect(filter.getValues()).toEqual({ 'min-price': '10', 'max-price': '100' });
+                });
+                expect(sendDataRequest).toHaveBeenCalledTimes(1);
+                expect(sendDataRequest.mock.calls[0][0].get('min-price')).toBe('10');
+                expect(sendDataRequest.mock.calls[0][0].get('max-price')).toBe('100');
+                document.querySelectorAll('.filter-panel-active-container').forEach((container) => {
+                    expect(container.querySelectorAll('.filter-active')).toHaveLength(2);
+                });
+
+                changeInput(filters[sourceIndex], '.min-input', '');
+                changeInput(filters[sourceIndex], '.max-input', '');
+                jest.advanceTimersByTime(500);
+
+                filters.forEach((filter) => {
+                    expect(filter.getValues()).toEqual({ 'min-price': '', 'max-price': '' });
+                });
+                expect(sendDataRequest).toHaveBeenCalledTimes(2);
+                expect(sendDataRequest.mock.calls[1][0].has('min-price')).toBe(false);
+                expect(sendDataRequest.mock.calls[1][0].has('max-price')).toBe(false);
+            });
+
+            test('preserves edits across panels during the debounce and cancels stale requests', () => {
+                const filters = [createRangeFilter(), createRangeFilter(1)];
+
+                changeInput(filters[0], '.min-input', '10');
+                jest.advanceTimersByTime(250);
+                changeInput(filters[1], '.max-input', '100');
+                jest.advanceTimersByTime(500);
+
+                filters.forEach((filter) => {
+                    expect(filter.getValues()).toEqual({ 'min-price': '10', 'max-price': '100' });
+                });
+                expect(sendDataRequest).toHaveBeenCalledTimes(1);
+            });
+
+            test('synchronizes validation errors and clears them when corrected', () => {
+                const filters = [createRangeFilter(), createRangeFilter(1)];
+
+                changeInput(filters[0], '.min-input', '100');
+                changeInput(filters[0], '.max-input', '10');
+                jest.advanceTimersByTime(500);
+
+                filters.forEach((filter) => {
+                    expect(filter.el.querySelectorAll('.is-invalid')).toHaveLength(2);
+                    expect(filter.el.querySelectorAll('.filter-range-error')).toHaveLength(1);
+                });
+
+                changeInput(filters[1], '.max-input', '200');
+                jest.advanceTimersByTime(500);
+
+                filters.forEach((filter) => {
+                    expect(filter.el.querySelectorAll('.is-invalid')).toHaveLength(0);
+                    expect(filter.el.querySelectorAll('.filter-range-error')).toHaveLength(0);
+                });
+            });
+
+            test('does not synchronize different range keys or listings', () => {
+                const source = createRangeFilter();
+                const differentRange = createRangeFilter(1, { minKey: 'min-weight', maxKey: 'max-weight' });
+                const otherListing = new ListingPlugin(document.createElement('div'));
+                window.PluginManager.getPluginInstanceFromElement.mockReturnValue(otherListing);
+                const differentListing = createRangeFilter(1);
+
+                changeInput(source, '.min-input', '10');
+                jest.advanceTimersByTime(500);
+
+                expect(differentRange.getValues()).toEqual({ 'min-weight': '', 'max-weight': '' });
+                expect(differentListing.getValues()).toEqual({ 'min-price': '', 'max-price': '' });
+            });
+
+            test.each(['label', 'all'])('resets range values in all panels through %s reset', (resetType) => {
+                const filters = [createRangeFilter(), createRangeFilter(1)];
+
+                changeInput(filters[0], '.min-input', '10');
+                changeInput(filters[0], '.max-input', '100');
+                jest.advanceTimersByTime(500);
+
+                document.querySelector(resetType === 'label' ? '[data-id="min-price"]' : '.filter-reset-all').click();
+
+                filters.forEach((filter) => {
+                    expect(filter.getValues()).toEqual({
+                        'min-price': '',
+                        'max-price': resetType === 'label' ? '100' : '',
+                    });
+                });
+                expect(sendDataRequest).toHaveBeenCalledTimes(2);
+                expect(sendDataRequest.mock.calls[1][0].has('min-price')).toBe(false);
+            });
+        });
+
+        test.each([0, 1])('synchronizes checking and unchecking from panel %i with one request per change', (sourceIndex) => {
+            const filters = [
+                createFilter('manufacturer', ['brand']),
+                createFilter('manufacturer', ['brand'], FilterMultiSelectPlugin, 1),
+            ];
+            const checkbox = filters[sourceIndex].el.querySelector('input');
+
+            checkbox.click();
+
+            filters.forEach((filter) => {
+                expect(filter.el.querySelector('input').checked).toBe(true);
+                expect(filter.selection).toEqual(['brand']);
+                expect(filter.counter.textContent).toBe('(1)');
+                expect(filter.mainFilterButton.getAttribute('aria-label')).toBe('Filter (1 selected)');
+            });
+            expect(sendDataRequest).toHaveBeenCalledTimes(1);
+            expect(sendDataRequest.mock.calls[0][0].get('manufacturer')).toBe('brand');
+            expect(sendDataRequest.mock.calls[0][0].get('p')).toBe('1');
+            document.querySelectorAll('.filter-panel-active-container').forEach((container) => {
+                expect(container.querySelectorAll('.filter-active')).toHaveLength(1);
+            });
+
+            checkbox.click();
+
+            filters.forEach((filter) => {
+                expect(filter.el.querySelector('input').checked).toBe(false);
+                expect(filter.selection).toEqual([]);
+                expect(filter.counter.textContent).toBe('');
+                expect(filter.mainFilterButton.getAttribute('aria-label')).toBe('Filter');
+            });
+            expect(sendDataRequest).toHaveBeenCalledTimes(2);
+            expect(sendDataRequest.mock.calls[1][0].has('manufacturer')).toBe(false);
+            expect(document.querySelectorAll('.filter-active')).toHaveLength(0);
+        });
+
+        test('preserves selections in other property groups sharing the same parameter', () => {
+            const colors = [
+                createFilter('properties', ['red', 'blue'], FilterPropertySelectPlugin),
+                createFilter('properties', ['red', 'blue'], FilterPropertySelectPlugin, 1),
+            ];
+            const sizes = [
+                createFilter('properties', ['large'], FilterPropertySelectPlugin),
+                createFilter('properties', ['large'], FilterPropertySelectPlugin, 1),
+            ];
+
+            sizes[0].el.querySelector('input').click();
+            colors[0].el.querySelector('input').click();
+            colors[1].el.querySelector('input').click();
+
+            colors.forEach((filter) => {
+                expect(filter.getValues()).toEqual({ properties: [] });
+                expect(filter.counter.textContent).toBe('');
+            });
+            sizes.forEach((filter) => {
+                expect(filter.getValues()).toEqual({ properties: ['large'] });
+                expect(filter.counter.textContent).toBe('(1)');
+            });
+            expect(sendDataRequest.mock.calls[2][0].get('properties')).toBe('large');
+        });
+
+        test('does not synchronize filters with a different parameter or listing', () => {
+            const source = createFilter('manufacturer', ['brand']);
+            const differentParameter = createFilter('properties', ['brand']);
+            const otherListing = new ListingPlugin(document.createElement('div'), {
+                scrollTopListingWrapper: false,
+            });
+            window.PluginManager.getPluginInstanceFromElement.mockReturnValue(otherListing);
+            const differentListing = createFilter('manufacturer', ['brand']);
+
+            source.el.querySelector('input').click();
+
+            expect(differentParameter.el.querySelector('input').checked).toBe(false);
+            expect(differentListing.el.querySelector('input').checked).toBe(false);
+        });
+
+        test.each(['label', 'all'])('resets synchronized selections through %s reset', (resetType) => {
+            const filters = [
+                createFilter('manufacturer', ['brand']),
+                createFilter('manufacturer', ['brand'], FilterMultiSelectPlugin, 1),
+            ];
+            filters[0].el.querySelector('input').click();
+
+            document.querySelector(resetType === 'label' ? '.filter-active' : '.filter-reset-all').click();
+
+            filters.forEach((filter) => {
+                expect(filter.el.querySelector('input').checked).toBe(false);
+                expect(filter.selection).toEqual([]);
+                expect(filter.counter.textContent).toBe('');
+            });
+            expect(sendDataRequest).toHaveBeenCalledTimes(2);
+            expect(sendDataRequest.mock.calls[1][0].has('manufacturer')).toBe(false);
+        });
+    });
+
     describe('_fetchValuesOfRegisteredFilters', () => {
         test('does not crash when multiple filters contribute the same scalar key', () => {
             const filterA = { getValues: () => ({ p: 1 }) };
@@ -387,6 +1226,18 @@ describe('ListingPlugin tests', () => {
     });
 
     describe('_mapFilters', () => {
+        test('deduplicates multi-valued keys without changing last-value-wins scalar parameters', () => {
+            const mapped = listingPlugin._mapFilters({
+                manufacturer: ['abc', 'def', 'abc'],
+                properties: ['red', 'large', 'red'],
+                rating: ['3', '4', '3'],
+            });
+
+            expect(mapped.manufacturer).toBe('abc|def');
+            expect(mapped.properties).toBe('red|large');
+            expect(mapped.rating).toBe('3');
+        });
+
         test('returns single-valued keys like `p` as scalars even when multiple values were collected', () => {
             const mapped = listingPlugin._mapFilters({
                 p: [1, 2],

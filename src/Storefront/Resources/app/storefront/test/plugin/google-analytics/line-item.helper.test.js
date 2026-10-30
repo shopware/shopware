@@ -1,8 +1,10 @@
 import LineItemHelper from 'src/plugin/google-analytics/line-item.helper';
+import ProductCategoryHelper from 'src/plugin/google-analytics/product-category.helper';
 
 describe('plugin/google-analytics/line-item.helper', () => {
     afterEach(() => {
         document.body.innerHTML = '';
+        window.localStorage.clear();
     });
 
     describe('getLineItems', () => {
@@ -24,11 +26,11 @@ describe('plugin/google-analytics/line-item.helper', () => {
 
             expect(lineItems).toHaveLength(1);
             expect(lineItems[0]).toEqual({
-                id: 'product-123',
-                name: 'Test Product',
+                item_id: 'product-123',
+                item_name: 'Test Product',
                 quantity: '2',
                 price: '99.99',
-                brand: 'Test Brand',
+                item_brand: 'Test Brand',
             });
         });
 
@@ -57,6 +59,24 @@ describe('plugin/google-analytics/line-item.helper', () => {
             });
         });
 
+        // a product added on the homepage or the search has no categories in its line item payload
+        test('fills missing categories with the ones requested when the product was added', () => {
+            ProductCategoryHelper.remember('product-1', { item_category: 'Requested' });
+            ProductCategoryHelper.remember('product-2', { item_category: 'Requested' });
+            document.body.innerHTML = `
+                <div class="hidden-line-items-information">
+                    <span class="hidden-line-item" data-id="product-1"></span>
+                    <span class="hidden-line-item" data-id="product-2" data-category-1="From payload"></span>
+                </div>
+            `;
+
+            const lineItems = LineItemHelper.getLineItems();
+
+            expect(lineItems[0].item_category).toBe('Requested');
+            expect(lineItems[1].item_category).toBe('From payload');
+            expect(LineItemHelper.getProductIds()).toEqual(['product-1', 'product-2']);
+        });
+
         test('returns multiple line items', () => {
             document.body.innerHTML = `
                 <div class="hidden-line-items-information" data-currency="EUR" data-value="150.00">
@@ -80,8 +100,8 @@ describe('plugin/google-analytics/line-item.helper', () => {
             const lineItems = LineItemHelper.getLineItems();
 
             expect(lineItems).toHaveLength(2);
-            expect(lineItems[0].id).toBe('product-1');
-            expect(lineItems[1].id).toBe('product-2');
+            expect(lineItems[0].item_id).toBe('product-1');
+            expect(lineItems[1].item_id).toBe('product-2');
         });
     });
 
@@ -103,7 +123,30 @@ describe('plugin/google-analytics/line-item.helper', () => {
                 shipping: '4.99',
                 value: '104.98',
                 tax: '16.76',
+                coupon: '',
             });
+        });
+
+        test('returns empty properties without the hidden line items', () => {
+            expect(LineItemHelper.getAdditionalProperties()).toEqual({
+                currency: undefined,
+                shipping: undefined,
+                value: undefined,
+                tax: undefined,
+                coupon: '',
+            });
+        });
+
+        test('joins the distinct promotion codes into the coupon', () => {
+            document.body.innerHTML = `
+                <div class="hidden-line-items-information" data-currency="EUR" data-value="80">
+                    <span class="hidden-line-item-coupon" data-code="SUMMER"></span>
+                    <span class="hidden-line-item-coupon" data-code="SUMMER"></span>
+                    <span class="hidden-line-item-coupon" data-code="VIP"></span>
+                </div>
+            `;
+
+            expect(LineItemHelper.getAdditionalProperties().coupon).toBe('SUMMER, VIP');
         });
     });
 

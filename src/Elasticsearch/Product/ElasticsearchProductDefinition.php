@@ -261,7 +261,6 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 continue;
             }
 
-            /** @var array<string, string> $item */
             $documents[$id] = [
                 'id' => $id,
                 'autoIncrement' => (float) $item['autoIncrement'],

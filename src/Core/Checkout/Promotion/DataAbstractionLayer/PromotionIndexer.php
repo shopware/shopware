@@ -69,7 +69,10 @@ class PromotionIndexer extends EntityIndexer
             return null;
         }
 
-        return new PromotionIndexingMessage(array_values($updates), null, $event->getContext());
+        $message = new PromotionIndexingMessage(array_values($updates), null, $event->getContext());
+        $message->addSkip(self::REDEMPTION_UPDATER);
+
+        return $message;
     }
 
     public function handle(EntityIndexingMessage $message): void

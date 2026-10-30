@@ -3,6 +3,7 @@
  */
 
 import concurrently from 'concurrently';
+import { getViteCommand } from './vite-toolchain';
 
 /**
  * @private
@@ -16,7 +17,7 @@ export function startDevelopmentProcesses() {
                 prefixColor: 'yellow',
             },
             {
-                command: 'vite',
+                command: getViteCommand(),
                 name: 'Administration',
                 prefixColor: 'blue',
             },

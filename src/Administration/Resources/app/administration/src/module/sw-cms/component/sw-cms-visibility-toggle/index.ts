@@ -8,6 +8,8 @@ import './sw-cms-visibility-toggle.scss';
 export default {
     template,
 
+    emits: ['toggle'],
+
     props: {
         text: {
             type: String,

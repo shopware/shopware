@@ -83,12 +83,9 @@ class OneToOneAssociationFieldTest extends TestCase
 
         $this->connection->rollBack();
 
-        $this->connection->executeStatement('
-DROP TABLE IF EXISTS `root_sub_many`;
-DROP TABLE IF EXISTS `root_sub_cascade`;
-DROP TABLE IF EXISTS `root_sub`;
-DROP TABLE IF EXISTS `root`;
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `root_sub_many`, `root_sub_cascade`, `root_sub`, `root`');
 
+        $this->connection->executeStatement('
 CREATE TABLE `root` (
   `id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
@@ -96,7 +93,9 @@ CREATE TABLE `root` (
   `created_at` DATETIME(3) NOT NULL,
   `updated_at` DATETIME(3) NULL,
   PRIMARY KEY `primary` (`id`, `version_id`)
-);
+);');
+
+        $this->connection->executeStatement('
 CREATE TABLE `root_sub` (
   `id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
@@ -107,7 +106,9 @@ CREATE TABLE `root_sub` (
   `created_at` DATETIME(3) NOT NULL,
   `updated_at` DATETIME(3) NULL,
   PRIMARY KEY `primary` (`id`, `version_id`)
-);
+);');
+
+        $this->connection->executeStatement('
 CREATE TABLE `root_sub_cascade` (
   `id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
@@ -118,9 +119,9 @@ CREATE TABLE `root_sub_cascade` (
   `created_at` DATETIME(3) NOT NULL,
   `updated_at` DATETIME(3) NULL,
   PRIMARY KEY `primary` (`id`, `version_id`)
-);
+);');
 
-
+        $this->connection->executeStatement('
 CREATE TABLE `root_sub_many` (
   `id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
@@ -130,14 +131,17 @@ CREATE TABLE `root_sub_many` (
   `created_at` DATETIME(3) NOT NULL,
   `updated_at` DATETIME(3) NULL,
   PRIMARY KEY `primary` (`id`, `version_id`)
-);
+);');
 
+        $this->connection->executeStatement('
 ALTER TABLE `root_sub`
-ADD FOREIGN KEY (`root_id`, `root_version_id`) REFERENCES `root` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE NO ACTION;
+ADD FOREIGN KEY (`root_id`, `root_version_id`) REFERENCES `root` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE NO ACTION;');
 
+        $this->connection->executeStatement('
 ALTER TABLE `root_sub_cascade`
-ADD FOREIGN KEY (`root_id`, `root_version_id`) REFERENCES `root` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE NO ACTION;
+ADD FOREIGN KEY (`root_id`, `root_version_id`) REFERENCES `root` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE NO ACTION;');
 
+        $this->connection->executeStatement('
 ALTER TABLE `root_sub_many`
 ADD FOREIGN KEY (`root_sub_id`, `root_sub_version_id`) REFERENCES `root_sub` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE NO ACTION;
         ');
@@ -152,14 +156,7 @@ ADD FOREIGN KEY (`root_sub_id`, `root_sub_version_id`) REFERENCES `root_sub` (`i
 
         $this->connection->rollBack();
 
-        $this->connection->executeStatement('
-SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS `root`;
-DROP TABLE IF EXISTS `root_sub`;
-DROP TABLE IF EXISTS `root_sub_cascade`;
-DROP TABLE IF EXISTS `root_sub_many`;
-SET FOREIGN_KEY_CHECKS = 1;
-        ');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `root_sub_many`, `root_sub_cascade`, `root_sub`, `root`');
 
         $this->connection->beginTransaction();
     }

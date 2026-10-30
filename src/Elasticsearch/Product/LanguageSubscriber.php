@@ -54,7 +54,7 @@ class LanguageSubscriber implements EventSubscriberInterface
             $entitiesToReindex = [];
         }
 
-        foreach ($event->getResults()->only(EntityWriteResult::OPERATION_INSERT) as $writeResult) {
+        foreach ($event->getResults()->only(EntityWriteResult::OPERATION_INSERT) as $_) {
             foreach ($this->registry->getDefinitions() as $definition) {
                 $indexName = $this->elasticsearchHelper->getIndexName($definition->getEntityDefinition());
 

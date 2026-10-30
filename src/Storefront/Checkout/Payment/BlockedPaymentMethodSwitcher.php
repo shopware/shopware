@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
@@ -90,12 +89,8 @@ class BlockedPaymentMethodSwitcher
      */
     private function getBlockedPaymentMethodLookup(ErrorCollection $errors): array
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            // @deprecated tag:v6.8.0 - remove this branch; keep only the id-based lookup below
-            return \array_flip($errors->fmap(static fn (Error $error) => $error instanceof PaymentMethodBlockedError ? $error->getName() : null));
-        }
-
-        return \array_flip($errors->fmap(static fn (Error $error) => $error instanceof PaymentMethodBlockedError ? $error->getPaymentMethodId() : null));
+        // @deprecated tag:v6.8.0 - remove the name fallback, the error always carries the id
+        return \array_flip($errors->fmap(static fn (Error $error) => $error instanceof PaymentMethodBlockedError ? ($error->getPaymentMethodId() ?? $error->getName()) : null));
     }
 
     /**
@@ -103,14 +98,14 @@ class BlockedPaymentMethodSwitcher
      */
     private function isBlocked(PaymentMethodEntity $paymentMethod, array $blocked): bool
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            // @deprecated tag:v6.8.0 - remove this branch; keep only the id-based check below
-            $name = $paymentMethod->getName();
-
-            return $name !== null && isset($blocked[$name]);
+        if (isset($blocked[$paymentMethod->getId()])) {
+            return true;
         }
 
-        return isset($blocked[$paymentMethod->getId()]);
+        // @deprecated tag:v6.8.0 - remove the name check together with the name fallback in the lookup
+        $name = $paymentMethod->getName();
+
+        return $name !== null && isset($blocked[$name]);
     }
 
     private function addNoticeToCart(ErrorCollection $cartErrors, PaymentMethodEntity $paymentMethod): void

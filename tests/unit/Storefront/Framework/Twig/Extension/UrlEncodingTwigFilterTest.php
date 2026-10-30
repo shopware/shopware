@@ -11,6 +11,7 @@ use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;
 use Twig\TwigFilter;
 
@@ -84,6 +85,36 @@ class UrlEncodingTwigFilterTest extends TestCase
         static::assertStringContainsString('example.com', $result);
         static::assertStringContainsString('file', $result);
         static::assertStringContainsString('spaces', $result);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the MEDIA_URL_PATH_ENCODING flag
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testMediaUrlFilterUsesTheSubfeatureBeforeTheMajor(): void
+    {
+        $media = new MediaEntity();
+        $media->setUrl('https://example.com/media/file with spaces.jpg');
+        $media->setFileName('file with spaces.jpg');
+        $media->setFileExtension('jpg');
+        $media->setMimeType('image/jpeg');
+
+        static::assertSame('https://example.com/media/file with spaces.jpg', $this->filter->encodeMediaUrl($media));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the MEDIA_URL_PATH_ENCODING flag
+     */
+    #[DisabledFeatures(['MEDIA_URL_PATH_ENCODING'])]
+    public function testMediaUrlFilterUsesLegacyEncodingWithTheMajor(): void
+    {
+        $media = new MediaEntity();
+        $media->setUrl('https://example.com/media/file with spaces.jpg');
+        $media->setFileName('file with spaces.jpg');
+        $media->setFileExtension('jpg');
+        $media->setMimeType('image/jpeg');
+
+        static::assertSame('https://example.com/media/file%20with%20spaces.jpg', $this->filter->encodeMediaUrl($media));
     }
 
     public function testEncodeMediaUrlWithComplexMediaEntity(): void

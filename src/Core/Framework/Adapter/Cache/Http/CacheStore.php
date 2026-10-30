@@ -110,7 +110,7 @@ class CacheStore implements StoreInterface
                     // We keep the lock for a half hour, if not proceed in that time, the lock will be released, and we can re-dispatch the message
                     $item->expiresAt($this->clock->now()->modify('+' . self::HALF_HOUR . ' seconds'));
 
-                    $this->bus->dispatch(new RefreshHttpCacheMessage($lockKey, $request->query->all(), $request->attributes->all(), $request->cookies->all(), $request->server->all(), Request::getTrustedProxies(), Request::getTrustedHeaderSet()));
+                    $this->bus->dispatch(RefreshHttpCacheMessage::fromRequest($lockKey, $request, $this->sessionName));
                 });
             }
         }

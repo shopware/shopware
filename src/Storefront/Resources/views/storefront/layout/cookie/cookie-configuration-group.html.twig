@@ -8,10 +8,15 @@
                 parent: cookieGroup
             } only %}
 
-            {# @deprecated tag:v6.8.0 - Use `cookieGroup.description` instead of `cookieGroup.snippet_description`. Support for `cookieGroup.snippet_description` will be removed. #}
-            {% set snippetDescription = cookieGroup.snippet_description ?? cookieGroup.description %}
-            {# @deprecated tag:v6.8.0 - Use `cookieGroup.name` instead of `cookieGroup.snippet_name`. Support for `cookieGroup.snippet_name` will be removed. #}
-            {% set snippetName = cookieGroup.snippet_name ?? cookieGroup.name %}
+            {% if not feature('v6.8.0.0') %}
+                {# @deprecated tag:v6.8.0 - Use `cookieGroup.description` instead of `cookieGroup.snippet_description`. Support for `cookieGroup.snippet_description` will be removed. #}
+                {% set snippetDescription = cookieGroup.snippet_description ?? cookieGroup.description %}
+                {# @deprecated tag:v6.8.0 - Use `cookieGroup.name` instead of `cookieGroup.snippet_name`. Support for `cookieGroup.snippet_name` will be removed. #}
+                {% set snippetName = cookieGroup.snippet_name ?? cookieGroup.name %}
+            {% else %}
+                {% set snippetDescription = cookieGroup.description %}
+                {% set snippetName = cookieGroup.name %}
+            {% endif %}
 
             {% if cookieGroup.entries is not empty or snippetDescription %}
 

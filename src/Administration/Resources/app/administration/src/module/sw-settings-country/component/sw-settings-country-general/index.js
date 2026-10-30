@@ -62,6 +62,10 @@ export default {
             return this.repositoryFactory.create('currency');
         },
 
+        isVatIdFormatCheckWithoutEffect() {
+            return !this.country.vatIdPattern && !this.country.isEu;
+        },
+
         ...mapPropertyErrors('country', ['name']),
     },
 

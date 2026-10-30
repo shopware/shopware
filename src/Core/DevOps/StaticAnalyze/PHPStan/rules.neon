@@ -43,6 +43,7 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoKernelLifecycleManagerInUnitTestsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoKernelBootInSetUpBeforeClassRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoMockBuilderConstructorBypassRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoRuntimeListenerOnSharedEventDispatcherRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoUnreachableAssertionAfterExpectExceptionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\PHPUnitClassAttributesOverAnnotationsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\PHPUnitMethodAttributesOverAnnotationsRule
@@ -65,8 +66,21 @@ rules:
     - Symplify\PHPStanRules\Rules\UppercaseConstantRule
 
 services:
+    - # needs the analysis parser to resolve pattern variables assigned in the enclosing function
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PregDollarWithoutDRule
+        arguments:
+            parser: @defaultAnalysisParser
+        tags:
+            - phpstan.rules.rule
+
     - # needs the analysis parser to read inherited fixture methods from abstract test-case ancestors
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoCreateMockWithoutExpectationsRule
+        arguments:
+            parser: @defaultAnalysisParser
+        tags:
+            - phpstan.rules.rule
+    - # needs the analysis parser to read the listener methods of a subscriber declared in another file
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoAssertionInEventHookRule
         arguments:
             parser: @defaultAnalysisParser
         tags:

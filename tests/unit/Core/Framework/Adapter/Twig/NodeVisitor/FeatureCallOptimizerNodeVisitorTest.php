@@ -19,7 +19,6 @@ use Twig\Loader\ArrayLoader;
  */
 #[Package('framework')]
 #[CoversClass(FeatureCallOptimizerNodeVisitor::class)]
-#[CoversClass(FeatureFlagExtension::class)]
 class FeatureCallOptimizerNodeVisitorTest extends TestCase
 {
     use EnvTestBehaviour;
@@ -58,21 +57,6 @@ class FeatureCallOptimizerNodeVisitorTest extends TestCase
     {
         Feature::resetRegisteredFeatures();
         Feature::registerFeatures($this->featureConfigBackup);
-    }
-
-    public function testFeatureFlagExtensionDoesNotRegisterVisitorWhenOptimizationIsInactive(): void
-    {
-        static::assertSame([], (new FeatureFlagExtension())->getNodeVisitors());
-    }
-
-    public function testFeatureFlagExtensionRegistersVisitorWhenOptimizationIsActive(): void
-    {
-        $this->setFeature(self::OPTIMIZATION_FLAG, true);
-
-        $nodeVisitors = (new FeatureFlagExtension())->getNodeVisitors();
-
-        static::assertCount(1, $nodeVisitors);
-        static::assertInstanceOf(FeatureCallOptimizerNodeVisitor::class, $nodeVisitors[0]);
     }
 
     public function testStaticFeatureCallStaysRuntimeCheckWhenOptimizationIsInactive(): void

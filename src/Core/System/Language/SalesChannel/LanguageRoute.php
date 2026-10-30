@@ -56,11 +56,11 @@ class LanguageRoute extends AbstractLanguageRoute
         return $this->extensions->publish(
             name: LanguageRouteExtension::NAME,
             extension: new LanguageRouteExtension($request, $context, $criteria),
-            function: $this->_load(...),
+            function: fn (Request $request, SalesChannelContext $context, Criteria $criteria): LanguageRouteResponse => $this->_load($context, $criteria),
         );
     }
 
-    private function _load(Request $request, SalesChannelContext $context, Criteria $criteria): LanguageRouteResponse
+    private function _load(SalesChannelContext $context, Criteria $criteria): LanguageRouteResponse
     {
         $this->cacheTagCollector->addTag(self::buildName($context->getSalesChannelId()), self::ALL_TAG);
 

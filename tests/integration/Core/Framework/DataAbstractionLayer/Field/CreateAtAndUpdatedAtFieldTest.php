@@ -54,8 +54,9 @@ class CreateAtAndUpdatedAtFieldTest extends TestCase
             static::getContainer()->get(EntityLoadedEventFactory::class)
         );
 
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `date_time_test`');
+
         $nullableTable = <<<EOF
-DROP TABLE IF EXISTS `date_time_test`;
 CREATE TABLE IF NOT EXISTS `date_time_test` (
   `id` varbinary(16) NOT NULL,
   `name` varchar(500) NULL,

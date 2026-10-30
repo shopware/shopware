@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Promotion;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -42,33 +43,38 @@ class PromotionEntityTest extends TestCase
     {
         $promotion = new PromotionEntity();
 
-        static::assertTrue($promotion->isOrderCountPerCustomerCountValid('customer-id'));
+        static::assertTrue(self::isOrderCountPerCustomerCountValid($promotion, 'customer-id'));
 
         $promotion->setMaxRedemptionsPerCustomer(2);
 
-        static::assertTrue($promotion->isOrderCountPerCustomerCountValid('customer-id'));
+        static::assertTrue(self::isOrderCountPerCustomerCountValid($promotion, 'customer-id'));
     }
 
     public function testOrderCountPerCustomerComparesTheCustomersOwnCount(): void
     {
         $promotion = new PromotionEntity();
         $promotion->setMaxRedemptionsPerCustomer(2);
-        $promotion->setOrdersPerCustomerCount([
+        Feature::silent('v6.8.0.0', static fn () => $promotion->setOrdersPerCustomerCount([
             'customer-a' => 2,
             'customer-b' => 1,
-        ]);
+        ]));
 
-        static::assertFalse($promotion->isOrderCountPerCustomerCountValid('customer-a'));
-        static::assertTrue($promotion->isOrderCountPerCustomerCountValid('customer-b'));
-        static::assertTrue($promotion->isOrderCountPerCustomerCountValid('customer-without-orders'));
+        static::assertFalse(self::isOrderCountPerCustomerCountValid($promotion, 'customer-a'));
+        static::assertTrue(self::isOrderCountPerCustomerCountValid($promotion, 'customer-b'));
+        static::assertTrue(self::isOrderCountPerCustomerCountValid($promotion, 'customer-without-orders'));
     }
 
     public function testOrderCountPerCustomerMatchesTheCustomerIdCaseInsensitively(): void
     {
         $promotion = new PromotionEntity();
         $promotion->setMaxRedemptionsPerCustomer(1);
-        $promotion->setOrdersPerCustomerCount(['customer-a' => 1]);
+        Feature::silent('v6.8.0.0', static fn () => $promotion->setOrdersPerCustomerCount(['customer-a' => 1]));
 
-        static::assertFalse($promotion->isOrderCountPerCustomerCountValid('CUSTOMER-A'));
+        static::assertFalse(self::isOrderCountPerCustomerCountValid($promotion, 'CUSTOMER-A'));
+    }
+
+    private static function isOrderCountPerCustomerCountValid(PromotionEntity $promotion, string $customerId): bool
+    {
+        return Feature::silent('v6.8.0.0', static fn (): bool => $promotion->isOrderCountPerCustomerCountValid($customerId));
     }
 }

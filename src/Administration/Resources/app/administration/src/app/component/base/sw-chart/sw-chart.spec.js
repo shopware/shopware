@@ -339,7 +339,7 @@ describe('asyncComponent/base/sw-chart', () => {
         });
 
         const wrapper = await setup();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.defaultLocale).toBe('nl');
         expect(wrapper.vm.localeConfig).toEqual(nl);
@@ -352,7 +352,7 @@ describe('asyncComponent/base/sw-chart', () => {
         });
 
         const wrapper = await setup();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.defaultLocale).toBe('en');
         expect(wrapper.vm.localeConfig).toEqual(en);

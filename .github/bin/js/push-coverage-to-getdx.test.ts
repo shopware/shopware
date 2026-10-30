@@ -3,11 +3,15 @@ import assert from 'node:assert/strict';
 
 import {
     CodecovReportNotReadyError,
+    HttpError,
     buildGetDxPayload,
     codecovCommitUrl,
+    describeError,
     fetchCodecovCommit,
+    isRetryable,
     pushCoverageToGetDx,
     waitForCodecovReport,
+    withRetry,
     type CodecovCommitResponse,
 } from './push-coverage-to-getdx.ts';
 
@@ -24,6 +28,86 @@ describe('codecovCommitUrl', () => {
             codecovCommitUrl('shopware', 'shopware', 'abc123'),
             'https://api.codecov.io/api/v2/github/shopware/repos/shopware/commits/abc123/',
         );
+    });
+});
+
+const networkError = () => new TypeError('fetch failed', { cause: Object.assign(new Error('read ECONNRESET'), { code: 'ECONNRESET' }) });
+
+describe('isRetryable', () => {
+    it('retries network errors, timeouts, 429 and 5xx', () => {
+        assert.equal(isRetryable(networkError()), true);
+        assert.equal(isRetryable(new DOMException('The operation was aborted due to timeout', 'TimeoutError')), true);
+        assert.equal(isRetryable(new HttpError('too many requests', 429)), true);
+        assert.equal(isRetryable(new HttpError('bad gateway', 502)), true);
+    });
+
+    it('does not retry other client errors', () => {
+        assert.equal(isRetryable(new HttpError('unauthorized', 401)), false);
+        assert.equal(isRetryable(new HttpError('not found', 404)), false);
+        assert.equal(isRetryable(new Error('something else')), false);
+    });
+});
+
+describe('describeError', () => {
+    it('includes the cause chain and error codes', () => {
+        assert.equal(describeError(networkError()), 'fetch failed <- caused by: read ECONNRESET [ECONNRESET]');
+    });
+
+    it('unpacks AggregateError causes', () => {
+        const error = new TypeError('fetch failed', {
+            cause: new AggregateError([Object.assign(new Error('connect ECONNREFUSED ::1:443'), { code: 'ECONNREFUSED' })], ''),
+        });
+
+        assert.equal(
+            describeError(error),
+            'fetch failed <- caused by: connect ECONNREFUSED ::1:443 [ECONNREFUSED]',
+        );
+    });
+});
+
+describe('withRetry', () => {
+    it('retries retryable errors with the given backoff and then succeeds', async () => {
+        let call = 0;
+        const operation = mock.fn(async () => {
+            if (call++ < 2) {
+                throw networkError();
+            }
+            return 'ok';
+        });
+        const sleep = mock.fn(async (_ms: number) => {});
+        const warn = mock.fn((_message: string) => {});
+
+        const result = await withRetry('request', operation, sleep, [1_000, 2_000, 4_000], warn);
+
+        assert.equal(result, 'ok');
+        assert.equal(operation.mock.callCount(), 3);
+        assert.deepEqual(sleep.mock.calls.map((c) => c.arguments[0]), [1_000, 2_000]);
+        assert.match(warn.mock.calls[0].arguments[0], /request failed \(attempt 1\/4\): fetch failed <- caused by: read ECONNRESET \[ECONNRESET\]; retrying in 1s/);
+    });
+
+    it('gives up after the last attempt and keeps the original error as cause', async () => {
+        const operation = mock.fn(async () => {
+            throw networkError();
+        });
+        const sleep = mock.fn(async () => {});
+
+        await assert.rejects(withRetry('request', operation, sleep, [1, 1, 1], () => {}), (error: Error) => {
+            assert.equal(error.message, 'request failed after 4 attempt(s)');
+            assert.match(describeError(error), /ECONNRESET/);
+            return true;
+        });
+        assert.equal(operation.mock.callCount(), 4);
+    });
+
+    it('does not retry non-retryable errors', async () => {
+        const operation = mock.fn(async () => {
+            throw new HttpError('unauthorized', 401);
+        });
+        const sleep = mock.fn(async () => {});
+
+        await assert.rejects(withRetry('request', operation, sleep, [1, 1, 1], () => {}), /failed after 1 attempt/);
+        assert.equal(operation.mock.callCount(), 1);
+        assert.equal(sleep.mock.callCount(), 0);
     });
 });
 

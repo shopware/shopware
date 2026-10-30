@@ -1,6 +1,6 @@
 {
     "require-dev": {
-        "shyim/danger-php": "^0.3.13"
+        "shyim/danger-php": "^0.3.14"
     },
     "config": {
         "allow-plugins": {

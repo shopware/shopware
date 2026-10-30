@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -21,10 +22,13 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Product\Cart\ProductFeatureBuilder;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
+use Shopware\Core\Content\Product\Events\ProductCartDataContextHashEvent;
+use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
@@ -35,6 +39,8 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Checkout\EmptyPrice;
+use Shopware\Tests\Unit\Core\Content\Product\Garan\_fixtures\GaranLabelFixtures;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -143,7 +149,9 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             $calculator,
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class)
+            static::createStub(Connection::class),
+            new EventDispatcher(),
+            static::createStub(GaranLabelResolver::class),
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -212,7 +220,9 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             $calculator,
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class)
+            static::createStub(Connection::class),
+            new EventDispatcher(),
+            static::createStub(GaranLabelResolver::class),
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -260,7 +270,9 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class)
+            static::createStub(Connection::class),
+            new EventDispatcher(),
+            static::createStub(GaranLabelResolver::class),
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -274,6 +286,40 @@ class ProductCartProcessorTest extends TestCase
         $field = $lineItem->getPayloadValue('customFields');
         static::assertArrayHasKey('foo', $field);
         static::assertSame('baz', $field['foo']);
+    }
+
+    /**
+     * @return \Generator<string, array{bool, array<string, int|string>|null}>
+     */
+    public static function garanLabelProvider(): \Generator
+    {
+        yield 'a product with a GARAN label stores its values' => [true, GaranLabelFixtures::PRODUCT_LABEL];
+
+        yield 'a product without a GARAN label stores null, so the storefront does not look it up' => [false, null];
+    }
+
+    /**
+     * @param array<string, int|string>|null $expected
+     */
+    #[DataProvider('garanLabelProvider')]
+    public function testPayloadReplacesTheGaranLabelWithTheOneOfTheProduct(bool $guaranteeConfirmed, ?array $expected): void
+    {
+        $product = self::createGaranProduct();
+        $product->setGuaranteeConfirmed($guaranteeConfirmed);
+
+        $lineItem = $this->collectGaranLabel($product, new CartBehavior());
+
+        static::assertSame($expected, $lineItem->getPayload()[GaranLabelResolver::PAYLOAD_KEY]);
+    }
+
+    public function testPayloadKeepsTheGaranLabelAnEditedOrderWasPlacedWith(): void
+    {
+        $lineItem = $this->collectGaranLabel(
+            self::createGaranProduct(),
+            new CartBehavior([CheckoutPermissions::SKIP_PRODUCT_RECALCULATION => true]),
+        );
+
+        static::assertSame(GaranLabelFixtures::STORED_LABEL, $lineItem->getPayload()[GaranLabelResolver::PAYLOAD_KEY]);
     }
 
     public function testProcess(): void
@@ -301,7 +347,9 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class)
+            static::createStub(Connection::class),
+            new EventDispatcher(),
+            static::createStub(GaranLabelResolver::class),
         );
 
         $originalCart = new Cart('test');
@@ -356,7 +404,9 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class)
+            static::createStub(Connection::class),
+            new EventDispatcher(),
+            static::createStub(GaranLabelResolver::class),
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -407,7 +457,9 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class)
+            static::createStub(Connection::class),
+            new EventDispatcher(),
+            static::createStub(GaranLabelResolver::class),
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -435,5 +487,105 @@ class ProductCartProcessorTest extends TestCase
         static::assertSame(0.5, $refPriceDef->getPurchaseUnit());
         static::assertSame(1.0, $refPriceDef->getReferenceUnit());
         static::assertSame('kg', $refPriceDef->getUnitName());
+    }
+
+    public function testDataContextHashChangesWithPartsAddedByListeners(): void
+    {
+        $withoutListener = $this->collectDataContextHash(null);
+
+        static::assertNotNull($withoutListener);
+        static::assertNotSame($withoutListener, $this->collectDataContextHash('state-1'));
+        static::assertNotSame($this->collectDataContextHash('state-1'), $this->collectDataContextHash('state-2'));
+        static::assertSame($this->collectDataContextHash('state-1'), $this->collectDataContextHash('state-1'));
+    }
+
+    public function testDataContextHashIsIndependentOfTheOrderPartsAreAdded(): void
+    {
+        $hash = function (array $order): ?string {
+            return $this->collectDataContextHash(static function (ProductCartDataContextHashEvent $event) use ($order): void {
+                foreach ($order as $name) {
+                    $event->addPart($name, $name);
+                }
+            });
+        };
+
+        static::assertSame($hash(['a', 'b']), $hash(['b', 'a']));
+    }
+
+    private static function createGaranProduct(): SalesChannelProductEntity
+    {
+        $product = (new SalesChannelProductEntity())->assign([
+            'id' => 'A',
+            'calculatedPrice' => new EmptyPrice(),
+            'calculatedPrices' => new PriceCollection(),
+            'calculatedMaxPurchase' => 1,
+            'productNumber' => 'A',
+            'stock' => 1,
+            'type' => ProductDefinition::TYPE_PHYSICAL,
+        ]);
+        GaranLabelFixtures::assignLabel($product);
+
+        return $product;
+    }
+
+    /**
+     * Collects a cart whose line item stored {@see GaranLabelFixtures::STORED_LABEL} earlier
+     */
+    private function collectGaranLabel(SalesChannelProductEntity $product, CartBehavior $behavior): LineItem
+    {
+        $lineItem = new LineItem('A', 'product', 'A');
+        $lineItem->setPayloadValue(GaranLabelResolver::PAYLOAD_KEY, GaranLabelFixtures::STORED_LABEL);
+
+        $cart = new Cart('test');
+        $cart->setLineItems(new LineItemCollection([$lineItem]));
+
+        $processor = new ProductCartProcessor(
+            static::createStub(ProductGateway::class),
+            static::createStub(QuantityPriceCalculator::class),
+            static::createStub(ProductFeatureBuilder::class),
+            static::createStub(ProductPriceCalculator::class),
+            static::createStub(EntityCacheKeyGenerator::class),
+            static::createStub(Connection::class),
+            new EventDispatcher(),
+            GaranLabelFixtures::createResolver(),
+        );
+
+        $data = new CartDataCollection();
+        $data->set('product-A', $product);
+
+        $processor->collect($data, $cart, static::createStub(SalesChannelContext::class), $behavior);
+
+        return $lineItem;
+    }
+
+    private function collectDataContextHash(string|\Closure|null $listener): ?string
+    {
+        $dispatcher = new EventDispatcher();
+        if (\is_string($listener)) {
+            $dispatcher->addListener(ProductCartDataContextHashEvent::class, static function (ProductCartDataContextHashEvent $event) use ($listener): void {
+                $event->addPart('plugin', $listener);
+            });
+        } elseif ($listener instanceof \Closure) {
+            $dispatcher->addListener(ProductCartDataContextHashEvent::class, $listener);
+        }
+
+        $lineItem = new LineItem('A', 'product', 'A');
+        $cart = new Cart('test');
+        $cart->setLineItems(new LineItemCollection([$lineItem]));
+
+        $processor = new ProductCartProcessor(
+            static::createStub(ProductGateway::class),
+            static::createStub(QuantityPriceCalculator::class),
+            static::createStub(ProductFeatureBuilder::class),
+            static::createStub(ProductPriceCalculator::class),
+            static::createStub(EntityCacheKeyGenerator::class),
+            static::createStub(Connection::class),
+            $dispatcher,
+            static::createStub(GaranLabelResolver::class),
+        );
+
+        $processor->collect(new CartDataCollection(), $cart, static::createStub(SalesChannelContext::class), new CartBehavior());
+
+        return $lineItem->getDataContextHash();
     }
 }

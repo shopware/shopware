@@ -84,7 +84,7 @@ export default class ViewCartEvent extends AnalyticsEvent
 
         const additionalProperties = LineItemHelper.getAdditionalProperties();
 
-        gtag('event', 'view_cart', {
+        this.pushEvent('view_cart', {
             'currency': additionalProperties.currency,
             'value': additionalProperties.value,
             'items': lineItems,

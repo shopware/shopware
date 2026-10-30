@@ -145,7 +145,7 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
 
         // advance the timer to make the warning disappear
         jest.advanceTimersByTime(1001);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-alert').exists()).toBe(false);
     });

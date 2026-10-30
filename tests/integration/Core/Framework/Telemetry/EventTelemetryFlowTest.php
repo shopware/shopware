@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfig;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Metric;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Telemetry\Metrics\Subscriber\TelemetryFlushListener;
@@ -79,7 +78,7 @@ class EventTelemetryFlowTest extends TestCase
             'enabled' => true,
         ]);
         static::assertEquals(
-            Metric::fromConfigured(new ConfiguredMetric('cache.invalidate.count', 1), $metricConfig, []),
+            Metric::fromConfig($metricConfig, [], 1),
             $this->getEmittedMetricByName('cache.invalidate.count')
         );
     }
@@ -99,7 +98,7 @@ class EventTelemetryFlowTest extends TestCase
         // search triggers EntitySearchedEvent, event is configured via attribute
         $userRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertEquals(
-            Metric::fromConfigured(new ConfiguredMetric('dal.associations.count', 2), $metricConfig, []),
+            Metric::fromConfig($metricConfig, [], 2),
             $this->getEmittedMetricByName('dal.associations.count')
         );
     }

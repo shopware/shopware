@@ -40,7 +40,10 @@ class TelemetryFlushListener implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::TERMINATE => 'flush',
+            // After every terminate listener that still emits metrics (e.g. buffered flow execution) but before
+            // the dev profiler (-1024); without this, a worker runtime could flush the metrics of request/message N
+            // only with request N+1.
+            KernelEvents::TERMINATE => ['flush', -1000],
             ConsoleEvents::TERMINATE => 'flush',
             WorkerRunningEvent::class => 'flushIfStale',
         ];

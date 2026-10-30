@@ -8,6 +8,7 @@
 
 import { transformRanges } from './transform-ranges';
 import { render } from './render-chunks';
+import { ShopwareSetupInternalError } from '../utils/transform-error';
 
 function block(content: string) {
     return { contentStart: 0, content };
@@ -36,9 +37,10 @@ describe('build/vue-setup-transform source-edits/transform-ranges', () => {
 
     it('throws a named analyzer-bug error when a range straddles a removal boundary', () => {
         const content = 'abcdefghij';
+        const straddle = () =>
+            transformRanges(block(content), [{ start: 0, end: 5 }], [{ start: 3, end: 8, replacement: 'X' }]);
 
-        expect(() =>
-            transformRanges(block(content), [{ start: 0, end: 5 }], [{ start: 3, end: 8, replacement: 'X' }]),
-        ).toThrow('Partially overlapping Shopware setup source edits');
+        expect(straddle).toThrow('Partially overlapping Shopware setup source edits');
+        expect(straddle).toThrow(ShopwareSetupInternalError);
     });
 });

@@ -36,6 +36,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     {
         $this->validateType($element);
 
+        // @phpstan-ignore assign.propertyType (Appending uses integer keys; Subclasses may use string keys, too)
         $this->elements[] = $element;
     }
 
@@ -48,6 +49,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         $this->validateType($element);
 
         if ($key === null) {
+            // @phpstan-ignore assign.propertyType (Appending uses integer keys; Subclasses may use string keys, too)
             $this->elements[] = $element;
         } else {
             $this->elements[$key] = $element;

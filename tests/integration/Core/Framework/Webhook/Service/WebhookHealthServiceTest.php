@@ -4,13 +4,12 @@ namespace Shopware\Tests\Integration\Core\Framework\Webhook\Service;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
+use Shopware\Core\Test\Integration\Builder\Webhook\WebhookBuilder;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -36,7 +35,10 @@ class WebhookHealthServiceTest extends TestCase
 
     public function testRecordTerminalFailureIncrementsBelowThreshold(): void
     {
-        $this->insertWebhook('wh-1', errorCount: 0);
+        WebhookBuilder::withoutOwner()
+            ->id($this->ids->get('wh-1'))
+            ->errorCount(0)
+            ->insert($this->connection);
 
         $this->service->recordFailure($this->ids->get('wh-1'), WebhookFailureStrategy::DisableOnThreshold);
 
@@ -46,7 +48,10 @@ class WebhookHealthServiceTest extends TestCase
 
     public function testRecordTerminalFailureDeactivatesAtThreshold(): void
     {
-        $this->insertWebhook('wh-1', errorCount: WebhookFailureStrategy::MAX_ERROR_COUNT - 1);
+        WebhookBuilder::withoutOwner()
+            ->id($this->ids->get('wh-1'))
+            ->errorCount(WebhookFailureStrategy::MAX_ERROR_COUNT - 1)
+            ->insert($this->connection);
 
         $this->service->recordFailure($this->ids->get('wh-1'), WebhookFailureStrategy::DisableOnThreshold);
 
@@ -56,7 +61,11 @@ class WebhookHealthServiceTest extends TestCase
 
     public function testRecordTerminalFailureIsNoOpOnInactiveWebhook(): void
     {
-        $this->insertWebhook('wh-1', errorCount: 3, active: false);
+        WebhookBuilder::withoutOwner()
+            ->id($this->ids->get('wh-1'))
+            ->inactive()
+            ->errorCount(3)
+            ->insert($this->connection);
 
         $this->service->recordFailure($this->ids->get('wh-1'), WebhookFailureStrategy::DisableOnThreshold);
 
@@ -73,7 +82,10 @@ class WebhookHealthServiceTest extends TestCase
 
     public function testRecordTerminalFailureKeepsActiveUnderIgnoreStrategy(): void
     {
-        $this->insertWebhook('wh-1', errorCount: WebhookFailureStrategy::MAX_ERROR_COUNT + 5);
+        WebhookBuilder::withoutOwner()
+            ->id($this->ids->get('wh-1'))
+            ->errorCount(WebhookFailureStrategy::MAX_ERROR_COUNT + 5)
+            ->insert($this->connection);
 
         $this->service->recordFailure($this->ids->get('wh-1'), WebhookFailureStrategy::Ignore);
 
@@ -83,24 +95,14 @@ class WebhookHealthServiceTest extends TestCase
 
     public function testResetErrorCount(): void
     {
-        $this->insertWebhook('wh-1', errorCount: 5);
+        WebhookBuilder::withoutOwner()
+            ->id($this->ids->get('wh-1'))
+            ->errorCount(5)
+            ->insert($this->connection);
 
         $this->service->resetErrorCount($this->ids->get('wh-1'));
 
         static::assertSame(0, $this->fetchErrorCount('wh-1'));
-    }
-
-    private function insertWebhook(string $key, int $errorCount = 0, bool $active = true): void
-    {
-        $this->connection->insert('webhook', [
-            'id' => $this->ids->getBytes($key),
-            'name' => $key,
-            'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
-            'url' => 'https://test.com',
-            'error_count' => $errorCount,
-            'active' => (int) $active,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
     }
 
     private function fetchErrorCount(string $key): int

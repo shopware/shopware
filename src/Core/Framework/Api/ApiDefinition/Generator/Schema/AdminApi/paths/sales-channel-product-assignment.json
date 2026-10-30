@@ -1,0 +1,131 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": {
+        "/_action/sales-channel/{salesChannelId}/product-assignment": {
+            "post": {
+                "tags": [
+                    "Sales Channel"
+                ],
+                "summary": "Assign products to a sales channel",
+                "description": "Makes products visible in a sales channel. Products can be given explicitly by id, through dynamic product groups or through categories. The matching products are resolved on the server, so the number of products is not limited by the API search limit. Products that are already visible in the sales channel are skipped. Categories only contribute main products, dynamic product groups contribute every matching product including variants. A single call writes a bounded number of products and reports `complete: false` when products are left. Repeat the same request until `complete` is `true`, every call continues with the products that are not visible yet.",
+                "operationId": "assignSalesChannelProducts",
+                "parameters": [
+                    {
+                        "name": "salesChannelId",
+                        "in": "path",
+                        "description": "Identifier of the sales channel the products are assigned to.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Sources of the products to assign. At least one list should be given, an empty request assigns nothing.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SalesChannelProductAssignmentRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The products were assigned.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SalesChannelProductAssignmentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Missing privileges. The route requires `product_visibility:create` and `product:read`, plus `product_stream:read` for `productStreamIds` and `category:read` for `categoryIds`."
+                    },
+                    "404": {
+                        "description": "The sales channel or a dynamic product group was not found.",
+                        "$ref": "#/components/responses/404"
+                    },
+                    "422": {
+                        "description": "Validation error. An id is not a UUID, a list exceeds its `maxItems` or `visibility` is not one of `10`, `20` and `30`.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "SalesChannelProductAssignmentRequest": {
+                "type": "object",
+                "properties": {
+                    "productIds": {
+                        "description": "Identifiers of products to assign.",
+                        "type": "array",
+                        "maxItems": 1000,
+                        "items": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    "productStreamIds": {
+                        "description": "Identifiers of dynamic product groups whose current products are assigned. The assignment is a snapshot, later changes to the group do not affect it.",
+                        "type": "array",
+                        "maxItems": 25,
+                        "items": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    "categoryIds": {
+                        "description": "Identifiers of categories whose main products are assigned. The assignment is a snapshot, later changes to the category do not affect it.",
+                        "type": "array",
+                        "maxItems": 50,
+                        "items": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    "visibility": {
+                        "description": "Visibility of the assigned products in the sales channel. `10` hides them in listings and search, `20` hides them in listings, `30` shows them everywhere.",
+                        "type": "integer",
+                        "enum": [
+                            10,
+                            20,
+                            30
+                        ],
+                        "default": 30
+                    }
+                }
+            },
+            "SalesChannelProductAssignmentResponse": {
+                "type": "object",
+                "required": [
+                    "assigned",
+                    "complete"
+                ],
+                "properties": {
+                    "assigned": {
+                        "description": "Number of products that received a new visibility in this call. Products that were already visible in the sales channel are not counted.",
+                        "type": "integer"
+                    },
+                    "complete": {
+                        "description": "`true` when every matching product is visible now. `false` when the call stopped at its page budget, repeat the same request to continue.",
+                        "type": "boolean"
+                    }
+                }
+            }
+        }
+    }
+}

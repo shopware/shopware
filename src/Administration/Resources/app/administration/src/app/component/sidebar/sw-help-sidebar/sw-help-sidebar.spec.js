@@ -73,7 +73,7 @@ describe('src/app/asyncComponent/sidebar/sw-help-sidebar', () => {
         expect(wrapper.find('.sw-help-sidebar').exists()).toBeTruthy();
 
         Shopware.Store.get('adminHelpCenter').showHelpSidebar = false;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-help-sidebar').exists()).toBeFalsy();
     });

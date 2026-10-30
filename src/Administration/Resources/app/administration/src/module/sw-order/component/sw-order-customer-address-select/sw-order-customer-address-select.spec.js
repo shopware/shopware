@@ -188,7 +188,6 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         jest.advanceTimersByTime(100);
 
         await flushPromises();
-        await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.customerAddresses.map((address) => address.id)).toEqual(['1', '2']);
     });
@@ -228,7 +227,6 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         jest.advanceTimersByTime(100);
 
         await flushPromises();
-        await wrapper.vm.$nextTick();
 
         const resultItems = singleSelect.findAll('.sw-select-result');
 
@@ -252,7 +250,6 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         jest.advanceTimersByTime(100);
 
         await flushPromises();
-        await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.customerAddresses.map((address) => address.id)).toEqual(['1']);
     });
@@ -295,7 +292,6 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         jest.advanceTimersByTime(100);
 
         await flushPromises();
-        await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.customerAddresses.map((address) => address.id)).toEqual(['30', '26']);
 
@@ -317,5 +313,17 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         });
 
         expect(spyGetCustomerAddresses).toHaveBeenCalledTimes(1);
+    });
+
+    it('should pass the selected address to the parent once', async () => {
+        const onUpdateValue = jest.fn();
+        const wrapper = await createWrapper({ props: { 'onUpdate:value': onUpdateValue } });
+        await flushPromises();
+
+        await wrapper.get('.sw-select__selection').trigger('click');
+        await wrapper.findAll('.sw-select-result').at(1).trigger('click');
+
+        expect(onUpdateValue).toHaveBeenCalledTimes(1);
+        expect(onUpdateValue).toHaveBeenCalledWith('2');
     });
 });

@@ -1,3 +1,5 @@
+import { isFeatureActive } from '../dependencies';
+
 /**
  * @sw-package checkout
  */
@@ -21,7 +23,7 @@ export type OrderWithDeliveries = {
  * const state = getPrimaryDelivery(order)?.stateMachineState;
  */
 export function getPrimaryDelivery(order: OrderWithDeliveries): OrderDelivery | null {
-    if (!Shopware.Feature.isActive('v6.8.0.0')) {
+    if (!isFeatureActive('v6.8.0.0')) {
         return order.primaryOrderDelivery ?? order.deliveries?.[0] ?? null;
     }
 

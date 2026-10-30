@@ -212,6 +212,36 @@ class ThumbnailServiceTest extends TestCase
         static::assertSame(1, $actual);
     }
 
+    public function testGenerateSkipsExternalMediaWithoutTouchingTheFilesystem(): void
+    {
+        $this->filesystemPublic->expects($this->never())->method('read');
+
+        $mediaThumbnailEntity = $this->createMediaThumbnailEntity();
+        $mediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $this->createMediaFolderEntity());
+        $mediaEntity->setPath('https://cdn.example.com/../../document/invoice.png');
+
+        $result = $this->thumbnailService->generate(new MediaCollection([$mediaEntity]), $this->context);
+
+        static::assertSame(0, $result);
+        static::assertSame([], $this->thumbnailRepository->deletes);
+    }
+
+    public function testUpdateThumbnailsSkipsExternalMediaWithoutTouchingTheFilesystem(): void
+    {
+        $this->filesystemPublic->expects($this->never())->method('read');
+        $this->filesystemPublic->expects($this->never())->method('fileExists');
+        $this->connection->expects($this->never())->method('transactional');
+
+        $mediaThumbnailEntity = $this->createMediaThumbnailEntity();
+        $mediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $this->createMediaFolderEntity());
+        $mediaEntity->setPath('https://cdn.example.com/../../document/invoice.png');
+
+        $result = $this->thumbnailService->updateThumbnails($mediaEntity, $this->context, true);
+
+        static::assertSame(0, $result);
+        static::assertSame([], $this->thumbnailRepository->deletes);
+    }
+
     public function testDeleteThumbnailsExecutesRepository(): void
     {
         $expected = [

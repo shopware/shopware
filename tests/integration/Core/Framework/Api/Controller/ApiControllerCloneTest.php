@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Log\Package;
@@ -109,7 +111,6 @@ class ApiControllerCloneTest extends TestCase
 
         $browser->jsonRequest('POST', '/api/_action/clone/media/' . Uuid::fromBytesToHex($mediaId), [
             'overwrites' => [
-                'fileName' => 'cloned-media',
                 'fileSize' => 1,
             ],
             'cloneChildren' => false,
@@ -117,6 +118,151 @@ class ApiControllerCloneTest extends TestCase
 
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString('write-protected', (string) $response->getContent());
+    }
+
+    public function testCloneAllowsOverwritingFieldsOfTheClonedEntity(): void
+    {
+        $productId = $this->createProduct();
+        $productNumber = Uuid::randomHex();
+
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
+            'overwrites' => [
+                'productNumber' => $productNumber,
+                'name' => 'cloned product',
+                'active' => false,
+            ],
+            'cloneChildren' => false,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $connection = $this->getBrowser()->getContainer()->get(Connection::class);
+        static::assertSame('1', (string) $connection->fetchOne('SELECT COUNT(*) FROM product WHERE product_number = :number', ['number' => $productNumber]));
+    }
+
+    /**
+     * @param callable(string): array<string, mixed> $nestedMediaOverwrite
+     */
+    #[DataProvider('nestedMediaOverwriteProvider')]
+    public function testCloneDoesNotAllowNestedMediaWithRelativePath(callable $nestedMediaOverwrite): void
+    {
+        $browser = $this->getBrowser();
+        $productId = $this->createProduct();
+        $connection = $browser->getContainer()->get(Connection::class);
+
+        $mediaId = Uuid::randomHex();
+        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
+            'overwrites' => ['productNumber' => Uuid::randomHex(), ...$nestedMediaOverwrite($mediaId)],
+            'cloneChildren' => false,
+        ]);
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString(ApiException::API_INVALID_CLONE_OVERWRITE, (string) $response->getContent());
+        static::assertFalse($connection->fetchOne('SELECT 1 FROM media WHERE id = :id', ['id' => Uuid::fromHexToBytes($mediaId)]));
+    }
+
+    public static function nestedMediaOverwriteProvider(): \Generator
+    {
+        $media = static fn (string $mediaId): array => ['id' => $mediaId, 'fileName' => 'nested', 'fileExtension' => 'png', 'path' => 'media/nested.png'];
+
+        yield 'association' => [static fn (string $mediaId): array => ['media' => [['media' => $media($mediaId)]]]];
+        yield 'association inside extensions, which the writer merges into the root payload' => [
+            static fn (string $mediaId): array => ['extensions' => ['media' => [['media' => $media($mediaId)]]]],
+        ];
+    }
+
+    public function testCloneDoesNotResetPathOfExistingNestedMedia(): void
+    {
+        $browser = $this->getBrowser();
+        $productId = $this->createProduct();
+        $connection = $browser->getContainer()->get(Connection::class);
+
+        $mediaId = Uuid::randomHex();
+        $browser->getContainer()->get('media.repository')->create([[
+            'id' => $mediaId,
+            'fileName' => 'existing',
+            'fileExtension' => 'png',
+            'mimeType' => 'image/png',
+            'path' => 'media/ab/cd/existing.png',
+        ]], Context::createDefaultContext());
+
+        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $productId, [
+            'overwrites' => [
+                'productNumber' => Uuid::randomHex(),
+                'media' => [['media' => ['id' => $mediaId, 'path' => null]]],
+            ],
+            'cloneChildren' => false,
+        ]);
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame('media/ab/cd/existing.png', $connection->fetchOne('SELECT path FROM media WHERE id = :id', ['id' => Uuid::fromHexToBytes($mediaId)]));
+    }
+
+    public function testCloneAllowsSkippingAssociationWithNull(): void
+    {
+        $browser = $this->getBrowser();
+        $promotionId = Uuid::randomHex();
+        $browser->getContainer()->get('promotion.repository')->create([[
+            'id' => $promotionId,
+            'name' => 'promotion with individual codes',
+            'active' => true,
+            'priority' => 1,
+            'exclusive' => false,
+            'useCodes' => true,
+            'useIndividualCodes' => true,
+            'useSetGroups' => false,
+            'preventCombination' => false,
+            'individualCodes' => [['code' => 'code-' . Uuid::randomHex()]],
+        ]], Context::createDefaultContext());
+
+        $connection = $browser->getContainer()->get(Connection::class);
+        TestUser::createNewTestUser($connection, ['promotion:read', 'promotion:create'])->authorizeBrowser($browser);
+
+        $browser->jsonRequest('POST', '/api/_action/clone/promotion/' . $promotionId, [
+            'overwrites' => [
+                'name' => 'promotion copy',
+                'code' => null,
+                'useCodes' => false,
+                'useIndividualCodes' => false,
+                'individualCodePattern' => '',
+                'individualCodes' => null,
+                'active' => false,
+            ],
+        ]);
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $cloneId = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['id'];
+        static::assertSame('0', (string) $connection->fetchOne(
+            'SELECT COUNT(*) FROM promotion_individual_code WHERE promotion_id = :id',
+            ['id' => Uuid::fromHexToBytes($cloneId)]
+        ));
+    }
+
+    public function testRepositoryCloneOutsideTheEndpointKeepsAcceptingAssociationOverwrites(): void
+    {
+        $productId = $this->createProduct();
+        $cloneId = Uuid::randomHex();
+        $tagName = 'tag-' . Uuid::randomHex();
+        $repository = $this->getBrowser()->getContainer()->get('product.repository');
+
+        Context::createDefaultContext()->scope(Context::CRUD_API_SCOPE, static function (Context $context) use ($repository, $productId, $cloneId, $tagName): void {
+            $repository->clone($productId, $context, $cloneId, new CloneBehavior([
+                'productNumber' => Uuid::randomHex(),
+                'tags' => [['name' => $tagName]],
+            ], false));
+        });
+
+        $connection = $this->getBrowser()->getContainer()->get(Connection::class);
+        static::assertSame('1', (string) $connection->fetchOne(
+            'SELECT COUNT(*) FROM product_tag INNER JOIN tag ON tag.id = product_tag.tag_id WHERE product_tag.product_id = :id AND tag.name = :name',
+            ['id' => Uuid::fromHexToBytes($cloneId), 'name' => $tagName]
+        ));
     }
 
     public function testCloneCannotUpdateSharedTaxWithoutPermission(): void
@@ -448,6 +594,25 @@ class ApiControllerCloneTest extends TestCase
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
         static::assertSame($countBefore, (int) $connection->fetchOne('SELECT COUNT(*) FROM integration'));
+    }
+
+    private function createProduct(): string
+    {
+        $productId = Uuid::randomHex();
+
+        $this->getBrowser()->jsonRequest('POST', '/api/product', [
+            'id' => $productId,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'name' => 'clone source',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
+
+        return $productId;
     }
 
     /**

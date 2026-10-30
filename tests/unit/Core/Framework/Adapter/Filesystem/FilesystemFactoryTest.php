@@ -2,14 +2,21 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem;
 
+use League\Flysystem\Filesystem as LeagueFilesystem;
+use League\Flysystem\FilesystemAdapter;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use League\Flysystem\UnableToGeneratePublicUrl;
 use League\Flysystem\Visibility;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
+use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\LocalFactory;
 use Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -96,6 +103,71 @@ class FilesystemFactoryTest extends TestCase
         static::assertSame(0666, $this->getPermissions($file));
     }
 
+    public function testPublicUrlFollowsTheCurrentRequestWithoutConfiguredUrl(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('https://first.example'));
+
+        $filesystem = (new FilesystemFactory([new LocalFactory()], $requestStack))->factory([
+            'type' => 'local',
+            'config' => ['root' => __DIR__],
+        ]);
+
+        static::assertSame('https://first.example/media/a.jpg', $filesystem->publicUrl('media/a.jpg'));
+
+        $requestStack->pop();
+        $requestStack->push(Request::create('https://second.example'));
+
+        static::assertSame('https://second.example/media/a.jpg', $filesystem->publicUrl('media/a.jpg'));
+    }
+
+    public function testPublicUrlKeepsTheConfiguredUrl(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('https://first.example'));
+
+        $filesystem = (new FilesystemFactory([new LocalFactory()], $requestStack))->factory([
+            'type' => 'local',
+            'url' => 'https://cdn.example',
+            'config' => ['root' => __DIR__],
+        ]);
+
+        $requestStack->pop();
+        $requestStack->push(Request::create('https://second.example'));
+
+        static::assertSame('https://cdn.example/media/a.jpg', $filesystem->publicUrl('media/a.jpg'));
+    }
+
+    public function testPublicUrlFollowsTheCurrentRequestForAdapterFactories(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('https://first.example'));
+
+        $filesystem = (new FilesystemFactory([new InMemoryAdapterFactory()], $requestStack))->factory([
+            'type' => 'memory',
+        ]);
+
+        $requestStack->pop();
+        $requestStack->push(Request::create('https://second.example'));
+
+        static::assertInstanceOf(LeagueFilesystem::class, $filesystem);
+        static::assertSame('https://second.example/media/a.jpg', $filesystem->publicUrl('media/a.jpg'));
+    }
+
+    public function testPrivateFilesystemHasNoPublicUrl(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('https://first.example'));
+
+        $filesystem = (new FilesystemFactory([new LocalFactory()], $requestStack))->privateFactory([
+            'type' => 'local',
+            'config' => ['root' => __DIR__],
+        ]);
+
+        $this->expectException(UnableToGeneratePublicUrl::class);
+        $filesystem->publicUrl('media/a.jpg');
+    }
+
     public function testCreateUnknown(): void
     {
         $factory = new FilesystemFactory([new LocalFactory()]);
@@ -118,5 +190,21 @@ class FilesystemFactoryTest extends TestCase
         clearstatcache(true, $file);
 
         return fileperms($file) & 0777;
+    }
+}
+
+/**
+ * @internal
+ */
+class InMemoryAdapterFactory implements AdapterFactoryInterface
+{
+    public function create(array $config): FilesystemAdapter
+    {
+        return new InMemoryFilesystemAdapter();
+    }
+
+    public function getType(): string
+    {
+        return 'memory';
     }
 }

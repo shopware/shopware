@@ -8,6 +8,7 @@ use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\Local\LocalFilesystemAdapter;
 use League\Flysystem\UnixVisibility\PortableVisibilityConverter;
+use League\Flysystem\UrlGeneration\PublicUrlGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -28,6 +29,19 @@ class LocalFactory implements FilesystemOperatorFactoryInterface
      */
     public function createFilesystem(array $config, array $filesystemOptions): FilesystemOperator
     {
+        return $this->createFilesystemWithPublicUrlGenerator($config, $filesystemOptions, null);
+    }
+
+    /**
+     * A given public URL generator takes precedence over the `public_url` filesystem option.
+     *
+     * @internal
+     *
+     * @param array<string, mixed> $config
+     * @param array<string, mixed> $filesystemOptions
+     */
+    public function createFilesystemWithPublicUrlGenerator(array $config, array $filesystemOptions, ?PublicUrlGenerator $publicUrlGenerator): FilesystemOperator
+    {
         $options = $this->resolveOptions($config);
 
         if (!$options['enforce_file_permissions']) {
@@ -36,7 +50,7 @@ class LocalFactory implements FilesystemOperatorFactoryInterface
             $filesystemOptions[Config::OPTION_RETAIN_VISIBILITY] = false;
         }
 
-        return new LeagueFilesystem($this->createAdapter($options), $filesystemOptions);
+        return new LeagueFilesystem($this->createAdapter($options), $filesystemOptions, publicUrlGenerator: $publicUrlGenerator);
     }
 
     public function getType(): string

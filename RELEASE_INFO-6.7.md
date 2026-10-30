@@ -497,6 +497,16 @@ Shopware now verifies that `APP_URL` reaches this installation before it registe
 
 The verification stores its token in the `cache.app_url_verification` cache pool, which uses `cache.app` by default. With several app servers, this pool must be shared between them, for example on Redis.
 
+### Asset and media URLs follow the current request in long-running workers
+
+When no asset or filesystem URL is configured, Shopware builds asset and media URLs from the current request.
+Long-running workers such as FrankenPHP kept the host of the first request, so a second domain received URLs of the first one.
+Storefront, theme, bundle and Administration assets as well as media URLs now use the host of each request.
+Configured URLs, for example a CDN, are unchanged.
+
+A filesystem created by a custom `FilesystemOperatorFactoryInterface` implementation still keeps the URL of the first request when it has no configured `url`.
+Configure a `url` for such filesystems if the shop serves several domains from one worker.
+
 # 6.7.16.0
 
 ## Critical Fixes

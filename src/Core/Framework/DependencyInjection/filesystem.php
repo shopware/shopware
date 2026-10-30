@@ -26,6 +26,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(FilesystemFactory::class)
         ->args([
             tagged_iterator('shopware.filesystem.factory'),
+            service('request_stack')->nullOnInvalid(),
         ]);
 
     $services->set('shopware.filesystem.public', FilesystemOperator::class)

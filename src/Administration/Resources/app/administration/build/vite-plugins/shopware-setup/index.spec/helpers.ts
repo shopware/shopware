@@ -15,8 +15,8 @@ import shopwareSetupPlugin from '../index';
  * Vite types every hook as an optional `ObjectHook` - a union of function and `{ handler }` - so hooks
  * are not directly callable through `Plugin`. Narrowing once here keeps the assertion out of each test.
  */
-type LoadedModule = { code: string; map: SourceMap };
-type HotUpdateModule = { id: string };
+type LoadedModule = { code: string; map: SourceMap; meta?: { shopwareSetupHmr?: { version: string } } };
+type HotUpdateModule = { id: string; url?: string; importers?: Set<HotUpdateModule> };
 type HotUpdateOptions = {
     file: string;
     modules: HotUpdateModule[];
@@ -26,11 +26,12 @@ type HotUpdateOptions = {
 type CallableSetupPlugin = {
     name: string;
     enforce: string;
-    resolveId(source: string, importer: string): Promise<string | null>;
+    resolveId(source: string, importer: string, options?: { scan?: boolean }): Promise<string | null>;
     load(id: string): Promise<LoadedModule | null>;
     transform(code: string, id: string): Promise<LoadedModule | null>;
     hotUpdate(options: HotUpdateOptions): Promise<HotUpdateModule[] | undefined>;
     watchChange(id: string, change: { event: 'create' | 'delete' | 'update' }): void;
+    configResolved(config: { command: string; build: { sourcemap: boolean } }): void;
     generateBundle: unknown;
 };
 
@@ -38,7 +39,7 @@ const pluginOptions = {
     administrationRoot: process.cwd(),
 };
 
-function createPlugin(options: { administrationRoot: string } = pluginOptions): CallableSetupPlugin {
+function createPlugin(options: { administrationRoot: string; scriptHmr?: boolean } = pluginOptions): CallableSetupPlugin {
     return shopwareSetupPlugin(options) as unknown as CallableSetupPlugin;
 }
 

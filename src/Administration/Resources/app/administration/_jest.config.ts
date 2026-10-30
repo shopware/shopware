@@ -123,6 +123,7 @@ const config: Config = {
         // Exception in the build dir for vite plugins
         'build/vite-plugins/**/*.ts',
         '!build/vite-plugins/**/*.spec.ts',
+        '!build/vite-plugins/**/*.spec/**',
         'build/vue-setup-transform/**/*.ts',
         '!build/vue-setup-transform/**/*.spec.ts',
         '!build/vue-setup-transform/**/index.spec/**',

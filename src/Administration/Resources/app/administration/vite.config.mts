@@ -20,10 +20,12 @@ import AssetPathPlugin from './build/vite-plugins/asset-path-plugin';
 import ImageDeprecationPlugin from './build/vite-plugins/image-deprecation';
 import AssetCssPostprocessPlugin from './build/vite-plugins/asset-css-postprocess-plugin';
 import ShopwareSetupPlugin from './build/vite-plugins/shopware-setup';
+import ShopwareSetupHmrPlugin from './build/vite-plugins/shopware-setup-hmr';
 import VirtualShopwareModulesPlugin from './build/vite-plugins/virtual-shopware-modules';
 import NodeEnvDefinePlugin from './build/vite-plugins/node-env-define';
 import AdminIndexHtmlPlugin from './build/vite-plugins/admin-index-html';
 import ExtglobCompatPlugin from './build/vite-plugins/extglob-compat';
+import ExtensionDevServerPlugin from './build/vite-plugins/extension-dev-server';
 import { isBundledDevActive, loadViteToolchain } from './build/vite-plugins/vite-toolchain';
 
 console.log(colors.yellow('# Compiling Administration with Vite configuration'));
@@ -57,6 +59,7 @@ export default (async ({ command }) => {
         (isProd && process.env.GENERATE_SOURCEMAPS === 'true');
     const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1' && !isInsideDockerContainer();
     const useBundledDev = isBundledDevActive(isDev);
+    const useBundledExtensions = useBundledDev && process.env.SHOPWARE_ADMIN_BUNDLED_DEV === '1';
 
     if (isProd) {
         console.log(colors.yellow('# Production mode activated 🚀'));
@@ -67,7 +70,7 @@ export default (async ({ command }) => {
     }
 
     if (useBundledDev) {
-        console.log(colors.yellow('# Experimental bundled dev mode activated'));
+        console.log(colors.yellow('# Experimental bundled dev mode activated for the Administration'));
     }
 
     // We only load extensions here to display the successful injection
@@ -118,8 +121,10 @@ export default (async ({ command }) => {
                 AssetPathPlugin(),
                 ImageDeprecationPlugin(__dirname),
                 AssetCssPostprocessPlugin('/bundles/administration/administration/assets/'),
+                ...(toolchain.isVite8 && isDev ? [ShopwareSetupHmrPlugin()] : []),
                 ShopwareSetupPlugin({
                     administrationRoot: __dirname,
+                    scriptHmr: toolchain.isVite8 && isDev && !useBundledDev,
                 }),
                 VirtualShopwareModulesPlugin({
                     administrationRoot: __dirname,
@@ -153,6 +158,8 @@ export default (async ({ command }) => {
                 // dev plugins
                 return [
                     ...sharedPlugins,
+
+                    ...(toolchain.isVite8 ? [ExtensionDevServerPlugin(toolchain, extensions, useBundledExtensions)] : []),
 
                     ...(useBundledDev ? [NodeEnvDefinePlugin()] : []),
 

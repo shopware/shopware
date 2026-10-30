@@ -827,6 +827,7 @@ export default [
             ],
             'sw-test-rules/no-vm-access': 'error',
             'sw-test-rules/require-test-origin': 'error',
+            'sw-test-rules/arrange-act-assert': 'error',
         },
     },
 

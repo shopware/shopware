@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Webhook\Authorization;
 use Shopware\Core\Framework\Api\Acl\AclRoleLoader;
 use Shopware\Core\Framework\Api\Acl\AclRoles;
 use Shopware\Core\Framework\Api\Acl\ApiCaller;
+use Shopware\Core\Framework\Api\Acl\IdentityType;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
@@ -17,7 +18,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Authorization\Subscription\Subscriber;
-use Shopware\Core\Framework\Webhook\Authorization\Subscription\SubscriberType;
 use Shopware\Core\Framework\Webhook\Authorization\Subscription\SubscriptionValidator;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -190,7 +190,10 @@ class WriteAuthorizer
      */
     private function resolveRoles(array $rows, array $written): array
     {
-        $ownerRoles = $this->loadOwnerRoles($written);
+        $owners = $this->aclRoleLoader->getRoles(
+            $this->ownerIdsOf($written, IdentityType::User),
+            $this->ownerIdsOf($written, IdentityType::Integration),
+        );
         $listedRoleIds = array_merge(...array_map(
             static fn (WebhookSubscription $webhook): array => $webhook->aclRoleIds ?? [],
             array_values($written)
@@ -200,7 +203,7 @@ class WriteAuthorizer
         $webhookRoles = [];
         $violations = [];
         foreach ($written as $webhookId => $webhook) {
-            $roles = $ownerRoles[$webhookId] ?? null;
+            $roles = $owners->rolesFor($webhook->ownerId, $webhook->ownerType);
             if ($roles === null) {
                 continue;
             }
@@ -226,29 +229,9 @@ class WriteAuthorizer
     /**
      * @param array<string, WebhookSubscription> $written keyed by webhook id
      *
-     * @return array<string, AclRoles> each webhook's owner roles, keyed by webhook id
-     */
-    private function loadOwnerRoles(array $written): array
-    {
-        $userRoles = $this->aclRoleLoader->getUserRoles($this->ownerIdsOf($written, SubscriberType::User));
-        $integrationRoles = $this->aclRoleLoader->getIntegrationRoles($this->ownerIdsOf($written, SubscriberType::Integration));
-
-        $roles = [];
-        foreach ($written as $webhookId => $webhook) {
-            $roles[$webhookId] = $webhook->ownerType === SubscriberType::User
-                ? $userRoles[$webhook->ownerId] ?? null
-                : $integrationRoles[$webhook->ownerId] ?? null;
-        }
-
-        return array_filter($roles);
-    }
-
-    /**
-     * @param array<string, WebhookSubscription> $written keyed by webhook id
-     *
      * @return list<string>
      */
-    private function ownerIdsOf(array $written, SubscriberType $type): array
+    private function ownerIdsOf(array $written, IdentityType $type): array
     {
         return array_column(
             array_filter($written, static fn (WebhookSubscription $webhook): bool => $webhook->ownerType === $type),

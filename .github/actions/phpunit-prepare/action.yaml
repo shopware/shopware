@@ -4,7 +4,7 @@ author: "shopware AG"
 
 inputs:
   php-version:
-    default: "8.2"
+    default: "8.6"
     description: PHP version to set up
   mysql-version:
     default: "skip"

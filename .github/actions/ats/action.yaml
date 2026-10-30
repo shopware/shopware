@@ -26,7 +26,7 @@ inputs:
     required: false
     description: "Mark this run as the major variant for artifact and Currents naming"
   php-version:
-    default: "8.4"
+    default: "8.6"
     required: false
     description: php version
   extra-options:

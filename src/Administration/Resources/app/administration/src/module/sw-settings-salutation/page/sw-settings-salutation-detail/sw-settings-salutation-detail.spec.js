@@ -4,7 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], { repository = null, props = {}, router = null } = {}) {
     return mount(
         await wrapTestComponent('sw-settings-salutation-detail', {
             sync: true,
@@ -12,62 +12,65 @@ async function createWrapper(privileges = []) {
         {
             props: {
                 salutationId: '1',
+                ...props,
             },
 
             global: {
+                mocks: router ? { $router: router } : {},
                 provide: {
                     repositoryFactory: {
-                        create: () => ({
-                            create: () => {
-                                return {
-                                    apiAlias: null,
-                                    createdAt: '2020-08-25T10:23:24.051+00:00',
-                                    displayName: 'Mr.',
-                                    letterName: 'Dear Mr.',
-                                    salutationKey: 'mr-edit',
-                                    translated: {
+                        create: () =>
+                            repository ?? {
+                                create: () => {
+                                    return {
+                                        apiAlias: null,
+                                        createdAt: '2020-08-25T10:23:24.051+00:00',
                                         displayName: 'Mr.',
                                         letterName: 'Dear Mr.',
-                                    },
-                                    updatedAt: '2020-08-27T04:59:39.428+00:00',
-                                    isNew: () => true,
-                                };
-                            },
-                            get: (id) => {
-                                const salutations = [
-                                    {
-                                        id: '1',
-                                        type: 'salutation',
-                                        attributes: {
-                                            apiAlias: null,
-                                            createdAt: '2020-08-25T10:23:24.051+00:00',
+                                        salutationKey: 'mr-edit',
+                                        translated: {
                                             displayName: 'Mr.',
                                             letterName: 'Dear Mr.',
-                                            salutationKey: 'mr-edit',
                                         },
-                                        isNew: () => false,
-                                    },
-                                    {
-                                        id: '2',
-                                        type: 'salutation',
-                                        attributes: {
-                                            apiAlias: null,
-                                            createdAt: '2020-08-25T10:23:24.051+00:00',
-                                            displayName: 'Mr.',
-                                            letterName: 'Dear Mr.',
-                                            salutationKey: 'mr-edit',
+                                        updatedAt: '2020-08-27T04:59:39.428+00:00',
+                                        isNew: () => true,
+                                    };
+                                },
+                                get: (id) => {
+                                    const salutations = [
+                                        {
+                                            id: '1',
+                                            type: 'salutation',
+                                            attributes: {
+                                                apiAlias: null,
+                                                createdAt: '2020-08-25T10:23:24.051+00:00',
+                                                displayName: 'Mr.',
+                                                letterName: 'Dear Mr.',
+                                                salutationKey: 'mr-edit',
+                                            },
+                                            isNew: () => false,
                                         },
-                                        isNew: () => false,
-                                    },
-                                ];
+                                        {
+                                            id: '2',
+                                            type: 'salutation',
+                                            attributes: {
+                                                apiAlias: null,
+                                                createdAt: '2020-08-25T10:23:24.051+00:00',
+                                                displayName: 'Mr.',
+                                                letterName: 'Dear Mr.',
+                                                salutationKey: 'mr-edit',
+                                            },
+                                            isNew: () => false,
+                                        },
+                                    ];
 
-                                return Promise.resolve(
-                                    salutations.find((salutation) => {
-                                        return salutation.id === id;
-                                    }),
-                                );
+                                    return Promise.resolve(
+                                        salutations.find((salutation) => {
+                                            return salutation.id === id;
+                                        }),
+                                    );
+                                },
                             },
-                        }),
                     },
                     acl: {
                         can: (identifier) => {
@@ -125,6 +128,12 @@ async function createWrapper(privileges = []) {
             },
         },
     );
+}
+
+function createSwitchableSalutationRepository() {
+    return {
+        get: jest.fn((id) => Promise.resolve({ id, salutationKey: `key-${id}`, isNew: () => false })),
+    };
 }
 
 describe('module/sw-settings-salutation/page/sw-settings-salutation-detail', () => {
@@ -200,5 +209,64 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-detail', () 
             message: 'sw-privileges.tooltip.warning',
             showOnDisabledElements: true,
         });
+    });
+
+    it('should load the new salutation when the salutationId changes', async () => {
+        const repository = createSwitchableSalutationRepository();
+        const wrapper = await createWrapper(['salutation.editor'], { repository });
+        await flushPromises();
+
+        expect(repository.get).toHaveBeenLastCalledWith('1');
+        expect(wrapper.find('input[name="sw-field--salutation-salutationKey"]').element.value).toBe('key-1');
+
+        await wrapper.setProps({ salutationId: '2' });
+        await flushPromises();
+
+        expect(repository.get).toHaveBeenLastCalledWith('2');
+        expect(wrapper.find('input[name="sw-field--salutation-salutationKey"]').element.value).toBe('key-2');
+    });
+
+    it('should drop the key error of the previous salutation when the salutationId changes', async () => {
+        const wrapper = await createWrapper(['salutation.editor']);
+        await flushPromises();
+
+        await wrapper.setData({ invalidKey: true, isKeyChecking: true });
+
+        expect(wrapper.find('.sw-settings-salutation-detail__save').attributes('disabled')).toBeDefined();
+
+        await wrapper.setProps({ salutationId: '2' });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-salutation-detail__save').attributes('disabled')).toBeUndefined();
+    });
+
+    it('should load a newly created salutation only once after the redirect to its detail route', async () => {
+        const repository = {
+            create: () => ({ id: 'newSalutationId', salutationKey: 'new', isNew: () => true }),
+            save: jest.fn(() => Promise.resolve()),
+            get: jest.fn((id) => Promise.resolve({ id, salutationKey: 'new', isNew: () => false })),
+        };
+        const router = { push: jest.fn() };
+        const wrapper = await createWrapper(['salutation.creator'], {
+            repository,
+            router,
+            props: { salutationId: null },
+        });
+        await flushPromises();
+
+        await wrapper.find('.sw-settings-salutation-detail__save').trigger('click');
+        await flushPromises();
+
+        expect(repository.save).toHaveBeenCalledTimes(1);
+        expect(router.push).toHaveBeenCalledWith({
+            name: 'sw.settings.salutation.detail',
+            params: { id: 'newSalutationId' },
+        });
+
+        await wrapper.setProps({ salutationId: 'newSalutationId' });
+        await flushPromises();
+
+        expect(repository.get).toHaveBeenCalledTimes(1);
+        expect(repository.get).toHaveBeenCalledWith('newSalutationId');
     });
 });

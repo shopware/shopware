@@ -554,6 +554,21 @@ export default {
         },
     },
 
+    watch: {
+        documentConfigId(documentConfigId) {
+            if (documentConfigId !== this.documentConfig.id) {
+                // these are only set again when a document type is picked, which a new config does not have yet
+                this.paymentDueDateIsValid = true;
+                this.isShowDisplayNoteDelivery = false;
+                this.isShowDivergentDeliveryAddress = false;
+                this.documentConfigSalesChannels = [];
+                this.alreadyAssignedSalesChannelIdsToType = [];
+                this.documentConfigSalesChannelOptionsCollection = [];
+                this.createdComponent();
+            }
+        },
+    },
+
     methods: {
         async createdComponent() {
             this.isLoading = true;

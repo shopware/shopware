@@ -293,4 +293,66 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-list/sw-
         const editMenuItem = wrapper.find('.sw-custom-field-list__edit-action');
         expect(editMenuItem.attributes().disabled).toBeFalsy();
     });
+
+    it('should load the custom fields of the new set when the set id changes', async () => {
+        const repo = mockCustomFieldRepository();
+        const searchSpy = jest.spyOn(repo, 'search');
+        const wrapper = await createWrapper([], repo);
+        await flushPromises();
+        searchSpy.mockClear();
+
+        await wrapper.setProps({ set: { id: 'other-set-id', customFields: {} } });
+        await flushPromises();
+
+        expect(searchSpy).toHaveBeenCalledTimes(1);
+        expect(searchSpy.mock.calls[0][0].filters).toEqual([
+            expect.objectContaining({ field: 'customFieldSetId', value: 'other-set-id' }),
+        ]);
+    });
+
+    it('should drop the selection, search, paging and modals of the previous set when the set id changes', async () => {
+        const repo = mockCustomFieldRepository();
+        const searchSpy = jest.spyOn(repo, 'search');
+        const wrapper = await createWrapper(['custom_field.editor', 'custom_field.deleter'], repo);
+        await flushPromises();
+
+        await wrapper.find('.sw-grid__header input[type="checkbox"]').setValue(true);
+        await wrapper.setData({
+            term: 'old term',
+            page: 2,
+            currentCustomField: { id: 'old-field' },
+            deleteCustomField: [{ id: 'old-field' }],
+        });
+        expect(wrapper.findAll('.sw-grid-row.is--selected').length).toBeGreaterThan(0);
+        expect(wrapper.find('.sw-custom-field-list__delete-button').attributes('disabled')).toBeUndefined();
+        expect(wrapper.find('.sw-custom-field-list__toolbar [delay="500"]').attributes('value')).toBe('old term');
+        expect(wrapper.find('sw-custom-field-detail-stub').exists()).toBe(true);
+        expect(wrapper.find('sw-modal-stub').exists()).toBe(true);
+
+        await wrapper.setProps({ set: { id: 'other-set-id', customFields: {} } });
+        await flushPromises();
+
+        expect(wrapper.findAll('.sw-grid-row.is--selected')).toHaveLength(0);
+        expect(wrapper.find('.sw-custom-field-list__delete-button').attributes('disabled')).toBeDefined();
+        expect(wrapper.find('.sw-custom-field-list__toolbar [delay="500"]').attributes('value')).toBe('');
+        expect(searchSpy).toHaveBeenLastCalledWith(expect.objectContaining({ page: 1, term: null }));
+        expect(searchSpy.mock.lastCall[0].filters).toEqual([
+            expect.objectContaining({ field: 'customFieldSetId', value: 'other-set-id' }),
+        ]);
+        expect(wrapper.find('sw-custom-field-detail-stub').exists()).toBe(false);
+        expect(wrapper.find('sw-modal-stub').exists()).toBe(false);
+    });
+
+    it('should not reload the custom fields when the page reloads the same set after saving', async () => {
+        const repo = mockCustomFieldRepository();
+        const searchSpy = jest.spyOn(repo, 'search');
+        const wrapper = await createWrapper([], repo);
+        await flushPromises();
+        searchSpy.mockClear();
+
+        await wrapper.setProps({ set: { ...set } });
+        await flushPromises();
+
+        expect(searchSpy).not.toHaveBeenCalled();
+    });
 });

@@ -244,7 +244,14 @@ export default {
     },
 
     watch: {
-        orderId() {
+        orderId(orderId, previousOrderId) {
+            this.beforeDestroyComponent(false, previousOrderId);
+
+            this.hasOrderDeepEdit = false;
+            this.missingProductLineItems = [];
+            this.promotionsToDelete = [];
+            this.deliveryDiscountsToDelete = [];
+
             this.createdComponent();
         },
 
@@ -304,7 +311,7 @@ export default {
             this.beforeDestroyComponent(true);
         },
 
-        beforeDestroyComponent(useKeepalive = false) {
+        beforeDestroyComponent(useKeepalive = false, orderId = this.orderId) {
             Store.get('swOrderDetail').setOrderAddressIds(null);
             Store.get('swOrderDetail').resetCustomer();
 
@@ -315,12 +322,12 @@ export default {
 
                 // clean up recently created version
                 if (useKeepalive) {
-                    this.orderRepository.deleteVersionWithKeepalive(this.orderId, oldVersionContext.versionId);
+                    this.orderRepository.deleteVersionWithKeepalive(orderId, oldVersionContext.versionId);
 
                     return;
                 }
 
-                this.orderRepository.deleteVersion(this.orderId, oldVersionContext.versionId);
+                this.orderRepository.deleteVersion(orderId, oldVersionContext.versionId);
             }
         },
 

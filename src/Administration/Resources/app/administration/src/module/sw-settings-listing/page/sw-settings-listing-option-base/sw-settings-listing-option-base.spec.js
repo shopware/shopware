@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import { reactive } from 'vue';
 
 /**
  * @sw-package inventory
@@ -81,7 +82,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
         ];
     }
 
-    async function createWrapper() {
+    async function createWrapper(route = { params: { id: getProductSortings()[0].id } }) {
         return mount(
             await wrapTestComponent('sw-settings-listing-option-base', {
                 sync: true,
@@ -90,11 +91,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
                 global: {
                     renderStubDefaultSlot: true,
                     mocks: {
-                        $route: {
-                            params: {
-                                id: getProductSortings()[0].id,
-                            },
-                        },
+                        $route: route,
                     },
                     provide: {
                         repositoryFactory: {
@@ -162,7 +159,15 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
                             `,
                         },
                         'sw-language-switch': true,
-                        'sw-settings-listing-option-general-info': true,
+                        'sw-settings-listing-option-general-info': {
+                            template: '<div class="sw-settings-listing-option-general-info"></div>',
+                            props: [
+                                'sortingOption',
+                                'isDefaultSorting',
+                                'labelError',
+                                'technicalNameError',
+                            ],
+                        },
                         'sw-settings-listing-option-criteria-grid': true,
                         'sw-settings-listing-delete-modal': true,
                     },
@@ -299,5 +304,31 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
         const alert = wrapper.find('.sw-settings-listing-base__locked-info');
 
         expect(alert.exists()).toBe(true);
+    });
+
+    it('should load the new product sorting when the route id changes', async () => {
+        const route = reactive({ params: { id: getProductSortings()[0].id } });
+        wrapper = await createWrapper(route);
+        await flushPromises();
+
+        const generalInfo = () => wrapper.findComponent('.sw-settings-listing-option-general-info');
+
+        expect(generalInfo().props('sortingOption').id).toBe(getProductSortings()[0].id);
+
+        await wrapper.setData({
+            sortingOptionTechnicalNameError: { code: 'previous-error' },
+            sortingOptionLabelError: { code: 'previous-error' },
+        });
+
+        expect(generalInfo().props('technicalNameError')).toEqual({ code: 'previous-error' });
+        expect(generalInfo().props('labelError')).toEqual({ code: 'previous-error' });
+
+        route.params.id = getProductSortings()[1].id;
+        await flushPromises();
+
+        expect(generalInfo().props('technicalNameError')).toBeNull();
+        expect(generalInfo().props('labelError')).toBeNull();
+        expect(generalInfo().props('sortingOption').id).toBe(getProductSortings()[1].id);
+        expect(generalInfo().props('sortingOption').label).toBe('Price ascending');
     });
 });

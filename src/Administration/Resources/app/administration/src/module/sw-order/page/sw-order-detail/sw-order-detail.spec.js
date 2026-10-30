@@ -7,7 +7,15 @@ import { nextTick } from 'vue';
  * @sw-package checkout
  */
 
-async function createWrapper(order = {}, { routeName = 'sw.order.detail.general', routerPush = jest.fn() } = {}) {
+async function createWrapper(
+    order = {},
+    {
+        routeName = 'sw.order.detail.general',
+        routerPush = jest.fn(),
+        orderId = Shopware.Utils.createId(),
+        repository = {},
+    } = {},
+) {
     const repositoryFactoryMock = {
         search: () => Promise.resolve([]),
         hasChanges: () => false,
@@ -16,6 +24,7 @@ async function createWrapper(order = {}, { routeName = 'sw.order.detail.general'
         createVersion: () => Promise.resolve({ versionId: 'newVersionId' }),
         get: () => Promise.resolve(order),
         save: () => Promise.resolve({}),
+        ...repository,
     };
 
     return mount(await wrapTestComponent('sw-order-detail', { sync: true }), {
@@ -114,7 +123,7 @@ async function createWrapper(order = {}, { routeName = 'sw.order.detail.general'
             },
         },
         props: {
-            orderId: Shopware.Utils.createId(),
+            orderId,
         },
     });
 }
@@ -128,6 +137,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         }
 
         Shopware.Store.get('shopwareApps').selectedIds = [];
+        global.activeAclRoles = [];
     });
 
     it('should select the displayed order for app action buttons', async () => {
@@ -172,6 +182,74 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.orderRepository.deleteVersion).not.toHaveBeenCalled();
         expect(wrapper.vm.versionContext).toBe(Shopware.Context.api);
         expect(wrapper.vm.hasNewVersionId).toBe(false);
+    });
+
+    it('should remove the version of the previous order when another order is opened', async () => {
+        const previousOrderId = Shopware.Utils.createId();
+        const nextOrderId = Shopware.Utils.createId();
+        const repository = {
+            deleteVersion: jest.fn(() => Promise.resolve()),
+            createVersion: jest.fn(() => Promise.resolve({ versionId: 'previousVersionId' })),
+        };
+        wrapper = await createWrapper({}, { orderId: previousOrderId, repository });
+        await flushPromises();
+
+        repository.createVersion.mockImplementation(() => Promise.resolve({ versionId: 'nextVersionId' }));
+
+        await wrapper.setProps({ orderId: nextOrderId });
+        await flushPromises();
+
+        expect(repository.deleteVersion).toHaveBeenCalledTimes(1);
+        expect(repository.deleteVersion).toHaveBeenCalledWith(previousOrderId, 'previousVersionId');
+        expect(repository.createVersion).toHaveBeenLastCalledWith(nextOrderId);
+        expect(Shopware.Store.get('swOrderDetail').versionContext.versionId).toBe('nextVersionId');
+
+        wrapper.unmount();
+
+        expect(repository.deleteVersion).toHaveBeenCalledTimes(2);
+        expect(repository.deleteVersion).toHaveBeenLastCalledWith(nextOrderId, 'nextVersionId');
+    });
+
+    it('should drop the edit state of the previous order when another order is opened', async () => {
+        global.activeAclRoles = ['order.editor'];
+        const order = {
+            lineItems: [
+                { id: 'product-line-item', type: 'product', productId: 'productId', payload: {} },
+                { id: 'promotion-line-item', type: 'promotion', referencedId: null },
+            ],
+            deliveries: [{ id: 'delivery' }, { id: 'delivery-discount' }],
+        };
+        const repository = {
+            deleteVersion: jest.fn(() => Promise.resolve()),
+            save: jest.fn(() => Promise.resolve()),
+            mergeVersion: jest.fn(() => Promise.resolve()),
+        };
+        wrapper = await createWrapper(order, { repository });
+        await flushPromises();
+
+        await wrapper.setData({
+            hasOrderDeepEdit: true,
+            missingProductLineItems: [{ id: 'missing-line-item', label: 'Missing product' }],
+            promotionsToDelete: ['promotion-line-item'],
+            deliveryDiscountsToDelete: ['delivery-discount'],
+        });
+
+        expect(wrapper.find('.sw-order-detail__alert').text()).toContain('sw-order.detail.textUnsavedOrderWarning');
+        expect(wrapper.find('.sw_order_detail_base__missing_products_alert-list').text()).toBe('Missing product');
+
+        await wrapper.setProps({ orderId: Shopware.Utils.createId() });
+
+        expect(wrapper.text()).not.toContain('sw-order.detail.textUnsavedOrderWarning');
+        expect(wrapper.find('.sw_order_detail_base__missing_products_alert-list').exists()).toBe(false);
+
+        await flushPromises();
+        await wrapper.find('.sw-order-detail__smart-bar-save-button').trigger('click');
+        await flushPromises();
+
+        expect(repository.save).toHaveBeenCalledWith(order, expect.anything());
+        expect(repository.mergeVersion).toHaveBeenCalled();
+        expect(order.lineItems.map((lineItem) => lineItem.id)).toEqual(['product-line-item', 'promotion-line-item']);
+        expect(order.deliveries.map((delivery) => delivery.id)).toEqual(['delivery', 'delivery-discount']);
     });
 
     it('should keep the version when the page is stored in the back-forward cache', async () => {

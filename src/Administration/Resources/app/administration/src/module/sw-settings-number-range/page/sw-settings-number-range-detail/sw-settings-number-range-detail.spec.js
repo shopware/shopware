@@ -2,8 +2,14 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
+import { reactive } from 'vue';
 
-async function createWrapper(getNumberRangePatternCollisions = () => Promise.resolve({ collisions: [] }), numberRange = {}) {
+async function createWrapper({
+    route = { params: { id: 'id' } },
+    get = null,
+    getNumberRangePatternCollisions = () => Promise.resolve({ collisions: [] }),
+    numberRange = {},
+} = {}) {
     return mount(
         await wrapTestComponent('sw-settings-number-range-detail', {
             sync: true,
@@ -12,11 +18,7 @@ async function createWrapper(getNumberRangePatternCollisions = () => Promise.res
             global: {
                 renderStubDefaultSlot: true,
                 mocks: {
-                    $route: {
-                        params: {
-                            id: 'id',
-                        },
-                    },
+                    $route: route,
                 },
                 provide: {
                     numberRangeService: {
@@ -29,25 +31,27 @@ async function createWrapper(getNumberRangePatternCollisions = () => Promise.res
                     repositoryFactory: {
                         create: () => ({
                             create: () => {},
-                            get: () =>
-                                Promise.resolve({
-                                    description: null,
-                                    global: true,
-                                    id: 'id',
-                                    name: 'Delivery notes',
-                                    translated: {
-                                        customFields: [],
+                            get:
+                                get ??
+                                (() =>
+                                    Promise.resolve({
                                         description: null,
+                                        global: true,
+                                        id: 'id',
                                         name: 'Delivery notes',
-                                    },
-                                    translations: [],
-                                    type: {
-                                        typeName: 'Delivery notes',
-                                        technicalName: 'document_delivery_note',
-                                    },
-                                    typeId: '72ea130130404f67a426332f7a8c7277',
-                                    ...numberRange,
-                                }),
+                                        translated: {
+                                            customFields: [],
+                                            description: null,
+                                            name: 'Delivery notes',
+                                        },
+                                        translations: [],
+                                        type: {
+                                            typeName: 'Delivery notes',
+                                            technicalName: 'document_delivery_note',
+                                        },
+                                        typeId: '72ea130130404f67a426332f7a8c7277',
+                                        ...numberRange,
+                                    })),
                             search: () => Promise.resolve([]),
                             save: () => Promise.resolve(),
                         }),
@@ -258,7 +262,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
         const getNumberRangePatternCollisions = jest.fn(() =>
             Promise.resolve({ collisions: [{ id: 'other-id', name: 'Invoices (Shop B)' }] }),
         );
-        const wrapper = await createWrapper(getNumberRangePatternCollisions, { pattern: 'INV{n}' });
+        const wrapper = await createWrapper({ getNumberRangePatternCollisions, numberRange: { pattern: 'INV{n}' } });
         await flushPromises();
 
         expect(getNumberRangePatternCollisions).toHaveBeenCalledWith('72ea130130404f67a426332f7a8c7277', 'INV{n}', 'id');
@@ -279,7 +283,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
             .fn()
             .mockResolvedValueOnce({ collisions: [{ id: 'other-id', name: 'Invoices (Shop B)' }] })
             .mockResolvedValue({ collisions: [] });
-        const wrapper = await createWrapper(getNumberRangePatternCollisions, { pattern: 'INV{n}' });
+        const wrapper = await createWrapper({ getNumberRangePatternCollisions, numberRange: { pattern: 'INV{n}' } });
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').exists()).toBe(true);
@@ -293,7 +297,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
 
     it('should not look for collisions while the pattern is still unset', async () => {
         const getNumberRangePatternCollisions = jest.fn(() => Promise.resolve({ collisions: [] }));
-        await createWrapper(getNumberRangePatternCollisions);
+        await createWrapper({ getNumberRangePatternCollisions });
         await flushPromises();
 
         expect(getNumberRangePatternCollisions).not.toHaveBeenCalled();
@@ -301,7 +305,10 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
 
     it('should finish loading without a warning when the collision check fails', async () => {
         const debugErrorSpy = jest.spyOn(Shopware.Utils.debug, 'error').mockImplementation(() => {});
-        const wrapper = await createWrapper(() => Promise.reject(new Error('Network error')), { pattern: 'INV{n}' });
+        const wrapper = await createWrapper({
+            getNumberRangePatternCollisions: () => Promise.reject(new Error('Network error')),
+            numberRange: { pattern: 'INV{n}' },
+        });
         await flushPromises();
 
         expect(wrapper.find('sw-skeleton-stub').exists()).toBe(false);
@@ -309,5 +316,72 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
         expect(debugErrorSpy).toHaveBeenCalled();
 
         debugErrorSpy.mockRestore();
+    });
+
+    it('should load the new number range when the route id changes', async () => {
+        const route = reactive({ params: { id: 'first-id' } });
+        const get = jest.fn((id) =>
+            Promise.resolve({
+                id,
+                name: id,
+                pattern: '{n}',
+                global: false,
+                type: { global: false },
+                translated: { name: id },
+            }),
+        );
+        const wrapper = await createWrapper({ route, get });
+        await flushPromises();
+
+        const nameValue = () => wrapper.find('input[name="sw-field--numberRange-name"]').element.value;
+
+        expect(get).toHaveBeenLastCalledWith('first-id', expect.anything(), expect.anything());
+        expect(nameValue()).toBe('first-id');
+
+        route.params.id = 'second-id';
+        await flushPromises();
+
+        expect(get).toHaveBeenCalledTimes(2);
+        expect(get).toHaveBeenLastCalledWith('second-id', expect.anything(), expect.anything());
+        expect(nameValue()).toBe('second-id');
+    });
+
+    it('should drop the pattern parts of the previous number range when the route id changes', async () => {
+        const route = reactive({ params: { id: 'first-id' } });
+        const patterns = { 'first-id': '{date}{n}', 'second-id': '' };
+        const get = jest.fn((id) =>
+            Promise.resolve({
+                id,
+                name: id,
+                pattern: patterns[id],
+                global: false,
+                type: { global: false },
+                translated: { name: id },
+            }),
+        );
+        global.activeAclRoles = ['number_ranges.editor'];
+        const wrapper = await createWrapper({ route, get });
+        await flushPromises();
+
+        const prefixField = () => wrapper.find('input[name="sw-field--prefix"]');
+        const suffixField = () => wrapper.find('input[name="sw-field--suffix"]');
+        const patternField = () => wrapper.find('input[name="sw-field--numberRange-pattern"]');
+
+        expect(patternField().exists()).toBe(true);
+        expect(prefixField().attributes('disabled')).toBeDefined();
+        await wrapper.setData({ prefix: 'OLD-', suffix: '-OLD' });
+        expect(prefixField().element.value).toBe('OLD-');
+        expect(suffixField().element.value).toBe('-OLD');
+
+        route.params.id = 'second-id';
+        await flushPromises();
+
+        expect(get).toHaveBeenLastCalledWith('second-id', expect.anything(), expect.anything());
+        expect(wrapper.find('input[name="sw-field--numberRange-name"]').element.value).toBe('second-id');
+        expect(patternField().exists()).toBe(false);
+        expect(prefixField().attributes('disabled')).toBeUndefined();
+        expect(suffixField().attributes('disabled')).toBeUndefined();
+        expect(prefixField().element.value).toBe('');
+        expect(suffixField().element.value).toBe('');
     });
 });

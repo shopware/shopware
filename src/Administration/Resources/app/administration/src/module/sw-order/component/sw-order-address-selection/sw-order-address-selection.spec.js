@@ -607,4 +607,106 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(selectedAddress.exists()).toBe(true);
         expect(selectedAddressContent.text()).toBe('Denesik Bridge, 05132 Bernierstad');
     });
+
+    it('should load the customer of the new order when the order is replaced while the selection stays mounted', async () => {
+        await flushPromises();
+
+        const orderDetailStore = Shopware.Store.get('swOrderDetail');
+        orderDetailStore.order = {
+            ...orderDetailStore.order,
+            id: 'second-order-id',
+            orderCustomer: {
+                customerId: '2b8f9d5e0c4a4b1f8e7d6c5b4a392817',
+            },
+        };
+        await flushPromises();
+
+        expect(orderDetailStore.loadCustomer).toHaveBeenLastCalledWith('2b8f9d5e0c4a4b1f8e7d6c5b4a392817');
+    });
+
+    it('should load the new customer when the customer of the same order changes', async () => {
+        await flushPromises();
+
+        const orderDetailStore = Shopware.Store.get('swOrderDetail');
+        orderDetailStore.order = {
+            ...orderDetailStore.order,
+            orderCustomer: {
+                customerId: '2b8f9d5e0c4a4b1f8e7d6c5b4a392817',
+            },
+        };
+        await flushPromises();
+
+        expect(orderDetailStore.loadCustomer).toHaveBeenLastCalledWith('2b8f9d5e0c4a4b1f8e7d6c5b4a392817');
+    });
+
+    it('should load the customer again when the next order belongs to the same customer', async () => {
+        await flushPromises();
+
+        const orderDetailStore = Shopware.Store.get('swOrderDetail');
+        orderDetailStore.loadCustomer.mockClear();
+
+        // the order detail page resets the customer before it loads the next order
+        orderDetailStore.resetCustomer();
+        orderDetailStore.order = { ...orderDetailStore.order, id: 'second-order-id' };
+        await flushPromises();
+
+        expect(orderDetailStore.loadCustomer).toHaveBeenCalledTimes(1);
+        expect(orderDetailStore.loadCustomer).toHaveBeenCalledWith('63e27affb5804538b5b06cb4e344b130');
+        expect(orderDetailStore.customer).not.toBeNull();
+    });
+
+    it('should drop the address state of the previous order when the order is replaced', async () => {
+        await flushPromises();
+
+        const orderDetailStore = Shopware.Store.get('swOrderDetail');
+        orderDetailStore.customer.defaultShippingAddressId = 'previous-default-address-id';
+
+        const openNewAddressModal = async () => {
+            await wrapper.find('.sw-order-address-selection .sw-select__selection').trigger('click');
+            await flushPromises();
+            await new DOMWrapper(document.body).get('.sw-select-result__add-new-address').trigger('click');
+            await flushPromises();
+        };
+
+        await openNewAddressModal();
+        wrapper.findComponent('.sw-customer-address-form__options').vm.$emit('default-address-change', {
+            name: 'shipping-address',
+            id: 'customer-address-id',
+            value: true,
+        });
+        expect(orderDetailStore.customer.defaultShippingAddressId).toBe('customer-address-id');
+
+        orderDetailStore.order = {
+            ...orderDetailStore.order,
+            id: 'second-order-id',
+        };
+        await wrapper.setProps({ address: { ...wrapper.props('address'), id: 'second-order-address-id' } });
+        await flushPromises();
+
+        expect(wrapper.findComponent('.sw-customer-address-form__options').exists()).toBe(false);
+
+        await wrapper.find('.sw-order-address-selection .sw-select__selection').trigger('click');
+        await flushPromises();
+        await new DOMWrapper(document.body).get('.sw-select-option--1').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.emitted('change-address').at(-1)).toEqual([
+            {
+                orderAddressId: 'second-order-address-id',
+                customerAddressId: '652e9e571cc94bd898077f256dcf629f',
+                type: 'billing',
+                edited: false,
+            },
+        ]);
+
+        orderDetailStore.customer.defaultShippingAddressId = 'second-order-default-address-id';
+        await openNewAddressModal();
+        wrapper.findComponent('.sw-customer-address-form__options').vm.$emit('default-address-change', {
+            name: 'shipping-address',
+            id: 'customer-address-id',
+            value: false,
+        });
+
+        expect(orderDetailStore.customer.defaultShippingAddressId).toBe('second-order-default-address-id');
+    });
 });

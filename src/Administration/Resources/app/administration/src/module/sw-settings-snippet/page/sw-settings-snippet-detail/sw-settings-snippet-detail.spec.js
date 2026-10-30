@@ -2,6 +2,7 @@
  * @sw-package fundamentals@discovery
  */
 import { mount } from '@vue/test-utils';
+import { reactive } from 'vue';
 
 function getSnippetSets() {
     const data = [
@@ -93,9 +94,11 @@ function getSnippets() {
 }
 
 const saveMock = jest.fn(() => Promise.resolve());
+const snippetSetSearchMock = jest.fn(() => Promise.resolve(getSnippetSets()));
+const getCustomListMock = jest.fn(() => Promise.resolve(getSnippets()));
 
 describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
-    async function createWrapper(privileges = []) {
+    async function createWrapper(privileges = [], route = null, router = null) {
         return mount(
             await wrapTestComponent('sw-settings-snippet-detail', {
                 sync: true,
@@ -103,7 +106,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
             {
                 global: {
                     mocks: {
-                        $route: {
+                        $route: route ?? {
                             meta: {
                                 $module: {
                                     color: 'blue',
@@ -119,11 +122,12 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                                 key: 'account.addressCreateBtn',
                             },
                         },
+                        ...(router ? { $router: router } : {}),
                     },
                     provide: {
                         repositoryFactory: {
                             create: () => ({
-                                search: () => Promise.resolve(getSnippetSets()),
+                                search: snippetSetSearchMock,
                                 create: () => Promise.resolve(),
                                 save: saveMock,
                             }),
@@ -142,9 +146,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                             getAuthors: () => {
                                 return Promise.resolve();
                             },
-                            getCustomList: () => {
-                                return Promise.resolve(getSnippets());
-                            },
+                            getCustomList: getCustomListMock,
                         },
                         snippetService: {
                             save: () => Promise.resolve(),
@@ -266,6 +268,78 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         expect(wrapper.vm.translationKey).toBe('test1');
         expect(wrapper.vm.translationKeyOrigin).toBe('test1');
         expect(wrapper.vm.$route.params.key).toBe('test1');
+    });
+
+    it('should load the snippets of the new key when the route key changes', async () => {
+        const route = reactive({
+            meta: { $module: { color: 'blue', icon: 'icon' } },
+            query: { page: 1, limit: 25, ids: [] },
+            params: { key: 'account.addressCreateBtn' },
+        });
+        const wrapper = await createWrapper(['snippet.viewer'], route);
+        await flushPromises();
+        getCustomListMock.mockClear();
+
+        route.params.key = 'test1';
+        await flushPromises();
+
+        expect(getCustomListMock).toHaveBeenCalledWith(1, 25, { translationKey: ['test1'] });
+        expect(wrapper.find('.smart-bar__header h2').text()).toBe('test1');
+        expect(wrapper.find('input[name="sw-field--translationKey"]').element.value).toBe('test1');
+        expect(wrapper.find('.sw-settings-snippet-detail__translation-field--0 input').element.value).toBe('foo');
+        expect(wrapper.find('.sw-settings-snippet-detail__translation-field--1 input').element.value).toBe('bar');
+    });
+
+    it('should drop the key state and list query of the previous key when the route key changes', async () => {
+        const route = reactive({
+            meta: { $module: { color: 'blue', icon: 'icon' } },
+            query: { page: 1, limit: 25, ids: [] },
+            params: { key: 'account.addressCreateBtn' },
+        });
+        const router = { push: jest.fn() };
+        const wrapper = await createWrapper(['snippet.viewer'], route, router);
+        await flushPromises();
+
+        await wrapper.setData({ isInvalidKey: true });
+        expect(wrapper.find('.snippet-general-card .mt-field__error').exists()).toBe(true);
+
+        route.query = { page: 2, limit: 50, ids: ['id'] };
+        route.params.key = 'test1';
+        await flushPromises();
+
+        expect(wrapper.find('.snippet-general-card .mt-field__error').exists()).toBe(false);
+
+        wrapper.findComponent('.sw-snippet-detail__save-action').vm.$emit('update:processSuccess', false);
+
+        expect(router.push).toHaveBeenCalledWith(expect.objectContaining({ query: { ids: ['id'], page: 2, limit: 50 } }));
+    });
+
+    it('should load the snippets only once when saving pushes the renamed key', async () => {
+        const route = reactive({
+            meta: { $module: { color: 'blue', icon: 'icon' } },
+            query: { page: 1, limit: 25, ids: [] },
+            params: { key: 'account.addressCreateBtn' },
+        });
+        const router = {
+            push: jest.fn(({ params }) => {
+                route.params.key = params.key;
+            }),
+        };
+        const wrapper = await createWrapper(['snippet.viewer', 'snippet.editor'], route, router);
+        await flushPromises();
+        snippetSetSearchMock.mockClear();
+
+        await wrapper.setData({ isAddedSnippet: true });
+        await wrapper.find('input[name="sw-field--translationKey"]').setValue('test1');
+        await wrapper.find('.sw-snippet-detail__save-action').trigger('click');
+        await flushPromises();
+
+        wrapper.findComponent('.sw-snippet-detail__save-action').vm.$emit('update:processSuccess', false);
+        await flushPromises();
+
+        expect(router.push).toHaveBeenCalledWith(expect.objectContaining({ params: { key: 'test1', origin: 'test1' } }));
+        expect(route.params.key).toBe('test1');
+        expect(snippetSetSearchMock).toHaveBeenCalledTimes(1);
     });
 
     it('should return a criteria with no limit', async () => {
@@ -656,7 +730,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                     provide: {
                         repositoryFactory: {
                             create: () => ({
-                                search: () => Promise.resolve(getSnippetSets()),
+                                search: snippetSetSearchMock,
                                 create: () => Promise.resolve(),
                                 save: saveMock,
                                 delete: deleteMock,

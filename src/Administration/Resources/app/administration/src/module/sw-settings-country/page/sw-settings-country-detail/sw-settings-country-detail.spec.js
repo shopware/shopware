@@ -2,6 +2,7 @@
  * @sw-package fundamentals@discovery
  */
 import { mount } from '@vue/test-utils';
+import { reactive } from 'vue';
 
 const countrySaveMock = jest.fn(() => Promise.resolve());
 
@@ -12,6 +13,7 @@ async function createWrapper(
         routeName = 'sw.settings.country.detail.general',
         routeParams = { id: 'the-id' },
         routerPush = jest.fn(),
+        countryGet = null,
     } = {},
 ) {
     return mount(
@@ -43,7 +45,11 @@ async function createWrapper(
                 provide: {
                     repositoryFactory: {
                         create: (entity) => ({
-                            get: () => {
+                            get: (id) => {
+                                if (entity === 'country' && countryGet) {
+                                    return countryGet(id);
+                                }
+
                                 if (entity === 'country') {
                                     return Promise.resolve({
                                         isNew: () => false,
@@ -362,5 +368,30 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
                 },
             },
         });
+    });
+
+    it('should load the new country when the route id changes', async () => {
+        const routeParams = reactive({ id: 'first-id' });
+        const countryGet = jest.fn((id) =>
+            Promise.resolve({
+                id,
+                name: `Country ${id}`,
+                isNew: () => false,
+                discardChanges: () => {},
+                states: [],
+            }),
+        );
+        const wrapper = await createWrapper(['country.editor'], { routeParams, countryGet });
+        await flushPromises();
+
+        expect(countryGet).toHaveBeenLastCalledWith('first-id');
+        expect(wrapper.find('h2').text()).toBe('Country first-id');
+
+        routeParams.id = 'second-id';
+        await flushPromises();
+
+        expect(countryGet).toHaveBeenCalledTimes(2);
+        expect(countryGet).toHaveBeenLastCalledWith('second-id');
+        expect(wrapper.find('h2').text()).toBe('Country second-id');
     });
 });

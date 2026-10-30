@@ -72,6 +72,12 @@ export default {
         },
     },
 
+    watch: {
+        'promotion.id'() {
+            this.loadExclusions();
+        },
+    },
+
     created() {
         this.createdComponent();
     },

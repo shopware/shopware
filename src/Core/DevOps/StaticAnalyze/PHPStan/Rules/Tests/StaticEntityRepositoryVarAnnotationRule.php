@@ -8,7 +8,9 @@ use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name;
+use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Expression;
+use PhpParser\Node\Stmt\Return_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
@@ -22,10 +24,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
- * No `@var StaticEntityRepository<...>` on the construction of the stub: the generic is inferred from a search that carries
- * the collection, otherwise bound with `StaticEntityRepository::of()`. Properties and `EntityCollection` annotations are left alone.
+ * No `@var StaticEntityRepository<...>` on the construction of the stub, assigned or returned: the generic is inferred from a search
+ * that carries the collection, otherwise bound with `StaticEntityRepository::of()`. Properties and `EntityCollection` annotations are
+ * left alone.
  *
- * @implements Rule<Expression>
+ * @implements Rule<Stmt>
  *
  * @internal
  */
@@ -38,11 +41,11 @@ class StaticEntityRepositoryVarAnnotationRule implements Rule
 
     public function getNodeType(): string
     {
-        return Expression::class;
+        return Stmt::class;
     }
 
     /**
-     * @param Expression $node
+     * @param Stmt $node
      *
      * @return list<RuleError>
      */
@@ -53,18 +56,25 @@ class StaticEntityRepositoryVarAnnotationRule implements Rule
             return [];
         }
 
-        $assign = $node->expr;
-        if (!$assign instanceof Assign || !$assign->expr instanceof New_) {
+        $variable = null;
+        if ($node instanceof Expression && $node->expr instanceof Assign) {
+            $construction = $node->expr->expr;
+            $variable = $node->expr->var instanceof Variable && \is_string($node->expr->var->name) ? $node->expr->var->name : null;
+        } elseif ($node instanceof Return_) {
+            $construction = $node->expr;
+        } else {
             return [];
         }
 
-        $construction = $assign->expr;
+        if (!$construction instanceof New_) {
+            return [];
+        }
+
         $class = $construction->class;
         if (!$class instanceof Name || $scope->resolveName($class) !== StaticEntityRepository::class) {
             return [];
         }
 
-        $variable = $assign->var instanceof Variable && \is_string($assign->var->name) ? $assign->var->name : null;
         $collection = $this->annotatedType($node, $scope, $variable)?->getTemplateType(StaticEntityRepository::class, 'TEntityCollection');
         $classes = $collection?->getObjectClassNames() ?? [];
         if ($classes === [] || $classes === [EntityCollection::class]) {
@@ -78,7 +88,7 @@ class StaticEntityRepositoryVarAnnotationRule implements Rule
         return [RuleErrorBuilder::message($message)->identifier('shopware.staticEntityRepositoryVarAnnotation')->line($node->getStartLine())->build()];
     }
 
-    private function annotatedType(Expression $node, Scope $scope, ?string $variable): ?Type
+    private function annotatedType(Stmt $node, Scope $scope, ?string $variable): ?Type
     {
         $docComment = $node->getDocComment()?->getText();
         if ($docComment === null || !str_contains($docComment, 'StaticEntityRepository')) {

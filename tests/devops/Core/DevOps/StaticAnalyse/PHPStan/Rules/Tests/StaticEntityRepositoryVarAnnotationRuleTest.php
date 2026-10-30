@@ -41,6 +41,14 @@ class StaticEntityRepositoryVarAnnotationRuleTest extends RuleTestCase
                     'Use StaticEntityRepository::of(ProductCollection::class, ...) instead of the @var annotation: no search carries the collection type.',
                     62,
                 ],
+                [
+                    'Drop the @var annotation: a search carries the collection type, the generic is inferred from it.',
+                    112,
+                ],
+                [
+                    'Use StaticEntityRepository::of(ProductCollection::class, ...) instead of the @var annotation: no search carries the collection type.',
+                    123,
+                ],
             ],
         );
     }

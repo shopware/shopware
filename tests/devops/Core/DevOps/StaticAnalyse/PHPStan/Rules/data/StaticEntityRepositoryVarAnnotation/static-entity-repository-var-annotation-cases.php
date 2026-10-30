@@ -92,4 +92,34 @@ class StaticEntityRepositoryVarAnnotationCases extends TestCase
 
         static::assertSame([], $this->property->upserts);
     }
+
+    public function testRedundantAnnotationOnAReturnedConstruction(): void
+    {
+        static::assertCount(0, $this->typedRepository()->search(new Criteria(), Context::createDefaultContext()));
+    }
+
+    public function testAnnotationOnAReturnedConstructionWithUntypedSearches(): void
+    {
+        static::assertSame([], $this->untypedRepository([])->upserts);
+    }
+
+    /**
+     * @return StaticEntityRepository<ProductCollection>
+     */
+    private function typedRepository(): StaticEntityRepository
+    {
+        /** @var StaticEntityRepository<ProductCollection> */
+        return new StaticEntityRepository([new ProductCollection()]);
+    }
+
+    /**
+     * @param array<mixed> $searches
+     *
+     * @return StaticEntityRepository<ProductCollection>
+     */
+    private function untypedRepository(array $searches): StaticEntityRepository
+    {
+        /** @var StaticEntityRepository<ProductCollection> */
+        return new StaticEntityRepository($searches);
+    }
 }

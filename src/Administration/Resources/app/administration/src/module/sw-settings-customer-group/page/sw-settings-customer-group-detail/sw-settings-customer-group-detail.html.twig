@@ -2,7 +2,9 @@
 <sw-page class="sw-settings-customer-group-detail">
 
     {% block sw_settings_customer_group_detail_search_bar %}
-    <template #search-bar></template>
+    <template v-if="adminEsEnable" #search-bar>
+        <sw-search-bar initial-search-type="customer_group" />
+    </template>
     {% endblock %}
 
     {% block sw_settings_customer_group_detail_smart_bar_header %}

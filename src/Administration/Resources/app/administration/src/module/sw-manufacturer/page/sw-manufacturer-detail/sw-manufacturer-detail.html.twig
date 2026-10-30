@@ -1,5 +1,10 @@
 {% block sw_manufacturer_detail %}
 <sw-page class="sw-manufacturer-detail">
+    {% block sw_manufacturer_detail_search_bar %}
+    <template v-if="adminEsEnable" #search-bar>
+        <sw-search-bar initial-search-type="product_manufacturer" />
+    </template>
+    {% endblock %}
 
     {% block sw_manufacturer_detail_header %}
     <template #smart-bar-header>

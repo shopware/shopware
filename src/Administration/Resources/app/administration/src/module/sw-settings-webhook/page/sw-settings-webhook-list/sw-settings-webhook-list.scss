@@ -5,6 +5,10 @@
         max-width: 320px;
     }
 
+    .sw-collapse__content {
+        padding: 0 var(--scale-size-24);
+    }
+
     &__owner-type {
         margin: 0 var(--scale-size-8) 0 0;
     }

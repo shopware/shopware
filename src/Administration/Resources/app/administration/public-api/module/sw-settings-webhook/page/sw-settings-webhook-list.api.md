@@ -19,5 +19,8 @@ blocks
       sw_settings_webhook_list_grid  [private]
       sw_settings_webhook_list_load_error  [private]
     sw_settings_webhook_list_search_bar  [private]
+    sw_settings_webhook_list_sidebar  [private]
+      sw_settings_webhook_list_sidebar_filter  [private]
+        sw_settings_webhook_list_sidebar_filter_owner  [private]
     sw_settings_webhook_list_smart_bar_header  [private]
 ```

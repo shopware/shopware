@@ -168,8 +168,8 @@
             v-if="showEmptyState"
             centered
             icon="regular-bolt"
-            :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-settings-webhook.list.emptyStateHeadline')"
-            :description="isValidTerm(term) ? $t('sw-empty-state.messageNoResultSublineSimple') : $t('sw-settings-webhook.list.emptyStateDescription')"
+            :headline="isFiltered ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-settings-webhook.list.emptyStateHeadline')"
+            :description="isFiltered ? $t('sw-empty-state.messageNoResultSublineSimple') : $t('sw-settings-webhook.list.emptyStateDescription')"
         />
         {% endblock %}
 
@@ -183,6 +183,37 @@
             :description="$t('sw-settings-webhook.list.loadErrorDescription')"
         />
         {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_webhook_list_sidebar %}
+    <template #sidebar>
+        <sw-sidebar>
+            {% block sw_settings_webhook_list_sidebar_filter %}
+            <sw-sidebar-item
+                icon="regular-filter"
+                :title="$t('sw-filter-panel.titleSidebarItemFilter')"
+            >
+                {% block sw_settings_webhook_list_sidebar_filter_owner %}
+                <sw-sidebar-collapse>
+                    <template #header>
+                        {{ $t('sw-settings-webhook.list.ownerFilter') }}
+                    </template>
+
+                    <template #content>
+                        <mt-select
+                            class="sw-settings-webhook-list__owner-filter"
+                            :enable-multi-selection="true"
+                            :model-value="ownerFilter"
+                            :options="ownerFilterOptions"
+                            @update:model-value="onChangeOwnerFilter"
+                        />
+                    </template>
+                </sw-sidebar-collapse>
+                {% endblock %}
+            </sw-sidebar-item>
+            {% endblock %}
+        </sw-sidebar>
     </template>
     {% endblock %}
 

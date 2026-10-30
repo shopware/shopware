@@ -10,6 +10,8 @@ import './sw-settings-webhook-list.scss';
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
+type Owner = 'user' | 'app' | 'service';
+
 /**
  * @private
  */
@@ -31,6 +33,7 @@ export default Component.wrapComponentConfig({
         hasLoadError: boolean;
         deliveriesWebhook: Entity<'webhook'> | null;
         secretWebhook: Entity<'webhook'> | null;
+        ownerFilter: Owner[];
         sortBy: string;
         sortDirection: 'ASC' | 'DESC';
     } {
@@ -42,6 +45,7 @@ export default Component.wrapComponentConfig({
             hasLoadError: false,
             deliveriesWebhook: null,
             secretWebhook: null,
+            ownerFilter: ['user'],
             sortBy: 'name',
             sortDirection: 'ASC',
         };
@@ -74,9 +78,38 @@ export default Component.wrapComponentConfig({
             criteria.addAssociation('app');
             criteria.addAssociation('ownerUser');
             criteria.addAssociation('ownerIntegration');
+            if (this.ownerFilter.length > 0) {
+                criteria.addFilter(
+                    Criteria.multi(
+                        'OR',
+                        this.ownerFilter.map((owner) => this.ownerCondition(owner)),
+                    ),
+                );
+            }
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
             return criteria;
+        },
+
+        ownerFilterOptions(): { value: Owner; label: string }[] {
+            return [
+                {
+                    value: 'user',
+                    label: this.$t('sw-settings-webhook.list.ownerFilterUsers'),
+                },
+                {
+                    value: 'app',
+                    label: this.$t('sw-settings-webhook.list.ownerFilterApps'),
+                },
+                {
+                    value: 'service',
+                    label: this.$t('sw-settings-webhook.list.ownerFilterServices'),
+                },
+            ];
+        },
+
+        isFiltered(): boolean {
+            return this.ownerFilter.length > 0 || !!this.isValidTerm(this.term ?? '');
         },
 
         columns() {
@@ -146,6 +179,28 @@ export default Component.wrapComponentConfig({
             } catch {
                 return null;
             }
+        },
+
+        ownerCondition(owner: Owner) {
+            if (owner === 'user') {
+                return Criteria.multi('AND', [
+                    Criteria.equals('appId', null),
+                    Criteria.equals('ownerIntegration.app.id', null),
+                ]);
+            }
+
+            const selfManaged = owner === 'service';
+
+            return Criteria.multi('OR', [
+                Criteria.equals('app.selfManaged', selfManaged),
+                Criteria.equals('ownerIntegration.app.selfManaged', selfManaged),
+            ]);
+        },
+
+        onChangeOwnerFilter(owners: Owner[]): void {
+            this.ownerFilter = owners;
+            this.page = 1;
+            void this.getList();
         },
 
         onListingSearched(webhooks: EntityCollection<'webhook'>): void {

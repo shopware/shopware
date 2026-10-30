@@ -15,7 +15,10 @@
             </template>
 
             <template v-else>
-                <sw-tabs position-identifier="sw-import-export">
+                <sw-tabs
+                    v-silence-flag="'V6_9_0_0'"
+                    position-identifier="sw-import-export"
+                >
                     {% block sw_import_export_tabs_import %}
                     <sw-tabs-item :route="{ name: 'sw.import.export.index.import' }">
                         {{ $t('sw-import-export.page.importTab') }}

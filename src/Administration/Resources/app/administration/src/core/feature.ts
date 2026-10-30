@@ -169,13 +169,13 @@ export default class Feature {
 
     /**
      * Sets a check that silences deprecations beyond `Feature.silence()`, replacing the one of the same name, so a
-     * module that runs again does not add a second one. The app layer sets the one of the `v-silence-flag` directive
+     * module that runs again does not add a second one. The app layer sets the one of the `v-silence-deprecations` directive
      * here, as `src/core` does not know Vue. A check gets the flag as `silenceKey()` spells it, and only while the
      * major is inactive.
      *
      * @private
      * @example
-     * Feature.setSilenceCheck('v-silence-flag', (majorFlag) => isSilencedByTemplate(majorFlag));
+     * Feature.setSilenceCheck('v-silence-deprecations', (majorFlag) => isSilencedByTemplate(majorFlag));
      */
     static setSilenceCheck(name: string, check: (majorFlag: string) => boolean): void {
         this.silenceChecks.set(name, check);
@@ -183,7 +183,7 @@ export default class Feature {
 
     /**
      * Whether the deprecations of `majorFlag` are silenced right now: inside a `Feature.silence()` callback, or
-     * by a check like the one of the `v-silence-flag` directive. Never once `majorFlag` is active.
+     * by a check like the one of the `v-silence-deprecations` directive. Never once `majorFlag` is active.
      *
      * @private
      * @example
@@ -204,7 +204,7 @@ export default class Feature {
      * warns while `majorFlag` is inactive, throws once it is active. A message listed in
      * `src/core/deprecation-baseline.json` is known core debt, so it logs an error instead of throwing.
      * An unregistered flag can never become active, so it logs an error instead of the warning, unless it is
-     * an upcoming major the backend does not register yet. While `Feature.silence()` or `v-silence-flag`
+     * an upcoming major the backend does not register yet. While `Feature.silence()` or `v-silence-deprecations`
      * silence `majorFlag` it does nothing.
      *
      * @example

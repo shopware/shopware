@@ -471,6 +471,7 @@ The plugin logs a warning when it uses the option or DOM fallback, with guidance
 
 The `pathIdList` key of `navbarOptions` in `layout/navbar/navbar.html.twig` stays deprecated and is removed with 6.8, because the ESI-cached navbar holds the path of another page.
 Use `shopware.navigation.pathIdList` or `window.activeNavigationPathIdList` instead.
+
 ### `.btn-link-inline` follows the link decoration variables
 
 `.btn-link-inline` now uses `$link-decoration` and `$link-hover-decoration` for its underline, like regular links, instead of always being underlined.

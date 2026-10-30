@@ -119,6 +119,33 @@ describe('repository.data.ts', () => {
         expect(clientMock.history.post[3].url).toBe('/search-ids/product?title=ImmaTest');
     });
 
+    it('should iterate ids without requesting a total count', async () => {
+        responses.addResponse({
+            method: 'POST',
+            url: '/search-ids/product',
+            status: 200,
+            response: {
+                total: 1,
+                data: ['product-id'],
+            },
+        });
+
+        const repository = repositoryFactory.create('product');
+        const criteria = new Criteria(1, 2);
+        const callback = jest.fn(() => Promise.resolve());
+
+        await repository.iterateIds(criteria, callback);
+
+        expect(callback).toHaveBeenCalledWith(['product-id']);
+        expect(clientMock.history.post).toHaveLength(1);
+        expect(JSON.parse(clientMock.history.post[0].data)).toEqual(
+            expect.objectContaining({
+                limit: 2,
+                'total-count-mode': 0,
+            }),
+        );
+    });
+
     it('should use axios v1 for repository requests regardless of repository options', async () => {
         responses.addResponse({
             method: 'POST',

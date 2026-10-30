@@ -366,6 +366,46 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
         static::assertSame('not-regenerated/', $ownTemplate['seoPathInfo']);
     }
 
+    public function testRestoringTheInheritanceOfASalesChannelTemplateRegeneratesItWithTheDefaultTemplate(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+
+        $this->categoryRepository->create([
+            ['id' => $ids->create('root'), 'name' => 'root', 'active' => true],
+            ['id' => $ids->create('a'), 'name' => 'a', 'parentId' => $ids->get('root'), 'active' => true],
+        ], $context);
+
+        $this->createSalesChannel($ids->create('sales-channel'), $ids->get('root'));
+
+        $this->seoUrlTemplateRepository->create([
+            [
+                'id' => $ids->create('template'),
+                'salesChannelId' => $ids->get('sales-channel'),
+                'routeName' => NavigationPageSeoUrlRoute::ROUTE_NAME,
+                'entityName' => CategoryDefinition::ENTITY_NAME,
+                'template' => 'own/{{ category.name }}',
+            ],
+        ], $context);
+
+        $this->runWorker();
+
+        $canonical = $this->getCanonicalSeoUrl($ids->get('a'), $ids->get('sales-channel'));
+        static::assertNotNull($canonical);
+        static::assertStringStartsWith('own/', $canonical['seoPathInfo']);
+
+        // restoring the inheritance in the Administration keeps the row and empties its template
+        $this->seoUrlTemplateRepository->update([
+            ['id' => $ids->get('template'), 'template' => null],
+        ], $context);
+
+        $this->runWorker();
+
+        $canonical = $this->getCanonicalSeoUrl($ids->get('a'), $ids->get('sales-channel'));
+        static::assertNotNull($canonical);
+        static::assertSame('a/', $canonical['seoPathInfo']);
+    }
+
     private function setCanonicalSeoPathInfo(string $foreignKey, string $salesChannelId, string $seoPathInfo): void
     {
         $canonical = $this->getCanonicalSeoUrl($foreignKey, $salesChannelId);

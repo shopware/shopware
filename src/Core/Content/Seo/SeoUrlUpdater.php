@@ -55,7 +55,8 @@ class SeoUrlUpdater
      * @internal
      *
      * @param list<string> $ids
-     * @param string|null $templateSalesChannelId the sales channel of the changed template, `null` for the default template
+     * @param string|null $templateSalesChannelId the sales channel whose own template changed (also when it now inherits the default template),
+     *                                            `null` for the default template, which regenerates the sales channels without an own template
      */
     public function updateForTemplate(string $routeName, array $ids, ?string $templateSalesChannelId): void
     {
@@ -201,7 +202,12 @@ class SeoUrlUpdater
                 continue;
             }
 
-            if ($onlyChangedTemplate && ($ownTemplate === null ? null : $domain['salesChannelId']) !== $templateSalesChannelId) {
+            // a sales channel whose own template changed is regenerated even when it now inherits the default template
+            $affected = $templateSalesChannelId === null
+                ? $ownTemplate === null
+                : $domain['salesChannelId'] === $templateSalesChannelId;
+
+            if ($onlyChangedTemplate && !$affected) {
                 continue;
             }
 

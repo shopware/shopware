@@ -33,6 +33,43 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 #[CoversClass(CacheStore::class)]
 class CacheStoreTest extends TestCase
 {
+    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]
+    public function testGuestResponseClearingCookiesIsNotStoredUnderCustomerHash(): void
+    {
+        $request = Request::create('https://domain.com/_esi/global/header', cookies: [
+            HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => 'customer-hash',
+            HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE => 'logged-in',
+        ]);
+        $response = new Response('guest header');
+        $response->setSharedMaxAge(300);
+        $response->headers->clearCookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
+        $response->headers->clearCookie(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE);
+
+        $maintenanceResolver = static::createStub(MaintenanceModeResolver::class);
+        $maintenanceResolver->method('shouldBeCached')->willReturn(true);
+
+        $store = new CacheStore(
+            new TagAwareAdapter(new ArrayAdapter()),
+            new CacheStateValidator(['logged-in', 'cart-filled']),
+            new EventDispatcher(),
+            new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
+            $maintenanceResolver,
+            [],
+            static::createStub(CacheTagCollector::class),
+            false,
+            new CollectingMessageBus(),
+            new NativeClock()
+        );
+
+        $store->write($request, $response);
+
+        static::assertNull($store->lookup($request));
+        static::assertSame(
+            'guest header',
+            $store->lookup(Request::create('https://domain.com/_esi/global/header'))?->getContent()
+        );
+    }
+
     public function testGetLock(): void
     {
         $request = new Request();

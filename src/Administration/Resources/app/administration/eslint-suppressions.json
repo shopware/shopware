@@ -9738,9 +9738,6 @@
   "src/module/sw-product/component/sw-product-variant-modal/sw-product-variant-modal.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
-    },
-    "sw-test-rules/no-vm-access": {
-      "count": 14
     }
   },
   "src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery/index.js": {

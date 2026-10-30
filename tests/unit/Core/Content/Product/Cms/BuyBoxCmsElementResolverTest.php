@@ -34,8 +34,7 @@ class BuyBoxCmsElementResolverTest extends TestCase
 {
     public function testGetType(): void
     {
-        /** @var StaticEntityRepository<ProductReviewCollection> */
-        $repository = new StaticEntityRepository([]);
+        $repository = StaticEntityRepository::of(ProductReviewCollection::class, []);
 
         $resolver = new BuyBoxCmsElementResolver(
             static::createStub(ProductConfiguratorLoader::class),
@@ -86,8 +85,7 @@ class BuyBoxCmsElementResolverTest extends TestCase
     {
         $configurationLoader = static::createStub(ProductConfiguratorLoader::class);
 
-        /** @var StaticEntityRepository<ProductReviewCollection> */
-        $repository = new StaticEntityRepository([]);
+        $repository = StaticEntityRepository::of(ProductReviewCollection::class, []);
 
         $resolver = new BuyBoxCmsElementResolver($configurationLoader, $repository);
 

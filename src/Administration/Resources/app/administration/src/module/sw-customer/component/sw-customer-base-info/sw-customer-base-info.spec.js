@@ -1,4 +1,6 @@
 import { mount } from '@vue/test-utils';
+import ShopwareError from 'src/core/data/ShopwareError';
+import Entity from 'src/core/data/entity.data';
 
 /**
  * @sw-package checkout
@@ -257,5 +259,55 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
             'sw-customer.baseInfo.labelCampaignCode',
         );
         expect(leftColumn.findAll('.sw-description-list')[4].find('dd').text()).not.toBe('-');
+    });
+
+    it('should edit the customer number in edit mode', async () => {
+        await wrapper.setProps({
+            customer: {
+                ...wrapper.props().customer,
+                customerNumber: '123456789',
+            },
+            customerEditMode: true,
+        });
+
+        await flushPromises();
+
+        expect(wrapper.find('.sw-customer-base__label-customer-number').exists()).toBe(false);
+
+        const customerNumberField = wrapper.find('input[name="sw-field--customer-customerNumber"]');
+        expect(customerNumberField.element.value).toBe('123456789');
+
+        await customerNumberField.setValue('10001');
+
+        expect(wrapper.props().customer.customerNumber).toBe('10001');
+    });
+
+    it('should show the customer number error in edit mode', async () => {
+        Shopware.Store.get('error').addApiError({
+            expression: 'customer.customerId.customerNumber',
+            error: new ShopwareError({
+                code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                detail: 'This value should not be blank.',
+            }),
+        });
+
+        await wrapper.setProps({
+            customer: new Entity('customerId', 'customer', {
+                ...wrapper.props().customer,
+                customerNumber: '',
+            }),
+            customerEditMode: true,
+        });
+
+        await flushPromises();
+
+        const customerNumberField = wrapper
+            .find('input[name="sw-field--customer-customerNumber"]')
+            .element.closest('.mt-field');
+        expect(customerNumberField.querySelector('.mt-field__error').textContent.trim()).toBe(
+            'This value should not be blank.',
+        );
+
+        Shopware.Store.get('error').resetApiErrors();
     });
 });

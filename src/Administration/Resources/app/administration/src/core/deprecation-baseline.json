@@ -1,52 +1,4 @@
 {
-    "The \"sw-tabs\" wrapper is deprecated and will be removed in v6.9.0.0. Please use \"mt-tabs\" instead.": {
-        "sw-bulk-edit-custom-fields > sw-tabs": [
-            "default",
-            "major"
-        ],
-        "sw-cms-el-config-text > sw-tabs": [
-            "default"
-        ],
-        "sw-cms-layout-assignment-modal > sw-tabs": [
-            "default"
-        ],
-        "sw-custom-field-set-renderer > sw-tabs": [
-            "default"
-        ],
-        "sw-custom-field-translated-labels > sw-tabs": [
-            "default"
-        ],
-        "sw-extension-component-section > sw-tabs": [
-            "default"
-        ],
-        "sw-flow-rule-modal > sw-tabs": [
-            "default"
-        ],
-        "sw-media-modal-folder-settings > sw-tabs": [
-            "default"
-        ],
-        "sw-meteor-card > sw-tabs": [
-            "default"
-        ],
-        "sw-meteor-page > sw-tabs": [
-            "default"
-        ],
-        "sw-order-new-customer-modal > sw-tabs": [
-            "default"
-        ],
-        "sw-settings-logging-mail-sent-info > sw-tabs": [
-            "default"
-        ],
-        "sw-settings-rule-detail > sw-tabs": [
-            "default"
-        ],
-        "sw-settings-tag-detail-modal > sw-tabs": [
-            "default"
-        ],
-        "sw-settings-usage-data > sw-tabs": [
-            "default"
-        ]
-    },
     "The component \"sw-agentic-commerce-tracking-config\" is deprecated and will be removed in Shopware v6.8.0.0.\nWill be removed.": {
         "sw-agentic-commerce-tracking-config": [
             "default",
@@ -123,11 +75,6 @@
         "sw-product-variants-overview": [
             "default",
             "major"
-        ]
-    },
-    "messageQueueNotification() is deprecated. The increment-based message queue statistics are deprecated.": {
-        "src/core/factory/worker-notification.factory.ts": [
-            "default"
         ]
     },
     "sw-bulk-edit-save-modal-process.createDocument() is deprecated. Removed with document generation v1.": {
@@ -539,11 +486,6 @@
         "src/module/sw-settings-document/page/sw-settings-document-detail/sw-settings-document-detail.spec.js": [
             "default",
             "major"
-        ]
-    },
-    "sw-settings-index.getUserConfig() is deprecated. Will be removed without replacement.": {
-        "sw-settings-index": [
-            "default"
         ]
     },
     "sw-settings-number-range-detail.loadSalesChannels() is deprecated and will be removed, use buildSelectedSalesChannelsCollection instead.": {

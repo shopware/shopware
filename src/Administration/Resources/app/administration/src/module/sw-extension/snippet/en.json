@@ -288,6 +288,7 @@
           "seeDetailsLabel": "See details",
           "privacyAndSafetyLabel": "Data privacy & safety",
           "cancelAndRemoveLabel": "Cancel and remove",
+          "cancelSubscriptionLabel": "Cancel subscription",
           "uninstallLabel": "Uninstall",
           "updateLabel": "Update to {version}",
           "rateLabel": "Rate extension",
@@ -305,7 +306,7 @@
       "sw-extension-deactivation-modal": {
         "deactivateExtensionLabel": "Deactivate \"{extensionName}\"",
         "description": "The \"{extensionName}\" extension has a monthly subscription fee.<br>Deactivating this extension <b>will not</b> cancel your subscription and fees will continue to be collected.",
-        "descriptionCancel": "If you want to cancel your subscription, you can remove it by clicking \"{removeLabel}\" in the context menu.",
+        "descriptionCancel": "If you want to cancel your subscription, click \"{removeLabel}\" in the context menu.",
         "alertDeactivate": "Do you still want to deactivate this extension?",
         "deactivateLabel": "Deactivate"
       },
@@ -352,11 +353,14 @@
       },
       "sw-extension-removal-modal": {
         "titleCancel": "\"{extensionName}\" cancel and remove",
+        "titleCancelSubscription": "\"{extensionName}\" cancel subscription",
         "titleRemove": "\"{extensionName}\" remove",
         "description": "If you remove the extension, you can no longer use it.",
         "alertCancel": "Are you sure you want to cancel and remove the extension?",
+        "alertCancelSubscription": "Are you sure you want to cancel the subscription?",
         "alertRemove": "Are you sure you want to remove the extension?",
-        "labelCancel": "Cancel and remove"
+        "labelCancel": "Cancel and remove",
+        "labelCancelSubscription": "Cancel subscription"
       },
       "sw-extension-uninstall-modal": {
         "title": "\"{extensionName}\" uninstall",

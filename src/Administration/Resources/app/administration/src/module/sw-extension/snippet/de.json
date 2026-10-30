@@ -288,6 +288,7 @@
           "seeDetailsLabel": "Details ansehen",
           "privacyAndSafetyLabel": "Datenschutz & Datensicherheit",
           "cancelAndRemoveLabel": "Kündigen und entfernen",
+          "cancelSubscriptionLabel": "Miete kündigen",
           "uninstallLabel": "Deinstallieren",
           "updateLabel": "Aktualisieren auf {version}",
           "rateLabel": "Erweiterung bewerten",
@@ -352,11 +353,14 @@
       },
       "sw-extension-removal-modal": {
         "titleCancel": "\"{extensionName}\" kündigen und entfernen",
+        "titleCancelSubscription": "\"{extensionName}\" kündigen",
         "titleRemove": "\"{extensionName}\" entfernen",
         "description": "Wenn Du die Erweiterung entfernst, kannst Du sie nicht mehr nutzen.",
         "alertCancel": "Möchtest Du die Erweiterung wirklich kündigen und entfernen?",
+        "alertCancelSubscription": "Möchtest Du die Miete wirklich kündigen?",
         "alertRemove": "Möchtest Du die Erweiterung wirklich entfernen?",
-        "labelCancel": "Kündigen und entfernen"
+        "labelCancel": "Kündigen und entfernen",
+        "labelCancelSubscription": "Miete kündigen"
       },
       "sw-extension-uninstall-modal": {
         "title": "\"{extensionName}\" deinstallieren",

@@ -111,6 +111,10 @@ describe('module/sw-product/page/sw-product-detail', () => {
                                     product._origin = {};
                                 }
 
+                                if (product && !product.isNew) {
+                                    product.isNew = () => false;
+                                }
+
                                 return product;
                             },
                             hasChanges: () => true,
@@ -591,7 +595,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 name: 'general',
             };
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         settings.forEach((entry) => {
             expect(entry.enabled).toBe(!keys.includes(entry.key));
@@ -605,7 +609,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should set purchasePrices to default value when given purchasePrices are empty', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.unmount();
         wrapper = await createWrapper(() =>
             Promise.resolve([

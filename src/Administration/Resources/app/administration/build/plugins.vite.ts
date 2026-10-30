@@ -192,7 +192,8 @@ const getBaseConfig = (
 };
 
 // Main function to handle both dev and build modes
-const main = async () => {
+/** @private */
+export const main = async () => {
     const toolchain = await loadViteToolchain();
     const logger = toolchain.vite.createLogger();
     const extensionEntries = loadExtensions();
@@ -284,11 +285,16 @@ const main = async () => {
     }
 };
 
-main().catch((error) => {
-    console.error(error);
-
-    // In dev mode a non-zero exit would also stop the watcher of the Administration
-    if (!isDev) {
-        process.exit(1);
-    }
-});
+/** @private */
+export function getExtensionDevConfig(
+    toolchain: ViteToolchain,
+    extension: ExtensionDefinition,
+    useBundledDev: boolean,
+): UserConfig {
+    return extension.isApp
+        ? {
+              root: extension.path,
+              plugins: toolchain.isVite8 ? [ExtglobCompatPlugin({ warnOnRewrite: true })] : [],
+          }
+        : getBaseConfig(toolchain, extension, false, useBundledDev);
+}

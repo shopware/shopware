@@ -3,7 +3,7 @@
  */
 
 import concurrently from 'concurrently';
-import { getViteCommand } from './vite-toolchain';
+import { getViteCommand, isVite8ToolchainActive } from './vite-toolchain';
 
 /**
  * @private
@@ -11,11 +11,15 @@ import { getViteCommand } from './vite-toolchain';
 export function startDevelopmentProcesses() {
     return concurrently(
         [
-            {
-                command: 'ts-node -T build/plugins.vite.ts',
-                name: 'Extensions',
-                prefixColor: 'yellow',
-            },
+            ...(!isVite8ToolchainActive()
+                ? [
+                      {
+                          command: 'ts-node -T build/vite-plugins/extension-build.ts',
+                          name: 'Extensions',
+                          prefixColor: 'yellow',
+                      },
+                  ]
+                : []),
             {
                 command: getViteCommand(),
                 name: 'Administration',

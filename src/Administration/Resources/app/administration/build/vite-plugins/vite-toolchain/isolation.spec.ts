@@ -165,7 +165,7 @@ describe('build/vite-plugins/vite-toolchain', () => {
                         project: ${JSON.stringify(path.join(administrationRoot, 'tsconfig.json'))},
                     });
 
-                    require(${JSON.stringify(path.join(administrationRoot, 'build/plugins.vite.ts'))});
+                    require(${JSON.stringify(path.join(administrationRoot, 'build/vite-plugins/extension-build.ts'))});
 
                     const { loadViteToolchain } = require(${JSON.stringify(path.join(__dirname, 'index.ts'))});
 

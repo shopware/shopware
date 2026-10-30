@@ -29,7 +29,7 @@ file save
   -> web socket message "sw-twig-update" { files }
   -> browser client
        1. prepare: fetch the page and every open AJAX modal and offcanvas, validate all responses
-       2. apply: morph all responses in one synchronous step, restore the interaction state
+       2. apply: reject unsafe changes, morph all other responses in one synchronous step, restore the interaction state
        3. PluginManager.initializePlugins()
        4. restore the focus and the text selection
        5. show the notice if a change needs a reload, dispatch "sw-twig-hmr:updated"
@@ -77,9 +77,22 @@ A redirect usually means that the session expired and the server sent the login 
 A fragment that closed or loaded other content during the fetch keeps its DOM.
 All other responses are morphed in one synchronous step with `Idiomorph.morph(root, next.childNodes, { morphStyle: 'innerHTML' })`.
 
+**Unsafe changes.**
+Before the morph, the client morphs a copy of the live root and checks which elements the morph would remove.
+A response is not applied at all if it would remove one of these elements, directly or with an ancestor:
+
+- an element with a plugin instance
+- an element that a script added
+- an open modal or offcanvas
+- a direct body child that an open overlay made inert
+
+While an overlay makes the rest of the page inert, a response that adds a direct body child is not applied either.
+The offcanvas plugin only restores the background elements it recorded when it opened, so a new element would stay outside its cleanup.
+The rejected page or fragment keeps its current content, and the notice names the elements and asks for a reload.
+
 **Ownership.**
 A `MutationObserver` records every element that scripts add to the body after `init()`.
-The morph never changes or removes these elements.
+The morph never changes these elements, and a template that would remove them is not applied.
 The same applies to elements matching `.modal-backdrop`, `.offcanvas-backdrop`, `.js-pseudo-modal`, `.js-offcanvas-singleton` or `[data-sw-twig-hmr-preserve]`.
 Server elements that a template removed are removed, also direct children of the body.
 The morph itself is not recorded, so elements that the template adds stay server markup.
@@ -90,6 +103,8 @@ The client compares the server markup of the previous and the new render for eve
 
 - Unchanged plugin elements keep their DOM and their instance.
 - Changed plugin elements keep their old DOM, so the plugin keeps working, and the notice asks for a reload.
+- A template that removes a plugin element, changes its id or removes one of its ancestors is not applied.
+  Morphing it would remove the element without destroying the plugin instance.
 - New plugin elements are initialized by `PluginManager.initializePlugins()`.
 
 The previous render of the page is a copy of the body taken by `init()`.
@@ -99,7 +114,8 @@ Without a previous render, every plugin element counts as changed.
 **Interaction state.**
 Only state that a user created is kept:
 
-- Controls that the user edited keep `value`, `checked` and `selected`.
+- Controls that the user edited keep `value` and `checked`.
+  Edited selects keep their selected options by value, so reordered options keep the selection.
   Hidden inputs and untouched controls follow the template.
   If the template replaced an edited control, the new control gets the value when exactly one control matches its form, name and type.
 - Open modals and offcanvas elements keep `show`, `showing`, `style`, `aria-modal`, `role` and `aria-hidden`.
@@ -128,7 +144,9 @@ These are covered by the tests in `test/dev/twig-hmr`:
   `morph(body, newBody)` would nest a second `<body>` inside the body, so the client passes `newBody.childNodes`.
 - `ignoreActiveValue: true` skips all children of the focused element.
   Bootstrap focuses the `.modal` element itself, so an open modal would never update.
-- `beforeNodeRemoved` is not called for elements with an id that idiomorph moves, so ownership is checked in `beforeNodeMorphed` as well.
+- `beforeNodeRemoved` is not called for elements with an id that idiomorph moves.
+  An element with an id that the new markup no longer contains at the same place goes to a hidden pantry and is removed with it after the morph, without any callback.
+  This is why the client checks removals with a dry run on a copy instead of relying on the callbacks.
 - `restoreFocus: true` only works for focused elements with an `id`.
 
 ## Tests

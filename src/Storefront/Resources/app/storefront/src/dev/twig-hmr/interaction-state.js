@@ -7,15 +7,14 @@
  * @sw-package framework
  * @private
  */
-import { describeElement } from './plugin-policy';
 
 const FORM_STATE_ATTRIBUTES = ['value', 'checked', 'selected'];
 const CONTROL_SELECTOR = 'input, select, textarea';
 const TAB_TRIGGER_SELECTOR = '[data-bs-toggle="tab"], [data-bs-toggle="pill"], [data-bs-toggle="list"]';
-const OVERLAY_SELECTOR = '.modal.show, .offcanvas.show, .offcanvas.showing';
+export const OVERLAY_SELECTOR = '.modal.show, .offcanvas.show, .offcanvas.showing';
 
 /**
- * @typedef {function(string[]): void} RestoreState - restores the state and collects reasons for a reload
+ * @typedef {function(): void} RestoreState
  */
 
 function isControl(element) {
@@ -32,8 +31,9 @@ function controlKey(control) {
 }
 
 function readControl(control) {
+    // Options are kept by value, because the template can reorder them.
     if (control.localName === 'select') {
-        return { selected: [...control.options].map((option) => option.selected) };
+        return { selectedValues: [...control.selectedOptions].map((option) => option.value) };
     }
 
     if (control.type === 'checkbox' || control.type === 'radio') {
@@ -44,9 +44,9 @@ function readControl(control) {
 }
 
 function writeControl(control, state) {
-    if (state.selected) {
-        [...control.options].forEach((option, index) => {
-            option.selected = !!state.selected[index];
+    if (state.selectedValues) {
+        [...control.options].forEach((option) => {
+            option.selected = state.selectedValues.includes(option.value);
         });
     } else if ('checked' in state) {
         control.checked = state.checked;
@@ -120,14 +120,8 @@ function captureOverlays() {
     }));
 }
 
-function restoreOverlays(records, reasons) {
+function restoreOverlays(records) {
     records.forEach(({ element, classes, attributes }) => {
-        if (!element.isConnected) {
-            reasons.push(`The open ${describeElement(element)} was replaced. Bootstrap still controls the old element.`);
-
-            return;
-        }
-
         element.classList.add(...classes);
         writeAttributes(element, attributes);
     });
@@ -135,25 +129,23 @@ function restoreOverlays(records, reasons) {
 
 /**
  * The offcanvas and modal plugins make the background inert while they are open.
+ *
+ * @returns {Element[]}
  */
-function captureBackground() {
+export function findInertBackground() {
     if (!document.querySelector(OVERLAY_SELECTOR)) {
         return [];
     }
 
-    return [...document.body.children]
-        .filter((child) => child.hasAttribute('inert') || child.hasAttribute('aria-hidden'))
-        .map((element) => ({ element, attributes: captureAttributes(element, ['inert', 'aria-hidden']) }));
+    return [...document.body.children].filter((child) => child.hasAttribute('inert') || child.hasAttribute('aria-hidden'));
 }
 
-function restoreBackground(records, reasons) {
+function captureBackground() {
+    return findInertBackground().map((element) => ({ element, attributes: captureAttributes(element, ['inert', 'aria-hidden']) }));
+}
+
+function restoreBackground(records) {
     records.forEach(({ element, attributes }) => {
-        if (!element.isConnected) {
-            reasons.push(`The inert background ${describeElement(element)} was replaced while an overlay is open.`);
-
-            return;
-        }
-
         writeAttributes(element, attributes);
         element.inert = element.hasAttribute('inert');
     });
@@ -165,13 +157,16 @@ function captureCollapses(touched) {
         .map((element) => ({ element, open: element.classList.contains('show') }));
 }
 
-function restoreCollapses(records) {
+function restoreCollapses(records, touched) {
     records.forEach(({ element, open }) => {
         const collapse = resolveById(element);
 
         if (!collapse) {
             return;
         }
+
+        // A replacement keeps the state on the next refresh as well.
+        touched.add(collapse);
 
         collapse.classList.remove('collapsing');
         collapse.classList.add('collapse');
@@ -200,7 +195,7 @@ function activate(element, siblings, active) {
     });
 }
 
-function restoreTabs(records) {
+function restoreTabs(records, touched) {
     records.forEach(({ trigger, target }) => {
         const liveTrigger = trigger.isConnected ? trigger : findTabTrigger(target);
         const pane = findTabPane(target);
@@ -208,6 +203,8 @@ function restoreTabs(records) {
         if (!liveTrigger || !pane) {
             return;
         }
+
+        touched.add(liveTrigger);
 
         const list = liveTrigger.closest('[role="tablist"], .nav, .list-group') ?? liveTrigger.parentElement;
         activate(liveTrigger, [...list.querySelectorAll(TAB_TRIGGER_SELECTOR)], (sibling, isActive) => {
@@ -296,16 +293,6 @@ export function createInteractionState(root = document) {
     ];
     listeners.forEach(([type, listener]) => root.addEventListener(type, listener, true));
 
-    function isEdited(element) {
-        if (element.localName === 'option') {
-            const select = element.closest('select');
-
-            return !!select && edited.has(select);
-        }
-
-        return edited.has(element);
-    }
-
     return {
         /**
          * @param {string} attributeName
@@ -313,7 +300,7 @@ export function createInteractionState(root = document) {
          * @returns {boolean} true if the morph must keep the attribute
          */
         isProtectedAttribute(attributeName, element) {
-            return FORM_STATE_ATTRIBUTES.includes(attributeName) && isEdited(element);
+            return FORM_STATE_ATTRIBUTES.includes(attributeName) && edited.has(element);
         },
 
         /**
@@ -331,11 +318,11 @@ export function createInteractionState(root = document) {
             const tabs = captureTabs(touched);
             const dropdowns = captureDropdowns();
 
-            return (reasons) => {
-                restoreOverlays(overlays, reasons);
-                restoreBackground(background, reasons);
-                restoreCollapses(collapses);
-                restoreTabs(tabs);
+            return () => {
+                restoreOverlays(overlays);
+                restoreBackground(background);
+                restoreCollapses(collapses, touched);
+                restoreTabs(tabs, touched);
                 restoreDropdowns(dropdowns);
                 restoreControls(controls);
             };
@@ -348,8 +335,13 @@ export function createInteractionState(root = document) {
 
     /**
      * A control that the morph replaced gets the value of the old one, if exactly one new control matches.
+     * A kept select gets its options back by value, because the morph updates its options by position.
      */
     function restoreControls(records) {
+        records
+            .filter(({ control }) => control.isConnected && control.localName === 'select')
+            .forEach(({ control, state }) => writeControl(control, state));
+
         const replaced = records.filter(({ control }) => !control.isConnected);
 
         if (replaced.length === 0) {

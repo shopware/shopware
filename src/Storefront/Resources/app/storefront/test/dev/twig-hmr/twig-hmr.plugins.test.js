@@ -97,6 +97,23 @@ describe('dev/twig-hmr with real plugins', () => {
         expect(document.getElementById(NOTICE_ID).textContent).toContain('QuantitySelector');
     });
 
+    it.each([
+        ['changed the id of', (id) => `<main><h1>Version 2</h1><div class="slider" id="${id}-new" data-track><div class="slide">A</div><div class="slide">B</div></div></main>`],
+        ['removed an ancestor of', () => '<main><h1>Version 2</h1></main>'],
+    ])('keeps the page when the template %s a plugin element', async (name, next) => {
+        await load('<main><h1>Version 1</h1><div class="wrapper"><div class="slider" id="gallery" data-track><div class="slide">A</div><div class="slide">B</div></div></div></main>');
+        const sliderElement = document.getElementById('gallery');
+        const instance = PluginManager.getPluginInstanceFromElement(sliderElement, 'Track');
+        pages['http://localhost/'] = page(next('gallery'));
+
+        await refresh(['gallery.html.twig']);
+
+        expect(document.querySelector('h1').textContent).toBe('Version 1');
+        expect(document.getElementById('gallery')).toBe(sliderElement);
+        expect(PluginManager.getPluginInstanceFromElement(sliderElement, 'Track')).toBe(instance);
+        expect(document.getElementById(NOTICE_ID).textContent).toContain('The template removes <div#gallery.slider>, which holds the plugins Track.');
+    });
+
     it('keeps unchanged plugins as they are over repeated updates', async () => {
         await load(`<h1>Version 1</h1>${quantitySelector('plus')}${slider()}`);
         const sliderElement = document.querySelector('[data-track]');

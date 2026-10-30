@@ -9,6 +9,7 @@
  * 2. Apply: morph all responses into the DOM in one synchronous step.
  *
  * Plugin elements are never morphed. Changed plugin markup is listed in a "reload required" notice instead.
+ * A morph that would remove a plugin element, an element of a script or an open overlay is not applied at all.
  *
  * @sw-package framework
  * @private
@@ -16,7 +17,7 @@
 import { Idiomorph } from 'idiomorph';
 import { createOwnership, PRESERVE_ATTRIBUTE } from './ownership';
 import { planPluginElements, describeElement } from './plugin-policy';
-import { createInteractionState } from './interaction-state';
+import { createInteractionState, findInertBackground, OVERLAY_SELECTOR } from './interaction-state';
 import { addReloadReasons, setRenderError, resetNotice } from './notice';
 
 export const LOG_PREFIX = '[sw-twig-hmr]';
@@ -254,12 +255,20 @@ async function prepare() {
     }));
 }
 
-function createMorphCallbacks(target, plan, reasons) {
+/**
+ * @param {object} target
+ * @param {Map<Element, object>} plan
+ * @param {string[]} reasons
+ * @param {function(Node): Node} toLive - maps the nodes of a dry run to the live nodes
+ */
+function createMorphCallbacks(target, plan, reasons, toLive = (node) => node) {
     const insideFragment = target.kind !== 'page';
     const { ownership, interaction } = session;
 
     return {
-        beforeNodeMorphed(oldNode, newNode) {
+        beforeNodeMorphed(node, newNode) {
+            const oldNode = toLive(node);
+
             if (!(oldNode instanceof Element) || oldNode === target.liveRoot) {
                 return true;
             }
@@ -289,20 +298,97 @@ function createMorphCallbacks(target, plan, reasons) {
         },
 
         beforeNodeRemoved(node) {
-            return !(node instanceof Element && ownership.isClientOwned(node, insideFragment));
+            const oldNode = toLive(node);
+
+            return !(oldNode instanceof Element && ownership.isClientOwned(oldNode, insideFragment));
         },
 
         beforeAttributeUpdated(attributeName, element) {
-            return !interaction.isProtectedAttribute(attributeName, element);
+            return !interaction.isProtectedAttribute(attributeName, toLive(element));
         },
     };
 }
 
+/**
+ * Elements that must survive a morph as they are, with the reason why.
+ *
+ * @returns {Map<Element, string>}
+ */
+function collectGuardedElements(target, plan) {
+    const insideFragment = target.kind !== 'page';
+    const guarded = new Map();
+    const guard = (element, reason) => {
+        if (!guarded.has(element)) {
+            guarded.set(element, reason);
+        }
+    };
+
+    plan.forEach((entry, element) => guard(element, `holds the plugins ${entry.pluginNames.join(', ')}`));
+    target.liveRoot.querySelectorAll('*').forEach((element) => {
+        if (session.ownership.isClientOwned(element, insideFragment)) {
+            guard(element, 'a script added');
+        }
+    });
+    target.liveRoot.querySelectorAll(OVERLAY_SELECTOR).forEach((element) => guard(element, 'is open'));
+
+    return guarded;
+}
+
+/**
+ * Runs the morph on a detached copy first. Idiomorph removes nodes in several ways,
+ * for example together with an ancestor or from its pantry of nodes with an id, without calling a callback.
+ * Comparing the copy afterwards finds every removal.
+ *
+ * @returns {string[]} the reasons why the morph is unsafe
+ */
+function findUnsafeChanges(target, plan) {
+    const guarded = collectGuardedElements(target, plan);
+    const inertBackground = target.kind === 'page' ? findInertBackground() : [];
+    inertBackground.forEach((element) => {
+        if (!guarded.has(element)) {
+            guarded.set(element, 'belongs to the inert background of an open overlay');
+        }
+    });
+
+    if (guarded.size === 0) {
+        return [];
+    }
+
+    const copy = target.liveRoot.cloneNode(true);
+    const liveElements = [target.liveRoot, ...target.liveRoot.querySelectorAll('*')];
+    const copyElements = [copy, ...copy.querySelectorAll('*')];
+    const toLive = new Map(copyElements.map((element, index) => [element, liveElements[index]]));
+    const toCopy = new Map(liveElements.map((element, index) => [element, copyElements[index]]));
+
+    Idiomorph.morph(copy, target.nextRoot.cloneNode(true).childNodes, {
+        morphStyle: 'innerHTML',
+        callbacks: createMorphCallbacks(target, plan, [], (node) => toLive.get(node) ?? node),
+    });
+
+    const reasons = [...guarded]
+        .filter(([element]) => !copy.contains(toCopy.get(element)))
+        .map(([element, reason]) => `The template removes ${describeElement(element)}, which ${reason}.`);
+
+    // The overlay only restores the background elements that it made inert itself.
+    if (inertBackground.length > 0) {
+        [...copy.children]
+            .filter((child) => !toLive.has(child))
+            .forEach((child) => {
+                reasons.push(`The template adds ${describeElement(child)} while an open overlay makes the rest of the page inert.`);
+            });
+    }
+
+    return reasons;
+}
+
+/**
+ * @returns {boolean} true if the target was updated
+ */
 function morphTarget(target, reasons) {
     if (!target.liveRoot || !target.nextRoot) {
         reasons.push(`The ${target.kind} of ${target.url} no longer has the expected structure.`);
 
-        return;
+        return false;
     }
 
     const plan = planPluginElements({
@@ -313,6 +399,13 @@ function morphTarget(target, reasons) {
             return session.ownership.isInsideClientOwned(element, target.liveRoot, target.kind !== 'page');
         },
     });
+
+    const unsafe = findUnsafeChanges(target, plan);
+    if (unsafe.length > 0) {
+        reasons.push(...unsafe, `The ${target.kind} of ${target.url} keeps its current content.`);
+
+        return false;
+    }
 
     if (target.title && target.nextTitle) {
         target.title.innerHTML = target.nextTitle.innerHTML;
@@ -326,6 +419,8 @@ function morphTarget(target, reasons) {
         restoreFocus: true,
         callbacks: createMorphCallbacks(target, plan, reasons),
     });
+
+    return true;
 }
 
 /**
@@ -341,12 +436,21 @@ function apply(targets) {
     });
     const restoreState = session.interaction.capture();
 
-    session.ownership.withoutRecording(() => {
-        valid.forEach((target) => morphTarget(target, reasons));
+    const applied = session.ownership.withoutRecording(() => {
+        return valid.filter((target) => morphTarget(target, reasons));
     });
-    restoreState(reasons);
+    restoreState();
 
-    const [page] = valid;
+    // A target that keeps its content keeps its baseline, so the next refresh compares against the shown markup.
+    applied.filter((target) => target.kind !== 'page').forEach((target) => {
+        session.fragmentBaselines.set(target.element, { url: target.url, promise: Promise.resolve(target.html) });
+    });
+
+    const [page] = applied;
+    if (page?.kind !== 'page') {
+        return reasons;
+    }
+
     if (page.document.title && page.document.title !== document.title) {
         document.title = page.document.title;
     }
@@ -358,9 +462,6 @@ function apply(targets) {
 
     session.headSignature = headSignature;
     session.pageBaseline = page.nextBaseline;
-    valid.filter((target) => target.kind !== 'page').forEach((target) => {
-        session.fragmentBaselines.set(target.element, { url: target.url, promise: Promise.resolve(target.html) });
-    });
 
     return reasons;
 }

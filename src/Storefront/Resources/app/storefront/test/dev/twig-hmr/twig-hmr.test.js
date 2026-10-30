@@ -35,6 +35,11 @@ describe('dev/twig-hmr', () => {
         return document.getElementById(NOTICE_ID);
     }
 
+    beforeAll(() => {
+        // jsdom has no CSS.escape, which idiomorph uses to move elements with an id.
+        global.CSS ??= { escape: (value) => value };
+    });
+
     beforeEach(() => {
         pages = {};
         global.fetch = jest.fn((url) => respond(url, pages[url] ?? { status: 404 }));
@@ -286,6 +291,27 @@ describe('dev/twig-hmr', () => {
     });
 
     it.each([
+        ['replaced', 'div', 'section'],
+        ['kept', 'div', 'div'],
+    ])('restores the selected options of a %s select by value after the template reordered them', async (name, before, after) => {
+        const select = (wrapper, options) => `<form id="buy"><${wrapper} class="field"><select name="sizes" multiple>${options}</select></${wrapper}></form>`;
+        setup(select(before, '<option value="s">S</option><option value="m">M</option><option value="l">L</option>'));
+        const element = document.querySelector('select');
+        element.options[1].selected = true;
+        element.options[2].selected = true;
+        userInput(element, 'change');
+        pages['http://localhost/'] = {
+            html: page(select(after, '<option value="l">L</option><option value="m">M</option><option value="s">S</option>')),
+        };
+
+        await refresh(['buy-form.html.twig']);
+
+        const current = document.querySelector('select');
+        expect([...current.options].map((option) => option.value)).toEqual(['l', 'm', 's']);
+        expect([...current.selectedOptions].map((option) => option.value).sort()).toEqual(['l', 'm']);
+    });
+
+    it.each([
         ['inside a form', (radios) => `<form id="checkout">${radios}</form>`],
         ['without a form', (radios) => `<div>${radios}</div>`],
     ])('keeps the radio button that the user picked %s', async (name, wrap) => {
@@ -368,6 +394,37 @@ describe('dev/twig-hmr', () => {
         expect(document.getElementById('two').classList.contains('show')).toBe(false);
     });
 
+    it('keeps a replaced tab trigger and a replaced collapse element on the next refresh', async () => {
+        const markup = (tag, version) => `
+            <div class="nav">
+                <${tag} class="nav-link active" data-bs-toggle="tab" data-bs-target="#one">One</${tag}>
+                <${tag} class="nav-link" data-bs-toggle="tab" data-bs-target="#two">Two</${tag}>
+            </div>
+            <div class="tab-content"><div class="tab-pane active" id="one">One</div><div class="tab-pane" id="two">Two ${version}</div></div>
+            <${tag} class="collapse" id="filter">Filter</${tag}>
+        `;
+        setup(markup('a', 1));
+        const [first, second] = document.querySelectorAll('.nav-link');
+        first.classList.remove('active');
+        second.classList.add('active');
+        second.dispatchEvent(new Event('shown.bs.tab', { bubbles: true }));
+        const collapse = document.getElementById('filter');
+        collapse.classList.add('show');
+        collapse.dispatchEvent(new Event('shown.bs.collapse', { bubbles: true }));
+
+        pages['http://localhost/'] = { html: page(markup('button', 2)) };
+        await refresh(['tabs.html.twig']);
+        pages['http://localhost/'] = { html: page(markup('button', 3)) };
+        await refresh(['tabs.html.twig']);
+
+        expect(document.getElementById('two').textContent).toBe('Two 3');
+        expect(document.querySelector('[data-bs-target="#two"]').classList.contains('active')).toBe(true);
+        expect(document.querySelector('[data-bs-target="#one"]').classList.contains('active')).toBe(false);
+        expect(document.getElementById('two').classList.contains('active')).toBe(true);
+        expect(document.getElementById('filter').localName).toBe('button');
+        expect(document.getElementById('filter').classList.contains('show')).toBe(true);
+    });
+
     it.each([
         ['the template removed its pane', '#two', '<div class="tab-content"><div class="tab-pane active" id="one">One</div></div>'],
         ['its target is no valid selector', '#2', '<div class="tab-content"><div class="tab-pane active" id="one">One</div><div class="tab-pane" id="2">Two</div></div>'],
@@ -423,18 +480,63 @@ describe('dev/twig-hmr', () => {
         expect(document.querySelector('.removed')).toBeNull();
     });
 
-    it('asks for a reload when the template replaced an open modal or its inert background', async () => {
+    it('keeps the page when the template replaces an open modal or its inert background', async () => {
         setup('<main><div class="modal" id="demo">Version 1</div></main><footer>Footer</footer>');
         const modal = document.getElementById('demo');
+        const footer = document.querySelector('footer');
         modal.classList.add('show');
-        document.querySelector('footer').setAttribute('inert', '');
+        footer.setAttribute('inert', '');
         pages['http://localhost/'] = { html: page('<main><div class="modal" id="renamed">Version 2</div></main><aside>Footer</aside>') };
 
         await refresh(['modal.html.twig']);
 
-        expect(modal.isConnected).toBe(false);
-        expect(notice().textContent).toContain('was replaced. Bootstrap still controls the old element.');
-        expect(notice().textContent).toContain('was replaced while an overlay is open.');
+        expect(modal.isConnected).toBe(true);
+        expect(modal.textContent).toBe('Version 1');
+        expect(footer.isConnected).toBe(true);
+        expect(notice().textContent).toContain('The template removes <div#demo.modal.show>, which is open.');
+        expect(notice().textContent).toContain('The template removes <footer>, which belongs to the inert background of an open overlay.');
+        expect(notice().textContent).toContain('The page of http://localhost/ keeps its current content.');
+    });
+
+    it('keeps the page when the template adds a background element while an offcanvas is open', async () => {
+        setup('<main><p class="text">Version 1</p></main>');
+        document.body.insertAdjacentHTML('beforeend', '<div class="offcanvas js-offcanvas-singleton show">Cart</div>');
+        document.querySelector('main').setAttribute('inert', '');
+        pages['http://localhost/'] = { html: page('<main><p class="text">Version 2</p></main><footer>New footer</footer>') };
+
+        await refresh(['footer.html.twig']);
+
+        expect(document.querySelector('.text').textContent).toBe('Version 1');
+        expect(document.querySelector('footer')).toBeNull();
+        expect(notice().textContent).toContain('The template adds <footer> while an open overlay makes the rest of the page inert.');
+    });
+
+    it.each([
+        ['a server ancestor', '<main><div class="wrapper"><p class="text">Version 1</p></div></main>', '<main><p class="text">Version 2</p></main>'],
+        ['an ancestor that idiomorph moves to its pantry', '<main><div class="wrapper"><p id="text">Version 1</p></div></main>', '<main><p id="text">Version 2</p></main>'],
+    ])('keeps the page when the template removes %s of an element that a script added', async (name, body, next) => {
+        setup(body);
+        document.querySelector('.wrapper').insertAdjacentHTML('beforeend', '<span class="badge">Added by a plugin</span>');
+        pages['http://localhost/'] = { html: page(next) };
+
+        await refresh(['page.html.twig']);
+
+        expect(document.querySelector('main p').textContent).toBe('Version 1');
+        expect(document.querySelector('.wrapper .badge')).not.toBeNull();
+        expect(notice().textContent).toContain('The template removes <span.badge>, which a script added.');
+    });
+
+    it('applies a later update after a rejected one against the shown markup', async () => {
+        setup('<main><div class="wrapper"><p class="text">Version 1</p></div></main>');
+        document.querySelector('.wrapper').insertAdjacentHTML('beforeend', '<span class="badge">Added by a plugin</span>');
+        pages['http://localhost/'] = { html: page('<main><p class="text">Version 2</p></main>') };
+        await refresh(['page.html.twig']);
+
+        pages['http://localhost/'] = { html: page('<main><div class="wrapper"><p class="text">Version 3</p></div></main>') };
+        await refresh(['page.html.twig']);
+
+        expect(document.querySelector('.text').textContent).toBe('Version 3');
+        expect(document.querySelector('.wrapper .badge')).not.toBeNull();
     });
 
     it('asks for a reload when new markup matched an element that a script added', async () => {

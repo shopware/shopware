@@ -178,6 +178,8 @@ const baseRules = {
     'sw-core-rules/mini-module-boundaries': 'error',
     // Only the register.ts of a mini-module has side effects.
     'sw-core-rules/mini-module-side-effects': 'error',
+    // The src/ of a mini-module reaches outside only through its dependencies.ts.
+    'sw-core-rules/mini-module-dependencies': 'error',
     'sw-deprecation-rules/private-feature-declarations': 'error',
     'no-restricted-exports': 'off',
     'filename-rules/match': [

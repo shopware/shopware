@@ -11,8 +11,14 @@ type ShippingPriceGroup = {
     prices: Entity<'shipping_method_price'>[];
 };
 
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const swShippingDetailStoreId = 'swShippingDetail';
+
 const swShippingDetailStore = Shopware.Store.register({
-    id: 'swShippingDetail',
+    id: swShippingDetailStoreId,
 
     state() {
         return {

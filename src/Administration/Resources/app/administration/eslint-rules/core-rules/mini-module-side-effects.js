@@ -28,7 +28,15 @@ module.exports = {
             .join('/');
         const miniModule = findMiniModule(filename, cwd);
 
-        if (!miniModule || !['index', 'private', 'src'].includes(miniModule.part)) {
+        if (
+            !miniModule ||
+            ![
+                'index',
+                'private',
+                'dependencies',
+                'src',
+            ].includes(miniModule.part)
+        ) {
             return {};
         }
 

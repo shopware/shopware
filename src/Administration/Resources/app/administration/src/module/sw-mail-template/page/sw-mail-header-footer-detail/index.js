@@ -216,11 +216,14 @@ export default {
         async findAlreadyAssignedSalesChannels() {
             const criteria = new Criteria(1, null);
             criteria.setIds(this.mailHeaderFooter.salesChannels.map((salesChannel) => salesChannel.id));
-            criteria.addFilter(Criteria.not('AND', [Criteria.equals('mailHeaderFooterId', null)]));
+
+            const withoutConflict = [Criteria.equals('mailHeaderFooterId', null)];
 
             if (this.mailHeaderFooterId) {
-                criteria.addFilter(Criteria.not('AND', [Criteria.equals('mailHeaderFooterId', this.mailHeaderFooterId)]));
+                withoutConflict.push(Criteria.equals('mailHeaderFooterId', this.mailHeaderFooterId));
             }
+
+            criteria.addFilter(Criteria.not('OR', withoutConflict));
 
             this.alreadyAssignedSalesChannels = await this.salesChannelRepository.search(criteria);
         },

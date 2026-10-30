@@ -178,13 +178,11 @@ describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
         expect(criteria.filters).toEqual([
             {
                 type: 'not',
-                operator: 'AND',
-                queries: [{ type: 'equals', field: 'mailHeaderFooterId', value: null }],
-            },
-            {
-                type: 'not',
-                operator: 'AND',
-                queries: [{ type: 'equals', field: 'mailHeaderFooterId', value: expect.any(String) }],
+                operator: 'OR',
+                queries: [
+                    { type: 'equals', field: 'mailHeaderFooterId', value: null },
+                    { type: 'equals', field: 'mailHeaderFooterId', value: expect.any(String) },
+                ],
             },
         ]);
     });

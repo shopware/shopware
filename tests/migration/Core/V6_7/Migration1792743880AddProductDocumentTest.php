@@ -58,7 +58,7 @@ class Migration1792743880AddProductDocumentTest extends TestCase
         static::assertSame(
             [
                 'fk.product_document_translation.language_id' => 'CASCADE',
-                'fk.product_document_translation.media_id' => 'CASCADE',
+                'fk.product_document_translation.media_id' => 'RESTRICT',
                 'fk.product_document_translation.product_document_id' => 'CASCADE',
             ],
             $this->getDeleteRules('product_document_translation')

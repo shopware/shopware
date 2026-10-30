@@ -23,6 +23,7 @@ import {
     setDataScopeForInstance,
 } from './data-scope-helper';
 import type { ExtendableSetupState, OverrideLocalState } from './data-scope-helper';
+import { invalidateFailedSetupHmr, registerSetupOverrideForHmr, trackSetupHmrComponent } from './script-hmr';
 
 /** @private */
 export { getScriptSetupDataScope } from './data-scope-helper';
@@ -276,6 +277,7 @@ export function createExtendableSetup<
         private?: TPrivateSetupResult;
     },
 ): ExtendableSetupState<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult> {
+    if (process.env.NODE_ENV !== 'production') trackSetupHmrComponent(String(options.name));
     const componentContext = options.context ? options.context : (getComponentContext() as TContext);
     const propKeys = new Set(Object.keys(options.props));
     const modelBindings = new Set(options.modelBindings ?? []);
@@ -391,6 +393,7 @@ export function createExtendableSetup<
             } catch (e) {
                 // Mark as applied to prevent infinite retry loops when subsequent overrides are added,
                 // then re-throw so Vue's error handling (onErrorCaptured / app.config.errorHandler) takes over.
+                if (process.env.NODE_ENV !== 'production') invalidateFailedSetupHmr(String(options.name));
                 appliedOverrides.push(override);
                 throw e;
             }
@@ -522,13 +525,20 @@ export function overrideComponentSetup<TOriginalComponent>() {
             context: SetupContext,
         ) => ReturnType<OverrideFn>,
     ): void {
+        const callback = override as unknown as OverrideFn;
+        if (
+            process.env.NODE_ENV !== 'production' &&
+            registerSetupOverrideForHmr(String(componentName), callback, _overridesMap)
+        )
+            return;
+
         // Initialize the overrides array for this component if it doesn't exist
         if (!_overridesMap[componentName]) {
             _overridesMap[componentName] = reactive([]);
         }
 
         // Cast required: typed generics → internal OverrideFn (parameter types are contravariant)
-        _overridesMap[componentName].push(override as unknown as OverrideFn);
+        _overridesMap[componentName].push(callback);
     };
 }
 

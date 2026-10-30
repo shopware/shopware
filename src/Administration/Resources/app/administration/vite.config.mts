@@ -20,6 +20,7 @@ import AssetPathPlugin from './build/vite-plugins/asset-path-plugin';
 import ImageDeprecationPlugin from './build/vite-plugins/image-deprecation';
 import AssetCssPostprocessPlugin from './build/vite-plugins/asset-css-postprocess-plugin';
 import ShopwareSetupPlugin from './build/vite-plugins/shopware-setup';
+import ShopwareSetupHmrPlugin from './build/vite-plugins/shopware-setup-hmr';
 import VirtualShopwareModulesPlugin from './build/vite-plugins/virtual-shopware-modules';
 import NodeEnvDefinePlugin from './build/vite-plugins/node-env-define';
 import AdminIndexHtmlPlugin from './build/vite-plugins/admin-index-html';
@@ -118,8 +119,10 @@ export default (async ({ command }) => {
                 AssetPathPlugin(),
                 ImageDeprecationPlugin(__dirname),
                 AssetCssPostprocessPlugin('/bundles/administration/administration/assets/'),
+                ...(toolchain.isVite8 && isDev ? [ShopwareSetupHmrPlugin()] : []),
                 ShopwareSetupPlugin({
                     administrationRoot: __dirname,
+                    scriptHmr: toolchain.isVite8 && isDev && !useBundledDev,
                 }),
                 VirtualShopwareModulesPlugin({
                     administrationRoot: __dirname,

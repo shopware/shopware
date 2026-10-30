@@ -58,6 +58,18 @@ export default {
     markComponentAsSync,
 };
 
+/** @private */
+export type SetupHmrMetadata = {
+    componentName: string;
+    mode: 'base' | 'override';
+    version: string;
+    invalidate: () => void;
+    data?: {
+        refreshParent?: () => void;
+        reloadPage?: boolean;
+        updateDefinitions?: (component: ComponentConfig) => void;
+    };
+};
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface ComponentConfig extends ComponentOptions {
     functional?: boolean;
@@ -70,6 +82,8 @@ export interface ComponentConfig extends ComponentOptions {
     name?: string;
     /** @private - Added to static Twig overrides by the Vite 8 development transform. */
     __shopwareTwigHmrId?: string;
+    /** @private - Added only by the Vite 8 development compiler. */
+    __shopwareSetupHmr?: SetupHmrMetadata;
 }
 
 /**
@@ -764,6 +778,18 @@ async function initComponent(componentName: string): Promise<void> {
     }
 }
 
+function markNativeHmrComposition(config: ComponentConfig, componentName: string, inherited = false): void {
+    const metadata = config.__shopwareSetupHmr;
+    if (
+        metadata?.mode === 'base' &&
+        metadata.data &&
+        (inherited || overrideRegistry.has(componentName) || config.extends || config.mixins?.length)
+    ) {
+        // Mark this before awaiting legacy overrides: a script update may arrive while they load.
+        metadata.data.reloadPage = true;
+    }
+}
+
 /**
  * Returns the complete component including extension and overrides.
  * @private
@@ -779,6 +805,8 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
     if (typeof resultConfig === 'boolean') {
         throw new Error(`The component registry could not build the component with the name "${componentName}".`);
     }
+
+    if (process.env.NODE_ENV !== 'production') markNativeHmrComposition(resultConfig, componentName);
 
     // let config: ComponentConfig = Object.create(resultConfig) as ComponentConfig;
     let config: ComponentConfig = { ...resultConfig } as ComponentConfig;
@@ -799,6 +827,7 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
         }
 
         if (extendComp) {
+            if (process.env.NODE_ENV !== 'production') markNativeHmrComposition(extendComp, componentName, true);
             enrichSuperChain(extendComp, config);
 
             config.extends = extendComp;

@@ -171,6 +171,14 @@ New sales channel contexts now decide tax-free delivery like the cart (`TaxDetec
 commercial customers only get "Tax-free (B2B)", all other customers only "Tax-free (B2C)".
 Cart and order taxes stay the same, but Rule Builder conditions like "Cart amount" can match differently than before for customers who only met the other setting.
 
+### ZUGFeRD e-invoices send the real unit code
+
+Product line items now store the `uneceCode` and the `purchaseUnit` of the product in their payload (`payload.uneceCode`, `payload.purchaseUnit`) when they are added to the cart, so orders keep the values the product had when the order was placed. Variants without their own unit store the parent's values.
+
+ZUGFeRD and XRechnung invoices use this code for the invoiced quantity and the price base quantity of each line, instead of always `H87` (piece).
+The code is only used when one pack is exactly one unit (no purchase unit, or a purchase unit of 1), so the quantity on the invoice still matches the order.
+Lines without a code, packed goods, and orders placed before this change still get `H87`.
+
 ### Retired services are uninstalled by the daily service reconcile
 
 Shops now uninstall a service once the service registry lists it as `retired` in `GET /api/service/v2`. This happens in the daily service install task, on `bin/console services:install` and on `system:update:finish`, so a retired service no longer stays installed until the shop's next update. A service that is merely missing from the registry's service list is no longer uninstalled on `system:update:finish`; only an explicit `retired` status removes it. Shops now read the service list only from `GET /api/service/v2` and install and update only services listed as `active`; a status they don't know is left alone.

@@ -304,6 +304,48 @@ class ProductCartProcessorTest extends TestCase
         static::assertFalse($purchasePrices['linked']);
     }
 
+    #[DataProvider('variantUneceCodeProvider')]
+    public function testPayloadStoresTheUnitDataOfTheVariantOrItsParent(bool $variantHasOwnUnit, string $expectedCode): void
+    {
+        $this->createProduct([
+            'unit' => ['id' => $this->ids->create('parent-unit'), 'shortCode' => 'kg', 'name' => 'Kilogram', 'uneceCode' => 'KGM'],
+            'purchaseUnit' => 0.5,
+        ]);
+
+        $variant = [
+            'id' => $this->ids->create('variant'),
+            'parentId' => $this->ids->get('product'),
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+        ];
+
+        if ($variantHasOwnUnit) {
+            $variant['unit'] = ['id' => $this->ids->create('variant-unit'), 'shortCode' => 'm', 'name' => 'Metre', 'uneceCode' => 'MTR'];
+        }
+
+        static::getContainer()->get('product.repository')->create([$variant], Context::createDefaultContext());
+
+        $context = $this->getContext();
+        $lineItem = static::getContainer()->get(ProductLineItemFactory::class)
+            ->create(['id' => $this->ids->get('variant'), 'referencedId' => $this->ids->get('variant')], $context);
+
+        $cart = $this->cartService->add($this->cartService->getCart($context->getToken(), $context), $lineItem, $context);
+
+        $item = $cart->getLineItems()->get($this->ids->get('variant'));
+        static::assertNotNull($item);
+        static::assertSame($expectedCode, $item->getPayloadValue('uneceCode'));
+        static::assertSame(0.5, $item->getPayloadValue('purchaseUnit'));
+    }
+
+    /**
+     * @return iterable<string, array{0: bool, 1: string}>
+     */
+    public static function variantUneceCodeProvider(): iterable
+    {
+        yield 'variant without its own unit stores the parent code' => [false, 'KGM'];
+        yield 'variant with its own unit stores its own code' => [true, 'MTR'];
+    }
+
     public function testPayloadContainsFeatures(): void
     {
         $this->createProduct();

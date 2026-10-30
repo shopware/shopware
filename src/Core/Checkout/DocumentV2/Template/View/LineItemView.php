@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\FloatComparator;
 
 /**
  * Precomputed view of a single billable line item.
@@ -46,7 +47,7 @@ final readonly class LineItemView
         public string $name,
         public float $quantity,
         public float $basisQuantity,
-        public UnitCode $unitCode,
+        public string $unitCode,
         public float $netUnitPrice,
         public float $lineTotal,
         public TaxCategory $taxCategory,
@@ -162,7 +163,7 @@ final readonly class LineItemView
             name: $lineItem->getLabel(),
             quantity: $quantity,
             basisQuantity: self::PRICE_BASIS_QUANTITY,
-            unitCode: UnitCode::PIECE,
+            unitCode: self::getUnitCode($lineItem),
             netUnitPrice: $totalNet / $quantity,
             lineTotal: $totalNet,
             taxCategory: TaxCategory::fromRate($taxRate),
@@ -260,11 +261,28 @@ final readonly class LineItemView
             name: $lineItem->getLabel(),
             quantity: $quantity,
             basisQuantity: self::PRICE_BASIS_QUANTITY,
-            unitCode: UnitCode::PIECE,
+            unitCode: self::getUnitCode($lineItem),
             netUnitPrice: $lineTotal / $quantity,
             lineTotal: $lineTotal,
             taxCategory: TaxCategory::fromRate($taxRate),
             taxRate: $taxRate,
         );
+    }
+
+    private static function getUnitCode(OrderLineItemEntity $lineItem): string
+    {
+        $payload = $lineItem->getPayload() ?? [];
+        $uneceCode = $payload['uneceCode'] ?? null;
+        $purchaseUnit = $payload['purchaseUnit'] ?? null;
+
+        if (!\is_string($uneceCode) || $uneceCode === '') {
+            return UnitCode::PIECE->value;
+        }
+
+        if (\is_numeric($purchaseUnit) && !FloatComparator::equals((float) $purchaseUnit, 1.0)) {
+            return UnitCode::PIECE->value;
+        }
+
+        return $uneceCode;
     }
 }

@@ -170,12 +170,12 @@ if (!Shopware.Feature.isActive('V6_8_0_0')) {
 }
 ```
 
-Templates use the `v-silence-flag` directive on the component of the old path. It silences that component only:
+Templates use the `v-silence-deprecations` directive on the component of the old path. It silences that component only:
 the deprecation plugin's report of the component and its deprecated props, and what the component reports while
 it is created or rendered. The components it renders, its slot content included, still report:
 
 ```twig
-<sw-loader v-if="!feature.isActive('V6_8_0_0')" v-silence-flag="'V6_8_0_0'" />
+<sw-loader v-if="!feature.isActive('V6_8_0_0')" v-silence-deprecations="'V6_8_0_0'" />
 <mt-loader v-else />
 ```
 

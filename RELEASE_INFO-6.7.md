@@ -217,7 +217,7 @@ shopware:
 
 ## Administration
 
-### Experimental: `Feature.silence()` and `v-silence-flag` keep the pre-major path of an extension quiet
+### Experimental: `Feature.silence()` and `v-silence-deprecations` keep the pre-major path of an extension quiet
 
 `Shopware.Feature.silence()` runs a callback with the deprecations of a major silenced, like the PHP `Feature::silent()`.
 Use it on the pre-major side of a feature-flag branch to stay compatible with both sides of a major without reporting the deprecated APIs the old path still needs:
@@ -230,10 +230,10 @@ if (!Shopware.Feature.isActive('V6_8_0_0')) {
 }
 ```
 
-In templates, the `v-silence-flag` directive does the same for the component it sits on, but not for the components it renders or its slot content:
+In templates, the `v-silence-deprecations` directive does the same for the component it sits on, but not for the components it renders or its slot content:
 
 ```html
-<sw-loader v-if="!feature.isActive('V6_8_0_0')" v-silence-flag="'V6_8_0_0'" />
+<sw-loader v-if="!feature.isActive('V6_8_0_0')" v-silence-deprecations="'V6_8_0_0'" />
 <mt-loader v-else />
 ```
 

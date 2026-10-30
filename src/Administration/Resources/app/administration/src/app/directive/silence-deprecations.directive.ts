@@ -17,23 +17,23 @@ import { silenceKey } from 'src/core/feature';
  *
  * @experimental stableVersion:v6.8.0 feature:ADMIN_DEPRECATION_SILENCE
  * @example
- * <sw-loader v-if="!feature.isActive('V6_8_0_0')" v-silence-flag="'V6_8_0_0'" />
+ * <sw-loader v-if="!feature.isActive('V6_8_0_0')" v-silence-deprecations="'V6_8_0_0'" />
  * <mt-loader v-else />
  */
-const silenceFlag: Directive<HTMLElement, string> = {};
+const silenceDeprecations: Directive<HTMLElement, string> = {};
 
-Shopware.Directive.register('silence-flag', silenceFlag);
+Shopware.Directive.register('silence-deprecations', silenceDeprecations);
 
 /**
- * Whether the running component carries `v-silence-flag` for `majorFlag`, spelled as `silenceKey()` spells it.
+ * Whether the running component carries `v-silence-deprecations` for `majorFlag`, spelled as `silenceKey()` spells it.
  * It compares with the registered directive, as the registry keeps the first one when this module runs again.
  *
  * @example
- * isSilencedByTemplate('V6_8_0_0'); // true while `<sw-loader v-silence-flag="'V6_8_0_0'" />` renders
+ * isSilencedByTemplate('V6_8_0_0'); // true while `<sw-loader v-silence-deprecations="'V6_8_0_0'" />` renders
  */
 function isSilencedByTemplate(majorFlag: string): boolean {
     const instance = getCurrentInstance();
-    const registered = Shopware.Directive.getByName('silence-flag');
+    const registered = Shopware.Directive.getByName('silence-deprecations');
     // Vue copies the directives of a component onto its root, so a root component finds them on its parent too
     const inherited = instance?.parent?.vnode.dirs ?? [];
 
@@ -48,7 +48,7 @@ function isSilencedByTemplate(majorFlag: string): boolean {
     );
 }
 
-Shopware.Feature.setSilenceCheck('v-silence-flag', isSilencedByTemplate);
+Shopware.Feature.setSilenceCheck('v-silence-deprecations', isSilencedByTemplate);
 
 /**
  * @private

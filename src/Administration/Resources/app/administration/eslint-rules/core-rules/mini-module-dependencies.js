@@ -12,7 +12,12 @@ const ASSET_IMPORT = /\.(s?css|twig)$/;
  * Calls that look something up by its registered name: `Shopware.Service('x')`, `Shopware.Store.get('x')`,
  * `Shopware.Mixin.getByName('x')` and `Shopware.Filter.getByName('x')`, also without the `Shopware.` prefix.
  */
-const NAMED_LOOKUPS = ['Service', 'Store.get', 'Mixin.getByName', 'Filter.getByName'];
+const NAMED_LOOKUPS = [
+    'Service',
+    'Store.get',
+    'Mixin.getByName',
+    'Filter.getByName',
+];
 
 function getCalleeName(callee) {
     if (callee.type === 'Identifier') {

@@ -19,6 +19,11 @@
       "repo": "github/gh-aw-actions/setup",
       "version": "v0.89.21",
       "sha": "924af5fdc64061cfbf66fb584c8b07e2ac230c60"
+    },
+    "shopware/octo-sts-action@main": {
+      "repo": "shopware/octo-sts-action",
+      "version": "main",
+      "sha": "b53f67182a1e9cec3bd0012c252eb3db451d11ff"
     }
   }
 }

@@ -215,30 +215,14 @@ export default {
 
         async findAlreadyAssignedSalesChannels() {
             const criteria = new Criteria(1, null);
-            const salesChannelIds = [];
+            criteria.setIds(this.mailHeaderFooter.salesChannels.map((salesChannel) => salesChannel.id));
+            criteria.addFilter(Criteria.not('AND', [Criteria.equals('mailHeaderFooterId', null)]));
 
-            this.mailHeaderFooter.salesChannels.forEach((salesChannel) => {
-                salesChannelIds.push(salesChannel.id);
-            });
+            if (this.mailHeaderFooterId) {
+                criteria.addFilter(Criteria.not('AND', [Criteria.equals('mailHeaderFooterId', this.mailHeaderFooterId)]));
+            }
 
-            criteria.addFilter(Criteria.equalsAny('id', salesChannelIds));
-
-            const items = await this.salesChannelRepository.search(criteria);
-            this.alreadyAssignedSalesChannels = items.reduce((assignedSalesChannels, currentSalesChannel) => {
-                if (currentSalesChannel.mailHeaderFooterId === null) {
-                    return assignedSalesChannels;
-                }
-
-                if (!this.mailHeaderFooterId) {
-                    assignedSalesChannels.push(currentSalesChannel);
-                }
-
-                if (this.mailHeaderFooterId && currentSalesChannel.mailHeaderFooterId !== this.mailHeaderFooterId) {
-                    assignedSalesChannels.push(currentSalesChannel);
-                }
-
-                return assignedSalesChannels;
-            }, []);
+            this.alreadyAssignedSalesChannels = await this.salesChannelRepository.search(criteria);
         },
     },
 };

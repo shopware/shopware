@@ -10,6 +10,7 @@ const mailHeaderFooterMock = {
     name: 'Order Header',
     salesChannels: [
         {
+            id: 'sales-channel-id',
             name: 'Storefront',
         },
     ],
@@ -95,6 +96,22 @@ describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
         searchMock.mockClear();
     });
 
+    const saveAndCaptureSearchCriteria = async () => {
+        wrapper = await createWrapper(['mail_templates.editor'], {
+            'sw-button-process': {
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+            },
+        });
+        await flushPromises();
+
+        await wrapper.find('.sw-mail-header-footer-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(searchMock).toHaveBeenCalled();
+
+        return searchMock.mock.calls.at(-1)[0];
+    };
+
     it('all fields should be disabled without edit permission', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -149,17 +166,26 @@ describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
     });
 
     it('should not limit the sales channels when looking for already assigned ones', async () => {
-        wrapper = await createWrapper(['mail_templates.editor'], {
-            'sw-button-process': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+        const criteria = await saveAndCaptureSearchCriteria();
+
+        expect(criteria.limit).toBeNull();
+    });
+
+    it('should let the server pick the sales channels assigned to another mail header and footer', async () => {
+        const criteria = await saveAndCaptureSearchCriteria();
+
+        expect(criteria.ids).toEqual(['sales-channel-id']);
+        expect(criteria.filters).toEqual([
+            {
+                type: 'not',
+                operator: 'AND',
+                queries: [{ type: 'equals', field: 'mailHeaderFooterId', value: null }],
             },
-        });
-        await flushPromises();
-
-        await wrapper.find('.sw-mail-header-footer-detail__save-action').trigger('click');
-        await flushPromises();
-
-        expect(searchMock).toHaveBeenCalled();
-        expect(searchMock.mock.calls.at(-1)[0].limit).toBeNull();
+            {
+                type: 'not',
+                operator: 'AND',
+                queries: [{ type: 'equals', field: 'mailHeaderFooterId', value: expect.any(String) }],
+            },
+        ]);
     });
 });

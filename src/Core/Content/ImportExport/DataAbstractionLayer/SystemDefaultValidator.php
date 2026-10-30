@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer;
 
-use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\ImportExport\Exception\DeleteDefaultProfileException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -20,7 +19,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 #[Package('fundamentals@after-sales')]
 class SystemDefaultValidator implements EventSubscriberInterface
 {
-    public function __construct(private readonly Connection $connection)
+    public function __construct(private readonly WriteOutcome $writeOutcome)
     {
     }
 
@@ -38,31 +37,15 @@ class SystemDefaultValidator implements EventSubscriberInterface
      */
     public function preValidate(PreWriteValidationEvent $event): void
     {
-        $ids = array_column($event->getDeletedPrimaryKeys(ImportExportProfileDefinition::ENTITY_NAME), 'id');
-
-        $filteredIds = $this->filterSystemDefaults($ids);
-        if ($filteredIds !== []) {
-            $event->getExceptions()->add(new DeleteDefaultProfileException($filteredIds));
-        }
-    }
-
-    /**
-     * @param list<string> $ids
-     *
-     * @return list<string>
-     */
-    private function filterSystemDefaults(array $ids): array
-    {
-        if ($ids === []) {
-            return [];
+        $deletedDefaults = [];
+        foreach ($this->writeOutcome->touchedRows($event->getCommandsForEntity(ImportExportProfileDefinition::ENTITY_NAME), ['system_default']) as $profile) {
+            if ($profile->isDeleted && $profile->getStoredValue('system_default')) {
+                $deletedDefaults[] = $profile->primaryKey['id'];
+            }
         }
 
-        $result = $this->connection->executeQuery(
-            'SELECT id FROM import_export_profile WHERE id IN (:idList) AND system_default = 1',
-            ['idList' => $ids],
-            ['idList' => ArrayParameterType::BINARY]
-        );
-
-        return $result->fetchFirstColumn();
+        if ($deletedDefaults !== []) {
+            $event->getExceptions()->add(new DeleteDefaultProfileException($deletedDefaults));
+        }
     }
 }

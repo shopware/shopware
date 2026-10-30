@@ -47,4 +47,13 @@ class MailExceptionTest extends TestCase
         static::assertSame('Mail body is too long. Maximum allowed length is 5', $exception->getMessage());
         static::assertSame(['maxContentLength' => 5], $exception->getParameters());
     }
+
+    public function testSalesChannelNotFound(): void
+    {
+        $exception = MailException::salesChannelNotFound('sales-channel-id');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame('CONTENT__SALES_CHANNEL_NOT_FOUND', $exception->getErrorCode());
+        static::assertSame('Sales channel with id "sales-channel-id" was not found.', $exception->getMessage());
+    }
 }

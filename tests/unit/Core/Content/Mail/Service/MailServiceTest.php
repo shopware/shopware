@@ -15,6 +15,8 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -147,6 +149,72 @@ class MailServiceTest extends TestCase
         $email = $this->mailService->send($data, Context::createDefaultContext());
 
         static::assertInstanceOf(Email::class, $email);
+    }
+
+    public function testSendMailSkipsExternalMediaAttachmentsWithWarning(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(Uuid::randomHex());
+        $this->salesChannelRepository->method('search')->willReturn(new EntitySearchResult(
+            'sales_channel',
+            1,
+            new SalesChannelCollection([$salesChannel]),
+            null,
+            new Criteria(),
+            $context
+        ));
+
+        $externalMedia = new MediaEntity();
+        $externalMedia->setId(Uuid::randomHex());
+        $externalMedia->setPath('https://cdn.example.com/../../victim.txt');
+        $localMedia = new MediaEntity();
+        $localMedia->setId(Uuid::randomHex());
+        $localMedia->setPath('media/ab/cd/brochure.pdf');
+
+        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository->method('search')->willReturn(new EntitySearchResult(
+            'media',
+            2,
+            new MediaCollection([$externalMedia, $localMedia]),
+            null,
+            new Criteria(),
+            $context
+        ));
+
+        $mailService = new MailService(
+            $this->createMock(DataValidator::class),
+            $this->templateRenderer,
+            $this->mailFactory,
+            $this->createMock(AbstractMailSender::class),
+            $mediaRepository,
+            $this->createMock(SalesChannelDefinition::class),
+            $this->salesChannelRepository,
+            $this->createMock(SystemConfigService::class),
+            $this->eventDispatcher,
+            $this->logger,
+            $this->createMock(LanguageLocaleCodeProvider::class)
+        );
+
+        $this->logger->expects($this->once())->method('warning')->with(
+            'Media with an external URL cannot be attached to a mail and was skipped',
+            ['mediaId' => $externalMedia->getId()]
+        );
+        $this->templateRenderer->method('render')->willReturn('rendered');
+        $this->mailFactory->expects($this->once())->method('create')
+            ->with(static::anything(), static::anything(), static::anything(), static::anything(), ['media/ab/cd/brochure.pdf'])
+            ->willReturn((new Email())->text('rendered'));
+
+        $mailService->send([
+            'recipients' => ['customer@example.com' => 'Customer'],
+            'senderName' => 'me',
+            'senderEmail' => 'me@shopware.com',
+            'subject' => 'Your files',
+            'contentPlain' => 'Attached',
+            'contentHtml' => 'Attached',
+            'salesChannelId' => $salesChannel->getId(),
+            'mediaIds' => [$externalMedia->getId(), $localMedia->getId()],
+        ], $context);
     }
 
     public function testSendMailWithRenderingError(): void

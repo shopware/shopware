@@ -83,8 +83,8 @@ class SeoUrlPersister
         }
 
         // canonical, retarget and deleted handling is scoped to one sales channel, so callers may mix sales channels
-        foreach ($updatesBySalesChannel as $salesChannelUpdates) {
-            $this->persistSalesChannelSeoUrls($context, $routeName, $foreignKeys, $salesChannelUpdates, $salesChannel->getId(), $overwrite);
+        foreach ($updatesBySalesChannel as $salesChannelId => $salesChannelUpdates) {
+            $this->persistSalesChannelSeoUrls($context, $routeName, $foreignKeys, $salesChannelUpdates, $salesChannelId === '' ? null : $salesChannelId, $overwrite);
         }
 
         $this->eventDispatcher->dispatch(new SeoUrlUpdateEvent($updates, $context));
@@ -115,17 +115,13 @@ class SeoUrlPersister
 
         foreach ($seoUrls as $seoUrl) {
             $fk = $seoUrl['foreignKey'];
-            $salesChannelId = $seoUrl['salesChannelId'] ??= null;
+            $seoUrl['salesChannelId'] ??= null;
 
             // skip duplicates
-            if (isset($processed[$fk][$salesChannelId])) {
+            if (isset($processed[$fk])) {
                 continue;
             }
-
-            if (!isset($processed[$fk])) {
-                $processed[$fk] = [];
-            }
-            $processed[$fk][$salesChannelId] = true;
+            $processed[$fk] = true;
 
             $updatedFks[] = $fk;
 

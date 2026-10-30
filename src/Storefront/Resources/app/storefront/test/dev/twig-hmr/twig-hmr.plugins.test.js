@@ -119,6 +119,21 @@ describe('dev/twig-hmr with real plugins', () => {
         expect(document.getElementById(NOTICE_ID)).toBeNull();
     });
 
+    it('leaves plugin elements inside markup that a script added to the script', async () => {
+        await load('<main><h1>Version 1</h1></main>');
+        document.querySelector('main').insertAdjacentHTML('beforeend', `<div class="script-root">${slider()}</div>`);
+        await PluginManager.initializePlugins();
+        const sliderElement = document.querySelector('[data-track]');
+        pages['http://localhost/'] = page('<main><h1>Version 2</h1></main>');
+
+        await refresh(['heading.html.twig']);
+
+        expect(document.querySelector('h1').textContent).toBe('Version 2');
+        expect(document.querySelector('[data-track]')).toBe(sliderElement);
+        expect(sliderElement.querySelectorAll('.track')).toHaveLength(1);
+        expect(document.getElementById(NOTICE_ID)).toBeNull();
+    });
+
     it('initializes a plugin that the template added', async () => {
         await load('<h1>Version 1</h1>');
         pages['http://localhost/'] = page(`<h1>Version 2</h1>${slider()}`);

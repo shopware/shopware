@@ -50,6 +50,7 @@ describe('dev/twig-hmr', () => {
 
     afterEach(() => {
         reset();
+        delete window.PluginManager.getPluginList;
         jest.restoreAllMocks();
     });
 
@@ -260,6 +261,205 @@ describe('dev/twig-hmr', () => {
         expect(replaced).not.toBe(input);
         expect(replaced.classList.contains('form-control')).toBe(true);
         expect(replaced.value).toBe('mail@example.com');
+    });
+
+    it.each([
+        ['a multi select', '<select name="sizes" multiple><option>S</option><option>M</option><option>L</option></select>', (select) => {
+            select.options[1].selected = true;
+            select.options[2].selected = true;
+        }, (select) => [...select.selectedOptions].map((option) => option.textContent), ['M', 'L']],
+        ['a checkbox', '<input type="checkbox" name="newsletter" value="1">', (checkbox) => {
+            checkbox.checked = true;
+        }, (checkbox) => checkbox.checked, true],
+    ])('restores %s that the template replaced', async (name, control, edit, read, expected) => {
+        setup(`<form id="register"><div class="field">${control}</div></form>`);
+        const element = document.querySelector('[name]');
+        edit(element);
+        userInput(element, 'change');
+        pages['http://localhost/'] = { html: page(`<form id="register"><section class="field">${control}</section></form>`) };
+
+        await refresh(['register.html.twig']);
+
+        const replaced = document.querySelector('[name]');
+        expect(replaced).not.toBe(element);
+        expect(read(replaced)).toEqual(expected);
+    });
+
+    it.each([
+        ['inside a form', (radios) => `<form id="checkout">${radios}</form>`],
+        ['without a form', (radios) => `<div>${radios}</div>`],
+    ])('keeps the radio button that the user picked %s', async (name, wrap) => {
+        const radios = (checked) => ['standard', 'express']
+            .map((value) => `<input type="radio" name="shipping" value="${value}"${value === checked ? ' checked' : ''}>`)
+            .join('');
+        setup(wrap(radios('standard')));
+        const [standard, express] = document.querySelectorAll('[name="shipping"]');
+        express.checked = true;
+        userInput(express, 'change');
+        pages['http://localhost/'] = { html: page(wrap(radios('standard'))) };
+
+        await refresh(['shipping.html.twig']);
+
+        expect(standard.checked).toBe(false);
+        expect(express.checked).toBe(true);
+    });
+
+    it('keeps an open dropdown and drops one that the template removed', async () => {
+        const dropdown = (id, item) => `
+            <div class="dropdown" id="${id}">
+                <button type="button" data-bs-toggle="dropdown" aria-expanded="false">Menu</button>
+                <ul class="dropdown-menu"><li>${item}</li></ul>
+            </div>
+        `;
+        setup(dropdown('account', 'Item 1') + dropdown('language', 'Item 1'));
+        // Bootstrap opens both dropdowns.
+        document.querySelectorAll('.dropdown').forEach((element) => {
+            element.querySelector('[data-bs-toggle]').classList.add('show');
+            element.querySelector('[data-bs-toggle]').setAttribute('aria-expanded', 'true');
+            const menu = element.querySelector('.dropdown-menu');
+            menu.classList.add('show');
+            menu.setAttribute('style', 'position: absolute; inset: 0px auto auto 0px;');
+            menu.setAttribute('data-popper-placement', 'bottom-start');
+        });
+        pages['http://localhost/'] = { html: page(dropdown('account', 'Item 2')) };
+
+        await refresh(['header.html.twig']);
+
+        const toggle = document.querySelector('#account [data-bs-toggle]');
+        const menu = document.querySelector('#account .dropdown-menu');
+        expect(menu.textContent).toBe('Item 2');
+        expect(menu.classList.contains('show')).toBe(true);
+        expect(menu.getAttribute('style')).toBe('position: absolute; inset: 0px auto auto 0px;');
+        expect(menu.getAttribute('data-popper-placement')).toBe('bottom-start');
+        expect(toggle.classList.contains('show')).toBe(true);
+        expect(toggle.getAttribute('aria-expanded')).toBe('true');
+        expect(document.getElementById('language')).toBeNull();
+    });
+
+    it('activates the replaced trigger of a tab that the user activated', async () => {
+        const panes = '<div class="tab-content"><div class="tab-pane active" id="one">One</div><div class="tab-pane" id="two">Two</div></div>';
+        setup(`
+            <div class="nav">
+                <a class="nav-link active" data-bs-toggle="tab" href="#one">One</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#two">Two</a>
+            </div>
+            ${panes}
+        `);
+        const second = document.querySelector('[href="#two"]');
+        second.classList.add('active');
+        document.querySelector('[href="#one"]').classList.remove('active');
+        second.dispatchEvent(new Event('shown.bs.tab', { bubbles: true }));
+        pages['http://localhost/'] = {
+            html: page(`
+                <div class="nav">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#one">One</button>
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#two">Two</button>
+                </div>
+                ${panes}
+            `),
+        };
+
+        await refresh(['tabs.html.twig']);
+
+        expect(second.isConnected).toBe(false);
+        expect(document.querySelector('[data-bs-target="#two"]').classList.contains('active')).toBe(true);
+        expect(document.querySelector('[data-bs-target="#one"]').classList.contains('active')).toBe(false);
+        expect(document.getElementById('two').classList.contains('active')).toBe(true);
+        expect(document.getElementById('two').classList.contains('show')).toBe(false);
+    });
+
+    it.each([
+        ['the template removed its pane', '#two', '<div class="tab-content"><div class="tab-pane active" id="one">One</div></div>'],
+        ['its target is no valid selector', '#2', '<div class="tab-content"><div class="tab-pane active" id="one">One</div><div class="tab-pane" id="2">Two</div></div>'],
+        ['its target is a URL', '/reviews', '<div class="tab-content"><div class="tab-pane active" id="one">One</div></div>'],
+    ])('leaves the tabs to the template when %s', async (name, target, nextPanes) => {
+        const tabs = (panes) => `
+            <div class="nav">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#one">One</button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="${target}">Two</button>
+            </div>
+            ${panes}
+        `;
+        setup(tabs('<div class="tab-content"><div class="tab-pane active" id="one">One</div></div>'));
+        const [first, second] = document.querySelectorAll('.nav-link');
+        first.classList.remove('active');
+        second.classList.add('active');
+        second.dispatchEvent(new Event('shown.bs.tab', { bubbles: true }));
+        pages['http://localhost/'] = { html: page(tabs(nextPanes)) };
+
+        await refresh(['tabs.html.twig']);
+
+        expect(first.classList.contains('active')).toBe(true);
+        expect(second.classList.contains('active')).toBe(false);
+        expect(document.getElementById('one').classList.contains('active')).toBe(true);
+    });
+
+    it('restores collapse elements by id and skips the ones without a match', async () => {
+        setup(`
+            <main>
+                <div class="collapse" id="filter"><span>Filter</span></div>
+                <div class="collapse no-id"><span>Details</span></div>
+                <div class="collapse removed"><span>Removed</span></div>
+            </main>
+        `);
+        document.querySelectorAll('.collapse').forEach((collapse) => {
+            collapse.classList.add('show');
+            collapse.dispatchEvent(new Event('shown.bs.collapse', { bubbles: true }));
+        });
+        pages['http://localhost/'] = {
+            html: page(`
+                <main>
+                    <section class="collapse" id="filter"><span>Filter</span></section>
+                    <div class="collapse no-id"><span>Details</span></div>
+                </main>
+            `),
+        };
+
+        await refresh(['filter.html.twig']);
+
+        expect(document.getElementById('filter').localName).toBe('section');
+        expect(document.getElementById('filter').classList.contains('show')).toBe(true);
+        expect(document.querySelector('.no-id').classList.contains('show')).toBe(true);
+        expect(document.querySelector('.removed')).toBeNull();
+    });
+
+    it('asks for a reload when the template replaced an open modal or its inert background', async () => {
+        setup('<main><div class="modal" id="demo">Version 1</div></main><footer>Footer</footer>');
+        const modal = document.getElementById('demo');
+        modal.classList.add('show');
+        document.querySelector('footer').setAttribute('inert', '');
+        pages['http://localhost/'] = { html: page('<main><div class="modal" id="renamed">Version 2</div></main><aside>Footer</aside>') };
+
+        await refresh(['modal.html.twig']);
+
+        expect(modal.isConnected).toBe(false);
+        expect(notice().textContent).toContain('was replaced. Bootstrap still controls the old element.');
+        expect(notice().textContent).toContain('was replaced while an overlay is open.');
+    });
+
+    it('asks for a reload when new markup matched an element that a script added', async () => {
+        setup('<main><p class="text">Version 1</p></main>');
+        document.querySelector('main').insertAdjacentHTML('beforeend', '<div id="live-region">Added by a plugin</div>');
+        pages['http://localhost/'] = { html: page('<main><p class="text">Version 2</p><div id="live-region">Server</div></main>') };
+
+        await refresh(['page.html.twig']);
+
+        expect(document.getElementById('live-region').textContent).toBe('Added by a plugin');
+        expect(notice().textContent).toContain('which a script added');
+    });
+
+    it('ignores plugin registrations without a usable selector', async () => {
+        window.PluginManager.getPluginList = jest.fn(() => ({
+            WithoutRegistrations: new Map(),
+            InvalidSelector: new Map([['registrations', new Map([['id', { selector: '[data-broken' }]])]]),
+        }));
+        setup('<main><p class="text">Version 1</p></main>');
+        pages['http://localhost/'] = { html: page('<main><p class="text">Version 2</p></main>') };
+
+        await refresh(['page.html.twig']);
+
+        expect(document.querySelector('.text').textContent).toBe('Version 2');
+        expect(notice()).toBeNull();
     });
 
     it('keeps the focus and the selection', async () => {

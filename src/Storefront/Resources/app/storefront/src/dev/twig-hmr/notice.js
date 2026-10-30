@@ -107,13 +107,6 @@ export function setRenderError(message) {
     render();
 }
 
-/**
- * @returns {string[]}
- */
-export function getReloadReasons() {
-    return [...reloadReasons];
-}
-
 export function resetNotice() {
     reloadReasons.clear();
     renderError = null;

@@ -13,9 +13,9 @@ describe('public-component', () => {
         // ARRANGE
         const declaration = {
             name: 'sw-example',
-            load: () => Promise.resolve({}),
+            load: () => Promise.resolve({ props: { value: String }, template: '{% block sw_example %}{% endblock %}' }),
             public: { props: ['value'], blocks: ['sw_example'] },
-        };
+        } as const;
 
         // ACT
         const declared = definePublicComponent(declaration);

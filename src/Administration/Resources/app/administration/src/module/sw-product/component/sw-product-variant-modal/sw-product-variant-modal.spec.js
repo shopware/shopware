@@ -377,6 +377,24 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
         await flushPromises();
     });
 
+    it('should wait for the currency before loading variants', async () => {
+        let resolveCurrency;
+        jest.spyOn(wrapper.vm, 'fetchSystemCurrency').mockReturnValue(
+            new Promise((resolve) => {
+                resolveCurrency = resolve;
+            }),
+        );
+        const fetchVariants = jest.spyOn(wrapper.vm, 'fetchProductVariants').mockResolvedValue();
+
+        const loading = wrapper.vm.createdComponent();
+        await flushPromises();
+        expect(fetchVariants).not.toHaveBeenCalled();
+
+        resolveCurrency();
+        await loading;
+        expect(fetchVariants).toHaveBeenCalledTimes(1);
+    });
+
     it('should sort options by their position', async () => {
         global.activeAclRoles = [];
         const sortedOptions = wrapper.vm.sortOptions(getOptions());

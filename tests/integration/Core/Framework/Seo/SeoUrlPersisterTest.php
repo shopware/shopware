@@ -1002,6 +1002,25 @@ class SeoUrlPersisterTest extends TestCase
         static::assertSame($expectedChannelIds, $canonicalChannelIds);
     }
 
+    public function testUpdateSeoUrlsWithoutSalesChannelReplacesTheCanonicalUrlWithoutSalesChannel(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $fk = Uuid::randomHex();
+        $this->seoUrlPersister->updateSeoUrls($context, 'r', [$fk], [
+            ['foreignKey' => $fk, 'salesChannelId' => null, 'pathInfo' => 'normal/path', 'seoPathInfo' => 'old'],
+        ], $this->salesChannel);
+
+        $this->seoUrlPersister->updateSeoUrls($context, 'r', [$fk], [
+            ['foreignKey' => $fk, 'salesChannelId' => null, 'pathInfo' => 'normal/path', 'seoPathInfo' => 'new'],
+        ], $this->salesChannel);
+
+        static::assertEquals(
+            ['' => ['old' => false, 'new' => true]],
+            $this->getSeoPathInfosBySalesChannel($fk)
+        );
+    }
+
     private function createLanguages(Context $context): void
     {
         $languages = [[

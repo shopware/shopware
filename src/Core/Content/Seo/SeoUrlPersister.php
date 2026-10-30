@@ -251,17 +251,18 @@ class SeoUrlPersister
         $query->setParameter('language_id', $languageId);
         $query->setParameter('foreign_keys', $fks, ArrayParameterType::BINARY);
 
-        $salesChannelCondition = 'seo_url.sales_channel_id IN (:sales_channel_ids)';
-        if (\in_array(null, $salesChannelIds, true)) {
-            $salesChannelCondition = count($salesChannelIds) === 1 ? seo_url.sales_channel_id IS NULL : '(' . $salesChannelCondition . ' OR seo_url.sales_channel_id IS NULL)';
-        }
+        $salesChannelIdBytes = Uuid::fromHexToBytesList(array_values(array_filter($salesChannelIds, static fn (?string $id): bool => $id !== null)));
+        if ($salesChannelIdBytes === []) {
+            $query->andWhere('seo_url.sales_channel_id IS NULL');
+        } else {
+            $salesChannelCondition = 'seo_url.sales_channel_id IN (:sales_channel_ids)';
+            if (\in_array(null, $salesChannelIds, true)) {
+                $salesChannelCondition = '(' . $salesChannelCondition . ' OR seo_url.sales_channel_id IS NULL)';
+            }
 
-        $query->andWhere($salesChannelCondition);
-        $query->setParameter(
-            'sales_channel_ids',
-            Uuid::fromHexToBytesList(array_values(array_filter($salesChannelIds, static fn (?string $id): bool => $id !== null))),
-            ArrayParameterType::BINARY
-        );
+            $query->andWhere($salesChannelCondition);
+            $query->setParameter('sales_channel_ids', $salesChannelIdBytes, ArrayParameterType::BINARY);
+        }
 
         $rows = $query->executeQuery()->fetchAllAssociative();
 

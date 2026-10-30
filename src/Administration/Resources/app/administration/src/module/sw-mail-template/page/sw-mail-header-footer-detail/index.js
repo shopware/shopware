@@ -177,6 +177,7 @@ export default {
         async onSave() {
             this.isSaveSuccessful = false;
             this.isLoading = true;
+            this.alreadyAssignedSalesChannels = [];
 
             if (this.mailHeaderFooter.salesChannels.length > 0) {
                 await this.findAlreadyAssignedSalesChannels();

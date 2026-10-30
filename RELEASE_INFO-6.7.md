@@ -222,6 +222,8 @@ Check import files that relied on `0` being ignored.
 
 Manifest validation now also runs when an app is installed or updated from the store, the Administration or as a service, not only through the CLI. An app is refused when it is incompatible with the running version, uses a `config.xml` component that is not allowed, has a webhook it may not receive or lacks the permission for, or its folder does not match its technical name. Other findings, such as a webhook on an event this version does not have, are only reported by `bin/console app:validate`.
 
+`--no-validate` on `app:install` and `app:refresh` is deprecated and will be removed in 6.8.
+
 ## API
 
 ### Usernames with surrounding whitespace

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -47,6 +48,13 @@ class InstallAppCommand extends Command
 
         if (\is_string($names)) {
             $names = [$names];
+        }
+
+        if ($input->getOption('no-validate')) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'The "--no-validate" option of the "app:install" command is deprecated and will be removed in v6.8.0. Validation findings that do not prevent an app from working no longer refuse an installation, so there is nothing left to skip.'
+            );
         }
 
         $manifests = $this->getMatchingManifests($names);
@@ -110,11 +118,12 @@ class InstallAppCommand extends Command
                 InputOption::VALUE_NONE,
                 'Activate the app after installing it'
             )
+            /** @deprecated tag:v6.8.0 - findings that do not prevent an app working no longer refuse an install */
             ->addOption(
                 'no-validate',
                 null,
                 InputOption::VALUE_NONE,
-                'Skip app validation.'
+                '[DEPRECATED] Has no effect. Validation findings that do not prevent an app from working no longer refuse an installation.'
             );
     }
 

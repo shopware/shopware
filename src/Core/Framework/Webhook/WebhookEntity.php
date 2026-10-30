@@ -6,6 +6,8 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Integration\IntegrationEntity;
+use Shopware\Core\System\User\UserEntity;
 
 /**
  * @codeCoverageIgnore
@@ -27,15 +29,13 @@ class WebhookEntity extends Entity
 
     protected ?string $appId = null;
 
-    /**
-     * @internal
-     */
     protected ?string $ownerUserId = null;
 
-    /**
-     * @internal
-     */
+    protected ?UserEntity $ownerUser = null;
+
     protected ?string $ownerIntegrationId = null;
+
+    protected ?IntegrationEntity $ownerIntegration = null;
 
     protected bool $active;
 
@@ -108,40 +108,44 @@ class WebhookEntity extends Entity
         $this->app = $app;
     }
 
-    /**
-     * @internal
-     */
     public function getOwnerUserId(): ?string
     {
-        $this->checkIfPropertyAccessIsAllowed('ownerUserId');
-
         return $this->ownerUserId;
     }
 
-    /**
-     * @internal
-     */
     public function setOwnerUserId(?string $ownerUserId): void
     {
         $this->ownerUserId = $ownerUserId;
     }
 
-    /**
-     * @internal
-     */
+    public function getOwnerUser(): ?UserEntity
+    {
+        return $this->ownerUser;
+    }
+
+    public function setOwnerUser(?UserEntity $ownerUser): void
+    {
+        $this->ownerUser = $ownerUser;
+    }
+
     public function getOwnerIntegrationId(): ?string
     {
-        $this->checkIfPropertyAccessIsAllowed('ownerIntegrationId');
-
         return $this->ownerIntegrationId;
     }
 
-    /**
-     * @internal
-     */
     public function setOwnerIntegrationId(?string $ownerIntegrationId): void
     {
         $this->ownerIntegrationId = $ownerIntegrationId;
+    }
+
+    public function getOwnerIntegration(): ?IntegrationEntity
+    {
+        return $this->ownerIntegration;
+    }
+
+    public function setOwnerIntegration(?IntegrationEntity $ownerIntegration): void
+    {
+        $this->ownerIntegration = $ownerIntegration;
     }
 
     public function isActive(): bool

@@ -31,12 +31,12 @@ describe('test/_helper_/deprecations - the guard in Jest', () => {
         expect(deprecations).toHaveTriggered(oldFunctionMessage);
     });
 
-    it('records nothing inside the beforeMajor of a Feature.branch for that major', () => {
-        Shopware.Feature.branch('V6_9_0_0', {
-            beforeMajor: () => Shopware.Feature.triggerDeprecationOrThrow('V6_9_0_0', 'branchedFunction() is deprecated.'),
-        });
+    it('records nothing inside Feature.silence for that major', () => {
+        Shopware.Feature.silence('V6_9_0_0', () =>
+            Shopware.Feature.triggerDeprecationOrThrow('V6_9_0_0', 'silencedFunction() is deprecated.'),
+        );
 
-        expect(deprecations).not.toHaveTriggered('branchedFunction()');
+        expect(deprecations).not.toHaveTriggered('silencedFunction()');
     });
 
     it('leaves an unknown major flag to the production guard, which reports it as a typo', () => {

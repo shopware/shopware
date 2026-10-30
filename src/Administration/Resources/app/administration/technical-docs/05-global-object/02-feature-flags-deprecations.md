@@ -157,21 +157,31 @@ This rule ensures proper handling of deprecated features and prevents inappropri
 Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'oldMethod() is deprecated. Use newMethod() instead.');
 ```
 
-Code that has to stay backward compatible until the major, in core or in an extension, branches with the
-experimental `Feature.branch()` instead of an `if (Feature.isActive(...))`. `beforeMajor` runs while the flag
-is inactive, with the deprecations of that major silenced, `sinceMajor` once it is active. The old path may
-still call deprecated APIs without reporting them, while calls outside of a branch still report, like with
-the PHP `Feature::silent()`:
+Code that has to stay backward compatible until the major, in core or in an extension, keeps the old path in
+an `if (!Feature.isActive(...))` and runs it inside the experimental `Feature.silence()`, like the PHP
+`Feature::silent()`. The old path may still call deprecated APIs without reporting them, while calls outside
+of it still report:
 
 ```typescript
-Shopware.Feature.branch('V6_8_0_0', {
-    beforeMajor: () => this.initModuleLocales(),
-    sinceMajor: () => registerModuleLocales(),
-});
+if (!Shopware.Feature.isActive('V6_8_0_0')) {
+    Shopware.Feature.silence('V6_8_0_0', () => this.initModuleLocales());
+} else {
+    registerModuleLocales();
+}
 ```
 
-The silencing ends when `beforeMajor` returns, so it only covers synchronous code; a returned promise throws.
-It cannot reach templates either: a deprecated prop or component a template uses is reported by Vue's render.
+Templates use the `v-silence-flag` directive on the component of the old path. It silences that component and
+everything it renders, including deprecated props and components the deprecation plugin reports:
+
+```twig
+<sw-loader v-if="!feature.isActive('V6_8_0_0')" v-silence-flag="'V6_8_0_0'" />
+<mt-loader v-else />
+```
+
+Both silence nothing once the major is active, so a use outside of its branch still throws. `Feature.silence()`
+only covers synchronous code: the silencing ends when the callback returns, so a returned promise throws. The
+directive does nothing on a `<template>`, which Vue renders as a fragment, and it does not reach the bindings
+the parent evaluates itself, like `:value="deprecatedComputed"`.
 
 Components and props carry a `deprecated` option instead, which `src/app/plugin/deprecation.plugin.ts`
 checks in a global `beforeCreate()` hook: a deprecated component on every creation, a deprecated prop

@@ -5,6 +5,7 @@ namespace Shopware\Administration\Dashboard;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
@@ -53,6 +54,10 @@ readonly class OrderAmountService
         $query->leftJoin('`order`', 'currency', 'currency', '`order`.currency_factor is null AND currency.id = `order`.currency_id');
         $query->andWhere('`order`.order_date_time >= :since');
         $query->andWhere('`order`.version_id = :version');
+
+        $query->innerJoin('`order`', 'state_machine_state', 'order_state', 'order_state.id = `order`.state_id');
+        $query->andWhere('order_state.technical_name != :cancelledState');
+        $query->setParameter('cancelledState', OrderStates::STATE_CANCELLED);
 
         $query->groupBy('`date`');
 

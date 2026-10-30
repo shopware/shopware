@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-$php = ['8.2'];
+$php = ['8.6'];
 
 // Emits the `strategy.matrix` object only — `fail-fast` is set statically by the calling
 // workflow, because zizmor cannot audit a file whose whole `strategy:` is an expression.
@@ -48,7 +48,7 @@ $matrix = [
 if ($majorFilter !== 'only') {
     $matrix['include'][] = [
         'name' => 'Install',
-        'php-version' => ($nightly || $release) ? '8.4' : '8.2',
+        'php-version' => ($nightly || $release) ? '8.4' : '8.6',
         'shard' => 1,
         'shard-count' => 1,
         'no-currents' => !$nightly,
@@ -60,7 +60,7 @@ if ($nightly) {
         if ($majorFilter !== 'only') {
             $matrix['include'][] = [
                 'name' => 'Platform',
-                'php-version' => '8.4',
+                'php-version' => '8.6',
                 'shard' => $i + 1,
                 'shard-count' => 3,
                 'no-currents' => false,
@@ -70,7 +70,7 @@ if ($nightly) {
             $matrix['include'][] = [
                 'name' => 'Platform',
                 'major' => 'major',
-                'php-version' => '8.4',
+                'php-version' => '8.6',
                 'shard' => $i + 1,
                 'shard-count' => 3,
                 'no-currents' => true,

@@ -23,7 +23,7 @@ if ($major) {
     // Nightly major-flag run: each integration shard once on a single PHP/DB (migration excluded — php.yml already runs it major).
     echo \json_encode([
         'test' => $integrationTests,
-        'php' => ['8.2'],
+        'php' => ['8.6'],
         'db' => ['mysql:8.0'],
         'opensearch' => ['opensearchproject/opensearch:3'],
     ], \JSON_THROW_ON_ERROR);
@@ -31,7 +31,7 @@ if ($major) {
     return;
 }
 
-$php = ['8.2'];
+$php = ['8.6'];
 $db = ['mysql:8.0'];
 
 if ($nightly) {
@@ -41,14 +41,14 @@ if ($nightly) {
 $includes = [
     [
         'test' => ['testsuite' => 'devops'],
-        'php' => '8.5',
+        'php' => '8.6',
         'db' => 'mariadb:11'
     ],
     // MySQL 8.4 defaults restrict_fk_on_non_standard_key to ON; NonStandardFkGuardTest
     // skips without it.
     [
         'test' => ['testsuite' => 'devops'],
-        'php' => '8.2',
+        'php' => '8.6',
         'db' => 'mysql:8.4'
     ]
 ];
@@ -62,7 +62,7 @@ if ($nightly) {
         foreach (array_merge($integrationTests, [['testsuite' => 'migration']]) as $test) {
             $includes[] = [
                 'test' => $test,
-                'php' => '8.2',
+                'php' => '8.6',
                 'db' => $nightlyDb,
                 'opensearch' => 'opensearchproject/opensearch:3',
             ];
@@ -72,7 +72,7 @@ if ($nightly) {
     // Covered by the nightly DB spread above; PR/release runs need the explicit lane.
     $includes[] = [
         'test' => ['testsuite' => 'migration'],
-        'php' => '8.2',
+        'php' => '8.6',
         'db' => 'mariadb:11'
     ];
 }
@@ -90,14 +90,14 @@ $matrix = [
 if ($nightly) {
     $matrix['include'][] = [
         'test' => ['path' => '{Administration,Elasticsearch}'],
-        'php' => '8.4',
+        'php' => '8.6',
         'db' => 'mysql:8.0',
         'opensearch' => 'opensearchproject/opensearch:2',
     ];
     /** @deprecated tag:v6.8.0 - Support for OpenSearch 1 will be removed in v6.8.0 (update the docs as well!) */
     $matrix['include'][] = [
         'test' => ['path' => '{Administration,Elasticsearch}'],
-        'php' => '8.4',
+        'php' => '8.6',
         'db' => 'mysql:8.0',
         'opensearch' => 'opensearchproject/opensearch:1',
     ];

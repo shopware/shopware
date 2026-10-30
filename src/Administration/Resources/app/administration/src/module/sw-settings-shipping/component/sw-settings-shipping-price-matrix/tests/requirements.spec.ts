@@ -38,8 +38,8 @@ describe('sw-settings-shipping-price-matrix', () => {
      */
     it('deletes a price', async () => {
         const wrapper = await mountPriceMatrix();
-
         await showAllPrices(wrapper);
+
         await deletePrice(wrapper, 1);
 
         expect(remove).toHaveBeenCalledWith('priceId2');

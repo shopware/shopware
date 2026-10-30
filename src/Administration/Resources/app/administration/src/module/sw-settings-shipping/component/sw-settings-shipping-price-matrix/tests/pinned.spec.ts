@@ -21,10 +21,16 @@ describe('sw-settings-shipping-price-matrix', () => {
 
     afterEach(unmountPriceMatrices);
 
-    it('shows only the first price until all prices are shown', async () => {
+    it('shows only the first price at first', async () => {
         const wrapper = await mountPriceMatrix();
 
-        expect(wrapper.findAll('tbody .sw-data-grid__row')).toHaveLength(1);
+        const rows = wrapper.findAll('tbody .sw-data-grid__row');
+
+        expect(rows).toHaveLength(1);
+    });
+
+    it('shows all prices when asked, and hides the button that asks', async () => {
+        const wrapper = await mountPriceMatrix();
 
         await showAllPrices(wrapper);
 
@@ -38,8 +44,8 @@ describe('sw-settings-shipping-price-matrix', () => {
     ])('keeps the quantity ranges contiguous when deleting price %s', async (row, expectedRanges) => {
         const prices = createQuantityPrices();
         const wrapper = await mountPriceMatrix({ prices });
-
         await showAllPrices(wrapper);
+
         await deletePrice(wrapper, row);
 
         expect(remove).toHaveBeenCalledWith(prices[row].id);
@@ -52,8 +58,8 @@ describe('sw-settings-shipping-price-matrix', () => {
         const prices = toRulePrices(createQuantityPrices());
         const wrapper = await mountPriceMatrix({ calculation: null, prices });
         const untouched = Shopware.Utils.object.cloneDeep(prices);
-
         await showAllPrices(wrapper);
+
         await deletePrice(wrapper, 1);
 
         expect(remove).toHaveBeenCalledWith('priceId2');
@@ -63,6 +69,8 @@ describe('sw-settings-shipping-price-matrix', () => {
     it('disables the delete button of the last price', async () => {
         const wrapper = await mountPriceMatrix({ prices: [createQuantityPrices()[0]] });
 
-        expect(wrapper.find('tbody .sw-data-grid__row button').attributes('disabled')).toBeDefined();
+        const deleteButton = wrapper.find('tbody .sw-data-grid__row button');
+
+        expect(deleteButton.attributes('disabled')).toBeDefined();
     });
 });

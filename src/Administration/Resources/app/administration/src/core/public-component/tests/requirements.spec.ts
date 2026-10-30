@@ -16,6 +16,8 @@ describe('public-component', () => {
             public: { props: ['value'], blocks: ['sw_example'] },
         };
 
-        expect(definePublicComponent(declaration)).toBe(declaration);
+        const declared = definePublicComponent(declaration);
+
+        expect(declared).toBe(declaration);
     });
 });

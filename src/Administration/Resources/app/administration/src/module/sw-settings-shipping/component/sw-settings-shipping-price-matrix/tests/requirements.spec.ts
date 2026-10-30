@@ -1,6 +1,8 @@
 import {
+    BUTTON_ADD_PRICE,
     createQuantityPrices,
     deletePrice,
+    getShippingMethodPrices,
     mountPriceMatrix,
     setUpShippingMethod,
     showAllPrices,
@@ -27,13 +29,12 @@ describe('sw-settings-shipping-price-matrix', () => {
     it('adds a price', async () => {
         // ARRANGE
         const wrapper = await mountPriceMatrix();
-        const shippingMethod = Shopware.Store.get('swShippingDetail').shippingMethod as unknown as { prices: unknown[] };
 
         // ACT
-        await wrapper.find('.sw-settings-shipping-price-matrix__top-container-add-new-rule').trigger('click');
+        await wrapper.find(BUTTON_ADD_PRICE).trigger('click');
 
         // ASSERT
-        expect(shippingMethod.prices).toHaveLength(1);
+        expect(getShippingMethodPrices()).toHaveLength(1);
     });
 
     /**

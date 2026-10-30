@@ -1,8 +1,40 @@
 import { mount, type VueWrapper } from '@vue/test-utils';
+import { useShippingDetailStore } from '../dependencies';
 
 /**
  * @sw-package checkout
  */
+
+/** @private */
+export { cloneDeep } from '../dependencies';
+
+/**
+ * The button that adds a price. It reads "Add pricing level", or "Add new rule" in a matrix that calculates by rule.
+ *
+ * @private
+ */
+export const BUTTON_ADD_PRICE = '.sw-settings-shipping-price-matrix__top-container-add-new-rule';
+
+/**
+ * The button under the grid that shows every price, because the matrix shows only the first until asked.
+ *
+ * @private
+ */
+export const BUTTON_SHOW_ALL_PRICES = '.sw-settings-shipping-price-matrix__price-load-all-button';
+
+/**
+ * One row of the price grid, one per price shown.
+ *
+ * @private
+ */
+export const ROW_PRICE = 'tbody .sw-data-grid__row';
+
+/**
+ * The delete button inside a price row, a context menu item that the harness renders as a plain button.
+ *
+ * @private
+ */
+export const BUTTON_DELETE_PRICE = 'button';
 
 const wrappers: VueWrapper[] = [];
 
@@ -34,18 +66,27 @@ export function createQuantityPrices() {
 export function setUpShippingMethod(): jest.Mock {
     const remove = jest.fn();
 
-    Shopware.Store.get('swShippingDetail').shippingMethod = {
+    useShippingDetailStore().shippingMethod = {
         id: 'shippingMethodId',
         taxType: 'auto',
         taxId: null,
         prices: Object.assign([], { remove }),
     } as never;
-    Shopware.Store.get('swShippingDetail').currencies = [
+    useShippingDetailStore().currencies = [
         { id: 'euro', isoCode: 'EUR', factor: 1, translated: { name: 'Euro' }, isSystemDefault: true },
         { id: 'dollar', isoCode: 'USD', factor: 2, translated: { name: 'Dollar' }, salesChannels: [{}] },
     ] as never;
 
     return remove;
+}
+
+/**
+ * Returns the prices of the shipping method in the store, which the matrix adds new prices to.
+ *
+ * @private
+ */
+export function getShippingMethodPrices() {
+    return useShippingDetailStore().shippingMethod.prices;
 }
 
 /**
@@ -109,7 +150,7 @@ export function toRulePrices(prices: Array<Record<string, unknown>>) {
  * @private
  */
 export async function deletePrice(wrapper: VueWrapper, row: number): Promise<void> {
-    await wrapper.findAll('tbody .sw-data-grid__row')[row].find('button').trigger('click');
+    await wrapper.findAll(ROW_PRICE)[row].find(BUTTON_DELETE_PRICE).trigger('click');
 }
 
 /**
@@ -118,7 +159,7 @@ export async function deletePrice(wrapper: VueWrapper, row: number): Promise<voi
  * @private
  */
 export async function showAllPrices(wrapper: VueWrapper): Promise<void> {
-    await wrapper.find('.sw-settings-shipping-price-matrix__price-load-all-button').trigger('click');
+    await wrapper.find(BUTTON_SHOW_ALL_PRICES).trigger('click');
 }
 
 /**

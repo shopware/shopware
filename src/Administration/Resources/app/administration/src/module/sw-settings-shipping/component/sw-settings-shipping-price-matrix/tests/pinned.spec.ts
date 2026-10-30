@@ -1,4 +1,8 @@
 import {
+    BUTTON_DELETE_PRICE,
+    BUTTON_SHOW_ALL_PRICES,
+    ROW_PRICE,
+    cloneDeep,
     createQuantityPrices,
     deletePrice,
     mountPriceMatrix,
@@ -26,7 +30,7 @@ describe('sw-settings-shipping-price-matrix', () => {
         const wrapper = await mountPriceMatrix();
 
         // ACT
-        const rows = wrapper.findAll('tbody .sw-data-grid__row');
+        const rows = wrapper.findAll(ROW_PRICE);
 
         // ASSERT
         expect(rows).toHaveLength(1);
@@ -40,8 +44,8 @@ describe('sw-settings-shipping-price-matrix', () => {
         await showAllPrices(wrapper);
 
         // ASSERT
-        expect(wrapper.findAll('tbody .sw-data-grid__row')).toHaveLength(2);
-        expect(wrapper.find('.sw-settings-shipping-price-matrix__price-load-all-button').exists()).toBe(false);
+        expect(wrapper.findAll(ROW_PRICE)).toHaveLength(2);
+        expect(wrapper.find(BUTTON_SHOW_ALL_PRICES).exists()).toBe(false);
     });
 
     it.each([
@@ -67,7 +71,7 @@ describe('sw-settings-shipping-price-matrix', () => {
         // ARRANGE
         const prices = toRulePrices(createQuantityPrices());
         const wrapper = await mountPriceMatrix({ calculation: null, prices });
-        const untouched = Shopware.Utils.object.cloneDeep(prices);
+        const untouched = cloneDeep(prices);
         await showAllPrices(wrapper);
 
         // ACT
@@ -83,7 +87,7 @@ describe('sw-settings-shipping-price-matrix', () => {
         const wrapper = await mountPriceMatrix({ prices: [createQuantityPrices()[0]] });
 
         // ACT
-        const deleteButton = wrapper.find('tbody .sw-data-grid__row button');
+        const deleteButton = wrapper.find(ROW_PRICE).find(BUTTON_DELETE_PRICE);
 
         // ASSERT
         expect(deleteButton.attributes('disabled')).toBeDefined();

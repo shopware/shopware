@@ -120,6 +120,7 @@
             <template v-else>
                 <sw-tabs
                     v-if="rule && !rule.isNew()"
+                    v-silence-flag="'V6_9_0_0'"
                     class="sw-settings-rule-detail__tabs"
                     position-identifier="sw-settings-rule-detail"
                 >

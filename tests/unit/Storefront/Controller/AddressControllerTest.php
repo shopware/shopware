@@ -515,7 +515,7 @@ class AddressControllerTest extends TestCase
     public static function redirectParametersProvider(): \Generator
     {
         yield 'JSON string is passed on as is' => ['{"redirected":0}'];
-        yield 'array, as extensions set it or bracket query keys send it, is passed on' => [['subscriptionToken' => 'token']];
+        yield 'array is passed on' => [['subscriptionToken' => 'token']];
     }
 
     public function testAddressManagerWithoutType(): void

@@ -3,10 +3,10 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\Aggregate\ProductDocument;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentLimits;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Shopware\Tests\Unit\Common\Stubs\IniMock;
 
 /**
@@ -18,15 +18,7 @@ class ProductDocumentLimitsTest extends TestCase
 {
     public static function setUpBeforeClass(): void
     {
-        IniMock::register(MemorySizeCalculator::class);
-    }
-
-    protected function setUp(): void
-    {
-        IniMock::withIniMock([
-            'upload_max_filesize' => '8M',
-            'post_max_size' => '16M',
-        ]);
+        IniMock::register(ProductDocumentLimits::class);
     }
 
     protected function tearDown(): void
@@ -52,18 +44,26 @@ class ProductDocumentLimitsTest extends TestCase
         static::assertContains('application/vnd.openxmlformats-officedocument.wordprocessingml.document', $mimeTypes['docx']);
     }
 
-    public function testAConfiguredSizeBelowThePhpLimitsIsTheUploadLimit(): void
+    /**
+     * @return iterable<string, array{int, bool, string, int}>
+     */
+    public static function uploadLimitProvider(): iterable
     {
-        $limits = new ProductDocumentLimits(['pdf'], maxPerLanguage: 10, maxFileSize: 1024);
-
-        static::assertSame(1024, $limits->getMaxUploadFileSize());
+        yield 'a configured size below post_max_size' => [1024, false, '16M', 1024];
+        yield 'post_max_size lowers a larger configured size' => [20 * 1024 * 1024, false, '16M', 16 * 1024 * 1024];
+        yield 'no post_max_size' => [20 * 1024 * 1024, false, '0', 20 * 1024 * 1024];
+        yield 'a presigned upload goes past PHP' => [20 * 1024 * 1024, true, '16M', 20 * 1024 * 1024];
     }
 
-    public function testThePhpLimitsLowerALargerConfiguredSizeForUploadsOnly(): void
+    #[DataProvider('uploadLimitProvider')]
+    public function testTheUploadLimitIsTheConfiguredSizeLoweredByPostMaxSize(int $maxFileSize, bool $presignedUploadSupported, string $postMaxSize, int $expected): void
     {
-        $limits = new ProductDocumentLimits(['pdf'], maxPerLanguage: 10, maxFileSize: 20 * 1024 * 1024);
+        // the Administration uploads the raw file, so upload_max_filesize doesn't apply
+        IniMock::withIniMock(['upload_max_filesize' => '8M', 'post_max_size' => $postMaxSize]);
 
-        static::assertSame(8 * 1024 * 1024, $limits->getMaxUploadFileSize());
-        static::assertSame(20 * 1024 * 1024, $limits->maxFileSize);
+        $limits = new ProductDocumentLimits(['pdf'], maxPerLanguage: 10, maxFileSize: $maxFileSize);
+
+        static::assertSame($expected, $limits->getMaxUploadFileSize($presignedUploadSupported));
+        static::assertSame($maxFileSize, $limits->maxFileSize);
     }
 }

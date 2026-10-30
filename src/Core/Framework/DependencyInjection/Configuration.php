@@ -1074,13 +1074,13 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue(10)
                 ->end()
                 ->scalarNode('max_file_size')
-                    ->info('How big the file of a document can be, for example "20MB". PHP\'s upload_max_filesize and post_max_size can lower it for uploads.')
+                    ->info('How big the file of a document can be, for example "20MB". PHP\'s post_max_size can lower it for uploads through PHP.')
                     ->defaultValue(20 * 1024 * 1024)
-                    ->validate()->always(static fn ($value) => MemorySizeCalculator::convertToBytes((string) $value))->end()
                     ->validate()
-                        ->ifTrue(static fn (int $value) => $value < 1)
-                        ->thenInvalid('The maximum file size of product documents must be a size like "20MB", got %s bytes.')
+                        ->ifTrue(static fn (mixed $value): bool => \is_int($value) ? $value < 1 : !\is_string($value) || preg_match('/^[1-9]\d*\s*[kmgt]?b?\z/i', $value) !== 1)
+                        ->thenInvalid('The maximum file size of product documents must be a size like "20MB", got %s.')
                     ->end()
+                    ->validate()->always(static fn (int|string $value): int => MemorySizeCalculator::convertToBytes((string) $value))->end()
                 ->end()
             ->end();
 

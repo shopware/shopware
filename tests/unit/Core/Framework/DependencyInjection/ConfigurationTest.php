@@ -180,13 +180,25 @@ class ConfigurationTest extends TestCase
         ], $config['product_documents']);
     }
 
-    public function testTheMaximumFileSizeOfProductDocumentsMustBeASize(): void
+    /**
+     * @return iterable<string, array{int|string, string}>
+     */
+    public static function invalidProductDocumentFileSizeProvider(): iterable
+    {
+        yield 'no number' => ['big', '"big"'];
+        yield 'a unit the size calculator reads as bytes' => ['20MiB', '"20MiB"'];
+        yield 'a fraction' => ['1.5GB', '"1.5GB"'];
+        yield 'no bytes' => [0, '0'];
+    }
+
+    #[DataProvider('invalidProductDocumentFileSizeProvider')]
+    public function testTheMaximumFileSizeOfProductDocumentsMustBeASize(int|string $size, string $given): void
     {
         $this->expectExceptionObject(new InvalidConfigurationException(
-            'Invalid configuration for path "shopware.product_documents.max_file_size": The maximum file size of product documents must be a size like "20MB", got 0 bytes.'
+            'Invalid configuration for path "shopware.product_documents.max_file_size": The maximum file size of product documents must be a size like "20MB", got ' . $given . '.'
         ));
 
-        (new Processor())->processConfiguration(new Configuration(), [['product_documents' => ['max_file_size' => 'big']]]);
+        (new Processor())->processConfiguration(new Configuration(), [['product_documents' => ['max_file_size' => $size]]]);
     }
 
     public function testTranslationConfigTreeNode(): void

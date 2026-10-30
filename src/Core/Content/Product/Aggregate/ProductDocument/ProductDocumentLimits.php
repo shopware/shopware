@@ -52,10 +52,17 @@ readonly class ProductDocumentLimits
     }
 
     /**
-     * The largest file that can be uploaded: PHP's `upload_max_filesize` and `post_max_size` can lower the configured size.
+     * The largest file the Administration can upload. It sends the file as the request body, so PHP's `post_max_size`
+     * can lower the configured size, and `upload_max_filesize` doesn't apply. A presigned upload goes straight to the
+     * storage, past PHP.
      */
-    public function getMaxUploadFileSize(): int
+    public function getMaxUploadFileSize(bool $presignedUploadSupported): int
     {
-        return MemorySizeCalculator::getMaxUploadSize($this->maxFileSize);
+        $postMaxSize = MemorySizeCalculator::convertToBytes((string) ini_get('post_max_size'));
+        if ($presignedUploadSupported || $postMaxSize <= 0) {
+            return $this->maxFileSize;
+        }
+
+        return min($this->maxFileSize, $postMaxSize);
     }
 }

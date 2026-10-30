@@ -1189,7 +1189,7 @@ class CriteriaParser
             return new CountSort($accessor, $sorting->getDirection());
         }
 
-        if ($field instanceof PriceField) {
+        if ($field instanceof PriceField && preg_match('/^price\.c_[0-9a-f]{32}\.(gross|net)$/D', $accessor) === 1) {
             return new FieldSort($accessor, $sorting->getDirection(), null, ['unmapped_type' => 'double']);
         }
 

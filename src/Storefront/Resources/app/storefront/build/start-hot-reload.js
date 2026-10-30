@@ -13,6 +13,7 @@ const { spawn } = require('node:child_process');
 const createLiveReloadServer = require('./live-reload-server/index');
 const getBrowserUrl = require('./hmr-browser-url');
 const copyProxyResponseHead = require('./copy-proxy-response-head');
+const createOriginRewriter = require('./rewrite-origin-urls');
 
 const proxyPort = Number(process.env.STOREFRONT_PROXY_PORT) || 9998;
 const assetPort = Number(process.env.STOREFRONT_ASSETS_PORT) || 9999;
@@ -34,6 +35,7 @@ const isDebugMode = process.env.DEBUG === 'true';
 
 const proxyProtocol = (appUrlEnv.protocol === 'https:' && sslFilesFound || skipSslCerts) ? 'https:' : 'http:';
 const proxyUrlEnv = new URL(process.env.PROXY_URL || `${proxyProtocol}//${appUrlEnv.hostname}:${proxyPort}`);
+const rewriteOriginUrls = createOriginRewriter(appUrlEnv.origin, proxyUrlEnv.origin);
 
 const proxyOptions = {
     appPort: Number(appUrlEnv.port) || undefined,
@@ -66,7 +68,7 @@ const proxyOptions = {
             }
         },
         proxyRes: (proxyRes, req, res) => {
-            let body = [];
+            const body = [];
             copyProxyResponseHead(proxyRes, res, rewriteOriginUrls);
             // Set the cookie from the proxy response to the next proxy request
             if (proxyRes.headers['set-cookie']) {
@@ -76,44 +78,15 @@ const proxyOptions = {
                 body.push(chunk);
             });
             proxyRes.on('end', () => {
-                // this will fix the display of the SVGs in chrome browser
-                if (req.url.indexOf('.svg') !== -1) {
-                    res.setHeader('Content-Type', 'image/svg+xml');
-                }
-                // replace the redirect url and add the offcanvas=1 parameter to the url for addLineItem, removeLineItem, updateQty
-                if (req.url.indexOf('/checkout/line-item/') !== -1) {
-                    body = Buffer.concat(body).toString();
-                    body = body.replace(new RegExp('content="0;url=\'/checkout/offcanvas\'"', 'g'), 'content="0;url=\'?offcanvas=1\'"');
-                    res.end(body);
+                // HTML pages, fragments and JSON link to the shop; everything else (fonts, images, scripts) passes through untouched
+                if (!isTextResponse(proxyRes)) {
+                    res.end(Buffer.concat(body));
                     return;
                 }
-                // we only replace things when the request is a document
-                const isOffcanvasRequest = ['/widgets/menu/offcanvas', '/checkout/offcanvas'].some(path => req.url.includes(path));
 
-                if (isDocumentRequest(req) || isOffcanvasRequest) {
-                    body = Buffer.concat(body).toString();
-                    // if we have the offcanvas=1 parameter in the url, we will attach a script to open the offcanvas cart
-                    if (req.url.indexOf('offcanvas=1') !== -1) {
-                        body = body.concat(openOffCanvasScript());
-                    }
-                    body = rewriteOriginUrls(body)
-                        // replace the webpack hot proxy with the url of the live reload server
-                        .replace(new RegExp('/_webpack_hot_proxy_/', 'g'), `${proxyUrlEnv.protocol}//${proxyUrlEnv.hostname}:${assetPort}/`)
-                        // Replace Symfony Profiler URL to relative url @see: https://regex101.com/r/HMQd2n/2
-                        .replace(/http[s]?\\u003A\\\/\\\/[\w.]*(:\d*|\\u003A\d*)?\\\/_wdt/gm, '/_wdt')
-                        .replace(/new\s*URL\(url\);\s*url\.searchParams\.set\('XDEBUG_IGNORE'/gm, 'new URL(window.location.protocol+\'//\'+window.location.host+url);                url.searchParams.set(\'XDEBUG_IGNORE\'');
-                    res.end(body);
-                    return;
-                }
-                // rewrite URLs in JSON responses (e.g. variant switch redirect URL)
-                if (isJsonResponse(proxyRes)) {
-                    body = Buffer.concat(body).toString();
-                    res.end(rewriteOriginUrls(body));
-                    return;
-                }
-                // when we use the .toString method on Buffer, the body will be converted to a string
-                // this can lead to problems with binary files like fonts (e.g. woff2)
-                res.end(Buffer.concat(body));
+                res.end(rewriteOriginUrls(Buffer.concat(body).toString())
+                    // the templates load the scripts through the webpack dev server
+                    .replace(new RegExp('/_webpack_hot_proxy_/', 'g'), `${proxyUrlEnv.protocol}//${proxyUrlEnv.hostname}:${assetPort}/`));
             });
         },
         error: (err, req, res) => {
@@ -219,52 +192,14 @@ server.then(() => {
     // to ensure it appears after webpack compilation output.
 });
 
-function isDocumentRequest(req) {
-    const secFetchDest = (req.headers['sec-fetch-dest'] || req.headers['Sec-Fetch-Dest'] || '').toLowerCase();
-    const secFetchMode = (req.headers['sec-fetch-mode'] || req.headers['Sec-Fetch-Mode'] || '').toLowerCase();
-    const acceptHeader = typeof req.headers.accept === 'string'
-        ? req.headers.accept.toLowerCase()
-        : '';
-
-    return (
-        secFetchDest === 'document' ||
-        secFetchMode === 'navigate' ||
-        acceptHeader.includes('text/html')
-    );
-}
-
-function openOffCanvasScript() {
-    return `<script>document.addEventListener("DOMContentLoaded", () => {
-    setTimeout(() => {
-        let headerCartTotalElement = document.querySelector(".header-cart-total");
-        if (headerCartTotalElement && !headerCartTotalElement.textContent.includes("0.00")) {
-            let headerCartElement = document.querySelector(".header-cart");
-            if (headerCartElement) {
-                headerCartElement.click();
-            }
-        }
-    }, 500);
-});</script>`;
-}
-
-function isJsonResponse(proxyRes) {
-    return (proxyRes.headers['content-type'] || '').toLowerCase().includes('application/json');
-}
-
-function rewriteOriginUrls(body) {
-    return body
-        // replace the app origin with the proxy origin (plain and JSON-escaped)
-        .replace(new RegExp(`${appUrlEnv.origin}/`, 'g'), `${proxyUrlEnv.origin}/`)
-        .replaceAll(`${appUrlEnv.origin}/`.replaceAll('/', '\\/'), `${proxyUrlEnv.origin}/`.replaceAll('/', '\\/'))
-        // revert media/thumbnail URLs back to the app origin
-        .replace(new RegExp(`${proxyUrlEnv.origin}/media/`, 'g'), `${appUrlEnv.origin}/media/`)
-        .replace(new RegExp(`${proxyUrlEnv.origin}/thumbnail/`, 'g'), `${appUrlEnv.origin}/thumbnail/`)
-        .replaceAll(`${proxyUrlEnv.origin}/media/`.replaceAll('/', '\\/'), `${appUrlEnv.origin}/media/`.replaceAll('/', '\\/'))
-        .replaceAll(`${proxyUrlEnv.origin}/thumbnail/`.replaceAll('/', '\\/'), `${appUrlEnv.origin}/thumbnail/`.replaceAll('/', '\\/'));
-}
-
 function openBrowserWithUrl(url) {
     const start = process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'start' : 'xdg-open';
     const child = spawn(start, [url], { stdio: 'ignore', detached: true });
     child.on('error', error => console.log('Unable to open browser! Details:', error));
+}
+
+function isTextResponse(proxyRes) {
+    const contentType = (proxyRes.headers['content-type'] || '').toLowerCase();
+
+    return ['text/html', 'application/json'].some((type) => contentType.includes(type));
 }

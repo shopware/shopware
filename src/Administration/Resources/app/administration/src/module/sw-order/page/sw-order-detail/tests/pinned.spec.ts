@@ -32,11 +32,12 @@ async function loadOrderCriteria(): Promise<Criteria> {
 }
 
 describe('sw-order-detail', () => {
-    it('loads the deliveries sorted by shipping costs, most expensive first', async () => {
+    it('loads the deliveries sorted by shipping costs, most expensive first, then by id', async () => {
         const criteria = await loadOrderCriteria();
 
         expect(criteria.getAssociation('deliveries').sortings).toEqual([
             expect.objectContaining({ field: 'shippingCosts.unitPrice', order: 'DESC' }),
+            expect.objectContaining({ field: 'id', order: 'ASC' }),
         ]);
     });
 });

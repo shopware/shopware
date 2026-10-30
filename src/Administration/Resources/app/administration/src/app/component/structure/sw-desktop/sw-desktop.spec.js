@@ -143,6 +143,7 @@ async function createWrapper({ checkShopId = jest.fn(() => Promise.resolve()) } 
             plugins: [router, shortcutPlugin],
             stubs: {
                 'sw-admin-menu': true,
+                'sw-admin-nps-card-data-provider': true,
                 'router-view': true,
                 'sw-app-shop-id-change-modal': true,
                 'sw-app-wrong-app-url-modal': true,
@@ -329,6 +330,13 @@ describe('src/app/component/structure/sw-desktop', () => {
 
         expect(wrapper.find('sw-app-shop-id-change-modal-stub').exists()).toBe(true);
         expect(wrapper.find('sw-app-wrong-app-url-modal-stub').exists()).toBe(false);
+    });
+
+    it('should render the NPS card data provider', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.findComponent({ name: 'sw-admin-nps-card-data-provider' }).exists()).toBe(true);
     });
 
     it('should show the staging bar, when enabled', async () => {

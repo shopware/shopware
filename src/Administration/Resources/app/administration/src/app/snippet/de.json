@@ -190,6 +190,16 @@
         "mainMenuItemAutomation": "Automation"
       }
     },
+    "sw-admin-nps-card": {
+      "title": "Wie wahrscheinlich ist es, dass du Shopware einem Freund oder einer Kollegin weiterempfiehlst?",
+      "followUpQuestion": "Was ist der Hauptgrund für deine Bewertung?",
+      "reasonLabel": "Dein Grund (optional)",
+      "buttonNotNow": "Nicht jetzt",
+      "scoreLabelNotLikely": "Gar nicht wahrscheinlich",
+      "scoreLabelExtremelyLikely": "Sehr wahrscheinlich",
+      "scoreAriaLabel": "Bewertung {score}",
+      "errorNoScore": "Bitte wähle vor dem Absenden eine Bewertung aus."
+    },
     "entity-components": {
       "deleteMessage": "Soll der Eintrag wirklich gelöscht werden? | Sollen diese {count} Einträge wirklich gelöscht werden?",
       "deleteTitle": "Eintrag löschen",

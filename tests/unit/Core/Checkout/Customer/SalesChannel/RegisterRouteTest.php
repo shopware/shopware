@@ -152,8 +152,8 @@ class RegisterRouteTest extends TestCase
         $addressValidation->method('create')->willReturn($definition);
 
         $dispatcher = static::createStub(EventDispatcherInterface::class);
-        $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event) use ($definition) {
-            if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
+        $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event, ?string $eventName = null) use ($definition) {
+            if ($event instanceof BuildValidationEvent && $eventName === 'framework.validation.address.create') {
                 $definition->add('company', CompanyAccountNameFields::companyNotBlank());
                 $definition->set('zipcode', new CustomerZipCode(countryId: '123'));
 
@@ -215,8 +215,8 @@ class RegisterRouteTest extends TestCase
         $addressValidation->method('create')->willReturn($definition);
 
         $dispatcher = static::createStub(EventDispatcherInterface::class);
-        $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event) {
-            if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
+        $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event, ?string $eventName = null) {
+            if ($event instanceof BuildValidationEvent && $eventName === 'framework.validation.address.create') {
                 $definition = new DataValidationDefinition('address.create');
 
                 $definition->add('company', CompanyAccountNameFields::companyNotBlank());
@@ -278,8 +278,8 @@ class RegisterRouteTest extends TestCase
         $addressValidation->method('create')->willReturn($definition);
 
         $dispatcher = static::createStub(EventDispatcherInterface::class);
-        $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event) {
-            if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
+        $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event, ?string $eventName = null) {
+            if ($event instanceof BuildValidationEvent && $eventName === 'framework.validation.address.create') {
                 $definition = new DataValidationDefinition('address.create');
 
                 $definition->add('company', CompanyAccountNameFields::companyNotBlank());
@@ -842,6 +842,76 @@ class RegisterRouteTest extends TestCase
         static::assertInstanceOf(NotBlank::class, $vatIdConstraintsOnDispatch[0]);
         static::assertInstanceOf(Type::class, $vatIdConstraintsOnDispatch[1]);
         static::assertInstanceOf(CustomerVatIdentification::class, $vatIdConstraintsOnDispatch[2]);
+    }
+
+    public function testAddressValidationIsDispatchedPerAddressType(): void
+    {
+        $events = $this->registerCollectingAddressValidationEvents($this->createRegistrationData([
+            'billingAddress' => [
+                'street' => 'Billing Street 1',
+                'countryId' => Uuid::randomHex(),
+            ],
+            'shippingAddress' => [
+                'street' => 'Shipping Street 2',
+                'countryId' => Uuid::randomHex(),
+            ],
+        ]));
+
+        static::assertCount(2, $events['framework.validation.address.create']);
+        foreach ($events['framework.validation.address.create'] as $event) {
+            static::assertSame('test@example.com', $event->getData()->get('email'));
+        }
+
+        static::assertCount(1, $events['framework.validation.address.create.billing']);
+        $billing = $events['framework.validation.address.create.billing'][0];
+        static::assertSame('Billing Street 1', $billing->getData()->get('street'));
+        static::assertSame($events['framework.validation.address.create'][0]->getDefinition(), $billing->getDefinition());
+
+        static::assertCount(1, $events['framework.validation.address.create.shipping']);
+        $shipping = $events['framework.validation.address.create.shipping'][0];
+        static::assertSame('Shipping Street 2', $shipping->getData()->get('street'));
+        static::assertSame($events['framework.validation.address.create'][1]->getDefinition(), $shipping->getDefinition());
+    }
+
+    public function testBillingAddressWithoutShippingAddressIsValidatedForBothTypes(): void
+    {
+        $events = $this->registerCollectingAddressValidationEvents($this->createRegistrationData([
+            'billingAddress' => [
+                'street' => 'Billing Street 1',
+                'countryId' => Uuid::randomHex(),
+            ],
+        ]));
+
+        static::assertCount(1, $events['framework.validation.address.create']);
+        $definition = $events['framework.validation.address.create'][0]->getDefinition();
+
+        foreach (['billing', 'shipping'] as $addressType) {
+            static::assertCount(1, $events['framework.validation.address.create.' . $addressType]);
+            $event = $events['framework.validation.address.create.' . $addressType][0];
+            static::assertSame('Billing Street 1', $event->getData()->get('street'));
+            static::assertSame($definition, $event->getDefinition());
+        }
+    }
+
+    public function testShippingAddressWithoutBillingAddressIsValidatedForBothTypes(): void
+    {
+        $events = $this->registerCollectingAddressValidationEvents($this->createRegistrationData([
+            'billingAddress' => null,
+            'shippingAddress' => [
+                'street' => 'Shipping Street 2',
+                'countryId' => Uuid::randomHex(),
+            ],
+        ]));
+
+        static::assertCount(1, $events['framework.validation.address.create']);
+        $definition = $events['framework.validation.address.create'][0]->getDefinition();
+
+        foreach (['billing', 'shipping'] as $addressType) {
+            static::assertCount(1, $events['framework.validation.address.create.' . $addressType]);
+            $event = $events['framework.validation.address.create.' . $addressType][0];
+            static::assertSame('Shipping Street 2', $event->getData()->get('street'));
+            static::assertSame($definition, $event->getDefinition());
+        }
     }
 
     public function testRegisterWithoutBillingAddressCountryViolation(): void
@@ -1680,6 +1750,41 @@ class RegisterRouteTest extends TestCase
         static::assertInstanceOf(DataValidationDefinition::class, $definition);
 
         return $definition->getProperties();
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, list<BuildValidationEvent>>
+     */
+    private function registerCollectingAddressValidationEvents(array $data): array
+    {
+        $addressValidationFactory = static::createStub(DataValidationFactoryInterface::class);
+        $addressValidationFactory
+            ->method('create')
+            ->willReturnCallback(static fn (): DataValidationDefinition => new DataValidationDefinition('address.create'));
+
+        $events = [
+            'framework.validation.address.create' => [],
+            'framework.validation.address.create.billing' => [],
+            'framework.validation.address.create.shipping' => [],
+        ];
+
+        $eventDispatcher = new EventDispatcher();
+        foreach (array_keys($events) as $eventName) {
+            $eventDispatcher->addListener($eventName, static function (BuildValidationEvent $event) use (&$events, $eventName): void {
+                $events[$eventName][] = $event;
+            });
+        }
+
+        $register = $this->createRegisterRoute(
+            eventDispatcher: $eventDispatcher,
+            addressValidationFactory: $addressValidationFactory,
+        );
+
+        $register->register(new RequestDataBag($data), Generator::generateSalesChannelContext(), false);
+
+        return $events;
     }
 
     /**

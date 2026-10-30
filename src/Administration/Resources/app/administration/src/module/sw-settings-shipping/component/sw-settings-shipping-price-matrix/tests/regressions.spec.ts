@@ -35,6 +35,7 @@ describe('sw-settings-shipping-price-matrix', () => {
         if (showAll) {
             await showAllPrices(wrapper);
         }
+
         await deletePrice(wrapper, 0);
 
         expect(remove).toHaveBeenCalledWith('priceId1');

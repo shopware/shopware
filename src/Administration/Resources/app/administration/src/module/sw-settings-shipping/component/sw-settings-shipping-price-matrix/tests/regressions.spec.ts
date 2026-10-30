@@ -28,16 +28,18 @@ describe('sw-settings-shipping-price-matrix', () => {
      * The delete handler adjusted the quantity range of the price before it, which rule prices don't have.
      */
     it.each([false, true])('deletes the first rule price, with all prices shown: %s', async (showAll) => {
+        // ARRANGE
         const prices = toRulePrices(createQuantityPrices());
         const wrapper = await mountPriceMatrix({ calculation: null, prices });
         const untouched = Shopware.Utils.object.cloneDeep(prices);
-
         if (showAll) {
             await showAllPrices(wrapper);
         }
 
+        // ACT
         await deletePrice(wrapper, 0);
 
+        // ASSERT
         expect(remove).toHaveBeenCalledWith('priceId1');
         expect(prices).toEqual(untouched);
     });

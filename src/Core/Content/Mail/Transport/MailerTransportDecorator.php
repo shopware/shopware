@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
 use Shopware\Core\Content\Mail\Service\Mail;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
+use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -47,6 +48,10 @@ class MailerTransportDecorator implements \Stringable, TransportInterface
         }
 
         foreach ($message->getAttachmentUrls() as $url) {
+            if (MediaUploadService::isExternalUrl($url)) {
+                continue;
+            }
+
             try {
                 $mimeType = $this->filesystem->mimeType($url);
             } catch (UnableToRetrieveMetadata) {

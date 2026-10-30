@@ -19,5 +19,6 @@ module.exports = {
         'valid-shopware-setup': require(path.resolve(__dirname, 'valid-shopware-setup.js')),
         'native-setup-filename': require(path.resolve(__dirname, 'native-setup-filename.js')),
         'mini-module-boundaries': require(path.resolve(__dirname, 'mini-module-boundaries.js')),
+        'mini-module-side-effects': require(path.resolve(__dirname, 'mini-module-side-effects.js')),
     },
 };

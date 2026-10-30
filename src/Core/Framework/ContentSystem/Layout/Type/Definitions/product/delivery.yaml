@@ -1,0 +1,19 @@
+meta:
+  label: "Delivery information"
+  description: "Displays free shipping and the available delivery time for the current product."
+  icon: "regular-truck"
+  category: "commerce"
+  copilot:
+    summary: "Free shipping and delivery time for the current product."
+    hints:
+      - "Use on a product detail page; the product is resolved from the current product-page context."
+      - "Shows free shipping when the product is marked as shipping-free."
+      - "Shows the delivery time when the product is available and a delivery time is assigned."
+      - "Renders nothing when neither free shipping nor an available delivery time applies."
+
+properties:
+  product:
+    type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity
+    required: false
+    title: "Product"
+    description: "Hydrated product that provides the shipping and delivery data; resolved from the current product context. Optional because a product context may be unavailable, for example outside a product detail page. Without free shipping or an available delivery time, the component renders nothing."

@@ -1,0 +1,18 @@
+meta:
+  label: "Product Properties"
+  description: "Displays the current product's property groups and their selected options."
+  icon: "regular-list"
+  category: "commerce"
+  copilot:
+    summary: "Product property groups and option values."
+    hints:
+      - "Use on a product detail page; the product is resolved from the current product-page context."
+      - "Renders one row per property group. The value cell lists that group's option names."
+      - "Renders nothing when the product has no properties."
+
+properties:
+  product:
+    type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity
+    required: false
+    title: "Product"
+    description: "Hydrated product that provides the property groups; resolved from the current product context. Optional because a product context may be unavailable, for example outside a product detail page. Without a product or properties, the component renders nothing."

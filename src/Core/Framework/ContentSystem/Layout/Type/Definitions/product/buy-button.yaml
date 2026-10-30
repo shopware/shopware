@@ -1,0 +1,18 @@
+meta:
+  label: "Product Buy Button"
+  description: "Adds the current product to the shopping cart and opens the off-canvas cart."
+  icon: "regular-shopping-cart"
+  category: "commerce"
+  copilot:
+    summary: "Add-to-cart button for the current product."
+    hints:
+      - "Use on a product detail page; the product is resolved from the current product-page context."
+      - "Adds the product's minimum purchase quantity to the cart."
+      - "Renders nothing when the product cannot be bought, for example when it is unavailable or a parent product with variants."
+
+properties:
+  product:
+    type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity
+    required: false
+    title: "Product"
+    description: "Hydrated product that is added to the cart; resolved from the current product context. Optional because a product context may be unavailable, for example outside a product detail page. Without a buyable product, the component displays a fallback only in the content-system preview and otherwise renders no buy button."

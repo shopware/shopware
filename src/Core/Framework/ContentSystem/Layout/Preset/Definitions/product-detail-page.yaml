@@ -7,4 +7,6 @@ layout:
       content:
         - component: Sw:Media:Gallery
         - component: Sw:Product:PriceDisplay
+          properties:
+            large: true
   - component: Sw:Product:Slider

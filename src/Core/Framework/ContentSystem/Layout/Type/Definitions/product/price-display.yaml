@@ -22,3 +22,11 @@ properties:
     default: true
     adminUI:
       component: "switch"
+
+  large:
+    type: boolean
+    title: "Large price"
+    description: "Render the headline price at a larger size."
+    default: false
+    adminUI:
+      component: "switch"

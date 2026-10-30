@@ -1,0 +1,49 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    product = null,
+%}
+
+{% set deliveryCVA = cva({
+    base: 'sw-product-delivery',
+}) %}
+
+{% set showFreeShipping = false %}
+{% set showDeliveryTime = false %}
+
+{% if product %}
+    {% set digitalType = constant('Shopware\\Core\\Content\\Product\\ProductDefinition::TYPE_DIGITAL') %}
+    {% set isDigitalProduct = product.type === digitalType %}
+    {% set inStock = product.stock >= product.minPurchase or (isDigitalProduct and not product.isCloseout) %}
+
+    {% set showFreeShipping = product.shippingFree %}
+    {% set showDeliveryTime = inStock and product.deliveryTime %}
+{% endif %}
+
+{% if showFreeShipping or showDeliveryTime %}
+    <div {{ attributes.defaults({ class: deliveryCVA.apply({}) }) }}>
+        {% if showFreeShipping %}
+            <p {{ attributes.nested('free-shipping').defaults({ class: 'sw-product-delivery__free-shipping mb-3' }) }}>
+                <span {{ attributes.nested('free-shipping-indicator').defaults({
+                    class: 'sw-product-delivery__indicator delivery-status-indicator bg-info',
+                    'aria-hidden': 'true',
+                }) }}></span>
+                {{ 'general.deliveryShippingFree'|trans|sw_sanitize }}
+            </p>
+        {% endif %}
+
+        {% if showDeliveryTime %}
+            <p {{ attributes.nested('delivery-time').defaults({ class: 'sw-product-delivery__delivery-time mb-3' }) }}>
+                <span {{ attributes.nested('delivery-time-indicator').defaults({
+                    class: 'sw-product-delivery__indicator delivery-status-indicator bg-success',
+                    'aria-hidden': 'true',
+                }) }}></span>
+                {{ 'detail.deliveryTimeAvailable'|trans({
+                    '%name%': product.deliveryTime.translation('name'),
+                })|sw_sanitize }}
+            </p>
+        {% endif %}
+    </div>
+{% endif %}

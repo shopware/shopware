@@ -73,6 +73,7 @@
                     type: 'number',
                     name: inputName,
                     class: 'form-control sw-product-quantity-selector__input',
+                    form: "product-buy-form-#{product.id}",
                     min: product.minPurchase,
                     max: product.calculatedMaxPurchase,
                     step: product.purchaseSteps,

@@ -12,6 +12,7 @@
     product = null,
     showTaxInfo = false,
     advancedPricing = true,
+    large = false,
 %}
 
 {% set attributeDefaults = {
@@ -104,7 +105,7 @@
                 Example with list price: €400.00 <s>€500.00</s> (20% saved)"
             #}
             <span class="sw-product-price-display__price d-inline-block mb-1">
-                <span class="fw-bold {% if isListPrice and not displayFrom and not displayFromVariants %} text-danger{% endif %}">
+                <span class="fw-bold{% if large %} fs-2{% endif %}{% if isListPrice and not displayFrom and not displayFromVariants %} text-danger{% endif %}">
                     {{ price.unitPrice|currency }}
                 </span>
 

@@ -99,6 +99,7 @@ class CreateAliasTaskHandlerTest extends TestCase
 
         $client = static::createStub(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
+        $indices->method('exists')->willReturn(true);
 
         $indices
             ->expects($this->once())
@@ -169,6 +170,7 @@ class CreateAliasTaskHandlerTest extends TestCase
 
         $client = static::createStub(Client::class);
         $indices = static::createStub(IndicesNamespace::class);
+        $indices->method('exists')->willReturn(true);
 
         $indices
             ->method('existsAlias')

@@ -59,10 +59,11 @@ function isBaselined(message: string): boolean {
 /**
  * The spelling-independent key of a major flag, so `v6.8.0.0` and `V6_8_0_0` silence the same deprecations.
  *
+ * @private
  * @example
  * silenceKey('v6.8.0.0'); // 'V6_8_0_0'
  */
-function silenceKey(majorFlag: string): string {
+export function silenceKey(majorFlag: string): string {
     return majorFlag.toUpperCase().replace(/\./g, '_');
 }
 
@@ -78,7 +79,7 @@ export default class Feature {
     /** How deep the `Feature.silence()` calls of each major are nested, by `silenceKey()`. */
     private static silencedMajors = new Map<string, number>();
 
-    private static silenceChecks: Array<(majorFlag: string) => boolean> = [];
+    private static silenceChecks = new Map<string, (majorFlag: string) => boolean>();
 
     static init(flagConfig: { [featureName: string]: boolean }): void {
         Object.entries(flagConfig).forEach(([flagName, isActive]) => {
@@ -137,11 +138,12 @@ export default class Feature {
      * }
      */
     static silence<TResult>(majorFlag: string, callback: () => TResult): TResult {
-        if (this.isActive(majorFlag)) {
+        const flag = silenceKey(majorFlag);
+
+        if (this.isActive(flag)) {
             return callback();
         }
 
-        const flag = silenceKey(majorFlag);
         this.silencedMajors.set(flag, (this.silencedMajors.get(flag) ?? 0) + 1);
 
         try {
@@ -166,27 +168,35 @@ export default class Feature {
     }
 
     /**
-     * Adds a check that silences deprecations beyond `Feature.silence()`. The app layer registers the one of the
-     * `v-silence-flag` directive here, as `src/core` does not know Vue.
+     * Sets a check that silences deprecations beyond `Feature.silence()`, replacing the one of the same name, so a
+     * module that runs again does not add a second one. The app layer sets the one of the `v-silence-flag` directive
+     * here, as `src/core` does not know Vue. A check gets the flag as `silenceKey()` spells it, and only while the
+     * major is inactive.
      *
      * @private
      * @example
-     * Feature.addSilenceCheck((majorFlag) => isSilencedByTemplate(majorFlag));
+     * Feature.setSilenceCheck('v-silence-flag', (majorFlag) => isSilencedByTemplate(majorFlag));
      */
-    static addSilenceCheck(check: (majorFlag: string) => boolean): void {
-        this.silenceChecks.push(check);
+    static setSilenceCheck(name: string, check: (majorFlag: string) => boolean): void {
+        this.silenceChecks.set(name, check);
     }
 
     /**
      * Whether the deprecations of `majorFlag` are silenced right now: inside a `Feature.silence()` callback, or
-     * by a registered check like the `v-silence-flag` directive.
+     * by a check like the one of the `v-silence-flag` directive. Never once `majorFlag` is active.
      *
      * @private
      * @example
      * Feature.isSilenced('V6_8_0_0'); // true inside `Feature.silence('V6_8_0_0', callback)`
      */
     static isSilenced(majorFlag: string): boolean {
-        return this.silencedMajors.has(silenceKey(majorFlag)) || this.silenceChecks.some((check) => check(majorFlag));
+        const flag = silenceKey(majorFlag);
+
+        if (this.isActive(flag)) {
+            return false;
+        }
+
+        return this.silencedMajors.has(flag) || [...this.silenceChecks.values()].some((check) => check(flag));
     }
 
     /**
@@ -202,18 +212,15 @@ export default class Feature {
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars -- only the Jest deprecation recorder reads `options`
     static triggerDeprecationOrThrow(majorFlag: string, message: string, options?: DeprecationOptions): void {
-        if (this.isSilenced(majorFlag)) {
-            return;
-        }
-
         const isMajorActive = this.isActive(majorFlag);
 
         if (isMajorActive && !isBaselined(message)) {
             throw new Error(`Tried to access deprecated functionality: ${message}`);
         }
 
-        // A deprecated computed property is read on every render, so report only once per message.
-        if (this.reportedDeprecations.has(message)) {
+        // A deprecated computed property is read on every render, so report only once per message, and check that
+        // before `isSilenced()`, which walks up the component tree.
+        if (this.reportedDeprecations.has(message) || this.isSilenced(majorFlag)) {
             return;
         }
 

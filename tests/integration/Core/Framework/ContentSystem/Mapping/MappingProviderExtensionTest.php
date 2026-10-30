@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Mapping;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductMappingCandidateProvider;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
@@ -19,19 +20,20 @@ use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext
 use Shopware\Core\Framework\ContentSystem\Mapping\Provider\AbstractMappingCandidateProvider;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedTreeFactory;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\DependencyInjection\CompilerPass\MappingCandidateProviderCompilerPass;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Test\TestKernel;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
-use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
+use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpFoundation\Response;
@@ -74,30 +76,41 @@ class MappingProviderExtensionTest extends TestCase
 
     public function testRegistryCanBeDecoratedThroughItsPublicAliasWithoutASecondProvider(): void
     {
-        $container = new ContainerBuilder();
-        $container->register('core.product', ProductMappingCandidateProvider::class)
-            ->setSynthetic(true)->setPublic(true)->addTag('content_system.mapping_candidate_provider');
-        $container->register(ContentSystemMappingCandidateRegistry::class)
-            ->setArguments([new TaggedIteratorArgument('content_system.mapping_candidate_provider')]);
-        $container->setAlias(AbstractContentSystemMappingCandidateRegistry::class, ContentSystemMappingCandidateRegistry::class)->setPublic(true);
-        $container->register('acme.mapping', ProductNameOverrideRegistry::class)
-            ->setDecoratedService(AbstractContentSystemMappingCandidateRegistry::class)
-            ->setArguments([new Reference('acme.mapping.inner')]);
-        $container->addCompilerPass(new MappingCandidateProviderCompilerPass());
-        $container->compile();
-        $container->set('core.product', static::getContainer()->get(ProductMappingCandidateProvider::class));
-        $registry = $container->get(AbstractContentSystemMappingCandidateRegistry::class);
-        static::assertInstanceOf(ProductNameOverrideRegistry::class, $registry);
-        $product = new SalesChannelProductEntity();
-        $product->setTranslated(['name' => 'Shirt']);
+        $previousKernelClass = KernelFactory::$kernelClass;
+        KernelFactory::$kernelClass = MappingRegistryDecorationTestKernel::class;
+        try {
+            KernelLifecycleManager::bootKernel(cacheId: 'mapping-registry-decoration');
+        } finally {
+            KernelFactory::$kernelClass = $previousKernelClass;
+        }
 
-        static::assertSame('Custom Shirt', $registry->resolveSource(
-            'product',
-            MappingSourceReference::root('product', 'name'),
-            new MappingSourceResolutionContext(new StoredElement('element', 'Sw:Content:Text'), ['product' => $product], [], new RenderingCacheContext()),
-        )->value);
+        $registry = static::getContainer()->get(AbstractContentSystemMappingCandidateRegistry::class);
+        static::assertInstanceOf(ProductNameOverrideRegistry::class, $registry);
+        static::assertInstanceOf(ContentSystemMappingCandidateRegistry::class, $registry->getDecorated());
+        static::assertSame('Custom product name', $this->catalogue()['product.name']['label']);
+
+        $source = MappingSourceReference::root('product', 'name');
+        $candidate = static::getContainer()->get(StoredMappingInspector::class)->admitProperty(TestElementTypeLoader::MAPPABLE_PRIMITIVE, 'text', $source, 'product');
+        static::assertInstanceOf(MappingCandidate::class, $candidate);
+        static::assertSame('Custom product name', $candidate->label);
+
+        $elements = [
+            $this->element('mapped', $source),
+            ['id' => 'inline', 'component' => 'Sw:Content:Text', 'properties' => [
+                'text' => '{{map:product.name}} / {{map:product.description}}',
+            ]],
+        ];
+        $this->save($elements);
+        $cache = new RenderingCacheContext();
+        $rendered = $this->render($elements, $cache);
+        static::assertSame('Custom Shirt', $rendered[0]['text']);
+        static::assertSame('Custom Shirt / Description', $rendered[1]['text']);
+        static::assertContains('acme-product-name', $cache->getTags());
+
         $registry->reset();
-        static::assertSame(ProductMappingCandidateProvider::registeredCandidateKeys()['product'], array_keys($registry->forRootSource('product')));
+        $candidateAfterReset = $registry->forRootSource('product')['product.name'];
+        static::assertInstanceOf(MappingCandidate::class, $candidateAfterReset);
+        static::assertSame('Custom product name', $candidateAfterReset->label);
     }
 
     public function testExplicitOverridePreservesTheCoreSourceIdentityAndUnrelatedMappings(): void
@@ -256,9 +269,17 @@ class ProductNameOverrideRegistry extends AbstractContentSystemMappingCandidateR
         return $this->inner;
     }
 
+    /**
+     * @return array<string, MappingCandidate>
+     */
     public function forRootSource(string $rootSource): array
     {
-        return $this->inner->forRootSource($rootSource);
+        $candidates = $this->inner->forRootSource($rootSource);
+        if ($rootSource === 'product' && isset($candidates['product.name'])) {
+            $candidates['product.name'] = new MappingCandidate('product.name', 'Custom product name', '', 'basic', 'string');
+        }
+
+        return $candidates;
     }
 
     public function resolveSource(string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
@@ -303,5 +324,21 @@ class BundleMappingProvider extends AbstractMappingCandidateProvider
     public function resolveSource(MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
     {
         return MappingSourceResolution::resolved($this->bundleName);
+    }
+}
+
+/**
+ * Boots normal Shopware definitions with only the documented plugin decorator added.
+ *
+ * @internal
+ */
+class MappingRegistryDecorationTestKernel extends TestKernel
+{
+    public function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
+    {
+        parent::configureContainer($container, $loader);
+        $container->register(ProductNameOverrideRegistry::class)
+            ->setDecoratedService(AbstractContentSystemMappingCandidateRegistry::class)
+            ->setArguments([new Reference(ProductNameOverrideRegistry::class . '.inner')]);
     }
 }

@@ -36,7 +36,7 @@ To change an existing core mapping intentionally, decorate the public `AbstractC
 
 For example, a decorator resolving `product.name` can first delegate to the inner registry, then transform a resolved string only when the root source is `product` and the reference exactly matches `MappingSourceReference::root('product', 'name')`. Missing data, explicit null, rejected references, and provider errors retain their normal handling. Its `getDecorated()` returns the inner registry. The inherited `reset()` forwards to that registry; a decorator with its own request-local cache must clear it and forward the reset too.
 
-Register the decorator using Symfony service decoration, with its `.inner` service injected as `AbstractContentSystemMappingCandidateRegistry`:
+`AbstractContentSystemMappingCandidateRegistry` is a public service alias whose default target is the internal `ContentSystemMappingCandidateRegistry`. Catalogue requests, mapping admission, and runtime resolution all use the abstract service, so a decorator applies consistently to whole-field and inline mappings. Register the decorator using Symfony service decoration, with its `.inner` service injected as `AbstractContentSystemMappingCandidateRegistry`:
 
 ```xml
 <service id="AcmePlugin\Mapping\ProductNameRegistry"

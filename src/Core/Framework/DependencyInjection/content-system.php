@@ -94,6 +94,7 @@ use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParse
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingRuntimeResolver;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
@@ -765,6 +766,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('logger'),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
+    $services->alias(AbstractContentSystemMappingCandidateRegistry::class, ContentSystemMappingCandidateRegistry::class)->public();
 
     // Inline mapping: the `{{map:path}}` tokens an author embeds in an inlineMappable string property. The parser
     // is the single source of truth for the syntax and is shared by the render path and the write gate, so the
@@ -779,7 +781,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(MappingRuntimeResolver::class)
         ->args([
-            service(ContentSystemMappingCandidateRegistry::class),
+            service(AbstractContentSystemMappingCandidateRegistry::class),
             service(StoredMappingInspector::class),
         ]);
 
@@ -800,7 +802,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(StoredMappingInspector::class)
         ->args([
             service(ContentSystemElementTypeRegistry::class),
-            service(ContentSystemMappingCandidateRegistry::class),
+            service(AbstractContentSystemMappingCandidateRegistry::class),
             service(MappingTypeCompatibility::class),
             service(MappingConsumers::class),
             service(InlineMappingTokenParser::class),

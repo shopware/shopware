@@ -48,6 +48,12 @@ async function createWrapper(props = {}) {
     });
 }
 
+function nameFieldsRequired(wrapper) {
+    return ['firstName', 'lastName'].map((field) => {
+        return wrapper.find(`label[for="sw-field--customer-${field}"]`).classes('is--required');
+    });
+}
+
 describe('module/sw-customer/page/sw-customer-card', () => {
     it('should exclude the default salutation from selectable salutations', async () => {
         const wrapper = await createWrapper();
@@ -103,20 +109,31 @@ describe('module/sw-customer/page/sw-customer-card', () => {
     });
 
     it('should keep the contact person required for a private account', async () => {
-        const wrapper = await createWrapper({ customer: { accountType: 'private' }, companyNamesRequired: false });
+        const wrapper = await createWrapper({
+            customer: { ...customer, accountType: 'private' },
+            companyNamesRequired: false,
+            editMode: true,
+        });
 
-        expect(wrapper.vm.contactPersonRequired).toBe(true);
+        expect(nameFieldsRequired(wrapper)).toEqual([true, true]);
     });
 
     it('should make the contact person optional for a company account when the settings allow it', async () => {
-        const wrapper = await createWrapper({ customer: { accountType: 'business' }, companyNamesRequired: false });
+        const wrapper = await createWrapper({
+            customer: { ...customer, accountType: 'business' },
+            companyNamesRequired: false,
+            editMode: true,
+        });
 
-        expect(wrapper.vm.contactPersonRequired).toBe(false);
+        expect(nameFieldsRequired(wrapper)).toEqual([false, false]);
     });
 
     it('should keep the contact person required for a company account by default', async () => {
-        const wrapper = await createWrapper({ customer: { accountType: 'business' } });
+        const wrapper = await createWrapper({
+            customer: { ...customer, accountType: 'business' },
+            editMode: true,
+        });
 
-        expect(wrapper.vm.contactPersonRequired).toBe(true);
+        expect(nameFieldsRequired(wrapper)).toEqual([true, true]);
     });
 });

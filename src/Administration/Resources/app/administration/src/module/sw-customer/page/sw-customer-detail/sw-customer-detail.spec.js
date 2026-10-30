@@ -22,7 +22,12 @@ async function createWrapper(
     privileges = [],
     editMode = false,
     customerResponse = defaultCustomer,
-    { featureActive = false, routeName = 'sw.customer.detail.base', routerPush = jest.fn() } = {},
+    {
+        featureActive = false,
+        routeName = 'sw.customer.detail.base',
+        routerPush = jest.fn(),
+        contactPersonRequired = true,
+    } = {},
 ) {
     return mount(
         await wrapTestComponent('sw-customer-detail', {
@@ -104,7 +109,7 @@ async function createWrapper(
                 },
                 provide: {
                     companyAccountNameFieldsService: {
-                        isContactPersonRequired: () => Promise.resolve(true),
+                        isContactPersonRequired: () => Promise.resolve(contactPersonRequired),
                     },
                     repositoryFactory: {
                         create: () => {
@@ -187,12 +192,9 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
             false,
         ],
     ])('%s', async (_name, accountType, companyNamesRequired, saved) => {
-        wrapper = await createWrapper([], true);
-        await flushPromises();
-
-        wrapper.vm.companyNamesRequired = companyNamesRequired;
-        wrapper.vm.customer = {
+        const customer = {
             id: 'test',
+            salutationId: '1',
             accountType,
             company: 'Acme GmbH',
             email: '',
@@ -200,8 +202,11 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
             lastName: '',
             defaultBillingAddress: { company: 'Acme GmbH' },
         };
+        wrapper = await createWrapper(['customer.editor'], true, customer, { contactPersonRequired: companyNamesRequired });
+        await flushPromises();
 
-        await wrapper.vm.onSave();
+        await wrapper.find('.sw-customer-detail__save-action').trigger('click');
+        await flushPromises();
 
         expect(customerRepositorySave).toHaveBeenCalledTimes(saved ? 1 : 0);
     });

@@ -14,16 +14,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * A document created without a title gets the name of its file, without the extension, as title in the default language.
- * Versions in other languages keep their empty title, so they fall back to that one.
+ * Translations in other languages keep their empty title and fall back to that one.
  *
  * @internal
- *
- * @codeCoverageIgnore
- *
- * @see \Shopware\Tests\Integration\Core\Content\Product\Subscriber\ProductDocumentTitleSubscriberTest
  */
 #[Package('inventory')]
-class ProductDocumentTitleSubscriber implements EventSubscriberInterface
+final class ProductDocumentTitleSubscriber implements EventSubscriberInterface
 {
     /**
      * The length of the title column.
@@ -45,8 +41,7 @@ class ProductDocumentTitleSubscriber implements EventSubscriberInterface
     {
         $systemLanguageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
-        // new default versions without a title, with the id of their file
-        $versions = [];
+        $untitledTranslations = [];
         foreach ($event->getCommandsForEntity(ProductDocumentTranslationDefinition::ENTITY_NAME) as $command) {
             $payload = $command->getPayload();
             $mediaId = $payload['media_id'] ?? null;
@@ -56,21 +51,21 @@ class ProductDocumentTitleSubscriber implements EventSubscriberInterface
                 && ($payload['title'] ?? null) === null
                 && \is_string($mediaId)
             ) {
-                $versions[] = [$command, Uuid::fromBytesToHex($mediaId)];
+                $untitledTranslations[] = [$command, $mediaId];
             }
         }
 
-        if ($versions === []) {
+        if ($untitledTranslations === []) {
             return;
         }
 
         $fileNames = $this->connection->fetchAllKeyValue(
-            'SELECT LOWER(HEX(`id`)), `file_name` FROM `media` WHERE `id` IN (:ids) AND `file_name` IS NOT NULL AND `file_name` != \'\'',
-            ['ids' => Uuid::fromHexToBytesList(array_values(array_unique(array_column($versions, 1))))],
+            'SELECT `id`, `file_name` FROM `media` WHERE `id` IN (:ids) AND `file_name` IS NOT NULL AND `file_name` != \'\'',
+            ['ids' => array_values(array_unique(array_column($untitledTranslations, 1)))],
             ['ids' => ArrayParameterType::BINARY],
         );
 
-        foreach ($versions as [$command, $mediaId]) {
+        foreach ($untitledTranslations as [$command, $mediaId]) {
             $fileName = $fileNames[$mediaId] ?? null;
             if (\is_string($fileName)) {
                 $command->addPayload('title', mb_substr($fileName, 0, self::MAX_TITLE_LENGTH));

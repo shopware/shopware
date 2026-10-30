@@ -387,12 +387,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
-    $services->set(ProductDocumentTitleSubscriber::class)
-        ->args([
-            service(Connection::class),
-        ])
-        ->tag('kernel.event_subscriber');
-
     $services->set(ProductDescriptionTeaserIndexer::class)
         ->args([
             service(IteratorFactory::class),
@@ -400,6 +394,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductDescriptionTeaserBuilder::class),
         ])
         ->tag('shopware.entity_indexer');
+
+    $services->set(ProductDocumentTitleSubscriber::class)
+        ->args([
+            service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber');
 
     $services->set(OrderStockSubscriber::class)
         ->args([

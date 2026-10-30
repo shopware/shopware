@@ -501,7 +501,7 @@ export default {
 
             const ordersExcludeDelivery = Object.values(this.$refs.orderGrid.selection).filter((order) => {
                 if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                    return !this.getDelivery(order);
+                    return Shopware.Feature.silence('V6_8_0_0', () => !this.getDelivery(order));
                 }
                 return !order.primaryOrderDelivery;
             });

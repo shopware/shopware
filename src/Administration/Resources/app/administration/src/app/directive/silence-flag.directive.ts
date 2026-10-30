@@ -3,6 +3,7 @@
  */
 
 import { getCurrentInstance, type ComponentInternalInstance, type Directive } from 'vue';
+import { silenceKey } from 'src/core/feature';
 
 /**
  * Silences the deprecations of a major for the component it sits on and everything that component renders,
@@ -22,30 +23,22 @@ const silenceFlag: Directive<HTMLElement, string> = {};
 Shopware.Directive.register('silence-flag', silenceFlag);
 
 /**
- * Whether a directive value names `majorFlag`, in either spelling.
- *
- * @example
- * sameFlag('v6.8.0.0', 'V6_8_0_0'); // true
- */
-function sameFlag(value: unknown, majorFlag: string): boolean {
-    return (
-        typeof value === 'string' && value.toUpperCase().replace(/\./g, '_') === majorFlag.toUpperCase().replace(/\./g, '_')
-    );
-}
-
-/**
- * Whether the running component, or a component above it, carries `v-silence-flag` for `majorFlag`.
+ * Whether the running component, or a component above it, carries `v-silence-flag` for `majorFlag`, spelled as
+ * `silenceKey()` spells it. It compares with the registered directive, as the registry keeps the first one when
+ * this module runs again.
  *
  * @example
  * isSilencedByTemplate('V6_8_0_0'); // true while `<sw-loader v-silence-flag="'V6_8_0_0'" />` renders
  */
 function isSilencedByTemplate(majorFlag: string): boolean {
-    if (Shopware.Feature.isActive(majorFlag)) {
-        return false;
-    }
+    const registered = Shopware.Directive.getByName('silence-flag');
 
     for (let instance: ComponentInternalInstance | null = getCurrentInstance(); instance; instance = instance.parent) {
-        if (instance.vnode.dirs?.some(({ dir, value }) => dir === silenceFlag && sameFlag(value, majorFlag))) {
+        if (
+            instance.vnode.dirs?.some(
+                ({ dir, value }) => dir === registered && typeof value === 'string' && silenceKey(value) === majorFlag,
+            )
+        ) {
             return true;
         }
     }
@@ -53,7 +46,7 @@ function isSilencedByTemplate(majorFlag: string): boolean {
     return false;
 }
 
-Shopware.Feature.addSilenceCheck(isSilencedByTemplate);
+Shopware.Feature.setSilenceCheck('v-silence-flag', isSilencedByTemplate);
 
 /**
  * @private

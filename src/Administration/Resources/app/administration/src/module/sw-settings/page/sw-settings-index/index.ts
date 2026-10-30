@@ -33,7 +33,9 @@ export default Shopware.Component.wrapComponentConfig({
     // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- Vue runs created() for every instance
     created() {
         if (!Shopware.Feature.isActive('v6.8.0.0')) {
-            void this.getUserConfig();
+            Shopware.Feature.silence('V6_8_0_0', () => {
+                void this.getUserConfig();
+            });
         }
     },
 

@@ -73,9 +73,35 @@ const HEADLESS_DEFAULTS = [
 
 const ALL_DEFAULTS = [...STOREFRONT_DEFAULTS, ...HEADLESS_DEFAULTS];
 
-async function createWrapper({ defaultTemplates = ALL_DEFAULTS, salesChannelTemplates = [] } = {}) {
+const UNREGISTERED_ROUTE_NAME = 'frontend.bundle.detail.page';
+const UNREGISTERED_ROUTE_DEFAULT = entityStub({
+    id: 'default-bundle',
+    routeName: UNREGISTERED_ROUTE_NAME,
+    entityName: 'product',
+    salesChannelId: null,
+    template: '{{ bundle.translated.name }}',
+    isHeadless: false,
+});
+
+function previewFailingForUnregisteredRoute(errorCode) {
+    return jest.fn((entity) => {
+        if (entity.routeName !== UNREGISTERED_ROUTE_NAME) {
+            return Promise.resolve([]);
+        }
+
+        return Promise.reject({
+            response: { data: { errors: [{ code: errorCode, detail: 'SEO URL route not found' }] } },
+        });
+    });
+}
+
+async function createWrapper({
+    defaultTemplates = ALL_DEFAULTS,
+    salesChannelTemplates = [],
+    preview = jest.fn().mockResolvedValue([]),
+} = {}) {
     const seoUrlTemplateService = {
-        preview: jest.fn().mockResolvedValue([]),
+        preview,
         getContext: jest.fn().mockResolvedValue({}),
     };
 
@@ -390,5 +416,53 @@ describe('src/module/sw-settings-seo/component/sw-seo-url-template-card', () => 
         await flushPromises();
 
         expect(wrapper.vm.errorMessages[entity.id]).toBe('Twig syntax error');
+    });
+
+    it.each([
+        // @deprecated tag:v6.8.0 - Will be removed together with the FRAMEWORK__ code of the component
+        'FRAMEWORK__SEO_URL_ROUTE_NOT_FOUND',
+        'CONTENT__SEO_URL_ROUTE_NOT_FOUND',
+    ])('should not display templates whose SEO URL route is not registered (%s)', async (errorCode) => {
+        const { wrapper, seoUrlTemplateService } = await createWrapper({
+            defaultTemplates: [...ALL_DEFAULTS, UNREGISTERED_ROUTE_DEFAULT],
+            preview: previewFailingForUnregisteredRoute(errorCode),
+        });
+
+        expect(routeNamesForSalesChannel(wrapper, null)).toEqual([
+            'frontend.detail.page',
+            'frontend.landing.page',
+            'frontend.navigation.page',
+        ]);
+        expect(wrapper.findAll('.sw-seo-url-template-card__seo-url')).toHaveLength(3);
+
+        await wrapper.vm.onSalesChannelChanged(STOREFRONT_SALES_CHANNEL_ID);
+        await flushPromises();
+
+        expect(routeNamesForSalesChannel(wrapper, STOREFRONT_SALES_CHANNEL_ID)).not.toContain(UNREGISTERED_ROUTE_NAME);
+        expect(seoUrlTemplateService.preview).not.toHaveBeenCalledWith(
+            expect.objectContaining({ routeName: UNREGISTERED_ROUTE_NAME, salesChannelId: STOREFRONT_SALES_CHANNEL_ID }),
+        );
+    });
+
+    it('should save the other templates while a template of an unregistered SEO URL route exists', async () => {
+        const { wrapper, seoUrlTemplateRepository } = await createWrapper({
+            defaultTemplates: [...ALL_DEFAULTS, UNREGISTERED_ROUTE_DEFAULT],
+            preview: previewFailingForUnregisteredRoute('CONTENT__SEO_URL_ROUTE_NOT_FOUND'),
+        });
+
+        const productDefault = wrapper.vm
+            .getTemplatesForSalesChannel(null)
+            .find((template) => template.routeName === 'frontend.detail.page');
+        productDefault.template = '{{ product.productNumber }}';
+
+        wrapper.vm.onClickSave();
+        await flushPromises();
+
+        expect(seoUrlTemplateRepository.sync).toHaveBeenCalledTimes(1);
+        const synced = [...seoUrlTemplateRepository.sync.mock.calls[0][0]];
+        expect(synced.map((entry) => entry.routeName)).not.toContain(UNREGISTERED_ROUTE_NAME);
+        expect(synced.find((entry) => entry.routeName === 'frontend.detail.page').template).toBe(
+            '{{ product.productNumber }}',
+        );
     });
 });

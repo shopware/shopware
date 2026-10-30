@@ -29,10 +29,13 @@ function createOrder(deliveryIds: string[]) {
 
 describe('bulk-edit-order', () => {
     it('transitions the first loaded delivery of each order', async () => {
+        // ARRANGE
         const handler = createHandler([createOrder(['first-delivery', 'second-delivery'])]);
 
+        // ACT
         await handler.bulkEditStatus(['order-id'], [{ field: 'orderDeliveries', value: 'ship' }]);
 
+        // ASSERT
         expect(transitionOrderDeliveryState).toHaveBeenCalledWith(
             'first-delivery',
             'ship',
@@ -43,11 +46,14 @@ describe('bulk-edit-order', () => {
     });
 
     it('loads the deliveries of the selected orders unsorted', () => {
+        // ARRANGE
         const handler = createHandler([]);
         handler.entityIds = ['order-id'];
 
+        // ACT
         const criteria = handler.getCriteria();
 
+        // ASSERT
         expect(criteria.getAssociation('deliveries').sortings).toEqual([]);
     });
 });

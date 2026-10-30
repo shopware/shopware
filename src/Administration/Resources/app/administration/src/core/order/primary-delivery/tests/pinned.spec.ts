@@ -15,27 +15,36 @@ function createOrder(order: Record<string, unknown>): OrderWithDeliveries {
 describe('primary-delivery', () => {
     /** @deprecated tag:v6.8.0 - Removed with the 6.7 fallback. */
     it.deprecated('v6.8.0.0')('falls back to the first loaded delivery', () => {
+        // ARRANGE
         const first = delivery('first', 5);
         const order = createOrder({ primaryOrderDelivery: null, deliveries: [first, delivery('second', 10)] });
 
+        // ACT
         const shown = getPrimaryDelivery(order);
 
+        // ASSERT
         expect(shown).toBe(first);
     });
 
     it('returns null for an order without deliveries', () => {
+        // ARRANGE
         const order = createOrder({ primaryOrderDelivery: null, deliveries: null });
 
+        // ACT
         const shown = getPrimaryDelivery(order);
 
+        // ASSERT
         expect(shown).toBeNull();
     });
 
     it.activeFeatureFlags(['v6.8.0.0'])('has no fallback in 6.8', () => {
+        // ARRANGE
         const order = createOrder({ deliveries: [delivery('a', 5)] });
 
+        // ACT
         const shown = getPrimaryDelivery(order);
 
+        // ASSERT
         expect(shown).toBeNull();
     });
 });

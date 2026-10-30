@@ -148,4 +148,48 @@ class IndexerQueuerTest extends TestCase
 
         IndexerQueuer::registerIndexer($connection, 'product.indexer', ['skip-seo', 'skip-cheapest-price']);
     }
+
+    #[TestDox('registerIndexer keeps a full run when some updaters are registered after it')]
+    public function testRegisterIndexerKeepsAFullRunWhenSomeUpdatersFollow(): void
+    {
+        static::assertSame(
+            ['_value' => ['product.indexer' => []]],
+            $this->registerIndexerOnTopOf(['product.indexer' => []], ['product.cheapest-price'])
+        );
+    }
+
+    #[TestDox('registerIndexer turns some registered updaters into a full run when a full run is registered')]
+    public function testRegisterIndexerTurnsSomeUpdatersIntoAFullRun(): void
+    {
+        static::assertSame(
+            ['_value' => ['product.indexer' => []]],
+            $this->registerIndexerOnTopOf(['product.indexer' => ['product.states']], [])
+        );
+    }
+
+    /**
+     * Registers the product indexer on top of an already queued config and returns the config as it is written.
+     *
+     * @param array<string, list<string>> $queued
+     * @param list<string> $requiredIndexers
+     */
+    private function registerIndexerOnTopOf(array $queued, array $requiredIndexers): mixed
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAssociative')->willReturn([
+            'id' => 'config-id',
+            'configuration_value' => (string) json_encode(['_value' => $queued]),
+        ]);
+
+        $written = null;
+        $connection->method('update')->willReturnCallback(static function (string $table, array $data) use (&$written): int {
+            $written = json_decode((string) $data['configuration_value'], true);
+
+            return 1;
+        });
+
+        IndexerQueuer::registerIndexer($connection, 'product.indexer', $requiredIndexers);
+
+        return $written;
+    }
 }

@@ -56,6 +56,14 @@ Promotion codes use a separate allowance from the per-item `cart_add_line_item` 
 Configure the backoff policy through `shopware.api.rate_limiter.promotion_code`.
 Store API clients receive HTTP 429 when throttled, while Storefront shoppers receive a message with the waiting time.
 
+### Email domain processing preserves IDN distinctions
+
+Email domain conversion now uses explicit non-transitional UTS #46 processing, so results are consistent across supported ICU versions and the Symfony polyfill.
+Storefront login and password recovery now normalize Unicode email domains like registration, so customers can use the original Unicode address when its domain is stored as Punycode.
+Transitional processing could change the host by mapping `ß` to `ss`, `ς` to `σ`, or removing ZWJ/ZWNJ; non-transitional conversion preserves those characters subject to domain validation.
+Existing records are not rewritten, and previously transformed addresses cannot be reliably reconstructed from the stored value alone; for example, `strasse.de` does not reveal whether the original input used `ss` or `ß`.
+Customers whose stored domains were transformed may no longer be found using their original Unicode address; they should use the currently stored address until its intended value is verified and corrected.
+
 ### Webhooks are authorized against their owner
 
 Webhooks created through the Admin API without an app now belong to the user or integration that created them, and only receive the events their owner is allowed to read. Nothing changes for webhooks an app registers in its manifest.

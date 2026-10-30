@@ -1,5 +1,5 @@
-import BulkEditBaseHandler from './bulk-edit-base.handler';
-import RetryHelper from '../../../../core/helper/retry.helper';
+import BulkEditBaseHandler from '../../bulk-edit-base.handler';
+import RetryHelper from 'src/core/helper/retry.helper';
 
 const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
@@ -109,5 +109,4 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
     }
 }
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default BulkEditOrderHandler;

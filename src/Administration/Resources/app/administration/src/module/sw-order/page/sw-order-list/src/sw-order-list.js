@@ -1,5 +1,6 @@
 import template from './sw-order-list.html.twig';
 import './sw-order-list.scss';
+import { getPrimaryDelivery } from 'src/core/order/primary-delivery';
 
 /**
  * @sw-package checkout
@@ -8,7 +9,6 @@ import './sw-order-list.scss';
 const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
@@ -584,11 +584,7 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderDelivery instead
          */
         getDelivery(order) {
-            if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                return order.primaryOrderDelivery ?? order.deliveries?.[0] ?? null;
-            }
-
-            return order.primaryOrderDelivery ?? null;
+            return getPrimaryDelivery(order);
         },
 
         /**

@@ -519,6 +519,25 @@ Shopware now verifies that `APP_URL` reaches this installation before it registe
 
 The verification stores its token in the `cache.app_url_verification` cache pool, which uses `cache.app` by default. With several app servers, this pool must be shared between them, for example on Redis.
 
+### Elasticsearch errors no longer fail `system:update:finish`
+
+`system:update:finish` no longer fails when the Elasticsearch mapping update or the scheduling of a reindex fails.
+The error is logged on the `elasticsearch` channel, and the update continues.
+`SHOPWARE_ES_THROW_EXCEPTION` no longer affects the system update.
+`bin/console es:mapping:update` still fails on a mapping error when `SHOPWARE_ES_THROW_EXCEPTION` is enabled.
+
+When the mapping update hits a field type conflict, the entity is scheduled for a reindex, and the system update dispatches it.
+If the reindex cannot be scheduled, it is retried on the next system update.
+Entities that are no longer registered, for example because their plugin was uninstalled, are dropped from the scheduled reindex.
+
+### Elasticsearch reindex is limited to the affected entities
+
+The reindex that `system:update:finish` dispatches after a field type conflict now rebuilds only the indices of the affected entities.
+The other indices stay as they are.
+
+`bin/console es:index --only=<entities>` now creates new indices only for the given entities.
+It no longer leaves an empty index for every other entity, and it keeps the pending alias switches of other entities.
+
 ### Configurable last-modified version strategy for theme assets
 
 The `FlysystemLastModifiedVersionStrategy` used for theme assets can now be disabled per-shop in `config/packages/shopware.yaml`.

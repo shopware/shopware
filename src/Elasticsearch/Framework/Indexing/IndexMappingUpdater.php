@@ -58,6 +58,8 @@ class IndexMappingUpdater
             $entitiesToReindex = [];
         }
 
+        $error = null;
+
         foreach ($this->registry->getDefinitions() as $definition) {
             $entityDefinition = $definition->getEntityDefinition();
             $indexName = $this->elasticsearchHelper->getIndexName($entityDefinition);
@@ -75,20 +77,32 @@ class IndexMappingUpdater
                 foreach (self::REINDEXABLE_MAPPING_ERRORS as $needle) {
                     if (str_contains($errorMessage, $needle)) {
                         $entitiesToReindex[] = $entityDefinition->getEntityName();
+                        $this->storage->set(SystemUpdateListener::CONFIG_KEY, \array_values(\array_unique($entitiesToReindex)));
                         $exception = ElasticsearchProductException::cannotChangeFieldType($exception);
 
                         break;
                     }
                 }
 
-                $this->elasticsearchHelper->logAndThrowException($exception);
+                $error = $this->logAndCatch($exception, $error);
             } catch (NotFoundHttpException $exception) {
-                $this->elasticsearchHelper->logAndThrowException($exception);
+                $error = $this->logAndCatch($exception, $error);
             }
         }
 
-        if ($entitiesToReindex !== []) {
-            $this->storage->set(SystemUpdateListener::CONFIG_KEY, \array_values(\array_unique($entitiesToReindex)));
+        if ($error !== null) {
+            throw $error;
         }
+    }
+
+    private function logAndCatch(\Exception $exception, ?\Throwable $previous): ?\Throwable
+    {
+        try {
+            $this->elasticsearchHelper->logAndThrowException($exception);
+        } catch (\Throwable $thrown) {
+            return $previous ?? $thrown;
+        }
+
+        return $previous;
     }
 }

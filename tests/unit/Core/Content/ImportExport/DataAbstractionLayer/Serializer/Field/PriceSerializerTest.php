@@ -391,6 +391,50 @@ class PriceSerializerTest extends TestCase
         ];
     }
 
+    public function testTheCurrencyOfAPriceIsLookedUpOnce(): void
+    {
+        // one queued result, so a second lookup of the same currency would fail the test
+        $currencyRepository = $this->getCurrencyRepository([
+            new CurrencyCollection([
+                (new CurrencyEntity())->assign(['id' => Defaults::CURRENCY, 'isoCode' => 'EUR']),
+            ]),
+        ]);
+
+        $priceSerializer = new PriceSerializer($currencyRepository);
+        $config = new Config([], [], []);
+        $field = new PriceField('price', 'price');
+
+        $price = [Defaults::CURRENCY => ['net' => 1.0, 'gross' => 2.0, 'currencyId' => Defaults::CURRENCY, 'linked' => false]];
+
+        foreach ([1, 2, 3] as $_) {
+            \iterator_to_array($priceSerializer->serialize($config, $field, $price));
+        }
+
+        static::assertSame([], $currencyRepository->searches);
+    }
+
+    public function testTheCurrencyIsLookedUpAgainAfterAReset(): void
+    {
+        $currency = new CurrencyCollection([
+            (new CurrencyEntity())->assign(['id' => Defaults::CURRENCY, 'isoCode' => 'EUR']),
+        ]);
+
+        // two queued results: one for the first run and one for the run after the reset
+        $currencyRepository = $this->getCurrencyRepository([$currency, $currency]);
+
+        $priceSerializer = new PriceSerializer($currencyRepository);
+        $config = new Config([], [], []);
+        $field = new PriceField('price', 'price');
+
+        $price = [Defaults::CURRENCY => ['net' => 1.0, 'gross' => 2.0, 'currencyId' => Defaults::CURRENCY, 'linked' => false]];
+
+        \iterator_to_array($priceSerializer->serialize($config, $field, $price));
+        $priceSerializer->reset();
+        \iterator_to_array($priceSerializer->serialize($config, $field, $price));
+
+        static::assertSame([], $currencyRepository->searches);
+    }
+
     /**
      * @param array<CurrencyCollection<CurrencyEntity>|array<string>> $results
      *

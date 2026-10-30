@@ -15,10 +15,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
+use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('fundamentals@after-sales')]
-class TranslationsSerializer extends FieldSerializer
+class TranslationsSerializer extends FieldSerializer implements ResetInterface
 {
+    /**
+     * @var array<string, string>
+     */
+    private array $translationCodeCache = [];
+
     /**
      * @param EntityRepository<LanguageCollection> $languageRepository
      *
@@ -105,10 +111,19 @@ class TranslationsSerializer extends FieldSerializer
         return $field instanceof TranslationsAssociationField;
     }
 
+    public function reset(): void
+    {
+        $this->translationCodeCache = [];
+    }
+
     private function mapToTranslationCode(string $languageId): string
     {
         if (!Uuid::isValid($languageId)) {
             return $languageId;
+        }
+
+        if (isset($this->translationCodeCache[$languageId])) {
+            return $this->translationCodeCache[$languageId];
         }
 
         $criteria = (new Criteria([$languageId]))->addAssociation('translationCode');
@@ -117,6 +132,8 @@ class TranslationsSerializer extends FieldSerializer
             ->search($criteria, Context::createDefaultContext())->getEntities()
             ->first();
 
-        return $language && $language->getTranslationCode() ? $language->getTranslationCode()->getCode() : $languageId;
+        return $this->translationCodeCache[$languageId] = $language && $language->getTranslationCode()
+            ? $language->getTranslationCode()->getCode()
+            : $languageId;
     }
 }

@@ -17,10 +17,16 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyCollection;
+use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('fundamentals@after-sales')]
-class PriceSerializer extends FieldSerializer
+class PriceSerializer extends FieldSerializer implements ResetInterface
 {
+    /**
+     * @var array<string, string>
+     */
+    private array $currencyIsoCache = [];
+
     /**
      * @param EntityRepository<CurrencyCollection> $currencyRepository
      *
@@ -107,6 +113,11 @@ class PriceSerializer extends FieldSerializer
     {
     }
 
+    public function reset(): void
+    {
+        $this->currencyIsoCache = [];
+    }
+
     /**
      * @param array<string, mixed> $price
      */
@@ -118,12 +129,16 @@ class PriceSerializer extends FieldSerializer
 
     private function mapToCurrencyIso(string $currencyId, Context $context): string
     {
+        if (isset($this->currencyIsoCache[$currencyId])) {
+            return $this->currencyIsoCache[$currencyId];
+        }
+
         $currency = $this->currencyRepository
             ->search(new Criteria([$currencyId]), $context)
             ->getEntities()
             ->first();
 
-        return $currency ? $currency->getIsoCode() : $currencyId;
+        return $this->currencyIsoCache[$currencyId] = $currency ? $currency->getIsoCode() : $currencyId;
     }
 
     private function getCurrencyIdFromIso(string $iso, Context $context): ?string

@@ -5,8 +5,8 @@ import MD5 from 'md5-es';
  * @sw-package framework
  *
  * @module core/service/utils/format
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     currency,
     date,

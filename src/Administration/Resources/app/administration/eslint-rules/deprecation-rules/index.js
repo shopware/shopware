@@ -2,21 +2,16 @@
  * @sw-package framework
  */
 
-const path = require('path');
-
 module.exports = {
     rules: {
-        // eslint-disable-next-line global-require,import/no-dynamic-require
-        'private-feature-declarations': require(path.resolve(__dirname, 'private-feature-declarations.js')),
-        // eslint-disable-next-line global-require,import/no-dynamic-require
-        'no-deprecated-components': require(path.resolve(__dirname, 'no-deprecated-components.js')),
-        // eslint-disable-next-line global-require,import/no-dynamic-require
-        'no-deprecated-component-usage': require(path.resolve(__dirname, 'no-deprecated-component-usage.js')),
-        'no-sw-tabs-usage': require(path.resolve(__dirname, 'no-sw-tabs-usage.js')),
-        'no-sw-empty-state-usage': require(path.resolve(__dirname, 'no-sw-empty-state-usage.js')),
-        'no-compat-conditions': require(path.resolve(__dirname, 'no-compat-conditions.js')),
-        'no-empty-listeners': require(path.resolve(__dirname, 'no-empty-listeners.js')),
-        'no-vue-options-api': require(path.resolve(__dirname, 'no-vue-options-api.js')),
-        'no-import-meta-glob-extglob': require(path.resolve(__dirname, 'no-import-meta-glob-extglob.js')),
+        'private-feature-declarations': require('./private-feature-declarations'),
+        'no-deprecated-components': require('./no-deprecated-components'),
+        'no-deprecated-component-usage': require('./no-deprecated-component-usage'),
+        'no-sw-tabs-usage': require('./no-sw-tabs-usage'),
+        'no-sw-empty-state-usage': require('./no-sw-empty-state-usage'),
+        'no-compat-conditions': require('./no-compat-conditions'),
+        'no-empty-listeners': require('./no-empty-listeners'),
+        'no-vue-options-api': require('./no-vue-options-api'),
+        'no-import-meta-glob-extglob': require('./no-import-meta-glob-extglob'),
     },
 };

@@ -57,7 +57,7 @@
   },
   "src/app/adapter/composition-extension-system/index.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 4
+      "count": 3
     },
     "@typescript-eslint/no-non-null-assertion": {
       "count": 1
@@ -3441,7 +3441,7 @@
   },
   "src/app/service/media-format.service.js": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 5
+      "count": 2
     },
     "filename-rules/not-match": {
       "count": 1
@@ -3612,7 +3612,7 @@
   },
   "src/app/store/in-app-purchase-checkout.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 3
+      "count": 2
     }
   },
   "src/app/store/index.ts": {
@@ -3635,11 +3635,6 @@
       "count": 2
     }
   },
-  "src/app/store/menu-item.store.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    }
-  },
   "src/app/store/modals.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -3647,7 +3642,7 @@
   },
   "src/app/store/notification.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 4
+      "count": 3
     }
   },
   "src/app/store/rule-conditions-config.store.ts": {
@@ -3657,12 +3652,7 @@
   },
   "src/app/store/shopware-apps.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 3
-    }
-  },
-  "src/app/store/sidebar.store.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
+      "count": 2
     }
   },
   "src/app/store/sw-bulk-edit.store.ts": {
@@ -3926,12 +3916,12 @@
   },
   "src/core/factory/http-client.types.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 6
+      "count": 3
     }
   },
   "src/core/factory/http.factory.js": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 2
+      "count": 1
     },
     "complexity": {
       "count": 1
@@ -4713,12 +4703,12 @@
   },
   "src/core/service/util.service.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 11
+      "count": 6
     }
   },
   "src/core/service/utils/debug.utils.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 3
+      "count": 2
     },
     "@typescript-eslint/ban-ts-comment": {
       "count": 2
@@ -4736,7 +4726,7 @@
   },
   "src/core/service/utils/format.utils.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 9
+      "count": 8
     },
     "@typescript-eslint/ban-ts-comment": {
       "count": 3
@@ -4858,7 +4848,7 @@
   },
   "src/module/index.js": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 3
+      "count": 2
     },
     "filename-rules/not-match": {
       "count": 1
@@ -7404,11 +7394,6 @@
   },
   "src/module/sw-extension/service/extension-error.service.js": {
     "filename-rules/not-match": {
-      "count": 1
-    }
-  },
-  "src/module/sw-extension/service/extension-store-action.service.ts": {
-    "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },

@@ -81,6 +81,17 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         document.body.innerHTML = '';
     });
 
+    test('returns early from init when no video element is present', () => {
+        document.body.innerHTML = '<div class="cms-video-element"></div>';
+
+        const plugin = initPlugin();
+        const applyStoredVolumeSpy = jest.spyOn(plugin, '_applyStoredVolume');
+
+        expect(() => plugin.init()).not.toThrow();
+        expect(plugin._video).toBeNull();
+        expect(applyStoredVolumeSpy).not.toHaveBeenCalled();
+    });
+
     test('applies default volume of 1 when no stored preference exists', () => {
         const video = document.querySelector('video');
         defineMediaProperties(video, { volume: 0 });

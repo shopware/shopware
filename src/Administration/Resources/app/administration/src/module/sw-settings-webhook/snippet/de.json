@@ -1,0 +1,64 @@
+{
+  "sw-settings-webhook": {
+    "general": {
+      "mainMenuItemGeneral": "Webhooks",
+      "descriptionTextModule": "Webhooks von Benutzern, Integrationen und Apps ansehen und verwalten"
+    },
+    "list": {
+      "columnName": "Name",
+      "columnEvent": "Ereignis",
+      "columnUrl": "URL",
+      "columnOwner": "Eigentümer",
+      "columnRoles": "Beschränkt auf",
+      "columnActive": "Aktiv",
+      "columnErrorCount": "Fehler",
+      "ownerUser": "Benutzer",
+      "ownerIntegration": "Integration",
+      "ownerApp": "App",
+      "ownerAppIntegration": "App-Integration",
+      "tooltipAppWebhookNotDeletable": "Dieser Webhook gehört zu einer App.",
+      "tooltipAppInactive": "Die App dieses Webhooks ist inaktiv, daher wird der Webhook nicht gesendet.",
+      "messageSaveError": "Webhook \"{name}\" konnte nicht gespeichert werden.",
+      "messageDeleteError": "Der Webhook konnte nicht gelöscht werden.",
+      "emptyStateHeadline": "Noch keine Webhooks",
+      "emptyStateDescription": "Hier siehst Du Webhooks, die über die API angelegt oder von Apps registriert wurden.",
+      "loadErrorHeadline": "Die Webhooks konnten nicht geladen werden",
+      "loadErrorDescription": "Lade die Seite neu, um es noch einmal zu versuchen.",
+      "actionShowDeliveries": "Zustellungen anzeigen",
+      "messageSaveSuccess": "Webhook \"{name}\" wurde gespeichert.",
+      "placeholderSearchBar": "Webhooks durchsuchen ...",
+      "deletedRole": "Gelöschte Rolle"
+    },
+    "deliveries": {
+      "title": "Zustellungen von \"{name}\"",
+      "columnSentAt": "Gesendet",
+      "columnStatus": "Status",
+      "columnResponse": "Antwort",
+      "columnDuration": "Dauer",
+      "durationSeconds": "{seconds} s",
+      "emptyStateHeadline": "Noch keine Zustellungen",
+      "emptyStateDescription": "Zustellungen erscheinen hier, sobald das Ereignis eintritt.",
+      "loadErrorHeadline": "Die Zustellungen konnten nicht geladen werden",
+      "loadErrorDescription": "Schließe die Zustellungen und öffne sie erneut, um es noch einmal zu versuchen.",
+      "status": {
+        "success": "Zugestellt",
+        "failed": "Fehlgeschlagen",
+        "pending_retry": "Neuer Versuch geplant",
+        "queued": "In Warteschlange",
+        "running": "Wird gesendet"
+      },
+      "columnCode": "Code",
+      "columnPayload": "Payload",
+      "buttonBack": "Zurück zu den Zustellungen",
+      "tabPayload": "Payload",
+      "tabResponse": "Antwort"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "webhook": {
+        "label": "Webhooks"
+      }
+    }
+  }
+}

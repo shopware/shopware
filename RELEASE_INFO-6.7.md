@@ -168,6 +168,7 @@ User creation and updates reject usernames containing leading or trailing whites
 The Admin API and Sync API return HTTP 400 with code `USER__USERNAME_WHITESPACE` on the `username` field.
 Remove surrounding whitespace before submitting a username.
 Existing usernames are not changed automatically; updates that omit `username` remain possible.
+Duplicate usernames are reported with HTTP 400 and code `USER__USERNAME_NOT_UNIQUE`.
 
 ### HTTP method overrides restricted to form actions
 

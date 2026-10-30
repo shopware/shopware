@@ -24,6 +24,11 @@ describe('extract-data-set-ids', () => {
             ['sw-native-detail__product'],
         ],
         [
+            'an id from a publishData() a mini-module imports',
+            "publishData({ id: 'sw-order-detail-base__order', path: 'order', scope: this });",
+            ['sw-order-detail-base__order'],
+        ],
+        [
             'a double quoted id',
             '.publishData({ id: "sw-quoted__product" })',
             ['sw-quoted__product'],

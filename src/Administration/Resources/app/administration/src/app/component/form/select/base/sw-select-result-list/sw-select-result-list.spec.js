@@ -19,6 +19,13 @@ describe('components/sw-select-result-list', () => {
         await flushPromises();
     });
 
+    it('renders the result list inside the floating content so it follows the reference on scroll', async () => {
+        const content = swSelectResultList.find('.mt-floating-ui__content .sw-select-result-list__content');
+
+        expect(content.exists()).toBe(true);
+        expect(swSelectResultList.find('.sw-popover-deprecated').exists()).toBe(false);
+    });
+
     it('scrolls the active item of its own list into view when navigating with the keyboard', async () => {
         document.body.insertAdjacentHTML(
             'beforeend',

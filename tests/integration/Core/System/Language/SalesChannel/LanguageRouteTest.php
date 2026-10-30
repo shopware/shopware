@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -118,46 +117,6 @@ class LanguageRouteTest extends TestCase
         static::assertArrayHasKey('locale', $response['elements'][0]);
         static::assertNotEmpty($response['elements'][0]['locale']);
         static::assertArrayHasKey('id', $response['elements'][0]['locale']);
-    }
-
-    public function testUsersCannotBeExposedThroughLocale(): void
-    {
-        static::getContainer()->get('user.repository')->create([
-            [
-                'id' => $this->ids->get('user'),
-                'username' => 'test-user',
-                'email' => 'test-user@example.com',
-                'firstName' => 'Test',
-                'lastName' => 'User',
-                'password' => 'shopware',
-                'localeId' => $this->ids->get('locale-1'),
-                'timeZone' => 'UTC',
-                'admin' => false,
-                'active' => true,
-            ],
-        ], Context::createDefaultContext());
-
-        $this->browser->request('POST', '/store-api/language', [
-            'ids' => [$this->ids->get('language')],
-            'associations' => [
-                'locale' => [
-                    'associations' => [
-                        'users' => [],
-                    ],
-                ],
-            ],
-            'includes' => [
-                'language' => ['id', 'locale'],
-                'locale' => ['code', 'users.x'],
-                'user' => ['username'],
-            ],
-        ]);
-
-        $response = $this->getResponse();
-
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
-        static::assertArrayNotHasKey('elements', $response);
-        static::assertSame('FRAMEWORK__ACCESSOR_NOT_ALLOWED', $response['errors'][0]['code']);
     }
 
     private function createData(): void

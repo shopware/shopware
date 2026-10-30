@@ -60,6 +60,8 @@ class ContentSystemException extends HttpException
     public const LAYOUT_PRESET_NOT_FOUND = 'CONTENT_SYSTEM__LAYOUT_PRESET_NOT_FOUND';
     public const LAYOUT_PRESETS_INVALID = 'CONTENT_SYSTEM__LAYOUT_PRESETS_INVALID';
     public const LAYOUT_PRESET_INVALID_FILENAME = 'CONTENT_SYSTEM__LAYOUT_PRESET_INVALID_FILENAME';
+    public const LAYOUT_PRESET_CIRCULAR_REFERENCE = 'CONTENT_SYSTEM__LAYOUT_PRESET_CIRCULAR_REFERENCE';
+    public const LAYOUT_PRESET_UNKNOWN_REFERENCE = 'CONTENT_SYSTEM__LAYOUT_PRESET_UNKNOWN_REFERENCE';
     public const UNKNOWN_ENTITY_TYPE = 'CONTENT_SYSTEM__UNKNOWN_ENTITY_TYPE';
     public const UNKNOWN_LOADER_ENTITY = 'CONTENT_SYSTEM__UNKNOWN_LOADER_ENTITY';
     public const ENTITY_TYPE_RESOLUTION_UNSUPPORTED = 'CONTENT_SYSTEM__ENTITY_TYPE_RESOLUTION_UNSUPPORTED';
@@ -721,6 +723,32 @@ class ContentSystemException extends HttpException
             self::LAYOUT_PRESET_NOT_FOUND,
             'Layout preset "{{ id }}" not found',
             ['id' => $id]
+        );
+    }
+
+    /**
+     * @param list<string> $chain
+     */
+    public static function layoutPresetCircularReference(array $chain): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LAYOUT_PRESET_CIRCULAR_REFERENCE,
+            'Layout preset "{{ id }}" has a circular reference: {{ chain }}',
+            ['id' => $chain[0] ?? '', 'chain' => implode(' -> ', $chain)]
+        );
+    }
+
+    /**
+     * @param list<string> $path
+     */
+    public static function layoutPresetUnknownReference(string $reference, array $path): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LAYOUT_PRESET_UNKNOWN_REFERENCE,
+            'Layout preset "{{ id }}" references unknown preset "{{ reference }}" via {{ chain }}',
+            ['id' => $path[0] ?? '', 'reference' => $reference, 'chain' => implode(' -> ', [...$path, $reference])]
         );
     }
 

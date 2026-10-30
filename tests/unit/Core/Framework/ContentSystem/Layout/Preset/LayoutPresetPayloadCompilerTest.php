@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\Dto\LayoutPresetSpecificationDto;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -120,6 +122,116 @@ class LayoutPresetPayloadCompilerTest extends TestCase
         $decoder->method('decode')->willReturn([]);
 
         static::assertSame([], $this->createCompiler($decoder)->compile([]));
+    }
+
+    #[TestDox('replaces a preset reference in place with all elements of the referenced preset')]
+    public function testCompileExpandsAPresetReferenceInPlace(): void
+    {
+        $captured = [];
+        $compiler = $this->createCompiler($this->capturingDecoder($captured));
+
+        $compiler->compile([
+            ['component' => 'Sw:Media:Gallery'],
+            ['preset' => 'Sw:MediaAndText'],
+            ['component' => 'Sw:Product:Slider'],
+        ], [
+            'Sw:MediaAndText' => $this->preset([['component' => 'Sw:Media:Image'], ['component' => 'Sw:Content:Text']]),
+        ]);
+
+        static::assertSame(
+            ['Sw:Media:Gallery', 'Sw:Media:Image', 'Sw:Content:Text', 'Sw:Product:Slider'],
+            array_column($captured, 'component'),
+        );
+        static::assertCount(4, array_unique(array_column($captured, 'id')));
+    }
+
+    #[TestDox('expands every preset reference of one list at its own position')]
+    public function testCompileExpandsSeveralReferencesInOneList(): void
+    {
+        $captured = [];
+        $compiler = $this->createCompiler($this->capturingDecoder($captured));
+
+        $compiler->compile([
+            ['preset' => 'Sw:Pair'],
+            ['component' => 'Sw:Media:Gallery'],
+            ['preset' => 'Sw:Pair'],
+        ], [
+            'Sw:Pair' => $this->preset([['component' => 'Sw:Media:Image'], ['component' => 'Sw:Content:Text']]),
+        ]);
+
+        static::assertSame(
+            ['Sw:Media:Image', 'Sw:Content:Text', 'Sw:Media:Gallery', 'Sw:Media:Image', 'Sw:Content:Text'],
+            array_column($captured, 'component'),
+        );
+        static::assertCount(5, array_unique(array_column($captured, 'id')));
+    }
+
+    #[TestDox('expands a preset reference inside a slot and a reference inside a referenced preset')]
+    public function testCompileExpandsReferencesInSlotsAndNestedPresets(): void
+    {
+        $captured = [];
+        $compiler = $this->createCompiler($this->capturingDecoder($captured));
+
+        $compiler->compile([
+            [
+                'component' => 'Sw:Grid:Container',
+                'slots' => ['content' => [['preset' => 'Sw:Outer'], ['component' => 'Sw:Product:Slider']]],
+            ],
+        ], [
+            'Sw:Outer' => $this->preset([['component' => 'Sw:Media:Gallery'], ['preset' => 'Sw:Inner']]),
+            'Sw:Inner' => $this->preset([['component' => 'Sw:Content:Text']]),
+        ]);
+
+        static::assertSame(
+            ['Sw:Media:Gallery', 'Sw:Content:Text', 'Sw:Product:Slider'],
+            array_column($captured[0]['slots']['content'], 'component'),
+        );
+    }
+
+    #[TestDox('throws with the reference chain when a preset reaches itself again')]
+    public function testCompileThrowsOnCircularReference(): void
+    {
+        $compiler = $this->createCompiler(static::createStub(DraftLayoutDecoder::class));
+
+        $this->expectExceptionObject(ContentSystemException::layoutPresetCircularReference(['Sw:A', 'Sw:B', 'Sw:A']));
+
+        $compiler->compile([['preset' => 'Sw:B']], [
+            'Sw:A' => $this->preset([['preset' => 'Sw:B']]),
+            'Sw:B' => $this->preset([['component' => 'Sw:Grid:Container', 'slots' => ['content' => [['preset' => 'Sw:A']]]]]),
+        ], ['Sw:A']);
+    }
+
+    #[TestDox('throws with the reference chain when a referenced preset does not exist')]
+    public function testCompileThrowsOnUnknownReference(): void
+    {
+        $compiler = $this->createCompiler(static::createStub(DraftLayoutDecoder::class));
+
+        $this->expectExceptionObject(ContentSystemException::layoutPresetUnknownReference('Sw:Missing', ['Sw:A', 'Sw:B']));
+
+        $compiler->compile([['preset' => 'Sw:B']], [
+            'Sw:B' => $this->preset([['component' => 'Sw:Grid:Container', 'slots' => ['content' => [['preset' => 'Sw:Missing']]]]]),
+        ], ['Sw:A']);
+    }
+
+    #[TestDox('expands the same preset twice side by side without treating it as circular')]
+    public function testCompileAllowsRepeatedNonCircularReferences(): void
+    {
+        $captured = [];
+        $compiler = $this->createCompiler($this->capturingDecoder($captured));
+
+        $compiler->compile([['preset' => 'Sw:Leaf'], ['preset' => 'Sw:Leaf']], [
+            'Sw:Leaf' => $this->preset([['component' => 'Sw:Content:Text']]),
+        ], ['Sw:Root']);
+
+        static::assertCount(2, $captured);
+    }
+
+    /**
+     * @param list<array<string, mixed>> $layout
+     */
+    private function preset(array $layout): LayoutPresetSpecificationDto
+    {
+        return new LayoutPresetSpecificationDto('Preset', 'A preset.', 'regular-box', $layout);
     }
 
     /**

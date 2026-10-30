@@ -76,6 +76,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\YamlLayoutPresetL
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\CachedContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Validation\ContentSystemLayoutPresetValidator;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
@@ -527,12 +528,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(LayoutPresetSpecificationSerializer::class);
 
+    $services->set(ContentSystemLayoutPresetValidator::class);
+
     $services->set(LayoutPresetNameResolver::class);
 
     $services->set(YamlLayoutPresetLoader::class)
         ->args([
             service(LayoutPresetSpecificationSerializer::class),
-            service(LayoutPresetPayloadCompiler::class),
             service('validator'),
             service(LayoutPresetNameResolver::class),
         ])
@@ -542,7 +544,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(DatabaseLayoutPresetLoader::class)
         ->args([
             service(LayoutPresetSpecificationSerializer::class),
-            service(LayoutPresetPayloadCompiler::class),
             service('validator'),
             service(Connection::class),
             param('kernel.environment'),
@@ -552,6 +553,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ContentSystemLayoutPresetRegistry::class)
         ->args([
             tagged_iterator('content_system.layout_preset_loader'),
+            service(LayoutPresetPayloadCompiler::class),
+            service(ContentSystemLayoutPresetValidator::class),
+            service('logger'),
         ]);
 
     $services->set(CachedContentSystemLayoutPresetRegistry::class)

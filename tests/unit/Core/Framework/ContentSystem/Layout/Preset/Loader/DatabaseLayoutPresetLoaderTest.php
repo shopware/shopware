@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\DatabaseLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
 use Shopware\Core\Framework\Log\Package;
@@ -25,43 +24,35 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
     #[TestWith(['prod'])]
     #[TestWith(['test'])]
     #[TestWith(['staging'])]
-    #[TestDox('builds a compiled specification from each active-app row in the $environment environment')]
-    public function testNonDevBuildsSpecsFromRows(string $environment): void
+    #[TestDox('builds a validated dto from each active-app row in the $environment environment')]
+    public function testNonDevBuildsDtosFromRows(string $environment): void
     {
-        $layout = [['component' => 'text']];
-        $compiled = [['id' => 'compiled-element']];
-        $compiler = static::createStub(LayoutPresetPayloadCompiler::class);
-        $compiler->method('compile')->willReturnCallback(
-            static fn (array $received): array => $received === $layout ? $compiled : throw new \LogicException('Unexpected layout passed to the compiler.')
-        );
-
-        $presets = $this->loader($this->connectionWithRows([
+        $dtos = $this->loader($this->connectionWithRows([
             ['name' => 'MyApp:Hero', 'schema' => '{"name":"Hero","description":"A hero.","icon":"regular-star","category":"content","priority":-100,"illustration":"preset-media-and-text","layout":[{"component":"text"}]}', 'app_name' => 'MyApp'],
-        ]), $environment, $compiler)->load();
+        ]), $environment)->load();
 
-        static::assertCount(1, $presets);
-        static::assertSame('MyApp:Hero', $presets[0]->id);
-        static::assertSame('Hero', $presets[0]->name);
-        static::assertSame('A hero.', $presets[0]->description);
-        static::assertSame('regular-star', $presets[0]->icon);
-        static::assertSame('content', $presets[0]->category);
-        static::assertSame(-100, $presets[0]->priority);
-        static::assertSame('preset-media-and-text', $presets[0]->illustration);
-        static::assertSame($compiled, $presets[0]->payload);
+        static::assertSame(['MyApp:Hero'], array_keys($dtos));
+        static::assertSame('Hero', $dtos['MyApp:Hero']->name);
+        static::assertSame('A hero.', $dtos['MyApp:Hero']->description);
+        static::assertSame('regular-star', $dtos['MyApp:Hero']->icon);
+        static::assertSame('content', $dtos['MyApp:Hero']->category);
+        static::assertSame(-100, $dtos['MyApp:Hero']->priority);
+        static::assertSame('preset-media-and-text', $dtos['MyApp:Hero']->illustration);
+        static::assertSame([['component' => 'text']], $dtos['MyApp:Hero']->layout);
     }
 
-    #[TestDox('returns the specifications of all rows in row order')]
+    #[TestDox('returns the dtos of all rows in row order')]
     public function testLoadsEveryRowInOrder(): void
     {
-        $presets = $this->loader($this->connectionWithRows([
+        $dtos = $this->loader($this->connectionWithRows([
             ['name' => 'MyApp:First', 'schema' => '{"name":"First","description":"First preset.","icon":"regular-star","layout":[]}', 'app_name' => 'MyApp'],
             ['name' => 'MyApp:Second', 'schema' => '{"name":"Second","description":"Second preset.","icon":"regular-star","layout":[]}', 'app_name' => 'MyApp'],
         ]), 'prod')->load();
 
-        static::assertSame(['MyApp:First', 'MyApp:Second'], array_map(static fn ($preset): string => $preset->id, $presets));
-        static::assertNull($presets[0]->category);
-        static::assertSame(0, $presets[0]->priority);
-        static::assertNull($presets[0]->illustration);
+        static::assertSame(['MyApp:First', 'MyApp:Second'], array_keys($dtos));
+        static::assertNull($dtos['MyApp:First']->category);
+        static::assertSame(0, $dtos['MyApp:First']->priority);
+        static::assertNull($dtos['MyApp:First']->illustration);
     }
 
     #[TestDox('aborts the load on a row whose stored data is valid JSON but not an array')]
@@ -159,22 +150,6 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
         }
     }
 
-    #[TestDox('aborts the load when compiling a row fails, instead of dropping the preset')]
-    public function testCompilerFailureAbortsLoad(): void
-    {
-        $failure = new \RuntimeException('element type registry unavailable');
-        $compiler = static::createStub(LayoutPresetPayloadCompiler::class);
-        $compiler->method('compile')->willThrowException($failure);
-
-        $loader = $this->loader($this->connectionWithRows([
-            ['name' => 'MyApp:Hero', 'schema' => '{"name":"Hero","description":"A hero.","icon":"regular-star","layout":[]}', 'app_name' => 'MyApp'],
-        ]), 'prod', $compiler);
-
-        $this->expectExceptionObject($failure);
-
-        $loader->load();
-    }
-
     /**
      * @param list<array{name: string, schema: string, app_name: string}> $rows
      */
@@ -186,14 +161,10 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
         return $connection;
     }
 
-    private function loader(
-        Connection $connection,
-        string $environment,
-        ?LayoutPresetPayloadCompiler $compiler = null,
-    ): DatabaseLayoutPresetLoader {
+    private function loader(Connection $connection, string $environment): DatabaseLayoutPresetLoader
+    {
         return new DatabaseLayoutPresetLoader(
             new LayoutPresetSpecificationSerializer(),
-            $compiler ?? static::createStub(LayoutPresetPayloadCompiler::class),
             $this->validator(),
             $connection,
             $environment,

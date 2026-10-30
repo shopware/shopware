@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\AbstractContentSystemLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\ContentSystemLayoutPresetSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Validation\ContentSystemLayoutPresetValidator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
@@ -19,6 +22,9 @@ class ContentSystemLayoutPresetRegistry extends AbstractContentSystemLayoutPrese
      */
     public function __construct(
         private readonly iterable $loaders,
+        private readonly LayoutPresetPayloadCompiler $compiler,
+        private readonly ContentSystemLayoutPresetValidator $validator,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -32,16 +38,44 @@ class ContentSystemLayoutPresetRegistry extends AbstractContentSystemLayoutPrese
      */
     public function all(): array
     {
-        $presets = [];
+        $dtos = [];
 
         foreach ($this->loaders as $loader) {
-            foreach ($loader->load() as $preset) {
-                if (\array_key_exists($preset->id, $presets)) {
-                    throw ContentSystemException::layoutPresetDuplicate($preset->id);
+            foreach ($loader->load() as $id => $dto) {
+                if (\array_key_exists($id, $dtos)) {
+                    throw ContentSystemException::layoutPresetDuplicate($id);
                 }
 
-                $presets[$preset->id] = $preset;
+                $dtos[$id] = $dto;
             }
+        }
+
+        $presets = [];
+        $presetViolations = [];
+
+        foreach ($dtos as $id => $dto) {
+            $violations = $this->validator->validate($id, $dtos);
+
+            if ($violations->count() > 0) {
+                array_push($presetViolations, ...$violations);
+
+                continue;
+            }
+
+            $presets[$id] = new ContentSystemLayoutPresetSpecification(
+                $id,
+                $dto->name,
+                $dto->description,
+                $dto->icon,
+                $this->compiler->compile($dto->layout, $dtos, [$id]),
+                $dto->category,
+                $dto->priority,
+                $dto->illustration,
+            );
+        }
+
+        foreach ($presetViolations as $violation) {
+            $this->logger->warning((string) $violation->getMessage());
         }
 
         return $presets;

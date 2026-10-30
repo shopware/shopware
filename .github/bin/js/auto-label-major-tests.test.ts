@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
+    ADMINISTRATION_DEPRECATION_BASELINE_PATH,
     FEATURE_REGISTRY_PATH,
+    detectMajorTestArms,
+    hasAcceptanceTestChanges,
     hasMajorJsMarkers,
     hasMajorMarkers,
     labelsForMajorTestArms,
@@ -106,10 +109,38 @@ test('feature registry edits enable the major-js arm', () => {
     assert.equal(hasMajorJsMarkers(diff, parseMajorFlags(REGISTRY)), true);
 });
 
+test('deprecation baseline edits enable the major-js arm', () => {
+    const diff = diffFor(ADMINISTRATION_DEPRECATION_BASELINE_PATH, '+        "sw-select-base > sw-loader": ["major"]');
+
+    assert.equal(hasMajorJsMarkers(diff, parseMajorFlags(REGISTRY)), true);
+});
+
 test('labelsForMajorTestArms adds only missing relevant labels', () => {
-    assert.deepEqual(labelsForMajorTestArms({ php: true, js: true }), ['major-php', 'major-js']);
-    assert.deepEqual(labelsForMajorTestArms({ php: true, js: true }, [{ name: 'major-php' }]), ['major-js']);
-    assert.deepEqual(labelsForMajorTestArms({ php: false, js: true }, [{ name: 'major-js' }]), []);
+    assert.deepEqual(labelsForMajorTestArms({ php: true, js: true, acceptance: false }), ['major-php', 'major-js']);
+    assert.deepEqual(labelsForMajorTestArms({ php: true, js: true, acceptance: true }, [{ name: 'major-php' }]), ['major-js', 'major-acceptance']);
+    assert.deepEqual(labelsForMajorTestArms({ php: false, js: true, acceptance: true }, [{ name: 'major-js' }, { name: 'major-acceptance' }]), []);
+    assert.deepEqual(labelsForMajorTestArms({ php: false, js: false, acceptance: true }), ['major-acceptance']);
+});
+
+test('acceptance specs enable major ATS without feature-flag markers', () => {
+    for (const path of ['tests/acceptance/tests/Example.spec.ts', 'tests/acceptance/tests/Checkout/Example.spec.ts']) {
+        assert.equal(hasAcceptanceTestChanges(diffFor(path, '+await button.click();')), true);
+        assert.equal(hasAcceptanceTestChanges(diffFor(path, '-await button.click();')), true);
+    }
+});
+
+test('acceptance helpers, dependencies, docs and other specs do not enable major ATS', () => {
+    for (const path of [
+        'tests/acceptance/tasks/Example.spec.ts',
+        'tests/acceptance/fixtures/Example.ts',
+        'tests/acceptance/package.json',
+        'tests/acceptance/tests/README.md',
+        'tests/acceptance/tests/Example.ts',
+        'src/Administration/Resources/app/administration/src/Example.spec.ts',
+    ]) {
+        assert.equal(hasAcceptanceTestChanges(diffFor(path, '+example')), false, path);
+    }
+    assert.equal(hasAcceptanceTestChanges(''), false);
 });
 
 test('non-major flag usage does not match', () => {
@@ -183,7 +214,7 @@ test('markdown inside Administration source does not enable the major-js arm', (
 });
 
 const baseContext = (overrides: Partial<TestContext> = {}): TestContext => ({
-    eventName: 'pull_request',
+    eventName: 'pull_request_target',
     repo: { owner: 'shopware', repo: 'shopware' },
     payload: {
         action: 'opened',
@@ -199,8 +230,9 @@ test('shouldDetect accepts an unlabeled same-repo PR being opened', () => {
     assert.equal(shouldDetect(baseContext()), true);
 });
 
-test('shouldDetect rejects non-pull_request events', () => {
+test('shouldDetect rejects events other than pull_request_target', () => {
     assert.equal(shouldDetect(baseContext({ eventName: 'issues' })), false);
+    assert.equal(shouldDetect(baseContext({ eventName: 'pull_request' })), false);
 });
 
 test('shouldDetect rejects other PR actions', async () => {
@@ -209,22 +241,53 @@ test('shouldDetect rejects other PR actions', async () => {
     assert.equal(shouldDetect(context), false);
 });
 
-test('shouldDetect rejects fork heads', async () => {
+test('shouldDetect accepts fork heads', () => {
     const context = baseContext();
     context.payload.pull_request.head.repo.full_name = 'fork/shopware';
-    assert.equal(shouldDetect(context), false);
+    assert.equal(shouldDetect(context), true);
 });
 
-test('shouldDetect permits detection until both per-arm labels are present', () => {
+test('shouldDetect permits detection until all three per-arm labels are present', () => {
     const phpOnly = baseContext();
     phpOnly.payload.pull_request.labels = [{ name: 'major-php' }];
     assert.equal(shouldDetect(phpOnly), true);
 
     const bothArms = baseContext();
     bothArms.payload.pull_request.labels = [{ name: 'major-php' }, { name: 'major-js' }];
+    assert.equal(shouldDetect(bothArms), true);
+
+    bothArms.payload.pull_request.labels.push({ name: 'major-acceptance' });
     assert.equal(shouldDetect(bothArms), false);
 
     const umbrella = baseContext();
     umbrella.payload.pull_request.labels = [{ name: 'major-tests' }];
     assert.equal(shouldDetect(umbrella), false);
+});
+
+test('detection selects only the acceptance arm for a spec change after PHP and JS were labeled', async () => {
+    const context = baseContext();
+    context.payload.pull_request.labels = [{ name: 'major-php' }, { name: 'major-js' }];
+    const arms = await detectMajorTestArms({
+        context: {
+            ...context,
+            payload: {
+                ...context.payload,
+                pull_request: {
+                    ...context.payload.pull_request,
+                    number: 123,
+                    head: { ...context.payload.pull_request.head, sha: 'head-sha' },
+                },
+            },
+        },
+        core: { info() {} },
+        github: {
+            rest: {
+                repos: { async getContent() { return { data: REGISTRY }; } },
+                pulls: { async get() { return { data: diffFor('tests/acceptance/tests/Example.spec.ts', '+await button.click();') }; } },
+                issues: { async addLabels() {} },
+            },
+        },
+    });
+    assert.deepEqual(arms, { php: false, js: false, acceptance: true });
+    assert.deepEqual(labelsForMajorTestArms(arms, context.payload.pull_request.labels), ['major-acceptance']);
 });

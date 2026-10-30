@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Plugin\KernelPluginLoader;
 
 use Composer\Autoload\ClassLoader;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
@@ -31,8 +31,8 @@ class StaticKernelPluginLoaderTest extends TestCase
         $loader = $this->createKernelPluginLoaderWithPlugins([]);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
-        static::assertEmpty($loader->getPluginInfos());
-        static::assertEmpty($loader->getPluginInstances()->all());
+        static::assertCount(0, $loader->getPluginInfos());
+        static::assertCount(0, $loader->getPluginInstances()->all());
     }
 
     public function testNoKernelPluginsWithoutInit(): void
@@ -41,7 +41,7 @@ class StaticKernelPluginLoaderTest extends TestCase
         $loader = $this->createKernelPluginLoaderWithPlugins([$activePluginData]);
 
         static::assertCount(1, $loader->getPluginInfos());
-        static::assertEmpty($loader->getPluginInstances()->all());
+        static::assertCount(0, $loader->getPluginInstances()->all());
     }
 
     public function testKernelPluginsAfterInit(): void
@@ -71,19 +71,25 @@ class StaticKernelPluginLoaderTest extends TestCase
         static::assertCount(0, $kernelPlugins);
     }
 
-    #[RunInSeparateProcess]
-    public function testManagedByComposerIsSkipped(): void
+    #[DataProvider('composerManagementProvider')]
+    public function testOnlyPluginsNotManagedByComposerAreRegisteredInTheAutoloader(bool $managedByComposer, bool $expectRegistered): void
     {
         $active = $this->getActivePlugin();
-        $active->setManagedByComposer(true);
-        $plugins = [$active->jsonSerialize()];
+        $active->setManagedByComposer($managedByComposer);
 
-        $loader = $this->createKernelPluginLoaderWithPlugins($plugins);
+        // a fresh class loader, so namespaces registered by other tests cannot leak in
+        $classLoader = new ClassLoader();
+        $loader = $this->createKernelPluginLoaderWithPlugins([$active->jsonSerialize()], $classLoader);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
         static::assertCount(1, $loader->getPluginInfos());
-        $kernelPlugins = $loader->getPluginInstances()->all();
-        static::assertCount(0, $kernelPlugins);
+        static::assertSame($expectRegistered, \array_key_exists('SwagTestPlugin\\', $classLoader->getPrefixesPsr4()));
+    }
+
+    public static function composerManagementProvider(): \Generator
+    {
+        yield 'plugin managed by composer is left to composer' => ['managedByComposer' => true, 'expectRegistered' => false];
+        yield 'plugin not managed by composer is registered' => ['managedByComposer' => false, 'expectRegistered' => true];
     }
 
     public function testExpectExceptionOnMissingAutoload(): void
@@ -120,7 +126,7 @@ class StaticKernelPluginLoaderTest extends TestCase
 
         $class = $activePluginData['baseClass'];
         $kernelPlugin = $loader->getPluginInstances()->get($class);
-        static::assertNotEmpty($kernelPlugin);
+        static::assertNotNull($kernelPlugin);
         static::assertSame($kernelPlugin, $loader->getPluginInstance($class));
     }
 
@@ -134,7 +140,7 @@ class StaticKernelPluginLoaderTest extends TestCase
 
         $class = $pluginData['baseClass'];
         $kernelPlugin = $loader->getPluginInstances()->get($class);
-        static::assertNotEmpty($kernelPlugin);
+        static::assertNotNull($kernelPlugin);
         static::assertNull($loader->getPluginInstance($class));
     }
 
@@ -173,7 +179,7 @@ class StaticKernelPluginLoaderTest extends TestCase
 
         $bundles = iterator_to_array($loader->getBundles());
 
-        static::assertEmpty($bundles);
+        static::assertCount(0, $bundles);
     }
 
     public function testGetBundlesNoPlugins(): void

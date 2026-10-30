@@ -48,12 +48,20 @@ CREATE TABLE `_test_relation` (
   PRIMARY KEY `id` (`id`)
 );
 
+EOF;
+        $this->connection->executeStatement($nullableTable);
+
+        $nullableTable = <<<EOF
 CREATE TABLE `_test_nullable_reference` (
   `wp_id` binary(16) NOT NULL,
   `relation_id` binary(16) NOT NULL,
   PRIMARY KEY `pk` (`wp_id`, `relation_id`)
 );
 
+EOF;
+        $this->connection->executeStatement($nullableTable);
+
+        $nullableTable = <<<EOF
 CREATE TABLE `_test_nullable_translation` (
   `_test_nullable_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
@@ -62,6 +70,10 @@ CREATE TABLE `_test_nullable_translation` (
   PRIMARY KEY `pk` (`_test_nullable_id`, `language_id`)
 );
 
+EOF;
+        $this->connection->executeStatement($nullableTable);
+
+        $nullableTable = <<<EOF
 CREATE TABLE `_test_nullable` (
   `id` binary(16) NOT NULL,
   `relation_id` binary(16) NULL,
@@ -121,7 +133,7 @@ EOF;
 
         $fieldException = $ex->getExceptions()[0];
         static::assertInstanceOf(WriteConstraintViolationException::class, $fieldException);
-        static::assertSame('/0/protected', $fieldException->getPath());
+        static::assertSame('/0/protected', iterator_to_array($fieldException->getErrors())[0]['source']['pointer']);
     }
 
     public function testWriteWithoutProtectedField(): void
@@ -141,7 +153,7 @@ EOF;
 
         static::assertCount(1, $data);
         static::assertSame(Uuid::fromHexToBytes($id), $data[0]['id']);
-        static::assertEmpty($data[0]['protected']);
+        static::assertNull($data[0]['protected']);
     }
 
     public function testWriteWithPermission(): void
@@ -192,7 +204,7 @@ EOF;
 
         $fieldException = $ex->getExceptions()[0];
         static::assertInstanceOf(WriteConstraintViolationException::class, $fieldException);
-        static::assertSame('/0/relation', $fieldException->getPath());
+        static::assertSame('/0/relation', iterator_to_array($fieldException->getErrors())[0]['source']['pointer']);
     }
 
     public function testWriteManyToOneWithPermission(): void
@@ -247,7 +259,7 @@ EOF;
 
         $fieldException = $ex->getExceptions()[0];
         static::assertInstanceOf(WriteConstraintViolationException::class, $fieldException);
-        static::assertSame('/0/wp', $fieldException->getPath());
+        static::assertSame('/0/wp', iterator_to_array($fieldException->getErrors())[0]['source']['pointer']);
     }
 
     public function testWriteOneToManyWithPermission(): void
@@ -303,7 +315,7 @@ EOF;
 
         $fieldException = $ex->getExceptions()[0];
         static::assertInstanceOf(WriteConstraintViolationException::class, $fieldException);
-        static::assertSame('/0/relations', $fieldException->getPath());
+        static::assertSame('/0/relations', iterator_to_array($fieldException->getErrors())[0]['source']['pointer']);
     }
 
     public function testWriteManyToManyWithPermission(): void
@@ -357,7 +369,7 @@ EOF;
 
         $fieldException = $ex->getExceptions()[0];
         static::assertInstanceOf(WriteConstraintViolationException::class, $fieldException);
-        static::assertSame('/0/protected', $fieldException->getPath());
+        static::assertSame('/0/protected', iterator_to_array($fieldException->getErrors())[0]['source']['pointer']);
     }
 
     public function testWriteTranslationWithPermission(): void
@@ -399,7 +411,7 @@ EOF;
             static::assertInstanceOf(\Throwable::class, $exception);
             $message = $exception->getMessage();
 
-            if ($exception instanceof WriteConstraintViolationException && $exception->getPath() === '/0/' . $field) {
+            if ($exception instanceof WriteConstraintViolationException && $exception->getPath() . $exception->getViolations()->get(0)->getPropertyPath() === '/0/' . $field) {
                 return $exception->getViolations()->get(0)->getMessage();
             }
         }

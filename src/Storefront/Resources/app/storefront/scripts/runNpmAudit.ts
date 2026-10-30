@@ -19,5 +19,6 @@ import { runNpmAudit } from '../../../../../../.github/bin/js/run-npm-audit.ts';
 runNpmAudit({
     ignoredGHSAs: [
         'https://github.com/advisories/GHSA-vfj7-8cjw-p6xm', // braces stack-exhaustion DoS on deeply nested patterns, build tooling only (chokidar/micromatch via webpack-dev-server, patch-package), patterns are developer-controlled and never reach the shipped bundle; no patched braces release exists yet (<=3.0.3 is the latest)
+        'https://github.com/advisories/GHSA-hp3w-g68c-fv3c', // sprintf-js unbounded precision DoS, moderate, devDep only (jest via argparse/js-yaml 3); no patched sprintf-js release exists
     ],
 });

@@ -6,7 +6,17 @@ import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 
-async function createWrapper(privileges = []) {
+const defaultCustomerGroups = [
+    {
+        id: '1',
+        name: 'Net price customer group',
+        displayGross: false,
+        priceBasis: 'net',
+        registrationActive: false,
+    },
+];
+
+async function createWrapper(privileges = [], customerGroups = defaultCustomerGroups) {
     return mount(
         await wrapTestComponent('sw-settings-customer-group-list', {
             sync: true,
@@ -42,10 +52,12 @@ async function createWrapper(privileges = []) {
                         template: '<div><slot name="grid"></slot></div>',
                     },
                     'sw-context-menu-item': true,
+                    'sw-data-grid-column-boolean': true,
                     'sw-entity-listing': {
                         props: [
                             'items',
                             'dataSource',
+                            'columns',
                             'allowEdit',
                             'allowDelete',
                             'detailRoute',
@@ -53,6 +65,14 @@ async function createWrapper(privileges = []) {
                         template: `
                     <div>
                         <template v-for="item in (dataSource || items)">
+                            <div class="sw-entity-listing__column-price-basis">
+                                <slot name="column-priceBasis" v-bind="{ item }"></slot>
+                            </div>
+
+                            <div class="sw-entity-listing__column-registration-active">
+                                <slot name="column-registrationActive" v-bind="{ item }"></slot>
+                            </div>
+
                             <slot name="actions" v-bind="{ item }">
                                 <slot name="detail-action" v-bind="{ item }">
                                     <div class="sw-entity-listing__context-menu-edit-action"
@@ -77,13 +97,7 @@ async function createWrapper(privileges = []) {
                     repositoryFactory: {
                         create: () => ({
                             search: () => {
-                                return Promise.resolve([
-                                    {
-                                        id: '1',
-                                        name: 'Net price customer group',
-                                        displayGross: false,
-                                    },
-                                ]);
+                                return Promise.resolve(customerGroups);
                             },
                         }),
                     },
@@ -131,10 +145,74 @@ function createDeletableCustomerGroup() {
 }
 
 describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-list', () => {
-    it('should be a vue js component', async () => {
+    it('should show name, tax display and price basis by default and hide the signup form column', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
-        expect(wrapper.vm).toBeTruthy();
+        const columns = wrapper.findComponent('.sw-settings-customer-group-list-grid').props('columns');
+
+        expect(columns).toEqual([
+            expect.objectContaining({ property: 'name' }),
+            expect.objectContaining({ property: 'displayGross' }),
+            expect.objectContaining({ property: 'priceBasis' }),
+            expect.objectContaining({ property: 'registrationActive', visible: false }),
+        ]);
+
+        const priceBasisColumn = columns.find((column) => column.property === 'priceBasis');
+
+        expect(priceBasisColumn.visible).not.toBe(false);
+        expect(priceBasisColumn.inlineEdit).toBeUndefined();
+    });
+
+    it.each([
+        [
+            'gross',
+            { priceBasis: 'gross', displayGross: false },
+            'sw-settings-customer-group.detail.priceBasis.grossLabel',
+        ],
+        [
+            'net',
+            { priceBasis: 'net', displayGross: true },
+            'sw-settings-customer-group.detail.priceBasis.netLabel',
+        ],
+    ])('should label the %s price basis independent of the tax display', async (_basis, customerGroup, expectedLabel) => {
+        const wrapper = await createWrapper(
+            [],
+            [
+                {
+                    id: '1',
+                    name: 'Customer group',
+                    registrationActive: false,
+                    ...customerGroup,
+                },
+            ],
+        );
+        await flushPromises();
+
+        expect(wrapper.find('.sw-entity-listing__column-price-basis').text()).toBe(expectedLabel);
+    });
+
+    it('should render the signup form column as a boolean column', async () => {
+        const wrapper = await createWrapper(
+            [],
+            [
+                {
+                    id: '1',
+                    name: 'Customer group with signup form',
+                    displayGross: true,
+                    priceBasis: 'gross',
+                    registrationActive: true,
+                },
+            ],
+        );
+        await flushPromises();
+
+        const registrationCell = wrapper.find('.sw-entity-listing__column-registration-active');
+        const booleanColumn = registrationCell.find('sw-data-grid-column-boolean-stub');
+
+        expect(booleanColumn.exists()).toBe(true);
+        expect(booleanColumn.attributes('value')).toBe('true');
+        expect(booleanColumn.attributes('is-inline-edit')).toBe('false');
     });
 
     it('should return false if customer group has a customer and/or SalesChannel assigned to it', async () => {
@@ -153,7 +231,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
     it('should not be able to create without create permission', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-customer-group-list__create');
 
@@ -162,7 +240,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
     it('should be able to create with create permission', async () => {
         const wrapper = await createWrapper(['customer_groups.creator']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-customer-group-list__create');
 
@@ -187,7 +265,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
     it('should not be able to inline edit', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityList = wrapper.find('.sw-settings-customer-group-list-grid');
 
@@ -197,7 +275,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
     it('should be able to inline edit', async () => {
         const wrapper = await createWrapper(['customer_groups.editor']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityList = wrapper.find('.sw-settings-customer-group-list-grid');
 
@@ -223,7 +301,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
     it('should hide item selection if user does not have delete permission', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityList = wrapper.find('.sw-settings-customer-group-list-grid');
 
@@ -233,7 +311,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
     it('should show item selection if user has delete permission', async () => {
         const wrapper = await createWrapper(['customer_groups.deleter']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityList = wrapper.find('.sw-settings-customer-group-list-grid');
 
@@ -246,7 +324,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -266,7 +344,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
     it('should not get search ranking fields when term is null', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -290,7 +368,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             term: 'foo',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -313,7 +391,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
             return {};
         });

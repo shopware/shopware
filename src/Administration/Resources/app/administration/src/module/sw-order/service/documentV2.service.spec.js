@@ -213,7 +213,7 @@ describe('core/service/documentV2.service.ts', () => {
         const documentV2Service = new DocumentV2Service();
 
         const snippetSpy = jest.spyOn(Shopware, 'Snippet', 'get').mockReturnValue({
-            tc: (key) => key,
+            t: (key) => key,
             te: () => Object.values(DOCUMENT_TYPES).includes(documentType),
         });
 
@@ -237,13 +237,13 @@ describe('core/service/documentV2.service.ts', () => {
         const documentV2Service = new DocumentV2Service();
         const getSpy = jest.spyOn(Shopware.Store, 'get').mockReturnValue({ currentLocale: 'en-GB' });
 
-        const tc = jest.fn(() => 'translated');
-        const snippetSpy = jest.spyOn(Shopware, 'Snippet', 'get').mockReturnValue({ tc });
+        const t = jest.fn(() => 'translated');
+        const snippetSpy = jest.spyOn(Shopware, 'Snippet', 'get').mockReturnValue({ t });
 
         expect(documentV2Service.getDocumentTypeLabel('swag_warranty', { 'en-GB': 'Cost {amount} | fee' })).toBe(
             'Cost {amount} | fee',
         );
-        expect(tc).not.toHaveBeenCalled();
+        expect(t).not.toHaveBeenCalled();
 
         getSpy.mockRestore();
         snippetSpy.mockRestore();
@@ -261,7 +261,7 @@ describe('core/service/documentV2.service.ts', () => {
 
     it('returns the technical name unchanged when no app label map and no core snippet key match', () => {
         const snippetSpy = jest.spyOn(Shopware, 'Snippet', 'get').mockReturnValue({
-            tc: (key) => key,
+            t: (key) => key,
             te: () => false,
         });
 
@@ -270,6 +270,27 @@ describe('core/service/documentV2.service.ts', () => {
         expect(documentV2Service.getDocumentTypeLabel('swag_warranty')).toBe('swag_warranty');
         expect(documentV2Service.getDocumentTypeLabel('swag_warranty', {})).toBe('swag_warranty');
 
+        snippetSpy.mockRestore();
+    });
+
+    it('names the translated document type in the duplicate document number error', () => {
+        const $t = jest.fn((key, values) => `${key} ${JSON.stringify(values)}`);
+        const appSpy = jest.spyOn(Shopware.Application, 'getApplicationRoot').mockReturnValue({ $t });
+        const snippetSpy = jest.spyOn(Shopware, 'Snippet', 'get').mockReturnValue({
+            t: () => 'Invoice',
+            te: () => true,
+        });
+
+        const documentV2Service = new DocumentV2Service();
+
+        expect(
+            documentV2Service.getErrorTranslation('DOCUMENT_V2__DOCUMENT_NUMBER_ALREADY_EXISTS', {
+                documentNumber: '1001',
+                documentType: DOCUMENT_TYPES.INVOICE,
+            }),
+        ).toBe('sw-order.documentCard.error.duplicateDocumentNumber {"documentNumber":"1001","documentType":"Invoice"}');
+
+        appSpy.mockRestore();
         snippetSpy.mockRestore();
     });
 

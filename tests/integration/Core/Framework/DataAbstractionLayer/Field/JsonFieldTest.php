@@ -47,8 +47,9 @@ class JsonFieldTest extends TestCase
     {
         $this->connection = static::getContainer()->get(Connection::class);
 
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `_test_nullable`');
+
         $nullableTable = <<<EOF
-DROP TABLE IF EXISTS `_test_nullable`;
 CREATE TABLE `_test_nullable` (
   `id` varbinary(16) NOT NULL,
   `data` longtext CHARACTER SET utf8mb4,
@@ -249,9 +250,9 @@ EOF;
         $this->getWriter()->insert($this->registerDefinition(VersionCommitDataDefinition::class), [$data], $context);
 
         $entityId = $this->connection->fetchOne('SELECT entity_id FROM version_commit_data WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
-        static::assertNotEmpty($entityId);
+        static::assertIsString($entityId);
 
-        $entityId = json_decode((string) $entityId, true, 512, \JSON_THROW_ON_ERROR);
+        $entityId = json_decode($entityId, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(
             $data['entityId'],

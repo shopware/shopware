@@ -16,6 +16,7 @@
         display: flex;
         align-items: stretch;
         gap: var(--scale-size-4);
+        overflow: hidden;
 
         .sw-form-field-renderer,
         .sw-condition-value-between-date {

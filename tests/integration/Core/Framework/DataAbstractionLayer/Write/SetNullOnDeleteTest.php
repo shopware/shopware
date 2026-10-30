@@ -22,11 +22,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write\Fixture\SetNullOnDelete\SetNullOnDeleteChildDefinition;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write\Fixture\SetNullOnDelete\SetNullOnDeleteManyToOneDefinition;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write\Fixture\SetNullOnDelete\SetNullOnDeleteParentDefinition;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -75,11 +75,7 @@ class SetNullOnDeleteTest extends TestCase
 
         $this->connection->rollBack();
 
-        $this->connection->executeStatement(
-            'DROP TABLE IF EXISTS set_null_on_delete_child;
-             DROP TABLE IF EXISTS set_null_on_delete_parent;
-             DROP TABLE IF EXISTS set_null_on_delete_many_to_one;'
-        );
+        $this->connection->executeStatement('DROP TABLE IF EXISTS set_null_on_delete_child, set_null_on_delete_parent, set_null_on_delete_many_to_one');
 
         $this->connection->executeStatement(
             'CREATE TABLE `set_null_on_delete_parent` (
@@ -130,11 +126,7 @@ class SetNullOnDeleteTest extends TestCase
     {
         $this->connection->rollBack();
 
-        $this->connection->executeStatement(
-            'DROP TABLE IF EXISTS set_null_on_delete_child;
-             DROP TABLE IF EXISTS set_null_on_delete_parent;
-             DROP TABLE IF EXISTS set_null_on_delete_many_to_one;'
-        );
+        $this->connection->executeStatement('DROP TABLE IF EXISTS set_null_on_delete_child, set_null_on_delete_parent, set_null_on_delete_many_to_one');
 
         $this->connection->beginTransaction();
     }
@@ -288,29 +280,25 @@ class SetNullOnDeleteTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $eventWasThrown = false;
-
-        /** @var EventDispatcherInterface $eventDispatcher */
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
-        $eventDispatcher->addListener(
+        $writtenEvent = null;
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             SetNullOnDeleteChildDefinition::ENTITY_NAME . '.written',
-            static function (EntityWrittenEvent $event) use ($childId, &$eventWasThrown): void {
-                static::assertCount(1, $event->getPayloads());
-                static::assertSame(
-                    [
-                        'id' => $childId,
-                        'setNullOnDeleteParentId' => null,
-                        'setNullOnDeleteParentVersionId' => null,
-                    ],
-                    $event->getPayloads()[0]
-                );
-
-                $eventWasThrown = true;
+            static function (EntityWrittenEvent $event) use (&$writtenEvent): void {
+                $writtenEvent = $event;
             }
         );
 
         $this->repository->delete([['id' => $id]], Context::createDefaultContext());
 
-        static::assertTrue($eventWasThrown);
+        static::assertInstanceOf(EntityWrittenEvent::class, $writtenEvent);
+        static::assertCount(1, $writtenEvent->getPayloads());
+        static::assertSame(
+            [
+                'id' => $childId,
+                'setNullOnDeleteParentId' => null,
+                'setNullOnDeleteParentVersionId' => null,
+            ],
+            $writtenEvent->getPayloads()[0]
+        );
     }
 }

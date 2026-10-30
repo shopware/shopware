@@ -5,6 +5,7 @@ namespace Shopware\Storefront\DependencyInjection;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartReorderRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddWishlistProductRoute;
@@ -34,7 +35,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRoute;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
+use Shopware\Core\Content\Breadcrumb\SalesChannel\BreadcrumbRoute;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\Cms\SalesChannel\CmsRoute;
@@ -45,6 +46,7 @@ use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
+use Shopware\Core\Content\Product\SalesChannel\Garan\GaranLabelRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\ProductListRoute;
 use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\ProductPurchaseLimitRoute;
@@ -66,6 +68,7 @@ use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AccountOrderController;
 use Shopware\Storefront\Controller\AccountProfileController;
 use Shopware\Storefront\Controller\AddressController;
+use Shopware\Storefront\Controller\AnalyticsController;
 use Shopware\Storefront\Controller\Api\CaptchaController as ApiCaptchaController;
 use Shopware\Storefront\Controller\AppController;
 use Shopware\Storefront\Controller\AuthController;
@@ -136,6 +139,7 @@ use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader;
 use Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPageletLoader;
 use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoader;
 use Shopware\Storefront\Storybook\StorybookService;
+use Shopware\Storefront\System\SalesChannel\SalesChannelAnalyticsLoader;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
@@ -196,6 +200,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DeleteAddressRoute::class),
             service(ContextSwitchRoute::class),
             service(SalesChannelContextService::class),
+            service(ChangeCustomerProfileRoute::class),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -223,11 +228,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CartLineItemController::class)
         ->args([
             service(CartService::class),
-            service(PromotionItemBuilder::class),
             service(ProductLineItemFactory::class),
             service(HtmlSanitizer::class),
             service(ProductListRoute::class),
             service(LineItemFactoryRegistry::class),
+            service(CartReorderRoute::class),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -251,6 +256,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ContextGatewayRoute::class),
             service(CartService::class),
+        ])
+        ->call('setContainer', [service('service_container')]);
+
+    $services->set(AnalyticsController::class)
+        ->args([
+            service(BreadcrumbRoute::class),
+            service(SalesChannelAnalyticsLoader::class),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -337,6 +349,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SeoUrlPlaceholderHandlerInterface::class),
             service(ProductReviewLoader::class),
             service(ProductPurchaseLimitRoute::class),
+            service(GaranLabelRoute::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

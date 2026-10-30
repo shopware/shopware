@@ -64,6 +64,10 @@ class SearchApiService extends ApiService {
             this.searchAbortController.abort();
         }
 
+        if (Object.keys(queries).length < 1) {
+            return Promise.resolve({ data: {} });
+        }
+
         this.searchAbortController = new AbortController();
 
         return this.httpClient

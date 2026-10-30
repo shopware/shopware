@@ -25,6 +25,7 @@ use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AddressController;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
@@ -568,20 +569,21 @@ class AddressControllerTest extends TestCase
             ],
         ]);
 
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
+        $renderEvent = null;
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             StorefrontRenderEvent::class,
-            static function (StorefrontRenderEvent $event): void {
-                $data = $event->getParameters();
-
-                static::assertArrayHasKey('formViolations', $data);
-                static::assertArrayHasKey('postedAddress', $data);
+            static function (StorefrontRenderEvent $event) use (&$renderEvent): void {
+                $renderEvent = $event;
             },
-            0,
             true
         );
 
         $controller->addressManagerUpsert($request, $dataBag, $context, $customer, null, self::ADDRESS_TYPE_SHIPPING);
+
+        static::assertInstanceOf(StorefrontRenderEvent::class, $renderEvent);
+        $data = $renderEvent->getParameters();
+        static::assertArrayHasKey('formViolations', $data);
+        static::assertArrayHasKey('postedAddress', $data);
     }
 
     public function testAccountAddressOverview(): void
@@ -693,6 +695,64 @@ class AddressControllerTest extends TestCase
         }
     }
 
+    public function testAddressManagerChangesGuestAccountTypeWithTheBillingAddress(): void
+    {
+        $guestId = $this->createCustomer(guest: true)->getId();
+        $token = Uuid::randomHex();
+
+        static::getContainer()->get(SalesChannelContextPersister::class)->save(
+            $token,
+            [SalesChannelContextService::CUSTOMER_ID => $guestId],
+            TestDefaults::SALES_CHANNEL,
+            $guestId
+        );
+
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
+            ->create($token, TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $guestId]);
+
+        $customer = $context->getCustomer();
+        static::assertNotNull($customer);
+        static::assertSame(CustomerEntity::ACCOUNT_TYPE_PRIVATE, $customer->getAccountType());
+
+        $controller = static::getContainer()->get(AddressController::class);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+        $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
+        $request->setSession($this->getSession());
+
+        static::getContainer()->get('request_stack')->push($request);
+
+        $dataBag = new RequestDataBag([
+            'address' => [
+                'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+                'company' => 'Acme GmbH',
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'Erika',
+                'lastName' => 'Mustermann',
+                'street' => 'Musterstraße 1',
+                'city' => 'Schöppingen',
+                'zipcode' => '12345',
+                'countryId' => $this->getValidCountryId(),
+            ],
+            'vatIds' => ['DE123456789'],
+        ]);
+
+        $response = $controller->addressManagerUpsert($request, $dataBag, $context, $customer, $this->addressId, self::ADDRESS_TYPE_SHIPPING);
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+
+        $guest = $this->customerRepository->search(new Criteria([$guestId]), Context::createDefaultContext())
+            ->getEntities()
+            ->first();
+
+        static::assertNotNull($guest);
+        static::assertSame(CustomerEntity::ACCOUNT_TYPE_BUSINESS, $guest->getAccountType());
+        static::assertSame('Acme GmbH', $guest->getCompany());
+        static::assertSame(['DE123456789'], $guest->getVatIds());
+        static::assertSame('Erika', $guest->getFirstName());
+    }
+
     private function login(): KernelBrowser
     {
         $this->loginCustomer = $this->createCustomer();
@@ -712,12 +772,13 @@ class AddressControllerTest extends TestCase
         return $browser;
     }
 
-    private function createCustomer(): CustomerEntity
+    private function createCustomer(bool $guest = false): CustomerEntity
     {
         $customerId = Uuid::randomHex();
 
         $customer = [
             'id' => $customerId,
+            'guest' => $guest,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultShippingAddress' => [
                 'id' => $this->addressId,

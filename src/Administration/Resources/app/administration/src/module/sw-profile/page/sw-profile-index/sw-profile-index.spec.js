@@ -293,7 +293,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
             isLoading: false,
             isUserLoading: false,
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-profile__save-action');
 

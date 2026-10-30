@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Util\Base64;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -88,7 +89,7 @@ class SnippetRouteTest extends TestCase
         static::assertNotSame('', $set['hash']);
 
         static::assertIsArray($set['snippets']);
-        static::assertNotEmpty($set['snippets']);
+        static::assertNotCount(0, $set['snippets']);
         // the database override of the snippet set is part of the resolved map
         static::assertSame('Custom value', $set['snippets']['myCustom.test.key']);
 
@@ -123,6 +124,26 @@ class SnippetRouteTest extends TestCase
         static::assertSame($set['snippets'], $setWithTrailingDot['snippets']);
     }
 
+    public function testPrefixesAreReadFromTheCompressedCriteria(): void
+    {
+        $this->createSnippet('myPrefix.inside.key', 'Inside');
+        $this->createSnippet('myPrefixOther.key', 'Outside');
+
+        $this->browser->request('GET', '/store-api/snippet?prefixes=myPrefix');
+        $expected = $this->getJsonResponse()['sets'][0];
+
+        $compressed = gzencode(json_encode(['prefixes' => 'myPrefix'], \JSON_THROW_ON_ERROR));
+        static::assertNotFalse($compressed, 'Gzip compressing failed');
+
+        $this->browser->request('GET', '/store-api/snippet', ['_criteria' => Base64::urlEncode($compressed)]);
+
+        $set = $this->getJsonResponse()['sets'][0];
+
+        static::assertSame('Inside', $set['snippets']['myPrefix.inside.key'] ?? null);
+        static::assertArrayNotHasKey('myPrefixOther.key', $set['snippets']);
+        static::assertSame($expected['snippets'], $set['snippets'], 'The compressed criteria is read like the query string');
+    }
+
     public function testEtagRevalidationReturnsNotModified(): void
     {
         $this->browser->request('GET', '/store-api/snippet');
@@ -154,7 +175,7 @@ class SnippetRouteTest extends TestCase
 
         foreach ($response['sets'] as $set) {
             static::assertSame('snippet_set_result', $set['apiAlias']);
-            static::assertNotEmpty($set['snippets']);
+            static::assertNotCount(0, $set['snippets']);
         }
     }
 

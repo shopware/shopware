@@ -8,6 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
@@ -22,9 +24,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -40,6 +45,8 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 class CacheHeadersServiceTest extends TestCase
 {
     use EventDispatcherBehaviour;
+
+    private const TAX_ID = '0191b0e4b7a97243b0f2fca1f9b0d2a1';
 
     /**
      * @var array<string, string>
@@ -120,7 +127,7 @@ class CacheHeadersServiceTest extends TestCase
             static::assertSame($cookie->getValue(), $response->headers->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE));
         } else {
             $cookies = $response->headers->getCookies();
-            static::assertNotEmpty($cookies, 'the client cookie should be cleared');
+            static::assertNotCount(0, $cookies, 'the client cookie should be cleared');
 
             foreach ($cookies as $cookie) {
                 static::assertSame(1, $cookie->getExpiresTime(), 'cookie should expire');
@@ -169,6 +176,51 @@ class CacheHeadersServiceTest extends TestCase
         static::assertSame('language-a', $storefront->get(HttpCacheCookieEvent::LANGUAGE_ID));
         static::assertSame('language-a', $storeApi->get(HttpCacheCookieEvent::LANGUAGE_ID));
         static::assertSame($storefront->getHash(), $storeApi->getHash());
+    }
+
+    public function testCacheHashIgnoresTaxRulesWithoutAPriceBasis(): void
+    {
+        $event = $this->cacheHeadersService->applyCacheHash(
+            new Request(),
+            $this->createCacheHashContext('language-a'),
+            $this->createFilledCart(),
+            new Response()
+        );
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
+        static::assertNull($event->get(HttpCacheCookieEvent::TAX_RULES));
+    }
+
+    public function testCacheHashSeparatesTaxRatesForTheNetBasisWithGrossDisplay(): void
+    {
+        $germany = $this->applyPriceBasisCacheHash(CustomerGroupEntity::PRICE_BASIS_NET, 'gross', 19.0);
+        $austria = $this->applyPriceBasisCacheHash(CustomerGroupEntity::PRICE_BASIS_NET, 'gross', 20.0);
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $germany);
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $austria);
+
+        static::assertNotNull($germany->get(HttpCacheCookieEvent::TAX_RULES));
+        static::assertNotSame($germany->getHash(), $austria->getHash());
+    }
+
+    public function testCacheHashSeparatesTaxRatesForTheGrossBasisWithNetDisplay(): void
+    {
+        $germany = $this->applyPriceBasisCacheHash(CustomerGroupEntity::PRICE_BASIS_GROSS, 'net', 19.0);
+        $austria = $this->applyPriceBasisCacheHash(CustomerGroupEntity::PRICE_BASIS_GROSS, 'net', 20.0);
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $germany);
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $austria);
+
+        static::assertNotNull($germany->get(HttpCacheCookieEvent::TAX_RULES));
+        static::assertNotSame($germany->getHash(), $austria->getHash());
+    }
+
+    public function testCacheHashIgnoresTaxRulesWhenTheBasisMatchesTheDisplayState(): void
+    {
+        $event = $this->applyPriceBasisCacheHash(CustomerGroupEntity::PRICE_BASIS_GROSS, 'gross', 19.0);
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
+        static::assertNull($event->get(HttpCacheCookieEvent::TAX_RULES));
     }
 
     public function testStoreNonDefaultLanguageRequiresCacheHash(): void
@@ -262,6 +314,31 @@ class CacheHeadersServiceTest extends TestCase
         static::assertNull($event);
     }
 
+    public function testAChosenStateRequiresTheCacheHashWhenPricesDeriveFromItsTaxRates(): void
+    {
+        $event = $this->cacheHeadersService->applyCacheHash(
+            new Request(),
+            $this->createGuestContextWithChosenState(CustomerGroupEntity::PRICE_BASIS_NET, 'gross'),
+            new Cart('empty'),
+            new Response()
+        );
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
+        static::assertNotNull($event->get(HttpCacheCookieEvent::TAX_RULES));
+    }
+
+    public function testAChosenStateNeedsNoCacheHashWhenTheBasisMatchesTheDisplayState(): void
+    {
+        $event = $this->cacheHeadersService->applyCacheHash(
+            new Request(),
+            $this->createGuestContextWithChosenState(CustomerGroupEntity::PRICE_BASIS_GROSS, 'gross'),
+            new Cart('empty'),
+            new Response()
+        );
+
+        static::assertNull($event);
+    }
+
     public function testNonDefaultPaymentMethodRequiresCacheHash(): void
     {
         // switchable anonymously and rules (e.g. price rules) can condition on the payment method
@@ -310,7 +387,7 @@ class CacheHeadersServiceTest extends TestCase
         $this->cacheHeadersService->applyCacheHash($request, $salesChannelContextMock, new Cart('cart'), $response);
 
         $cookies = $response->headers->getCookies();
-        static::assertEmpty($cookies);
+        static::assertCount(0, $cookies);
 
         $salesChannelContextMock = static::createStub(SalesChannelContext::class);
         $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM]));
@@ -320,7 +397,7 @@ class CacheHeadersServiceTest extends TestCase
         $this->cacheHeadersService->applyCacheHash($request, $salesChannelContextMock, new Cart('cart'), $response);
 
         $cookies = $response->headers->getCookies();
-        static::assertNotEmpty($cookies);
+        static::assertNotCount(0, $cookies);
         // assert cache hash exist when currency is set to different value then the sales channel default
         static::assertSame(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $cookies[0]->getName());
         $firstHash = $cookies[0]->getValue();
@@ -333,7 +410,7 @@ class CacheHeadersServiceTest extends TestCase
         $this->cacheHeadersService->applyCacheHash($request, $salesChannelContextMock, new Cart('cart'), $response);
 
         $cookies = $response->headers->getCookies();
-        static::assertNotEmpty($cookies);
+        static::assertNotCount(0, $cookies);
         static::assertSame(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $cookies[0]->getName());
         $secondHash = $cookies[0]->getValue();
         // assert cache hash is different when currency id is different
@@ -455,14 +532,14 @@ class CacheHeadersServiceTest extends TestCase
         $cacheHeadersService->applyCacheHash($request, $salesChannelContextMock, new Cart('cart'), $response);
 
         $cookies = $response->headers->getCookies();
-        static::assertEmpty($cookies);
+        static::assertCount(0, $cookies);
 
         $request->cookies->set('my-custom-cookie', 'foo');
 
         $cacheHeadersService->applyCacheHash($request, $salesChannelContextMock, new Cart('cart'), $response);
 
         $cookies = $response->headers->getCookies();
-        static::assertNotEmpty($cookies);
+        static::assertNotCount(0, $cookies);
         // assert cache hash exist when customCookie is set
         static::assertSame(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $cookies[0]->getName());
         $firstHash = $cookies[0]->getValue();
@@ -472,11 +549,44 @@ class CacheHeadersServiceTest extends TestCase
         $cacheHeadersService->applyCacheHash($request, $salesChannelContextMock, new Cart('cart'), $response);
 
         $cookies = $response->headers->getCookies();
-        static::assertNotEmpty($cookies);
+        static::assertNotCount(0, $cookies);
         static::assertSame(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $cookies[0]->getName());
         $secondHash = $cookies[0]->getValue();
         // assert cache hash is different when custom cookie is different
         static::assertNotSame($firstHash, $secondHash);
+    }
+
+    private function applyPriceBasisCacheHash(string $priceBasis, string $taxState, float $taxRate): ?HttpCacheCookieEvent
+    {
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(null);
+        $context->method('getRuleIds')->willReturn([]);
+        $context->method('getRuleIdsByAreas')->willReturn([]);
+        $context->method('getVersionId')->willReturn(Defaults::LIVE_VERSION);
+        $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
+        $context->method('getTaxState')->willReturn($taxState);
+        $context->method('getCurrentCustomerGroup')->willReturn(
+            (new CustomerGroupEntity())->assign([
+                'priceBasis' => $priceBasis,
+                'displayGross' => $taxState === CartPrice::TAX_STATE_GROSS,
+            ])
+        );
+        $context->method('getTaxRules')->willReturn(new TaxCollection([
+            (new TaxEntity())->assign([
+                'id' => self::TAX_ID,
+                '_uniqueIdentifier' => self::TAX_ID,
+                'taxRate' => $taxRate,
+                'name' => 'tax',
+                'position' => 1,
+            ]),
+        ]));
+
+        return $this->cacheHeadersService->applyCacheHash(
+            new Request(),
+            $context,
+            $this->createFilledCart(),
+            new Response()
+        );
     }
 
     private function createCacheHashContext(
@@ -507,6 +617,50 @@ class CacheHeadersServiceTest extends TestCase
         );
 
         return $salesChannelContext;
+    }
+
+    private function createGuestContextWithChosenState(string $priceBasis, string $taxState): SalesChannelContext
+    {
+        $country = (new CountryEntity())->assign(['id' => 'country-default']);
+        $state = (new CountryStateEntity())->assign(['id' => 'state-chosen', 'countryId' => 'country-default']);
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(null);
+        $context->method('getRuleIds')->willReturn([]);
+        $context->method('getRuleIdsByAreas')->willReturn([]);
+        $context->method('getVersionId')->willReturn(Defaults::LIVE_VERSION);
+        $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
+        $context->method('getLanguageId')->willReturn(Defaults::LANGUAGE_SYSTEM);
+        $context->method('getTaxState')->willReturn($taxState);
+        $context->method('getCurrentCustomerGroup')->willReturn(
+            (new CustomerGroupEntity())->assign([
+                'priceBasis' => $priceBasis,
+                'displayGross' => $taxState === CartPrice::TAX_STATE_GROSS,
+            ])
+        );
+        $context->method('getTaxRules')->willReturn(new TaxCollection([
+            (new TaxEntity())->assign([
+                'id' => self::TAX_ID,
+                '_uniqueIdentifier' => self::TAX_ID,
+                'taxRate' => 19.0,
+                'name' => 'tax',
+                'position' => 1,
+            ]),
+        ]));
+        $context->method('getShippingLocation')->willReturn(new ShippingLocation($country, $state, null));
+        $context->method('getPaymentMethod')->willReturn((new PaymentMethodEntity())->assign(['id' => 'payment-default']));
+        $context->method('getShippingMethod')->willReturn((new ShippingMethodEntity())->assign(['id' => 'shipping-default']));
+        $context->method('getSalesChannel')->willReturn(
+            (new SalesChannelEntity())->assign([
+                'currencyId' => Defaults::CURRENCY,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'countryId' => 'country-default',
+                'paymentMethodId' => 'payment-default',
+                'shippingMethodId' => 'shipping-default',
+            ])
+        );
+
+        return $context;
     }
 
     private static function createShippingLocation(string $countryId = 'country-default'): ShippingLocation

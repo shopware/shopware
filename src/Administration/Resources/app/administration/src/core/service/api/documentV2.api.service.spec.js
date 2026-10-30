@@ -54,6 +54,7 @@ describe('documentV2ApiService', () => {
 
         clientMock.onPost('/_action/order/document-v2/create').reply(200, {
             documentId: '4d03324edcd0490b9180df8161c9167f',
+            documentNumber: '1000',
             deepLinkCode: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
             formats: ['html', 'zugferd_xml'],
         });
@@ -70,6 +71,7 @@ describe('documentV2ApiService', () => {
         expect(createDocumentResponse).toStrictEqual({
             deepLinkCode: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
             documentId: '4d03324edcd0490b9180df8161c9167f',
+            documentNumber: '1000',
             formats: ['html', 'zugferd_xml'],
         });
     });
@@ -246,5 +248,26 @@ describe('documentV2ApiService', () => {
 
         expect(clientMock.history.post[0].url).toBe('/_action/order/document-v2/download-archive');
         expect(JSON.parse(clientMock.history.post[0].data)).toEqual({ documentIds });
+    });
+
+    it('loads the number range pattern collisions', async () => {
+        const { documentV2ApiService, clientMock } = createDocumentV2ApiService();
+        const response = { collisions: [{ id: 'other-id', name: 'Invoices shop B' }] };
+
+        clientMock.onGet('/_action/order/document-v2/number-range-pattern-collisions').reply(200, response);
+
+        const collisions = await documentV2ApiService.getNumberRangePatternCollisions(
+            'number-range-type-id',
+            'INV-{n}',
+            'number-range-id',
+        );
+
+        expect(clientMock.history.get[0].url).toBe('/_action/order/document-v2/number-range-pattern-collisions');
+        expect(clientMock.history.get[0].params).toEqual({
+            numberRangeTypeId: 'number-range-type-id',
+            pattern: 'INV-{n}',
+            numberRangeId: 'number-range-id',
+        });
+        expect(collisions).toEqual(response);
     });
 });

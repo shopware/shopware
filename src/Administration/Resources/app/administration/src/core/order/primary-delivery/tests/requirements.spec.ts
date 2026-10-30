@@ -28,6 +28,8 @@ describe('primary-delivery', () => {
     /**
      * @requirement Until 6.8, an order without a primary delivery is shown with its most expensive delivery.
      * The 6.8 update makes that delivery the primary one, so the state merchants see stays the same.
+     *
+     * @deprecated tag:v6.8.0 - Removed with the 6.7 fallback.
      */
     it.deprecated('v6.8.0.0')('shows an order without a primary delivery with its most expensive delivery', () => {
         const expensive = delivery('expensive', 10);

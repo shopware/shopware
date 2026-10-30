@@ -11,6 +11,7 @@ use Shopware\Core\Content\Media\Core\Params\UrlParams;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Content\Media\Util\ExternalMediaUrl;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -56,6 +57,14 @@ class DownloadResponseGenerator
         $fileSystem = $this->getFileSystem($media);
 
         $path = $media->getPath();
+
+        if (ExternalMediaUrl::isExternal($path)) {
+            if ($media->isPrivate()) {
+                throw MediaException::missingFile($media->getId());
+            }
+
+            return $this->getDefaultResponse($media, $context, $fileSystem);
+        }
 
         try {
             $url = $fileSystem->temporaryUrl($path, (new \DateTime())->modify($expiration));

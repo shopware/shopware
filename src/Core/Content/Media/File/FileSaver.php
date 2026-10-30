@@ -18,6 +18,7 @@ use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
+use Shopware\Core\Content\Media\Util\ExternalMediaUrl;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -130,7 +131,20 @@ class FileSaver
             $context
         );
 
+        if (ExternalMediaUrl::isExternal($currentMedia->getPath())) {
+            $this->renameExternalMedia($currentMedia, $destination, $context);
+
+            return;
+        }
+
         $this->doRenameMedia($currentMedia, $destination, $context);
+    }
+
+    private function renameExternalMedia(MediaEntity $media, string $destination, Context $context): void
+    {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($media, $destination): void {
+            $this->mediaRepository->update([['id' => $media->getId(), 'fileName' => $destination]], $context);
+        });
     }
 
     private function doRenameMedia(MediaEntity $media, string $destination, Context $context): void
@@ -225,10 +239,12 @@ class FileSaver
             return;
         }
 
-        try {
-            $this->getFileSystem($media)->delete($media->getPath());
-        } catch (UnableToDeleteFile) {
-            // nth
+        if (!ExternalMediaUrl::isExternal($media->getPath())) {
+            try {
+                $this->getFileSystem($media)->delete($media->getPath());
+            } catch (UnableToDeleteFile) {
+                // nth
+            }
         }
 
         if ($this->remoteThumbnailsEnable) {

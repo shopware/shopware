@@ -361,6 +361,12 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaPathWriteValidator">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\Media\SalesChannel\MediaRoute" public="true">
             <argument type="service" id="media.repository"/>
         </service>

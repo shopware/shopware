@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Mail;
 
 use Shopware\Core\Content\MailTemplate\Exception\MailTransportFailedException;
+use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -82,6 +83,11 @@ class MailException extends HttpException
             'Failed sending mail with Error: {{ errorMessage }}',
             ['errorMessage' => $e ? $e->getMessage() : 'Unknown error']
         );
+    }
+
+    public static function salesChannelNotFound(string $salesChannelId): SalesChannelNotFoundException
+    {
+        return new SalesChannelNotFoundException($salesChannelId);
     }
 
     public static function oauthError(string $message): self

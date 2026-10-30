@@ -87,7 +87,7 @@ The context the container *provided* is not reported, a carve-out stated with th
 
 ## AttachElement
 
-`__construct(AbstractContentSystemElementTypeRegistry $registry, StoredElement $element, AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, BindingApplicator $bindingApplicator, ?string $parentElementId = null, ?string $slot = null, ?int $index = null)`.
+`__construct(AbstractContentSystemElementTypeRegistry $registry, StoredElement $element, AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, BindingApplicator $bindingApplicator, ?string $parentElementId = null, ?string $slot = null, ?int $index = null, bool $isNewScaffold = false)`.
 
 Splices a caller-supplied element subtree into a parent slot (or the root), reminting every id, then fill-applies the
 type default binding to every element of the subtree (`applyDefaultBindingToSubtree()`; wiring the subtree already
@@ -100,11 +100,16 @@ the spliced subtree being new to the layout. Placement mirrors `Op/InsertElement
 `mutationSlotRequired`; parent must exist → `mutationTargetNotFound`). Detaches nothing:
 `orphaned`/`droppedWiring`/`droppedProperties` stay empty.
 
+Ordinary attachment preserves the supplied mapping state, including deliberate unmapping and a selected entity.
+New ids are reported through `created()`, but not `freshlyScaffolded()`, so default mappings and ordinary context
+consumers are not recreated. Preset insertion explicitly passes `isNewScaffold: true` to initialize new content.
+Existing data requirements, property values, and mapping consumers still win over defaults.
+
 ## AttachElements
 
-`__construct(AbstractContentSystemElementTypeRegistry $registry, array $elements, AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, BindingApplicator $bindingApplicator, ?string $parentElementId = null, ?string $slot = null, ?int $index = null)`.
+`__construct(AbstractContentSystemElementTypeRegistry $registry, array $elements, AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, BindingApplicator $bindingApplicator, ?string $parentElementId = null, ?string $slot = null, ?int $index = null, bool $isNewScaffold = false)`.
 
-Attaches a list of caller-supplied element subtrees by running `AttachElement` over each one in list order, into the same parent slot (or the root). Every rule, error and result of `AttachElement` applies per element, so the first element that fails aborts the whole operation. With an `$index`, element `n` of the list is placed at `$index + n`, keeping list order; with none, each is appended. `affected` and `created` are the unions of the per-element sets. An empty list changes nothing. The preset-insert route is its caller.
+Attaches a list of caller-supplied element subtrees by running `AttachElement` over each one in list order, into the same parent slot (or the root). Every rule, error and result of `AttachElement` applies per element, so the first element that fails aborts the whole operation. With an `$index`, element `n` of the list is placed at `$index + n`, keeping list order; with none, each is appended. `affected` and `created` are the unions of the per-element sets. An empty list changes nothing. The preset-insert route is its caller and passes `isNewScaffold: true`; that intent is forwarded to every attached subtree, whose ids are then also reported through `freshlyScaffolded()`.
 
 ## BindElement
 

@@ -29,6 +29,8 @@ use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElements;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\DuplicateElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
@@ -228,6 +230,42 @@ class MutationPipelineTest extends TestCase
         static::assertSame([], $children[0]->contextDefinitions->getAllConsumers());
         static::assertNotSame('el-1', $children[1]->id);
         static::assertSame([], $children[1]->contextDefinitions->getAllConsumers());
+    }
+
+    #[TestDox('keeps deliberate unwiring when an authored element is attached again')]
+    public function testAttachmentPreservesTheUnwiredClone(): void
+    {
+        $incoming = new StoredElement('copied-element', 'Sw:New');
+        $attach = new AttachElement(
+            $this->typeRegistry(),
+            $incoming,
+            static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
+        );
+
+        $result = $this->pipeline($this->diagnosticsResolvingProduct())->run($attach, new StoredTree([]), null);
+
+        static::assertCount(1, $result->layout->roots);
+        static::assertNotSame($incoming->id, $result->layout->roots[0]->id);
+        static::assertSame([], $result->layout->roots[0]->contextDefinitions->getAllConsumers());
+    }
+
+    #[TestDox('initializes proven context consumers when a preset creates fresh scaffolds')]
+    public function testPresetAttachmentMirrorsProvenConsumers(): void
+    {
+        $attach = new AttachElements(
+            $this->typeRegistry(),
+            [new StoredElement('preset-element', 'Sw:New')],
+            static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
+            isNewScaffold: true,
+        );
+
+        $result = $this->pipeline($this->diagnosticsResolvingProduct())->run($attach, new StoredTree([]), null);
+
+        $consumers = $result->layout->roots[0]->contextDefinitions->getAllConsumers();
+        static::assertArrayHasKey('product', $consumers);
+        static::assertSame(ConsumerScope::Parent, $consumers['product']->scope);
     }
 
     #[TestDox('returns no resolutions when the mutation affects nothing')]

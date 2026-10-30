@@ -27,6 +27,7 @@ final class AttachElements extends AbstractLayoutMutation
         private readonly ?string $parentElementId = null,
         private readonly ?string $slot = null,
         private readonly ?int $index = null,
+        private readonly bool $isNewScaffold = false,
     ) {
     }
 
@@ -41,6 +42,7 @@ final class AttachElements extends AbstractLayoutMutation
                 $this->parentElementId,
                 $this->slot,
                 $this->index === null ? null : $this->index + $offset,
+                isNewScaffold: $this->isNewScaffold,
             );
 
             $tree = $attach->apply($tree);

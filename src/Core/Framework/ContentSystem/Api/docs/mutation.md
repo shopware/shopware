@@ -38,11 +38,11 @@ Every action shares one envelope and adds its own operation fields. Shared field
 
 `index` is clamped, never rejected: a null, negative, or out-of-range `index` appends at the end of the target list.
 
-`attach-element` is the inverse of the detachment a `replace` reports: hand its `orphaned` subtrees (or any copied subtree) back to `attach-element` to re-place them. Ids are server-minted, so the placed elements get fresh ids returned in `affectedElementIds`.
+`attach-element` is the inverse of the detachment a `replace` reports: hand its `orphaned` subtrees (or any copied subtree) back to `attach-element` to re-place them. Ids are server-minted, so the placed elements get fresh ids returned in `affectedElementIds`. The supplied mapping state is preserved, including deliberate unmapping and a selected entity; new ids do not trigger default mappings or consumer mirroring.
 
 `insert-preset` reads the named preset from the layout preset registry, decodes its payload through `DraftLayoutDecoder::decode()`, and places every root element the way `attach-element` places one subtree: ids are reminted and each element's type default binding is fill-applied. The preset comes from the registry, never from the request, so the client names a preset and cannot alter its content. An unregistered `presetId` is a `404` (`layoutPresetNotFound`, see [mutation-errors.md](mutation-errors.md)).
 
-Default property mappings are seeded on freshly scaffolded elements in both draft and persisted mutation paths. Insert and preset attach seed new scaffolds; replacement seeds its newly built replacement; duplication preserves the copied mapping state and does not seed. Each mutation reports `freshlyScaffolded()` ids explicitly, so this behavior is not inferred from its generic created-id report. Direct DAL, Admin CRUD API, and Sync API writes do not seed default mappings: callers must supply mapping consumers or use these mutation actions. Removing a mapping and saving the layout leaves it unmapped.
+Default property mappings are seeded on freshly scaffolded elements in both draft and persisted mutation paths. Insert and preset attach seed new scaffolds; replacement seeds its newly built replacement; duplication and ordinary reattachment preserve the copied mapping state and do not seed. Each mutation reports `freshlyScaffolded()` ids explicitly, so this behavior is not inferred from its generic created-id report. Direct DAL, Admin CRUD API, and Sync API writes do not seed default mappings: callers must supply mapping consumers or use these mutation actions. Removing a mapping and saving the layout leaves it unmapped.
 
 Example (`insert-element`):
 

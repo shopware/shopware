@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle;
 
-use Composer\Semver\VersionParser;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Asset\AssetService;
@@ -39,6 +38,7 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
+use Shopware\Core\Framework\App\Validation\CompatibilityValidator;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -86,7 +86,7 @@ class AppManager
         private readonly ScriptExecutor $scriptExecutor,
         private readonly string $projectDir,
         private readonly CustomEntityLifecycleService $customEntityLifecycleService,
-        private readonly string $shopwareVersion,
+        private readonly CompatibilityValidator $compatibilityValidator,
         private readonly AppFeatureValidator $appFeatureValidator,
         private readonly SourceResolver $sourceResolver,
         private readonly ConfigReader $configReader,
@@ -372,9 +372,9 @@ class AppManager
 
     private function ensureIsCompatible(Manifest $manifest): void
     {
-        $versionParser = new VersionParser();
-        if (!$manifest->getMetadata()->getCompatibility()->matches($versionParser->parseConstraints($this->shopwareVersion))) {
-            throw AppException::notCompatible($manifest->getMetadata()->getName());
+        $error = $this->compatibilityValidator->validate($manifest, null)[0] ?? null;
+        if ($error !== null) {
+            throw AppException::validationFailedFromError($error);
         }
     }
 
@@ -784,9 +784,9 @@ class AppManager
 
     private function ensureMeetsRequirements(Manifest $manifest): void
     {
-        $violations = $this->requirementsValidator->validate($manifest);
-        if ($violations !== []) {
-            throw AppException::requirementsNotMet(...$violations);
+        $error = $this->requirementsValidator->validate($manifest, null)[0] ?? null;
+        if ($error !== null) {
+            throw AppException::validationFailedFromError($error);
         }
     }
 }

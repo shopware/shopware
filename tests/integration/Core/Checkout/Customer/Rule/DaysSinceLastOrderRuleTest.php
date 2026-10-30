@@ -165,8 +165,8 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $orderRepository->create($orderData, $defaultContext);
         $criteria = new Criteria([$orderData[0]['orderCustomer']['customer']['id']]);
 
-        /** @var CustomerEntity $customer */
         $customer = $customerRepository->search($criteria, $defaultContext)->getEntities()->first();
+        static::assertInstanceOf(CustomerEntity::class, $customer);
 
         return $customer;
     }

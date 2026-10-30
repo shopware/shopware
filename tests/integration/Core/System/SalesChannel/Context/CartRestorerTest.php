@@ -516,10 +516,9 @@ class CartRestorerTest extends TestCase
         static::assertArrayHasKey(BeforeCartMergeEvent::class, $this->events);
         static::assertArrayHasKey(CartMergedEvent::class, $this->events);
 
-        /** @var CartMergedEvent $event */
         $event = $this->events[CartMergedEvent::class];
+        static::assertInstanceOf(CartMergedEvent::class, $event);
 
-        static::assertNotNull($event->getPreviousCart());
         static::assertCount(0, $event->getPreviousCart()->getLineItems());
         static::assertSame($event->getCart()->getToken(), $event->getPreviousCart()->getToken());
 

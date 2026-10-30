@@ -190,8 +190,8 @@ class ImportExportLogRepositoryTest extends TestCase
         foreach ($data as $expect) {
             $id = $expect['id'];
             $result = $this->logRepository->search(new Criteria([$id]), $this->context)->getEntities();
-            /** @var ImportExportLogEntity $ImportExportLog */
             $ImportExportLog = $result->get($id);
+            static::assertInstanceOf(ImportExportLogEntity::class, $ImportExportLog);
             static::assertCount(1, $result);
             static::assertSame($expect['activity'], $ImportExportLog->getActivity());
             static::assertSame($expect['state'], $ImportExportLog->getState());

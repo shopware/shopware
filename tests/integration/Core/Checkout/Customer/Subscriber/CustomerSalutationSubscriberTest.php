@@ -50,11 +50,11 @@ class CustomerSalutationSubscriberTest extends TestCase
 
         $this->createCustomer();
 
-        /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->search(
             new Criteria([$this->ids->get('customer')]),
             Context::createDefaultContext()
         )->getEntities()->first();
+        static::assertInstanceOf(CustomerEntity::class, $customer);
 
         static::assertNotNull($customer->getSalutationId());
     }
@@ -73,11 +73,11 @@ class CustomerSalutationSubscriberTest extends TestCase
 
         $this->createCustomer();
 
-        /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->search(
             new Criteria([$this->ids->get('customer')]),
             Context::createDefaultContext()
         )->getEntities()->first();
+        static::assertInstanceOf(CustomerEntity::class, $customer);
 
         static::assertNull($customer->getSalutationId());
     }

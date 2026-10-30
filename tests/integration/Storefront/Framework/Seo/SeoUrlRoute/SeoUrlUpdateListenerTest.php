@@ -112,9 +112,8 @@ class SeoUrlUpdateListenerTest extends TestCase
         static::assertNotNull($product);
         static::assertNotNull($product->getSeoUrls());
 
-        /** @var SeoUrlEntity $seoUrl */
         $seoUrl = $product->getSeoUrls()->first();
-        static::assertNotNull($seoUrl);
+        static::assertInstanceOf(SeoUrlEntity::class, $seoUrl);
         static::assertSame('awesome-product/P1', $seoUrl->getSeoPathInfo());
 
         $seoUrls = $this->getSeoUrls($salesChannelId, $id);
@@ -146,8 +145,8 @@ class SeoUrlUpdateListenerTest extends TestCase
         static::assertNotNull($product);
         static::assertNotNull($product->getSeoUrls());
 
-        /** @var SeoUrlEntity $seoUrl */
         $seoUrl = $product->getSeoUrls()->first();
+        static::assertInstanceOf(SeoUrlEntity::class, $seoUrl);
         static::assertSame('awesome-product-v3/P1', $seoUrl->getSeoPathInfo());
 
         $seoUrls = $this->getSeoUrls($salesChannelId, $id);
@@ -184,9 +183,8 @@ class SeoUrlUpdateListenerTest extends TestCase
 
         /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $first->getSeoUrls();
-        /** @var SeoUrlEntity $seoUrl */
         $seoUrl = $seoUrls->first();
-        static::assertNotNull($seoUrl);
+        static::assertInstanceOf(SeoUrlEntity::class, $seoUrl);
         static::assertSame($first->getId(), $seoUrl->getForeignKey());
         static::assertSame(ProductPageSeoUrlRoute::ROUTE_NAME, $seoUrl->getRouteName());
         static::assertSame('/detail/' . $id, $seoUrl->getPathInfo());
@@ -216,8 +214,8 @@ class SeoUrlUpdateListenerTest extends TestCase
         /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $first->getSeoUrls();
         static::assertNotNull($seoUrls);
-        /** @var SeoUrlEntity $seoUrl */
         $seoUrl = $seoUrls->first();
+        static::assertInstanceOf(SeoUrlEntity::class, $seoUrl);
         static::assertSame('foo/awesome-product/bar', $seoUrl->getSeoPathInfo());
         static::assertTrue($seoUrl->getIsCanonical());
 
@@ -225,7 +223,6 @@ class SeoUrlUpdateListenerTest extends TestCase
         $canonicalUrls = $seoUrls->filterByProperty('isCanonical', true);
         $nonCanonicals = $seoUrls->filterByProperty('isCanonical', false);
 
-        static::assertNotNull($seoUrl);
         static::assertNotNull($canonicalUrls->first());
         static::assertSame($seoUrl->getId(), $canonicalUrls->first()->getId());
 
@@ -257,15 +254,14 @@ class SeoUrlUpdateListenerTest extends TestCase
 
         /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $first->getSeoUrls();
-        /** @var SeoUrlEntity $seoUrl */
         $seoUrl = $seoUrls->first();
+        static::assertInstanceOf(SeoUrlEntity::class, $seoUrl);
         static::assertSame('foo/awesome-product-improved-again/bar', $seoUrl->getSeoPathInfo());
 
         $seoUrls = $this->getSeoUrls($salesChannelId, $id);
         $canonicalUrls = $seoUrls->filterByProperty('isCanonical', true);
         $nonCanonicals = $seoUrls->filterByProperty('isCanonical', null);
 
-        static::assertNotNull($seoUrl);
         static::assertNotNull($canonicalUrls->first());
         static::assertSame($seoUrl->getId(), $canonicalUrls->first()->getId());
 
@@ -304,8 +300,8 @@ class SeoUrlUpdateListenerTest extends TestCase
 
         /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $first->getSeoUrls();
-        /** @var SeoUrlEntity $seoUrl */
         $seoUrl = $seoUrls->first();
+        static::assertInstanceOf(SeoUrlEntity::class, $seoUrl);
         static::assertSame($first->getId(), $seoUrl->getForeignKey());
         static::assertSame(ProductPageSeoUrlRoute::ROUTE_NAME, $seoUrl->getRouteName());
         static::assertSame('/detail/' . $id, $seoUrl->getPathInfo());
@@ -316,7 +312,6 @@ class SeoUrlUpdateListenerTest extends TestCase
         $canonicalUrls = $seoUrls->filterByProperty('isCanonical', true);
         $nonCanonicals = $seoUrls->filterByProperty('isCanonical', null);
 
-        static::assertNotNull($seoUrl);
         static::assertNotNull($canonicalUrls->first());
         static::assertSame($seoUrl->getId(), $canonicalUrls->first()->getId());
 
@@ -346,8 +341,8 @@ class SeoUrlUpdateListenerTest extends TestCase
 
         /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $product->getSeoUrls();
-        /** @var SeoUrlEntity $seoUrl */
         $seoUrl = $seoUrls->first();
+        static::assertInstanceOf(SeoUrlEntity::class, $seoUrl);
         static::assertSame('awesome-product-v2/P1', $seoUrl->getSeoPathInfo());
         static::assertFalse($seoUrl->getIsDeleted());
 
@@ -381,9 +376,8 @@ class SeoUrlUpdateListenerTest extends TestCase
 
         static::assertNotNull($product);
         static::assertNotNull($product->getSeoUrls());
-        /** @var SeoUrlEntity $seoUrl */
         $seoUrl = $product->getSeoUrls()->first();
-        static::assertNotNull($seoUrl);
+        static::assertInstanceOf(SeoUrlEntity::class, $seoUrl);
         static::assertSame('foo-bar', $seoUrl->getSeoPathInfo());
         static::assertFalse($seoUrl->getIsDeleted());
     }
@@ -487,14 +481,14 @@ class SeoUrlUpdateListenerTest extends TestCase
         $criteria->addAssociation('seoUrls');
         $products = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities();
 
-        /** @var ProductEntity $first */
         $first = $products->first();
+        static::assertInstanceOf(ProductEntity::class, $first);
         /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $first->getSeoUrls();
         static::assertCount(1, $seoUrls);
 
-        /** @var ProductEntity $last */
         $last = $products->last();
+        static::assertInstanceOf(ProductEntity::class, $last);
         /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $last->getSeoUrls();
         static::assertCount(1, $seoUrls);
@@ -562,18 +556,17 @@ class SeoUrlUpdateListenerTest extends TestCase
         $criteria->addAssociation('seoUrls');
         $products = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities();
 
-        /** @var ProductEntity $parent */
         $parent = $products->get($parentId);
+        static::assertInstanceOf(ProductEntity::class, $parent);
         /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $parent->getSeoUrls();
         static::assertCount(2, $seoUrls);
-        /** @var SeoUrlEntity $canonical */
         $canonical = $seoUrls->filterByProperty('isCanonical', true)->first();
-        static::assertNotNull($canonical);
+        static::assertInstanceOf(SeoUrlEntity::class, $canonical);
         static::assertSame('updated/P1', $canonical->getSeoPathInfo());
 
-        /** @var ProductEntity $child1 */
         $child1 = $products->get($child1Id);
+        static::assertInstanceOf(ProductEntity::class, $child1);
         /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $child1->getSeoUrls();
         static::assertCount(2, $seoUrls);
@@ -581,8 +574,8 @@ class SeoUrlUpdateListenerTest extends TestCase
         static::assertNotNull($canonical);
         static::assertSame('updated/C1', $canonical->getSeoPathInfo());
 
-        /** @var ProductEntity $child2 */
         $child2 = $products->get($child2Id);
+        static::assertInstanceOf(ProductEntity::class, $child2);
         /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $child2->getSeoUrls();
         static::assertCount(2, $seoUrls);
@@ -717,8 +710,8 @@ class SeoUrlUpdateListenerTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('seoUrls');
 
-        /** @var ProductEntity $product */
         $product = $productRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
         /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $product->getSeoUrls();
         static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);

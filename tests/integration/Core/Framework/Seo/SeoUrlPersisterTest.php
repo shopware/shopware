@@ -1172,7 +1172,6 @@ class SeoUrlPersisterTest extends TestCase
 
     private function findRandomSalesChannel(): SalesChannelEntity
     {
-        /** @var SalesChannelEntity|null $salesChannel */
         $salesChannel = $this->salesChannelRepository
             ->search(
                 (new Criteria())->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))->setLimit(1),

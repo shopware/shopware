@@ -97,8 +97,8 @@ class ThumbnailServiceTest extends TestCase
 
         $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
 
-        /** @var MediaEntity $updatedMedia */
         $updatedMedia = $mediaResult->getEntities()->first();
+        static::assertInstanceOf(MediaEntity::class, $updatedMedia);
 
         $thumbnails = $updatedMedia->getThumbnails();
         static::assertInstanceOf(MediaThumbnailCollection::class, $thumbnails);
@@ -292,8 +292,8 @@ class ThumbnailServiceTest extends TestCase
             $this->context
         );
 
-        /** @var MediaEntity $media */
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->getEntities()->get($mediaId);
+        static::assertInstanceOf(MediaEntity::class, $media);
 
         $mediaUrl = $media->getPath();
 

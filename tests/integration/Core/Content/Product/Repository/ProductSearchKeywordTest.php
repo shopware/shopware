@@ -40,11 +40,11 @@ class ProductSearchKeywordTest extends TestCase
 
         $this->createProduct($id, ['YTN', 'Search Keyword']);
 
-        /** @var ProductEntity $product */
         $product = $this->repository
             ->search(new Criteria([$id]), $this->context)
             ->getEntities()
             ->get($id);
+        static::assertInstanceOf(ProductEntity::class, $product);
 
         $customSearchKeywords = $product->getCustomSearchKeywords();
         static::assertIsArray($customSearchKeywords);
@@ -58,11 +58,11 @@ class ProductSearchKeywordTest extends TestCase
 
         $this->createProduct($id, ['YTN']);
 
-        /** @var ProductEntity $product */
         $product = $this->repository
             ->search(new Criteria([$id]), $this->context)
             ->getEntities()
             ->get($id);
+        static::assertInstanceOf(ProductEntity::class, $product);
 
         $customSearchKeywords = $product->getCustomSearchKeywords();
         static::assertIsArray($customSearchKeywords);
@@ -75,11 +75,11 @@ class ProductSearchKeywordTest extends TestCase
 
         $this->repository->update([$update], $this->context);
 
-        /** @var ProductEntity $product */
         $product = $this->repository
             ->search(new Criteria([$id]), $this->context)
             ->getEntities()
             ->get($id);
+        static::assertInstanceOf(ProductEntity::class, $product);
 
         $customSearchKeywords = $product->getCustomSearchKeywords();
         static::assertIsArray($customSearchKeywords);

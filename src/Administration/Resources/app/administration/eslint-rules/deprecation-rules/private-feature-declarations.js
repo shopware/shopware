@@ -2,8 +2,6 @@
  * @sw-package framework
  */
 
-/* eslint-disable max-len */
-
 const fs = require('fs');
 const path = require('path');
 
@@ -14,7 +12,8 @@ const isMiniModuleRoot = (directory) => ['index.ts', 'src', 'tests'].every((entr
  * A mini-module is a directory with an `index.ts`, a `src/` and a `tests/` folder.
  * Its `index.ts` is public API, also for extensions, and every export there is marked `@public`.
  * Its `private.ts` is for Administration code only, and every export there is marked `@private`.
- * Its `src/` is only reachable through those two files, so its exports carry no marker:
+ * Its `register.ts` registers what `index.ts` declares, so it needs no marker either.
+ * Its `src/` and `dependencies.ts` are only reachable through `index.ts` and `private.ts`, so their exports carry no marker:
  * an export marked `@public` belongs in `index.ts`, one marked `@private` in `private.ts`.
  *
  * @example
@@ -22,12 +21,12 @@ const isMiniModuleRoot = (directory) => ['index.ts', 'src', 'tests'].every((entr
  * getMiniModulePart('src/app/main.ts') // → null
  *
  * @param {string} filename
- * @returns {'index'|'private'|'src'|null}
+ * @returns {'index'|'private'|'register'|'src'|null}
  */
 const getMiniModulePart = (filename) => {
-    const entry = /^(index|private)\.[jt]s$/.exec(path.basename(filename));
+    const entry = /^(index|private|register|dependencies)\.[jt]s$/.exec(path.basename(filename));
     if (entry && isMiniModuleRoot(path.dirname(filename))) {
-        return entry[1];
+        return entry[1] === 'dependencies' ? 'src' : entry[1];
     }
 
     const segments = filename.split(path.sep);
@@ -124,6 +123,10 @@ module.exports = {
     },
     create(context) {
         const part = getMiniModulePart(context.filename ?? context.getFilename());
+
+        if (part === 'register') {
+            return {};
+        }
 
         const checkExport = (node) => {
             const comment = getLeadingBlockComment(node) ?? '';

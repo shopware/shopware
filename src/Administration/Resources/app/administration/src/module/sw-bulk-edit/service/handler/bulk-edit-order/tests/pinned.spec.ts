@@ -9,6 +9,8 @@ describe('bulk-edit-order', () => {
         const handler = new BulkEditOrderHandler();
         handler.entityIds = ['order-id'];
 
-        expect(handler.getCriteria().getAssociation('deliveries').sortings).toEqual([]);
+        const criteria = handler.getCriteria();
+
+        expect(criteria.getAssociation('deliveries').sortings).toEqual([]);
     });
 });

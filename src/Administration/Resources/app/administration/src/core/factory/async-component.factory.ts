@@ -5,6 +5,7 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any */
 import { warn } from 'src/core/service/utils/debug.utils';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
+import type { PublicComponent } from 'src/core/public-component';
 import types from 'src/core/service/utils/types.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
 import { indexTwigBlocksFromTemplate } from 'src/core/factory/twig-block-index';
@@ -476,7 +477,16 @@ function register<
     S
 >;
 
-function register(componentName: string, componentConfiguration: unknown): unknown {
+/**
+ * Registers a component declared with `definePublicComponent()` in the index.ts of its mini-module.
+ */
+function register(component: PublicComponent): unknown;
+
+function register(componentName: string | PublicComponent, componentConfiguration?: unknown): unknown {
+    if (typeof componentName === 'object') {
+        return register(componentName.name, componentName.load as () => Promise<ComponentConfig>);
+    }
+
     if (!componentName || !componentName.length) {
         warn('ComponentFactory', 'A component always needs a name.', componentConfiguration);
         return false;

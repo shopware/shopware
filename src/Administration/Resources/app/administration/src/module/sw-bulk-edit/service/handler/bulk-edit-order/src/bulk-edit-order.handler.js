@@ -1,9 +1,14 @@
-import BulkEditBaseHandler from '../../bulk-edit-base.handler';
-import RetryHelper from 'src/core/helper/retry.helper';
-import { getPrimaryDelivery } from 'src/core/order/primary-delivery';
-
-const { Criteria } = Shopware.Data;
-const { types } = Shopware.Utils;
+import {
+    BulkEditBaseHandler,
+    Criteria,
+    RetryHelper,
+    getApiContext,
+    getOrderStateMachineService,
+    getPrimaryDelivery,
+    getRepositoryFactory,
+    types,
+    useBulkEditStore,
+} from '../dependencies';
 
 /**
  * @class
@@ -15,8 +20,8 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
         super();
         this.name = 'BulkEditOrderHandler';
         this.entityIds = [];
-        this.orderStateMachineService = Shopware.Service('orderStateMachineService');
-        this.orderRepository = Shopware.Service('repositoryFactory').create('order');
+        this.orderStateMachineService = getOrderStateMachineService();
+        this.orderRepository = getRepositoryFactory().create('order');
         this.entityName = 'order';
     }
 
@@ -24,7 +29,7 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
         this.entityIds = entityIds;
 
         let promises = [];
-        const shouldTriggerFlows = Shopware.Store.get('swBulkEdit').isFlowTriggered;
+        const shouldTriggerFlows = useBulkEditStore().isFlowTriggered;
 
         const orders = await this.orderRepository.search(this.getCriteria());
 
@@ -94,7 +99,7 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
                 {},
                 {
                     'single-operation': 1,
-                    'sw-language-id': Shopware.Context.api.languageId,
+                    'sw-language-id': getApiContext().languageId,
                 },
             );
         });

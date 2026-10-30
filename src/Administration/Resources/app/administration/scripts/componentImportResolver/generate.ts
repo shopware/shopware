@@ -2,9 +2,9 @@
  * @private
  * @package admin
  */
-import { ArrowFunction, CallExpression, Project, SourceFile, ts} from "ts-morph";
-import * as path from "path";
-import * as fs from "fs";
+import { ArrowFunction, CallExpression, ObjectLiteralExpression, Project, SourceFile, ts } from 'ts-morph';
+import * as path from 'path';
+import * as fs from 'fs';
 import cliProgress from 'cli-progress';
 
 const project = new Project({
@@ -13,17 +13,17 @@ const project = new Project({
 
 // load all the source files from the "src" directory
 project.addSourceFilesAtPaths([
-    "src/**/*{.js,.ts}",
-    "!src/**/*{.spec.js,.spec.vue2.js,.d.ts,.types.ts}",
-    "!src/meta/**/*",
+    'src/**/*{.js,.ts}',
+    '!src/**/*{.spec.js,.spec.vue2.js,.d.ts,.types.ts}',
+    '!src/meta/**/*',
 ]);
 
 type componentInfo = {
-    p: string, // path to import
-    r: boolean, // needs register
-    en?: string, // extends component name
-    e?: boolean, // needs extends
-}
+    p: string; // path to import
+    r: boolean; // needs register
+    en?: string; // extends component name
+    e?: boolean; // needs extends
+};
 
 function isComponentCall(call: CallExpression<ts.CallExpression>, functionString: string): boolean {
     const expression = call.getExpression();
@@ -34,7 +34,7 @@ function isComponentCall(call: CallExpression<ts.CallExpression>, functionString
 
     return [
         `Shopware.Component.${functionString}`,
-        `Component.${functionString}`
+        `Component.${functionString}`,
     ].includes(expression.getText());
 }
 
@@ -83,6 +83,11 @@ function buildAliasPathForArrowFunctionImport(arrowFunction: ArrowFunction, sour
 }
 
 function procsessComponentRegisterCall(sourceFile: SourceFile, call: CallExpression<ts.CallExpression>): void {
+    // `register(SwExample)` registers a mini-module component, which its `definePublicComponent()` call maps
+    if (call.getArguments()[0]?.getKind() !== ts.SyntaxKind.StringLiteral) {
+        return;
+    }
+
     const componentName = getComponentNameFromArgumentNumber(call, 1);
     throwIfComponentIsAlreadyRegistered(componentName, sourceFile);
 
@@ -97,7 +102,7 @@ function procsessComponentRegisterCall(sourceFile: SourceFile, call: CallExpress
         if (body) {
             // Get the first statement within the arrow function's body
             const firstStatement = body.getFirstChild();
-            if(!firstStatement) {
+            if (!firstStatement) {
                 // If the body is empty, we can't work with it
                 return;
             }
@@ -138,6 +143,31 @@ function procsessComponentRegisterCall(sourceFile: SourceFile, call: CallExpress
     }
 }
 
+// Maps `definePublicComponent({ name: 'sw-xyz', load: () => import('./src/sw-xyz') })` in a mini-module's index.ts
+function processDefinePublicComponentCall(sourceFile: SourceFile, call: CallExpression<ts.CallExpression>): void {
+    const declaration = call.getArguments()[0];
+    if (declaration?.getKind() !== ts.SyntaxKind.ObjectLiteralExpression) {
+        return;
+    }
+
+    const properties = declaration as ObjectLiteralExpression;
+    const componentName = properties
+        .getProperty('name')
+        ?.getFirstDescendantByKind(ts.SyntaxKind.StringLiteral)
+        ?.getLiteralText();
+    const load = properties.getProperty('load')?.getFirstDescendantByKind(ts.SyntaxKind.ArrowFunction);
+    if (!componentName || !load) {
+        return;
+    }
+
+    throwIfComponentIsAlreadyRegistered(componentName, sourceFile);
+
+    componentImportMap[componentName] = {
+        p: buildAliasPathForArrowFunctionImport(load, sourceFile),
+        r: true,
+    };
+}
+
 function procsessComponentExtendCall(sourceFile: SourceFile, call: CallExpression<ts.CallExpression>): void {
     const componentName = getComponentNameFromArgumentNumber(call, 1);
     const extendedComponentName = getComponentNameFromArgumentNumber(call, 2);
@@ -149,10 +179,7 @@ function procsessComponentExtendCall(sourceFile: SourceFile, call: CallExpressio
     // If the thirdArgument is a ArrowFunction
     if (thirdArgument.getKind() === ts.SyntaxKind.ArrowFunction) {
         // Get the import path inside the ArrowFunction
-        const importPath = thirdArgument
-            .getDescendantsOfKind(ts.SyntaxKind.StringLiteral)[0]
-            .getText()
-            .replace(/['"]/g, '');
+        const importPath = thirdArgument.getDescendantsOfKind(ts.SyntaxKind.StringLiteral)[0].getText().replace(/['"]/g, '');
 
         // Check if the import path is relative
         let aliasPath = '';
@@ -200,18 +227,19 @@ pb.start(sourceFiles.length, 0);
 
 for (const sourceFile of sourceFiles) {
     // collect all "Shopware.Component.register" or "Shopware.Component.extend" calls inside the file
-    sourceFile.getDescendantsOfKind(
-        ts.SyntaxKind.CallExpression,
-    ).forEach(call => {
-            if (isComponentCall(call, 'register')) {
-                procsessComponentRegisterCall(sourceFile, call);
-            }
-
-            if (isComponentCall(call, 'extend')) {
-                procsessComponentExtendCall(sourceFile, call);
-            }
+    sourceFile.getDescendantsOfKind(ts.SyntaxKind.CallExpression).forEach((call) => {
+        if (isComponentCall(call, 'register')) {
+            procsessComponentRegisterCall(sourceFile, call);
         }
-    );
+
+        if (isComponentCall(call, 'extend')) {
+            procsessComponentExtendCall(sourceFile, call);
+        }
+
+        if (call.getExpression().getText() === 'definePublicComponent') {
+            processDefinePublicComponentCall(sourceFile, call);
+        }
+    });
 
     // increment the progress bar
     pb.increment();
@@ -221,5 +249,5 @@ for (const sourceFile of sourceFiles) {
 pb.stop();
 
 // Write output to file
-const filestring = `/* eslint-disable */\n\nexport default ${JSON.stringify(componentImportMap)};`
+const filestring = `/* eslint-disable */\n\nexport default ${JSON.stringify(componentImportMap)};`;
 fs.writeFileSync(path.join(__dirname, '/../../test/_helper_/componentWrapper/component-imports.js'), filestring);

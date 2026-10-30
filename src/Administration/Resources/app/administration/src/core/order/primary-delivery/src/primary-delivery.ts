@@ -1,3 +1,5 @@
+import { isFeatureActive } from '../dependencies';
+
 /**
  * @sw-package checkout
  */
@@ -26,7 +28,7 @@ export type OrderWithDeliveries = {
 export function getPrimaryDelivery(order: OrderWithDeliveries): OrderDelivery | null {
     const primary = order.primaryOrderDelivery ?? findById(order.deliveries ?? [], order.primaryOrderDeliveryId);
 
-    if (primary || Shopware.Feature.isActive('v6.8.0.0')) {
+    if (primary || isFeatureActive('v6.8.0.0')) {
         return primary;
     }
 

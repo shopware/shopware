@@ -15,15 +15,16 @@ describe('sw-order-list', () => {
     it.deprecated('v6.8.0.0')('shows the same delivery as the order detail page', async () => {
         const getDeliveryState = await createDeliveryStateGetter();
         const shipped = { name: 'Shipped' };
+        const order = {
+            primaryOrderDelivery: null,
+            deliveries: [
+                { id: 'cheap', shippingCosts: { unitPrice: 5 }, stateMachineState: { name: 'Open' } },
+                { id: 'expensive', shippingCosts: { unitPrice: 10 }, stateMachineState: shipped },
+            ],
+        };
 
-        expect(
-            getDeliveryState({
-                primaryOrderDelivery: null,
-                deliveries: [
-                    { id: 'cheap', shippingCosts: { unitPrice: 5 }, stateMachineState: { name: 'Open' } },
-                    { id: 'expensive', shippingCosts: { unitPrice: 10 }, stateMachineState: shipped },
-                ],
-            }),
-        ).toBe(shipped);
+        const shown = getDeliveryState(order);
+
+        expect(shown).toBe(shipped);
     });
 });

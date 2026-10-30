@@ -1,4 +1,5 @@
 import './acl';
+import './page/sw-order-detail/register';
 
 import './mixin/cart-notification.mixin';
 

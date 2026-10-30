@@ -19,10 +19,11 @@ describe('primary-delivery', () => {
      */
     it('shows an order with its primary delivery', () => {
         const primary = delivery('primary', 5);
+        const order = createOrder({ primaryOrderDelivery: primary, deliveries: [delivery('other', 10), primary] });
 
-        expect(
-            getPrimaryDelivery(createOrder({ primaryOrderDelivery: primary, deliveries: [delivery('other', 10), primary] })),
-        ).toBe(primary);
+        const shown = getPrimaryDelivery(order);
+
+        expect(shown).toBe(primary);
     });
 
     /**
@@ -33,9 +34,10 @@ describe('primary-delivery', () => {
      */
     it.deprecated('v6.8.0.0')('shows an order without a primary delivery with its most expensive delivery', () => {
         const expensive = delivery('expensive', 10);
+        const order = createOrder({ primaryOrderDelivery: null, deliveries: [delivery('cheap', 5), expensive] });
 
-        expect(
-            getPrimaryDelivery(createOrder({ primaryOrderDelivery: null, deliveries: [delivery('cheap', 5), expensive] })),
-        ).toBe(expensive);
+        const shown = getPrimaryDelivery(order);
+
+        expect(shown).toBe(expensive);
     });
 });

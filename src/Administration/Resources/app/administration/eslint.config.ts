@@ -728,6 +728,7 @@ export default [
                 { max: 1000 },
             ],
             'sw-test-rules/require-test-origin': 'error',
+            'sw-test-rules/arrange-act-assert': 'error',
         },
     },
 

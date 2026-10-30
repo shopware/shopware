@@ -165,6 +165,7 @@ Live state transitions batch history and state writes. `EntityWriteEvent` subscr
 Moving or deleting a media folder left the previous parent's `media_folder.child_count` wrong, which shows as an expand arrow on a folder with no children.
 A full re-index also could not rebuild `media_folder.path`, which the Administration uses to find media in subfolders when searching inside a folder.
 Run `bin/console dal:refresh:index --only=media_folder.indexer` to repair existing values.
+
 ### Address validation per billing and shipping address
 
 During registration and on the checkout confirm page, the address validation definition is now also dispatched as `framework.validation.address.create.billing` and `framework.validation.address.create.shipping`, after `framework.validation.address.create`.

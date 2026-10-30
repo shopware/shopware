@@ -9,4 +9,13 @@
  * @public
  * @shopware-kind framework
  */
-export { repositoryFactory } from './src/service-names';
+export {
+    acl,
+    feature,
+    filterFactory,
+    filterService,
+    orderService,
+    orderStateMachineService,
+    repositoryFactory,
+    stateStyleDataProviderService,
+} from './src/service-names';

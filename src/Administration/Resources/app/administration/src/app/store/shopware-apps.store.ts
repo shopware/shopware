@@ -10,8 +10,14 @@ export interface ShopwareAppsState {
     selectedIds: string[];
 }
 
+/**
+ * @private
+ * The id the store is registered under, for code that looks it up with `Shopware.Store.get()`.
+ */
+export const shopwareAppsStoreId = 'shopwareApps';
+
 const shopwareApps = Shopware.Store.register({
-    id: 'shopwareApps',
+    id: shopwareAppsStoreId,
 
     state: (): {
         apps: AppModuleDefinition[];

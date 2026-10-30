@@ -1,26 +1,38 @@
 import template from './sw-order-list.html.twig';
 import './sw-order-list.scss';
-import { getPrimaryDelivery } from 'src/core/order/primary-delivery';
+import {
+    Criteria,
+    aclService,
+    featureService,
+    filterFactoryService,
+    getAppContext,
+    getAssetFilter,
+    getCurrencyFilter,
+    getDateFilter,
+    getFilterService,
+    getPrimaryDelivery,
+    isFeatureActive,
+    listingMixin,
+    repositoryFactoryService,
+    stateStyleDataProviderService,
+} from '../dependencies';
 
 /**
  * @sw-package checkout
  */
 
-const { Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
-
 export default {
     template,
 
     inject: [
-        'repositoryFactory',
-        'stateStyleDataProviderService',
-        'acl',
-        'filterFactory',
-        'feature',
+        repositoryFactoryService,
+        stateStyleDataProviderService,
+        aclService,
+        filterFactoryService,
+        featureService,
     ],
 
-    mixins: [Mixin.getByName('listing')],
+    mixins: [listingMixin],
 
     data() {
         return {
@@ -105,7 +117,7 @@ export default {
             criteria.addAssociation('primaryOrderDelivery.stateMachineState');
             criteria.addAssociation('primaryOrderDelivery.shippingOrderAddress');
 
-            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+            if (!isFeatureActive('v6.8.0.0')) {
                 criteria.addAssociation('addresses');
 
                 criteria
@@ -292,26 +304,26 @@ export default {
         },
 
         currencyFilter() {
-            return Shopware.Filter.getByName('currency');
+            return getCurrencyFilter();
         },
 
         /**
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
-            return Shopware.Filter.getByName('date');
+            return getDateFilter();
         },
 
         assetFilter() {
-            return Shopware.Filter.getByName('asset');
+            return getAssetFilter();
         },
 
         adminEsEnable() {
-            if (!Shopware.Feature.isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            if (!isFeatureActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
                 return false;
             }
 
-            return Context.app.adminEsEnable ?? false;
+            return getAppContext().adminEsEnable ?? false;
         },
     },
 
@@ -357,7 +369,7 @@ export default {
         async getList() {
             this.isLoading = true;
 
-            let criteria = await Shopware.Service('filterService').mergeWithStoredFilters(this.storeKey, this.orderCriteria);
+            let criteria = await getFilterService().mergeWithStoredFilters(this.storeKey, this.orderCriteria);
 
             if (this.adminEsEnable) {
                 criteria.setTerm(this.term);
@@ -528,7 +540,7 @@ export default {
          */
         updateCriteria(criteria) {
             // Delegate to listing mixin implementation
-            return Mixin.getByName('listing').methods.updateCriteria.call(this, criteria);
+            return listingMixin.methods.updateCriteria.call(this, criteria);
         },
 
         getStatusCriteria(value) {
@@ -543,7 +555,7 @@ export default {
             await this.$nextTick();
 
             const ordersExcludeDelivery = Object.values(this.$refs.orderGrid.selection).filter((order) => {
-                if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                if (!isFeatureActive('v6.8.0.0')) {
                     return !this.getDelivery(order);
                 }
                 return !order.primaryOrderDelivery;
@@ -562,7 +574,7 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderTransaction instead
          */
         transaction(order) {
-            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+            if (!isFeatureActive('v6.8.0.0')) {
                 if (order.primaryOrderTransaction) {
                     return order.primaryOrderTransaction;
                 }

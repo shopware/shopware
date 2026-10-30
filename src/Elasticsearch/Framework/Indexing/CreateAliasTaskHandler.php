@@ -92,6 +92,15 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
             $index = $row['index'];
             $count = (int) $row['doc_count'];
 
+            if (!$this->client->indices()->exists(['index' => $index])) {
+                $this->connection->executeStatement(
+                    'DELETE FROM elasticsearch_index_task WHERE id = :id',
+                    ['id' => $row['id']]
+                );
+
+                continue;
+            }
+
             $this->client->indices()->refresh(['index' => $index]);
 
             if ($count > 0) {

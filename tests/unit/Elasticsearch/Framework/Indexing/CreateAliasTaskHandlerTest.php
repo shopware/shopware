@@ -99,6 +99,7 @@ class CreateAliasTaskHandlerTest extends TestCase
 
         $client = static::createStub(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
+        $indices->method('exists')->willReturn(true);
 
         $indices
             ->expects($this->once())
@@ -169,6 +170,7 @@ class CreateAliasTaskHandlerTest extends TestCase
 
         $client = static::createStub(Client::class);
         $indices = static::createStub(IndicesNamespace::class);
+        $indices->method('exists')->willReturn(true);
 
         $indices
             ->method('existsAlias')
@@ -188,6 +190,46 @@ class CreateAliasTaskHandlerTest extends TestCase
         $client
             ->method('indices')
             ->willReturn($indices);
+
+        $handler = new CreateAliasTaskHandler(
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
+            $client,
+            $connection,
+            static::createStub(ElasticsearchHelper::class),
+            ['settings' => ['index' => ['number_of_replicas' => 1]]],
+            new EventDispatcher(),
+        );
+
+        $handler->run();
+    }
+
+    public function testHandleRunDropsTaskOfDeletedIndex(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                [
+                    'id' => 2,
+                    'index' => 'deleted_index',
+                    'alias' => 'alias',
+                    'doc_count' => 0,
+                ],
+            ]);
+
+        $connection
+            ->expects($this->once())
+            ->method('executeStatement');
+
+        $indices = $this->createMock(IndicesNamespace::class);
+        $indices->method('exists')->willReturn(false);
+        $indices->expects($this->never())->method('refresh');
+        $indices->expects($this->never())->method('putAlias');
+        $indices->expects($this->never())->method('updateAliases');
+
+        $client = static::createStub(Client::class);
+        $client->method('indices')->willReturn($indices);
 
         $handler = new CreateAliasTaskHandler(
             static::createStub(EntityRepository::class),

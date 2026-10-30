@@ -563,6 +563,11 @@ The other indices stay as they are.
 `bin/console es:index --only=<entities>` now creates new indices only for the given entities.
 It no longer leaves an empty index for every other entity, and it keeps the pending alias switches of other entities.
 
+### Deleted Elasticsearch index no longer blocks alias switches
+
+The `shopware.elasticsearch.create.alias` scheduled task now drops a pending alias switch whose index no longer exists, for example after `bin/console es:index:cleanup`.
+Before, such a switch failed the task on every run and blocked the alias switches of the other entities.
+
 ### Configurable last-modified version strategy for theme assets
 
 The `FlysystemLastModifiedVersionStrategy` used for theme assets can now be disabled per-shop in `config/packages/shopware.yaml`.

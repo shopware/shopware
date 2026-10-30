@@ -160,6 +160,12 @@ Unit tests that pass a mocked `EventDispatcherInterface` to `ExtensionDispatcher
 
 Live state transitions batch history and state writes. `EntityWriteEvent` subscribers can receive multiple entities: filter with `getCommandsForEntity()` and make pre-write work idempotent or compensate it through `addError()`. `WriteCommandExceptionEvent` and error callbacks can run before SQL executes, and each failed attempt runs its error callbacks before it is retried. Retries stop once success callbacks or written listeners begin, or compensation fails. MariaDB error `1020` is now retryable.
 
+### Automatically taken over SEO URLs are no longer write-protected
+
+When indexing generates an SEO URL that another entity already uses as its canonical URL, the generated URL takes it over and the other entity falls back to its oldest remaining SEO URL.
+That fallback is no longer marked as modified, so the entity gets its own URL back with its next indexing.
+A takeover by an SEO URL set in the Administration or via the API still write-protects the fallback, so later indexing does not undo the manual change.
+
 ## API
 
 ### HTTP method overrides restricted to form actions
@@ -483,6 +489,32 @@ With the `v6.8.0.0` flag active, the template no longer sets the deprecated `bre
 Use `breadcrumb` and `loop.last` instead, and pass the entries as `breadcrumb`.
 See `UPGRADE-6.8.md` for the full variable mapping.
 
+### Link categories no longer get new SEO URLs
+
+Link categories no longer get new SEO URLs during category indexing, so a link category named like its target does not take over the target's SEO URL anymore.
+Their existing SEO URLs are kept and still redirect to the link target.
+
+When several canonical SEO URLs match a request, the storefront now resolves the one stored exactly as requested.
+This ends the endless redirect between a link category and its target when their URLs differ only in case or a trailing slash.
+
+If category indexing ran on 6.7.13.0 or later, a target category can still show under a write-protected fallback URL, while a link category of the same name holds the target's URL.
+Indexing does not repair this, because the fallback is marked as modified.
+List the affected categories with:
+
+```bash
+bin/console seo:repair:link-category-takeover
+```
+
+A category whose SEO URL was set manually can appear in the list as well, so compare the creation dates of both URLs.
+Then repair all listed categories, or only the given ones:
+
+```bash
+bin/console seo:repair:link-category-takeover --apply [<category-id>...]
+```
+
+The categories get their SEO URLs back, and their fallback URLs redirect to them.
+The command is deprecated and will be removed in 6.9.0.0.
+
 ## Hosting & Configuration
 
 ### Readiness checks isolate their virtual requests
@@ -609,9 +641,6 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
-### Automatically taken over SEO URLs are no longer write-protected
-
-When indexing generates an SEO URL that another entity already uses as its canonical URL, the generated URL takes it over and the other entity falls back to its oldest remaining SEO URL. That fallback is no longer marked as modified, so the entity gets its own URL back with its next indexing. A takeover by an SEO URL set in the Administration or via the API still write-protects the fallback, so later indexing does not undo the manual change.
 ### Document-type deprecations
 
 Constructing the deprecated document-type definitions, entities and collections, including empty collections, throws when `v6.9.0.0` is active. Their getters and setters emit no deprecation notices. Use `document.typeName` and the document v2 type registry instead of the legacy DAL entities.
@@ -1450,43 +1479,6 @@ the component now loads all snippet sets and locales once in `createdComponent` 
 
 ## Storefront
 
-### Link categories no longer get new SEO URLs
-
-Link categories no longer get new SEO URLs during category indexing, so a link category named like its target does not take over the target's SEO URL anymore. Their existing SEO URLs are kept and still redirect to the link target.
-
-When several canonical SEO URLs match a request, the storefront now resolves the one stored exactly as requested. This ends the endless redirect between a link category and its target when their URLs differ only in case or a trailing slash.
-
-If category indexing ran on 6.7.13.0 or later, a target category can still show under a write-protected fallback URL, while a link category of the same name holds the target's URL. Indexing does not repair this, because the fallback is marked as modified. After updating:
-
-1. Find the affected target categories:
-
-    ```sql
-    SELECT LOWER(HEX(target.id)) AS target_id, target_t.name AS target_name,
-           target_url.seo_path_info AS target_url_now, link_url.seo_path_info AS url_held_by_link
-    FROM category link
-    JOIN category_translation link_t ON link_t.category_id = link.id AND link_t.category_version_id = link.version_id
-    JOIN category target ON target.id = link_t.internal_link AND target.version_id = link.version_id
-    JOIN category_translation target_t ON target_t.category_id = target.id AND target_t.category_version_id = target.version_id
-         AND target_t.language_id = link_t.language_id AND target_t.name = link_t.name
-    JOIN seo_url link_url ON link_url.foreign_key = link.id AND link_url.language_id = link_t.language_id
-         AND link_url.route_name = 'frontend.navigation.page' AND link_url.is_canonical = 1
-         AND link_url.is_deleted = 0 AND link_url.is_modified = 0
-    JOIN seo_url target_url ON target_url.foreign_key = target.id AND target_url.language_id = link_url.language_id
-         AND target_url.sales_channel_id = link_url.sales_channel_id
-         AND target_url.route_name = 'frontend.navigation.page' AND target_url.is_canonical = 1 AND target_url.is_modified = 1
-    WHERE link.type = 'link' AND link_t.link_type = 'category'
-      AND link.version_id = UNHEX('0FA91CE3E96A4BC2BE4BD9CE752C3425');
-    ```
-
-2. Check the list, because a target whose SEO URL was set manually also appears in it. Remove the write protection of the confirmed targets:
-
-    ```sql
-    UPDATE seo_url SET is_modified = 0
-    WHERE foreign_key IN (UNHEX('<target_id>'))
-      AND route_name = 'frontend.navigation.page' AND is_canonical = 1 AND is_modified = 1;
-    ```
-
-3. Run `bin/console dal:refresh:index --only=category.indexer`. The targets get their SEO URLs back, and their fallback URLs redirect to them.
 ### Category Twig function removal postponed to 6.9
 
 The deprecated `category_url` and `category_linknewtab` Twig functions remain available throughout 6.8 and will be removed in 6.9.0. Extension and theme developers should migrate to `category.seoUrl` (available on `SalesChannelCategoryEntity`) and `category.shouldOpenInNewTab`. See the [migration instructions](UPGRADE-6.9.md#removed-category_url-and-category_linknewtab-twig-functions).

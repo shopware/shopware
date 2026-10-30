@@ -23,6 +23,7 @@ async function createWrapper(
             stubs: {},
         },
     },
+    saveUser = () => Promise.resolve(),
 ) {
     wrapper = mount(
         await wrapTestComponent('sw-users-permissions-user-detail', {
@@ -30,6 +31,7 @@ async function createWrapper(
         }),
         {
             global: {
+                config: options.global.config,
                 directives: {
                     tooltip: {
                         beforeMount(el, binding) {
@@ -87,7 +89,7 @@ async function createWrapper(
                                             },
                                         });
                                     },
-                                    save: () => Promise.resolve(),
+                                    save: saveUser,
                                 };
                             }
 
@@ -728,6 +730,38 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
 
         expect(wrapper.vm.isLoading).toBe(false);
         expect(saveSpy).not.toHaveBeenCalled();
+    });
+
+    it.each([
+        ['USER__USERNAME_NOT_UNIQUE', 'global.error-codes.USER__USERNAME_NOT_UNIQUE'],
+        ['OTHER_ERROR', 'sw-users-permissions.users.user-detail.notification.saveError.message'],
+    ])('shows the expected save notification for %s', async (code, message) => {
+        jest.spyOn(console, 'warn').mockImplementation(() => {});
+        const error = { response: { data: { errors: [{ code }] } } };
+        const save = jest.fn().mockRejectedValue(error);
+        const notification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        await wrapper.unmount();
+        wrapper = await createWrapper(
+            ['users_and_permissions.editor'],
+            {
+                global: {
+                    config: { errorHandler: jest.fn() },
+                    stubs: {
+                        'sw-verify-user-modal': {
+                            template: '<button class="confirm-save" @click="$emit(\'verified\')">Confirm</button>',
+                        },
+                    },
+                },
+            },
+            save,
+        );
+
+        await wrapper.find('.sw-settings-user-detail__save-action').trigger('click');
+        await wrapper.find('.confirm-save').trigger('click');
+        await flushPromises();
+
+        expect(notification).toHaveBeenCalledWith(expect.objectContaining({ message }));
+        expect(save).toHaveBeenCalled();
     });
 
     it('should stop loading when email validation fails', async () => {

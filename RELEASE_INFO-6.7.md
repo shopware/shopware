@@ -14,6 +14,22 @@ HTTP caching keeps being handled by Shopware's own cache layer.
 Projects that reference the `http_cache` service must remove those references before enabling the flag.
 The flag becomes the default with Shopware 6.8.
 
+### Sensitive mail logs contain metadata only
+
+Password recovery and customer double-opt-in mail logs contain delivery metadata instead of bodies, template data or complete messages.
+Sensitive-mail error logs contain exception classes and codes instead of messages and traces.
+Shopware exceptions retain their domain error codes.
+Sensitive events no longer update stored mail-template sample data.
+Other mail types retain content logging and Administration body previews.
+Mail events implementing `MailAware` can use `#[Shopware\Core\Framework\Event\SensitiveMail]` to opt into this policy.
+Subclasses inherit the policy, and the sensitivity flag is preserved in stored and buffered flows.
+Direct callers can use `sensitive: true` in mail data or template data, or call `Mail::setSensitive(true)`.
+The classification is stored privately on the Shopware mail object and survives queue serialization.
+Messages that are not Shopware `Mail` objects, including signed messages, use metadata-only logging.
+Existing log entries and stored sample data are not modified.
+Previously queued flows retain their original classification.
+Previously queued Shopware mails without a stored flag keep the default non-sensitive classification.
+
 ### Missing plugin conditions in stored carts
 
 Stored carts can be recalculated when a rule container references a condition whose PHP class is no longer available, for example an uninstalled plugin.
@@ -71,7 +87,11 @@ Webhooks created through the Admin API without an app now belong to the user or 
   ```
 
   The list must not be empty or contain empty entries, every role must exist, and every role must be held by the owner unless the owner is an administrator. Otherwise the write is rejected with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `aclRoleIds`. If the event is not covered by the listed roles, `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` is returned, also when an administrator changes somebody else's webhook.
+* **Deleted roles:** A deleted role is removed from the `aclRoleIds` of every webhook.
+  A webhook whose last listed role is deleted keeps an empty list instead of falling back to all of its owner's roles.
 * **Event log:** `webhook_event_log` entries are only returned to administrators and to the owner of the webhook that wrote them. An app's integration sees the entries of its app's webhooks. Entries written before the update, and entries of deleted webhooks, are only returned to administrators.
+* **Refused deliveries are logged:** When a webhook's roles do not permit an event it subscribes to, the event is not sent and a `webhook_event_log` entry with the delivery status `not_permitted` and no request content is written instead.
+  These entries are removed after the same lifetime as successful and failed ones.
 
 ### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
 
@@ -200,6 +220,14 @@ Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
 ## API
+
+### Usernames with surrounding whitespace
+
+User creation and updates reject usernames containing leading or trailing whitespace, including Unicode whitespace.
+The Admin API and Sync API return HTTP 400 with code `USER__USERNAME_WHITESPACE` on the `username` field.
+Remove surrounding whitespace before submitting a username.
+Existing usernames are not changed automatically; updates that omit `username` remain possible.
+Duplicate usernames are reported with HTTP 400 and code `USER__USERNAME_NOT_UNIQUE`.
 
 ### HTTP method overrides restricted to form actions
 
@@ -383,6 +411,11 @@ Results with an `itemRoute` use the new Twig block `sw_search_bar_item_custom_ro
 
 The "Show empty snippets only" filter in the snippet list now only lists snippets without a value.
 A snippet whose value is `0` counts as translated and is no longer listed.
+
+### Meteor radio group components are available globally
+
+`mt-radio-group-root`, `mt-radio-group-item`, `mt-radio-group-custom-item` and `mt-radio-group-indicator` are registered globally, so extensions can use them in their templates without importing them.
+The CMS layout selection modal (`sw-cms-layout-modal`) uses them instead of checkboxes; its `gridPreSelection` and `selectInGrid()` are deprecated.
 
 ## API
 

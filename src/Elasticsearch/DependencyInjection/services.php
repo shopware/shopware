@@ -584,6 +584,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ElasticsearchIndexer::class),
             service('messenger.default_bus'),
             service(IndexMappingUpdater::class),
+            service('shopware.elasticsearch.logger'),
+            service(ElasticsearchRegistry::class),
         ])
         ->tag('kernel.event_listener');
 

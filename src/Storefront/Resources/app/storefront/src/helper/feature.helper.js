@@ -37,6 +37,23 @@ class FeatureSingleton {
 
         return this.flags[flagName];
     }
+
+    /**
+     * Trigger a deprecation warning or throw an error if the feature flag is active
+     *
+     * @param {string} majorFlag
+     * @param {string} message
+     */
+    triggerDeprecationOrThrow(majorFlag, message) {
+        if (this.isActive(majorFlag)) {
+            throw new Error(`Tried to access deprecated functionality: ${message}`);
+        }
+
+        if (!window.debug) {
+            return;
+        }
+        console.warn(`[Deprecated] ${message}`);
+    }
 }
 /**
  * Create the Feature instance.
@@ -70,5 +87,15 @@ export default class Feature {
      */
     static isActive(flag) {
         return FeatureInstance.isActive(flag);
+    }
+
+    /**
+     * Trigger a deprecation warning or throw an error if the feature flag is active
+     *
+     * @param {string} majorFlag
+     * @param {string} message
+     */
+    static triggerDeprecationOrThrow(majorFlag, message) {
+        FeatureInstance.triggerDeprecationOrThrow(majorFlag, message);
     }
 }

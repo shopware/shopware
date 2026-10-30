@@ -427,6 +427,12 @@ The cart, checkout and purchase events report these categories as well, without 
 
 The wishlist page holds the removal of a product back for at most one second, until `remove_from_wishlist` is sent.
 
+### Storefront analytics report `select_item` and the list of a product
+
+Storefront analytics now report `select_item`, and `view_item_list`, `select_item` and `view_item` report the list of a product as `item_list_id`, `item_list_name` and `index`.
+The list IDs, such as `category:<id>` or `search`, are a contract that Google Tag Manager triggers can rely on.
+For the search result, these events also report the query as `search_term`, so GA4 shows which products a search found.
+The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#lists) lists them and shows how extensions identify their own lists.
 ### Product box information is extendable
 
 The new Twig block `component_product_box_product_information` in `storefront/component/product/card/box-standard.html.twig` renders the `data-product-information` attribute of the product box.

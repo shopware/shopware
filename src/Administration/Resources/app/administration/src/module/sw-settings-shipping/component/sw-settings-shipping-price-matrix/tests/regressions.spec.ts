@@ -1,4 +1,5 @@
 import {
+    cloneDeep,
     createQuantityPrices,
     deletePrice,
     mountPriceMatrix,
@@ -31,7 +32,7 @@ describe('sw-settings-shipping-price-matrix', () => {
         // ARRANGE
         const prices = toRulePrices(createQuantityPrices());
         const wrapper = await mountPriceMatrix({ calculation: null, prices });
-        const untouched = Shopware.Utils.object.cloneDeep(prices);
+        const untouched = cloneDeep(prices);
         if (showAll) {
             await showAllPrices(wrapper);
         }

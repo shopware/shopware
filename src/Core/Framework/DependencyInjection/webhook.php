@@ -15,6 +15,7 @@ use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Http\AppSystemHttpMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Webhook\Authorization\EventLog\RestrictEventLogReadSubscriber;
@@ -264,8 +265,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(WriteAuthorizer::class)
         ->args([
             service(SubscriptionValidator::class),
-            service(WebhookLoader::class),
             service(AclRoleLoader::class),
+            service(WriteOutcome::class),
         ]);
 
     $services->set(SubscriptionValidator::class)

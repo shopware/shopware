@@ -43,6 +43,15 @@ export default class AjaxOffCanvas extends OffCanvas {
         // Do not pass `closable` into setContent; only delay is relevant here
         super.setContent(`<div class="offcanvas-body">${LoadingIndicator.getTemplate()}</div>`, delay);
 
+        // Lets the Twig hot reload of the watcher render the content of an open offcanvas again.
+        // A POST request must not be sent again, so only GET content gets the URL.
+        const offCanvas = OffCanvas.getOffCanvas()[0];
+        if (offCanvas && data) {
+            delete offCanvas.dataset.swSourceUrl;
+        } else if (offCanvas) {
+            offCanvas.dataset.swSourceUrl = url;
+        }
+
         const cb = (response) => {
             super.setContent(response, delay);
             // if a callback function is being injected execute it after opening the OffCanvas

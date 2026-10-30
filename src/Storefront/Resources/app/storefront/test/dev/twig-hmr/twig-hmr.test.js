@@ -99,6 +99,27 @@ describe('dev/twig-hmr', () => {
         expect(document.querySelector('.js-pseudo-modal .modal').classList.contains('show')).toBe(true);
     });
 
+    it('re-renders the content of an open AJAX offcanvas', async () => {
+        document.body.innerHTML = `
+            <main>Page</main>
+            <div class="offcanvas offcanvas-end js-offcanvas-singleton show" data-sw-source-url="/checkout/offcanvas" style="visibility: visible;">
+                <div class="offcanvas-body"><p class="part">Version 1</p></div>
+            </div>
+        `;
+        pages['http://localhost/'] = { html: page('<main>Page</main>') };
+        pages['/checkout/offcanvas'] = { html: '<div class="offcanvas-body"><p class="part">Version 2</p></div>' };
+
+        await refresh(['offcanvas-cart.html.twig']);
+
+        const offCanvas = document.querySelector('.js-offcanvas-singleton');
+        expect(global.fetch).toHaveBeenCalledWith('/checkout/offcanvas', expect.objectContaining({
+            headers: expect.objectContaining({ 'X-Requested-With': 'XMLHttpRequest' }),
+        }));
+        expect(offCanvas.querySelector('.part').textContent).toBe('Version 2');
+        expect(offCanvas.classList.contains('show')).toBe(true);
+        expect(offCanvas.style.visibility).toBe('visible');
+    });
+
     it('keeps the current DOM when the server answers with an error', async () => {
         document.body.innerHTML = '<main><p class="text">Version 1</p></main>';
         pages['http://localhost/'] = {

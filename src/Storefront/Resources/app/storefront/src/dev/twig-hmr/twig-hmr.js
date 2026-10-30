@@ -3,7 +3,7 @@
 /**
  * Applies Twig changes to the open page without a reload.
  *
- * The page and every open AJAX modal are rendered again on the server.
+ * The page, every open AJAX modal and every open AJAX offcanvas are rendered again on the server.
  * The new markup is morphed into the live DOM, so state that only exists in the browser survives:
  * open modals, offcanvas and collapse elements, typed form values and focus.
  *
@@ -48,11 +48,12 @@ const CLIENT_OWNED_SELECTOR = [
     '.modal-backdrop',
     '.offcanvas-backdrop',
     '.js-pseudo-modal',
-    '.js-off-canvas',
+    '.js-offcanvas-singleton',
     '[data-sw-twig-hmr-preserve]',
 ].join(',');
 
 const AJAX_MODAL_SELECTOR = '.js-pseudo-modal .modal[data-sw-source-url]';
+const AJAX_OFFCANVAS_SELECTOR = '.js-offcanvas-singleton[data-sw-source-url]';
 
 let isRefreshing = false;
 let pendingFiles = null;
@@ -186,6 +187,17 @@ async function refreshAjaxModal(modal) {
 }
 
 /**
+ * Mirrors `OffCanvas.setContent()`, but morphs instead of replacing the markup.
+ */
+async function refreshAjaxOffCanvas(offCanvas) {
+    const html = await fetchHtml(offCanvas.dataset.swSourceUrl, { 'X-Requested-With': 'XMLHttpRequest' });
+    const container = document.createElement('div');
+    container.innerHTML = html;
+
+    Idiomorph.morph(offCanvas, container.childNodes, morphOptions);
+}
+
+/**
  * Idiomorph only restores the focus of elements with an id. Most Storefront inputs have none.
  */
 function rememberFocus() {
@@ -228,6 +240,10 @@ export async function refresh(files) {
 
         for (const modal of document.querySelectorAll(AJAX_MODAL_SELECTOR)) {
             await refreshAjaxModal(modal);
+        }
+
+        for (const offCanvas of document.querySelectorAll(AJAX_OFFCANVAS_SELECTOR)) {
+            await refreshAjaxOffCanvas(offCanvas);
         }
 
         await window.PluginManager?.initializePlugins();

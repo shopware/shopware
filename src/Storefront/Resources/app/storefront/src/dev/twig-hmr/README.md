@@ -28,7 +28,7 @@ file save
   -> browser client
        1. fetch(location.href)
        2. morph document.body with idiomorph and keep the runtime state
-       3. fetch the source URL of every open AJAX modal and morph its content
+       3. fetch the source URL of every open AJAX modal and AJAX offcanvas and morph its content
        4. PluginManager.initializePlugins()
        5. restore the focus and the text selection
        6. dispatch "sw-twig-hmr:updated"
@@ -72,6 +72,11 @@ The document title is updated when it changed.
 The `AjaxModal` plugin stores its request URL on the modal as `data-sw-source-url`.
 The client fetches that URL with `X-Requested-With: XMLHttpRequest` and morphs the modal content like `PseudoModalUtil` would set it.
 
+**AJAX offcanvas.**
+`AjaxOffCanvas` stores the URL of a GET request on the offcanvas as `data-sw-source-url`, for example for the cart opened from the header.
+The client fetches that URL and morphs the offcanvas content like `OffCanvas.setContent()` would set it.
+Content loaded with a POST request, such as the cart after adding a product, gets no URL, because sending the request again would change data.
+
 **Plugins.**
 After the morph, the client calls `PluginManager.initializePlugins()`.
 New elements get their plugins.
@@ -98,6 +103,8 @@ These are covered by the tests in `test/dev/twig-hmr`:
   Plugins should use the PluginManager instead.
 - **Direct body children** that a template removes are kept, because the client cannot tell them apart from elements added by scripts.
   Reload the page in that case.
+- **Offcanvas content without a GET URL** keeps the old markup until it is opened again.
+  This covers the navigation offcanvas, which `OffcanvasMenuPlugin` loads itself, and offcanvas content loaded with a POST request.
 - **Plugin options** of existing elements are not applied again.
   If a template changes the options of an existing plugin element, reload the page.
 - **Head changes** are ignored except for the title.

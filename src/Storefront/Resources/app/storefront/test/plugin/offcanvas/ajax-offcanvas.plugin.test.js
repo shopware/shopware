@@ -45,6 +45,9 @@ describe('AjaxOffcanvas tests', () => {
         expect(AjaxOffcanvas.exists()).toBe(true);
         expect(document.querySelector('.offcanvas').innerHTML).toBe('<div>Interesting content from POST request</div>');
 
+        // The Twig hot reload must not send a POST request again
+        expect(document.querySelector('.offcanvas').dataset.swSourceUrl).toBeUndefined();
+
         // Ensure plugins will be re-initialized within the offcanvas
         expect(window.PluginManager.initializePluginsInParentElement).toHaveBeenCalledTimes(1);
     });
@@ -71,6 +74,9 @@ describe('AjaxOffcanvas tests', () => {
         // Ensure OffCanvas exists and has content from ajax request
         expect(AjaxOffcanvas.exists()).toBe(true);
         expect(document.querySelector('.offcanvas').innerHTML).toBe('<div>Interesting content from GET request</div>');
+
+        // The Twig hot reload renders the content again from this URL
+        expect(document.querySelector('.offcanvas').dataset.swSourceUrl).toBe('/route/action');
 
         // Ensure plugins will be re-initialized within the offcanvas
         expect(window.PluginManager.initializePluginsInParentElement).toHaveBeenCalledTimes(1);

@@ -357,9 +357,9 @@ export default class VueAdapter extends ViewAdapter {
         await this.initComponents();
 
         // initialize all module locales
-        Shopware.Feature.branch('V6_8_0_0', {
-            beforeMajor: () => this.initModuleLocales(),
-        });
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            Shopware.Feature.silence('V6_8_0_0', () => this.initModuleLocales());
+        }
 
         // initialize all module routes
         const allRoutes = this.applicationFactory.module.getModuleRoutes();

@@ -203,6 +203,10 @@ The route requires the `number_range:read` privilege.
 The number range detail page in the Administration uses it to show a warning when it loads or saves a number range with a colliding pattern.
 Saving is not blocked.
 
+### Sync API reports missing references as write errors
+
+Sync API writes that reference a missing entity or version now return a field-specific write error with HTTP 400 instead of exposing a database error as HTTP 500.
+
 ## Features
 
 ### Disable the Administration password recovery flow

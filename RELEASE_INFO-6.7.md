@@ -479,6 +479,19 @@ The profile page now shows company and VAT ID for business customers even when "
 Before, saving the profile without that setting removed the company and the VAT IDs of business customers.
 Themes that override `component_address_personal_company_section`, `component_address_personal_company` or `component_address_personal_vat_id` in `component/address/address-personal.html.twig` should check that the content also suits this case.
 
+### `pathIdList` option in NavbarPlugin stays
+
+The `pathIdList` option of `NavbarPlugin` is no longer deprecated and stays in 6.8.
+`window.activeNavigationPathIdList` still takes precedence.
+If neither is set, the plugin marks the top level item that contains the current page as active.
+
+`layout_head_javascript_navigation` in `layout/meta.html.twig` supplies missing navigation window variables after `layout_head_javascript_router`.
+Themes that replace the router block without `parent()` receive the navigation values, while custom values supplied by router overrides take precedence.
+The plugin logs a warning when it uses the option or DOM fallback, with guidance to render `window.activeNavigationPathIdList` in the page head.
+
+The `pathIdList` key of `navbarOptions` in `layout/navbar/navbar.html.twig` stays deprecated and is removed with 6.8, because the ESI-cached navbar holds the path of another page.
+Use `shopware.navigation.pathIdList` or `window.activeNavigationPathIdList` instead.
+
 ### `.btn-link-inline` follows the link decoration variables
 
 `.btn-link-inline` now uses `$link-decoration` and `$link-hover-decoration` for its underline, like regular links, instead of always being underlined.

@@ -3,9 +3,9 @@ name: Add or remove needs-triage label
 
 on:
   pull_request_target:
-    types: [opened, ready_for_review, labeled]
+    types: [opened, ready_for_review, labeled, unlabeled]
   issues:
-    types: [opened, labeled]
+    types: [opened, labeled, unlabeled]
 
 permissions:
   contents: read
@@ -16,9 +16,9 @@ jobs:
   needs-triage:
     # Decided here so other labels, drafts and test plans start no runner; the script repeats the checks for its tests.
     if: |
-      (github.event.action == 'labeled' &&
+      ((github.event.action == 'labeled' || github.event.action == 'unlabeled') &&
         (startsWith(github.event.label.name, 'domain/') || startsWith(github.event.label.name, 'service/'))) ||
-      (github.event.action != 'labeled' &&
+      (github.event.action != 'labeled' && github.event.action != 'unlabeled' &&
         !github.event.pull_request.draft &&
         !startsWith(github.event.issue.title, '[Test Plan]'))
     runs-on: ubuntu-24.04
@@ -26,8 +26,12 @@ jobs:
       # Give the labeler time to apply a domain label; a label it adds with the workflow token
       # fires no `labeled` event. A domain label assigned by hand needs no wait.
       - name: Wait 5 minutes
-        if: github.event.action != 'labeled'
+        if: github.event.action == 'opened' || github.event.action == 'ready_for_review'
         run: sleep 5m
+      # A domain label swapped in the sidebar lands within seconds; read the labels after it.
+      - name: Wait 1 minute
+        if: github.event.action == 'unlabeled'
+        run: sleep 1m
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false

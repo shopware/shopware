@@ -18,8 +18,8 @@ test('a domain or service label next to needs-triage removes needs-triage', () =
 test('assigning a domain label removes needs-triage from drafts and closed items too', () => {
     const labels = ['domain/framework', NEEDS_TRIAGE_LABEL];
 
-    assert.deepEqual(evaluateNeedsTriage(openItem({ addedLabel: 'domain/framework', labels, isDraft: true })), { action: 'remove' });
-    assert.deepEqual(evaluateNeedsTriage(openItem({ addedLabel: 'domain/framework', labels, isClosed: true })), { action: 'remove' });
+    assert.deepEqual(evaluateNeedsTriage(openItem({ changedLabel: 'domain/framework', labels, isDraft: true })), { action: 'remove' });
+    assert.deepEqual(evaluateNeedsTriage(openItem({ changedLabel: 'domain/framework', labels, isClosed: true })), { action: 'remove' });
 });
 
 test('an open item without a domain label gets needs-triage', () => {
@@ -33,10 +33,22 @@ test('an item already in the right state is kept', () => {
 });
 
 test('a label that is no domain label changes nothing', () => {
-    assert.deepEqual(evaluateNeedsTriage(openItem({ addedLabel: 'bug', labels: ['bug'] })), {
+    assert.deepEqual(evaluateNeedsTriage(openItem({ changedLabel: 'bug', labels: ['bug'] })), {
         action: 'skip',
         reason: 'label bug is no domain label',
     });
+});
+
+test('removing the last domain label adds needs-triage again', () => {
+    assert.deepEqual(evaluateNeedsTriage(openItem({ changedLabel: 'domain/framework', labels: ['bug'] })), { action: 'add' });
+});
+
+test('removing one of two domain labels keeps the item triaged', () => {
+    assert.deepEqual(evaluateNeedsTriage(openItem({ changedLabel: 'domain/framework', labels: ['service/sbp'] })), { action: 'keep' });
+});
+
+test('removing the last domain label from a draft adds nothing', () => {
+    assert.equal(evaluateNeedsTriage(openItem({ changedLabel: 'domain/framework', isDraft: true })).action, 'skip');
 });
 
 test('drafts, closed items and test plans are not triaged', () => {
@@ -89,6 +101,16 @@ test('assigning a domain label to a pull request removes needs-triage', async ()
 
 test('an opened issue without a domain label gets needs-triage', async () => {
     const { toolkit, calls } = toolkitFor('opened', ['bug'], { issue: { number: 7, state: 'open', title: 'Bug' } });
+
+    assert.deepEqual(await manageNeedsTriage(toolkit), { action: 'add' });
+    assert.deepEqual(calls, ['add needs-triage to #7']);
+});
+
+test('removing the last domain label from an issue adds needs-triage', async () => {
+    const { toolkit, calls } = toolkitFor('unlabeled', ['bug'], {
+        issue: { number: 7, state: 'open', title: 'Bug' },
+        label: { name: 'domain/framework' },
+    });
 
     assert.deepEqual(await manageNeedsTriage(toolkit), { action: 'add' });
     assert.deepEqual(calls, ['add needs-triage to #7']);

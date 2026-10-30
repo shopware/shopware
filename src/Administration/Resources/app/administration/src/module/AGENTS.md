@@ -44,6 +44,7 @@ They describe what a merchant expects, in a few tests whose titles read like sen
 Details and edge cases go into pinned tests.
 They need no comment, and an agent may write them by freezing the current behaviour.
 Each regression test has a `@regression` doc comment with the issue and what users saw.
+A test that the next major removes (`it.deprecated(...)`) also has `@deprecated tag:vX.Y.Z` in its doc comment, in every kind of spec file.
 
 Requirements, pinned and regressions specs import the module only through `../index`, so they test what other code sees.
 A change to `index.ts`, a requirement or a regression needs the owning team (`.codeowners`).

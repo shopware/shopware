@@ -8,6 +8,10 @@
  */
 const REQUIRED_TAGS = [
     {
+        file: /(^|\/)pinned\.spec\.[jt]s$/,
+        tag: null,
+    },
+    {
         file: /(^|\/)requirements\.spec\.[jt]s$/,
         tag: '@requirement',
         pattern: /@requirement\s+\S/,
@@ -44,14 +48,33 @@ function isTestDeclaration(node) {
     );
 }
 
+/**
+ * Returns true for a test that the next major removes: `it.deprecated('v6.8.0.0')(...)`.
+ *
+ * @param {import('estree').CallExpression} node
+ * @returns {boolean}
+ */
+function isDeprecatedTest(node) {
+    const callee = node.callee;
+
+    return (
+        callee.type === 'CallExpression' &&
+        callee.callee.type === 'MemberExpression' &&
+        callee.callee.property.name === 'deprecated'
+    );
+}
+
 module.exports = {
     meta: {
         type: 'suggestion',
         docs: {
-            description: 'Tests in requirements and regressions specs document where they come from',
+            description:
+                'Tests in requirements and regressions specs document where they come from, deprecated tests when they go',
         },
         messages: {
             missingOrigin: 'Add a doc comment with {{tag}} to this test: {{hint}}.',
+            missingDeprecation:
+                "Add '@deprecated tag:vX.Y.Z - <reason>' to the doc comment of this test, so it is found when the major removes it.",
         },
         schema: [],
     },
@@ -71,17 +94,17 @@ module.exports = {
                     return;
                 }
 
-                const documented = sourceCode
+                const docComments = sourceCode
                     .getCommentsBefore(node.parent)
-                    .some(
-                        (comment) =>
-                            comment.type === 'Block' &&
-                            comment.value.startsWith('*') &&
-                            required.pattern.test(comment.value),
-                    );
+                    .filter((comment) => comment.type === 'Block' && comment.value.startsWith('*'))
+                    .map((comment) => comment.value);
 
-                if (!documented) {
+                if (required.tag && !docComments.some((comment) => required.pattern.test(comment))) {
                     context.report({ node, messageId: 'missingOrigin', data: { tag: required.tag, hint: required.hint } });
+                }
+
+                if (isDeprecatedTest(node) && !docComments.some((comment) => /@deprecated tag:v\d/.test(comment))) {
+                    context.report({ node, messageId: 'missingDeprecation' });
                 }
             },
         };

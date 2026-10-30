@@ -10,9 +10,9 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore
  */
 #[Package('framework')]
-class WebhookNotPermittedError extends Error
+class WebhookNotPermittedError implements Error
 {
-    private const KEY = 'manifest-webhook-not-permitted';
+    private readonly string $message;
 
     /**
      * @param list<string> $violations
@@ -23,12 +23,10 @@ class WebhookNotPermittedError extends Error
             "This app is not permitted to subscribe to the following webhooks:\n- %s",
             implode("\n- ", $violations)
         );
-
-        parent::__construct($this->message);
     }
 
-    public function getMessageKey(): string
+    public function getMessage(): string
     {
-        return self::KEY;
+        return $this->message;
     }
 }

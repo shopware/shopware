@@ -6,11 +6,15 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\App\Validation\HookableValidatorTest
  */
 #[Package('framework')]
-class NotHookableError extends Error
+class NotHookableError implements Error
 {
-    private const KEY = 'manifest-not-hookable';
+    private readonly string $message;
 
     /**
      * @param list<string> $violations
@@ -21,12 +25,10 @@ class NotHookableError extends Error
             "The following webhooks are not hookable:\n- %s",
             implode("\n- ", $violations)
         );
-
-        parent::__construct($this->message);
     }
 
-    public function getMessageKey(): string
+    public function getMessage(): string
     {
-        return self::KEY;
+        return $this->message;
     }
 }

@@ -59,11 +59,28 @@ describe('build/webpack/twig-hmr-watcher', () => {
         expect(devServer.sendMessage).toHaveBeenCalledTimes(1);
         expect(devServer.sendMessage).toHaveBeenCalledWith(['client'], 'sw-twig-update', {
             files: ['a.html.twig', 'b.html.twig', 'c.html.twig'],
+            structural: true,
         });
 
         emit('change', 'd.html.twig');
         jest.advanceTimersByTime(50);
-        expect(devServer.sendMessage).toHaveBeenLastCalledWith(['client'], 'sw-twig-update', { files: ['d.html.twig'] });
+        expect(devServer.sendMessage).toHaveBeenLastCalledWith(['client'], 'sw-twig-update', {
+            files: ['d.html.twig'],
+            structural: false,
+        });
+    });
+
+    test.each(['add', 'unlink'])('marks a window with an %s event as structural', (event) => {
+        setupTwigHmrWatcher(devServer, [], '/project');
+
+        emit('change', 'a.html.twig');
+        emit(event, 'b.html.twig');
+        jest.advanceTimersByTime(50);
+
+        expect(devServer.sendMessage).toHaveBeenLastCalledWith(['client'], 'sw-twig-update', {
+            files: ['a.html.twig', 'b.html.twig'],
+            structural: true,
+        });
     });
 
     test('ignores directory events', () => {

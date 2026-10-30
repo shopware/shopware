@@ -30,7 +30,7 @@ function connect() {
         }
 
         if (message.type === 'sw-twig-update') {
-            void refresh(message.data?.files ?? []);
+            void refresh(message.data?.files ?? [], { structural: message.data?.structural === true });
         }
     });
 

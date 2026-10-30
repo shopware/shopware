@@ -13,6 +13,8 @@ const DEBOUNCE_MS = 50;
  * The client in `src/dev/twig-hmr/twig-hmr.client.js` renders the page again and morphs the DOM.
  *
  * Saves within the debounce window are sent as one message, so an editor that writes several files only triggers one refresh.
+ * `structural` is true if a file was added or removed. A compiled template keeps the parent that it extended when it was compiled,
+ * so the server then drops its compiled templates.
  *
  * @param {import('webpack-dev-server')} devServer
  * @param {string[]} watchPaths - glob patterns of the watched Twig files
@@ -21,6 +23,7 @@ const DEBOUNCE_MS = 50;
  */
 module.exports = function setupTwigHmrWatcher(devServer, watchPaths, projectRootPath) {
     let changedFiles = new Set();
+    let structural = false;
     let timer = null;
 
     console.log(chalk.cyan(`[sw-twig-hmr] watching ${watchPaths.length} view directories`));
@@ -36,14 +39,16 @@ module.exports = function setupTwigHmrWatcher(devServer, watchPaths, projectRoot
         }
 
         changedFiles.add(file);
+        structural = structural || event !== 'change';
         clearTimeout(timer);
         timer = setTimeout(() => {
-            const files = [...changedFiles];
+            const message = { files: [...changedFiles], structural };
             changedFiles = new Set();
+            structural = false;
 
-            console.log(chalk.cyan(`[sw-twig-hmr] ${files.join(', ')}`));
+            console.log(chalk.cyan(`[sw-twig-hmr] ${message.files.join(', ')}${message.structural ? ' (added or removed)' : ''}`));
             if (devServer.webSocketServer) {
-                devServer.sendMessage(devServer.webSocketServer.clients, 'sw-twig-update', { files });
+                devServer.sendMessage(devServer.webSocketServer.clients, 'sw-twig-update', message);
             }
         }, DEBOUNCE_MS);
     });

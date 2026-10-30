@@ -15,7 +15,7 @@
  * @private
  */
 import { Idiomorph } from 'idiomorph';
-import { createOwnership, PRESERVE_ATTRIBUTE } from './ownership';
+import { createOwnership, removeServerPreserved, PRESERVE_ATTRIBUTE } from './ownership';
 import { planPluginElements, describeElement } from './plugin-policy';
 import { createInteractionState, findInertBackground, OVERLAY_SELECTOR } from './interaction-state';
 import { addReloadReasons, setRenderError, resetNotice } from './notice';
@@ -26,6 +26,8 @@ const AJAX_MODAL_SELECTOR = '.js-pseudo-modal .modal[data-sw-source-url]';
 const AJAX_OFFCANVAS_SELECTOR = '.js-offcanvas-singleton[data-sw-source-url]';
 const FRAGMENT_SELECTOR = `${AJAX_MODAL_SELECTOR}, ${AJAX_OFFCANVAS_SELECTOR}`;
 const FRAGMENT_HEADERS = { 'X-Requested-With': 'XMLHttpRequest' };
+// Lets the server drop its compiled templates, because a compiled template keeps the parent it extended when it was compiled.
+const RESET_HEADERS = { 'sw-twig-hmr-reset': '1' };
 
 /**
  * @typedef {object} Session
@@ -41,6 +43,7 @@ const FRAGMENT_HEADERS = { 'X-Requested-With': 'XMLHttpRequest' };
 let session = null;
 let isRefreshing = false;
 let pendingFiles = null;
+let pendingStructural = false;
 
 function getHeadSignature(doc) {
     return [...doc.head.querySelectorAll('meta, link')].map((element) => element.outerHTML).join('\n');
@@ -132,7 +135,7 @@ export function init({ withBaseline = true } = {}) {
     session = {
         ownership: createOwnership(document.body),
         interaction: createInteractionState(document),
-        pageBaseline: withBaseline ? document.body.cloneNode(true) : null,
+        pageBaseline: withBaseline ? removeServerPreserved(document.body.cloneNode(true)) : null,
         headSignature: getHeadSignature(document),
         fragmentBaselines: new WeakMap(),
         sourceObserver: null,
@@ -156,6 +159,7 @@ export function reset() {
     session = null;
     isRefreshing = false;
     pendingFiles = null;
+    pendingStructural = false;
     resetNotice();
 }
 
@@ -178,6 +182,35 @@ function collectTargets() {
 function parseFragment(html) {
     const container = document.createElement('div');
     container.innerHTML = html;
+
+    return container;
+}
+
+/**
+ * Some offcanvas content is a part of the page with a fetched response inside, for example the navigation offcanvas.
+ * `data-sw-source-shell` selects that part of the page, and `data-sw-source-slot` the element in it that holds the response.
+ *
+ * @param {Element} fragment - the live modal or offcanvas
+ * @param {string} html - the response of the source URL
+ * @param {Element|null} pageRoot - the body of the matching page render
+ * @returns {Element|null} null if the page render has no matching shell
+ */
+function composeFragment(fragment, html, pageRoot) {
+    const { swSourceShell: shellSelector, swSourceSlot: slotSelector } = fragment.dataset;
+
+    if (!shellSelector) {
+        return parseFragment(html);
+    }
+
+    const shell = pageRoot?.querySelector(shellSelector);
+    const container = parseFragment(shell?.innerHTML ?? '');
+    const slot = slotSelector ? container.querySelector(slotSelector) : null;
+
+    if (!shell || !slot) {
+        return null;
+    }
+
+    slot.innerHTML = html;
 
     return container;
 }
@@ -209,10 +242,16 @@ function resolveFragmentRoot(target, nextContainer) {
     };
 }
 
-async function prepareFragment(target, html) {
+async function prepareFragment(target, html, nextPageRoot) {
     const baseline = session.fragmentBaselines.get(target.element);
     const previousHtml = baseline?.url === target.url ? await baseline.promise : null;
-    const nextContainer = parseFragment(html);
+    const nextContainer = composeFragment(target.element, html, nextPageRoot);
+    const previousContainer = previousHtml === null ? null : composeFragment(target.element, previousHtml, session.pageBaseline);
+
+    if (!nextContainer) {
+        return { ...target, html, liveRoot: target.element, title: null, nextTitle: null, nextRoot: null, previousRoot: null };
+    }
+
     const nextTitle = nextContainer.querySelector('.js-pseudo-modal-template-title-element');
     const { liveRoot, select, title } = resolveFragmentRoot(target, nextContainer);
 
@@ -223,36 +262,56 @@ async function prepareFragment(target, html) {
         title,
         nextTitle: title ? nextTitle : null,
         nextRoot: select(nextContainer),
-        previousRoot: previousHtml === null ? null : select(parseFragment(previousHtml)),
+        previousRoot: previousContainer === null ? null : select(previousContainer),
     };
+}
+
+function fetchTarget(target, headers = {}) {
+    return fetchHtml(target.url, { ...(target.kind === 'page' ? {} : FRAGMENT_HEADERS), ...headers });
+}
+
+/**
+ * @param {object[]} targets - the page first, then the fragments
+ * @param {boolean} structural - a Twig file was added or removed
+ * @returns {Promise<string[]>}
+ */
+async function fetchTargets(targets, structural) {
+    if (!structural) {
+        return Promise.all(targets.map((target) => fetchTarget(target)));
+    }
+
+    // The page request drops the compiled templates, so the fragments wait and never read a half cleared cache.
+    const [page, ...fragments] = targets;
+    const pageHtml = await fetchTarget(page, RESET_HEADERS);
+
+    return [pageHtml, ...await Promise.all(fragments.map((target) => fetchTarget(target)))];
 }
 
 /**
  * Phase 1: fetches and validates everything. Nothing in the DOM changes here.
  */
-async function prepare() {
-    const targets = collectTargets();
-    const htmls = await Promise.all(targets.map((target) => {
-        return fetchHtml(target.url, target.kind === 'page' ? {} : FRAGMENT_HEADERS);
+async function prepare(structural) {
+    const [pageTarget, ...fragmentTargets] = collectTargets();
+    const [pageHtml, ...fragmentHtmls] = await fetchTargets([pageTarget, ...fragmentTargets], structural);
+
+    const nextDocument = new DOMParser().parseFromString(pageHtml, 'text/html');
+    removeServerPreserved(nextDocument.body);
+    // Idiomorph moves the new nodes into the DOM, so the baseline is copied first.
+    const nextBaseline = nextDocument.body.cloneNode(true);
+
+    const page = {
+        ...pageTarget,
+        document: nextDocument,
+        liveRoot: pageTarget.element,
+        nextRoot: nextDocument.body,
+        previousRoot: session.pageBaseline,
+        nextBaseline,
+    };
+    const fragments = await Promise.all(fragmentTargets.map((target, index) => {
+        return prepareFragment(target, fragmentHtmls[index], nextBaseline);
     }));
 
-    return Promise.all(targets.map((target, index) => {
-        if (target.kind !== 'page') {
-            return prepareFragment(target, htmls[index]);
-        }
-
-        const nextDocument = new DOMParser().parseFromString(htmls[index], 'text/html');
-
-        return {
-            ...target,
-            document: nextDocument,
-            liveRoot: target.element,
-            nextRoot: nextDocument.body,
-            previousRoot: session.pageBaseline,
-            // Idiomorph moves the new nodes into the DOM, so the baseline is copied first.
-            nextBaseline: nextDocument.body.cloneNode(true),
-        };
-    }));
+    return [page, ...fragments];
 }
 
 /**
@@ -534,11 +593,14 @@ function rememberFocus() {
  * Calls during a running refresh are queued and run once afterwards.
  *
  * @param {string[]} files - changed Twig files, only used for logging and the event
+ * @param {{structural?: boolean}} options - `structural` if a Twig file was added or removed,
+ *     then the server drops its compiled templates before it renders the page
  * @returns {Promise<void>}
  */
-export async function refresh(files) {
+export async function refresh(files, { structural = false } = {}) {
     if (isRefreshing) {
         pendingFiles = [...(pendingFiles || []), ...files];
+        pendingStructural = pendingStructural || structural;
 
         return;
     }
@@ -549,7 +611,7 @@ export async function refresh(files) {
     const start = performance.now();
 
     try {
-        const targets = await prepare();
+        const targets = await prepare(structural);
         const restoreFocus = rememberFocus();
         const reasons = apply(targets);
 
@@ -572,8 +634,10 @@ export async function refresh(files) {
 
         if (pendingFiles) {
             const next = pendingFiles;
+            const nextStructural = pendingStructural;
             pendingFiles = null;
-            await refresh(next);
+            pendingStructural = false;
+            await refresh(next, { structural: nextStructural });
         }
     }
 }

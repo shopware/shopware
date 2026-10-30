@@ -250,6 +250,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(TwigHmrCacheSubscriber::class)
         ->args([
             param('kernel.debug'),
+            param('twig.cache'),
         ])
         ->tag('kernel.event_subscriber');
 

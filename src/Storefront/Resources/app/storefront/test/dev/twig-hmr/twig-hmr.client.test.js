@@ -65,13 +65,15 @@ describe('dev/twig-hmr/twig-hmr.client', () => {
         const [socket] = sockets;
 
         socket.emit('message', { data: JSON.stringify({ type: 'sw-twig-update', data: { files: ['a.html.twig'] } }) });
+        socket.emit('message', { data: JSON.stringify({ type: 'sw-twig-update', data: { files: ['b.html.twig'], structural: true } }) });
         socket.emit('message', { data: JSON.stringify({ type: 'sw-twig-update' }) });
         socket.emit('message', { data: JSON.stringify({ type: 'hash', data: 'abc' }) });
         socket.emit('message', { data: 'not json' });
 
         expect(refresh.mock.calls).toEqual([
-            [['a.html.twig']],
-            [[]],
+            [['a.html.twig'], { structural: false }],
+            [['b.html.twig'], { structural: true }],
+            [[], { structural: false }],
         ]);
     });
 

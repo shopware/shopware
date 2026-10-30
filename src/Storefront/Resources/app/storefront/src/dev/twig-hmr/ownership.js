@@ -11,6 +11,16 @@
 export const PRESERVE_ATTRIBUTE = 'data-sw-twig-hmr-preserve';
 
 /**
+ * Server markup that its own script fills and that changes on every request, such as the Symfony web debug toolbar.
+ * Symfony marks the toolbar for hot reloads with `data-frankenphp-hot-reload-preserve`, older versions only have the class.
+ * The live element is kept and the element of a new render is dropped.
+ */
+export const SERVER_PRESERVED_SELECTOR = [
+    '.sf-toolbar',
+    '[data-frankenphp-hot-reload-preserve]',
+].join(',');
+
+/**
  * Elements that Bootstrap and Storefront scripts create before the Twig hot reload can observe them,
  * or that a template marks as owned by scripts.
  */
@@ -20,7 +30,21 @@ export const CLIENT_OWNED_SELECTOR = [
     '.js-pseudo-modal',
     '.js-offcanvas-singleton',
     `[${PRESERVE_ATTRIBUTE}]`,
+    SERVER_PRESERVED_SELECTOR,
 ].join(',');
+
+/**
+ * Removes the server preserved elements from a render, so the morph neither matches nor duplicates them.
+ *
+ * @template {Element} T
+ * @param {T} root
+ * @returns {T}
+ */
+export function removeServerPreserved(root) {
+    root.querySelectorAll(SERVER_PRESERVED_SELECTOR).forEach((element) => element.remove());
+
+    return root;
+}
 
 /**
  * @param {HTMLElement} root - observed for elements that scripts add

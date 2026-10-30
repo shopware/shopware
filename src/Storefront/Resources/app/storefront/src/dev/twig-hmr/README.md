@@ -26,7 +26,7 @@ After every refresh, the client dispatches `sw-twig-hmr:updated` on the document
 ```text
 file save
   -> chokidar watcher in the webpack dev server (debounced 50 ms)
-  -> web socket message "sw-twig-update" { files }
+  -> web socket message "sw-twig-update" { files, structural }
   -> browser client
        1. prepare: fetch the page and every open AJAX modal and offcanvas, validate all responses
        2. apply: reject unsafe changes, morph all other responses in one synchronous step, restore the interaction state
@@ -46,12 +46,20 @@ It watches those with a `storefront` or `components` directory.
 `build/webpack/twig-hmr-watcher.js` collects the changes of 50 ms and sends them as one message through `devServer.sendMessage`.
 `awaitWriteFinish` waits until the file is completely written, because editors and file syncs such as Mutagen write in several steps.
 The Twig files are removed from `watchFiles` of the dev server, otherwise it would send a full reload.
+A batch with an added or removed file is sent with `structural: true`.
 
 ### HTTP cache
 
 Every request of the client sends the `sw-twig-hmr: 1` header.
 `TwigHmrCacheSubscriber` marks these requests as not cacheable in debug mode, so the Symfony HTTP cache neither answers nor stores them.
 A reverse proxy such as Varnish in front of the shop does not know the header and can still answer from its cache.
+
+### Added and removed templates
+
+Twig compiles the parent of `sw_extends` into the compiled template and only checks the modification time of the template itself.
+After a template was added or removed, for example a new override in a plugin, the compiled templates would keep the old inheritance chain.
+For a structural batch, the client sends `sw-twig-hmr-reset: 1` with the page request and fetches the open fragments afterwards.
+`TwigHmrCacheSubscriber` then removes the compiled templates in the `twig.cache` directory in debug mode, before anything is rendered.
 
 ### Client
 
@@ -95,6 +103,8 @@ The rejected page or fragment keeps its current content, and the notice names th
 A `MutationObserver` records every element that scripts add to the body after `init()`.
 The morph never changes these elements, and a template that would remove them is not applied.
 The same applies to elements matching `.modal-backdrop`, `.offcanvas-backdrop`, `.js-pseudo-modal`, `.js-offcanvas-singleton` or `[data-sw-twig-hmr-preserve]`.
+The Symfony web debug toolbar, `.sf-toolbar` or `[data-frankenphp-hot-reload-preserve]`, is server markup that its own script loads and that changes on every request.
+The client removes it from every render, so the live toolbar stays as it is.
 Server elements that a template removed are removed, also direct children of the body.
 The morph itself is not recorded, so elements that the template adds stay server markup.
 
@@ -131,7 +141,16 @@ The client fetches that URL with `X-Requested-With: XMLHttpRequest` and morphs t
 
 **AJAX offcanvas.**
 `AjaxOffCanvas` stores the URL of a GET request on the offcanvas as `data-sw-source-url`, for example for the cart opened from the header.
-Content loaded with a POST request, such as the cart after adding a product, gets no URL, because sending the request again would change data.
+Content loaded with a POST request gets no URL, because sending the request again would change data.
+The cart is the exception: requests that change the cart, such as adding a product, respond with the cart offcanvas.
+`OffCanvasCartPlugin` therefore stores the URL of `frontend.cart.offcanvas`, which renders the same content with a GET request.
+
+**Navigation offcanvas.**
+`OffcanvasMenuPlugin` copies a part of the page, `.js-navigation-offcanvas-initial-content`, and puts the fetched navigation into its `.navigation-offcanvas-container`.
+It stores both selectors as `data-sw-source-shell` and `data-sw-source-slot` next to the URL of the shown navigation level.
+The client composes the offcanvas the same way from the new page render and the new response.
+If the new page has no such part, the notice asks for a reload.
+After an update, the plugin drops its cached responses and binds the links that the update added.
 
 **Focus.**
 idiomorph only restores the focus of elements with an `id`.
@@ -156,6 +175,7 @@ These are covered by the tests in `test/dev/twig-hmr`:
 ## Tests
 
 - `twig-hmr.test.js` covers the refresh, the validation, the ownership and the interaction state.
+- The tests of `OffCanvasCartPlugin` and `OffcanvasMenuPlugin` cover the source attributes they store.
 - `twig-hmr.plugins.test.js` runs the real `PluginManager` with `QuantitySelectorPlugin` and a plugin that wraps its children like a slider.
 
 ## Limits
@@ -169,7 +189,7 @@ These are covered by the tests in `test/dev/twig-hmr`:
 - **Inline scripts** in morphed markup do not run again.
   Plugins should use the PluginManager instead.
 - **Offcanvas content without a GET URL** keeps the old markup until it is opened again.
-  This covers the navigation offcanvas, which `OffcanvasMenuPlugin` loads itself, and offcanvas content loaded with a POST request.
+  This covers offcanvas content loaded with a POST request, except for the cart.
 - **Head changes** other than the title ask for a reload.
 - **Duplicate ids** in the page make idiomorph match the wrong nodes.
 - **Pages reached by POST** show the result of a GET request after a refresh.

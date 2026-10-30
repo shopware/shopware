@@ -898,6 +898,105 @@ describe('dev/twig-hmr', () => {
         document.removeEventListener('sw-twig-hmr:updated', updated);
     });
 
+    it('keeps the live Symfony toolbar and ignores the one of the new render', async () => {
+        const toolbar = (token) => `<div class="sf-toolbar" data-frankenphp-hot-reload-preserve><div id="sfwdt${token}">${token}</div></div>`;
+        setup(`<main>Version 1</main>${toolbar('abc')}`);
+        // The toolbar script replaces its placeholder with the loaded toolbar.
+        document.getElementById('sfwdtabc').innerHTML = '<span class="sf-toolbar-block">Loaded</span>';
+        pages['http://localhost/'] = { html: page(`<main>Version 2</main>${toolbar('def')}`) };
+
+        await refresh(['page.html.twig']);
+
+        expect(document.querySelector('main').textContent).toBe('Version 2');
+        expect(document.querySelectorAll('.sf-toolbar')).toHaveLength(1);
+        expect(document.querySelector('#sfwdtabc .sf-toolbar-block').textContent).toBe('Loaded');
+        expect(notice()).toBeNull();
+    });
+
+    describe('with an offcanvas that holds a part of the page', () => {
+        const shell = (intro) => `
+            <div class="js-navigation-offcanvas-initial-content d-none">
+                <div class="offcanvas-body"><p class="intro">${intro}</p><div class="navigation-offcanvas-container"></div></div>
+            </div>
+        `;
+
+        async function openMenu(intro, links) {
+            pages['/widgets/menu/offcanvas'] = { html: links };
+            document.body.insertAdjacentHTML('beforeend', `
+                <div class="offcanvas offcanvas-start js-offcanvas-singleton show"
+                     data-sw-source-shell=".js-navigation-offcanvas-initial-content"
+                     data-sw-source-slot=".navigation-offcanvas-container"
+                     data-sw-source-url="/widgets/menu/offcanvas">
+                    <div class="offcanvas-body"><p class="intro">${intro}</p><div class="navigation-offcanvas-container">${links}</div></div>
+                </div>
+            `);
+            await new Promise(process.nextTick);
+        }
+
+        it('renders the page part and the response again', async () => {
+            setup(shell('Intro 1'));
+            await openMenu('Intro 1', '<a class="link">Link 1</a>');
+            pages['http://localhost/'] = { html: page(shell('Intro 2')) };
+            pages['/widgets/menu/offcanvas'] = { html: '<a class="link">Link 2</a>' };
+
+            await refresh(['navigation.html.twig']);
+
+            const offCanvas = document.querySelector('.js-offcanvas-singleton');
+            expect(offCanvas.querySelector('.intro').textContent).toBe('Intro 2');
+            expect(offCanvas.querySelector('.link').textContent).toBe('Link 2');
+            expect(offCanvas.classList.contains('show')).toBe(true);
+            expect(notice()).toBeNull();
+        });
+
+        it('asks for a reload when the new page has no such part', async () => {
+            setup(shell('Intro 1'));
+            await openMenu('Intro 1', '<a class="link">Link 1</a>');
+            pages['http://localhost/'] = { html: page('<main>No menu</main>') };
+            pages['/widgets/menu/offcanvas'] = { html: '<a class="link">Link 2</a>' };
+
+            await refresh(['header.html.twig']);
+
+            expect(document.querySelector('.js-offcanvas-singleton .link').textContent).toBe('Link 1');
+            expect(notice()).not.toBeNull();
+        });
+    });
+
+    describe('after a Twig file was added or removed', () => {
+        it('drops the compiled templates with the page request before it renders the fragments', async () => {
+            setup('<main>Version 1</main>');
+            document.body.insertAdjacentHTML('beforeend', `
+                <div class="offcanvas js-offcanvas-singleton show" data-sw-source-url="/checkout/offcanvas"><p class="part">Cart 1</p></div>
+            `);
+            pages['http://localhost/'] = { html: page('<main>Version 2</main>') };
+            pages['/checkout/offcanvas'] = { html: '<p class="part">Cart 2</p>' };
+            await new Promise(process.nextTick);
+            global.fetch.mockClear();
+
+            await refresh(['new.html.twig'], { structural: true });
+
+            expect(global.fetch.mock.calls.map(([url, { headers }]) => [url, headers['sw-twig-hmr-reset']])).toEqual([
+                ['http://localhost/', '1'],
+                ['/checkout/offcanvas', undefined],
+            ]);
+            expect(document.querySelector('main').textContent).toBe('Version 2');
+            expect(document.querySelector('.part').textContent).toBe('Cart 2');
+        });
+
+        it('keeps the reset for changes queued during a refresh', async () => {
+            setup('<main>Version 1</main>');
+            pages['http://localhost/'] = { html: page('<main>Version 2</main>') };
+
+            await Promise.all([
+                refresh(['a.html.twig']),
+                refresh(['b.html.twig'], { structural: true }),
+                refresh(['c.html.twig']),
+            ]);
+            await new Promise(process.nextTick);
+
+            expect(global.fetch.mock.calls.map(([, { headers }]) => headers['sw-twig-hmr-reset'])).toEqual([undefined, '1']);
+        });
+    });
+
     it('works without an explicit init', async () => {
         document.body.innerHTML = '<main>Version 1</main>';
         pages['http://localhost/'] = { html: page('<main>Version 2</main>') };

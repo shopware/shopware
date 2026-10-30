@@ -60,6 +60,21 @@ Anything the `public` lists leave out is private, and a meta test checks that ev
 A native-setup component leaves out `public`, because `swDefinePublic()` declares it.
 `src/` stays free of side effects apart from importing its template and styles.
 
+Everything `src/` needs from outside the module comes through `dependencies.ts`, the inward counterpart of `index.ts`:
+
+```ts
+// dependencies.ts
+export { default as Criteria } from 'src/core/data/criteria.data';
+export { default as notificationMixin } from 'src/app/mixin/notification.mixin';
+export { repositoryFactory as repositoryFactoryService } from 'src/app/service-names';
+export const getApiContext = () => Shopware.Context.api;
+```
+
+`src/` never mentions the `Shopware` global and imports nothing from outside the module except `../dependencies`.
+Anything that has a module to import is imported, not looked up by a written name.
+Where a name stays necessary, like `inject`, the name is imported from the module that owns it.
+`dependencies.ts` has no side effects: anything that must run, or read state that changes, is a function that runs when it is used.
+
 Requirement tests stay rough.
 They describe what a merchant expects, in a few tests whose titles read like sentences, and each one has a `@requirement` doc comment that says why.
 Details and edge cases go into pinned tests.

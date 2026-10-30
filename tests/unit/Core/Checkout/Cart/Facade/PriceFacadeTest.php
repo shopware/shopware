@@ -22,6 +22,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -30,6 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -91,6 +94,35 @@ class PriceFacadeTest extends TestCase
 
         static::assertSame($unit, $price->getUnit());
         static::assertSame($tax, $price->getTaxes()->getAmount());
+    }
+
+    #[DataProvider('providerTaxFreeProductTypeItems')]
+    public function testChangeUsesNetPriceForTaxFreeProductType(Entity|LineItem $item): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $context->setTaxState(CartPrice::TAX_STATE_GROSS);
+        $context->setTaxFreeProductTypes([ProductDefinition::TYPE_DIGITAL]);
+
+        $original = new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection([new TaxRule(0.0)]));
+        $price = new PriceFacade($item, $original, $this->createPriceStubs(), $context);
+
+        $price->change(new PriceCollection([
+            new Price(Defaults::CURRENCY, 2, 5, false),
+        ]));
+
+        static::assertSame(2.0, $price->getUnit());
+        static::assertSame(0.0, $price->getTaxes()->getAmount());
+    }
+
+    public static function providerTaxFreeProductTypeItems(): \Generator
+    {
+        $lineItem = new LineItem('digital', LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $lineItem->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
+        yield 'cart line item' => [$lineItem];
+
+        $product = new SalesChannelProductEntity();
+        $product->setType(ProductDefinition::TYPE_DIGITAL);
+        yield 'product' => [$product];
     }
 
     #[DataProvider('providerDiscount')]
@@ -204,18 +236,6 @@ class PriceFacadeTest extends TestCase
     {
         $entity = new Entity();
 
-        $quantityCalculator = new QuantityPriceCalculator(
-            new GrossPriceCalculator(new TaxCalculator(), new CashRounding()),
-            new NetPriceCalculator(new TaxCalculator(), new CashRounding())
-        );
-
-        $stubs = new ScriptPriceStubs(
-            // not necessary for this test
-            static::createStub(Connection::class),
-            $quantityCalculator,
-            new PercentagePriceCalculator(new CashRounding(), $quantityCalculator, new PercentageTaxRuleBuilder()),
-        );
-
         $original = new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(new TaxRuleCollection([new TaxRule(10)])));
 
         // mock context to simulate currency and tax states
@@ -226,8 +246,24 @@ class PriceFacadeTest extends TestCase
 
         // we also want to test different tax states (gross/net)
         $context->method('getTaxState')->willReturn($taxState);
+        $context->method('getProductTaxState')->willReturn($taxState);
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
-        return new PriceFacade($entity, $original, $stubs, $context);
+        return new PriceFacade($entity, $original, $this->createPriceStubs(), $context);
+    }
+
+    private function createPriceStubs(): ScriptPriceStubs
+    {
+        $quantityCalculator = new QuantityPriceCalculator(
+            new GrossPriceCalculator(new TaxCalculator(), new CashRounding()),
+            new NetPriceCalculator(new TaxCalculator(), new CashRounding())
+        );
+
+        return new ScriptPriceStubs(
+            // not necessary for this test
+            static::createStub(Connection::class),
+            $quantityCalculator,
+            new PercentagePriceCalculator(new CashRounding(), $quantityCalculator, new PercentageTaxRuleBuilder()),
+        );
     }
 }

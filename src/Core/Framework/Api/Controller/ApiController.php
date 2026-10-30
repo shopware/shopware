@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaPathWriteValidator;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
@@ -95,6 +97,8 @@ class ApiController extends AbstractController
         if ($missing) {
             throw ApiException::missingPrivileges([$missing]);
         }
+
+        $this->validateCloneOverwrites($definition, $behavior->getOverwrites());
 
         $eventContainer = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($definition, $id, $behavior): EntityWrittenContainerEvent {
             $entityRepo = $this->definitionRegistry->getRepository($definition->getEntityName());
@@ -1074,5 +1078,71 @@ class ApiController extends AbstractController
         }
 
         return $definition;
+    }
+
+    /**
+     * The clone is written in system scope, which skips the media write validation.
+     * Media storage fields in the request overwrites, also nested ones, must therefore follow the same rules as a direct write.
+     *
+     * @param array<array-key, mixed> $overwrites
+     */
+    private function validateCloneOverwrites(EntityDefinition $definition, array $overwrites, string $path = ''): void
+    {
+        foreach ($overwrites as $propertyName => $value) {
+            $propertyPath = $path . $propertyName;
+
+            // The writer merges extensions into the root payload, so their fields need the same checks
+            if ($propertyName === 'extensions' && \is_array($value)) {
+                $this->validateCloneOverwrites($definition, $value, $path);
+
+                continue;
+            }
+
+            $field = $definition->getFields()->get((string) $propertyName);
+
+            if ($field instanceof AssociationField && \is_array($value)) {
+                $this->validateNestedCloneOverwrites($field, $value, $propertyPath . '.');
+
+                continue;
+            }
+
+            if ($field !== null && !$this->isValidMediaStorageValue($definition, $field, $value)) {
+                throw ApiException::invalidCloneOverwrite($propertyPath);
+            }
+        }
+    }
+
+    /**
+     * @param array<array-key, mixed> $value
+     */
+    private function validateNestedCloneOverwrites(AssociationField $field, array $value, string $path): void
+    {
+        $referenceDefinition = $field instanceof ManyToManyAssociationField
+            ? $field->getToManyReferenceDefinition()
+            : $field->getReferenceDefinition();
+
+        if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
+            $this->validateCloneOverwrites($referenceDefinition, $value, $path);
+
+            return;
+        }
+
+        foreach ($value as $key => $item) {
+            if (\is_array($item)) {
+                $this->validateCloneOverwrites($referenceDefinition, $item, $path . $key . '.');
+            }
+        }
+    }
+
+    private function isValidMediaStorageValue(EntityDefinition $definition, Field $field, mixed $value): bool
+    {
+        try {
+            // A nested overwrite with the id of an existing media is written as an update, so null would reset its stored path
+            MediaPathWriteValidator::validateStorageValue($definition->getEntityName(), $field->getPropertyName(), $value, allowNullPath: false);
+        } catch (MediaException) {
+            return false;
+        }
+
+        return true;
     }
 }

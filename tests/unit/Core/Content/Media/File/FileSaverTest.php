@@ -363,6 +363,27 @@ class FileSaverTest extends TestCase
         static::assertSame('foobar', $update[0]['fileName']);
     }
 
+    public function testRenameExternalMediaOnlyUpdatesFileName(): void
+    {
+        $filesystemPublic = $this->createMock(FilesystemOperator::class);
+        $filesystemPublic->expects($this->never())->method('move');
+
+        $media = new MediaEntity();
+        $media->setId(Uuid::randomHex());
+        $media->setFileName('photo');
+        $media->setFileExtension('png');
+        $media->setPath('https://cdn.example.com/../../document/invoice.pdf');
+        $media->setPrivate(false);
+
+        $this->mediaRepository->addSearch(new MediaCollection([$media]), new MediaCollection());
+
+        $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
+
+        $this->createFileSaver($filesystemPublic)->renameMedia($media->getId(), 'renamed', $context);
+
+        static::assertSame([[['id' => $media->getId(), 'fileName' => 'renamed']]], $this->mediaRepository->updates);
+    }
+
     public function testRenameMediaWithInvalidThumbnail(): void
     {
         $mediaId = Uuid::randomHex();

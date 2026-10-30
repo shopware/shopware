@@ -35,6 +35,12 @@ readonly class MediaFileCleanupService
             return;
         }
 
+        if (MediaUploadService::isExternalUrl($media->getPath())) {
+            $this->deleteThumbnails($media, $context);
+
+            return;
+        }
+
         $filesystem = $media->isPrivate() ? $this->filesystemPrivate : $this->filesystemPublic;
 
         try {

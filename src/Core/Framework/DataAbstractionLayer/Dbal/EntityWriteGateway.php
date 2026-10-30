@@ -822,7 +822,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 }
 
                 // if the value did not change, we can ignore it
-                if (!$changeset->getAfter($immutableField)) {
+                if (!$changeset->hasChanged($immutableField)) {
                     continue;
                 }
 

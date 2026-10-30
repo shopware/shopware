@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Acl\AclWriteValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -37,10 +38,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Clock\NativeClock;
@@ -659,6 +662,9 @@ class VersionManagerTest extends TestCase
             'versionDefinition' => static::createStub(VersionDefinition::class),
             'lockFactory' => static::createStub(LockFactory::class),
             'clock' => new NativeClock(),
+            'writeCommandExtractor' => static::createStub(WriteCommandExtractor::class),
+            'aclWriteValidator' => static::createStub(AclWriteValidator::class),
+            'languageLoader' => static::createStub(LanguageLoaderInterface::class),
         ];
 
         $params = array_merge($defaults, $overrides);
@@ -675,7 +681,10 @@ class VersionManagerTest extends TestCase
             $params['versionCommitDataDefinition'],
             $params['versionDefinition'],
             $params['lockFactory'],
-            $params['clock']
+            $params['clock'],
+            $params['writeCommandExtractor'],
+            $params['aclWriteValidator'],
+            $params['languageLoader']
         );
     }
 }

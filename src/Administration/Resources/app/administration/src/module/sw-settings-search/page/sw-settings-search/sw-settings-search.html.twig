@@ -58,7 +58,10 @@
             </template>
 
             <template v-else>
-                <sw-tabs position-identifier="sw-settings-search-header">
+                <sw-tabs
+                    v-silence-flag="'V6_9_0_0'"
+                    position-identifier="sw-settings-search-header"
+                >
                     {% block sw_setting_search_tabs_general %}
                     <sw-tabs-item
                         v-bind="$props"

@@ -87,6 +87,7 @@ A response is not applied at all if it would remove one of these elements, direc
 - a direct body child that an open overlay made inert
 
 While an overlay makes the rest of the page inert, a response that adds a direct body child is not applied either.
+A response is also not applied if idiomorph would match new markup with an element that a script added, because the morph would skip that markup.
 The offcanvas plugin only restores the background elements it recorded when it opened, so a new element would stay outside its cleanup.
 The rejected page or fragment keeps its current content, and the notice names the elements and asks for a reload.
 
@@ -147,6 +148,9 @@ These are covered by the tests in `test/dev/twig-hmr`:
 - `beforeNodeRemoved` is not called for elements with an id that idiomorph moves.
   An element with an id that the new markup no longer contains at the same place goes to a hidden pantry and is removed with it after the morph, without any callback.
   This is why the client checks removals with a dry run on a copy instead of relying on the callbacks.
+- idiomorph matches nodes differently around the focused element, which it reads from `ownerDocument.activeElement`.
+  A detached copy has no focused element, so the dry run gives the copy a document that reports the copy of the focused element.
+  Without it, the dry run can approve a change that the real morph applies differently.
 - `restoreFocus: true` only works for focused elements with an `id`.
 
 ## Tests

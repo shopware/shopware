@@ -114,6 +114,20 @@ describe('dev/twig-hmr with real plugins', () => {
         expect(document.getElementById(NOTICE_ID).textContent).toContain('The template removes <div#gallery.slider>, which holds the plugins Track.');
     });
 
+    it('never removes a plugin element when the focus changes how the morph matches elements', async () => {
+        await load('<main><div><input name="search"></div><div id="kept" data-track>Plugin</div></main>');
+        const sliderElement = document.getElementById('kept');
+        const instance = PluginManager.getPluginInstanceFromElement(sliderElement, 'Track');
+        document.querySelector('input').focus();
+        pages['http://localhost/'] = page('<main><input name="search"><div id="kept" data-track>Plugin</div></main>');
+
+        await refresh(['search.html.twig']);
+
+        expect(sliderElement.isConnected).toBe(true);
+        expect(document.getElementById('kept')).toBe(sliderElement);
+        expect(PluginManager.getPluginInstanceFromElement(sliderElement, 'Track')).toBe(instance);
+    });
+
     it('keeps unchanged plugins as they are over repeated updates', async () => {
         await load(`<h1>Version 1</h1>${quantitySelector('plus')}${slider()}`);
         const sliderElement = document.querySelector('[data-track]');

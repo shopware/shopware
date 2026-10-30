@@ -511,6 +511,20 @@ describe('dev/twig-hmr', () => {
         expect(notice().textContent).toContain('The template adds <footer> while an open overlay makes the rest of the page inert.');
     });
 
+    it('keeps the page when new markup would be matched with an element that a script added', async () => {
+        setup('<main><p class="text">Version 1</p></main>');
+        document.body.insertAdjacentHTML('beforeend', '<div class="offcanvas js-offcanvas-singleton show">Cart</div>');
+        document.querySelector('main').setAttribute('inert', '');
+        pages['http://localhost/'] = { html: page('<main><p class="text">Version 2</p></main><div class="newsletter">New</div>') };
+
+        await refresh(['newsletter.html.twig']);
+
+        expect(document.querySelector('.text').textContent).toBe('Version 1');
+        expect(document.querySelector('.offcanvas').textContent).toBe('Cart');
+        expect(notice().textContent).toContain('New markup was matched with <div.offcanvas.js-offcanvas-singleton>, which a script added.');
+        expect(notice().textContent).toContain('The page of http://localhost/ keeps its current content.');
+    });
+
     it.each([
         ['a server ancestor', '<main><div class="wrapper"><p class="text">Version 1</p></div></main>', '<main><p class="text">Version 2</p></main>'],
         ['an ancestor that idiomorph moves to its pantry', '<main><div class="wrapper"><p id="text">Version 1</p></div></main>', '<main><p id="text">Version 2</p></main>'],

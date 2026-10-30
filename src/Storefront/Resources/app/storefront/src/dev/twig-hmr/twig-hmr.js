@@ -259,9 +259,11 @@ async function prepare() {
  * @param {object} target
  * @param {Map<Element, object>} plan
  * @param {string[]} reasons
- * @param {function(Node): Node} toLive - maps the nodes of a dry run to the live nodes
+ * @param {{toLive: function(Node): Node, scriptMatches: Element[]}|null} dryRun - maps the nodes of a dry run to the live nodes
+ *     and collects the elements of scripts that new markup was matched with
  */
-function createMorphCallbacks(target, plan, reasons, toLive = (node) => node) {
+function createMorphCallbacks(target, plan, reasons, dryRun = null) {
+    const toLive = dryRun?.toLive ?? ((node) => node);
     const insideFragment = target.kind !== 'page';
     const { ownership, interaction } = session;
 
@@ -276,6 +278,7 @@ function createMorphCallbacks(target, plan, reasons, toLive = (node) => node) {
             if (ownership.isClientOwned(oldNode, insideFragment)) {
                 if (!oldNode.hasAttribute(PRESERVE_ATTRIBUTE)) {
                     reasons.push(`New markup was matched with ${describeElement(oldNode)}, which a script added.`);
+                    dryRun?.scriptMatches.push(oldNode);
                 }
 
                 return false;
@@ -335,11 +338,36 @@ function collectGuardedElements(target, plan) {
 }
 
 /**
+ * idiomorph matches nodes differently around the focused element and reads the focus from `ownerDocument`.
+ * The detached copy gets a document that reports the copy of the focused element, so the dry run matches like the morph.
+ */
+function mirrorFocus(copy, toCopy) {
+    const activeElement = toCopy.get(document.activeElement);
+
+    if (!activeElement) {
+        return;
+    }
+
+    const doc = new Proxy(document, {
+        get(target, property) {
+            if (property === 'activeElement') {
+                return activeElement;
+            }
+
+            const value = Reflect.get(target, property, target);
+
+            return typeof value === 'function' ? value.bind(target) : value;
+        },
+    });
+    Object.defineProperty(copy, 'ownerDocument', { value: doc });
+}
+
+/**
  * Runs the morph on a detached copy first. Idiomorph removes nodes in several ways,
  * for example together with an ancestor or from its pantry of nodes with an id, without calling a callback.
  * Comparing the copy afterwards finds every removal.
  *
- * @returns {string[]} the reasons why the morph is unsafe
+ * @returns {{guarded: Map<Element, string>, reasons: string[]}} the guarded elements and why the morph is unsafe
  */
 function findUnsafeChanges(target, plan) {
     const guarded = collectGuardedElements(target, plan);
@@ -351,7 +379,7 @@ function findUnsafeChanges(target, plan) {
     });
 
     if (guarded.size === 0) {
-        return [];
+        return { guarded, reasons: [] };
     }
 
     const copy = target.liveRoot.cloneNode(true);
@@ -360,14 +388,22 @@ function findUnsafeChanges(target, plan) {
     const toLive = new Map(copyElements.map((element, index) => [element, liveElements[index]]));
     const toCopy = new Map(liveElements.map((element, index) => [element, copyElements[index]]));
 
+    const scriptMatches = [];
+    mirrorFocus(copy, toCopy);
     Idiomorph.morph(copy, target.nextRoot.cloneNode(true).childNodes, {
         morphStyle: 'innerHTML',
-        callbacks: createMorphCallbacks(target, plan, [], (node) => toLive.get(node) ?? node),
+        restoreFocus: false,
+        callbacks: createMorphCallbacks(target, plan, [], { toLive: (node) => toLive.get(node) ?? node, scriptMatches }),
     });
 
     const reasons = [...guarded]
         .filter(([element]) => !copy.contains(toCopy.get(element)))
         .map(([element, reason]) => `The template removes ${describeElement(element)}, which ${reason}.`);
+
+    // The morph would skip the new markup and leave the page between the old and the new render.
+    scriptMatches.forEach((element) => {
+        reasons.push(`New markup was matched with ${describeElement(element)}, which a script added.`);
+    });
 
     // The overlay only restores the background elements that it made inert itself.
     if (inertBackground.length > 0) {
@@ -378,7 +414,7 @@ function findUnsafeChanges(target, plan) {
             });
     }
 
-    return reasons;
+    return { guarded, reasons };
 }
 
 /**
@@ -400,7 +436,7 @@ function morphTarget(target, reasons) {
         },
     });
 
-    const unsafe = findUnsafeChanges(target, plan);
+    const { guarded, reasons: unsafe } = findUnsafeChanges(target, plan);
     if (unsafe.length > 0) {
         reasons.push(...unsafe, `The ${target.kind} of ${target.url} keeps its current content.`);
 
@@ -418,6 +454,13 @@ function morphTarget(target, reasons) {
         morphStyle: 'innerHTML',
         restoreFocus: true,
         callbacks: createMorphCallbacks(target, plan, reasons),
+    });
+
+    // The dry run should have rejected this. Never let the page look updated if the morph still removed a guarded element.
+    guarded.forEach((reason, element) => {
+        if (!element.isConnected) {
+            reasons.push(`The morph removed ${describeElement(element)}, which ${reason}. The page may no longer work as expected.`);
+        }
     });
 
     return true;

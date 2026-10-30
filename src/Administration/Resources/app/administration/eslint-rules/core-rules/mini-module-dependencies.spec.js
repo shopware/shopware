@@ -75,6 +75,12 @@ export const getApiContext = () => Shopware.Context.api;`,
                 errors: [{ messageId: 'stringName' }],
             },
             {
+                name: 'dependencies.ts looks a filter up by a written name',
+                filename: `${moduleRoot}/dependencies.ts`,
+                code: "export const getCurrencyFilter = () => Shopware.Filter.getByName('currency');",
+                errors: [{ messageId: 'stringName' }],
+            },
+            {
                 name: 'dependencies.ts calls something when it loads',
                 filename: `${moduleRoot}/dependencies.ts`,
                 code: 'export const notificationMixin = Shopware.Mixin.getByName(notification);',

@@ -31,7 +31,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
@@ -363,7 +362,6 @@ class PromotionCalculatorTest extends TestCase
         $product2 = $this->createProduct();
         $product3 = $this->createProduct();
 
-        /** @var AbstractSalesChannelContextFactory $factory */
         $factory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $factory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
@@ -389,7 +387,6 @@ class PromotionCalculatorTest extends TestCase
         $lineItem3 = new LineItem($product3, LineItem::PRODUCT_LINE_ITEM_TYPE, $product2);
         $lineItem3->setRemovable(true);
 
-        /** @var CartService $cartService */
         $cartService = static::getContainer()->get(CartService::class);
         $cart = $cartService->createNew('test-token');
 

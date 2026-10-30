@@ -277,7 +277,6 @@ class ProductConfiguratorOrderTest extends TestCase
         $this->addTaxDataToSalesChannel($this->context, $tax);
 
         $criteria = new Criteria([$variantId]);
-        /** @var SalesChannelProductEntity $salesChannelProduct */
         $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->getEntities()->first();
 
         static::assertInstanceOf(SalesChannelProductEntity::class, $salesChannelProduct);

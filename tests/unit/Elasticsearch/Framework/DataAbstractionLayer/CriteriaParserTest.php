@@ -62,7 +62,6 @@ class CriteriaParserTest extends TestCase
 
         $definition = $this->getDefinition();
 
-        /** @var CompositeAggregation $esAgg */
         $esAgg = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             static::createStub(CustomFieldService::class),

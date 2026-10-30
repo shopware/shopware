@@ -21,10 +21,8 @@ class EntityDefinitionServiceTest extends TestCase
     {
         $problematicEntities = [];
 
-        /** @var EntityDefinitionService $entityDefinitionService */
         $entityDefinitionService = static::getContainer()->get(EntityDefinitionService::class);
 
-        /** @var UsageDataAllowListService $usageDataAllowListService */
         $usageDataAllowListService = static::getContainer()->get(UsageDataAllowListService::class);
 
         foreach ($entityDefinitionService->getAllowedEntityDefinitions() as $entityDefinition) {
@@ -65,7 +63,6 @@ class EntityDefinitionServiceTest extends TestCase
     {
         $problematicEntities = [];
 
-        /** @var EntityDefinitionService $service */
         $service = static::getContainer()->get(EntityDefinitionService::class);
 
         foreach ($service->getAllowedEntityDefinitions() as $entityDefinition) {

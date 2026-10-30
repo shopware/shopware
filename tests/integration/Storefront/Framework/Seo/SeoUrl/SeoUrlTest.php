@@ -590,7 +590,6 @@ class SeoUrlTest extends TestCase
             $category = $categoryRepository->search($criteria, $context)->getEntities()->first();
             static::assertSame($case['categoryId'], $category->getId());
 
-            /** @var SeoUrlCollection $seoUrls */
             $seoUrls = $category->getSeoUrls();
             static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
 
@@ -610,7 +609,6 @@ class SeoUrlTest extends TestCase
                 continue;
             }
 
-            /** @var SeoUrlEntity $canonicalUrl */
             $canonicalUrl = $seoUrls
                 ->filterByProperty('isCanonical', true)
                 ->filterByProperty('salesChannelId', $salesChannelId)

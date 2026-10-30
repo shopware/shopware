@@ -24,7 +24,7 @@ A mini-module is a directory that works like a small library, with a public API 
 order-delivery/
 ├── index.ts                  # The public API, for other Administration code and for extensions, every export marked @public
 ├── private.ts                # Optional: an API for Administration code only, every export marked @private
-├── src/                      # The implementation, imported only by index.ts, private.ts and src/ itself, no markers
+├── src/                      # The implementation, imported only by index.ts, private.ts and src/ itself
 └── tests/
     ├── requirements.spec.ts  # What someone decided, from the user's point of view
     ├── pinned.spec.ts        # The details and edge cases, as they behave today
@@ -36,8 +36,8 @@ Import a mini-module through its directory, which resolves to `index.ts`.
 An import of `.../private` from outside the module fails the lint unless the line disables the rule and says why, so every use of a private API shows up in review.
 Every export of `index.ts` is marked `@public`, and changes to it follow the deprecation process.
 Every export of `private.ts` is marked `@private`, and `private.ts` never reaches extensions.
-Exports in `src/` carry no marker, because the location already says they are private.
-A marker anywhere else in a mini-module means the export is in the wrong file, and `@public` outside a mini-module's `index.ts` is not allowed at all.
+Exports in `src/` and `dependencies.ts` carry a marker too, so the source shows what is exposed: `@public` when `index.ts` exposes the export, `@private` otherwise.
+Outside mini-modules, `@public` is not allowed at all.
 
 A component in a mini-module declares itself in `index.ts` and registers in `register.ts`, the only file with side effects:
 

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\Cms;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -17,7 +16,6 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
@@ -47,9 +45,7 @@ class BuyBoxCmsElementResolverTest extends TestCase
     public function testEnrichBuyBox(): void
     {
         $configurationLoader = static::createStub(ProductConfiguratorLoader::class);
-        /** @var EntityRepository<ProductReviewCollection>&MockObject */
-        $repository = static::createStub(EntityRepository::class);
-        $repository->method('aggregate')->willReturn(new AggregationResultCollection());
+        $repository = StaticEntityRepository::of(ProductReviewCollection::class, [new AggregationResultCollection()]);
 
         $resolver = new BuyBoxCmsElementResolver($configurationLoader, $repository);
 

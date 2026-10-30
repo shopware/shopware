@@ -219,6 +219,12 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
+### Aggregations in the static test repositories
+
+`StaticEntityRepository::aggregate()` and `StaticSalesChannelRepository::aggregate()` now return the next queued `AggregationResultCollection`, or the result of a queued callable, instead of failing.
+`StaticSalesChannelRepository::of()` binds the collection type like `StaticEntityRepository::of()`.
+Tests that mock `EntityRepository::aggregate()` can use the static repositories instead.
+
 ## API
 
 ### Usernames with surrounding whitespace

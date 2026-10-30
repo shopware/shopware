@@ -47,6 +47,23 @@ class StaticSalesChannelRepository extends SalesChannelRepository
         }
     }
 
+    /**
+     * Pins the generic without a call-site annotation when the searches carry no typed
+     * collection to infer it from (empty list, id lists for searchIds, callables).
+     *
+     * @template TCollection of EntityCollection
+     *
+     * @param class-string<TCollection> $collectionClass used only to bind the template
+     * @param array<mixed> $searches
+     *
+     * @return StaticSalesChannelRepository<TCollection>
+     */
+    public static function of(string $collectionClass, array $searches = [], ?EntityDefinition $definition = null): self
+    {
+        /** @var StaticSalesChannelRepository<TCollection> */
+        return new self($searches, $definition);
+    }
+
     public function search(Criteria $criteria, SalesChannelContext $salesChannelContext): EntitySearchResult
     {
         $result = \array_shift($this->searches);
@@ -120,7 +137,17 @@ class StaticSalesChannelRepository extends SalesChannelRepository
 
     public function aggregate(Criteria $criteria, SalesChannelContext $salesChannelContext): AggregationResultCollection
     {
-        throw new \Exception('Aggregate is not implemented in static repository');
+        $result = \array_shift($this->searches);
+
+        if (\is_callable($result)) {
+            $result = $result($criteria, $salesChannelContext);
+        }
+
+        if (!$result instanceof AggregationResultCollection) {
+            throw new \RuntimeException('Invalid mock repository configuration');
+        }
+
+        return $result;
     }
 
     /**

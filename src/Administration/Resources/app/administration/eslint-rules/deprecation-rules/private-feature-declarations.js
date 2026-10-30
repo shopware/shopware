@@ -13,7 +13,7 @@ const isMiniModuleRoot = (directory) => ['index.ts', 'src', 'tests'].every((entr
  * Its `index.ts` is public API, also for extensions, and every export there is marked `@public`.
  * Its `private.ts` is for Administration code only, and every export there is marked `@private`.
  * Its `register.ts` registers what `index.ts` declares, so it needs no marker either.
- * Its `src/` is only reachable through `index.ts` and `private.ts`, so its exports carry no marker:
+ * Its `src/` and `dependencies.ts` are only reachable through `index.ts` and `private.ts`, so their exports carry no marker:
  * an export marked `@public` belongs in `index.ts`, one marked `@private` in `private.ts`.
  *
  * @example
@@ -24,9 +24,9 @@ const isMiniModuleRoot = (directory) => ['index.ts', 'src', 'tests'].every((entr
  * @returns {'index'|'private'|'register'|'src'|null}
  */
 const getMiniModulePart = (filename) => {
-    const entry = /^(index|private|register)\.[jt]s$/.exec(path.basename(filename));
+    const entry = /^(index|private|register|dependencies)\.[jt]s$/.exec(path.basename(filename));
     if (entry && isMiniModuleRoot(path.dirname(filename))) {
-        return entry[1];
+        return entry[1] === 'dependencies' ? 'src' : entry[1];
     }
 
     const segments = filename.split(path.sep);

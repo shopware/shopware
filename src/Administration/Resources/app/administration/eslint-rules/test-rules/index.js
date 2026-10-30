@@ -10,5 +10,6 @@ module.exports = {
         'stabilize-feature-flag': require(path.resolve(__dirname, 'stabilize-feature-flag.js')),
         'test-file-max-lines-warning': require(path.resolve(__dirname, 'test-file-max-lines/warning.js')),
         'test-file-max-lines-error': require(path.resolve(__dirname, 'test-file-max-lines/error.js')),
+        'require-test-origin': require(path.resolve(__dirname, 'require-test-origin.js')),
     },
 };

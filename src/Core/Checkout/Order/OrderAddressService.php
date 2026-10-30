@@ -167,7 +167,7 @@ class OrderAddressService
             throw OrderException::customerAddressNotFound($customerAddressId);
         }
 
-        $newOrderAddress = AddressTransformer::transform($customerAddress);
+        $newOrderAddress = AddressTransformer::transformForUpdate($customerAddress);
 
         $newOrderAddress['id'] = $newOrderAddressId;
         $newOrderAddress['orderId'] = $orderId;

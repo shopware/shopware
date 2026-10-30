@@ -39,6 +39,17 @@ describe('test/_helper_/deprecations - the guard in Jest', () => {
         expect(deprecations).not.toHaveTriggered('silencedFunction()');
     });
 
+    it.activeFeatureFlags(['v6.9.0.0'])(
+        'silences nothing in a module that imports Feature directly once the test activates the major',
+        () => {
+            expect(() =>
+                Feature.silence('V6_9_0_0', () =>
+                    Feature.triggerDeprecationOrThrow('V6_9_0_0', 'directlySilencedFunction() is deprecated.'),
+                ),
+            ).toThrow('Tried to access deprecated functionality: directlySilencedFunction() is deprecated.');
+        },
+    );
+
     it('leaves an unknown major flag to the production guard, which reports it as a typo', () => {
         const error = jest.spyOn(console, 'error').mockImplementation(() => {});
 

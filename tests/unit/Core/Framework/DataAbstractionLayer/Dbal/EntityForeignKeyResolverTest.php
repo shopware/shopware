@@ -16,6 +16,8 @@ use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -88,6 +90,7 @@ class EntityForeignKeyResolverTest extends TestCase
 
         $this->connection->method('executeQuery')->willReturnOnConsecutiveCalls(
             $downloadResult,
+            $emptyResult,
             $emptyResult,
             $emptyResult,
             $emptyResult,
@@ -225,6 +228,8 @@ class EntityForeignKeyResolverTest extends TestCase
                 new CmsBlockDefinition(),
                 new CmsSectionDefinition(),
                 new ProductDownloadDefinition(),
+                new ProductDocumentDefinition(),
+                new ProductDocumentTranslationDefinition(),
                 new OrderLineItemDownloadDefinition(),
                 new DocumentDefinition(),
                 new DocumentFileDefinition(),

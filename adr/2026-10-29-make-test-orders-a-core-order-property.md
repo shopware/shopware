@@ -72,7 +72,8 @@ What a test order changes, all keyed on `order.isTest`:
   Default flows stay as they are, so test mails go out and merchants can test them.
   Mail templates get the flag and print a test marker.
 * **Admin.** Badge and filter in the order list, a banner in the detail, the dashboard statistics exclude test orders, and sales channels get an "open storefront in test mode" button.
-* **Analytics.** Usage data collection skips test orders.
+* **Analytics and GMV.** Usage data collection skips test orders.
+  Commercial's licensing turnover report, the GMV collection, filters on the column instead of the SaaS custom field it checks today.
 
 Deferred to a follow-up: a cleanup action that deletes all test orders before go-live, and the Rufus switch-over.
 
@@ -86,6 +87,8 @@ Deferred to a follow-up: a cleanup action that deletes all test orders before go
   The short TTL and the visible bar limit that.
   The token cannot be revoked before it expires, which is why it lives hours, not a week.
 * Test document numbers cannot collide with real ones unless a merchant uses a `TEST-` pattern themselves.
+  No store extension uses that prefix for number ranges or documents.
+  The generator refuses an existing number, so a collision fails loudly instead of overwriting.
 * Rufus drops the detector, the persister decorator, the number range migration and the cookie iframe.
   It keeps the revenue share exclusion and the BI field, both reading `order.isTest`, and backfills the custom field into the column.
   The PayPal sandbox override stays in Rufus until the plugin reads the flag.

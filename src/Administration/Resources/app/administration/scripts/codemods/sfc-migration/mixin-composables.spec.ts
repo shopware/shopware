@@ -135,7 +135,7 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
 
         expect(result.outcome).toBe('full');
         expect(result.reasons).toEqual([]);
-        expect(result.sfc).toContain("import { useNotification, useSalutation } from 'shopware:composables';");
+        expect(result.sfc).toContain("import { useI18n, useNotification, useSalutation } from 'shopware:composables';");
         expect(result.sfc).not.toContain('src/app/composables');
         expect(result.sfc).toContain('const { createNotificationSuccess } = useNotification();');
 
@@ -165,6 +165,14 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
 
             expect(extension.outcome).toBe('full');
             expect(extension.sfc).toBe(administration.sfc);
+        });
+
+        it('imports useI18n and the router composables from shopware:composables, not from the libraries', async () => {
+            const result = await convertFixture('sw-instance-api', { extensionTarget: true });
+
+            expect(result.sfc).toContain("import { useI18n } from 'shopware:composables';");
+            expect(result.sfc).toContain("import { useRouter, useRoute } from 'shopware:composables/router';");
+            expect(result.sfc).not.toMatch(/from 'vue-(i18n|router)'/);
         });
 
         it('refuses a mixin whose composable is not published to extensions', async () => {

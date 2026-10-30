@@ -139,6 +139,11 @@ describe('private-feature-declarations in mini-modules', () => {
                 `,
             },
             {
+                name: 'The register.ts of a mini-module registers without a marker',
+                filename: `${moduleRoot}/register.ts`,
+                code: "import SwExample from './index';\nShopware.Component.register(SwExample);",
+            },
+            {
                 name: 'The src of a mini-module needs no marker',
                 filename: `${moduleRoot}/src/helper.ts`,
                 code: 'export function helper() {}',

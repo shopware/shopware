@@ -15,6 +15,7 @@
  * // Valid
  * Shopware.Component.register('sw-example', () => import('./sw-example'));
  * Component.register('sw-example', () => import('./sw-example'));
+ * Shopware.Component.register(SwExample); // declared with definePublicComponent(), which loads lazily
  *
  */
 module.exports = {
@@ -44,6 +45,11 @@ module.exports = {
                     node.callee.property.name === 'register';
 
                 if (!isShopwareRegister && !isComponentRegister) {
+                    return;
+                }
+
+                // A component declared with definePublicComponent() brings its lazy loader along
+                if (node.arguments.length === 1 && node.arguments[0].type === 'Identifier') {
                     return;
                 }
 

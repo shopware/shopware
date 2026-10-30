@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\Webhook\Subscriber;
 
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\AppDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\Log\Package;
@@ -27,6 +29,7 @@ class WebhookSubscriber implements EventSubscriberInterface
     {
         return [
             EntityWriteEvent::class => 'onAppWrite',
+            AclRoleDefinition::ENTITY_NAME . '.deleted' => 'removeDeletedRoles',
         ];
     }
 
@@ -54,5 +57,10 @@ class WebhookSubscriber implements EventSubscriberInterface
                 $this->webhookStore->switchIntegration($changeSet->getBefore('integration_id'), $changeSet->getAfter('integration_id'));
             }
         });
+    }
+
+    public function removeDeletedRoles(EntityDeletedEvent $event): void
+    {
+        $this->webhookStore->removeDeletedRoles($event->getIds());
     }
 }

@@ -26,4 +26,19 @@ class WebhookStore
             ['old' => $oldIntegrationId, 'new' => $newIntegrationId],
         );
     }
+
+    /**
+     * @param list<string> $roleIds
+     */
+    public function removeDeletedRoles(array $roleIds): void
+    {
+        foreach ($roleIds as $roleId) {
+            $this->connection->executeStatement(
+                'UPDATE `webhook`
+                 SET `acl_role_ids` = JSON_REMOVE(`acl_role_ids`, JSON_UNQUOTE(JSON_SEARCH(`acl_role_ids`, \'one\', :roleId)))
+                 WHERE JSON_CONTAINS(`acl_role_ids`, JSON_QUOTE(:roleId))',
+                ['roleId' => $roleId],
+            );
+        }
+    }
 }

@@ -106,7 +106,7 @@ class AppManager
             return;
         }
 
-        $this->refuseInvalidManifest($manifest, $context);
+        $this->refuseInvalidManifest($manifest, $context, $parameters->strictValidation);
 
         if ($app !== null) {
             throw AppException::alreadyInstalled($appName);
@@ -184,7 +184,7 @@ class AppManager
 
     public function update(Manifest $manifest, AppUpdateParameters $parameters, AppEntity $app, Context $context): void
     {
-        $this->refuseInvalidManifest($manifest, $context);
+        $this->refuseInvalidManifest($manifest, $context, $parameters->strictValidation);
 
         $defaultLocale = $this->getDefaultLocale($context);
         $metadata = $manifest->getMetadata()->toArray($defaultLocale);
@@ -276,7 +276,7 @@ class AppManager
         $this->switchOff($app, $context);
     }
 
-    private function refuseInvalidManifest(Manifest $manifest, Context $context): void
+    private function refuseInvalidManifest(Manifest $manifest, Context $context, bool $strict): void
     {
         $result = $this->manifestValidator->validate($manifest, $context);
 
@@ -285,7 +285,7 @@ class AppManager
         }
 
         foreach ($result->errors as $error) {
-            if ($error->isBlocking()) {
+            if ($strict || $error->isBlocking()) {
                 throw AppException::validationFailedFromError($error);
             }
         }
@@ -327,7 +327,7 @@ class AppManager
         if ($resumeInstallation) {
             // These checks belong to installation, not credential repair. Run them before recovery clears
             // the only durable pending marker, otherwise a failed validation would strand the app row.
-            $this->refuseInvalidManifest($manifest, $context);
+            $this->refuseInvalidManifest($manifest, $context, $parameters->strictValidation);
         }
 
         $this->appSecretRotationService->rotateNow(

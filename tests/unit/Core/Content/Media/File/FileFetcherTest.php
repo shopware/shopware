@@ -15,6 +15,8 @@ use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Process\PhpExecutableFinder;
+use Symfony\Component\Process\Process;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
@@ -36,6 +38,8 @@ class FileFetcherTest extends TestCase
     private const TEMP_DIR = __DIR__ . '/_temp';
     private const TEMP_FILE = __DIR__ . '/_temp/expected';
 
+    private ?Process $server = null;
+
     protected function setUp(): void
     {
         $this->createTemporyDirectory();
@@ -43,6 +47,7 @@ class FileFetcherTest extends TestCase
 
     protected function tearDown(): void
     {
+        $this->server?->stop(0);
         $this->deleteTemporyData();
     }
 
@@ -289,6 +294,20 @@ class FileFetcherTest extends TestCase
         $fileFetcher->fetchFromURL('https://media.example.com/image.png', self::TEMP_FILE, self::IMAGE_EXTENSION);
     }
 
+    public function testFetchFromURLReachesAllowedPrivateAddress(): void
+    {
+        $httpClient = new MockHttpClient(
+            new MockResponse((string) file_get_contents(self::IMAGE_URL_WITH_EXTENSION), ['primary_ip' => '10.0.0.5'])
+        );
+
+        $resolver = new TrustedUrlResolver(static fn (string $host): array => ['10.0.0.5'], allowedPrivateIps: ['10.0.0.5']);
+
+        $this->createFileFetcher(resolver: $resolver, httpClient: $httpClient)
+            ->fetchFromURL('https://media.example.com/image.png', self::TEMP_FILE, self::IMAGE_EXTENSION);
+
+        static::assertFileEquals(self::IMAGE_URL_WITH_EXTENSION, self::TEMP_FILE);
+    }
+
     #[DataProvider('fetchFileFromUrlExceptionsDataProvider')]
     public function testFetchFileFromURLWillThrowException(
         bool $enableUploadFeature,
@@ -439,6 +458,107 @@ class FileFetcherTest extends TestCase
 
         static::assertSame(self::IMAGE_FILE_SIZE, $media->getFileSize());
         static::assertFileExists(self::TEMP_FILE);
+    }
+
+    public function testFetchFromURLDownloadsFromFtpServer(): void
+    {
+        $port = $this->startFtpServer(pasvAddress: '127.0.0.1', epsv: true);
+
+        $media = $this->createFileFetcher(resolver: $this->createLoopbackResolver())
+            ->fetchFromURL('ftp://ftp.example.com:' . $port . '/image1x1.png', self::TEMP_FILE);
+
+        static::assertSame(self::IMAGE_MIME_TYPE, $media->getMimeType());
+        static::assertFileEquals(self::IMAGE_URL_WITH_EXTENSION, self::TEMP_FILE);
+    }
+
+    public function testFetchFromURLIgnoresPrivateAddressInPasvReply(): void
+    {
+        $port = $this->startFtpServer(pasvAddress: '10.255.255.1', epsv: false);
+
+        $this->createFileFetcher(resolver: $this->createLoopbackResolver(), urlUploadTimeout: 5.0)
+            ->fetchFromURL('ftp://ftp.example.com:' . $port . '/image1x1.png', self::TEMP_FILE);
+
+        static::assertFileEquals(self::IMAGE_URL_WITH_EXTENSION, self::TEMP_FILE);
+    }
+
+    public function testFetchFromURLRejectsFtpHostResolvingToPrivateAddress(): void
+    {
+        $port = $this->startFtpServer(pasvAddress: '127.0.0.1', epsv: true);
+        $url = 'ftp://ftp.example.com:' . $port . '/image1x1.png';
+
+        $this->expectExceptionObject(MediaException::illegalUrl($url));
+
+        $this->createFileFetcher(resolver: $this->createLoopbackResolver(allowedPrivateIps: []))->fetchFromURL($url, self::TEMP_FILE);
+    }
+
+    public function testFetchFromURLRejectsFtpFileExceedingTheSizeLimit(): void
+    {
+        $port = $this->startFtpServer(pasvAddress: '127.0.0.1', epsv: true);
+
+        $this->expectExceptionObject(MediaException::fileSizeLimitExceeded());
+
+        $this->createFileFetcher(resolver: $this->createLoopbackResolver(), maxFileSize: 50)
+            ->fetchFromURL('ftp://ftp.example.com:' . $port . '/image1x1.png', self::TEMP_FILE);
+    }
+
+    public function testFetchFromURLAbortsStalledFtpTransfer(): void
+    {
+        $port = $this->startFtpServer(pasvAddress: '127.0.0.1', epsv: true, stall: true);
+        $url = 'ftp://ftp.example.com:' . $port . '/image1x1.png';
+        $socketTimeout = (string) \ini_get('default_socket_timeout');
+        ini_set('default_socket_timeout', '1');
+
+        $start = microtime(true);
+
+        try {
+            $this->createFileFetcher(resolver: $this->createLoopbackResolver())->fetchFromURL($url, self::TEMP_FILE);
+            static::fail('The stalled transfer should be aborted.');
+        } catch (MediaException $exception) {
+            static::assertEquals(MediaException::cannotOpenSourceStreamToRead($url), $exception);
+        } finally {
+            ini_set('default_socket_timeout', $socketTimeout);
+        }
+
+        static::assertLessThan(10, microtime(true) - $start);
+    }
+
+    public function testFetchFromURLIgnoresProxyFromEnvironmentForFtp(): void
+    {
+        $port = $this->startFtpServer(pasvAddress: '127.0.0.1', epsv: true);
+        putenv('all_proxy=http://127.0.0.1:9');
+
+        try {
+            $this->createFileFetcher(resolver: $this->createLoopbackResolver())
+                ->fetchFromURL('ftp://ftp.example.com:' . $port . '/image1x1.png', self::TEMP_FILE);
+        } finally {
+            putenv('all_proxy');
+        }
+
+        static::assertFileEquals(self::IMAGE_URL_WITH_EXTENSION, self::TEMP_FILE);
+    }
+
+    private function startFtpServer(string $pasvAddress, bool $epsv, bool $stall = false): int
+    {
+        $this->server = new Process([
+            (string) (new PhpExecutableFinder())->find(),
+            __DIR__ . '/_fixtures/ftp-server.php',
+            self::IMAGE_URL_WITH_EXTENSION,
+            $pasvAddress,
+            $epsv ? '1' : '0',
+            $stall ? '1' : '0',
+        ]);
+        $this->server->start();
+        $this->server->waitUntil(static fn (string $type, string $output): bool => str_contains($output, \PHP_EOL));
+
+        return (int) trim($this->server->getOutput());
+    }
+
+    /**
+     * @param list<string> $allowedPrivateIps
+     */
+    private function createLoopbackResolver(array $allowedPrivateIps = ['127.0.0.1']): TrustedUrlResolver
+    {
+        return new TrustedUrlResolver(static fn (string $host): array => ['127.0.0.1'], allowedPrivateIps: $allowedPrivateIps, allowedSchemes: ['ftp']);
     }
 
     private function createFileFetcher(

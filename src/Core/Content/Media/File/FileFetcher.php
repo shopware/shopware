@@ -160,6 +160,10 @@ class FileFetcher
     {
         $resolved = $this->trustedUrlResolver->resolve($url);
 
+        if (strtolower((string) parse_url($url, \PHP_URL_SCHEME)) === 'ftp') {
+            return $this->downloadWithCurl($url, $fileName, $resolved);
+        }
+
         $client = $this->httpClient;
         $options = [
             'max_redirects' => 0,
@@ -171,7 +175,7 @@ class FileFetcher
             $options['max_duration'] = $this->urlUploadTimeout;
         }
 
-        if ($this->enableUrlValidation) {
+        if ($this->enableUrlValidation && !$this->trustedUrlResolver->isAllowedPrivateIp($resolved->ip)) {
             $client = new NoPrivateNetworkHttpClient($client, TrustedUrlResolver::BLOCKED_SUBNETS);
         }
 
@@ -201,6 +205,72 @@ class FileFetcher
             throw MediaException::cannotOpenSourceStreamToRead($url);
         } finally {
             fclose($destStream);
+        }
+
+        return $writtenBytes;
+    }
+
+    /**
+     * @throws MediaException
+     */
+    private function downloadWithCurl(string $url, string $fileName, ResolvedUrl $resolved): int
+    {
+        // CURLOPT_CONNECT_TO separates fields by ":", so IPv6 needs brackets
+        $ip = str_contains($resolved->ip, ':') ? '[' . $resolved->ip . ']' : $resolved->ip;
+        $destStream = $this->openDestinationStream($fileName);
+        $writtenBytes = 0;
+        $error = null;
+
+        $handle = curl_init($url);
+        // curl_setopt_array() stops at the first option it fails to set
+        $optionsSet = curl_setopt_array($handle, [
+            \CURLOPT_PROTOCOLS => \CURLPROTO_FTP,
+            \CURLOPT_CONNECT_TO => ['::' . $ip . ':'],
+            // a proxy from the environment would bypass the pinned address
+            \CURLOPT_PROXY => '',
+            \CURLOPT_FTP_USE_EPSV => true,
+            \CURLOPT_FTP_SKIP_PASV_IP => true,
+            \CURLOPT_TIMEOUT_MS => (int) ($this->urlUploadTimeout * 1000),
+            // abort stalled transfers like HttpClient's idle timeout
+            \CURLOPT_LOW_SPEED_LIMIT => 1,
+            \CURLOPT_LOW_SPEED_TIME => max(0, (int) \ini_get('default_socket_timeout')),
+            \CURLOPT_WRITEFUNCTION => function (\CurlHandle $handle, string $data) use ($destStream, &$writtenBytes, &$error): int {
+                $bytes = @fwrite($destStream, $data);
+                if ($bytes === false) {
+                    $error = MediaException::cannotCopyMedia();
+
+                    return 0;
+                }
+                $writtenBytes += $bytes;
+
+                if ($this->maxFileSize > 0 && $writtenBytes >= $this->maxFileSize) {
+                    $error = MediaException::fileSizeLimitExceeded();
+
+                    return 0;
+                }
+
+                return $bytes;
+            },
+        ]);
+
+        if (!$optionsSet) {
+            fclose($destStream);
+
+            throw MediaException::cannotOpenSourceStreamToRead($url);
+        }
+
+        try {
+            $success = curl_exec($handle);
+        } finally {
+            fclose($destStream);
+        }
+
+        if ($error !== null) {
+            throw $error;
+        }
+
+        if ($success !== true || curl_getinfo($handle, \CURLINFO_PRIMARY_IP) !== $resolved->ip) {
+            throw MediaException::cannotOpenSourceStreamToRead($url);
         }
 
         return $writtenBytes;

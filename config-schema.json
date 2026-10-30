@@ -1521,6 +1521,23 @@
                     "minimum": 0,
                     "title": "Maximum duration in seconds for checking an external media link. Set to 0 to disable the timeout."
                 },
+                "allowed_protocols": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "enum": ["http", "https", "ftp"]
+                    },
+                    "title": "URL schemes accepted for media upload by URL."
+                },
+                "allowed_private_ip_addresses": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string"
+                    },
+                    "title": "Private IP addresses that media upload by URL may reach."
+                },
                 "remote_thumbnails": {
                     "type": "object",
                     "additionalProperties": false,

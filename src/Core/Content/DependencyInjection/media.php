@@ -172,12 +172,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // endregion Message handlers
 
     // region File Services
-    $services->set(FileService::class);
+    $services->set(FileService::class)
+        ->args([
+            param('shopware.media.allowed_protocols'),
+        ]);
 
     $services->set(TrustedUrlResolver::class)
         ->args([
             null,
             param('shopware.media.enable_url_validation'),
+            param('shopware.media.allowed_private_ip_addresses'),
+            param('shopware.media.allowed_protocols'),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 

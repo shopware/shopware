@@ -230,7 +230,7 @@ if (!Shopware.Feature.isActive('V6_8_0_0')) {
 }
 ```
 
-In templates, the `v-silence-flag` directive does the same for a component and everything it renders:
+In templates, the `v-silence-flag` directive does the same for the component it sits on, but not for the components it renders or its slot content:
 
 ```html
 <sw-loader v-if="!feature.isActive('V6_8_0_0')" v-silence-flag="'V6_8_0_0'" />

@@ -170,8 +170,9 @@ if (!Shopware.Feature.isActive('V6_8_0_0')) {
 }
 ```
 
-Templates use the `v-silence-flag` directive on the component of the old path. It silences that component and
-everything it renders, including deprecated props and components the deprecation plugin reports:
+Templates use the `v-silence-flag` directive on the component of the old path. It silences that component only:
+the deprecation plugin's report of the component and its deprecated props, and what the component reports while
+it is created or rendered. The components it renders, its slot content included, still report:
 
 ```twig
 <sw-loader v-if="!feature.isActive('V6_8_0_0')" v-silence-flag="'V6_8_0_0'" />
@@ -181,7 +182,8 @@ everything it renders, including deprecated props and components the deprecation
 Both silence nothing once the major is active, so a use outside of its branch still throws. `Feature.silence()`
 only covers synchronous code: the silencing ends when the callback returns, so a returned promise throws. The
 directive does nothing on a `<template>`, which Vue renders as a fragment, and it does not reach the bindings
-the parent evaluates itself, like `:value="deprecatedComputed"`.
+the parent evaluates itself, like `:value="deprecatedComputed"`, nor the event handlers and watchers of the
+component, which run outside of its creation and rendering. Wrap those in `Feature.silence()`.
 
 Components and props carry a `deprecated` option instead, which `src/app/plugin/deprecation.plugin.ts`
 checks in a global `beforeCreate()` hook: a deprecated component on every creation, a deprecated prop

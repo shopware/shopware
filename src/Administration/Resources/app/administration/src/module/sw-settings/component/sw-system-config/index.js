@@ -264,7 +264,6 @@ export default {
          * legacy `getConfig` method is still used by extensions. If that method is custom, merge the
          * legacy config into the schema result to keep the compatibility layer intact.
          */
-        // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- core's sync between `schema` and the deprecated `config` calls it on every load
         async getSchemaForDomain() {
             Shopware.Feature.triggerDeprecationOrThrow(
                 'V6_8_0_0',
@@ -297,7 +296,6 @@ export default {
          * the other properties, so it is used to reliably match cards back to their original tab in
          * `configToSchema`, regardless of mutation style or reordering.
          */
-        // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- core's sync between `schema` and the deprecated `config` calls it on every load
         assignConfigIds(schema) {
             Shopware.Feature.triggerDeprecationOrThrow(
                 'V6_8_0_0',
@@ -643,7 +641,6 @@ export default {
         /**
          * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
          */
-        // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- core's sync between `schema` and the deprecated `config` calls it on every load
         schemaToConfig(schema) {
             Shopware.Feature.triggerDeprecationOrThrow(
                 'V6_8_0_0',
@@ -663,7 +660,6 @@ export default {
          * an exact match keeps the card matched to its tab even if elements were added to or removed from
          * it. Returns null if no element matches, e.g. for cards without elements.
          */
-        // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- core's sync between `schema` and the deprecated `config` calls it on every load
         getTabIndexByElementOverlap(card, elementNameToTabIndex) {
             Shopware.Feature.triggerDeprecationOrThrow(
                 'V6_8_0_0',
@@ -705,7 +701,6 @@ export default {
          * without elements) end up in the general tab (name === null) and are assigned a fresh id, so their
          * tab is tracked correctly from then on.
          */
-        // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- core's sync between `schema` and the deprecated `config` calls it on every load
         configToSchema(config, previousSchema) {
             Shopware.Feature.triggerDeprecationOrThrow(
                 'V6_8_0_0',

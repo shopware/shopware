@@ -1,0 +1,36 @@
+{
+    "openapi": "3.2.0",
+    "info": {
+        "title": "cyclicMediaType",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/payload": {
+            "post": {
+                "operationId": "createPayload",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "$ref": "#/components/mediaTypes/PayloadAlias"
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Accepted"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "mediaTypes": {
+            "PayloadAlias": {
+                "$ref": "#/components/mediaTypes/Payload"
+            },
+            "Payload": {
+                "$ref": "#/components/mediaTypes/PayloadAlias"
+            }
+        }
+    }
+}

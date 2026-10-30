@@ -398,7 +398,6 @@ class PriceSerializerTest extends TestCase
      */
     private function getCurrencyRepository(array $results): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<CurrencyCollection> */
-        return new StaticEntityRepository($results, new CurrencyDefinition());
+        return StaticEntityRepository::of(CurrencyCollection::class, $results, new CurrencyDefinition());
     }
 }

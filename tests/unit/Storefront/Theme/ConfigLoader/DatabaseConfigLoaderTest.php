@@ -33,11 +33,6 @@ class DatabaseConfigLoaderTest extends TestCase
 
     private MockObject&StorefrontPluginRegistry $storefrontPluginRegistry;
 
-    /**
-     * @var StaticEntityRepository<MediaCollection>
-     */
-    private StaticEntityRepository $mediaRepository;
-
     private DatabaseConfigLoader $databaseConfigLoader;
 
     protected function setUp(): void
@@ -46,12 +41,12 @@ class DatabaseConfigLoaderTest extends TestCase
 
         $this->themeRepository = new StaticEntityRepository([], new ThemeDefinition());
         $this->storefrontPluginRegistry = $this->createMock(StorefrontPluginRegistry::class);
-        $this->mediaRepository = new StaticEntityRepository([new MediaCollection([])], new MediaDefinition());
+        $mediaRepository = new StaticEntityRepository([new MediaCollection([])], new MediaDefinition());
 
         $this->databaseConfigLoader = new DatabaseConfigLoader(
             $this->themeRepository,
             $this->storefrontPluginRegistry,
-            $this->mediaRepository
+            $mediaRepository
         );
     }
 

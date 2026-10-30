@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -36,7 +37,8 @@ class ContextController extends StorefrontController
     public function __construct(
         private readonly AbstractContextSwitchRoute $contextSwitchRoute,
         private readonly RequestStack $requestStack,
-        private readonly RouterInterface $router
+        private readonly RouterInterface $router,
+        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
     ) {
     }
 
@@ -124,6 +126,11 @@ class ContextController extends StorefrontController
             throw RoutingException::languageNotFound($languageId);
         }
 
+        $query = (string) parse_url($this->seoUrlPlaceholderHandler->generate($route, $params), \PHP_URL_QUERY);
+        parse_str($query, $queryParams);
+        // SEO URLs are stored without query and the placeholder must be generated before the router context switches to the new domain
+        $seoUrlPlaceholder = $this->seoUrlPlaceholderHandler->generate($route, array_diff_key($params, $queryParams));
+
         $routerContext = $this->router->getContext();
         $routerContext->setHttpPort($parsedUrl['port'] ?? 80);
         $routerContext->setMethod('GET');
@@ -136,6 +143,16 @@ class ContextController extends StorefrontController
         }
 
         $url = $this->router->generate($route, $params, Router::ABSOLUTE_URL);
+
+        $newContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+        if ($newContext instanceof SalesChannelContext && $newContext->getLanguageId() === $languageId) {
+            $baseUrl = rtrim($this->router->generate('frontend.home.page', [], Router::ABSOLUTE_URL), '/');
+            $url = $this->seoUrlPlaceholderHandler->replace($seoUrlPlaceholder, $baseUrl, $newContext);
+
+            if ($query !== '') {
+                $url .= (str_contains($url, '?') ? '&' : '?') . $query;
+            }
+        }
 
         return new RedirectResponse($url);
     }

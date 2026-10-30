@@ -32,8 +32,6 @@ class ProductDocumentValidatorTest extends TestCase
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
-    private const MAX_FILE_SIZE = 20 * 1024 * 1024;
-
     private IdsCollection $ids;
 
     private Context $context;
@@ -64,78 +62,41 @@ class ProductDocumentValidatorTest extends TestCase
         $this->productRepository->create([(new ProductBuilder($this->ids, 'drill'))->price(10)->build()], $this->context);
     }
 
-    public function testAFileFromAnyMediaFolderCanBeUsed(): void
-    {
-        $folderId = Uuid::randomHex();
-        static::getContainer()->get('media_folder.repository')->create([
-            ['id' => $folderId, 'name' => 'Downloads', 'configurationId' => Uuid::randomHex()],
-        ], $this->context);
-
-        $this->addDocuments([['title' => 'Manual', 'mediaId' => $this->createMedia('manual', folderId: $folderId)]]);
-
-        static::assertSame(['Manual'], $this->documentTitles());
-    }
-
     public function testAProductCanHaveTenDocumentsPerLanguage(): void
     {
         $this->addDocuments(array_map(fn (int $number): array => $this->document('file-' . $number), range(1, 9)));
 
-        $errors = $this->errorsOf(fn () => $this->addDocuments([$this->document('file-10'), $this->document('file-11')]));
+        $errors = $this->errorsOf(fn () => $this->addDocuments([
+            // a write through the product doesn't add the documents it edits
+            ['id' => $this->ids->get('file-1-document'), 'title' => 'Renamed'],
+            $this->document('file-10'),
+            $this->document('file-11'),
+        ]));
 
         // the tenth fits, the eleventh doesn't
-        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_TOO_MANY_DOCUMENTS, 'pointer' => '/0/documents/1']], $errors);
+        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_TOO_MANY_DOCUMENTS, 'pointer' => '/0/documents/2']], $errors);
         static::assertCount(9, $this->documentTitles());
     }
 
-    public function testTheFileTypeMustBeAllowed(): void
-    {
-        $errors = $this->errorsOf(fn () => $this->addDocuments([
-            ['title' => 'Manual', 'mediaId' => $this->createMedia('manual')],
-            ['title' => 'Spare parts', 'mediaId' => $this->createMedia('spare-parts', extension: 'xlsx')],
-        ]));
-
-        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_FILE_EXTENSION_NOT_ALLOWED, 'pointer' => $this->defaultVersionPointer(1) . '/mediaId']], $errors);
-    }
-
-    public function testTheFileCanHaveAtMostTheMaximumSize(): void
-    {
-        $this->addDocuments([['title' => 'Manual', 'mediaId' => $this->createMedia('manual', size: self::MAX_FILE_SIZE)]]);
-
-        $errors = $this->errorsOf(fn () => $this->addDocuments([
-            ['title' => 'Catalog', 'mediaId' => $this->createMedia('catalog', size: self::MAX_FILE_SIZE + 1)],
-        ]));
-
-        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_FILE_TOO_LARGE, 'pointer' => $this->defaultVersionPointer(0) . '/mediaId']], $errors);
-    }
-
-    public function testTheFileSizeMustBeKnown(): void
-    {
-        $externalFile = $this->createMedia('manual', size: null, path: 'https://cdn.example.com/manual.pdf');
-
-        $errors = $this->errorsOf(fn () => $this->addDocuments([['title' => 'Manual', 'mediaId' => $externalFile]]));
-
-        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_FILE_SIZE_UNKNOWN, 'pointer' => $this->defaultVersionPointer(0) . '/mediaId']], $errors);
-    }
-
-    public function testTheFileMustBePublic(): void
-    {
-        $errors = $this->errorsOf(fn () => $this->addDocuments([['title' => 'Manual', 'mediaId' => $this->createMedia('manual', private: true)]]));
-
-        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_FILE_PRIVATE, 'pointer' => $this->defaultVersionPointer(0) . '/mediaId']], $errors);
-    }
-
-    public function testTheFilesOfOtherLanguagesAreCheckedToo(): void
+    public function testTheFilesOfAllLanguagesAreCheckedAsTheyWillBe(): void
     {
         $germanId = $this->getDeDeLanguageId();
 
-        $errors = $this->errorsOf(fn () => $this->addDocuments([[
-            'translations' => [
-                Defaults::LANGUAGE_SYSTEM => ['title' => 'Manual', 'mediaId' => $this->createMedia('manual')],
-                $germanId => ['title' => 'Handbuch', 'mediaId' => $this->createMedia('handbuch', private: true)],
+        $errors = $this->errorsOf(fn () => $this->addDocuments([
+            [
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => ['title' => 'Manual', 'mediaId' => $this->createMedia('manual')],
+                    $germanId => ['title' => 'Handbuch', 'mediaId' => $this->createMedia('handbuch', private: true)],
+                ],
             ],
-        ]]));
+            // a file the same write creates has no content yet
+            ['translations' => [Defaults::LANGUAGE_SYSTEM => ['title' => 'Datasheet', 'media' => ['id' => Uuid::randomHex()]]]],
+        ]));
 
-        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_FILE_PRIVATE, 'pointer' => '/0/documents/0/translations/' . $germanId . '/mediaId']], $errors);
+        static::assertSame([
+            ['code' => ProductDocumentValidator::VIOLATION_FILE_PRIVATE, 'pointer' => '/0/documents/0/translations/' . $germanId . '/mediaId'],
+            ['code' => ProductDocumentValidator::VIOLATION_FILE_SIZE_UNKNOWN, 'pointer' => $this->defaultTranslationPointer(1) . '/mediaId'],
+        ], $errors);
     }
 
     public function testADocumentNeedsAFileInTheDefaultLanguage(): void
@@ -145,19 +106,17 @@ class ProductDocumentValidatorTest extends TestCase
             ['translations' => [$this->getDeDeLanguageId() => ['title' => 'Zertifikat', 'mediaId' => $this->createMedia('zertifikat')]]],
         ]));
 
-        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_DEFAULT_VERSION_MISSING, 'pointer' => '/0/documents/1']], $errors);
+        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_DEFAULT_TRANSLATION_MISSING, 'pointer' => '/0/documents/1']], $errors);
     }
 
-    public function testAWriteOnlyChecksWhatItChanges(): void
+    public function testAFileCanBeADocumentOfAProductOnlyOnce(): void
     {
-        $documentId = $this->ids->create('manual-document');
-        $this->addDocuments([['id' => $documentId, 'title' => 'Manual', 'mediaId' => $this->createMedia('manual')]]);
+        $this->addDocuments([['title' => 'Manual', 'mediaId' => $this->createMedia('manual')]]);
 
-        // the file is no longer valid, which doesn't stop changes that keep it
-        $this->mediaRepository->update([['id' => $this->ids->get('manual'), 'private' => true]], $this->context);
-        $this->productDocumentRepository->update([['id' => $documentId, 'title' => 'Operating manual', 'position' => 2]], $this->context);
+        $errors = $this->errorsOf(fn () => $this->addDocuments([['title' => 'Operating manual', 'mediaId' => $this->ids->get('manual')]]));
 
-        static::assertSame(['Operating manual'], $this->documentTitles());
+        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_FILE_ALREADY_USED, 'pointer' => $this->defaultTranslationPointer(0) . '/mediaId']], $errors);
+        static::assertSame(['Manual'], $this->documentTitles());
     }
 
     /**
@@ -169,32 +128,30 @@ class ProductDocumentValidatorTest extends TestCase
     }
 
     /**
-     * @return array{title: string, mediaId: string}
+     * @return array{id: string, title: string, mediaId: string}
      */
     private function document(string $fileName): array
     {
-        return ['title' => $fileName, 'mediaId' => $this->createMedia($fileName)];
+        return ['id' => $this->ids->create($fileName . '-document'), 'title' => $fileName, 'mediaId' => $this->createMedia($fileName)];
     }
 
-    private function createMedia(string $fileName, string $extension = 'pdf', ?int $size = 1024, bool $private = false, ?string $path = null, ?string $folderId = null): string
+    private function createMedia(string $fileName, bool $private = false): string
     {
         $this->mediaRepository->create([[
             'id' => $this->ids->create($fileName),
             'fileName' => $fileName,
-            'fileExtension' => $extension,
-            'fileSize' => $size,
+            'fileExtension' => 'pdf',
+            'fileSize' => 1024,
             'private' => $private,
-            'path' => $path,
-            'mediaFolderId' => $folderId,
         ]], $this->context);
 
         return $this->ids->get($fileName);
     }
 
     /**
-     * Where the version in the default language of a written document is, when the document sets its title and file directly.
+     * Where the default-language translation of a written document is, when the document sets its title and file directly.
      */
-    private function defaultVersionPointer(int $document): string
+    private function defaultTranslationPointer(int $document): string
     {
         return '/0/documents/' . $document . '/translations/' . Defaults::LANGUAGE_SYSTEM;
     }

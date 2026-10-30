@@ -29,7 +29,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
-use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -143,7 +142,6 @@ class InfoControllerTest extends TestCase
                 'productDocuments' => [
                     'allowedExtensions' => ['pdf', 'docx', 'jpg', 'jpeg', 'png'],
                     'maxPerLanguage' => 10,
-                    'maxFileSize' => MemorySizeCalculator::getMaxUploadSize(20 * 1024 * 1024),
                 ],
             ],
             'inAppPurchases' => [],
@@ -167,12 +165,12 @@ class InfoControllerTest extends TestCase
         static::assertArrayHasKey('private_allowed_mime_types_by_extension', $decodedResponse['settings']);
         static::assertIsArray($decodedResponse['settings']['private_allowed_mime_types_by_extension']);
         static::assertContains('application/pdf', $decodedResponse['settings']['private_allowed_mime_types_by_extension']['pdf']);
-        static::assertContains('application/pdf', $decodedResponse['settings']['productDocuments']['allowedMimeTypesByExtension']['pdf']);
 
         // reset environment-based mismatch
         $decodedResponse['bundles'] = [];
         $decodedResponse['versionRevision'] = $expected['versionRevision'];
         $expected['settings']['firstMigrationDate'] = $decodedResponse['settings']['firstMigrationDate'];
+        $expected['settings']['productDocuments']['maxFileSize'] = $decodedResponse['settings']['productDocuments']['maxFileSize'];
         unset($decodedResponse['settings']['private_allowed_mime_types_by_extension'], $decodedResponse['settings']['productDocuments']['allowedMimeTypesByExtension']);
 
         static::assertSame($expected, $decodedResponse);

@@ -35,7 +35,6 @@ use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
-use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -66,8 +65,8 @@ class InfoControllerTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        // the config reads PHP's upload limits; registering first keeps the ini mocks of later tests working
-        IniMock::register(MemorySizeCalculator::class);
+        // the config reads PHP's upload limit; registering first keeps the ini mocks of later tests working
+        IniMock::register(ProductDocumentLimits::class);
     }
 
     protected function setUp(): void

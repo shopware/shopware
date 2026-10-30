@@ -201,6 +201,7 @@ class InfoController extends AbstractController
         $privateMimeTypesByExtension = $this->mediaFileExtensionListProvider->getMimeTypesByExtension(true, $context);
 
         $appUrlReachable = $this->appUrlVerifier->verifyForAdministration();
+        $presignedUploadSupported = $this->presignedMediaUploadService !== null && $this->presignedMediaUploadService->isAvailable();
 
         $config = [
             'version' => $this->getShopwareVersion(),
@@ -211,8 +212,7 @@ class InfoController extends AbstractController
             'bundles' => [],
             'settings' => [
                 'enableUrlFeature' => $this->params->get('shopware.media.enable_url_upload_feature'),
-                'presignedUploadSupported' => $this->presignedMediaUploadService !== null
-                    && $this->presignedMediaUploadService->isAvailable(),
+                'presignedUploadSupported' => $presignedUploadSupported,
                 'appUrlReachable' => $appUrlReachable,
                 'appUrlStatusCode' => $appUrlReachable ? null : $this->appUrlVerifier->getCurrentState()?->statusCode,
                 'appsRequireAppUrl' => $this->activeAppsLoader->hasRegisteredApps(),
@@ -229,7 +229,7 @@ class InfoController extends AbstractController
                     'allowedMimeTypesByExtension' => $this->productDocumentLimits->getMimeTypesByExtension(),
                     'maxPerLanguage' => $this->productDocumentLimits->maxPerLanguage,
                     // what an upload can carry, which is the limit that matters for the Administration
-                    'maxFileSize' => $this->productDocumentLimits->getMaxUploadFileSize(),
+                    'maxFileSize' => $this->productDocumentLimits->getMaxUploadFileSize($presignedUploadSupported),
                 ],
             ],
             'inAppPurchases' => $this->inAppPurchase->all(),

@@ -31,6 +31,9 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
             <div itemprop="brand"><meta itemprop="name" content="Test Brand"></div>
             <meta property="product:price:currency" content="EUR">
             <meta property="product:price:amount" content="99.99">
+            <script type="application/ld+json">
+                {"@type":"Product","sku":"product-123","name":"Test Product","brand":{"name":"Test Brand"},"offers":{"priceCurrency":"EUR","price":"99.99"}}
+            </script>
         `;
 
         await removeFromWishlistEvent._sendEvent('product-123');
@@ -148,6 +151,9 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
             <div itemprop="brand"><meta itemprop="name" content="Product Page Brand"></div>
             <meta property="product:price:currency" content="EUR">
             <meta property="product:price:amount" content="79.99">
+            <script type="application/ld+json">
+                {"@type":"Product","sku":"product-789","name":"Product Page Name","brand":{"name":"Product Page Brand"},"offers":{"priceCurrency":"EUR","price":"79.99"}}
+            </script>
             <div class="hidden-line-items-information" data-currency="USD" data-value="100.00">
                 <span class="hidden-line-item"
                     data-id="product-789"
@@ -201,6 +207,9 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
 
     test('fires event on form submit for wishlist form', async () => {
         document.body.innerHTML = `
+            <script type="application/ld+json">
+                {"@type":"Product","sku":"abc123-def456-789","name":"Test Product"}
+            </script>
             <h1 class="product-detail-name">Test Product</h1>
             <meta property="product:price:currency" content="EUR">
             <meta property="product:price:amount" content="99.99">

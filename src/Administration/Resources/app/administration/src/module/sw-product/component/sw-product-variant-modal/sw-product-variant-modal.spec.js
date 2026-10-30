@@ -1,4 +1,4 @@
-/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/no-vm-access */
 
 /**
  * @sw-package inventory

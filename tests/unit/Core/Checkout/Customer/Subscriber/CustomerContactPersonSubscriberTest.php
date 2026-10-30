@@ -7,12 +7,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Checkout\Customer\Subscriber\CustomerContactPersonRowReader;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerContactPersonSubscriber;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\RowLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -60,11 +61,11 @@ class CustomerContactPersonSubscriberTest extends TestCase
     #[DataProvider('insertProvider')]
     public function testInsert(string $entity, array $payload, bool $valid): void
     {
-        $rowReader = $this->reader([]);
+        $subscriber = $this->subscriber([]);
 
         $event = $this->event($this->insert($entity, $payload));
 
-        (new CustomerContactPersonSubscriber($rowReader))->validate($event);
+        $subscriber->validate($event);
 
         $this->assertOutcome($event, $valid);
     }
@@ -75,18 +76,16 @@ class CustomerContactPersonSubscriberTest extends TestCase
     public static function insertProvider(): iterable
     {
         $customer = CustomerDefinition::ENTITY_NAME;
-        $address = CustomerAddressDefinition::ENTITY_NAME;
 
         yield 'private customer with a contact person' => [$customer, ['first_name' => 'Ada', 'last_name' => 'Lovelace', 'account_type' => 'private'], true];
-        yield 'private customer with a last name only' => [$customer, ['first_name' => '', 'last_name' => 'Lovelace', 'account_type' => 'private'], true];
+        yield 'private customer with a last name only' => [$customer, ['first_name' => '', 'last_name' => 'Lovelace', 'account_type' => 'private'], false];
+        yield 'private customer with a blank first name' => [$customer, ['first_name' => ' ', 'last_name' => 'Lovelace', 'account_type' => 'private'], false];
+        yield 'commercial customer with a last name only' => [$customer, ['first_name' => '', 'last_name' => 'Lovelace', 'account_type' => 'business'], true];
         yield 'private customer without a contact person' => [$customer, ['first_name' => '', 'last_name' => '', 'account_type' => 'private', 'company' => 'Acme GmbH'], false];
         yield 'customer without an account type counts as private' => [$customer, ['first_name' => '', 'last_name' => '', 'company' => 'Acme GmbH'], false];
         yield 'commercial customer with a company' => [$customer, ['first_name' => '', 'last_name' => '', 'account_type' => 'business', 'company' => 'Acme GmbH'], true];
         yield 'commercial customer with a blank company' => [$customer, ['first_name' => ' ', 'last_name' => '', 'account_type' => 'business', 'company' => '  '], false];
         yield 'commercial customer without a company' => [$customer, ['first_name' => '', 'last_name' => '', 'account_type' => 'business'], false];
-        yield 'address with a contact person' => [$address, ['first_name' => 'Ada', 'last_name' => 'Lovelace'], true];
-        yield 'address with a company only' => [$address, ['first_name' => '', 'last_name' => '', 'company' => 'Acme GmbH'], true];
-        yield 'address naming nobody' => [$address, ['first_name' => '', 'last_name' => '', 'company' => null], false];
 
         foreach ([OrderCustomerDefinition::ENTITY_NAME, OrderAddressDefinition::ENTITY_NAME] as $snapshot) {
             yield $snapshot . ' with a contact person' => [$snapshot, ['first_name' => 'Ada', 'last_name' => 'Lovelace'], true];
@@ -98,6 +97,68 @@ class CustomerContactPersonSubscriberTest extends TestCase
 
     /**
      * @param array<string, mixed> $payload
+     */
+    #[DataProvider('customerAddressProvider')]
+    public function testCustomerAddressFollowsTheAccountTypeOfItsCustomer(string $accountType, array $payload, bool $valid): void
+    {
+        $customerId = Uuid::randomHex();
+
+        $event = $this->event($this->insert(CustomerAddressDefinition::ENTITY_NAME, $payload + ['customer_id' => Uuid::fromHexToBytes($customerId)]));
+
+        $this->subscriber([], [$customerId => $accountType])->validate($event);
+
+        $this->assertOutcome($event, $valid);
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, mixed>, bool}>
+     */
+    public static function customerAddressProvider(): iterable
+    {
+        foreach (['private', 'business'] as $accountType) {
+            yield $accountType . ' customer: address with a contact person' => [$accountType, ['first_name' => 'Ada', 'last_name' => 'Lovelace'], true];
+            yield $accountType . ' customer: address naming nobody' => [$accountType, ['first_name' => '', 'last_name' => '', 'company' => null], false];
+        }
+
+        yield 'private customer: address with a company only' => ['private', ['first_name' => '', 'last_name' => '', 'company' => 'Acme GmbH'], false];
+        yield 'private customer: address with a last name only' => ['private', ['first_name' => '', 'last_name' => 'Lovelace'], false];
+        yield 'business customer: address with a company only' => ['business', ['first_name' => '', 'last_name' => '', 'company' => 'Acme GmbH'], true];
+        yield 'business customer: address with a last name only' => ['business', ['first_name' => '', 'last_name' => 'Lovelace'], true];
+    }
+
+    public function testCustomerAddressUsesTheAccountTypeOfACustomerInTheSameWrite(): void
+    {
+        $customer = $this->insert(CustomerDefinition::ENTITY_NAME, ['first_name' => '', 'last_name' => '', 'company' => 'Acme GmbH', 'account_type' => 'business']);
+        $address = $this->insert(CustomerAddressDefinition::ENTITY_NAME, [
+            'first_name' => '',
+            'last_name' => '',
+            'company' => 'Acme GmbH',
+            'customer_id' => $customer->getPrimaryKey()['id'],
+        ]);
+
+        $event = $this->event($customer, $address);
+
+        $this->subscriber()->validate($event);
+
+        $this->assertOutcome($event, true);
+    }
+
+    public function testCustomerAddressWithAnUnknownCustomerCountsAsPrivate(): void
+    {
+        $event = $this->event($this->insert(CustomerAddressDefinition::ENTITY_NAME, [
+            'first_name' => '',
+            'last_name' => '',
+            'company' => 'Acme GmbH',
+            'customer_id' => Uuid::randomBytes(),
+        ]));
+
+        $this->subscriber()->validate($event);
+
+        $this->assertOutcome($event, false);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
      * @param array<string, string|null> $stored
      */
     #[DataProvider('updateProvider')]
@@ -105,11 +166,11 @@ class CustomerContactPersonSubscriberTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $rowReader = $this->reader([['id' => $id] + $stored]);
+        $subscriber = $this->subscriber([['id' => $id] + $stored]);
 
         $event = $this->event($this->update(CustomerDefinition::ENTITY_NAME, $id, $payload));
 
-        (new CustomerContactPersonSubscriber($rowReader))->validate($event);
+        $subscriber->validate($event);
 
         $this->assertOutcome($event, $valid);
     }
@@ -126,7 +187,8 @@ class CustomerContactPersonSubscriberTest extends TestCase
         yield 'clearing the names of a private account' => [['first_name' => '', 'last_name' => ''], $private, false];
         yield 'clearing the company of a nameless commercial account' => [['company' => null], ['first_name' => '', 'last_name' => '', 'company' => 'Acme GmbH', 'account_type' => 'business'], false];
         yield 'switching a nameless commercial account to private' => [['account_type' => 'private'], ['first_name' => '', 'last_name' => '', 'company' => 'Acme GmbH', 'account_type' => 'business'], false];
-        yield 'clearing one name keeps the other' => [['first_name' => ''], $private, true];
+        yield 'clearing one name of a private account' => [['first_name' => ''], $private, false];
+        yield 'clearing one name of a commercial account keeps the other' => [['first_name' => ''], $business, true];
     }
 
     /**
@@ -138,11 +200,11 @@ class CustomerContactPersonSubscriberTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $rowReader = $this->reader([['id' => $id] + $stored]);
+        $subscriber = $this->subscriber([['id' => $id] + $stored]);
 
         $event = $this->event($this->update($entity, $id, $payload));
 
-        (new CustomerContactPersonSubscriber($rowReader))->validate($event);
+        $subscriber->validate($event);
 
         $this->assertOutcome($event, $valid);
     }
@@ -169,7 +231,7 @@ class CustomerContactPersonSubscriberTest extends TestCase
         $live = Defaults::LIVE_VERSION;
         $draft = Uuid::randomHex();
 
-        $rowReader = $this->reader([
+        $subscriber = $this->subscriber([
             ['id' => $id, 'version_id' => $live, 'first_name' => 'Ada', 'last_name' => 'Lovelace', 'company' => null],
             ['id' => $id, 'version_id' => $draft, 'first_name' => '', 'last_name' => '', 'company' => 'Acme GmbH'],
         ]);
@@ -179,7 +241,7 @@ class CustomerContactPersonSubscriberTest extends TestCase
             $this->update(OrderCustomerDefinition::ENTITY_NAME, $id, ['company' => null], $draft),
         );
 
-        (new CustomerContactPersonSubscriber($rowReader))->validate($event);
+        $subscriber->validate($event);
 
         $exceptions = $event->getExceptions()->getExceptions();
 
@@ -192,14 +254,14 @@ class CustomerContactPersonSubscriberTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $rowReader = $this->reader([['id' => $id, 'first_name' => 'Ada', 'last_name' => 'Lovelace', 'company' => null, 'account_type' => 'private']]);
+        $subscriber = $this->subscriber([['id' => $id, 'first_name' => 'Ada', 'last_name' => 'Lovelace', 'company' => null, 'account_type' => 'private']]);
 
         $event = $this->event(
             $this->update(CustomerDefinition::ENTITY_NAME, $id, ['first_name' => '']),
             $this->update(CustomerDefinition::ENTITY_NAME, $id, ['last_name' => '']),
         );
 
-        (new CustomerContactPersonSubscriber($rowReader))->validate($event);
+        $subscriber->validate($event);
 
         $this->assertOutcome($event, false);
     }
@@ -208,34 +270,34 @@ class CustomerContactPersonSubscriberTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $rowReader = $this->reader([['id' => $id, 'first_name' => 'Ada', 'last_name' => 'Lovelace', 'company' => null, 'account_type' => 'business']]);
+        $subscriber = $this->subscriber([['id' => $id, 'first_name' => 'Ada', 'last_name' => 'Lovelace', 'company' => null, 'account_type' => 'business']]);
 
         $event = $this->event(
             $this->update(CustomerDefinition::ENTITY_NAME, $id, ['first_name' => '', 'last_name' => '']),
             $this->update(CustomerDefinition::ENTITY_NAME, $id, ['company' => 'Acme GmbH']),
         );
 
-        (new CustomerContactPersonSubscriber($rowReader))->validate($event);
+        $subscriber->validate($event);
 
         $this->assertOutcome($event, true);
     }
 
     public function testUpdateWithoutANameFieldIsNotChecked(): void
     {
-        $rowReader = $this->reader([]);
+        $subscriber = $this->subscriber([]);
 
         $event = $this->event($this->update(CustomerDefinition::ENTITY_NAME, Uuid::randomHex(), ['email' => 'ada@example.com']));
 
-        (new CustomerContactPersonSubscriber($rowReader))->validate($event);
+        $subscriber->validate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
 
     public function testViolationNamesTheFirstNameOfTheCommand(): void
     {
-        $event = $this->event($this->insert(CustomerDefinition::ENTITY_NAME, ['first_name' => '', 'last_name' => '', 'account_type' => 'private'], '/3'));
+        $event = $this->event($this->insert(CustomerDefinition::ENTITY_NAME, ['first_name' => '', 'last_name' => '', 'account_type' => 'business'], '/3'));
 
-        (new CustomerContactPersonSubscriber($this->reader([])))->validate($event);
+        $this->subscriber()->validate($event);
 
         $exception = $event->getExceptions()->getExceptions()[0] ?? null;
         static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
@@ -244,6 +306,22 @@ class CustomerContactPersonSubscriberTest extends TestCase
         static::assertSame('/3/firstName', $violation->getPropertyPath());
         static::assertSame(NotBlank::IS_BLANK_ERROR, $violation->getCode());
         static::assertSame(CustomerContactPersonSubscriber::MESSAGE, $violation->getMessage());
+    }
+
+    public function testPrivateCustomerGetsAViolationPerMissingName(): void
+    {
+        $event = $this->event($this->insert(CustomerDefinition::ENTITY_NAME, ['first_name' => '', 'last_name' => '', 'account_type' => 'private'], '/2'));
+
+        $this->subscriber()->validate($event);
+
+        $exception = $event->getExceptions()->getExceptions()[0] ?? null;
+        static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
+
+        $violations = $exception->getViolations();
+        static::assertCount(2, $violations);
+        static::assertSame('/2/firstName', $violations->get(0)->getPropertyPath());
+        static::assertSame('/2/lastName', $violations->get(1)->getPropertyPath());
+        static::assertSame(CustomerContactPersonSubscriber::NAME_MESSAGE, $violations->get(0)->getMessage());
     }
 
     private function assertOutcome(PreWriteValidationEvent $event, bool $valid): void
@@ -262,13 +340,30 @@ class CustomerContactPersonSubscriberTest extends TestCase
 
     /**
      * @param list<array<string, string|null>> $rows
+     * @param array<string, string> $accountTypes the account type of each customer, keyed by hex id
      */
-    private function reader(array $rows): CustomerContactPersonRowReader
+    private function subscriber(array $rows = [], array $accountTypes = []): CustomerContactPersonSubscriber
     {
-        $reader = static::createStub(CustomerContactPersonRowReader::class);
-        $reader->method('read')->willReturn($rows);
+        $storedRows = array_map(static function (array $row): array {
+            $row['id'] = Uuid::fromHexToBytes((string) $row['id']);
+            if (isset($row['version_id'])) {
+                $row['version_id'] = Uuid::fromHexToBytes($row['version_id']);
+            }
 
-        return $reader;
+            return $row;
+        }, $rows);
+
+        $customers = [];
+        foreach ($accountTypes as $id => $accountType) {
+            $customers[] = ['id' => Uuid::fromHexToBytes($id), 'account_type' => $accountType];
+        }
+
+        $rowLoader = static::createStub(RowLoader::class);
+        $rowLoader->method('load')->willReturnCallback(
+            static fn (string $entity, array $primaryKeys, array $columns): array => $columns === ['id', 'account_type'] ? $customers : $storedRows
+        );
+
+        return new CustomerContactPersonSubscriber(new WriteOutcome($rowLoader), $rowLoader);
     }
 
     private function event(WriteCommand ...$commands): PreWriteValidationEvent

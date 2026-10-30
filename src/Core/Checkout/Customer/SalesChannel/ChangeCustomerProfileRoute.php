@@ -102,7 +102,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
             if ($this->companyAccountNameFields->areOptional($data, $customer, $context->getSalesChannelId())) {
-                $this->companyAccountNameFields->makeNamesOptional($validation, requireCompany: true);
+                $this->companyAccountNameFields->makeNamesOptional($validation, requireCompany: !$keepsAccountType || $data->has('company'));
                 $this->companyAccountNameFields->normalize($data, submittedOnly: true);
 
                 if (!$data->has('company')) {

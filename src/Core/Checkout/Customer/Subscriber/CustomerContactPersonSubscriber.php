@@ -7,10 +7,10 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\RowLoader;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -27,10 +27,14 @@ class CustomerContactPersonSubscriber implements EventSubscriberInterface
 {
     final public const MESSAGE = 'A contact person or a company is required.';
 
-    private const NAME_FIELDS = ['first_name', 'last_name', 'company', 'account_type'];
+    final public const NAME_MESSAGE = 'This value should not be blank.';
 
-    public function __construct(private readonly CustomerContactPersonRowReader $rowReader)
-    {
+    private const NAME_COLUMNS = ['first_name', 'last_name', 'company'];
+
+    public function __construct(
+        private readonly WriteOutcome $writeOutcome,
+        private readonly RowLoader $rowLoader,
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -44,10 +48,10 @@ class CustomerContactPersonSubscriber implements EventSubscriberInterface
     {
         $violations = new ConstraintViolationList();
 
-        $this->validateEntity($event, CustomerDefinition::ENTITY_NAME, $violations, true);
-        $this->validateEntity($event, CustomerAddressDefinition::ENTITY_NAME, $violations, false);
-        $this->validateEntity($event, OrderCustomerDefinition::ENTITY_NAME, $violations, false);
-        $this->validateEntity($event, OrderAddressDefinition::ENTITY_NAME, $violations, false);
+        $accountTypes = $this->validateCustomers($event, $violations);
+        $this->validateCustomerAddresses($event, $violations, $accountTypes);
+        $this->validateEntity($event, OrderCustomerDefinition::ENTITY_NAME, $violations);
+        $this->validateEntity($event, OrderAddressDefinition::ENTITY_NAME, $violations);
 
         if ($violations->count() === 0) {
             return;
@@ -56,118 +60,129 @@ class CustomerContactPersonSubscriber implements EventSubscriberInterface
         $event->getExceptions()->add(new WriteConstraintViolationException($violations));
     }
 
-    private function validateEntity(PreWriteValidationEvent $event, string $entity, ConstraintViolationList $violations, bool $hasAccountType): void
+    /**
+     * @return array<string, mixed> the account type of each customer this write touches, keyed by hex id
+     */
+    private function validateCustomers(PreWriteValidationEvent $event, ConstraintViolationList $violations): array
     {
-        $commands = $this->collectCommands($event, $entity);
+        $rows = $this->writeOutcome->resultingRows(
+            $event->getCommandsForEntity(CustomerDefinition::ENTITY_NAME),
+            [...self::NAME_COLUMNS, 'account_type'],
+        );
 
-        if ($commands === []) {
+        $accountTypes = [];
+        foreach ($rows as $row) {
+            $accountType = $row->getResultingValue('account_type');
+            $accountTypes[Uuid::fromBytesToHex($row->primaryKey['id'])] = $accountType;
+
+            $this->requireNamesFor($accountType, $row, $violations);
+        }
+
+        return $accountTypes;
+    }
+
+    /**
+     * @param array<string, mixed> $accountTypes
+     */
+    private function validateCustomerAddresses(PreWriteValidationEvent $event, ConstraintViolationList $violations, array $accountTypes): void
+    {
+        $rows = $this->writeOutcome->resultingRows(
+            $event->getCommandsForEntity(CustomerAddressDefinition::ENTITY_NAME),
+            [...self::NAME_COLUMNS, 'customer_id'],
+        );
+
+        if ($rows === []) {
             return;
         }
 
-        $stored = $this->fetchStored($entity, $commands, $hasAccountType);
-
-        foreach ($commands as $id => ['command' => $command, 'payload' => $payload]) {
-            $row = $stored[$id] ?? [];
-
-            $firstName = trim((string) ($payload['first_name'] ?? $row['first_name'] ?? ''));
-            $lastName = trim((string) ($payload['last_name'] ?? $row['last_name'] ?? ''));
-
-            if ($firstName !== '' || $lastName !== '') {
-                continue;
+        $customerIds = [];
+        foreach ($rows as $row) {
+            $customerId = $row->getResultingValue('customer_id');
+            if (\is_string($customerId)) {
+                $customerIds[] = Uuid::fromBytesToHex($customerId);
             }
+        }
 
-            $company = \array_key_exists('company', $payload) ? $payload['company'] : ($row['company'] ?? null);
-            $accountType = $payload['account_type'] ?? $row['account_type'] ?? CustomerEntity::ACCOUNT_TYPE_PRIVATE;
+        $accountTypes += $this->loadAccountTypes(array_values(array_diff(array_unique($customerIds), array_keys($accountTypes))));
 
-            if ((!$hasAccountType || $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS) && trim((string) $company) !== '') {
-                continue;
-            }
+        foreach ($rows as $row) {
+            $customerId = $row->getResultingValue('customer_id');
+            $accountType = \is_string($customerId) ? ($accountTypes[Uuid::fromBytesToHex($customerId)] ?? null) : null;
 
-            $violations->add(new ConstraintViolation(
-                self::MESSAGE,
-                self::MESSAGE,
-                [],
-                null,
-                $command->getPath() . '/firstName',
-                $firstName,
-                null,
-                NotBlank::IS_BLANK_ERROR
-            ));
+            $this->requireNamesFor($accountType, $row, $violations);
         }
     }
 
     /**
-     * @return array<string, array{command: InsertCommand|UpdateCommand, payload: array<string, mixed>}>
-     */
-    private function collectCommands(PreWriteValidationEvent $event, string $entity): array
-    {
-        $commands = [];
-
-        foreach ($event->getCommandsForEntity($entity) as $command) {
-            if (!$command instanceof InsertCommand && !($command instanceof UpdateCommand && $command->hasAnyField(...self::NAME_FIELDS))) {
-                continue;
-            }
-
-            $key = $this->commandKey($command);
-
-            if (isset($commands[$key])) {
-                $commands[$key]['payload'] = array_merge($commands[$key]['payload'], $command->getPayload());
-
-                continue;
-            }
-
-            $commands[$key] = ['command' => $command, 'payload' => $command->getPayload()];
-        }
-
-        return $commands;
-    }
-
-    private function commandKey(WriteCommand $command): string
-    {
-        $id = strtolower($command->getDecodedPrimaryKey()['id']);
-        $versionId = $command->getPrimaryKey()['version_id'] ?? null;
-
-        return $versionId === null ? $id : $id . '-' . Uuid::fromBytesToHex($versionId);
-    }
-
-    /**
-     * @param array<string, string|null> $row
-     */
-    private function rowKey(array $row): string
-    {
-        $id = strtolower((string) $row['id']);
-        $versionId = $row['version_id'] ?? null;
-
-        return $versionId === null ? $id : $id . '-' . strtolower($versionId);
-    }
-
-    /**
-     * @param array<string, array{command: InsertCommand|UpdateCommand, payload: array<string, mixed>}> $commands
+     * @param list<string> $customerIds
      *
-     * @return array<string, array<string, string|null>>
+     * @return array<string, mixed>
      */
-    private function fetchStored(string $entity, array $commands, bool $hasAccountType): array
+    private function loadAccountTypes(array $customerIds): array
     {
-        $ids = [];
-        $versioned = false;
-        foreach ($commands as ['command' => $command]) {
-            if ($command instanceof UpdateCommand) {
-                $ids[] = $command->getDecodedPrimaryKey()['id'];
-                $versioned = $versioned || isset($command->getPrimaryKey()['version_id']);
-            }
-        }
-
-        if ($ids === []) {
+        if ($customerIds === []) {
             return [];
         }
 
-        $rows = $this->rowReader->read($entity, array_values(array_unique($ids)), $hasAccountType, $versioned);
+        $primaryKeys = array_map(static fn (string $id): array => ['id' => Uuid::fromHexToBytes($id)], $customerIds);
 
-        $stored = [];
-        foreach ($rows as $row) {
-            $stored[$this->rowKey($row)] = $row;
+        $accountTypes = [];
+        foreach ($this->rowLoader->load(CustomerDefinition::ENTITY_NAME, $primaryKeys, ['id', 'account_type']) as $customer) {
+            $accountTypes[Uuid::fromBytesToHex((string) $customer['id'])] = $customer['account_type'];
         }
 
-        return $stored;
+        return $accountTypes;
+    }
+
+    private function requireNamesFor(mixed $accountType, OutcomeRow $row, ConstraintViolationList $violations): void
+    {
+        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            $this->requireNameOrCompany($row, $violations);
+
+            return;
+        }
+
+        foreach (['first_name' => 'firstName', 'last_name' => 'lastName'] as $column => $field) {
+            if ($this->value($row, $column) === '') {
+                $violations->add($this->violation($row, $field, self::NAME_MESSAGE));
+            }
+        }
+    }
+
+    private function validateEntity(PreWriteValidationEvent $event, string $entity, ConstraintViolationList $violations): void
+    {
+        foreach ($this->writeOutcome->resultingRows($event->getCommandsForEntity($entity), self::NAME_COLUMNS) as $row) {
+            $this->requireNameOrCompany($row, $violations);
+        }
+    }
+
+    private function requireNameOrCompany(OutcomeRow $row, ConstraintViolationList $violations): void
+    {
+        if ($this->value($row, 'first_name') !== '' || $this->value($row, 'last_name') !== '' || $this->value($row, 'company') !== '') {
+            return;
+        }
+
+        $violations->add($this->violation($row, 'firstName', self::MESSAGE));
+    }
+
+    private function value(OutcomeRow $row, string $column): string
+    {
+        $value = $row->getResultingValue($column);
+
+        return \is_string($value) ? trim($value) : '';
+    }
+
+    private function violation(OutcomeRow $row, string $field, string $message): ConstraintViolation
+    {
+        return new ConstraintViolation(
+            $message,
+            $message,
+            [],
+            null,
+            $row->path . '/' . $field,
+            $row->getResultingValue($field === 'firstName' ? 'first_name' : 'last_name'),
+            null,
+            NotBlank::IS_BLANK_ERROR
+        );
     }
 }

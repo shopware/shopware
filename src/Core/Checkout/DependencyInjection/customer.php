@@ -68,7 +68,6 @@ use Shopware\Core\Checkout\Customer\Subscriber\AddressHashSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerAddressSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerBeforeDeleteSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerChangePasswordSubscriber;
-use Shopware\Core\Checkout\Customer\Subscriber\CustomerContactPersonRowReader;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerContactPersonSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerDisplayNameSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerEmailUniqueSubscriber;
@@ -97,6 +96,7 @@ use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\RowLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -241,14 +241,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CustomerDisplayNameSubscriber::class)
         ->tag('kernel.event_subscriber');
 
-    $services->set(CustomerContactPersonRowReader::class)
-        ->args([
-            service(Connection::class),
-        ]);
-
     $services->set(CustomerContactPersonSubscriber::class)
         ->args([
-            service(CustomerContactPersonRowReader::class),
+            service(WriteOutcome::class),
+            service(RowLoader::class),
         ])
         ->tag('kernel.event_subscriber');
 

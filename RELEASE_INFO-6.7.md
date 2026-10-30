@@ -279,6 +279,7 @@ Manifest validation now also runs when an app is installed or updated from the s
 ### Deprecated `PluginZipImportCommand::$cacheClearer`
 
 The property is unused and will be removed in 6.8.
+`--no-validate` on `app:install` and `app:refresh` is deprecated and will be removed in 6.8.
 
 ## API
 

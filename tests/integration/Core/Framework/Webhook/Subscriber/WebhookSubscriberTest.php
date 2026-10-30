@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\Webhook\Authorization\Ownership;
+namespace Shopware\Tests\Integration\Core\Framework\Webhook\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -19,25 +19,28 @@ use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
  * @internal
  */
 #[Package('framework')]
-class AppIntegrationChangeSubscriberTest extends TestCase
+class WebhookSubscriberTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
     private AppFixture $appFixture;
 
+    private Connection $connection;
+
     protected function setUp(): void
     {
         $appFixture = static::getContainer()->get(AppFixture::class);
         static::assertInstanceOf(AppFixture::class, $appFixture);
         $this->appFixture = $appFixture;
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testAWebhookOwnedByTheAppsIntegrationMovesToTheIntegrationThatReplacesIt(): void
     {
         $app = $this->appFixture->createAppFromData();
         $webhookId = WebhookBuilder::ownedByIntegration($app->getIntegrationId())
-            ->insert(static::getContainer()->get(Connection::class));
+            ->insert($this->connection);
 
         $newIntegrationId = $this->replaceIntegration($app);
         static::getContainer()->get('integration.repository')->delete([['id' => $app->getIntegrationId()]], Context::createDefaultContext());
@@ -49,7 +52,7 @@ class AppIntegrationChangeSubscriberTest extends TestCase
     {
         $app = $this->appFixture->createAppFromData();
         $webhookId = WebhookBuilder::ownedByIntegration($app->getIntegrationId())
-            ->insert(static::getContainer()->get(Connection::class));
+            ->insert($this->connection);
         $newIntegrationId = $this->replaceIntegration($app);
         static::assertSame($newIntegrationId, $this->loadWebhook($webhookId)->getOwnerIntegrationId());
 

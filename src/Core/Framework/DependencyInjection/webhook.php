@@ -232,8 +232,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.webhook.policy');
 
     $services->set(PrivilegePolicy::class)
-        ->args([service(AclRoleLoader::class)])
-        ->tag('shopware.webhook.policy')
+        ->args([service(AclRoleLoader::class), service(WebhookOutboxStore::class)])
+        ->tag('shopware.webhook.policy', ['priority' => -1000])
         ->tag('kernel.event_subscriber')
         ->tag('kernel.reset', ['method' => 'reset']);
 

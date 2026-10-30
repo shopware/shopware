@@ -124,8 +124,8 @@ EOF;
         $reopenActionExisted = false;
         $retourActionExisted = false;
 
-        /** @var StateMachineTransitionEntity $transition */
         foreach ($availableTransitions as $transition) {
+            static::assertInstanceOf(StateMachineTransitionEntity::class, $transition);
             if ($transition->getActionName() === 'reopen') {
                 $reopenActionExisted = true;
                 static::assertSame(OrderDeliveryStates::STATE_OPEN, $transition->getToStateMachineState()?->getTechnicalName());

@@ -87,12 +87,12 @@ class AdminSearcherTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $first);
         static::assertInstanceOf(ProductEntity::class, $last);
 
-        /** @var ArrayEntity $firstSearchExtension */
         $firstSearchExtension = $first->getExtension('search');
+        static::assertInstanceOf(ArrayEntity::class, $firstSearchExtension);
         $firstScore = $firstSearchExtension->get('_score');
 
-        /** @var ArrayEntity $secondSearchExtension */
         $secondSearchExtension = $first->getExtension('search');
+        static::assertInstanceOf(ArrayEntity::class, $secondSearchExtension);
         $secondScore = $secondSearchExtension->get('_score');
 
         static::assertSame($secondScore, $firstScore);

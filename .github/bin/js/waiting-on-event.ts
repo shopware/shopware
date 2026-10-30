@@ -103,7 +103,7 @@ export function toItemsOnProjects(nodes: ProjectItemNode[], pullRequestId: strin
 /**
  * The sweep's plan, narrowed to one pull request. An archived item counts as missing, so an
  * open pull request is added again, which unarchives it. Without a row — the pull request is
- * closed, or a bot opened it — the item is archived where the sweep would archive it.
+ * closed, internal, or a bot opened it — the item is archived where the sweep would archive it.
  */
 export function planPullRequestSync(row: Row | undefined, item: ItemOnProject | undefined, archive: boolean): ProjectChange[] {
     if (row !== undefined) {
@@ -135,7 +135,7 @@ export async function syncPullRequest({ github, core, context }: { github: Graph
     if (node.state === 'OPEN') {
         await resolveMergeability(github, core, context.repo, [node]);
         [row] = buildRows([node], new Date());
-        core.info(row !== undefined ? `#${number}: ${row.label} (${row.reason}) since ${row.since}` : `#${number}: no verdict, a bot opened it`);
+        core.info(row !== undefined ? `#${number}: ${row.label} (${row.reason}) since ${row.since}` : `#${number}: no verdict, it is internal or a bot opened it`);
 
         const changes = planLabelChanges([node], row !== undefined ? [row] : []);
         if (!dryRun && (await applyLabelChanges(github, core, context.repo, changes, 0)).length > 0) {

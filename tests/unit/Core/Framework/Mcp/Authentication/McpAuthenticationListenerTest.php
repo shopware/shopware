@@ -2,7 +2,10 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Authentication;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -24,6 +27,13 @@ use Symfony\Component\HttpKernel\KernelEvents;
 #[CoversClass(McpAuthenticationListener::class)]
 class McpAuthenticationListenerTest extends TestCase
 {
+    private Connection&Stub $connection;
+
+    protected function setUp(): void
+    {
+        $this->connection = static::createStub(Connection::class);
+    }
+
     public function testSubscribedEventsContainsControllerEvent(): void
     {
         $events = McpAuthenticationListener::getSubscribedEvents();
@@ -43,7 +53,7 @@ class McpAuthenticationListenerTest extends TestCase
         $clientRepository = $this->createMock(ClientRepository::class);
         $clientRepository->expects($this->never())->method('validateClient');
 
-        $listener = new McpAuthenticationListener($clientRepository, static::createStub(RateLimiter::class));
+        $listener = new McpAuthenticationListener($clientRepository, static::createStub(RateLimiter::class), $this->connection);
         $event = $this->createControllerEvent('api.some.other.route');
 
         $listener->authenticate($event);
@@ -56,7 +66,7 @@ class McpAuthenticationListenerTest extends TestCase
         $clientRepository = $this->createMock(ClientRepository::class);
         $clientRepository->expects($this->never())->method('validateClient');
 
-        $listener = new McpAuthenticationListener($clientRepository, static::createStub(RateLimiter::class));
+        $listener = new McpAuthenticationListener($clientRepository, static::createStub(RateLimiter::class), $this->connection);
         $event = $this->createControllerEvent('api.mcp.endpoint');
 
         $listener->authenticate($event);
@@ -69,7 +79,7 @@ class McpAuthenticationListenerTest extends TestCase
         $clientRepository = $this->createMock(ClientRepository::class);
         $clientRepository->expects($this->never())->method('validateClient');
 
-        $listener = new McpAuthenticationListener($clientRepository, static::createStub(RateLimiter::class));
+        $listener = new McpAuthenticationListener($clientRepository, static::createStub(RateLimiter::class), $this->connection);
         $event = $this->createControllerEvent('api.mcp.endpoint', [
             'Authorization' => 'Bearer some.jwt.token',
         ]);
@@ -84,6 +94,7 @@ class McpAuthenticationListenerTest extends TestCase
         $listener = new McpAuthenticationListener(
             static::createStub(ClientRepository::class),
             static::createStub(RateLimiter::class),
+            $this->connection,
         );
 
         // SWSC = sales-channel key — a known prefix but not supported for MCP
@@ -107,7 +118,7 @@ class McpAuthenticationListenerTest extends TestCase
         $rateLimiter->expects($this->once())->method('ensureAccepted');
         $rateLimiter->expects($this->never())->method('reset');
 
-        $listener = new McpAuthenticationListener($clientRepository, $rateLimiter);
+        $listener = new McpAuthenticationListener($clientRepository, $rateLimiter, $this->connection);
         $event = $this->createControllerEvent('api.mcp.endpoint', [
             'sw-access-key' => 'SWIAvalidintegrationkey12',
             'sw-secret-access-key' => 'wrong-secret',
@@ -126,12 +137,13 @@ class McpAuthenticationListenerTest extends TestCase
         $rateLimiter = $this->createMock(RateLimiter::class);
         $rateLimiter->expects($this->once())
             ->method('ensureAccepted')
-            ->with(RateLimiter::OAUTH, $accessKey)
+            ->with(RateLimiter::OAUTH, 'swiavalidintegrationkey12')
             ->willThrowException($expected);
 
         $listener = new McpAuthenticationListener(
             static::createStub(ClientRepository::class),
             $rateLimiter,
+            $this->connection,
         );
 
         $event = $this->createControllerEvent('api.mcp.endpoint', [
@@ -144,22 +156,24 @@ class McpAuthenticationListenerTest extends TestCase
         $listener->authenticate($event);
     }
 
-    public function testAuthenticatesSuccessfullyAndResetsRateLimiter(): void
+    #[DataProvider('integrationKeyVariants')]
+    public function testAuthenticatesSuccessfullyAndResetsRateLimiter(string $accessKey, string $storedAccessKey, string $expectedLimiterKey): void
     {
-        $accessKey = 'SWIAvalidintegrationkey12';
         $secret = 'my-secret-key';
 
-        $clientRepository = static::createStub(ClientRepository::class);
-        $clientRepository->method('validateClient')
+        $this->connection->method('fetchOne')->willReturn($storedAccessKey);
+        $clientRepository = $this->createMock(ClientRepository::class);
+        $clientRepository->expects($this->once())->method('validateClient')
+            ->with($accessKey, $secret, 'client_credentials')
             ->willReturn(true);
 
         $rateLimiter = $this->createMock(RateLimiter::class);
         $rateLimiter->expects($this->once())->method('ensureAccepted')
-            ->with(RateLimiter::OAUTH, $accessKey);
+            ->with(RateLimiter::OAUTH, $expectedLimiterKey);
         $rateLimiter->expects($this->once())->method('reset')
-            ->with(RateLimiter::OAUTH, $accessKey);
+            ->with(RateLimiter::OAUTH, $expectedLimiterKey);
 
-        $listener = new McpAuthenticationListener($clientRepository, $rateLimiter);
+        $listener = new McpAuthenticationListener($clientRepository, $rateLimiter, $this->connection);
         $event = $this->createControllerEvent('api.mcp.endpoint', [
             'sw-access-key' => $accessKey,
             'sw-secret-access-key' => $secret,
@@ -173,22 +187,34 @@ class McpAuthenticationListenerTest extends TestCase
         static::assertTrue($request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_PRE_AUTHENTICATED));
     }
 
+    /**
+     * @return iterable<string, array{string, string, string}>
+     */
+    public static function integrationKeyVariants(): iterable
+    {
+        yield 'case variant' => ['SWIAvalidintegrationkey12', 'SWIAVALIDINTEGRATIONKEY12', 'swiavalidintegrationkey12'];
+        yield 'trailing spaces' => ['SWIAvalidintegrationkey12  ', 'SWIAVALIDINTEGRATIONKEY12', 'swiavalidintegrationkey12'];
+        yield 'trailing Unicode spaces' => ["SWIAvalidintegrationkey12\u{00A0}\u{3000}", 'SWIAVALIDINTEGRATIONKEY12', 'swiavalidintegrationkey12'];
+        yield 'significant trailing tab in stored key' => ["SWIAcustomkey\t", "SWIAcustomkey\t", "swiacustomkey\t"];
+    }
+
     public function testAuthenticatesSuccessfullyWithUserAccessKey(): void
     {
-        $accessKey = 'SWUAvaliduseraccesskey123';
+        $accessKey = "SWUAvaliduseraccesskey123  \u{3000}";
         $secret = 'my-secret-key';
 
+        $this->connection->method('fetchOne')->willReturn('SWUAVALIDUSERACCESSKEY123');
         $clientRepository = static::createStub(ClientRepository::class);
         $clientRepository->method('validateClient')
             ->willReturn(true);
 
         $rateLimiter = $this->createMock(RateLimiter::class);
         $rateLimiter->expects($this->once())->method('ensureAccepted')
-            ->with(RateLimiter::OAUTH, $accessKey);
+            ->with(RateLimiter::OAUTH, 'swuavaliduseraccesskey123');
         $rateLimiter->expects($this->once())->method('reset')
-            ->with(RateLimiter::OAUTH, $accessKey);
+            ->with(RateLimiter::OAUTH, 'swuavaliduseraccesskey123');
 
-        $listener = new McpAuthenticationListener($clientRepository, $rateLimiter);
+        $listener = new McpAuthenticationListener($clientRepository, $rateLimiter, $this->connection);
         $event = $this->createControllerEvent('api.mcp.endpoint', [
             'sw-access-key' => $accessKey,
             'sw-secret-access-key' => $secret,

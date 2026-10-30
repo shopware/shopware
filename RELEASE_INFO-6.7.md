@@ -2,6 +2,12 @@
 
 ## Core
 
+### Guest order and MCP attempt counters
+
+Guest order lookups and MCP access-key authentication now use the stored identifier for their attempt counters when a database row matches.
+Case and whitespace variants that match the same row share a counter.
+MCP access-key authentication performs one additional database lookup per request.
+
 ### Missing plugin conditions in stored carts
 
 Stored carts can be recalculated when a rule container references a condition whose PHP class is no longer available, for example an uninstalled plugin.

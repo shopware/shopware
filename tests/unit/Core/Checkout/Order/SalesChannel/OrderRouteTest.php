@@ -357,6 +357,7 @@ class OrderRouteTest extends TestCase
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());
         $order->setCreatedAt(new \DateTime());
+        $order->setDeepLinkCode('deepLinkCode');
         $order->setOrderCustomer($orderCustomer);
         $order->setBillingAddress($billingAddress);
 
@@ -396,10 +397,16 @@ class OrderRouteTest extends TestCase
             ->with($orderCustomer->getCustomerId())
             ->willReturn('newContextToken');
 
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())->method('ensureAccepted')
+            ->with(RateLimiter::GUEST_LOGIN, 'deeplinkcode-127.0.0.1');
+        $rateLimiter->expects($exception === null ? $this->once() : $this->never())->method('reset')
+            ->with(RateLimiter::GUEST_LOGIN, 'deeplinkcode-127.0.0.1');
+
         $route = new OrderRoute(
             $orderRepository,
             static::createStub(EntityRepository::class),
-            static::createStub(RateLimiter::class),
+            $rateLimiter,
             $eventDispatcher,
             $accountService,
             new GuestAuthenticator(),
@@ -408,9 +415,9 @@ class OrderRouteTest extends TestCase
         );
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('deepLinkCode', 'deepLinkCode'));
+        $criteria->addFilter(new EqualsFilter('deepLinkCode', "DEEPLINKCODE \u{00A0}\u{3000}"));
 
-        $request = new Request();
+        $request = new Request(server: ['REMOTE_ADDR' => '127.0.0.1']);
         $credentials = $credentialsInQuery ? $request->query : $request->request;
         $credentials->set('email', $mail);
         $credentials->set('zipcode', $postalCode);

@@ -124,15 +124,15 @@ class OrderRoute extends AbstractOrderRoute
 
         // Handle guest authentication if deeplink is set
         if ($deepLinkFilter !== null && !$context->getCustomer()) {
+            $order = $orders->first();
+
             try {
-                $cacheKey = strtolower((string) $deepLinkFilter->getValue()) . '-' . $request->getClientIp();
+                $cacheKey = mb_strtolower((string) ($order?->getDeepLinkCode() ?? $deepLinkFilter->getValue())) . '-' . $request->getClientIp();
 
                 $this->rateLimiter->ensureAccepted(RateLimiter::GUEST_LOGIN, $cacheKey);
             } catch (RateLimitExceededException $exception) {
                 throw OrderException::customerAuthThrottledException($exception->getWaitTime(), $exception);
             }
-
-            $order = $orders->first();
 
             if ($order === null) {
                 throw OrderException::guestNotAuthenticated();

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Mcp\Authentication;
 
+use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Log\Package;
@@ -40,6 +41,7 @@ class McpAuthenticationListener implements EventSubscriberInterface
     public function __construct(
         private readonly ClientRepositoryInterface $clientRepository,
         private readonly RateLimiter $rateLimiter,
+        private readonly Connection $connection,
     ) {
     }
 
@@ -73,13 +75,21 @@ class McpAuthenticationListener implements EventSubscriberInterface
             throw McpException::unsupportedKeyType();
         }
 
-        $this->rateLimiter->ensureAccepted(RateLimiter::OAUTH, $accessKey);
+        // Use the stored key so limiter identity follows the database collation.
+        $table = $origin === 'user' ? 'user_access_key' : 'integration';
+        $storedAccessKey = $this->connection->fetchOne(
+            'SELECT access_key FROM ' . $table . ' WHERE access_key = :accessKey',
+            ['accessKey' => $accessKey],
+        );
+        $limiterKey = mb_strtolower(\is_string($storedAccessKey) ? $storedAccessKey : $accessKey);
+
+        $this->rateLimiter->ensureAccepted(RateLimiter::OAUTH, $limiterKey);
 
         if (!$this->clientRepository->validateClient($accessKey, $secretKey, 'client_credentials')) {
             throw McpException::invalidCredentials();
         }
 
-        $this->rateLimiter->reset(RateLimiter::OAUTH, $accessKey);
+        $this->rateLimiter->reset(RateLimiter::OAUTH, $limiterKey);
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'mcp-' . $accessKey);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $accessKey);

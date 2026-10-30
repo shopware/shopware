@@ -118,10 +118,12 @@ class MappingProviderExtensionTest extends TestCase
         static::assertSame('Custom Shirt', $rendered[0]['text']);
         static::assertSame('Custom Shirt / Description', $rendered[1]['text']);
         static::assertContains('acme-product-name', $cache->getTags());
+        $product = new SalesChannelProductEntity();
+        $product->setTranslated(['name' => 'Shirt']);
         static::assertTrue($registry->resolveSource(
             'product',
             new MappingSourceReference('root', 'product', ['unlisted' => true], 'name'),
-            new MappingSourceResolutionContext(new StoredElement('element', 'Sw:Content:Text'), [], [], null),
+            new MappingSourceResolutionContext(new StoredElement('element', 'Sw:Content:Text'), ['product' => $product], [], null),
         )->isNoValue());
         $registry->reset();
         static::assertArrayHasKey('product.name', $registry->forRootSource('product'));
@@ -296,11 +298,6 @@ class BundleMappingProvider extends AbstractMappingCandidateProvider
         $source = new MappingSourceReference($this->bundleName, 'recommendations', path: 'title');
 
         return [new MappingCandidate($source->displayName(), 'Recommendations', '', 'plugin', 'string', source: $source)];
-    }
-
-    public function supportsSource(MappingSourceReference $source): bool
-    {
-        return $source->type === $this->bundleName && $source->id === 'recommendations';
     }
 
     public function resolveSource(MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution

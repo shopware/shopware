@@ -99,10 +99,6 @@ class ProductMappingCandidateProvider extends AbstractMappingCandidateProvider
 
     public function resolveRootSource(MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
     {
-        if ($source->type !== 'root' || !$this->supports($source->id)) {
-            return MappingSourceResolution::noValue();
-        }
-
         $product = $context->rootValues[$source->id] ?? null;
         if (!$product instanceof SalesChannelProductEntity) {
             return MappingSourceResolution::noValue();

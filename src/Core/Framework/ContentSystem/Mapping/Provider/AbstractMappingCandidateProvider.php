@@ -56,17 +56,13 @@ abstract class AbstractMappingCandidateProvider
     }
 
     /**
-     * Resolve a root reference offered by this provider. The registry checks exact catalogue identity before
-     * dispatch, so this fallback is limited to a path the provider explicitly offered. Providers with translated
+     * Receives a root reference offered by this provider, with exact source identity and configuration checked
+     * by the registry before dispatch. The reader may rely on that precondition. Providers with translated
      * or inherited values should override this with storefront-facing accessors.
      * Provider errors propagate to normal error handling; return `noValue()` only for missing source data.
      */
     public function resolveRootSource(MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
     {
-        if ($source->type !== 'root') {
-            return MappingSourceResolution::noValue();
-        }
-
         $root = $context->rootValues[$source->id] ?? null;
         if ($source->path === null) {
             return \array_key_exists($source->id, $context->rootValues)
@@ -89,18 +85,9 @@ abstract class AbstractMappingCandidateProvider
     }
 
     /**
-     * Whether this provider can resolve the supplied non-root source reference. Candidate catalogues remain the
-     * admission boundary: the renderer calls this only on the provider that offered the stored reference for the
-     * current root source.
-     */
-    public function supportsSource(MappingSourceReference $source): bool
-    {
-        return false;
-    }
-
-    /**
-     * Resolve an admitted non-root reference. Return `noValue()` when source data is missing and `resolved(null)`
-     * when it explicitly resolves to null. Provider errors propagate to normal error handling.
+     * Receives a non-root reference offered by this provider, with exact source identity and configuration checked
+     * by the registry before dispatch. Return `noValue()` when data is missing and `resolved(null)` for a present null.
+     * Provider errors propagate to normal error handling.
      */
     public function resolveSource(MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
     {

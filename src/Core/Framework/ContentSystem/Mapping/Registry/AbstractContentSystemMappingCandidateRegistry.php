@@ -52,8 +52,9 @@ abstract class AbstractContentSystemMappingCandidateRegistry implements ResetInt
     abstract public function forRootSource(string $rootSource): array;
 
     /**
-     * Resolve an admitted source through the provider that offered it for this root source;
-     * explicit result distinguishes a resolved null from no value. Provider errors propagate to normal error handling.
+     * Resolve a source through the provider that offered it for this root source. Preserve exact catalogue
+     * identity and configuration checks even for direct callers; property admission remains the caller's concern.
+     * The explicit result distinguishes a resolved null from no value. Provider errors propagate normally.
      */
     abstract public function resolveSource(
         string $rootSource,

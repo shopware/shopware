@@ -261,6 +261,26 @@ class StoredMappingInspectorTest extends TestCase
         static::assertSame('category.internalNote', $problems[0]->sourceName);
     }
 
+    public function testRejectsAnInlineCandidateReturnedUnderAnotherPathsKey(): void
+    {
+        $registry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $registry->method('forRootSource')->willReturn([
+            self::CATEGORY_NAME_PATH => new MappingCandidate('category.description', 'Description', '', 'basic', 'string'),
+        ]);
+        $inspector = new StoredMappingInspector(
+            static::createStub(AbstractContentSystemElementTypeRegistry::class),
+            $registry,
+            new MappingTypeCompatibility(),
+            new MappingConsumers(),
+            new InlineMappingTokenParser(),
+        );
+
+        static::assertEquals(
+            ContentSystemException::unknownInlineMappingPath(self::CATEGORY_NAME_PATH, 'category'),
+            $inspector->admitInlinePath(self::CATEGORY_NAME_PATH, 'category'),
+        );
+    }
+
     #[TestDox('rejects an inline token whose catalogued value has no text form')]
     public function testRejectsAnInlineTokenWhoseValueIsNotStringifiable(): void
     {

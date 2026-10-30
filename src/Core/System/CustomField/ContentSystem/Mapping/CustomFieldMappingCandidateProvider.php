@@ -80,10 +80,6 @@ class CustomFieldMappingCandidateProvider extends AbstractMappingCandidateProvid
 
     public function resolveRootSource(MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
     {
-        if ($source->type !== 'root' || !$this->supports($source->id) || !str_starts_with((string) $source->path, 'customFields.')) {
-            return MappingSourceResolution::noValue();
-        }
-
         $entity = $context->rootValues[$source->id] ?? null;
         if (!$entity instanceof ProductEntity && !$entity instanceof CategoryEntity && !$entity instanceof LandingPageEntity) {
             return MappingSourceResolution::noValue();

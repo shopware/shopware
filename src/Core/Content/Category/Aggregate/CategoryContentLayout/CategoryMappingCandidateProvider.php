@@ -66,10 +66,6 @@ class CategoryMappingCandidateProvider extends AbstractMappingCandidateProvider
 
     public function resolveRootSource(MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
     {
-        if ($source->type !== 'root' || !$this->supports($source->id)) {
-            return MappingSourceResolution::noValue();
-        }
-
         $category = $context->rootValues[$source->id] ?? null;
         if (!$category instanceof CategoryEntity) {
             return MappingSourceResolution::noValue();

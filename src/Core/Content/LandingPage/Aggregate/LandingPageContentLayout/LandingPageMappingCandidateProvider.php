@@ -55,10 +55,6 @@ class LandingPageMappingCandidateProvider extends AbstractMappingCandidateProvid
 
     public function resolveRootSource(MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
     {
-        if ($source->type !== 'root' || !$this->supports($source->id)) {
-            return MappingSourceResolution::noValue();
-        }
-
         $landingPage = $context->rootValues[$source->id] ?? null;
         if (!$landingPage instanceof LandingPageEntity) {
             return MappingSourceResolution::noValue();

@@ -73,10 +73,6 @@ final class ContentSystemMappingCandidateRegistry extends AbstractContentSystemM
 
         $context->cacheContext?->addTags($candidate->cacheTags);
 
-        if ($source->type !== 'root' && !$provider->supportsSource($source)) {
-            return MappingSourceResolution::noValue();
-        }
-
         return $source->type === 'root'
             ? $provider->resolveRootSource($source, $context)
             : $provider->resolveSource($source, $context);

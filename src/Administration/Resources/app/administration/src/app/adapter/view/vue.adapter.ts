@@ -11,7 +11,7 @@ import type {
     RouteLocationNormalizedLoaded,
     RouteLocationRaw,
 } from 'vue-router';
-import { createApp, defineAsyncComponent, h } from 'vue';
+import { compile, createApp, defineAsyncComponent, h } from 'vue';
 import type { Component as VueComponent, App } from 'vue';
 import VuePlugins from 'src/app/plugin';
 import setupShopwareDevtools from 'src/app/adapter/view/sw-vue-devtools';
@@ -71,6 +71,7 @@ import {
 } from '@shopware-ag/meteor-component-library';
 
 import { attachSetupOverrideShim } from '../composition-extension-system/options-api-setup-shim';
+import { trackNativeHmrDefinition } from '../composition-extension-system/script-hmr';
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 import useLegacyConditionContext from '../../component/structure/sw-block-override/shim/legacy-condition-context';
 import type { LegacyConditionCaseOptions } from '../../component/structure/sw-block-override/shim/legacy-condition-context';
@@ -107,6 +108,13 @@ type RouteGuard = (
 type RouteEnterCallback =
     Exclude<Parameters<NavigationGuardNext>[0], undefined> extends (vm: infer VM) => void ? (vm: VM) => void : never;
 type RouteGuardResult = false | RouteLocationRaw | Error | RouteEnterCallback | undefined;
+
+type VueHmrRuntime = {
+    createRecord(id: string, component: ComponentConfig): boolean;
+    rerender(id: string, render?: ComponentConfig['render']): void;
+};
+
+type ComponentConfigWithHmrId = ComponentConfig & { __hmrId?: string };
 
 const routeGuardNames: RouteGuardName[] = ['beforeRouteEnter', 'beforeRouteLeave', 'beforeRouteUpdate'];
 
@@ -549,6 +557,22 @@ export default class VueAdapter extends ViewAdapter {
                         if (typeof componentConfig === 'boolean') {
                             resolve(false);
                         } else {
+                            if (this.isVite8HmrEnabled()) {
+                                const hmrConfig = componentConfig as ComponentConfigWithHmrId;
+                                hmrConfig.__hmrId ??= this.getHmrId(componentName);
+                                const metadata = hmrConfig.__shopwareSetupHmr;
+                                if (metadata?.mode === 'base' && metadata.data) {
+                                    // Vue can replace a plain native definition, but a factory-composed inheritance
+                                    // chain must be built again from its registrations on a fresh page.
+                                    metadata.data.reloadPage ||= Boolean(
+                                        componentConfig.extends || componentConfig.mixins?.length,
+                                    );
+                                }
+                            }
+
+                            if (process.env.NODE_ENV !== 'production' && this.isVite8HmrEnabled()) {
+                                trackNativeHmrDefinition(componentConfig);
+                            }
                             attachSetupOverrideShim(componentName, componentConfig);
                             this.resolveMixins(componentConfig);
                         }
@@ -560,6 +584,53 @@ export default class VueAdapter extends ViewAdapter {
         }
 
         return this.resolvedComponentConfigs.get(componentName) as Promise<ComponentConfig | boolean>;
+    }
+
+    /**
+     * Applies an updated Twig override to the mounted Vue component during Vite 8 development.
+     *
+     * @private
+     */
+    async updateComponentTemplateFromHmr(componentName: string, overrideHmrId: string, template: string): Promise<boolean> {
+        const runtime = (window as Window & { __VUE_HMR_RUNTIME__?: VueHmrRuntime }).__VUE_HMR_RUNTIME__;
+
+        if (!this.isVite8HmrEnabled() || !runtime || typeof template !== 'string') {
+            return false;
+        }
+
+        const updated = this.componentFactory.updateTemplateOverrideFromHmr(componentName, overrideHmrId, template);
+
+        if (!updated) {
+            return false;
+        }
+
+        for (const affectedName of this.componentFactory.getTemplateDependents(componentName)) {
+            const existingConfigPromise = this.resolvedComponentConfigs.get(affectedName);
+
+            // Unresolved components will use the new template when first built.
+            if (!existingConfigPromise) continue;
+            const existingConfig = await existingConfigPromise;
+            if (typeof existingConfig === 'boolean') return false;
+
+            const updatedConfig = await this.componentFactory.build(affectedName);
+            if (typeof updatedConfig === 'boolean' || typeof updatedConfig.template !== 'string') return false;
+
+            const hmrId = this.getHmrId(affectedName);
+            const render = compile(updatedConfig.template, this.app.config.compilerOptions);
+            existingConfig.template = updatedConfig.template;
+            runtime.createRecord(hmrId, existingConfig);
+            runtime.rerender(hmrId, render);
+        }
+
+        return true;
+    }
+
+    private isVite8HmrEnabled(): boolean {
+        return process.env.NODE_ENV !== 'production' && Shopware.Feature.isActive('ADMIN_VITE_8');
+    }
+
+    private getHmrId(componentName: string): string {
+        return `shopware-component:${componentName}`;
     }
 
     /**

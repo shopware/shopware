@@ -160,6 +160,12 @@ Unit tests that pass a mocked `EventDispatcherInterface` to `ExtensionDispatcher
 
 Live state transitions batch history and state writes. `EntityWriteEvent` subscribers can receive multiple entities: filter with `getCommandsForEntity()` and make pre-write work idempotent or compensate it through `addError()`. `WriteCommandExceptionEvent` and error callbacks can run before SQL executes, and each failed attempt runs its error callbacks before it is retried. Retries stop once success callbacks or written listeners begin, or compensation fails. MariaDB error `1020` is now retryable.
 
+### Media folder paths and child counts are kept in sync
+
+Moving or deleting a media folder left the previous parent's `media_folder.child_count` wrong, which shows as an expand arrow on a folder with no children.
+A full re-index also could not rebuild `media_folder.path`, which the Administration uses to find media in subfolders when searching inside a folder.
+Run `bin/console dal:refresh:index --only=media_folder.indexer` to repair existing values.
+
 ## API
 
 ### HTTP method overrides restricted to form actions

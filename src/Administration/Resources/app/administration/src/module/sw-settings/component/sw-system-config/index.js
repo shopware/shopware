@@ -158,12 +158,12 @@ export default {
          */
         schema: {
             handler(newSchema) {
-                if (this.isSyncingFromConfig) {
+                if (Shopware.Feature.isActive('v6.8.0.0') || this.isSyncingFromConfig) {
                     return;
                 }
 
                 this.isSyncingFromSchema = true;
-                this.config = this.schemaToConfig(newSchema);
+                this.config = Shopware.Feature.silence('V6_8_0_0', () => this.schemaToConfig(newSchema));
                 this.$nextTick(() => {
                     this.isSyncingFromSchema = false;
                 });
@@ -176,12 +176,12 @@ export default {
          */
         config: {
             handler(newConfig) {
-                if (this.isSyncingFromSchema) {
+                if (Shopware.Feature.isActive('v6.8.0.0') || this.isSyncingFromSchema) {
                     return;
                 }
 
                 this.isSyncingFromConfig = true;
-                this.schema = this.configToSchema(newConfig, this.schema);
+                this.schema = Shopware.Feature.silence('V6_8_0_0', () => this.configToSchema(newConfig, this.schema));
                 this.$nextTick(() => {
                     this.isSyncingFromConfig = false;
                 });
@@ -224,11 +224,23 @@ export default {
         },
 
         async readConfig() {
-            // @deprecated tag:v6.8.0 - The getSchemaForDomain method call will be replaced with this.systemConfigApiService.getSchema(this.domain).
-            const schema = await this.getSchemaForDomain();
+            let schemaRequest;
 
-            // @deprecated tag:v6.8.0 - The assignConfigIds method call will be removed without replacement.
-            this.assignConfigIds(schema);
+            // @deprecated tag:v6.8.0 - Only the else branch stays.
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                Shopware.Feature.silence('V6_8_0_0', () => {
+                    schemaRequest = this.getSchemaForDomain();
+                });
+            } else {
+                schemaRequest = this.systemConfigApiService.getSchema(this.domain);
+            }
+
+            const schema = await schemaRequest;
+
+            // @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                Shopware.Feature.silence('V6_8_0_0', () => this.assignConfigIds(schema));
+            }
 
             this.schema = schema;
 
@@ -253,6 +265,11 @@ export default {
          * legacy config into the schema result to keep the compatibility layer intact.
          */
         async getSchemaForDomain() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-system-config.getSchemaForDomain() is deprecated. Will be removed together with config data prop.',
+            );
+
             const getConfig = this.systemConfigApiService.getConfig;
             const defaultGetConfig = Object.getPrototypeOf(this.systemConfigApiService)?.getConfig;
 
@@ -268,7 +285,7 @@ export default {
                 return schema;
             }
 
-            return this.configToSchema(config, schema);
+            return Shopware.Feature.silence('V6_8_0_0', () => this.configToSchema(config, schema));
         },
 
         /**
@@ -280,6 +297,11 @@ export default {
          * `configToSchema`, regardless of mutation style or reordering.
          */
         assignConfigIds(schema) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-system-config.assignConfigIds() is deprecated. Will be removed together with config data prop.',
+            );
+
             (schema ?? []).forEach((tab) => {
                 (tab.cards ?? []).forEach((card) => {
                     card.__configId = utils.createId();
@@ -620,6 +642,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
          */
         schemaToConfig(schema) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-system-config.schemaToConfig() is deprecated. Will be removed together with config data prop.',
+            );
+
             return (schema ?? []).flatMap((tab) => tab?.cards ?? []);
         },
 
@@ -634,6 +661,11 @@ export default {
          * it. Returns null if no element matches, e.g. for cards without elements.
          */
         getTabIndexByElementOverlap(card, elementNameToTabIndex) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-system-config.getTabIndexByElementOverlap() is deprecated. Will be removed together with config data prop.',
+            );
+
             const voteCountByTabIndex = new Map();
 
             (card.elements ?? []).forEach((element) => {
@@ -670,6 +702,11 @@ export default {
          * tab is tracked correctly from then on.
          */
         configToSchema(config, previousSchema) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-system-config.configToSchema() is deprecated. Will be removed together with config data prop.',
+            );
+
             const cards = config ?? [];
             const previousTabs =
                 previousSchema && previousSchema.length > 0
@@ -706,7 +743,9 @@ export default {
                 if (idToTabIndex.has(card.__configId)) {
                     tabIndex = idToTabIndex.get(card.__configId);
                 } else {
-                    const overlapTabIndex = this.getTabIndexByElementOverlap(card, elementNameToTabIndex);
+                    const overlapTabIndex = Shopware.Feature.silence('V6_8_0_0', () =>
+                        this.getTabIndexByElementOverlap(card, elementNameToTabIndex),
+                    );
                     if (overlapTabIndex !== null) {
                         tabIndex = overlapTabIndex;
                     }

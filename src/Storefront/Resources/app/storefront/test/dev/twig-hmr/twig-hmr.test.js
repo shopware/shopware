@@ -78,6 +78,45 @@ describe('dev/twig-hmr', () => {
         expect([input.selectionStart, input.selectionEnd]).toEqual([2, 3]);
     });
 
+    describe('when the update moved the focus away', () => {
+        function blurDuringRefresh(element) {
+            // Browsers without `moveBefore()` drop the focus when idiomorph moves an element without an id.
+            window.PluginManager.initializePlugins = jest.fn(() => {
+                element.blur();
+
+                return Promise.resolve();
+            });
+        }
+
+        it('focuses the input again and restores its selection', async () => {
+            document.body.innerHTML = '<main><input type="text" class="search"></main>';
+            const input = document.querySelector('.search');
+            input.value = 'typed';
+            input.focus();
+            input.setSelectionRange(1, 3);
+            pages['http://localhost/'] = { html: page('<main><input type="text" class="search"></main>') };
+            blurDuringRefresh(input);
+
+            await refresh(['search.html.twig']);
+
+            expect(document.activeElement).toBe(input);
+            expect([input.selectionStart, input.selectionEnd]).toEqual([1, 3]);
+        });
+
+        it('focuses an element without a selection again', async () => {
+            document.body.innerHTML = '<main><button class="btn">Buy</button></main>';
+            const button = document.querySelector('.btn');
+            button.focus();
+            pages['http://localhost/'] = { html: page('<main><button class="btn">Buy now</button></main>') };
+            blurDuringRefresh(button);
+
+            await refresh(['buy-widget.html.twig']);
+
+            expect(button.textContent).toBe('Buy now');
+            expect(document.activeElement).toBe(button);
+        });
+    });
+
     it('re-renders the content of an open AJAX modal', async () => {
         document.body.innerHTML = `
             <main>Page</main>
@@ -161,6 +200,29 @@ describe('dev/twig-hmr', () => {
         expect(modal.querySelector('.part').textContent).toBe('Version 2');
     });
 
+    it('updates AJAX modals that miss template elements without failing', async () => {
+        document.body.innerHTML = `
+            <div class="js-pseudo-modal">
+                <div class="modal show" data-sw-source-url="/widgets/without-title">
+                    <div class="js-pseudo-modal-template-content-element"><p class="part">Version 1</p></div>
+                </div>
+                <div class="modal show" data-sw-source-url="/widgets/without-content"><p class="static">Static</p></div>
+            </div>
+        `;
+        pages['http://localhost/'] = { html: page('') };
+        pages['/widgets/without-title'] = {
+            html: '<span class="js-pseudo-modal-template-title-element">Title</span><p class="part">Version 2</p>',
+        };
+        pages['/widgets/without-content'] = { html: '<p class="static">Changed</p>' };
+
+        await refresh(['cms.html.twig']);
+
+        const content = document.querySelector('.js-pseudo-modal-template-content-element');
+        expect(content.innerHTML).toBe('<p class="part">Version 2</p>');
+        expect(document.querySelector('.static').textContent).toBe('Static');
+        expect(console.error).not.toHaveBeenCalled();
+    });
+
     it('keeps elements that scripts added at runtime', async () => {
         document.body.innerHTML = `
             <main>
@@ -215,6 +277,26 @@ describe('dev/twig-hmr', () => {
 
         expect(document.querySelector('.text').textContent).toBe('Version 1');
         expect(console.error).toHaveBeenCalledWith('Failed to fetch');
+    });
+
+    it('logs a generic message for an error page without a title', async () => {
+        document.body.innerHTML = '<main><p class="text">Version 1</p></main>';
+        pages['http://localhost/'] = { status: 502, html: 'Bad Gateway' };
+
+        await refresh(['page.html.twig']);
+
+        expect(document.querySelector('.text').textContent).toBe('Version 1');
+        expect(console.error).toHaveBeenCalledWith('[sw-twig-hmr] http://localhost/ answered with HTTP 502: server error');
+    });
+
+    it('logs errors that are no Error objects', async () => {
+        document.body.innerHTML = '<main>Version 1</main>';
+        pages['http://localhost/'] = { html: page('<main>Version 2</main>') };
+        window.PluginManager.initializePlugins = jest.fn(() => Promise.reject('Plugin failed'));
+
+        await refresh(['page.html.twig']);
+
+        expect(console.error).toHaveBeenCalledWith('Plugin failed');
     });
 
     it('keeps the current DOM when the server answers with an error', async () => {

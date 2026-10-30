@@ -63,7 +63,7 @@ function isStateful(element) {
 }
 
 function mergeStateClasses(oldElement, newClassValue) {
-    const classes = new Set((newClassValue || '').split(/\s+/).filter(Boolean));
+    const classes = new Set(newClassValue.split(/\s+/).filter(Boolean));
 
     STATE_CLASSES
         .filter((cls) => oldElement.classList.contains(cls))

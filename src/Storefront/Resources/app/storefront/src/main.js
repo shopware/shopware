@@ -63,10 +63,12 @@ PluginManager.register('CollapseFooterColumns', () => import('src/plugin/collaps
 PluginManager.register('Navbar', () => import('src/plugin/navbar/navbar.plugin'), '[data-navbar]');
 PluginManager.register('OffCanvasMenu', () => import('src/plugin/main-menu/offcanvas-menu.plugin'), '[data-off-canvas-menu]');
 PluginManager.register('FormHandler', () => import('src/plugin/forms/form-handler.plugin'), '[data-form-handler]');
-/** @deprecated tag:v6.8.0 - The handling and validation of forms will be done with the `form-handler.plugin.js`.  */
-PluginManager.register('FormValidation', () => import('src/plugin/forms/form-validation.plugin'), '[data-form-validation]');
-/** @deprecated tag:v6.8.0 - The handling and validation of forms will be done with the `form-handler.plugin.js`.  */
-PluginManager.register('FormSubmitLoader', () => import('src/plugin/forms/form-submit-loader.plugin'), '[data-form-submit-loader]');
+if (!window.Feature.isActive('v6.8.0.0')) {
+    /** @deprecated tag:v6.8.0 - The handling and validation of forms will be done with the `form-handler.plugin.js`.  */
+    PluginManager.register('FormValidation', () => import('src/plugin/forms/form-validation.plugin'), '[data-form-validation]');
+    /** @deprecated tag:v6.8.0 - The handling and validation of forms will be done with the `form-handler.plugin.js`.  */
+    PluginManager.register('FormSubmitLoader', () => import('src/plugin/forms/form-submit-loader.plugin'), '[data-form-submit-loader]');
+}
 PluginManager.register('FormFieldToggle', () => import('src/plugin/forms/form-field-toggle.plugin'), '[data-form-field-toggle]');
 PluginManager.register('FormAutoSubmit', () => import('src/plugin/forms/form-auto-submit.plugin'), '[data-form-auto-submit]');
 PluginManager.register('FormAjaxSubmit', () => import('src/plugin/forms/form-ajax-submit.plugin'), '[data-form-ajax-submit]');

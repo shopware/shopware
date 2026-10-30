@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  *
- * Interactive extension selection for `admin:check-extensions`. The grammar —
+ * Extension selection for the extension tooling commands. The grammar —
  * numbers, comma lists, ranges, "all", "writable" — lives in the pure
  * `parseSelection`, separated from the readline I/O in `promptSelection`, so it
  * is unit-testable without a TTY.
@@ -9,7 +9,7 @@
 
 import readline from 'node:readline/promises';
 import colors from 'picocolors';
-import { projectHasOwnedConfig } from './shared';
+import { normalizeSelection, projectHasOwnedConfig } from './shared';
 import type { ExtensionToolingProject } from './shared';
 
 export type Selection = { names: string[] } | 'all' | 'cancel' | { error: string };
@@ -86,11 +86,14 @@ function describe(project: ExtensionToolingProject): string {
 }
 
 /** Renders the numbered menu and resolves the user's choice, re-prompting on invalid input. */
-export async function promptSelection(projects: ExtensionToolingProject[]): Promise<{ names: string[] } | 'all' | 'cancel'> {
+export async function promptSelection(
+    projects: ExtensionToolingProject[],
+    title: string,
+): Promise<{ names: string[] } | 'all' | 'cancel'> {
     const terminal = readline.createInterface({ input: process.stdin, output: process.stdout });
 
     try {
-        process.stdout.write(colors.bold('\nSelect extensions to check (vue-tsc + ESLint):\n\n'));
+        process.stdout.write(colors.bold(`\n${title}\n\n`));
 
         const numberWidth = String(projects.length).length;
 
@@ -117,4 +120,60 @@ export async function promptSelection(projects: ExtensionToolingProject[]): Prom
     } finally {
         terminal.close();
     }
+}
+
+export interface CliSelectionOptions {
+    only: string | undefined;
+    all: boolean;
+    /** The projects the interactive picker offers; only called on a TTY. */
+    candidates: () => ExtensionToolingProject[];
+    messages: {
+        title: string;
+        empty: string;
+        fallback: string;
+    };
+}
+
+export interface CliSelection {
+    /** The names to run; undefined runs every extension. */
+    only: string[] | undefined;
+    /** The names given via --only, which may include vendor extensions on purpose. */
+    explicitOnly: string[];
+}
+
+/** Resolves --only, --all and the interactive picker; null when there is nothing to run. */
+export async function resolveCliSelection(options: CliSelectionOptions): Promise<CliSelection | null> {
+    if (options.only !== undefined) {
+        const names = normalizeSelection(options.only);
+
+        return { only: names, explicitOnly: names };
+    }
+
+    if (options.all) {
+        return { only: undefined, explicitOnly: [] };
+    }
+
+    if (!process.stdin.isTTY || !process.stdout.isTTY) {
+        console.log(`${options.messages.fallback} Pass --only=<name[,name]> or --all to be explicit.`);
+
+        return { only: undefined, explicitOnly: [] };
+    }
+
+    const projects = options.candidates();
+
+    if (projects.length === 0) {
+        console.log(options.messages.empty);
+
+        return null;
+    }
+
+    const choice = await promptSelection(projects, options.messages.title);
+
+    if (choice === 'cancel') {
+        console.log('Nothing selected.');
+
+        return null;
+    }
+
+    return { only: choice === 'all' ? undefined : choice.names, explicitOnly: [] };
 }

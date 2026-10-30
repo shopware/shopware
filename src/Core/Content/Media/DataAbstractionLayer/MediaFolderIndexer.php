@@ -160,6 +160,9 @@ class MediaFolderIndexer extends EntityIndexer
             $this->childCountUpdater->update(MediaFolderDefinition::ENTITY_NAME, $ids, $message->getContext());
         }
 
+        // update() already updates the tree synchronously whenever a write changes a parentId. What is
+        // left are the paths that bypass write events -- the reindex migration, dal:refresh:index and
+        // direct SQL -- and those are all full indexing, which pages through every folder on its own.
         if ($message->isFullIndexing && $message->allow(self::TREE_UPDATER)) {
             $this->treeUpdater->batchUpdate(
                 $ids,

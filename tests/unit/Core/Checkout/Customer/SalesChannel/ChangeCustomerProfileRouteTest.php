@@ -27,6 +27,7 @@ use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Validator\Constraint;
@@ -269,6 +270,32 @@ class ChangeCustomerProfileRouteTest extends TestCase
         static::assertContainsEquals(new NotBlank(), $validation->getProperty('vatIds'));
     }
 
+    public function testOldBusinessCustomerWithoutACompanySavesTheProfileWhenTheNamesAreOptional(): void
+    {
+        $customer = $this->createBusinessCustomer();
+        $customer->setCompany('');
+
+        [$written, $validation] = $this->changeProfile(
+            $customer,
+            ['firstName' => 'Jane', 'lastName' => 'Doe'],
+            new StaticSystemConfigService([CompanyAccountNameFields::CONFIG_SHOW => false]),
+        );
+
+        static::assertSame('Jane', $written['firstName']);
+        static::assertSame([], $validation->getProperty('company'));
+    }
+
+    public function testAnEmptyCompanySentWithOptionalNamesIsStillRejected(): void
+    {
+        [, $validation] = $this->changeProfile(
+            $this->createBusinessCustomer(),
+            ['firstName' => '', 'lastName' => '', 'company' => ''],
+            new StaticSystemConfigService([CompanyAccountNameFields::CONFIG_SHOW => false]),
+        );
+
+        static::assertContainsEquals(CompanyAccountNameFields::companyNotBlank(), $validation->getProperty('company'));
+    }
+
     public function testPrivateCustomerWithoutAccountTypeGetsNoCompany(): void
     {
         $customer = $this->createBusinessCustomer();
@@ -369,7 +396,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
      *
      * @return array{0: array<string, mixed>, 1: DataValidationDefinition}
      */
-    private function changeProfile(CustomerEntity $customer, array $request): array
+    private function changeProfile(CustomerEntity $customer, array $request, ?SystemConfigService $systemConfigService = null): array
     {
         $validation = new DataValidationDefinition();
         $validationFactory = static::createStub(CustomerValidationFactory::class);
@@ -393,7 +420,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
             $validationFactory,
             static::createStub(StoreApiCustomFieldMapper::class),
             static::createStub(EntityRepository::class),
-            new CompanyAccountNameFields(static::createStub(SystemConfigService::class)),
+            new CompanyAccountNameFields($systemConfigService ?? static::createStub(SystemConfigService::class)),
             new ExtensionDispatcher(new EventDispatcher()),
         );
 

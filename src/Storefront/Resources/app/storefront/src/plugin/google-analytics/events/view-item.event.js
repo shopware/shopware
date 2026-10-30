@@ -46,13 +46,15 @@ export default class ViewItemEvent extends AnalyticsEvent
             return;
         }
 
-        gtag('event', 'view_item', {
+        this.pushEvent('view_item', {
             'currency': productData.currency,
             'value': productData.value,
             'items': [{
-                'id': productId,
-                'name': productName,
-                'brand': productData.brand,
+                'item_id': productId,
+                'item_name': productName,
+                'item_brand': productData.brand,
+                'item_variant': productData.variant,
+                'price': productData.value,
                 ...ProductPageHelper.getCategories(),
             }],
         });

@@ -9,6 +9,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * @internal
+ */
 #[Package('checkout')]
 final class CompanyAccountNameFields
 {

@@ -219,7 +219,24 @@ class CompanyAccountNameTest extends TestCase
             );
             static::fail('a private account needs a contact person on every write path');
         } catch (WriteException $exception) {
-            static::assertStringContainsString(CustomerContactPersonSubscriber::MESSAGE, $exception->getMessage());
+            static::assertStringContainsString(CustomerContactPersonSubscriber::NAME_MESSAGE, $exception->getMessage());
+        }
+
+        static::assertSame('Ada', $this->loadCustomer('company-no-contact@example.com')->getFirstName());
+    }
+
+    public function testTheDataLayerRefusesToClearOneNameOfAPrivateAccount(): void
+    {
+        $this->register($this->privateRegistrationData());
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+
+        $customerId = $this->loadCustomer('company-no-contact@example.com')->getId();
+
+        try {
+            $this->customerRepository->update([['id' => $customerId, 'firstName' => '']], Context::createDefaultContext());
+            static::fail('a private account keeps both names on every write path');
+        } catch (WriteException $exception) {
+            static::assertStringContainsString(CustomerContactPersonSubscriber::NAME_MESSAGE, $exception->getMessage());
         }
 
         static::assertSame('Ada', $this->loadCustomer('company-no-contact@example.com')->getFirstName());

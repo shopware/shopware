@@ -208,7 +208,7 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
     test('fires event on form submit for wishlist form', async () => {
         document.body.innerHTML = `
             <script type="application/ld+json">
-                {"@type":"Product","sku":"abc123-def456-789","name":"Test Product"}
+                {"@type":"Product","sku":"abc123-def456-789","name":"Test Product","offers":{"priceCurrency":"EUR","price":"99.99"}}
             </script>
             <h1 class="product-detail-name">Test Product</h1>
             <meta property="product:price:currency" content="EUR">
@@ -329,7 +329,10 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
     }
 
     test('fires remove_from_wishlist when the wishlist storage removes a product', async () => {
-        document.body.innerHTML = '<h1 class="product-detail-name">Shirt</h1>';
+        document.body.innerHTML = `
+            <h1 class="product-detail-name">Shirt</h1>
+            <script type="application/ld+json">{"@type":"Product","name":"Shirt"}</script>
+        `;
 
         await removeFromWishlistEvent._onProductRemoved({ detail: { productId: 'product-1' } });
 

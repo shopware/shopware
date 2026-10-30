@@ -111,7 +111,6 @@ class ScheduledTaskHandlerTest extends TestCase
         $taskEntity->setNextExecutionTime(new \DateTimeImmutable('2024-01-01 00:00:00'));
         $taskEntity->setRunInterval(300);
 
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$taskEntity])]);
 
         $handler = new HandlerStub($repository, static::createStub(LoggerInterface::class));

@@ -193,6 +193,14 @@ Check import files that relied on `0` being ignored.
 
 ## API
 
+### Usernames with surrounding whitespace
+
+User creation and updates reject usernames containing leading or trailing whitespace, including Unicode whitespace.
+The Admin API and Sync API return HTTP 400 with code `USER__USERNAME_WHITESPACE` on the `username` field.
+Remove surrounding whitespace before submitting a username.
+Existing usernames are not changed automatically; updates that omit `username` remain possible.
+Duplicate usernames are reported with HTTP 400 and code `USER__USERNAME_NOT_UNIQUE`.
+
 ### HTTP method overrides restricted to form actions
 
 POST requests can now override their method only to PUT, PATCH or DELETE through the `X-HTTP-Method-Override` header or `_method` parameter.

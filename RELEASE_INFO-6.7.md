@@ -412,6 +412,12 @@ Results with an `itemRoute` use the new Twig block `sw_search_bar_item_custom_ro
 
 The "Show empty snippets only" filter in the snippet list now only lists snippets without a value.
 A snippet whose value is `0` counts as translated and is no longer listed.
+### Administration deprecation notices go through the feature lifecycle
+
+The hand-rolled deprecation warnings in the Administration now go through `Shopware.Feature.triggerDeprecationOrThrow()`, so they throw once their major flag is active instead of staying a console message forever.
+This covers `sw-tabs`, `sw-loader`, `sw-popover`, `sw-skeleton-bar`, the `items` prop of `sw-entity-listing`, the Options API compatibility shim and the legacy theme config labels and help texts in `sw-theme-manager-detail`.
+
+Deprecation notices for the legacy Twig override shim and for deprecated extension SDK position identifiers and data sets still only warn and do not throw, because no removal version exists for them yet.
 
 ### Promotion code filter in the order list only matches promotion line items
 

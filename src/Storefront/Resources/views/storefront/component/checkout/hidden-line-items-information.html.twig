@@ -19,6 +19,7 @@
                             {% set categoryAttributes = categoryAttributes ~ ' data-category-' ~ loop.index ~ '="' ~ name|e('html_attr') ~ '"' %}
                         {% endfor %}
                         {% set productId = lineItem.productId ?? lineItem.referencedId ?? lineItem.id %}
+                        {% set variant = lineItem.payload.options is defined ? lineItem.payload.options|map(option => option.option)|join(', ') : '' %}
                         <span class="hidden-line-item"
                               data-id="{{ productId }}"
                               data-line-item-id="{{ lineItem.id }}"
@@ -27,6 +28,7 @@
                               data-quantity="{{ lineItem.quantity }}"
                               data-price="{{ gaPrice }}"
                               data-brand="{{ lineItem.payload.manufacturerName|default('') }}"
+                              data-variant="{{ variant }}"
                               {{ categoryAttributes|raw }}
                         >
                         </span>

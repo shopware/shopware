@@ -217,8 +217,7 @@
         {% block layout_head_javascript_router %}
             {# Register all routes that will be needed in JavaScript to the window.router object #}
             <script>
-                {# Navigation variables are set here instead of in navbar.html.twig because the navbar #}
-                {# is ESI-cached and shared across pages, while this template is rendered per request. #}
+                {# Keep these assignments here for themes overriding the router block. #}
                 window.activeNavigationId = '{{ shopware.navigation.id }}';
                 window.activeNavigationPathIdList = JSON.parse('{{ (shopware.navigation.pathIdList ?? [])|json_encode|escape('js') }}');
                 window.activeRoute = '{{ activeRoute }}';
@@ -227,6 +226,9 @@
                     'frontend.cart.offcanvas': '{{ path('frontend.cart.offcanvas') }}',
                     'frontend.cookie.offcanvas': '{{ path('frontend.cookie.offcanvas') }}',
                     'frontend.cookie.groups': '{{ path('frontend.cookie.groups') }}',
+                    {% if storefrontAnalytics and storefrontAnalytics.isActive() %}
+                        'frontend.analytics.product-categories': '{{ path('frontend.analytics.product-categories') }}',
+                    {% endif %}
                     'frontend.checkout.finish.page': '{{ path('frontend.checkout.finish.page') }}',
                     'frontend.checkout.info': '{{ path('frontend.checkout.info') }}',
                     'frontend.menu.offcanvas': '{{ path('frontend.menu.offcanvas') }}',
@@ -241,6 +243,19 @@
                 window.salesChannelId = '{{ context.salesChannelId }}';
                 window.currencyIsoCode = '{{ context.currency.isoCode }}';
                 window.openOffcanvasAfterAddToCart = '{{ config('core.cart.openOffcanvasAfterAddToCart') ? '1' : '0' }}';
+            </script>
+        {% endblock %}
+
+        {% block layout_head_javascript_navigation %}
+            {# Older router block overrides may omit navigation variables. Preserve any values they provide. #}
+            {# These values must come from the page, because the navbar is a shared ESI fragment. #}
+            <script>
+                if (typeof window.activeNavigationId === 'undefined') {
+                    window.activeNavigationId = '{{ shopware.navigation.id }}';
+                }
+                if (typeof window.activeNavigationPathIdList === 'undefined') {
+                    window.activeNavigationPathIdList = JSON.parse('{{ (shopware.navigation.pathIdList ?? [])|json_encode|escape('js') }}');
+                }
             </script>
         {% endblock %}
 

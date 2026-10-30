@@ -29,6 +29,7 @@ it('rounds half up', () => {});`,
             code: `
 /**
  * @regression #21760 The list showed "Open" while the detail page showed "Shipped".
+ * @deprecated tag:v6.8.0 - Removed with the 6.7 fallback.
  */
 it.deprecated('v6.8.0.0')('shows the same delivery as the detail page', () => {});`,
         },
@@ -38,12 +39,35 @@ it.deprecated('v6.8.0.0')('shows the same delivery as the detail page', () => {}
             code: "it('returns null without deliveries', () => {});",
         },
         {
+            name: 'a deprecated pinned test with its tag',
+            filename: 'src/x/tests/pinned.spec.ts',
+            code: `
+/** @deprecated tag:v6.8.0 - Removed with the 6.7 fallback. */
+it.deprecated('v6.8.0.0')('falls back to the first delivery', () => {});`,
+        },
+        {
             name: 'other specs are not checked',
             filename: 'src/x/x.spec.ts',
             code: "it('works', () => {});",
         },
     ],
     invalid: [
+        {
+            name: 'a deprecated pinned test without its tag',
+            filename: 'src/x/tests/pinned.spec.ts',
+            code: "it.deprecated('v6.8.0.0')('falls back to the first delivery', () => {});",
+            errors: [{ messageId: 'missingDeprecation' }],
+        },
+        {
+            name: 'a deprecated requirement without its tag',
+            filename: 'src/x/tests/requirements.spec.ts',
+            code: `
+/**
+ * @requirement Falls back to the most expensive delivery.
+ */
+it.deprecated('v6.8.0.0')('falls back to the most expensive delivery', () => {});`,
+            errors: [{ messageId: 'missingDeprecation' }],
+        },
         {
             name: 'a requirement without a comment',
             filename: 'src/x/tests/requirements.spec.ts',

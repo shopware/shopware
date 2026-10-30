@@ -25,11 +25,14 @@ describe('sw-settings-shipping-price-matrix', () => {
      * Each price covers a quantity range or a rule, so a matrix needs as many prices as the shipping costs have steps.
      */
     it('adds a price', async () => {
+        // ARRANGE
         const wrapper = await mountPriceMatrix();
         const shippingMethod = Shopware.Store.get('swShippingDetail').shippingMethod as unknown as { prices: unknown[] };
 
+        // ACT
         await wrapper.find('.sw-settings-shipping-price-matrix__top-container-add-new-rule').trigger('click');
 
+        // ASSERT
         expect(shippingMethod.prices).toHaveLength(1);
     });
 
@@ -37,11 +40,14 @@ describe('sw-settings-shipping-price-matrix', () => {
      * @requirement A merchant can delete a price from a price matrix.
      */
     it('deletes a price', async () => {
+        // ARRANGE
         const wrapper = await mountPriceMatrix();
         await showAllPrices(wrapper);
 
+        // ACT
         await deletePrice(wrapper, 1);
 
+        // ASSERT
         expect(remove).toHaveBeenCalledWith('priceId2');
     });
 
@@ -50,10 +56,13 @@ describe('sw-settings-shipping-price-matrix', () => {
      * A matrix without prices would make the shipping method free for everything the matrix's rule covers.
      */
     it('keeps the last price', async () => {
+        // ARRANGE
         const wrapper = await mountPriceMatrix({ prices: [createQuantityPrices()[0]] });
 
+        // ACT
         await deletePrice(wrapper, 0);
 
+        // ASSERT
         expect(remove).not.toHaveBeenCalled();
     });
 });

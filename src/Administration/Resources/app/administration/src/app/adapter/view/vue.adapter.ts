@@ -26,6 +26,10 @@ import MtLoader from '@shopware-ag/meteor-component-library/dist/esm/MtLoader';
 import MtProgressBar from '@shopware-ag/meteor-component-library/dist/esm/MtProgressBar';
 import MtButton from '@shopware-ag/meteor-component-library/dist/esm/MtButton';
 import MtCheckbox from '@shopware-ag/meteor-component-library/dist/esm/MtCheckbox';
+import MtRadioGroupRoot from '@shopware-ag/meteor-component-library/dist/esm/MtRadioGroupRoot';
+import MtRadioGroupItem from '@shopware-ag/meteor-component-library/dist/esm/MtRadioGroupItem';
+import MtRadioGroupCustomItem from '@shopware-ag/meteor-component-library/dist/esm/MtRadioGroupCustomItem';
+import MtRadioGroupIndicator from '@shopware-ag/meteor-component-library/dist/esm/MtRadioGroupIndicator';
 import MtEmailField from '@shopware-ag/meteor-component-library/dist/esm/MtEmailField';
 import MtEmptyState from '@shopware-ag/meteor-component-library/dist/esm/MtEmptyState';
 import MtNumberField from '@shopware-ag/meteor-component-library/dist/esm/MtNumberField';
@@ -420,6 +424,10 @@ export default class VueAdapter extends ViewAdapter {
             MtProgressBar,
             MtButton,
             MtCheckbox,
+            MtRadioGroupRoot,
+            MtRadioGroupItem,
+            MtRadioGroupCustomItem,
+            MtRadioGroupIndicator,
             MtEmailField,
             MtEmptyState,
             MtNumberField,

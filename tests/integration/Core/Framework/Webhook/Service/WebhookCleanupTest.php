@@ -47,6 +47,7 @@ class WebhookCleanupTest extends TestCase
         $this->insertLog('running_old', $afterLifetime, WebhookEventLogDefinition::STATUS_RUNNING);
         $this->insertLog('success_old', $afterLifetime, WebhookEventLogDefinition::STATUS_SUCCESS);
         $this->insertLog('failed_very_old', $afterDoubleLifetime, WebhookEventLogDefinition::STATUS_FAILED);
+        $this->insertLog('not_permitted_old', $afterLifetime, WebhookEventLogDefinition::STATUS_NOT_PERMITTED);
         $this->insertLog('queued_old', $afterLifetime, WebhookEventLogDefinition::STATUS_QUEUED);
         $this->insertLog('queued_very_old', $afterDoubleLifetime, WebhookEventLogDefinition::STATUS_QUEUED);
 

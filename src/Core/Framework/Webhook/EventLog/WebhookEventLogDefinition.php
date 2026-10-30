@@ -80,6 +80,7 @@ class WebhookEventLogDefinition extends EntityDefinition
             (new BlobField('serialized_webhook_message', 'serializedWebhookMessage'))->removeFlag(ApiAware::class)->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             (new IntField('sequence', 'sequence'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new IdField('webhook_id', 'webhookId'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
         ]);
     }
 }

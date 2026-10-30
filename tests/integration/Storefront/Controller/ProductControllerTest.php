@@ -802,6 +802,7 @@ class ProductControllerTest extends TestCase
                     'status' => true,
                     'title' => 'Test',
                     'content' => self::TEST_CONTENT,
+                    'externalUser' => 'Test',
                     'points' => 5,
                 ],
             ],

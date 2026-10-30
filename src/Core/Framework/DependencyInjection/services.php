@@ -16,7 +16,10 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCache;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyServiceFactory;
 use Shopware\Core\Framework\Adapter\Command\S3FilesystemVisibilityCommand;
+use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnectionResetter;
 use Shopware\Core\Framework\Adapter\Kernel\EnvIntOrNullProcessor;
 use Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel;
@@ -157,6 +160,7 @@ use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Runtime\Runner\Symfony\HttpKernelRunner;
 use Symfony\Component\Runtime\Runner\Symfony\ResponseRunner;
@@ -167,6 +171,7 @@ use Twig\Extra\String\StringExtension;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service_locator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
@@ -290,16 +295,21 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('shopware.migration_source');
 
+    $services->set('doctrine.dbal.migration_connection', Connection::class)
+        ->public()
+        ->factory([MySQLFactory::class, 'createMigrationConnection'])
+        ->args([service(Connection::class)]);
+
     $services->set(MigrationRuntime::class)
         ->args([
-            service(Connection::class),
+            service('doctrine.dbal.migration_connection'),
             service('logger'),
         ]);
 
     $services->set(MigrationCollectionLoader::class)
         ->public()
         ->args([
-            service(Connection::class),
+            service('doctrine.dbal.migration_connection'),
             service(MigrationRuntime::class),
             service('logger'),
             tagged_iterator('shopware.migration_source'),
@@ -307,7 +317,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(MigrationInfo::class)
         ->args([
-            service(Connection::class),
+            service('doctrine.dbal.migration_connection'),
         ]);
 
     $services->set(CreateMigrationCommand::class)
@@ -967,8 +977,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.http_cache.reverse_proxy.enabled'),
         ]);
 
-    $services->set(CacheStore::class)
+    $services->set(CacheStore::class, StoreInterface::class)
         ->public()
+        ->factory([ReverseProxyServiceFactory::class, 'createStore'])
+        ->args([
+            param('shopware.http_cache.reverse_proxy.enabled'),
+            service_locator([
+                ReverseProxyServiceFactory::DEFAULT_STORE => service('shopware.http_cache.store.default'),
+                ReverseProxyServiceFactory::REVERSE_PROXY_STORE => service(ReverseProxyCache::class),
+            ]),
+        ]);
+
+    $services->set('shopware.http_cache.store.default', CacheStore::class)
         ->args([
             service('cache.http'),
             service(CacheStateValidator::class)->nullOnInvalid(),

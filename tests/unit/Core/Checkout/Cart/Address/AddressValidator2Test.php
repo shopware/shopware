@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -76,6 +77,46 @@ class AddressValidator2Test extends TestCase
         yield 'test is valid' => [true, true, true];
     }
 
+    public function testSalesChannelAssignmentIsCachedPerSalesChannel(): void
+    {
+        $countryId = Uuid::randomHex();
+        $assignedSalesChannelId = Uuid::randomHex();
+        $otherSalesChannelId = Uuid::randomHex();
+
+        $queriedSalesChannels = [];
+        $repository = static::createStub(EntityRepository::class);
+        $repository->method('searchIds')->willReturnCallback(
+            function (Criteria $criteria) use ($assignedSalesChannelId, &$queriedSalesChannels): IdSearchResult {
+                $salesChannelId = null;
+                foreach ($criteria->getFilters() as $filter) {
+                    if ($filter instanceof EqualsFilter && $filter->getField() === 'salesChannelId') {
+                        $salesChannelId = $filter->getValue();
+                    }
+                }
+                $queriedSalesChannels[] = $salesChannelId;
+
+                return $this->getSearchResultStub($salesChannelId === $assignedSalesChannelId);
+            }
+        );
+
+        $validator = new AddressValidator($repository);
+        $location = new ShippingLocation($this->getCountryStub($countryId), null, null);
+
+        $errors = new ErrorCollection();
+        $validator->validate(new Cart('test'), $errors, $this->getContextMock($location, $assignedSalesChannelId));
+        static::assertCount(0, $errors);
+
+        // same country, but not assigned to this sales channel: the cached result of the first one must not be reused
+        $errors = new ErrorCollection();
+        $validator->validate(new Cart('test'), $errors, $this->getContextMock($location, $otherSalesChannelId));
+        static::assertCount(1, $errors);
+        static::assertInstanceOf(ShippingAddressBlockedError::class, $errors->first());
+
+        // a repeated check for the same sales channel is still answered from the cache
+        $validator->validate(new Cart('test'), new ErrorCollection(), $this->getContextMock($location, $assignedSalesChannelId));
+        static::assertSame([$assignedSalesChannelId, $otherSalesChannelId], $queriedSalesChannels);
+    }
+
     private function getSearchResultStub(?bool $assigned = true, ?string $id = null): IdSearchResult
     {
         if ($assigned) {
@@ -112,14 +153,14 @@ class AddressValidator2Test extends TestCase
         return $country;
     }
 
-    private function getContextMock(?ShippingLocation $shippingLocation = null): Stub&SalesChannelContext
+    private function getContextMock(?ShippingLocation $shippingLocation = null, ?string $salesChannelId = null): Stub&SalesChannelContext
     {
         $context = static::createStub(SalesChannelContext::class);
 
         $context->method('getShippingLocation')
             ->willReturn($shippingLocation);
         $context->method('getSalesChannelId')
-            ->willReturn(Uuid::randomHex());
+            ->willReturn($salesChannelId ?? Uuid::randomHex());
 
         return $context;
     }

@@ -59,11 +59,11 @@ export default {
                     modalTitle: this.$t('global.default.warning'),
                     deleteMessage: this.$t(
                         'global.sw-media-modal-delete.deleteMessage.mediaAndFolder',
-                        this.itemsToDelete.length,
                         {
                             mediaCount: this.mediaItems.length,
                             folderCount: this.folders.length,
                         },
+                        this.itemsToDelete.length,
                     ),
                 };
             }
@@ -158,12 +158,8 @@ export default {
                     const errorSnippet = 'global.sw-media-modal-delete.notification.errorSingle.message';
 
                     const message = isMedia
-                        ? this.$t(`${errorSnippet}.media`, 1, {
-                              name: this.mediaNameFilter(item),
-                          })
-                        : this.$t(`${errorSnippet}.folder`, 1, {
-                              name: item.name,
-                          });
+                        ? this.$t(`${errorSnippet}.media`, { name: this.mediaNameFilter(item) }, 1)
+                        : this.$t(`${errorSnippet}.folder`, { name: item.name }, 1);
 
                     this.createNotificationError({
                         message,
@@ -209,10 +205,14 @@ export default {
 
         async updateSuccessNotification(successAmount, failureAmount, totalAmount) {
             const notification = {
-                message: this.$t(this.snippets.successOverall, successAmount, {
-                    count: successAmount,
-                    total: totalAmount,
-                }),
+                message: this.$t(
+                    this.snippets.successOverall,
+                    {
+                        count: successAmount,
+                        total: totalAmount,
+                    },
+                    successAmount,
+                ),
                 growl: successAmount + failureAmount === totalAmount,
             };
 

@@ -16,7 +16,7 @@
 import { stripIndent, transformOrFail } from './helpers';
 
 describe('build/vue-setup-transform override template pattern references', () => {
-    it('detects override-local references in v-for alias default values', () => {
+    it('rewrites override-local references in v-for alias default values', () => {
         const source = stripIndent`
             <template>
             <sw-block extends="sw_example_component_body">
@@ -33,10 +33,13 @@ describe('build/vue-setup-transform override template pattern references', () =>
 
         const result = transformOrFail(source, 'v-for-default-reference.override.vue').code;
 
-        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { rows, fallbackLabel } } }"`);
+        expect(result).toContain(
+            '<p v-for="{ label = __swSetupOverrideScope(__swSetupScope).fallbackLabel } in ' +
+                '__swSetupOverrideScope(__swSetupScope).rows">{{ label }}</p>',
+        );
     });
 
-    it('detects override-local references in v-for alias computed keys', () => {
+    it('rewrites override-local references in v-for alias computed keys', () => {
         const source = stripIndent`
             <template>
             <sw-block extends="sw_example_component_body">
@@ -53,7 +56,10 @@ describe('build/vue-setup-transform override template pattern references', () =>
 
         const result = transformOrFail(source, 'v-for-computed-key-reference.override.vue').code;
 
-        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { rows, dynamicKey } } }"`);
+        expect(result).toContain(
+            '<p v-for="{ [__swSetupOverrideScope(__swSetupScope).dynamicKey]: value } in ' +
+                '__swSetupOverrideScope(__swSetupScope).rows">{{ value }}</p>',
+        );
     });
 
     it('does not let child component slot scopes shadow same-element directive references', () => {
@@ -78,7 +84,62 @@ describe('build/vue-setup-transform override template pattern references', () =>
         // The `@[eventName]`, `:title` and `track` references sit on <Child> itself, outside that
         // scope, so they still resolve to the override's setup bindings and are forwarded through
         // the sw-block rather than being shadowed by the same-element alias.
-        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { eventName, title, track } } }"`);
+        expect(result).toContain(
+            '<Child #default="{ eventName }" ' +
+                '@[__swSetupOverrideScope(__swSetupScope).eventName]=' +
+                '"__swSetupOverrideScope(__swSetupScope).track" ' +
+                ':title="__swSetupOverrideScope(__swSetupScope).title" />',
+        );
+    });
+
+    it('reads the camelized binding behind a kebab-case same-name shorthand', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body">
+                <Child :aria-label />
+            </sw-block>
+            </template>
+            <script setup>
+            const ariaLabel = 'Label';
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'kebab-same-name-shorthand.override.vue').code;
+
+        // Vue camelizes the argument to find the binding, so `:aria-label` reads `ariaLabel` - not
+        // `aria` minus `label`, which is what parsing the raw argument as an expression would report.
+        expect(result).toContain('<Child :aria-label="__swSetupOverrideScope(__swSetupScope).ariaLabel" />');
+    });
+
+    it('leaves a nested sw-block extends to its own slot scope', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body">
+                <sw-block extends="sw_example_component_footer">
+                    <p>{{ info }}</p>
+                </sw-block>
+            </sw-block>
+            </template>
+            <script setup>
+            const info = 'local';
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'nested-extends.override.vue').code;
+
+        // The nested block is its own extension point with its own generated scope, so `info` belongs to
+        // it. The outer block must not claim the reference too - it would rewrite the same range twice.
+        expect(result).toContain(
+            `<sw-block sw-internal-component-name='nested-extends' extends="sw_example_component_body">`,
+        );
+        expect(result).toContain(
+            `<sw-block sw-internal-component-name='nested-extends' extends="sw_example_component_footer" #default="__swSetupScope">`,
+        );
+        expect(result).toContain('<p>{{ __swSetupOverrideScope(__swSetupScope).info }}</p>');
     });
 
     it('does not expose setup state for v-for defaults that reference earlier object aliases', () => {

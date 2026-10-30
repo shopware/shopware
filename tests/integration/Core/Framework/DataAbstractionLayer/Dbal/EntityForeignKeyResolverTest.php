@@ -105,7 +105,7 @@ class EntityForeignKeyResolverTest extends TestCase
             }
         }
 
-        static::assertCount(0, $categoryIds, 'All category IDS must be unset at this point');
+        static::assertSame([], $categoryIds, 'All category IDS must be unset at this point');
     }
 
     public function testNestedCascades(): void

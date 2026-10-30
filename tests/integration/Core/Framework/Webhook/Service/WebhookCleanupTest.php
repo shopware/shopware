@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Outbox\StreamLockService;
 use Shopware\Core\Framework\Webhook\Service\WebhookCleanup;
+use Shopware\Core\Test\Integration\Builder\Webhook\WebhookBuilder;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Clock\MockClock;
 
@@ -83,15 +84,7 @@ class WebhookCleanupTest extends TestCase
         ]);
 
         // Active stream via raw inserts
-        $webhookId = Uuid::randomBytes();
-        $this->connection->insert('webhook', [
-            'id' => $webhookId,
-            'name' => 'active-hook',
-            'event_name' => 'product.written',
-            'url' => 'https://example.com/webhook',
-            'app_id' => null,
-            'created_at' => $mockedDate->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        $webhookId = Uuid::fromHexToBytes(WebhookBuilder::withoutOwner()->insert($this->connection));
         $eventLogId = Uuid::randomBytes();
         $this->connection->insert('webhook_event_log', [
             'id' => $eventLogId,
@@ -144,15 +137,7 @@ class WebhookCleanupTest extends TestCase
         $this->connection->executeStatement('DELETE FROM webhook_event_log');
         $this->connection->executeStatement('DELETE FROM webhook');
 
-        $webhookId = Uuid::randomBytes();
-        $this->connection->insert('webhook', [
-            'id' => $webhookId,
-            'name' => 'queued-hook',
-            'event_name' => 'product.written',
-            'url' => 'https://example.com/webhook',
-            'app_id' => null,
-            'created_at' => $mockedDate->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        $webhookId = Uuid::fromHexToBytes(WebhookBuilder::withoutOwner()->insert($this->connection));
 
         $eventLogId = Uuid::randomBytes();
         $oldQueuedAt = $mockedDate->modify('-3 hours')->format(Defaults::STORAGE_DATE_TIME_FORMAT);

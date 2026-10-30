@@ -4,16 +4,14 @@ namespace Shopware\Tests\Unit\Administration\Controller;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\UnableToReadFile;
-use League\OAuth2\Server\Exception\OAuthServerException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Administration\Events\PreResetExcludedSearchTermEvent;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollector;
-use Shopware\Administration\Snippet\SnippetFinderInterface;
+use Shopware\Administration\Snippet\AdministrationSnippetService;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueChecker;
@@ -21,7 +19,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Api\Context\SystemSource;
-use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -496,8 +493,12 @@ class AdministrationControllerTest extends TestCase
         $searchConfigId = Uuid::randomHex();
 
         $connection = $this->createMock(Connection::class);
-        $connection->method('fetchOne')
-            ->willReturnOnConsecutiveCalls($searchConfigId, $deLanguageId, $enLanguageId);
+        $connection->method('fetchOne')->willReturn($searchConfigId);
+        $connection->expects($this->once())->method('fetchAllKeyValue')
+            ->willReturn(array_filter([
+                'de-DE' => $deLanguageId,
+                'en-GB' => $enLanguageId,
+            ]));
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         if ($sourceLanguage === null) {
@@ -623,27 +624,45 @@ class AdministrationControllerTest extends TestCase
         static::assertJsonStringEqualsJsonString('{"preview":"' . $sanitized . '"}', $response->getContent());
     }
 
-    public function testSnippetFinderAddsEnglishSnippetWhenLocaleIsDifferent(): void
+    public function testSnippetsReturnsSnippetsFromService(): void
     {
-        $controller = $this->createAdministrationController();
+        $request = new Request(query: ['locale' => 'de-DE']);
 
-        $response = $controller->snippets(new Request(query: ['locale' => 'de-DE']));
+        $snippetService = $this->createMock(AdministrationSnippetService::class);
+        $snippetService
+            ->expects($this->once())
+            ->method('getSnippets')
+            ->with($request)
+            ->willReturn(['de-DE' => ['global' => ['title' => 'Titel']]]);
 
+        $controller = $this->createAdministrationController(snippetService: $snippetService);
+
+        $response = $controller->snippets($request);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertNotFalse($response->getContent());
-        static::assertJsonStringEqualsJsonString('{"de-DE":[],"en-GB":[]}', $response->getContent());
+        static::assertJsonStringEqualsJsonString('{"de-DE":{"global":{"title":"Titel"}}}', $response->getContent());
     }
 
-    public function testGetUnauthenticatedSnippetsWithoutAuthentication(): void
+    public function testSnippetsReturnsEtagAndNotModifiedForMatchingIfNoneMatch(): void
     {
-        $controller = $this->createUnauthenticatedAdministrationController();
+        $snippetService = static::createStub(AdministrationSnippetService::class);
+        $snippetService->method('getSnippets')->willReturn(['de-DE' => ['global' => ['title' => 'Titel']]]);
 
-        $request = new Request(query: ['locale' => 'en-GB']);
-        $response = $controller->snippets($request);
-        $snippets = \json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR)['en-GB'];
+        $controller = $this->createAdministrationController(snippetService: $snippetService);
 
-        static::assertCount(2, $snippets);
-        static::assertArrayHasKey('global', $snippets);
-        static::assertArrayHasKey('sw-login', $snippets);
+        $response = $controller->snippets(new Request(query: ['locale' => 'de-DE']));
+        $etag = $response->headers->get('ETag');
+
+        static::assertNotNull($etag);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $request = new Request(query: ['locale' => 'de-DE']);
+        $request->headers->set('If-None-Match', $etag);
+        $cachedResponse = $controller->snippets($request);
+
+        static::assertSame(Response::HTTP_NOT_MODIFIED, $cachedResponse->getStatusCode());
+        static::assertSame('', $cachedResponse->getContent());
     }
 
     public function testGetAllActivatedLanguagesLocales(): void
@@ -722,8 +741,7 @@ class AdministrationControllerTest extends TestCase
     protected function createAdministrationController(
         ?CustomerCollection $collection = null,
         ?EntityRepository $languageRepository = null,
-        (SnippetFinderInterface&MockObject)|null $snippetFinder = null,
-        (SymfonyBearerTokenValidator&MockObject)|null $tokenValidator = null,
+        (AdministrationSnippetService&Stub)|null $snippetService = null,
         ?FirstRunWizardService $firstRunWizardService = null,
         ?Connection $connection = null,
         ?EntityRepository $currencyRepository = null,
@@ -743,7 +761,7 @@ class AdministrationControllerTest extends TestCase
         return new AdministrationController(
             static::createStub(TemplateFinder::class),
             $firstRunWizardService ?? static::createStub(FirstRunWizardService::class),
-            $snippetFinder ?? static::createStub(SnippetFinderInterface::class),
+            $snippetService ?? static::createStub(AdministrationSnippetService::class),
             [],
             new KnownIpsCollector(),
             $connection ?? $this->connection,
@@ -757,51 +775,9 @@ class AdministrationControllerTest extends TestCase
             $fileSystemOperator ?? $this->fileSystemOperator,
             $this->serviceRegistryUrl,
             $languageRepository ?? $this->languageRepository,
-            $tokenValidator ?? static::createStub(SymfonyBearerTokenValidator::class),
             $this->analyticsGatewayUrl,
             $customerEmailUniqueChecker,
             $this->refreshTokenTtl,
-        );
-    }
-
-    private function createUnauthenticatedAdministrationController(): AdministrationController
-    {
-        /** @var SnippetFinderInterface&MockObject $snippetFinder */
-        $snippetFinder = $this->createMock(SnippetFinderInterface::class);
-        $snippetFinder
-            ->expects($this->once())
-            ->method('findSnippets')
-            ->willReturn([
-                'global' => [],
-                'sw-login' => [],
-                'entityCategories' => [],
-                'help-center' => [],
-                'locale' => [],
-                'mt-text-editor-toolbar-button-link' => [],
-                'sales-channel-theme' => [],
-                'sidebar' => [],
-                'sw-ai-copilot-warning' => [],
-                'sw-app' => [],
-                'sw-base-filter' => [],
-                'sw-boolean-filter' => [],
-                'sw-bulk-edit' => [],
-                'sw-category' => [],
-                'sw-category-tree-field' => [],
-                'sw-cms' => [],
-                'sw-config-form-renderer' => [],
-            ]);
-
-        $tokenValidator = $this->createMock(SymfonyBearerTokenValidator::class);
-        $tokenValidator
-            ->expects($this->once())
-            ->method('validateAuthorization')
-            ->willThrowException(new OAuthServerException('', 0, ''));
-
-        return $this->createAdministrationController(
-            null,
-            null,
-            $snippetFinder,
-            $tokenValidator,
         );
     }
 

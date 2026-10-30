@@ -20,8 +20,6 @@ use Twig\Environment;
 #[CoversClass(TranslationController::class)]
 class TranslationControllerTest extends TestCase
 {
-    use InstallerControllerTestTrait;
-
     private TranslationController $controller;
 
     private MockObject&Environment $twig;
@@ -31,12 +29,12 @@ class TranslationControllerTest extends TestCase
         $this->twig = $this->createMock(Environment::class);
 
         $this->controller = new TranslationController(\sys_get_temp_dir());
-        $this->controller->setContainer($this->getInstallerContainer($this->twig));
+        $this->controller->setContainer(InstallerControllerFixture::getInstallerContainer($this->twig));
     }
 
     public function testTranslationsRoute(): void
     {
-        $expectedParams = $this->getDefaultViewParams();
+        $expectedParams = InstallerControllerFixture::getDefaultViewParams();
 
         $this->twig->expects($this->once())->method('render')
             ->with('@Installer/installer/translation.html.twig', $expectedParams)

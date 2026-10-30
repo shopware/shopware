@@ -233,7 +233,9 @@ export default class ZoomModalPlugin extends Plugin {
      * @private
      */
     _loadImages(modal) {
-        const imagesToLoad = modal.querySelectorAll('img[' + this.options.imgDataSrcAttr + ']' + this.options.imgToLoadSelector);
+        const imagesToLoad = Array.from(
+            modal.querySelectorAll('img[' + this.options.imgDataSrcAttr + ']' + this.options.imgToLoadSelector),
+        ).filter(img => img.getAttribute(this.options.imgDataSrcAttr));
         const imageCount = imagesToLoad.length;
 
         // images are already loaded
@@ -249,32 +251,30 @@ export default class ZoomModalPlugin extends Plugin {
             const src = img.getAttribute(this.options.imgDataSrcAttr);
             const srcSet = img.getAttribute(this.options.imgDataSrcSetAttr);
 
-            if (src) {
-                img.onload = () => {
-                    loadedCount++;
+            img.onload = () => {
+                loadedCount++;
 
-                    // show modal if all images are loaded or error occured
-                    if (loadedCount + errorCount === imageCount){
-                        this._showModal(modal);
-                    }
-                };
-
-                img.onerror = () => {
-                    errorCount++;
-
-                    // show modal if all images are loaded or error occured
-                    if (loadedCount + errorCount === imageCount){
-                        this._showModal(modal);
-                    }
-                };
-
-                img.setAttribute('src', src);
-                img.removeAttribute(this.options.imgDataSrcAttr);
-
-                if (srcSet) {
-                    img.setAttribute('srcset', srcSet);
-                    img.removeAttribute(this.options.imgDataSrcSetAttr);
+                // show modal if all images are loaded or error occured
+                if (loadedCount + errorCount === imageCount){
+                    this._showModal(modal);
                 }
+            };
+
+            img.onerror = () => {
+                errorCount++;
+
+                // show modal if all images are loaded or error occured
+                if (loadedCount + errorCount === imageCount){
+                    this._showModal(modal);
+                }
+            };
+
+            img.setAttribute('src', src);
+            img.removeAttribute(this.options.imgDataSrcAttr);
+
+            if (srcSet) {
+                img.setAttribute('srcset', srcSet);
+                img.removeAttribute(this.options.imgDataSrcSetAttr);
             }
         });
     }

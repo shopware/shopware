@@ -12,6 +12,8 @@ const { Criteria } = Shopware.Data;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    emits: ['filter-update', 'filter-reset'],
+
     props: {
         filter: {
             type: Object,

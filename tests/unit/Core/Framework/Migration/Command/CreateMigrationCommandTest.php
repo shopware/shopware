@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Migration\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\Command\CreateMigrationCommand;
@@ -19,7 +20,8 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(CreateMigrationCommand::class)]
 class CreateMigrationCommandTest extends TestCase
 {
-    public function testExecuteThrowsExceptionIfNameContainsForbiddenCharacters(): void
+    #[DataProvider('forbiddenNameProvider')]
+    public function testExecuteThrowsExceptionIfNameContainsForbiddenCharacters(string $name): void
     {
         $command = new CreateMigrationCommand(
             new KernelPluginCollection(),
@@ -28,11 +30,17 @@ class CreateMigrationCommandTest extends TestCase
         );
         $commandTester = new CommandTester($command);
 
-        $input = ['--name' => '%%%%'];
+        $input = ['--name' => $name];
 
         $this->expectExceptionObject(MigrationException::invalidArgument('Migration name contains forbidden characters!'));
 
         $commandTester->execute($input);
+    }
+
+    public static function forbiddenNameProvider(): \Generator
+    {
+        yield 'special characters' => ['%%%%'];
+        yield 'trailing newline' => ["Foo\n"];
     }
 
     public function testExecuteThrowsExceptionWhenDirectoryIsSpecifiedButNoNamespace(): void

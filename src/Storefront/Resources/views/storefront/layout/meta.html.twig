@@ -227,6 +227,9 @@
                     'frontend.cart.offcanvas': '{{ path('frontend.cart.offcanvas') }}',
                     'frontend.cookie.offcanvas': '{{ path('frontend.cookie.offcanvas') }}',
                     'frontend.cookie.groups': '{{ path('frontend.cookie.groups') }}',
+                    {% if storefrontAnalytics and storefrontAnalytics.isActive() %}
+                        'frontend.analytics.product-categories': '{{ path('frontend.analytics.product-categories') }}',
+                    {% endif %}
                     'frontend.checkout.finish.page': '{{ path('frontend.checkout.finish.page') }}',
                     'frontend.checkout.info': '{{ path('frontend.checkout.info') }}',
                     'frontend.menu.offcanvas': '{{ path('frontend.menu.offcanvas') }}',

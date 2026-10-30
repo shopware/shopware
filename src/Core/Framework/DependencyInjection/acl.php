@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Acl\AclAnnotationValidator;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\Api\Acl\AclRoleLoader;
+use Shopware\Core\Framework\Api\Acl\AclVersionMergeValidator;
 use Shopware\Core\Framework\Api\Acl\AclWriteValidator;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Acl\Role\AclUserRoleDefinition;
@@ -37,8 +39,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
+    $services->set(AclRoleLoader::class)
+        ->args([
+            service(Connection::class),
+        ]);
+
     $services->set(AclCriteriaValidator::class)
         ->public()
+        ->args([
+            service(DefinitionInstanceRegistry::class),
+        ]);
+
+    $services->set(AclVersionMergeValidator::class)
         ->args([
             service(DefinitionInstanceRegistry::class),
         ]);

@@ -734,7 +734,7 @@ class DocumentGeneratorTest extends TestCase
                 static::assertNotNull($struct->getId());
                 static::assertNotNull($struct->getMediaId());
                 static::assertSame($struct->getMediaId(), $mediaId);
-                static::assertEmpty($struct->getA11yMediaId());
+                static::assertSame('', $struct->getA11yMediaId());
             },
         ];
 

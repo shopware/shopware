@@ -583,7 +583,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeDefined();
 
         wrapper.vm.salesChannel.languageId = 'language-id';
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeUndefined();
     });

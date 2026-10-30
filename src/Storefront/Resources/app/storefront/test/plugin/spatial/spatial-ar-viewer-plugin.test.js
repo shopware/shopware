@@ -95,7 +95,7 @@ describe('SpatialArViewerPlugin', () => {
 
         document.body.innerHTML = `
             <button class="ar-button">
-                <span id="ar-button-text">${arViewerOptions.snippets.openArView}</span>
+                <span class="ar-button-text">${arViewerOptions.snippets.openArView}</span>
             </button>
             <div data-spatial-ar-viewer
                 data-spatial-ar-viewer-options="${JSON.stringify(arViewerOptions)}">
@@ -175,7 +175,7 @@ describe('SpatialArViewerPlugin', () => {
             SpatialArViewerPluginObject.el = arButton;
 
             // find the ar button text
-            const arButtonText = arButton.querySelector('#ar-button-text');
+            const arButtonText = arButton.querySelector('.ar-button-text');
             expect(arButtonText).toBeDefined();
 
             // we want to make sure this remains untouched while launching ar because we don't come from autostartAr!
@@ -235,7 +235,7 @@ describe('SpatialArViewerPlugin', () => {
             SpatialArViewerPluginObject.el = arButton;
 
             // find the ar button text
-            const arButtonText = arButton.querySelector('#ar-button-text');
+            const arButtonText = arButton.querySelector('.ar-button-text');
             expect(arButtonText).toBeDefined();
 
             // we want to make sure this remains untouched while launching ar because we don't come from autostartAr!
@@ -295,7 +295,7 @@ describe('SpatialArViewerPlugin', () => {
             SpatialArViewerPluginObject.el = arButton;
 
             // find the ar button text
-            const arButtonText = arButton.querySelector('#ar-button-text');
+            const arButtonText = arButton.querySelector('.ar-button-text');
             expect(arButtonText).toBeDefined();
 
             // we want to make sure this remains untouched while launching ar because we don't come from autostartAr!
@@ -377,7 +377,7 @@ describe('SpatialArViewerPlugin', () => {
         test('on AR related launch error, if ARUnsupportedModalTemplate is not found, prints error to console', async () => {
             document.body.innerHTML = `
                 <button class="ar-button">
-                    <span id="ar-button-text">${arViewerOptions.snippets.openArView}</span>
+                    <span class="ar-button-text">${arViewerOptions.snippets.openArView}</span>
                 </button>
                 <div data-spatial-ar-viewer
                     data-spatial-ar-viewer-options="${JSON.stringify(arViewerOptions)}">
@@ -629,7 +629,7 @@ describe('SpatialArViewerPlugin', () => {
 
             document.body.innerHTML = `
                 <button class="ar-button">
-                    <span id="ar-button-text">${arViewerOptions.snippets.openArView}</span>
+                    <span class="ar-button-text">${arViewerOptions.snippets.openArView}</span>
                 </button>
                 <div data-spatial-ar-viewer
                     data-spatial-ar-viewer-options="${JSON.stringify(arViewerOptions)}">
@@ -665,7 +665,7 @@ describe('SpatialArViewerPlugin', () => {
 
             document.body.innerHTML = `
                 <button class="ar-button">
-                    <span id="ar-button-text">${arViewerOptions.snippets.openArView}</span>
+                    <span class="ar-button-text">${arViewerOptions.snippets.openArView}</span>
                 </button>
                 <div data-spatial-ar-viewer
                     data-spatial-ar-viewer-options="${JSON.stringify(arViewerOptions)}">

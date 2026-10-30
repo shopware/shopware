@@ -1,9 +1,12 @@
 {% block layout_navbar %}
     <div class="container">
-        {# @deprecated tag:v6.8.0 - pathIdList will be removed. Use window.activeNavigationPathIdList instead. #}
-        {% set navbarOptions = {
-            pathIdList: shopware.navigation.pathIdList
-        } %}
+        {% set navbarOptions = {} %}
+        {% if not feature('v6.8.0.0') %}
+            {# @deprecated tag:v6.8.0 - pathIdList will be removed. Use window.activeNavigationPathIdList instead. #}
+            {% set navbarOptions = {
+                pathIdList: shopware.navigation.pathIdList
+            } %}
+        {% endif %}
 
         {% block layout_navbar_nav_element %}
             {# @deprecated tag:v6.8.0 - SiteNavigationElement microdata removed. Not supported as a rich result. #}

@@ -23,7 +23,6 @@ use Symfony\Component\HttpFoundation\Response;
  */
 #[Package('framework')]
 #[CoversClass(HttpCacheKeyGenerator::class)]
-#[CoversClass(HttpCacheKeyEvent::class)]
 #[Group('cache')]
 class HttpCacheKeyGeneratorTest extends TestCase
 {

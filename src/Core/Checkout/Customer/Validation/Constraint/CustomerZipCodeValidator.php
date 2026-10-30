@@ -66,7 +66,7 @@ class CustomerZipCodeValidator extends ConstraintValidator
 
         $caseSensitive = $constraint->isCaseSensitiveCheck() ? '' : 'i';
 
-        if (preg_match("/^{$pattern}$/" . $caseSensitive, (string) $value, $matches) === 1) {
+        if (preg_match("/^(?:{$pattern})$/D" . $caseSensitive, (string) $value, $matches) === 1) {
             return;
         }
 

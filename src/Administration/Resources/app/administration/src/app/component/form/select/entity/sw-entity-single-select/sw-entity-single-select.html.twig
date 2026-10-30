@@ -170,7 +170,9 @@
                             <slot
                                 name="result-description-property"
                                 v-bind="{ item, searchTerm, highlightSearchTerm }"
-                            ></slot>
+                            >
+                                {{ displayDescriptionProperty(item) }}
+                            </slot>
                         </template>
                         {% endblock %}
                     </sw-select-result>

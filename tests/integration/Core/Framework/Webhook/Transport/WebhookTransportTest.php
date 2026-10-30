@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Transport\WebhookTransport;
+use Shopware\Core\Test\Integration\Builder\Webhook\WebhookBuilder;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Transport\TransportInterface;
@@ -47,7 +48,7 @@ class WebhookTransportTest extends TestCase
 
     public function testSendPersistsOutboxEntry(): void
     {
-        $this->createWebhook('wh-1');
+        WebhookBuilder::withoutOwner()->id($this->ids->get('wh-1'))->insert($this->connection);
 
         $message = new WebhookEventMessage(
             $this->ids->get('evt-1'),
@@ -81,16 +82,5 @@ class WebhookTransportTest extends TestCase
 
         static::assertNotFalse($delivery, 'Expected delivery row to be created');
         static::assertSame('queued', $delivery['delivery_status']);
-    }
-
-    private function createWebhook(string $key): void
-    {
-        $this->connection->insert('webhook', [
-            'id' => $this->ids->getBytes($key),
-            'name' => 'test-hook',
-            'event_name' => 'product.written',
-            'url' => 'https://example.com/webhook',
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
     }
 }

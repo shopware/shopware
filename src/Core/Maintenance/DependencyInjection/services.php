@@ -3,7 +3,6 @@
 namespace Shopware\Core\Maintenance\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
-use GuzzleHttp\Client;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -12,6 +11,7 @@ use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Shopware\Core\Installer\Finish\SystemLocker;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelCreateCommand;
+use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelFileEnableCommand;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelListCommand;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelMaintenanceDisableCommand;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelMaintenanceEnableCommand;
@@ -31,7 +31,6 @@ use Shopware\Core\Maintenance\System\Command\SystemIsInstalledCommand;
 use Shopware\Core\Maintenance\System\Command\SystemSetupCommand;
 use Shopware\Core\Maintenance\System\Command\SystemUpdateFinishCommand;
 use Shopware\Core\Maintenance\System\Command\SystemUpdatePrepareCommand;
-use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
@@ -45,14 +44,10 @@ use Symfony\Component\Dotenv\Command\DotenvDumpCommand;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
-    $containerConfigurator->parameters()
-        ->set('env(APP_URL_CHECK_DISABLED)', 'false');
-
     $services = $containerConfigurator->services();
 
     $services->set(DatabaseConnectionFactory::class);
@@ -125,16 +120,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
-    $services->set(AppUrlVerifier::class)
-        ->args([
-            service('shopware.maintenance.client'),
-            service(Connection::class),
-            param('kernel.environment'),
-            env('APP_URL_CHECK_DISABLED')->bool(),
-        ]);
-
-    $services->set('shopware.maintenance.client', Client::class);
-
     $services->set(ShopConfigurator::class)
         ->args([
             service(Connection::class),
@@ -162,6 +147,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(SalesChannelListCommand::class)
         ->args([
             service('sales_channel.repository'),
+        ])
+        ->tag('console.command');
+
+    $services->set(SalesChannelFileEnableCommand::class)
+        ->args([
+            service('sales_channel.repository'),
+            service('sales_channel_file.repository'),
         ])
         ->tag('console.command');
 

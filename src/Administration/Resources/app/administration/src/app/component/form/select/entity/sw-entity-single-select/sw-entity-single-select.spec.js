@@ -51,6 +51,20 @@ const propertyFixture = [
     },
 ];
 
+const categoryFixture = [
+    {
+        id: 'ae12b3c2-8236-4eb2-84a1-b933863a7906',
+        name: 'Jackets',
+        breadcrumb: ['Ladies', 'Jackets'],
+    },
+    {
+        id: 'ae12b3c2-8236-4eb2-84a1-b933863a7907',
+        name: 'Jacken',
+        breadcrumb: null,
+        translated: { breadcrumb: ['Gents', 'Jackets'] },
+    },
+];
+
 function getCollection() {
     return new EntityCollection(
         '/test-entity',
@@ -71,6 +85,18 @@ function getPropertyCollection() {
         { isShopwareContext: true },
         propertyFixture,
         propertyFixture.length,
+        null,
+    );
+}
+
+function getCategoryCollection() {
+    return new EntityCollection(
+        '/category',
+        'category',
+        null,
+        { isShopwareContext: true },
+        categoryFixture,
+        categoryFixture.length,
         null,
     );
 }
@@ -439,8 +465,6 @@ describe('components/sw-entity-single-select', () => {
         });
         await flushPromises();
 
-        await swEntitySingleSelect.vm.$nextTick();
-
         const { singleSelection } = swEntitySingleSelect.vm;
 
         expect(singleSelection).not.toBeNull();
@@ -470,7 +494,7 @@ describe('components/sw-entity-single-select', () => {
         await flushPromises();
 
         swEntitySingleSelect.vm.loadData();
-        await swEntitySingleSelect.vm.$nextTick();
+        await flushPromises();
 
         const { resultCollection } = swEntitySingleSelect.vm;
 
@@ -624,13 +648,12 @@ describe('components/sw-entity-single-select', () => {
         await flushPromises();
 
         swEntitySingleSelect.vm.loadData();
-        await swEntitySingleSelect.vm.$nextTick();
-        await swEntitySingleSelect.vm.$nextTick();
+        await flushPromises();
 
         await swEntitySingleSelect.find('.sw-select__selection').trigger('click');
         await swEntitySingleSelect.find('input').setValue('first');
         await swEntitySingleSelect.find('input').trigger('change');
-        await swEntitySingleSelect.vm.$nextTick();
+        await flushPromises();
 
         expect(swEntitySingleSelect.emitted('search-term-change')[0]).toEqual(['first']);
     });
@@ -667,21 +690,21 @@ describe('components/sw-entity-single-select', () => {
 
         await swEntitySingleSelect.vm.loadSelected();
 
-        await swEntitySingleSelect.vm.$nextTick(() => {
-            const productVariantInfo = swEntitySingleSelect.find('.sw-product-variant-info');
+        await flushPromises();
 
-            expect(productVariantInfo.exists()).toBeTruthy();
+        const productVariantInfo = swEntitySingleSelect.find('.sw-product-variant-info');
 
-            expect(productVariantInfo.find('.sw-product-variant-info__product-name').text()).toEqual(fixture[0].name);
+        expect(productVariantInfo.exists()).toBeTruthy();
 
-            expect(productVariantInfo.find('.sw-product-variant-info__specification').text()).toContain(
-                fixture[0].variation[0].group,
-            );
+        expect(productVariantInfo.find('.sw-product-variant-info__product-name').text()).toEqual(fixture[0].name);
 
-            expect(productVariantInfo.find('.sw-product-variant-info__specification').text()).toContain(
-                fixture[0].variation[0].option,
-            );
-        });
+        expect(productVariantInfo.find('.sw-product-variant-info__specification').text()).toContain(
+            fixture[0].variation[0].group,
+        );
+
+        expect(productVariantInfo.find('.sw-product-variant-info__specification').text()).toContain(
+            fixture[0].variation[0].option,
+        );
     });
 
     it('should display label provided by callback', async () => {
@@ -706,11 +729,10 @@ describe('components/sw-entity-single-select', () => {
         });
         await flushPromises();
 
-        await swEntitySingleSelect.vm.$nextTick();
         expect(swEntitySingleSelect.find('.sw-entity-single-select__selection-text').text()).toBe('test');
 
         await swEntitySingleSelect.find('input').trigger('click');
-        await swEntitySingleSelect.vm.$nextTick();
+        await flushPromises();
 
         expect(swEntitySingleSelect.find('input').element.value).toBe('test');
         expect(swEntitySingleSelect.find('.sw-select-result__result-item-text').text()).toBe('test');
@@ -818,6 +840,48 @@ describe('components/sw-entity-single-select', () => {
         expect(firstListEntry.classes()).toContain('has--description');
         expect(firstListEntry.find('.sw-select-result__result-item-text').text()).toBe('first entry');
         expect(firstListEntry.find('.sw-select-result__result-item-description').text()).toBe('example');
+    });
+
+    it.each([
+        ['no description property', {}, ['', '']],
+        [
+            'the formatted description property with translated fallback',
+            { descriptionProperty: 'breadcrumb', descriptionFormatter: 'breadcrumb' },
+            ['Ladies / Jackets', 'Gents / Jackets'],
+        ],
+        [
+            'the formatter arguments',
+            { descriptionProperty: 'breadcrumb', descriptionFormatter: 'breadcrumb', descriptionFormatterArgs: [' > '] },
+            ['Ladies > Jackets', 'Gents > Jackets'],
+        ],
+    ])('should render result descriptions using %s', async (_, props, expected) => {
+        const wrapper = await createEntitySingleSelect({
+            props: {
+                value: null,
+                entity: 'category',
+                ...props,
+            },
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => Promise.resolve(getCategoryCollection()),
+                        }),
+                    },
+                },
+            },
+        });
+        await flushPromises();
+
+        await wrapper.find('.sw-select__selection').trigger('click');
+        await wrapper.find('input').trigger('change');
+        await flushPromises();
+
+        const descriptions = wrapper
+            .findAll('.sw-select-result-list__item-list li .sw-select-result__result-item-description')
+            .map((description) => description.text());
+
+        expect(descriptions).toEqual(expected);
     });
 
     it('should recognize non-existing entity and offer entity creation', async () => {

@@ -259,9 +259,7 @@ class AdapterException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - It will return a self instance instead of AdapterFactoryNotFoundException - reason:remove-exception
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function filesystemFactoryNotFound(string $type): AdapterFactoryNotFoundException|self
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -276,9 +274,7 @@ class AdapterException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - It will return a self instance instead of DuplicateFilesystemFactoryException - reason:remove-exception
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function duplicateFilesystemFactory(string $type): DuplicateFilesystemFactoryException|self
     {
         if (!Feature::isActive('v6.8.0.0')) {

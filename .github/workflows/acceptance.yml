@@ -65,7 +65,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
   acceptance:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ github.repository == 'shopware/shopware-private' && format('runs-on={0}/runner=sw-amd64/cpu=4', github.run_id) || 'ubuntu-24.04' }}
     env:
       V6_8_0_0: ${{ matrix.major && '1' || '' }}
     permissions:
@@ -315,10 +315,9 @@ jobs:
           working-directory: new-shopware/tests/acceptance
 
       - name: Install Playwright Browsers
-        uses: shopware/github-actions/npm-ci-retry@main
+        uses: ./new-shopware/.github/actions/playwright-install
         with:
           working-directory: new-shopware/tests/acceptance
-          command: sudo apt-get update --allow-releaseinfo-change && npx playwright install --with-deps chromium
       - name: Run update tests with reporting
         if: ${{ inputs.currents && 'true' || '' }}
         working-directory: new-shopware/tests/acceptance
@@ -349,7 +348,7 @@ jobs:
 
       - name: Configure AWS credentials (OIDC)
         if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
-        uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
           aws-region: eu-central-1
           role-session-name: gha-playwright-${{ github.run_id }}-${{ github.run_attempt }}

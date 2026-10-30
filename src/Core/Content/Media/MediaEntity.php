@@ -18,6 +18,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Media\MediaType\MediaType;
+use Shopware\Core\Content\Media\MediaType\SpatialMediaTypeInterface;
 use Shopware\Core\Content\Media\MediaType\SpatialObjectType;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadCollection;
@@ -716,6 +717,14 @@ class MediaEntity extends Entity
     public function isSpatialObject(): bool
     {
         return $this->mediaType instanceof SpatialObjectType;
+    }
+
+    /**
+     * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
+     */
+    public function isSpatial(): bool
+    {
+        return $this->mediaType instanceof SpatialMediaTypeInterface;
     }
 
     /**

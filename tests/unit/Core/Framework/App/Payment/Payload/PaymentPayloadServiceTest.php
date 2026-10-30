@@ -39,7 +39,6 @@ use Symfony\Component\Serializer\Serializer;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(AppException::class)]
 #[CoversClass(PaymentPayloadService::class)]
 class PaymentPayloadServiceTest extends TestCase
 {

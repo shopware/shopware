@@ -72,7 +72,7 @@ class ComposerVersionConstraints
     private function checkConstraint(Context $context, File $composerFile, string $package, string $constraint): void
     {
         foreach (self::PACKAGE_EXCEPTIONS['~'] as $exceptionPackage => $exceptionMessage) {
-            if (preg_match('/' . $exceptionPackage . '/', $package)) {
+            if (preg_match('/' . $exceptionPackage . '/D', $package)) {
                 if (!str_contains($constraint, '~')) {
                     $context->failure(
                         \sprintf(
@@ -88,7 +88,7 @@ class ComposerVersionConstraints
         }
 
         foreach (self::PACKAGE_EXCEPTIONS['strict'] as $exceptionPackage => $exceptionMessage) {
-            if (preg_match('/' . $exceptionPackage . '/', $package)) {
+            if (preg_match('/' . $exceptionPackage . '/D', $package)) {
                 if (str_contains($constraint, '~') || str_contains($constraint, '^')) {
                     $context->failure(
                         \sprintf(

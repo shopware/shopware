@@ -91,6 +91,18 @@
         }
     }
 
+    .sw-media-upload-v2__dropzone:not(.is--multi) {
+        .sw-media-compact-upload-v2__preview-wrapper {
+            flex-shrink: 0;
+            width: auto;
+        }
+
+        .sw-media-upload-v2__actions {
+            flex: 1;
+            min-width: 0;
+        }
+    }
+
     .sw-media-compact-upload-v2__browse-button {
         padding: 10px;
     }

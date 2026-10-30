@@ -92,6 +92,6 @@ class MessageStorerTest extends TestCase
 
         $storer->restore($flow);
 
-        static::assertEmpty($flow->data());
+        static::assertCount(0, $flow->data());
     }
 }

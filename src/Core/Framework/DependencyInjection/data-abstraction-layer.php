@@ -38,6 +38,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToOneAss
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\OneToManyAssociationFieldResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\TranslationFieldResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinGroupBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\RowLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
@@ -134,12 +135,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteResultFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\LockValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ParentRelationValidator;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Script\AppContextCreator;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
+use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\Language\LanguageLoader;
@@ -421,7 +424,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(ExceptionHandlerRegistry::class),
             service(DefinitionInstanceRegistry::class),
+            service(RowLoader::class),
         ]);
+
+    $services->set(RowLoader::class)
+        ->args([service(Connection::class)]);
+
+    $services->set(WriteOutcome::class)
+        ->args([service(RowLoader::class)]);
 
     $services->set(ConstraintBuilder::class);
 
@@ -881,7 +891,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(SyncMetricsInstrumentor::class)
         ->args([
-            service(Meter::class),
+            service(Telemetry::class),
             service(EntityGroupResolver::class),
         ]);
 
@@ -917,7 +927,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(IndexerMetricsInstrumentor::class)
         ->args([
-            service(Meter::class),
+            service(Telemetry::class),
         ]);
 
     $services->set(EntityIndexingSubscriber::class)

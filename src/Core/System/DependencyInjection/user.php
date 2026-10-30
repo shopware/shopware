@@ -14,6 +14,7 @@ use Shopware\Core\System\User\Service\UserValidationService;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
+use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
@@ -47,6 +48,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(UserRecoveryService::class),
             service('shopware.rate_limiter'),
+            param('shopware.api.user_recovery.enabled'),
         ])
         ->call('setContainer', [
             service('service_container'),

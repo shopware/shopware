@@ -119,6 +119,10 @@
                 "type": "boolean",
                 "description": "Whether configured APP_URL is externally reachable."
               },
+              "appUrlStatusCode": {
+                "type": ["integer", "null"],
+                "description": "HTTP status code APP_URL answered the failed verification request with, null when the verification passed or got no response."
+              },
               "appsRequireAppUrl": {
                 "type": "boolean",
                 "description": "True if at least one installed app requires a reachable APP_URL."

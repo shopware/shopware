@@ -257,10 +257,35 @@ class LineItemListPriceRatioRuleTest extends TestCase
             'expected' => true,
         ];
 
-        yield 'match / operator lower than equals / null value' => [
+        yield 'no match / operator lower than equals / item without list price has no ratio' => [
             'operator' => Rule::OPERATOR_LTE,
             'ruleRatio' => 0,
             'price' => 7,
+            'listPrice' => null,
+            'expected' => false,
+        ];
+
+        // items without list price
+        yield 'no match / operator lower than / item without list price is not reduced' => [
+            'operator' => Rule::OPERATOR_LT,
+            'ruleRatio' => 1,
+            'price' => 100,
+            'listPrice' => null,
+            'expected' => false,
+        ];
+
+        yield 'no match / operator equals / item without list price has no zero ratio' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleRatio' => 0,
+            'price' => 100,
+            'listPrice' => null,
+            'expected' => false,
+        ];
+
+        yield 'match / operator not equals / item without list price' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'ruleRatio' => 0.5,
+            'price' => 100,
             'listPrice' => null,
             'expected' => true,
         ];
@@ -605,6 +630,26 @@ class LineItemListPriceRatioRuleTest extends TestCase
             'priceItem2' => 100,
             'listPriceItem2' => 300,
             'expected' => false,
+        ];
+
+        yield 'no match / operator lower than / items without list price are not reduced' => [
+            'operator' => Rule::OPERATOR_LT,
+            'ruleRatio' => 1,
+            'priceItem1' => 100,
+            'listPriceItem1' => null,
+            'priceItem2' => 50,
+            'listPriceItem2' => null,
+            'expected' => false,
+        ];
+
+        yield 'match / operator lower than / reduced item next to item without list price' => [
+            'operator' => Rule::OPERATOR_LT,
+            'ruleRatio' => 1,
+            'priceItem1' => 100,
+            'listPriceItem1' => null,
+            'priceItem2' => 50,
+            'listPriceItem2' => 100,
+            'expected' => true,
         ];
 
         // OPERATOR_EMPTY

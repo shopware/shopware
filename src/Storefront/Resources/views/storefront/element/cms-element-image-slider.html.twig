@@ -26,26 +26,26 @@
         {% endif %}
     {% endif %}
 
-    {% if verticalAlign == "center" %}
+    {% if verticalAlign == 'center' %}
         {% set alignmentClass = ' align-self-center' %}
-    {% elseif verticalAlign == "flex-end" %}
+    {% elseif verticalAlign == 'flex-end' %}
         {% set alignmentClass = ' align-self-end' %}
     {% endif %}
 
-    {% if navigationArrows == "outside" %}
+    {% if navigationArrows == 'outside' %}
         {% set arrowsClass = ' has-nav-outside' %}
         {% set prevClass = ' is-nav-prev-outside' %}
         {% set nextClass = ' is-nav-next-outside' %}
-    {% elseif navigationArrows == "inside" %}
+    {% elseif navigationArrows == 'inside' %}
         {% set prevClass = ' is-nav-prev-inside' %}
         {% set nextClass = ' is-nav-next-inside' %}
     {% endif %}
 
-    {% if navigationDots == "outside" %}
+    {% if navigationDots == 'outside' %}
         {% set dotsClass = ' has-dots-outside' %}
     {% endif %}
 
-    <div class="cms-element-{{ element.type }}{% if displayMode == "standard" and verticalAlign %} has-vertical-alignment{% endif %}">
+    <div class="cms-element-{{ element.type }}{% if displayMode == 'standard' and verticalAlign %} has-vertical-alignment{% endif %}">
         {% set baseSliderOptions = {
             slider: {
                 controls: navigationArrows in visibleValues,
@@ -57,7 +57,7 @@
                 autoplayTimeout: sliderConfig.autoplayTimeout.value,
                 speed: sliderConfig.speed.value,
                 ariaLive: sliderConfig.autoSlide.value ? false : true,
-                autoHeight: (displayMode == "standard") ? true : false
+                autoHeight: (displayMode == 'standard') ? true : false
             }
         } %}
 
@@ -68,12 +68,11 @@
                 <div
                     class="base-slider image-slider{{ arrowsClass }}{{ dotsClass }}"
                     data-base-slider="true"
-                    data-base-slider-options='{{ baseSliderOptions|json_encode }}'
+                    data-base-slider-options="{{ baseSliderOptions|json_encode }}"
                     role="region"
                     aria-label="{{ 'component.cms.imageGallery.ariaLabel'|trans({ '%total%': element.data.sliderItems|length })|sw_sanitize }}"
                     tabindex="0"
                 >
-
                     {% block element_image_slider_inner %}
                         {% block element_image_slider_skip_slider %}
                             {% sw_include '@Storefront/storefront/component/skip-target.html.twig' with {
@@ -87,12 +86,12 @@
                             {% for image in element.data.sliderItems %}
 
                                 {% set imageElement %}
-                                    <div class="image-slider-item{% if loop.first != true %} is-not-first{% endif %} is-{{ displayMode }}"{% if minHeight and displayMode == "cover" %} style="min-height: {{ minHeight }}"{% endif %}>
+                                    <div class="image-slider-item{% if loop.first != true %} is-not-first{% endif %} is-{{ displayMode }}"{% if minHeight and displayMode == 'cover' %} style="min-height: {{ minHeight }}"{% endif %}>
                                         {% set attributes = {
-                                            'class': 'img-fluid image-slider-image',
-                                            'alt': element.config.isDecorative.value ? '' : (image.media.translated.alt ?: ''),
-                                            'title': element.config.isDecorative.value ? '' : (image.media.translated.title ?: ''),
-                                            'tabindex': (image.url ? '-1' : '0')
+                                            class: 'img-fluid image-slider-image',
+                                            alt: element.config.isDecorative.value ? '' : (image.media.translated.alt ?: ''),
+                                            title: element.config.isDecorative.value ? '' : (image.media.translated.title ?: ''),
+                                            tabindex: (image.url ? '-1' : '0')
                                         } %}
 
                                         {% if element.config.displayMode.value == 'cover' or element.config.displayMode.value == 'contain' %}

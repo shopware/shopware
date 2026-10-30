@@ -142,7 +142,7 @@ describe('src/module/sw-cms/component/sw-cms-reset-inheritance', () => {
         const wrapper = await createWrapper();
 
         await wrapper.vm.onConfirm();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(contentEntity.slotConfig).toBeNull();
     });
@@ -176,7 +176,7 @@ describe('src/module/sw-cms/component/sw-cms-reset-inheritance', () => {
 
         wrapper.vm.resetSlotOverrides();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(slot1.config).toStrictEqual({
             testField: { value: 'base-value' },

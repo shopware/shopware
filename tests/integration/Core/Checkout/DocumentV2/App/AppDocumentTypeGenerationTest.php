@@ -190,7 +190,7 @@ class AppDocumentTypeGenerationTest extends TestCase
         static::assertInstanceOf(DocumentFileEntity::class, $htmlFile);
 
         $htmlContent = $this->mediaService->loadFile($htmlFile->getMediaId(), $this->context);
-        static::assertNotEmpty($htmlContent);
+        static::assertNotSame('', $htmlContent);
 
         static::assertSame('text/html', (new \finfo(\FILEINFO_MIME_TYPE))->buffer($htmlContent));
         static::assertStringContainsString('Warranty', $htmlContent);
@@ -199,7 +199,7 @@ class AppDocumentTypeGenerationTest extends TestCase
         static::assertInstanceOf(DocumentFileEntity::class, $pdfFile);
 
         $pdfContent = $this->mediaService->loadFile($pdfFile->getMediaId(), $this->context);
-        static::assertNotEmpty($pdfContent);
+        static::assertNotSame('', $pdfContent);
 
         static::assertStringStartsWith('%PDF-', $pdfContent);
         static::assertSame('application/pdf', (new \finfo(\FILEINFO_MIME_TYPE))->buffer($pdfContent));

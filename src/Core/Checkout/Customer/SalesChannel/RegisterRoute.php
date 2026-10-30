@@ -342,36 +342,6 @@ class RegisterRoute extends AbstractRegisterRoute
             $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($data, $shippingAccountType, $shippingAddress, $context));
         }
 
-        if ($data->get('vatIds') instanceof DataBag) {
-            $vatIds = array_filter($data->get('vatIds')->all());
-            $data->set('vatIds', $vatIds);
-        }
-
-        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
-            $countryId = $billingAddress instanceof DataBag
-                ? $billingAddress->get('countryId')
-                : ($shippingAddress instanceof DataBag ? $shippingAddress->get('countryId') : null);
-
-            if ($countryId) {
-                if ($this->requiredVatIdField($countryId, $context)) {
-                    $definition->add('vatIds', new NotBlank());
-                }
-
-                $definition->add('vatIds', new Type('array'), new CustomerVatIdentification(
-                    countryId: $countryId
-                ));
-
-                $vatIds = $data->get('vatIds');
-                if ($vatIds instanceof DataBag) {
-                    $vatIds = $vatIds->all();
-                }
-
-                if (\is_array($vatIds) && $vatIds !== []) {
-                    $data->set('vatIds', $this->normalizeVatIds($vatIds));
-                }
-            }
-        }
-
         if ($this->systemConfigService->get('core.loginRegistration.requireDataProtectionCheckbox', $context->getSalesChannelId())) {
             $definition->add('acceptedDataProtection', new NotBlank());
         }
@@ -498,6 +468,8 @@ class RegisterRoute extends AbstractRegisterRoute
             $validation->add('email', new CustomerEmailUnique(salesChannelContext: $context));
         }
 
+        $this->addVatIdsValidation($validation, $data, $context);
+
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
@@ -576,6 +548,49 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         return false;
+    }
+
+    /**
+     * The VAT ID constraints are added before the BuildValidationEvent is dispatched, so that subscribers can modify them.
+     */
+    private function addVatIdsValidation(DataValidationDefinition $validation, DataBag $data, SalesChannelContext $context): void
+    {
+        if ($data->get('vatIds') instanceof DataBag) {
+            $vatIds = array_filter($data->get('vatIds')->all());
+            $data->set('vatIds', $vatIds);
+        }
+
+        if ($data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE) !== CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            return;
+        }
+
+        $billingAddress = $data->get('billingAddress');
+        $shippingAddress = $data->get('shippingAddress');
+
+        $countryId = $billingAddress instanceof DataBag
+            ? $billingAddress->get('countryId')
+            : ($shippingAddress instanceof DataBag ? $shippingAddress->get('countryId') : null);
+
+        if (!$countryId) {
+            return;
+        }
+
+        if ($this->requiredVatIdField($countryId, $context)) {
+            $validation->add('vatIds', new NotBlank());
+        }
+
+        $validation->add('vatIds', new Type('array'), new CustomerVatIdentification(
+            countryId: $countryId
+        ));
+
+        $vatIds = $data->get('vatIds');
+        if ($vatIds instanceof DataBag) {
+            $vatIds = $vatIds->all();
+        }
+
+        if (\is_array($vatIds) && $vatIds !== []) {
+            $data->set('vatIds', $this->normalizeVatIds($vatIds));
+        }
     }
 
     private function requiredVatIdField(string $countryId, SalesChannelContext $context): bool

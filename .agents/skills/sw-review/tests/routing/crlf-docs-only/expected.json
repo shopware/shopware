@@ -1,0 +1,9 @@
+{
+  "$comment": "Synthetic: the docs-only case with CRLF line endings. Must classify exactly like the LF version.",
+  "signals": [],
+  "not_signals": [
+    "php_src",
+    "public_surface"
+  ],
+  "guides": []
+}

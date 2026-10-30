@@ -218,4 +218,30 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
 
         expect(mediaUpload.props('source')).toEqual(parentMedia);
     });
+
+    it('should show the length of the meta title and description against the recommended length', async () => {
+        wrapper = await createWrapper({ metaTitle: 'Title', metaDescription: 'a'.repeat(156), childCount: 0 });
+        await flushPromises();
+
+        const hints = wrapper.findAll('.sw-product-seo-form__recommended-length');
+
+        expect(hints).toHaveLength(2);
+        expect(hints[0].text()).toBe('sw-product.seoForm.recommendedLength');
+        expect(hints[0].classes()).not.toContain('is--exceeded');
+        expect(hints[1].classes()).toContain('is--exceeded');
+    });
+
+    it('should count empty and inherited values for the recommended length', async () => {
+        wrapper = await createWrapper(
+            { metaTitle: null, metaDescription: null, childCount: 0 },
+            { id: 'parent-id', metaTitle: 'a'.repeat(57), metaDescription: null },
+        );
+        await flushPromises();
+
+        const hints = wrapper.findAll('.sw-product-seo-form__recommended-length');
+
+        expect(hints[0].classes()).toContain('is--exceeded');
+        expect(hints[1].classes()).not.toContain('is--exceeded');
+        expect(wrapper.vm.getRecommendedLengthClass(undefined, 56)).toEqual({ 'is--exceeded': false });
+    });
 });

@@ -51,6 +51,19 @@ class LineItemInCategoryRuleTest extends TestCase
         static::assertArrayHasKey('categoryIds', $ruleConstraints, 'Rule Constraint categoryIds is not defined');
     }
 
+    public function testGetConfig(): void
+    {
+        $field = $this->rule->getConfig()->getField('categoryIds');
+
+        static::assertNotNull($field);
+        static::assertSame('multi-entity-id-select', $field['type']);
+        static::assertSame([
+            'entity' => 'category',
+            'descriptionProperty' => 'breadcrumb',
+            'descriptionFormatter' => 'breadcrumb',
+        ], $field['config']);
+    }
+
     /**
      * @param array<string> $categoryIds
      * @param array<string> $lineItemCategoryIds

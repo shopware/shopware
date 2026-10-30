@@ -14,6 +14,7 @@
 - Internationalization & Snippets (`08-i18n/`)
 - Security (`09-security/`)
 - Commercial (`10-commercial/`)
+- Code quality (`11-code-quality/`)
 
 ## Expansion Guidelines
 
@@ -42,6 +43,7 @@
 - Security → ACL, iframe hardening, CSP, permission resolution
 - Performance → Build splitting, lazy loading, hydration considerations (future), profiling
 - Commercial → Purpose & integration points
+- Code quality → Lint gate, baselines and what to do when they fail
 - (Removed internal-only planning sections: roadmap, meta, observability)
 
 ---

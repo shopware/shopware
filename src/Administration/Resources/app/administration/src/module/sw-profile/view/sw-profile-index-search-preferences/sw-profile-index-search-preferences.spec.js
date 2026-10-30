@@ -181,6 +181,53 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
         );
     });
 
+    it('should toggle the checkbox whose label was clicked', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        Shopware.Store.get('swProfile').searchPreferences = [
+            {
+                entityName: 'product',
+                _searchable: true,
+                fields: [
+                    { fieldName: 'name', _searchable: true, _score: 500, group: [] },
+                    { fieldName: 'productNumber', _searchable: true, _score: 500, group: [] },
+                ],
+            },
+            {
+                entityName: 'customer',
+                _searchable: true,
+                fields: [
+                    { fieldName: 'firstName', _searchable: true, _score: 500, group: [] },
+                    { fieldName: 'lastName', _searchable: true, _score: 500, group: [] },
+                ],
+            },
+        ];
+        await flushPromises();
+
+        const checkboxes = wrapper.findAll(
+            '.sw-profile-index-search-preferences-searchable-elements__entity-container input[type="checkbox"]',
+        );
+        const ids = checkboxes.map((checkbox) => checkbox.attributes('id'));
+        const names = checkboxes.map((checkbox) => checkbox.attributes('name'));
+
+        expect(checkboxes).toHaveLength(6);
+        expect(new Set(ids).size).toBe(6);
+        expect(new Set(names).size).toBe(6);
+
+        await wrapper.find(`label[for="${checkboxes[3].attributes('id')}"]`).trigger('click');
+        await wrapper.find(`label[for="${checkboxes[5].attributes('id')}"]`).trigger('click');
+
+        expect(checkboxes.map((checkbox) => checkbox.element.checked)).toEqual([
+            true,
+            true,
+            true,
+            false,
+            true,
+            false,
+        ]);
+    });
+
     it('should be able to deselect all', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

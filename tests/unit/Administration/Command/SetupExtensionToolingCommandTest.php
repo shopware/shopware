@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Command\SetupExtensionToolingCommand;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
@@ -15,20 +16,18 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(SetupExtensionToolingCommand::class)]
 class SetupExtensionToolingCommandTest extends TestCase
 {
-    use ExtensionToolingCommandTestBehaviour;
-
     public function testSetupCommandRunsTheSetupEntryScript(): void
     {
-        $administrationRoot = $this->createAdministrationRoot(withToolingStub: true);
+        $administrationRoot = ExtensionToolingFixture::createAdministrationRoot(withToolingStub: true);
 
         $tester = new CommandTester(new SetupExtensionToolingCommand($this->kernel(), $administrationRoot));
         $tester->execute(['tooling-args' => ['--check']]);
 
-        $capture = $this->readToolingCapture($administrationRoot);
+        $capture = ExtensionToolingFixture::readToolingCapture($administrationRoot);
         static::assertStringEndsWith('scripts/extensionTooling/setup.ts', $capture['argv'][1]);
         static::assertContains('--check', $capture['argv']);
 
-        $this->removeAdministrationRoot($administrationRoot);
+        ExtensionToolingFixture::removeAdministrationRoot($administrationRoot);
     }
 
     public function testCommandDescriptionMarksTheToolingExperimental(): void
@@ -36,5 +35,13 @@ class SetupExtensionToolingCommandTest extends TestCase
         $command = new SetupExtensionToolingCommand($this->kernel(), null);
 
         static::assertStringContainsString('[EXPERIMENTAL]', $command->getDescription());
+    }
+
+    private function kernel(): KernelInterface
+    {
+        $kernel = static::createStub(KernelInterface::class);
+        $kernel->method('getProjectDir')->willReturn('/shop');
+
+        return $kernel;
     }
 }

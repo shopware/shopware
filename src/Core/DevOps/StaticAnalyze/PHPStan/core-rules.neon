@@ -12,6 +12,7 @@ parametersSchema:
     shopwareTaggedServiceContractAdditionalTagContracts: arrayOf(anyOf(string(), listOf(string())), string())
 
 rules:
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedEntityConstructionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedServiceDefinitionFeatureTagRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedServiceFeatureTagRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\FeatureFlagVersionRule
@@ -45,12 +46,20 @@ rules:
 
 services:
     -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedExceptionPattern
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedFrameworkMethodPattern
+
+    -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedServiceDecoratorPattern
 
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule
         arguments:
             deprecationPatterns:
+                - @Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedExceptionPattern
+                - @Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedFrameworkMethodPattern
                 - @Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedServiceDecoratorPattern
         tags:
             - phpstan.rules.rule

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
+    ADMINISTRATION_DEPRECATION_BASELINE_PATH,
     FEATURE_REGISTRY_PATH,
     detectMajorTestArms,
     hasAcceptanceTestChanges,
@@ -108,6 +109,12 @@ test('feature registry edits enable the major-js arm', () => {
     assert.equal(hasMajorJsMarkers(diff, parseMajorFlags(REGISTRY)), true);
 });
 
+test('deprecation baseline edits enable the major-js arm', () => {
+    const diff = diffFor(ADMINISTRATION_DEPRECATION_BASELINE_PATH, '+        "sw-select-base > sw-loader": ["major"]');
+
+    assert.equal(hasMajorJsMarkers(diff, parseMajorFlags(REGISTRY)), true);
+});
+
 test('labelsForMajorTestArms adds only missing relevant labels', () => {
     assert.deepEqual(labelsForMajorTestArms({ php: true, js: true, acceptance: false }), ['major-php', 'major-js']);
     assert.deepEqual(labelsForMajorTestArms({ php: true, js: true, acceptance: true }, [{ name: 'major-php' }]), ['major-js', 'major-acceptance']);
@@ -207,7 +214,7 @@ test('markdown inside Administration source does not enable the major-js arm', (
 });
 
 const baseContext = (overrides: Partial<TestContext> = {}): TestContext => ({
-    eventName: 'pull_request',
+    eventName: 'pull_request_target',
     repo: { owner: 'shopware', repo: 'shopware' },
     payload: {
         action: 'opened',
@@ -223,8 +230,9 @@ test('shouldDetect accepts an unlabeled same-repo PR being opened', () => {
     assert.equal(shouldDetect(baseContext()), true);
 });
 
-test('shouldDetect rejects non-pull_request events', () => {
+test('shouldDetect rejects events other than pull_request_target', () => {
     assert.equal(shouldDetect(baseContext({ eventName: 'issues' })), false);
+    assert.equal(shouldDetect(baseContext({ eventName: 'pull_request' })), false);
 });
 
 test('shouldDetect rejects other PR actions', async () => {
@@ -233,10 +241,10 @@ test('shouldDetect rejects other PR actions', async () => {
     assert.equal(shouldDetect(context), false);
 });
 
-test('shouldDetect rejects fork heads', async () => {
+test('shouldDetect accepts fork heads', () => {
     const context = baseContext();
     context.payload.pull_request.head.repo.full_name = 'fork/shopware';
-    assert.equal(shouldDetect(context), false);
+    assert.equal(shouldDetect(context), true);
 });
 
 test('shouldDetect permits detection until all three per-arm labels are present', () => {

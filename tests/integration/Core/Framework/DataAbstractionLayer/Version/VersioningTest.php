@@ -390,6 +390,7 @@ class VersioningTest extends TestCase
 
         $this->connection->rollBack();
 
+        $this->connection->executeStatement('DROP TABLE IF EXISTS calculated_price_field_test');
         $this->connection->executeStatement(CalculatedPriceFieldTestDefinition::getCreateTable());
 
         $this->connection->beginTransaction();
@@ -1972,6 +1973,8 @@ class VersioningTest extends TestCase
                     'salesChannelId' => TestDefaults::SALES_CHANNEL,
                     'title' => 'Title',
                     'content' => 'Content',
+                    'points' => 5,
+                    'externalUser' => 'Test',
                 ],
             ],
         ];

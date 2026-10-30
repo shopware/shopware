@@ -4,24 +4,24 @@
 
     {% if element.data.manufacturer %}
         {% set manufacturer = {
-            'media': element.data.manufacturer.media,
-            'name': element.data.manufacturer.translated.name,
-            'alt': element.data.manufacturer.translated.name,
-            'link': config.url.value ? config.url.value : element.data.manufacturer.translated.link,
+            media: element.data.manufacturer.media,
+            name: element.data.manufacturer.translated.name,
+            alt: element.data.manufacturer.translated.name,
+            link: config.url.value ? config.url.value : element.data.manufacturer.translated.link,
         } %}
     {% else %}
         {% set manufacturer = {
-            'media': element.data.media,
-            'name': element.data.media.translated.title,
-            'alt': element.data.media.translated.alt,
-            'link': config.url.value,
+            media: element.data.media,
+            name: element.data.media.translated.title,
+            alt: element.data.media.translated.alt,
+            link: config.url.value,
         } %}
     {% endif %}
 
-    <div class="cms-element-image cms-element-{{ element.type }} is-{{ config.displayMode.value }}{% if config.verticalAlign.value and not isCover %} has-vertical-alignment{% endif %}{% if not isCover %}{% if config.horizontalAlign.value == "center" %} justify-content-center{% elseif config.horizontalAlign.value == "flex-end" %} justify-content-end{% elseif config.horizontalAlign.value %} justify-content-start{% endif %}{% endif %}">
+    <div class="cms-element-image cms-element-{{ element.type }} is-{{ config.displayMode.value }}{% if config.verticalAlign.value and not isCover %} has-vertical-alignment{% endif %}{% if not isCover %}{% if config.horizontalAlign.value == 'center' %} justify-content-center{% elseif config.horizontalAlign.value == 'flex-end' %} justify-content-end{% elseif config.horizontalAlign.value %} justify-content-start{% endif %}{% endif %}">
         {% block element_manufacturer_logo_inner %}
             {% if config.verticalAlign.value and not isCover %}
-                <div class="cms-element-alignment{% if config.verticalAlign.value == "center" %} align-self-center{% elseif config.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
+                <div class="cms-element-alignment{% if config.verticalAlign.value == 'center' %} align-self-center{% elseif config.verticalAlign.value == 'flex-end' %} align-self-end{% else %} align-self-start{% endif %}">
             {% endif %}
 
             {% block element_manufacturer_logo_link %}
@@ -38,12 +38,11 @@
                 {% if manufacturer.media %}
                     <div class="w-100 cms-image-container is-{{ config.displayMode.value }}"
                         {% if config.minHeight.value and isCover %} style="min-height: {{ config.minHeight.value }};"{% endif %}>
-
                         {% block element_manufacturer_logo_image %}
                             {% set attributes = {
-                                'class': 'cms-image product-detail-manufacturer-logo',
-                                'alt': config.isDecorative.value ? '' : manufacturer.alt,
-                                'title': config.isDecorative.value ? '' : manufacturer.name
+                                class: 'cms-image product-detail-manufacturer-logo',
+                                alt: config.isDecorative.value ? '' : manufacturer.alt,
+                                title: config.isDecorative.value ? '' : manufacturer.name
                             } %}
 
                             {% if config.isDecorative.value %}
@@ -57,7 +56,7 @@
                             {% sw_thumbnails 'cms-image-thumbnails' with {
                                 media: manufacturer.media,
                                 sizes: {
-                                    'default': '200px'
+                                    default: '200px'
                                 }
                             } %}
                         {% endblock %}

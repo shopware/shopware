@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 
 /**
  * @internal
@@ -21,8 +20,6 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineIte
 #[CoversClass(ProductLineItemProvider::class)]
 class ProductLineItemProviderTest extends TestCase
 {
-    use LineItemTestFixtureBehaviour;
-
     private AbstractProductLineItemProvider $provider;
 
     protected function setUp(): void

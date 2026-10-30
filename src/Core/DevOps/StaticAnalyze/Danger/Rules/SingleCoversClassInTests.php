@@ -9,8 +9,10 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * A test file covers exactly one class. The covered class decides which domain team owns the test
  * (and the `#[Package]` value derives from it), so several `#[CoversClass]` attributes make the
- * ownership ambiguous and usually mean several subjects share one file: split it. Applies to newly
- * added tests only; the PHPStan `CoversAttributeRule` already requires the attribute itself.
+ * ownership ambiguous and usually mean several subjects share one file: split it. Every test file a
+ * pull request adds or modifies is checked on its current content, so touching a legacy file with
+ * several covered classes means splitting it first. The PHPStan `CoversAttributeRule` already
+ * requires the attribute itself.
  *
  * Only attributes above the class declaration count, so `#[CoversClass]` occurrences embedded in
  * heredoc fixtures (e.g. in tests of this rule set) are not reported.
@@ -24,9 +26,13 @@ class SingleCoversClassInTests
     {
         $violations = [];
 
-        foreach ($context->platform->pullRequest->getFiles()->filterStatus(File::STATUS_ADDED)->matches('tests/**/*Test.php') as $file) {
+        foreach ($context->platform->pullRequest->getFiles()->matches('tests/**/*Test.php') as $file) {
             // rule-test fixtures deliberately contain the pattern
             if (str_contains($file->name, '/data/')) {
+                continue;
+            }
+
+            if ($file->status === File::STATUS_REMOVED) {
                 continue;
             }
 

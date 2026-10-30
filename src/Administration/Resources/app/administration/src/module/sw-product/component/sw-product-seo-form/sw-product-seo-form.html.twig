@@ -16,7 +16,18 @@
                 :disabled="props.isInherited || !allowEdit"
                 :model-value="props.currentValue"
                 @update:model-value="props.updateCurrentValue"
-            />
+            >
+                {% block sw_product_seo_form_meta_title_hint %}
+                <template #hint>
+                    <span
+                        class="sw-product-seo-form__recommended-length"
+                        :class="getRecommendedLengthClass(props.currentValue, recommendedMetaTitleLength)"
+                    >
+                        {{ getRecommendedLengthHint(props.currentValue, recommendedMetaTitleLength) }}
+                    </span>
+                </template>
+                {% endblock %}
+            </mt-text-field>
         </template>
     </sw-inherit-wrapper>
     {% endblock %}
@@ -36,7 +47,18 @@
                 :disabled="props.isInherited || !allowEdit"
                 :model-value="props.currentValue"
                 @update:model-value="props.updateCurrentValue"
-            />
+            >
+                {% block sw_product_seo_form_meta_description_hint %}
+                <template #hint>
+                    <span
+                        class="sw-product-seo-form__recommended-length"
+                        :class="getRecommendedLengthClass(props.currentValue, recommendedMetaDescriptionLength)"
+                    >
+                        {{ getRecommendedLengthHint(props.currentValue, recommendedMetaDescriptionLength) }}
+                    </span>
+                </template>
+                {% endblock %}
+            </mt-textarea>
         </template>
     </sw-inherit-wrapper>
     {% endblock %}

@@ -485,7 +485,7 @@ class EntityHydratorTest extends TestCase
 
         $structsWithoutToManyHydration = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, [$rowWithoutToManyHydration], 'test', $context);
         $first = $structsWithoutToManyHydration->first();
-        static::assertNotNull($first);
+        static::assertInstanceOf(ArrayEntity::class, $first);
         static::assertSame(Uuid::fromBytesToHex($id), $first->getId());
         static::assertArrayHasKey('toMany', $first->all());
         static::assertNull($first->all()['toMany']);

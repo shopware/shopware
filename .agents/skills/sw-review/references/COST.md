@@ -42,7 +42,7 @@ Optional cheap discovery worker:
 ## Persona Tiers
 
 - `code-style`: `cheap`.
-- `open-source`: `cheap`.
+- `maintainer`: `cheap`.
 - `ux`: `balanced`.
 - `security`: `balanced`.
 - `architecture`: `balanced`.
@@ -52,6 +52,12 @@ Escalate `security` to `strong` for auth, input, deps, secrets, tenant boundarie
 Escalate `architecture` to `strong` for migrations, public API, hot paths, destructive changes, DAL shape, or extension points.
 
 Use `strong-required` only for unclear blocking risk or high-impact public/security changes.
+
+Escalate `maintainer` to `balanced` when `platform-scope` or `bc-removal-before-major` is among its guides: scope and removal judgements are the costly misses.
+
+## Guides
+
+A guide is 30-60 lines, measured at 1.3-2.6k tokens (rule sentences are long). A worker reads every guide the router selected for its persona; there is no cap, because dropping a matching guide is the expensive mistake. A typical PR routes 3-5 guides to a persona (about 7-9k tokens, read once and cached); an admin plus PHP plus config PR can route 8 (about 15k tokens per worker), still well inside the run budget. When a worker's budget is tight, read guides in `matched_by` order (`always`/`signal` before `path` before `anchor`) and say in `summary` which ones were skipped.
 
 ## Budgets
 

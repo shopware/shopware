@@ -76,7 +76,7 @@ class ImportExportLogRepositoryTest extends TestCase
         static::assertIsArray($record);
 
         $expect = $data[$id];
-        static::assertNotEmpty($record);
+        static::assertNotCount(0, $record);
         static::assertSame($id, $record['id']);
         static::assertSame($expect['activity'], $record['activity']);
         static::assertSame($expect['state'], $record['state']);
@@ -259,7 +259,6 @@ class ImportExportLogRepositoryTest extends TestCase
 
     public function testImportExportLogUpdatePartial(): void
     {
-        $upsertData = [];
         $origDate = $data = $this->prepareImportExportLogTestData();
         $item = array_pop($data);
         static::assertNotNull($item);

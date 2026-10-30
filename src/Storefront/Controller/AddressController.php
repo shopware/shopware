@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeCustomerProfileRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractDeleteAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractListAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractUpsertAddressRoute;
@@ -63,7 +64,8 @@ class AddressController extends StorefrontController
         private readonly AbstractUpsertAddressRoute $updateAddressRoute,
         private readonly AbstractDeleteAddressRoute $deleteAddressRoute,
         private readonly AbstractContextSwitchRoute $contextSwitchRoute,
-        private readonly SalesChannelContextServiceInterface $salesChannelContextService
+        private readonly SalesChannelContextServiceInterface $salesChannelContextService,
+        private readonly AbstractChangeCustomerProfileRoute $changeCustomerProfileRoute,
     ) {
     }
 
@@ -394,7 +396,15 @@ class AddressController extends StorefrontController
             // if there is no data in the dataBag, the create form will be rendered
             if ($addressData !== null && $addressData->count() !== 0) {
                 $addressData->set('id', $addressId);
-                $this->handleAddressCreation($viewData, $addressData, $context, $customer);
+                $editsGuestBillingAddress = $this->editsGuestBillingAddress($viewData, $addressId, $customer);
+
+                $address = $this->handleAddressCreation($viewData, $addressData, $context, $customer);
+
+                if ($editsGuestBillingAddress) {
+                    $addressData->set('id', $address->getId());
+                    $this->changeGuestProfile($address, $addressData, $dataBag, $context);
+                }
+
                 $this->addFlash(self::SUCCESS, $this->trans('account.addressSaved'));
 
                 return new NoContentResponse();
@@ -431,7 +441,7 @@ class AddressController extends StorefrontController
         RequestDataBag $dataBag,
         SalesChannelContext $context,
         CustomerEntity $customer
-    ): void {
+    ): CustomerAddressEntity {
         $response = $this->updateAddressRoute->upsert(
             $dataBag->get('id'),
             $dataBag->toRequestDataBag(),
@@ -439,14 +449,15 @@ class AddressController extends StorefrontController
             $customer
         );
 
-        $addressId = $response->getAddress()->getId();
+        $address = $response->getAddress();
+        $addressId = $address->getId();
 
         $viewData->setAddressId($addressId);
         $viewData->setSuccess(true);
         $viewData->setMessages(['type' => 'success', 'text' => $this->trans('account.addressSaved')]);
 
         if (!$viewData->isChangeShipping() && !$viewData->isChangeBilling()) {
-            return;
+            return $address;
         }
 
         $requestDataBag = new RequestDataBag();
@@ -458,6 +469,68 @@ class AddressController extends StorefrontController
         );
 
         $this->contextSwitchRoute->switchContext($requestDataBag, $context);
+
+        return $address;
+    }
+
+    private function editsGuestBillingAddress(AddressEditorModalStruct $viewData, ?string $addressId, CustomerEntity $customer): bool
+    {
+        if (!$customer->getGuest()) {
+            return false;
+        }
+
+        if ($viewData->isChangeBilling()) {
+            return true;
+        }
+
+        return $addressId !== null && $addressId === $customer->getActiveBillingAddress()?->getId();
+    }
+
+    private function changeGuestProfile(
+        CustomerAddressEntity $billingAddress,
+        RequestDataBag $addressData,
+        RequestDataBag $dataBag,
+        SalesChannelContext $context
+    ): void {
+        $accountType = $addressData->getString('accountType');
+        if ($accountType === '') {
+            return;
+        }
+
+        $context = $this->salesChannelContextService->get(new SalesChannelContextServiceParameters(
+            $context->getSalesChannelId(),
+            $context->getToken(),
+            $context->getLanguageId(),
+            $context->getCurrencyId(),
+            $context->getDomainId(),
+        ));
+
+        $customer = $context->getCustomer();
+        if ($customer === null) {
+            return;
+        }
+
+        $profile = new RequestDataBag([
+            'accountType' => $accountType,
+            'company' => $billingAddress->getCompany(),
+            'salutationId' => $billingAddress->getSalutationId(),
+            'title' => $billingAddress->getTitle(),
+            'firstName' => $billingAddress->getFirstName(),
+            'lastName' => $billingAddress->getLastName(),
+        ]);
+
+        if ($dataBag->has('vatIds')) {
+            $profile->set('vatIds', $dataBag->get('vatIds'));
+        }
+
+        $birthday = $customer->getBirthday();
+        if ($birthday !== null) {
+            $profile->set('birthdayDay', (int) $birthday->format('j'));
+            $profile->set('birthdayMonth', (int) $birthday->format('n'));
+            $profile->set('birthdayYear', (int) $birthday->format('Y'));
+        }
+
+        $this->changeCustomerProfileRoute->change($profile, $context, $customer);
     }
 
     private function getById(

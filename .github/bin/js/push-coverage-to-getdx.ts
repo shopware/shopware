@@ -16,6 +16,78 @@ export interface CodecovCommitResponse {
     totals: CodecovCommitTotals | null;
 }
 
+export const REQUEST_TIMEOUT_MS = 30_000;
+export const REQUEST_RETRY_DELAYS_MS = [2_000, 4_000, 8_000];
+
+export class HttpError extends Error {
+    readonly status: number;
+
+    constructor(message: string, status: number) {
+        super(message);
+        this.status = status;
+    }
+}
+
+export function isRetryable(error: unknown): boolean {
+    if (error instanceof HttpError) {
+        return error.status === 429 || error.status >= 500;
+    }
+
+    // Node's fetch rejects with a TypeError ("fetch failed") on network errors, AbortSignal.timeout with a TimeoutError.
+    return error instanceof TypeError || (error instanceof Error && error.name === 'TimeoutError');
+}
+
+/**
+ * Node's fetch hides the actual reason (ECONNRESET, ENOTFOUND, ...) in `cause`, so `message` alone is just "fetch failed".
+ */
+export function describeError(error: unknown): string {
+    const parts: string[] = [];
+    let current: unknown = error;
+
+    while (current !== undefined && current !== null) {
+        if (!(current instanceof Error)) {
+            parts.push(String(current));
+            break;
+        }
+
+        const code = 'code' in current && current.code ? ` [${String(current.code)}]` : '';
+        if (current.message || code) {
+            parts.push(`${current.message}${code}`.trim());
+        }
+
+        if (current instanceof AggregateError) {
+            parts.push(...current.errors.map((inner: unknown) => describeError(inner)));
+        }
+        current = current.cause;
+    }
+
+    return parts.join(' <- caused by: ');
+}
+
+export async function withRetry<T>(
+    label: string,
+    operation: () => Promise<T>,
+    sleep: (ms: number) => Promise<void>,
+    delaysMs: readonly number[] = REQUEST_RETRY_DELAYS_MS,
+    warn: (message: string) => void = console.warn,
+): Promise<T> {
+    for (let attempt = 0; ; attempt++) {
+        try {
+            return await operation();
+        } catch (error) {
+            const delay = delaysMs[attempt];
+            if (delay === undefined || !isRetryable(error)) {
+                throw new Error(`${label} failed after ${attempt + 1} attempt(s)`, { cause: error });
+            }
+            warn(
+                `${label} failed (attempt ${attempt + 1}/${delaysMs.length + 1}): ${describeError(error)}; ` +
+                    `retrying in ${delay / 1_000}s`,
+            );
+            await sleep(delay);
+        }
+    }
+}
+
 export function codecovCommitUrl(owner: string, repo: string, sha: string): string {
     return `https://api.codecov.io/api/v2/github/${owner}/repos/${repo}/commits/${sha}/`;
 }
@@ -29,10 +101,14 @@ export async function fetchCodecovCommit(
 ): Promise<CodecovCommitResponse> {
     const response = await fetchImpl(codecovCommitUrl(owner, repo, sha), {
         headers: { Authorization: `Bearer ${token}` },
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
 
     if (!response.ok) {
-        throw new Error(`Codecov API returned ${response.status} for commit ${sha}`);
+        throw new HttpError(
+            `Codecov API returned ${response.status} for commit ${sha}: ${await response.text()}`,
+            response.status,
+        );
     }
 
     return (await response.json()) as CodecovCommitResponse;
@@ -122,10 +198,14 @@ export async function pushCoverageToGetDx(
             Accept: 'application/json',
         },
         body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
 
     if (!response.ok) {
-        throw new Error(`getDX customData.set POST failed with ${response.status}: ${await response.text()}`);
+        throw new HttpError(
+            `getDX customData.set POST failed with ${response.status}: ${await response.text()}`,
+            response.status,
+        );
     }
 }
 
@@ -145,14 +225,18 @@ async function run(): Promise<void> {
     const codecovToken = requireEnv('CODECOV_API_TOKEN');
     const dxToken = requireEnv('DX_API_TOKEN');
 
+    const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+    console.log(`Fetching Codecov report for ${owner}/${repo}@${sha}`);
     const commit = await waitForCodecovReport(
-        () => fetchCodecovCommit(owner, repo, sha, codecovToken),
-        (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+        () => withRetry('Codecov commit request', () => fetchCodecovCommit(owner, repo, sha, codecovToken), sleep),
+        sleep,
     );
 
     const payload = buildGetDxPayload(sha, repo, branch, commit.totals, new Date().toISOString());
 
-    await pushCoverageToGetDx(payload, dxToken);
+    console.log('Pushing coverage to getDX');
+    await withRetry('getDX customData.set request', () => pushCoverageToGetDx(payload, dxToken), sleep);
 
     console.log(
         `Pushed coverage for ${sha} to getDX: ${payload.value.coverage_pct}% ` +
@@ -162,7 +246,7 @@ async function run(): Promise<void> {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
     run().catch((error: unknown) => {
-        console.error(error instanceof Error ? error.message : String(error));
+        console.error(`::error title=Push coverage to getDX::${describeError(error)}`);
         process.exit(1);
     });
 }

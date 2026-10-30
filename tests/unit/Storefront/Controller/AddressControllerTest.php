@@ -10,11 +10,13 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeCustomerProfileRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractDeleteAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractListAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractUpsertAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRouteResponse;
+use Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRouteResponse;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -24,6 +26,8 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextSwitchRoute;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\AddressController;
 use Shopware\Storefront\Page\Address\Detail\AddressDetailPageLoader;
@@ -58,6 +62,8 @@ class AddressControllerTest extends TestCase
 
     private Stub&SalesChannelContextService $salesChannelContextService;
 
+    private Stub&AbstractChangeCustomerProfileRoute $changeCustomerProfileRoute;
+
     protected function setUp(): void
     {
         $this->accountService = static::createStub(AccountService::class);
@@ -66,6 +72,8 @@ class AddressControllerTest extends TestCase
         $this->deleteAddressRoute = static::createStub(AbstractDeleteAddressRoute::class);
         $this->contextSwitchRoute = static::createStub(AbstractContextSwitchRoute::class);
         $this->salesChannelContextService = static::createStub(SalesChannelContextService::class);
+        $this->salesChannelContextService->method('get')->willReturn(Generator::generateSalesChannelContext());
+        $this->changeCustomerProfileRoute = static::createStub(AbstractChangeCustomerProfileRoute::class);
 
         $this->controller = $this->buildController();
     }
@@ -517,6 +525,7 @@ class AddressControllerTest extends TestCase
 
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
+        $customer->setGuest(false);
 
         $customerAddress = new CustomerAddressEntity();
         $customerAddress->setUniqueIdentifier($addressId);
@@ -558,6 +567,7 @@ class AddressControllerTest extends TestCase
 
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
+        $customer->setGuest(false);
         $customerAddress = new CustomerAddressEntity();
         $customerAddress->setUniqueIdentifier($addressId);
         $customerAddressCollection = new CustomerAddressCollection([$customerAddress]);
@@ -599,6 +609,7 @@ class AddressControllerTest extends TestCase
 
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
+        $customer->setGuest(false);
         $customerAddress = new CustomerAddressEntity();
         $customerAddress->setUniqueIdentifier($addressId);
         $customerAddressCollection = new CustomerAddressCollection([$customerAddress]);
@@ -645,6 +656,7 @@ class AddressControllerTest extends TestCase
 
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
+        $customer->setGuest(false);
         $customerAddress = new CustomerAddressEntity();
         $customerAddress->setUniqueIdentifier($addressId);
         $customerAddressCollection = new CustomerAddressCollection([$customerAddress]);
@@ -685,6 +697,225 @@ class AddressControllerTest extends TestCase
         );
     }
 
+    public function testAddressManagerChangesGuestProfileWhenSavingABillingAddress(): void
+    {
+        $savedAddress = $this->createAddress();
+
+        $upsertAddressRoute = static::createStub(AbstractUpsertAddressRoute::class);
+        $upsertAddressRoute->method('upsert')->willReturn(new UpsertAddressRouteResponse($savedAddress));
+
+        $reloadedGuest = $this->createGuest();
+        $reloadedGuest->setBirthday(new \DateTimeImmutable('1990-04-09'));
+        $reloadedContext = Generator::generateSalesChannelContext(customer: $reloadedGuest);
+
+        $changedProfile = null;
+        $changeCustomerProfileRoute = $this->createMock(AbstractChangeCustomerProfileRoute::class);
+        $changeCustomerProfileRoute
+            ->expects($this->once())
+            ->method('change')
+            ->with(static::anything(), static::identicalTo($reloadedContext), static::identicalTo($reloadedGuest))
+            ->willReturnCallback(static function (RequestDataBag $profile) use (&$changedProfile): SuccessResponse {
+                $changedProfile = $profile->all();
+
+                return new SuccessResponse();
+            });
+
+        $controller = $this->buildController(
+            abstractUpsertAddressRoute: $upsertAddressRoute,
+            salesChannelContextService: $this->contextServiceReturning($reloadedContext),
+            changeCustomerProfileRoute: $changeCustomerProfileRoute,
+        );
+
+        $dataBag = new RequestDataBag([
+            'address' => ['accountType' => 'business', 'company' => 'Acme GmbH'],
+            'vatIds' => ['DE123456789'],
+        ]);
+
+        $response = $controller->addressManagerUpsert(new Request(), $dataBag, Generator::generateSalesChannelContext(), $this->createGuest(), null, 'billing');
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertSame([
+            'accountType' => 'business',
+            'company' => 'Acme GmbH',
+            'salutationId' => $savedAddress->getSalutationId(),
+            'title' => 'Dr.',
+            'firstName' => 'Erika',
+            'lastName' => 'Mustermann',
+            'vatIds' => ['DE123456789'],
+            'birthdayDay' => 9,
+            'birthdayMonth' => 4,
+            'birthdayYear' => 1990,
+        ], $changedProfile);
+    }
+
+    public function testAddressManagerChangesGuestProfileWhenEditingTheBillingAddressFromTheShippingTab(): void
+    {
+        $billingAddress = $this->createAddress();
+        $guest = $this->createGuest($billingAddress);
+
+        $upsertAddressRoute = static::createStub(AbstractUpsertAddressRoute::class);
+        $upsertAddressRoute->method('upsert')->willReturn(new UpsertAddressRouteResponse($billingAddress));
+
+        $changeCustomerProfileRoute = $this->createMock(AbstractChangeCustomerProfileRoute::class);
+        $changeCustomerProfileRoute->expects($this->once())->method('change')->willReturn(new SuccessResponse());
+
+        $controller = $this->buildController(
+            listAddressRoute: $this->listAddressRouteFinding($billingAddress),
+            abstractUpsertAddressRoute: $upsertAddressRoute,
+            salesChannelContextService: $this->contextServiceReturning(Generator::generateSalesChannelContext(customer: $guest)),
+            changeCustomerProfileRoute: $changeCustomerProfileRoute,
+        );
+
+        $dataBag = new RequestDataBag(['address' => ['accountType' => 'business', 'company' => 'Acme GmbH']]);
+
+        $response = $controller->addressManagerUpsert(new Request(), $dataBag, Generator::generateSalesChannelContext(), $guest, $billingAddress->getId(), 'shipping');
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
+    public function testAddressManagerKeepsGuestProfileWhenSavingAShippingOnlyAddress(): void
+    {
+        $shippingAddress = $this->createAddress();
+        $guest = $this->createGuest($this->createAddress());
+
+        $upsertAddressRoute = static::createStub(AbstractUpsertAddressRoute::class);
+        $upsertAddressRoute->method('upsert')->willReturn(new UpsertAddressRouteResponse($shippingAddress));
+
+        $changeCustomerProfileRoute = $this->createMock(AbstractChangeCustomerProfileRoute::class);
+        $changeCustomerProfileRoute->expects($this->never())->method('change');
+
+        $controller = $this->buildController(
+            listAddressRoute: $this->listAddressRouteFinding($shippingAddress),
+            abstractUpsertAddressRoute: $upsertAddressRoute,
+            changeCustomerProfileRoute: $changeCustomerProfileRoute,
+        );
+
+        $dataBag = new RequestDataBag(['address' => ['accountType' => 'business', 'company' => 'Acme GmbH']]);
+
+        $response = $controller->addressManagerUpsert(new Request(), $dataBag, Generator::generateSalesChannelContext(), $guest, $shippingAddress->getId(), 'shipping');
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
+    public function testAddressManagerKeepsProfileOfRegisteredCustomers(): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $customer->setGuest(false);
+
+        $upsertAddressRoute = static::createStub(AbstractUpsertAddressRoute::class);
+        $upsertAddressRoute->method('upsert')->willReturn(new UpsertAddressRouteResponse($this->createAddress()));
+
+        $changeCustomerProfileRoute = $this->createMock(AbstractChangeCustomerProfileRoute::class);
+        $changeCustomerProfileRoute->expects($this->never())->method('change');
+
+        $controller = $this->buildController(
+            abstractUpsertAddressRoute: $upsertAddressRoute,
+            changeCustomerProfileRoute: $changeCustomerProfileRoute,
+        );
+
+        $dataBag = new RequestDataBag(['address' => ['accountType' => 'business', 'company' => 'Acme GmbH']]);
+
+        $response = $controller->addressManagerUpsert(new Request(), $dataBag, Generator::generateSalesChannelContext(), $customer, null, 'billing');
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
+    public function testAddressManagerKeepsGuestProfileWhenTheFormHasNoAccountType(): void
+    {
+        $upsertAddressRoute = static::createStub(AbstractUpsertAddressRoute::class);
+        $upsertAddressRoute->method('upsert')->willReturn(new UpsertAddressRouteResponse($this->createAddress()));
+
+        $changeCustomerProfileRoute = $this->createMock(AbstractChangeCustomerProfileRoute::class);
+        $changeCustomerProfileRoute->expects($this->never())->method('change');
+
+        $controller = $this->buildController(
+            abstractUpsertAddressRoute: $upsertAddressRoute,
+            changeCustomerProfileRoute: $changeCustomerProfileRoute,
+        );
+
+        $dataBag = new RequestDataBag(['address' => ['company' => 'Acme GmbH']]);
+
+        $response = $controller->addressManagerUpsert(new Request(), $dataBag, Generator::generateSalesChannelContext(), $this->createGuest(), null, 'billing');
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
+    public function testAddressManagerKeepsTheCreatedAddressWhenTheGuestProfileIsInvalid(): void
+    {
+        $savedAddress = $this->createAddress();
+        $guest = $this->createGuest();
+
+        $upsertAddressRoute = static::createStub(AbstractUpsertAddressRoute::class);
+        $upsertAddressRoute->method('upsert')->willReturn(new UpsertAddressRouteResponse($savedAddress));
+
+        $changeCustomerProfileRoute = static::createStub(AbstractChangeCustomerProfileRoute::class);
+        $changeCustomerProfileRoute
+            ->method('change')
+            ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
+
+        $controller = $this->buildController(
+            abstractUpsertAddressRoute: $upsertAddressRoute,
+            salesChannelContextService: $this->contextServiceReturning(Generator::generateSalesChannelContext(customer: $guest)),
+            changeCustomerProfileRoute: $changeCustomerProfileRoute,
+        );
+
+        $dataBag = new RequestDataBag(['address' => ['accountType' => 'business', 'company' => 'Acme GmbH']]);
+
+        $response = $controller->addressManagerUpsert(new Request(), $dataBag, Generator::generateSalesChannelContext(), $guest, null, 'billing');
+
+        $parameters = $controller->recorder()->renderStorefrontParameters;
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertArrayHasKey('formViolations', $parameters);
+        static::assertInstanceOf(RequestDataBag::class, $parameters['postedAddress']);
+        static::assertSame($savedAddress->getId(), $parameters['postedAddress']->get('id'));
+    }
+
+    private function createGuest(?CustomerAddressEntity $activeBillingAddress = null): CustomerEntity
+    {
+        $guest = new CustomerEntity();
+        $guest->setId(Uuid::randomHex());
+        $guest->setGuest(true);
+
+        if ($activeBillingAddress !== null) {
+            $guest->setActiveBillingAddress($activeBillingAddress);
+        }
+
+        return $guest;
+    }
+
+    private function createAddress(): CustomerAddressEntity
+    {
+        $address = new CustomerAddressEntity();
+        $address->setId(Uuid::randomHex());
+        $address->setSalutationId(Uuid::randomHex());
+        $address->setTitle('Dr.');
+        $address->setFirstName('Erika');
+        $address->setLastName('Mustermann');
+        $address->setCompany('Acme GmbH');
+
+        return $address;
+    }
+
+    private function listAddressRouteFinding(CustomerAddressEntity $address): AbstractListAddressRoute
+    {
+        $response = static::createStub(ListAddressRouteResponse::class);
+        $response->method('getAddressCollection')->willReturn(new CustomerAddressCollection([$address]));
+
+        $listAddressRoute = static::createStub(AbstractListAddressRoute::class);
+        $listAddressRoute->method('load')->willReturn($response);
+
+        return $listAddressRoute;
+    }
+
+    private function contextServiceReturning(SalesChannelContext $context): SalesChannelContextService
+    {
+        $contextService = static::createStub(SalesChannelContextService::class);
+        $contextService->method('get')->willReturn($context);
+
+        return $contextService;
+    }
+
     private function buildController(
         ?AccountService $accountService = null,
         ?AbstractListAddressRoute $listAddressRoute = null,
@@ -692,6 +923,7 @@ class AddressControllerTest extends TestCase
         ?AbstractDeleteAddressRoute $deleteAddressRoute = null,
         ?AbstractContextSwitchRoute $contextSwitchRoute = null,
         ?SalesChannelContextService $salesChannelContextService = null,
+        ?AbstractChangeCustomerProfileRoute $changeCustomerProfileRoute = null,
     ): AddressControllerStub {
         $controller = new AddressControllerStub(
             static::createStub(AddressListingPageLoader::class),
@@ -701,7 +933,8 @@ class AddressControllerTest extends TestCase
             $abstractUpsertAddressRoute ?? $this->abstractUpsertAddressRoute,
             $deleteAddressRoute ?? $this->deleteAddressRoute,
             $contextSwitchRoute ?? $this->contextSwitchRoute,
-            $salesChannelContextService ?? $this->salesChannelContextService
+            $salesChannelContextService ?? $this->salesChannelContextService,
+            $changeCustomerProfileRoute ?? $this->changeCustomerProfileRoute,
         );
 
         $translator = static::createStub(TranslatorInterface::class);

@@ -18,6 +18,7 @@ import { runNpmAudit } from '../../../../../../.github/bin/js/run-npm-audit.ts';
  */
 runNpmAudit({
     ignoredGHSAs: [
+        'https://github.com/advisories/GHSA-mrhx-c7xc-m3w5', // zod oversized collection DoS, devDep only (chromium-bidi via Puppeteer/Lighthouse); browser automation uses developer-controlled inputs, no patched zod 3 release exists, and upgrading Puppeteer/Lighthouse requires dropping Node 20 support
         'https://github.com/advisories/GHSA-848j-6mx2-7j84', // elliptic ECDSA flaw, low severity, devDep only (vite-plugin-node-polyfills/crypto-browserify), fix requires semver major
         'https://github.com/advisories/GHSA-hfxv-24rg-xrqf', // axios v0 ReDoS, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration; patched v0 breaks downstream Admin axios-mock-adapter tests
         'https://github.com/advisories/GHSA-p92q-9vqr-4j8v', // axios v0 proxy authorization leak, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration; patched v0 breaks downstream Admin axios-mock-adapter tests

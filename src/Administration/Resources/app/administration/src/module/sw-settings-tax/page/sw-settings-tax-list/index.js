@@ -254,7 +254,7 @@ export default {
                 const state = taxProvider.active ? 'active' : 'inactive';
 
                 this.createNotificationSuccess({
-                    message: this.$t(`sw-settings-tax.list.taxProvider.statusChangedSuccess.${state}`, 0, {
+                    message: this.$t(`sw-settings-tax.list.taxProvider.statusChangedSuccess.${state}`, {
                         name: taxProvider.translated.name,
                     }),
                 });

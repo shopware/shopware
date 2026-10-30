@@ -45,7 +45,7 @@ class TranslationSerializerTest extends TestCase
 
         $translations = \iterator_to_array($translationsSerializer->serialize($config, $this->getTranslationsAssociationField(), null));
 
-        static::assertEmpty($translations);
+        static::assertCount(0, $translations);
     }
 
     public function testSerializationWithInvalidField(): void

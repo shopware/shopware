@@ -70,7 +70,7 @@ class UserMcpAllowlistController
             return new Response(null, Response::HTTP_BAD_REQUEST);
         }
 
-        if ($allowlist !== null && !$this->isValidAllowlist($allowlist)) {
+        if ($allowlist !== null && !McpAllowlist::isValidPayload($allowlist)) {
             return new Response(null, Response::HTTP_BAD_REQUEST);
         }
 
@@ -82,37 +82,5 @@ class UserMcpAllowlistController
         ], $context);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
-    }
-
-    /**
-     * @param array<mixed> $allowlist
-     */
-    private function isValidAllowlist(array $allowlist): bool
-    {
-        $knownKeys = [McpAllowlist::TOOLS, McpAllowlist::RESOURCES, McpAllowlist::PROMPTS];
-
-        if (array_diff(array_keys($allowlist), $knownKeys) !== []) {
-            return false;
-        }
-
-        foreach ($knownKeys as $key) {
-            if (!\array_key_exists($key, $allowlist)) {
-                continue;
-            }
-            $value = $allowlist[$key];
-            if ($value !== null && !\is_array($value)) {
-                return false;
-            }
-            // A JSON object is rejected rather than stored: the allowlist parser only reads lists,
-            // so accepting one would silently persist a selection that grants nothing.
-            if (\is_array($value) && !array_is_list($value)) {
-                return false;
-            }
-            if (\is_array($value) && array_filter($value, static fn ($item) => !\is_string($item)) !== []) {
-                return false;
-            }
-        }
-
-        return true;
     }
 }

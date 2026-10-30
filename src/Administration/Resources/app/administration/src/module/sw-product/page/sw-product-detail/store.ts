@@ -37,6 +37,7 @@ const swProductDetail = Shopware.Store.register({
         return {
             product: {} as ProductDetailProduct,
             parentProduct: {} as Entity<'product'>,
+            isDownloadExternallyManaged: false,
             currencies: [] as Entity<'currency'>[],
             apiContext: {} as ContextStore['api'],
             taxes: [] as Entity<'tax'>[],

@@ -179,15 +179,24 @@
     <template v-if="variantGenerationQueue.createQueue.length > 0">
         <div class="sw-product-modal-variant-generation__upload-card">
             <div class="sw-product-modal-variant-generation__card-title">
-                {{ $t('sw-product.variations.configuratorModal.uploadCardDescription') }}
+                {{ uploadCardDescription }}
             </div>
 
             <div class="sw-product-modal-variant-generation__upload-all-container">
 
-                <mt-switch
-                    :label="$t('sw-product.variations.configuratorModal.digitalVariantSwitch')"
-                    @update:model-value="onChangeAllVariantValues"
-                />
+                <div class="sw-product-modal-variant-generation__switches">
+                    <mt-switch
+                        :label="$t('sw-product.variations.configuratorModal.digitalVariantSwitch')"
+                        @update:model-value="onChangeAllVariantValues"
+                    />
+                    {% block sw_product_modal_variant_generation_download_external_management_switch %}
+                    <mt-switch
+                        v-model="allowDigitalVariantsWithoutDownloads"
+                        :label="$t('sw-product.detailBase.downloadExternalManagementLabel')"
+                        :help-text="$t('sw-product.detailBase.downloadExternalManagementTooltip')"
+                    />
+                    {% endblock %}
+                </div>
                 <div class="sw-product-modal-variant-generation__upload-all">
                     <sw-upload-listener
                         upload-tag="upload_all"

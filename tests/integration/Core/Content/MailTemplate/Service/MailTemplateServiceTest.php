@@ -127,7 +127,7 @@ class MailTemplateServiceTest extends TestCase
         static::assertDirectoryExists($fixturePath);
 
         $files = iterator_to_array((new Finder())->files()->in($fixturePath)->name('*.twig'));
-        static::assertNotEmpty($files, \sprintf('No template fixtures found in "%s".', $fixtureDirectory));
+        static::assertNotCount(0, $files, \sprintf('No template fixtures found in "%s".', $fixtureDirectory));
 
         foreach ($files as $file) {
             $rendered = $this->mailTemplateService->simulate(

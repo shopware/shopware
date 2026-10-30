@@ -45,6 +45,8 @@ class VerifyShopController
         $this->rateLimiter->ensureAccepted(RateLimiter::APP_SHOP_VERIFY, $ip);
 
         if ($this->appUrlVerifier->completeVerification($verifyShopRequest->runId, $verifyShopRequest->token)) {
+            $this->rateLimiter->reset(RateLimiter::APP_SHOP_VERIFY, $ip);
+
             return new JsonResponse([], Response::HTTP_NO_CONTENT);
         }
 

@@ -21,6 +21,8 @@ framework:
                 adapter: cache.adapter.filesystem
             cache.http:
                 adapter: cache.adapter.filesystem
+            cache.tags:
+                adapter: cache.adapter.filesystem
             cache.rate_limiter:
                 adapter: cache.adapter.filesystem
             cache.serializer:

@@ -318,6 +318,83 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
     });
 
+    describe('page type navigation layout', () => {
+        let resizeCallback = null;
+        let observeMock = null;
+        let disconnectMock = null;
+        const originalResizeObserver = window.ResizeObserver;
+
+        beforeEach(() => {
+            resizeCallback = null;
+            observeMock = jest.fn();
+            disconnectMock = jest.fn();
+
+            window.ResizeObserver = jest.fn().mockImplementation((callback) => {
+                resizeCallback = callback;
+
+                return {
+                    observe: observeMock,
+                    disconnect: disconnectMock,
+                };
+            });
+        });
+
+        afterEach(() => {
+            window.ResizeObserver = originalResizeObserver;
+        });
+
+        it('observes the page width to decide between the vertical and the compact navigation', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            expect(observeMock).toHaveBeenCalledWith(wrapper.element);
+            expect(wrapper.classes()).not.toContain('sw-cms-list--compact');
+
+            resizeCallback([{ contentRect: { width: 799 } }]);
+            await flushPromises();
+            expect(wrapper.classes()).toContain('sw-cms-list--compact');
+
+            resizeCallback([{ contentRect: { width: 800 } }]);
+            await flushPromises();
+            expect(wrapper.classes()).not.toContain('sw-cms-list--compact');
+        });
+
+        it('renders the meteor tabs horizontally on top of the listing in the compact layout', async () => {
+            const wrapper = await createWrapper(undefined, {}, { featureActive: true });
+            await flushPromises();
+
+            expect(wrapper.classes()).not.toContain('sw-cms-list--compact');
+            expect(wrapper.getComponent({ name: 'mt-tabs' }).props('vertical')).toBe(true);
+
+            resizeCallback([{ contentRect: { width: 700 } }]);
+            await flushPromises();
+
+            expect(wrapper.classes()).toContain('sw-cms-list--compact');
+            expect(wrapper.getComponent({ name: 'mt-tabs' }).props('vertical')).toBe(false);
+        });
+
+        it('renders the deprecated tabs horizontally in the compact layout', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            expect(wrapper.getComponent({ name: 'sw-tabs' }).attributes('is-vertical')).toBe('true');
+
+            resizeCallback([{ contentRect: { width: 700 } }]);
+            await flushPromises();
+
+            expect(wrapper.getComponent({ name: 'sw-tabs' }).attributes('is-vertical')).toBe('false');
+        });
+
+        it('disconnects the resize observer before unmount', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            wrapper.unmount();
+
+            expect(disconnectMock).toHaveBeenCalledTimes(1);
+        });
+    });
+
     it('should size the card view pagination steps and skeletons like the card view limit', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

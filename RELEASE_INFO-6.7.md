@@ -160,6 +160,12 @@ Unit tests that pass a mocked `EventDispatcherInterface` to `ExtensionDispatcher
 
 Live state transitions batch history and state writes. `EntityWriteEvent` subscribers can receive multiple entities: filter with `getCommandsForEntity()` and make pre-write work idempotent or compensate it through `addError()`. `WriteCommandExceptionEvent` and error callbacks can run before SQL executes, and each failed attempt runs its error callbacks before it is retried. Retries stop once success callbacks or written listeners begin, or compensation fails. MariaDB error `1020` is now retryable.
 
+### Automatically taken over SEO URLs are no longer write-protected
+
+When indexing generates an SEO URL that another entity already uses as its canonical URL, the generated URL takes it over and the other entity falls back to its oldest remaining SEO URL.
+That fallback is no longer marked as modified, so the entity gets its own URL back with its next indexing.
+A takeover by an SEO URL set in the Administration or via the API still write-protects the fallback, so later indexing does not undo the manual change.
+
 ### Address validation per billing and shipping address
 
 During registration and on the checkout confirm page, the address validation definition is now also dispatched as `framework.validation.address.create.billing` and `framework.validation.address.create.shipping`, after `framework.validation.address.create`.
@@ -542,6 +548,38 @@ Switch comparisons against `categoryId` to `activeId`, because `categoryId` hold
 With the `v6.8.0.0` flag active, the template no longer sets the deprecated `breadcrumbCategory` and `breadcrumbKeys` variables and ignores the `breadcrumbCollection` input.
 Use `breadcrumb` and `loop.last` instead, and pass the entries as `breadcrumb`.
 See `UPGRADE-6.8.md` for the full variable mapping.
+
+### Link categories no longer get new SEO URLs
+
+Link categories no longer get new SEO URLs during category indexing, so a link category named like its target does not take over the target's SEO URL anymore.
+Their existing SEO URLs are kept and still redirect to the link target.
+
+When several canonical SEO URLs match a request, the storefront now resolves the one stored exactly as requested.
+This ends the endless redirect between a link category and its target when their URLs differ only in case or a trailing slash.
+
+If category indexing ran on 6.7.13.0 or later, a target category can still show under a write-protected fallback URL, while a link category of the same name holds the target's URL.
+Indexing does not repair this, because the fallback is marked as modified.
+List the affected categories with:
+
+```bash
+bin/console seo:repair:link-category-takeover
+```
+
+A category whose SEO URL was set manually can appear in the list as well.
+With `--apply`, the command asks for each listed category whether it should get its URL back:
+
+```bash
+bin/console seo:repair:link-category-takeover --apply
+```
+
+To repair without being asked, for example in a script, pass the ids of the categories to repair:
+
+```bash
+bin/console seo:repair:link-category-takeover --apply --no-interaction <category-id>...
+```
+
+The categories get their SEO URLs back, and their fallback URLs redirect to them.
+The command is deprecated and will be removed in 6.9.0.0.
 
 ## Hosting & Configuration
 

@@ -65,6 +65,7 @@ class SeoResolver extends AbstractSeoResolver
     public function resolveUrl(SeoUrlRequestContext $context): ResolvedSeoUrl
     {
         $seoPathInfo = trim($context->pathInfo, '/');
+        $requestedSeoPathInfo = ltrim($context->pathInfo, '/');
         $normalizedQueryString = $this->normalizeQueryString($context->queryString);
 
         $query = (new QueryBuilder($this->connection))
@@ -102,7 +103,7 @@ class SeoResolver extends AbstractSeoResolver
         /** @var list<array{id: string, pathInfo: string, seoPathInfo: string, isCanonical: string|null, salesChannelId: string|null}> $seoPaths */
         $seoPaths = $query->executeQuery()->fetchAllAssociative();
 
-        usort($seoPaths, function ($a, $b) use ($normalizedQueryString) {
+        usort($seoPaths, function ($a, $b) use ($normalizedQueryString, $requestedSeoPathInfo) {
             if ($a['isCanonical'] === null) {
                 return 1;
             }
@@ -127,7 +128,8 @@ class SeoResolver extends AbstractSeoResolver
                 }
             }
 
-            return 0;
+            // the lookup ignores case and a trailing slash, so prefer the exact match
+            return ($b['seoPathInfo'] === $requestedSeoPathInfo) <=> ($a['seoPathInfo'] === $requestedSeoPathInfo);
         });
 
         $seoPath = ['pathInfo' => $seoPathInfo, 'isCanonical' => false];

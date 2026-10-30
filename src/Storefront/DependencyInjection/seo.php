@@ -25,6 +25,7 @@ use Shopware\Storefront\Framework\Seo\App\AppSeoUrlRouteProvider;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlSynchronizer;
 use Shopware\Storefront\Framework\Seo\App\EntitySeoUrlAppFeatureDefinition;
 use Shopware\Storefront\Framework\Seo\App\SeoUrlAppFeatureDefinition;
+use Shopware\Storefront\Framework\Seo\Command\RepairLinkCategorySeoUrlTakeoverCommand;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\LandingPageSeoUrlRoute;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
@@ -143,4 +144,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(StorefrontCategoryUrlGenerator::class . '.inner'),
             service('router'),
         ]);
+
+    $services->set(RepairLinkCategorySeoUrlTakeoverCommand::class)
+        ->args([
+            service(Connection::class),
+            service(SeoUrlUpdater::class),
+        ])
+        ->tag('console.command')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.9.0.0']);
 };

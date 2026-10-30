@@ -16,19 +16,4 @@ describe('sw-order-list', () => {
             }),
         ).toBe(primary);
     });
-
-    it.deprecated('v6.8.0.0')('falls back to the state of the first loaded delivery', async () => {
-        const getDeliveryState = await createDeliveryStateGetter();
-        const first = { name: 'Open' };
-
-        expect(
-            getDeliveryState({
-                primaryOrderDelivery: null,
-                deliveries: [
-                    { id: 'first', stateMachineState: first },
-                    { id: 'second', stateMachineState: { name: 'Shipped' } },
-                ],
-            }),
-        ).toBe(first);
-    });
 });

@@ -216,7 +216,8 @@ export default {
             criteria
                 .getAssociation('deliveries')
                 .addAssociation('stateMachineState')
-                .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
+                .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'))
+                .addSorting(Criteria.sort('id', 'ASC'));
 
             criteria
                 .getAssociation('transactions')

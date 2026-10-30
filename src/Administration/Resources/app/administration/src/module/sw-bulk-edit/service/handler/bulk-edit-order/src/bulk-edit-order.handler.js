@@ -1,5 +1,6 @@
 import BulkEditBaseHandler from '../../bulk-edit-base.handler';
 import RetryHelper from 'src/core/helper/retry.helper';
+import { getPrimaryDelivery } from 'src/core/order/primary-delivery';
 
 const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
@@ -53,7 +54,7 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
                         );
                     case 'orderDeliveries':
                         return this.orderStateMachineService.transitionOrderDeliveryState(
-                            order.deliveries.first()?.id,
+                            getPrimaryDelivery(order)?.id,
                             change.value,
                             options,
                             {},

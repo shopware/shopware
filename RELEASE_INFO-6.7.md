@@ -320,6 +320,22 @@ Core usages that are not migrated yet are listed in `src/Administration/Resource
 In next-major mode, a deprecation with a listed message logs a console error instead of throwing, so the Administration stays usable.
 Any other deprecation still throws.
 
+### Search types can supply their own criteria and result link
+
+Extensions that add an entity to the Administration search bar can now configure how its results are loaded and linked through `searchTypeService.upsertType`, without overriding `sw-search-bar` or `sw-search-bar-item`. Before, only `product` could get custom criteria, and results of other entities could only link to the detail route of their module.
+
+- `criteria`: a function that receives the result limit and returns the `Criteria` for the entity, for example to add associations. It applies to the global search and to recently searched items.
+- `itemRoute`: a function that receives the result item and returns the route location its search result links to.
+
+```js
+Shopware.Service('searchTypeService').upsertType('my_entity', {
+    entityName: 'my_entity',
+    criteria: (limit) => new Shopware.Data.Criteria(1, limit).addAssociation('parent'),
+    itemRoute: (item) => ({ name: 'my.entity.detail', params: { id: item.parentId } }),
+});
+```
+
+Results with an `itemRoute` use the new Twig block `sw_search_bar_item_custom_route` in `sw-search-bar-item`. Entities without a module manifest no longer break the result label.
 ### Empty snippet filter ignores snippets with the value `0`
 
 The "Show empty snippets only" filter in the snippet list now only lists snippets without a value.
@@ -427,6 +443,21 @@ The cart, checkout and purchase events report these categories as well, without 
 
 The wishlist page holds the removal of a product back for at most one second, until `remove_from_wishlist` is sent.
 
+### Storefront analytics report `select_item` and the list of a product
+
+Storefront analytics now report `select_item`, and `view_item_list`, `select_item` and `view_item` report the list of a product as `item_list_id`, `item_list_name` and `index`.
+The list IDs, such as `category:<id>` or `search`, are a contract that Google Tag Manager triggers can rely on.
+For the search result, these events also report the query as `search_term`, so GA4 shows which products a search found.
+The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#lists) lists them and shows how extensions identify their own lists.
+### Product box information is extendable
+
+The new Twig block `component_product_box_product_information` in `storefront/component/product/card/box-standard.html.twig` renders the `data-product-information` attribute of the product box.
+Override it to add or change values:
+
+```twig
+{% block component_product_box_product_information %}{{ productInformation|merge({ customKey: 'value' })|json_encode }}{% endblock %}
+```
+
 ### Theme compilation completion is notified once
 
 With asynchronous theme compilation, saving a theme or activating an extension notifies the Administration user once when the compilation is completed, instead of once per sales channel. Code that compiles several themes or sales channels at once can do the same by passing `false` as the new sixth argument `$notifyOnAsyncCompletion` of `ThemeService::compileTheme()` for all but the last call. Classes overriding `compileTheme()` should add the parameter `bool $notifyOnAsyncCompletion = true`; it becomes part of the signature in 6.8.0.0.
@@ -487,6 +518,23 @@ A sales channel whose domain cannot be resolved is now reported as its own failu
 Shopware now verifies that `APP_URL` reaches this installation before it registers the shop with an app server, including the Shopware service registry. This applies in every environment and to every app server. The shop must be able to reach itself under `APP_URL`, including `/api/app-system/shop/verify` when it sits behind HTTP authentication or an IP allowlist. If the verification fails, the app installation, update or secret rotation is aborted with the reason. The error code `FRAMEWORK__APP_URL_FAILED_VERIFICATION` (HTTP 502) means the verification request did not reach this installation; `FRAMEWORK__APP_URL_VERIFICATION_UNAVAILABLE` (HTTP 503) means it failed temporarily, for example on a timeout or rate limit, and can be retried. The shop ID change strategies `move-shop-permanently` and `reinstall-apps` verify the new `APP_URL` first, and leave the shop ID unchanged when it fails. Run `bin/console app:url:verify` to check the configuration.
 
 The verification stores its token in the `cache.app_url_verification` cache pool, which uses `cache.app` by default. With several app servers, this pool must be shared between them, for example on Redis.
+
+### Configurable last-modified version strategy for theme assets
+
+The `FlysystemLastModifiedVersionStrategy` used for theme assets can now be disabled per-shop in `config/packages/shopware.yaml`.
+When disabled, theme asset URLs use an empty version strategy instead of fetching the last-modified timestamp from the filesystem on every request, eliminating the associated cache lookups.
+
+This is safe to disable whenever the default `SeedingThemePathBuilder` is active, because the seed already rotates on every theme compilation and serves as the cache-invalidation mechanism.
+It is particularly useful for shops with a remote theme filesystem (S3, GCS, or similar) where last-modified lookups involve additional latency.
+
+```yaml
+shopware:
+  filesystem:
+    theme:
+      use_last_modified_version_strategy: false
+```
+
+The option defaults to `true`, preserving the existing behavior for all existing installations.
 
 # 6.7.16.0
 

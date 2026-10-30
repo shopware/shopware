@@ -67,6 +67,47 @@ The new `bin/console sales-channel:file:enable [ids...] [--all]` command switche
 It only creates missing files, so a file switched off in the Administration stays off, and a second run changes nothing.
 The command always exits with `0`, which makes it suitable for install hooks in `.shopware-project.yml`.
 
+### Company tax exemption accepts VAT IDs from other EU member states
+
+The new *Shop owner's country* setting (`core.basicInformation.sellerCountryId`, per sales channel, defaults to the sales channel's default country) sets the shop's own EU member state for *Tax-free (B2B)*; for a non-EU country nothing changes.
+A VAT ID of any other EU member state is exempt, one of the shop's own member state is not, and a delivery within the shop's own member state is never exempt; tax rules are still resolved from the delivery country.
+Documents print the intra-community delivery note for exactly the orders the cart exempts.
+A customer counts as a business based on `accountType` instead of a non-empty `company`; with *Check VAT ID pattern* enabled, Store API, Storefront and Administration accept a VAT ID of any EU member state for an EU billing country and reject a missing or malformed one.
+The new `customer.vatIdCountryId` field (association `vatIdCountry`, not in the Store API) holds the country of the first VAT ID and stays `null` for existing customers until their `vatIds` are written again.
+The cart hash also covers the checkout addresses and the customer's account type, company and VAT IDs.
+
+- A VAT ID of any other EU member state is exempt, one of the shop's own member state is not.
+- A delivery within the shop's own member state is never exempt. *Tax-free (B2C)* is unaffected.
+- Digital products follow the same rules as goods. The separate EU rules for them are not implemented yet.
+Extensions: `CustomerVatIdentification` takes an optional `salesChannelId`, document renderers call the new `AbstractDocumentRenderer::isDomesticSupply()`, `TaxDetector` has a new constructor argument (decorate `AbstractTaxDetector` instead), and the `document_recipient` block reads `customer.vatIds` instead of `customer.customer.vatIds`.
+Themes overriding `address-personal-vat-id.html.twig` use `data-form-validation-pattern-message` and the new `data-eu-vat-id-patterns` attribute, filled by the new Twig function `sw_eu_vat_id_patterns()`; `CountryStateSelectPlugin::_getFormFieldToggleInstance()` and `_onFormFieldToggleChange()` are deprecated and removed in 6.8.0.
+
+Invoices, cancellation invoices and credit notes print the intra-community delivery note for exactly the orders the cart exempts.
+
+Independently of the setting:
+
+- A customer counts as a business based on `accountType` instead of a non-empty `company`.
+- `store-api/account/register` and `store-api/account/change-profile` accept a VAT ID of any EU member state for an EU billing country with *Check VAT ID pattern* enabled. The Storefront registration and profile forms check the same rule while the customer types.
+- The Administration blocks saving a business customer whose VAT ID is missing although required, or does not match with *Check VAT ID pattern* enabled.
+
+For extension developers:
+
+- `AbstractDocumentRenderer::isAllowIntraCommunityDelivery()` and `isValidVat()` are deprecated and will be removed in 6.8.0.
+  Custom document renderers should inject the new public service `IntraCommunityTaxResolver` and call `isIntraCommunityDelivery($order)` instead; it only returns `true` for tax-free orders.
+- `TaxDetector` has a new constructor argument. Decorate `AbstractTaxDetector` instead of replacing the service.
+- Templates overriding the `document_recipient` block should read `customer.vatIds` instead of `customer.customer.vatIds`.
+- The Storefront form validation reads `data-form-validation-<rule>-message` before `data-form-validation-error-message`. Themes overriding `address-personal-vat-id.html.twig` should switch to `data-form-validation-pattern-message` and keep the new `data-eu-vat-id-patterns` attribute.
+- The new Twig function `sw_eu_vat_id_patterns()` returns the VAT ID patterns of all EU member states.
+- `CountryStateSelectPlugin::_getFormFieldToggleInstance()` and `_onFormFieldToggleChange()` are deprecated and will be removed in 6.8.0.
+
+### Customers store the EU member state of their VAT ID
+
+The new `customer.vatIdCountryId` field (association `vatIdCountry`) holds the country of the first VAT ID and is updated on every write of `vatIds`. It is not available via the Store API. Existing customers keep `null` until their VAT IDs are written again.
+
+### The cart hash covers the checkout addresses
+
+The cart hash additionally covers the active billing and shipping address (id, country, country state, zip code, city) and the customer's account type, company and VAT IDs.
+
 ### Order placement no longer rebuilds the per-customer redemption counter
 
 Placing an order or deleting a promotion line item updates only the entries of the affected customers in `promotion.orders_per_customer_count`, so its cost no longer grows with the number of customers who redeemed the promotion before.

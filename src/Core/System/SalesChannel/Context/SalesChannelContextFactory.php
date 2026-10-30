@@ -5,6 +5,7 @@ namespace Shopware\Core\System\SalesChannel\Context;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\AbstractTaxDetector;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingCollection;
 use Shopware\Core\System\SalesChannel\BaseSalesChannelContext;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextPermissionsChangedEvent;
@@ -43,6 +45,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
      * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository
      * @param iterable<TaxRuleTypeFilterInterface> $taxRuleTypeFilter
      * @param EntityRepository<CurrencyCountryRoundingCollection> $currencyCountryRepository
+     * @param EntityRepository<CountryCollection> $countryRepository
      */
     public function __construct(
         private readonly EntityRepository $customerRepository,
@@ -54,6 +57,8 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly EntityRepository $currencyCountryRepository,
         private readonly AbstractBaseSalesChannelContextFactory $baseSalesChannelContextFactory,
+        private readonly IntraCommunityTaxResolver $intraCommunityTaxResolver,
+        private readonly EntityRepository $countryRepository,
     ) {
     }
 
@@ -93,8 +98,8 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $customerGroup = $base->getCurrentCustomerGroup();
         }
 
-        // loads tax rules based on active customer and delivery address
-        $taxRules = $this->getTaxRules($base, $customer, $shippingLocation);
+        $taxLocation = $this->getTaxLocation($base, $customer, $shippingLocation);
+        $taxRules = $this->getTaxRules($base, $customer, $taxLocation);
 
         // detect active payment method, first check if checkout defined other payment method, otherwise validate if customer logged in, at least use shop default
         $payment = $this->getPaymentMethod($options, $base, $customer);
@@ -152,6 +157,26 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $salesChannelContext->setTaxState($this->taxDetector->getTaxState($salesChannelContext));
 
         return $salesChannelContext;
+    }
+
+    private function getTaxLocation(BaseSalesChannelContext $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): ShippingLocation
+    {
+        $taxCountryId = $this->intraCommunityTaxResolver->getTaxCountryId(
+            $customer?->getAccountType(),
+            $customer?->getVatIds(),
+            $shippingLocation->getCountry(),
+            $context->getSalesChannelId(),
+        );
+        if ($taxCountryId === $shippingLocation->getCountry()->getId()) {
+            return $shippingLocation;
+        }
+
+        $criteria = new Criteria([$taxCountryId]);
+        $criteria->setTitle('context-factory::tax-country');
+        $sellerCountry = $this->countryRepository->search($criteria, $context->getContext())->getEntities()->first();
+
+        // Origin VAT must not change delivery or cash rounding
+        return $sellerCountry === null ? $shippingLocation : ShippingLocation::createFromCountry($sellerCountry);
     }
 
     private function getTaxRules(BaseSalesChannelContext $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): TaxCollection

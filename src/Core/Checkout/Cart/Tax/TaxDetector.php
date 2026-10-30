@@ -12,6 +12,13 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('checkout')]
 class TaxDetector extends AbstractTaxDetector
 {
+    /**
+     * @internal
+     */
+    public function __construct(private readonly IntraCommunityTaxResolver $intraCommunityTaxResolver)
+    {
+    }
+
     public function getDecorated(): AbstractTaxDetector
     {
         throw new DecorationPatternException(self::class);
@@ -50,33 +57,11 @@ class TaxDetector extends AbstractTaxDetector
     {
         $customer = $context->getCustomer();
 
-        $countryCompanyTaxFree = $shippingLocationCountry->getCompanyTax()->getEnabled();
-
-        if (!$countryCompanyTaxFree || !$customer || !$customer->getCompany()) {
-            return false;
-        }
-
-        if (!$shippingLocationCountry->getIsEu()) {
-            return true;
-        }
-
-        $vatPattern = $shippingLocationCountry->getVatIdPattern();
-        $vatIds = array_filter($customer->getVatIds() ?? []);
-
-        if ($vatIds === []) {
-            return false;
-        }
-
-        if ($vatPattern !== null && $vatPattern !== '' && $shippingLocationCountry->getCheckVatIdPattern()) {
-            $regex = '/^(?:' . $vatPattern . ')$/D';
-
-            foreach ($vatIds as $vatId) {
-                if (!preg_match($regex, $vatId)) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
+        return $this->intraCommunityTaxResolver->isExempt(
+            $customer?->getAccountType(),
+            $customer?->getVatIds(),
+            $shippingLocationCountry,
+            $context->getSalesChannelId(),
+        );
     }
 }

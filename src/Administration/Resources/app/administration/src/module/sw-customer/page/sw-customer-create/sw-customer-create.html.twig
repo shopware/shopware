@@ -52,6 +52,7 @@
                     v-if="customer"
                     :is-loading="isLoading"
                     :customer="customer"
+                    :is-vat-id-required="isVatIdRequired"
                     @sales-channel-change="onChangeSalesChannel"
                 />
             </mt-card>

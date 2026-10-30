@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Document\Event\InvoiceOrdersEvent;
@@ -21,7 +22,6 @@ use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('after-sales')]
@@ -47,8 +47,8 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
         private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         private readonly Connection $connection,
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
-        private readonly ValidatorInterface $validator,
         private readonly ClockInterface $clock,
+        private readonly IntraCommunityTaxResolver $intraCommunityTaxResolver,
     ) {
     }
 
@@ -119,10 +119,8 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
                     $config->merge([
                         'documentDate' => $operation->getConfig()['documentDate'] ?? $now,
                         'documentNumber' => $number,
-                        'intraCommunityDelivery' => $this->isAllowIntraCommunityDelivery(
-                            $config->jsonSerialize(),
-                            $order,
-                        ) && $this->isValidVat($order, $this->validator),
+                        'intraCommunityDelivery' => ($config->jsonSerialize()['displayAdditionalNoteDelivery'] ?? false) !== false
+                            && $this->intraCommunityTaxResolver->isIntraCommunityDelivery($order),
                         'custom' => [
                             'invoiceNumber' => $number,
                         ],

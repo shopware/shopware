@@ -25,6 +25,9 @@
       },
       "basicCaptchaNoticeTitle": "Note",
       "basicCaptchaNotice": "The Basic Captcha solution is not considered as accessible. We recommend using a solution that does not require user interaction."
+    },
+    "sellerCountryNotification": {
+      "message": "Select the shop owner's country in Settings > Basic information. Until you do, each sales channel's default country is used to decide on tax-free deliveries to businesses."
     }
   }
 }

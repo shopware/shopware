@@ -1006,6 +1006,13 @@ In 6.8, `RequestParamHelper::get()` no longer checks request attributes. Previou
 
 The method `\Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument::getPrice()` was removed, replace calls to `ZugferdDocument::getPrice()` with `ZugferdDocument::getPriceWithFallback()`.
 
+## Removal of the intra-community delivery helpers in `AbstractDocumentRenderer`
+
+`Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer::isAllowIntraCommunityDelivery()` and `isValidVat()` were removed.
+Inject `Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver` and call `isIntraCommunityDelivery($order)` instead.
+It replaces both checks and only returns `true` for tax-free orders (`order.price.taxStatus` is `tax-free`).
+The renderer still reads the `displayAdditionalNoteDelivery` document config itself and passes the result to the templates as `intraCommunityDelivery`.
+
 ## Removed `TaskScheduler::getNextExecutionTime()`
 
 The `\Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler::getNextExecutionTime()` method was not used anymore and was removed.
@@ -3322,3 +3329,7 @@ If your extension relied on a restored `SalesChannelContext` (for example, custo
 `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` and its `buildFilters()` method have been removed. Use `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder::enrichCriteria()` instead, which applies both the stream filters and the grouping state to the passed `Criteria`.
 
 If your extension decorates the `ProductStreamBuilder` service or applies variant grouping manually, `extends AbstractProductStreamBuilder` and respect `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader::STATE_SKIP_ADD_GROUPING` on the `Criteria` to keep matching variants ungrouped.
+
+## `CountryStateSelectPlugin` shipping address toggle methods removed
+
+`CountryStateSelectPlugin::_getFormFieldToggleInstance()` and `_onFormFieldToggleChange()` were removed, as the VAT ID field follows the billing country in every case. Override `_updateVatIdField()` instead.

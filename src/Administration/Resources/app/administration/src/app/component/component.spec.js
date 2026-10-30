@@ -257,6 +257,7 @@ const componentNames = [
     'sw-condition-is-net-select',
     'sw-condition-base-line-item',
     'sw-condition-time-range',
+    'sw-condition-weekday',
     'sw-condition-shipping-zip-code',
     'sw-condition-script',
     'sw-condition-order-custom-field',

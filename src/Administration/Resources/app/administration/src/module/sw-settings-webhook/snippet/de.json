@@ -27,7 +27,19 @@
       "actionShowDeliveries": "Zustellungen anzeigen",
       "messageSaveSuccess": "Webhook \"{name}\" wurde gespeichert.",
       "placeholderSearchBar": "Webhooks durchsuchen ...",
+      "actionSetSecret": "Signatur-Secret festlegen",
       "deletedRole": "Gelöschte Rolle"
+    },
+    "secret": {
+      "title": "Signatur-Secret von \"{name}\"",
+      "description": "Jede Zustellung erhält einen shopware-shop-signature-Header mit dem HMAC-SHA256 des Request-Bodys, erzeugt mit diesem Secret. Der Empfänger prüft damit, dass die Anfrage von diesem Shop kommt. Beim Speichern wird das aktuelle Secret sofort ersetzt, daher musst Du das neue auch beim Empfänger hinterlegen.",
+      "labelSecret": "Secret",
+      "placeholderSecret": "Secret des Empfängers eingeben oder generieren",
+      "buttonGenerate": "Generieren",
+      "hintShownOnce": "Kopiere das Secret, bevor Du speicherst. Es kann nicht erneut angezeigt werden.",
+      "messageSaveSuccess": "Das Signatur-Secret von \"{name}\" wurde gespeichert.",
+      "messageSaveError": "Das Signatur-Secret von \"{name}\" konnte nicht gespeichert werden.",
+      "errorTooLong": "Das Secret darf höchstens {max} Zeichen lang sein."
     },
     "deliveries": {
       "title": "Zustellungen von \"{name}\"",

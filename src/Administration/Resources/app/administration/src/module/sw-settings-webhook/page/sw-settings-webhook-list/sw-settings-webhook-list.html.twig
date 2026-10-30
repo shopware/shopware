@@ -122,6 +122,15 @@
                 <sw-context-menu-item @click="openDeliveries(item)">
                     {{ $t('sw-settings-webhook.list.actionShowDeliveries') }}
                 </sw-context-menu-item>
+
+                <sw-context-menu-item
+                    v-if="canHaveOwnSecret(item)"
+                    class="sw-settings-webhook-list__secret-action"
+                    :disabled="!acl.can('webhook.editor')"
+                    @click="openSecret(item)"
+                >
+                    {{ $t('sw-settings-webhook.list.actionSetSecret') }}
+                </sw-context-menu-item>
             </template>
 
             <template #delete-action="{ item, showDelete, allowDelete }">
@@ -143,6 +152,14 @@
             v-if="deliveriesWebhook"
             :webhook="deliveriesWebhook"
             @modal-close="closeDeliveries"
+        />
+        {% endblock %}
+
+        {% block sw_settings_webhook_list_secret_modal %}
+        <sw-settings-webhook-secret-modal
+            v-if="secretWebhook"
+            :webhook="secretWebhook"
+            @modal-close="closeSecret"
         />
         {% endblock %}
 

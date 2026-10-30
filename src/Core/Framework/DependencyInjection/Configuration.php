@@ -63,6 +63,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createProductExportSection())
                 ->append($this->createSsoLoginSection())
                 ->append($this->createProductTypesSection())
+                ->append($this->createProductDocumentsSection())
                 ->append($this->createMcpSection())
                 ->append($this->createAppSystemSection())
                 ->append($this->createWebhookSection())
@@ -1049,6 +1050,37 @@ class Configuration implements ConfigurationInterface
                         ->min(1)
                         ->defaultValue(8)
                     ->end()
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createProductDocumentsSection(): ArrayNodeDefinition
+    {
+        $rootNode = (new TreeBuilder('product_documents'))->getRootNode();
+        $rootNode
+            ->info('Limits for the documents of products, such as manuals or datasheets. Saving a document checks them.')
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->arrayNode('allowed_extensions')
+                    ->info('File types a document can have. A list in your own configuration replaces the core list.')
+                    ->performNoDeepMerging()
+                    ->prototype('scalar')->end()
+                ->end()
+                ->integerNode('max_per_language')
+                    ->info('How many documents a product can have in one language.')
+                    ->min(1)
+                    ->defaultValue(10)
+                ->end()
+                ->scalarNode('max_file_size')
+                    ->info('How big the file of a document can be, for example "20MB". PHP\'s post_max_size can lower it for uploads through PHP.')
+                    ->defaultValue(20 * 1024 * 1024)
+                    ->validate()
+                        ->ifTrue(static fn (mixed $value): bool => \is_int($value) ? $value < 1 : !\is_string($value) || preg_match('/^[1-9]\d*\s*[kmgt]?b?\z/i', $value) !== 1)
+                        ->thenInvalid('The maximum file size of product documents must be a size like "20MB", got %s.')
+                    ->end()
+                    ->validate()->always(static fn (int|string $value): int => MemorySizeCalculator::convertToBytes((string) $value))->end()
                 ->end()
             ->end();
 

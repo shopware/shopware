@@ -132,6 +132,9 @@
                 "product_stream": {
                     "$ref": "#/definitions/product_stream"
                 },
+                "product_documents": {
+                    "$ref": "#/definitions/product_documents"
+                },
                 "mcp": {
                     "$ref": "#/definitions/mcp"
                 },
@@ -302,6 +305,26 @@
                 }
             },
             "title": "Product Stream"
+        },
+        "product_documents": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "allowed_extensions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "max_per_language": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "max_file_size": {
+                    "type": ["string", "integer"]
+                }
+            },
+            "title": "Product Documents"
         },
         "webhook": {
             "type": "object",

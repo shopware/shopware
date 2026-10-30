@@ -30,6 +30,7 @@ class ProductDocumentApiTest extends TestCase
             'fileName' => 'manual',
             'fileExtension' => 'pdf',
             'mimeType' => 'application/pdf',
+            'fileSize' => 1024,
         ]], Context::createDefaultContext());
     }
 

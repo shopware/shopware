@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentLimits;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
@@ -37,6 +38,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Shopware\Tests\Unit\Common\Stubs\IniMock;
 use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -60,6 +62,12 @@ class InfoControllerTest extends TestCase
     private AppUrlVerifier&Stub $appUrlVerifier;
 
     private EventDispatcher $eventDispatcher;
+
+    public static function setUpBeforeClass(): void
+    {
+        // the config reads PHP's upload limit; registering first keeps the ini mocks of later tests working
+        IniMock::register(ProductDocumentLimits::class);
+    }
 
     protected function setUp(): void
     {
@@ -137,6 +145,12 @@ class InfoControllerTest extends TestCase
         static::assertSame(2, $settings['minSearchTermLength']);
         static::assertArrayHasKey('hideUpdateModule', $settings);
         static::assertFalse($settings['hideUpdateModule']);
+        static::assertArrayHasKey('productDocuments', $settings);
+        $productDocuments = $settings['productDocuments'];
+        static::assertSame(['pdf', 'docx'], $productDocuments['allowedExtensions']);
+        static::assertContains('application/pdf', $productDocuments['allowedMimeTypesByExtension']['pdf']);
+        static::assertSame(10, $productDocuments['maxPerLanguage']);
+        static::assertSame(1024, $productDocuments['maxFileSize']);
 
         static::assertArrayHasKey('inAppPurchases', $data);
         $inAppPurchases = $data['inAppPurchases'];
@@ -407,6 +421,7 @@ class InfoControllerTest extends TestCase
             $this->eventDispatcher,
             null,
             new MediaFileExtensionListProvider($this->eventDispatcher, [], ['pdf', 'epub']),
+            new ProductDocumentLimits(['pdf', 'docx'], maxPerLanguage: 10, maxFileSize: 1024),
         );
     }
 }

@@ -154,6 +154,53 @@ class ConfigurationTest extends TestCase
         static::assertTrue($config['cdn']['path_cache_buster']);
     }
 
+    public function testProductDocumentLimitsHaveDefaults(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [['product_documents' => []]]);
+
+        // like filesystem.allowed_extensions, the core list of file types is in shopware.yaml
+        static::assertSame([
+            'allowed_extensions' => [],
+            'max_per_language' => 10,
+            'max_file_size' => 20 * 1024 * 1024,
+        ], $config['product_documents']);
+    }
+
+    public function testAShopReplacesTheProductDocumentLimits(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            ['product_documents' => ['allowed_extensions' => ['pdf', 'docx', 'jpg', 'jpeg', 'png'], 'max_per_language' => 10, 'max_file_size' => '20MB']],
+            ['product_documents' => ['allowed_extensions' => ['pdf'], 'max_per_language' => 3, 'max_file_size' => '5M']],
+        ]);
+
+        static::assertSame([
+            'allowed_extensions' => ['pdf'],
+            'max_per_language' => 3,
+            'max_file_size' => 5 * 1024 * 1024,
+        ], $config['product_documents']);
+    }
+
+    /**
+     * @return iterable<string, array{int|string, string}>
+     */
+    public static function invalidProductDocumentFileSizeProvider(): iterable
+    {
+        yield 'no number' => ['big', '"big"'];
+        yield 'a unit the size calculator reads as bytes' => ['20MiB', '"20MiB"'];
+        yield 'a fraction' => ['1.5GB', '"1.5GB"'];
+        yield 'no bytes' => [0, '0'];
+    }
+
+    #[DataProvider('invalidProductDocumentFileSizeProvider')]
+    public function testTheMaximumFileSizeOfProductDocumentsMustBeASize(int|string $size, string $given): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException(
+            'Invalid configuration for path "shopware.product_documents.max_file_size": The maximum file size of product documents must be a size like "20MB", got ' . $given . '.'
+        ));
+
+        (new Processor())->processConfiguration(new Configuration(), [['product_documents' => ['max_file_size' => $size]]]);
+    }
+
     public function testTranslationConfigTreeNode(): void
     {
         $configuration = new Configuration();

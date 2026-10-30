@@ -139,6 +139,10 @@ class InfoControllerTest extends TestCase
                 'disableExtensionManagement' => false,
                 'hideUpdateModule' => false,
                 'minSearchTermLength' => 2,
+                'productDocuments' => [
+                    'allowedExtensions' => ['pdf', 'docx', 'jpg', 'jpeg', 'png'],
+                    'maxPerLanguage' => 10,
+                ],
             ],
             'inAppPurchases' => [],
         ];
@@ -166,7 +170,8 @@ class InfoControllerTest extends TestCase
         $decodedResponse['bundles'] = [];
         $decodedResponse['versionRevision'] = $expected['versionRevision'];
         $expected['settings']['firstMigrationDate'] = $decodedResponse['settings']['firstMigrationDate'];
-        unset($decodedResponse['settings']['private_allowed_mime_types_by_extension']);
+        $expected['settings']['productDocuments']['maxFileSize'] = $decodedResponse['settings']['productDocuments']['maxFileSize'];
+        unset($decodedResponse['settings']['private_allowed_mime_types_by_extension'], $decodedResponse['settings']['productDocuments']['allowedMimeTypesByExtension']);
 
         static::assertSame($expected, $decodedResponse);
     }

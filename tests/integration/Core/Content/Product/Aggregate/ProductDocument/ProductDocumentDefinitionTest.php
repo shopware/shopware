@@ -2,12 +2,13 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\Aggregate\ProductDocument;
 
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -25,7 +26,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -66,7 +66,7 @@ class ProductDocumentDefinitionTest extends TestCase
         $this->mediaRepository = static::getContainer()->get('media.repository');
     }
 
-    public function testEachDocumentFallsBackToItsDefaultVersionOnItsOwn(): void
+    public function testEachDocumentFallsBackToItsDefaultTranslationOnItsOwn(): void
     {
         $germanId = $this->getDeDeLanguageId();
         $this->createProduct('drill', documents: [
@@ -89,7 +89,7 @@ class ProductDocumentDefinitionTest extends TestCase
         static::assertSame([$this->ids->get('certificate-en'), $this->ids->get('manual-en')], $this->translated($english, 'mediaId'));
     }
 
-    public function testAVersionInAnotherLanguageMayOnlyChangeTheTitle(): void
+    public function testATranslationInAnotherLanguageMayOnlyChangeTheTitle(): void
     {
         $germanId = $this->getDeDeLanguageId();
         $this->createProduct('drill', documents: [[
@@ -106,9 +106,15 @@ class ProductDocumentDefinitionTest extends TestCase
 
     public function testANewDocumentNeedsAFileInTheDefaultLanguage(): void
     {
-        $this->expectException(WriteException::class);
+        try {
+            $this->createProduct('drill', documents: [['title' => 'Certificate']]);
 
-        $this->createProduct('drill', documents: [['title' => 'Certificate']]);
+            static::fail('A document without a file in the default language must be rejected');
+        } catch (WriteException $e) {
+            $errors = iterator_to_array($e->getErrors());
+            static::assertCount(1, $errors);
+            static::assertSame('/0/documents/0/translations/' . Defaults::LANGUAGE_SYSTEM . '/mediaId', $errors[0]['source']['pointer']);
+        }
     }
 
     public function testAFileCanBeUsedByManyProductsAndLanguages(): void
@@ -123,8 +129,9 @@ class ProductDocumentDefinitionTest extends TestCase
         ]]);
         $this->createProduct('saw', documents: [['title' => 'Manual', 'mediaId' => $manualId]]);
 
-        static::assertSame([$manualId], $this->translated($this->loadDocuments('drill', languageIdChain: [$germanId, Defaults::LANGUAGE_SYSTEM]), 'mediaId'));
-        static::assertSame([$manualId], $this->translated($this->loadDocuments('saw'), 'mediaId'));
+        $criteria = (new Criteria([$manualId]))->addAssociation('productDocumentTranslations');
+        $manual = $this->mediaRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertCount(3, $manual?->getProductDocumentTranslations() ?? []);
     }
 
     public function testVariantsWithoutOwnDocumentsInheritTheDocumentsOfTheirParent(): void
@@ -221,6 +228,34 @@ class ProductDocumentDefinitionTest extends TestCase
         static::assertSame($this->ids->get('drill'), $documents->first()?->getProductId());
     }
 
+    public function testSearchesFollowTheDocumentsAVariantInherits(): void
+    {
+        $this->createProduct('drill', variants: ['drill.blue' => []]);
+        // rows saved before the migration keep an empty inheritance value until a document is written for them or their parent
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE `product` SET `documents` = NULL WHERE `id` IN (:ids)',
+            ['ids' => $this->ids->getByteList(['drill', 'drill.blue'])],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+        $this->productDocumentRepository->create([
+            ['id' => $this->ids->create('manual-document'), 'productId' => $this->ids->get('drill'), 'title' => 'Manual', 'mediaId' => $this->createMedia('manual')],
+        ], $this->context);
+
+        $inheritance = Context::createDefaultContext();
+        $inheritance->setConsiderInheritance(true);
+
+        $productsWithTheManual = (new Criteria())->addFilter(new EqualsFilter('documents.id', $this->ids->get('manual-document')));
+        static::assertEqualsCanonicalizing(
+            [$this->ids->get('drill'), $this->ids->get('drill.blue')],
+            $this->productRepository->searchIds($productsWithTheManual, $inheritance)->getIds()
+        );
+        static::assertSame([$this->ids->get('drill')], $this->productRepository->searchIds($productsWithTheManual, $this->context)->getIds());
+
+        $documentsOfTheVariant = (new Criteria())->addFilter(new EqualsFilter('product.id', $this->ids->get('drill.blue')));
+        static::assertSame([$this->ids->get('manual-document')], $this->productDocumentRepository->searchIds($documentsOfTheVariant, $inheritance)->getIds());
+        static::assertSame([], $this->productDocumentRepository->searchIds($documentsOfTheVariant, $this->context)->getIds());
+    }
+
     public function testDeletingAProductDeletesItsDocumentsButKeepsTheFiles(): void
     {
         $manualId = $this->createMedia('manual');
@@ -233,24 +268,7 @@ class ProductDocumentDefinitionTest extends TestCase
         static::assertSame([$manualId], $this->mediaRepository->searchIds(new Criteria([$manualId]), $this->context)->getIds());
     }
 
-    public function testDeletingALanguageDeletesTheVersionsInThatLanguage(): void
-    {
-        $languageId = $this->createLanguage('Documents test language');
-        $this->createProduct('drill', documents: [[
-            'translations' => [
-                Defaults::LANGUAGE_SYSTEM => ['title' => 'Manual', 'mediaId' => $this->createMedia('manual-en')],
-                $languageId => ['title' => 'Manual in the test language', 'mediaId' => $this->createMedia('manual-test')],
-            ],
-        ]]);
-
-        /** @var EntityRepository<LanguageCollection> $languageRepository */
-        $languageRepository = static::getContainer()->get('language.repository');
-        $languageRepository->delete([['id' => $languageId]], $this->context);
-
-        static::assertSame([[Defaults::LANGUAGE_SYSTEM]], $this->translationLanguageIds('drill'));
-    }
-
-    public function testDeletingTheFileOfAVersionFallsBackToTheDefaultVersion(): void
+    public function testDeletingTheFileOfATranslationFallsBackToTheDefaultTranslation(): void
     {
         $germanId = $this->getDeDeLanguageId();
         $this->createProduct('drill', documents: [[
@@ -267,7 +285,7 @@ class ProductDocumentDefinitionTest extends TestCase
         static::assertSame([$this->ids->get('certificate-en')], $this->translated($german, 'mediaId'));
     }
 
-    public function testCloningAProductCopiesItsDocumentsWithTheirVersions(): void
+    public function testCloningAProductCopiesItsDocumentsWithTheirTranslations(): void
     {
         $germanId = $this->getDeDeLanguageId();
         $this->createProduct('drill', documents: [[
@@ -318,7 +336,7 @@ class ProductDocumentDefinitionTest extends TestCase
     }
 
     /**
-     * Copies the parent's documents with all their versions to the variant, the way the Administration unlinks the list.
+     * Copies the parent's documents with all their translations to the variant, the way the Administration unlinks the list.
      *
      * @return list<string> ids of the copies, in the parent's order
      */
@@ -375,18 +393,6 @@ class ProductDocumentDefinitionTest extends TestCase
     }
 
     /**
-     * @return list<list<string>>
-     */
-    private function translationLanguageIds(string $productNumber): array
-    {
-        return array_values($this->loadDocuments($productNumber)->map(
-            static fn (ProductDocumentEntity $document) => array_values($document->getTranslations()?->map(
-                static fn (ProductDocumentTranslationEntity $translation) => $translation->getLanguageId()
-            ) ?? [])
-        ));
-    }
-
-    /**
      * @return array<string, string|null>
      */
     private function mediaIdsByLanguage(ProductDocumentEntity $document): array
@@ -410,19 +416,5 @@ class ProductDocumentDefinitionTest extends TestCase
         ]], $this->context);
 
         return $this->ids->get($key);
-    }
-
-    private function createLanguage(string $name): string
-    {
-        $localeId = $this->getLocaleIdOfSystemLanguage();
-
-        static::getContainer()->get('language.repository')->create([[
-            'id' => $this->ids->create($name),
-            'name' => $name,
-            'localeId' => $localeId,
-            'translationCodeId' => $localeId,
-        ]], $this->context);
-
-        return $this->ids->get($name);
     }
 }

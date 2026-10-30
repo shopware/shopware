@@ -40,7 +40,7 @@ class LoginRoute extends AbstractLoginRoute
         $email = (string) $data->get('email', $data->get('username'));
 
         if ($this->requestStack->getMainRequest() !== null) {
-            $cacheKey = strtolower($email) . '-' . $this->requestStack->getMainRequest()->getClientIp();
+            $cacheKey = mb_strtolower(mb_trim($email)) . '-' . $this->requestStack->getMainRequest()->getClientIp();
 
             try {
                 $this->rateLimiter->ensureAccepted(RateLimiter::LOGIN_ROUTE, $cacheKey);

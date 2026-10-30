@@ -32,7 +32,9 @@ export default Shopware.Component.wrapComponentConfig({
      */
     created() {
         if (!Shopware.Feature.isActive('v6.8.0.0')) {
-            void this.getUserConfig();
+            Shopware.Feature.silence('V6_8_0_0', () => {
+                void this.getUserConfig();
+            });
         }
     },
 

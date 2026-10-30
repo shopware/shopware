@@ -18,11 +18,14 @@ describe('primary-delivery', () => {
      * The storefront, flows and documents use that delivery too, so merchants see the same state everywhere.
      */
     it('shows an order with its primary delivery', () => {
+        // ARRANGE
         const primary = delivery('primary', 5);
         const order = createOrder({ primaryOrderDelivery: primary, deliveries: [delivery('other', 10), primary] });
 
+        // ACT
         const shown = getPrimaryDelivery(order);
 
+        // ASSERT
         expect(shown).toBe(primary);
     });
 });

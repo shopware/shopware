@@ -255,6 +255,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('shopware.app_manifest.validator');
 
+    $services->set(CompatibilityValidator::class)
+        ->args([
+            param('kernel.shopware_version'),
+        ])
+        ->tag('shopware.app_manifest.validator');
+
+    $services->set(AppRequirementsValidator::class)
+        ->args([
+            tagged_iterator('app.requirements_validator'),
+            service('logger'),
+            param('kernel.environment'),
+        ])
+        ->tag('shopware.app_manifest.validator');
+
     $services->set(SecureUrlValidator::class);
 
     $services->set(PublicAccess::class)
@@ -264,18 +278,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('app.requirements_validator')
         ->tag('kernel.reset', ['method' => 'reset']);
-
-    $services->set(AppRequirementsValidator::class)
-        ->args([
-            tagged_iterator('app.requirements_validator'),
-            service('logger'),
-            param('kernel.environment'),
-        ]);
-
-    $services->set(CompatibilityValidator::class)
-        ->args([
-            param('kernel.shopware_version'),
-        ]);
 
     $services->set(PermissionLifecycleService::class)
         ->args([
@@ -558,19 +560,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ActiveAppsLoader::class),
             service('language.repository'),
             service(SystemConfigService::class),
-            service(ConfigValidator::class),
             service('integration.repository'),
             service('acl_role.repository'),
             service(AssetService::class),
             service(ScriptExecutor::class),
             param('kernel.project_dir'),
             service(CustomEntityLifecycleService::class),
-            service(CompatibilityValidator::class),
             service(AppFeatureValidator::class),
             service(SourceResolver::class),
             service(ConfigReader::class),
             service(DeletedAppsGateway::class),
-            service(AppRequirementsValidator::class),
+            service(ManifestValidator::class),
             service(ClockInterface::class),
         ]);
 
@@ -797,7 +797,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AppLoader::class),
             service(AppLifecycle::class),
             service(AppPrinter::class),
-            service(ManifestValidator::class),
         ])
         ->tag('console.command');
 

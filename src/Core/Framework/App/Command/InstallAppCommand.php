@@ -4,13 +4,12 @@ namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
+use Shopware\Core\Framework\App\Exception\AppValidationRefusedException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Validation\Error\Error;
-use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -34,8 +33,7 @@ class InstallAppCommand extends Command
     public function __construct(
         private readonly AppLoader $appLoader,
         private readonly AbstractAppLifecycle $appLifecycle,
-        private readonly AppPrinter $appPrinter,
-        private readonly ManifestValidator $manifestValidator
+        private readonly AppPrinter $appPrinter
     ) {
         parent::__construct();
     }
@@ -73,19 +71,6 @@ class InstallAppCommand extends Command
                 }
             }
 
-            if (!$input->getOption('no-validate')) {
-                $result = $this->manifestValidator->validate($manifest, $context);
-
-                if (!$result->isOk()) {
-                    $messages = implode("\n", array_map(static fn (Error $error): string => $error->getMessage(), $result->errors));
-                    $io->error(\sprintf("App installation of %s failed due: The app \"%s\" is invalid:\n\n%s", $name, $manifest->getMetadata()->getName(), $messages));
-
-                    $success = self::FAILURE;
-
-                    continue;
-                }
-            }
-
             try {
                 $this->appLifecycle->install(
                     $manifest,
@@ -94,6 +79,12 @@ class InstallAppCommand extends Command
                 );
             } catch (AppAlreadyInstalledException) {
                 $io->info(\sprintf('App %s is already installed', $name));
+
+                continue;
+            } catch (AppValidationRefusedException $e) {
+                $io->error(\sprintf('App installation of %s failed due: %s', $name, $e->getMessage()));
+
+                $success = self::FAILURE;
 
                 continue;
             }

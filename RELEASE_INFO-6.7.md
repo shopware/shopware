@@ -8,9 +8,71 @@ Aggregation names and range aggregation keys containing a single or double quote
 JSON field access paths used in filters, sortings, and aggregations now reject the `/*` and `*/` SQL comment markers and control characters. From 6.8.0.0 this fails as a `FRAMEWORK__INVALID_IDENTIFIER` (HTTP 400); on 6.7 the same input is rejected with an `InvalidArgumentException` (HTTP 500). Either way the request is blocked and no data is returned.
 These characters could desynchronise PDO placeholder parsing from the database server under emulated prepares on PHP 8.2 and 8.3 leading to SQL Injection.
 
+### Content Security Policy for Storefront documents
+
+Storefront document responses now send a `Content-Security-Policy` header that blocks scripts, embedded documents, base URL changes and form submissions. Custom HTML document templates must work without these capabilities; styles and images remain permitted. Admin API and Store API responses retain their existing CSP.
+
+The Storefront document policy can be overridden through the container parameter `shopware.security.private_media_csp` in `config/services.yaml`.
+
+### HTML files are no longer accepted as public media
+
+`html` was removed from the default `shopware.filesystem.allowed_extensions`. Public media is served from the shop's own domain, so an uploaded HTML file ran its scripts in the same origin as the Administration and could read the session of an administrator who opened it.
+
+HTML files are still accepted as private media, for example for accessible HTML documents. Uploads of HTML files to public media now fail with `CONTENT__MEDIA_FILE_TYPE_NOT_SUPPORTED`. HTML files that were uploaded to public media before this change are still served. Review them and delete the ones you do not need.
+
+S3 and other object storages serve a file with the content type stored at upload time, not with the type of its extension. Uploads whose content is HTML, XHTML, SVG or another XML type are therefore rejected with `CONTENT__MEDIA_INVALID_FILE` unless the file extension belongs to that type. This applies to the regular and the presigned upload flow. For example, an HTML document uploaded as `.jpg` or an SVG uploaded as `.png` is no longer accepted.
+
+If your shop needs HTML files as public media, add `html` to `shopware.filesystem.allowed_extensions` in your own configuration and serve these files from a separate domain or with a `Content-Security-Policy: sandbox` header.
+
+### Media visibility is immutable
+
+The `private` field of media can now only be set when creating the media entity.
+Updates that change its value are rejected because toggling the flag does not move the actual file or its thumbnails between the public and private filesystems.
+Set the intended visibility during creation.
+Updates that resend the existing value remain supported.
+
+The DAL `Immutable` flag now correctly rejects changes to falsy values such as `false`, `0`, and an empty string.
+
+### Media paths and file names are validated on API writes
+
+Admin API and Sync API writes can no longer set `media.path` or `media_thumbnail.path` to a relative path or reset it to `null`.
+These writes are rejected with `400` and `CONTENT__MEDIA_ILLEGAL_PATH`.
+External media keep working with an absolute `http` or `https` URL.
+The external media link action and the creation of external thumbnails reject URLs that are not a plain absolute `http` or `https` URL with a host.
+`media.fileName` is validated like the file name of an upload and is rejected with `CONTENT__MEDIA_ILLEGAL_FILE_NAME` when it contains characters such as `/` or `\`.
+Writing back the unchanged stored path or file name is still accepted.
+To store a file in the shop's own storage, use the media upload actions or the presigned upload.
+
+`POST /api/_action/clone/{entity}/{id}` validates `path` and `fileName` of `media` and `path` of `media_thumbnail` in `overwrites`, also inside nested associations and `extensions`.
+`path` must be an absolute `http` or `https` URL, and `fileName` follows the rules of an upload file name.
+Invalid values are rejected with `400` and `FRAMEWORK__API_INVALID_CLONE_OVERWRITE`.
+This media check applies to the Admin API clone action only, not to `EntityRepository::clone()` called from code.
+
+Media with an external URL are no longer attached to mails sent with `mediaIds`, because their stored path was read from the public filesystem.
+A warning is logged for each skipped media.
+
+The update does not rewrite values stored before it.
+Check `media.path` and `media_thumbnail.path` for relative values that the configured path strategy does not produce, for example values containing `..` or a backslash, or starting with `/`.
+Correct such paths before deleting or replacing the affected media, because both act on the stored path.
+
+### User, access key and admin integration writes are restricted
+
+A non-admin may only update or delete their own user and their own access keys through the Admin API.
+Writes to other users or their access keys are rejected with `403` and `USER__USER_CHANGE_NOT_ALLOWED`.
+A non-admin may no longer update or delete an admin integration; these writes are rejected with `403` and `INTEGRATION__ADMIN_INTEGRATION_CHANGE_NOT_ALLOWED`.
+Administrators are unaffected.
+The user of an access key can no longer be changed after the key was created, also not by administrators.
+
 # 6.7.16.0 (upcoming)
 
 ## Critical Fixes
+
+### Clone overwrites enforce field protection and association permissions
+
+The Admin API clone action and `CloneBehavior` validate explicit root, nested association, translation and extension overwrites using the caller's field write protection and create/update permissions.
+Association overwrites remain supported, including partial payloads and `null` values that suppress copying.
+Copied source values retain their existing clone behavior without requiring additional association write privileges.
+Creating the root clone still requires create permission; updating an existing associated entity requires its update permission, while creating a new associated entity requires its create permission.
 
 ### Theme configuration updates reach all descendants
 

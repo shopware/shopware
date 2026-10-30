@@ -5,7 +5,12 @@ declare(strict_types=1);
 namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailDefinition;
+use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Controller\ApiController;
@@ -230,6 +235,64 @@ class ApiControllerTest extends TestCase
         ));
 
         $controller->create($request, Context::createDefaultContext(), static::createStub(ResponseFactoryInterface::class), 'parent-entity', '/' . $entityId);
+    }
+
+    /**
+     * @param array<string, mixed> $overwrites
+     */
+    #[DataProvider('invalidMediaStorageOverwriteProvider')]
+    public function testCloneRejectsInvalidMediaStorageOverwrites(array $overwrites, string $propertyPath): void
+    {
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->never())->method('clone');
+
+        $this->expectExceptionObject(ApiException::invalidCloneOverwrite($propertyPath));
+
+        $this->cloneMedia($repository, $overwrites);
+    }
+
+    public static function invalidMediaStorageOverwriteProvider(): \Generator
+    {
+        yield 'relative path' => [['path' => 'document/invoice.pdf'], 'path'];
+        yield 'external looking url that resolves to a local file' => [['path' => 'https://cdn.example.com/../../document/invoice.pdf'], 'path'];
+        yield 'path reset to null' => [['path' => null], 'path'];
+        yield 'file name with path segments' => [['fileName' => '../../theme/evil'], 'fileName'];
+        yield 'path inside extensions, which the writer merges into the root payload' => [['extensions' => ['path' => 'document/invoice.pdf']], 'path'];
+        yield 'nested thumbnail path' => [['thumbnails' => [['path' => 'document/invoice.pdf']]], 'thumbnails.0.path'];
+    }
+
+    /**
+     * @param array<string, mixed> $overwrites
+     */
+    #[DataProvider('validMediaStorageOverwriteProvider')]
+    public function testCloneAcceptsValidMediaStorageOverwrites(array $overwrites): void
+    {
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->once())->method('clone')->willThrowException(new \RuntimeException('cloned'));
+
+        $this->expectExceptionObject(new \RuntimeException('cloned'));
+
+        $this->cloneMedia($repository, $overwrites);
+    }
+
+    public static function validMediaStorageOverwriteProvider(): \Generator
+    {
+        yield 'external url' => [['path' => 'https://cdn.example.com/photo.jpg']];
+        yield 'regular file name' => [['fileName' => 'copied-media']];
+        yield 'nested data without storage fields' => [['translations' => [['title' => 'copy']]]];
+    }
+
+    /**
+     * @param EntityRepository<MediaCollection> $repository
+     * @param array<string, mixed> $overwrites
+     */
+    private function cloneMedia(EntityRepository $repository, array $overwrites): void
+    {
+        $container = new ContainerBuilder();
+        $container->set('media.repository', $repository);
+        $controller = $this->createControllerWithRegistry($container, [MediaDefinition::class, MediaThumbnailDefinition::class, MediaTranslationDefinition::class]);
+
+        $controller->clone(Context::createDefaultContext(), 'media', Uuid::randomHex(), new Request([], ['overwrites' => $overwrites]));
     }
 
     /**

@@ -28,9 +28,6 @@ class RateLimiterTest extends TestCase
 
     public function testExceptionIsThrownWhenLimitExceeded(): void
     {
-        $e = RateLimiterException::limitExceeded(time() + 60);
-        static::expectExceptionObject($e);
-
         $limiter = new FixedWindowLimiter('test', 1, new \DateInterval('PT1M'), new InMemoryStorage());
 
         $factory = static::createStub(RateLimiterFactory::class);
@@ -39,6 +36,9 @@ class RateLimiterTest extends TestCase
         $rateLimiter = new RateLimiter();
         $rateLimiter->registerLimiterFactory('some-route', $factory);
         $rateLimiter->ensureAccepted('some-route', 'some-key');
+
+        static::expectExceptionObject(RateLimiterException::limitExceeded($limiter->consume(0)->getRetryAfter()->getTimestamp()));
+
         $rateLimiter->ensureAccepted('some-route', 'some-key');
     }
 
@@ -67,9 +67,6 @@ class RateLimiterTest extends TestCase
 
     public function testEnsureAcceptedIfConfiguredEnforcesWhenConfigured(): void
     {
-        $e = RateLimiterException::limitExceeded(time() + 60);
-        static::expectExceptionObject($e);
-
         $limiter = new FixedWindowLimiter('test', 1, new \DateInterval('PT1M'), new InMemoryStorage());
 
         $factory = $this->createMock(RateLimiterFactory::class);
@@ -78,6 +75,9 @@ class RateLimiterTest extends TestCase
         $rateLimiter = new RateLimiter();
         $rateLimiter->registerLimiterFactory('some-route', $factory);
         $rateLimiter->ensureAcceptedIfConfigured('some-route', 'some-key');
+
+        static::expectExceptionObject(RateLimiterException::limitExceeded($limiter->consume(0)->getRetryAfter()->getTimestamp()));
+
         $rateLimiter->ensureAcceptedIfConfigured('some-route', 'some-key');
     }
 

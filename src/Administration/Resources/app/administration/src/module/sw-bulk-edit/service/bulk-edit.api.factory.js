@@ -1,5 +1,5 @@
 import BulkEditProductHandler from './handler/bulk-edit-product.handler';
-import BulkEditOrderHandler from './handler/bulk-edit-order.handler';
+import BulkEditOrderHandler from './handler/bulk-edit-order';
 import BulkEditCustomerHandler from './handler/bulk-edit-customer.handler';
 
 /**

@@ -13,6 +13,7 @@ function createOrder(order: Record<string, unknown>): OrderWithDeliveries {
 }
 
 describe('primary-delivery', () => {
+    /** @deprecated tag:v6.8.0 - Removed with the 6.7 fallback. */
     it.deprecated('v6.8.0.0')('falls back to the first loaded delivery', () => {
         const first = delivery('first', 5);
 

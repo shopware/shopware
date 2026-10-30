@@ -278,10 +278,10 @@ const templateRuleTester = new RuleTester({
 templateRuleTester.run('require-deprecation-guard in templates', rule, {
     valid: [
         {
-            name: 'v-silence-flag on each component of the pre-major branch',
+            name: 'v-silence-deprecations on each component of the pre-major branch',
             code: `<template>
                 <template v-if="!feature.isActive('V6_8_0_0')">
-                    <sw-deprecated v-silence-flag="'V6_8_0_0'" />
+                    <sw-deprecated v-silence-deprecations="'V6_8_0_0'" />
                 </template>
                 <mt-current v-else />
             </template>`,
@@ -289,13 +289,13 @@ templateRuleTester.run('require-deprecation-guard in templates', rule, {
     ],
     invalid: [
         {
-            name: 'v-silence-flag on a template',
+            name: 'v-silence-deprecations on a template',
             code: `<template>
-                <template v-if="!feature.isActive('V6_8_0_0')" v-silence-flag="'V6_8_0_0'">
+                <template v-if="!feature.isActive('V6_8_0_0')" v-silence-deprecations="'V6_8_0_0'">
                     <sw-deprecated />
                 </template>
             </template>`,
-            errors: [{ messageId: 'silenceFlagOnTemplate' }],
+            errors: [{ messageId: 'silenceDeprecationsOnTemplate' }],
         },
     ],
 });

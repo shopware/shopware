@@ -479,7 +479,7 @@ function leadingGuardFlag(fn) {
  * - The other way round, every `triggerDeprecationOrThrow('<flag>', …)` call has a `@deprecated tag:` marker: on a
  *   declaration or statement that encloses it, like a `// @deprecated tag:` comment right above it, or in the file
  *   header. Calls that forward a flag they get passed, like the deprecation plugin, are no guard of their own.
- * - In templates, `v-silence-flag` sits on a component, never on a `<template>`: Vue renders a `<template>` as a
+ * - In templates, `v-silence-deprecations` sits on a component, never on a `<template>`: Vue renders a `<template>` as a
  *   fragment and drops the directive without a warning.
  *
  * What the marker sits on decides it: a value, a type, an import or a statement inside a body has no use to guard.
@@ -522,8 +522,8 @@ module.exports = {
             missingDeprecationMarker:
                 'This triggerDeprecationOrThrow() call needs a "@deprecated tag:" marker on the declaration it guards, ' +
                 'or on a comment right above it.',
-            silenceFlagOnTemplate:
-                'v-silence-flag has no effect on a <template>, which Vue renders as a fragment. ' +
+            silenceDeprecationsOnTemplate:
+                'v-silence-deprecations has no effect on a <template>, which Vue renders as a fragment. ' +
                 'Put it on each component inside instead.',
             missingPropOption:
                 'The deprecated prop "{{name}}" needs a "deprecated: { version: \'{{version}}\', comment: \'…\' }" option, ' +
@@ -788,10 +788,10 @@ module.exports = {
 
         return sourceCode.parserServices.defineTemplateBodyVisitor(
             {
-                'VElement[rawName="template"] > VStartTag > VAttribute[directive=true][key.name.name="silence-flag"]'(
+                'VElement[rawName="template"] > VStartTag > VAttribute[directive=true][key.name.name="silence-deprecations"]'(
                     attribute,
                 ) {
-                    context.report({ node: attribute, messageId: 'silenceFlagOnTemplate' });
+                    context.report({ node: attribute, messageId: 'silenceDeprecationsOnTemplate' });
                 },
             },
             scriptVisitor,

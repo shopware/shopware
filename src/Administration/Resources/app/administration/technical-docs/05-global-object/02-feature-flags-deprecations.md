@@ -220,7 +220,7 @@ each method instead of its constructor. A function core runs on its own, like a 
 The rule also checks the other way round: every `triggerDeprecationOrThrow('<flag>', …)` call needs a
 `@deprecated tag:` marker on a declaration or statement that encloses it, or in the file header. A guard of a
 deprecated argument or usage pattern takes a `// @deprecated tag:vX.Y.Z - …` comment right above it.
-In templates it reports `v-silence-flag` on a `<template>`, where Vue drops the directive.
+In templates it reports `v-silence-deprecations` on a `<template>`, where Vue drops the directive.
 
 Pair runtime warnings with an autofixable ESLint rule where the migration is mechanical, like
 `sw-core-rules/no-tc-translation`, and enable it in the extension tooling (`extension-tooling/eslint.mjs`).

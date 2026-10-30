@@ -65,7 +65,7 @@ final class InlineMappingInterpolator
         array $ambient,
         string $rootSource,
         StoredElement $element,
-        ?RenderingCacheContext $cacheContext,
+        RenderingCacheContext $cacheContext,
         array $loaderValues,
         InlineMappingExpansionBudget $budget,
     ): ?string {

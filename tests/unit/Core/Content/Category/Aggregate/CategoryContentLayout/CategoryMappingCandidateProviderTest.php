@@ -9,6 +9,7 @@ use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryMappi
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
@@ -72,7 +73,7 @@ class CategoryMappingCandidateProviderTest extends TestCase
         $category = new CategoryEntity();
         $category->setName('Raw name');
         $category->setTranslated(['name' => 'Storefront name']);
-        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['category' => $category], [], null);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['category' => $category], [], new RenderingCacheContext());
 
         static::assertSame('Storefront name', $this->provider->resolveRootSource(MappingSourceReference::root('category', 'name'), $context)->value);
     }

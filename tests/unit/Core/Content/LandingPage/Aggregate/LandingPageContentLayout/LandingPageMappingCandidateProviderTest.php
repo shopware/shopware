@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageContentLayoutDefinition;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageMappingCandidateProvider;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
+use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
@@ -62,7 +63,7 @@ class LandingPageMappingCandidateProviderTest extends TestCase
         $landingPage = new LandingPageEntity();
         $landingPage->setName('Raw name');
         $landingPage->setTranslated(['name' => 'Storefront name']);
-        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['landing_page' => $landingPage], [], null);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['landing_page' => $landingPage], [], new RenderingCacheContext());
 
         static::assertSame('Storefront name', $this->provider->resolveRootSource(MappingSourceReference::root('landing_page', 'name'), $context)->value);
     }

@@ -10,6 +10,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductMappingCandidateProvider;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -45,7 +46,7 @@ class InlineMappingInterpolatorTest extends TestCase
     {
         $ambient = ['product' => new StubPathStruct(name: 'Shirt')];
 
-        static::assertSame('Shirt', $this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'product', $this->element(), cacheContext: null, loaderValues: [], budget: new InlineMappingExpansionBudget()));
+        static::assertSame('Shirt', $this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'product', $this->element(), cacheContext: new RenderingCacheContext(), loaderValues: [], budget: new InlineMappingExpansionBudget()));
     }
 
     public function testInlineProductTokenUsesTheOwningProvidersActiveTranslation(): void
@@ -61,7 +62,7 @@ class InlineMappingInterpolatorTest extends TestCase
             ),
         );
 
-        static::assertSame('Inherited storefront name', $interpolator->interpolate(self::NAME_PATH, ['product' => $product], 'product', $this->element(), cacheContext: null, loaderValues: [], budget: new InlineMappingExpansionBudget()));
+        static::assertSame('Inherited storefront name', $interpolator->interpolate(self::NAME_PATH, ['product' => $product], 'product', $this->element(), cacheContext: new RenderingCacheContext(), loaderValues: [], budget: new InlineMappingExpansionBudget()));
     }
 
     /**
@@ -95,7 +96,7 @@ class InlineMappingInterpolatorTest extends TestCase
                 [],
                 'product',
                 $this->element(),
-                cacheContext: null,
+                cacheContext: new RenderingCacheContext(),
                 loaderValues: [],
                 budget: new InlineMappingExpansionBudget(),
             ),
@@ -118,7 +119,7 @@ class InlineMappingInterpolatorTest extends TestCase
             [],
             'product',
             $this->element(),
-            cacheContext: null,
+            cacheContext: new RenderingCacheContext(),
             loaderValues: [],
             budget: new InlineMappingExpansionBudget(),
         );
@@ -129,7 +130,7 @@ class InlineMappingInterpolatorTest extends TestCase
     {
         $ambient = ['product' => new StubPathStruct(name: 'Shirt')];
 
-        static::assertNull($this->interpolator()->interpolate('product.secret', $ambient, 'product', $this->element(), cacheContext: null, loaderValues: [], budget: new InlineMappingExpansionBudget()));
+        static::assertNull($this->interpolator()->interpolate('product.secret', $ambient, 'product', $this->element(), cacheContext: new RenderingCacheContext(), loaderValues: [], budget: new InlineMappingExpansionBudget()));
     }
 
     /**
@@ -152,21 +153,21 @@ class InlineMappingInterpolatorTest extends TestCase
     #[TestDox('answers null for a catalogued path that resolved to nothing')]
     public function testAnswersNullForACataloguedButUnresolvedPath(array $ambient): void
     {
-        static::assertNull($this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'product', $this->element(), cacheContext: null, loaderValues: [], budget: new InlineMappingExpansionBudget()));
+        static::assertNull($this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'product', $this->element(), cacheContext: new RenderingCacheContext(), loaderValues: [], budget: new InlineMappingExpansionBudget()));
     }
 
     public function testKeepsAResolvedEmptyStringDistinctFromMissingValue(): void
     {
         $ambient = ['product' => new StubPathStruct(name: '')];
 
-        static::assertSame('', $this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'product', $this->element(), cacheContext: null, loaderValues: [], budget: new InlineMappingExpansionBudget()));
+        static::assertSame('', $this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'product', $this->element(), cacheContext: new RenderingCacheContext(), loaderValues: [], budget: new InlineMappingExpansionBudget()));
     }
 
     public function testRejectsAResolvedValueOutsideTheCandidatesEffectiveType(): void
     {
         $ambient = ['product' => new StubPathStruct(customFields: ['material' => 42])];
 
-        static::assertNull($this->interpolator()->interpolate('product.customFields.material', $ambient, 'product', $this->element(), cacheContext: null, loaderValues: [], budget: new InlineMappingExpansionBudget()));
+        static::assertNull($this->interpolator()->interpolate('product.customFields.material', $ambient, 'product', $this->element(), cacheContext: new RenderingCacheContext(), loaderValues: [], budget: new InlineMappingExpansionBudget()));
     }
 
     /**
@@ -191,7 +192,7 @@ class InlineMappingInterpolatorTest extends TestCase
     {
         $ambient = ['product' => new StubPathStruct(name: $stored)];
 
-        static::assertSame($expected, $this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'product', $this->element(), cacheContext: null, loaderValues: [], budget: new InlineMappingExpansionBudget()));
+        static::assertSame($expected, $this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'product', $this->element(), cacheContext: new RenderingCacheContext(), loaderValues: [], budget: new InlineMappingExpansionBudget()));
     }
 
     #[TestDox('answers null for a catalogued path whose value has no text form')]
@@ -199,7 +200,7 @@ class InlineMappingInterpolatorTest extends TestCase
     {
         $ambient = ['product' => new StubPathStruct(name: 'Shirt')];
 
-        static::assertNull($this->interpolator()->interpolate('product.media', $ambient, 'product', $this->element(), cacheContext: null, loaderValues: [], budget: new InlineMappingExpansionBudget()));
+        static::assertNull($this->interpolator()->interpolate('product.media', $ambient, 'product', $this->element(), cacheContext: new RenderingCacheContext(), loaderValues: [], budget: new InlineMappingExpansionBudget()));
     }
 
     #[TestDox('reads a path through nested Structs')]
@@ -207,7 +208,7 @@ class InlineMappingInterpolatorTest extends TestCase
     {
         $ambient = ['product' => new StubPathStruct(child: new StubPathStruct(name: 'Inner'))];
 
-        static::assertSame('Inner', $this->interpolator()->interpolate('product.child.name', $ambient, 'product', $this->element(), cacheContext: null, loaderValues: [], budget: new InlineMappingExpansionBudget()));
+        static::assertSame('Inner', $this->interpolator()->interpolate('product.child.name', $ambient, 'product', $this->element(), cacheContext: new RenderingCacheContext(), loaderValues: [], budget: new InlineMappingExpansionBudget()));
     }
 
     #[TestDox('answers nothing for a root source with no catalogue at all')]
@@ -215,7 +216,7 @@ class InlineMappingInterpolatorTest extends TestCase
     {
         $ambient = ['product' => new StubPathStruct(name: 'Shirt')];
 
-        static::assertNull($this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'category', $this->element(), cacheContext: null, loaderValues: [], budget: new InlineMappingExpansionBudget()));
+        static::assertNull($this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'category', $this->element(), cacheContext: new RenderingCacheContext(), loaderValues: [], budget: new InlineMappingExpansionBudget()));
     }
 
     public function testUsesTheCallersRemainingBudget(): void
@@ -231,7 +232,7 @@ class InlineMappingInterpolatorTest extends TestCase
             $ambient,
             'product',
             $this->element(),
-            cacheContext: null,
+            cacheContext: new RenderingCacheContext(),
             loaderValues: [],
             budget: $budget,
         );
@@ -243,7 +244,7 @@ class InlineMappingInterpolatorTest extends TestCase
 
         $this->expectExceptionObject(ContentSystemException::inlineMappingExpansionTooLarge(1048576, 'property'));
 
-        $this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'product', $this->element(), cacheContext: null, loaderValues: [], budget: new InlineMappingExpansionBudget());
+        $this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'product', $this->element(), cacheContext: new RenderingCacheContext(), loaderValues: [], budget: new InlineMappingExpansionBudget());
     }
 
     public function testRejectsAnOversizedEscapedReplacement(): void
@@ -252,7 +253,7 @@ class InlineMappingInterpolatorTest extends TestCase
 
         $this->expectExceptionObject(ContentSystemException::inlineMappingExpansionTooLarge(1048576, 'property'));
 
-        $this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'product', $this->element(), cacheContext: null, loaderValues: [], budget: new InlineMappingExpansionBudget());
+        $this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'product', $this->element(), cacheContext: new RenderingCacheContext(), loaderValues: [], budget: new InlineMappingExpansionBudget());
     }
 
     private function interpolator(): InlineMappingInterpolator

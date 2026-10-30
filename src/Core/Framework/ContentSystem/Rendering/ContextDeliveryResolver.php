@@ -67,7 +67,7 @@ final readonly class ContextDeliveryResolver
         array $forest,
         array $loaderValues,
         array $ambientContext,
-        ?RenderingCacheContext $cacheContext,
+        RenderingCacheContext $cacheContext,
         ?string $rootSource,
     ): ContextDeliveryIndex {
         $deliveries = [];
@@ -103,7 +103,7 @@ final readonly class ContextDeliveryResolver
         array $ambientContext,
         ContextDelivery $delivery,
         array &$deliveries,
-        ?RenderingCacheContext $cacheContext,
+        RenderingCacheContext $cacheContext,
         ?string $rootSource,
     ): void {
         $delivery = $this->overlayRootContext(
@@ -164,7 +164,7 @@ final readonly class ContextDeliveryResolver
         array $loaderValues,
         array $ambientContext,
         ContextDelivery $delivery,
-        ?RenderingCacheContext $cacheContext,
+        RenderingCacheContext $cacheContext,
         ?string $rootSource,
     ): ContextDelivery {
         $context = $delivery->context;

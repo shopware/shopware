@@ -53,7 +53,7 @@ final readonly class InlineMappingExpander
         array $forest,
         array $ambient,
         ?string $rootSource,
-        ?RenderingCacheContext $cacheContext,
+        RenderingCacheContext $cacheContext,
         array $loaderValues,
         InlineMappingMetadata $inlineMappings,
     ): array {
@@ -103,7 +103,7 @@ final readonly class InlineMappingExpander
         StoredElement $element,
         array $ambient,
         ?string $rootSource,
-        ?RenderingCacheContext $cacheContext,
+        RenderingCacheContext $cacheContext,
         array $loaderValues,
         InlineMappingMetadata $inlineMappings,
         InlineMappingExpansionBudget $budget,

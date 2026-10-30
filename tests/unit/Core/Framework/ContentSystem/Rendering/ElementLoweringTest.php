@@ -81,6 +81,59 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ElementLowering::class)]
 class ElementLoweringTest extends TestCase
 {
+    public function testUncacheableRenderingSharesTheCallersContextAcrossMappings(): void
+    {
+        $candidate = new MappingCandidate('product.name', 'Product name', '', 'basic', 'string');
+        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates->method('forRootSource')->willReturn(['product.name' => $candidate]);
+        $cacheContext = new RenderingCacheContext();
+        $cacheContext->disable();
+        $cacheContext->addTags(['existing-dependency']);
+        $candidates->expects($this->exactly(2))->method('resolveSource')->willReturnCallback(
+            static function (string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context) use ($cacheContext): MappingSourceResolution {
+                static::assertSame($cacheContext, $context->cacheContext);
+                static::assertTrue($context->cacheContext->isDisabled());
+                $context->cacheContext->addTags(['provider-' . $context->element->id]);
+
+                return MappingSourceResolution::resolved('Shirt');
+            },
+        );
+        $candidates->expects($this->once())->method('cacheTagsForMapping')
+            ->with('product', 'product.customFields.withdrawn')->willReturn(['custom-field-metadata']);
+        $wholeField = StoredElementBuilder::create('Sw:MappedText', 'whole-field')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: $candidate->source)
+            ->build();
+        $text = 'Hello {{map:product.name}}';
+        $inline = StoredElementBuilder::create('Sw:InlineProvider', 'inline')->withProperty('text', $text)->build();
+        $unavailable = StoredElementBuilder::create('Sw:MappedText', 'unavailable')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::root('product', 'customFields.withdrawn'))
+            ->build();
+        $loader = $this->loader();
+        $loader->expects($this->never())->method('load');
+
+        $result = $this->lowering($loader, candidates: $candidates)->lower(
+            [$wholeField, $inline, $unavailable],
+            RenderingMode::FULL,
+            Generator::generateSalesChannelContext(),
+            new Request(),
+            $cacheContext,
+            [],
+            virtualRoot: null,
+            rootSource: 'product',
+            inlineMappings: new InlineMappingMetadata([
+                'inline' => ['text' => (new InlineMappingTokenParser())->parse($text)],
+            ]),
+        );
+
+        static::assertSame(['text' => 'Shirt'], $result->tree[0]->properties);
+        static::assertSame(['text' => 'Hello Shirt'], $result->tree[1]->properties);
+        static::assertSame([], $result->tree[2]->properties);
+        static::assertTrue($cacheContext->isDisabled());
+        static::assertEqualsCanonicalizing([
+            'existing-dependency', 'provider-whole-field', 'provider-inline', 'custom-field-metadata',
+        ], $cacheContext->getTags());
+    }
+
     public function testInlineProviderDistributesExpandedTextAfterAllLoading(): void
     {
         $text = 'Hello {{map:product.name}}';
@@ -895,6 +948,9 @@ class ElementLoweringTest extends TestCase
         $specs = [
             'Sw:Section' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Section')->build(),
             'Sw:Box' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Box')->build(),
+            'Sw:MappedText' => ContentSystemElementTypeSpecificationBuilder::create('Sw:MappedText')
+                ->primitive('text', 'string', mappable: true)
+                ->build(),
             'Sw:InlineProvider' => ContentSystemElementTypeSpecificationBuilder::create('Sw:InlineProvider')
                 ->primitive('text', 'string', inlineMappable: true)
                 ->build(),

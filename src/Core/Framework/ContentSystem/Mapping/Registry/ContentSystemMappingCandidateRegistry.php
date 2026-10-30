@@ -57,7 +57,7 @@ final class ContentSystemMappingCandidateRegistry extends AbstractContentSystemM
         MappingSourceReference $source,
         MappingSourceResolutionContext $context,
     ): MappingSourceResolution {
-        $context->cacheContext?->addTags($this->cacheTagsForMapping($rootSource, $source->displayName()));
+        $context->cacheContext->addTags($this->cacheTagsForMapping($rootSource, $source->displayName()));
         $catalogue = $this->catalogueForRootSource($rootSource);
         $candidateKey = $source->displayName();
         $candidate = $catalogue['candidates'][$candidateKey] ?? null;
@@ -71,7 +71,7 @@ final class ContentSystemMappingCandidateRegistry extends AbstractContentSystemM
             return MappingSourceResolution::noValue();
         }
 
-        $context->cacheContext?->addTags($candidate->cacheTags);
+        $context->cacheContext->addTags($candidate->cacheTags);
 
         return $source->type === 'root'
             ? $provider->resolveRootSource($source, $context)

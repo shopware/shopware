@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
@@ -120,7 +121,7 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
 
         $resolved = $this->provider->resolveRootSource(
             MappingSourceReference::root($rootSource, 'customFields.' . $name),
-            new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Content:Text'), [$rootSource => $entity], [], null),
+            new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Content:Text'), [$rootSource => $entity], [], new RenderingCacheContext()),
         );
 
         static::assertTrue($resolved->hasValue);
@@ -155,7 +156,7 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
 
         $resolved = $this->provider->resolveRootSource(
             MappingSourceReference::root('product', 'customFields.' . $name),
-            new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Content:Text'), ['product' => $variant], [], null),
+            new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Content:Text'), ['product' => $variant], [], new RenderingCacheContext()),
         );
 
         static::assertTrue($resolved->hasValue);

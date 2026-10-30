@@ -94,7 +94,7 @@ class MappingProviderExtensionTest extends TestCase
         static::assertSame('Custom Shirt', $registry->resolveSource(
             'product',
             MappingSourceReference::root('product', 'name'),
-            new MappingSourceResolutionContext(new StoredElement('element', 'Sw:Content:Text'), ['product' => $product], [], null),
+            new MappingSourceResolutionContext(new StoredElement('element', 'Sw:Content:Text'), ['product' => $product], [], new RenderingCacheContext()),
         )->value);
         $registry->reset();
         static::assertSame(ProductMappingCandidateProvider::registeredCandidateKeys()['product'], array_keys($registry->forRootSource('product')));
@@ -123,7 +123,7 @@ class MappingProviderExtensionTest extends TestCase
         static::assertTrue($registry->resolveSource(
             'product',
             new MappingSourceReference('root', 'product', ['unlisted' => true], 'name'),
-            new MappingSourceResolutionContext(new StoredElement('element', 'Sw:Content:Text'), ['product' => $product], [], null),
+            new MappingSourceResolutionContext(new StoredElement('element', 'Sw:Content:Text'), ['product' => $product], [], new RenderingCacheContext()),
         )->isNoValue());
         $registry->reset();
         static::assertArrayHasKey('product.name', $registry->forRootSource('product'));
@@ -265,7 +265,7 @@ class ProductNameOverrideRegistry extends AbstractContentSystemMappingCandidateR
     {
         $resolved = $this->inner->resolveSource($rootSource, $source, $context);
         if ($rootSource === 'product' && $source->isSameAs(MappingSourceReference::root('product', 'name')) && $resolved->hasValue && \is_string($resolved->value)) {
-            $context->cacheContext?->addTags(['acme-product-name']);
+            $context->cacheContext->addTags(['acme-product-name']);
 
             return MappingSourceResolution::resolved('Custom ' . $resolved->value);
         }

@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductMappingC
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
@@ -77,7 +78,7 @@ class ProductMappingCandidateProviderTest extends TestCase
         $product->setName('Raw variant name');
         $product->setTranslated(['name' => 'Inherited storefront name']);
         $provider = new ProductMappingCandidateProvider(new ProductContentLayoutDefinition());
-        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['product' => $product], [], null);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['product' => $product], [], new RenderingCacheContext());
 
         static::assertSame('Inherited storefront name', $provider->resolveRootSource(MappingSourceReference::root('product', 'name'), $context)->value);
         static::assertSame($product, $provider->resolveRootSource(MappingSourceReference::root('product'), $context)->value);
@@ -97,7 +98,7 @@ class ProductMappingCandidateProviderTest extends TestCase
         $product->setMedia($assignments);
 
         $provider = new ProductMappingCandidateProvider(new ProductContentLayoutDefinition());
-        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['product' => $product], [], null);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['product' => $product], [], new RenderingCacheContext());
 
         static::assertSame($first->getMedia(), $provider->resolveRootSource(MappingSourceReference::root('product', 'cover'), $context)->value);
         $media = $provider->resolveRootSource(MappingSourceReference::root('product', 'media'), $context)->value;

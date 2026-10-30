@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Runtime inputs available to a registered mapping-source provider. Providers must read only values they explicitly
  * expose through their candidate catalogue and preserve cache tags through the supplied rendering cache context.
+ * The same cache context is required for every mapping in a render, including renders with caching disabled.
  */
 #[Package('framework')]
 final readonly class MappingSourceResolutionContext
@@ -21,7 +22,7 @@ final readonly class MappingSourceResolutionContext
         public StoredElement $element,
         public array $rootValues,
         public array $loaderValues,
-        public ?RenderingCacheContext $cacheContext,
+        public RenderingCacheContext $cacheContext,
     ) {
     }
 }

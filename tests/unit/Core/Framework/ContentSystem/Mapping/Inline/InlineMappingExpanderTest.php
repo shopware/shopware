@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mapping\Inline;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
@@ -343,7 +344,7 @@ class InlineMappingExpanderTest extends TestCase
         $tokens = [];
         $this->collectTokens($forest, $tokens);
 
-        return $expander->expand($forest, $ambient, $rootSource, inlineMappings: new InlineMappingMetadata($tokens), cacheContext: null, loaderValues: []);
+        return $expander->expand($forest, $ambient, $rootSource, inlineMappings: new InlineMappingMetadata($tokens), cacheContext: new RenderingCacheContext(), loaderValues: []);
     }
 
     /**

@@ -6,7 +6,7 @@ const path = require('path');
 
 module.exports = {
     rules: {
-        // eslint-disable-next-line global-require
+        ...require(path.resolve(__dirname, 'loading-performance')),
         'no-src-imports': require(path.resolve(__dirname, 'no-src-imports.js')),
     },
 };

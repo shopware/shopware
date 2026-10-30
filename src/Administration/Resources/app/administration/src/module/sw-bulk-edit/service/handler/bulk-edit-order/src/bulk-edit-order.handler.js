@@ -114,4 +114,5 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
     }
 }
 
+/** @public */
 export default BulkEditOrderHandler;

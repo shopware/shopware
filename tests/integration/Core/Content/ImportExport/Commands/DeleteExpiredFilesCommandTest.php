@@ -4,10 +4,10 @@ namespace Shopware\Tests\Integration\Core\Content\ImportExport\Commands;
 
 use League\Flysystem\Filesystem;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Command\DeleteExpiredFilesCommand;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -27,7 +27,7 @@ class DeleteExpiredFilesCommandTest extends TestCase
     use QueueTestBehaviour;
 
     /**
-     * @var EntityRepository<EntityCollection<ImportExportFileEntity>>
+     * @var EntityRepository<ImportExportFileCollection>
      */
     private EntityRepository $fileRepository;
 

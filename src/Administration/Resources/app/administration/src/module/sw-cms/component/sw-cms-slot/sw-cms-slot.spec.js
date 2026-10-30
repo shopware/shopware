@@ -42,7 +42,7 @@ async function createWrapper(props = {}) {
                     `,
                     },
                     'sw-sidebar-collapse': true,
-                    'sw-skeleton-bar': true,
+                    'mt-skeleton-bar': true,
                 },
                 provide: {
                     cmsService: Shopware.Service('cmsService'),
@@ -387,7 +387,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         // Element not found should not be visible
         expect(wrapper.find('.sw-cms-slot__element-not-found').exists()).toBe(false);
         // Loading skeleton should be visible
-        expect(wrapper.find('sw-skeleton-bar-stub').exists()).toBe(true);
+        expect(wrapper.find('mt-skeleton-bar-stub').exists()).toBe(true);
 
         // Advance time by 10s
         jest.advanceTimersByTime(10000);
@@ -396,7 +396,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         // Element not found should be visible after 10 seconds
         expect(wrapper.find('.sw-cms-slot__element-not-found').exists()).toBe(true);
         // Loading skeleton should not be visible after 10 seconds
-        expect(wrapper.find('sw-skeleton-bar-stub').exists()).toBe(false);
+        expect(wrapper.find('mt-skeleton-bar-stub').exists()).toBe(false);
     });
 
     const toggleElementSelectionModalDataProvider = [
@@ -569,7 +569,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
                         template: '<div class="sw-modal"><slot></slot></div>',
                     },
                     'sw-sidebar-collapse': true,
-                    'sw-skeleton-bar': true,
+                    'mt-skeleton-bar': true,
                 },
                 provide: {
                     cmsService: Shopware.Service('cmsService'),

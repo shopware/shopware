@@ -29,7 +29,11 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     created() {
-        this.createdComponent();
+        if (!Shopware.Feature.isActive('v6.8.0.0')) {
+            Shopware.Feature.silence('V6_8_0_0', () => {
+                void this.getUserConfig();
+            });
+        }
     },
 
     metaInfo() {

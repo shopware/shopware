@@ -24,6 +24,7 @@ class WebhookException extends HttpException
     public const WEBHOOK_NOT_OWNED = 'FRAMEWORK__WEBHOOK_NOT_OWNED';
     public const WEBHOOK_EVENT_NOT_PERMITTED = 'FRAMEWORK__WEBHOOK_EVENT_NOT_PERMITTED';
     public const WEBHOOK_EVENT_PRIVILEGES_MISSING = 'FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING';
+    public const WEBHOOK_DELETED = 'FRAMEWORK__WEBHOOK_DELETED';
 
     public static function webhookFailedException(string $webhookId, \Throwable $e): self
     {
@@ -81,6 +82,16 @@ class WebhookException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::MAXIMUM_REDIRECTS_EXCEEDED,
             'Maximum redirects exceeded.'
+        );
+    }
+
+    public static function webhookDeleted(string $webhookId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::WEBHOOK_DELETED,
+            'Webhook "{{ webhookId }}" was deleted.',
+            ['webhookId' => $webhookId]
         );
     }
 

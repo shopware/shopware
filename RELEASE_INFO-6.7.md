@@ -198,6 +198,19 @@ Check import files that relied on `0` being ignored.
 POST requests can now override their method only to PUT, PATCH or DELETE through the `X-HTTP-Method-Override` header or `_method` parameter.
 Send GET and HEAD requests with their actual HTTP method so routing and HTTP caches agree on the request semantics.
 HTML forms can continue to use POST with an override for PUT, PATCH and DELETE actions.
+### Webhooks created through the Admin API can be signed
+
+Webhooks created through the Admin API accept an optional, write-only `secret`.
+Deliveries are then signed in the `shopware-shop-signature` header, like app webhooks.
+Deliveries still queued for a deleted webhook without an app are no longer sent.
+
+Webhooks created by an app's integration are now signed with the app secret, like the app's manifest webhooks,
+so they can't have their own `secret`.
+
+```http
+PATCH /api/webhook/{id}
+{ "secret": "430eb48125a7e51ccf48371cc4a61fd2eeb6a888ec959a94854380c68d46a0ce" }
+```
 
 ### Criteria on fields the API does not expose is a bad request
 

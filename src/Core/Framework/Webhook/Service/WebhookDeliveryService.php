@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Framework\Webhook\Outbox\RetryDelayCalculator;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
+use Shopware\Core\Framework\Webhook\WebhookException;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -83,6 +84,12 @@ class WebhookDeliveryService
             }
 
             $request = $this->buildRequest($message, $entry);
+            if ($request === null) {
+                $this->webhookOutboxStore->markFailed($entry, null);
+
+                return;
+            }
+
             $httpResult = $this->webhookClient->send($request);
             $this->handleResult($message->getWebhookId(), $entry, $request, $httpResult);
         } catch (DBALException $e) {
@@ -95,8 +102,22 @@ class WebhookDeliveryService
         }
     }
 
-    public function buildRequest(WebhookEventMessage $message, OutboxEntry $entry): WebhookRequest
+    /**
+     * @return WebhookRequest|null null when the webhook was deleted and the delivery must not be sent
+     */
+    public function buildRequest(WebhookEventMessage $message, OutboxEntry $entry): ?WebhookRequest
     {
+        try {
+            $secret = $this->signingSecretResolver->resolve($message);
+        } catch (WebhookException) {
+            $this->logger->info('Skipping webhook delivery: webhook {webhookId} was deleted', [
+                'eventId' => $message->getWebhookEventId(),
+                'webhookId' => $message->getWebhookId(),
+            ]);
+
+            return null;
+        }
+
         $payload = $message->getPayload();
         $headers = $message->getWebhookHeaders();
         $headers = array_filter(
@@ -126,7 +147,7 @@ class WebhookDeliveryService
             $message->getShopwareVersion(),
             WebhookClient::CONNECT_TIMEOUT,
             WebhookClient::REQUEST_TIMEOUT,
-            $this->signingSecretResolver->resolve($message),
+            $secret,
             $message->getLanguageId(),
             $message->getUserLocale(),
             $headers,
@@ -154,10 +175,18 @@ class WebhookDeliveryService
             if ($entry === null) {
                 continue;
             }
+
+            $request = $this->buildRequest($message, $entry);
+            if ($request === null) {
+                $this->webhookOutboxStore->markFailed($entry, null);
+
+                continue;
+            }
+
             $messagesByEventId[$message->getWebhookEventId()] = $message;
             $entries[$message->getWebhookEventId()] = $entry;
             $batchIndexesByEventId[$message->getWebhookEventId()] = $batchIndex;
-            $requests[$message->getWebhookEventId()] = $this->buildRequest($message, $entry);
+            $requests[$message->getWebhookEventId()] = $request;
         }
 
         if ($requests === []) {

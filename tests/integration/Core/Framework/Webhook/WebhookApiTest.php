@@ -45,6 +45,68 @@ class WebhookApiTest extends TestCase
         static::assertSame(204, $response->getStatusCode(), \print_r($response->getContent(), true));
     }
 
+    public function testTheSecretIsWritableButNeverReturned(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $this->getBrowser()->jsonRequest('POST', '/api/webhook/', [
+            'id' => $webhookId,
+            'name' => 'My super webhook',
+            'eventName' => 'product.written',
+            'url' => 'http://localhost',
+            'secret' => 'webhook-secret',
+        ]);
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $this->getBrowser()->jsonRequest('GET', '/api/webhook/' . $webhookId);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertStringNotContainsString('webhook-secret', (string) $response->getContent());
+        static::assertSame('webhook-secret', $this->loadWebhook($webhookId)->getSecret());
+    }
+
+    public function testTheSecretIsStoredAsSent(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $this->getBrowser()->jsonRequest('POST', '/api/webhook/', [
+            'id' => $webhookId,
+            'name' => 'My super webhook',
+            'eventName' => 'product.written',
+            'url' => 'http://localhost',
+            'secret' => ' ab<cd>ef&gh ',
+        ]);
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+
+        static::assertSame(' ab<cd>ef&gh ', $this->loadWebhook($webhookId)->getSecret());
+    }
+
+    public function testAnAppsIntegrationCannotSetASecretOnItsWebhook(): void
+    {
+        $integrationId = Uuid::randomHex();
+        (new AppFixture(static::getContainer()->get('app.repository')))->createAppFromData([
+            'integration' => [
+                'id' => $integrationId,
+                'label' => 'app integration',
+                'accessKey' => 'app-integration-key',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'name' => 'app integration role',
+                'privileges' => ['webhook:create', 'product:read'],
+            ],
+        ]);
+        $this->authorizeBrowserWithIntegration($this->getBrowser(), $integrationId);
+
+        $this->getBrowser()->jsonRequest('POST', '/api/webhook/', [
+            'name' => 'My super webhook',
+            'eventName' => 'product.written',
+            'url' => 'http://localhost',
+            'secret' => 'webhook-secret',
+        ]);
+
+        $this->assertApiErrors([['code' => 'FRAMEWORK__WRITE_CONSTRAINT_VIOLATION', 'field' => 'secret']]);
+    }
+
     public function testAWebhookCannotBeCreatedForAnApp(): void
     {
         $this->getBrowser()->jsonRequest('POST', '/api/webhook/', [

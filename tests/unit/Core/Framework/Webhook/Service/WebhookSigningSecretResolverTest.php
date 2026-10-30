@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
+use Shopware\Core\Framework\Webhook\WebhookException;
 
 /**
  * @internal
@@ -50,35 +51,54 @@ class WebhookSigningSecretResolverTest extends TestCase
         );
     }
 
-    public function testNonAppWebhookKeepsItsCarriedSecretWithoutAnyLookup(): void
+    public function testNonAppWebhookIsSignedWithItsOwnSecret(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('fetchOne');
-        $resolver = new WebhookSigningSecretResolver($connection, new DeletedAppsGateway($connection));
+        $resolver = $this->resolver(appSecret: false, deletedSecret: false, webhookSecret: 'webhook-secret');
 
         static::assertSame(
-            'carried-secret',
-            $resolver->resolve($this->message(appId: null, carried: 'carried-secret', appName: null))
+            'webhook-secret',
+            $resolver->resolve($this->message(appId: null, carried: null, appName: null))
         );
     }
 
-    private function resolver(string|false $appSecret, string|false $deletedSecret): WebhookSigningSecretResolver
+    public function testNonAppWebhookWithoutASecretIsNotSigned(): void
+    {
+        $resolver = $this->resolver(appSecret: false, deletedSecret: false, webhookSecret: null);
+
+        static::assertNull($resolver->resolve($this->message(appId: null, carried: null, appName: null)));
+    }
+
+    public function testNonAppWebhookThatWasDeletedIsRejected(): void
+    {
+        $resolver = $this->resolver(appSecret: false, deletedSecret: false, webhookSecret: false);
+        $webhookId = Uuid::randomHex();
+
+        $this->expectExceptionObject(WebhookException::webhookDeleted($webhookId));
+
+        $resolver->resolve($this->message(appId: null, carried: null, appName: null, webhookId: $webhookId));
+    }
+
+    private function resolver(string|false $appSecret, string|false $deletedSecret, string|false|null $webhookSecret = null): WebhookSigningSecretResolver
     {
         $connection = static::createStub(Connection::class);
         $connection->method('fetchOne')->willReturnCallback(
-            static fn (string $sql): string|false => str_contains($sql, 'deleted_apps') ? $deletedSecret : $appSecret
+            static fn (string $sql): string|false|null => match (true) {
+                str_contains($sql, 'deleted_apps') => $deletedSecret,
+                str_contains($sql, '`webhook`') => $webhookSecret,
+                default => $appSecret,
+            }
         );
 
         return new WebhookSigningSecretResolver($connection, new DeletedAppsGateway($connection));
     }
 
-    private function message(?string $appId, ?string $carried, ?string $appName): WebhookEventMessage
+    private function message(?string $appId, ?string $carried, ?string $appName, ?string $webhookId = null): WebhookEventMessage
     {
         return new WebhookEventMessage(
             'event-id',
             ['source' => ['eventId' => 'event-id']],
             $appId,
-            Uuid::randomHex(),
+            $webhookId ?? Uuid::randomHex(),
             '6.7.0.0',
             'https://example.com/webhook',
             $carried,

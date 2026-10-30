@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
 use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
+use Shopware\Core\Framework\Webhook\WebhookException;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
@@ -240,6 +241,43 @@ class WebhookDeliveryServiceTest extends TestCase
         $service->deliver($msg);
     }
 
+    public function testDeliverMarksFailedWithoutSendingWhenTheWebhookWasDeleted(): void
+    {
+        $msg = $this->createMessage();
+
+        $this->webhookOutboxStore->expects($this->once())->method('markRunning')
+            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
+
+        $this->appPayloadServiceHelper->expects($this->never())->method('createWebhookRequest');
+        $this->webhookOutboxStore->expects($this->once())->method('markFailed')
+            ->with(static::isInstanceOf(OutboxEntry::class), null)
+            ->willReturn(true);
+        $this->webhookOutboxStore->expects($this->never())->method('markSuccess');
+        $this->webhookOutboxStore->expects($this->never())->method('markPendingRetry');
+        $this->webhookHealthService->expects($this->never())->method('recordFailure');
+        $this->logger->expects($this->once())->method('info');
+
+        $service = $this->createService(webhookDeleted: true);
+        $service->deliver($msg);
+    }
+
+    public function testDeliverBatchMarksFailedWithoutSendingWhenTheWebhookWasDeleted(): void
+    {
+        $this->webhookOutboxStore->expects($this->once())->method('recordInflightOutboxEntry')
+            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
+
+        $this->appPayloadServiceHelper->expects($this->never())->method('createWebhookRequest');
+        $this->webhookOutboxStore->expects($this->once())->method('markFailed')
+            ->with(static::isInstanceOf(OutboxEntry::class), null)
+            ->willReturn(true);
+        $this->webhookOutboxStore->expects($this->never())->method('markSuccess');
+        $this->webhookHealthService->expects($this->never())->method('recordFailure');
+        $this->logger->expects($this->once())->method('info');
+
+        $service = $this->createService(isAdminWorkerEnabled: true, webhookDeleted: true);
+        $service->process([$this->createMessage()]);
+    }
+
     public function testStaleSuccessDoesNotResetErrorCount(): void
     {
         $msg = $this->createMessage();
@@ -445,10 +483,13 @@ class WebhookDeliveryServiceTest extends TestCase
     private function createService(
         bool $isAdminWorkerEnabled = false,
         string $failureStrategy = WebhookFailureStrategy::DisableOnThreshold->value,
+        bool $webhookDeleted = false,
     ): WebhookDeliveryService {
         $signingSecretResolver = static::createStub(WebhookSigningSecretResolver::class);
         $signingSecretResolver->method('resolve')->willReturnCallback(
-            static fn (WebhookEventMessage $message): ?string => $message->getSecret()
+            static fn (WebhookEventMessage $message): ?string => $webhookDeleted
+                ? throw WebhookException::webhookDeleted($message->getWebhookId())
+                : $message->getSecret()
         );
 
         return new WebhookDeliveryService(

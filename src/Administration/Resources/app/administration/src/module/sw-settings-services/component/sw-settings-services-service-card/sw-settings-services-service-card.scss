@@ -31,6 +31,13 @@
         height: var(--scale-size-56);
     }
 
+    .sw-settings-services-service-card__status {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--scale-size-8);
+        align-items: center;
+    }
+
     .sw-settings-services-service-card__description {
         flex-grow: 1;
         font-size: var(--font-size-xs);
@@ -51,6 +58,17 @@
     & > *:not(:last-child) {
         margin-block-end: var(--scale-size-24);
     }
+}
+
+.sw-settings-services-service-card__health-modal-content {
+    & > *:not(:last-child) {
+        margin-block-end: var(--scale-size-16);
+    }
+}
+
+.sw-settings-services-service-card__health-details {
+    color: var(--color-text-secondary-default);
+    font-size: var(--font-size-xs);
 }
 
 .sw-settings-services-service-card__deactivate-modal-footer {

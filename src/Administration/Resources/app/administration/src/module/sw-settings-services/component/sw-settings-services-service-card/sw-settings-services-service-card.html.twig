@@ -9,11 +9,23 @@
 
             <div>
                 <h4>{{ service.label }}</h4>
-                <sw-status
-                    :color="status.color"
-                >
-                    {{ $t(status.label) }}
-                </sw-status>
+                <div class="sw-settings-services-service-card__status">
+                    <sw-status
+                        :color="status.color"
+                    >
+                        {{ $t(status.label) }}
+                    </sw-status>
+
+                    <mt-button
+                        v-if="healthMessage"
+                        class="sw-settings-services-service-card__health-details-trigger"
+                        variant="tertiary"
+                        size="x-small"
+                        @click="showHealthModal = true"
+                    >
+                        {{ $t('sw-settings-services.service-card.health-details') }}
+                    </mt-button>
+                </div>
             </div>
 
             <mt-popover
@@ -99,6 +111,37 @@
                         @click="setActive(false, () => { showDeactivateModal = false })"
                     >
                         {{ $t('sw-settings-services.general.deactivate') }}
+                    </mt-modal-action>
+                </div>
+            </template>
+        </mt-modal>
+    </mt-modal-root>
+
+    <mt-modal-root
+        v-if="healthMessage"
+        :is-open="showHealthModal"
+        @change="showHealthModal = $event"
+    >
+        <mt-modal :title="$t(status.label)">
+            <div class="sw-settings-services-service-card__health-modal-content">
+                <p>{{ healthMessage }}</p>
+
+                <p
+                    v-if="healthDetails"
+                    class="sw-settings-services-service-card__health-details"
+                >
+                    {{ healthDetails }}
+                </p>
+            </div>
+
+            <template #footer>
+                <div class="sw-settings-services-service-card__deactivate-modal-footer">
+                    <mt-modal-action
+                        as="mt-button"
+                        variant="secondary"
+                        @click="showHealthModal = false"
+                    >
+                        {{ $t('global.default.close') }}
                     </mt-modal-action>
                 </div>
             </template>

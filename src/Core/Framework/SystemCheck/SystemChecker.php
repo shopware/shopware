@@ -31,7 +31,7 @@ class SystemChecker
         [$allowedChecks, $disallowedChecks] = $this->groupByPermissionToRun($context);
 
         $results = $this->runChecksByCategory($this->groupByCategory($allowedChecks));
-        $skippedChecksResults = $this->skipChecks($disallowedChecks, \sprintf('Check not allowed to run in this execution context: %s', $context->name));
+        $skippedChecksResults = $this->skipChecks($disallowedChecks, \sprintf('Check not allowed to run in this execution context: %s', $context->name), healthy: true);
 
         return array_merge($results, $skippedChecksResults);
     }
@@ -83,10 +83,10 @@ class SystemChecker
      *
      * @return array<Result>
      */
-    private function skipChecks(array $checks, string $message): array
+    private function skipChecks(array $checks, string $message, ?bool $healthy = null): array
     {
         return array_map(
-            static fn (BaseCheck $check) => new Result($check->name(), Status::SKIPPED, $message),
+            static fn (BaseCheck $check) => new Result($check->name(), Status::SKIPPED, $message, $healthy),
             $checks
         );
     }

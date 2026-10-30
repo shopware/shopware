@@ -23,50 +23,16 @@ class AclRoleLoader
     }
 
     /**
+     * The roles of the given users and integrations. Deleted ones are left out.
+     *
      * @param list<string> $userIds
-     *
-     * @return array<string, AclRoles> keyed by user id
-     */
-    public function getUserRoles(array $userIds): array
-    {
-        if ($userIds === []) {
-            return [];
-        }
-
-        return self::toRoles($this->connection->fetchAllAssociative(
-            'SELECT LOWER(HEX(u.id)) as id, u.admin as isAdmin, LOWER(HEX(ur.acl_role_id)) as roleId
-             FROM user u
-             LEFT JOIN acl_user_role ur ON ur.user_id = u.id
-             WHERE u.id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList(array_values(array_unique($userIds)))],
-            ['ids' => ArrayParameterType::BINARY]
-        ));
-    }
-
-    /**
-     * An app's integration only has its app's role, never the integration's own roles or admin flag. A deleted
-     * integration has no roles.
-     *
      * @param list<string> $integrationIds
-     *
-     * @return array<string, AclRoles> keyed by integration id
      */
-    public function getIntegrationRoles(array $integrationIds): array
+    public function getRoles(array $userIds, array $integrationIds): IdentityRoleMap
     {
-        if ($integrationIds === []) {
-            return [];
-        }
+        [$integrationRoles, $appIntegrationIds] = $this->integrationRoles($integrationIds);
 
-        return self::toRoles($this->connection->fetchAllAssociative(
-            'SELECT LOWER(HEX(i.id)) as id, a.id IS NULL AND i.admin as isAdmin, LOWER(HEX(IF(a.id IS NULL, ir.acl_role_id, a.acl_role_id))) as roleId
-             FROM integration i
-             LEFT JOIN app a ON a.integration_id = i.id AND a.acl_role_id IS NOT NULL
-             LEFT JOIN integration_role ir ON ir.integration_id = i.id AND a.id IS NULL
-             WHERE i.id IN (:ids)
-               AND i.deleted_at IS NULL',
-            ['ids' => Uuid::fromHexToBytesList(array_values(array_unique($integrationIds)))],
-            ['ids' => ArrayParameterType::BINARY]
-        ));
+        return new IdentityRoleMap($this->userRoles($userIds), $integrationRoles, $appIntegrationIds);
     }
 
     /**
@@ -104,11 +70,59 @@ class AclRoleLoader
     }
 
     /**
+     * @param list<string> $userIds
+     *
+     * @return array<string, AclRoles> keyed by user id
+     */
+    private function userRoles(array $userIds): array
+    {
+        if ($userIds === []) {
+            return [];
+        }
+
+        return $this->toRoles($this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(u.id)) as id, u.admin as isAdmin, LOWER(HEX(ur.acl_role_id)) as roleId
+             FROM user u
+             LEFT JOIN acl_user_role ur ON ur.user_id = u.id
+             WHERE u.id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($userIds)],
+            ['ids' => ArrayParameterType::BINARY]
+        ));
+    }
+
+    /**
+     * @param list<string> $integrationIds
+     *
+     * @return array{array<string, AclRoles>, list<string>} the roles keyed by integration id, and the ids of the app integrations
+     */
+    private function integrationRoles(array $integrationIds): array
+    {
+        if ($integrationIds === []) {
+            return [[], []];
+        }
+
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(i.id)) as id, a.id IS NULL AND i.admin as isAdmin, a.id IS NOT NULL as isAppIntegration, LOWER(HEX(IF(a.id IS NULL, ir.acl_role_id, a.acl_role_id))) as roleId
+             FROM integration i
+             LEFT JOIN app a ON a.integration_id = i.id AND a.acl_role_id IS NOT NULL
+             LEFT JOIN integration_role ir ON ir.integration_id = i.id AND a.id IS NULL
+             WHERE i.id IN (:ids)
+               AND i.deleted_at IS NULL',
+            ['ids' => Uuid::fromHexToBytesList($integrationIds)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        $appIntegrationIds = array_column(array_filter($rows, static fn (array $row): bool => (bool) $row['isAppIntegration']), 'id');
+
+        return [$this->toRoles($rows), $appIntegrationIds];
+    }
+
+    /**
      * @param list<array<string, mixed>> $rows one row per role, with id, isAdmin and roleId
      *
      * @return array<string, AclRoles> keyed by id
      */
-    private static function toRoles(array $rows): array
+    private function toRoles(array $rows): array
     {
         $unrestricted = [];
         $roleIds = [];

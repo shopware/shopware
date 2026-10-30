@@ -2,11 +2,6 @@
 
 ## Core
 
-### Guest order and MCP attempt counters
-
-Guest order lookups and MCP access-key authentication now trim surrounding whitespace and lowercase identifiers when building attempt-counter keys.
-The same normalized key is used to check and reset the counter.
-
 ### Missing plugin conditions in stored carts
 
 Stored carts can be recalculated when a rule container references a condition whose PHP class is no longer available, for example an uninstalled plugin.

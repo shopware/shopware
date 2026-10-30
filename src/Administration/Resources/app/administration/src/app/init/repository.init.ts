@@ -1,3 +1,5 @@
+import { repositoryFactory as repositoryFactoryName } from 'src/app/service-names';
+
 /**
  * @sw-package framework
  */
@@ -60,7 +62,7 @@ export default function initializeRepositoryFactory(container: InitContainer) {
             const entityFactory = new EntityFactory();
             const errorResolver = new ErrorResolverError();
 
-            Shopware.Application.addServiceProvider('repositoryFactory', () => {
+            Shopware.Application.addServiceProvider(repositoryFactoryName, () => {
                 return new RepositoryFactory(hydrator, changesetGenerator, entityFactory, httpClient, errorResolver);
             });
             Shopware.Application.addServiceProvider('entityHydrator', () => {

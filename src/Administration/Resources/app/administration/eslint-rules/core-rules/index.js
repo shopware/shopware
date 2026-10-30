@@ -20,5 +20,6 @@ module.exports = {
         'native-setup-filename': require(path.resolve(__dirname, 'native-setup-filename.js')),
         'mini-module-boundaries': require(path.resolve(__dirname, 'mini-module-boundaries.js')),
         'mini-module-side-effects': require(path.resolve(__dirname, 'mini-module-side-effects.js')),
+        'mini-module-dependencies': require(path.resolve(__dirname, 'mini-module-dependencies.js')),
     },
 };

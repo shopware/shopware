@@ -45,14 +45,14 @@ module.exports = {
             }
 
             const targetModule = findMiniModule(target, cwd);
-            if (!targetModule || !['src', 'private'].includes(targetModule.part)) {
+            if (!targetModule || !['src', 'private', 'dependencies'].includes(targetModule.part)) {
                 return;
             }
 
             if (importerModule?.root !== targetModule.root) {
                 context.report({
                     node: node.source,
-                    messageId: targetModule.part === 'src' ? 'srcImport' : 'privateImport',
+                    messageId: targetModule.part === 'private' ? 'privateImport' : 'srcImport',
                     data: { source, root: targetModule.root },
                 });
                 return;

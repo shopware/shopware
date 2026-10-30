@@ -51,18 +51,11 @@ class CacheValueCompressor
             return $value;
         }
 
-        if (!self::$compress) {
-            /** @phpstan-ignore shopware.unserializeUsage */
-            return \unserialize($value);
-        }
-
-        if (self::$compressMethod === 'zstd') {
-            $uncompressed = \zstd_uncompress($value);
-        } elseif (self::$compressMethod === 'gzip') {
-            $uncompressed = \gzuncompress($value);
-        } else {
-            throw FrameworkException::invalidCompressionMethod(self::$compressMethod);
-        }
+        $uncompressed = match (true) {
+            self::isZstd($value) => \zstd_uncompress($value),
+            self::isZlib($value) => \gzuncompress($value),
+            default => $value,
+        };
 
         if ($uncompressed === false) {
             throw AdapterException::cacheCompressionError('Could not uncompress value');
@@ -70,5 +63,19 @@ class CacheValueCompressor
 
         /** @phpstan-ignore shopware.unserializeUsage */
         return \unserialize($uncompressed);
+    }
+
+    private static function isZstd(string $value): bool
+    {
+        return str_starts_with($value, "\x28\xB5\x2F\xFD");
+    }
+
+    private static function isZlib(string $value): bool
+    {
+        if (\strlen($value) < 2 || $value[0] !== "\x78") {
+            return false;
+        }
+
+        return ((\ord($value[0]) << 8) + \ord($value[1])) % 31 === 0;
     }
 }

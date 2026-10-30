@@ -1,10 +1,7 @@
 /**
  * @sw-package framework
  */
-import MtModal from '@shopware-ag/meteor-component-library/dist/esm/MtModal';
-import MtModalRoot from '@shopware-ag/meteor-component-library/dist/esm/MtModalRoot';
-import MtModalAction from '@shopware-ag/meteor-component-library/dist/esm/MtModalAction';
-import MtModalClose from '@shopware-ag/meteor-component-library/dist/esm/MtModalClose';
+import { MtModal, MtModalRoot, MtModalAction, MtModalClose } from '@shopware-ag/meteor-component-library';
 import DOMPurify from 'dompurify';
 import useConsentStore from 'src/core/consent/consent.store';
 import useNotificationStore from 'src/app/store/notification.store';

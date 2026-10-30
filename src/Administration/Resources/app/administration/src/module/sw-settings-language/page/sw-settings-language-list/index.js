@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@discovery
  */
-import { useSnackbar } from '@shopware-ag/meteor-component-library/dist/esm/useSnackbar';
+import { useSnackbar } from '@shopware-ag/meteor-component-library';
 import template from './sw-settings-language-list.html.twig';
 import './sw-settings-language-list.scss';
 

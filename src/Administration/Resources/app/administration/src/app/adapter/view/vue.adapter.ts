@@ -62,10 +62,12 @@ import MtActionMenuGroup from '@shopware-ag/meteor-component-library/dist/esm/Mt
 import MtTooltip from '@shopware-ag/meteor-component-library/dist/esm/MtTooltip';
 import MtDivider from '@shopware-ag/meteor-component-library/dist/esm/MtDivider';
 import MtHelpText from '@shopware-ag/meteor-component-library/dist/esm/MtHelpText';
-import MtDropdownMenuRoot from '@shopware-ag/meteor-component-library/dist/esm/MtDropdownMenuRoot';
-import MtDropdownMenuTrigger from '@shopware-ag/meteor-component-library/dist/esm/MtDropdownMenuTrigger';
-import MtDropdownMenuPortal from '@shopware-ag/meteor-component-library/dist/esm/MtDropdownMenuPortal';
-import MtDropdownMenuSub from '@shopware-ag/meteor-component-library/dist/esm/MtDropdownMenuSub';
+import {
+    MtDropdownMenuRoot,
+    MtDropdownMenuTrigger,
+    MtDropdownMenuPortal,
+    MtDropdownMenuSub,
+} from '@shopware-ag/meteor-component-library';
 
 import { attachSetupOverrideShim } from '../composition-extension-system/options-api-setup-shim';
 import { trackNativeHmrDefinition } from '../composition-extension-system/script-hmr';

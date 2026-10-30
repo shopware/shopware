@@ -39,7 +39,7 @@ const snippetData = {
     'global.sw-media-upload.notification.transportError.message': (params) => `Transport error: ${params.fileName}`,
 };
 
-jest.mock('@shopware-ag/meteor-component-library/dist/esm/useSnackbar', () => ({
+jest.mock('@shopware-ag/meteor-component-library', () => ({
     useSnackbar: () => mockSnackbar,
 }));
 

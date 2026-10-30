@@ -1,5 +1,4 @@
-import { useSnackbar as useMeteorSnackbar } from '@shopware-ag/meteor-component-library/dist/esm/useSnackbar';
-import type { Snackbar } from '@shopware-ag/meteor-component-library';
+import { type Snackbar, useSnackbar as useMeteorSnackbar } from '@shopware-ag/meteor-component-library';
 
 /**
  * @sw-package framework

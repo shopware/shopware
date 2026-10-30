@@ -10,12 +10,23 @@ const ruleTester = new RuleTester({
 ruleTester.run('private-feature-declarations', rule, {
     valid: [
         {
-            name: 'The index of a mini-module is public API',
+            name: 'The index.ts of a mini-module exports @public API',
             filename: 'src/module/sw-order/page/sw-order-list/index.ts',
-            code: "export { default } from './src/sw-order-list';",
+            code: `
+                /** @public */
+                export { default } from './src/sw-order-list';
+            `,
         },
         {
-            name: 'The src of a mini-module is private by location',
+            name: 'The private.ts of a mini-module exports @private API',
+            filename: 'src/module/sw-order/page/sw-order-list/private.ts',
+            code: `
+                /** @private */
+                export * from './src/helper';
+            `,
+        },
+        {
+            name: 'The src of a mini-module needs no marker',
             filename: 'src/module/sw-order/page/sw-order-list/src/helper.ts',
             code: 'export function helper() {}',
         },
@@ -74,9 +85,51 @@ ruleTester.run('private-feature-declarations', rule, {
     ],
     invalid: [
         {
-            name: 'The private.ts of a mini-module still needs @private',
+            name: 'The index.ts of a mini-module without @public',
+            filename: 'src/module/sw-order/page/sw-order-list/index.ts',
+            code: "export { default } from './src/sw-order-list';",
+            errors: 1,
+        },
+        {
+            name: 'The index.ts of a mini-module with @private',
+            filename: 'src/module/sw-order/page/sw-order-list/index.ts',
+            code: `
+                /** @private */
+                export { default } from './src/sw-order-list';
+            `,
+            errors: 1,
+        },
+        {
+            name: 'The private.ts of a mini-module without @private',
             filename: 'src/module/sw-order/page/sw-order-list/private.ts',
-            code: "export { helper } from './src/helper';",
+            code: "export * from './src/helper';",
+            errors: 1,
+        },
+        {
+            name: 'The private.ts of a mini-module with @public',
+            filename: 'src/module/sw-order/page/sw-order-list/private.ts',
+            code: `
+                /** @public */
+                export { helper } from './src/helper';
+            `,
+            errors: 1,
+        },
+        {
+            name: 'A marker in the src of a mini-module',
+            filename: 'src/module/sw-order/page/sw-order-list/src/helper.ts',
+            code: `
+                /** @private */
+                export function helper() {}
+            `,
+            errors: 1,
+        },
+        {
+            name: '@public outside a mini-module',
+            filename: 'src/app/main.ts',
+            code: `
+                /** @public */
+                export const foo = 'foo';
+            `,
             errors: 1,
         },
         {

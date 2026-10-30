@@ -7,34 +7,46 @@
 const fs = require('fs');
 const path = require('path');
 
-/**
- * A mini-module is a directory with an `index.ts`, a `src/` and a `tests/` folder.
- * Its `index.ts` is public API, including for extensions, and its `src/` can only be reached through
- * `index.ts` or `private.ts`, so neither needs `@private`. Its `private.ts` still does.
- */
 const isMiniModuleRoot = (directory) => ['index.ts', 'src', 'tests'].every((entry) => fs.existsSync(path.join(directory, entry)));
 
-const isMiniModuleIndexOrSource = (filename) => {
-    if (/^index\.[jt]s$/.test(path.basename(filename)) && isMiniModuleRoot(path.dirname(filename))) {
-        return true;
+/**
+ * Tells which part of a mini-module a file is, for the markers its exports need.
+ * A mini-module is a directory with an `index.ts`, a `src/` and a `tests/` folder.
+ * Its `index.ts` is public API, also for extensions, and every export there is marked `@public`.
+ * Its `private.ts` is for Administration code only, and every export there is marked `@private`.
+ * Its `src/` is only reachable through those two files, so its exports carry no marker:
+ * an export marked `@public` belongs in `index.ts`, one marked `@private` in `private.ts`.
+ *
+ * @example
+ * getMiniModulePart('src/module/sw-order/page/sw-order-list/index.ts') // → 'index'
+ * getMiniModulePart('src/app/main.ts') // → null
+ *
+ * @param {string} filename
+ * @returns {'index'|'private'|'src'|null}
+ */
+const getMiniModulePart = (filename) => {
+    const entry = /^(index|private)\.[jt]s$/.exec(path.basename(filename));
+    if (entry && isMiniModuleRoot(path.dirname(filename))) {
+        return entry[1];
     }
 
     const segments = filename.split(path.sep);
     const sourceIndex = segments.lastIndexOf('src');
 
-    return sourceIndex > 0 && isMiniModuleRoot(segments.slice(0, sourceIndex).join(path.sep));
+    return sourceIndex > 0 && isMiniModuleRoot(segments.slice(0, sourceIndex).join(path.sep)) ? 'src' : null;
+};
+
+const getLeadingBlockComment = (node) => {
+    const comments = findComments(node);
+    const leadingComment = comments?.find(c => c.loc.end.line === (node.loc.start.line - 1));
+
+    return leadingComment?.type === 'Block' ? leadingComment.value : null;
 };
 
 const nodeContainsLeadingBlockComment = (node) => {
-    const comments = findComments(node);
+    const comment = getLeadingBlockComment(node);
 
-    const leadingComment = comments?.find(c => c.loc.end.line === (node.loc.start.line - 1));
-
-    if (!leadingComment) {
-        return false;
-    }
-
-    return leadingComment.type === 'Block' && (leadingComment.value.includes('@private') || leadingComment.value.includes('@deprecated tag:'));
+    return comment !== null && (comment.includes('@private') || comment.includes('@deprecated tag:'));
 };
 
 function findComments(node) {
@@ -47,6 +59,7 @@ function findComments(node) {
 
 /**
  * This rule validates that new features are either private or deprecated to be private in the future.
+ * The index.ts of a mini-module is the exception: its exports are marked @public.
  *
  * Invalid:
  * class Example {}
@@ -110,30 +123,58 @@ module.exports = {
         },
     },
     create(context) {
-        if (isMiniModuleIndexOrSource(context.filename ?? context.getFilename())) {
-            return {};
-        }
+        const part = getMiniModulePart(context.filename ?? context.getFilename());
+
+        const checkExport = (node) => {
+            const comment = getLeadingBlockComment(node) ?? '';
+            const isPublic = comment.includes('@public');
+            const isPrivate = comment.includes('@private');
+
+            if (part === 'src') {
+                if (isPublic || isPrivate) {
+                    context.report({ node, message: 'Exports in the src/ of a mini-module carry no marker. Export @public API from index.ts and @private API from private.ts.' });
+                }
+
+                return;
+            }
+
+            if (part === 'index') {
+                if (!isPublic || isPrivate) {
+                    context.report({ node, message: 'The index.ts of a mini-module is public API. Mark this export @public, or move it to private.ts.' });
+                }
+
+                return;
+            }
+
+            if (part === 'private') {
+                if (!isPrivate || isPublic) {
+                    context.report({ node, message: 'The private.ts of a mini-module never reaches extensions. Mark this export @private, or move it to index.ts.' });
+                }
+
+                return;
+            }
+
+            if (isPublic) {
+                context.report({ node, message: 'Only the index.ts of a mini-module may export @public API.' });
+
+                return;
+            }
+
+            if (!nodeContainsLeadingBlockComment(node)) {
+                context.report({
+                    node,
+                    message: 'New exports need to be private. Old exports should be @deprecated tag:v6.X.0 - Will be private',
+                });
+            }
+        };
 
         return {
-            ExportDefaultDeclaration(node) {
-                if (nodeContainsLeadingBlockComment(node)) {
-                    return;
+            ExportDefaultDeclaration: checkExport,
+            ExportNamedDeclaration: checkExport,
+            ExportAllDeclaration(node) {
+                if (part === 'index' || part === 'private') {
+                    checkExport(node);
                 }
-
-                context.report({
-                    node,
-                    message: 'New exports need to be private. Old exports should be @deprecated tag:v6.X.0 - Will be private',
-                });
-            },
-            ExportNamedDeclaration(node) {
-                if (nodeContainsLeadingBlockComment(node)) {
-                    return;
-                }
-
-                context.report({
-                    node,
-                    message: 'New exports need to be private. Old exports should be @deprecated tag:v6.X.0 - Will be private',
-                });
             },
             ExpressionStatement(node) {
                 const root = node.expression?.callee?.object;

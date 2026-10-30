@@ -359,6 +359,7 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 ### Deprecated `PluginZipImportCommand::$cacheClearer`
 
 The property is unused and will be removed in 6.8.
+`--no-validate` on `app:install` and `app:refresh` is deprecated and will be removed in 6.8.
 
 ### Delivery and transaction state flows know what changed
 

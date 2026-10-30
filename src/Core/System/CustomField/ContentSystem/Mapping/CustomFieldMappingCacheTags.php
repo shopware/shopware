@@ -5,7 +5,7 @@ namespace Shopware\Core\System\CustomField\ContentSystem\Mapping;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Cache tags for custom-field metadata consulted by mapped content.
+ * Shared cache tag for custom-field metadata consulted by mapped content.
  *
  * @internal
  */
@@ -13,14 +13,4 @@ use Shopware\Core\Framework\Log\Package;
 final class CustomFieldMappingCacheTags
 {
     public const METADATA = 'content-system-custom-field-mapping-metadata';
-
-    public static function candidate(string $customFieldId): string
-    {
-        return 'content-system-custom-field-' . $customFieldId;
-    }
-
-    public static function set(string $customFieldSetId): string
-    {
-        return 'content-system-custom-field-set-' . $customFieldSetId;
-    }
 }

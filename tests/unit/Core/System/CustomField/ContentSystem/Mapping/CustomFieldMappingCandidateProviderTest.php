@@ -208,7 +208,7 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
         yield 'landing page' => ['landing_page', new LandingPageEntity()];
     }
 
-    public function testCandidateCarriesOnlyItsOwnFieldAndSetCacheTags(): void
+    public function testCandidatesRelyOnTheSharedMappingMetadataDependency(): void
     {
         $field = $this->customField('material', CustomFieldTypes::TEXT);
         $setId = Uuid::randomHex();
@@ -221,10 +221,8 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
 
         $candidate = $provider->provide('product')[0];
 
-        static::assertSame([
-            'content-system-custom-field-' . $field->getId(),
-            'content-system-custom-field-set-' . $setId,
-        ], $candidate->cacheTags);
+        static::assertSame([], $candidate->cacheTags);
+        static::assertSame([CustomFieldMappingCacheTags::METADATA], $provider->cacheTagsForMapping('product', $candidate->path));
     }
 
     /**

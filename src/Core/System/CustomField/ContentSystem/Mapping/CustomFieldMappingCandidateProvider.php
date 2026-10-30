@@ -141,12 +141,6 @@ class CustomFieldMappingCandidateProvider extends AbstractMappingCandidateProvid
             return null;
         }
 
-        $cacheTags = [CustomFieldMappingCacheTags::candidate($customField->getId())];
-        $customFieldSetId = $customField->getCustomFieldSetId();
-        if ($customFieldSetId !== null) {
-            $cacheTags[] = CustomFieldMappingCacheTags::set($customFieldSetId);
-        }
-
         return new MappingCandidate(
             path: $rootSource . '.customFields.' . $customField->getName(),
             label: $customField->getName(),
@@ -155,7 +149,6 @@ class CustomFieldMappingCandidateProvider extends AbstractMappingCandidateProvid
             valueType: $valueType,
             labelTranslations: $this->translations($config['label'] ?? null),
             descriptionTranslations: $this->translations($config['helpText'] ?? null),
-            cacheTags: $cacheTags,
         );
     }
 

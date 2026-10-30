@@ -79,7 +79,7 @@ class CustomFieldMappingCacheInvalidationTest extends TestCase
     {
         $custom = $this->cacheMapping('product.customFields.' . $this->fieldName, $inline);
         $core = $this->cacheMapping('product.name', $inline);
-        static::assertContains(CustomFieldMappingCacheTags::METADATA, $custom['context']->getTags());
+        static::assertSame([CustomFieldMappingCacheTags::METADATA], $custom['context']->getTags());
         static::assertNotContains(CustomFieldMappingCacheTags::METADATA, $core['context']->getTags());
         static::assertSame('Cotton', $this->store->lookup($custom['request'])?->getContent());
         static::assertSame('Core product', $this->store->lookup($core['request'])?->getContent());
@@ -90,7 +90,7 @@ class CustomFieldMappingCacheInvalidationTest extends TestCase
         static::assertSame('Core product', $this->store->lookup($core['request'])?->getContent());
         $unavailable = $this->cacheMapping('product.customFields.' . $this->fieldName, $inline);
         static::assertSame('', $this->store->lookup($unavailable['request'])?->getContent());
-        static::assertContains(CustomFieldMappingCacheTags::METADATA, $unavailable['context']->getTags());
+        static::assertSame([CustomFieldMappingCacheTags::METADATA], $unavailable['context']->getTags());
 
         static::getContainer()->get('custom_field.repository')->update([['id' => $this->fieldId, 'active' => true]], Context::createDefaultContext());
         $this->invalidator->invalidateExpired();

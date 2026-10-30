@@ -27,16 +27,12 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 #[CoversClass(CustomFieldMappingCandidateCacheInvalidator::class)]
 class CustomFieldMappingCandidateCacheInvalidatorTest extends TestCase
 {
-    public function testInvalidatesCandidateCatalogueAndTheChangedFieldAndSetPageTags(): void
+    public function testFieldChangesInvalidateMappingMetadataAndTheCatalogue(): void
     {
         $fieldId = Uuid::randomHex();
         $setId = Uuid::randomHex();
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
-        $cacheInvalidator->expects($this->once())->method('invalidate')->with([
-            CustomFieldMappingCacheTags::METADATA,
-            CustomFieldMappingCacheTags::candidate($fieldId),
-            CustomFieldMappingCacheTags::set($setId),
-        ]);
+        $cacheInvalidator->expects($this->once())->method('invalidate')->with([CustomFieldMappingCacheTags::METADATA]);
         $cache = $this->createMock(TagAwareCacheInterface::class);
         $cache->expects($this->once())->method('invalidateTags')->with(['custom_field_mapping_candidates']);
         $invalidator = new CustomFieldMappingCandidateCacheInvalidator($cacheInvalidator, $cache);
@@ -56,14 +52,11 @@ class CustomFieldMappingCandidateCacheInvalidatorTest extends TestCase
         $invalidator->invalidate($event);
     }
 
-    public function testSetChangesInvalidateTheSetPageTag(): void
+    public function testSetChangesInvalidateMappingMetadataAndTheCatalogue(): void
     {
         $setId = Uuid::randomHex();
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
-        $cacheInvalidator->expects($this->once())->method('invalidate')->with([
-            CustomFieldMappingCacheTags::METADATA,
-            CustomFieldMappingCacheTags::set($setId),
-        ]);
+        $cacheInvalidator->expects($this->once())->method('invalidate')->with([CustomFieldMappingCacheTags::METADATA]);
         $cache = $this->createMock(TagAwareCacheInterface::class);
         $cache->expects($this->once())->method('invalidateTags')->with(['custom_field_mapping_candidates']);
         $context = Context::createDefaultContext();
@@ -77,14 +70,11 @@ class CustomFieldMappingCandidateCacheInvalidatorTest extends TestCase
         (new CustomFieldMappingCandidateCacheInvalidator($cacheInvalidator, $cache))->invalidate($event);
     }
 
-    public function testRelationChangesInvalidateTheRelatedSetPageTag(): void
+    public function testRelationChangesInvalidateMappingMetadataAndTheCatalogue(): void
     {
         $setId = Uuid::randomHex();
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
-        $cacheInvalidator->expects($this->once())->method('invalidate')->with([
-            CustomFieldMappingCacheTags::METADATA,
-            CustomFieldMappingCacheTags::set($setId),
-        ]);
+        $cacheInvalidator->expects($this->once())->method('invalidate')->with([CustomFieldMappingCacheTags::METADATA]);
         $cache = $this->createMock(TagAwareCacheInterface::class);
         $cache->expects($this->once())->method('invalidateTags')->with(['custom_field_mapping_candidates']);
         $context = Context::createDefaultContext();
@@ -107,15 +97,11 @@ class CustomFieldMappingCandidateCacheInvalidatorTest extends TestCase
      * @param EntityWriteResult<non-empty-string> $write
      */
     #[DataProvider('mixedEntityWrites')]
-    public function testMixedWritesInvalidateEveryAffectedFieldAndSet(string $entityName, EntityWriteResult $write, string $setId): void
+    public function testMixedMetadataWritesInvalidatePagesAndCatalogueOnlyOnce(string $entityName, EntityWriteResult $write): void
     {
         $fieldId = Uuid::randomHex();
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
-        $cacheInvalidator->expects($this->once())->method('invalidate')->with([
-            CustomFieldMappingCacheTags::METADATA,
-            CustomFieldMappingCacheTags::candidate($fieldId),
-            CustomFieldMappingCacheTags::set($setId),
-        ]);
+        $cacheInvalidator->expects($this->once())->method('invalidate')->with([CustomFieldMappingCacheTags::METADATA]);
         $cache = $this->createMock(TagAwareCacheInterface::class);
         $cache->expects($this->once())->method('invalidateTags')->with(['custom_field_mapping_candidates']);
         $context = Context::createDefaultContext();
@@ -138,7 +124,7 @@ class CustomFieldMappingCandidateCacheInvalidatorTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{string, EntityWriteResult<non-empty-string>, non-empty-string}>
+     * @return \Generator<string, array{string, EntityWriteResult<non-empty-string>}>
      */
     public static function mixedEntityWrites(): \Generator
     {
@@ -147,12 +133,10 @@ class CustomFieldMappingCandidateCacheInvalidatorTest extends TestCase
         yield 'field update and another set deactivation' => [
             CustomFieldSetDefinition::ENTITY_NAME,
             new EntityWriteResult($setId, ['id' => $setId, 'active' => false], CustomFieldSetDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE),
-            $setId,
         ];
         yield 'field update and another set relation change' => [
             CustomFieldSetRelationDefinition::ENTITY_NAME,
             new EntityWriteResult(Uuid::randomHex(), ['setId' => $setId], CustomFieldSetRelationDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE),
-            $setId,
         ];
     }
 

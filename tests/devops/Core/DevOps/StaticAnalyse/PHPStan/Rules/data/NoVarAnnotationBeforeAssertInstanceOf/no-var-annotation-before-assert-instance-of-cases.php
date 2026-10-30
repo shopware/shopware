@@ -24,7 +24,7 @@ class NoVarAnnotationBeforeAssertInstanceOfCases extends TestCase
         /** @var ProductEntity */
         $product = $collection->first();
         $count = $collection->count();
-        $this->assertInstanceOf(ProductEntity::class, $product);
+        static::assertInstanceOf(ProductEntity::class, $product);
         static::assertSame(1, $count);
     }
 

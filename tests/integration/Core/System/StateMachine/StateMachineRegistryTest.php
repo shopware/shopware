@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
-use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
@@ -178,7 +177,6 @@ EOF;
 
         $orderBuilder = new OrderBuilder($ids, 'o-1');
 
-        /** @var EntityRepository<OrderCollection> $orderRepo */
         $orderRepo = self::getContainer()->get('order.repository');
         static::assertInstanceOf(EntityRepository::class, $orderRepo);
         $orderRepo->create([$orderBuilder->build()], Context::createCLIContext());

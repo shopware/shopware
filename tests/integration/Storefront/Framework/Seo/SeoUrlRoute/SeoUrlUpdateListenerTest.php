@@ -719,7 +719,6 @@ class SeoUrlUpdateListenerTest extends TestCase
 
         /** @var ProductEntity $product */
         $product = $productRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
-        /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $product->getSeoUrls();
         static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
         /** @var int $seoUrlCount */

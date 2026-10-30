@@ -59,7 +59,11 @@ Webhooks created through the Admin API without an app now belong to the user or 
   ```
 
   The list must not be empty or contain empty entries, every role must exist, and every role must be held by the owner unless the owner is an administrator. Otherwise the write is rejected with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `aclRoleIds`. If the event is not covered by the listed roles, `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` is returned, also when an administrator changes somebody else's webhook.
+* **Deleted roles:** A deleted role is removed from the `aclRoleIds` of every webhook.
+  A webhook whose last listed role is deleted keeps an empty list instead of falling back to all of its owner's roles.
 * **Event log:** `webhook_event_log` entries are only returned to administrators and to the owner of the webhook that wrote them. An app's integration sees the entries of its app's webhooks. Entries written before the update, and entries of deleted webhooks, are only returned to administrators.
+* **Refused deliveries are logged:** When a webhook's roles do not permit an event it subscribes to, the event is not sent and a `webhook_event_log` entry with the delivery status `not_permitted` and no request content is written instead.
+  These entries are removed after the same lifetime as successful and failed ones.
 
 ### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
 

@@ -253,7 +253,7 @@ class SeoUrlPersister
 
         $salesChannelCondition = 'seo_url.sales_channel_id IN (:sales_channel_ids)';
         if (\in_array(null, $salesChannelIds, true)) {
-            $salesChannelCondition = '(' . $salesChannelCondition . ' OR seo_url.sales_channel_id IS NULL)';
+            $salesChannelCondition = count($salesChannelIds) === 1 ? seo_url.sales_channel_id IS NULL : '(' . $salesChannelCondition . ' OR seo_url.sales_channel_id IS NULL)';
         }
 
         $query->andWhere($salesChannelCondition);

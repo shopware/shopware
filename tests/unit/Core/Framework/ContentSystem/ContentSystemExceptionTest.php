@@ -204,6 +204,7 @@ class ContentSystemExceptionTest extends TestCase
         // A served layout is stored data, not client input, so a corrupt forest is an internal fault.
         yield 'a duplicate element id as an internal fault' => [ContentSystemException::duplicateElementId('repeated-id'), false];
         yield 'an inline expansion resource limit as an internal fault' => [ContentSystemException::inlineMappingExpansionTooLarge(1048576, 'property'), false];
+        yield 'an unbound internal mapping operation as an internal fault' => [ContentSystemException::mappingRootSourceMissing('element-1', 'text'), false];
         // The two halves of the split: an HTTP 500 that is nonetheless a client defect, so the strict draft
         // decode turns it into a 400 and the lintable one collects it as a 200 violation, while the
         // stored-column read keeps the fault status.
@@ -254,6 +255,13 @@ class ContentSystemExceptionTest extends TestCase
      */
     public static function producesCorrectStatusAndErrorCodeProvider(): iterable
     {
+        yield 'an unbound internal mapping operation' => [
+            ContentSystemException::mappingRootSourceMissing('element-1', 'text'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__MAPPING_ROOT_SOURCE_MISSING',
+            'Mapping property "text" on element "element-1" requires a bound layout root source.',
+        ];
+
         yield 'inline expansion limit is a render fault' => [
             ContentSystemException::inlineMappingExpansionTooLarge(1048576, 'property'),
             Response::HTTP_INTERNAL_SERVER_ERROR,

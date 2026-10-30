@@ -44,4 +44,6 @@ Keep mapping-specific admission codes such as `PROPERTY_NOT_MAPPABLE`, `UNKNOWN_
 
 Dedicated mapping actions can also reject an invalid request with HTTP 400, for example `INVALID_MAPPING_SOURCE`. That response does not require membership in `CLIENT_DEFECT_CODES`. Shared structural codes, including `PROPERTY_ALIAS_COLLISION`, retain their existing classification when reached from a mapping action. Administration translations select messages by response code independently of this list.
 
+An internal `MapProperty` call on an unbound tree reports `MAPPING_ROOT_SOURCE_MISSING` (500), outside `CLIENT_DEFECT_CODES`. Mapping routes validate or load their source before applying the operation; missing/blank or unknown request sources still receive HTTP 400. Unbound drafts remain valid for structural editing.
+
 Runtime inline-output exhaustion remains an HTTP 500 failure outside this list, and provider/internal failures continue to propagate through normal error handling. Missing or empty mapped values continue to follow the rendering rules. Any future expansion of the list must identify a concrete generic catch site that needs the new classification and test that author-correctable input receives feedback while provider/internal faults still propagate.

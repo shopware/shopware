@@ -125,10 +125,6 @@ class RootSourceMutationSequenceTest extends TestCase
         $tree = static::getContainer()->get(LayoutWriteBoundary::class)->apply($tree);
         static::assertNull($tree->rootSource);
         static::assertSame([], $tree->roots[0]->contextDefinitions->getAllConsumers());
-
-        $this->expectExceptionObject(ContentSystemException::unknownRootSource(''));
-
-        $this->mutateTree($this->mappingMutations->map($tree->roots[0]->id, 'product', MappingSourceReference::root('product')), $tree);
     }
 
     private function replace(string $elementId): ReplaceElement

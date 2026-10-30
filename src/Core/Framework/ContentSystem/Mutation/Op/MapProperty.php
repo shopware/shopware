@@ -33,7 +33,7 @@ final class MapProperty extends AbstractLayoutMutation
     public function apply(StoredTree $tree): StoredTree
     {
         if ($tree->rootSource === null || $tree->rootSource === '') {
-            throw ContentSystemException::unknownRootSource($tree->rootSource ?? '');
+            throw ContentSystemException::mappingRootSourceMissing($this->elementId, $this->propertyKey);
         }
 
         $node = $tree->find($this->elementId);

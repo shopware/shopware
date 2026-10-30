@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -524,6 +525,52 @@ class LayoutMutationControllerTest extends TestCase
 
         $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertContains(ContentSystemException::UNKNOWN_ROOT_SOURCE, array_column($body['errors'], 'code'));
+    }
+
+    /**
+     * @param array<string, mixed> $rootSourcePayload
+     */
+    #[DataProvider('missingMappingRootSourceProvider')]
+    public function testMapPropertyRejectsAMissingRootSourceAtTheRequestBoundary(array $rootSourcePayload): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'map-property', [
+            'elementId' => 'missing-element',
+            'propertyKey' => 'text',
+            'source' => ['type' => 'root', 'id' => 'product', 'path' => 'name'],
+            ...$rootSourcePayload,
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertNotContains(ContentSystemException::MAPPING_ROOT_SOURCE_MISSING, array_column($body['errors'], 'code'));
+        static::assertNotContains(ContentSystemException::MUTATION_TARGET_NOT_FOUND, array_column($body['errors'], 'code'));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function missingMappingRootSourceProvider(): iterable
+    {
+        yield 'omitted source' => [[]];
+        yield 'null source' => [['rootSource' => null]];
+        yield 'empty source' => [['rootSource' => '']];
+    }
+
+    public function testMapPropertyRejectsAnUnknownRootSourceBeforeApplyingTheMutation(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'map-property', [
+            'elementId' => 'missing-element',
+            'propertyKey' => 'text',
+            'source' => ['type' => 'root', 'id' => 'product', 'path' => 'name'],
+            'rootSource' => 'definitely-not-a-root-source',
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::UNKNOWN_ROOT_SOURCE, array_column($body['errors'], 'code'));
+        static::assertNotContains(ContentSystemException::MUTATION_TARGET_NOT_FOUND, array_column($body['errors'], 'code'));
     }
 
     #[TestDox('rejects an unknown request field on a draft mutation with a 400 and the unknownRequestField code')]

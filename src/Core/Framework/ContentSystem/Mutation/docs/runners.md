@@ -15,7 +15,7 @@ already-decoded `$tree`, seeds compatible default mappings on fresh scaffolds, d
 instance, and hands the wired tree, the surviving analysis and the mutation to
 `MutationResult::fromAnalyzedMutation()`, which owns the restriction of the returned resolutions to the affected set
 (`array_intersect_key($analysis->resolutions, array_flip($affected))`).
-The root source is carried only by `StoredTree::$rootSource`; seeding, mapping admission, default bindings, and every diagnostics pass read it from the tree. Helpers that rebuild the forest use `StoredTree::withRoots()` to preserve it. A null source remains valid for an unbound draft, but `MapProperty` rejects that state.
+The root source is carried only by `StoredTree::$rootSource`; seeding, mapping admission, default bindings, and every diagnostics pass read it from the tree. Helpers that rebuild the forest use `StoredTree::withRoots()` to preserve it. A null source remains valid for an unbound draft. Mapping routes validate or load a bound source before running the operation; missing/blank or unknown request sources receive HTTP 400. An internal call to `MapProperty` with a null/empty source fails with `MAPPING_ROOT_SOURCE_MISSING` (500), because it violates that operation's precondition.
 
 Each operation reports the exact ids in `freshlyScaffolded()`; the runner does not infer this from `created()`. `DuplicateElement` is a copy rather than a fresh scaffold, so its new ids are excluded from seeding and mirroring while still appearing in its created/affected reports.
 

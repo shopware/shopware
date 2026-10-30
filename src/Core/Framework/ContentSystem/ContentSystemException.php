@@ -91,6 +91,7 @@ class ContentSystemException extends HttpException
     public const BINDING_SPECIFICATION_UNKNOWN_TYPE = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_UNKNOWN_TYPE';
     public const BINDING_SPECIFICATION_CANONICALIZATION_FAILED = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_CANONICALIZATION_FAILED';
     public const PROPERTY_NOT_MAPPABLE = 'CONTENT_SYSTEM__PROPERTY_NOT_MAPPABLE';
+    public const MAPPING_ROOT_SOURCE_MISSING = 'CONTENT_SYSTEM__MAPPING_ROOT_SOURCE_MISSING';
     public const UNKNOWN_MAPPING_PATH = 'CONTENT_SYSTEM__UNKNOWN_MAPPING_PATH';
     public const INVALID_MAPPING_SOURCE = 'CONTENT_SYSTEM__INVALID_MAPPING_SOURCE';
     public const MAPPING_TYPE_MISMATCH = 'CONTENT_SYSTEM__MAPPING_TYPE_MISMATCH';
@@ -958,6 +959,18 @@ class ContentSystemException extends HttpException
             self::DEFAULT_CONTENT_LAYOUT_DELETION,
             'The content layouts with ids "{{ layoutIds }}" are assigned as a default and therefore cannot be deleted.',
             ['layoutIds' => implode(', ', $layoutIds)]
+        );
+    }
+
+    // Mapping routes validate or load a bound source before applying the operation. An unbound tree here
+    // indicates an invalid internal call, rather than a client input defect.
+    public static function mappingRootSourceMissing(string $elementId, string $propertyKey): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MAPPING_ROOT_SOURCE_MISSING,
+            'Mapping property "{{ propertyKey }}" on element "{{ elementId }}" requires a bound layout root source.',
+            ['elementId' => $elementId, 'propertyKey' => $propertyKey],
         );
     }
 

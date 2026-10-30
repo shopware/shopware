@@ -36,7 +36,7 @@ class MapPropertyTest extends TestCase
     {
         $tree = new StoredTree([new StoredElement('element-1', 'Sw:Text')], $rootSource);
 
-        $this->expectExceptionObject(ContentSystemException::unknownRootSource(''));
+        $this->expectExceptionObject(ContentSystemException::mappingRootSourceMissing('element-1', 'text'));
 
         $this->map('text', 'product.name')->apply($tree);
     }

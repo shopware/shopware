@@ -11,7 +11,7 @@ export type DeliveryState = { name: string };
 /** @private */
 export type Order = {
     primaryOrderDelivery: { stateMachineState: DeliveryState } | null;
-    deliveries: Array<{ id: string; stateMachineState: DeliveryState }>;
+    deliveries: Array<{ id: string; shippingCosts?: { unitPrice: number }; stateMachineState: DeliveryState }>;
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

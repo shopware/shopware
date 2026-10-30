@@ -10,6 +10,7 @@ export { default as BulkEditBaseHandler } from '../bulk-edit-base.handler';
 export { default as RetryHelper } from 'src/core/helper/retry.helper';
 export { default as Criteria } from 'src/core/data/criteria.data';
 export { types } from 'src/core/service/util.service';
+export { getPrimaryDelivery } from 'src/core/order/primary-delivery';
 
 /** The settings of the bulk edit in progress, such as whether it triggers flows. */
 export const useBulkEditStore = () => Shopware.Store.get(swBulkEditStoreId);

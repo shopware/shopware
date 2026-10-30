@@ -4,6 +4,7 @@ import {
     RetryHelper,
     getApiContext,
     getOrderStateMachineService,
+    getPrimaryDelivery,
     getRepositoryFactory,
     types,
     useBulkEditStore,
@@ -58,7 +59,7 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
                         );
                     case 'orderDeliveries':
                         return this.orderStateMachineService.transitionOrderDeliveryState(
-                            order.deliveries.first()?.id,
+                            getPrimaryDelivery(order)?.id,
                             change.value,
                             options,
                             {},

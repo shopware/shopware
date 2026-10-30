@@ -1,5 +1,6 @@
 import { UploadEvents } from 'src/core/service/api/media.api.service';
-import { type Snackbar, useSnackbar } from '@shopware-ag/meteor-component-library';
+import { useSnackbar } from '@shopware-ag/meteor-component-library/dist/esm/useSnackbar';
+import type { Snackbar } from '@shopware-ag/meteor-component-library';
 
 const UploadStatus = {
     ACTIVE: 'active',

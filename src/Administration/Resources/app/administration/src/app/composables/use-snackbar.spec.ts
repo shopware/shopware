@@ -1,11 +1,12 @@
 /**
  * @sw-package framework
  */
-import { type Snackbar, useSnackbar as useMeteorSnackbar } from '@shopware-ag/meteor-component-library';
+import { useSnackbar as useMeteorSnackbar } from '@shopware-ag/meteor-component-library/dist/esm/useSnackbar';
+import type { Snackbar } from '@shopware-ag/meteor-component-library';
 import { ref } from 'vue';
 import useSnackbar from './use-snackbar';
 
-jest.mock('@shopware-ag/meteor-component-library', () => ({
+jest.mock('@shopware-ag/meteor-component-library/dist/esm/useSnackbar', () => ({
     useSnackbar: jest.fn(),
 }));
 

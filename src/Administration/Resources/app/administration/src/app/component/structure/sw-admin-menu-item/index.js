@@ -1,4 +1,6 @@
-import { MtCollapsible, MtCollapsibleContent, MtCollapsibleTrigger } from '@shopware-ag/meteor-component-library';
+import MtCollapsible from '@shopware-ag/meteor-component-library/dist/esm/MtCollapsible';
+import MtCollapsibleContent from '@shopware-ag/meteor-component-library/dist/esm/MtCollapsibleContent';
+import MtCollapsibleTrigger from '@shopware-ag/meteor-component-library/dist/esm/MtCollapsibleTrigger';
 import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-admin-menu-item.html.twig';
 import { getActiveRouteNames, isEntryOnActiveRoute, entryParamsMatchRoute } from './menu-item-active.helper';

@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 import { effectScope } from 'vue';
-import { useTheme as useMeteorTheme } from '@shopware-ag/meteor-component-library';
+import { useTheme as useMeteorTheme } from '@shopware-ag/meteor-component-library/dist/esm/useTheme';
 import type { Theme, UseThemeReturn } from '@shopware-ag/meteor-component-library';
 
 /**

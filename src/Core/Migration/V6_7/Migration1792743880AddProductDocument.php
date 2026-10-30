@@ -55,7 +55,7 @@ class Migration1792743880AddProductDocument extends MigrationStep
                 CONSTRAINT `fk.product_document_translation.language_id` FOREIGN KEY (`language_id`)
                     REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
                 CONSTRAINT `fk.product_document_translation.media_id` FOREIGN KEY (`media_id`)
-                    REFERENCES `media` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+                    REFERENCES `media` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 

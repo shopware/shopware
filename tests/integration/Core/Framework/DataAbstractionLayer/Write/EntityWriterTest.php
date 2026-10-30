@@ -797,7 +797,6 @@ class EntityWriterTest extends TestCase
         $this->connection->commit();
         $container = static::getContainer();
         $context = Context::createDefaultContext();
-        /** @var DefinitionInstanceRegistry $definitionInstanceRegistry */
         $definitionInstanceRegistry = $container->get(DefinitionInstanceRegistry::class);
 
         // Prepare test entity 1 that has a non-uuid primary key

@@ -16,6 +16,7 @@ use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
@@ -37,10 +38,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
           <info>bin/console seo:repair:link-category-takeover</info>
 
         A category whose SEO URL was set manually can appear in the list as well.
-        Compare the creation dates, then repair all listed categories or only the given ones:
+        Repair asks for each listed category whether it should get its URL back from the link category:
 
           <info>bin/console seo:repair:link-category-takeover --apply</info>
-          <info>bin/console seo:repair:link-category-takeover --apply <category-id> <category-id></info>
+
+        To repair without being asked, for example in a script, pass the ids of the categories to repair:
+
+          <info>bin/console seo:repair:link-category-takeover --apply --no-interaction <category-id> <category-id></info>
 
         Repairing removes the write protection of the fallback URL and regenerates the SEO URLs of the categories,
         so they get their URL back from the link category.
@@ -58,6 +62,7 @@ final readonly class RepairLinkCategorySeoUrlTakeoverCommand
      * @param list<string> $categoryIds
      */
     public function __invoke(
+        InputInterface $input,
         SymfonyStyle $io,
         #[Argument(description: 'Only list or repair these categories')]
         array $categoryIds = [],
@@ -104,6 +109,22 @@ final readonly class RepairLinkCategorySeoUrlTakeoverCommand
             return Command::SUCCESS;
         }
 
+        if ($categoryIds === [] && !$input->isInteractive()) {
+            $io->error('Run interactively or pass the ids of the categories to repair.');
+
+            return Command::INVALID;
+        }
+
+        if ($categoryIds === []) {
+            $affected = $this->askWhichToRepair($io, $affected);
+        }
+
+        if ($affected === []) {
+            $io->note('Nothing changed.');
+
+            return Command::SUCCESS;
+        }
+
         $affectedCategoryIds = array_values(array_unique(array_column($affected, 'category_id')));
 
         RetryableQuery::retryable($this->connection, function () use ($affected): void {
@@ -119,6 +140,33 @@ final readonly class RepairLinkCategorySeoUrlTakeoverCommand
         $io->success(\sprintf('Repaired %d categories.', \count($affectedCategoryIds)));
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * @param list<array{category_id: string, name: string, language: string, locked_url_id: string, locked_url: string, locked_url_created_at: string, link_url: string, link_url_created_at: string}> $affected
+     *
+     * @return list<array{category_id: string, name: string, language: string, locked_url_id: string, locked_url: string, locked_url_created_at: string, link_url: string, link_url_created_at: string}>
+     */
+    private function askWhichToRepair(SymfonyStyle $io, array $affected): array
+    {
+        $selected = [];
+        foreach (array_unique(array_column($affected, 'category_id')) as $categoryId) {
+            $rows = array_values(array_filter($affected, static fn (array $row): bool => $row['category_id'] === $categoryId));
+
+            $question = \sprintf(
+                'Give "%s" back to "%s" (%s) instead of "%s"?',
+                implode('", "', array_unique(array_column($rows, 'link_url'))),
+                $rows[0]['name'],
+                $categoryId,
+                implode('", "', array_unique(array_column($rows, 'locked_url'))),
+            );
+
+            if ($io->confirm($question, false)) {
+                array_push($selected, ...$rows);
+            }
+        }
+
+        return $selected;
     }
 
     /**

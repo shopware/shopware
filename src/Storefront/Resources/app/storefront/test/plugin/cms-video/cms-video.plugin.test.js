@@ -33,8 +33,8 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         return setSpy;
     };
 
-    const initPlugin = () => {
-        return new CmsVideoPlugin(document.querySelector('.cms-video-element'));
+    const initPlugin = (options = {}) => {
+        return new CmsVideoPlugin(document.querySelector('.cms-video-element'), options);
     };
 
     const definePausedState = (video, { paused, ended }) => {
@@ -71,11 +71,13 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
     };
 
     beforeEach(() => {
+        window.localStorage.clear();
         document.body.innerHTML = template;
     });
 
     afterEach(() => {
         jest.clearAllMocks();
+        window.localStorage.clear();
         document.body.innerHTML = '';
     });
 
@@ -131,6 +133,28 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         expect(video.volume).toBe(1);
     });
 
+    test('respects custom defaultVolume option when falling back', () => {
+        const video = document.querySelector('video');
+        defineMediaProperties(video, { volume: 0 });
+        defineReadyState(video, 2);
+
+        const plugin = initPlugin({ defaultVolume: 0.8 });
+        plugin.init();
+
+        expect(video.volume).toBe(0.8);
+    });
+
+    test.each([0, -1, 1.5, NaN])('falls back to 1 when options.defaultVolume is invalid (%s)', (invalidDefault) => {
+        const video = document.querySelector('video');
+        defineMediaProperties(video, { volume: 0 });
+        defineReadyState(video, 2);
+
+        const plugin = initPlugin({ defaultVolume: invalidDefault });
+        plugin.init();
+
+        expect(video.volume).toBe(1);
+    });
+
     test('persists volume changes to localStorage', () => {
         const video = document.querySelector('video');
         defineMediaProperties(video, { volume: 1, muted: false });
@@ -166,6 +190,7 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         video.dispatchEvent(new Event('volumechange'));
 
         expect(video.volume).toBe(1);
+        expect(window.localStorage.getItem('sw-cms-video-volume')).toBe('1');
     });
 
     test('preserves existing non-zero volume on muted-to-unmuted transition', () => {
@@ -173,8 +198,12 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         defineMediaProperties(video, { volume: 0.5, muted: true });
         defineReadyState(video, 2);
 
+        window.localStorage.setItem('sw-cms-video-volume', '0.5');
+
         const plugin = initPlugin();
         plugin.init();
+
+        expect(video.volume).toBe(0.5);
 
         video.muted = false;
         video.dispatchEvent(new Event('volumechange'));
@@ -199,6 +228,21 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         video.dispatchEvent(new Event('volumechange'));
 
         expect(setItemSpy).not.toHaveBeenCalled();
+    });
+
+    test('does not reset volume to default when volume is set to zero while already unmuted', () => {
+        const video = document.querySelector('video');
+        defineMediaProperties(video, { volume: 0.8, muted: false });
+        defineReadyState(video, 2);
+
+        const plugin = initPlugin();
+        plugin.init();
+
+        // User changes volume to 0 while already playing unmuted
+        video.volume = 0;
+        video.dispatchEvent(new Event('volumechange'));
+
+        expect(video.volume).toBe(0);
     });
 
     test('handles repeated volumechange events gracefully', () => {
@@ -253,7 +297,8 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         const video = document.querySelector('video');
         defineReadyState(video, 2);
         video.setAttribute('poster', 'https://example.com/poster.jpg');
-        Object.defineProperty(video, 'currentTime', { value: 2, writable: true, configurable: true });
+        mockCurrentTime(video);
+        video.currentTime = 2;
 
         const plugin = initPlugin();
         plugin.init();
@@ -308,6 +353,9 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         video.play = jest.fn(() => {
             paused = false;
             return Promise.resolve();
+        });
+        video.pause = jest.fn(() => {
+            paused = true;
         });
 
         const plugin = initPlugin();

@@ -49,12 +49,24 @@ export default class CmsVideoPlugin extends Plugin {
         let volume = parseFloat(storedVolume);
 
         if (Number.isNaN(volume) || volume <= 0 || volume > 1) {
-            volume = this.options.defaultVolume > 0 && this.options.defaultVolume <= 1
-                ? this.options.defaultVolume
-                : 1;
+            volume = this._getDefaultVolume();
         }
 
         this._video.volume = volume;
+    }
+
+    /**
+     * Return validated default volume, falling back to 1.
+     *
+     * @private
+     * @returns {number}
+     */
+    _getDefaultVolume() {
+        const defaultVolume = Number(this.options.defaultVolume);
+
+        return !Number.isNaN(defaultVolume) && defaultVolume > 0 && defaultVolume <= 1
+            ? defaultVolume
+            : 1;
     }
 
     /**
@@ -136,10 +148,7 @@ export default class CmsVideoPlugin extends Plugin {
         this._wasMuted = isMuted;
 
         if (unmuted && this._video.volume === 0) {
-            this._video.volume = this.options.defaultVolume > 0 && this.options.defaultVolume <= 1
-                ? this.options.defaultVolume
-                : 1;
-            return;
+            this._video.volume = this._getDefaultVolume();
         }
 
         if (this._video.volume > 0) {

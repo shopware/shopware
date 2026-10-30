@@ -7,7 +7,7 @@ import Plugin from 'src/plugin-system/plugin.class';
 export default class CmsVideoPlugin extends Plugin {
     static options = {
         storageKey: 'sw-cms-video-volume',
-        defaultVolume: 0,
+        defaultVolume: 1,
     };
 
     init() {
@@ -17,6 +17,8 @@ export default class CmsVideoPlugin extends Plugin {
         if (!this._video) {
             return;
         }
+
+        this._wasMuted = Boolean(this._video.muted);
 
         this._applyStoredVolume();
         this._registerVolumeEvents();
@@ -46,15 +48,29 @@ export default class CmsVideoPlugin extends Plugin {
 
         let volume = parseFloat(storedVolume);
 
-        if (Number.isNaN(volume) || volume < 0 || volume > 1) {
-            volume = this.options.defaultVolume;
+        if (Number.isNaN(volume) || volume <= 0 || volume > 1) {
+            volume = this._getDefaultVolume();
         }
 
         this._video.volume = volume;
     }
 
     /**
-     * Register volume change listener to persist volume.
+     * Return validated default volume, falling back to 1.
+     *
+     * @private
+     * @returns {number}
+     */
+    _getDefaultVolume() {
+        const defaultVolume = Number(this.options.defaultVolume);
+
+        return !Number.isNaN(defaultVolume) && defaultVolume > 0 && defaultVolume <= 1
+            ? defaultVolume
+            : 1;
+    }
+
+    /**
+     * Register volume change listener to persist volume and handle unmute transitions.
      *
      * @private
      * @returns {void}
@@ -120,17 +136,28 @@ export default class CmsVideoPlugin extends Plugin {
     }
 
     /**
-     * Persist current volume to localStorage.
+     * Handle volume or muted changes. Restores volume on unmute if silent,
+     * and persists valid non-zero volume to localStorage.
      *
      * @private
      * @returns {void}
      */
     _onVolumeChange() {
-        try {
-            window.localStorage.setItem(this.options.storageKey, String(this._video.volume));
-        } catch (error) {
-            // localStorage might be unavailable (e.g., in private browsing mode or quota exceeded)
-            console.warn('Failed to write to localStorage:', error);
+        const isMuted = Boolean(this._video.muted);
+        const unmuted = this._wasMuted && !isMuted;
+        this._wasMuted = isMuted;
+
+        if (unmuted && this._video.volume === 0) {
+            this._video.volume = this._getDefaultVolume();
+        }
+
+        if (this._video.volume > 0) {
+            try {
+                window.localStorage.setItem(this.options.storageKey, String(this._video.volume));
+            } catch (error) {
+                // localStorage might be unavailable (e.g., in private browsing mode or quota exceeded)
+                console.warn('Failed to write to localStorage:', error);
+            }
         }
     }
 

@@ -64,7 +64,7 @@ readonly class OrderMetricsSubscriber implements EventSubscriberInterface
     /**
      * The payment method technical name is a stable, cross-install identifier, emitted without change.
      * Cardinality is bounded by the `payment_method` label config: core allows its built-in methods, and any other present method
-     * collapses to the `other` replacement value; deployments widen `allowed_values` to surface further providers.
+     * collapses to the `other` replacement value; plugins and projects widen the list with `add_allowed_values` to surface further providers.
      *
      * `none` marks an order with no attributable payment method and kept separate from `other` fallback to identify potential
      * bugs.

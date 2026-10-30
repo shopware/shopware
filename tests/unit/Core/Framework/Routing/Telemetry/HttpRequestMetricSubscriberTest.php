@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Routing\Telemetry\HttpRequestMetricSubscriber;
 use Shopware\Core\Framework\Routing\Telemetry\OperationResolver;
 use Shopware\Core\Framework\Telemetry\Doctrine\QueryCounter;
 use Shopware\Core\Framework\Telemetry\Doctrine\QueryCountMiddleware;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Stub\Telemetry\CollectingMeter;
@@ -225,10 +226,14 @@ class HttpRequestMetricSubscriberTest extends TestCase
         $connection = static::createStub(Connection::class);
         $connection->method('getConfiguration')->willReturn($configuration);
 
+        $mappings = new LabelMappingRegistry([
+            DomainResolver::MAPPING_ROUTE_DOMAIN => ['frontend.detail*' => 'product', 'frontend.cms*' => 'content', 'store-api.product*' => 'product'],
+        ], 'other');
+
         return new HttpRequestMetricSubscriber(
             new Telemetry($this->meter, 'test'),
             new AreaResolver(),
-            new DomainResolver(new EntityGroupResolver()),
+            new DomainResolver($mappings, new EntityGroupResolver($mappings)),
             new OperationResolver(),
             $connection,
         );

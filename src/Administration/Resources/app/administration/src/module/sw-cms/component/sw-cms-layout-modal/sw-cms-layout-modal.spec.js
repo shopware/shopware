@@ -275,7 +275,7 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
 
         expect(wrapper.vm.selectedPageObject).toEqual(expected);
 
-        const radios = wrapper.findAll('.sw-cms-layout-modal__content-item input[type="radio"]');
+        const radios = wrapper.findAll('.sw-cms-layout-modal__content-item .mt-radio-group-indicator__input');
         expect(radios.map((radio) => radio.element.checked)).toEqual(productMocks.map((page) => page.id === expected.id));
     });
 
@@ -288,12 +288,20 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
         const productIndex = productMocks.indexOf(product);
         const expected = productMocks[productIndex];
 
+        expect(wrapper.find('.sw-cms-layout-modal__content .mt-radio-group-root').exists()).toBe(true);
         expect(wrapper.findAll('.sw-cms-layout-modal__content-item input[type="checkbox"]')).toHaveLength(0);
 
-        const radio = wrapper.findAll('.sw-cms-layout-modal__content-item input[type="radio"]').at(productIndex);
-        await radio.setChecked(true);
+        const radios = wrapper.findAll('.sw-cms-layout-modal__content-item .mt-radio-group-indicator__input');
+        expect(radios).toHaveLength(productMocks.length);
+
+        await radios.at(productIndex).trigger('click');
 
         expect(wrapper.vm.selectedPageObject).toEqual(expected);
+        expect(
+            wrapper
+                .findAll('.sw-cms-layout-modal__content-item .mt-radio-group-indicator__input')
+                .map((radio) => radio.element.checked),
+        ).toEqual(productMocks.map((page) => page.id === expected.id));
     });
 
     it.each(productMocks)('should select a layout with its radio button in the list view', async (product) => {
@@ -307,16 +315,20 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
         const productIndex = productMocks.indexOf(product);
         const expected = productMocks[productIndex];
 
+        expect(wrapper.find('.sw-cms-layout-modal__content .mt-radio-group-root').exists()).toBe(true);
         expect(wrapper.findAll('.sw-data-grid input[type="checkbox"]')).toHaveLength(0);
 
-        const radios = wrapper.findAll('.sw-data-grid__cell--name input[type="radio"]');
-        expect(radios).toHaveLength(productMocks.length);
+        const items = wrapper.findAll('.sw-data-grid__cell--name .mt-radio-group-item');
+        expect(items).toHaveLength(productMocks.length);
+        expect(items.at(productIndex).find('.mt-radio-group-item__label').text()).toBe(expected.translated.name);
 
-        await radios.at(productIndex).setChecked(true);
+        await items.at(productIndex).find('.mt-radio-group-item__label').trigger('click');
 
         expect(wrapper.vm.selectedPageObject).toEqual(expected);
         expect(
-            wrapper.findAll('.sw-data-grid__cell--name input[type="radio"]').map((radio) => radio.element.checked),
+            wrapper
+                .findAll('.sw-data-grid__cell--name .mt-radio-group-indicator__input')
+                .map((radio) => radio.element.checked),
         ).toEqual(productMocks.map((page) => page.id === expected.id));
     });
 });

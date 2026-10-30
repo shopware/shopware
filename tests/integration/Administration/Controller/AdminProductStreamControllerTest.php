@@ -140,6 +140,64 @@ class AdminProductStreamControllerTest extends TestCase
         static::assertNotContains('v.2.2', $names);
     }
 
+    public function testGroupedPreviewReflectsStorefrontPresentation(): void
+    {
+        $data = [
+            'page' => 1,
+            'limit' => 25,
+            'filter' => [
+                [
+                    'type' => 'equalsAny',
+                    'field' => 'id',
+                    'value' => implode('|', $this->ids->getList(['p.1', 'v.1.1', 'v.1.2'])),
+                ],
+            ],
+        ];
+
+        $productRepository = static::getContainer()->get('product.repository');
+
+        $productRepository->update([[
+            'id' => $this->ids->get('p.1'),
+            'variantListingConfig' => ['displayParent' => false, 'mainVariantId' => $this->ids->get('v.1.2')],
+        ]], Context::createDefaultContext());
+        static::assertSame(['v.1.2'], $this->fetchGroupedPreviewNames($data));
+
+        $productRepository->update([[
+            'id' => $this->ids->get('p.1'),
+            'variantListingConfig' => ['displayParent' => false, 'mainVariantId' => $this->ids->get('v.1.1')],
+        ]], Context::createDefaultContext());
+        static::assertSame(['v.1.1'], $this->fetchGroupedPreviewNames($data));
+
+        $productRepository->update([[
+            'id' => $this->ids->get('p.1'),
+            'variantListingConfig' => ['displayParent' => true, 'mainVariantId' => null],
+        ]], Context::createDefaultContext());
+        static::assertSame(['p.1'], $this->fetchGroupedPreviewNames($data));
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return list<string>
+     */
+    private function fetchGroupedPreviewNames(array $data): array
+    {
+        $this->getBrowser()->jsonRequest(
+            'POST',
+            '/api/_admin/product-stream-preview/' . TestDefaults::SALES_CHANNEL . '?displayAsGroup=1',
+            $data
+        );
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
+
+        $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(1, $content['total']);
+
+        return array_column($content['elements'], 'name');
+    }
+
     private function prepareTestData(): void
     {
         static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');

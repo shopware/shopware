@@ -114,9 +114,9 @@ export default {
         },
 
         mailTemplateIdsCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, null);
             criteria.addAssociation('mailTemplateType');
-            criteria.addFilter(Criteria.equalsAny('id', this.mailTemplateIds));
+            criteria.setIds(this.mailTemplateIds.filter(Boolean));
 
             return criteria;
         },
@@ -159,15 +159,15 @@ export default {
         },
 
         customFieldSetCriteria() {
-            const criteria = new Criteria(1, 25);
-            criteria.addFilter(Criteria.equalsAny('id', this.customFieldSetIds));
+            const criteria = new Criteria(1, null);
+            criteria.setIds(this.customFieldSetIds.filter(Boolean));
 
             return criteria;
         },
 
         customFieldCriteria() {
-            const criteria = new Criteria(1, 25);
-            criteria.addFilter(Criteria.equalsAny('id', this.customFieldIds));
+            const criteria = new Criteria(1, null);
+            criteria.setIds(this.customFieldIds.filter(Boolean));
 
             return criteria;
         },
@@ -587,11 +587,7 @@ export default {
                 );
             }
 
-            const hasMailSendAction = this.sequences.some(
-                (sequence) => sequence.actionName === this.flowBuilderService.getActionName('MAIL_SEND'),
-            );
-
-            if (hasMailSendAction) {
+            if (this.mailTemplateIdsCriteria.ids.length) {
                 // get support information for mail send action.
                 promises.push(
                     this.mailTemplateRepository.search(this.mailTemplateIdsCriteria).then((data) => {
@@ -613,22 +609,15 @@ export default {
                 );
             }
 
-            const customFieldActionConstants = [
-                this.flowBuilderService.getActionName('SET_ORDER_CUSTOM_FIELD'),
-                this.flowBuilderService.getActionName('SET_CUSTOMER_CUSTOM_FIELD'),
-                this.flowBuilderService.getActionName('SET_CUSTOMER_GROUP_CUSTOM_FIELD'),
-            ];
-            const hasSetCustomFieldAction = this.sequences.some((sequence) =>
-                customFieldActionConstants.includes(sequence.actionName),
-            );
-
-            if (hasSetCustomFieldAction) {
+            if (this.customFieldSetCriteria.ids.length) {
                 promises.push(
                     this.customFieldSetRepository.search(this.customFieldSetCriteria).then((data) => {
                         Shopware.Store.get('swFlow').customFieldSets = data;
                     }),
                 );
+            }
 
+            if (this.customFieldCriteria.ids.length) {
                 promises.push(
                     this.customFieldRepository.search(this.customFieldCriteria).then((data) => {
                         Shopware.Store.get('swFlow').customFields = data;
@@ -723,8 +712,8 @@ export default {
                 return;
             }
 
-            const criteria = new Criteria(1, 25);
-            criteria.addFilter(Criteria.equalsAny('id', ruleIds));
+            const criteria = new Criteria(1, null);
+            criteria.setIds(ruleIds);
 
             this.ruleRepository.search(criteria).then((rules) => {
                 const sequencesWithRules = this.sequences.map((sequence) => {

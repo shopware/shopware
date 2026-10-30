@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1789397400OrderMailGreetingDisplayName;
 use Shopware\Tests\Migration\MigrationTestTrait;
+use Twig\Environment;
+use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
@@ -50,6 +52,18 @@ class Migration1789397400OrderMailGreetingDisplayNameTest extends TestCase
         foreach ($this->contents($type) as $content) {
             static::assertStringContainsString('order.orderCustomer.displayName', $content);
             static::assertStringNotContainsString('order.orderCustomer.firstName }} {{ order.orderCustomer.lastName', $content);
+        }
+    }
+
+    #[DataProvider('mailTypeProvider')]
+    public function testAReleaseWithoutTheDisplayNameStillRendersTheGreeting(string $type): void
+    {
+        $this->seedShippedGreeting($type);
+
+        (new Migration1789397400OrderMailGreetingDisplayName())->update($this->connection);
+
+        foreach ($this->contents($type) as $content) {
+            self::renderGreetings($content, ['order' => ['orderCustomer' => ['firstName' => 'Ada', 'lastName' => '']]]);
         }
     }
 
@@ -155,5 +169,21 @@ class Migration1789397400OrderMailGreetingDisplayNameTest extends TestCase
         }
 
         return $contents;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private static function renderGreetings(string $content, array $data): void
+    {
+        preg_match_all('/\{\{[^{}]*(?<!translated)\.displayName[^{}]*\}\}/', $content, $matches);
+
+        static::assertNotSame([], $matches[0]);
+
+        foreach ($matches[0] as $greeting) {
+            $twig = new Environment(new ArrayLoader(['greeting' => $greeting]), ['strict_variables' => true]);
+
+            static::assertSame('Ada', trim($twig->render('greeting', $data)), $greeting);
+        }
     }
 }

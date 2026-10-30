@@ -1,4 +1,4 @@
-        Hello {{ customerRecovery.customer.displayName }},
+        Hello {{ customerRecovery.customer.displayName|default(customerRecovery.customer.firstName ~ ' ' ~ customerRecovery.customer.lastName) }},
 
         You have requested a new password for your {{ shopName }} account.
         Click on the following link to reset your password:

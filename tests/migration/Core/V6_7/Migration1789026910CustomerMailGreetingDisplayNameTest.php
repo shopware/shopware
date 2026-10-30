@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1789026910CustomerMailGreetingDisplayName;
 use Shopware\Tests\Migration\MigrationTestTrait;
+use Twig\Environment;
+use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
@@ -45,7 +47,19 @@ class Migration1789026910CustomerMailGreetingDisplayNameTest extends TestCase
 
         foreach ($this->contents($type) as $content) {
             static::assertStringContainsString('.displayName', $content);
-            static::assertStringNotContainsString('customer.firstName', $content);
+            static::assertDoesNotMatchRegularExpression('/firstName\s*}}\s*{{\s*customer\.lastName/', $content);
+        }
+    }
+
+    #[DataProvider('mailTypeProvider')]
+    public function testAReleaseWithoutTheDisplayNameStillRendersTheGreeting(string $type): void
+    {
+        (new Migration1789026910CustomerMailGreetingDisplayName())->update($this->connection);
+
+        $customer = ['firstName' => 'Ada', 'lastName' => ''];
+
+        foreach ($this->contents($type) as $content) {
+            self::renderGreetings($content, ['customer' => $customer, 'customerRecovery' => ['customer' => $customer]]);
         }
     }
 
@@ -115,5 +129,21 @@ class Migration1789026910CustomerMailGreetingDisplayNameTest extends TestCase
         static::assertNotSame([], $contents);
 
         return $contents;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private static function renderGreetings(string $content, array $data): void
+    {
+        preg_match_all('/\{\{[^{}]*(?<!translated)\.displayName[^{}]*\}\}/', $content, $matches);
+
+        static::assertNotSame([], $matches[0]);
+
+        foreach ($matches[0] as $greeting) {
+            $twig = new Environment(new ArrayLoader(['greeting' => $greeting]), ['strict_variables' => true]);
+
+            static::assertSame('Ada', trim($twig->render('greeting', $data)), $greeting);
+        }
     }
 }

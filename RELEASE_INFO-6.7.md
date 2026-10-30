@@ -217,6 +217,29 @@ shopware:
 
 ## Administration
 
+### Experimental: `Feature.silence()` and `v-silence-flag` keep the pre-major path of an extension quiet
+
+`Shopware.Feature.silence()` runs a callback with the deprecations of a major silenced, like the PHP `Feature::silent()`.
+Use it on the pre-major side of a feature-flag branch to stay compatible with both sides of a major without reporting the deprecated APIs the old path still needs:
+
+```js
+if (!Shopware.Feature.isActive('V6_8_0_0')) {
+    Shopware.Feature.silence('V6_8_0_0', () => this.legacyLoad());
+} else {
+    this.load();
+}
+```
+
+In templates, the `v-silence-flag` directive does the same for a component and everything it renders:
+
+```html
+<sw-loader v-if="!feature.isActive('V6_8_0_0')" v-silence-flag="'V6_8_0_0'" />
+<mt-loader v-else />
+```
+
+Both silence nothing once the major is active.
+The callback of `Feature.silence()` has to be synchronous, and the directive has no effect on a `<template>`.
+
 ### Extension tooling reports redundant code
 
 The ESLint config of the Administration extension tooling now enables `no-else-return`, `no-useless-return`, `no-lonely-if` and `no-unneeded-ternary`.

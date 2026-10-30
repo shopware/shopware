@@ -127,7 +127,8 @@ export default class Feature {
      * deprecated APIs on purpose. Calls of the same APIs outside of it still report.
      *
      * Silencing ends when `callback` returns, so it must be synchronous: a returned promise throws. Once
-     * `majorFlag` is active nothing is silenced, so a call outside of its branch still throws.
+     * `majorFlag` is active nothing is silenced, so a call outside of its branch still throws. An unknown flag, like
+     * the typo `V6_8_0`, silences nothing and logs an error.
      *
      * @experimental stableVersion:v6.8.0 feature:ADMIN_DEPRECATION_SILENCE
      * @example
@@ -141,6 +142,15 @@ export default class Feature {
         const flag = silenceKey(majorFlag);
 
         if (this.isActive(flag)) {
+            return callback();
+        }
+
+        if (!this.isKnownMajor(flag)) {
+            error(
+                'Feature',
+                `Feature.silence('${majorFlag}') silences nothing: "${majorFlag}" is an unknown feature flag. Please fix it.`,
+            );
+
             return callback();
         }
 

@@ -52,8 +52,16 @@ Consumer receives context data directly as a property.
 
 Element receives `product.cover` from parent context but stores it as `image` internally, matching what the renderer expects. Enables component reusability across different data sources.
 
+## Ordinary root delivery
+
+An ordinary root-scoped consumer has no typed `source` reference. If its ambient root is missing or null, no value is delivered, even when the consumer is required. Any otherwise available authored or loader-resolved value remains unaffected.
+
+With a non-null ambient root, a dotted consumer such as `product.manufacturer.name` resolves the nested path. An optional consumer delivers a present `null` when the path cannot be traversed because a member is missing or an intermediate value is null or is not a `Struct`. A required consumer throws `contextPathNotResolvable` for those failures, aborting the content pipeline. A successfully reached terminal property containing null is delivered as null, even when the consumer is required. Delivered null overrides any authored or loader-resolved value for the destination property.
+
+Whole-field mappings use their separate [mapping outcome rules](../../../../Mapping/README.md#stored-mappings-and-rendering). Request-level handling of rendering failures follows [runtime error handling](../../../../Mapping/README.md#runtime-error-handling).
+
 ## Mapping dependencies
 
 A whole-field mapping is still a stored root-scoped consumer keyed by its destination property. Its typed `source` names the candidate the provider resolves; the source path also contributes a page-level loading dependency. It is delivered directly from root context at any tree depth and does not travel through parent providers.
 
-An inline token in an opted-in string property is authored text, not an `acceptsContext` consumer. After the preparation event, the renderer parses authored tokens before placeholder substitution and carries their spans through loading. Their paths derive page-level dependencies for that render; they do not create stored consumer wiring. Tokens inserted by placeholder values remain literal. Ordinary consumers retain the present-null versus absent distinction: a present root value resolving to `null` is delivered, while a missing root or path is absent. See [the mapping contract](../../../Mapping/README.md) and [the render pipeline order](../../../docs/pipeline-contract.md).
+An inline token in an opted-in string property is authored text, not an `acceptsContext` consumer. After the preparation event, the renderer parses authored tokens before placeholder substitution and carries their spans through loading. Their paths derive page-level dependencies for that render; they do not create stored consumer wiring. Tokens inserted by placeholder values remain literal. Ordinary consumers retain the [root-delivery distinction](#ordinary-root-delivery) between an absent ambient root and a present root with an unresolvable nested path. See [the mapping contract](../../../../Mapping/README.md) and [the render pipeline order](../../../../docs/pipeline-contract.md).

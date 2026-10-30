@@ -59,7 +59,11 @@ Webhooks created through the Admin API without an app now belong to the user or 
   ```
 
   The list must not be empty or contain empty entries, every role must exist, and every role must be held by the owner unless the owner is an administrator. Otherwise the write is rejected with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `aclRoleIds`. If the event is not covered by the listed roles, `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` is returned, also when an administrator changes somebody else's webhook.
+* **Deleted roles:** A deleted role is removed from the `aclRoleIds` of every webhook.
+  A webhook whose last listed role is deleted keeps an empty list instead of falling back to all of its owner's roles.
 * **Event log:** `webhook_event_log` entries are only returned to administrators and to the owner of the webhook that wrote them. An app's integration sees the entries of its app's webhooks. Entries written before the update, and entries of deleted webhooks, are only returned to administrators.
+* **Refused deliveries are logged:** When a webhook's roles do not permit an event it subscribes to, the event is not sent and a `webhook_event_log` entry with the delivery status `not_permitted` and no request content is written instead.
+  These entries are removed after the same lifetime as successful and failed ones.
 
 ### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
 
@@ -103,6 +107,10 @@ This release fills `payload.productType` for every product and custom order line
 The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physical line items, so most line items of older orders had no product type.
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
+
+### Sync requests report products deleted earlier in the request as deleted
+
+A sync request that deletes a product and then its prices, media, cross-sellings, manufacturer or another entity whose deletion would update that product, for example its inherited data or a reference set to `null`, no longer reports the product as updated. The product now appears in `deleted` of the sync response and triggers `product.deleted` instead of `product.written`.
 
 ### Set null on delete also applies to cascaded deletes
 
@@ -156,6 +164,33 @@ Unit tests that pass a mocked `EventDispatcherInterface` to `ExtensionDispatcher
 
 Live state transitions batch history and state writes. `EntityWriteEvent` subscribers can receive multiple entities: filter with `getCommandsForEntity()` and make pre-write work idempotent or compensate it through `addError()`. `WriteCommandExceptionEvent` and error callbacks can run before SQL executes, and each failed attempt runs its error callbacks before it is retried. Retries stop once success callbacks or written listeners begin, or compensation fails. MariaDB error `1020` is now retryable.
 
+### Address validation per billing and shipping address
+
+During registration and on the checkout confirm page, the address validation definition is now also dispatched as `framework.validation.address.create.billing` and `framework.validation.address.create.shipping`, after `framework.validation.address.create`.
+Their `getData()` holds the validated address, while `framework.validation.address.create` keeps the whole registration data during registration and an empty bag on the confirm page.
+An address that is both the billing and the shipping address gets both events on the same definition.
+`getName()` of these events still returns `framework.validation.address.create`, so code that observes every dispatched event and filters by `getName()` sees them as that event.
+
+```php
+public static function getSubscribedEvents(): array
+{
+    return ['framework.validation.address.create.shipping' => 'addShippingRules'];
+}
+```
+
+On `PATCH /store-api/account/address/{addressId}`, `getData()` of `framework.validation.address.update` now contains the address `id` from the URL.
+
+At checkout, only the Storefront confirm page checks these rules and shows their violations.
+Neither `POST /store-api/checkout/order` nor the Storefront order request checks them, so a rule that must block an order needs a cart validator (`CartValidatorInterface`).
+
+### Import keeps CSV values of `0`
+
+The import no longer treats a CSV cell containing `0` as empty.
+Rows whose cells only contain `0` are imported instead of skipped.
+A `0` is no longer replaced by the mapping's default value and satisfies a required field.
+Empty cells behave as before.
+Check import files that relied on `0` being ignored.
+
 ## API
 
 ### HTTP method overrides restricted to form actions
@@ -199,6 +234,10 @@ The route requires the `number_range:read` privilege.
 The number range detail page in the Administration uses it to show a warning when it loads or saves a number range with a colliding pattern.
 Saving is not blocked.
 
+### Sync API reports missing references as write errors
+
+Sync API writes that reference a missing entity or version now return a field-specific write error with HTTP 400 instead of exposing a database error as HTTP 500.
+
 ## Features
 
 ### Disable the Administration password recovery flow
@@ -215,7 +254,27 @@ shopware:
             enabled: false
 ```
 
+### Price calculation basis per customer group
+
+Tax display and price basis are now two independent customer group settings. The existing display mode still decides whether the customer sees gross or net prices; the new customer group field `priceBasis` (`net` or `gross`) decides which stored product price value is authoritative for the calculation. All four combinations work: the missing flavour is derived live from the shipping country's tax rules, so a `net` basis keeps the merchant's proceeds identical in every country while showing gross prices, and a `gross` basis keeps the customer-facing gross fixed while showing net prices. Derived prices therefore vary per country and are not psychological prices (net 10.00 € shows as 11.90 € in DE and 12.00 € in AT). Tax-free orders always charge the stored net value, on every basis.
+
+Existing customer groups get the basis that matches their display mode, and a customer group created without a basis derives it the same way, so all prices stay the same on update.
+Prices are only derived where the basis differs from the display mode, and only in the tax state of that display mode.
+Everywhere else the stored value of the tax state is used as before, also where an extension sets another tax state, for example to show net prices to company customers of a gross display group, or when an existing order is edited.
+From then on, changing the display mode no longer changes the basis: with net and gross values that are maintained separately, a group switched to the other display mode now derives that flavour instead of using the stored one.
+Manually maintained values of the non-authoritative flavour are ignored for display and calculation, but remain the sorting and filtering key in listings and still decide which variant or rule price a listing shows as its cheapest price.
+Tax providers replace the calculated taxes afterwards and keep the displayed flavour fixed as before, so with a tax provider the basis only holds while its rates match the shop's tax rules.
+Amounts that carry a single value instead of a net and gross pair, such as absolute or fixed-price promotion discounts, manual shipping costs and credits, also keep the displayed flavour, so under a `net` basis their net value differs slightly per country.
+
+The customer group detail page offers both settings separately. Plugins customize the selection through the new extension point `Shopware\Core\Checkout\Cart\Extension\PriceSelectorExtension` (`price-selector.select.pre` and `.post`), for example to apply charm-price rounding to derived gross prices. `GrossPriceCalculator` now grosses up uncalculated prices over several tax rules so that its own tax split returns the given net value; prices with a single tax rule are unchanged. Background and trade-offs are documented in the ADR `adr/2026-08-11-decouple-price-calculation-basis-from-tax-display.md`.
+
 ## Administration
+
+### CMS layout overview places the page type navigation in a grid
+
+The page type navigation of the Shopping Experiences overview (`sw-cms-list`) is no longer positioned absolutely left of the listing.
+Navigation and listing are grid columns inside `.sw-cms-list__content`, and below a page width of 800px the navigation renders horizontally above the listing with the modifier class `sw-cms-list--compact`.
+Extensions that offset or hide `.sw-cms-list__sidebar` through its former `position`, `left` or `width` values have to adjust their styles.
 
 ### Extension tooling reports redundant code
 
@@ -296,6 +355,23 @@ Core usages that are not migrated yet are listed in `src/Administration/Resource
 In next-major mode, a deprecation with a listed message logs a console error instead of throwing, so the Administration stays usable.
 Any other deprecation still throws.
 
+### Search types can supply their own criteria and result link
+
+Extensions that add an entity to the Administration search bar can now configure how its results are loaded and linked through `searchTypeService.upsertType`, without overriding `sw-search-bar` or `sw-search-bar-item`. Before, only `product` could get custom criteria, and results of other entities could only link to the detail route of their module.
+
+- `criteria`: a function that receives the result limit and returns the `Criteria` for the entity, for example to add associations. It applies to the global search and to recently searched items.
+- `itemRoute`: a function that receives the result item and returns the route location its search result links to.
+
+```js
+Shopware.Service('searchTypeService').upsertType('my_entity', {
+    entityName: 'my_entity',
+    criteria: (limit) => new Shopware.Data.Criteria(1, limit).addAssociation('parent'),
+    itemRoute: (item) => ({ name: 'my.entity.detail', params: { id: item.parentId } }),
+});
+```
+
+Results with an `itemRoute` use the new Twig block `sw_search_bar_item_custom_route` in `sw-search-bar-item`. Entities without a module manifest no longer break the result label.
+
 ### Empty snippet filter ignores snippets with the value `0`
 
 The "Show empty snippets only" filter in the snippet list now only lists snippets without a value.
@@ -306,6 +382,11 @@ A snippet whose value is `0` counts as translated and is no longer listed.
 The "Promotion code" filter in the order list now only checks line items of type `promotion`.
 Together with a new index on `order_line_item.type`, the database no longer reads every line item, so the filter stays fast on shops with many orders.
 Line items of other types that carry a `code` in their payload, for example from extensions, no longer match this filter.
+
+### Meteor radio group components are available globally
+
+`mt-radio-group-root`, `mt-radio-group-item`, `mt-radio-group-custom-item` and `mt-radio-group-indicator` are registered globally, so extensions can use them in their templates without importing them.
+The CMS layout selection modal (`sw-cms-layout-modal`) uses them instead of checkboxes; its `gridPreSelection` and `selectInGrid()` are deprecated.
 
 ## API
 
@@ -322,6 +403,47 @@ If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ## Storefront
+
+### CMS buy boxes select the configured variant
+
+Select-style variant configurators in CMS buy boxes now mark the assigned product's option as selected on landing pages and other CMS pages.
+Themes that override `buy_widget_configurator_select_option` can use `selected` to reflect the assigned product.
+
+### CMS section background images use thumbnails
+
+A CMS section background image is now rendered as a responsive `<img class="cms-section-background">` element with the media thumbnails, like a CMS block background, instead of an inline `background-image` style on the `.cms-section` element.
+The new Twig block `page_content_section_background_image` in `storefront/page/content/detail.html.twig` wraps the image.
+Themes that style the section background through the removed inline style should target `.cms-section-background` and its `media-mode--cover` and `media-mode--contain` classes instead.
+The template variables `sectionBgImg` and `sectionBgImgMode` are deprecated and will be removed in 6.8.0.0, use `section.backgroundMedia` and `section.backgroundMediaMode` instead.
+The browser now picks the thumbnail that fits the viewport, so the thumbnail sizes configured for the media folder of the background image matter.
+Check that the folder provides a size large enough for full-width sections, otherwise the background looks pixelated.
+
+### Storefront analytics send GA4 ecommerce events
+
+Storefront analytics now send ecommerce events in the format Google documents for GA4.
+Tracking setups have to adapt to these changes:
+
+* With a `GTM-` tracking ID, ecommerce events are pushed to the data layer as `{ event, ecommerce }`.
+  Google Tag Manager setups that read parameters from `eventModel` must use the `ecommerce` data layer variables instead.
+* Items use `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`, and numeric values are numbers instead of strings.
+  Amounts keep the decimals of the currency.
+* The event `value` of cart, checkout and `purchase` events is the position price including promotion discounts, and the applied promotion codes are reported as `coupon`.
+  Discounts are no longer reported as items.
+* `login` and `sign_up` are reported again, and adding a product by its number on the cart page reports `add_to_cart`.
+  `login` is now reported on the page after the login and only for a successful login, so a wrong password no longer counts as a login.
+  The same holds for `sign_up`, which a guest checkout no longer reports.
+  A guest who creates an account with "Create account" on the checkout finish page reports `sign_up` as well.
+
+The `.hidden-line-items-information` element is only rendered for a sales channel with active analytics.
+Its block `component_hidden_line_item_information` is only rendered for product line items, and `LineItemHelper.getLineItems()` returns items with the GA4 keys `item_id`, `item_name` and `item_brand`.
+The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html) describes the full payload.
+
+### Storefront analytics recognize product elements of extensions
+
+Storefront analytics now treat every element with a `data-product-information` attribute as a product, not only the `.product-box`.
+Products that extensions render in their own markup are reported as well.
+The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#products) describes the expected attribute.
+The product box now reports the price of a matching price rule or the first graduated price, the same price as the product detail page, instead of the default price.
 
 ### Deprecation of `ListingPlugin` properties
 
@@ -342,6 +464,47 @@ Omitting the argument still falls back to `this.activeFilterContainer` in 6.7, b
 
 The custom offcanvas z-index SCSS variable `$offcanvas-zindex` is not used anymore and is therefore deprecated. To override the offcanvas z-index or calculate your own z-index based on it, use the bootstrap variable `$zindex-offcanvas` instead. The deprecated `$offcanvas-zindex` SCSS variable and its respective `--offcanvas-zindex` CSS root variable now reflect the actual Bootstrap offcanvas z-index (`1045` instead of `1050`). Additionally, a new `--offcanvas-backdrop-zindex` CSS root variable has been added.
 
+### Storefront analytics report brand and category of products added from a product box
+
+With active analytics, adding a product from a product box now posts its brand and categories in the line item payload, like the buy widget does.
+Cart, checkout and purchase events report them as `item_brand` and `item_category`.
+
+The reorder of an order in the account now reports one `add_to_cart` with the products it added, priced with the current prices and the currency of the cart it returns.
+The reorder form posts only the order, so product number, quantity, brand and categories of the ordered products are rendered into the form as `[data-analytics-line-item]` elements while analytics is active.
+
+### Storefront analytics report each checkout step once
+
+`add_shipping_info` and `add_payment_info` are now reported once per selected method of a checkout, instead of on every reload of the confirm page.
+A new customer reports `add_shipping_info` when registering in the checkout.
+
+### Storefront analytics report item variants and graduated prices
+
+Storefront analytics now report the selected options of a variant as `item_variant`.
+`add_to_cart` on the product detail page reports the graduated price of the quantity the cart holds after the add.
+
+### Storefront analytics request the categories of products outside a category
+
+For a product the page breadcrumb does not describe, such as on the homepage or the wishlist, or in a product slider of a category page, `add_to_cart` and the wishlist events now report the categories of the product.
+They are requested from the new HTTP cached route `frontend.analytics.product-categories`, which returns a 404 for a sales channel without active analytics.
+The cart, checkout and purchase events report these categories as well, without requesting them again.
+
+The wishlist page holds the removal of a product back for at most one second, until `remove_from_wishlist` is sent.
+
+### Storefront analytics report `select_item` and the list of a product
+
+Storefront analytics now report `select_item`, and `view_item_list`, `select_item` and `view_item` report the list of a product as `item_list_id`, `item_list_name` and `index`.
+The list IDs, such as `category:<id>` or `search`, are a contract that Google Tag Manager triggers can rely on.
+For the search result, these events also report the query as `search_term`, so GA4 shows which products a search found.
+The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#lists) lists them and shows how extensions identify their own lists.
+### Product box information is extendable
+
+The new Twig block `component_product_box_product_information` in `storefront/component/product/card/box-standard.html.twig` renders the `data-product-information` attribute of the product box.
+Override it to add or change values:
+
+```twig
+{% block component_product_box_product_information %}{{ productInformation|merge({ customKey: 'value' })|json_encode }}{% endblock %}
+```
+
 ### Theme compilation completion is notified once
 
 With asynchronous theme compilation, saving a theme or activating an extension notifies the Administration user once when the compilation is completed, instead of once per sales channel. Code that compiles several themes or sales channels at once can do the same by passing `false` as the new sixth argument `$notifyOnAsyncCompletion` of `ThemeService::compileTheme()` for all but the last call. Classes overriding `compileTheme()` should add the parameter `bool $notifyOnAsyncCompletion = true`; it becomes part of the signature in 6.8.0.0.
@@ -358,6 +521,34 @@ Themes that override blocks of the personal data form in `page/account/profile/i
 The profile page now shows company and VAT ID for business customers even when "Show selection between company and customer account" is disabled, and saving it keeps their account type.
 Before, saving the profile without that setting removed the company and the VAT IDs of business customers.
 Themes that override `component_address_personal_company_section`, `component_address_personal_company` or `component_address_personal_vat_id` in `component/address/address-personal.html.twig` should check that the content also suits this case.
+
+### `pathIdList` option in NavbarPlugin stays
+
+The `pathIdList` option of `NavbarPlugin` is no longer deprecated and stays in 6.8.
+`window.activeNavigationPathIdList` still takes precedence.
+If neither is set, the plugin marks the top level item that contains the current page as active.
+
+`layout_head_javascript_navigation` in `layout/meta.html.twig` supplies missing navigation window variables after `layout_head_javascript_router`.
+Themes that replace the router block without `parent()` receive the navigation values, while custom values supplied by router overrides take precedence.
+The plugin logs a warning when it uses the option or DOM fallback, with guidance to render `window.activeNavigationPathIdList` in the page head.
+
+The `pathIdList` key of `navbarOptions` in `layout/navbar/navbar.html.twig` stays deprecated and is removed with 6.8, because the ESI-cached navbar holds the path of another page.
+Use `shopware.navigation.pathIdList` or `window.activeNavigationPathIdList` instead.
+
+### `.btn-link-inline` follows the link decoration variables
+
+`.btn-link-inline` now uses `$link-decoration` and `$link-hover-decoration` for its underline, like regular links, instead of always being underlined.
+The default Storefront looks the same.
+Themes that change these variables now also change the decoration of inline link buttons.
+
+### Guests change their account type with their billing address
+
+When a guest saves their active billing address in the checkout address manager, their account type, company, VAT ID and name now follow it.
+Rules on the account type, such as the commercial customer condition, and the tax-free detection then apply to the next cart calculation.
+The save goes through the profile route, so extensions that hook into `ChangeCustomerProfileRoute` or its validation also run for it.
+Other addresses and registered customers behave as before.
+The address manager shows the VAT ID field for that address again, through the block `component_address_form_company_vatId` in `component/address/address-form.html.twig`, which is no longer deprecated.
+Store API clients get the same result by calling `/store-api/account/change-profile` after saving the billing address.
 
 ### Breadcrumb template variables prepared for 6.8
 
@@ -387,6 +578,42 @@ A sales channel whose domain cannot be resolved is now reported as its own failu
 Shopware now verifies that `APP_URL` reaches this installation before it registers the shop with an app server, including the Shopware service registry. This applies in every environment and to every app server. The shop must be able to reach itself under `APP_URL`, including `/api/app-system/shop/verify` when it sits behind HTTP authentication or an IP allowlist. If the verification fails, the app installation, update or secret rotation is aborted with the reason. The error code `FRAMEWORK__APP_URL_FAILED_VERIFICATION` (HTTP 502) means the verification request did not reach this installation; `FRAMEWORK__APP_URL_VERIFICATION_UNAVAILABLE` (HTTP 503) means it failed temporarily, for example on a timeout or rate limit, and can be retried. The shop ID change strategies `move-shop-permanently` and `reinstall-apps` verify the new `APP_URL` first, and leave the shop ID unchanged when it fails. Run `bin/console app:url:verify` to check the configuration.
 
 The verification stores its token in the `cache.app_url_verification` cache pool, which uses `cache.app` by default. With several app servers, this pool must be shared between them, for example on Redis.
+
+### Elasticsearch errors no longer fail `system:update:finish`
+
+`system:update:finish` no longer fails when the Elasticsearch mapping update or the scheduling of a reindex fails.
+The error is logged on the `elasticsearch` channel, and the update continues.
+`SHOPWARE_ES_THROW_EXCEPTION` no longer affects the system update.
+`bin/console es:mapping:update` still fails on a mapping error when `SHOPWARE_ES_THROW_EXCEPTION` is enabled.
+
+When the mapping update hits a field type conflict, the entity is scheduled for a reindex, and the system update dispatches it.
+If the reindex cannot be scheduled, it is retried on the next system update.
+Entities that are no longer registered, for example because their plugin was uninstalled, are dropped from the scheduled reindex.
+
+### Elasticsearch reindex is limited to the affected entities
+
+The reindex that `system:update:finish` dispatches after a field type conflict now rebuilds only the indices of the affected entities.
+The other indices stay as they are.
+
+`bin/console es:index --only=<entities>` now creates new indices only for the given entities.
+It no longer leaves an empty index for every other entity, and it keeps the pending alias switches of other entities.
+
+### Configurable last-modified version strategy for theme assets
+
+The `FlysystemLastModifiedVersionStrategy` used for theme assets can now be disabled per-shop in `config/packages/shopware.yaml`.
+When disabled, theme asset URLs use an empty version strategy instead of fetching the last-modified timestamp from the filesystem on every request, eliminating the associated cache lookups.
+
+This is safe to disable whenever the default `SeedingThemePathBuilder` is active, because the seed already rotates on every theme compilation and serves as the cache-invalidation mechanism.
+It is particularly useful for shops with a remote theme filesystem (S3, GCS, or similar) where last-modified lookups involve additional latency.
+
+```yaml
+shopware:
+  filesystem:
+    theme:
+      use_last_modified_version_strategy: false
+```
+
+The option defaults to `true`, preserving the existing behavior for all existing installations.
 
 # 6.7.16.0
 

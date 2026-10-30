@@ -21,7 +21,7 @@ class RecordOwnerSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            PreWriteValidationEvent::class => 'recordOwner',
+            PreWriteValidationEvent::class => ['recordOwner', 100],
         ];
     }
 

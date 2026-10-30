@@ -94,7 +94,6 @@ export default Shopware.Component.wrapComponentConfig({
                 tabs.push({
                     label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.tabLandingPages'),
                     name: 'landing_pages',
-                    disabled: !this.acl.can('system.system_config'),
                 });
             }
 

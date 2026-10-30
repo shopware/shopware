@@ -8,7 +8,10 @@ use Composer\Package\CompletePackage;
 use Composer\Package\Version\VersionParser;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
@@ -18,8 +21,8 @@ use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Struct\PluginFromFileSystemStruct;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
@@ -188,6 +191,64 @@ class PluginServiceTest extends TestCase
         static::assertSame('2.0.0', $pluginRepo->upserts[0][0]['upgradeVersion']);
     }
 
+    public function testRefreshPluginsLooksUpEachLocaleOnce(): void
+    {
+        $germanLanguageId = Uuid::randomHex();
+        $lookedUpLocales = new \ArrayObject();
+        $pluginRepo = new StaticEntityRepository([new PluginCollection(), new PluginCollection()]);
+        $pluginService = $this->getPluginServiceForLocales(
+            $pluginRepo,
+            ['en-GB', 'de-DE'],
+            ['en-GB' => Defaults::LANGUAGE_SYSTEM, 'de-DE' => $germanLanguageId],
+            $lookedUpLocales
+        );
+
+        $pluginService->refreshPlugins(Context::createDefaultContext(), static::createStub(IOInterface::class));
+
+        static::assertSame(['en-GB', 'de-DE'], $lookedUpLocales->getArrayCopy());
+        static::assertCount(2, $pluginRepo->upserts);
+        foreach ($pluginRepo->upserts as $upsert) {
+            $name = $upsert[0]['name'];
+
+            static::assertSame([
+                Defaults::LANGUAGE_SYSTEM => ['label' => $name . ' en-GB', 'description' => $name . ' en-GB'],
+                $germanLanguageId => ['label' => $name . ' de-DE', 'description' => $name . ' de-DE'],
+            ], $upsert[0]['translations']);
+        }
+
+        $pluginService->refreshPlugins(Context::createDefaultContext(), static::createStub(IOInterface::class));
+
+        static::assertSame(['en-GB', 'de-DE', 'en-GB', 'de-DE'], $lookedUpLocales->getArrayCopy(), 'Every refresh has to look the locales up again');
+    }
+
+    public function testRefreshPluginsLooksUpALocaleWithoutLanguageOnce(): void
+    {
+        $lookedUpLocales = new \ArrayObject();
+        $pluginRepo = new StaticEntityRepository([new PluginCollection(), new PluginCollection()]);
+        $pluginService = $this->getPluginServiceForLocales(
+            $pluginRepo,
+            ['en-GB', 'nl-NL'],
+            ['en-GB' => Defaults::LANGUAGE_SYSTEM],
+            $lookedUpLocales
+        );
+
+        $pluginService->refreshPlugins(Context::createDefaultContext(), static::createStub(IOInterface::class));
+
+        static::assertSame(['en-GB', 'nl-NL'], $lookedUpLocales->getArrayCopy());
+        static::assertCount(2, $pluginRepo->upserts);
+        foreach ($pluginRepo->upserts as $upsert) {
+            $name = $upsert[0]['name'];
+
+            static::assertSame([
+                Defaults::LANGUAGE_SYSTEM => ['label' => $name . ' en-GB', 'description' => $name . ' en-GB'],
+            ], $upsert[0]['translations']);
+        }
+
+        $pluginService->refreshPlugins(Context::createDefaultContext(), static::createStub(IOInterface::class));
+
+        static::assertSame(['en-GB', 'nl-NL', 'en-GB', 'nl-NL'], $lookedUpLocales->getArrayCopy(), 'Every refresh has to look the locales up again');
+    }
+
     private function getComposerPackage(string $version = '1.0.0'): CompletePackage
     {
         $completePackage = new CompletePackage('foo', $version, $version);
@@ -237,14 +298,61 @@ class PluginServiceTest extends TestCase
     }
 
     /**
+     * @param StaticEntityRepository<PluginCollection> $pluginRepo
+     * @param list<string> $locales
+     * @param array<string, string> $languageIdsByLocale
+     * @param \ArrayObject<int, string> $lookedUpLocales
+     */
+    private function getPluginServiceForLocales(StaticEntityRepository $pluginRepo, array $locales, array $languageIdsByLocale, \ArrayObject $lookedUpLocales): PluginService
+    {
+        $plugins = [];
+        foreach (['foo', 'bar'] as $name) {
+            $translations = [];
+            foreach ($locales as $locale) {
+                $translations[$locale] = $name . ' ' . $locale;
+            }
+
+            $package = new CompletePackage($name, '1.0.0', '1.0.0');
+            $package->setAutoload(['psr-4' => [ucfirst($name) . '\\' => 'src']]);
+            $package->setExtra(['label' => $translations, 'description' => $translations]);
+
+            $plugin = new PluginFromFileSystemStruct();
+            $plugin->assign(['baseClass' => $name, 'path' => __DIR__, 'composerPackage' => $package, 'managedByComposer' => true]);
+            $plugins[] = $plugin;
+        }
+
+        $pluginFinder = static::createStub(PluginFinder::class);
+        $pluginFinder->method('findPlugins')->willReturn($plugins);
+
+        $languageSearch = static function (Criteria $criteria) use ($languageIdsByLocale, $lookedUpLocales): array {
+            $filters = $criteria->getFilters();
+            static::assertCount(1, $filters);
+            static::assertInstanceOf(EqualsFilter::class, $filters[0]);
+            static::assertSame('language.translationCode.code', $filters[0]->getField());
+
+            $locale = $filters[0]->getValue();
+            static::assertIsString($locale);
+            $lookedUpLocales->append($locale);
+
+            return isset($languageIdsByLocale[$locale]) ? [$languageIdsByLocale[$locale]] : [];
+        };
+
+        return new PluginService(
+            __DIR__,
+            __DIR__,
+            $pluginRepo,
+            StaticEntityRepository::of(LanguageCollection::class, array_fill(0, 8, $languageSearch)),
+            $pluginFinder,
+            new VersionSanitizer()
+        );
+    }
+
+    /**
      * @return StaticEntityRepository<LanguageCollection>
      */
     private function getLanguageRepository(): StaticEntityRepository
     {
-        $language = new LanguageEntity();
-        $language->setId('foo');
-
-        $repo = new StaticEntityRepository([new LanguageCollection([$language]), new LanguageCollection([$language])]);
+        $repo = StaticEntityRepository::of(LanguageCollection::class, [['foo'], ['foo']]);
 
         return $repo;
     }

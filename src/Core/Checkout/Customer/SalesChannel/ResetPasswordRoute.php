@@ -99,10 +99,11 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
 
         // reset login and pw-reset limit when password was changed
         if (($request = $this->requestStack->getMainRequest()) !== null) {
-            $cacheKey = strtolower((string) $customer->getEmail()) . '-' . $request->getClientIp();
+            $emailKey = mb_strtolower(mb_trim((string) $customer->getEmail()));
+            $cacheKey = $emailKey . '-' . $request->getClientIp();
 
             $this->rateLimiter->reset(RateLimiter::LOGIN_ROUTE, $cacheKey);
-            $this->rateLimiter->resetIfConfigured(RateLimiter::LOGIN_USER, strtolower((string) $customer->getEmail()));
+            $this->rateLimiter->resetIfConfigured(RateLimiter::LOGIN_USER, $emailKey);
             $this->rateLimiter->resetIfConfigured(RateLimiter::LOGIN_CLIENT, (string) $request->getClientIp());
             $this->rateLimiter->reset(RateLimiter::RESET_PASSWORD, $cacheKey);
         }

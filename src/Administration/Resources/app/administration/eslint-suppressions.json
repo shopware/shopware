@@ -12547,11 +12547,6 @@
       "count": 1
     }
   },
-  "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/sw-settings-shipping-price-matrix.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 25
-    }
-  },
   "src/module/sw-settings-shipping/component/sw-settings-shipping-tax-cost/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
